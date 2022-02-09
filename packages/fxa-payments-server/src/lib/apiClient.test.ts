@@ -14,9 +14,6 @@ import {
   updateDefaultPaymentMethod_FULFILLED,
   updateDefaultPaymentMethod_REJECTED,
   EventProperties,
-  coupon_PENDING,
-  coupon_FULFILLED,
-  coupon_REJECTED,
 } from './amplitude';
 
 import { Config, defaultConfig } from './config';
@@ -57,9 +54,11 @@ import {
   apiCreatePasswordlessAccount,
   apiSignupForNewsletter,
   apiInvoicePreview,
+  apiRetrieveCouponDetails,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
 import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 function nock(it: any) {
   //@ts-ignore
@@ -479,16 +478,8 @@ describe('API requests', () => {
     const path = '/v1/oauth/subscriptions/invoice/preview';
     const priceId = 'price_kkljasdk32lkjasd';
 
-    const metricsOptionsBase: EventProperties = {
-      planId: priceId,
-    };
-
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
       const promotionCode = 'VALID';
-      const metricsOptions: EventProperties = {
-        ...metricsOptionsBase,
-        promotionCode,
-      };
       const expected: InvoicePreview = {
         subtotal: 200,
         total: 170,
@@ -515,53 +506,32 @@ describe('API requests', () => {
         })
       ).toEqual(expected);
 
-      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
-      expect(<jest.Mock>coupon_FULFILLED).toBeCalledWith(metricsOptions);
-
       requestMock.done();
     });
+  });
 
-    it(`POST {auth-server}${path} invalid Coupon Code`, async () => {
-      const promotionCode = 'INVALID';
-      const metricsOptions: EventProperties = {
-        ...metricsOptionsBase,
+  describe('apiRetrieveCouponDetails', () => {
+    const path = '/v1/oauth/subscriptions/coupon';
+    const priceId = 'price_kkljasdk32lkjasd';
+
+    it(`POST {auth-server}${path} valid Coupon Code`, async () => {
+      const promotionCode = 'VALID';
+      const expected: CouponDetails = {
         promotionCode,
-      };
-      const expected: InvoicePreview = {
-        subtotal: 200,
-        total: 170,
-        line_items: [
-          {
-            amount: 200,
-            currency: 'usd',
-            id: priceId,
-            name: 'Plan name',
-          },
-        ],
-        discount: {
-          amount: 0,
-          amount_off: null,
-          percent_off: 15,
-        },
+        type: '',
+        valid: true,
+        discountAmount: 50,
+        expired: false,
+        maximallyRedeemed: false,
       };
       const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
-      let error = null;
 
-      try {
-        await apiInvoicePreview({
+      expect(
+        await apiRetrieveCouponDetails({
           priceId,
           promotionCode,
-        });
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).not.toBeNull();
-      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
-      expect(<jest.Mock>coupon_REJECTED).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
+        })
+      ).toEqual(expected);
 
       requestMock.done();
     });

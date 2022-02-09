@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyLoginCode-title">Is this you signing up?</span>
+      <span data-l10n-id="verifyLoginCode-title">Is this you signing in?</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -16,7 +16,7 @@
   <mj-column>
     <mj-text css-class="text-body">
       <span data-l10n-id="verifyLoginCode-prompt">
-        If yes, use this verification code in your registration form:
+        If yes, here is the verification code:
       </span>
     </mj-text>
 

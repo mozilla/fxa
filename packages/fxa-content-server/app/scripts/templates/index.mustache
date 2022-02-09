@@ -3,13 +3,14 @@
     <h1 id="fxa-enter-email-header">
       {{#t}}Enter your email{{/t}}
       <span class="service">
-        <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
-        {{#isInPocketMigration}}
-          {{#unsafeTranslate}}Continue to <div class="graphic graphic-client-pocket">Pocket</div>{{/unsafeTranslate}}
-        {{/isInPocketMigration}}
-        {{^isInPocketMigration}}
-          {{#t}}Continue to %(serviceName)s{{/t}}
-        {{/isInPocketMigration}}
+            {{#serviceLogo}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
+                {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
+            {{/serviceLogo}}
+          {{^serviceLogo}}
+              <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
+              {{#t}}Continue to %(serviceName)s{{/t}}
+          {{/serviceLogo}}
       </span>
     </h1>
   </header>
@@ -28,6 +29,13 @@
         <button id="submit-btn" type="submit">{{#t}}Continue{{/t}}</button>
       </div>
     </form>
-    {{{ unsafeFirefoxFamilyHTML }}}
+
+    {{#isInThirdPartyAuthExperiment}}
+      {{{ unsafeThirdPartyAuthHTML }}}
+    {{/isInThirdPartyAuthExperiment}}
+
+    {{^isInThirdPartyAuthExperiment}}
+      {{{ unsafeFirefoxFamilyHTML }}}
+    {{/isInThirdPartyAuthExperiment}}
   </section>
 </div>

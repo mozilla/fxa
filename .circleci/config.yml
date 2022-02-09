@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
+  jira: circleci/jira@1.3.1
 
 executors:
   content-server-executor:
@@ -11,7 +12,7 @@ executors:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -95,7 +96,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -119,7 +120,7 @@ jobs:
     resource_class: medium+
     docker:
       - image: cimg/node:16.13
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
@@ -137,14 +138,12 @@ jobs:
             'fxa-admin-panel' \
             'fxa-support-panel' \
             'fxa-event-broker' \
-            'fxa-auth-db-mysql' \
             'fxa-profile-server' \
             '123done' \
             'browserid-verifier' \
             'fortress' \
             'fxa-auth-client' \
             'fxa-geodb' \
-            'fxa-email-event-proxy' \
             'fxa-customs-server' \
             )
             for p in "${PACKAGES[@]}"; do
@@ -153,6 +152,7 @@ jobs:
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      - jira/notify
 
   test-settings-server:
     executor: content-server-executor
@@ -195,23 +195,6 @@ jobs:
       - test-content-server-part:
           index: 5
 
-  test-email-service:
-    resource_class: large
-    docker:
-      - image: circleci/rust:latest-node
-      - image: mysql:5.7.27
-        environment:
-          - MYSQL_DATABASE: fxa
-          - MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          - MYSQL_ROOT_PASSWORD: ''
-      - image: redis
-    steps:
-      - base-install
-      - run: cargo install cargo-audit
-      - run: ./packages/fxa-email-service/scripts/test-ci.sh
-      - store_artifacts:
-          path: artifacts
-
   deploy-packages:
     resource_class: small
     docker:
@@ -253,7 +236,7 @@ jobs:
   production-smoke-tests:
     resource_class: medium+
     docker:
-      - image: mcr.microsoft.com/playwright:v1.17.1-focal
+      - image: mcr.microsoft.com/playwright:v1.18.0-focal
     steps:
       - base-install
       - run:
@@ -267,10 +250,11 @@ jobs:
   playwright-functional-tests:
     resource_class: large
     docker:
-      - image: mcr.microsoft.com/playwright:v1.17.1-focal
+      - image: mcr.microsoft.com/playwright:v1.18.0-focal
       - image: redis
       - image: memcached
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
+      - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev
     steps:
@@ -289,7 +273,7 @@ jobs:
           path: artifacts/tests
 
   build-and-deploy-storybooks:
-    resource_class: small
+    resource_class: medium
     docker:
       - image: cimg/node:16.13
     steps:
@@ -361,17 +345,6 @@ workflows:
           filters:
             branches:
               ignore: main
-            tags:
-              ignore: /.*/
-      - test-email-service:
-          # since email-service is expensive
-          # to build and rarely changes
-          # we only run it on branches
-          # starting with "email-service-"
-          filters:
-            branches:
-              only:
-                - /^email-service-.*/
             tags:
               ignore: /.*/
       - build-and-deploy-storybooks:

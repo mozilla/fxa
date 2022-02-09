@@ -1,7 +1,0 @@
-{
-  "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"],
-  "rules": {
-    "no-useless-escape": "off"
-  }
-}

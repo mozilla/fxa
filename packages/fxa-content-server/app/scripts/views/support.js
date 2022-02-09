@@ -195,12 +195,15 @@ const SupportView = BaseView.extend({
       this.appEl.trigger('chosen:updated');
     }
 
+    const topic = this.topicEl.val();
     this.supportForm.set({
       productName: this.formatProductName(productName),
-      topic: this.topicEl.val(),
+      topic: topic,
       app: this.appEl.val() || '',
       subject: this.subjectEl.val().trim(),
       message: this.messageEl.val().trim(),
+      product: this.supportForm.getProductTag(productName),
+      category: this.supportForm.getCategoryTag(topic),
     });
 
     if (this.supportForm.isValid()) {

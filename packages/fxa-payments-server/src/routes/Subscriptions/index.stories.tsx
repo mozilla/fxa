@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -9,7 +13,7 @@ import { Subscriptions, SubscriptionsProps } from './index';
 import { PaymentUpdateStripeAPIs } from './PaymentUpdateForm';
 import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
-import { FetchState } from '../../store/types';
+import { FetchState, Profile } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 import {
@@ -234,7 +238,7 @@ const SubscriptionsRoute = ({
 const PRODUCT_ID = 'product_8675309';
 const PLAN_ID = 'plan_123';
 
-const PROFILE = {
+const PROFILE: Profile = {
   amrValues: [],
   avatar: 'http://placekitten.com/256/256',
   avatarDefault: false,
@@ -243,6 +247,7 @@ const PROFILE = {
   locale: 'en-US',
   twoFactorAuthentication: true,
   uid: '8675309asdf',
+  metricsEnabled: true,
 };
 
 const PLANS = [

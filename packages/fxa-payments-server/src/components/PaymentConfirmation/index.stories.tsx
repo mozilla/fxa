@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
@@ -5,7 +9,7 @@ import PaymentConfirmation from './index';
 import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -16,6 +20,7 @@ const userProfile: Profile = {
   locale: 'en-US',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
+  metricsEnabled: true,
 };
 
 const selectedPlan: Plan = {
@@ -66,9 +71,11 @@ const customer: Customer = {
 
 const productUrl = 'https://mozilla.org';
 
-const coupon: Coupon = {
-  amount: 200,
+const coupon: Coupon.couponDetailsSchema = {
+  discountAmount: 200,
   promotionCode: 'TEST',
+  type: '',
+  valid: true,
 };
 
 storiesOf('components/PaymentConfirmation', module)

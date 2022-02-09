@@ -395,6 +395,7 @@ module.exports.subscriptionsWebSubscriptionSupportValidator = isA.object({
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
 });
 module.exports.subscriptionsPlaySubscriptionSupportValidator = isA.object({
+  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   auto_renewing: isA.bool().required(),
   cancel_reason: isA.number().optional(),
   expiry_time_millis: isA.number().required(),

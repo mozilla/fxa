@@ -76,6 +76,7 @@ const DEFAULTS = _.extend(
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
+    isThirdPartyLogin: undefined,
   },
   PERSISTENT
 );
@@ -1179,6 +1180,12 @@ const Account = Backbone.Model.extend(
     finishSetup(relier, token, email, password) {
       return this._fxaClient
         .finishSetup(relier, token, email, password)
+        .then(this.set.bind(this));
+    },
+
+    verifyAccountThirdParty(relier, code, provider) {
+      return this._fxaClient
+        .verifyAccountThirdParty(relier, code, provider)
         .then(this.set.bind(this));
     },
 

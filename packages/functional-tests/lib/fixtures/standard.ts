@@ -15,7 +15,7 @@ export type TestOptions = {
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
 
 export const test = base.extend<TestOptions, WorkerOptions>({
-  targetName: ['local', { scope: 'worker' }],
+  targetName: ['local', { scope: 'worker', option: true }],
 
   target: [
     async ({ targetName }, use) => {

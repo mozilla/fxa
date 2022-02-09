@@ -1,39 +1,86 @@
 import './index.scss';
 
 import { Localized } from '@fluent/react';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import React, {
   FormEventHandler,
   MouseEventHandler,
-  useState,
   useCallback,
   useEffect,
+  useState,
 } from 'react';
 
-import { APIError, apiInvoicePreview } from '../../lib/apiClient';
-import { Coupon } from '../../lib/Coupon';
-import sentry from '../../lib/sentry';
-
-import * as Amplitude from '../../lib/amplitude';
+import {
+  coupon_FULFILLED,
+  coupon_PENDING,
+  coupon_REJECTED,
+  couponEngaged,
+  couponMounted,
+  EventProperties,
+} from '../../lib/amplitude';
+import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import { useCallbackOnce } from '../../lib/hooks';
+
+class CouponError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CouponError';
+  }
+}
+
+export enum CouponErrorMessageType {
+  Expired = 'coupon-error-expired',
+  LimitReached = 'coupon-error-limit-reached',
+  Invalid = 'coupon-error-invalid',
+  Generic = 'coupon-error-generic',
+}
 
 /*
  * Check if the coupon promotion code provided by the user is valid.
  * If it is valid, return the discounted amount in cents.
  */
-const checkPromotionCode = async (planId: string, promotionCode: string) => {
+export const checkPromotionCode = async (
+  planId: string,
+  promotionCode: string
+) => {
+  const metricsOptions: EventProperties = {
+    planId,
+    promotionCode,
+  };
+
   try {
-    const { discount } = await apiInvoicePreview({
+    coupon_PENDING(metricsOptions);
+    const couponDetails = await apiRetrieveCouponDetails({
       priceId: planId,
       promotionCode,
     });
 
-    if (!discount?.amount) {
-      throw new Error('No discount for coupon');
+    if (couponDetails?.expired) {
+      throw new CouponError(CouponErrorMessageType.Expired);
     }
-    return discount.amount;
+
+    if (couponDetails?.maximallyRedeemed) {
+      throw new CouponError(CouponErrorMessageType.LimitReached);
+    }
+
+    if (!couponDetails.valid || !couponDetails?.discountAmount) {
+      throw new CouponError(CouponErrorMessageType.Invalid);
+    }
+
+    coupon_FULFILLED(metricsOptions);
+    return couponDetails;
   } catch (err) {
-    if (err instanceof APIError) {
-      sentry.captureException(err);
+    coupon_REJECTED({
+      planId,
+      promotionCode,
+      error: err,
+    });
+    if (!(err instanceof CouponError)) {
+      if (err instanceof APIError) {
+        if (err.errno === 199)
+          throw new CouponError(CouponErrorMessageType.Invalid);
+      }
+      throw new CouponError(CouponErrorMessageType.Generic);
     }
     throw err;
   }
@@ -41,8 +88,8 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
 
 type CouponFormProps = {
   planId: string;
-  coupon?: Coupon;
-  setCoupon: (coupon: Coupon | undefined) => void;
+  coupon?: Coupon.couponDetailsSchema;
+  setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
 };
 
 export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
@@ -50,19 +97,16 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   const [promotionCode, setPromotionCode] = useState(
     coupon ? coupon.promotionCode : ''
   );
-  const [error, setError] = useState('');
+  const [error, setError] = useState<CouponErrorMessageType | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const onFormMounted = useCallback(
-    () => Amplitude.couponMounted({ planId }),
-    [planId]
-  );
+  const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
   useEffect(() => {
     onFormMounted();
   }, [onFormMounted, planId]);
 
   const onFormEngaged = useCallbackOnce(
-    () => Amplitude.couponEngaged({ planId }),
+    () => couponEngaged({ planId }),
     [planId]
   );
   const onChange = useCallback(() => {
@@ -74,19 +118,20 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
     event.stopPropagation();
     try {
       setLoading(true);
-      const amount = await checkPromotionCode(planId, promotionCode);
+      const { discountAmount, type, valid } = await checkPromotionCode(
+        planId,
+        promotionCode
+      );
       setHasCoupon(true);
       setCoupon({
-        promotionCode: promotionCode,
-        amount,
+        promotionCode,
+        discountAmount,
+        type,
+        valid,
       });
     } catch (err) {
       setCoupon(undefined);
-      if (err instanceof APIError) {
-        setError('An error occurred processing the coupon. Please try again.');
-      } else {
-        setError('The code you entered is invalid or expired.');
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -141,7 +186,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
                 data-testid="coupon-input"
                 value={promotionCode}
                 onChange={(event) => {
-                  setError('');
+                  setError(null);
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
@@ -162,13 +207,13 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
           </button>
         </form>
       )}
-      {error ? (
-        <Localized id="coupon-error">
+      {error && (
+        <Localized id={error}>
           <div className="coupon-error" data-testid="coupon-error">
             {error}
           </div>
         </Localized>
-      ) : null}
+      )}
     </div>
   );
 };

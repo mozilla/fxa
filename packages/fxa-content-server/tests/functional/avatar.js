@@ -175,5 +175,15 @@ registerSuite('settings/avatar', {
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
+
+    'redirects from /settings/avatar/change to /settings/avatar': function () {
+      return (
+        this.remote
+          .then(openPage(SETTINGS_URL + '/avatar/change'))
+
+          //success is being redirected to /avatar and seeing the page load
+          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_CAMERA))
+      );
+    },
   },
 });

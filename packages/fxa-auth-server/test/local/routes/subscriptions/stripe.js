@@ -584,6 +584,38 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('retrieveCouponDetails', () => {
+    it('returns the coupon details when the promoCode is valid', async () => {
+      const expected = {
+        promotionCode: 'FRIENDS10',
+        type: 'forever',
+        valid: true,
+        discountAmount: 50,
+      };
+
+      directStripeRoutesInstance.stripeHelper.retrieveCouponDetails.resolves(
+        expected
+      );
+
+      VALID_REQUEST.payload = {
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.retrieveCouponDetails(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
+        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+  });
+
   describe('createSubscriptionWithPMI', () => {
     let plan, paymentMethod;
 
@@ -602,7 +634,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('creates a subscription with a payment method', async () => {
-      const sourceCountry = 'us';
+      const sourceCountry = 'US';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
       );
@@ -647,7 +679,7 @@ describe('DirectStripeRoutes', () => {
         {
           customerId: emptyCustomer.id,
           postalCode: paymentMethod.billing_details.address.postal_code,
-          country: 'us',
+          country: 'US',
         }
       );
 
@@ -864,7 +896,7 @@ describe('DirectStripeRoutes', () => {
       sandbox.stub(Sentry, 'captureMessage');
 
       delete paymentMethod.billing_details.address;
-      const sourceCountry = 'us';
+      const sourceCountry = 'US';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
       );
@@ -929,9 +961,95 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
-        `Cannot find a postal code or country for customer ${emptyCustomer.id}`,
+        `Cannot find a postal code for customer.`,
         Sentry.Severity.Error
       );
+    });
+
+    it('does not report to Sentry if the customer has a payment method on file', async () => {
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      delete paymentMethod.billing_details.address;
+      const sourceCountry = 'US';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        subscription2
+      );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.customerTaxId
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
+      );
+
+      assert.deepEqual(
+        {
+          sourceCountry,
+          subscription: filterSubscription(expected),
+        },
+        actual
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(sentryScope.setContext);
+      sinon.assert.notCalled(Sentry.captureMessage);
+    });
+
+    it('skips location lookup when source country is not needed', async () => {
+      const sourceCountry = 'DE';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(Sentry.withScope);
     });
   });
 
@@ -1176,9 +1294,53 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
-        `Cannot find a postal code or country for customer ${emptyCustomer.id}`,
+        `Cannot find a postal code or country for customer.`,
         Sentry.Severity.Error
       );
+    });
+
+    it('skips location lookup when source country is not needed', async () => {
+      const customer = deepCopy(emptyCustomer);
+      customer.currency = 'USD';
+      paymentMethod.card.country = 'GB';
+      const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      const expected = deepCopy(emptyCustomer);
+      expected.invoice_settings.default_payment_method = paymentMethodId;
+
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
+        .onCall(0)
+        .resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
+        .onCall(1)
+        .resolves(expected);
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
+        {
+          ...customer,
+          invoice_settings: { default_payment_method: paymentMethodId },
+        }
+      );
+      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+        {},
+        {},
+        {},
+      ]);
+
+      VALID_REQUEST.payload = {
+        paymentMethodId,
+      };
+
+      await directStripeRoutesInstance.updateDefaultPaymentMethod(
+        VALID_REQUEST
+      );
+
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(Sentry.withScope);
     });
   });
 

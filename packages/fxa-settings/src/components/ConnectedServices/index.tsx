@@ -47,16 +47,15 @@ export function sortAndFilterConnectedClients(
     }
   });
 
-  return sortedAndUniqueClients;
+  return { groupedByName, sortedAndUniqueClients };
 }
 
 export const ConnectedServices = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const attachedClients = account.attachedClients;
-  const sortedAndUniqueClients = sortAndFilterConnectedClients([
-    ...attachedClients,
-  ]);
+  const { groupedByName, sortedAndUniqueClients } =
+    sortAndFilterConnectedClients([...attachedClients]);
 
   const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
   const { l10n } = useLocalization();
@@ -97,10 +96,29 @@ export const ConnectedServices = () => {
     async (client: AttachedClient) => {
       try {
         logViewEvent('settings.clients.disconnect', `submit.${reason}`);
-        await account.disconnectClient(client);
+
+        // disconnect all clients/sessions with this name since only unique names
+        // are displayed to the user. This is batched into one network request request
+        // via BatchHttpLink
+        const clientsWithMatchingName = groupedByName[client.name];
+        const hasMultipleSessions = clientsWithMatchingName.length > 1;
+        if (hasMultipleSessions) {
+          await Promise.all(
+            clientsWithMatchingName.map(
+              async (c) => await account.disconnectClient(c)
+            )
+          );
+        } else {
+          await account.disconnectClient(client);
+        }
+
         // TODO: Add `timing.clients.disconnect` flow timing event as seen in
         // old-settings? #6903
-        if (client.isCurrentSession) {
+        if (
+          client.isCurrentSession ||
+          (hasMultipleSessions &&
+            clientsWithMatchingName.find((c) => c.isCurrentSession))
+        ) {
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
@@ -125,6 +143,7 @@ export const ConnectedServices = () => {
     [
       account,
       hideConfirmDisconnectModal,
+      groupedByName,
       revealAdviceModal,
       alertBar,
       l10n,

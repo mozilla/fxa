@@ -1,3 +1,59 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### New features
+
+- config: Add options for connection pool limit ## 1.224.4 queue limit (#11790) ([38a80d8f5](https://github.com/mozilla/fxa/commit/38a80d8f5))
+
+### Other changes
+
+- deps: bump @hapi/inert from 6.0.4 to 6.0.5 (#11780) ([144cd2d2c](https://github.com/mozilla/fxa/commit/144cd2d2c))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+### New features
+
+- config: Add options for connection pool limit ## 1.224.2 queue limit (#11790) ([343dcbf3d](https://github.com/mozilla/fxa/commit/343dcbf3d))
+
+## 1.224.2
+
+No changes.
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+
 ## 1.222.0
 
 ### New features

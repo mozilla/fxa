@@ -28,6 +28,11 @@
   @extend .mb-6;
 }
 
+// NOTE: appeared purple in at least one instance/email client in stage
+.text-body li {
+  color: global.$grey-500 !important;
+}
+
 .text-body-no-bottom-margin div {
   @extend %text-body-common;
   @extend .mb-0;

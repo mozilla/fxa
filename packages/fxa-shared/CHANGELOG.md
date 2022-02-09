@@ -1,5 +1,89 @@
 # Change history
 
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps: bump stripe from 8.199.0 to 8.200.0 (#11754) ([7cbfa1981](https://github.com/mozilla/fxa/commit/7cbfa1981))
+- deps-dev: bump @nestjs/testing from 8.2.5 to 8.2.6 (#11736) ([8ab5a1536](https://github.com/mozilla/fxa/commit/8ab5a1536))
+- deps: bump knex from 0.95.15 to 1.0.1 (#11710) ([38870b60e](https://github.com/mozilla/fxa/commit/38870b60e))
+- deps: bump stripe from 8.198.0 to 8.199.0 (#11711) ([cec185e52](https://github.com/mozilla/fxa/commit/cec185e52))
+- deps: bump superagent from 6.1.0 to 7.1.1 (#11692) ([d4ad6314c](https://github.com/mozilla/fxa/commit/d4ad6314c))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps: bump stripe from 8.195.0 to 8.198.0 (#11662) ([6d1184041](https://github.com/mozilla/fxa/commit/6d1184041))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+### Bug fixes
+
+- auth: Copy 'public' to dist, don't load non-existent Fluent bundles, Fluent strategy tweak (#11753) ([de74d2a65](https://github.com/mozilla/fxa/commit/de74d2a65))
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### New features
+
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+- google: Add backend support for google auth (#11499) ([643c12606](https://github.com/mozilla/fxa/commit/643c12606))
+
+### Other changes
+
+- deps-dev: bump @nestjs/testing from 8.2.4 to 8.2.5 (#11639) ([22d0bc002](https://github.com/mozilla/fxa/commit/22d0bc002))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640)" ([1417149bd](https://github.com/mozilla/fxa/commit/1417149bd))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640) ([3b043eb56](https://github.com/mozilla/fxa/commit/3b043eb56))
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+- deps: bump @nestjs/config from 1.1.5 to 1.1.6 (#11583) ([f44aee4f6](https://github.com/mozilla/fxa/commit/f44aee4f6))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+- deps: bump apollo-server from 2.25.2 to 2.25.3 (#11515) ([a66139d08](https://github.com/mozilla/fxa/commit/a66139d08))
+
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### New features
+
+- coupons: add coupon metrics (#11362) ([2f507cb19](https://github.com/mozilla/fxa/commit/2f507cb19))
+- subscriptions: create subs with promo codes (#11474) ([614061b20](https://github.com/mozilla/fxa/commit/614061b20))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+- deps: bump stripe from 8.194.0 to 8.195.0 (#11451) ([b13aa1326](https://github.com/mozilla/fxa/commit/b13aa1326))
+- deps: bump ioredis from 4.28.0 to 4.28.2 (#11449) ([5577e08e4](https://github.com/mozilla/fxa/commit/5577e08e4))
+- deps-dev: bump @nestjs/testing from 8.2.3 to 8.2.4 (#11448) ([052f06ba0](https://github.com/mozilla/fxa/commit/052f06ba0))
+- deps: bump knex from 0.95.14 to 0.95.15 (#11435) ([113cad186](https://github.com/mozilla/fxa/commit/113cad186))
+
 ## 1.222.0
 
 ### New features

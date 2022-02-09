@@ -1,3 +1,204 @@
+## 1.225.1
+
+### New features
+
+- auth: use capabilities of subscribed price, not all prices ([869d2aff1](https://github.com/mozilla/fxa/commit/869d2aff1))
+
+### Bug fixes
+
+- auth: Temporarily disable isMetricsEnabled db calls for oauth clients (#11835) ([b428772cd](https://github.com/mozilla/fxa/commit/b428772cd))
+- auth-server: fix broken link for Mozilla Support (#11828) ([28df7da0e](https://github.com/mozilla/fxa/commit/28df7da0e))
+
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- config: Add options for mysql pool queue limit (#11803) ([edeb45275](https://github.com/mozilla/fxa/commit/edeb45275))
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+- auth-server: Don't include email UTM params for metrics opted out users (#11706) ([30be98e73](https://github.com/mozilla/fxa/commit/30be98e73))
+- auth: dont report location set on repeat customers ([fb85d8806](https://github.com/mozilla/fxa/commit/fb85d8806))
+- auth: update webhook for payment method ([8cd7c5560](https://github.com/mozilla/fxa/commit/8cd7c5560))
+
+### Bug fixes
+
+- auth-server: Payment method not displayed for subscriptionSubsequentInvoice template (#11797) ([520e295b4](https://github.com/mozilla/fxa/commit/520e295b4))
+- auth-server: different order of text in plaintext version of `postRemoveAccountRecovery` (#11777) ([acdbb3fe8](https://github.com/mozilla/fxa/commit/acdbb3fe8))
+- subscriptions: match expandable resource type to Stripe obj type list (#11787) ([7666a5143](https://github.com/mozilla/fxa/commit/7666a5143))
+- subscriptions: fix product/plan webhook event handling (#11760) ([9025b9bea](https://github.com/mozilla/fxa/commit/9025b9bea))
+- admin-panel: update resp validation for Play subs (#11723) ([9e03bea12](https://github.com/mozilla/fxa/commit/9e03bea12))
+- auth: check for unique state on multiple results from Geocoding API (#11704) ([9890a4cb6](https://github.com/mozilla/fxa/commit/9890a4cb6))
+- subscriptions: stop retry w/ old invoice ## 1.224.4 stop sending welcome email (#11701) ([ff42c85f6](https://github.com/mozilla/fxa/commit/ff42c85f6))
+- subscriptions: delete customer when deleting stub acct ([778cbdb87](https://github.com/mozilla/fxa/commit/778cbdb87))
+- auth-server: add Privacy notice link to subplat emails with multiple products (#11681) ([0a7336fe4](https://github.com/mozilla/fxa/commit/0a7336fe4))
+- subscriptions: use latest stripe object fix Because: ([e41064f9a](https://github.com/mozilla/fxa/commit/e41064f9a))
+- auth-server: revise `images` partial (#11679) ([75f63c6be](https://github.com/mozilla/fxa/commit/75f63c6be))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11664) ([9ed1d030e](https://github.com/mozilla/fxa/commit/9ed1d030e))
+
+### Other changes
+
+- deps: bump mjml from 4.11.0 to 4.12.0 (#11813) ([1e9cd3cf9](https://github.com/mozilla/fxa/commit/1e9cd3cf9))
+- deps: bump @googlemaps/google-maps-services-js ([d4c9f01c5](https://github.com/mozilla/fxa/commit/d4c9f01c5))
+- deps-dev: bump mjml-browser from 4.11.0 to 4.12.0 (#11766) ([baaf7b550](https://github.com/mozilla/fxa/commit/baaf7b550))
+- content: add Product and Category Support field for Zendesk integration (#11749) ([bf8b1f6af](https://github.com/mozilla/fxa/commit/bf8b1f6af))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps: bump stripe from 8.199.0 to 8.200.0 (#11754) ([7cbfa1981](https://github.com/mozilla/fxa/commit/7cbfa1981))
+- deps-dev: bump @storybook/addon-controls from 6.4.12 to 6.4.14 (#11715) ([6b5ab2355](https://github.com/mozilla/fxa/commit/6b5ab2355))
+- deps: bump stripe from 8.198.0 to 8.199.0 (#11711) ([cec185e52](https://github.com/mozilla/fxa/commit/cec185e52))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+- deps-dev: bump @storybook/addon-docs from 6.4.13 to 6.4.14 (#11713) ([6e14ce933](https://github.com/mozilla/fxa/commit/6e14ce933))
+- deps: bump superagent from 6.1.0 to 7.1.1 (#11692) ([d4ad6314c](https://github.com/mozilla/fxa/commit/d4ad6314c))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.5 to 3.3.6 (#11676) ([72e8618f9](https://github.com/mozilla/fxa/commit/72e8618f9))
+- deps: bump @type-cacheable/core from 10.0.2 to 10.0.3 (#11672) ([f1d76a53e](https://github.com/mozilla/fxa/commit/f1d76a53e))
+- deps-dev: bump @storybook/addon-docs from 6.3.12 to 6.4.13 (#11673) ([3319b4d25](https://github.com/mozilla/fxa/commit/3319b4d25))
+- deps: bump @google-cloud/bigquery from 5.9.3 to 5.10.0 ([b2448cace](https://github.com/mozilla/fxa/commit/b2448cace))
+- deps: bump stripe from 8.195.0 to 8.198.0 (#11662) ([6d1184041](https://github.com/mozilla/fxa/commit/6d1184041))
+
+## 1.224.4
+
+### Bug fixes
+
+- subscriptions: s/snake/camel case for Stripe resource names ([19b8cb91c](https://github.com/mozilla/fxa/commit/19b8cb91c))
+
+## 1.224.3
+
+### Bug fixes
+
+- subscriptions: match expandable resource type to Stripe obj type list (#11787) ([cfee14c47](https://github.com/mozilla/fxa/commit/cfee14c47))
+
+## 1.224.2
+
+### New features
+
+- auth: dont report location set on repeat customers ([46b3a543d](https://github.com/mozilla/fxa/commit/46b3a543d))
+
+### Bug fixes
+
+- auth: check for unique state on multiple results from Geocoding API (#11704) ([65d6a26f1](https://github.com/mozilla/fxa/commit/65d6a26f1))
+- subscriptions: fix product/plan webhook event handling (#11760) ([629940b25](https://github.com/mozilla/fxa/commit/629940b25))
+- subscriptions: stop retry w/ old invoice ## 1.224.1 stop sending welcome email (#11701) ([dc01d558f](https://github.com/mozilla/fxa/commit/dc01d558f))
+- auth: Copy 'public' to dist, don't load non-existent Fluent bundles, Fluent strategy tweak (#11753) ([de74d2a65](https://github.com/mozilla/fxa/commit/de74d2a65))
+- auth-server: wrong apostrophe in plaintext of `subscriptionAccountReminderFirst` (#11742) ([4820cc0b9](https://github.com/mozilla/fxa/commit/4820cc0b9))
+- auth-server: `subscriptionAccountFinishSetup` has some strings in purple (#11769) ([3a9d940f0](https://github.com/mozilla/fxa/commit/3a9d940f0))
+- auth-server: wrong HTML version displayed for verifyLoginCode template (#11697) ([7cfe9b1fb](https://github.com/mozilla/fxa/commit/7cfe9b1fb))
+
+## 1.224.1
+
+### Bug fixes
+
+- subscriptions: delete customer when deleting stub acct ([d728aa01d](https://github.com/mozilla/fxa/commit/d728aa01d))
+- auth-server: add Privacy notice link to subplat emails with multiple products (#11681) ([e7b15e878](https://github.com/mozilla/fxa/commit/e7b15e878))
+- auth-server: revised test ([1092eaf35](https://github.com/mozilla/fxa/commit/1092eaf35))
+- auth-server: revise `images` partial ([ed77d952e](https://github.com/mozilla/fxa/commit/ed77d952e))
+- subscriptions: use latest stripe object fix Because: ([d38abf998](https://github.com/mozilla/fxa/commit/d38abf998))
+
+## 1.224.0
+
+### New features
+
+- auth: add one-off script to update customer locations in Stripe (#11628) ([b5adb432f](https://github.com/mozilla/fxa/commit/b5adb432f))
+- auth: test cleanup ([a0323420c](https://github.com/mozilla/fxa/commit/a0323420c))
+- auth: use latest stripe object with proper invoice close ([c9c2515f8](https://github.com/mozilla/fxa/commit/c9c2515f8))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+- google: Add backend support for google auth (#11499) ([643c12606](https://github.com/mozilla/fxa/commit/643c12606))
+- subscriptions: save promo code to subscription metadata (#11595) ([fe749ba9e](https://github.com/mozilla/fxa/commit/fe749ba9e))
+- auth: followup cleanup for FXA-4356 ([c8e71980f](https://github.com/mozilla/fxa/commit/c8e71980f))
+- auth: add coupon validation ([28ed143af](https://github.com/mozilla/fxa/commit/28ed143af))
+
+### Bug fixes
+
+- auth-server: localize image alt text (#11579) ([c63244579](https://github.com/mozilla/fxa/commit/c63244579))
+- auth-server: wrong email title - verifyLogin template (#11645) ([738e8ddc5](https://github.com/mozilla/fxa/commit/738e8ddc5))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11630) ([ed08fc906](https://github.com/mozilla/fxa/commit/ed08fc906))
+- emails: use static l10n-ids in email templates ([3b71771de](https://github.com/mozilla/fxa/commit/3b71771de))
+- auth-server: small difference between plaintext and HTML (#11594) ([6d96ee976](https://github.com/mozilla/fxa/commit/6d96ee976))
+- auth-server: updated template to match old email template (#11599) ([bb3b96fd4](https://github.com/mozilla/fxa/commit/bb3b96fd4))
+- email: Storybook fixes for invoice discount (#11606) ([2f2cf02a0](https://github.com/mozilla/fxa/commit/2f2cf02a0))
+- auth-server: Legal and Privacy links are not displayed in the plaintext version of the templates (#11549) ([4bfdcf248](https://github.com/mozilla/fxa/commit/4bfdcf248))
+- email: lower the maxMessages sent via nodemailer before creating a new connection ([3faeca26c](https://github.com/mozilla/fxa/commit/3faeca26c))
+- ts: fix auth-server TS errors (#11544) ([473348479](https://github.com/mozilla/fxa/commit/473348479))
+- subscriptions: do addr lookup for only US and CA (#11542) ([8eb9cac13](https://github.com/mozilla/fxa/commit/8eb9cac13))
+- auth: setup appconfig where needed for scripts ([e568035aa](https://github.com/mozilla/fxa/commit/e568035aa))
+
+### Other changes
+
+- deps-dev: bump @storybook/html from 6.3.12 to 6.3.13 (#11633) ([68baeca29](https://github.com/mozilla/fxa/commit/68baeca29))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11630)" ([0c25e457a](https://github.com/mozilla/fxa/commit/0c25e457a))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640)" ([1417149bd](https://github.com/mozilla/fxa/commit/1417149bd))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640) ([3b043eb56](https://github.com/mozilla/fxa/commit/3b043eb56))
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+- deps-dev: bump sass from 1.46.0 to 1.48.0 (#11620) ([e80eca3b6](https://github.com/mozilla/fxa/commit/e80eca3b6))
+- deps-dev: bump @storybook/addon-controls from 6.3.12 to 6.4.12 (#11602) ([af79f5d55](https://github.com/mozilla/fxa/commit/af79f5d55))
+- auth: make customer address format consistent ([af27813c0](https://github.com/mozilla/fxa/commit/af27813c0))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps: bump @google-cloud/firestore from 5.0.1 to 5.0.2 (#11570) ([6cf6924f4](https://github.com/mozilla/fxa/commit/6cf6924f4))
+- deps: bump keyv from 4.0.4 to 4.0.5 (#11569) ([efa100f25](https://github.com/mozilla/fxa/commit/efa100f25))
+- deps-dev: bump sass from 1.45.1 to 1.46.0 (#11550) ([b71db1acd](https://github.com/mozilla/fxa/commit/b71db1acd))
+- auth: Don't fail when l10n id is missing from en bundle (#11530) ([a864cbc4d](https://github.com/mozilla/fxa/commit/a864cbc4d))
+- auth: Don't fail when l10n id is missing from en bundle (#11522)" (#11526) ([2427bb505](https://github.com/mozilla/fxa/commit/2427bb505))
+- auth: Don't fail when l10n id is missing from en bundle (#11522) ([2ea691e2b](https://github.com/mozilla/fxa/commit/2ea691e2b))
+
+## 1.223.2
+
+### New features
+
+- subscriptions: save promo code to subscription metadata (#11595) ([6b376c56e](https://github.com/mozilla/fxa/commit/6b376c56e))
+
+### Bug fixes
+
+- email: lower the maxMessages sent via nodemailer before creating a new connection ([c909fde86](https://github.com/mozilla/fxa/commit/c909fde86))
+
+### Other changes
+
+- auth: make customer address format consistent ([3a419bd0b](https://github.com/mozilla/fxa/commit/3a419bd0b))
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+### Bug fixes
+
+- ts: fix auth-server TS errors (#11544) ([8dc88f1fa](https://github.com/mozilla/fxa/commit/8dc88f1fa))
+- subscriptions: do addr lookup for only US and CA (#11542) ([efe6c3321](https://github.com/mozilla/fxa/commit/efe6c3321))
+- auth: setup appconfig where needed for scripts ([2796d38db](https://github.com/mozilla/fxa/commit/2796d38db))
+
+### Other changes
+
+- auth: Don't fail when l10n id is missing from en bundle (#11530) ([262116b8e](https://github.com/mozilla/fxa/commit/262116b8e))
+
+## 1.223.0
+
+### New features
+
+- coupons: add discount to 1st invoice email (#11503) ([a1289ee23](https://github.com/mozilla/fxa/commit/a1289ee23))
+- auth: add helper to determine the best location for existing Pa… (#11492) ([853eef1b7](https://github.com/mozilla/fxa/commit/853eef1b7))
+- subscriptions: create subs with promo codes (#11474) ([614061b20](https://github.com/mozilla/fxa/commit/614061b20))
+- auth: 397c59068 feat(auth) - Phaseout mjml auth server (#11482) ([397c59068](https://github.com/mozilla/fxa/commit/397c59068))
+- payments: update requests to include coupon code (#11469) ([6a82bba8a](https://github.com/mozilla/fxa/commit/6a82bba8a))
+- subscriptions: set customer location with payment info (#11490) ([e500c261a](https://github.com/mozilla/fxa/commit/e500c261a))
+
+### Bug fixes
+
+- auth-server: Text difference in postVerifySecondary template (#11514) ([2efeecd52](https://github.com/mozilla/fxa/commit/2efeecd52))
+- auth-server: subject for 2FA email template is different (#11459) ([c1699e78e](https://github.com/mozilla/fxa/commit/c1699e78e))
+- auth-server: misplaced text in emails (#11405) ([e36cb6236](https://github.com/mozilla/fxa/commit/e36cb6236))
+- subscriptions: update a payment method webhook event type (#11431) ([85ce4e5c2](https://github.com/mozilla/fxa/commit/85ce4e5c2))
+- scripts: add new deps to delete acct script (#11443) ([3b45ef0f7](https://github.com/mozilla/fxa/commit/3b45ef0f7))
+- scripts: add deps and fix route init for delete acct script (#11424) ([a53d4549a](https://github.com/mozilla/fxa/commit/a53d4549a))
+
+### Other changes
+
+- auth: 6d7b18763 bug(auth) - Button text missing in email templates (#11462) ([6d7b18763](https://github.com/mozilla/fxa/commit/6d7b18763))
+- deps: bump luxon from 2.2.0 to 2.3.0 (#11496) ([c79ca4d19](https://github.com/mozilla/fxa/commit/c79ca4d19))
+- deps: bump google-libphonenumber from 3.2.25 to 3.2.26 (#11486) ([071ab9a12](https://github.com/mozilla/fxa/commit/071ab9a12))
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.4 to 3.3.5 (#11464) ([1d549e2ef](https://github.com/mozilla/fxa/commit/1d549e2ef))
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+- deps: bump stripe from 8.194.0 to 8.195.0 (#11451) ([b13aa1326](https://github.com/mozilla/fxa/commit/b13aa1326))
+- deps: bump ioredis from 4.28.0 to 4.28.2 (#11449) ([5577e08e4](https://github.com/mozilla/fxa/commit/5577e08e4))
+- deps: bump @fluent/dom from 0.7.0 to 0.8.1 (#11436) ([e8c94183b](https://github.com/mozilla/fxa/commit/e8c94183b))
+
 ## 1.222.0
 
 ### New features

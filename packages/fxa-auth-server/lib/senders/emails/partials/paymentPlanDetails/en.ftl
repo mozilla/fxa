@@ -1,3 +1,4 @@
+payment-details = Payment details:
 # Variables:
 #  $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 payment-plan-invoice-number = Invoice Number: { $invoiceNumber }

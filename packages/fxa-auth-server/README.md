@@ -30,7 +30,7 @@ On some systems running the server as root will cause working directory permissi
 
 Clone the git repository and install dependencies:
 
-    git clone git://github.com/mozilla/fxa-auth-server.git
+    git clone https://github.com/mozilla/fxa-auth-server.git
     cd fxa-auth-server
     npm install
 
@@ -384,11 +384,6 @@ Firefox Accounts authorization is a complicated flow. You can get verbose loggin
     }
 
 Valid `level` values (from least to most verbose logging) include: `"fatal", "error", "warn", "info", "trace", "debug"`.
-
-## Database integration
-
-This server depends on a database server
-from the [`fxa-auth-db-mysql` repo](../fxa-auth-db-mysql/).
 
 ## License
 

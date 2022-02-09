@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-panel",
-  "version": "1.222.0",
+  "version": "1.225.1",
   "description": "FxA Admin Panel",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
@@ -64,12 +64,12 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
-    "@storybook/addon-actions": "^6.3.12",
-    "@storybook/addon-links": "^6.3.12",
+    "@storybook/addon-actions": "^6.4.12",
+    "@storybook/addon-links": "^6.3.13",
     "@storybook/addons": "^6.3.12",
     "@storybook/react": "^6.3.12",
     "@tailwindcss/postcss7-compat": "^2.2.17",
-    "@testing-library/dom": "^8.11.1",
+    "@testing-library/dom": "^8.11.2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -100,15 +100,15 @@
     "eslint-plugin-jest": "^24.5.2",
     "eslint-plugin-react": "^7.26.1",
     "fxa-shared": "workspace:*",
-    "jest": "27.4.3",
+    "jest": "27.4.7",
     "jest-watch-typeahead": "0.6.5",
     "pm2": "^5.1.2",
     "postcss-cli": "^7.1.1",
     "prettier": "^2.3.1",
-    "supertest": "^6.1.6",
+    "supertest": "^6.2.2",
     "tailwindcss": "^1.9.1",
     "tailwindcss-textshadow": "^2.1.3",
-    "ts-jest": "^27.1.2",
+    "ts-jest": "^27.1.3",
     "typescript": "^4.5.2",
     "webpack": "^4.43.0"
   }

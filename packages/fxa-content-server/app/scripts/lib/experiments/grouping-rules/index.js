@@ -17,7 +17,7 @@ const experimentGroupingRules = [
   require('./sentry'),
   require('./newsletter-sync'),
   require('./push'),
-  require('./pocket-migration'),
+  require('./third-party-auth'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {

@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/node';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
+import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -30,6 +31,13 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
+
+// List of countries for which we need to look up the province/state of the
+// customer.
+const addressLookupCountries = Object.values(
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP
+);
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
@@ -79,6 +87,7 @@ export class StripeHandler {
     priceId: string
   ) {
     let promotionCode: Stripe.PromotionCode | undefined;
+
     if (promotionCodeFromRequest) {
       promotionCode = await this.stripeHelper.findValidPromoCode(
         promotionCodeFromRequest,
@@ -413,6 +422,26 @@ export class StripeHandler {
     return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
   }
 
+  async retrieveCouponDetails(
+    request: AuthRequest
+  ): Promise<couponDTO.couponDetailsSchema> {
+    this.log.begin('subscriptions.retrieveCouponDetails', request);
+    await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
+
+    const { promotionCode, priceId } = request.payload as Record<
+      string,
+      string
+    >;
+    const country = request.app.geo.location?.country || 'US';
+    const couponDetails = this.stripeHelper.retrieveCouponDetails({
+      country,
+      priceId,
+      promotionCode,
+    });
+
+    return couponDetails;
+  }
+
   /**
    * Create a subscription for a user.
    */
@@ -486,24 +515,28 @@ export class StripeHandler {
     const sourceCountry =
       this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
-    if (paymentMethod?.billing_details?.address?.postal_code && sourceCountry) {
-      this.stripeHelper.setCustomerLocation({
-        customerId: customer.id,
-        postalCode: paymentMethod.billing_details.address.postal_code,
-        country: sourceCountry,
-      });
-    } else {
-      Sentry.withScope((scope) => {
-        scope.setContext('createSubscriptionWithPMI', {
+    if (sourceCountry && addressLookupCountries.includes(sourceCountry)) {
+      if (paymentMethod?.billing_details?.address?.postal_code) {
+        this.stripeHelper.setCustomerLocation({
           customerId: customer.id,
-          subscriptionId: subscription.id,
-          paymentMethodId: paymentMethod?.id,
+          postalCode: paymentMethod.billing_details.address.postal_code,
+          country: sourceCountry,
         });
-        Sentry.captureMessage(
-          `Cannot find a postal code or country for customer ${customer.id}`,
-          Sentry.Severity.Error
-        );
-      });
+      } else if (paymentMethod) {
+        // Only report this if we have a payment method.
+        // Note: Payment method is already on the user if its a returning customer.
+        Sentry.withScope((scope) => {
+          scope.setContext('createSubscriptionWithPMI', {
+            customerId: customer.id,
+            subscriptionId: subscription.id,
+            paymentMethodId: paymentMethod?.id,
+          });
+          Sentry.captureMessage(
+            `Cannot find a postal code for customer.`,
+            Sentry.Severity.Error
+          );
+        });
+      }
     }
 
     await this.customerChanged(request, uid, email);
@@ -586,25 +619,27 @@ export class StripeHandler {
     );
 
     if (
-      paymentMethod?.billing_details?.address?.postal_code &&
-      paymentMethodCountry
+      paymentMethodCountry &&
+      addressLookupCountries.includes(paymentMethodCountry)
     ) {
-      this.stripeHelper.setCustomerLocation({
-        customerId: customer.id,
-        postalCode: paymentMethod.billing_details.address.postal_code,
-        country: paymentMethodCountry,
-      });
-    } else {
-      Sentry.withScope((scope) => {
-        scope.setContext('updateDefaultPaymentMethod', {
-          customerId: customer!.id,
-          paymentMethodId: paymentMethod?.id,
+      if (paymentMethod?.billing_details?.address?.postal_code) {
+        this.stripeHelper.setCustomerLocation({
+          customerId: customer.id,
+          postalCode: paymentMethod.billing_details.address.postal_code,
+          country: paymentMethodCountry,
         });
-        Sentry.captureMessage(
-          `Cannot find a postal code or country for customer ${customer!.id}`,
-          Sentry.Severity.Error
-        );
-      });
+      } else {
+        Sentry.withScope((scope) => {
+          scope.setContext('updateDefaultPaymentMethod', {
+            customerId: customer!.id,
+            paymentMethodId: paymentMethod?.id,
+          });
+          Sentry.captureMessage(
+            `Cannot find a postal code or country for customer.`,
+            Sentry.Severity.Error
+          );
+        });
+      }
     }
 
     await this.stripeHelper.removeSources(customer.id);
@@ -841,6 +876,24 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/coupon',
+      options: {
+        auth: false,
+        response: {
+          schema: couponDTO.couponDetailsSchema as any,
+        },
+        validate: {
+          payload: {
+            priceId: validators.subscriptionsPlanId.required(),
+            promotionCode: isA.string().required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        stripeHandler.retrieveCouponDetails(request),
     },
     {
       method: 'POST',

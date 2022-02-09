@@ -137,6 +137,33 @@ const conf = convict({
       format: Boolean,
     },
   },
+  googleAuthConfig: {
+    clientId: {
+      default:
+        '210899493109-gll5587a3bo8huare772alo08734o4kh.apps.googleusercontent.com',
+      env: 'GOOGLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Google auth client id',
+    },
+    clientSecret: {
+      default: 'SSHH',
+      env: 'GOOGLE_AUTH_CLIENT_SECRET',
+      format: String,
+      doc: 'Google auth client secret',
+    },
+    redirectUri: {
+      default: 'http://localhost:3030/post_verify/third_party_auth/callback',
+      env: 'GOOGLE_AUTH_REDIRECT_URI',
+      format: String,
+      doc: 'Google auth redirect uri',
+    },
+    tokenEndpoint: {
+      default: 'https://oauth2.googleapis.com/token',
+      env: 'GOOGLE_AUTH_TOKEN_ENDPOINT',
+      format: String,
+      doc: 'Google auth token endpoint',
+    },
+  },
   googleMapsApiKey: {
     default: '',
     env: 'GOOGLE_MAPS_APIKEY',
@@ -254,26 +281,6 @@ const conf = convict({
       env: 'CONTENT_SERVER_URL',
     },
   },
-  emailService: {
-    host: {
-      doc: 'host for fxa-email-service',
-      format: String,
-      default: 'localhost',
-      env: 'EMAIL_SERVICE_HOST',
-    },
-    port: {
-      doc: 'port for fxa-email-service',
-      format: 'port',
-      default: 8001,
-      env: 'EMAIL_SERVICE_PORT',
-    },
-    forcedEmailAddresses: {
-      doc: 'force usage of fxa-email-service when sending emails to addresses that match this pattern',
-      format: RegExp,
-      default: /emailservice\.[A-Za-z0-9._%+-]+@restmail\.net$/,
-      env: 'EMAIL_SERVICE_FORCE_EMAIL_REGEX',
-    },
-  },
   smtp: {
     api: {
       host: {
@@ -354,7 +361,7 @@ const conf = convict({
       doc: 'url to Mozilla Support product page',
       format: String,
       default:
-        'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
+        'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
@@ -931,6 +938,14 @@ const conf = convict({
         env: 'SUBSCRIPTIONS_PLAY_API_ENABLED',
       },
     },
+    productConfigsFirestore: {
+      enabled: {
+        default: false,
+        doc: 'Whether to use Firestore for product configurations',
+        env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
+        format: Boolean,
+      },
+    },
     sharedSecret: {
       doc: 'Shared secret for authentication between backend subscription services',
       format: String,
@@ -1302,6 +1317,11 @@ const conf = convict({
         doc: 'The maximum number of connections that the pool can use at once.',
         default: 10,
         env: 'MYSQL_CONNECTION_LIMIT',
+      },
+      queueLimit: {
+        doc: 'The maximum number of connection requests the pool will queue before returning an error.',
+        default: 0,
+        env: 'MYSQL_QUEUE_LIMIT',
       },
       timezone: {
         default: 'Z',
@@ -1954,6 +1974,12 @@ const conf = convict({
       env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
       format: Number,
     },
+    productFieldId: {
+      doc: 'Zendesk support ticket custom field for the product drop down',
+      default: 360047198211,
+      env: 'ZENDESK_PRODUCT_FIELD_ID',
+      format: Number,
+    },
     locationCityFieldId: {
       doc: 'Zendesk support ticket custom field for the city of the location',
       default: 360026463311,
@@ -1976,6 +2002,12 @@ const conf = convict({
       doc: 'Zendesk support ticket custom field for topic',
       default: 360028484432,
       env: 'ZENDESK_TOPIC_FIELD_ID',
+      format: Number,
+    },
+    categoryFieldId: {
+      doc: 'Zendesk support ticket category field for category drop down',
+      default: 360047206172,
+      env: 'ZENDESK_CATEGORY_FIELD_ID',
       format: Number,
     },
     appFieldId: {

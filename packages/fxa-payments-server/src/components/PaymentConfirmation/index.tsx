@@ -15,7 +15,7 @@ import './index.scss';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 type PaymentConfirmationProps = {
   customer: Customer;
@@ -24,7 +24,7 @@ type PaymentConfirmationProps = {
   productUrl: string;
   className?: string;
   accountExists?: boolean;
-  coupon?: Coupon;
+  coupon?: Coupon.couponDetailsSchema;
 };
 
 export const PaymentConfirmation = ({
@@ -55,7 +55,10 @@ export const PaymentConfirmation = ({
     day: 'numeric',
   });
 
-  const finalAmount = coupon && amount ? amount - coupon.amount : amount;
+  const finalAmount =
+    coupon && coupon.discountAmount && amount
+      ? amount - coupon.discountAmount
+      : amount;
   const planPrice = formatPlanPricing(
     finalAmount,
     currency,

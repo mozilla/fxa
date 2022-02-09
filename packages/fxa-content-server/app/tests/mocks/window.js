@@ -39,6 +39,7 @@ function WindowMock() {
       clientHeight: window.document.documentElement.clientHeight,
       clientWidth: window.document.documentElement.clientWidth,
     },
+    createElement: window.document.createElement,
     referrer: window.document.referrer,
     title: window.document.title,
   };

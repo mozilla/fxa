@@ -79,7 +79,7 @@ const config = {
   fxaUntrustedOauthApp: fxaUntrustedOauthApp,
   fxaPaymentsRoot,
 
-  pageLoadTimeout: 20000,
+  pageLoadTimeout: 30000,
   reporters: [
     {
       name: 'junit',

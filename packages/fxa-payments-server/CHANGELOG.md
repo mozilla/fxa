@@ -1,5 +1,106 @@
 # Change history
 
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+- payments: add tailwind to payments (#11659) ([0ae60a1df](https://github.com/mozilla/fxa/commit/0ae60a1df))
+
+### Bug fixes
+
+- experiment: Remove pocket experiment mixin infavor of a regular mix (#11748) ([e2cc4a64d](https://github.com/mozilla/fxa/commit/e2cc4a64d))
+- subscriptions: stop retry w/ old invoice ## 1.224.4 stop sending welcome email (#11701) ([ff42c85f6](https://github.com/mozilla/fxa/commit/ff42c85f6))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+### Bug fixes
+
+- subscriptions: stop retry w/ old invoice ## 1.224.1 stop sending welcome email (#11701) ([dc01d558f](https://github.com/mozilla/fxa/commit/dc01d558f))
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### New features
+
+- payments: Disable metrics collection for opted out users (#11623) ([5cf942f18](https://github.com/mozilla/fxa/commit/5cf942f18))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+
+### Bug fixes
+
+- subscriptions: l10n fix payment method header (#11562) ([11f68667b](https://github.com/mozilla/fxa/commit/11f68667b))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps-dev: bump supertest from 6.1.6 to 6.2.1 (#11619) ([443b0b099](https://github.com/mozilla/fxa/commit/443b0b099))
+- docs: update storybook publish links (#11609) ([628fb0c21](https://github.com/mozilla/fxa/commit/628fb0c21))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps: bump async-wait-until from 2.0.9 to 2.0.12 (#11552) ([5f15dd4c7](https://github.com/mozilla/fxa/commit/5f15dd4c7))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### New features
+
+- metrics: include promo code for cancel sub events (#11500) ([70f447d2a](https://github.com/mozilla/fxa/commit/70f447d2a))
+- coupons: add coupon metrics (#11362) ([2f507cb19](https://github.com/mozilla/fxa/commit/2f507cb19))
+- payments: update requests to include coupon code (#11469) ([6a82bba8a](https://github.com/mozilla/fxa/commit/6a82bba8a))
+
+### Bug fixes
+
+- payments: coupon Component Overlap (#11505) ([eeb45e700](https://github.com/mozilla/fxa/commit/eeb45e700))
+- coupon: plan total price interval translation (#11473) ([e55bff3aa](https://github.com/mozilla/fxa/commit/e55bff3aa))
+- payments: remove hard-coded test coupon code (#11432) ([a62b4ceb3](https://github.com/mozilla/fxa/commit/a62b4ceb3))
+
+### Refactorings
+
+- admin-panel, payments: Upgrade to react-router v6 (#11463) ([24bf98e99](https://github.com/mozilla/fxa/commit/24bf98e99))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps-dev: bump @babel/register from 7.16.5 to 7.16.7 (#11495) ([fde38d50f](https://github.com/mozilla/fxa/commit/fde38d50f))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+- deps-dev: bump caniuse-lite from 1.0.30001287 to 1.0.30001294 (#11478) ([9876385e5](https://github.com/mozilla/fxa/commit/9876385e5))
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+- deps: bump node-sass from 7.0.0 to 7.0.1 (#11452) ([7f933398b](https://github.com/mozilla/fxa/commit/7f933398b))
+
 ## 1.222.0
 
 ### New features

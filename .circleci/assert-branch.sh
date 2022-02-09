@@ -8,10 +8,3 @@ if [[ $CIRCLE_BRANCH =~ ^train-.* ]]; then
   echo "Train branch, skipping package check"
   exit 0
 fi
-
-if grep -e 'fxa-email-service' ../packages/test.list; then
-  if [[ ! $CIRCLE_BRANCH =~ ^email-service-.* ]]; then
-    echo "Please create a new PR from a branch name starting with 'email-service-'"
-    exit 1
-  fi
-fi

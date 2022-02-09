@@ -7,7 +7,7 @@ Node.JS which uses the [local verification library](https://github.com/mozilla/b
 
 To run the verification server locally:
 
-    $ git clone git://github.com/mozilla/browserid-verifier
+    $ git clone https://github.com/mozilla/browserid-verifier
     $ cd browserid-verifier
     $ npm install
     $ npm start

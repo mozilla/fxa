@@ -156,3 +156,14 @@ export const SubscriptionUpdateEligibility = {
 
 export type SubscriptionUpdateEligibility =
   typeof SubscriptionUpdateEligibility[keyof typeof SubscriptionUpdateEligibility];
+
+export enum SubscriptionStripeErrorType {
+  NO_MIN_CHARGE_AMOUNT = 'Currency does not have a minimum charge amount available.',
+}
+
+export class SubscriptionStripeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SubscriptionStripeError';
+  }
+}

@@ -18,5 +18,8 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "lowRecoveryCodes-action",
+  buttonText: "Generate codes"
+}) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

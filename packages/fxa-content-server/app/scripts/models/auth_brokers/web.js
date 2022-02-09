@@ -45,7 +45,7 @@ export default BaseBroker.extend({
       proto.defaultBehaviors.afterCompleteSignUp
     ),
     afterForceAuth: new NavigateBehavior('settings'),
-    afterResetPasswordConfirmationPoll: redirectToSettingsBehavior,
+    afterResetPasswordConfirmationPoll: redirectToSettingsAfterResetBehavior,
     afterSignIn: new NavigateBehavior('settings'),
     afterSignInConfirmationPoll: redirectToSettingsBehavior,
     afterSignUpConfirmationPoll: redirectToSettingsBehavior,

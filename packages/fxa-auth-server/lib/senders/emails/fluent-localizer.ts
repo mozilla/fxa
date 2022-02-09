@@ -7,9 +7,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizerBindings, TemplateContext } from './localizer-bindings';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
-import { PatternElement, VariableReference } from '@fluent/bundle/esm/ast';
-
-const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
+import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
 
 const RTL_LOCALES = [
   'ar',
@@ -31,38 +29,23 @@ class FluentLocalizer {
     this.bindings = bindings;
   }
 
-  async localizeEmail(context: TemplateContext) {
-    const { acceptLanguage, template, layout } = context;
-    const parsedLocales = acceptLanguage.split(',');
-    const userLocales: string[] = [];
-
-    for (let locale of parsedLocales) {
-      locale = locale.replace(/^\s*/, '').replace(/\s*$/, '');
-      const [lang] = locale.split(';');
-      userLocales.push(lang);
-    }
-
-    const currentLocales = negotiateLanguages(
-      [...userLocales],
-      [...OTHER_EN_LOCALES, ...availableLocales],
-      {
-        defaultLocale: 'en',
-      }
-    );
-
+  protected async fetchMessages(currentLocales: string[]) {
     const fetched: Record<string, string> = {};
-    for (const locale of currentLocales.filter(
-      (l) => !OTHER_EN_LOCALES.includes(l)
-    )) {
+    for (const locale of currentLocales) {
       fetched[locale] = await this.bindings.fetchLocalizationMessages(locale);
     }
+    return fetched;
+  }
 
-    let selectedLocale: string = 'en';
+  protected getSelectedLocale(currentLocales: string[]) {
+    return currentLocales[0] || 'en';
+  }
+
+  protected createBundleGenerator(fetched: Record<string, string>) {
     async function* generateBundles(currentLocales: string[]) {
       for (const locale of currentLocales) {
         const source = fetched[locale];
-        if (source !== '') {
-          selectedLocale = locale;
+        if (source) {
           const bundle = new FluentBundle(locale, {
             useIsolating: false,
           });
@@ -73,12 +56,30 @@ class FluentLocalizer {
       }
     }
 
+    return generateBundles;
+  }
+
+  async setupLocalizer(acceptLanguage: string) {
+    const currentLocales = parseAcceptLanguage(acceptLanguage);
+    const messages = await this.fetchMessages(currentLocales);
+    const selectedLocale = this.getSelectedLocale(currentLocales);
+    const generateBundles = this.createBundleGenerator(messages);
     const l10n = new DOMLocalization(currentLocales, generateBundles);
+
+    return { currentLocales, messages, generateBundles, selectedLocale, l10n };
+  }
+
+  async localizeEmail(context: TemplateContext) {
+    const { acceptLanguage, template, layout } = context;
+    const { l10n, selectedLocale } = await this.setupLocalizer(acceptLanguage);
 
     context = { ...context, ...context.templateValues };
     if (template !== '_storybook') {
       // TODO: #11471 Improve dynamically rendered actions & subjects in email.js, etc.
-      if (template === 'postRemoveTwoStepAuthentication') {
+      if (
+        template === 'postRemoveTwoStepAuthentication' ||
+        template === 'verifyLoginCode'
+      ) {
         context.subject = await l10n.formatValue(
           `${template}-subject-line`,
           context
@@ -102,33 +103,6 @@ class FluentLocalizer {
       context,
       layout
     );
-
-    // Look up template variables in current context, and apply them automatically
-    // as l10n args. Because translations originate from text in 'en', use this as
-    // the source of truth for variable names.
-    const baseBundle = new FluentBundle('en', { useIsolating: false });
-    baseBundle.addResource(new FluentResource(fetched['en']));
-    for (const element of rootElement.querySelectorAll('[data-l10n-id]')) {
-      const attr = l10n.getAttributes(element);
-      const args: any = {};
-      const message = baseBundle.getMessage(attr.id);
-
-      // Require that all data-l10n-id values are present in en file.
-      if (!message) {
-        throw new Error('Missing data-1l0n-id detected. l10n-id=' + attr.id);
-      }
-
-      if (message && message.value instanceof Array) {
-        message.value
-          .map((x: PatternElement) => (x as VariableReference).name)
-          .forEach((x) => {
-            if (x && context[x]) {
-              args[x] = context[x];
-            }
-          });
-      }
-      l10n.setAttributes(element, attr.id, args);
-    }
 
     l10n.connectRoot(rootElement);
     await l10n.translateRoots();
@@ -171,6 +145,40 @@ export function splitPlainTextLine(plainText: string) {
   const val = matches?.groups?.val;
 
   return { key, val };
+}
+
+export function parseAcceptLanguage(acceptLanguage: string) {
+  const parsedLocales = acceptLanguage.split(',');
+  const userLocales: string[] = [];
+
+  for (let locale of parsedLocales) {
+    locale = locale.replace(/^\s*/, '').replace(/\s*$/, '');
+    let [lang] = locale.split(';');
+
+    if (EN_GB_LOCALES.includes(lang)) {
+      lang = 'en-GB';
+    }
+
+    if (!userLocales.includes(lang)) {
+      userLocales.push(lang);
+    }
+  }
+
+  /*
+   * We use the 'matching' strategy because the default strategy, 'filtering', will load all English locales
+   * with dialects included, e.g. `en-CA`, even when the user prefers 'en' or 'en-US', which would then be
+   * shown instead of the English (US) fallback text.
+   */
+  const currentLocales = negotiateLanguages(
+    [...userLocales],
+    [...availableLocales],
+    {
+      defaultLocale: 'en',
+      strategy: 'matching',
+    }
+  );
+
+  return currentLocales;
 }
 
 export default FluentLocalizer;

@@ -1,3 +1,97 @@
+## 1.225.1
+
+### New features
+
+- experiment: Add feature flag for google auth (#11829) ([67edb8d2c](https://github.com/mozilla/fxa/commit/67edb8d2c))
+
+### Bug fixes
+
+- metrics: Populate relier `service` value if param exists (#11818) ([f2fd5f0d1](https://github.com/mozilla/fxa/commit/f2fd5f0d1))
+- auth-server: fix broken link for Mozilla Support (#11828) ([28df7da0e](https://github.com/mozilla/fxa/commit/28df7da0e))
+
+## 1.225.0
+
+### New features
+
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+
+### Bug fixes
+
+- settings: wrong green successful message is displayed when user resets password (#11816) ([72aa778d0](https://github.com/mozilla/fxa/commit/72aa778d0))
+- content-server: remove old unused settings css (#11752) ([ec96acc48](https://github.com/mozilla/fxa/commit/ec96acc48))
+- experiment: Remove pocket experiment mixin infavor of a regular mix (#11748) ([e2cc4a64d](https://github.com/mozilla/fxa/commit/e2cc4a64d))
+- content-server: Decrease flakiness of content server tests (#11684) ([e9c6b1fa3](https://github.com/mozilla/fxa/commit/e9c6b1fa3))
+- ios: Don't show Firefox iOS banner when loading signup/signin views (#11660) ([b11b5df8b](https://github.com/mozilla/fxa/commit/b11b5df8b))
+
+### Other changes
+
+- deps: bump webpack-cli from 4.9.1 to 4.9.2 (#11814) ([ac8f24ded](https://github.com/mozilla/fxa/commit/ac8f24ded))
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- content: add Product and Category Support field for Zendesk integration (#11749) ([bf8b1f6af](https://github.com/mozilla/fxa/commit/bf8b1f6af))
+- deps: bump jquery-ui from 1.13.0 to 1.13.1 (#11693) ([3d879e089](https://github.com/mozilla/fxa/commit/3d879e089))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+No changes.
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### New features
+
+- payments: Disable metrics collection for opted out users (#11623) ([5cf942f18](https://github.com/mozilla/fxa/commit/5cf942f18))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+
+### Bug fixes
+
+- pocket: Update password reset and delete notice to mention pocket is not changed (#11608) ([073e43abe](https://github.com/mozilla/fxa/commit/073e43abe))
+
+### Other changes
+
+- deps: bump autoprefixer from 9.8.8 to 10.4.2" (#11605) ([39377d88a](https://github.com/mozilla/fxa/commit/39377d88a))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2 ([854eb5c4d](https://github.com/mozilla/fxa/commit/854eb5c4d))
+- deps-dev: bump @babel/cli from 7.16.7 to 7.16.8 (#11582) ([a97ec5bb7](https://github.com/mozilla/fxa/commit/a97ec5bb7))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps: bump @babel/preset-typescript from 7.16.5 to 7.16.7 (#11531) ([7018a5c48](https://github.com/mozilla/fxa/commit/7018a5c48))
+- deps: bump @babel/preset-react from 7.16.5 to 7.16.7 (#11533) ([0bff18ebe](https://github.com/mozilla/fxa/commit/0bff18ebe))
+- deps: bump @babel/preset-env from 7.16.5 to 7.16.7 ([a5b1349b4](https://github.com/mozilla/fxa/commit/a5b1349b4))
+
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### Bug fixes
+
+- settings: redirect /settings/avatar/change to /settings/avatar/ (#11504) ([f98044eb3](https://github.com/mozilla/fxa/commit/f98044eb3))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+- deps: bump @babel/plugin-proposal-class-properties from 7.16.5 to 7.16.7 (#11487) ([ba521a7fa](https://github.com/mozilla/fxa/commit/ba521a7fa))
+- deps-dev: bump @babel/cli from 7.16.0 to 7.16.7 (#11483) ([4f463913c](https://github.com/mozilla/fxa/commit/4f463913c))
+- deps: bump node-sass from 7.0.0 to 7.0.1 (#11452) ([7f933398b](https://github.com/mozilla/fxa/commit/7f933398b))
+
 ## 1.222.0
 
 ### New features

@@ -13,6 +13,7 @@ import { EmailBounce } from './email-bounce';
 import { KeyFetchToken } from './key-fetch-token';
 import { PasswordChangeToken } from './password-change-token';
 import { PasswordForgotToken } from './password-forgot-token';
+import { LinkedAccount } from './linked-account';
 import { RecoveryKey } from './recovery-key';
 import { SessionToken } from './session-token';
 import { TotpToken } from './totp-token';
@@ -244,6 +245,7 @@ export {
   PasswordChangeToken,
   PasswordForgotToken,
   PayPalBillingAgreements,
+  LinkedAccount,
   RecoveryKey,
   SecurityEvent,
   SentEmail,

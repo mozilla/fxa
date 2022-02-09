@@ -18,7 +18,10 @@
 </mj-section>
 
 <%- include('/partials/location/index.mjml') %>
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "verifySecondary-action",
+  buttonText: "Verify email"
+}) %>
 
 <mj-section>
   <mj-column>

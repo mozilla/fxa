@@ -46,7 +46,7 @@ import { apiCapturePaypalPayment } from '../../../lib/apiClient';
 import { GeneralError } from '../../../lib/errors';
 import { PaymentMethodHeader } from '../../../components/PaymentMethodHeader';
 import CouponForm from '../../../components/CouponForm';
-import { Coupon } from '../../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
@@ -71,8 +71,8 @@ export type SubscriptionCreateProps = {
   stripeOverride?: SubscriptionCreateStripeAPIs;
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
   paypalButtonBase?: React.FC<ButtonBaseProps>;
-  coupon?: Coupon;
-  setCoupon: (value: Coupon | undefined) => void;
+  coupon?: Coupon.couponDetailsSchema;
+  setCoupon: (value: Coupon.couponDetailsSchema | undefined) => void;
 };
 
 export const SubscriptionCreate = ({

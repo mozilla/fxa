@@ -9,13 +9,7 @@ import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import {
-  HomePath,
-  LockwiseLink,
-  MonitorLink,
-  ROOTPATH,
-  VPNLink,
-} from '../../constants';
+import { HomePath, MonitorLink, ROOTPATH, VPNLink } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
@@ -27,7 +21,7 @@ type FormData = {
 };
 
 const checkboxLabels = [
-  'delete-account-chk-box-1',
+  'delete-account-chk-box-1-v2',
   'delete-account-chk-box-2',
   'delete-account-chk-box-3',
   'delete-account-chk-box-4',
@@ -96,18 +90,17 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
     [account, l10n, setErrorText, setValue, alertBar]
   );
 
-  const handleConfirmChange = (labelText: string) => (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    event.persist();
-    setCheckedBoxes((existing) => {
-      if (event.target.checked) {
-        return [...existing, labelText];
-      } else {
-        return [...existing.filter((text) => text !== labelText)];
-      }
-    });
-  };
+  const handleConfirmChange =
+    (labelText: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      event.persist();
+      setCheckedBoxes((existing) => {
+        if (event.target.checked) {
+          return [...existing, labelText];
+        } else {
+          return [...existing.filter((text) => text !== labelText)];
+        }
+      });
+    };
 
   const onFormSubmit = ({ password }: FormData) => {
     deleteAccount(password);
@@ -130,13 +123,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 <li className="list-disc">
                   <a className="link-blue" href={VPNLink}>
                     <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
-                  </a>
-                </li>
-                <li className="list-disc">
-                  <a className="link-blue" href={LockwiseLink}>
-                    <Localized id="firefox-lockwise">
-                      Firefox Lockwise
-                    </Localized>
                   </a>
                 </li>
                 <li className="list-disc">

@@ -24,6 +24,10 @@ export const emailsTable = fs.readFileSync(
   path.join(thisDir, './emails.sql'),
   'utf8'
 );
+export const linkedAccountsTable = fs.readFileSync(
+  path.join(thisDir, './linked-accounts.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();
@@ -82,6 +86,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
 
   await instance.raw(accountTable);
   await instance.raw(emailsTable);
+  await instance.raw(linkedAccountsTable);
 
   /* Debugging Assistance
    knex.on('query', (data) => {

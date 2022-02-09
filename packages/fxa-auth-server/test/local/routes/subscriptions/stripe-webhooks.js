@@ -29,7 +29,9 @@ const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription
 const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
 const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
 const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
+const eventInvoicePaidDiscount = require('../../payments/fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
+const eventCouponCreated = require('../../payments/fixtures/stripe/event_coupon_created.json');
 const eventCustomerUpdated = require('../../payments/fixtures/stripe/event_customer_updated.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
@@ -149,6 +151,7 @@ describe('StripeWebhookHandler', () => {
         product_name: validProduct.data.object.name,
         product_metadata: validProduct.data.object.metadata,
       });
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves({});
     });
 
     describe('handleWebhookEvent', () => {
@@ -160,6 +163,7 @@ describe('StripeWebhookHandler', () => {
         },
       };
       const handlerNames = [
+        'handleCouponEvent',
         'handleCustomerCreatedEvent',
         'handleSubscriptionCreatedEvent',
         'handleSubscriptionUpdatedEvent',
@@ -201,7 +205,12 @@ describe('StripeWebhookHandler', () => {
         }
       };
 
-      const itOnlyCallsThisHandler = (expectedHandlerName, event) =>
+      const itOnlyCallsThisHandler = (
+        expectedHandlerName,
+        event,
+        expectSentry = false,
+        expectExpandResource = true
+      ) =>
         it(`only calls ${expectedHandlerName}`, async () => {
           const createdEvent = deepCopy(event);
           StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
@@ -209,9 +218,20 @@ describe('StripeWebhookHandler', () => {
           );
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled(expectedHandlerName);
-          assert.isTrue(
-            scopeContextSpy.notCalled,
-            'Expected to not call Sentry'
+          if (expectSentry) {
+            assert.isFalse(
+              scopeContextSpy.notCalled,
+              'Expected to call Sentry'
+            );
+          } else {
+            assert.isTrue(
+              scopeContextSpy.notCalled,
+              'Expected to not call Sentry'
+            );
+          }
+          assert.equal(
+            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce,
+            expectExpandResource
           );
         });
 
@@ -254,6 +274,30 @@ describe('StripeWebhookHandler', () => {
             )
           )
         );
+      });
+
+      describe('when the event.type is coupon.created', () => {
+        itOnlyCallsThisHandler('handleCouponEvent', {
+          data: { object: { id: 'coupon_123', object: 'coupon' } },
+          type: 'coupon.created',
+        });
+
+        itOnlyCallsThisHandler(
+          'handleCouponEvent',
+          {
+            data: { object: { id: 'coupon_123' } },
+            type: 'coupon.created',
+          },
+          true,
+          false
+        );
+      });
+
+      describe('when the event.type is coupon.updated', () => {
+        itOnlyCallsThisHandler('handleCouponEvent', {
+          data: { object: { id: 'coupon_123', object: 'coupon' } },
+          type: 'coupon.updated',
+        });
       });
 
       describe('when the event.type is customer.created', () => {
@@ -301,14 +345,18 @@ describe('StripeWebhookHandler', () => {
       describe('when the event.type is product.updated', () => {
         itOnlyCallsThisHandler(
           'handleProductWebhookEvent',
-          eventProductUpdated
+          eventProductUpdated,
+          false,
+          false
         );
       });
 
       describe('when the event.type is plan.updated', () => {
         itOnlyCallsThisHandler(
           'handlePlanCreatedOrUpdatedEvent',
-          eventPlanUpdated
+          eventPlanUpdated,
+          false,
+          false
         );
       });
 
@@ -373,6 +421,34 @@ describe('StripeWebhookHandler', () => {
           sinon.assert.notCalled(scopeContextSpy);
         });
       });
+    });
+
+    describe('handleCouponEvents', () => {
+      for (const eventType of ['coupon.created', 'coupon.updated']) {
+        it(`allows a valid coupon on ${eventType}`, async () => {
+          const event = deepCopy(eventCouponCreated);
+          event.type = eventType;
+          const coupon = deepCopy(event.data.object);
+          const sentryModule = require('../../../../lib/sentry');
+          coupon.applies_to = { products: [] };
+          sandbox.stub(sentryModule, 'reportSentryError').returns({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
+          sinon.assert.notCalled(sentryModule.reportSentryError);
+        });
+
+        it(`reports an error for invalid coupon on ${eventType}`, async () => {
+          const event = deepCopy(eventCouponCreated);
+          event.type = eventType;
+          const coupon = deepCopy(event.data.object);
+          const sentryModule = require('../../../../lib/sentry');
+          coupon.applies_to = { products: ['productOhNo'] };
+          sandbox.stub(sentryModule, 'reportSentryError').returns({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
+          sinon.assert.calledOnce(sentryModule.reportSentryError);
+        });
+      }
     });
 
     describe('handleCustomerCreatedEvent', () => {
@@ -842,6 +918,7 @@ describe('StripeWebhookHandler', () => {
 
       it('stops if the invoice is not paypal payable', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.status = 'draft';
         StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
           false
         );
@@ -860,8 +937,29 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      it('stops if the invoice is not in draft', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+            {},
+            invoiceCreatedEvent
+          );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
+        );
+      });
+
       it('finalizes invoices for invoice subscriptions', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.status = 'draft';
         StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
           true
         );
@@ -1244,10 +1342,20 @@ describe('StripeWebhookHandler', () => {
     const commonSendSubscriptionInvoiceEmailTest =
       (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
       async () => {
-        const invoice = deepCopy(eventInvoicePaid.data.object);
+        const invoice =
+          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
+            ? deepCopy(eventInvoicePaidDiscount)
+            : deepCopy(eventInvoicePaid.data.object);
+
         invoice.billing_reason = billingReason;
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+        if (
+          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
+        ) {
+          mockInvoiceDetails.invoiceSubtotalInCents = 12;
+          mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
+        }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails
         );
@@ -1273,7 +1381,12 @@ describe('StripeWebhookHandler', () => {
             ...mockInvoiceDetails,
           }
         );
-        if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
+        if (
+          [
+            'sendSubscriptionFirstInvoiceDiscountEmail',
+            'sendSubscriptionFirstInvoiceDiscountEmail',
+          ].includes(expectedMethodName)
+        ) {
           if (verifierSetAt) {
             assert.calledWith(
               StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
@@ -1303,9 +1416,27 @@ describe('StripeWebhookHandler', () => {
     );
 
     it(
+      'sends the initial invoice email for a newly created subscription with a discount',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionFirstInvoiceDiscountEmail',
+        'subscription_create',
+        1
+      )
+    );
+
+    it(
       'sends the initial invoice email for a newly created subscription with passwordless account',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionFirstInvoiceEmail',
+        'subscription_create',
+        0
+      )
+    );
+
+    it(
+      'sends the initial invoice email for a newly created subscription with passwordless account and a discount',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionFirstInvoiceDiscountEmail',
         'subscription_create',
         0
       )

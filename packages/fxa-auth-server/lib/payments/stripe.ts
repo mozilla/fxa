@@ -52,32 +52,63 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
+import AppError from '../error';
 
-export const CUSTOMER_RESOURCE = 'customers';
-export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
-export const PRODUCT_RESOURCE = 'products';
-export const PLAN_RESOURCE = 'plans';
+export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
+export const COUPON_RESOURCE = 'coupons';
+export const CREDIT_NOTE_RESOURCE = 'creditNotes';
+export const CUSTOMER_RESOURCE = 'customers';
 export const INVOICES_RESOURCE = 'invoices';
 export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
+export const PLAN_RESOURCE = 'plans';
+export const PRICE_RESOURCE = 'prices';
+export const PRODUCT_RESOURCE = 'products';
+export const SOURCE_RESOURSE = 'sources';
+export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
+export const TAX_RATE_RESOURCE = 'taxRates';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 
-export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
+export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
+
+export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
 
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
 
+export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
+  card: CARD_RESOURCE,
+  charge: CHARGES_RESOURCE,
+  coupon: COUPON_RESOURCE,
+  credit_note: CREDIT_NOTE_RESOURCE,
+  customer: CUSTOMER_RESOURCE,
+  invoice: INVOICES_RESOURCE,
+  payment_method: PAYMENT_METHOD_RESOURCE,
+  plan: PLAN_RESOURCE,
+  price: PRICE_RESOURCE,
+  product: PRODUCT_RESOURCE,
+  source: SOURCE_RESOURSE,
+  subscription: SUBSCRIPTIONS_RESOURCE,
+  tax_rate: TAX_RATE_RESOURCE,
+};
+
+export const VALID_RESOURCE_TYPES = Object.values(
+  STRIPE_OBJECT_TYPE_TO_RESOURCE
+);
+
 export enum STRIPE_PRICE_METADATA {
   PROMOTION_CODES = 'promotionCodes',
+  PLAY_SKU_IDS = 'playSkuIds',
 }
 
 export enum STRIPE_PRODUCT_METADATA {
   PROMOTION_CODES = 'promotionCodes',
-  PLAY_SKU_IDS = 'playSkuIds',
 }
 
 export enum STRIPE_INVOICE_METADATA {
@@ -86,16 +117,6 @@ export enum STRIPE_INVOICE_METADATA {
   EMAIL_SENT = 'emailSent',
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
-
-const VALID_RESOURCE_TYPES = [
-  CUSTOMER_RESOURCE,
-  SUBSCRIPTIONS_RESOURCE,
-  PRODUCT_RESOURCE,
-  PLAN_RESOURCE,
-  CHARGES_RESOURCE,
-  INVOICES_RESOURCE,
-  PAYMENT_METHOD_RESOURCE,
-] as const;
 
 export const SUBSCRIPTION_UPDATE_TYPES = {
   UPGRADE: 'upgrade',
@@ -129,6 +150,15 @@ export type PaymentBillingDetails = ReturnType<
   paypal_payment_error?: PaypalPaymentError;
   billing_agreement_id?: string;
 };
+
+// The countries we need region data for
+export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
+  // The long name is used in the BigQuery metrics logs; the short name is used
+  // in the Stripe customer billing address.  The long names are also used to
+  // index into the country to states maps.
+  'United States': 'US',
+  Canada: 'CA',
+} as { [key: string]: string };
 
 /**
  * The CacheUpdate decorator has an _optional_ property in its options
@@ -458,16 +488,12 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
-    if (promotionCode && subscription.discount?.promotion_code) {
-      subscription.discount.promotion_code = promotionCode;
-    }
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
-      ...subscription,
-      latest_invoice: subscription.latest_invoice
-        ? (subscription.latest_invoice as Stripe.Invoice).id
-        : null,
+    const updatedSubscription = await this.postSubscriptionCreationUpdates({
+      subscription,
+      promotionCode,
     });
-    return subscription;
+
+    return updatedSubscription;
   }
 
   /**
@@ -522,15 +548,45 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
-    if (promotionCode && subscription.discount?.promotion_code) {
-      subscription.discount.promotion_code = promotionCode;
+
+    const updatedSubscription = await this.postSubscriptionCreationUpdates({
+      subscription,
+      promotionCode,
+    });
+
+    return updatedSubscription;
+  }
+
+  private async postSubscriptionCreationUpdates({
+    subscription,
+    promotionCode,
+  }: {
+    subscription: Stripe.Response<Stripe.Subscription>;
+    promotionCode?: Stripe.PromotionCode;
+  }) {
+    // Save the promotion code into the subscription's metadata now that the
+    // subscription has been successfully created.
+    if (
+      promotionCode &&
+      (subscription.latest_invoice as Stripe.Invoice).discount
+    ) {
+      const subscriptionMetadata = {
+        ...subscription.metadata,
+        [SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY]: promotionCode.code,
+      };
+      subscription.metadata = subscriptionMetadata;
+      await this.stripe.subscriptions.update(subscription.id, {
+        metadata: subscriptionMetadata,
+      });
     }
+
     await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
       ...subscription,
       latest_invoice: subscription.latest_invoice
         ? (subscription.latest_invoice as Stripe.Invoice).id
         : null,
     });
+
     return subscription;
   }
 
@@ -580,6 +636,13 @@ export class StripeHelper {
     });
   }
 
+  /** Fetch a coupon with `applies_to` expanded. */
+  async getCoupon(couponId: string) {
+    return this.stripe.coupons.retrieve(couponId, {
+      expand: ['applies_to'],
+    });
+  }
+
   /**
    * Determines whether a given promotion code is
    * a valid code in the system for the given price, and if it hasn't
@@ -596,7 +659,7 @@ export class StripeHelper {
     const nowSecs = Date.now() / 1000;
 
     // Determine if code exists, is active, and has not expired.
-    const promotionCode = await this.findPromoCodeByCode(code);
+    const promotionCode = await this.findPromoCodeByCode(code, true);
     if (
       !promotionCode ||
       (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
@@ -610,6 +673,139 @@ export class StripeHelper {
     }
 
     // Is the coupon valid for this price?
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Retrieve details about a coupon for a given priceId and possible
+   * promotion code for a customer in the provided country. Will also
+   * provide the discount amount for the subscription via
+   * previewInvoice return value. Coupon details are returned
+   * regardless of current validity (expiry, redeemability).
+   *
+   * Throws invalidPromoCode error if the promotion code does not
+   * exist for the provided priceId.
+   */
+  async retrieveCouponDetails({
+    country,
+    priceId,
+    promotionCode,
+  }: {
+    country: string;
+    priceId: string;
+    promotionCode: string;
+  }): Promise<Coupon.couponDetailsSchema> {
+    const stripePromotionCode = await this.retrievePromotionCodeForPlan(
+      promotionCode,
+      priceId
+    );
+
+    if (stripePromotionCode?.coupon.id) {
+      const stripeCoupon: Stripe.Coupon = stripePromotionCode.coupon;
+
+      const couponDetails: Coupon.couponDetailsSchema = {
+        promotionCode: promotionCode,
+        type: stripeCoupon.duration,
+        valid: false,
+      };
+
+      try {
+        const { currency, discount, total, total_discount_amounts } =
+          await this.previewInvoice({
+            country,
+            priceId,
+            promotionCode,
+          });
+
+        const minAmount = getMinimumAmount(currency);
+        if (total !== 0 && minAmount && total < minAmount) {
+          throw error.invalidPromoCode(promotionCode);
+        }
+
+        if (discount && total_discount_amounts) {
+          couponDetails.discountAmount = total_discount_amounts[0].amount;
+        }
+      } catch (error) {
+        if (
+          error instanceof AppError &&
+          error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
+        ) {
+          throw error;
+        } else {
+          Sentry.withScope((scope) => {
+            scope.setContext('retrieveCouponDetails', {
+              priceId,
+              promotionCode,
+            });
+            Sentry.captureException(error);
+          });
+        }
+      }
+
+      if (stripeCoupon.redeem_by) {
+        const expiry = new Date(stripeCoupon.redeem_by * 1000);
+        const now = new Date();
+        couponDetails.expired = now > expiry;
+      }
+
+      if (stripeCoupon.max_redemptions) {
+        couponDetails.maximallyRedeemed =
+          stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
+      }
+
+      if (
+        couponDetails.discountAmount &&
+        !couponDetails.expired &&
+        !couponDetails.maximallyRedeemed &&
+        stripePromotionCode.active
+      ) {
+        couponDetails.valid = true;
+      }
+
+      return couponDetails;
+    } else {
+      throw error.invalidPromoCode(promotionCode);
+    }
+  }
+
+  /**
+   * Retrieves the stripe promotionCode object for a plan regardless of current validity.
+   */
+  async retrievePromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const promotionCode = await this.findPromoCodeByCode(code, undefined);
+    if (!promotionCode) {
+      return;
+    }
+
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Checks plan meta-data to see if promotion code applies.
+   */
+  async checkPromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<boolean> {
     const price = await this.findPlanById(priceId);
     const validPromotionCodes: string[] = [];
     if (
@@ -632,22 +828,20 @@ export class StripeHelper {
           .map((c) => c.trim())
       );
     }
-    if (!validPromotionCodes.includes(code)) {
-      return;
-    }
 
-    return promotionCode;
+    return validPromotionCodes.includes(code);
   }
 
   /**
-   * Queries Stripe for active promotion codes and returns a matching one if
+   * Queries Stripe for promotion codes and returns a matching one if
    * found.
    */
   async findPromoCodeByCode(
-    code: string
+    code: string,
+    active?: boolean
   ): Promise<Stripe.PromotionCode | undefined> {
     const promoCodes = await this.stripe.promotionCodes.list({
-      active: true,
+      active,
       code,
     });
     return promoCodes.data.find((c) => c.code === code);
@@ -841,7 +1035,6 @@ export class StripeHelper {
         country,
         postalCode,
       });
-
       return true;
     } catch (err: unknown) {
       Sentry.withScope((scope) => {
@@ -853,10 +1046,8 @@ export class StripeHelper {
         Sentry.captureException(err);
       });
     }
-
     return false;
   }
-
   /**
    * Update the customer object to add a PayPal Billing Agreement ID.
    *
@@ -1220,12 +1411,12 @@ export class StripeHelper {
   }
 
   /**
-   * Return a list of skus for a given product.
+   * Return a list of skus for a given price.
    */
-  productToPlaySkus(product: AbbrevProduct) {
-    const productSkus =
-      product.product_metadata[STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS] || '';
-    return productSkus
+  priceToPlaySkus(price: AbbrevPlan) {
+    const priceSkus =
+      price.plan_metadata?.[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] || '';
+    return priceSkus
       .trim()
       .split(',')
       .map((c) => c.trim().toLowerCase())
@@ -1233,43 +1424,44 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch all product ids that correspond to a list of Play SubscriptionPurchases.
+   * Fetch all price ids that correspond to a list of Play SubscriptionPurchases.
    */
-  async purchasesToProductIds(purchases: SubscriptionPurchase[]) {
-    const products = await this.allAbbrevProducts();
+  async purchasesToPriceIds(purchases: SubscriptionPurchase[]) {
+    const prices = await this.allAbbrevPlans();
     const purchasedSkus = purchases.map((purchase) =>
       purchase.sku.toLowerCase()
     );
-    const purchasedProducts = [];
-    for (const product of products) {
-      const playSkus = this.productToPlaySkus(product);
+    const purchasedPrices = [];
+    for (const price of prices) {
+      const playSkus = this.priceToPlaySkus(price);
       if (playSkus.some((sku) => purchasedSkus.includes(sku))) {
-        purchasedProducts.push(product.product_id);
+        purchasedPrices.push(price.plan_id);
       }
     }
-    return purchasedProducts;
+    return purchasedPrices;
   }
 
   /**
-   * Append any matching product ids and names to their corresponding AbbrevPlayPurchase.
+   * Append any matching price ids and names to their corresponding AbbrevPlayPurchase.
    */
-  async addProductInfoToAbbrevPlayPurchases(
+  async addPriceInfoToAbbrevPlayPurchases(
     purchases: AbbrevPlayPurchase[]
   ): Promise<
     (AbbrevPlayPurchase & { product_id: string; product_name: string })[]
   > {
-    const products = await this.allAbbrevProducts();
+    const plans = await this.allAbbrevPlans();
     const appendedAbbrevPlayPurchases = [];
-    for (const product of products) {
-      const playSkus = this.productToPlaySkus(product);
+    for (const plan of plans) {
+      const playSkus = this.priceToPlaySkus(plan);
       const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
         playSkus.includes(purchase.sku.toLowerCase())
       );
       for (const matchingAbbrevPlayPurchase of matchingAbbrevPlayPurchases) {
         appendedAbbrevPlayPurchases.push({
           ...matchingAbbrevPlayPurchase,
-          product_id: product.product_id,
-          product_name: product.product_name,
+          product_id: plan.product_id,
+          product_name: plan.product_name,
+          price_id: plan.plan_id,
         });
       }
     }
@@ -1481,32 +1673,6 @@ export class StripeHelper {
     }
   }
 
-  /**
-   * While we do update the subscription in Firestore on webhook events, we
-   * need to keep the subscription in a consistent shape in the time after the
-   * API update but before the webhook handling.  This function copies expanded
-   * properties that are not returned by Stripe.subscriptions.update from the
-   * old subscription object into the returned one.
-   *
-   * Currently it only handles `discount.promotion_code`.
-   */
-  copyExpandedSubscriptionProperties(
-    oldSubscription: Stripe.Subscription,
-    newSubscription: Stripe.Subscription
-  ) {
-    if (
-      oldSubscription.discount?.promotion_code &&
-      newSubscription.discount?.promotion_code &&
-      (oldSubscription.discount.promotion_code as Stripe.PromotionCode).id ===
-        newSubscription.discount?.promotion_code
-    ) {
-      newSubscription.discount.promotion_code =
-        oldSubscription.discount.promotion_code;
-    }
-
-    return newSubscription;
-  }
-
   async updateSubscriptionAndBackfill(
     subscription: Stripe.Subscription,
     newProps: Stripe.SubscriptionUpdateParams
@@ -1515,14 +1681,10 @@ export class StripeHelper {
       subscription.id,
       newProps
     );
-    const newSubscription = this.copyExpandedSubscriptionProperties(
-      subscription,
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       updatedSubscription
     );
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      newSubscription
-    );
-    return newSubscription;
+    return updatedSubscription;
   }
 
   /**
@@ -1926,7 +2088,7 @@ export class StripeHelper {
         failure_code,
         failure_message,
         promotion_code:
-          (sub.discount?.promotion_code as Stripe.PromotionCode)?.code ?? null,
+          sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
       });
     }
     return subs;
@@ -2058,6 +2220,7 @@ export class StripeHelper {
       created: invoiceDate,
       currency: invoiceTotalCurrency,
       total: invoiceTotalInCents,
+      subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
       lines: {
         data: [
@@ -2067,6 +2230,13 @@ export class StripeHelper {
         ],
       },
     } = invoice;
+
+    const invoiceDiscountAmountInCents =
+      (invoice.total_discount_amounts &&
+        invoice.total_discount_amounts.length &&
+        invoice.total_discount_amounts[0].amount) ||
+      null;
+
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
@@ -2090,6 +2260,8 @@ export class StripeHelper {
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
       productId,
@@ -2683,8 +2855,7 @@ export class StripeHelper {
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const subscription = await this.stripe.subscriptions.retrieve(
-      (event.data.object as Stripe.Subscription).id,
-      { expand: ['discount.promotion_code'] }
+      (event.data.object as Stripe.Subscription).id
     );
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
@@ -2720,6 +2891,12 @@ export class StripeHelper {
    * only change in their entirety.
    */
   async processPaymentMethodEventToFirestore(event: Stripe.Event) {
+    // If this payment method is not attached, we can't store it in firestore as
+    // the customer may not exist.
+    if (!(event.data.object as Stripe.PaymentMethod).customer) {
+      return;
+    }
+
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
@@ -2762,8 +2939,6 @@ export class StripeHelper {
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
-          await this.processSubscriptionEventToFirestore(event);
-          break;
         case 'customer.subscription.deleted':
           await this.processSubscriptionEventToFirestore(event);
           break;

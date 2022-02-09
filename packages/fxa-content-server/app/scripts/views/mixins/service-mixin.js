@@ -8,6 +8,12 @@
 import BaseView from '../base';
 import $ from 'jquery';
 
+// Some clients have a custom logo in their service name
+const SERVICE_LOGO = {
+  '7377719276ad44ee': 'graphic-client-pocket', // pocket-mobile
+  '749818d3f2e7857f': 'graphic-client-pocket', // pocket-web
+};
+
 export default {
   afterRender() {
     this.transformLinks();
@@ -19,9 +25,13 @@ export default {
       'subscriptionProductName',
       this.translate('serviceName')
     );
+
+    const serviceLogo = SERVICE_LOGO[service];
+
     context.set({
       service,
       serviceName: subscriptionProductName || serviceName,
+      serviceLogo,
     });
   },
 

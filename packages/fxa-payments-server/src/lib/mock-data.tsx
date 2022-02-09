@@ -1,4 +1,6 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
@@ -13,6 +15,7 @@ export const PROFILE: Profile = {
   locale: 'en-US',
   twoFactorAuthentication: true,
   uid: '8675309asdf',
+  metricsEnabled: true,
 };
 
 export const NEW_CUSTOMER: Customer = {
@@ -234,4 +237,100 @@ export const IAP_APPLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
+};
+
+export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 500,
+};
+
+export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 450,
+  discount: {
+    amount: 50,
+    amount_off: null,
+    percent_off: 10,
+  },
+};
+
+export const COUPON_DETAILS_VALID: CouponDetails = {
+  promotionCode: 'VALID',
+  type: '',
+  valid: true,
+  discountAmount: 50,
+  expired: false,
+  maximallyRedeemed: false,
+};
+
+export const COUPON_DETAILS_INVALID: CouponDetails = {
+  promotionCode: 'INVALID',
+  type: '',
+  valid: false,
+};
+
+export const COUPON_DETAILS_EXPIRED: CouponDetails = {
+  promotionCode: 'EXPIRED',
+  type: '',
+  valid: false,
+  expired: true,
+};
+
+export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
+  promotionCode: 'EXPIRED',
+  type: '',
+  valid: false,
+  maximallyRedeemed: true,
+};
+
+export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 0,
+  discount: {
+    amount: 500,
+    amount_off: null,
+    percent_off: 100,
+  },
+};
+
+export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 25,
+  discount: {
+    amount: 475,
+    amount_off: 475,
+    percent_off: null,
+  },
 };

@@ -137,8 +137,7 @@ describe('StripeFirestore', () => {
       assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
       assert.calledOnceWithExactly(
         stripe.subscriptions.retrieve,
-        subscription.id,
-        { expand: ['discount.promotion_code'] }
+        subscription.id
       );
     });
 
@@ -184,7 +183,6 @@ describe('StripeFirestore', () => {
       assert.calledOnce(stripe.customers.retrieve);
       assert.calledOnceWithExactly(stripe.subscriptions.list, {
         customer: customer.id,
-        expand: ['data.discount.promotion_code'],
       });
       assert.calledOnce(stripeFirestore.insertCustomerRecord);
       assert.calledOnce(customerCollectionDbRef.doc);

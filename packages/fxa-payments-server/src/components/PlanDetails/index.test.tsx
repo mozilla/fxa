@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -12,9 +16,11 @@ import {
 } from '../../lib/test-utils';
 import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
-import { Coupon } from '../../lib/Coupon';
+import CouponForm from '../CouponForm';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { Profile } from '../../store/types';
 
-const userProfile = {
+const userProfile: Profile = {
   avatar: './avatar.svg',
   displayName: 'Foxy77',
   email: 'foxy@firefox.com',
@@ -23,6 +29,7 @@ const userProfile = {
   locale: 'en-US',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
+  metricsEnabled: true,
 };
 
 const selectedPlan: Plan = {
@@ -190,7 +197,12 @@ describe('PlanDetails', () => {
         featureFlags: {},
       });
 
-      const coupon: Coupon = { amount: 200, promotionCode: '' };
+      const coupon: Coupon.couponDetailsSchema = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
       const props = {
         ...{
           profile: userProfile,
@@ -209,8 +221,8 @@ describe('PlanDetails', () => {
       });
 
       const expectedAmount = getLocalizedCurrency(
-        selectedPlan.amount
-          ? selectedPlan.amount - coupon.amount
+        selectedPlan.amount && coupon.discountAmount
+          ? selectedPlan.amount - coupon.discountAmount
           : selectedPlan.amount,
         selectedPlan.currency
       );

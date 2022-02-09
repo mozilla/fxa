@@ -10,7 +10,14 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
-  featureFlags: {},
+  featureFlags: {
+    useFirestoreProductConfigs: {
+      default: false,
+      doc: 'Feature flag on whether to expect Firestore (and not Stripe metadata) based product and plan configurations',
+      env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
+      format: Boolean,
+    },
+  },
   amplitude: {
     enabled: {
       default: true,

@@ -24,12 +24,18 @@ subplat-cancel-plaintext = "Cancel subscription:"
 subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>
 <% } else { %>
-subplat-privacy-policy-plaintext = "Mozilla Privacy Policy"
+subplat-privacy-policy-plaintext = "Mozilla Privacy Policy:"
 <%- privacyUrl %>
 
-subplat-cloud-terms-plaintext = "Firefox Cloud Terms Of Service"
+subplat-cloud-terms-plaintext = "Firefox Cloud Terms Of Service:"
 <%- subscriptionTermsUrl %>
 <% } %>
 
 Mozilla Corporation
 2 Harrison St, #175, San Francisco, CA 94105
+
+subplat-legal-plaintext = "Legal:"
+https://www.mozilla.org/about/legal/terms/services/
+
+subplat-privacy-website-plaintext = "Privacy:"
+https://www.mozilla.org/privacy/websites/

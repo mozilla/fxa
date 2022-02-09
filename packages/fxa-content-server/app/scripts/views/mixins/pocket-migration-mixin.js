@@ -2,22 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ExperimentMixin from './experiment-mixin';
-const EXPERIMENT_NAME = 'pocketMigration';
+const POCKET_CLIENTIDS = [
+  '7377719276ad44ee', // pocket-mobile
+  '749818d3f2e7857f', // pocket-web
+];
 
 export default {
-  dependsOn: [ExperimentMixin],
-
   setInitialContext(context) {
-    context.set({
-      isInPocketMigration: this.isInPocketMigrationTreatment(),
-    });
-  },
+    const isPocketClient = POCKET_CLIENTIDS.includes(
+      this.relier.get('clientId')
+    );
 
-  isInPocketMigrationTreatment() {
-    const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
-      clientId: this.relier.get('clientId'),
-    });
-    return experimentGroup === 'treatment';
+    if (isPocketClient) {
+      context.set({
+        newsletters: [], // Disables newsletters
+        isAnyNewsletterEnabled: false,
+        isPocketClient, // In signup pages we add more terms and conditions for Pocket
+      });
+    }
   },
 };

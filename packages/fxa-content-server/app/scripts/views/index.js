@@ -14,11 +14,13 @@ import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
+import ThirdPartyAuth from '../templates/partial/third-party-auth.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
+import GoogleAuthMixin from './mixins/google-auth-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
@@ -33,6 +35,7 @@ class IndexView extends FormView {
 
   partialTemplates = {
     unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
+    unsafeThirdPartyAuthHTML: ThirdPartyAuth,
   };
 
   constructor(options) {
@@ -267,6 +270,7 @@ Cocktail.mixin(
   FormPrefillMixin,
   ServiceMixin,
   SignedInNotificationMixin,
+  GoogleAuthMixin,
   SyncSuggestionMixin({
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',

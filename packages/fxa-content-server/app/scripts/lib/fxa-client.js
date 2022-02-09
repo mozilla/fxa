@@ -1431,6 +1431,14 @@ FxaClientWrapper.prototype = {
       return getUpdatedSessionData(email, relier, accountData);
     });
   }),
+
+  verifyAccountThirdParty: withClient((client, relier, token, provider) => {
+    return client
+      .verifyAccountThirdParty(token, provider)
+      .then((accountData) => {
+        return getUpdatedSessionData(accountData.email, relier, accountData);
+      });
+  }),
 };
 
 export default FxaClientWrapper;

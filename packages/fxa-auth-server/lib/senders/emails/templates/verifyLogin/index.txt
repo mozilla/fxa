@@ -1,4 +1,4 @@
-verifyLogin-title = "Activate the Firefox family of products"
+verifyLogin-title = "New sign-in to <%- clientName %>"
 
 verifyLogin-description = "For added security, please confirm this sign-in from the following device:"
 

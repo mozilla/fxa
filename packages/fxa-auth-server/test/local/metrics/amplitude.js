@@ -148,8 +148,6 @@ describe('metrics/amplitude', () => {
           deviceId: 'juff',
           devices: [],
           emailDomain: undefined,
-          emailSender: undefined,
-          emailService: undefined,
           emailTypes: amplitudeModule.EMAIL_TYPES,
           eventSource: 'auth',
           flowBeginTime: 'kwop',

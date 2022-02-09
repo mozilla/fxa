@@ -59,6 +59,7 @@ module.exports = function (log, config, bounces) {
       'subscription-failed-payments-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
     subscriptionFirstInvoice: 'subscription-first-invoice',
+    subscriptionFirstInvoiceDiscount: 'subscription-first-invoice-discount',
     downloadSubscription: 'new-subscription',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
@@ -107,6 +108,7 @@ module.exports = function (log, config, bounces) {
     subscriptionFailedPaymentsCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
     subscriptionFirstInvoice: 'subscriptions',
+    subscriptionFirstInvoiceDiscount: 'subscriptions',
     downloadSubscription: 'subscriptions',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
@@ -255,6 +257,8 @@ module.exports = function (log, config, bounces) {
       ignoreTLS: !mailerConfig.secure,
       port: mailerConfig.port,
       pool: true,
+      maxConnections: 2,
+      maxMessages: 10,
     };
 
     if (mailerConfig.user && mailerConfig.password) {
@@ -275,7 +279,6 @@ module.exports = function (log, config, bounces) {
     this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl;
     this.androidUrl = mailerConfig.androidUrl;
     this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
-    this.emailService = sender || require('./email_service')(config);
     this.accountFinishSetupUrl = mailerConfig.accountFinishSetupUrl;
     this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl;
     this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl;
@@ -289,12 +292,6 @@ module.exports = function (log, config, bounces) {
     this.privacyUrl = mailerConfig.privacyUrl;
     this.reportSignInUrl = mailerConfig.reportSignInUrl;
     this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
-    this.selectEmailServices = require('./select_email_services')(
-      log,
-      config,
-      this.mailer,
-      this.emailService
-    );
     this.sender = mailerConfig.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
     this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
@@ -309,6 +306,7 @@ module.exports = function (log, config, bounces) {
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
     this.fluentLocalizer = new FluentLocalizer(new NodeLocalizerBindings());
+    this.metricsEnabled = true;
   }
 
   Mailer.prototype.stop = function () {
@@ -493,110 +491,93 @@ module.exports = function (log, config, bounces) {
     }
     message.templateVersion = templateVersion;
 
-    const services = await this.selectEmailServices(message);
+    const headers = {
+      'Content-Language': localized.language,
+      'X-Template-Name': template,
+      'X-Template-Version': templateVersion,
+      ...message.headers,
+      ...optionalHeader('X-Device-Id', message.deviceId),
+      ...optionalHeader('X-Flow-Id', message.flowId),
+      ...optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+      ...optionalHeader('X-Service-Id', message.service),
+      ...optionalHeader('X-Uid', message.uid),
+    };
 
-    for (const service of services) {
-      const headers = {
-        'Content-Language': localized.language,
-        'X-Template-Name': template,
-        'X-Template-Version': templateVersion,
-        ...message.headers,
-        ...optionalHeader('X-Device-Id', message.deviceId),
-        ...optionalHeader('X-Flow-Id', message.flowId),
-        ...optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
-        ...optionalHeader('X-Service-Id', message.service),
-        ...optionalHeader('X-Uid', message.uid),
-      };
+    const to = message.email;
 
-      const { mailer, emailAddresses, emailService, emailSender } = service;
-      const to = emailAddresses[0];
-
-      try {
-        await bounces.check(to, template);
-      } catch (err) {
-        log.error('email.bounce.limit', {
-          err: err.message,
-          errno: err.errno,
-          to,
-          template,
-        });
-        throw err;
-      }
-
-      // Set headers that let us attribute success/failure correctly
-      message.emailService = headers['X-Email-Service'] = emailService;
-      message.emailSender = headers['X-Email-Sender'] = emailSender;
-
-      if (this.sesConfigurationSet && emailSender === 'ses') {
-        // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
-        // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
-        // actual outgoing email messages.
-        headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
-        headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
-          message.metricsTemplate || template,
-          emailService
-        );
-      }
-
-      log.debug('mailer.send', {
-        email: to,
-        template,
-        headers: Object.keys(headers).join(','),
-      });
-
-      const emailConfig = {
-        sender: this.sender,
-        from: this.sender,
+    try {
+      await bounces.check(to, template);
+    } catch (err) {
+      log.error('email.bounce.limit', {
+        err: err.message,
+        errno: err.errno,
         to,
-        subject: localized.subject,
-        text: localized.text,
-        html: localized.html,
-        xMailer: false,
-        headers,
-      };
-
-      if (emailAddresses.length > 1) {
-        emailConfig.cc = emailAddresses.slice(1);
-      }
-
-      if (emailService === 'fxa-email-service') {
-        emailConfig.provider = emailSender;
-      }
-
-      await new Promise((resolve, reject) => {
-        mailer.sendMail(emailConfig, (err, status) => {
-          if (err) {
-            log.error('mailer.send.error', {
-              err: err.message,
-              code: err.code,
-              errno: err.errno,
-              message: status && status.message,
-              to: emailConfig && emailConfig.to,
-              emailSender,
-              emailService,
-              template,
-            });
-
-            return reject(err);
-          }
-
-          log.debug('mailer.send.1', {
-            status: status && status.message,
-            id: status && status.messageId,
-            to: emailConfig && emailConfig.to,
-            emailSender,
-            emailService,
-          });
-
-          emailUtils.logEmailEventSent(log, {
-            ...message,
-            headers,
-          });
-
-          return resolve(status);
-        });
+        template,
       });
+      throw err;
     }
+
+    if (this.sesConfigurationSet) {
+      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+      // actual outgoing email messages.
+      headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
+        message.metricsTemplate || template,
+        'fxa-auth-server'
+      );
+    }
+
+    log.debug('mailer.send', {
+      email: to,
+      template,
+      headers: Object.keys(headers).join(','),
+    });
+
+    const emailConfig = {
+      sender: this.sender,
+      from: this.sender,
+      to,
+      subject: localized.subject,
+      text: localized.text,
+      html: localized.html,
+      xMailer: false,
+      headers,
+    };
+
+    if (message.ccEmails) {
+      emailConfig.cc = message.ccEmails;
+    }
+
+    await new Promise((resolve, reject) => {
+      this.mailer.sendMail(emailConfig, (err, status) => {
+        if (err) {
+          log.error('mailer.send.error', {
+            err: err.message,
+            code: err.code,
+            errno: err.errno,
+            message: status && status.message,
+            to: emailConfig && emailConfig.to,
+            template,
+          });
+
+          return reject(err);
+        }
+
+        log.debug('mailer.send.1', {
+          status: status && status.message,
+          id: status && status.messageId,
+          to: emailConfig && emailConfig.to,
+        });
+
+        emailUtils.logEmailEventSent(log, {
+          ...message,
+          headers,
+        });
+
+        return resolve(status);
+      });
+    });
   };
 
   Mailer.prototype.verifyEmail = async function (message) {
@@ -2884,6 +2865,99 @@ module.exports = function (log, config, bounces) {
     });
   };
 
+  Mailer.prototype.subscriptionFirstInvoiceDiscountEmail = async function (
+    message
+  ) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceNumber,
+      invoiceDate,
+      invoiceLink,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
+      payment_provider,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionFirstInvoiceDiscount', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionFirstInvoiceDiscount';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = { productName };
+    const subject = translator.gettext('%(productName)s payment confirmed');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceLink,
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceSubtotal: this._getLocalizedCurrencyString(
+          invoiceSubtotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceDiscountAmount: this._getLocalizedCurrencyString(
+          invoiceDiscountAmountInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        payment_provider,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
+      },
+    });
+  };
+
   Mailer.prototype.downloadSubscriptionEmail = async function (message) {
     const {
       email,
@@ -3018,15 +3092,17 @@ module.exports = function (log, config, bounces) {
       parsedLink.searchParams.set(key, value);
     });
 
-    parsedLink.searchParams.set('utm_medium', 'email');
+    if (this.metricsEnabled) {
+      parsedLink.searchParams.set('utm_medium', 'email');
 
-    const campaign = templateNameToCampaignMap[templateName];
-    if (campaign && !parsedLink.searchParams.has('utm_campaign')) {
-      parsedLink.searchParams.set('utm_campaign', UTM_PREFIX + campaign);
-    }
+      const campaign = templateNameToCampaignMap[templateName];
+      if (campaign && !parsedLink.searchParams.has('utm_campaign')) {
+        parsedLink.searchParams.set('utm_campaign', UTM_PREFIX + campaign);
+      }
 
-    if (content) {
-      parsedLink.searchParams.set('utm_content', UTM_PREFIX + content);
+      if (content) {
+        parsedLink.searchParams.set('utm_content', UTM_PREFIX + content);
+      }
     }
 
     const isAccountOrEmailVerification =
@@ -3049,7 +3125,9 @@ module.exports = function (log, config, bounces) {
     appStoreLink,
     playStoreLink
   ) {
-    const { email, uid } = message;
+    const { email, uid, metricsEnabled } = message;
+    // set this to avoid passing `metricsEnabled` around to all link functions
+    this.metricsEnabled = metricsEnabled;
 
     const translator = this.translator(message.acceptLanguage);
     const {

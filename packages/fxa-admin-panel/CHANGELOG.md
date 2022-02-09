@@ -1,3 +1,66 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### Bug fixes
+
+- admin: Fix query by UID (#11744) ([7c96878bb](https://github.com/mozilla/fxa/commit/7c96878bb))
+
+### Other changes
+
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- admin: Rename Current Session to Connected Services (#11685) ([a59f64bd1](https://github.com/mozilla/fxa/commit/a59f64bd1))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps-dev: bump @testing-library/dom from 8.11.1 to 8.11.2 ([ef8e66bec](https://github.com/mozilla/fxa/commit/ef8e66bec))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+No changes.
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps-dev: bump supertest from 6.1.6 to 6.2.1 (#11619) ([443b0b099](https://github.com/mozilla/fxa/commit/443b0b099))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2" (#11605) ([39377d88a](https://github.com/mozilla/fxa/commit/39377d88a))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2 ([854eb5c4d](https://github.com/mozilla/fxa/commit/854eb5c4d))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+
+## 1.223.2
+
+No changes.
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### Refactorings
+
+- admin-panel, payments: Upgrade to react-router v6 (#11463) ([24bf98e99](https://github.com/mozilla/fxa/commit/24bf98e99))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+
 ## 1.222.0
 
 ### New features

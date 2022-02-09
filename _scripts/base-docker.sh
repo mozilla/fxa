@@ -39,7 +39,6 @@ npx yarn workspaces focus --production \
   browserid-verifier \
   fxa-admin-panel \
   fxa-admin-server \
-  fxa-auth-db-mysql \
   fxa-auth-server \
   fxa-content-server \
   fxa-customs-server \

@@ -150,6 +150,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
     './totp.sql',
     './recovery-keys.sql',
     './session-tokens.sql',
+    './linked-accounts.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql(['./insert-email-types.sql', './sent-emails.sql']);

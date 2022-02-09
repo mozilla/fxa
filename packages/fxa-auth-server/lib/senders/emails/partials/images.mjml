@@ -1,0 +1,49 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<% if (!locals.productName) { locals.productName = 'Firefox' %><% } %>
+<mj-html-attributes>
+  <mj-selector path=".fxa-logo-firefox a">
+    <mj-html-attribute name="data-l10n-id">subplat-header-firefox-logo</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".fxa-logo-firefox img">
+    <mj-html-attribute name="data-l10n-name">fxa-logo-firefox</mj-html-attribute>
+  </mj-selector>
+
+  <mj-selector path=".mozilla-logo a">
+    <mj-html-attribute name="data-l10n-id">subplat-footer-mozilla-logo</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".mozilla-logo img">
+    <mj-html-attribute name="data-l10n-name">mozilla-logo</mj-html-attribute>
+  </mj-selector>
+
+  <mj-selector path=".graphic-devices td">
+    <mj-html-attribute name="data-l10n-id">body-devices-image</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".graphic-devices img">
+    <mj-html-attribute name="data-l10n-name">devices-image</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".sync-logo td">
+    <mj-html-attribute name="data-l10n-id">body-devices-image</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".sync-logo img">
+    <mj-html-attribute name="data-l10n-name">devices-image</mj-html-attribute>
+  </mj-selector>
+
+  <mj-selector path=".app-badge-android a">
+    <mj-html-attribute name="data-l10n-id">body-android-badge</mj-html-attribute>
+    <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".app-badge-android img">
+    <mj-html-attribute name="data-l10n-name">google-play-badge</mj-html-attribute>
+  </mj-selector>
+
+  <mj-selector path=".app-badge-ios a">
+    <mj-html-attribute name="data-l10n-id">body-ios-badge</mj-html-attribute>
+    <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".app-badge-ios img">
+    <mj-html-attribute name="data-l10n-name">apple-app-badge</mj-html-attribute>
+  </mj-selector>
+</mj-html-attributes>

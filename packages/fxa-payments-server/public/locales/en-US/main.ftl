@@ -352,6 +352,10 @@ coupon-discount-applied = Discount Reward Applied
 coupon-submit = Apply
 coupon-remove = Remove
 coupon-error = The code you entered is invalid or expired.
+coupon-error-generic = An error occurred processing the code. Please try again.
+coupon-error-expired = The code you entered has expired.
+coupon-error-limit-reached = The code you entered has reached its limit.
+coupon-error-invalid = The code you entered is invalid.
 coupon-success = Your plan will automatically renew at the list price.
 coupon-enter-code =
   .placeholder = Enter Code
@@ -424,6 +428,6 @@ manage-pocket-title = Looking for your { -brand-name-pocket } premium subscripti
 manage-pocket-body = To manage it, <a>click here</a>.
 
 payment-method-header = Choose your payment method
-# $prefix (string) - If header is part of a multi step process and needs a header. eg. '2.'
-payment-method-header-prefix = { $prefix } Choose your payment method
+# This message is used to indicate the second step in a multi step process.
+payment-method-header-second-step = 2. { payment-method-header }
 payment-method-required = Required

@@ -39,6 +39,7 @@ describe('lib/senders/index', () => {
     const acct = {
       email: EMAIL,
       uid: UID,
+      metricsOptOutAt: null,
     };
 
     function createSender(config, log) {
@@ -80,6 +81,11 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.verifyEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
           });
       });
     });
@@ -137,6 +143,11 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.recoveryEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -150,13 +161,21 @@ describe('lib/senders/index', () => {
     describe('.sendPasswordChangedEmail()', () => {
       it('should call mailer.passwordChangedEmail()', () => {
         let email;
+        const acctMetricsOptOut = {
+          ...acct,
+          metricsOptOutAt: 1642801160000,
+        };
         return createSender(config)
           .then((e) => {
             email = e;
             email._ungatedMailer.passwordChangedEmail = sinon.spy(() =>
               Promise.resolve({})
             );
-            return email.sendPasswordChangedEmail(EMAILS, acct, {});
+            return email.sendPasswordChangedEmail(
+              EMAILS,
+              acctMetricsOptOut,
+              {}
+            );
           })
           .then(() => {
             assert.equal(
@@ -167,6 +186,11 @@ describe('lib/senders/index', () => {
             const args =
               email._ungatedMailer.passwordChangedEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              false,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -194,6 +218,11 @@ describe('lib/senders/index', () => {
             const args =
               email._ungatedMailer.passwordResetEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -221,6 +250,11 @@ describe('lib/senders/index', () => {
             const args =
               email._ungatedMailer.newDeviceLoginEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -247,6 +281,11 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.postVerifyEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.lengthOf(args[0].ccEmails, 1);
           });
       });
@@ -270,6 +309,11 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.unblockCodeEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -306,6 +350,11 @@ describe('lib/senders/index', () => {
                 0
               ).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -342,6 +391,11 @@ describe('lib/senders/index', () => {
                 0
               ).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
               args[0].ccEmails[0],
@@ -374,6 +428,7 @@ describe('lib/senders/index', () => {
           ccEmails: EMAILS.slice(1, 2).map((e) => e.email),
           email: EMAIL,
           productId: 'blee',
+          metricsEnabled: true,
           uid: UID,
         });
       });

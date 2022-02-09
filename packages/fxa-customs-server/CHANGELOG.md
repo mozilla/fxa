@@ -1,3 +1,45 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+No changes.
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+No changes.
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+No changes.
+
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+No changes.
+
 ## 1.222.0
 
 ### New features

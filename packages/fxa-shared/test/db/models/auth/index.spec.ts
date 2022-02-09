@@ -22,6 +22,7 @@ import {
   updatePayPalBA,
   deleteAllPayPalBAs,
   getPayPalBAByBAId,
+  LinkedAccount,
 } from '../../../../db/models/auth';
 import {
   chance,
@@ -29,8 +30,6 @@ import {
   randomEmail,
   testDatabaseSetup,
 } from './helpers';
-import customer1 from '../../../fixtures/stripe/customer1.json';
-import Stripe from 'stripe';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -494,6 +493,43 @@ describe('auth', () => {
       // Test Final Retrieval
       const finallocate = await getAllPayPalBAByUid(userId);
       assert.lengthOf(finallocate, 0);
+    });
+  });
+
+  describe('linkedAccounts', () => {
+    const userId = '263e29ad86d245eeabf309e6a125bbfb';
+    function getRandomId() {
+      return `${Date.now() + Math.random() * 1000}`;
+    }
+
+    describe('createLinkedGoogleAccount', () => {
+      it('creates and get new linked google account', async () => {
+        const id = getRandomId();
+        await LinkedAccount.createLinkedGoogleAccount(userId, id);
+
+        const linkedAccounts = await LinkedAccount.findByUid(userId);
+
+        assert.equal(linkedAccounts.length, 1);
+
+        assert.equal(linkedAccounts[0].uid, userId);
+        assert.equal(linkedAccounts[0].id, id);
+        assert.equal(linkedAccounts[0].providerId, 1);
+
+        const linkedAccount = await LinkedAccount.findByGoogleId(id);
+        assert.equal(linkedAccount.uid, userId);
+        assert.equal(linkedAccount.id, id);
+        assert.equal(linkedAccount.providerId, 1);
+      });
+
+      it('can delete linked google account', async () => {
+        const id = getRandomId();
+        await LinkedAccount.createLinkedGoogleAccount(userId, id);
+
+        await LinkedAccount.deleteLinkedGoogleAccount(userId, id);
+
+        const linkedAccount = await LinkedAccount.findByGoogleId(id);
+        assert.isUndefined(linkedAccount);
+      });
     });
   });
 });

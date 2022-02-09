@@ -1,6 +1,6 @@
 subscriptionAccountReminderFirst-subject = "Reminder: Finish setting up your account"
 
-subscriptionAccountReminderFirst-title = "You can‘t access your subscription yet"
+subscriptionAccountReminderFirst-title = "You can’t access your subscription yet"
 
 subscriptionAccountReminderFirst-content-info = "A few days ago you created a Firefox account but never verified it. We hope you’ll finish setting up your account, so you can use your new subscription."
 
@@ -10,5 +10,3 @@ subscriptionAccountReminderFirst-action-plaintext = "Create Password:"
 <%- link %>
 
 <%- include ('/partials/subscriptionSupport/index.txt') %>
-
-<%- include ('/partials/automatedEmailResetPassword/index.txt') %>

@@ -11,7 +11,6 @@ on:
       - main
     paths:
       - 'assets/**/'
-      - '!assets/other/**'
 
 jobs:
   Upload-assets-to-CDN:
@@ -30,6 +29,7 @@ jobs:
       - name: "Asset upload to stage CDN S3 bucket"
         run: |
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/product-icons
+          aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/other
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment  assets/legal s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/legal
 
       - name: Configure Production AWS credentials
@@ -42,6 +42,7 @@ jobs:
       - name: "Asset upload to production CDN S3 bucket"
         run: |
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/product-icons
+          aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/other
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment   assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
 
       - name: "Post to fxa-team Slack channel"

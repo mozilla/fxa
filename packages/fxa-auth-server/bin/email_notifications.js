@@ -9,14 +9,17 @@ const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 
 const { Container } = require('typedi');
-const { AuthFirestore } = require('../lib/types');
+const { AuthFirestore, AppConfig } = require('../lib/types');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { setupFirestore } = require('../lib/firestore-db');
+
 const statsd = new StatsD(config.statsd);
 Container.set(StatsD, statsd);
 const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
   statsd,
 });
+
+Container.set(AppConfig, config);
 
 // Set currencyHelper before stripe and paypal helpers, so they can use it.
 try {
@@ -77,8 +80,6 @@ const deliveryQueue = new SQSReceiver(region, [deliveryQueueUrl]);
 const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
 
 DB.connect(config).then((db) => {
-  // bounces and delivery are now deprecated, we'll delete them
-  // as soon as we're 100% confident in fxa-email-service
   bounces(bounceQueue, db);
   delivery(deliveryQueue);
   notifications(notificationQueue, db);

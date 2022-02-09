@@ -2,19 +2,154 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FluentBundle, FluentResource } from '@fluent/bundle';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { join } from 'path';
-import * as fs from 'fs';
 import FluentLocalizer, {
   splitPlainTextLine,
+  parseAcceptLanguage,
 } from '../../../../lib/senders/emails/fluent-localizer';
-import { TemplateContext } from '../../../../lib/senders/emails/localizer-bindings';
+
 import { NodeLocalizerBindings } from '../../../../lib/senders/emails/localizer-bindings-node';
 
 chai.use(chaiAsPromised);
 
 describe('fluent localizer', () => {
+  describe('fetches bundles', () => {
+    let LocalizerBindings = new NodeLocalizerBindings();
+    let localizer = new FluentLocalizer(LocalizerBindings);
+
+    it('fails with a bad localizer 1l0n basePath', () => {
+      assert.throws(() => {
+        let LocalizerBindings = new NodeLocalizerBindings({
+          l10n: {
+            basePath: '/not/a/apth',
+          },
+        });
+        new FluentLocalizer(LocalizerBindings);
+      }, 'Invalid l10n basePath');
+    });
+
+    it('produces the current locales', async () => {
+      const { currentLocales } = await localizer.setupLocalizer(
+        'de-CH,it;q=0.8,en-US;q=0.5,en;q=0.3'
+      );
+
+      assert.deepEqual(currentLocales, ['de', 'it', 'en-US', 'en']);
+    });
+
+    it('selects the proper locale', async () => {
+      const { selectedLocale } = await localizer.setupLocalizer(
+        'de-DE,en-US;q=0.7,en;q=0.3'
+      );
+
+      assert.equal(selectedLocale, 'de');
+    });
+
+    it('generates a proper bundle', async () => {
+      const { generateBundles } = await localizer.setupLocalizer('de,en');
+
+      const bundles: Array<FluentBundle> = [];
+      for await (const bundle of generateBundles(['de'])) {
+        bundles.push(bundle);
+      }
+
+      assert.lengthOf(bundles, 1);
+      assert.include(bundles[0].locales, 'de');
+    });
+
+    describe('localizes properly', () => {
+      it('localizes properly with preferred language', async () => {
+        const { l10n } = await localizer.setupLocalizer(
+          'de-DE,en-US;q=0.7,en;q=0.3'
+        );
+
+        const result = await l10n.formatValue(
+          'subscriptionAccountFinishSetup-action',
+          {}
+        );
+
+        assert.equal(result, 'Passwort erstellen');
+      });
+
+      it('localizes properly with preferred Dialect', async () => {
+        const { l10n } = await localizer.setupLocalizer(
+          'en-GB,en-CA;q=0.7,en;q=0.3'
+        );
+
+        const result = await l10n.formatValue('unblockCode-prompt', {});
+
+        assert.equal(
+          result,
+          'If yes, here is the authorisation code you need:'
+        );
+      });
+    });
+  });
+
+  describe('lanugage negotiation', () => {
+    it('handles empty case', () => {
+      const result = parseAcceptLanguage('');
+
+      assert.deepEqual(result, ['en']);
+    });
+
+    it('ignores unknown language', () => {
+      const result = parseAcceptLanguage('zy');
+      assert.deepEqual(result, ['en']);
+    });
+
+    it('handles en case', () => {
+      const result = parseAcceptLanguage('en');
+
+      // Note: We are using the 'filtering' mode for negotiate languages so all are going to be provided
+      assert.deepEqual(result, ['en']);
+    });
+
+    it('handles en-* case', () => {
+      const result = parseAcceptLanguage('en-US');
+
+      // Note: We are using the 'filtering' mode for negotiate languages so all are english dialects are going to be provided
+      assert.deepEqual(result, ['en-US', 'en']);
+    });
+
+    it('handles alias to en-GB', () => {
+      const result = parseAcceptLanguage('en-NZ');
+
+      assert.deepEqual(result, ['en-GB', 'en']);
+    });
+
+    it('always has default language, en, present', () => {
+      const result = parseAcceptLanguage('de');
+
+      assert.deepEqual(result, ['de', 'en']);
+    });
+
+    it('is falls back to root language if dialect is missing', () => {
+      const result = parseAcceptLanguage('fr-FR');
+
+      assert.deepEqual(result, ['fr', 'en']);
+    });
+
+    it('resolves dialects', () => {
+      const result = parseAcceptLanguage('es-MX');
+
+      assert.deepEqual(result, ['es-MX', 'en']);
+    });
+
+    it('handles multiple languages', () => {
+      const result = parseAcceptLanguage('ja, de-CH, en-US, en');
+
+      assert.deepEqual(result, ['ja', 'de', 'en-US', 'en']);
+    });
+
+    it('handles multiple languages with en-GB alias', () => {
+      const result = parseAcceptLanguage('en-NZ, en-GB, en-MY');
+
+      assert.deepEqual(result, ['en-GB', 'en']);
+    });
+  });
+
   describe('key value extraction', () => {
     const pair = {
       key: 'foo_2-Bar',
@@ -54,113 +189,6 @@ describe('fluent localizer', () => {
       const { key, val } = splitPlainTextLine(`${pair.key} = ${pair.val}`);
       assert.notExists(key);
       assert.notExists(val);
-    });
-  });
-
-  describe('fluent-localizer', () => {
-    const opts = {
-      templates: {
-        basePath: __dirname,
-      },
-      ejs: {
-        root: __dirname,
-      },
-      mjml: {
-        filePath: __dirname,
-      },
-      l10n: {
-        basePath: join(__dirname, '../../../temp/public/locales'),
-      },
-    };
-
-    const localizer = new FluentLocalizer(new NodeLocalizerBindings(opts));
-
-    function getTestContext(test: string): TemplateContext {
-      return {
-        acceptLanguage: 'en',
-        template: test,
-        layout: 'fxa',
-        link: 'xyz',
-        subject: `Render - ${test} - { $testTerm }`,
-        testTerm: `foobar${test}`,
-        privacyUrl: 'xyz',
-      };
-    }
-
-    function testTemplate(test: string) {
-      const template: TemplateContext = getTestContext(test);
-
-      let result: { html: string; text: string; subject: string };
-
-      before(async () => {
-        result = await localizer.localizeEmail(template);
-      });
-
-      it('renders', () => {
-        assert.exists(result);
-
-        assert.exists(result.text);
-        assert.exists(result.html);
-        assert.exists(result.subject);
-      });
-
-      it('localizes subject', () => {
-        assert.isFalse(/Not Localized/.test(result.subject));
-      });
-
-      it('localizes text', () => {
-        assert.isFalse(/Not Localized/.test(result.text));
-      });
-
-      it('localizes html', () => {
-        assert.isFalse(/Not Localized/.test(result.html));
-      });
-
-      it('applies props', () => {
-        const reTestTerm = new RegExp(template.testTerm);
-        assert.isTrue(reTestTerm.test(result.subject));
-        assert.isTrue(reTestTerm.test(result.text));
-        assert.isTrue(reTestTerm.test(result.html));
-      });
-
-      it('localizes l10n text with variables', () => {
-        assert.isTrue(
-          new RegExp(`Click Here - ${test} - ${template.testTerm}`).test(
-            result.html
-          )
-        );
-      });
-    }
-
-    it('creates localizer', async () => {
-      assert.exists(localizer);
-    });
-
-    describe('test template /test-missing-l10n-id', () => {
-      it('fails with missing l10n id', async () => {
-        const template: TemplateContext = getTestContext(
-          'test-missing-l10n-id'
-        );
-
-        await assert.isRejected(
-          localizer.localizeEmail(template),
-          Error,
-          'Missing data-1l0n-id detected. l10n-id=test-missing-l10n-id-title'
-        );
-      });
-    });
-
-    /**
-     * Here there are two test folders both of which reference partials/test.
-     * There have been issues where different templates using the same partial
-     * had errors in the resulting translation. The two folder setup is designed
-     * to mimic this behavior.
-     */
-    describe('test template /test-partials1', () => {
-      testTemplate('test-partials1');
-    });
-    describe('test template /test-partials2', () => {
-      testTemplate('test-partials2');
     });
   });
 });

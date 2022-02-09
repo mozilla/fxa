@@ -5,6 +5,8 @@ import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
 import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CouponErrorMessageType } from '../components/CouponForm';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -310,7 +312,8 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   id: string;
   latest_invoice: {
     id: string;
-    payment_intent: {
+    status: string;
+    payment_intent?: {
       id: string;
       client_secret: string;
       status: string;
@@ -369,6 +372,7 @@ export async function apiRetryInvoice(params: {
   idempotencyKey: string;
 }): Promise<{
   id: string;
+  status: string;
   payment_intent: {
     id: string;
     client_secret: string;
@@ -387,31 +391,22 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<InvoicePreview> {
-  const metricsOptions: Amplitude.EventProperties = {
-    planId: params.priceId,
-    promotionCode: params.promotionCode,
-  };
-  try {
-    Amplitude.coupon_PENDING(metricsOptions);
-    const result: InvoicePreview = await apiFetch(
-      'POST',
-      `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
-      { body: JSON.stringify(params) }
-    );
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
+    { body: JSON.stringify(params) }
+  );
+}
 
-    if (!result?.discount?.amount) {
-      throw new Error('No discount for coupon');
-    }
-
-    Amplitude.coupon_FULFILLED(metricsOptions);
-    return result;
-  } catch (error) {
-    Amplitude.coupon_REJECTED({
-      ...metricsOptions,
-      error,
-    });
-    throw error;
-  }
+export async function apiRetrieveCouponDetails(params: {
+  priceId: string;
+  promotionCode: string;
+}): Promise<CouponDetails> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
+    { body: JSON.stringify(params) }
+  );
 }
 
 export type FilteredSetupIntent = {

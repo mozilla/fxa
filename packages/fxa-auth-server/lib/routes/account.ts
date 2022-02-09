@@ -16,6 +16,7 @@ import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
+import { reportSentryError } from '../../lib/sentry';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
@@ -50,6 +51,7 @@ export class AccountHandler {
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
+  private googleAuthClient: any;
 
   constructor(
     private log: AuthLogger,
@@ -105,6 +107,20 @@ export class AccountHandler {
           throw error.accountExists(secondaryEmailRecord.email);
         }
         request.app.accountRecreated = true;
+
+        // If an unverified (stub) account has a Stripe customer without any
+        // subscriptions, delete the customer.
+        try {
+          await this.stripeHelper.removeCustomer(
+            secondaryEmailRecord.uid,
+            secondaryEmailRecord.email
+          );
+        } catch (err) {
+          // It's not an error where we'd want to stop the deletion of the
+          // account.
+          reportSentryError(err, request);
+        }
+
         const deleted = await this.db.deleteAccount(secondaryEmailRecord);
         this.log.info('accountDeleted.unverifiedSecondaryEmail', {
           ...secondaryEmailRecord,

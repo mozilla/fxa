@@ -392,7 +392,7 @@ export class Account implements AccountData {
     const legacyLocalStorageAccount = currentAccount()!;
     legacyLocalStorageAccount.displayName = displayName;
     currentAccount(legacyLocalStorageAccount);
-    firefox.profileChanged(this.uid);
+    firefox.profileChanged({ uid: this.uid });
   }
 
   async deleteAvatar() {
@@ -423,7 +423,7 @@ export class Account implements AccountData {
         variables: { input: { id: this.avatar.id } },
       })
     );
-    firefox.profileChanged(this.uid);
+    firefox.profileChanged({ uid: this.uid });
   }
 
   async disconnectClient(client: AttachedClient) {
@@ -631,7 +631,7 @@ export class Account implements AccountData {
         },
       },
     });
-    firefox.profileChanged(this.uid);
+    firefox.profileChanged({ uid: this.uid });
   }
 
   async resendEmailCode(email: string) {
@@ -701,7 +701,7 @@ export class Account implements AccountData {
         },
       },
     });
-    firefox.profileChanged(this.uid);
+    firefox.profileChanged({ uid: this.uid });
   }
 
   async createRecoveryKey(password: string) {
@@ -764,6 +764,10 @@ export class Account implements AccountData {
         variables: { input: { state } },
       })
     );
+    const legacyLocalStorageAccount = currentAccount()!;
+    legacyLocalStorageAccount.metricsEnabled = state === 'in';
+    currentAccount(legacyLocalStorageAccount);
+    firefox.profileChanged({ metricsEnabled: this.metricsEnabled });
   }
 
   async destroy(password: string) {

@@ -771,6 +771,7 @@ describe('lib/routes/validators:', () => {
       subscription_id: 'sub_1Ju0yUBVqmGyQTMaG1mtTbdZ',
     };
     const playSub = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
       auto_renewing: false,
       expiry_time_millis: 1591650790000,
       package_name: 'club.foxkeh',

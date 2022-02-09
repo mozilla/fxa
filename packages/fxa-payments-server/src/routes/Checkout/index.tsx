@@ -59,9 +59,12 @@ import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
-import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
+import {
+  PaymentMethodHeader,
+  PaymentMethodHeaderType,
+} from '../../components/PaymentMethodHeader';
 import CouponForm from '../../components/CouponForm';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
@@ -121,7 +124,7 @@ export const Checkout = ({
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
 
-  const [coupon, setCoupon] = useState<Coupon>();
+  const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -175,8 +178,10 @@ export const Checkout = ({
           retryStatus,
           onSuccess: fetchProfileAndCustomer,
           onFailure: setSubscriptionError,
-          onRetry: (status: RetryStatus) => {
-            setRetryStatus(status);
+          onRetry: () => {
+            // for a passwordless subscription we retry from a clean state
+            // every time.  new stub account, new customer, new invoice, etc.
+            setRetryStatus(undefined);
             setSubscriptionError({ type: 'card_error', code: 'card_declined' });
           },
         });
@@ -325,7 +330,7 @@ export const Checkout = ({
           <PaymentMethodHeader
             plan={selectedPlan}
             onClick={() => setCheckboxSet(!checkboxSet)}
-            prefix="2."
+            type={PaymentMethodHeaderType.SecondStep}
           />
           <>
             {paypalScriptLoaded && (

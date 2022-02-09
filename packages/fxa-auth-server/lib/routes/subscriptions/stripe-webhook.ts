@@ -21,11 +21,30 @@ import { PayPalHelper } from '../../payments/paypal';
 import {
   INVOICES_RESOURCE,
   StripeHelper,
+  STRIPE_OBJECT_TYPE_TO_RESOURCE,
   SUBSCRIPTION_UPDATE_TYPES,
+  VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
+
+// ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
+// will fetch the latest of for the webhook event, _instead of_ using the
+// object in the request payload.  Products and plans are excluded because
+// `expandResource` uses the cached lists for products and plans, but the
+// cached lists themselves are updated through webhooks.
+//
+// 'price' is included in this list of exclusion because the Prices API
+// replaced Plans, but since it is backwards compatible, we haven't needed to
+// update our plans handling code.  Prices should be treated in the same
+// fashion as plans, so it's on this list.
+const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
+const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
+  Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
+    ([k, _]) => !BYPASS_LATEST_FETCH_TYPES.includes(k)
+  )
+);
 
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
@@ -66,14 +85,51 @@ export class StripeWebhookHandler extends StripeHandler {
         request.headers['stripe-signature']
       );
 
+      // This must run before expansion below to ensure the types that Firestore
+      // can store are updated first to prevent multiple fetches from Stripe.
       const firestoreHandled =
         await this.stripeHelper.processWebhookEventToFirestore(event);
+
+      // Ensure the object is the latest version.
+      const stripeObject = event.data.object as Record<string, any>;
+      const resourceType =
+        ALLOWED_EXPAND_RESOURCE_TYPES[stripeObject.object as string];
+      if (resourceType) {
+        // Replace the object with the latest version if we support this object.
+        event.data.object = await this.stripeHelper.expandResource(
+          stripeObject.id,
+          resourceType as typeof VALID_RESOURCE_TYPES[number]
+        );
+      } else if (
+        !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
+      ) {
+        // We shouldn't be handling events that we can't fetch the latest version
+        // of with expandResource. If we have a handler below for this type, then
+        // we should have it included as a resource type to expand above.
+        Sentry.withScope((scope) => {
+          scope.setContext('stripeEvent', {
+            event: {
+              id: event.id,
+              type: event.type,
+              objectType: (event.data.object as any).object,
+            },
+          });
+          Sentry.captureMessage(
+            'Event being handled that is not using latest object from Stripe.',
+            Sentry.Severity.Info
+          );
+        });
+      }
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'credit_note.created':
           if (this.paypalHelper) {
             await this.handleCreditNoteEvent(request, event);
           }
+          break;
+        case 'coupon.created':
+        case 'coupon.updated':
+          await this.handleCouponEvent(request, event);
           break;
         case 'customer.created':
           // We don't need to setup the local customer if it happened via API
@@ -213,6 +269,25 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
+   * Handle `coupon.created` and `coupon.updated` Stripe webhook events.
+   *
+   * Verify that the coupon conforms to our requirements, currently that it:
+   *  - Does not have a product ID requirement.
+   */
+  async handleCouponEvent(request: AuthRequest, event: Stripe.Event) {
+    const eventCoupon = event.data.object as Stripe.Coupon;
+    const coupon = await this.stripeHelper.getCoupon(eventCoupon.id);
+
+    if (coupon.applies_to?.products && coupon.applies_to?.products.length > 0) {
+      reportSentryError(
+        new Error(`Coupon has a product requirement: ${coupon.id}.`),
+        request
+      );
+      return;
+    }
+  }
+
+  /**
    * Handle `customer.created` Stripe webhook events.
    */
   async handleCustomerCreatedEvent(_: AuthRequest, event: Stripe.Event) {
@@ -334,7 +409,10 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const invoice = event.data.object as Stripe.Invoice;
-    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
+    if (
+      !(await this.stripeHelper.invoicePayableWithPaypal(invoice)) ||
+      invoice.status !== 'draft'
+    ) {
       return;
     }
     return this.stripeHelper.finalizeInvoice(invoice);
@@ -541,7 +619,8 @@ export class StripeWebhookHandler extends StripeHandler {
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
       await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
-    const { uid } = invoiceDetails;
+    const { uid, invoiceSubtotalInCents, invoiceDiscountAmountInCents } =
+      invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
       account.emails,
@@ -553,7 +632,13 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
+          await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
+            ...mailParams
+          );
+        } else {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        }
 
         // To not overwhelm users with emails, we only send download subscription email
         // for existing accounts. Passwordless accounts get their own email.

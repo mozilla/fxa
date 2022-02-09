@@ -5,13 +5,18 @@
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import { Account, AppContext } from '../../models';
+import { Account, AlertBarInfo, AppContext } from '../../models';
 import {
   renderWithRouter,
   mockAppContext,
 } from 'fxa-settings/src/models/mocks';
+import { logViewEvent } from '../../lib/metrics';
 import { isMobileDevice } from '../../lib/utilities';
 import { MOCK_SERVICES } from './mocks';
+
+jest.mock('../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+}));
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
@@ -19,6 +24,10 @@ const account = {
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
+
+const alertBarInfo = {
+  success: jest.fn(),
+} as unknown as AlertBarInfo;
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
@@ -43,31 +52,35 @@ const clickFirstSignOutButton = async () => {
     const signOutButtons = await screen.findAllByTestId(
       'connected-service-sign-out'
     );
-    await fireEvent.click(signOutButtons[0]);
+    fireEvent.click(signOutButtons[0]);
   });
 };
 
 const chooseRadioByLabel = async (label: string) => {
   await act(async () => {
     const radio = await screen.findByLabelText(label);
-    await fireEvent.click(radio);
+    fireEvent.click(radio);
   });
 };
 
 const clickConfirmDisconnectButton = async () => {
   await act(async () => {
     const confirmButton = await screen.findByTestId('modal-confirm');
-    await fireEvent.click(confirmButton);
+    fireEvent.click(confirmButton);
   });
 };
 
 const expectDisconnectModalHeader = async () => {
   expect(
-    await screen.queryByTestId('connected-services-modal-header')
+    screen.queryByTestId('connected-services-modal-header')
   ).toBeInTheDocument();
 };
 
 describe('Connected Services', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders "fresh load" <ConnectedServices/> with correct content', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -75,9 +88,9 @@ describe('Connected Services', () => {
       </AppContext.Provider>
     );
 
-    expect(await screen.findByText('Connected Services')).toBeTruthy;
-    expect(await screen.findByTestId('connected-services-refresh')).toBeTruthy;
-    expect(await screen.getByTestId('missing-items-link')).toBeTruthy;
+    expect(await screen.findByText('Connected Services')).toBeTruthy();
+    expect(screen.queryByTestId('connected-services-refresh')).toBeTruthy();
+    expect(screen.queryByTestId('missing-items-link')).toBeTruthy();
   });
 
   it('correctly filters and sorts our passed in services', async () => {
@@ -97,18 +110,21 @@ describe('Connected Services', () => {
       expect(result[result.length - 1]).toHaveTextContent('6 months ago');
     });
 
-    const sortedList = sortAndFilterConnectedClients(MOCK_SERVICES);
+    const { sortedAndUniqueClients, groupedByName } =
+      sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedList.length).toEqual(8);
+    expect(sortedAndUniqueClients.length).toEqual(8);
 
     expect(
-      sortedList.filter((item) => item.name === 'Firefox Monitor').length
+      sortedAndUniqueClients.filter((item) => item.name === 'Firefox Monitor')
+        .length
     ).toEqual(1);
+    expect(groupedByName['Firefox Monitor'].length).toEqual(2);
   });
 
   it('should show the pocket icon and link', async () => {
     await getIconAndServiceLink('Pocket', 'pocket-icon').then((result) => {
-      expect(result.icon).toBeTruthy;
+      expect(result.icon).toBeTruthy();
       expect(result.link).toHaveAttribute(
         'href',
         'https://www.mozilla.org/en-US/firefox/pocket/'
@@ -119,7 +135,7 @@ describe('Connected Services', () => {
   it('should show the monitor icon and link', async () => {
     await getIconAndServiceLink('Firefox Monitor', 'monitor-icon').then(
       (result) => {
-        expect(result.icon).toBeTruthy;
+        expect(result.icon).toBeTruthy();
         expect(result.link).toHaveAttribute(
           'href',
           'https://monitor.firefox.com/'
@@ -131,7 +147,7 @@ describe('Connected Services', () => {
   it('should show the lockwise icon and link', async () => {
     await getIconAndServiceLink('Firefox Lockwise', 'lockwise-icon').then(
       (result) => {
-        expect(result.icon).toBeTruthy;
+        expect(result.icon).toBeTruthy();
         expect(result.link).toHaveAttribute(
           'href',
           'https://www.mozilla.org/en-US/firefox/lockwise/'
@@ -143,7 +159,7 @@ describe('Connected Services', () => {
   it('should show the mobile icon and link', async () => {
     await getIconAndServiceLink('A-C Logins Sync Sample', 'mobile-icon').then(
       (result) => {
-        expect(result.icon).toBeTruthy;
+        expect(result.icon).toBeTruthy();
       }
     );
   });
@@ -151,7 +167,7 @@ describe('Connected Services', () => {
   it('should show the fpn icon and link', async () => {
     await getIconAndServiceLink('Firefox Private Network', 'fpn-icon').then(
       (result) => {
-        expect(result.icon).toBeTruthy;
+        expect(result.icon).toBeTruthy();
         expect(result.link).toHaveAttribute('href', 'https://vpn.mozilla.com/');
       }
     );
@@ -159,7 +175,7 @@ describe('Connected Services', () => {
 
   it('should show the sync icon and link', async () => {
     await getIconAndServiceLink('Firefox Sync', 'sync-icon').then((result) => {
-      expect(result.icon).toBeTruthy;
+      expect(result.icon).toBeTruthy();
       expect(result.link).toHaveAttribute(
         'href',
         'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer'
@@ -178,8 +194,9 @@ describe('Connected Services', () => {
       </AppContext.Provider>
     );
 
-    expect(await screen.findByTestId('connect-another-device-promo'))
-      .toBeTruthy;
+    expect(
+      await screen.findByTestId('connect-another-device-promo')
+    ).toBeTruthy();
   });
 
   it('does not render <ConnectAnotherDevicePromo/> when mobile devices in list', async () => {
@@ -189,9 +206,7 @@ describe('Connected Services', () => {
       </AppContext.Provider>
     );
 
-    expect(
-      await screen.queryByTestId('connect-another-device-promo')
-    ).toBeNull();
+    expect(screen.queryByTestId('connect-another-device-promo')).toBeNull();
   });
 
   it('renders the sign out buttons', async () => {
@@ -215,7 +230,7 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
   });
 
-  it('renders "lost" modal when user has selected "lost" option', async () => {
+  it('renders "lost" modal when user has selected "lost" option and emits metrics events', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
@@ -225,10 +240,14 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
     await chooseRadioByLabel('Lost or stolen');
     await clickConfirmDisconnectButton();
-    expect(await screen.queryByTestId('lost-device-desc')).toBeInTheDocument();
+    expect(screen.queryByTestId('lost-device-desc')).toBeInTheDocument();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.lost'
+    );
   });
 
-  it('renders "suspicious" modal when user has selected "suspicious" option in survey modal', async () => {
+  it('renders "suspicious" modal when user has selected "suspicious" option in survey modal and emits metrics events', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
@@ -238,25 +257,122 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
     await chooseRadioByLabel('Suspicious');
     await clickConfirmDisconnectButton();
-    expect(
-      await screen.queryByTestId('suspicious-device-desc')
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId('suspicious-device-desc')).toBeInTheDocument();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.suspicious'
+    );
   });
 
-  it('after a service is disconnected, removes the row from the UI', async () => {
+  it('after a service is disconnected, removes the row from the UI, and emits metrics events', async () => {
+    const account = {
+      attachedClients: MOCK_SERVICES,
+      disconnectClient: () => account.attachedClients.shift(),
+    } as unknown as Account;
+
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
     const initialCount = (
       await screen.findAllByTestId('settings-connected-service')
     ).length;
+
     await clickFirstSignOutButton();
     await clickConfirmDisconnectButton();
-    const finalCount = (
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.'
+    );
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+
+    expect(
       await screen.findAllByTestId('settings-connected-service')
-    ).length;
-    expect(finalCount === initialCount - 1).toBeTruthy;
+    ).toHaveLength(initialCount - 1);
+  });
+
+  it('on disconnect, removes all sessions for that service', async () => {
+    const attachedClients = MOCK_SERVICES.filter(
+      (service) => service.name === 'Firefox Monitor'
+    );
+    const initialCount = attachedClients.length;
+    // make sure there's at least two for test validity
+    expect(initialCount).toBeGreaterThan(1);
+
+    const account = {
+      attachedClients,
+      disconnectClient: () => account.attachedClients.shift(),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
+        <ConnectedServices />
+      </AppContext.Provider>
+    );
+
+    await clickFirstSignOutButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.'
+    );
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+
+    // no services should show
+    expect(screen.queryAllByTestId('settings-connected-service')).toHaveLength(
+      0
+    );
+  });
+
+  describe('redirects to /signin when active session is signed out', () => {
+    const mockWindowAssign = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: { origin: 'foo-bar', assign: mockWindowAssign },
+    });
+
+    it('with single service session', async () => {
+      const attachedClients = MOCK_SERVICES;
+      attachedClients[0].isCurrentSession = true;
+      attachedClients[0].deviceId = null;
+
+      const account = {
+        attachedClients,
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+      await clickFirstSignOutButton();
+      expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
+
+    it('with multiple service sessions', async () => {
+      const attachedClients = MOCK_SERVICES.filter(
+        (service) => service.name === 'Firefox Monitor'
+      );
+      attachedClients[0].isCurrentSession = true;
+
+      const account = {
+        attachedClients,
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+
+      await clickFirstSignOutButton();
+      expect(logViewEvent).toHaveBeenCalledWith(
+        'settings.clients.disconnect',
+        'submit.'
+      );
+
+      expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
   });
 });

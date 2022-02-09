@@ -1,3 +1,58 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps-dev: bump @testing-library/dom from 8.11.1 to 8.11.2 ([ef8e66bec](https://github.com/mozilla/fxa/commit/ef8e66bec))
+
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+No changes.
+
+## 1.224.2
+
+### Bug fixes
+
+- auth: Copy 'public' to dist, don't load non-existent Fluent bundles, Fluent strategy tweak (#11753) ([de74d2a65](https://github.com/mozilla/fxa/commit/de74d2a65))
+
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps-dev: bump sass from 1.46.0 to 1.48.0 (#11620) ([e80eca3b6](https://github.com/mozilla/fxa/commit/e80eca3b6))
+- deps: bump async-wait-until from 2.0.9 to 2.0.12 (#11552) ([5f15dd4c7](https://github.com/mozilla/fxa/commit/5f15dd4c7))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+- deps-dev: bump sass from 1.45.1 to 1.46.0 (#11550) ([b71db1acd](https://github.com/mozilla/fxa/commit/b71db1acd))
+
+## 1.223.2
+
+No changes.
+
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### Other changes
+
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+
 ## 1.222.0
 
 ### Other changes

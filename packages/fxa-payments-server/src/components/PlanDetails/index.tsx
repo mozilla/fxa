@@ -18,14 +18,14 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
   className?: string;
-  coupon?: Coupon;
+  coupon?: Coupon.couponDetailsSchema;
   children?: any;
 };
 
@@ -52,7 +52,10 @@ export const PlanDetails = ({
     ? { background: webIconBackground }
     : '';
 
-  const discountAmount = coupon && amount ? amount - coupon.amount : amount;
+  const discountAmount =
+    coupon && amount && coupon.discountAmount
+      ? amount - coupon.discountAmount
+      : amount;
   const planPrice = formatPlanPricing(
     discountAmount,
     currency,
@@ -118,7 +121,7 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
-                {coupon ? (
+                {coupon && coupon.discountAmount ? (
                   <div className="plan-details-coupon-details">
                     <div className="plan-details-total-inner">
                       <Localized id="plan-details-list-price">
@@ -147,13 +150,13 @@ export const PlanDetails = ({
                           attrs={{ title: true }}
                           vars={{
                             amount: getLocalizedCurrency(
-                              coupon.amount,
+                              coupon.discountAmount,
                               currency
                             ),
                             intervalCount: interval_count,
                           }}
                         >{`- ${getLocalizedCurrencyString(
-                          coupon.amount,
+                          coupon.discountAmount,
                           currency
                         )}`}</Localized>
                       </div>
@@ -169,12 +172,13 @@ export const PlanDetails = ({
                     data-testid="plan-price-total"
                     attrs={{ title: true }}
                     vars={{
-                      amount: coupon
-                        ? getLocalizedCurrency(
-                            amount ? amount - coupon.amount : amount,
-                            currency
-                          )
-                        : getLocalizedCurrency(amount, currency),
+                      amount:
+                        coupon && coupon.discountAmount
+                          ? getLocalizedCurrency(
+                              amount ? amount - coupon.discountAmount : amount,
+                              currency
+                            )
+                          : getLocalizedCurrency(amount, currency),
                       intervalCount: interval_count,
                     }}
                   >
