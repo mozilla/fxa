@@ -1,0 +1,1 @@
+installFirefox = "Thanks for choosing Firefox! You can install Firefox for mobile here: <%- link %>"

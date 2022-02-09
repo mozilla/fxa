@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  LocalizerBindings,
-  LocalizerOpts,
-  TemplateContext,
-} from './localizer-bindings';
+import { RendererBindings, RendererOpts, TemplateContext } from './bindings';
 
 // When rendering templates in storybook, use the mjml-browser implementation
 import mjml2html from 'mjml-browser';
@@ -18,7 +14,7 @@ import mjml2html from 'mjml-browser';
  * storybook starts up.
  */
 import ejs from '../../../vendor/ejs';
-import { transformMjIncludeTags } from './mjml-browser-helper';
+import { transformMjIncludeTags } from '../emails/mjml-browser-helper';
 
 /**
  * Allows ejs to import requested files. This gets invoked when include() is
@@ -41,10 +37,10 @@ ejs.fileLoader = function (filePath: string) {
 /**
  * Bindings needed to render in story book. Can be used for browser context.
  */
-export class BrowserLocalizerBindings extends LocalizerBindings {
-  protected readonly opts: LocalizerOpts;
+export class BrowserRendererBindings extends RendererBindings {
+  readonly opts: RendererOpts;
 
-  constructor(opts?: Partial<LocalizerOpts>) {
+  constructor(opts?: Partial<RendererOpts>) {
     super();
 
     // Backfill partial with defaults
@@ -52,12 +48,13 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
       {
         templates: {
           basePath: './lib/senders/emails',
+          cssPath: './css',
         },
         ejs: {},
         mjml: {
           validationLevel: 'strict',
         },
-        l10n: {
+        translations: {
           basePath: './public/locales',
         },
       },
@@ -65,11 +62,7 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
     );
   }
 
-  protected renderEjs(
-    template: string,
-    context: TemplateContext,
-    body?: string
-  ) {
+  renderEjs(template: string, context: TemplateContext, body?: string) {
     return ejs.render(template, { ...context, body: body }, this.opts.ejs);
   }
 
@@ -79,13 +72,13 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
     return root;
   }
 
-  protected async fetchResource(path: string) {
+  async fetchResource(path: string) {
     const resp = await fetch(path);
     return await resp.text();
   }
 
   protected mjml2html(mjml: string): string {
-    // Work around the fact tht mjml-browser doesn't support mj-inculde tags
+    // Work around the fact that mjml-browser doesn't support mj-include tags
     mjml = transformMjIncludeTags(mjml);
     // Re-render to pull in css files
     mjml = this.renderEjs(mjml, {});

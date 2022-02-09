@@ -9,6 +9,9 @@ const error = require('../error');
 const MockSns = require('../../test/mock-sns');
 const Sns = require('aws-sdk/clients/sns');
 const time = require('../time');
+const { default: Renderer } = require('./renderer');
+const { NodeRendererBindings } = require('./renderer/bindings-node');
+const { join } = require('path');
 
 const SECONDS_PER_MINUTE = 60;
 const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * 1000;
@@ -22,7 +25,7 @@ class MockCloudwatch {
   }
 }
 
-module.exports = (log, translator, templates, config, statsd) => {
+module.exports = (log, config, statsd) => {
   const cloudwatch = initService(config, Cloudwatch, MockCloudwatch);
   const sns = initService(config, Sns, MockSns);
 
@@ -58,7 +61,11 @@ module.exports = (log, translator, templates, config, statsd) => {
 
     async send(phoneNumber, templateName, acceptLanguage, signinCode) {
       log.trace('sms.send', { templateName, acceptLanguage });
-      const message = getMessage(templateName, acceptLanguage, signinCode);
+      const message = await getMessage(
+        templateName,
+        acceptLanguage,
+        signinCode
+      );
       const params = {
         Message: message.trim(),
         MessageAttributes: {
@@ -162,7 +169,15 @@ module.exports = (log, translator, templates, config, statsd) => {
     }
   }
 
-  function getMessage(templateName, acceptLanguage, signinCode) {
+  async function getMessage(templateName, acceptLanguage, signinCode) {
+    const renderer = new Renderer(
+      new NodeRendererBindings({
+        ejs: {
+          root: join(__dirname, '../senders/sms'),
+        },
+      })
+    );
+
     try {
       let link;
       if (signinCode) {
@@ -173,10 +188,11 @@ module.exports = (log, translator, templates, config, statsd) => {
         link = config.sms[`${templateName}Link`];
       }
 
-      return templates.render(`sms.${templateName}`, null, {
+      return await renderer.renderSms({
+        acceptLanguage,
+        template: templateName,
         link,
-        translator: translator.getTranslator(acceptLanguage),
-      }).text;
+      });
     } catch (err) {
       log.error('sms.getMessage.error', { templateName });
       throw error.invalidMessageId();

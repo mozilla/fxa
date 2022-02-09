@@ -2,7 +2,7 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<mj-include path="./css/appBadges/index.css" type="css" css-inline="inline" />
+<mj-include path="<%- locals.cssPath %>/appBadges/index.css" type="css" css-inline="inline" />
 
 <% locals.iosUrl = locals.iosUrl || locals.appStoreLink %>
 <% locals.androidUrl = locals.androidUrl ||  locals.playStoreLink %>

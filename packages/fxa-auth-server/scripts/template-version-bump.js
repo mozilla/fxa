@@ -17,9 +17,9 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '..');
-const TEMPLATE_DIR = 'lib/senders/templates';
+const TEMPLATE_DIR = 'lib/senders/emails/templates';
 const VERSIONS_FILE = '_versions.json';
-const IGNORE = new Set([VERSIONS_FILE, '_pending.txt', 'index.js']);
+const IGNORE = new Set([VERSIONS_FILE, '_storybook']);
 const DEDUP = {};
 
 const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
@@ -35,8 +35,7 @@ const stagedTemplates = cp
     return parts[2] || parts[1];
   })
   .map((templatePath) => templatePath.split('/')[5])
-  .filter((fileName) => !IGNORE.has(fileName))
-  .map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')))
+  .filter((templateName) => !IGNORE.has(templateName))
   .filter((templateName) => {
     if (DEDUP[templateName]) {
       return false;

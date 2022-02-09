@@ -86,7 +86,6 @@
     "google-auth-library": "^7.11.0",
     "google-libphonenumber": "^3.2.26",
     "googleapis": "^92.0.0",
-    "handlebars": "^4.7.7",
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",

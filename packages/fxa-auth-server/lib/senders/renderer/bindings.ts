@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlIdMsg } from '../../l10n';
+import { L10nOpts } from '../../l10n/bindings';
+
 // Supporting Types
 export type EjsOpts = {
   root?: string;
@@ -14,22 +17,25 @@ export type MjmlOpts = {
 };
 export type TemplateOpts = {
   basePath: string;
+  cssPath: string;
 };
-export type L10nOpts = {
-  basePath: string;
-};
+
 export type RenderOpts = {
   templates: TemplateOpts;
   ejs: EjsOpts;
   mjml: MjmlOpts;
 };
-export type LocalizationOpts = {
-  l10n: L10nOpts;
-};
+
+interface Includes {
+  includes: GlobalTemplateValues;
+}
+interface GlobalTemplateValues {
+  subject: FtlIdMsg;
+  action?: FtlIdMsg;
+}
 
 // Top level types
 export type TemplateContext = Record<string, any>;
-export type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type EjsComponent = {
   mjml: string;
   text: string;
@@ -39,21 +45,22 @@ export type TemplateResult = {
   text: string;
   rootElement: Element;
 };
-export type LocalizerOpts = RenderOpts & LocalizationOpts;
+export type RendererOpts = RenderOpts & L10nOpts;
+type ComponentType = 'templates' | 'layouts';
 
 /**
- * Abstraction for binding fluent localizer to different contexts, e.g. node vs browser.
+ * Abstraction for binding the renderer to different contexts, e.g. node vs browser.
  */
-export abstract class LocalizerBindings {
+export abstract class RendererBindings {
   /**
-   * Customized options for the localizer
+   * Customized options for the renderer
    */
-  protected abstract opts: LocalizerOpts;
+  abstract opts: RendererOpts;
 
   /**
    * Renders a mjml template with support for fluent localization.
    * @param name Name of template
-   * @param context Contains placeholder values
+   * @param context Contains either values sent through mailer.send or mock values from Storybook
    * @param layout Optional layout, which acts as wrapper for for template
    * @returns Rendered template
    */
@@ -84,29 +91,26 @@ export abstract class LocalizerBindings {
     return { html, text, rootElement };
   }
 
-  protected async getComponent(type: string, name: string) {
+  protected async getComponent(type: ComponentType, name: string) {
     const path = `${this.opts.templates.basePath}/${type}/${name}`;
     const mjml = await this.fetchResource(`${path}/index.mjml`);
     const text = await this.fetchResource(`${path}/index.txt`);
     return { mjml, text };
   }
 
-  /**
-   * Returns the set of localization strings for the specified locale.
-   * @param locale Locale to use, defaults to en.
-   */
-  async fetchLocalizationMessages(locale?: string) {
-    // note: 'en' auth.ftl only exists for browser bindings / Storybook
-    // the fallback English strings within the templates will be shown in other envs
-    const path = `${this.opts.l10n.basePath}/${locale || 'en'}/auth.ftl`;
-
+  async getGlobalTemplateValues(template: string): Promise<Includes> {
     try {
-      return await this.fetchResource(path);
+      return import(`../emails/templates/${template}/includes.ts`);
     } catch (e) {
-      // We couldn't fetch any strings; just return nothing and fluent will fall
-      // back to the default locale if needed.
-      return '';
+      throw Error(e);
     }
+  }
+
+  async renderSmsTemplate(template: string, context: TemplateContext) {
+    const text = await this.fetchResource(
+      `${this.opts.ejs.root}/templates/${template}/index.txt`
+    );
+    return this.renderEjs(text, context);
   }
 
   /**
@@ -131,7 +135,7 @@ export abstract class LocalizerBindings {
    * Fetches a resource
    * @param path Path to resource
    */
-  protected abstract fetchResource(path: string): Promise<string>;
+  abstract fetchResource(path: string): Promise<string>;
 
   /**
    * Renders EJS
