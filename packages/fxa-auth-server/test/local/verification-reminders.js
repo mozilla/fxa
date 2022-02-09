@@ -48,9 +48,9 @@ describe('lib/verification-reminders:', () => {
     );
   });
 
-  afterEach(async () => {
-    await redis.close();
-    await verificationReminders.close();
+  afterEach(() => {
+    redis.close();
+    verificationReminders.close();
   });
 
   it('returned the expected interface', () => {
@@ -221,8 +221,8 @@ describe('lib/verification-reminders:', () => {
           ]);
         });
 
-        afterEach(async () => {
-          return await redis.zrem('second', 'wibble', 'blee');
+        afterEach(() => {
+          return redis.zrem('second', 'wibble', 'blee');
         });
 
         it('returned the correct result', () => {

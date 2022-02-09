@@ -8,8 +8,7 @@ import { assert } from 'chai';
 import { Knex } from 'knex';
 
 import { EmailType, SentEmail } from '../../../../db/models/auth';
-import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
-import { randomAccount } from '../../../../test/db/models/auth/helpers';
+import { randomAccount, testDatabaseSetup } from './helpers';
 
 describe('SentEmail', () => {
   const emailType = 'subscriptionPaymentFailed';
@@ -21,12 +20,7 @@ describe('SentEmail', () => {
   let emailTypeId: number;
 
   before(async () => {
-    knex = await testDatabaseSetup({
-      ...defaultOpts,
-      auth: true,
-      oauth: false,
-      profile: false,
-    });
+    knex = await testDatabaseSetup();
     emailTypeId = (
       await EmailType.query().findOne({
         emailType,

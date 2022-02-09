@@ -13,19 +13,23 @@ import {
   AccountCustomers,
   accountExists,
   createAccountCustomer,
-  createPayPalBA,
   deleteAccountCustomer,
-  deleteAllPayPalBAs,
   getAccountCustomerByUid,
-  getAllPayPalBAByUid,
-  getPayPalBAByBAId,
   getUidAndEmailByStripeCustomerId,
-  LinkedAccount,
   updateAccountCustomer,
+  createPayPalBA,
+  getAllPayPalBAByUid,
   updatePayPalBA,
+  deleteAllPayPalBAs,
+  getPayPalBAByBAId,
+  LinkedAccount,
 } from '../../../../db/models/auth';
-import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
-import { chance, randomAccount, randomEmail } from './helpers';
+import {
+  chance,
+  randomAccount,
+  randomEmail,
+  testDatabaseSetup,
+} from './helpers';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -34,12 +38,7 @@ describe('auth', () => {
   let knex: Knex;
 
   before(async () => {
-    knex = await testDatabaseSetup({
-      ...defaultOpts,
-      auth: true,
-      oauth: false,
-      profile: false,
-    });
+    knex = await testDatabaseSetup();
     // Load the user in
     await Account.query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
   });
