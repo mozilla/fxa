@@ -11,6 +11,13 @@ import { Account, AppContext } from '../../models';
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
     const account = {
+      avatar: { url: null, id: null },
+      primaryEmail: {
+        email: 'jody@mozilla.com',
+      },
+      emails: [],
+      displayName: 'Jody',
+      passwordCreated: 0,
       recoveryKey: false,
       totp: { exists: false },
     } as unknown as Account;
@@ -29,6 +36,13 @@ describe('Security', () => {
 
   it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
     const account = {
+      avatar: { url: null, id: null },
+      primaryEmail: {
+        email: 'jody@mozilla.com',
+      },
+      emails: [],
+      displayName: 'Jody',
+      passwordCreated: 0,
       recoveryKey: true,
       totp: { exists: true, verified: true },
     } as unknown as Account;

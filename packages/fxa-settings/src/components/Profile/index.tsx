@@ -6,13 +6,7 @@ import { HomePath } from '../../constants';
 import { Localized } from '@fluent/react';
 
 export const Profile = () => {
-  const { avatar, primaryEmail, displayName, passwordCreated } = useAccount();
-
-  const pwdDateText = Intl.DateTimeFormat('default', {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).format(new Date(passwordCreated));
+  const { avatar, primaryEmail, displayName } = useAccount();
 
   return (
     <section className="mt-11" data-testid="settings-profile">
@@ -44,28 +38,6 @@ export const Profile = () => {
             route="/settings/display_name"
             prefixDataTestId="display-name"
           />
-        </Localized>
-
-        <hr className="unit-row-hr" />
-
-        <Localized id="profile-password" attrs={{ header: true }}>
-          <UnitRow
-            header="Password"
-            headerId="password"
-            headerValueClassName="tracking-wider"
-            headerValue="••••••••••••••••••"
-            route="/settings/change_password"
-            prefixDataTestId="password"
-          >
-            <Localized
-              id="profile-password-created-date"
-              vars={{ date: pwdDateText }}
-            >
-              <p className="text-grey-400 text-xs mobileLandscape:mt-3">
-                Created {pwdDateText}
-              </p>
-            </Localized>
-          </UnitRow>
         </Localized>
 
         <hr className="unit-row-hr" />
