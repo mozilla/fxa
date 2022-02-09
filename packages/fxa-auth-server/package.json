@@ -99,7 +99,7 @@
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.4",
-    "keyv": "4.1.0",
+    "keyv": "4.1.1",
     "lodash": "^4.17.21",
     "luxon": "^2.3.0",
     "memcached": "^2.2.2",

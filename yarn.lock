@@ -21887,7 +21887,7 @@ fsevents@~2.1.1:
     jwks-rsa: ^2.0.4
     jws: 4.0.0
     keypair: 1.0.4
-    keyv: 4.1.0
+    keyv: 4.1.1
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -28885,12 +28885,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.1.0":
-  version: 4.1.0
-  resolution: "keyv@npm:4.1.0"
+"keyv@npm:4.1.1":
+  version: 4.1.1
+  resolution: "keyv@npm:4.1.1"
   dependencies:
     json-buffer: 3.0.1
-  checksum: 3f2f15b3e47fb2ac4bcf0323c814db18f92596d0cd7ec938dbe89947e54ce64ab4fac87ec87404213a410b50493648613c30afcf313acf98bcd47f052b8ea831
+  checksum: b141fe29405413e7ca4ea0dfd19a48e25d909834f032aafdf4b0c6be177087cc1177b9c0ffdabd41ac8a65c13b92dcd2ec8688f540fbb458efdb9c8730bbd102
   languageName: node
   linkType: hard
 
