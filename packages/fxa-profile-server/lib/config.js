@@ -238,8 +238,7 @@ const conf = convict({
       env: 'WORKER_URL',
     },
     headers_exclude: {
-      doc:
-        'HTTP headers to not pass through to the worker requests (in lower case)',
+      doc: 'HTTP headers to not pass through to the worker requests (in lower case)',
       format: Array,
       env: 'WORKER_HEADERS_EXCLUDE',
       default: ['host'],
@@ -253,8 +252,7 @@ const conf = convict({
       default: '',
     },
     profileUpdatesQueueUrl: {
-      doc:
-        'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'PROFILE_UPDATES_QUEUE_URL',
       default: '',
@@ -297,8 +295,7 @@ const conf = convict({
       default: '11 seconds',
       format: 'duration',
       env: 'CACHE_GENERATE_TIMEOUT',
-      doc:
-        'how long catbox will wait for a value from db to cache before timing out',
+      doc: 'how long catbox will wait for a value from db to cache before timing out',
     },
   },
   sentryDsn: {

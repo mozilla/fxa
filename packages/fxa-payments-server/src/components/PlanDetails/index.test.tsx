@@ -194,9 +194,7 @@ describe('PlanDetails', () => {
   describe('Valid Coupon Used', () => {
     it('updates price', async () => {
       updateConfig({
-        featureFlags: {
-          subscriptionCoupons: true,
-        },
+        featureFlags: {},
       });
 
       const coupon: Coupon.couponDetailsSchema = {

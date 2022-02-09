@@ -11,12 +11,6 @@ convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
   featureFlags: {
-    subscriptionCoupons: {
-      default: false,
-      doc: 'Whether to show the coupon UI',
-      env: 'FEATURE_SHOW_COUPON',
-      format: Boolean,
-    },
     useFirestoreProductConfigs: {
       default: false,
       doc: 'Feature flag on whether to expect Firestore (and not Stripe metadata) based product and plan configurations',

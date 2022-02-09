@@ -695,14 +695,6 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
     },
-    coupons: {
-      enabled: {
-        doc: 'feature flag for enabling coupons',
-        default: false,
-        env: 'COUPONS_ENABLED',
-        format: Boolean,
-      },
-    },
     paymentsServer: {
       url: {
         doc: 'The url of the corresponding fxa-payments-server instance',
