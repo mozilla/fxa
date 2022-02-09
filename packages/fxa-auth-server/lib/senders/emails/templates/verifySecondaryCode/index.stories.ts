@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { MOCK_LOCATION_ALL } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
@@ -14,7 +14,7 @@ const createStory = storyWithProps(
   'verifySecondaryCode',
   'Sent to verify the addition of a secondary email via code.',
   {
-    ...MOCK_LOCATION,
+    ...MOCK_LOCATION_ALL,
     email: 'foo@bar.com',
     code: '918398',
   }
