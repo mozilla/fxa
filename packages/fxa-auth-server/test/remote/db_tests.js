@@ -1496,6 +1496,27 @@ describe('remote db', function () {
       });
   });
 
+  it('should create and delete linked account', async () => {
+    await db.createLinkedGoogleAccount(account.uid, 'googleid');
+
+    let records = await db.getLinkedAccounts(account.uid);
+
+    assert.equal(records.length, 1);
+    const record = records[0];
+    assert.equal(record.uid, account.uid);
+    assert.equal(record.providerId, 1);
+    assert.equal(record.enabled, true);
+    assert.equal(record.id, 'googleid');
+
+    await db.deleteAccount({ ...account });
+
+    const exists = await db.accountExists(account.email);
+    assert.equal(exists, false, 'account should no longer exist');
+
+    records = await db.getLinkedAccounts(account.uid);
+    assert.equal(records.length, 0, 'linked account no longer exists');
+  });
+
   describe('account record', () => {
     it('can retrieve account from account email', () => {
       return Promise.all([

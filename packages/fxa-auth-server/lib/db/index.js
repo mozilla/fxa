@@ -376,6 +376,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return LinkedAccount.findByGoogleId(googleId);
   };
 
+  DB.prototype.getLinkedAccounts = async function (uid) {
+    log.trace('DB.getLinkedAccounts', { uid });
+    return LinkedAccount.findByUid(uid);
+  };
+
   DB.prototype.createLinkedGoogleAccount = async function (uid, googleUserId) {
     log.trace('DB.createLinkedGoogleAccount', { uid, googleUserId });
     return LinkedAccount.createLinkedGoogleAccount(uid, googleUserId);
