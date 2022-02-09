@@ -312,7 +312,8 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   id: string;
   latest_invoice: {
     id: string;
-    payment_intent: {
+    status: string;
+    payment_intent?: {
       id: string;
       client_secret: string;
       status: string;
@@ -371,6 +372,7 @@ export async function apiRetryInvoice(params: {
   idempotencyKey: string;
 }): Promise<{
   id: string;
+  status: string;
   payment_intent: {
     id: string;
     client_secret: string;
@@ -389,7 +391,7 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<InvoicePreview> {
-  return await apiFetch(
+  return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
     { body: JSON.stringify(params) }
@@ -400,32 +402,11 @@ export async function apiRetrieveCouponDetails(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<CouponDetails> {
-  const metricsOptions: Amplitude.EventProperties = {
-    planId: params.priceId,
-    promotionCode: params.promotionCode,
-  };
-  try {
-    Amplitude.coupon_PENDING(metricsOptions);
-    const result: CouponDetails = await apiFetch(
-      'POST',
-      `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
-      { body: JSON.stringify(params) }
-    );
-
-    if (!result.discountAmount) {
-      throw new Error(CouponErrorMessageType.Generic);
-    }
-
-    Amplitude.coupon_FULFILLED(metricsOptions);
-
-    return result;
-  } catch (error) {
-    Amplitude.coupon_REJECTED({
-      ...metricsOptions,
-      error,
-    });
-    throw error;
-  }
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
+    { body: JSON.stringify(params) }
+  );
 }
 
 export type FilteredSetupIntent = {
