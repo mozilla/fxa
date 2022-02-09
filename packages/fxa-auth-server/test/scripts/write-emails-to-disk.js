@@ -26,7 +26,8 @@ const execOptions = {
 };
 
 describe('scripts/write-emails-to-disk:', () => {
-  before(() => {
+  before(function () {
+    this.timeout(10000);
     cp.execSync(
       'node -r esbuild-register scripts/write-emails-to-disk',
       execOptions

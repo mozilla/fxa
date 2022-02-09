@@ -22,14 +22,15 @@ const config = require(`${ROOT_DIR}/config`).getProperties();
 
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
-const jwt = require(`${LIB_DIR}/oauth/jwt`)
+const jwt = require(`${LIB_DIR}/oauth/jwt`);
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   log,
   config
 );
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
-const subscriptionAccountReminders = require(`${LIB_DIR}/subscription-account-reminders`)(log,config);
+const subscriptionAccountReminders =
+  require(`${LIB_DIR}/subscription-account-reminders`)(log, config);
 
 run()
   .then(() => {
@@ -42,30 +43,30 @@ run()
   });
 
 async function run() {
-  const [vReminders, saReminders, cReminders, db, templates, translator] = await Promise.all(
-    [
+  const [vReminders, saReminders, cReminders, db, translator] =
+    await Promise.all([
       verificationReminders.process(),
       subscriptionAccountReminders.process(),
       cadReminders.process(),
       require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
-      require(`${LIB_DIR}/senders/templates`)(log),
       require(`${LIB_DIR}/senders/translator`)(
         config.i18n.supportedLanguages,
         config.i18n.defaultLanguage
       ),
-    ]
-  );
+    ]);
   const bounces = require(`${LIB_DIR}/bounces`)(config, db);
   const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
 
-  const mailer = new Mailer(translator, templates, config.smtp);
+  const mailer = new Mailer(translator, config.smtp);
 
   const sent = {};
 
   await verificationReminders.keys.reduce(async (promise, key) => {
     await promise;
 
-    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
+    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(
+      1
+    )}Email`;
     const reminders = vReminders[key];
 
     log.info('verificationReminders.processing', {
@@ -141,14 +142,35 @@ async function run() {
     });
 
     const failedReminders = await reminders.reduce(
-      async (promise, { timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName }) => {
+      async (
+        promise,
+        {
+          timestamp,
+          uid,
+          flowId,
+          flowBeginTime,
+          deviceId,
+          productId,
+          productName,
+        }
+      ) => {
         const failed = await promise;
 
         try {
           if (sent[uid]) {
             // Don't send e.g. first and second reminders to the same email from a single batch
-            log.info('subscriptionAccountReminder.skipped.alreadySent', { uid });
-            failed.push({ timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName  });
+            log.info('subscriptionAccountReminder.skipped.alreadySent', {
+              uid,
+            });
+            failed.push({
+              timestamp,
+              uid,
+              flowId,
+              flowBeginTime,
+              deviceId,
+              productId,
+              productName,
+            });
             return failed;
           }
 
@@ -171,7 +193,7 @@ async function run() {
             uid,
             deviceId,
             productId,
-            productName
+            productName,
           });
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
@@ -182,14 +204,25 @@ async function run() {
             case error.ERRNO.BOUNCE_COMPLAINT:
             case error.ERRNO.BOUNCE_HARD:
             case error.ERRNO.BOUNCE_SOFT:
-              log.info('subscriptionAccountReminder.skipped.error', { uid, errno });
+              log.info('subscriptionAccountReminder.skipped.error', {
+                uid,
+                errno,
+              });
               try {
                 await subscriptionAccountReminders.delete(uid);
               } catch (ignore) {}
               break;
             default:
               log.error('subscriptionAccountReminder.error', { err });
-              failed.push({ timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName  });
+              failed.push({
+                timestamp,
+                uid,
+                flowId,
+                flowBeginTime,
+                deviceId,
+                productId,
+                productName,
+              });
           }
         }
 
@@ -206,7 +239,6 @@ async function run() {
       return subscriptionAccountReminders.reinstate(key, failedReminders);
     }
   }, Promise.resolve());
-
 
   // TODO: This is intentionally an exact copy of the above code
   // since CAD reminders are an experiment. At the end we'll either

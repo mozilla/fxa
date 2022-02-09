@@ -171,6 +171,7 @@ describe('scripts/bulk-mailer', function () {
   });
 
   it('succeeds with valid input file and method, writing files to disk', () => {
+    this.timeout(10000);
     return cp
       .execAsync(
         `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --write ${OUTPUT_DIRECTORY}`,
@@ -211,11 +212,11 @@ describe('scripts/bulk-mailer', function () {
         const test2Html = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user2@test.com.html'))
           .toString();
-        assert.include(test2Html, 'Este es un correo automatizado');
+        assert.include(test2Html, 'Confirma tu cuenta');
         const test2Text = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user2@test.com.txt'))
           .toString();
-        assert.include(test2Text, 'Este es un correo automatizado');
+        assert.include(test2Text, 'Confirma tu cuenta');
       });
   });
 
@@ -232,7 +233,7 @@ describe('scripts/bulk-mailer', function () {
 
         assert.include(result, account2Mock.uid);
         assert.include(result, account2Mock.email);
-        assert.include(result, 'Este es un correo automatizado');
+        assert.include(result, 'Confirma tu cuenta');
       });
   });
 
