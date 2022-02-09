@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
+import { AttachedClient } from './attached-clients.model';
 import { EmailBounce } from './email-bounces.model';
 import { Email } from './emails.model';
-import { SecurityEvents } from './security-events.model';
-import { Totp } from './totp.model';
 import { RecoveryKeys } from './recovery-keys.model';
+import { SecurityEvents } from './security-events.model';
 import { SessionTokens } from './session-tokens.model';
+import { Totp } from './totp.model';
 
 @ObjectType()
 export class Account {
@@ -44,4 +45,7 @@ export class Account {
 
   @Field((type) => [SecurityEvents], { nullable: true })
   public securityEvents!: SecurityEvents[];
+
+  @Field((type) => [AttachedClient], { nullable: true })
+  public attachedClients!: AttachedClient[];
 }

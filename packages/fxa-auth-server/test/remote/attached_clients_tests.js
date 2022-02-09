@@ -12,7 +12,7 @@ const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const buf = require('buf').hex;
-const hashRefreshToken = require('../../lib/oauth/encrypt').hash;
+const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
