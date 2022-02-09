@@ -725,13 +725,13 @@ export class StripeHelper {
             promotionCode,
           });
 
-        if (discount && total_discount_amounts) {
-          couponDetails.discountAmount = total_discount_amounts[0].amount;
-        }
-
         const minAmount = getMinimumAmount(currency);
         if (total !== 0 && minAmount && total < minAmount) {
           throw error.invalidPromoCode(promotionCode);
+        }
+
+        if (discount && total_discount_amounts) {
+          couponDetails.discountAmount = total_discount_amounts[0].amount;
         }
       } catch (error) {
         if (
