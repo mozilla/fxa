@@ -4020,7 +4020,7 @@ describe('StripeHelper', () => {
         eventCustomerSubscriptionUpdated.data.object.plan.currency,
       paymentAmountNewInCents:
         eventCustomerSubscriptionUpdated.data.object.plan.amount,
-      productPaymentCycleNew: 'month',
+      productPaymentCycleNew: eventCustomerSubscriptionUpdated.data.object.plan.interval,
       closeDate: 1326853478,
       productMetadata: {
         emailIconURL:
@@ -4158,7 +4158,6 @@ describe('StripeHelper', () => {
     const productNameNew = '123 Done Pro Monthly';
     const productIconURLNew = 'http://example.com/icon-new';
     const productDownloadURLNew = 'http://example.com/download-new';
-    const productPaymentCycleOld = 'month';
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest = (isUpgrade) => async () => {
@@ -4172,7 +4171,6 @@ describe('StripeHelper', () => {
           productNameNew,
           productIconURLNew,
           productDownloadURLNew,
-          productPaymentCycleOld,
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,
@@ -4246,6 +4244,7 @@ describe('StripeHelper', () => {
           productNameOld,
           productIconURLOld,
           productDownloadURLOld,
+          productPaymentCycleOld: event.data.previous_attributes.plan.interval,
           paymentAmountOldCurrency:
             event.data.previous_attributes.plan.currency,
           paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
@@ -4264,6 +4263,76 @@ describe('StripeHelper', () => {
         'extracts expected details for a subscription downgrade',
         commonTest(false)
       );
+
+      it('checks productPaymentCycleOld returns a value if it is not included in the old plan', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+
+        // if the interval of old and new plans are the same,
+        // the old plan's previous_attributes object may not include interval value.
+        event.data.previous_attributes.interval = undefined;
+
+        const productIdOld = event.data.previous_attributes.plan.product;
+        const productIdNew = event.data.object.plan.product;
+
+        const baseDetails = {
+          ...expectedBaseUpdateDetails,
+          productIdNew,
+          productNameNew,
+          productIconURLNew,
+          productDownloadURLNew,
+          productMetadata: {
+            ...expectedBaseUpdateDetails.productMetadata,
+            emailIconURL: productIconURLNew,
+            downloadURL: productDownloadURLNew,
+          },
+        };
+
+        mockAllAbbrevProducts.push(
+          {
+            product_id: productIdOld,
+            product_name: productNameOld,
+            product_metadata: {
+              ...mockProduct.metadata,
+              emailIconUrl: productIconURLOld,
+              downloadURL: productDownloadURLOld,
+            },
+          },
+          {
+            product_id: productIdNew,
+            product_name: productNameNew,
+            product_metadata: {
+              ...mockProduct.metadata,
+              emailIconUrl: productIconURLNew,
+              downloadURL: productDownloadURLNew,
+            },
+          }
+        );
+
+        mockAllAbbrevPlans.unshift(
+          {
+            ...event.data.previous_attributes.plan,
+            plan_id: event.data.previous_attributes.plan.id,
+            product_id: productIdOld,
+          },
+          {
+            ...event.data.object.plan,
+            plan_id: event.data.object.plan.id,
+            product_id: productIdNew,
+          }
+        );
+
+        const result =
+          await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+            event.data.object,
+            baseDetails,
+            mockInvoice,
+            mockCustomer,
+            event.data.object.plan.metadata.productOrder,
+            event.data.previous_attributes.plan
+          );
+
+        assert.equal(result.productPaymentCycleOld, result.productPaymentCycleNew);
+      });
     });
 
     describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
