@@ -16,6 +16,7 @@ import {
   RecoveryKey,
   SessionToken,
 } from 'fxa-shared/db/models/auth';
+import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
   randomAccount,
   randomEmail,
@@ -23,7 +24,6 @@ import {
   randomTotp,
   randomRecoveryKey,
   randomSessionToken,
-  testDatabaseSetup,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import { AccountResolver } from './account.resolver';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
@@ -53,6 +53,7 @@ describe('AccountResolver', () => {
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
+
     // Load the users in
     db.account = Account.bindKnex(knex);
     db.emails = Email.bindKnex(knex);

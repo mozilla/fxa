@@ -486,8 +486,19 @@ export default class AuthClient {
   }> {
     const payload = {
       code,
+      // Once we land support for more auth providers we can update this
+      provider: 'google',
     };
     return await this.request('POST', '/linked_account/login', payload);
+  }
+
+  async unlinkThirdParty(
+    sessionToken: hexstring,
+    provider: string
+  ): Promise<{ success: boolean }> {
+    return await this.sessionPost('/linked_account/unlink', sessionToken, {
+      provider,
+    });
   }
 
   async accountKeys(

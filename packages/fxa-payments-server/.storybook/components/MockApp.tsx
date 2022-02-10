@@ -25,9 +25,7 @@ type MockAppProps = {
 export const defaultAppContextValue: AppContextType = {
   config: {
     ...config,
-    featureFlags: {
-      subscriptionCoupons: true,
-    },
+    featureFlags: {},
     productRedirectURLs: {
       product_8675309: 'https://example.com/product',
     },

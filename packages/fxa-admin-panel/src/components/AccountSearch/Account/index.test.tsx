@@ -51,6 +51,39 @@ let accountResponse: AccountProps = {
       uaDeviceType: 'Mac',
       lastAccessTime: 1589467100316,
     },
+    {
+      tokenId: 'abcd1235',
+      tokenData: 'abcd1235',
+      uid: 'ca1c61239f2448b2af618f0b50226cdf',
+      createdAt: 1589467100317,
+      uaBrowser: 'Chrome',
+      uaBrowserVersion: '89.0.4390',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '11.2.2',
+      uaDeviceType: null,
+      lastAccessTime: 1589467100317,
+    },
+  ],
+  attachedClients: [
+    {
+      clientId: 'abcd1234',
+      deviceId: 'abcd1234',
+      sessionTokenId: 'abcd1234',
+      refreshTokenId: 'abcd1234',
+      isCurrentSession: true,
+      deviceType: 'desktop',
+      name: 'device 1',
+      scope: [],
+      location: null,
+      userAgent: 'Chrome',
+      os: 'Linux',
+      createdTime: Date.now() - 180e3,
+      createdTimeFormatted: 'a few minutes ago',
+      lastAccessTime: Date.now() - 5e3,
+      lastAccessTimeFormatted: 'a few sedconds ago',
+      approximateLastAccessTime: Date.now() - 5e3,
+      approximateLastAccessTimeFormatted: 'a few sedconds ago',
+    },
   ],
   securityEvents: [],
 };
@@ -116,15 +149,25 @@ it('displays the recovery key status', async () => {
 });
 
 it('displays the session token status', async () => {
-  const { getByTestId } = render(
+  const { findAllByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />
     </MockedProvider>
   );
-  expect(getByTestId('session-token-accessed-at')).toBeInTheDocument();
-  expect(getByTestId('session-token-browser')).toBeInTheDocument();
-  expect(getByTestId('session-token-operating-system')).toBeInTheDocument();
-  expect(getByTestId('session-token-device')).toBeInTheDocument();
+
+  expect(await findAllByTestId('session-token-accessed-at')).toHaveLength(2);
+  expect(await findAllByTestId('session-token-browser')).toHaveLength(2);
+  expect(await findAllByTestId('session-token-operating-system')).toHaveLength(
+    2
+  );
+  expect(await findAllByTestId('session-token-device')).toHaveLength(2);
+  await findAllByTestId('session-token-device').then((session) => {
+    // checks that the uaDeviceType value is returned if not null
+    expect(session[0]).toHaveTextContent('Mac');
+
+    // checks that 'Desktop' is returned if uaDeviceType value is null
+    expect(session[1]).toHaveTextContent('Desktop');
+  });
 });
 
 it('displays secondary emails', async () => {

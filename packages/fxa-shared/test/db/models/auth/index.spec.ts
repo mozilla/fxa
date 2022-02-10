@@ -13,23 +13,19 @@ import {
   AccountCustomers,
   accountExists,
   createAccountCustomer,
-  deleteAccountCustomer,
-  getAccountCustomerByUid,
-  getUidAndEmailByStripeCustomerId,
-  updateAccountCustomer,
   createPayPalBA,
-  getAllPayPalBAByUid,
-  updatePayPalBA,
+  deleteAccountCustomer,
   deleteAllPayPalBAs,
+  getAccountCustomerByUid,
+  getAllPayPalBAByUid,
   getPayPalBAByBAId,
+  getUidAndEmailByStripeCustomerId,
   LinkedAccount,
+  updateAccountCustomer,
+  updatePayPalBA,
 } from '../../../../db/models/auth';
-import {
-  chance,
-  randomAccount,
-  randomEmail,
-  testDatabaseSetup,
-} from './helpers';
+import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
+import { chance, randomAccount, randomEmail } from './helpers';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -38,7 +34,12 @@ describe('auth', () => {
   let knex: Knex;
 
   before(async () => {
-    knex = await testDatabaseSetup();
+    knex = await testDatabaseSetup({
+      ...defaultOpts,
+      auth: true,
+      oauth: false,
+      profile: false,
+    });
     // Load the user in
     await Account.query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
   });
@@ -525,7 +526,7 @@ describe('auth', () => {
         const id = getRandomId();
         await LinkedAccount.createLinkedGoogleAccount(userId, id);
 
-        await LinkedAccount.deleteLinkedGoogleAccount(userId, id);
+        await LinkedAccount.deleteLinkedGoogleAccount(userId);
 
         const linkedAccount = await LinkedAccount.findByGoogleId(id);
         assert.isUndefined(linkedAccount);

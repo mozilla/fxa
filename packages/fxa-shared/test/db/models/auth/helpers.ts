@@ -8,8 +8,11 @@ import path from 'path';
 import Chance from 'chance';
 import { knex, Knex } from 'knex';
 
-import { setupAuthDatabase } from '../../../../db';
-import { Account, EmailBounce } from '../../../../db/models/auth';
+import {
+  Account,
+  BaseAuthModel,
+  EmailBounce,
+} from '../../../../db/models/auth';
 
 export type AccountIsh = Pick<
   Account,
@@ -106,30 +109,8 @@ export function randomSessionToken(account: AccountIsh) {
   };
 }
 
-export async function testDatabaseSetup(): Promise<Knex> {
-  // Create the db if it doesn't exist
-  let instance = knex({
-    client: 'mysql',
-    connection: {
-      charset: 'UTF8MB4_BIN',
-      host: 'localhost',
-      password: '',
-      port: 3306,
-      user: 'root',
-    },
-  });
-
-  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
-  await instance.raw('CREATE DATABASE testAdmin');
-  await instance.destroy();
-
-  instance = setupAuthDatabase({
-    database: 'testAdmin',
-    host: 'localhost',
-    password: '',
-    port: 3306,
-    user: 'root',
-  });
+export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
+  BaseAuthModel.knex(instance);
 
   const runSql = async (filePaths: string[]) =>
     Promise.all(
@@ -151,14 +132,19 @@ export async function testDatabaseSetup(): Promise<Knex> {
     './recovery-keys.sql',
     './session-tokens.sql',
     './linked-accounts.sql',
+    './deviceCommandIdentifiers.sql',
   ]);
   // The order matters for inserts or foreign key refs
-  await runSql(['./insert-email-types.sql', './sent-emails.sql']);
+  await runSql([
+    './insert-email-types.sql',
+    './sent-emails.sql',
+    './deviceCommands.sql',
+    './sp_accountDevices.sql',
+  ]);
 
   /*/ Debugging Assistance
   knex.on('query', (data) => {
     console.dir(data);
   });
   //*/
-  return instance;
 }

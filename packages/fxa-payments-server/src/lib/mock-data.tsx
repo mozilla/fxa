@@ -297,7 +297,7 @@ export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   type: '',
   valid: false,
   maximallyRedeemed: true,
-}
+};
 
 export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: InvoicePreview = {
   line_items: [
