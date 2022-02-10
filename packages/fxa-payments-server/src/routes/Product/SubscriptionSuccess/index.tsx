@@ -64,6 +64,7 @@ export const SubscriptionSuccess = ({
           {config.featureFlags.subscriptionCoupons ? (
             <CouponForm
               readOnly={true}
+              subscriptionInProgress={false}
               setCoupon={() => {}}
               {...{ planId: plan.plan_id, coupon }}
             />

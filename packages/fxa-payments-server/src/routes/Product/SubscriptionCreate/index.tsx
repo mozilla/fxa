@@ -341,6 +341,7 @@ export const SubscriptionCreate = ({
               {...{
                 planId: selectedPlan.plan_id,
                 readOnly: false,
+                subscriptionInProgress: inProgress,
                 coupon,
                 setCoupon,
               }}

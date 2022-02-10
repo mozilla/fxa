@@ -89,6 +89,7 @@ export const checkPromotionCode = async (
 type CouponFormProps = {
   planId: string;
   readOnly: boolean;
+  subscriptionInProgress: boolean;
   coupon?: Coupon.couponDetailsSchema;
   setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
 };
@@ -96,6 +97,7 @@ type CouponFormProps = {
 export const CouponForm = ({
   planId,
   readOnly,
+  subscriptionInProgress,
   coupon,
   setCoupon,
 }: CouponFormProps) => {
@@ -178,6 +180,7 @@ export const CouponForm = ({
           <button
             className={`${readOnly ? 'hidden' : ''}`}
             onClick={removeCoupon}
+            disabled={subscriptionInProgress}
           >
             <Localized id="coupon-remove">
               <span>Remove</span>
@@ -199,7 +202,7 @@ export const CouponForm = ({
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
-                disabled={loading || readOnly}
+                disabled={loading || readOnly || subscriptionInProgress}
               />
             </Localized>
           </div>
@@ -208,7 +211,7 @@ export const CouponForm = ({
             name="apply"
             type="submit"
             data-testid="coupon-button"
-            disabled={loading || readOnly}
+            disabled={loading || readOnly || subscriptionInProgress}
           >
             <Localized id="coupon-submit">
               <span>Apply</span>

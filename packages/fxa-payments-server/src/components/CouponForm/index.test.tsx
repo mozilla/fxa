@@ -57,6 +57,7 @@ describe('CouponForm', () => {
             coupon={undefined}
             setCoupon={() => {}}
             readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };
@@ -83,6 +84,7 @@ describe('CouponForm', () => {
             coupon={coupon}
             setCoupon={(coupon) => {}}
             readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };
@@ -106,6 +108,7 @@ describe('CouponForm', () => {
             coupon={undefined}
             setCoupon={mockSetCoupon}
             readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };

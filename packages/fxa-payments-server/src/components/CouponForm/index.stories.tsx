@@ -17,6 +17,7 @@ storiesOf('components/Coupon', module)
           coupon={coupon}
           setCoupon={setCoupon}
           readOnly={false}
+          subscriptionInProgress={false}
         />
       </MockApp>
     );
@@ -31,6 +32,7 @@ storiesOf('components/Coupon', module)
           coupon={coupon}
           setCoupon={setCoupon}
           readOnly={true}
+          subscriptionInProgress={false}
         />
       </MockApp>
     );
@@ -49,6 +51,40 @@ storiesOf('components/Coupon', module)
           coupon={coupon}
           setCoupon={setCoupon}
           readOnly={true}
+          subscriptionInProgress={false}
+        />
+      </MockApp>
+    );
+  })
+  .add('default subscription in progress', () => {
+    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+    return (
+      <MockApp>
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={setCoupon}
+          readOnly={false}
+          subscriptionInProgress={true}
+        />
+      </MockApp>
+    );
+  })
+  .add('has coupon, subscription in progress', () => {
+    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>({
+      promotionCode: 'Test',
+      type: 'repeating',
+      discountAmount: 10,
+      valid: true,
+    });
+    return (
+      <MockApp>
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={setCoupon}
+          readOnly={false}
+          subscriptionInProgress={true}
         />
       </MockApp>
     );
