@@ -61,14 +61,12 @@ export const SubscriptionSuccess = ({
             coupon: coupon,
           }}
         >
-          {config.featureFlags.subscriptionCoupons ? (
-            <CouponForm
-              readOnly={true}
-              subscriptionInProgress={false}
-              setCoupon={() => {}}
-              {...{ planId: plan.plan_id, coupon }}
-            />
-          ) : null}
+          <CouponForm
+            readOnly={true}
+            subscriptionInProgress={false}
+            setCoupon={() => {}}
+            {...{ planId: plan.plan_id, coupon }}
+          />
         </PlanDetails>
       </div>
     </>
