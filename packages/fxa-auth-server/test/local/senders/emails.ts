@@ -2,13 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* TODO: test translations with Fluent
- * NOTE: This file tests `email.js` and the MJML/EJS templates in `lib/senders/emails`.
- * Eventually we will retire `email.js` but as templates are being converted over to
- * the new stack, tests per template will be added, and then any other mailer tests
- * will be copied over.
- */
-
 const ROOT_DIR = '../../..';
 
 import { assert } from 'chai';
@@ -54,7 +47,7 @@ const MESSAGE = {
     country: 'USA',
     stateCode: 'CA',
   },
-  email: 'b@c.com',
+  email: 'a@b.com',
   flowBeginTime: Date.now(),
   flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   ip: '219.129.234.194',
@@ -146,7 +139,7 @@ const MESSAGE_PARAMS = new Map([
 ]);
 
 interface Test {
-  test: 'equal' | 'include' | 'notInclude' | any;
+  test: 'equal' | 'include' | 'notInclude';
   expected: string;
 }
 
@@ -536,43 +529,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
-      { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-  ])],
-
-  ['verifySecondaryEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
-    ['headers', new Map([
-      ['X-Link', { test: 'equal', expected: configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondary') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifySecondary' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondary }],
-      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
-    ])],
-    ['html', [
-      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-secondary', 'privacy')) },
-      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-secondary', 'support')) },
-      { test: 'include', expected: decodeUrl(configHref('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')) },
-      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account` },
-      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
-      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: MESSAGE.primaryEmail },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
-      { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-secondary', 'privacy')}` },
-      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-secondary', 'support')}` },
-      { test: 'include', expected: `Verify email:\n${configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')}` },
-      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account` },
-      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
-      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: MESSAGE.primaryEmail },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'include', expected: `${MESSAGE.time}` },
@@ -1797,6 +1753,11 @@ describe('lib/senders/mjml-emails:', () => {
     }
   });
 
+  it('mailer is not mocked', () => {
+    assert.isObject(mailer.mailer);
+    assert.isFunction(mailer.mailer.sendMail);
+  });
+
   for (const [type, test, opts = {}] of TESTS) {
     it(`declarative test for ${type}`, async () => {
       mailer.mailer.sendMail = stubSendMail((message: Record<any, any>) => {
@@ -1934,6 +1895,11 @@ describe('lib/senders/mjml-emails:', () => {
     assert.equal(mailer._constructLocationString(localMessage), '');
   });
 
+  it('formats currency strings when given an invalid language tag', () => {
+    const result = mailer._getLocalizedCurrencyString(123, 'USD', 'en__us');
+    assert.equal(result, '$1.23');
+  });
+
   it('defaults X-Template-Version to 1', () => {
     mailer.localize = () => ({});
     mailer.mailer.sendMail = stubSendMail((emailConfig) => {
@@ -2020,7 +1986,6 @@ describe('mailer constructor:', () => {
       'syncUrl',
       'verificationUrl',
       'verifyLoginUrl',
-      'verifySecondaryEmailUrl',
       'verifyPrimaryEmailUrl',
     ].reduce((target, key) => {
       target[key] = `mock ${key}`;
@@ -2034,6 +1999,10 @@ describe('mailer constructor:', () => {
       'en',
       'wibble'
     );
+  });
+
+  it('mailer is mocked', () => {
+    assert.equal(mailer.mailer, 'wibble');
   });
 
   it('set properties on self from config correctly', () => {
@@ -2116,10 +2085,9 @@ async function setup(
   locale: string = 'en',
   sender: any = null
 ) {
-  const [translator, templates] = await Promise.all([
-    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
-    require(`${ROOT_DIR}/lib/senders/templates`)(log),
-  ]);
+  const translator = await Promise.resolve(
+    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale)
+  );
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
     config,
@@ -2127,7 +2095,7 @@ async function setup(
       check: () => Promise.resolve(),
     }
   );
-  return new Mailer(translator, templates, config.smtp, sender);
+  return new Mailer(translator, config.smtp, sender);
 }
 
 type CallbackFunction = (arg: any) => void;

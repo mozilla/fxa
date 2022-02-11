@@ -1,6 +1,0 @@
-{{#if primaryEmail }}{{ primaryEmail }}{{/if}}
-{{#if device }}{{ device }}{{/if}}
-{{#if location }}{{ location }}{{/if}}
-{{#if ip }}{{t "IP address: %(ip)s" }}{{/if}}
-{{#if date }}{{ date }}{{/if}}
-{{#if time }}{{ time }}{{/if}}

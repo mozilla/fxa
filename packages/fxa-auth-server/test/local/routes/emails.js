@@ -650,34 +650,34 @@ describe('/recovery_email/resend_code', () => {
     });
 
     return runTest(route, mockRequest, (response) => {
-      assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1);
+      assert.equal(mockMailer.sendVerifySecondaryCodeEmail.callCount, 1);
       assert.equal(
-        mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
+        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
         mockRequest.auth.credentials.deviceId
       );
       assert.equal(
-        mockMailer.sendVerifySecondaryEmail.args[0][2].flowId,
+        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowId,
         mockMetricsContext.flowId
       );
       assert.equal(
-        mockMailer.sendVerifySecondaryEmail.args[0][2].flowBeginTime,
+        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowBeginTime,
         mockMetricsContext.flowBeginTime
       );
       assert.equal(
-        mockMailer.sendVerifySecondaryEmail.args[0][2].service,
+        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].service,
         'foo'
       );
       assert.equal(
-        mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
+        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
         mockRequest.auth.credentials.uid
       );
 
       assert.equal(mockMailer.sendVerifyEmail.callCount, 0);
       assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0);
-      const args = mockMailer.sendVerifySecondaryEmail.getCall(0).args;
+      const args = mockMailer.sendVerifySecondaryCodeEmail.getCall(0).args;
       assert.equal(args[2].code, secondEmailCode, 'email code set');
     }).then(() => {
-      mockMailer.sendVerifySecondaryEmail.resetHistory();
+      mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
       mockLog.flowEvent.resetHistory();
     });
   });
@@ -798,6 +798,7 @@ describe('/recovery_email/verify_code', () => {
     mockLog.flowEvent.resetHistory();
     mockLog.notifyAttachedServices.resetHistory();
     mockMailer.sendPostVerifyEmail.resetHistory();
+    mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
     mockPush.notifyAccountUpdated.resetHistory();
     verificationReminders.delete.resetHistory();
   });
@@ -1249,7 +1250,7 @@ describe('/recovery_email', () => {
 
       mockDB.createEmail.resetHistory();
       mockDB.deleteAccount.resetHistory();
-      mockMailer.sendVerifySecondaryEmail.resetHistory();
+      mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
       mockDB.accountEmails.resetHistory();
       mockDB.setPrimaryEmail.resetHistory();
       mockPush.notifyProfileUpdated.resetHistory();
@@ -1262,16 +1263,16 @@ describe('/recovery_email', () => {
         assert.ok(response);
         assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.callCount,
+          mockMailer.sendVerifySecondaryCodeEmail.callCount,
           1,
-          'call db.sendVerifySecondaryEmail'
+          'call db.sendVerifySecondaryCodeEmail'
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
+          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
           mockRequest.auth.credentials.deviceId
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
+          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
           mockRequest.auth.credentials.uid
         );
       });
@@ -1385,9 +1386,9 @@ describe('/recovery_email', () => {
           'call db.createEmail with correct email'
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.callCount,
+          mockMailer.sendVerifySecondaryCodeEmail.callCount,
           1,
-          'call mailer.sendVerifySecondaryEmail'
+          'call mailer.sendVerifySecondaryCodeEmail'
         );
       });
     });
@@ -1443,7 +1444,7 @@ describe('/recovery_email', () => {
 
     it('deletes secondary email if there was an error sending verification email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
-      mockMailer.sendVerifySecondaryEmail = sinon.spy(() => {
+      mockMailer.sendVerifySecondaryCodeEmail = sinon.spy(() => {
         return Promise.reject(new Error('failed to send'));
       });
 
@@ -1465,17 +1466,20 @@ describe('/recovery_email', () => {
           'correct email passed'
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.callCount,
+          mockMailer.sendVerifySecondaryCodeEmail.callCount,
           1,
-          'call db.sendVerifySecondaryEmail'
+          'call db.sendVerifySecondaryCodeEmail'
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
+          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
           mockRequest.auth.credentials.deviceId
         );
         assert.equal(
-          mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
+          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
           mockRequest.auth.credentials.uid
+        );
+        mockMailer.sendVerifySecondaryCodeEmail = sinon.spy(() =>
+          Promise.resolve()
         );
       });
     });
@@ -1550,7 +1554,7 @@ describe('/recovery_email', () => {
         assert.equal(
           mockMailer.sendPostRemoveSecondaryEmail.callCount,
           1,
-          'call mailer.sendVerifySecondaryEmail'
+          'call mailer.sendVerifySecondaryCodeEmail'
         );
       });
     });
@@ -1588,7 +1592,7 @@ describe('/recovery_email', () => {
         assert.equal(
           mockMailer.sendPostRemoveSecondaryEmail.callCount,
           0,
-          "shouldn't call mailer.sendVerifySecondaryEmail"
+          "shouldn't call mailer.sendVerifySecondaryCodeEmail"
         );
       });
     });

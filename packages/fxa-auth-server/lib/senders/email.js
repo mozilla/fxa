@@ -36,7 +36,6 @@ module.exports = function (log, config, bounces) {
     require('../subscription-account-reminders')(log, config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
-  const featureFlags = require('../features')(config);
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -84,7 +83,6 @@ module.exports = function (log, config, bounces) {
     verifyLogin: 'new-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'welcome-primary',
-    verifySecondary: 'welcome-secondary',
     verifySecondaryCode: 'welcome-secondary',
   };
 
@@ -133,7 +131,6 @@ module.exports = function (log, config, bounces) {
     verifyLogin: 'confirm-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'activate',
-    verifySecondary: 'activate',
     verifySecondaryCode: 'activate',
   };
 
@@ -250,15 +247,15 @@ module.exports = function (log, config, bounces) {
     );
   }
 
-  function Mailer(translator, templates, mailerConfig, sender) {
+  function Mailer(translator, mailerConfig, sender) {
     let options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
       ignoreTLS: !mailerConfig.secure,
       port: mailerConfig.port,
       pool: true,
-      maxConnections: 2,
-      maxMessages: 10,
+      maxConnections: mailerConfig.maxConnections,
+      maxMessages: mailerConfig.maxMessages,
     };
 
     if (mailerConfig.user && mailerConfig.password) {
@@ -299,11 +296,9 @@ module.exports = function (log, config, bounces) {
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
-    this.templates = templates;
     this.translator = translator.getTranslator;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
-    this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
     this.fluentLocalizer = new FluentLocalizer(new NodeLocalizerBindings());
     this.metricsEnabled = true;
@@ -435,44 +430,17 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.localize = async function (message) {
     const translator = this.translator(message.acceptLanguage);
-    let localized, localizedEmailHtml, localizedEmailText, localizedSubject;
     message.layout = message.layout || 'fxa';
 
-    const templateValues = {
-      ...message.templateValues,
-      action:
-        message.templateValues.action &&
-        translator.gettext(message.templateValues.action),
-      language: translator.language,
-      translator,
-    };
-
-    if (featureFlags.isMjmlEnabledForUser(message.email, message.template)) {
-      localized = await this.fluentLocalizer.localizeEmail(message);
-      localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
-      localizedSubject = localized.subject;
-    } else {
-      localized = this.templates.render(
-        message.template,
-        message.layout,
-        templateValues
-      );
-      localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
-    }
+    const { html, text, subject } = await this.fluentLocalizer.localizeEmail(
+      message
+    );
 
     return {
-      html: localizedEmailHtml,
+      html,
       language: translator.language,
-      subject:
-        localizedSubject ||
-        translator.format(
-          translator.gettext(message.subject),
-          templateValues,
-          true
-        ),
-      text: localizedEmailText,
+      subject,
+      text,
     };
   };
 
@@ -1074,78 +1042,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-        time,
-      },
-    });
-  };
-
-  Mailer.prototype.verifySecondaryEmail = function (message) {
-    log.trace('mailer.verifySecondaryEmail', {
-      email: message.email,
-      uid: message.uid,
-    });
-
-    const templateName = 'verifySecondary';
-    const subject = gettext('Confirm secondary email');
-    const action = gettext('Verify email');
-    const query = {
-      code: message.code,
-      uid: message.uid,
-      type: 'secondary',
-      secondary_email_verified: message.email,
-    };
-
-    if (message.service) {
-      query.service = message.service;
-    }
-    if (message.redirectTo) {
-      query.redirectTo = message.redirectTo;
-    }
-    if (message.resume) {
-      query.resume = message.resume;
-    }
-
-    const links = this._generateLinks(
-      this.verifySecondaryEmailUrl,
-      message,
-      query,
-      templateName
-    );
-    const [time, date] = this._constructLocalTimeString(
-      message.timeZone,
-      message.acceptLanguage,
-      message.date,
-      message.time
-    );
-
-    const headers = {
-      'X-Link': links.link,
-      'X-Verify-Code': message.code,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        action,
-        date,
-        device: this._formatUserAgentInfo(message),
-        email: message.email,
-        ip: message.ip,
-        link: links.link,
-        location: this._constructLocationString(message),
-        oneClickLink: links.oneClickLink,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        primaryEmail: message.primaryEmail,
-        privacyUrl: links.privacyUrl,
-        reportSignInLink: links.reportSignInLink,
-        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,

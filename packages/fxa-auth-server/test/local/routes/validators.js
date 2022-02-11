@@ -612,6 +612,7 @@ describe('lib/routes/validators:', () => {
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
           product_id: 'xyz',
           product_name: 'Awesome product',
+          price_id: 'abc',
           ...mockAbbrevPlayPurchase,
         });
       assert.ok(!res.error);
@@ -622,6 +623,7 @@ describe('lib/routes/validators:', () => {
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: 'unknown',
           product_id: 'xyz',
+          price_id: 'abc',
           ...mockAbbrevPlayPurchase,
         });
       assert.ok(res.error);
@@ -712,6 +714,7 @@ describe('lib/routes/validators:', () => {
     };
     const playSub = {
       _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      price_id: 'abc',
       product_id: 'xyz',
       product_name: 'Awesome product',
       auto_renewing: true,

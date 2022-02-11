@@ -16,8 +16,6 @@ const path = require('path');
 
 const TEMPLATE_FILE = /(.+)\.(html|txt)$/;
 const TEMPLATES_DIR = __dirname;
-const LAYOUTS_DIR = path.join(TEMPLATES_DIR, 'layouts');
-const PARTIALS_DIR = path.join(TEMPLATES_DIR, 'partials');
 
 module.exports = init;
 
@@ -49,17 +47,10 @@ async function init(log) {
     return reduceOp(arguments, (a, b) => a === b);
   }
 
-  await forEachTemplate(PARTIALS_DIR, (template, name, type) => {
-    handlebars[type].registerPartial(name, template);
-  });
-
   const templates = new Map();
   const layouts = new Map();
 
-  await Promise.all([
-    forEachTemplate(TEMPLATES_DIR, compile(templates)),
-    forEachTemplate(LAYOUTS_DIR, compile(layouts)),
-  ]);
+  await forEachTemplate(TEMPLATES_DIR, compile(templates));
 
   return { render };
 

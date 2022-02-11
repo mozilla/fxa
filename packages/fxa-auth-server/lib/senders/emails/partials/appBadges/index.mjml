@@ -13,6 +13,7 @@
     <% if (locals.iosUrl) { %>
       <mj-column>
         <mj-image
+          width="152px"
           css-class="app-badge app-badge-ios"
           href="<%- iosUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
@@ -24,6 +25,7 @@
     <% if (locals.androidUrl) { %>
       <mj-column>
         <mj-image
+          width="152px"
           css-class="app-badge app-badge-android"
           href="<%- androidUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"

@@ -258,9 +258,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
         request.auth.credentials.user
       ) {
         // oauthToken strategy comes with uid as user
-        // TODO: re-enable this. We're disabling for now to see if it helps with auth server
-        // performance issues.
-        // uid = request.auth.credentials.user;
+        uid = request.auth.credentials.user;
       } else if (request.payload && request.payload.uid) {
         // Some unauthenticated requests might set uid in payload, ex. `/account/status`
         uid = request.payload.uid;

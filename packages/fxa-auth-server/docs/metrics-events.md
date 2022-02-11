@@ -426,6 +426,8 @@ value `other` is stored.
 
 #### Template names
 
+NOTE: the following is outdated, we have many more templates than this. Check out auth-server's Storybook for a complete list of templates.
+
 Possible values for `${template}` include
 
 | Name                       | Description                                                     |
@@ -439,7 +441,6 @@ Possible values for `${template}` include
 | `verifyEmail`              | Email sent to verify a user's account.                          |
 | `verifyLoginEmail`         | Sign-in confirmation email was sent.                            |
 | `postVerifySecondaryEmail` | Email sent when a user has added a secondary email.             |
-| `verifySecondaryEmail`     | Email to confirm adding a secondary email.                      |
 
 #### Type names
 

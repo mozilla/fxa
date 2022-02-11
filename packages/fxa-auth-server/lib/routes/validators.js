@@ -626,6 +626,7 @@ module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
   package_name: isA.string().required(),
   product_id: isA.string().required(),
   product_name: isA.string().required(),
+  price_id: isA.string().required(),
   sku: isA.string().required(),
 });
 

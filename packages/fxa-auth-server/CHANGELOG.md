@@ -1,3 +1,10 @@
+## 1.225.2
+
+### Bug fixes
+
+- auth-server: subplat email images are at 100% width using the Mail app (#11840) ([03e921450](https://github.com/mozilla/fxa/commit/03e921450))
+- auth: allow price_id in response ([24748cc43](https://github.com/mozilla/fxa/commit/24748cc43))
+
 ## 1.225.1
 
 ### New features

@@ -326,6 +326,18 @@ const conf = convict({
       default: 'Firefox Accounts <no-reply@lcip.org>',
       env: 'SMTP_SENDER',
     },
+    maxMessages: {
+      default: 10,
+      doc: 'Maximum number of messages to be sent via nodemailer before a new SES SMTP connection is made',
+      env: 'SMTP_MAX_MESSAGES',
+      format: Number,
+    },
+    maxConnections: {
+      default: 2,
+      doc: 'Maximum number of simultaneous connections to make against the SES SMTP server',
+      env: 'SMTP_MAX_CONNECTIONS',
+      format: Number,
+    },
     prependVerificationSubdomain: {
       enabled: {
         doc: 'Flag to prepend a verification subdomain to verification emails',
@@ -1462,20 +1474,6 @@ const conf = convict({
       format: RegExp,
       default: /^$/, // default is no one
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS',
-    },
-  },
-  mjml: {
-    enabledEmailAddress: {
-      doc: 'If mjml email templates are enabled for specific email regex',
-      format: RegExp,
-      default: /^$/, // default is no one
-      env: 'MJML_ENABLED_EMAIL_ADDRESS',
-    },
-    templates: {
-      doc: 'Templates that have mjml email support',
-      format: Array,
-      default: [],
-      env: 'MJML_TEMPLATES',
     },
   },
   push: {
