@@ -4,6 +4,20 @@
 
 <% if (!locals.productName) { locals.productName = 'Firefox' %><% } %>
 <mj-html-attributes>
+  <mj-selector path=".fxa-logo td">
+    <mj-html-attribute name="data-l10n-id">fxa-header-firefox-logo</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".fxa-logo img">
+    <mj-html-attribute name="data-l10n-name">fxa-logo</mj-html-attribute>
+  </mj-selector>
+
+  <mj-selector path=".sync-img td">
+    <mj-html-attribute name="data-l10n-id">fxa-header-sync-devices-image</mj-html-attribute>
+  </mj-selector>
+  <mj-selector path=".sync-img img">
+    <mj-html-attribute name="data-l10n-name">sync-devices-image</mj-html-attribute>
+  </mj-selector>
+
   <mj-selector path=".fxa-logo-firefox a">
     <mj-html-attribute name="data-l10n-id">subplat-header-firefox-logo</mj-html-attribute>
   </mj-selector>
