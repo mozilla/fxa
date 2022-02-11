@@ -59,3 +59,5 @@ The script traverses the legal-docs directory looking for localized copies of th
 Example:
 directory provided: `/Users/test/github/mozilla/legal-docs/`
 resulting file: `assets/legal/<document_name>.<locale>.pdf`
+
+test004
