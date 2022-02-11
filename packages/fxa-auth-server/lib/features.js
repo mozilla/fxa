@@ -40,24 +40,6 @@ module.exports = (config) => {
      * @param key        String
      */
     isSampledUser: isSampledUser,
-
-    /**
-     * Feature flag for MJML email rendering.
-     *
-     * @param email current user email
-     * @param template template being sent
-     */
-    isMjmlEnabledForUser: function (email, template) {
-      if (!config.mjml.templates.includes(template)) {
-        return false;
-      }
-
-      if (!config.mjml.enabledEmailAddress.test(email)) {
-        return false;
-      }
-
-      return true;
-    },
   };
 };
 

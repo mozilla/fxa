@@ -1,9 +1,0 @@
-{{#if (equal payment_provider "paypal") }}
-  {{t "PayPal" }}
-{{/if}}
-
-{{#if (equal payment_provider "stripe") }}
-  {{#if lastFour}}
-    {{t "%(cardType)s card ending in %(lastFour)s" }}
-  {{/if}}
-{{/if}}

@@ -66,7 +66,6 @@ const EMAIL_TYPES = {
   verifyLogin: 'login',
   verifyLoginCode: 'login',
   verifyPrimary: 'verify',
-  verifySecondary: 'secondary_email',
   verificationReminderFirst: 'registration',
   verificationReminderSecond: 'registration',
   cadReminderFirst: 'connect_another_device',

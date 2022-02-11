@@ -50,9 +50,9 @@ describe('remote change email', function () {
       .then((emailData) => {
         const templateName = emailData['headers']['x-template-name'];
         const emailCode = emailData['headers']['x-verify-code'];
-        assert.equal(templateName, 'verifySecondary');
+        assert.equal(templateName, 'verifySecondaryCode');
         assert.ok(emailCode, 'emailCode set');
-        return client.verifySecondaryEmail(emailCode, secondEmail);
+        return client.verifySecondaryEmailWithCode(emailCode, secondEmail);
       })
       .then((res) => {
         assert.ok(res, 'ok response');
@@ -294,12 +294,12 @@ describe('remote change email', function () {
     await client1.createEmail(client1SecondEmail);
     emailData = await server.mailbox.waitForEmail(client1SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
-    await client1.verifySecondaryEmail(emailCode, client1SecondEmail);
+    await client1.verifySecondaryEmailWithCode(emailCode, client1SecondEmail);
 
     await client2.createEmail(client2SecondEmail);
     emailData = await server.mailbox.waitForEmail(client2SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
-    await client2.verifySecondaryEmail(emailCode, client2SecondEmail);
+    await client2.verifySecondaryEmailWithCode(emailCode, client2SecondEmail);
 
     await client1.setPrimaryEmail(client1SecondEmail);
     await client1.deleteEmail(client1Email);
@@ -310,14 +310,14 @@ describe('remote change email', function () {
     await client1.createEmail(client2Email);
     emailData = await server.mailbox.waitForEmail(client2Email);
     emailCode = emailData[2]['headers']['x-verify-code'];
-    await client1.verifySecondaryEmail(emailCode, client2Email);
+    await client1.verifySecondaryEmailWithCode(emailCode, client2Email);
     await client1.setPrimaryEmail(client2Email);
     await client1.deleteEmail(client1SecondEmail);
 
     await client2.createEmail(client1Email);
     emailData = await server.mailbox.waitForEmail(client1Email);
     emailCode = emailData[2]['headers']['x-verify-code'];
-    await client2.verifySecondaryEmail(emailCode, client1Email);
+    await client2.verifySecondaryEmailWithCode(emailCode, client1Email);
     await client2.setPrimaryEmail(client1Email);
     await client2.deleteEmail(client2SecondEmail);
 

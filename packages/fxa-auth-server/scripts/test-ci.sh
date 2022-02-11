@@ -17,6 +17,7 @@ node -r esbuild-register ./scripts/oauth_gen_keys.js
 node ../db-migrations/bin/patcher.mjs
 
 yarn run merge-ftl:test
+yarn run emails-scss
 
 TESTS=(local oauth remote scripts)
 for t in "${TESTS[@]}"; do

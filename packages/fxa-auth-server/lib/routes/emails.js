@@ -347,7 +347,7 @@ module.exports = (
             verifyFunction = mailer.sendVerifyPrimaryEmail;
             event = 'verification_email_primary';
           } else if (email) {
-            verifyFunction = mailer.sendVerifySecondaryEmail;
+            verifyFunction = mailer.sendVerifySecondaryCodeEmail;
             event = 'verification_email';
           } else if (!sessionToken.emailVerified) {
             verifyFunction = mailer.sendVerifyEmail;
@@ -407,7 +407,7 @@ module.exports = (
         // Check if param `type` is specified and equal to `secondary`
         // If so, verify the secondary email and respond
         if (type && type === 'secondary') {
-          await verifySecondaryEmail(account);
+          await verifySecondaryCodeEmail(account);
           return {};
         }
 
@@ -450,7 +450,7 @@ module.exports = (
 
         return {};
 
-        async function verifySecondaryEmail(account) {
+        async function verifySecondaryCodeEmail(account) {
           let matchedEmail;
           const emails = await db.accountEmails(uid);
           const isEmailVerification = emails.some((email) => {
@@ -592,7 +592,7 @@ module.exports = (
         const uid = sessionToken.uid;
         const primaryEmail = sessionToken.email;
         const ip = request.app.clientAddress;
-        const { email, verificationMethod } = request.payload;
+        const { email } = request.payload;
         const emailData = {
           email: email,
           normalizedEmail: normalizeEmail(email),
@@ -642,47 +642,23 @@ module.exports = (
 
         const geoData = request.app.geo;
         try {
-          switch (verificationMethod) {
-            case 'email-otp':
-              await mailer.sendVerifySecondaryCodeEmail(
-                [emailData],
-                sessionToken,
-                {
-                  code: otpUtils.generateOtpCode(hex, otpOptions),
-                  deviceId: sessionToken.deviceId,
-                  acceptLanguage: request.app.acceptLanguage,
-                  email: emailData.email,
-                  primaryEmail,
-                  ip,
-                  location: geoData.location,
-                  timeZone: geoData.timeZone,
-                  uaBrowser: sessionToken.uaBrowser,
-                  uaBrowserVersion: sessionToken.uaBrowserVersion,
-                  uaOS: sessionToken.uaOS,
-                  uaOSVersion: sessionToken.uaOSVersion,
-                  uid,
-                }
-              );
-              break;
-            default:
-              await mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
-                code: emailData.emailCode,
-                deviceId: sessionToken.deviceId,
-                acceptLanguage: request.app.acceptLanguage,
-                email: emailData.email,
-                primaryEmail,
-                ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-                uid,
-              });
-          }
+          await mailer.sendVerifySecondaryCodeEmail([emailData], sessionToken, {
+            code: otpUtils.generateOtpCode(hex, otpOptions),
+            deviceId: sessionToken.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email: emailData.email,
+            primaryEmail,
+            ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uid,
+          });
         } catch (err) {
-          log.error('mailer.sendVerifySecondaryEmail', { err: err });
+          log.error('mailer.sendVerifySecondaryCodeEmail', { err: err });
           await db.deleteEmail(emailData.uid, emailData.normalizedEmail);
           throw emailUtils.sendError(err, true);
         }

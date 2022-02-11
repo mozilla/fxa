@@ -23,7 +23,8 @@ const execOptions = {
 };
 
 describe('scripts/verification-reminders:', () => {
-  it('does not fail', () => {
+  it('does not fail', function () {
+    this.timeout(20000);
     return execAsync(
       'node -r esbuild-register scripts/verification-reminders',
       execOptions

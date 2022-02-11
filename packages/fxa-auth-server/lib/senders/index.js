@@ -21,7 +21,7 @@ module.exports = async (
   async function createSenders() {
     const templates = await require('./templates')(log, translator);
     return {
-      email: new Mailer(translator, templates, config.smtp, sender),
+      email: new Mailer(translator, config.smtp, sender),
       sms: createSms(log, translator, templates, config, statsd),
     };
   }
@@ -85,17 +85,6 @@ module.exports = async (
     );
 
   // ...but a couple of them don't conform so we've retained the old manual wrapping code.
-  senders.email.sendVerifySecondaryEmail = (emails, account, options) => {
-    return mailer.verifySecondaryEmail({
-      ...options,
-      acceptLanguage: options.acceptLanguage || defaultLanguage,
-      email: emails[0].email,
-      primaryEmail: account.email,
-      uid: account.uid,
-      metricsEnabled: !account.metricsOptOutAt,
-    });
-  };
-
   senders.email.sendVerifySecondaryCodeEmail = (emails, account, options) => {
     return mailer.verifySecondaryCodeEmail({
       ...options,
