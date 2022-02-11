@@ -1,6 +1,6 @@
 {
   "name": "fxa-event-broker",
-  "version": "1.225.1",
+  "version": "1.225.2",
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -38,7 +38,7 @@
     "@hapi/joi": "^15.1.1",
     "@nestjs/common": "^8.2.4",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.4",
+    "@nestjs/core": "^8.2.6",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.1.0",
@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.0",
-    "@nestjs/schematics": "^8.0.5",
+    "@nestjs/schematics": "^8.0.6",
     "@nestjs/testing": "^8.2.6",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",

@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.225.1",
+  "version": "1.225.2",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -63,7 +63,7 @@
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "@type-cacheable/core": "^10.0.3",
-    "@type-cacheable/ioredis-adapter": "^10.0.2",
+    "@type-cacheable/ioredis-adapter": "^10.0.3",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
     "ajv": "^6.12.2",
@@ -72,7 +72,6 @@
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
     "cldr-core": "^40.0.0",
-    "cldr-localenames-full": "40.0.0",
     "commander": "2.18.0",
     "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",
@@ -99,7 +98,7 @@
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.4",
-    "keyv": "4.1.0",
+    "keyv": "4.1.1",
     "lodash": "^4.17.21",
     "luxon": "^2.3.0",
     "memcached": "^2.2.2",
@@ -137,7 +136,6 @@
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
     "@types/chai-as-promised": "^7",
-    "@types/convict": "^5.2.2",
     "@types/hapi__hapi": "^19.0.3",
     "@types/ioredis": "^4.26.4",
     "@types/joi": "^14.3.3",

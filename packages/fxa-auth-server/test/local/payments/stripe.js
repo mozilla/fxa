@@ -96,6 +96,7 @@ const {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
 } = require('../../../../fxa-shared/subscriptions/types');
+const AppError = require('../../../lib/error');
 
 const mockConfig = {
   authFirestore: {
@@ -1206,17 +1207,70 @@ describe('StripeHelper', () => {
   });
 
   describe('retrieveCouponDetails', () => {
+    const validInvoicePreview = {
+      total: 1000,
+      currency: 'usd',
+      discount: {},
+      total_discount_amounts: [{ amount: 200 }],
+    };
+
+    let sentryScope;
+
+    beforeEach(() => {
+      sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureException');
+    });
+
     it('retrieves coupon details', async () => {
       const expected = {
         promotionCode: 'promo',
         type: 'forever',
-        discountAmount: 1,
+        discountAmount: 200,
         valid: true,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({
-        discount: {},
-        total_discount_amounts: [{ amount: 1 }],
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves(validInvoicePreview);
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
       });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.retrievePromotionCodeForPlan,
+        'promo',
+        'planId'
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves coupon details for 100% discount', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        discountAmount: 200,
+        valid: true,
+      };
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total: 0 });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1253,7 +1307,9 @@ describe('StripeHelper', () => {
         expired: true,
         valid: false,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1266,8 +1322,8 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        county: 'US',
-        planId: 'planId',
+        country: 'US',
+        priceId: 'planId',
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
@@ -1280,7 +1336,9 @@ describe('StripeHelper', () => {
         maximallyRedeemed: true,
         valid: false,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1294,11 +1352,120 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        county: 'US',
-        planId: 'planId',
+        country: 'US',
+        priceId: 'planId',
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
+    });
+
+    it('return coupon details even when previewInvoice rejects', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        valid: false,
+      };
+      const err = new AppError('previewInvoiceFailed');
+      sandbox.stub(stripeHelper, 'previewInvoice').rejects(err);
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'retrieveCouponDetails',
+        {
+          priceId: 'planId',
+          promotionCode: 'promo',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
+    });
+
+    it('return coupon details even when getMinAmount rejects', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        valid: false,
+      };
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, currency: 'fake' });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'retrieveCouponDetails',
+        {
+          priceId: 'planId',
+          promotionCode: 'promo',
+        }
+      );
+    });
+
+    it('throw an error when previewInvoice returns total less than stripe minimums', async () => {
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total: 20 });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
+      });
+      try {
+        await stripeHelper.retrieveCouponDetails({
+          country: 'US',
+          priceId: 'planId',
+          promotionCode: 'promo',
+        });
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
+    });
+
+    it('throw an error when retrievePromotionCodeForPlan returns no coupon', async () => {
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves();
+      try {
+        await stripeHelper.retrieveCouponDetails({
+          country: 'US',
+          priceId: 'planId',
+          promotionCode: 'promo',
+        });
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
     });
   });
 

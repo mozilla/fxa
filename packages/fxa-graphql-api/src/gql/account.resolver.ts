@@ -20,7 +20,6 @@ import {
   ExtraContext,
   reportRequestException,
 } from 'fxa-shared/nestjs/sentry/reporting';
-import getStream from 'get-stream';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   parseResolveInfo,
@@ -99,6 +98,16 @@ export class AccountResolver {
       info.returnType
     );
     return simplified.fields.hasOwnProperty('emails');
+  }
+
+  private shouldIncludeLinkedAccounts(info: GraphQLResolveInfo): boolean {
+    // Introspect the query to determine if we should load the linked accounts
+    const parsed: any = parseResolveInfo(info);
+    const simplified = simplifyParsedResolveInfoFragmentWithType(
+      parsed,
+      info.returnType
+    );
+    return simplified.fields.hasOwnProperty('linkedAccounts');
   }
 
   @Mutation((returns) => CreateTotpPayload, {
@@ -382,7 +391,12 @@ export class AccountResolver {
 
     const options: AccountOptions = this.shouldIncludeEmails(info)
       ? { include: ['emails'] }
-      : {};
+      : { include: [] };
+
+    if (this.shouldIncludeLinkedAccounts(info)) {
+      options?.include?.push('linkedAccounts');
+    }
+
     return Account.findByUid(uid, options);
   }
 
@@ -473,5 +487,19 @@ export class AccountResolver {
   @ResolveField()
   public attachedClients(@GqlSessionToken() token: string) {
     return this.authAPI.attachedClients(token);
+  }
+
+  @ResolveField()
+  public linkedAccounts(@Parent() account: Account) {
+    if (account.linkedAccounts) {
+      return account.linkedAccounts.map((item) => {
+        return {
+          providerId: item.providerId,
+          authAt: item.authAt,
+          enabled: item.enabled,
+        };
+      });
+    }
+    return [];
   }
 }

@@ -8,6 +8,7 @@ import { Avatar } from './avatar';
 import { Email } from './emails';
 import { Subscription } from './subscription';
 import { Totp } from './totp';
+import { LinkedAccount } from './linkedAccount';
 
 @ObjectType({
   description: "The current authenticated user's Firefox Account record.",
@@ -52,4 +53,9 @@ export class Account {
     description: 'Client sessions attached to the user.',
   })
   public attachedClients!: AttachedClient;
+
+  @Field((type) => [LinkedAccount], {
+    description: 'Linked accounts',
+  })
+  public linkedAccounts!: LinkedAccount;
 }

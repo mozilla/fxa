@@ -7,14 +7,14 @@ import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
+import validators from './validators';
 
 const error = require('../error');
-const isA = require('@hapi/joi');
 
 const MS_ONE_HOUR = 1000 * 60 * 60;
 
 export class LinkedAccountHandler {
-  private googleAuthClient: any;
+  private googleAuthClient?: OAuth2Client;
   private tokenCodeLifetime: number;
 
   constructor(
@@ -80,6 +80,9 @@ export class LinkedAccountHandler {
     });
 
     const payload = verifiedToken.getPayload();
+    if (!payload) {
+      throw error.thirdPartyAccountError();
+    }
     const userid = payload['sub'];
 
     let accountRecord;
@@ -139,6 +142,20 @@ export class LinkedAccountHandler {
       sessionToken: sessionToken.data,
     };
   }
+
+  async unlinkAccount(request: AuthRequest) {
+    if (!this.googleAuthClient) {
+      throw error.thirdPartyAccountError();
+    }
+    const uid = request.auth.credentials.uid;
+    if ((request.payload as any).provider.toLowerCase() === 'google') {
+      // TODO: here we'll also delete any session tokens created via a google login
+      await this.db.deleteLinkedGoogleAccount(uid);
+    }
+    return {
+      success: true,
+    };
+  }
 }
 
 export const linkedAccountRoutes = (
@@ -155,14 +172,29 @@ export const linkedAccountRoutes = (
       options: {
         validate: {
           payload: {
-            idToken: isA.string().optional(),
-            provider: isA.string().optional(),
-            code: isA.string().optional(),
+            idToken: validators.thirdPartyIdToken,
+            provider: validators.thirdPartyProvider,
+            code: validators.thirdPartyOAuthCode,
           },
         },
       },
       handler: async (request: AuthRequest) =>
         handler.loginOrCreateAccount(request),
+    },
+    {
+      method: 'POST',
+      path: '/linked_account/unlink',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            provider: validators.thirdPartyProvider,
+          },
+        },
+      },
+      handler: (request: AuthRequest) => handler.unlinkAccount(request),
     },
   ];
 };

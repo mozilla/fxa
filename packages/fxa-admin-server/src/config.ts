@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
+import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
 import path from 'path';
 
 convict.addFormats(require('convict-format-with-moment'));
@@ -16,37 +17,10 @@ const conf = convict({
     format: String,
   },
   database: {
-    database: {
-      default: 'fxa',
-      doc: 'MySQL database',
-      env: 'DB_DATABASE',
-      format: String,
-    },
-    host: {
-      default: 'localhost',
-      doc: 'MySQL host',
-      env: 'DB_HOST',
-      format: String,
-    },
-    password: {
-      default: '',
-      doc: 'MySQL password',
-      env: 'DB_PASSWORD',
-      format: String,
-    },
-    port: {
-      default: 3306,
-      doc: 'MySQL port',
-      env: 'DB_PORT',
-      format: Number,
-    },
-    user: {
-      default: 'root',
-      doc: 'MySQL username',
-      env: 'DB_USERNAME',
-      format: String,
-    },
+    fxa: makeMySQLConfig('AUTH', 'fxa'),
+    fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
   },
+  redis: makeRedisConfig(),
   env: {
     default: 'production',
     doc: 'The current node.js environment',
@@ -88,6 +62,30 @@ const conf = convict({
     doc: 'Max age of the STS directive in seconds',
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
+  },
+  clientFormatter: {
+    i18n: {
+      defaultLanguage: {
+        default: 'en',
+        doc: 'default target language',
+        format: String,
+        env: 'L10N_DEFAULT_LANGUAGE',
+      },
+      supportedLanguages: {
+        doc: 'list of supported languages',
+        format: Array,
+        default: ['en'],
+        env: 'L10N_SUPPORTED_LANGUAGE',
+      },
+    },
+    lastAccessTimeUpdates: {
+      earliestSaneTimestamp: {
+        doc: 'timestamp used as the basis of the fallback value for lastAccessTimeFormatted, currently pinned to the deployment of 1.96.4 / a0940d7dc51e2ba20fa18aa3a830810e35c9a9d9',
+        format: 'timestamp',
+        default: 1507081020000,
+        env: 'LASTACCESSTIME_EARLIEST_SANE_TIMESTAMP',
+      },
+    },
   },
 });
 

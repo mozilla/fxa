@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.225.1",
+  "version": "1.225.2",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@nestjs/common": "^8.2.4",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.4",
+    "@nestjs/core": "^8.2.6",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.1.0",
@@ -62,7 +62,7 @@
     "graphql-upload": "^13.0.0",
     "helmet": "^5.0.0",
     "ioredis": "^4.28.2",
-    "knex": "^1.0.1",
+    "knex": "^1.0.2",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "objection": "^2.2.17",

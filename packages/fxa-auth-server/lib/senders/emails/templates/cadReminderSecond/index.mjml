@@ -7,7 +7,7 @@
     <mj-text css-class="text-header">
       <span data-l10n-id="cadReminderSecond-title">Last reminder to sync devices!</span>
     </mj-text>
-    <mj-image css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
+    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
 </mj-section>
 

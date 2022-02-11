@@ -207,4 +207,67 @@ describe('/linked_account', () => {
       });
     });
   });
+
+  describe('/linked_account/unlink', () => {
+    let mockLog, mockDB, mockRequest, route;
+
+    const UID = 'fxauid';
+    const mockGoogleUser = {
+      sub: '123123123',
+      email: `${Math.random()}@gmail.com`,
+    };
+
+    beforeEach(async () => {
+      mockLog = mocks.mockLog();
+      mockLog.info = sinon.spy();
+      mockDB = mocks.mockDB({
+        email: mockGoogleUser.email,
+        uid: UID,
+      });
+      const mockConfig = {
+        googleAuthConfig: { clientId: 'OooOoo' },
+      };
+      mockRequest = mocks.mockRequest({
+        log: mockLog,
+        credentials: {
+          uid: UID,
+        },
+        payload: {
+          provider: 'google',
+        },
+      });
+
+      const OAuth2ClientMock = class OAuth2Client {
+        verifyIdToken() {
+          return {
+            getPayload: () => {
+              return mockGoogleUser;
+            },
+          };
+        }
+      };
+
+      route = getRoute(
+        makeRoutes(
+          {
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+          },
+          {
+            'google-auth-library': {
+              OAuth2Client: OAuth2ClientMock,
+            },
+          }
+        ),
+        '/linked_account/unlink'
+      );
+    });
+
+    it('calls deleteLinkedGoogleAccount', async () => {
+      const result = await runTest(route, mockRequest);
+      assert.isTrue(mockDB.deleteLinkedGoogleAccount.calledOnceWith(UID));
+      assert.isTrue(result.success);
+    });
+  });
 });

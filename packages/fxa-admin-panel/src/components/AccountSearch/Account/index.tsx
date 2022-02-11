@@ -591,7 +591,7 @@ const SessionTokens = ({
             data-testid="session-token-device"
             className={styleClasses.result}
           >
-            {uaDeviceType}
+            {uaDeviceType === null ? 'Desktop' : uaDeviceType}
           </span>
         </li>
       </ul>

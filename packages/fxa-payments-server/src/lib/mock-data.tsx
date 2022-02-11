@@ -1,5 +1,6 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
@@ -238,24 +239,28 @@ export const IAP_APPLE_SUBSCRIPTION = {
   product_name: 'Cooking with Foxkeh',
 };
 
-export const INVOICE_PREVIEW_WITHOUT_DISCOUNT = {
-  line_items: {
-    amount: 500,
-    currency: 'usd',
-    id: 'plan_GqM9N64ksvxaVk',
-    name: '1 x 123Done Pro (at $5.00 / month)',
-  },
+export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
   subtotal: 500,
   total: 500,
 };
 
-export const INVOICE_PREVIEW_WITH_DISCOUNT = {
-  line_items: {
-    amount: 500,
-    currency: 'usd',
-    id: 'plan_GqM9N64ksvxaVk',
-    name: '1 x 123Done Pro (at $5.00 / month)',
-  },
+export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
   subtotal: 500,
   total: 450,
   discount: {
@@ -292,4 +297,40 @@ export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   type: '',
   valid: false,
   maximallyRedeemed: true,
+};
+
+export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 0,
+  discount: {
+    amount: 500,
+    amount_off: null,
+    percent_off: 100,
+  },
+};
+
+export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: InvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  total: 25,
+  discount: {
+    amount: 475,
+    amount_off: 475,
+    percent_off: null,
+  },
 };

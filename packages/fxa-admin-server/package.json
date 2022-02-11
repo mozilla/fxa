@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.225.1",
+  "version": "1.225.2",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -12,7 +12,8 @@
     "start:prod": "node dist/main",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test": "jest --runInBand && yarn test:e2e",
+    "test": "yarn test:default && yarn test:e2e",
+    "test:default": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
@@ -33,7 +34,7 @@
   "dependencies": {
     "@nestjs/common": "^8.2.4",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.4",
+    "@nestjs/core": "^8.2.6",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/platform-express": "^8.2.6",
@@ -51,7 +52,7 @@
     "graphql": "^15.6.1",
     "graphql-tools": "^8.0.0",
     "helmet": "^5.0.0",
-    "knex": "^1.0.1",
+    "knex": "^1.0.2",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",

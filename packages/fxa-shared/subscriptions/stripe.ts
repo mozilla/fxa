@@ -1,7 +1,12 @@
 import Stripe from 'stripe';
 import pick from 'lodash.pick';
 import omitBy from 'lodash.omitby';
-import { Plan, SubscriptionUpdateEligibility } from './types';
+import {
+  Plan,
+  SubscriptionStripeError,
+  SubscriptionStripeErrorType,
+  SubscriptionUpdateEligibility,
+} from './types';
 import { metadataFromPlan } from './metadata';
 
 const isCapabilityKey = (value: string, key: string) =>
@@ -17,6 +22,34 @@ export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
   'past_due',
   'trialing',
 ];
+
+// Stripe minimum charge amounts as set here
+// https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+export const STRIPE_MINIMUM_CHARGE_AMOUNTS = {
+  usd: 50,
+  aed: 200,
+  aud: 50,
+  bgn: 100,
+  brl: 50,
+  cad: 50,
+  chf: 50,
+  czk: 1500,
+  dkk: 250,
+  eur: 50,
+  gbp: 30,
+  hkd: 400,
+  huf: 17500,
+  inr: 50,
+  jpy: 50,
+  mxn: 1000,
+  myr: 200,
+  nok: 300,
+  nzd: 50,
+  pln: 200,
+  ron: 200,
+  sek: 300,
+  sgd: 50,
+} as { [key: string]: number };
 
 /**
  * Filter a customer for client-safe attributes.
@@ -148,7 +181,7 @@ export function filterProduct(item: Stripe.Product) {
  * @param item
  */
 export function filterInvoice(item: Stripe.Invoice) {
-  const invoice = pick(item, 'id', 'object', 'payment_intent');
+  const invoice = pick(item, 'id', 'status', 'object', 'payment_intent');
   if (invoice.payment_intent && typeof invoice.payment_intent !== 'string') {
     invoice.payment_intent = filterIntent(invoice.payment_intent) as any;
   }
@@ -230,4 +263,14 @@ export const getSubscriptionUpdateEligibility: (
   }
 
   return SubscriptionUpdateEligibility.INVALID;
+};
+
+export const getMinimumAmount = (currency: string): number => {
+  if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
+    return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
+  }
+
+  throw new SubscriptionStripeError(
+    SubscriptionStripeErrorType.NO_MIN_CHARGE_AMOUNT
+  );
 };

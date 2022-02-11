@@ -11,8 +11,14 @@ import {
   filterIntent,
   filterInvoice,
   getSubscriptionUpdateEligibility,
+  getMinimumAmount,
 } from '../../subscriptions/stripe';
-import { Plan, SubscriptionUpdateEligibility } from '../../subscriptions/types';
+import {
+  Plan,
+  SubscriptionStripeError,
+  SubscriptionStripeErrorType,
+  SubscriptionUpdateEligibility,
+} from '../../subscriptions/types';
 
 const customer1WithSubscription = require('../fixtures/stripe/customer1_with_subscription.json');
 const subscriptionExpanded = require('../fixtures/stripe/subscription_expanded.json');
@@ -51,7 +57,7 @@ function assertSource(item?: DeepPartial<Stripe.CustomerSource>) {
 }
 
 function assertInvoice(item?: DeepPartial<Stripe.Invoice>) {
-  assert.hasAllKeys(item, ['id', 'object', 'payment_intent']);
+  assert.hasAllKeys(item, ['id', 'object', 'payment_intent', 'status']);
 }
 
 function assertIntent(
@@ -250,6 +256,23 @@ describe('stripe', () => {
       assert.equal(
         getSubscriptionUpdateEligibility(currentPlan, x),
         SubscriptionUpdateEligibility.INVALID
+      );
+    });
+  });
+
+  describe('getMinimumAmount', () => {
+    it('should return min amount for valid currency', () => {
+      const expected = 50;
+      const result = getMinimumAmount('usd');
+
+      assert.equal(result, expected);
+    });
+
+    it('should throw SubscriptionTypeError for invalid currency', () => {
+      assert.throws(
+        () => getMinimumAmount('fake'),
+        SubscriptionStripeError,
+        SubscriptionStripeErrorType.NO_MIN_CHARGE_AMOUNT
       );
     });
   });

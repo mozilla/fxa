@@ -118,12 +118,13 @@ export async function handleSubscriptionPayment({
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
+      invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
-        createSubscriptionResult.latest_invoice.payment_intent.status,
+        createSubscriptionResult.latest_invoice.payment_intent?.status,
       paymentIntentClientSecret:
-        createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+        createSubscriptionResult.latest_invoice.payment_intent?.client_secret,
       paymentMethodId:
-        createSubscriptionResult.latest_invoice.payment_intent.payment_method,
+        createSubscriptionResult.latest_invoice.payment_intent?.payment_method,
       stripe,
       apiDetachFailedPaymentMethod,
       onSuccess,
@@ -177,10 +178,11 @@ export async function handleSubscriptionPayment({
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
+      invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
-        createSubscriptionResult.latest_invoice.payment_intent.status,
+        createSubscriptionResult.latest_invoice.payment_intent?.status,
       paymentIntentClientSecret:
-        createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+        createSubscriptionResult.latest_invoice.payment_intent?.client_secret,
       ...commonPaymentIntentParams,
     });
   } else {
@@ -194,6 +196,7 @@ export async function handleSubscriptionPayment({
     return handlePaymentIntent({
       customer,
       invoiceId,
+      invoiceStatus: retryInvoiceResult.status,
       paymentIntentStatus: retryInvoiceResult.payment_intent.status,
       paymentIntentClientSecret:
         retryInvoiceResult.payment_intent.client_secret,
@@ -205,6 +208,7 @@ export async function handleSubscriptionPayment({
 export async function handlePaymentIntent({
   customer,
   invoiceId,
+  invoiceStatus,
   paymentIntentStatus,
   paymentIntentClientSecret,
   paymentMethodId,
@@ -216,8 +220,9 @@ export async function handlePaymentIntent({
 }: {
   customer: Customer | null;
   invoiceId: string;
-  paymentIntentStatus: string;
-  paymentIntentClientSecret: string | null;
+  invoiceStatus: string;
+  paymentIntentStatus: string | null | undefined;
+  paymentIntentClientSecret: string | null | undefined;
   paymentMethodId: string | undefined;
   stripe: Pick<Stripe, 'confirmCardPayment'>;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
@@ -225,6 +230,11 @@ export async function handlePaymentIntent({
   onRetry: (status: RetryStatus) => void;
   onSuccess: () => void;
 }): Promise<void> {
+  // An invoice with amount less than Stripe minimums won't have a paymentIntent.
+  if (!paymentIntentStatus && invoiceStatus === 'paid') {
+    return onSuccess();
+  }
+
   switch (paymentIntentStatus) {
     case 'succeeded': {
       return onSuccess();
@@ -259,6 +269,7 @@ export async function handlePaymentIntent({
       return handlePaymentIntent({
         customer,
         invoiceId,
+        invoiceStatus,
         paymentIntentStatus: confirmResult.paymentIntent.status,
         paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
         paymentMethodId,

@@ -564,11 +564,7 @@ describe('PayPalHelper', () => {
         mockStripeHelper.finalizeInvoice,
         mockInvoice
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.payInvoiceOutOfBand,
-        mockInvoice
-      );
-      assert.deepEqual(response, [{}, {}]);
+      assert.deepEqual(response, {});
     });
   });
 

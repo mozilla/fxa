@@ -53,10 +53,7 @@ export const PlanDetails = ({
     : '';
 
   const discountAmount =
-    coupon &&
-    amount &&
-    coupon.discountAmount &&
-    config.featureFlags.subscriptionCoupons
+    coupon && amount && coupon.discountAmount
       ? amount - coupon.discountAmount
       : amount;
   const planPrice = formatPlanPricing(
@@ -124,9 +121,7 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
-                {coupon &&
-                coupon.discountAmount &&
-                config.featureFlags.subscriptionCoupons ? (
+                {coupon && coupon.discountAmount ? (
                   <div className="plan-details-coupon-details">
                     <div className="plan-details-total-inner">
                       <Localized id="plan-details-list-price">
@@ -178,9 +173,7 @@ export const PlanDetails = ({
                     attrs={{ title: true }}
                     vars={{
                       amount:
-                        coupon &&
-                        coupon.discountAmount &&
-                        config.featureFlags.subscriptionCoupons
+                        coupon && coupon.discountAmount
                           ? getLocalizedCurrency(
                               amount ? amount - coupon.discountAmount : amount,
                               currency

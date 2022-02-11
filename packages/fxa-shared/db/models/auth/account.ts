@@ -12,7 +12,7 @@ import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
 
 export type AccountOptions = {
-  include?: 'emails'[];
+  include?: Array<'emails' | 'linkedAccounts'>;
 };
 
 const selectFields = [
@@ -71,6 +71,7 @@ export class Account extends BaseAuthModel {
   metricsOptOutAt?: number;
   devices?: Device[];
   emails?: Email[];
+  linkedAccounts?: LinkedAccount[];
 
   static relationMappings = {
     emails: {
@@ -434,6 +435,11 @@ export class Account extends BaseAuthModel {
       account.emails = await Email.findByUid(uid);
       account.primaryEmail = account.emails?.find((email) => email.isPrimary);
     }
+
+    if (options?.include?.includes('linkedAccounts')) {
+      account.linkedAccounts = await LinkedAccount.findByUid(uid);
+    }
+
     return account;
   }
 

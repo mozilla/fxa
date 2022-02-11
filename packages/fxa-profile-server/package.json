@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.225.1",
+  "version": "1.225.2",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -36,7 +36,7 @@
     "mysql": "^2.18.1",
     "poolee": "^1.0.1",
     "request": "^2.88.2",
-    "sharp": "^0.29.3",
+    "sharp": "^0.30.1",
     "stream-to-array": "2.3.0"
   },
   "devDependencies": {

@@ -1,14 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import Chance from 'chance';
 import fs from 'fs';
+import { Knex, knex } from 'knex';
 import path from 'path';
 
-import Chance from 'chance';
-import { knex, Knex } from 'knex';
-
-import { setupProfileDatabase } from '../../../../db';
+import { ProfileBaseModel } from '../../../../db/models/profile';
 
 export const chance = new Chance();
 
@@ -52,30 +50,8 @@ export function randomProfile() {
   };
 }
 
-export async function testDatabaseSetup(): Promise<Knex> {
-  // Create the db if it doesn't exist
-  let instance = knex({
-    client: 'mysql',
-    connection: {
-      charset: 'UTF8MB4_BIN',
-      host: 'localhost',
-      password: '',
-      port: 3306,
-      user: 'root',
-    },
-  });
-
-  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
-  await instance.raw('CREATE DATABASE testAdmin');
-  await instance.destroy();
-
-  instance = setupProfileDatabase({
-    database: 'testAdmin',
-    host: 'localhost',
-    password: '',
-    port: 3306,
-    user: 'root',
-  });
+export async function testProfileDatabaseSetup(instance: Knex): Promise<void> {
+  ProfileBaseModel.knex(instance);
 
   await instance.raw(avatarProvidersTable);
   await instance.raw(avatarTable);
@@ -87,5 +63,4 @@ export async function testDatabaseSetup(): Promise<Knex> {
     console.dir(data);
   });
   */
-  return instance;
 }

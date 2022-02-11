@@ -3,34 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const buf = require('buf').hex;
-const mysql = require('mysql');
-
-const encrypt = require('../../encrypt');
+const encrypt = require('fxa-shared/auth/encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 
+// Shared base class
+const { MysqlStoreShared } = require('fxa-shared/db/mysql');
+
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
-const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
-
-function MysqlStore(options) {
-  if (options.charset && options.charset !== REQUIRED_CHARSET) {
-    throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET);
-  } else {
-    options.charset = REQUIRED_CHARSET;
-  }
-  options.typeCast = function (field, next) {
-    if (field.type === 'TINY' && field.length === 1) {
-      return field.string() === '1';
-    }
-    return next();
-  };
-  this._pool = mysql.createPool(options);
-}
-
-MysqlStore.connect = async function mysqlConnect(options) {
-  return new MysqlStore(options);
-};
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
 const QUERY_CLIENT_REGISTER =
@@ -175,8 +156,12 @@ function firstRow(rows) {
   return rows[0];
 }
 
-MysqlStore.prototype = {
-  ping: async function ping() {
+class MysqlStore extends MysqlStoreShared {
+  constructor(config) {
+    super(config);
+  }
+
+  async ping() {
     const conn = await this._getConnection();
     try {
       return await new Promise(function (resolve, reject) {
@@ -190,15 +175,15 @@ MysqlStore.prototype = {
     } finally {
       conn.release();
     }
-  },
+  }
 
-  getLock: function getLock(lockName, timeout = 3) {
+  getLock(lockName, timeout = 3) {
     // returns `acquired: 1` on success
     return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
-  },
+  }
 
   // createdAt is DEFAULT NOW() in the schema.sql
-  registerClient: function registerClient(client) {
+  registerClient(client) {
     var id;
     if (client.id) {
       id = buf(client.id);
@@ -220,8 +205,8 @@ MysqlStore.prototype = {
       client.id = id;
       return client;
     });
-  },
-  registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
+  }
+  registerClientDeveloper(developerId, clientId) {
     if (!developerId || !clientId) {
       var err = new Error('Owner registration requires user and developer id');
       return Promise.reject(err);
@@ -234,16 +219,16 @@ MysqlStore.prototype = {
       buf(developerId),
       buf(clientId),
     ]);
-  },
-  getClientDevelopers: function getClientDevelopers(clientId) {
+  }
+  getClientDevelopers(clientId) {
     if (!clientId) {
       return Promise.reject(new Error('Client id is required'));
     }
     return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
       buf(clientId),
     ]);
-  },
-  activateDeveloper: function activateDeveloper(email) {
+  }
+  activateDeveloper(email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
@@ -254,22 +239,22 @@ MysqlStore.prototype = {
         return this.getDeveloper(email);
       }.bind(this)
     );
-  },
-  getDeveloper: function (email) {
+  }
+  getDeveloper(email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
 
     return this._readOne(QUERY_DEVELOPER, [email]);
-  },
-  removeDeveloper: function (email) {
+  }
+  removeDeveloper(email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
 
     return this._write(QUERY_DEVELOPER_DELETE, [email]);
-  },
-  developerOwnsClient: function devOwnsClient(developerEmail, clientId) {
+  }
+  developerOwnsClient(developerEmail, clientId) {
     return this._readOne(QUERY_DEVELOPER_OWNS_CLIENT, [
       developerEmail,
       buf(clientId),
@@ -280,8 +265,8 @@ MysqlStore.prototype = {
         return Promise.reject(false);
       }
     });
-  },
-  updateClient: function updateClient(client) {
+  }
+  updateClient(client) {
     if (!client.id) {
       return Promise.reject(new Error('Update client needs an id'));
     }
@@ -308,18 +293,18 @@ MysqlStore.prototype = {
       // WHERE
       buf(client.id),
     ]);
-  },
+  }
 
-  getClient: function getClient(id) {
+  getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
-  },
-  getClients: function getClients(email) {
+  }
+  getClients(email) {
     return this._read(QUERY_CLIENT_LIST, [email]);
-  },
-  removeClient: function removeClient(id) {
+  }
+  removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
-  },
-  generateCode: function generateCode(codeObj) {
+  }
+  generateCode(codeObj) {
     var code = unique.code();
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_INSERT, [
@@ -339,8 +324,8 @@ MysqlStore.prototype = {
     ]).then(function () {
       return code;
     });
-  },
-  getCode: function getCode(code) {
+  }
+  getCode(code) {
     var hash = encrypt.hash(code);
     return this._readOne(QUERY_CODE_FIND, [hash]).then(function (code) {
       if (code) {
@@ -351,13 +336,13 @@ MysqlStore.prototype = {
       }
       return code;
     });
-  },
-  removeCode: function removeCode(code) {
+  }
+  removeCode(code) {
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_DELETE, [hash]);
-  },
+  }
 
-  _generateAccessToken: function _generateAccessToken(accessToken) {
+  _generateAccessToken(accessToken) {
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       accessToken.clientId,
       accessToken.userId,
@@ -367,51 +352,51 @@ MysqlStore.prototype = {
       accessToken.tokenId,
       accessToken.profileChangedAt,
     ]);
-  },
+  }
 
   /**
    * Get an access token by token id
    * @param id Token Id
    * @returns {*}
    */
-  _getAccessToken: function _getAccessToken(id) {
+  _getAccessToken(id) {
     return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function (t) {
       if (t) {
         t = AccessToken.fromMySQL(t);
       }
       return t;
     });
-  },
+  }
 
   /**
    * Remove token by token id
    * @param id
    * @returns {*}
    */
-  _removeAccessToken: function _removeAccessToken(id) {
+  _removeAccessToken(id) {
     return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
-  },
+  }
 
   /**
    * Get all access tokens for a given user.
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  _getAccessTokensByUid: async function _getAccessTokensByUid(uid) {
+  async _getAccessTokensByUid(uid) {
     const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
       buf(uid),
     ]);
     return accessTokens.map((t) => {
       return AccessToken.fromMySQL(t);
     });
-  },
+  }
 
   /**
    * Get all refresh tokens for a given user.
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  _getRefreshTokensByUid: async function _getRefreshTokensByUid(uid) {
+  async _getRefreshTokensByUid(uid) {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
@@ -419,7 +404,7 @@ MysqlStore.prototype = {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
-  },
+  }
 
   /**
    * Get all refresh tokens for all users for a given clientId.
@@ -427,11 +412,9 @@ MysqlStore.prototype = {
    * @param {String} uid
    * @returns {Promise}
    */
-  getRefreshTokensByClientId: async function getRefreshTokensByClientId(
-    clientId
-  ) {
+  async getRefreshTokensByClientId(clientId) {
     return this._read(QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID, [buf(clientId)]);
-  },
+  }
 
   /**
    * Delete all authorization grants for some clientId and uid.
@@ -440,10 +423,7 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  _deleteClientAuthorization: function _deleteClientAuthorization(
-    clientId,
-    uid
-  ) {
+  _deleteClientAuthorization(clientId, uid) {
     const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid),
@@ -460,7 +440,7 @@ MysqlStore.prototype = {
     );
 
     return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
-  },
+  }
 
   /**
    * Delete a specific refresh token, for some clientId and uid.
@@ -480,11 +460,7 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
-  _deleteClientRefreshToken: async function _deleteClientRefreshToken(
-    tokenId,
-    clientId,
-    uid
-  ) {
+  async _deleteClientRefreshToken(tokenId, clientId, uid) {
     const deleteRefreshTokenRes = await this._write(
       DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID,
       [buf(tokenId), buf(clientId), buf(uid)]
@@ -501,9 +477,9 @@ MysqlStore.prototype = {
     }
 
     return false;
-  },
+  }
 
-  generateRefreshToken: function generateRefreshToken(vals) {
+  generateRefreshToken(vals) {
     const t = {
       clientId: vals.clientId,
       userId: vals.userId,
@@ -523,9 +499,9 @@ MysqlStore.prototype = {
       t.tokenId = tokenId;
       return t;
     });
-  },
+  }
 
-  _getRefreshToken: function _getRefreshToken(token) {
+  _getRefreshToken(token) {
     return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function (
       t
     ) {
@@ -534,21 +510,21 @@ MysqlStore.prototype = {
       }
       return t;
     });
-  },
+  }
 
-  _touchRefreshToken: function _touchRefreshToken(token, now) {
+  _touchRefreshToken(token, now) {
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE
       buf(token),
     ]);
-  },
+  }
 
-  _removeRefreshToken: function _removeRefreshToken(id) {
+  _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
-  },
+  }
 
-  getEncodingInfo: function getEncodingInfo() {
+  getEncodingInfo() {
     var info = {};
 
     var self = this;
@@ -566,15 +542,15 @@ MysqlStore.prototype = {
         return info;
       });
     });
-  },
+  }
 
-  _removeUser: function _removeUser(userId) {
+  _removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
-  },
+  }
 
   /**
    * Removes user's tokens and refreshTokens for canGrant and publicClient clients
@@ -582,9 +558,7 @@ MysqlStore.prototype = {
    * @param {Buffer | string} userId
    * @returns {Promise}
    */
-  _removePublicAndCanGrantTokens: function _removePublicAndCanGrantTokens(
-    userId
-  ) {
+  _removePublicAndCanGrantTokens(userId) {
     const uid = buf(userId);
 
     return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
@@ -592,34 +566,34 @@ MysqlStore.prototype = {
     ]).then(() =>
       this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
     );
-  },
+  }
 
-  getScope: async function getScope(scope) {
+  async getScope(scope) {
     // We currently only have database entries for URL-format scopes,
     // so don't bother hitting the db for common scopes like 'profile'.
     if (!scope.startsWith('https://')) {
       return null;
     }
     return (await this._readOne(QUERY_SCOPE_FIND, [scope])) || null;
-  },
+  }
 
-  registerScope: function registerScope(scope) {
+  registerScope(scope) {
     return this._write(QUERY_SCOPES_INSERT, [scope.scope, scope.hasScopedKeys]);
-  },
+  }
 
-  _write: function _write(sql, params) {
+  _write(sql, params) {
     return this._query(sql, params);
-  },
+  }
 
-  _read: function _read(sql, params) {
+  _read(sql, params) {
     return this._query(sql, params);
-  },
+  }
 
-  _readOne: function _readOne(sql, params) {
+  _readOne(sql, params) {
     return this._read(sql, params).then(firstRow);
-  },
+  }
 
-  _getConnection: async function _getConnection() {
+  async _getConnection() {
     var pool = this._pool;
     return new Promise(function (resolve, reject) {
       pool.getConnection(function (err, conn) {
@@ -673,9 +647,9 @@ MysqlStore.prototype = {
         );
       });
     });
-  },
+  }
 
-  _query: async function _query(sql, params) {
+  async _query(sql, params) {
     const conn = await this._getConnection();
     try {
       return await new Promise(function (resolve, reject) {
@@ -689,7 +663,18 @@ MysqlStore.prototype = {
     } finally {
       conn.release();
     }
-  },
-};
+  }
 
-module.exports = MysqlStore;
+  getProxyableFunctions() {
+    return Reflect.ownKeys(MysqlStore.prototype).filter(
+      (x) => x !== 'constructor' && /^[a-zA-Z]/.test(x)
+    );
+  }
+}
+
+function connect(config) {
+  return new MysqlStore(config);
+}
+
+module.exports = connect;
+module.exports.connect = connect;
