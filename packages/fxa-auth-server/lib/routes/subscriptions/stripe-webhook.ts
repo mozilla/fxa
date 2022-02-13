@@ -20,7 +20,9 @@ import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper } from '../../payments/paypal';
 import {
   CUSTOMER_RESOURCE,
+  FormattedSubscriptionForEmail,
   INVOICES_RESOURCE,
+  PAYMENT_METHOD_RESOURCE,
   StripeHelper,
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
   SUBSCRIPTION_UPDATE_TYPES,
@@ -41,6 +43,7 @@ import { StripeHandler } from './stripe';
 // update our plans handling code.  Prices should be treated in the same
 // fashion as plans, so it's on this list.
 const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
+const BYPASS_LATEST_FETCH_EVENTS = ['invoice.upcoming'];
 const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
   Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
     ([k, _]) => !BYPASS_LATEST_FETCH_TYPES.includes(k)
@@ -96,11 +99,13 @@ export class StripeWebhookHandler extends StripeHandler {
       const resourceType =
         ALLOWED_EXPAND_RESOURCE_TYPES[stripeObject.object as string];
       if (resourceType) {
-        // Replace the object with the latest version if we support this object.
-        event.data.object = await this.stripeHelper.expandResource(
-          stripeObject.id,
-          resourceType as typeof VALID_RESOURCE_TYPES[number]
-        );
+        if (!BYPASS_LATEST_FETCH_EVENTS.includes(event.type)) {
+          // Replace the object with the latest version if we support this object.
+          event.data.object = await this.stripeHelper.expandResource(
+            stripeObject.id,
+            resourceType as typeof VALID_RESOURCE_TYPES[number]
+          );
+        }
       } else if (
         !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
       ) {
@@ -165,6 +170,9 @@ export class StripeWebhookHandler extends StripeHandler {
           break;
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
+          break;
+        case 'invoice.upcoming':
+          await this.handleInvoiceUpcomingEvent(request, event);
           break;
         case 'product.created':
         case 'product.updated':
@@ -465,6 +473,60 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
+   * Handle `invoice.upcoming` Stripe wehbook events.
+   */
+  async handleInvoiceUpcomingEvent(request: AuthRequest, event: Stripe.Event) {
+    const invoice = event.data.object as Stripe.Invoice;
+    if (invoice.billing_reason !== 'upcoming') {
+      // Send payment failure emails only when processing a subscription renewal.
+      return;
+    }
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+
+    if (
+      customer?.deleted ||
+      !customer?.invoice_settings?.default_payment_method
+    ) {
+      return;
+    }
+
+    const { card } = await this.stripeHelper.expandResource(
+      customer?.invoice_settings.default_payment_method,
+      PAYMENT_METHOD_RESOURCE
+    );
+
+    const currentDate = new Date();
+
+    if (
+      !(
+        card?.exp_month === currentDate.getMonth() + 1 &&
+        card.exp_year === currentDate.getFullYear()
+      )
+    ) {
+      return;
+    }
+
+    const subscriptions = await this.stripeHelper.formatSubscriptionsForEmails(
+      customer
+    );
+
+    if (!subscriptions.length) {
+      return;
+    }
+
+    const sourceDetails = {
+      uid: customer.metadata.userid,
+      email: customer.email,
+      subscriptions,
+    };
+
+    await this.sendSubscriptionPaymentExpiredEmail(sourceDetails);
+  }
+
+  /**
    * Handle `customer.source.expiring` Stripe wehbook events.
    */
   async handleCustomerSourceExpiringEvent(
@@ -472,9 +534,10 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const source = event.data.object as Stripe.Source;
-    const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
+    const sourceDetails = await this.stripeHelper.extractSourceDetailsForEmail(
       source
     );
+    await this.sendSubscriptionPaymentExpiredEmail(sourceDetails);
   }
 
   /**
@@ -591,23 +654,23 @@ export class StripeWebhookHandler extends StripeHandler {
   /**
    * Send out an email on payment expiration.
    */
-  async sendSubscriptionPaymentExpiredEmail(paymentSource: Stripe.Source) {
-    const sourceDetails = await this.stripeHelper.extractSourceDetailsForEmail(
-      paymentSource
-    );
+  async sendSubscriptionPaymentExpiredEmail(sourceDetails: {
+    uid: string;
+    email: string | null;
+    subscriptions: FormattedSubscriptionForEmail[];
+  }) {
     const { uid } = sourceDetails;
     const account = await this.db.account(uid);
 
-    await this.mailer.sendSubscriptionPaymentExpiredEmail(
+    return this.mailer.sendSubscriptionPaymentExpiredEmail(
       account.emails,
       account,
       {
         acceptLanguage: account.locale,
         ...sourceDetails,
+        email: sourceDetails.email || account.email,
       }
     );
-
-    return sourceDetails;
   }
 
   /**

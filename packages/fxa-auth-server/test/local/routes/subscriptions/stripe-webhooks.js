@@ -32,6 +32,7 @@ const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoic
 const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
 const eventInvoicePaidDiscount = require('../../payments/fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
+const eventInvoiceUpcoming = require('../../payments/fixtures/stripe/event_invoice_upcoming.json');
 const eventCouponCreated = require('../../payments/fixtures/stripe/event_coupon_created.json');
 const eventCustomerUpdated = require('../../payments/fixtures/stripe/event_customer_updated.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
@@ -178,6 +179,7 @@ describe('StripeWebhookHandler', () => {
         'handleInvoicePaidEvent',
         'handleInvoicePaymentFailedEvent',
         'handleInvoiceCreatedEvent',
+        'handleInvoiceUpcomingEvent',
         'handleTaxRateCreatedOrUpdatedEvent',
       ];
       const handlerStubs = {};
@@ -380,6 +382,15 @@ describe('StripeWebhookHandler', () => {
         itOnlyCallsThisHandler(
           'handleInvoiceCreatedEvent',
           eventInvoiceCreated
+        );
+      });
+
+      describe('when the event.type is invoice.upcoming', () => {
+        itOnlyCallsThisHandler(
+          'handleInvoiceUpcomingEvent',
+          eventInvoiceUpcoming,
+          false,
+          false
         );
       });
 
@@ -1265,6 +1276,166 @@ describe('StripeWebhookHandler', () => {
       });
     });
 
+    describe('handleInvoiceUpcomingEvent', () => {
+      const mockCustomer = {
+        deleted: false,
+        invoice_settings: {
+          default_payment_method: {
+            id: 'pm_test',
+          },
+        },
+        metadata: {
+          userid: 'userid',
+        },
+      };
+      const mockPaymentMethod = {
+        card: {
+          exp_month: 2,
+          exp_year: 2021,
+        },
+      };
+      let sendSubscriptionPaymentExpiredEmailStub;
+
+      beforeEach(() => {
+        sendSubscriptionPaymentExpiredEmailStub = sandbox
+          .stub(
+            StripeWebhookHandlerInstance,
+            'sendSubscriptionPaymentExpiredEmail'
+          )
+          .resolves(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(0)
+          .resolves(mockCustomer);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(1)
+          .resolves(mockPaymentMethod);
+      });
+
+      it('does nothing, when customer is deleted', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(0)
+          .resolves({ ...mockCustomer, deleted: true });
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          1
+        );
+        assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      it('does nothing, invoice settings doesnt exist because payment method is Paypal', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(0)
+          .resolves({ ...mockCustomer, invoice_settings: null });
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          1
+        );
+        assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      it('does nothing, when credit card is not expiring the current month.', async () => {
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
+        );
+        assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      it('does nothing, when customer doesnt have active subscriptions', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+          []
+        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(1)
+          .resolves({
+            card: {
+              exp_month: new Date().getMonth() + 1,
+              exp_year: new Date().getFullYear(),
+            },
+          });
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.called(
+          StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
+        );
+        assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      it('sends an email when default payment credit card expires the current month', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(1)
+          .resolves({
+            card: {
+              exp_month: new Date().getMonth() + 1,
+              exp_year: new Date().getFullYear(),
+            },
+          });
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+          [
+            {
+              id: 'sub1',
+            },
+          ]
+        );
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.called(
+          StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
+        );
+        assert.called(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      // it('sends email and emits a notification when an invoice payment fails', async () => {
+      //   const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
+      //   paymentFailedEvent.data.object.billing_reason = 'subscription_cycle';
+      //   await StripeWebhookHandlerInstance.handleInvoicePaymentFailedEvent(
+      //     {},
+      //     paymentFailedEvent
+      //   );
+      //   assert.calledWith(
+      //     sendSubscriptionPaymentFailedEmailStub,
+      //     paymentFailedEvent.data.object
+      //   );
+      // });
+
+      // it('does not send email during subscription creation flow', async () => {
+      //   const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
+      //   paymentFailedEvent.data.object.billing_reason = 'subscription_create';
+      //   await StripeWebhookHandlerInstance.handleInvoicePaymentFailedEvent(
+      //     {},
+      //     paymentFailedEvent
+      //   );
+      //   assert.notCalled(sendSubscriptionPaymentFailedEmailStub);
+      // });
+    });
+
     describe('handleSubscriptionCreatedEvent', () => {
       it('emits a notification when a new subscription is "active" or "trialing"', async () => {
         const createdEvent = deepCopy(subscriptionCreated);
@@ -1290,44 +1461,69 @@ describe('StripeWebhookHandler', () => {
   });
 
   describe('sendSubscriptionPaymentExpiredEmail', () => {
-    const mockSource = {};
     const mockAccount = {
-      emails: TEST_EMAIL,
+      email: TEST_EMAIL,
+      emails: [TEST_EMAIL],
       locale: ACCOUNT_LOCALE,
+    };
+    const mockSourceDetails = {
+      uid: UID,
+      email: TEST_EMAIL,
+      subscriptions: [{ id: 'sub_testo' }],
     };
 
     it('sends the email with a list of subscriptions', async () => {
       StripeWebhookHandlerInstance.db.account = sandbox
         .stub()
         .resolves(mockAccount);
-      StripeWebhookHandlerInstance.mailer.sendMultiSubscriptionsPaymentExpiredEmail =
-        sandbox.stub();
       StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail =
         sandbox.stub();
-      const mockCustomer = { uid: UID, subscriptions: [{ id: 'sub_testo' }] };
-      StripeWebhookHandlerInstance.stripeHelper.extractSourceDetailsForEmail.resolves(
-        mockCustomer
-      );
 
       await StripeWebhookHandlerInstance.sendSubscriptionPaymentExpiredEmail(
-        mockSource
+        mockSourceDetails
       );
 
-      assert.calledOnceWithExactly(
-        StripeWebhookHandlerInstance.stripeHelper.extractSourceDetailsForEmail,
-        mockSource
-      );
       assert.calledOnceWithExactly(
         StripeWebhookHandlerInstance.db.account,
         UID
       );
       sinon.assert.calledOnceWithExactly(
         StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail,
-        TEST_EMAIL,
-        { emails: TEST_EMAIL, locale: ACCOUNT_LOCALE },
+        [TEST_EMAIL],
+        mockAccount,
         {
           acceptLanguage: ACCOUNT_LOCALE,
-          ...mockCustomer,
+          ...mockSourceDetails,
+        }
+      );
+    });
+
+    it('send email using email on account', async () => {
+      const mockSourceDetailsNullEmail = {
+        ...mockSourceDetails,
+        email: null,
+      };
+      StripeWebhookHandlerInstance.db.account = sandbox
+        .stub()
+        .resolves(mockAccount);
+      StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail =
+        sandbox.stub();
+
+      await StripeWebhookHandlerInstance.sendSubscriptionPaymentExpiredEmail(
+        mockSourceDetailsNullEmail
+      );
+
+      assert.calledOnceWithExactly(
+        StripeWebhookHandlerInstance.db.account,
+        UID
+      );
+      sinon.assert.calledOnceWithExactly(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail,
+        [TEST_EMAIL],
+        mockAccount,
+        {
+          acceptLanguage: ACCOUNT_LOCALE,
+          ...mockSourceDetails,
         }
       );
     });
