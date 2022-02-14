@@ -117,7 +117,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^8.200.0",
+    "stripe": "^8.202.0",
     "superagent": "^7.1.1",
     "typesafe-joi": "^2.1.0"
   },
