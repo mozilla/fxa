@@ -204,7 +204,7 @@ it('displays the recovery key status', async () => {
   expect(getByTestId('recovery-keys-enabled')).toBeInTheDocument();
 });
 
-it.only('displays the attached clients', async () => {
+it('displays the attached clients', async () => {
   const { findAllByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />
