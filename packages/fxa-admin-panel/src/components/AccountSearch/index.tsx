@@ -42,6 +42,11 @@ const ACCOUNT_SCHEMA = `
     verifiedAt
     enabled
   }
+  linkedAccounts {
+    providerId
+    authAt
+    enabled
+  }
   attachedClients {
     createdTime
     createdTimeFormatted

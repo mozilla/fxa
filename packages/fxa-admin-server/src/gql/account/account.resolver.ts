@@ -71,6 +71,7 @@ const SESSIONTOKEN_COLUMNS = [
   'verifiedAt',
   'mustVerify',
 ];
+const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
@@ -220,6 +221,24 @@ export class AccountResolver {
       .where('uid', uidBuffer);
   }
 
+  @ResolveField()
+  public async linkedAccounts(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.linkedAccounts
+      .query()
+      .select(LINKEDACCOUNT_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async sessionTokens(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.sessionTokens
+      .query()
+      .select(SESSIONTOKEN_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
   @ResolveField(() => [AttachedClient])
   public async attachedClients(@Root() account: Account) {
     const clientFormatter = new ClientFormatter(
@@ -263,5 +282,20 @@ export class AccountResolver {
         if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
         return x;
       });
+  }
+
+  @Mutation((returns) => Boolean)
+  public async unlinkAccount(
+    @Args('uid') uid: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.linkedAccounts
+      .query()
+      .delete()
+      .where({
+        uid: uuidTransformer.to(uid),
+        providerId: 1,
+      });
+    return !!result;
   }
 }
