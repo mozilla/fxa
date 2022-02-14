@@ -7,7 +7,11 @@ jest.mock('../../lib/apiClient', () => ({
 }));
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 
-import { NewUserEmailForm, emailInputValidationAndAccountCheck } from './index';
+import {
+  NewUserEmailForm,
+  emailInputValidationAndAccountCheck,
+  checkAccountExists,
+} from './index';
 import { Localized } from '@fluent/react';
 const selectedPlan = {
   plan_id: 'planId',
@@ -191,5 +195,25 @@ describe('NewUserEmailForm test', () => {
         </React.Fragment>
       </Localized>
     );
+  });
+});
+
+describe('checkAccountExists', () => {
+  it('returns the response of apiFetchAccountStatus', async () => {
+    const res = { exists: false };
+    (apiFetchAccountStatus as jest.Mock).mockClear().mockResolvedValue(res);
+    const actual = await checkAccountExists('testo@example.gg');
+    expect(actual).toEqual(res);
+    expect(apiFetchAccountStatus).toHaveBeenCalledTimes(1);
+    expect(apiFetchAccountStatus).toHaveBeenCalledWith('testo@example.gg');
+  });
+
+  it('memoizes the response of for an email', async () => {
+    (apiFetchAccountStatus as jest.Mock).mockClear();
+    const email = `${Date.now()}@example.gg`;
+    await checkAccountExists(email);
+    await checkAccountExists(email);
+    expect(apiFetchAccountStatus).toHaveBeenCalledTimes(1);
+    expect(apiFetchAccountStatus).toHaveBeenCalledWith(email);
   });
 });

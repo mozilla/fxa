@@ -160,9 +160,18 @@ export const NewUserEmailForm = ({
   );
 };
 
-export async function checkAccountExists(userEmail: string) {
-  return apiFetchAccountStatus(userEmail);
-}
+export const checkAccountExists = (() => {
+  const results: { [key: string]: { exists: boolean } } = {};
+  const memoizedCheck = async (userEmail: string) => {
+    if (results[userEmail]) {
+      return results[userEmail];
+    }
+    const res = (results[userEmail] = await apiFetchAccountStatus(userEmail));
+    return res;
+  };
+
+  return memoizedCheck;
+})();
 
 export async function emailInputValidationAndAccountCheck(
   value: string,
