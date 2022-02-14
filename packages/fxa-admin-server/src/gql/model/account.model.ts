@@ -8,7 +8,6 @@ import { EmailBounce } from './email-bounces.model';
 import { Email } from './emails.model';
 import { RecoveryKeys } from './recovery-keys.model';
 import { SecurityEvents } from './security-events.model';
-import { SessionTokens } from './session-tokens.model';
 import { Totp } from './totp.model';
 
 @ObjectType()
@@ -39,9 +38,6 @@ export class Account {
 
   @Field((type) => [RecoveryKeys], { nullable: true })
   public recoveryKeys!: RecoveryKeys[];
-
-  @Field((type) => [SessionTokens], { nullable: true })
-  public sessionTokens!: SessionTokens[];
 
   @Field((type) => [SecurityEvents], { nullable: true })
   public securityEvents!: SecurityEvents[];

@@ -7,6 +7,7 @@ import {
   AuthorizedClientsFactory,
   ConnectedServicesCache,
   ConnectedServicesDb,
+  mergeCachedSessionTokens,
   mergeDevicesAndSessionTokens,
 } from 'fxa-shared/connected-services';
 import {
@@ -76,6 +77,13 @@ export class DatabaseService implements OnModuleDestroy {
   public async authorizedClients(uid: string) {
     const factory = new AuthorizedClientsFactory(this.connectedServicesDb);
     return await factory.build(uid);
+  }
+
+  public async attachedSessions(uid: string) {
+    const dbSessionTokens = await this.sessionTokens.findByUid(uid);
+    const cachedSessionTokens =
+      await this.connectedServicesDb.cache.getSessionTokens(uid);
+    return mergeCachedSessionTokens(dbSessionTokens, cachedSessionTokens, true);
   }
 
   public async attachedDevices(uid: string) {
