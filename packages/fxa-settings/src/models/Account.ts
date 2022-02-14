@@ -19,6 +19,12 @@ export interface Email {
   verified: boolean;
 }
 
+export interface LinkedAccount {
+  providerId: number;
+  authAt: number;
+  enabled: boolean;
+}
+
 // TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
 export interface AttachedClient {
   clientId: string;
@@ -52,6 +58,7 @@ export interface AccountData {
   primaryEmail: Email;
   emails: Email[];
   attachedClients: AttachedClient[];
+  linkedAccounts: LinkedAccount[];
   totp: {
     exists: boolean;
     verified: boolean;
@@ -113,6 +120,11 @@ export const ACCOUNT_FIELDS = `
       subscriptions {
         created
         productName
+      }
+      linkedAccounts {
+        providerId
+        authAt
+        enabled
       }
     }
 `;
@@ -287,6 +299,10 @@ export class Account implements AccountData {
 
   get attachedClients() {
     return this.data.attachedClients;
+  }
+
+  get linkedAccounts() {
+    return this.data.linkedAccounts;
   }
 
   get hasSecondaryVerifiedEmail() {
@@ -768,6 +784,22 @@ export class Account implements AccountData {
     legacyLocalStorageAccount.metricsEnabled = state === 'in';
     currentAccount(legacyLocalStorageAccount);
     firefox.profileChanged({ metricsEnabled: this.metricsEnabled });
+  }
+
+  async unlinkThirdParty(providerId: number) {
+    await this.withLoadingStatus(
+      this.authClient.unlinkThirdParty(sessionToken()!, providerId)
+    );
+
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        linkedAccounts: () => {
+          return [];
+        },
+      },
+    });
   }
 
   async destroy(password: string) {

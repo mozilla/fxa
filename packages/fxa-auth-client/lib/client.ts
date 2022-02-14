@@ -494,8 +494,12 @@ export default class AuthClient {
 
   async unlinkThirdParty(
     sessionToken: hexstring,
-    provider: string
+    providerId: number
   ): Promise<{ success: boolean }> {
+    // Let's change this once we land support for more than one third
+    // party account
+    let provider = providerId === 1 ? 'google' : '';
+
     return await this.sessionPost('/linked_account/unlink', sessionToken, {
       provider,
     });

@@ -13,6 +13,7 @@ const account = {
     email: 'stomlinson@mozilla.com',
   },
   subscriptions: [],
+  linkedAccounts: [],
 } as unknown as Account;
 
 describe('Nav', () => {
@@ -72,6 +73,7 @@ describe('Nav', () => {
         email: 'stomlinson@mozilla.com',
       },
       subscriptions: [{ created: 1, productName: 'x' }],
+      linkedAccounts: [],
     } as unknown as Account;
     render(
       <AppContext.Provider value={{ account }}>
@@ -100,5 +102,32 @@ describe('Nav', () => {
     );
 
     expect(screen.queryByTestId('nav-link-newsletters')).toBeNull();
+  });
+
+  it('renders as expected with linkedAccounts link', () => {
+    const account = {
+      primaryEmail: {
+        email: 'stomlinson@mozilla.com',
+      },
+      subscriptions: [{ created: 1, productName: 'x' }],
+      linkedAccounts: [
+        {
+          providerId: 1,
+        },
+      ],
+    } as unknown as Account;
+    render(
+      <AppContext.Provider value={{ account }}>
+        <Nav />
+      </AppContext.Provider>
+    );
+
+    expect(screen.getByTestId('nav-link-linked-accounts')).toHaveTextContent(
+      'Linked Accounts'
+    );
+    expect(screen.getByTestId('nav-link-linked-accounts')).toHaveAttribute(
+      'href',
+      '#linked-accounts'
+    );
   });
 });

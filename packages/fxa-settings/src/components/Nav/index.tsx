@@ -14,6 +14,7 @@ export const Nav = () => {
   const config = useConfig();
   const primaryEmail = account.primaryEmail.email;
   const hasSubscription = account.subscriptions.length > 0;
+  const hasLinkedAccounts = account.linkedAccounts.length > 0;
   const marketingCommPrefLink =
     config.marketingEmailPreferencesUrl &&
     `${config.marketingEmailPreferencesUrl}?email=${encodeURIComponent(
@@ -68,6 +69,19 @@ export const Nav = () => {
                 </a>
               </Localized>
             </li>
+            {hasLinkedAccounts && (
+              <li className="mt-3">
+                <Localized id="nav-linked-accounts">
+                  <a
+                    href="#linked-accounts"
+                    data-testid="nav-link-linked-accounts"
+                    className="inline-block py-1 px-2 hover:bg-grey-100"
+                  >
+                    Linked Accounts
+                  </a>
+                </Localized>
+              </li>
+            )}
             <li className="mt-3">
               <Localized id="nav-data-collection">
                 <a
