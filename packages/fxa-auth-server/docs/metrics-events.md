@@ -435,6 +435,7 @@ Possible values for `${template}` include
 | `newDeviceLoginEmail`      | Email sent when a login has occurred from a new device.         |
 | `passwordChangedEmail`     | Email sent when a user has successfully changed their password. |
 | `passwordResetEmail`       | Email sent when a user has reset their password.                |
+| `postAddLinkedAccountEmail`| Email sent when an account is linked to another account.        |
 | `postVerifyEmail`          | Email sent when a user has verified their account.              |
 | `recoveryEmail`            | Email sent when a user attempts to reset their password.        |
 | `unblockCodeEmail`         | Email sent containing the account unblock code.                 |

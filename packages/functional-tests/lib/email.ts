@@ -33,6 +33,7 @@ export enum EmailType {
   passwordReset,
   passwordResetAccountRecovery,
   passwordResetRequired,
+  postAddLinkedAccount,
   postChangePrimary,
   postRemoveSecondary,
   postVerify,

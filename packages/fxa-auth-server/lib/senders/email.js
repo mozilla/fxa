@@ -66,6 +66,7 @@ module.exports = function (log, config, bounces) {
     passwordChanged: 'password-changed-success',
     passwordReset: 'password-reset-success',
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
+    postAddLinkedAccount: 'account-linked',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
     postChangePrimary: 'account-email-changed',
@@ -114,6 +115,7 @@ module.exports = function (log, config, bounces) {
     passwordChangeRequired: 'password-change',
     passwordReset: 'password-reset',
     passwordResetAccountRecovery: 'create-recovery-key',
+    postAddLinkedAccount: 'manage-account',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
     postChangePrimary: 'account-email-changed',
@@ -1258,6 +1260,54 @@ module.exports = function (log, config, bounces) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postAddLinkedAccountEmail = function (message) {
+    log.trace('mailer.postAddLinkedAccountEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postAddLinkedAccount';
+    const links = this._generateSettingLinks(message, templateName);
+    const translator = this.translator(message.acceptLanguage);
+
+    const subject = translator.gettext('New account linked to Firefox');
+    const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage,
+      message.date,
+      message.time
+    );
+
+    const headers = {
+      'X-Link': links.passwordChangeLink,
+      'X-Linked-Account-Provider-Id': message.providerName,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        action,
+        date,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        providerName: message.providerName,
+        subject,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
       },
     });
   };

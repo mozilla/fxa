@@ -20,7 +20,8 @@ export class LinkedAccountHandler {
   constructor(
     private log: AuthLogger,
     private db: any,
-    private config: ConfigType
+    private config: ConfigType,
+    private mailer: any,
   ) {
     const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
     this.tokenCodeLifetime =
@@ -94,7 +95,39 @@ export class LinkedAccountHandler {
         // This is a new Google account linking an existing FxA account
         accountRecord = await this.db.accountRecord(payload.email);
         await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
+
+        const geoData = request.app.geo;
+        const ip = request.app.clientAddress;
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
+        const emailOptions = {
+          acceptLanguage: request.app.acceptLanguage,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          ip,
+          location: geoData.location,
+          providerName: 'Google',
+          timeZone: geoData.timeZone,
+          uaBrowser: request.app.ua.browser,
+          uaBrowserVersion: request.app.ua.browserVersion,
+          uaOS: request.app.ua.os,
+          uaOSVersion: request.app.ua.osVersion,
+          uaDeviceType: request.app.ua.deviceType,
+          uid: accountRecord.uid,
+        }
+        await this.mailer.sendPostAddLinkedAccountEmail(
+          accountRecord.emails,
+          accountRecord,
+          emailOptions,
+        );
       } catch (err) {
+        this.log.trace(
+          'Account.login.sendPostAddLinkedAccountNotification.error',
+          {
+            error: err,
+          }
+        )
+
         if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
           throw err;
         }
@@ -161,9 +194,10 @@ export class LinkedAccountHandler {
 export const linkedAccountRoutes = (
   log: AuthLogger,
   db: any,
-  config: ConfigType
+  config: ConfigType,
+  mailer: any,
 ) => {
-  const handler = new LinkedAccountHandler(log, db, config);
+  const handler = new LinkedAccountHandler(log, db, config, mailer);
 
   return [
     {

@@ -233,6 +233,38 @@ describe('lib/senders/index', () => {
       });
     });
 
+    describe('.sendPostAddLinkedAccountEmail()', () => {
+      it('should call mailer.postAddLinkedAccountEmail()', () => {
+        let email;
+        return createSender(config)
+          .then((e) => {
+            email = e;
+            email._ungatedMailer.postAddLinkedAccountEmail = sinon.spy(() =>
+              Promise.resolve({})
+            );
+            return email.sendPostAddLinkedAccountEmail(EMAILS, acct, {});
+          })
+          .then(() => {
+            assert.equal(email._ungatedMailer.postAddLinkedAccountEmail.callCount, 1);
+
+            const args =
+              email._ungatedMailer.postAddLinkedAccountEmail.getCall(0).args;
+            assert.equal(args[0].email, EMAIL, 'email correctly set');
+            assert.equal(
+              args[0].metricsEnabled,
+              true,
+              'metricsEnabled correctly set'
+            );
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
+            assert.equal(
+              args[0].ccEmails[0],
+              EMAILS[1].email,
+              'cc email correctly set'
+            );
+          });
+      });
+    });
+
     describe('.sendNewDeviceLoginEmail()', () => {
       it('should call mailer.newDeviceLoginEmail()', () => {
         let email;
