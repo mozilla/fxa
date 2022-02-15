@@ -9,7 +9,7 @@ import PaymentConfirmation from './index';
 import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -71,7 +71,7 @@ const customer: Customer = {
 
 const productUrl = 'https://mozilla.org';
 
-const coupon: Coupon.couponDetailsSchema = {
+const coupon: CouponDetails = {
   discountAmount: 200,
   promotionCode: 'TEST',
   type: '',

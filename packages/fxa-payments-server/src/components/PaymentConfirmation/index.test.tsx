@@ -13,7 +13,7 @@ import {
   defaultAppContextValue,
 } from '../../lib/test-utils';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -101,7 +101,7 @@ const paypalCustomer: Customer = {
   ],
 };
 
-const coupon: Coupon.couponDetailsSchema = {
+const coupon: CouponDetails = {
   discountAmount: 200,
   promotionCode: 'TEST',
   type: '',

@@ -5,7 +5,7 @@ import CouponForm, {
   checkPromotionCode,
   CouponErrorMessageType,
 } from './index';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
   COUPON_DETAILS_EXPIRED,
   COUPON_DETAILS_INVALID,
@@ -71,7 +71,7 @@ describe('CouponForm', () => {
     });
 
     it('shows the coupon code and hides the input when a coupon is used', () => {
-      const coupon: Coupon.couponDetailsSchema = {
+      const coupon: CouponDetails = {
         discountAmount: 200,
         promotionCode: '',
         type: '',

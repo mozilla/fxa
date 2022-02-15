@@ -1,7 +1,7 @@
 import './index.scss';
 
 import { Localized } from '@fluent/react';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import React, {
   FormEventHandler,
   MouseEventHandler,
@@ -90,8 +90,8 @@ type CouponFormProps = {
   planId: string;
   readOnly: boolean;
   subscriptionInProgress: boolean;
-  coupon?: Coupon.couponDetailsSchema;
-  setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
+  coupon?: CouponDetails;
+  setCoupon: (coupon: CouponDetails | undefined) => void;
 };
 
 export const CouponForm = ({

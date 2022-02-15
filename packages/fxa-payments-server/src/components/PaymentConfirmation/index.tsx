@@ -15,7 +15,7 @@ import './index.scss';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 type PaymentConfirmationProps = {
   customer: Customer;
@@ -24,7 +24,7 @@ type PaymentConfirmationProps = {
   productUrl: string;
   className?: string;
   accountExists?: boolean;
-  coupon?: Coupon.couponDetailsSchema;
+  coupon?: CouponDetails;
 };
 
 export const PaymentConfirmation = ({

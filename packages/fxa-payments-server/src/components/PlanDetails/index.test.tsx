@@ -17,7 +17,7 @@ import {
 import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
 import CouponForm from '../CouponForm';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Profile } from '../../store/types';
 
 const userProfile: Profile = {
@@ -197,7 +197,7 @@ describe('PlanDetails', () => {
         featureFlags: {},
       });
 
-      const coupon: Coupon.couponDetailsSchema = {
+      const coupon: CouponDetails = {
         discountAmount: 200,
         promotionCode: '',
         type: '',

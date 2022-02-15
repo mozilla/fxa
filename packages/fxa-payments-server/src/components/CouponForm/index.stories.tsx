@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 
 import CouponForm from '.';
 import MockApp from '../../../.storybook/components/MockApp';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
 storiesOf('components/Coupon', module)
   .add('default', () => {
-    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+    const [coupon, setCoupon] = useState<CouponDetails>();
 
     return (
       <MockApp>
@@ -23,7 +23,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('readOnly', () => {
-    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+    const [coupon, setCoupon] = useState<CouponDetails>();
 
     return (
       <MockApp>
@@ -38,7 +38,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('readOnly with Coupon', () => {
-    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>({
+    const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
       discountAmount: 10,
@@ -57,7 +57,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('default subscription in progress', () => {
-    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+    const [coupon, setCoupon] = useState<CouponDetails>();
     return (
       <MockApp>
         <CouponForm
@@ -71,7 +71,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('has coupon, subscription in progress', () => {
-    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>({
+    const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
       discountAmount: 10,

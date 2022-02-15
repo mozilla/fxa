@@ -18,14 +18,14 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
   className?: string;
-  coupon?: Coupon.couponDetailsSchema;
+  coupon?: CouponDetails;
   children?: any;
 };
 
@@ -37,7 +37,6 @@ export const PlanDetails = ({
   coupon,
   children,
 }: PlanDetailsProps) => {
-  const { config } = useContext(AppContext);
   const { navigatorLanguages } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const { product_name, amount, currency, interval, interval_count } =
