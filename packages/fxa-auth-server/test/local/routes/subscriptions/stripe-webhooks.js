@@ -1288,12 +1288,7 @@ describe('StripeWebhookHandler', () => {
           userid: 'userid',
         },
       };
-      const mockPaymentMethod = {
-        card: {
-          exp_month: 2,
-          exp_year: 2021,
-        },
-      };
+      const mockPaymentMethod = {};
       let sendSubscriptionPaymentExpiredEmailStub;
 
       beforeEach(() => {
@@ -1341,7 +1336,33 @@ describe('StripeWebhookHandler', () => {
         assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
       });
 
-      it('does nothing, when credit card is not expiring the current month.', async () => {
+      it('reports Sentry Error and return, when payment method doesnt have a card', async () => {
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
+        );
+        assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+        sinon.assert.calledOnce(sentryModule.reportSentryError);
+      });
+
+      it('does nothing, when credit card is expiring in the future', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(1)
+          .resolves({
+            card: {
+              exp_month: new Date().getMonth() + 1,
+              exp_year: new Date().getFullYear() + 1,
+            },
+          });
         await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
           {},
           eventInvoiceUpcoming
@@ -1356,7 +1377,7 @@ describe('StripeWebhookHandler', () => {
         assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
       });
 
-      it('reports Sentry Error, when customer doesnt have active subscriptions', async () => {
+      it('reports Sentry Error and return, when customer doesnt have active subscriptions', async () => {
         const sentryModule = require('../../../../lib/sentry');
         sandbox.stub(sentryModule, 'reportSentryError').returns({});
         StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
@@ -1392,6 +1413,36 @@ describe('StripeWebhookHandler', () => {
             card: {
               exp_month: new Date().getMonth() + 1,
               exp_year: new Date().getFullYear(),
+            },
+          });
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+          [
+            {
+              id: 'sub1',
+            },
+          ]
+        );
+        await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
+          {},
+          eventInvoiceUpcoming
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.called(
+          StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
+        );
+        assert.called(sendSubscriptionPaymentExpiredEmailStub);
+      });
+
+      it('sends an email when default payment credit card expires before the current month', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource
+          .onCall(1)
+          .resolves({
+            card: {
+              exp_month: new Date().getMonth() + 1,
+              exp_year: new Date().getFullYear() - 1,
             },
           });
         StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(

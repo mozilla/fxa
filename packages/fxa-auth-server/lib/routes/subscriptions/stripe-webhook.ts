@@ -494,11 +494,18 @@ export class StripeWebhookHandler extends StripeHandler {
       PAYMENT_METHOD_RESOURCE
     );
 
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
-
-    if (!(card?.exp_month === currentMonth && card.exp_year === currentYear)) {
+    if (card?.exp_month && card.exp_year) {
+      // If card expiry is greater than current date, return without further action.
+      if (
+        new Date(card.exp_year, card.exp_month - 1, 1).getTime() > Date.now()
+      ) {
+        return;
+      }
+    } else {
+      reportSentryError(
+        new Error(`Could not find card for customerId: ${customer.id}`),
+        request
+      );
       return;
     }
 
