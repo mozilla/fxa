@@ -5599,15 +5599,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/integrations@npm:^6.16.1":
-  version: 6.16.1
-  resolution: "@sentry/integrations@npm:6.16.1"
+"@sentry/integrations@npm:^6.17.8":
+  version: 6.17.8
+  resolution: "@sentry/integrations@npm:6.17.8"
   dependencies:
-    "@sentry/types": 6.16.1
-    "@sentry/utils": 6.16.1
+    "@sentry/types": 6.17.8
+    "@sentry/utils": 6.17.8
     localforage: ^1.8.1
     tslib: ^1.9.3
-  checksum: 966213e0abf463c5a7828dda07ab06db3e25b8934f2e54e3cba4fe8edd384f5dbb0f343a544ee19ae87b6e94601e31a1aef34d6965f44f7d9afaac773665f659
+  checksum: b7e55b4dcc6e8d08e001c3d54bab3d788e25d86595f9cc09b39e26c605c80f1a2388c59f8926538d0e2e57812e19de24a52790c2465db333f41c9d43f75eba9f
   languageName: node
   linkType: hard
 
@@ -5677,6 +5677,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:6.17.8":
+  version: 6.17.8
+  resolution: "@sentry/types@npm:6.17.8"
+  checksum: 18b727989656cff40141f9c05ef17ec4d7f89512e08df806641fb9ef8804c04f3871db9fe6d32b5010521db772baae0f2b68f71cfcbe6e32466960c4c7899d55
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:6.16.1":
   version: 6.16.1
   resolution: "@sentry/utils@npm:6.16.1"
@@ -5694,6 +5701,16 @@ __metadata:
     "@sentry/types": 6.17.2
     tslib: ^1.9.3
   checksum: 15d2885a7da1bb30b78b2de54a031130aab59cb511ad5766d80daffeb2a08c5769b015e2a2687d4435b27e4474f79cc9fd19c1ad6bc0aabb572bea2a388ae0fb
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:6.17.8":
+  version: 6.17.8
+  resolution: "@sentry/utils@npm:6.17.8"
+  dependencies:
+    "@sentry/types": 6.17.8
+    tslib: ^1.9.3
+  checksum: daff1758a9955299deae8f5d3800f7e96fc39c05d0e593045f4afe004238c0adea74cee8c3fa45003d4e3641e56b628c9bef2056e5060cc9bfdccd37dd561e69
   languageName: node
   linkType: hard
 
@@ -21538,7 +21555,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.2.6
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -21623,7 +21640,7 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@storybook/addon-controls": ^6.4.18
     "@storybook/addon-docs": ^6.4.18
@@ -21700,7 +21717,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^9.0.0
     i18n-abide: 0.0.26
-    i18n-iso-countries: ^7.2.0
+    i18n-iso-countries: ^7.3.0
     ioredis: ^4.28.2
     jed: 0.5.4
     jsdom: ^19.0.0
@@ -22015,7 +22032,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^1.0.2
     "@nestjs/schematics": ^8.0.6
     "@nestjs/testing": ^8.2.6
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -22110,7 +22127,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.1.0
     "@nestjs/platform-express": ^8.2.6
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -22527,7 +22544,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/testing": ^8.2.6
     "@sentry/browser": ^6.17.2
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
@@ -22615,7 +22632,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.2.6
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.2.6
-    "@sentry/integrations": ^6.16.1
+    "@sentry/integrations": ^6.17.8
     "@sentry/node": ^6.16.1
     "@types/convict": ^5.2.2
     "@types/eslint": 7.2.13
@@ -25037,12 +25054,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"i18n-iso-countries@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "i18n-iso-countries@npm:7.2.0"
+"i18n-iso-countries@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "i18n-iso-countries@npm:7.3.0"
   dependencies:
     diacritics: 1.3.0
-  checksum: 9435e140182b962c3ec33ae2b33646e4c611b7dc31776ee48c40a81d6e3f3d00081cccf5190300566703bc6c76890e9e263ef8876e48d5658c0f2452ed79ae61
+  checksum: 947332c47666762998829049b5fd7e52cdc72681928655fb8b846bb7c9464297522fbc1ebccb99a423932fc6658197a933df8228a82f0967f7bfa2e289d8057e
   languageName: node
   linkType: hard
 
