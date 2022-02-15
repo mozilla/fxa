@@ -31,6 +31,12 @@ export enum BounceSubType {
   Virus = 'Virus',
 }
 
+export enum ProviderId {
+  unmapped = 'unmapped',
+  GOOGLE = 'GOOGLE',
+  APPLE = 'APPLE',
+}
+
 export interface Location {
   city?: Nullable<string>;
   country?: Nullable<string>;
@@ -96,6 +102,13 @@ export interface Totp {
   enabled: boolean;
 }
 
+export interface LinkedAccount {
+  uid: string;
+  authAt: number;
+  providerId: ProviderId;
+  enabled: boolean;
+}
+
 export interface Account {
   uid: string;
   email: string;
@@ -108,6 +121,7 @@ export interface Account {
   recoveryKeys?: Nullable<RecoveryKeys[]>;
   securityEvents?: Nullable<SecurityEvents[]>;
   attachedClients?: Nullable<AttachedClient[]>;
+  linkedAccounts?: Nullable<LinkedAccount[]>;
 }
 
 export interface IQuery {
@@ -119,6 +133,7 @@ export interface IQuery {
 export interface IMutation {
   unverifyEmail(email: string): boolean | Promise<boolean>;
   disableAccount(uid: string): boolean | Promise<boolean>;
+  unlinkAccount(uid: string): boolean | Promise<boolean>;
   clearEmailBounce(email: string): boolean | Promise<boolean>;
 }
 

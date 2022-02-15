@@ -230,15 +230,6 @@ export class AccountResolver {
       .where('uid', uidBuffer);
   }
 
-  @ResolveField()
-  public async sessionTokens(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.sessionTokens
-      .query()
-      .select(SESSIONTOKEN_COLUMNS)
-      .where('uid', uidBuffer);
-  }
-
   @ResolveField(() => [AttachedClient])
   public async attachedClients(@Root() account: Account) {
     const clientFormatter = new ClientFormatter(
