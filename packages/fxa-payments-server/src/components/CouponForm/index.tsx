@@ -106,7 +106,7 @@ export const CouponForm = ({
     coupon ? coupon.promotionCode : ''
   );
   const [error, setError] = useState<CouponErrorMessageType | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [checkingCoupon, setcheckingCoupon] = useState(false);
 
   const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
   useEffect(() => {
@@ -125,7 +125,7 @@ export const CouponForm = ({
     event.preventDefault();
     event.stopPropagation();
     try {
-      setLoading(true);
+      setcheckingCoupon(true);
       const { discountAmount, type, valid } = await checkPromotionCode(
         planId,
         promotionCode
@@ -141,7 +141,7 @@ export const CouponForm = ({
       setCoupon(undefined);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setcheckingCoupon(false);
     }
   };
 
@@ -202,7 +202,7 @@ export const CouponForm = ({
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
-                disabled={loading || readOnly || subscriptionInProgress}
+                disabled={checkingCoupon || readOnly || subscriptionInProgress}
               />
             </Localized>
           </div>
@@ -211,7 +211,7 @@ export const CouponForm = ({
             name="apply"
             type="submit"
             data-testid="coupon-button"
-            disabled={loading || readOnly || subscriptionInProgress}
+            disabled={checkingCoupon || readOnly || subscriptionInProgress}
           >
             <Localized id="coupon-submit">
               <span>Apply</span>

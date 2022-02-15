@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 
 import CouponForm from '.';
 import MockApp from '../../../.storybook/components/MockApp';
-import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import {
+  CouponDetails,
+  couponDetailsSchema,
+} from 'fxa-shared/dto/auth/payments/coupon';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
 storiesOf('components/Coupon', module)
@@ -49,7 +52,7 @@ storiesOf('components/Coupon', module)
         <CouponForm
           planId={SELECTED_PLAN.plan_id}
           coupon={coupon}
-          setCoupon={setCoupon}
+          setCoupon={() => {}}
           readOnly={true}
           subscriptionInProgress={false}
         />
@@ -82,7 +85,7 @@ storiesOf('components/Coupon', module)
         <CouponForm
           planId={SELECTED_PLAN.plan_id}
           coupon={coupon}
-          setCoupon={setCoupon}
+          setCoupon={() => {}}
           readOnly={false}
           subscriptionInProgress={true}
         />
