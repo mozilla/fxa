@@ -1,0 +1,11 @@
+postAddLinkedAccount-subject = "New account linked to Firefox"
+
+postAddLinkedAccount-title = "Your <%- providerName %> account has been linked to your Firefox account"
+
+<%- include('/partials/location/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>

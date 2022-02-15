@@ -19,13 +19,14 @@ const makeRoutes = function (options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
+  const mailer = options.mailer || mocks.mockMailer();
 
   const { linkedAccountRoutes } = proxyquire(
     '../../../lib/routes/linked-accounts',
     requireMocks || {}
   );
 
-  return linkedAccountRoutes(log, db, config);
+  return linkedAccountRoutes(log, db, config, mailer);
 };
 
 function runTest(route, request, assertions) {
@@ -39,7 +40,7 @@ function runTest(route, request, assertions) {
 }
 
 describe('/linked_account', () => {
-  let mockLog, mockDB, mockRequest, route, axiosMock;
+  let mockLog, mockDB, mockMailer, mockRequest, route, axiosMock;
 
   const UID = 'fxauid';
 
@@ -60,6 +61,7 @@ describe('/linked_account', () => {
         const mockConfig = {
           googleAuthConfig: { clientId: 'OooOoo' },
         };
+        mockMailer = mocks.mockMailer();
         mockRequest = mocks.mockRequest({
           log: mockLog,
           payload: {
@@ -92,6 +94,7 @@ describe('/linked_account', () => {
               config: mockConfig,
               db: mockDB,
               log: mockLog,
+              mailer: mockMailer,
             },
             {
               'google-auth-library': {
@@ -113,6 +116,7 @@ describe('/linked_account', () => {
             config: mockConfig,
             db: mockDB,
             log: mockLog,
+            mailer: mockMailer,
           }),
           '/linked_account/login'
         );
@@ -182,6 +186,7 @@ describe('/linked_account', () => {
             mockGoogleUser.sub
           )
         );
+        assert.equal(mockMailer.sendPostAddLinkedAccountEmail.callCount, 1);
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);

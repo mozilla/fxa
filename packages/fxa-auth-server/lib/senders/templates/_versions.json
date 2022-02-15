@@ -21,6 +21,7 @@
   "passwordChanged": 5,
   "passwordChangeRequired": 2,
   "passwordReset": 5,
+  "postAddLinkedAccount": 1,
   "postChangePrimary": 5,
   "postRemoveSecondary": 5,
   "postVerify": 6,
