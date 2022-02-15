@@ -60,12 +60,14 @@ export const SubscriptionSuccess = ({
             coupon: coupon,
           }}
         >
-          <CouponForm
-            readOnly={true}
-            subscriptionInProgress={false}
-            setCoupon={() => {}}
-            {...{ planId: plan.plan_id, coupon }}
-          />
+          {coupon ? (
+            <CouponForm
+              readOnly={true}
+              subscriptionInProgress={false}
+              setCoupon={() => {}}
+              {...{ planId: plan.plan_id, coupon }}
+            />
+          ) : null}
         </PlanDetails>
       </div>
     </>

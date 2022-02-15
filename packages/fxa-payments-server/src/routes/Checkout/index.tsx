@@ -440,7 +440,7 @@ export const Checkout = ({
             {...{
               planId: selectedPlan.plan_id,
               readOnly: false,
-              subscriptionInProgress: inProgress,
+              subscriptionInProgress: inProgress || transactionInProgress,
               coupon,
               setCoupon,
             }}
