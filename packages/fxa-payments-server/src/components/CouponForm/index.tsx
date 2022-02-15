@@ -106,7 +106,7 @@ export const CouponForm = ({
     coupon ? coupon.promotionCode : ''
   );
   const [error, setError] = useState<CouponErrorMessageType | null>(null);
-  const [checkingCoupon, setcheckingCoupon] = useState(false);
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
 
   const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
   useEffect(() => {
@@ -125,7 +125,7 @@ export const CouponForm = ({
     event.preventDefault();
     event.stopPropagation();
     try {
-      setcheckingCoupon(true);
+      setCheckingCoupon(true);
       const { discountAmount, type, valid } = await checkPromotionCode(
         planId,
         promotionCode
@@ -141,7 +141,7 @@ export const CouponForm = ({
       setCoupon(undefined);
       setError(err.message);
     } finally {
-      setcheckingCoupon(false);
+      setCheckingCoupon(false);
     }
   };
 

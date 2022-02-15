@@ -67,6 +67,8 @@ describe('CouponForm', () => {
       const couponButton = queryByTestId('coupon-button');
       expect(couponInputField).toBeInTheDocument();
       expect(couponButton).toBeInTheDocument();
+      expect(couponButton).not.toBeDisabled();
+      expect(couponInputField).not.toBeDisabled();
       expect(couponMounted).toBeCalledTimes(1);
     });
 
