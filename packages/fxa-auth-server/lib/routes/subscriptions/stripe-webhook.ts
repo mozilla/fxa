@@ -477,10 +477,6 @@ export class StripeWebhookHandler extends StripeHandler {
    */
   async handleInvoiceUpcomingEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
-    if (invoice.billing_reason !== 'upcoming') {
-      // Send payment failure emails only when processing a subscription renewal.
-      return;
-    }
     const customer = await this.stripeHelper.expandResource(
       invoice.customer,
       CUSTOMER_RESOURCE
@@ -499,13 +495,10 @@ export class StripeWebhookHandler extends StripeHandler {
     );
 
     const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
 
-    if (
-      !(
-        card?.exp_month === currentDate.getMonth() + 1 &&
-        card.exp_year === currentDate.getFullYear()
-      )
-    ) {
+    if (!(card?.exp_month === currentMonth && card.exp_year === currentYear)) {
       return;
     }
 
@@ -514,6 +507,12 @@ export class StripeWebhookHandler extends StripeHandler {
     );
 
     if (!subscriptions.length) {
+      reportSentryError(
+        new Error(
+          `Could not find subscriptions for customerId: ${customer.id}`
+        ),
+        request
+      );
       return;
     }
 

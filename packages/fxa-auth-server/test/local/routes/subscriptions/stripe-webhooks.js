@@ -1356,7 +1356,9 @@ describe('StripeWebhookHandler', () => {
         assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
       });
 
-      it('does nothing, when customer doesnt have active subscriptions', async () => {
+      it('reports Sentry Error, when customer doesnt have active subscriptions', async () => {
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
         StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
           []
         );
@@ -1380,6 +1382,7 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
         );
         assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+        sinon.assert.calledOnce(sentryModule.reportSentryError);
       });
 
       it('sends an email when default payment credit card expires the current month', async () => {
@@ -1411,29 +1414,6 @@ describe('StripeWebhookHandler', () => {
         );
         assert.called(sendSubscriptionPaymentExpiredEmailStub);
       });
-
-      // it('sends email and emits a notification when an invoice payment fails', async () => {
-      //   const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
-      //   paymentFailedEvent.data.object.billing_reason = 'subscription_cycle';
-      //   await StripeWebhookHandlerInstance.handleInvoicePaymentFailedEvent(
-      //     {},
-      //     paymentFailedEvent
-      //   );
-      //   assert.calledWith(
-      //     sendSubscriptionPaymentFailedEmailStub,
-      //     paymentFailedEvent.data.object
-      //   );
-      // });
-
-      // it('does not send email during subscription creation flow', async () => {
-      //   const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
-      //   paymentFailedEvent.data.object.billing_reason = 'subscription_create';
-      //   await StripeWebhookHandlerInstance.handleInvoicePaymentFailedEvent(
-      //     {},
-      //     paymentFailedEvent
-      //   );
-      //   assert.notCalled(sendSubscriptionPaymentFailedEmailStub);
-      // });
     });
 
     describe('handleSubscriptionCreatedEvent', () => {
