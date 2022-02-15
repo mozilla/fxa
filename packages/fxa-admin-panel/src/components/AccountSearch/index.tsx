@@ -8,53 +8,64 @@ import Account from './Account';
 import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 import iconSearch from '../../images/icon-search.svg';
 
+const ACCOUNT_SCHEMA = `
+  uid
+  createdAt
+  disabledAt
+  emails {
+    email
+    isVerified
+    isPrimary
+    createdAt
+  }
+  emailBounces {
+    email
+    templateName
+    createdAt
+    bounceType
+    bounceSubType
+  }
+  securityEvents {
+    uid
+    nameId
+    verified
+    createdAt
+    name
+  }
+  totp {
+    verified
+    createdAt
+    enabled
+  }
+  recoveryKeys {
+    createdAt
+    verifiedAt
+    enabled
+  }
+  attachedClients {
+    createdTime
+    createdTimeFormatted
+    lastAccessTime
+    lastAccessTimeFormatted
+    deviceType
+    name
+    clientId
+    userAgent
+    os
+    sessionTokenId
+    location {
+      city
+      state
+      stateCode
+      country
+      countryCode
+    }
+  }
+`;
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
     accountByEmail(email: $email) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        templateName
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ${ACCOUNT_SCHEMA}
     }
   }
 `;
@@ -63,50 +74,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
 export const GET_ACCOUNT_BY_UID = gql`
   query getAccountByUid($uid: String!) {
     accountByUid(uid: $uid) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        templateName
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ${ACCOUNT_SCHEMA}
     }
   }
 `;

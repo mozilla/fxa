@@ -7,6 +7,7 @@ import { Device } from './models/Device';
 import { DeviceSessionToken } from './models/DeviceSessionToken';
 import { SerializableAttachedClient } from './models/SerializableAttachedClient';
 import { Token } from './models/Token';
+import { SessionToken } from './models/SessionToken';
 
 export const hex = require('buf').to.hex;
 
@@ -112,4 +113,69 @@ export function mergeDeviceAndSessionToken(
   };
 
   return merged;
+}
+
+export function filterExpiredTokens(
+  sessionTokens: SessionToken[],
+  MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE: number
+) {
+  const expiredSessionTokens: SessionToken[] = [];
+
+  if (!MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+    return {
+      sessionTokens,
+      expiredSessionTokens,
+    };
+  }
+
+  // Filter out any expired sessions
+  sessionTokens = sessionTokens.filter((sessionToken) => {
+    if (sessionToken.deviceId) {
+      return true;
+    }
+
+    if (
+      sessionToken.createdAt >
+      Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
+    ) {
+      return true;
+    }
+
+    expiredSessionTokens.push(
+      Object.assign({}, sessionToken, { id: sessionToken.tokenId })
+    );
+    return false;
+  });
+
+  return {
+    sessionTokens,
+    expiredSessionTokens,
+  };
+}
+
+export function mergeCachedSessionTokens(
+  mySqlSessionTokens: SessionToken[],
+  redisSessionTokens: Record<string, SessionToken>,
+  lastAccessTimeEnabled: boolean
+): SessionToken[] {
+  return mySqlSessionTokens.map((sessionToken: SessionToken) => {
+    const id = sessionToken.tokenId;
+    const redisToken = redisSessionTokens[id || ''];
+    const mergedToken: SessionToken = Object.assign(
+      {},
+      sessionToken,
+      redisToken,
+      { id }
+    );
+
+    if (mergedToken.tokenId) {
+      delete mergedToken.tokenId;
+    }
+
+    if (!lastAccessTimeEnabled) {
+      mergedToken.lastAccessTime = null;
+    }
+
+    return mergedToken;
+  });
 }

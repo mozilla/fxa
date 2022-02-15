@@ -5,12 +5,15 @@ import { Location } from './Location';
 
 export type AttachedSession = {
   id: string;
+  deviceType?: string;
+  deviceName?: string;
   createdAt: number;
   lastAccessTime: number;
-  location: Location;
-  uaBrowser: string;
-  uaOS: string;
-  uaBrowserVersion: string;
-  uaOSVersion: string;
-  uaFormFactor: string;
+  location?: Location | null;
+  uaBrowser?: string;
+  uaOS?: string;
+  uaBrowserVersion?: string;
+  uaOSVersion?: string;
+  uaFormFactor?: string;
+  uaDeviceType?: string;
 };
