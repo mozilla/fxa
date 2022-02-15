@@ -3231,8 +3231,6 @@ describe('StripeHelper', () => {
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
             promotion_code: null,
-            next_invoice_period_start: pastDueSubscription.current_period_end,
-            next_invoice_total: 999,
           },
         ];
 
@@ -3310,8 +3308,6 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
-                next_invoice_period_start: subscription1.current_period_end,
-                next_invoice_total: subscription1.items.data[0].plan.amount,
               },
             ];
 
@@ -3345,8 +3341,6 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
-                next_invoice_period_start: null,
-                next_invoice_total: null,
               },
             ];
 
@@ -3384,8 +3378,6 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
-                next_invoice_period_start: null,
-                next_invoice_total: null,
               },
             ];
             const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -3466,52 +3458,6 @@ describe('StripeHelper', () => {
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
             promotion_code: 'jortssentme',
-            next_invoice_period_start: subscription.current_period_end,
-            next_invoice_total: subscription.items.data[0].plan.amount,
-          },
-        ];
-
-        const actual = await stripeHelper.subscriptionsToResponse(input);
-        assert.deepEqual(actual, expected);
-      });
-
-      it('includes discount amount for forever and recuring promotion codes', async () => {
-        const subscription = deepCopy(subscription1);
-        subscription.metadata = {
-          ...subscription.metadata,
-          appliedPromotionCode: 'jortssentme',
-        };
-        subscription.discount = { id: 'testid' };
-        const input = { data: [subscription] };
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .resolves(paidInvoice);
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-          .resolves(invoicePaidSubscriptionCreateDiscount);
-        const callback = sandbox.stub(stripeHelper, 'expandResource');
-        callback.onCall(0).resolves(paidInvoice);
-        callback.onCall(1).resolves({ id: productId, name: productName });
-        const expected = [
-          {
-            _subscription_type: MozillaSubscriptionTypes.WEB,
-            created: subscription1.created,
-            current_period_end: subscription1.current_period_end,
-            current_period_start: subscription1.current_period_start,
-            cancel_at_period_end: false,
-            end_at: null,
-            plan_id: subscription1.plan.id,
-            product_id: product1.id,
-            product_name: productName,
-            status: 'active',
-            subscription_id: subscription1.id,
-            failure_code: undefined,
-            failure_message: undefined,
-            latest_invoice: paidInvoice.number,
-            promotion_code: 'jortssentme',
-            next_invoice_period_start:
-              invoicePaidSubscriptionCreateDiscount.period_end,
-            next_invoice_total: invoicePaidSubscriptionCreateDiscount.total,
           },
         ];
 

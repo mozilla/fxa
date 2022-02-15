@@ -46,3 +46,15 @@ export function stripeInvoiceToInvoicePreviewDTO(
   }
   return invoicePreview;
 }
+
+export function stripeInvoiceToInvoiceNextDTO(
+  invoice: Stripe.Invoice
+): invoiceDTO.InvoiceNext {
+  const invoiceNext: invoiceDTO.invoiceNextSchema = {
+    period_end: invoice.period_end,
+    period_start: invoice.period_start,
+    total: invoice.total,
+  };
+
+  return invoiceNext;
+}

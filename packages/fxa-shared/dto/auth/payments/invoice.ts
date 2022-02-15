@@ -65,3 +65,21 @@ export const invoicePreviewSchema = joi.object({
 });
 
 export type invoicePreviewSchema = joi.Literal<typeof invoicePreviewSchema>;
+
+/**
+ * Defines an interface for the invoice preview response from the
+ * auth-server.
+ */
+export interface InvoiceNext {
+  period_end: number;
+  period_start: number;
+  total: number;
+}
+
+export const invoiceNextSchema = joi.object({
+  period_end: joi.number().required(),
+  period_start: joi.number().required(),
+  total: joi.number().required(),
+});
+
+export type invoiceNextSchema = joi.Literal<typeof invoiceNextSchema>;

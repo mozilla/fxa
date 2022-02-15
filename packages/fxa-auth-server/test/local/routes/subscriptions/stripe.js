@@ -37,6 +37,7 @@ const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const {
   stripeInvoiceToInvoicePreviewDTO,
+  stripeInvoiceToInvoiceNextDTO,
 } = require('../../../../lib/payments/stripe-formatter');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
@@ -581,6 +582,30 @@ describe('DirectStripeRoutes', () => {
         { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
       );
       assert.deepEqual(stripeInvoiceToInvoicePreviewDTO(expected), actual);
+    });
+  });
+
+  describe('nextInvoice', () => {
+    it('returns the next invoice', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.nextInvoice.resolves(expected);
+      VALID_REQUEST.payload = {
+        subscriptionId: 'sub_id',
+      };
+      VALID_REQUEST.app.geo = {};
+      const actual = await directStripeRoutesInstance.nextInvoice(
+        VALID_REQUEST
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        VALID_REQUEST,
+        'nextInvoice'
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.nextInvoice,
+        { subscriptionId: 'sub_id' }
+      );
+      assert.deepEqual(stripeInvoiceToInvoiceNextDTO(expected), actual);
     });
   });
 

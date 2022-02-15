@@ -26,7 +26,10 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
-import { stripeInvoiceToInvoicePreviewDTO } from '../../payments/stripe-formatter';
+import {
+  stripeInvoiceToInvoicePreviewDTO,
+  stripeInvoiceToInvoiceNextDTO,
+} from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
@@ -420,6 +423,22 @@ export class StripeHandler {
       priceId,
     });
     return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
+  }
+
+  /**
+   * Next invoice for a subscription
+   */
+  async nextInvoice(
+    request: AuthRequest
+  ): Promise<invoiceDTO.invoiceNextSchema> {
+    this.log.begin('subscriptions.nextInvoice', request);
+    await this.customs.checkIpOnly(request, 'nextInvoice');
+
+    const { subscriptionId } = request.payload as Record<string, string>;
+    const nextInvoice = await this.stripeHelper.nextInvoice({
+      subscriptionId,
+    });
+    return stripeInvoiceToInvoiceNextDTO(nextInvoice);
   }
 
   async retrieveCouponDetails(
@@ -872,6 +891,22 @@ export const stripeRoutes = (
           payload: {
             priceId: validators.subscriptionsPlanId.required(),
             promotionCode: isA.string().optional(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/invoice/next',
+      options: {
+        auth: false,
+        response: {
+          schema: invoiceDTO.invoiceNextSchema as any,
+        },
+        validate: {
+          payload: {
+            subscriptionId: validators.subscriptionsSubscriptionId.required(),
           },
         },
       },

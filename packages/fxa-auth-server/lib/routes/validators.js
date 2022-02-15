@@ -381,8 +381,6 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   status: isA.string().required(),
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
   promotion_code: isA.string().optional().allow(null),
-  next_invoice_total: isA.number().optional().allow(null),
-  next_invoice_period_start: isA.number().optional().allow(null),
 });
 
 // This is support-panel's perspective on a subscription
