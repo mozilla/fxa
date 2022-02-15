@@ -92,7 +92,7 @@
     "hkdf": "0.0.2",
     "hot-shots": "^9.0.0",
     "i18n-abide": "0.0.26",
-    "i18n-iso-countries": "^7.2.0",
+    "i18n-iso-countries": "^7.3.0",
     "ioredis": "^4.28.2",
     "jed": "0.5.4",
     "jsdom": "^19.0.0",
