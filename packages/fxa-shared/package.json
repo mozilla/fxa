@@ -98,7 +98,7 @@
     "cldr-localenames-full": "40.0.0",
     "cors": "^2.8.5",
     "db-migrations": "workspace:*",
-    "find-up": "^5.0.0",
+    "find-up": "^6.3.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",
     "hot-shots": "^9.0.0",
