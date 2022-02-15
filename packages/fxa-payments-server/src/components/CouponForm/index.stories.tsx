@@ -58,7 +58,7 @@ storiesOf('components/Coupon', module)
       </MockApp>
     );
   })
-  .add('has coupon, subscription in progress', () => {
+  .add('has coupon - subscription in progress', () => {
     const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
