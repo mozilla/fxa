@@ -69,14 +69,14 @@ export const supportRoutes = (
             app: isA.string().allow('').optional(),
             subject: isA.string().allow('').optional(),
             message: isA.string().required(),
-          }),
+          }) as any,
         },
         response: {
           schema: isA.object().keys({
             success: isA.bool().required(),
             ticket: isA.number().optional(),
             error: isA.string().optional(),
-          }),
+          }) as any,
         },
       },
       handler: async function (

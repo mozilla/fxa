@@ -44,7 +44,7 @@ export const mozillaSubscriptionRoutes = ({
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsMozillaSubscriptionsValidator,
+          schema: validators.subscriptionsMozillaSubscriptionsValidator as any,
         },
       },
       handler: (request: AuthRequest) =>

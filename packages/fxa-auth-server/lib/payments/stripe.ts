@@ -42,6 +42,7 @@ import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import error from '../error';
 import { GoogleMapsService } from '../google-maps-services';
+// @ts-ignore
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {

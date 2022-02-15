@@ -7,6 +7,7 @@
 const { assert } = require('chai');
 const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
+const retry = require('async-retry');
 
 describe('send-email-batches', () => {
   const batches = [
@@ -81,7 +82,16 @@ describe('send-email-batches', () => {
     assert.strictEqual(sendEmailBatchSpy.args[1][1], sender);
   });
 
-  it('uses a delay between batches', () => {
-    assert.isAbove(totalTimeMS, 100);
-  });
+  it(
+    'uses a delay between batches',
+    async () => {
+      await retry(async () => {
+        assert.isAbove(totalTimeMS, 100);
+      });
+    },
+    {
+      retries: 10,
+      minTimeout: 20,
+    }
+  );
 });
