@@ -1,3 +1,9 @@
+## 1.225.3
+
+### New features
+
+- mailer: Add maxConnection and maxMessages env vars, re-enable isMetricsEnabled oauth client db calls (#11951) ([5b0b452aa](https://github.com/mozilla/fxa/commit/5b0b452aa))
+
 ## 1.225.2
 
 ### Bug fixes

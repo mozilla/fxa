@@ -1,3 +1,9 @@
+## 1.225.3
+
+### Other changes
+
+- docs: Replace erroneous 225.2 section in fxa-content-server changelog ([9684eeb7c](https://github.com/mozilla/fxa/commit/9684eeb7c))
+
 ## 1.225.2
 
 No changes.
