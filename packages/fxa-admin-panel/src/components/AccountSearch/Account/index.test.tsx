@@ -62,7 +62,7 @@ let accountResponse: AccountProps = {
       uaOSVersion: '11.2.2',
       uaDeviceType: null,
       lastAccessTime: 1589467100317,
-    },
+    }
   ],
   attachedClients: [
     {
@@ -157,9 +157,7 @@ it('displays the session token status', async () => {
 
   expect(await findAllByTestId('session-token-accessed-at')).toHaveLength(2);
   expect(await findAllByTestId('session-token-browser')).toHaveLength(2);
-  expect(await findAllByTestId('session-token-operating-system')).toHaveLength(
-    2
-  );
+  expect(await findAllByTestId('session-token-operating-system')).toHaveLength(2);
   expect(await findAllByTestId('session-token-device')).toHaveLength(2);
   await findAllByTestId('session-token-device').then((session) => {
     // checks that the uaDeviceType value is returned if not null
