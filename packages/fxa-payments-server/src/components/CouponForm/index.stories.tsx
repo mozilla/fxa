@@ -3,10 +3,7 @@ import React, { useState } from 'react';
 
 import CouponForm from '.';
 import MockApp from '../../../.storybook/components/MockApp';
-import {
-  CouponDetails,
-  couponDetailsSchema,
-} from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
 storiesOf('components/Coupon', module)
