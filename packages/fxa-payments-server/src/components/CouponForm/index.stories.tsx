@@ -25,22 +25,7 @@ storiesOf('components/Coupon', module)
       </MockApp>
     );
   })
-  .add('readOnly', () => {
-    const [coupon, setCoupon] = useState<CouponDetails>();
-
-    return (
-      <MockApp>
-        <CouponForm
-          planId={SELECTED_PLAN.plan_id}
-          coupon={coupon}
-          setCoupon={setCoupon}
-          readOnly={true}
-          subscriptionInProgress={false}
-        />
-      </MockApp>
-    );
-  })
-  .add('readOnly with Coupon', () => {
+  .add('readOnly with Coupon - subscription success', () => {
     const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
@@ -59,7 +44,7 @@ storiesOf('components/Coupon', module)
       </MockApp>
     );
   })
-  .add('default subscription in progress', () => {
+  .add('no coupon - subscription in progress', () => {
     const [coupon, setCoupon] = useState<CouponDetails>();
     return (
       <MockApp>
