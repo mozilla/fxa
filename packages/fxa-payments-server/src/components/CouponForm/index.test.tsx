@@ -139,6 +139,74 @@ describe('CouponForm', () => {
       expect(couponMounted).toBeCalledTimes(1);
       expect(couponEngaged).toBeCalledTimes(1);
     });
+
+    it('hides the remove button when there is a coupon in readonly mode', () => {
+      const coupon: CouponDetails = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={coupon}
+            setCoupon={(coupon) => {}}
+            readOnly={true}
+            subscriptionInProgress={false}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const removeButton = queryByTestId('coupon-remove-button');
+      expect(removeButton).not.toBeInTheDocument();
+    });
+
+    it('has the input and buttons disabled during processing of a subscription', () => {
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={undefined}
+            setCoupon={(coupon) => {}}
+            readOnly={false}
+            subscriptionInProgress={true}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const couponInput = queryByTestId('coupon-input');
+      const applyButton = queryByTestId('coupon-button');
+      expect(couponInput).toBeDisabled();
+      expect(applyButton).toBeDisabled();
+    });
+
+    it('has the remove button disabled during processing of a subscription', () => {
+      const coupon: CouponDetails = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={coupon}
+            setCoupon={(coupon) => {}}
+            readOnly={false}
+            subscriptionInProgress={true}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const removeButton = queryByTestId('coupon-remove-button');
+      expect(removeButton).toBeDisabled();
+    });
   });
 
   describe('checkPromotionCode', () => {

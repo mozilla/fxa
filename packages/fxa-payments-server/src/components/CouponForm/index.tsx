@@ -177,15 +177,18 @@ export const CouponForm = ({
           <div className="coupon-details">
             <div>{promotionCode}</div>
           </div>
-          <button
-            className={`${readOnly ? 'hidden' : ''}`}
-            onClick={removeCoupon}
-            disabled={subscriptionInProgress}
-          >
-            <Localized id="coupon-remove">
-              <span>Remove</span>
-            </Localized>
-          </button>
+          {readOnly ? null : (
+            <button
+              className={`${readOnly ? 'hidden' : ''}`}
+              onClick={removeCoupon}
+              disabled={subscriptionInProgress}
+              data-testid="coupon-remove-button"
+            >
+              <Localized id="coupon-remove">
+                <span>Remove</span>
+              </Localized>
+            </button>
+          )}
         </div>
       ) : (
         <form onSubmit={onSubmit} onChange={onChange} data-testid="coupon-form">
