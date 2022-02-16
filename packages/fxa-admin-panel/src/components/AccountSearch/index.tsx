@@ -262,7 +262,7 @@ const AccountSearchResult = ({
   data,
   query,
 }: {
-  onCleared: Function;
+  onCleared: () => void;
   loading: boolean;
   error?: {};
   data?: {
