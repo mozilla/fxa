@@ -55,22 +55,6 @@ const EMAIL_BOUNCE_COLUMNS = [
 ];
 const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
 const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
-const SESSIONTOKEN_COLUMNS = [
-  'tokenId',
-  'uid',
-  'createdAt',
-  'uaBrowser',
-  'uaBrowserVersion',
-  'uaOS',
-  'uaOSVersion',
-  'uaDeviceType',
-  'lastAccessTime',
-  'uaFormFactor',
-  'authAt',
-  'verificationMethod',
-  'verifiedAt',
-  'mustVerify',
-];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
 @UseGuards(GqlAuthHeaderGuard)

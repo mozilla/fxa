@@ -17,7 +17,7 @@ import {
 } from 'fxa-admin-server/src/graphql';
 
 export type AccountProps = AccountType & {
-  onCleared: Function;
+  onCleared: () => void;
   query: string;
 };
 
@@ -65,7 +65,7 @@ export const LinkedAccount = ({
   uid: string;
   authAt: number;
   providerId: string;
-  onCleared: Function;
+  onCleared: () => void;
 }) => {
   const [unlinkAccount, {}] = useMutation(UNLINK_ACCOUNT, {
     onCompleted: () => {
@@ -86,7 +86,7 @@ export const LinkedAccount = ({
   };
 
   return (
-    <tr key={authAt}>
+    <tr key={`${authAt}-${providerId}`}>
       <td>{providerId}</td>
       <td className="text-left pl-8">
         {dateFormat(new Date(authAt!), DATE_FORMAT)}
