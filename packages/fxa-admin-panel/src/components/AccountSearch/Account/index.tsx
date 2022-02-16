@@ -13,10 +13,11 @@ import {
   RecoveryKeys as RecoveryKeysType,
   AttachedClient as AttachedClientType,
   Location,
+  LinkedAccount as LinkedAccountType,
 } from 'fxa-admin-server/src/graphql';
 
 export type AccountProps = AccountType & {
-  onCleared: Function;
+  onCleared: () => void;
   query: string;
 };
 
@@ -48,6 +49,60 @@ export const DISABLE_ACCOUNT = gql`
     disableAccount(uid: $uid)
   }
 `;
+
+export const UNLINK_ACCOUNT = gql`
+  mutation unlinkAccount($uid: String!) {
+    unlinkAccount(uid: $uid)
+  }
+`;
+
+export const LinkedAccount = ({
+  uid,
+  authAt,
+  providerId,
+  onCleared,
+}: {
+  uid: string;
+  authAt: number;
+  providerId: string;
+  onCleared: () => void;
+}) => {
+  const [unlinkAccount, {}] = useMutation(UNLINK_ACCOUNT, {
+    onCompleted: () => {
+      window.alert('The linked account has been removed.');
+    },
+    onError: () => {
+      window.alert('Error unlinking account');
+    },
+  });
+
+  const handleUnlinkAccount = async () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    await unlinkAccount({ variables: { uid } });
+
+    onCleared();
+  };
+
+  return (
+    <tr key={`${authAt}-${providerId}`}>
+      <td>{providerId}</td>
+      <td className="text-left pl-8">
+        {dateFormat(new Date(authAt!), DATE_FORMAT)}
+      </td>
+      <td className="pl-4 align-middle">
+        <button
+          className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+          type="button"
+          onClick={handleUnlinkAccount}
+        >
+          Unlink
+        </button>
+      </td>
+    </tr>
+  );
+};
 
 export const ClearButton = ({
   emails,
@@ -193,11 +248,11 @@ export const Account = ({
   onCleared,
   query,
   securityEvents,
+  linkedAccounts,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
-
   return (
     <section className="mt-8" data-testid="account-section">
       <ul>
@@ -402,6 +457,41 @@ export const Account = ({
             className="security-events"
           >
             No account history to display.
+          </div>
+        )}
+      </div>
+      <h3 className="mt-0 my-0 mb-1 text-lg">Linked Accounts</h3>
+      <div className={styleClasses.borderInfoDisplay}>
+        {linkedAccounts && linkedAccounts.length > 0 ? (
+          <>
+            <table className="pt-1" aria-label="simple table">
+              <thead>
+                <tr>
+                  <th className="text-left">Event</th>
+                  <th className="text-left">Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {linkedAccounts.map((linkedAccount: LinkedAccountType) => (
+                  <LinkedAccount
+                    {...{
+                      uid,
+                      providerId: linkedAccount.providerId,
+                      authAt: linkedAccount.authAt,
+                      onCleared: onCleared,
+                    }}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <div
+            data-testid="account-security-events"
+            className="security-events"
+          >
+            No linked accounts.
           </div>
         )}
       </div>

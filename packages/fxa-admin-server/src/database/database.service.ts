@@ -19,6 +19,7 @@ import {
   SecurityEvent,
   SessionToken,
   TotpToken,
+  LinkedAccount,
 } from 'fxa-shared/db/models/auth';
 import { MysqlStoreShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
@@ -44,6 +45,7 @@ export class DatabaseService implements OnModuleDestroy {
   public recoveryKeys: typeof RecoveryKey;
   public sessionTokens: typeof SessionToken;
   public device: typeof Device;
+  public linkedAccounts: typeof LinkedAccount;
 
   protected connectedServicesDb: ConnectedServicesDb;
 
@@ -63,6 +65,7 @@ export class DatabaseService implements OnModuleDestroy {
     this.recoveryKeys = RecoveryKey.bindKnex(this.knex);
     this.sessionTokens = SessionToken.bindKnex(this.knex);
     this.device = Device.bindKnex(this.knex);
+    this.linkedAccounts = LinkedAccount.bindKnex(this.knex);
 
     this.connectedServicesDb = new ConnectedServicesDb(
       new MysqlStoreShared(dbConfig.fxa_oauth),

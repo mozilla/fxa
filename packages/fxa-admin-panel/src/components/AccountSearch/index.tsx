@@ -42,6 +42,11 @@ const ACCOUNT_SCHEMA = `
     verifiedAt
     enabled
   }
+  linkedAccounts {
+    providerId
+    authAt
+    enabled
+  }
   attachedClients {
     createdTime
     createdTimeFormatted
@@ -257,7 +262,7 @@ const AccountSearchResult = ({
   data,
   query,
 }: {
-  onCleared: Function;
+  onCleared: () => void;
   loading: boolean;
   error?: {};
   data?: {

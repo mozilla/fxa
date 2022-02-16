@@ -9,6 +9,7 @@ import { Email } from './emails.model';
 import { RecoveryKeys } from './recovery-keys.model';
 import { SecurityEvents } from './security-events.model';
 import { Totp } from './totp.model';
+import { LinkedAccount } from './linked-account.model';
 
 @ObjectType()
 export class Account {
@@ -44,4 +45,7 @@ export class Account {
 
   @Field((type) => [AttachedClient], { nullable: true })
   public attachedClients!: AttachedClient[];
+
+  @Field((type) => [LinkedAccount], { nullable: true })
+  public linkedAccounts!: LinkedAccount[];
 }
