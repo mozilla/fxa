@@ -1,7 +1,7 @@
 import './index.scss';
 
 import { Localized } from '@fluent/react';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import React, {
   FormEventHandler,
   MouseEventHandler,
@@ -88,17 +88,25 @@ export const checkPromotionCode = async (
 
 type CouponFormProps = {
   planId: string;
-  coupon?: Coupon.couponDetailsSchema;
-  setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
+  readOnly: boolean;
+  subscriptionInProgress: boolean;
+  coupon?: CouponDetails;
+  setCoupon: (coupon: CouponDetails | undefined) => void;
 };
 
-export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
+export const CouponForm = ({
+  planId,
+  readOnly,
+  subscriptionInProgress,
+  coupon,
+  setCoupon,
+}: CouponFormProps) => {
   const [hasCoupon, setHasCoupon] = useState(coupon ? true : false);
   const [promotionCode, setPromotionCode] = useState(
     coupon ? coupon.promotionCode : ''
   );
   const [error, setError] = useState<CouponErrorMessageType | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
 
   const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
   useEffect(() => {
@@ -117,7 +125,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
     event.preventDefault();
     event.stopPropagation();
     try {
-      setLoading(true);
+      setCheckingCoupon(true);
       const { discountAmount, type, valid } = await checkPromotionCode(
         planId,
         promotionCode
@@ -133,7 +141,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
       setCoupon(undefined);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setCheckingCoupon(false);
     }
   };
 
@@ -169,11 +177,18 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
           <div className="coupon-details">
             <div>{promotionCode}</div>
           </div>
-          <button onClick={removeCoupon}>
-            <Localized id="coupon-remove">
-              <span>Remove</span>
-            </Localized>
-          </button>
+          {readOnly ? null : (
+            <button
+              className={`${readOnly ? 'hidden' : ''}`}
+              onClick={removeCoupon}
+              disabled={subscriptionInProgress}
+              data-testid="coupon-remove-button"
+            >
+              <Localized id="coupon-remove">
+                <span>Remove</span>
+              </Localized>
+            </button>
+          )}
         </div>
       ) : (
         <form onSubmit={onSubmit} onChange={onChange} data-testid="coupon-form">
@@ -190,7 +205,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
-                disabled={loading}
+                disabled={checkingCoupon || readOnly || subscriptionInProgress}
               />
             </Localized>
           </div>
@@ -199,7 +214,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
             name="apply"
             type="submit"
             data-testid="coupon-button"
-            disabled={loading}
+            disabled={checkingCoupon || readOnly || subscriptionInProgress}
           >
             <Localized id="coupon-submit">
               <span>Apply</span>

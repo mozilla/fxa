@@ -80,4 +80,46 @@ describe('SubscriptionSuccess', () => {
     const planDetails = queryByTestId('plan-details-component');
     expect(planDetails).toBeVisible();
   });
+
+  it('renders the coupon form component when a coupon is present', () => {
+    const { queryByTestId } = render(
+      <AppContext.Provider value={defaultAppContext}>
+        <SubscriptionSuccess
+          {...{
+            plan: MOCK_PLANS[0],
+            profile: MOCK_PROFILE,
+            customer: MOCK_CUSTOMER,
+            isMobile: true,
+            coupon: {
+              promotionCode: 'Test',
+              type: 'repeating',
+              discountAmount: 10,
+              valid: true,
+            },
+          }}
+        />
+      </AppContext.Provider>
+    );
+
+    const couponComponent = queryByTestId('coupon-component');
+    expect(couponComponent).toBeVisible();
+  });
+
+  it('does not renders the coupon form component when a coupon is not present', () => {
+    const { queryByTestId } = render(
+      <AppContext.Provider value={defaultAppContext}>
+        <SubscriptionSuccess
+          {...{
+            plan: MOCK_PLANS[0],
+            profile: MOCK_PROFILE,
+            customer: MOCK_CUSTOMER,
+            isMobile: true,
+          }}
+        />
+      </AppContext.Provider>
+    );
+
+    const couponComponent = queryByTestId('coupon-component');
+    expect(couponComponent).not.toBeInTheDocument();
+  });
 });

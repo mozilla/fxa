@@ -5,7 +5,7 @@ import CouponForm, {
   checkPromotionCode,
   CouponErrorMessageType,
 } from './index';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
   COUPON_DETAILS_EXPIRED,
   COUPON_DETAILS_INVALID,
@@ -56,6 +56,8 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
             setCoupon={() => {}}
+            readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };
@@ -65,11 +67,13 @@ describe('CouponForm', () => {
       const couponButton = queryByTestId('coupon-button');
       expect(couponInputField).toBeInTheDocument();
       expect(couponButton).toBeInTheDocument();
+      expect(couponButton).not.toBeDisabled();
+      expect(couponInputField).not.toBeDisabled();
       expect(couponMounted).toBeCalledTimes(1);
     });
 
     it('shows the coupon code and hides the input when a coupon is used', () => {
-      const coupon: Coupon.couponDetailsSchema = {
+      const coupon: CouponDetails = {
         discountAmount: 200,
         promotionCode: '',
         type: '',
@@ -81,6 +85,8 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={coupon}
             setCoupon={(coupon) => {}}
+            readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };
@@ -103,6 +109,8 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
             setCoupon={mockSetCoupon}
+            readOnly={false}
+            subscriptionInProgress={false}
           />
         );
       };
@@ -132,6 +140,74 @@ describe('CouponForm', () => {
 
       expect(couponMounted).toBeCalledTimes(1);
       expect(couponEngaged).toBeCalledTimes(1);
+    });
+
+    it('hides the remove button when there is a coupon in readonly mode', () => {
+      const coupon: CouponDetails = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={coupon}
+            setCoupon={(coupon) => {}}
+            readOnly={true}
+            subscriptionInProgress={false}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const removeButton = queryByTestId('coupon-remove-button');
+      expect(removeButton).not.toBeInTheDocument();
+    });
+
+    it('has the input and buttons disabled during processing of a subscription', () => {
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={undefined}
+            setCoupon={(coupon) => {}}
+            readOnly={false}
+            subscriptionInProgress={true}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const couponInput = queryByTestId('coupon-input');
+      const applyButton = queryByTestId('coupon-button');
+      expect(couponInput).toBeDisabled();
+      expect(applyButton).toBeDisabled();
+    });
+
+    it('has the remove button disabled during processing of a subscription', () => {
+      const coupon: CouponDetails = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
+      const subject = () => {
+        return render(
+          <CouponForm
+            planId={SELECTED_PLAN.plan_id}
+            coupon={coupon}
+            setCoupon={(coupon) => {}}
+            readOnly={false}
+            subscriptionInProgress={true}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      const removeButton = queryByTestId('coupon-remove-button');
+      expect(removeButton).toBeDisabled();
     });
   });
 
