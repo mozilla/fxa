@@ -1,5 +1,32 @@
 # Change history
 
+## 1.226.0
+
+### New features
+
+- google: Add support for linked accounts in admin panel (#11937) ([7c93a6b9d](https://github.com/mozilla/fxa/commit/7c93a6b9d))
+- google: Add backend support to disconnect goolge linked account ([97686e415](https://github.com/mozilla/fxa/commit/97686e415))
+- coupons: detailed error for coupon fail (#11626) ([cb35c713e](https://github.com/mozilla/fxa/commit/cb35c713e))
+
+### Bug fixes
+
+- google: Delete linked accounts when user deletes FxA account ([920fc8eb8](https://github.com/mozilla/fxa/commit/920fc8eb8))
+- subscriptions: allow zero dollar invoices (#11719) ([058a7fd07](https://github.com/mozilla/fxa/commit/058a7fd07))
+
+### Refactorings
+
+- auth: Remove MJML feature flags, remove verifySecondary ## 1.225.3 logic, remove old templates (#11862) ([31061b071](https://github.com/mozilla/fxa/commit/31061b071))
+
+### Other changes
+
+- #11915: e6531d51c Issues/11091 (#11915) ([e6531d51c](https://github.com/mozilla/fxa/commit/e6531d51c))
+- deps: bump knex from 1.0.2 to 1.0.3 ([977321030](https://github.com/mozilla/fxa/commit/977321030))
+- deps: bump stripe from 8.200.0 to 8.202.0 ([6c2767c02](https://github.com/mozilla/fxa/commit/6c2767c02))
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817) ([6b89206ff](https://github.com/mozilla/fxa/commit/6b89206ff))
+- deps: bump knex from 1.0.1 to 1.0.2 (#11892) ([b955eb809](https://github.com/mozilla/fxa/commit/b955eb809))
+- deps: bump aws-sdk from 2.1063.0 to 2.1068.0 (#11853) ([99e20de89](https://github.com/mozilla/fxa/commit/99e20de89))
+- deps: bump @nestjs/core from 8.2.4 to 8.2.6 ([bd863179b](https://github.com/mozilla/fxa/commit/bd863179b))
+
 ## 1.225.3
 
 No changes.

@@ -1,3 +1,15 @@
+## 1.226.0
+
+### New features
+
+- google: Add backend support to disconnect goolge linked account ([97686e415](https://github.com/mozilla/fxa/commit/97686e415))
+
+### Other changes
+
+- deps: bump knex from 1.0.2 to 1.0.3 ([977321030](https://github.com/mozilla/fxa/commit/977321030))
+- deps: bump knex from 1.0.1 to 1.0.2 (#11892) ([b955eb809](https://github.com/mozilla/fxa/commit/b955eb809))
+- deps: bump @nestjs/core from 8.2.4 to 8.2.6 ([bd863179b](https://github.com/mozilla/fxa/commit/bd863179b))
+
 ## 1.225.3
 
 No changes.
