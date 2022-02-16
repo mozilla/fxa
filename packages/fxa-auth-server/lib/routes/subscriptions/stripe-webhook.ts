@@ -489,13 +489,14 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
-    const { card } = await this.stripeHelper.expandResource(
-      customer?.invoice_settings.default_payment_method,
-      PAYMENT_METHOD_RESOURCE
-    );
+    const { card } =
+      await this.stripeHelper.expandResource<Stripe.PaymentMethod>(
+        customer?.invoice_settings.default_payment_method,
+        PAYMENT_METHOD_RESOURCE
+      );
 
     if (card?.exp_month && card.exp_year) {
-      // If card expiry is greater than current date, return without further action.
+      // If card expiry month/year is greater than current month/year, return without further action.
       if (
         new Date(card.exp_year, card.exp_month - 1, 1).getTime() > Date.now()
       ) {
