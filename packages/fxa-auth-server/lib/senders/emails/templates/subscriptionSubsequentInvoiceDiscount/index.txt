@@ -1,0 +1,13 @@
+subscriptionSubsequentInvoice-subject = "<%- productName %> payment received"
+
+subscriptionSubsequentInvoice-title = "Thank you for being a subscriber!"
+
+subscriptionSubsequentInvoice-content-received = "We received your latest payment for <%- productName %>."
+
+subscriptionSubsequentInvoice-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
+<% if (showProratedAmount) { %>subscriptionSubsequentInvoice-content-plan-change = "Plan change: <%- paymentProrated %>"<% } %>
+subscriptionSubsequentInvoice-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>
+subscriptionSubsequentInvoice-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+
+<%- include ('/partials/subscriptionSupport/index.txt') %>
