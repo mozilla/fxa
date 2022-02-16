@@ -155,7 +155,7 @@ module.exports = function (log, config, bounces) {
     return `href="${url}" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"`;
   }
 
-  function constructLocalTimeString(timeZone, locale, date, time) {
+  function constructLocalTimeString(timeZone, locale) {
     // if no timeZone is passed, use DEFAULT_TIMEZONE
     moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
@@ -167,8 +167,8 @@ module.exports = function (log, config, bounces) {
     }
     // return a locale-specific time
     // if date or time is passed, return it as the current date or time
-    const timeNow = time || timeMoment.format('LTS (z)');
-    const dateNow = date || timeMoment.format('dddd, ll');
+    const timeNow = timeMoment.format('LTS (z)');
+    const dateNow = timeMoment.format('dddd, ll');
     return [timeNow, dateNow];
   }
 
@@ -401,11 +401,8 @@ module.exports = function (log, config, bounces) {
   Mailer.prototype._constructLocalTimeString = function (
     timeZone,
     acceptLanguage,
-    date,
-    time
   ) {
-    const translator = this.translator(acceptLanguage);
-    return constructLocalTimeString(timeZone, translator.language, date, time);
+    return constructLocalTimeString(timeZone, acceptLanguage);
   };
 
   Mailer.prototype._constructLocalDateString = function (
@@ -633,8 +630,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -811,8 +806,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -885,8 +878,6 @@ module.exports = function (log, config, bounces) {
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage,
-        message.date,
-        message.time
       );
 
       return this.send({
@@ -948,8 +939,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1018,8 +1007,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1066,8 +1053,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1131,8 +1116,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1176,8 +1159,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1279,8 +1260,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1332,8 +1311,6 @@ module.exports = function (log, config, bounces) {
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage,
-        message.date,
-        message.time
       );
 
       return this.send({
@@ -1530,8 +1507,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1577,8 +1552,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1624,8 +1597,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1671,8 +1642,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1768,8 +1737,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1818,8 +1785,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
@@ -1868,8 +1833,6 @@ module.exports = function (log, config, bounces) {
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage,
-      message.date,
-      message.time
     );
 
     const headers = {
