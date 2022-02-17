@@ -69,8 +69,8 @@ export type firstInvoicePreviewSchema = joi.Literal<
 >;
 
 /**
- * Defines an interface for the invoice preview response from the
- * auth-server.
+ * Defines an interface for the subsequent invoice preview response
+ * from the auth-server.
  */
 export interface SubsequentInvoicePreview {
   period_end: number;

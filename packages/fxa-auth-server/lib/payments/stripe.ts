@@ -637,7 +637,7 @@ export class StripeHelper {
   }
 
   /**
-   * Previews the next invoice for a specific subscription
+   * Previews the subsequent invoice for a specific subscription
    */
   async previewInvoiceBySubscriptionId({
     subscriptionId,
@@ -2734,7 +2734,8 @@ export class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
-      productPaymentCycleOld: planOld.interval ?? baseDetails.productPaymentCycleNew,
+      productPaymentCycleOld:
+        planOld.interval ?? baseDetails.productPaymentCycleNew,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
       invoiceNumber,
