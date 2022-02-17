@@ -5,7 +5,7 @@ import program from 'commander';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import Stripe from 'stripe';
 
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');
 
@@ -13,7 +13,7 @@ export async function init() {
   // Load program options
   program.version(pckg.version).parse(process.argv);
 
-  const { log, stripeHelper } = await setupProcesingTaskObjects(
+  const { log, stripeHelper } = await setupProcessingTaskObjects(
     'populate-vat-taxes'
   );
 

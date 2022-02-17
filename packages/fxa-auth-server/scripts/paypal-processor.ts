@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import { PayPalHelper } from '../lib/payments/paypal';
 import { PayPalClient } from '../lib/payments/paypal-client';
 import { PaypalProcessor } from '../lib/payments/paypal-processor';
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');
 const config = require('../config').getProperties();
@@ -31,7 +31,7 @@ export async function init() {
     )
     .parse(process.argv);
 
-  const { log, database, senders } = await setupProcesingTaskObjects(
+  const { log, database, senders } = await setupProcessingTaskObjects(
     'paypal-processor'
   );
 

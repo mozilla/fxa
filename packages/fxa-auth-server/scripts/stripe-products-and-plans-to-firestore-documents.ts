@@ -1,0 +1,63 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import program from 'commander';
+
+import { StripeProductsAndPlansConverter } from './stripe-products-and-plans-to-firestore-documents/stripe-product-and-plans-converter';
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import Container from 'typedi';
+import { AppConfig } from '../lib/types';
+
+const pckg = require('../package.json');
+
+const parseDryRun = (dryRun: boolean | string) => {
+  return `${dryRun}`.toLowerCase() !== 'false';
+};
+
+async function init() {
+  program
+    .version(pckg.version)
+    .option(
+      '-n, --dry-run [true|false]',
+      'Print what the script would do instead of performing the action.  Defaults to true.',
+      true
+    )
+    .option(
+      '-d, --delay [milliseconds]',
+      'Amount of time to wait between processing customers.  Defaults to 100ms.',
+      100
+    )
+    .option(
+      '-p, --productId [string]',
+      'The Stripe product ID for a single product to process. Defaults to all products.',
+      ''
+    )
+    .parse(process.argv);
+
+  const { log, stripeHelper } = await setupProcessingTaskObjects(
+    'stripe-products-and-plans-to-firestore-documents'
+  );
+
+  const isDryRun = parseDryRun(program.dryRun);
+  const productId = program.productId;
+  const delay = parseInt(program.delay);
+
+  const config = Container.get(AppConfig);
+
+  const stripeProductsAndPlansConverter = new StripeProductsAndPlansConverter({
+    log,
+    stripeHelper,
+    supportedLanguages: config.i18n.supportedLanguages,
+  });
+  await stripeProductsAndPlansConverter.convert({ productId, isDryRun, delay });
+  return 0;
+}
+
+if (require.main === module) {
+  init()
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .then((result) => process.exit(result));
+}

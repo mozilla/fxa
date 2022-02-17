@@ -4,7 +4,7 @@
 import program from 'commander';
 
 import { CustomerLocations } from './set-stripe-customer-locations/customer-locations';
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');
 
@@ -53,7 +53,7 @@ async function init() {
     )
     .parse(process.argv);
 
-  const { log, stripeHelper } = await setupProcesingTaskObjects(
+  const { log, stripeHelper } = await setupProcessingTaskObjects(
     'set-stripe-customer-location'
   );
 

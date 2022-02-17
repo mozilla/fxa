@@ -54,7 +54,7 @@ export class ProductConfig implements BaseConfig {
   // Extended by ProductConfig
   stripeProductId?: string;
   productSet?: string;
-  promotionCodes?: string;
+  promotionCodes?: string[];
 
   static async validate(productConfig: ProductConfig) {
     try {

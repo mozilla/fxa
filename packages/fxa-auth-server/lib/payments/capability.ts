@@ -7,6 +7,7 @@ import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
+import { commaSeparatedListToArray } from './configuration/utils';
 import error from '../error';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';
@@ -20,15 +21,6 @@ function hex(blob: Buffer | string): string {
     return blob.toString('hex');
   }
   return blob;
-}
-
-// Parse a comma-separated list of capabilities with allowance for varied whitespace
-export function splitCapabilities(s: string) {
-  return (s || '')
-    .trim()
-    .split(',')
-    .map((c) => c.trim())
-    .filter((c) => !!c);
 }
 
 // Flatten all the capabilities from a clientId to capability map into a single
@@ -406,7 +398,9 @@ export class CapabilityService {
           key.startsWith('capabilities')
         );
         for (const key of capabilityKeys) {
-          const capabilities = splitCapabilities((metadata as any)[key]);
+          const capabilities = commaSeparatedListToArray(
+            (metadata as any)[key]
+          );
           const clientId =
             key === 'capabilities' ? '*' : key.split(':')[1].trim();
           for (const capability of capabilities) {
