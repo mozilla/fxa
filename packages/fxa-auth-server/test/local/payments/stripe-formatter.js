@@ -7,15 +7,16 @@
 const { assert } = require('chai');
 
 const {
-  stripeInvoiceToInvoicePreviewDTO,
+  stripeInvoiceToFirstInvoicePreviewDTO,
+  stripeInvoiceToSubsequentInvoicePreviewDTO,
 } = require('../../../lib/payments/stripe-formatter');
 const previewInvoiceWithTax = require('./fixtures/stripe/invoice_preview_tax.json');
 const previewInvoiceWithDiscountAndTax = require('./fixtures/stripe/invoice_preview_tax_discount.json');
 const { deepCopy } = require('./util');
 
-describe('stripeInvoiceToInvoicePreviewDTO', () => {
+describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats an invoice with tax', () => {
-    const invoice = stripeInvoiceToInvoicePreviewDTO(
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(
       deepCopy(previewInvoiceWithTax)
     );
     assert.equal(invoice.total, previewInvoiceWithTax.total);
@@ -33,7 +34,7 @@ describe('stripeInvoiceToInvoicePreviewDTO', () => {
   });
 
   it('formats an invoice with tax and discount', () => {
-    const invoice = stripeInvoiceToInvoicePreviewDTO(
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(
       deepCopy(previewInvoiceWithDiscountAndTax)
     );
     assert.equal(invoice.total, previewInvoiceWithDiscountAndTax.total);
@@ -59,5 +60,16 @@ describe('stripeInvoiceToInvoicePreviewDTO', () => {
       invoice.discount.percent_off,
       previewInvoiceWithDiscountAndTax.discount.coupon.percent_off
     );
+  });
+});
+
+describe('stripeInvoiceToSubsequentInvoicePreviewDTO', () => {
+  it('formats an invoice with tax', () => {
+    const invoice = stripeInvoiceToSubsequentInvoicePreviewDTO(
+      deepCopy(previewInvoiceWithTax)
+    );
+    assert.equal(invoice.period_end, previewInvoiceWithTax.period_end);
+    assert.equal(invoice.period_start, previewInvoiceWithTax.period_start);
+    assert.equal(invoice.total, previewInvoiceWithTax.total);
   });
 });
