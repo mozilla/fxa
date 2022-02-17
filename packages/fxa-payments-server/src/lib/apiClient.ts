@@ -391,7 +391,7 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<FirstInvoicePreview> {
-  return await apiFetch(
+  return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
     { body: JSON.stringify(params) }
