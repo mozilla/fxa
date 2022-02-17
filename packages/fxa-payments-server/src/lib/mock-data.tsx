@@ -1,6 +1,6 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
@@ -239,7 +239,7 @@ export const IAP_APPLE_SUBSCRIPTION = {
   product_name: 'Cooking with Foxkeh',
 };
 
-export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: InvoicePreview = {
+export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
   line_items: [
     {
       amount: 500,
@@ -252,7 +252,7 @@ export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: InvoicePreview = {
   total: 500,
 };
 
-export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: InvoicePreview = {
+export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
   line_items: [
     {
       amount: 500,
@@ -299,7 +299,7 @@ export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   maximallyRedeemed: true,
 };
 
-export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: InvoicePreview = {
+export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: FirstInvoicePreview = {
   line_items: [
     {
       amount: 500,
@@ -317,7 +317,7 @@ export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: InvoicePreview = {
   },
 };
 
-export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: InvoicePreview = {
+export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: FirstInvoicePreview = {
   line_items: [
     {
       amount: 500,

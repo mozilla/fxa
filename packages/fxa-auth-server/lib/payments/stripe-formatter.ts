@@ -5,7 +5,7 @@ import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import { Stripe } from 'stripe';
 
 /**
- * Formats a Stripe Invoice to the InvoicePreview DTO format.
+ * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
  */
 export function stripeInvoiceToFirstInvoicePreviewDTO(
   invoice: Stripe.Invoice
@@ -47,6 +47,9 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
   return invoicePreview;
 }
 
+/**
+ * Formats a Stripe Invoice to the SubsequentInvoicePreview DTO format.
+ */
 export function stripeInvoiceToSubsequentInvoicePreviewDTO(
   invoice: Stripe.Invoice
 ): invoiceDTO.SubsequentInvoicePreview {
