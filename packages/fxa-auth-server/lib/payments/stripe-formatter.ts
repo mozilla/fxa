@@ -7,10 +7,10 @@ import { Stripe } from 'stripe';
 /**
  * Formats a Stripe Invoice to the InvoicePreview DTO format.
  */
-export function stripeInvoiceToInvoicePreviewDTO(
+export function stripeInvoiceToFirstInvoicePreviewDTO(
   invoice: Stripe.Invoice
-): invoiceDTO.InvoicePreview {
-  const invoicePreview: invoiceDTO.invoicePreviewSchema = {
+): invoiceDTO.FirstInvoicePreview {
+  const invoicePreview: invoiceDTO.firstInvoicePreviewSchema = {
     subtotal: invoice.subtotal,
     total: invoice.total,
     line_items: invoice.lines.data.map((line) => ({
@@ -47,10 +47,10 @@ export function stripeInvoiceToInvoicePreviewDTO(
   return invoicePreview;
 }
 
-export function stripeInvoiceToInvoiceNextDTO(
+export function stripeInvoiceToSubsequentInvoicePreviewDTO(
   invoice: Stripe.Invoice
-): invoiceDTO.InvoiceNext {
-  const invoiceNext: invoiceDTO.invoiceNextSchema = {
+): invoiceDTO.SubsequentInvoicePreview {
+  const invoiceNext: invoiceDTO.subsequentInvoicePreviewSchema = {
     period_end: invoice.period_end,
     period_start: invoice.period_start,
     total: invoice.total,

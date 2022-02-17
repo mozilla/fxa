@@ -27,8 +27,8 @@ import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
 import {
-  stripeInvoiceToInvoicePreviewDTO,
-  stripeInvoiceToInvoiceNextDTO,
+  stripeInvoiceToFirstInvoicePreviewDTO,
+  stripeInvoiceToSubsequentInvoicePreviewDTO,
 } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
@@ -408,7 +408,7 @@ export class StripeHandler {
    */
   async previewInvoice(
     request: AuthRequest
-  ): Promise<invoiceDTO.invoicePreviewSchema> {
+  ): Promise<invoiceDTO.firstInvoicePreviewSchema> {
     this.log.begin('subscriptions.previewInvoice', request);
     await this.customs.checkIpOnly(request, 'previewInvoice');
 
@@ -422,23 +422,24 @@ export class StripeHandler {
       promotionCode,
       priceId,
     });
-    return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
+    return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
   }
 
   /**
-   * Next invoice for a subscription
+   * Preview an invoice By SubscriptionId
    */
-  async nextInvoice(
+  async subsequentInvoicePreview(
     request: AuthRequest
-  ): Promise<invoiceDTO.invoiceNextSchema> {
-    this.log.begin('subscriptions.nextInvoice', request);
-    await this.customs.checkIpOnly(request, 'nextInvoice');
+  ): Promise<invoiceDTO.subsequentInvoicePreviewSchema> {
+    this.log.begin('subscriptions.subsequentInvoicePreview', request);
+    await this.customs.checkIpOnly(request, 'subsequentInvoicePreview');
 
     const { subscriptionId } = request.payload as Record<string, string>;
-    const nextInvoice = await this.stripeHelper.nextInvoice({
-      subscriptionId,
-    });
-    return stripeInvoiceToInvoiceNextDTO(nextInvoice);
+    const subsequentInvoicePreview =
+      await this.stripeHelper.previewInvoiceBySubscriptionId({
+        subscriptionId,
+      });
+    return stripeInvoiceToSubsequentInvoicePreviewDTO(subsequentInvoicePreview);
   }
 
   async retrieveCouponDetails(
@@ -885,7 +886,7 @@ export const stripeRoutes = (
       options: {
         auth: false,
         response: {
-          schema: invoiceDTO.invoicePreviewSchema as any,
+          schema: invoiceDTO.firstInvoicePreviewSchema as any,
         },
         validate: {
           payload: {
@@ -898,11 +899,11 @@ export const stripeRoutes = (
     },
     {
       method: 'POST',
-      path: '/oauth/subscriptions/invoice/next',
+      path: '/oauth/subscriptions/invoice/preview-subsequent',
       options: {
         auth: false,
         response: {
-          schema: invoiceDTO.invoiceNextSchema as any,
+          schema: invoiceDTO.subsequentInvoicePreviewSchema as any,
         },
         validate: {
           payload: {
@@ -910,7 +911,8 @@ export const stripeRoutes = (
           },
         },
       },
-      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+      handler: (request: AuthRequest) =>
+        stripeHandler.subsequentInvoicePreview(request),
     },
     {
       method: 'POST',

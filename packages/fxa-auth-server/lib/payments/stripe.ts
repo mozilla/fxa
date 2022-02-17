@@ -639,9 +639,11 @@ export class StripeHelper {
   /**
    * Previews the next invoice for a specific subscription
    */
-  async nextInvoice({ subscriptionId }: { subscriptionId: string }) {
-    const params: Stripe.InvoiceRetrieveUpcomingParams = {};
-
+  async previewInvoiceBySubscriptionId({
+    subscriptionId,
+  }: {
+    subscriptionId: string;
+  }) {
     return this.stripe.invoices.retrieveUpcoming({
       subscription: subscriptionId,
     });

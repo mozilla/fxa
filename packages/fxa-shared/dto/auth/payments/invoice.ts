@@ -27,7 +27,7 @@ export interface InvoiceDiscount {
  * Defines an interface for the invoice preview response from the
  * auth-server.
  */
-export interface InvoicePreview {
+export interface FirstInvoicePreview {
   line_items: InvoiceLineItem[];
   subtotal: number;
   total: number;
@@ -35,7 +35,7 @@ export interface InvoicePreview {
   discount?: InvoiceDiscount;
 }
 
-export const invoicePreviewSchema = joi.object({
+export const firstInvoicePreviewSchema = joi.object({
   line_items: joi
     .array()
     .items(
@@ -64,22 +64,26 @@ export const invoicePreviewSchema = joi.object({
   }),
 });
 
-export type invoicePreviewSchema = joi.Literal<typeof invoicePreviewSchema>;
+export type firstInvoicePreviewSchema = joi.Literal<
+  typeof firstInvoicePreviewSchema
+>;
 
 /**
  * Defines an interface for the invoice preview response from the
  * auth-server.
  */
-export interface InvoiceNext {
+export interface SubsequentInvoicePreview {
   period_end: number;
   period_start: number;
   total: number;
 }
 
-export const invoiceNextSchema = joi.object({
+export const subsequentInvoicePreviewSchema = joi.object({
   period_end: joi.number().required(),
   period_start: joi.number().required(),
   total: joi.number().required(),
 });
 
-export type invoiceNextSchema = joi.Literal<typeof invoiceNextSchema>;
+export type subsequentInvoicePreviewSchema = joi.Literal<
+  typeof subsequentInvoicePreviewSchema
+>;
