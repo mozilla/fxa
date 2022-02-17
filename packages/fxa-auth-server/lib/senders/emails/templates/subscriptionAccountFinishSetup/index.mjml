@@ -19,16 +19,16 @@
     <%- include ('/partials/paymentPlanDetails/index.mjml') %>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionAccountFinishSetup-content-create" data-l10n-args="<%= JSON.stringify({productName}) %>">
-        Next, you’ll create a Firefox account password and download <%- productName %>.
+      <span data-l10n-id="subscriptionAccountFinishSetup-content-create-2">
+        Next, you’ll create a Firefox account password to start using your new subscription.
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include ('/partials/button/index.mjml', {
-  buttonL10nId: "subscriptionAccountFinishSetup-action",
-  buttonText: "Create a password",
+  buttonL10nId: "subscriptionAccountFinishSetup-action-2",
+  buttonText: "Get started",
   cssClass: 'mb-8'
   }) %>
 <%- include ('/partials/subscriptionSupport/index.mjml') %>

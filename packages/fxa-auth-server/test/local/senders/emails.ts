@@ -100,7 +100,7 @@ const MESSAGE = {
   productNameNew: 'Product B',
   productPaymentCycleNew: 'month',
   productPaymentCycleOld: 'year',
-  providerName:'Google',
+  providerName: 'Google',
   reminderLength: 14,
   secondaryEmail: 'secondary@email.com',
   serviceLastActiveDate: new Date(1587339098816),
@@ -1179,7 +1179,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
       { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1191,7 +1191,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1954,20 +1954,26 @@ describe('lib/senders/mjml-emails:', () => {
       const message = {
         timeZone: 'America/Los_Angeles',
         acceptLanguage: 'en',
-      }
+      };
 
-      const result = mailer._constructLocalTimeString(message.timeZone, message.acceptLanguage);
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
       const testTime = moment().tz(message.timeZone).format('LTS (z)');
       const testDay = moment().tz(message.timeZone).format('dddd, ll');
-      assert.deepEqual(result, [ testTime, testDay]);
+      assert.deepEqual(result, [testTime, testDay]);
     });
 
     it('returns date/time based on default timezone (UTC) if timezone is undefined', () => {
       const message = {
         timeZone: undefined,
         acceptLanguage: 'en',
-      }
-      const result = mailer._constructLocalTimeString(message.timeZone, message.acceptLanguage);
+      };
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
       assert.include(result[0], 'UTC');
     });
 
@@ -1975,19 +1981,36 @@ describe('lib/senders/mjml-emails:', () => {
       const message = {
         timeZone: 'Europe/Berlin',
         acceptLanguage: undefined,
-      }
+      };
 
-      const result = mailer._constructLocalTimeString(message.timeZone, message.acceptLanguage);
-      assert.include(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], result[1].split(',')[0]);
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(
+        [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ],
+        result[1].split(',')[0]
+      );
     });
 
     it('returns date/time in another timezone (at the time of writing - EST', () => {
       const message = {
         timeZone: 'Europe/Berlin',
         acceptLanguage: 'en',
-      }
+      };
 
-      const result = mailer._constructLocalTimeString(message.timeZone, message.acceptLanguage);
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
       assert.include(result[0], 'CET');
     });
 
@@ -1995,10 +2018,24 @@ describe('lib/senders/mjml-emails:', () => {
       const message = {
         timeZone: 'America/Los_Angeles',
         acceptLanguage: 'es',
-      }
+      };
 
-      const result = mailer._constructLocalTimeString(message.timeZone, message.acceptLanguage);
-      assert.include(['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'], result[1].split(',')[0]);
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(
+        [
+          'lunes',
+          'martes',
+          'miércoles',
+          'jueves',
+          'viernes',
+          'sábado',
+          'domingo',
+        ],
+        result[1].split(',')[0]
+      );
     });
   });
 
