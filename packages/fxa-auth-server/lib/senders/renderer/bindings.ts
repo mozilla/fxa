@@ -93,8 +93,10 @@ export abstract class RendererBindings {
 
   protected async getComponent(type: ComponentType, name: string) {
     const path = `${this.opts.templates.basePath}/${type}/${name}`;
-    const mjml = await this.fetchResource(`${path}/index.mjml`);
-    const text = await this.fetchResource(`${path}/index.txt`);
+    const [mjml, text] = await Promise.all([
+      this.fetchResource(`${path}/index.mjml`),
+      this.fetchResource(`${path}/index.txt`),
+    ]);
     return { mjml, text };
   }
 

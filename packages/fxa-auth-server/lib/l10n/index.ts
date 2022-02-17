@@ -24,10 +24,27 @@ class Localizer {
   }
 
   protected async fetchMessages(currentLocales: string[]) {
-    const fetched: Record<string, string> = {};
+    let fetchedPending: Record<string, Promise<string>> = {};
+    let fetched: Record<string, string> = {};
     for (const locale of currentLocales) {
-      fetched[locale] = await this.fetchLocalizationMessages(locale);
+      fetchedPending[locale] = this.fetchTranslatedMessages(locale);
     }
+
+    // All we're doing here is taking `{ localeName: pendingLocaleMessagesPromise }` objects and
+    // parallelizing the promise resolutions instead of waiting for them to finish syncronously. We
+    // then return the result in the same `{ localeName: messages }` format for resolved promises.
+    const fetchedLocales = await Promise.allSettled(
+      Object.keys(fetchedPending).map(async (locale) => ({
+        locale,
+        fetchedLocale: await fetchedPending[locale],
+      }))
+    );
+
+    fetchedLocales.forEach((fetchedLocale) => {
+      if (fetchedLocale.status === 'fulfilled') {
+        fetched[fetchedLocale.value.locale] = fetchedLocale.value.fetchedLocale;
+      }
+    });
     return fetched;
   }
 
@@ -62,10 +79,10 @@ class Localizer {
   }
 
   /**
-   * Returns the set of localization strings for the specified locale.
+   * Returns the set of translated strings for the specified locale.
    * @param locale Locale to use, defaults to en.
    */
-  async fetchLocalizationMessages(locale?: string) {
+  protected async fetchTranslatedMessages(locale?: string) {
     // note: 'en' auth.ftl only exists for browser bindings / Storybook
     // the fallback English strings within the templates will be shown in other envs
     const path = `${this.bindings.opts.translations.basePath}/${
