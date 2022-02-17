@@ -16,7 +16,9 @@ const createStory = subplatStoryWithProps(
     productName: 'Firefox Fortress',
     invoiceDateOnly: '12/14/2021',
     invoiceNumber: '8675309',
-    invoiceTotal: '$20.00',
+    invoiceTotal: '$18.00',
+    invoiceSubtotal: '$20.00',
+    invoiceDiscountAmount: '$2.00',
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
