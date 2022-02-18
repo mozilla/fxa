@@ -50,14 +50,16 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 /**
  * Formats a Stripe Invoice to the SubsequentInvoicePreview DTO format.
  */
-export function stripeInvoiceToSubsequentInvoicePreviewDTO(
-  invoice: Stripe.Invoice
-): invoiceDTO.SubsequentInvoicePreview {
-  const invoiceNext: invoiceDTO.subsequentInvoicePreviewSchema = {
-    period_end: invoice.period_end,
-    period_start: invoice.period_start,
-    total: invoice.total,
-  };
+export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
+  invoices: Stripe.Invoice[]
+): invoiceDTO.SubsequentInvoicePreview[] {
+  const invoiceNext: invoiceDTO.subsequentInvoicePreviewSchema = invoices.map(
+    (invoice) => ({
+      subscriptionId: invoice.subscription as string,
+      period_start: invoice.period_end,
+      total: invoice.total,
+    })
+  );
 
   return invoiceNext;
 }

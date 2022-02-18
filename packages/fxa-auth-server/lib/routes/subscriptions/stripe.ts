@@ -28,7 +28,7 @@ import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
-  stripeInvoiceToSubsequentInvoicePreviewDTO,
+  stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
@@ -434,12 +434,22 @@ export class StripeHandler {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
     await this.customs.checkIpOnly(request, 'subsequentInvoicePreview');
 
-    const { subscriptionId } = request.payload as Record<string, string>;
-    const subsequentInvoicePreview =
-      await this.stripeHelper.previewInvoiceBySubscriptionId({
-        subscriptionId,
-      });
-    return stripeInvoiceToSubsequentInvoicePreviewDTO(subsequentInvoicePreview);
+    const { subscriptionIds } = request.payload as Record<
+      string,
+      Array<string>
+    >;
+
+    const subsequentInvoicePreviews = await Promise.all(
+      subscriptionIds.map((sub) =>
+        this.stripeHelper.previewInvoiceBySubscriptionId({
+          subscriptionId: sub,
+        })
+      )
+    );
+
+    return stripeInvoicesToSubsequentInvoicePreviewsDTO(
+      subsequentInvoicePreviews
+    );
   }
 
   async retrieveCouponDetails(
@@ -901,13 +911,18 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/invoice/preview-subsequent',
       options: {
-        auth: false,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
         response: {
           schema: invoiceDTO.subsequentInvoicePreviewSchema as any,
         },
         validate: {
           payload: {
-            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+            subscriptionIds: isA
+              .array()
+              .items(validators.subscriptionsPlanId.required()),
           },
         },
       },

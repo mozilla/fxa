@@ -37,7 +37,7 @@ const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const {
   stripeInvoiceToFirstInvoicePreviewDTO,
-  stripeInvoiceToSubsequentInvoicePreviewDTO,
+  stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } = require('../../../../lib/payments/stripe-formatter');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
@@ -586,13 +586,13 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('subsequentInvoicePreview', () => {
-    it('returns the next invoice', async () => {
+    it('returns array of next invoices', async () => {
       const expected = deepCopy(invoicePreviewTax);
       directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
         expected
       );
       VALID_REQUEST.payload = {
-        subscriptionId: 'sub_id',
+        subscriptionIds: ['sub_id1', 'sub_id2'],
       };
       VALID_REQUEST.app.geo = {};
       const actual = await directStripeRoutesInstance.subsequentInvoicePreview(
@@ -603,12 +603,19 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST,
         'subsequentInvoicePreview'
       );
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.calledTwice(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      sinon.assert.calledWith(
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { subscriptionId: 'sub_id' }
+        { subscriptionId: 'sub_id1' }
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+        { subscriptionId: 'sub_id2' }
       );
       assert.deepEqual(
-        stripeInvoiceToSubsequentInvoicePreviewDTO(expected),
+        stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected]),
         actual
       );
     });
