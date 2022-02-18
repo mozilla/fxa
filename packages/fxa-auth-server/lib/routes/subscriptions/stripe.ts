@@ -426,7 +426,7 @@ export class StripeHandler {
   }
 
   /**
-   * Preview an invoice By SubscriptionId
+   * Preview invoices for an array of subscriptionIds
    */
   async subsequentInvoicePreview(
     request: AuthRequest

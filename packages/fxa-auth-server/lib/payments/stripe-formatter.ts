@@ -48,7 +48,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 }
 
 /**
- * Formats a Stripe Invoice to the SubsequentInvoicePreview DTO format.
+ * Formats an array of Stripe Invoice to the SubsequentInvoicePreview DTO format.
  */
 export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
   invoices: Stripe.Invoice[]

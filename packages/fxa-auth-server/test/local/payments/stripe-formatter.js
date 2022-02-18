@@ -64,7 +64,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
 });
 
 describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
-  it('formats an invoice with tax', () => {
+  it('formats an array of invoices', () => {
     const invoice = stripeInvoicesToSubsequentInvoicePreviewsDTO([
       deepCopy(previewInvoiceWithTax),
       deepCopy(previewInvoiceWithTax),
