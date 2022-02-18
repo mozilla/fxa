@@ -1050,8 +1050,10 @@ describe('/account/create', () => {
         'mailer.sendVerifyEmail was called'
       );
       args = mockMailer.sendVerifyEmail.args[0];
+      assert.equal(args[2].acceptLanguage, 'en-US');
       assert.equal(args[2].location.city, 'Mountain View');
       assert.equal(args[2].location.country, 'United States');
+      assert.equal(args[2].timeZone, 'America/Los_Angeles')
       assert.equal(args[2].uaBrowser, 'Firefox Mobile');
       assert.equal(args[2].uaBrowserVersion, '9');
       assert.equal(args[2].uaOS, 'iOS');
@@ -1164,10 +1166,23 @@ describe('/account/create', () => {
           const args = mockMailer.sendVerifyShortCodeEmail.args[0];
           assert.equal(args[2].code, expectedCode, 'expected code set');
           assert.equal(
+            args[2].acceptLanguage,
+            mockRequest.app.acceptLanguage,
+            'en-US'
+          );
+
+          assert.equal(
             args[2].location,
             mockRequest.app.geo.location,
             'location set'
           );
+
+          assert.equal(
+            args[2].timeZone,
+            mockRequest.app.geo.timeZone,
+            'America/Los_Angeles'
+          );
+
           assert.equal(
             res.verificationMethod,
             mockRequest.payload.verificationMethod
@@ -1912,6 +1927,7 @@ describe('/account/login', () => {
         'mailer.sendVerifyLoginEmail was called'
       );
       args = mockMailer.sendVerifyLoginEmail.args[0];
+      assert.equal(args[2].acceptLanguage, 'en-US')
       assert.equal(args[2].location.city, 'Mountain View');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
@@ -2096,6 +2112,10 @@ describe('/account/login', () => {
           mockMailer.sendVerifyLoginEmail.callCount,
           1,
           'mailer.sendVerifyLoginEmail was called'
+        );
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
+          'en-US'
         );
         assert.equal(
           mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,
@@ -2539,6 +2559,10 @@ describe('/account/login', () => {
             mockMailer.sendVerifyLoginEmail.callCount,
             1,
             'mailer.sendVerifyLoginEmail was called'
+          );
+          assert.equal(
+            mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
+            'en-US'
           );
           assert.equal(
             mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,

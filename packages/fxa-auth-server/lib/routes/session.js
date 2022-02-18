@@ -427,10 +427,11 @@ module.exports = function (
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         const options = {
-          acceptLanguage: account.locale,
+          acceptLanguage: account.locale || request.app.locale,
           code,
           ip,
           location: request.app.geo.location,
+          timeZone: request.app.geo.timeZone,
           uaBrowser: sessionToken.uaBrowser,
           uaBrowserVersion: sessionToken.uaBrowserVersion,
           uaOS: sessionToken.uaOS,

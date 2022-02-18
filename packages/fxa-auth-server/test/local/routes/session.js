@@ -1272,12 +1272,21 @@ describe('/session/resend_code', () => {
     route = getRoute(routes, '/session/resend_code');
 
     request = mocks.mockRequest({
+      acceptLanguage: 'en-US',
       credentials: {
         ...signupCodeAccount,
         uaBrowser: 'Firefox',
         id: 'sessionTokenId',
       },
       log,
+      location: {
+        city: 'Mountain View',
+        country: 'United States',
+        countryCode: 'US',
+        state: 'California',
+        stateCode: 'CA'
+      },
+      timeZone: 'America/Los_Angeles',
       uaBrowser: 'Firefox',
     });
   });
@@ -1290,7 +1299,14 @@ describe('/session/resend_code', () => {
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
     const args = mailer.sendVerifyShortCodeEmail.args[0];
+    assert.equal(args[2].acceptLanguage, 'en-US');
     assert.equal(args[2].code, expectedCode);
+    assert.equal(args[2].location.city, 'Mountain View')
+    assert.equal(args[2].location.country, 'United States')
+    assert.equal(args[2].location.countryCode, 'US')
+    assert.equal(args[2].location.state, 'California')
+    assert.equal(args[2].location.stateCode, 'CA')
+    assert.equal(args[2].timeZone, 'America/Los_Angeles')
   });
 
   it('should resend the verification code email with verified account', async () => {
