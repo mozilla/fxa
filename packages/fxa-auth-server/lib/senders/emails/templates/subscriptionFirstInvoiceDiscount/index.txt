@@ -10,7 +10,7 @@ subscriptionFirstInvoiceDiscount-content-auto-renew = "Your subscription will au
 
 subscriptionFirstInvoiceDiscount-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
 subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
-subscriptionFirstInvoiceDiscount-content-onetime-discount = "One-time discount: -<%- invoiceDiscountAmount %>"
+subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
 subscriptionFirstInvoiceDiscount-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %>
 <%- include ('/partials/paymentProvider/index.txt') %>
