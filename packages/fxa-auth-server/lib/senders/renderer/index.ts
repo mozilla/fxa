@@ -52,9 +52,8 @@ class Renderer extends Localizer {
    */
   async renderEmail(context: TemplateContext) {
     const { acceptLanguage, template, layout } = context;
-    const { l10n, selectedLocale } = await super.setupLocalizer(
-      acceptLanguage,
-      true
+    const { l10n, selectedLocale } = await super.setupDomLocalizer(
+      acceptLanguage
     );
     // emails are sent with a `templateValues` object (though not in Storybook) but we spread
     // them here to make them more top-level accessible
@@ -118,9 +117,7 @@ class Renderer extends Localizer {
       layout
     );
 
-    // @ts-ignore For some reason, TS thinks Localization is returned when DOMLocalization is?
     l10n.connectRoot(rootElement);
-    // @ts-ignore
     await l10n.translateRoots();
 
     const isLocaleRenderedRtl = RTL_LOCALES.includes(selectedLocale);

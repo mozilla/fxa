@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FtlIdMsg } from '../../l10n';
-import { L10nOpts } from '../../l10n/bindings';
+import { L10nOpts, LocalizerBindings } from '../../l10n/bindings';
 
 // Supporting Types
 export type EjsOpts = {
@@ -43,7 +42,7 @@ type ComponentType = 'templates' | 'layouts';
 /**
  * Abstraction for binding the renderer to different contexts, e.g. node vs browser.
  */
-export abstract class RendererBindings {
+export abstract class RendererBindings extends LocalizerBindings {
   /**
    * Customized options for the renderer
    */

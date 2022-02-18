@@ -8,18 +8,16 @@ import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizerBindings } from './bindings';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
-import { RendererBindings } from '../senders/renderer/bindings';
 
-type Bindings = LocalizerBindings | RendererBindings;
 export interface FtlIdMsg {
   id: string;
   message: string;
 }
 
 class Localizer {
-  protected readonly bindings: Bindings;
+  protected readonly bindings: LocalizerBindings;
 
-  constructor(bindings: Bindings) {
+  constructor(bindings: LocalizerBindings) {
     this.bindings = bindings;
   }
 
@@ -66,16 +64,26 @@ class Localizer {
     return generateBundles;
   }
 
-  async setupLocalizer(acceptLanguage: string, needsDOM = false) {
+  async getLocalizerDeps(acceptLanguage: string) {
     const currentLocales = parseAcceptLanguage(acceptLanguage);
     const selectedLocale = currentLocales[0] || 'en';
     const messages = await this.fetchMessages(currentLocales);
     const generateBundles = this.createBundleGenerator(messages);
-    const l10n = needsDOM
-      ? new DOMLocalization(currentLocales, generateBundles)
-      : new Localization(currentLocales, generateBundles);
+    return { currentLocales, messages, generateBundles, selectedLocale };
+  }
 
-    return { currentLocales, messages, generateBundles, selectedLocale, l10n };
+  async setupDomLocalizer(acceptLanguage: string) {
+    const { currentLocales, generateBundles, selectedLocale } =
+      await this.getLocalizerDeps(acceptLanguage);
+    const l10n = new DOMLocalization(currentLocales, generateBundles);
+    return { l10n, selectedLocale };
+  }
+
+  async setupLocalizer(acceptLanguage: string) {
+    const { currentLocales, generateBundles, selectedLocale } =
+      await this.getLocalizerDeps(acceptLanguage);
+    const l10n = new Localization(currentLocales, generateBundles);
+    return { l10n, selectedLocale };
   }
 
   /**
@@ -89,13 +97,7 @@ class Localizer {
       locale || 'en'
     }/auth.ftl`;
 
-    try {
-      return await this.bindings.fetchResource(path);
-    } catch (e) {
-      // We couldn't fetch any strings; just return nothing and fluent will fall
-      // back to the default locale if needed.
-      return '';
-    }
+    return this.bindings.fetchResource(path);
   }
 
   // NOTE: not currently used, will be implemented in FXA-4623
@@ -126,9 +128,9 @@ export function parseAcceptLanguage(acceptLanguage: string) {
   }
 
   /*
-   * We use the 'matching' strategy because the default strategy, 'filtering', will load all English locales
-   * with dialects included, e.g. `en-CA`, even when the user prefers 'en' or 'en-US', which would then be
-   * shown instead of the English (US) fallback text.
+   * We use the 'matching' strategy because the default strategy, 'filtering', will load all
+   * English locales with dialects included, e.g. `en-CA`, even when the user prefers 'en' or
+   * 'en-US', which would then be shown instead of the English (US) fallback text.
    */
   const currentLocales = negotiateLanguages(
     [...userLocales],

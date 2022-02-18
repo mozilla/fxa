@@ -27,7 +27,7 @@ describe('Localizer', () => {
     });
 
     it('produces the current locales', async () => {
-      const { currentLocales } = await localizer.setupLocalizer(
+      const { currentLocales } = await localizer.getLocalizerDeps(
         'de-CH,it;q=0.8,en-US;q=0.5,en;q=0.3'
       );
 
@@ -43,7 +43,7 @@ describe('Localizer', () => {
     });
 
     it('generates a proper bundle', async () => {
-      const { generateBundles } = await localizer.setupLocalizer('de,en');
+      const { generateBundles } = await localizer.getLocalizerDeps('de,en');
 
       const bundles: Array<FluentBundle> = [];
       for await (const bundle of generateBundles(['de'])) {
@@ -61,7 +61,7 @@ describe('Localizer', () => {
         );
 
         const result = await l10n.formatValue(
-          'subscriptionAccountFinishSetup-action',
+          'subscriptionAccountReminderFirst-action',
           {}
         );
 
