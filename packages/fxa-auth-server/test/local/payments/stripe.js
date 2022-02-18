@@ -4020,7 +4020,8 @@ describe('StripeHelper', () => {
         eventCustomerSubscriptionUpdated.data.object.plan.currency,
       paymentAmountNewInCents:
         eventCustomerSubscriptionUpdated.data.object.plan.amount,
-      productPaymentCycleNew: eventCustomerSubscriptionUpdated.data.object.plan.interval,
+      productPaymentCycleNew:
+        eventCustomerSubscriptionUpdated.data.object.plan.interval,
       closeDate: 1326853478,
       productMetadata: {
         emailIconURL:
@@ -4331,7 +4332,10 @@ describe('StripeHelper', () => {
             event.data.previous_attributes.plan
           );
 
-        assert.equal(result.productPaymentCycleOld, result.productPaymentCycleNew);
+        assert.equal(
+          result.productPaymentCycleOld,
+          result.productPaymentCycleNew
+        );
       });
     });
 
@@ -4885,6 +4889,27 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.removePaymentMethodRecord,
         event.data.object.id
+      );
+    });
+
+    it('ignores the deleted customer error when handling a payment method update event', async () => {
+      const event = deepCopy(eventPaymentMethodAttached);
+      event.type = 'payment_method.card_automatically_updated';
+      stripeHelper.stripe.paymentMethods.retrieve = sandbox
+        .stub()
+        .resolves(event.data.object);
+      stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+        .stub()
+        .throws(
+          newFirestoreStripeError(
+            'Customer deleted.',
+            FirestoreStripeError.STRIPE_CUSTOMER_DELETED
+          )
+        );
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertPaymentMethodRecordWithBackfill,
+        event.data.object
       );
     });
 
