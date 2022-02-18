@@ -5,7 +5,7 @@
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
-import { LocalizerBindings } from './bindings';
+import { ILocalizerBindings } from './interfaces/ILocalizerBindings';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
 
@@ -15,9 +15,9 @@ export interface FtlIdMsg {
 }
 
 class Localizer {
-  protected readonly bindings: LocalizerBindings;
+  protected readonly bindings: ILocalizerBindings;
 
-  constructor(bindings: LocalizerBindings) {
+  constructor(bindings: ILocalizerBindings) {
     this.bindings = bindings;
   }
 

@@ -4,17 +4,10 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
+import { LocalizerOpts } from './models/LocalizerOpts';
+import { ILocalizerBindings } from './interfaces/ILocalizerBindings';
 
-export type TranslationOpts = {
-  basePath: string;
-};
-export type L10nOpts = {
-  translations: TranslationOpts;
-};
-
-export type LocalizerOpts = L10nOpts;
-
-export class LocalizerBindings {
+export class LocalizerBindings implements ILocalizerBindings {
   readonly opts: LocalizerOpts;
   constructor(opts?: LocalizerOpts) {
     this.opts = Object.assign(
