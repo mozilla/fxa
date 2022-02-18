@@ -8,10 +8,12 @@
       {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
-        "description": "<%- subject %>",
+        <%# The "or" will be removed in FXA-4623 %>
+        "description": "<%- locals.subject || subject %>",
         "potentialAction": {
           "@type": "ViewAction",
-          "name": "<%- action %>",
+          <%# The "or" will be removed in FXA-4623 %>
+          "name": "<%- locals.action || action %>",
           "target": "<%- oneClickLink %>",
           "url": "<%- oneClickLink %>"
         },

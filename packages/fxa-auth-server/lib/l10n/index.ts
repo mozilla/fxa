@@ -32,7 +32,7 @@ class Localizer {
 
     // All we're doing here is taking `{ localeName: pendingLocaleMessagesPromise }` objects and
     // parallelizing the promise resolutions instead of waiting for them to finish syncronously. We
-    // then return the result in the same `{ localeName: messages }` format for resolved promises.
+    // then return the result in the same `{ localeName: messages }` format for fulfilled promises.
     const fetchedLocales = await Promise.allSettled(
       Object.keys(fetchedPending).map(async (locale) => ({
         locale,

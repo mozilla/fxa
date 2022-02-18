@@ -4,7 +4,7 @@
 
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { RendererBindings, TemplateContext } from './bindings';
-import Localizer from '../../l10n';
+import Localizer, { FtlIdMsg } from '../../l10n';
 
 const RTL_LOCALES = [
   'ar',
@@ -18,6 +18,10 @@ const RTL_LOCALES = [
   'ur',
   'ug',
 ];
+interface GlobalTemplateValues {
+  subject: FtlIdMsg;
+  action?: FtlIdMsg;
+}
 
 class Renderer extends Localizer {
   protected readonly bindings: RendererBindings;
@@ -25,6 +29,18 @@ class Renderer extends Localizer {
   constructor(bindings: RendererBindings) {
     super(bindings);
     this.bindings = bindings;
+  }
+
+  private async localizeAndRender(
+    l10n: DOMLocalization | Localization,
+    string: FtlIdMsg,
+    context: TemplateContext
+  ) {
+    const localizedString =
+      (await l10n.formatValue(string.id, context)) || string.message;
+    return localizedString.includes('<%')
+      ? this.bindings.renderEjs(localizedString, context)
+      : localizedString;
   }
 
   /**
@@ -62,22 +78,37 @@ class Renderer extends Localizer {
         template === 'verifyLoginCode' ||
         template === 'downloadSubscription'
       ) {
-        const {
-          includes: { subject, action },
-        } = await this.bindings.getGlobalTemplateValues(template);
+        const { subject, action } = JSON.parse(
+          await this.bindings.fetchResource(
+            `${this.bindings.opts.templates.basePath}/templates/${template}/includes.json`
+          )
+        ) as unknown as GlobalTemplateValues;
 
-        context.subject =
-          (await l10n.formatValue(subject.id, context)) || subject.message;
-        context.action = action
-          ? (await l10n.formatValue(action.id, context)) || action.message
-          : '';
+        if (action) {
+          const [localizedSubject, localizedAction] = await Promise.all([
+            this.localizeAndRender(l10n, subject, context),
+            this.localizeAndRender(l10n, action, context),
+          ]);
+
+          context.subject = localizedSubject;
+          context.action = localizedAction;
+        } else {
+          context.subject = await this.localizeAndRender(
+            l10n,
+            subject,
+            context
+          );
+        }
       } else {
         context.subject = await l10n.formatValue(
           `${template}-subject`,
           context
         );
-        context.action =
-          (await l10n.formatValue(`${template}-action`, context)) || '';
+        // metadata.mjml needs a localized version of `action`, but only if oneClickLink is present.
+        if (context.oneClickLink) {
+          context.action =
+            (await l10n.formatValue(`${template}-action`, context)) || '';
+        }
       }
     }
 

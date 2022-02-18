@@ -7,7 +7,8 @@
     <mj-raw>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </mj-raw>
-    <mj-title><%- locals.subject %></mj-title>
+    <%# The "or" will be removed in FXA-4623 %>
+    <mj-title><%- locals.subject || subject %></mj-title>
     <%- include('/partials/images.mjml') %>
     <%- include('/partials/metadata.mjml') %>
   </mj-head>

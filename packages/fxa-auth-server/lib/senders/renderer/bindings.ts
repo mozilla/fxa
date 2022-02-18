@@ -26,14 +26,6 @@ export type RenderOpts = {
   mjml: MjmlOpts;
 };
 
-interface Includes {
-  includes: GlobalTemplateValues;
-}
-interface GlobalTemplateValues {
-  subject: FtlIdMsg;
-  action?: FtlIdMsg;
-}
-
 // Top level types
 export type TemplateContext = Record<string, any>;
 export type EjsComponent = {
@@ -100,14 +92,6 @@ export abstract class RendererBindings {
     return { mjml, text };
   }
 
-  async getGlobalTemplateValues(template: string): Promise<Includes> {
-    try {
-      return import(`../emails/templates/${template}/includes.ts`);
-    } catch (e) {
-      throw Error(e);
-    }
-  }
-
   async renderSmsTemplate(template: string, context: TemplateContext) {
     const text = await this.fetchResource(
       `${this.opts.ejs.root}/templates/${template}/index.txt`
@@ -146,7 +130,7 @@ export abstract class RendererBindings {
    * @param body Optional body to wrap
    * @returns Rendered EJS template
    */
-  protected abstract renderEjs(
+  abstract renderEjs(
     ejsTemplate: string,
     context: TemplateContext,
     body?: string
