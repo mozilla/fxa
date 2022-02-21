@@ -57,6 +57,7 @@ const PERSISTENT = {
   metricsEnabled: undefined,
   verified: undefined,
   alertText: undefined,
+  providerUid: undefined,
 };
 
 const DEFAULTS = _.extend(
@@ -76,7 +77,7 @@ const DEFAULTS = _.extend(
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
-    isThirdPartyLogin: undefined,
+    providerUid: undefined,
   },
   PERSISTENT
 );

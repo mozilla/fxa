@@ -87,7 +87,7 @@ describe('views/mixins/google-auth-mixin', function () {
   });
 
   it('googleSignIn', async () => {
-    windowMock.location.search = '?orignal_oauth_params';
+    windowMock.location.href = 'http://localhost?orignal_oauth_params';
 
     view.googleSignIn();
 
@@ -111,7 +111,7 @@ describe('views/mixins/google-auth-mixin', function () {
     assertInputEl(
       mockInput,
       'state',
-      encodeURIComponent(windowMock.location.search)
+      encodeURIComponent(windowMock.location.href)
     );
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');
@@ -122,11 +122,12 @@ describe('views/mixins/google-auth-mixin', function () {
   });
 
   it('handleOauthResponse', () => {
-    windowMock.location.search = '?state=state';
+    windowMock.location.search = '?state=localhost';
     sinon.stub(view, 'navigateAway');
 
     view.handleOauthResponse();
-    assert.isTrue(view.navigateAway.calledOnceWith(`/oauth/state`));
+
+    assert.isTrue(view.navigateAway.calledOnceWith('localhost'));
   });
 
   it('completeSignIn', async () => {

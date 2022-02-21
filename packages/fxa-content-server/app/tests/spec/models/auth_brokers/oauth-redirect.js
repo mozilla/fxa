@@ -32,6 +32,7 @@ function generateOAuthCode() {
 const REDIRECT_URI = 'https://localhost:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
 const VALID_OAUTH_CODE_REDIRECT_URL = `${REDIRECT_URI}?code=${VALID_OAUTH_CODE}&state=state`;
+const PROVIDER_UID = 'provider_uid';
 
 describe('models/auth_brokers/oauth-redirect', () => {
   var account;
@@ -295,6 +296,23 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'action=' + action);
             assert.include(windowMock.location.href, 'state=state');
+          });
+      });
+    });
+
+    describe('with an providerId', () => {
+      it('appends an action query parameter', () => {
+        account.set('providerUid', PROVIDER_UID);
+        return broker
+          .sendOAuthResultToRelier(
+            {
+              redirect: REDIRECT_TO,
+            },
+            account
+          )
+          .then(() => {
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, `gid=${PROVIDER_UID}`);
           });
       });
     });
