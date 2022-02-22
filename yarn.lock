@@ -12664,9 +12664,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1068.0":
-  version: 2.1068.0
-  resolution: "aws-sdk@npm:2.1068.0"
+"aws-sdk@npm:^2.1078.0":
+  version: 2.1078.0
+  resolution: "aws-sdk@npm:2.1078.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -12677,7 +12677,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 21f5622a8c99b18440b1a1bcdde2d93f9506e03a2bda32e9623b14ecbfd5ddf3598692e975eede2b2ce2c2fb59f70285b802441e4279734474df46be0c6fcc49
+  checksum: 2c06e58fc105865720f25380be859090175b6825597fc2234fe13603608a92c37e829b6a93617704f9d1ad3855737ee2ec493432cfac61e8b001eeca9957e0d4
   languageName: node
   linkType: hard
 
@@ -21689,7 +21689,7 @@ fsevents@~2.1.1:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1068.0
+    aws-sdk: ^2.1078.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -21783,7 +21783,7 @@ fsevents@~2.1.1:
     sass: ^1.49.7
     simplesmtp: 0.3.35
     sinon: ^9.0.3
-    stripe: ^8.202.0
+    stripe: ^8.203.0
     superagent: ^7.1.1
     through: 2.3.8
     typedi: ^0.8.0
@@ -22061,7 +22061,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1068.0
+    aws-sdk: ^2.1078.0
     axios: ^0.25.0
     chance: ^1.1.8
     class-transformer: ^0.5.1
@@ -22371,7 +22371,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.16.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1068.0
+    aws-sdk: ^2.1078.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -22581,7 +22581,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1068.0
+    aws-sdk: ^2.1078.0
     buf: ^0.1.1
     celebrate: ^10.0.1
     chai: ^4.3.4
@@ -22623,7 +22623,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rxjs: ^7.2.0
     sinon: ^9.0.3
-    stripe: ^8.202.0
+    stripe: ^8.203.0
     superagent: ^7.1.1
     ts-jest: ^27.1.3
     ts-loader: ^8.3.0
@@ -39898,13 +39898,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stripe@npm:^8.202.0":
-  version: 8.202.0
-  resolution: "stripe@npm:8.202.0"
+"stripe@npm:^8.203.0":
+  version: 8.203.0
+  resolution: "stripe@npm:8.203.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
-  checksum: f313f7d9f9154440dc1bd712a6a567e55346711d6075c66a926f58a3432b0ca46509a7b315ae0275dff272b0325b0dba3823e8664f1e55783e4bc8247078b2e0
+  checksum: 98d921d0c4e779dc9bbd52bc645c0b17bf7770e14013757fdfadb448766285d921e94ce8e1e132dff8f3e06b084de873c43c52203f947089b18260a928e836a1
   languageName: node
   linkType: hard
 
