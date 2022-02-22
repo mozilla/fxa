@@ -66,14 +66,26 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
 describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
   it('formats an array of invoices', () => {
     const invoice = stripeInvoicesToSubsequentInvoicePreviewsDTO([
-      deepCopy(previewInvoiceWithTax),
-      deepCopy(previewInvoiceWithTax),
+      deepCopy(previewInvoiceWithDiscountAndTax),
+      deepCopy(previewInvoiceWithDiscountAndTax),
     ]);
-    assert.equal(invoice[0].subscriptionId, previewInvoiceWithTax.subscription);
-    assert.equal(invoice[0].period_start, previewInvoiceWithTax.period_end);
-    assert.equal(invoice[0].total, previewInvoiceWithTax.total);
-    assert.equal(invoice[1].subscriptionId, previewInvoiceWithTax.subscription);
-    assert.equal(invoice[1].period_start, previewInvoiceWithTax.period_end);
-    assert.equal(invoice[1].total, previewInvoiceWithTax.total);
+    assert.equal(
+      invoice[0].subscriptionId,
+      previewInvoiceWithDiscountAndTax.subscription
+    );
+    assert.equal(
+      invoice[0].period_start,
+      previewInvoiceWithDiscountAndTax.period_end
+    );
+    assert.equal(invoice[0].total, previewInvoiceWithDiscountAndTax.total);
+    assert.equal(
+      invoice[1].subscriptionId,
+      previewInvoiceWithDiscountAndTax.subscription
+    );
+    assert.equal(
+      invoice[1].period_start,
+      previewInvoiceWithDiscountAndTax.period_end
+    );
+    assert.equal(invoice[1].total, previewInvoiceWithDiscountAndTax.total);
   });
 });

@@ -53,7 +53,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
   invoices: Stripe.Invoice[]
 ): invoiceDTO.SubsequentInvoicePreview[] {
-  const invoiceNext: invoiceDTO.subsequentInvoicePreviewSchema = invoices.map(
+  const invoiceNext: invoiceDTO.subsequentInvoicePreviewsSchemas = invoices.map(
     (invoice) => ({
       subscriptionId: invoice.subscription as string,
       period_start: invoice.period_end,

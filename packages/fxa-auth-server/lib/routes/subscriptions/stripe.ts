@@ -428,16 +428,35 @@ export class StripeHandler {
   /**
    * Preview invoices for an array of subscriptionIds
    */
-  async subsequentInvoicePreview(
+  async subsequentInvoicePreviews(
     request: AuthRequest
-  ): Promise<invoiceDTO.subsequentInvoicePreviewSchema> {
+  ): Promise<invoiceDTO.subsequentInvoicePreviewsSchemas> {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
-    await this.customs.checkIpOnly(request, 'subsequentInvoicePreview');
-
     const { subscriptionIds } = request.payload as Record<
       string,
       Array<string>
     >;
+
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+
+    await this.customs.check(request, email, 'subsequentInvoicePreviews');
+
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    subscriptionIds.forEach((subscriptionId) => {
+      if (
+        !customer.subscriptions?.data.find(
+          (subscription) => subscription.id === subscriptionId
+        )
+      ) {
+        throw error.unknownSubscription(subscriptionId);
+      }
+    });
 
     const subsequentInvoicePreviews = await Promise.all(
       subscriptionIds.map((sub) =>
@@ -916,18 +935,18 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: invoiceDTO.subsequentInvoicePreviewSchema as any,
+          schema: invoiceDTO.subsequentInvoicePreviewsSchemas as any,
         },
         validate: {
           payload: {
             subscriptionIds: isA
               .array()
-              .items(validators.subscriptionsPlanId.required()),
+              .items(validators.subscriptionsSubscriptionId.required()),
           },
         },
       },
       handler: (request: AuthRequest) =>
-        stripeHandler.subsequentInvoicePreview(request),
+        stripeHandler.subsequentInvoicePreviews(request),
     },
     {
       method: 'POST',
