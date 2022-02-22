@@ -90,7 +90,7 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.3",
-    "aws-sdk": "^2.1068.0",
+    "aws-sdk": "^2.1078.0",
     "buf": "^0.1.1",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.5.1",
@@ -117,7 +117,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^8.202.0",
+    "stripe": "^8.203.0",
     "superagent": "^7.1.1",
     "typesafe-joi": "^2.1.0"
   },
