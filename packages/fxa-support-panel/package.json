@@ -59,7 +59,7 @@
     "typesafe-joi": "^2.1.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.0",
+    "@nestjs/cli": "^8.2.1",
     "@types/convict": "^5.2.2",
     "@types/eslint": "7.2.13",
     "@types/hbs": "^4",
