@@ -430,16 +430,15 @@ export class StripeHandler {
    */
   async subsequentInvoicePreviews(
     request: AuthRequest
-  ): Promise<invoiceDTO.subsequentInvoicePreviewsSchemas> {
+  ): Promise<invoiceDTO.subsequentInvoicePreviewsSchema> {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'subsequentInvoicePreviews');
+
     const { subscriptionIds } = request.payload as Record<
       string,
       Array<string>
     >;
-
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-
-    await this.customs.check(request, email, 'subsequentInvoicePreviews');
 
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
@@ -935,7 +934,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: invoiceDTO.subsequentInvoicePreviewsSchemas as any,
+          schema: invoiceDTO.subsequentInvoicePreviewsSchema as any,
         },
         validate: {
           payload: {

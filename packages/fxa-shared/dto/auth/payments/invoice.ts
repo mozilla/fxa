@@ -78,7 +78,7 @@ export interface SubsequentInvoicePreview {
   total: number;
 }
 
-export const subsequentInvoicePreviewsSchemas = joi
+export const subsequentInvoicePreviewsSchema = joi
   .array()
   .items(
     joi.object({
@@ -89,6 +89,6 @@ export const subsequentInvoicePreviewsSchemas = joi
   )
   .required();
 
-export type subsequentInvoicePreviewsSchemas = joi.Literal<
-  typeof subsequentInvoicePreviewsSchemas
+export type subsequentInvoicePreviewsSchema = joi.Literal<
+  typeof subsequentInvoicePreviewsSchema
 >;
