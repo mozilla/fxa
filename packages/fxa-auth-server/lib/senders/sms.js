@@ -189,11 +189,12 @@ module.exports = (log, config, statsd) => {
       }
 
       return await renderer.renderSms({
-        acceptLanguage,
+        acceptLanguage: acceptLanguage || 'en',
         template: templateName,
         link,
       });
     } catch (err) {
+      console.log('error', err);
       log.error('sms.getMessage.error', { templateName });
       throw error.invalidMessageId();
     }
