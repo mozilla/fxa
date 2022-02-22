@@ -82,7 +82,7 @@
     "@nestjs/core": "^8.2.6",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
-    "@sentry/browser": "^6.17.2",
+    "@sentry/browser": "^6.17.9",
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "@types/js-md5": "^0.4.2",
@@ -117,7 +117,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^8.202.0",
+    "stripe": "^8.203.0",
     "superagent": "^7.1.1",
     "typesafe-joi": "^2.1.0"
   },
