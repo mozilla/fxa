@@ -39826,7 +39826,7 @@ resolve@^2.0.0-next.3:
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
-  checksum: f313f7d9f9154440dc1bd712a6a567e55346711d6075c66a926f58a3432b0ca46509a7b315ae0275dff272b0325b0dba3823e8664f1e55783e4bc8247078b2e0
+  checksum: 98d921d0c4e779dc9bbd52bc645c0b17bf7770e14013757fdfadb448766285d921e94ce8e1e132dff8f3e06b084de873c43c52203f947089b18260a928e836a1
   languageName: node
   linkType: hard
 

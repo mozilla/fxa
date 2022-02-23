@@ -169,6 +169,22 @@ export const Product = ({
 
   const [coupon, setCoupon] = useState<CouponDetails>();
 
+  // Please read the comment in `fetchProfileAndCustomer` in Checkout/index.tsx
+  // regarding a possible race condition first.  The workaround here is to
+  // simply delay the request on the front end so that the subscription is more
+  // likely to have been updated by the time the fetch is handled.
+  //
+  // It's simpler, but the downside is that it affects all customers.  The
+  // retry approach is tricker in this route due to a combination of, a) React
+  // rendering and Redux app state, and, b) the customer could be a returning
+  // customer, thus the initial subscriptions list won't be empty.
+  //
+  // (Note that the Checkout route uses hooks and so the retry fetches won't
+  // affect any component state until some state updating setter function is
+  // called.)
+  const delayedFetchCustomerAndSubscriptions = () =>
+    setTimeout(fetchCustomerAndSubscriptions, 500);
+
   if (!accessToken || customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
@@ -274,7 +290,7 @@ export const Product = ({
             profile: profile.result,
             customer: customer.result,
             selectedPlan,
-            refreshSubscriptions: fetchCustomerAndSubscriptions,
+            refreshSubscriptions: delayedFetchCustomerAndSubscriptions,
             coupon: coupon,
             setCoupon: setCoupon,
           }}
@@ -322,7 +338,7 @@ export const Product = ({
         profile: profile.result,
         customer: customer.result,
         selectedPlan,
-        refreshSubscriptions: fetchCustomerAndSubscriptions,
+        refreshSubscriptions: delayedFetchCustomerAndSubscriptions,
         coupon: coupon,
         setCoupon: setCoupon,
       }}
