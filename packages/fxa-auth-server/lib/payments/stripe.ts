@@ -2721,7 +2721,8 @@ export class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
-      productPaymentCycleOld: planOld.interval ?? baseDetails.productPaymentCycleNew,
+      productPaymentCycleOld:
+        planOld.interval ?? baseDetails.productPaymentCycleNew,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
       invoiceNumber,
@@ -2899,9 +2900,23 @@ export class StripeHelper {
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
-    return this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
-      paymentMethod
-    );
+    try {
+      await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
+        paymentMethod
+      );
+    } catch (err) {
+      if (
+        !(
+          err.name === FirestoreStripeError.STRIPE_CUSTOMER_DELETED &&
+          [
+            'payment_method.card_automatically_updated',
+            'payment_method.updated',
+          ].includes(event.type)
+        )
+      ) {
+        throw err;
+      }
+    }
   }
 
   /**
