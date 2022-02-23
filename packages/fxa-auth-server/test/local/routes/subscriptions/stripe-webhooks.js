@@ -1367,7 +1367,9 @@ describe('StripeWebhookHandler', () => {
       (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
       async () => {
         const invoice =
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
+          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail' ||
+          expectedMethodName ===
+            'sendSubscriptionSubsequentInvoiceDiscountEmail'
             ? deepCopy(eventInvoicePaidDiscount)
             : deepCopy(eventInvoicePaid.data.object);
 
@@ -1375,7 +1377,9 @@ describe('StripeWebhookHandler', () => {
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
         if (
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
+          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail' ||
+          expectedMethodName ===
+            'sendSubscriptionSubsequentInvoiceDiscountEmail'
         ) {
           mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
@@ -1470,6 +1474,14 @@ describe('StripeWebhookHandler', () => {
       'sends the subsequent invoice email for billing reasons besides creation',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
+        'subscription_cycle'
+      )
+    );
+
+    it(
+      'sends the subsequent invoice email for billing reasons besides creation with a discount',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionSubsequentInvoiceDiscountEmail',
         'subscription_cycle'
       )
     );

@@ -13,6 +13,7 @@
   "subscriptionCancellation": 2,
   "subscriptionFailedPaymentsCancellation": 2,
   "subscriptionSubsequentInvoice": 2,
+  "subscriptionSubsequentInvoiceDiscount": 2,
   "subscriptionFirstInvoice": 2,
   "subscriptionFirstInvoiceDiscount": 2,
   "downloadSubscription": 2,
