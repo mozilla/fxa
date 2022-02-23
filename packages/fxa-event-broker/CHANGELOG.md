@@ -1,5 +1,13 @@
 # Change history
 
+## 1.226.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/schematics from 8.0.5 to 8.0.6 ([93cc139d3](https://github.com/mozilla/fxa/commit/93cc139d3))
+- deps: bump aws-sdk from 2.1063.0 to 2.1068.0 (#11853) ([99e20de89](https://github.com/mozilla/fxa/commit/99e20de89))
+- deps: bump @nestjs/core from 8.2.4 to 8.2.6 ([bd863179b](https://github.com/mozilla/fxa/commit/bd863179b))
+
 ## 1.225.3
 
 No changes.

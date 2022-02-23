@@ -1,3 +1,18 @@
+## 1.226.0
+
+### New features
+
+- google: Add support for linked accounts in admin panel (#11937) ([7c93a6b9d](https://github.com/mozilla/fxa/commit/7c93a6b9d))
+
+### Bug fixes
+
+- admin-panel: FXA-4231 - missing Device type for desktop sessions (#11884) ([f2d1f282b](https://github.com/mozilla/fxa/commit/f2d1f282b))
+
+### Other changes
+
+- #11915: e6531d51c Issues/11091 (#11915) ([e6531d51c](https://github.com/mozilla/fxa/commit/e6531d51c))
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817) ([6b89206ff](https://github.com/mozilla/fxa/commit/6b89206ff))
+
 ## 1.225.3
 
 No changes.

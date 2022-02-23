@@ -1,5 +1,18 @@
 # Change history
 
+## 1.226.0
+
+### New features
+
+- payments: remove Coupons Feature Flag (#11576) ([02aeb5165](https://github.com/mozilla/fxa/commit/02aeb5165))
+- coupons: detailed error for coupon fail (#11626) ([cb35c713e](https://github.com/mozilla/fxa/commit/cb35c713e))
+
+### Bug fixes
+
+- payments: add Coupon Component to Subscription Success (#11913) ([ccaf068f4](https://github.com/mozilla/fxa/commit/ccaf068f4))
+- subscriptions: memoize existing account check result (#11925) ([6f662f784](https://github.com/mozilla/fxa/commit/6f662f784))
+- subscriptions: allow zero dollar invoices (#11719) ([058a7fd07](https://github.com/mozilla/fxa/commit/058a7fd07))
+
 ## 1.225.3
 
 No changes.

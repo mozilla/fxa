@@ -1,5 +1,15 @@
 # Change history
 
+## 1.226.0
+
+### New features
+
+- payments: remove Coupons Feature Flag (#11576) ([02aeb5165](https://github.com/mozilla/fxa/commit/02aeb5165))
+
+### Other changes
+
+- deps: bump @nestjs/core from 8.2.4 to 8.2.6 ([bd863179b](https://github.com/mozilla/fxa/commit/bd863179b))
+
 ## 1.225.3
 
 No changes.
