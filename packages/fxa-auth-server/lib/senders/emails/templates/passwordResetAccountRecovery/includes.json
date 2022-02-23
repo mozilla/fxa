@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "passwordResetAccountRecovery-subject",
+    "message": "Password updated using recovery key"
+  },
+  "action": {
+    "id": "passwordResetAccountRecovery-action",
+    "message": "Create new recovery key"
+  }
+}

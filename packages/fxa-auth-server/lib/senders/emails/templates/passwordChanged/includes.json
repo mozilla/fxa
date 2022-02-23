@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "passwordChanged-subject",
+    "message": "Password updated"
+  }
+}

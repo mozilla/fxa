@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "verifyShortCode-subject",
+    "message": "Verification code: <%- code %>"
+  }
+}

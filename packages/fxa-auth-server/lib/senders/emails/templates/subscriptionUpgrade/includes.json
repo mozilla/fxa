@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionUpgrade-subject",
+    "message": "You have upgraded to <%- productNameNew %>"
+  }
+}

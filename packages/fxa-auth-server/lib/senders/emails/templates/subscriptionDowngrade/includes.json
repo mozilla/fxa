@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionDowngrade-subject",
+    "message": "You have switched to <%- productNameNew %>"
+  }
+}
