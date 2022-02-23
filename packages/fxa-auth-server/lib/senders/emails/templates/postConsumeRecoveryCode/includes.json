@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postConsumeRecoveryCode-subject",
+    "message": "Recovery code used"
+  },
+  "action": {
+    "id": "postConsumeRecoveryCode-action",
+    "message": "Manage account"
+  }
+}

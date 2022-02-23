@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postAddAccountRecovery-subject",
+    "message": "Account recovery key generated"
+  },
+  "action": {
+    "id": "postAddAccountRecovery-action",
+    "message": "Manage account"
+  }
+}

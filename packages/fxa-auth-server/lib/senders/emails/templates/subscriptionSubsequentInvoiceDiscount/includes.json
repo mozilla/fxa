@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionSubsequentInvoiceDiscount-subject",
+    "message": "<%- productName %> payment received"
+  }
+}

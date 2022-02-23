@@ -266,6 +266,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodes }],
     ])],
     ['html', [
+      { test: 'include', expected: '2 recovery codes remaining' },
       { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
@@ -273,12 +274,18 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Low recovery codes remaining' },
       { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['lowRecoveryCodesEmail', new Map<string, Test | any>([
+    ['subject', [
+      { test: 'include', expected: '1 recovery code remaining' }
+    ]]]),
+      {updateTemplateValues: values => ({...values, numberRemaining: 1 })}],
 
   ['postVerifyEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Account verified. Next, sync another device to finish setup' }],
@@ -289,6 +296,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Account verified. Next, sync another device to finish setup' },
       { test: 'include', expected: "Firefox account verified. You’re almost there." },
       { test: 'include', expected: 'Next sync between your devices!' },
       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
@@ -331,6 +339,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Secondary email removed' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-removed', 'support')}` },
@@ -348,12 +357,15 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Reminder: Finish creating your account' },
+      { test: 'include', expected: 'Welcome to the Firefox family' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-verification-reminder', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-verification-reminder', 'support')) },
       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Welcome to the Firefox family' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'first-verification-reminder', 'support')}` },
       { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
@@ -394,6 +406,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Finish creating your account' },
+      { test: 'include', expected: 'Activate the Firefox family of products' },
       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
@@ -406,6 +420,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Activate the Firefox family of products' },
       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
@@ -423,6 +438,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: `Verification code: ${MESSAGE.code}` },
+      { test: 'include', expected: 'Is this you signing up?' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -435,6 +452,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Is this you signing up?' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -454,9 +472,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryCode }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Verify secondary email' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-secondary', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-secondary', 'support')) },
-      { test: 'include', expected: 'Verify secondary email' },
       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account:` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -497,12 +515,15 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordReset }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Password updated' },
+      { test: 'include', expected: 'Your account password was changed' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-success', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-reset-success', 'support')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Your account password was changed' },
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-success', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-success', 'support')}` },
@@ -520,6 +541,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddLinkedAccount }],
     ])],
     ['html', [
+      { test: 'include', expected: 'New account linked to Firefox' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-linked', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-linked', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-linked', 'privacy')) },
@@ -532,6 +554,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'New account linked to Firefox' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-linked', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `change your password:\n${configUrl('initiatePasswordChangeUrl', 'account-linked', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-linked', 'privacy')}` },
@@ -554,6 +577,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLogin }],
     ])],
     ['html', [
+      { test: 'include', expected: 'New sign-in to Mock Relier' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-device-signin', 'privacy')) },
@@ -566,6 +590,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'New sign-in to Mock Relier' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `change your password immediately at ${configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
@@ -587,6 +612,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChanged }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Password updated' },
+      { test: 'include', expected: 'Password changed successfully' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-changed-success', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-changed-success', 'support')) },
@@ -598,6 +625,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Password changed successfully' },
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
@@ -620,6 +648,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Account authorization code' },
+      { test: 'include', expected: 'Is this you signing in?' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-unblock', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -631,6 +661,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Is this you signing in?' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-unblock', 'privacy')}` },
       { test: 'include', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -653,6 +684,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Confirm primary email' },
+      { test: 'include', expected: 'Verify primary email' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'welcome-primary', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-primary', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-primary', 'support')) },
@@ -665,6 +698,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Verify primary email' },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'welcome-primary', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-primary', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-primary', 'support')}` },
@@ -678,38 +712,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
-  ['verifyShortCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Verification code: ${MESSAGE.code}` }],
-    ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCode }],
-      ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
-    ])],
-    ['html', [
-      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
-      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
-      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
-      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
-      { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'exists', expected: `${MESSAGE.time}` },
-      { test: 'include', expected: 'If yes, use this verification code in your registration form:' },
-      { test: 'include', expected: MESSAGE.code },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
-      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
-      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
-      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'exists', expected: `${MESSAGE.time}` },
-      { test: 'include', expected: `If yes, use this verification code in your registration form:\n${MESSAGE.code}` },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-  ])],
-
   ['verifyLoginEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Confirm new sign-in to Mock Relier' }],
     ['headers', new Map([
@@ -719,6 +721,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLogin }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Confirm new sign-in to Mock Relier' },
+      { test: 'include', expected: 'New sign-in to Mock Relier' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')) },
@@ -730,6 +734,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'New sign-in to Mock Relier' },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
@@ -751,6 +756,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCode }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Sign-in code for Mock Relier' },
+      { test: 'include', expected: 'Is this you signing in?' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin-verify-code', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-signin-verify-code', 'support')) },
@@ -760,6 +767,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Is this you signing in?' },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin-verify-code', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-signin-verify-code', 'support')}` },
@@ -778,6 +786,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recovery }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Need to reset your password?' },
+      { test: 'include', expected: 'Create new password' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'forgot-password', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -788,6 +798,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Need to reset your password?' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -808,6 +819,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecovery }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Your account password was reset with a recovery key' },
       { test: 'include', expected: decodeUrl(configHref('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-account-recovery-success', 'privacy')) },
@@ -820,6 +832,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Your account password was reset with a recovery key' },
       { test: 'include', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
@@ -842,6 +855,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecovery }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Account recovery key generated' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-generated', 'privacy')) },
@@ -851,6 +865,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Account recovery key generated' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
@@ -870,6 +885,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecovery }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Account recovery key removed' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-removed', 'privacy')) },
@@ -882,6 +898,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Account recovery key removed' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
@@ -904,6 +921,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthentication }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Two-step authentication disabled' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-disabled', 'privacy')) },
@@ -916,6 +934,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Two-step authentication disabled' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
@@ -938,6 +957,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifySecondary }],
     ])],
     ['html', [
+      { test: 'include', expected: `You have successfully verified ${MESSAGE.secondaryEmail}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-email-verified', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-verified', 'privacy')) },
@@ -945,6 +965,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Secondary email added' },
+      { test: 'include', expected: `You have successfully verified ${MESSAGE.secondaryEmail}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-verified', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-verified', 'privacy')}` },
@@ -962,6 +984,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthentication }],
     ])],
     ['html', [
+      { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account from the following device:' },
+      { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
@@ -974,6 +998,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account.' },
+      { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
@@ -996,6 +1022,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangePrimary }],
     ])],
     ['html', [
+      { test: 'include', expected: 'New primary email' },
+      { test: 'include', expected: `You have successfully changed your primary email to ${MESSAGE.email}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-email-changed', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-changed', 'privacy')) },
@@ -1003,6 +1031,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'New primary email' },
+      { test: 'include', expected: `You have successfully changed your primary email to ${MESSAGE.email}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-changed', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-changed', 'privacy')}` },
@@ -1020,6 +1050,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCode }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Recovery code consumed' },
+      { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-consume-recovery-code', 'privacy')) },
@@ -1032,6 +1064,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Recovery code consumed' },
+      { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
@@ -1054,6 +1088,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodes }],
     ])],
     ['html', [
+      { test: 'include', expected: 'New recovery codes generated' },
+      { test: 'include', expected: 'You have successfully generated new recovery codes' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-replace-recovery-codes', 'privacy')) },
@@ -1066,6 +1102,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'New recovery codes generated' },
+      { test: 'include', expected: 'You have successfully generated new recovery codes' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },
@@ -1087,11 +1125,13 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangeRequired }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Password Change Required' },
       { test: 'include', expected: 'change your password as a precaution' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-change-required', 'privacy')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Password Change Required' },
       { test: 'include', expected: 'change your password as a precaution' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-change-required', 'privacy')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1177,10 +1217,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
     ])],
     ['html', [
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
@@ -1189,10 +1229,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
       { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
@@ -1210,12 +1250,15 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderFirst }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Reminder: Finish setting up your account' },
+      { test: 'include', expected: 'Create Password' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-subscription-account-reminder', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-subscription-account-reminder', 'support')) },
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Reminder: Finish setting up your account' },
       { test: 'include', expected: `Create Password:\n${configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1230,12 +1273,15 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderSecond }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Final reminder: Setup your account' },
+      { test: 'include', expected: 'Create Password' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'second-subscription-account-reminder', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'second-subscription-account-reminder', 'support')) },
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Final reminder: Setup your account' },
       { test: 'include', expected: `Create Password:\n${configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1249,11 +1295,13 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionDowngrade }],
     ])],
     ['html', [
+      { test: 'include', expected: `You have switched to ${MESSAGE.productNameNew}` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'include', expected: 'Your subscription will automatically renew' },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'include', expected: `alt="${MESSAGE.productNameNew}"` },
       { test: 'include', expected: `alt="${MESSAGE.productNameOld}"` },
@@ -1264,6 +1312,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'include', expected: 'Your subscription will automatically renew' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1276,6 +1325,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
     ])],
     ['html', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Sorry to see you go' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms')) },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
@@ -1286,6 +1337,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Sorry to see you go' },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
@@ -1301,25 +1353,29 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFailedPaymentsCancellation }],
     ])],
     ['html', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Your subscription has been cancelled' },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-failed-payments-cancellation', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Your subscription has been cancelled' },
       { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
 
   ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
@@ -1392,6 +1448,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
     ])],
     ['html', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
@@ -1435,6 +1492,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `Credit card for ${MESSAGE.productName} expiring soon` },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1458,6 +1516,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Credit card for your subscriptions is expiring soon' },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1479,6 +1538,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment failed` },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1495,11 +1555,14 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-provider-cancelled', 'subscription-terms') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-provider-cancelled', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
       { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `Payment information update required for ${MESSAGE.productName}` },
+      { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -1508,6 +1571,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}
   ],
 
+  // test for `subscriptionsPaymentProviderCancelledEmail` (plural)
   ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Payment information update required for Mozilla subscriptions' }],
     ['headers', new Map([
@@ -1516,6 +1580,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionsPaymentProviderCancelled }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Payment information update required for Mozilla subscriptions' },
+      { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+      { test: 'include', expected: 'Firefox Fortress' },
+      { test: 'include', expected: 'Cooking with Foxkeh' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
@@ -1523,6 +1591,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Payment information update required for Mozilla subscriptions' },
+      { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+      { test: 'include', expected: 'Firefox Fortress' },
+      { test: 'include', expected: 'Cooking with Foxkeh' },
       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -1536,12 +1608,16 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
     ])],
     ['html', [
+      { test: 'include', expected: `Thank you for reactivating your ${MESSAGE.productName} subscription!` },
+      { test: 'include', expected: `will be ${MESSAGE_FORMATTED.invoiceTotal} on 04/19/2020` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `Thank you for reactivating your ${MESSAGE.productName} subscription!` },
+      { test: 'include', expected: `will be ${MESSAGE_FORMATTED.invoiceTotal} on 04/19/2020` },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -1582,6 +1658,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Thank you for being a subscriber!' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
@@ -1597,6 +1674,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `${MESSAGE.productName} payment received` },
+      { test: 'include', expected: 'Thank you for being a subscriber!' },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
@@ -1696,6 +1774,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
     ])],
     ['html', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
@@ -1705,6 +1785,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },

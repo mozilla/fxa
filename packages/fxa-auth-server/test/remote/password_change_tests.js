@@ -347,8 +347,7 @@ describe('remote password change', function () {
     const duration = 1000 * 60 * 60 * 24; // 24 hours
     const publicKey = {
       algorithm: 'RS',
-      n:
-        '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+      n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
       e: '65537',
     };
 
@@ -359,8 +358,9 @@ describe('remote password change', function () {
       server.mailbox
     );
 
-    const cert1 = jwtool.unverify(await client.sign(publicKey, duration))
-      .payload;
+    const cert1 = jwtool.unverify(
+      await client.sign(publicKey, duration)
+    ).payload;
 
     await client.changePassword(newPassword);
     await server.mailbox.waitForEmail(email);
@@ -372,8 +372,9 @@ describe('remote password change', function () {
       server.mailbox
     );
 
-    const cert2 = jwtool.unverify(await client.sign(publicKey, duration))
-      .payload;
+    const cert2 = jwtool.unverify(
+      await client.sign(publicKey, duration)
+    ).payload;
     assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
     assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
     assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);

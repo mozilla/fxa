@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "cadReminderSecond-subject",
+    "message": "Final Reminder: Complete Sync Setup"
+  },
+  "action": {
+    "id": "cadReminderSecond-action",
+    "message": "Sync another device"
+  }
+}

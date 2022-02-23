@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "newDeviceLogin-subject",
+    "message": "New sign-in to <%- clientName %>"
+  },
+  "action": {
+    "id": "newDeviceLogin-action",
+    "message": "Manage account"
+  }
+}

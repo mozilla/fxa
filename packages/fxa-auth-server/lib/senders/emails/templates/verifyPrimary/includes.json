@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verifyPrimary-subject",
+    "message": "Confirm primary email"
+  },
+  "action": {
+    "id": "verifyPrimary-action",
+    "message": "Verify email"
+  }
+}

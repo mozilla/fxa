@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verifySecondaryCode-subject",
+    "message": "Confirm secondary email"
+  },
+  "action": {
+    "id": "verifySecondaryCode-action",
+    "message": "Verify email"
+  }
+}

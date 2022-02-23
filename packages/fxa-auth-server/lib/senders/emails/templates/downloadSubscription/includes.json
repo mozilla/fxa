@@ -1,6 +1,6 @@
 {
   "subject": {
-    "id": "downloadSubscription-title",
+    "id": "downloadSubscription-subject",
     "message": "Welcome to <%- productName %>"
   },
   "action": {
