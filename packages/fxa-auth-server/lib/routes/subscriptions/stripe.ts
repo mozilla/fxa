@@ -435,11 +435,6 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'subsequentInvoicePreviews');
 
-    const { subscriptionIds } = request.payload as Record<
-      string,
-      Array<string>
-    >;
-
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
@@ -447,20 +442,14 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    subscriptionIds.forEach((subscriptionId) => {
-      if (
-        !customer.subscriptions?.data.find(
-          (subscription) => subscription.id === subscriptionId
-        )
-      ) {
-        throw error.unknownSubscription(subscriptionId);
-      }
-    });
+    if (!customer.subscriptions?.data.length) {
+      return [];
+    }
 
     const subsequentInvoicePreviews = await Promise.all(
-      subscriptionIds.map((sub) =>
+      customer.subscriptions?.data.map((sub) =>
         this.stripeHelper.previewInvoiceBySubscriptionId({
-          subscriptionId: sub,
+          subscriptionId: sub.id,
         })
       )
     );
@@ -926,7 +915,7 @@ export const stripeRoutes = (
       handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
     },
     {
-      method: 'POST',
+      method: 'GET',
       path: '/oauth/subscriptions/invoice/preview-subsequent',
       options: {
         auth: {
@@ -935,13 +924,6 @@ export const stripeRoutes = (
         },
         response: {
           schema: invoiceDTO.subsequentInvoicePreviewsSchema as any,
-        },
-        validate: {
-          payload: {
-            subscriptionIds: isA
-              .array()
-              .items(validators.subscriptionsSubscriptionId.required()),
-          },
         },
       },
       handler: (request: AuthRequest) =>

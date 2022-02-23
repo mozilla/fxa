@@ -585,7 +585,7 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('subsequentInvoicePreview', () => {
+  describe('subsequentInvoicePreviews', () => {
     it('returns array of next invoices', async () => {
       const expected = deepCopy(invoicePreviewTax);
       directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
@@ -629,6 +629,35 @@ describe('DirectStripeRoutes', () => {
       );
     });
 
+    it('return empty array if customer has no subscriptions', async () => {
+      const expected = [];
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+        id: 'cus_id',
+        subscriptions: {
+          data: [],
+        },
+      });
+      VALID_REQUEST.payload = {
+        subscriptionIds: ['sub_id1', 'sub_id2'],
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'subsequentInvoicePreviews'
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      assert.deepEqual(expected, actual);
+    });
+
     it('errors if customer isnt found', async () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
       VALID_REQUEST.payload = {
@@ -639,69 +668,12 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.subsequentInvoicePreviews(
           VALID_REQUEST
         );
+        assert.fail(
+          'Finding subsequent invoices should fail when no customer is found.'
+        );
       } catch (err) {
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
-      }
-    });
-
-    it('errors if customer has no subscriptions', async () => {
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-      });
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1', 'sub_id2'],
-      };
-      VALID_REQUEST.app.geo = {};
-      try {
-        await directStripeRoutesInstance.subsequentInvoicePreviews(
-          VALID_REQUEST
-        );
-      } catch (err) {
-        assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-      }
-    });
-
-    it('errors if incoming subscriptionIds dont match customer subscriptions', async () => {
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-        subscriptions: {
-          data: [{ id: 'sub_bad1' }, { id: 'sub_bad2' }],
-        },
-      });
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1'],
-      };
-      VALID_REQUEST.app.geo = {};
-      try {
-        await directStripeRoutesInstance.subsequentInvoicePreviews(
-          VALID_REQUEST
-        );
-      } catch (err) {
-        assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-      }
-    });
-
-    it('errors if customer at least 1 incoming subscriptionIds doesnt match customer subscriptions', async () => {
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-        subscriptions: {
-          data: [{ id: 'sub_id1' }],
-        },
-      });
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1', 'sub_id2'],
-      };
-      VALID_REQUEST.app.geo = {};
-      try {
-        await directStripeRoutesInstance.subsequentInvoicePreviews(
-          VALID_REQUEST
-        );
-      } catch (err) {
-        assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
       }
     });
   });

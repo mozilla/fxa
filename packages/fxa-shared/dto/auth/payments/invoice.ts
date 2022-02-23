@@ -78,16 +78,13 @@ export interface SubsequentInvoicePreview {
   total: number;
 }
 
-export const subsequentInvoicePreviewsSchema = joi
-  .array()
-  .items(
-    joi.object({
-      subscriptionId: joi.string().required(),
-      period_start: joi.number().required(),
-      total: joi.number().required(),
-    })
-  )
-  .required();
+export const subsequentInvoicePreviewsSchema = joi.array().items(
+  joi.object({
+    subscriptionId: joi.string().required(),
+    period_start: joi.number().required(),
+    total: joi.number().required(),
+  })
+);
 
 export type subsequentInvoicePreviewsSchema = joi.Literal<
   typeof subsequentInvoicePreviewsSchema
