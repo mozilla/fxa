@@ -4,7 +4,7 @@
 
 'use strict';
 
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('../../oauth/encrypt');
 const client = require('../../oauth/client');
 const {
   OAUTH_SCOPE_OLD_SYNC,

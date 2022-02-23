@@ -11,7 +11,6 @@ const oauthDB = require('./oauth/db');
 const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
   validators;
 const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex');
-const { synthesizeClientName } = require('fxa-shared/connected-services');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -207,7 +206,43 @@ module.exports = (log, db, push) => {
   }
 
   function synthesizeName(device) {
-    return synthesizeClientName(device);
+    const uaBrowser = device.uaBrowser;
+    const uaBrowserVersion = device.uaBrowserVersion;
+    const uaOS = device.uaOS;
+    const uaOSVersion = device.uaOSVersion;
+    const uaFormFactor = device.uaFormFactor;
+    let result = '';
+
+    if (uaBrowser) {
+      if (uaBrowserVersion) {
+        const splitIndex = uaBrowserVersion.indexOf('.');
+        result = `${uaBrowser} ${
+          splitIndex === -1
+            ? uaBrowserVersion
+            : uaBrowserVersion.substr(0, splitIndex)
+        }`;
+      } else {
+        result = uaBrowser;
+      }
+
+      if (uaOS || uaFormFactor) {
+        result += ', ';
+      }
+    }
+
+    if (uaFormFactor) {
+      return `${result}${uaFormFactor}`;
+    }
+
+    if (uaOS) {
+      result += uaOS;
+
+      if (uaOSVersion) {
+        result += ` ${uaOSVersion}`;
+      }
+    }
+
+    return result;
   }
 };
 

@@ -9,8 +9,6 @@ const error = require('../error');
 const random = require('../crypto/random');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const {
-  mergeDevicesAndSessionTokens,
-  mergeDeviceAndSessionToken,
   mergeCachedSessionTokens,
   filterExpiredTokens,
 } = require('fxa-shared/connected-services');
@@ -290,11 +288,13 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       const [devices, redisSessionTokens = {}] = await Promise.all(promises);
       const lastAccessTimeEnabled =
         features.isLastAccessTimeEnabledForUser(uid);
-      return mergeDevicesAndSessionTokens(
-        devices,
-        redisSessionTokens,
-        lastAccessTimeEnabled
-      );
+      return devices.map((device) => {
+        return mergeDeviceInfoFromRedis(
+          device,
+          redisSessionTokens,
+          lastAccessTimeEnabled
+        );
+      });
     } catch (err) {
       if (isNotFoundError(err)) {
         throw error.unknownAccount();
@@ -330,8 +330,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       throw error.unknownDevice();
     }
     const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid);
-    const token = redisSessionTokens[device.sessionTokenId];
-    return mergeDeviceAndSessionToken(device, token, lastAccessTimeEnabled);
+    return mergeDeviceInfoFromRedis(
+      device,
+      redisSessionTokens,
+      lastAccessTimeEnabled
+    );
   };
 
   DB.prototype.getSecondaryEmail = async function (email) {
@@ -1046,6 +1049,38 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     log.trace('DB.updateEcosystemAnonId', { uid, ecosystemAnonId });
     return {};
   };
+
+  function mergeDeviceInfoFromRedis(
+    device,
+    redisSessionTokens,
+    lastAccessTimeEnabled
+  ) {
+    // If there's a matching sessionToken in redis, use the more up-to-date
+    // location and access-time info from there rather than from the DB.
+    const token = redisSessionTokens[device.sessionTokenId];
+    const mergedInfo = Object.assign({}, device, token);
+    return {
+      id: mergedInfo.id,
+      sessionTokenId: mergedInfo.sessionTokenId,
+      refreshTokenId: mergedInfo.refreshTokenId,
+      lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
+      location: mergedInfo.location,
+      name: mergedInfo.name,
+      type: mergedInfo.type,
+      createdAt: mergedInfo.createdAt,
+      pushCallback: mergedInfo.callbackURL,
+      pushPublicKey: mergedInfo.callbackPublicKey,
+      pushAuthKey: mergedInfo.callbackAuthKey,
+      pushEndpointExpired: !!mergedInfo.callbackIsExpired,
+      availableCommands: mergedInfo.availableCommands || {},
+      uaBrowser: mergedInfo.uaBrowser,
+      uaBrowserVersion: mergedInfo.uaBrowserVersion,
+      uaOS: mergedInfo.uaOS,
+      uaOSVersion: mergedInfo.uaOSVersion,
+      uaDeviceType: mergedInfo.uaDeviceType,
+      uaFormFactor: mergedInfo.uaFormFactor,
+    };
+  }
 
   return DB;
 };
