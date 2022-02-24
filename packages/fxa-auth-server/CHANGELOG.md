@@ -1,3 +1,11 @@
+## 1.226.2
+
+### Other changes
+
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817)" ([4cbc3bce3](https://github.com/mozilla/fxa/commit/4cbc3bce3))
+- auth: Fixes build error in CI. (#11903)" ([8b0d09690](https://github.com/mozilla/fxa/commit/8b0d09690))
+- #11915: 9f29305b3 Revert "Issues/11091 (#11915)" ([9f29305b3](https://github.com/mozilla/fxa/commit/9f29305b3))
+
 ## 1.226.1
 
 ### Bug fixes
