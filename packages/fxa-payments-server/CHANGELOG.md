@@ -1,5 +1,11 @@
 # Change history
 
+## 1.226.1
+
+### Bug fixes
+
+- subscriptions: send email and reduce errors for SCA flow ([f1e45db2d](https://github.com/mozilla/fxa/commit/f1e45db2d))
+
 ## 1.226.0
 
 ### New features
