@@ -11,5 +11,3 @@ export * from './models/AttachedOAuthClient';
 export * from './models/AttachedSession';
 export * from './models/DeviceSessionToken';
 export * from './models/Device';
-export * from './models/SessionToken';
-export * from './models/SerializableAttachedClient';

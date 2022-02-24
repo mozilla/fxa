@@ -14,10 +14,9 @@ import {
 import {
   ClientFormatter,
   ConnectedServicesFactory,
-  SessionToken,
 } from 'fxa-shared/connected-services';
 import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account, SessionToken } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -220,6 +219,15 @@ export class AccountResolver {
       .where('uid', uidBuffer);
   }
 
+  @ResolveField()
+  public async sessionTokens(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.sessionTokens
+      .query()
+      .select(SESSIONTOKEN_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
   @ResolveField(() => [AttachedClient])
   public async attachedClients(@Root() account: Account) {
     const clientFormatter = new ClientFormatter(
@@ -241,27 +249,23 @@ export class AccountResolver {
         return await this.db.authorizedClients(account.uid);
       },
       sessions: async () => {
-        return (await this.db.attachedSessions(account.uid)).map(
-          (x: SessionToken) => {
-            const token = x;
-
-            // Require id is defined
-            if (!x.id) {
-              x.id = 'Unkown';
-            }
-
-            return token as AttachedSession;
-          }
+        const sessions = await this.sessionTokens(account);
+        return sessions.map(
+          (x: SessionToken) =>
+            ({
+              id: x.tokenId,
+              createdAt: x.createdAt,
+              lastAccessTime: x.lastAccessTime,
+              uaBrowser: x.uaBrowser,
+              uaOS: x.uaOS,
+              uaBrowserVersion: x.uaBrowserVersion,
+              uaOSVersion: x.uaOSVersion,
+              uaFormFactor: x.uaFormFactor,
+            } as AttachedSession)
         );
       },
     });
 
-    return (await factory.build('', 'en'))
-      .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
-      .map((x) => {
-        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
-        if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
-        return x;
-      });
+    return await factory.build(account.uid, 'en');
   }
 }

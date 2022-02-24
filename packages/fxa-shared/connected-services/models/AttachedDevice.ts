@@ -24,6 +24,6 @@ export type AttachedDevice = {
   uaDeviceType?: string | null;
   uaFormFactor?: string | null;
 
-  lastAccessTime?: number | null;
+  lastAccessTime?: number;
   location: Location;
 };

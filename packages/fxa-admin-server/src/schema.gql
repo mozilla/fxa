@@ -86,6 +86,19 @@ type SecurityEvents {
   name: String
 }
 
+type SessionTokens {
+  tokenId: String
+  tokenData: String
+  uid: String
+  createdAt: Float
+  uaBrowser: String
+  uaBrowserVersion: String
+  uaOS: String
+  uaOSVersion: String
+  uaDeviceType: String
+  lastAccessTime: Float
+}
+
 type Totp {
   verified: Boolean!
   createdAt: Float!
@@ -102,6 +115,7 @@ type Account {
   emailBounces: [EmailBounce!]
   totp: [Totp!]
   recoveryKeys: [RecoveryKeys!]
+  sessionTokens: [SessionTokens!]
   securityEvents: [SecurityEvents!]
   attachedClients: [AttachedClient!]
 }
