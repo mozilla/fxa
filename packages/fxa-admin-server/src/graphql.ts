@@ -32,34 +32,6 @@ export enum BounceSubType {
     Virus = "Virus"
 }
 
-export interface Location {
-    city?: Nullable<string>;
-    country?: Nullable<string>;
-    countryCode?: Nullable<string>;
-    state?: Nullable<string>;
-    stateCode?: Nullable<string>;
-}
-
-export interface AttachedClient {
-    clientId?: Nullable<string>;
-    deviceId?: Nullable<string>;
-    sessionTokenId?: Nullable<string>;
-    refreshTokenId?: Nullable<string>;
-    isCurrentSession?: Nullable<boolean>;
-    deviceType?: Nullable<string>;
-    name?: Nullable<string>;
-    scope?: Nullable<string[]>;
-    location?: Nullable<Location>;
-    userAgent?: Nullable<string>;
-    os?: Nullable<string>;
-    createdTime?: Nullable<number>;
-    createdTimeFormatted?: Nullable<string>;
-    lastAccessTime?: Nullable<number>;
-    lastAccessTimeFormatted?: Nullable<string>;
-    approximateLastAccessTime?: Nullable<number>;
-    approximateLastAccessTimeFormatted?: Nullable<string>;
-}
-
 export interface EmailBounce {
     email: string;
     templateName: string;
@@ -75,12 +47,6 @@ export interface Email {
     createdAt: number;
 }
 
-export interface RecoveryKeys {
-    createdAt?: Nullable<number>;
-    verifiedAt?: Nullable<number>;
-    enabled?: Nullable<boolean>;
-}
-
 export interface SecurityEvents {
     uid?: Nullable<string>;
     nameId?: Nullable<number>;
@@ -89,6 +55,18 @@ export interface SecurityEvents {
     createdAt?: Nullable<number>;
     tokenVerificationId?: Nullable<string>;
     name?: Nullable<string>;
+}
+
+export interface Totp {
+    verified: boolean;
+    createdAt: number;
+    enabled: boolean;
+}
+
+export interface RecoveryKeys {
+    createdAt?: Nullable<number>;
+    verifiedAt?: Nullable<number>;
+    enabled?: Nullable<boolean>;
 }
 
 export interface SessionTokens {
@@ -104,12 +82,6 @@ export interface SessionTokens {
     lastAccessTime?: Nullable<number>;
 }
 
-export interface Totp {
-    verified: boolean;
-    createdAt: number;
-    enabled: boolean;
-}
-
 export interface Account {
     uid: string;
     email: string;
@@ -122,7 +94,6 @@ export interface Account {
     recoveryKeys?: Nullable<RecoveryKeys[]>;
     sessionTokens?: Nullable<SessionTokens[]>;
     securityEvents?: Nullable<SecurityEvents[]>;
-    attachedClients?: Nullable<AttachedClient[]>;
 }
 
 export interface IQuery {

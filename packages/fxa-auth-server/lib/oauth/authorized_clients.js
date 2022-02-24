@@ -24,7 +24,6 @@ function serialize(clientIdHex, token) {
 
 module.exports = {
   async destroy(clientId, uid, refreshTokenId) {
-    await oauthDB.ready();
     if (refreshTokenId) {
       if (
         !(await oauthDB.deleteClientRefreshToken(refreshTokenId, clientId, uid))
@@ -36,7 +35,6 @@ module.exports = {
     }
   },
   async list(uid) {
-    await oauthDB.ready();
     const authorizedClients = [];
 
     // First, enumerate all the refresh tokens.

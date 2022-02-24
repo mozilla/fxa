@@ -4,18 +4,18 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
-import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
+import { Knex } from 'knex';
+
+import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
 import {
   randomAccount,
   randomEmail,
   randomEmailBounce,
+  testDatabaseSetup,
 } from 'fxa-shared/test/db/models/auth/helpers';
-import { Knex } from 'knex';
-
 import { EmailBounceResolver } from './email-bounce.resolver';
+import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
