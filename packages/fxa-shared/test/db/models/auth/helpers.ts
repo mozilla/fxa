@@ -88,16 +88,6 @@ export function randomRecoveryKey(account: AccountIsh) {
   };
 }
 
-export function randomLinkedAccount(account: AccountIsh) {
-  return {
-    uid: account.uid,
-    providerId: 1,
-    id: Math.random() * 10000,
-    authAt: Date.now(),
-    enabled: true,
-  };
-}
-
 export function randomSessionToken(
   account: AccountIsh,
   lastAccessTime: number
