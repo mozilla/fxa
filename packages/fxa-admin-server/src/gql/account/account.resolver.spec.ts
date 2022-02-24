@@ -24,27 +24,16 @@ import {
   randomTotp,
   randomRecoveryKey,
   randomSessionToken,
-  randomDeviceToken,
-  randomOauthClient,
 } from 'fxa-shared/test/db/models/auth/helpers';
-import {
-  SerializableAttachedClient,
-  AttachedDevice,
-  mergeCachedSessionTokens,
-  SessionToken as SharedSessionToken,
-} from 'fxa-shared/connected-services';
 import { AccountResolver } from './account.resolver';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 const TOTP_1 = randomTotp(USER_1);
 const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
-const SESSION_TOKEN_1 = randomSessionToken(USER_1, Date.now());
-const DEVICE_TOKEN_1 = randomDeviceToken(SESSION_TOKEN_1.tokenId);
-const OAUTH_CLIENT_1 = randomOauthClient(Date.now() - 60 * 1e3);
+const SESSION_TOKEN_1 = randomSessionToken(USER_1);
 
 const USER_2 = randomAccount();
 
@@ -60,21 +49,6 @@ describe('AccountResolver', () => {
     totp: TotpToken,
     recoveryKeys: RecoveryKey,
     sessionTokens: SessionToken,
-    async authorizedClients(
-      uid: string
-    ): Promise<SerializableAttachedClient[]> {
-      return [OAUTH_CLIENT_1];
-    },
-    async attachedDevices(uid: string): Promise<AttachedDevice[]> {
-      return [DEVICE_TOKEN_1];
-    },
-    async attachedSessions(uid: string): Promise<SharedSessionToken[]> {
-      const sessions: any = await db.sessionTokens
-        .query()
-        .where('uid', uuidTransformer.to(uid));
-
-      return mergeCachedSessionTokens(sessions, {}, true);
-    },
   };
 
   beforeAll(async () => {
@@ -107,16 +81,7 @@ describe('AccountResolver', () => {
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
-        get: jest.fn().mockReturnValue({
-          authHeader: 'test',
-          i18n: {
-            defaultLanguage: 'en',
-            supportedLanguages: ['en'],
-          },
-          lastAccessTimeUpdates: {
-            earliestSaneTimestamp: 1507081020000,
-          },
-        }),
+        get: jest.fn().mockReturnValue({ authHeader: 'test' }),
       },
     };
     const module: TestingModule = await Test.createTestingModule({
@@ -217,27 +182,14 @@ describe('AccountResolver', () => {
     expect(result[0].uid).toEqual(RECOVERY_KEY_1.uid);
   });
 
-  it('loads attached clients', async () => {
+  it('loads sessionTokens', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
       'joe'
     )) as Account;
-    const result = await resolver.attachedClients(user);
+    const result = await resolver.sessionTokens(user);
     expect(result).toBeDefined();
-    expect(result.length).toBe(2);
-
-    // Session, with known device, device and session merge.
-    expect(result[0].name).toEqual(DEVICE_TOKEN_1.name);
-    expect(result[0].deviceId).toEqual(DEVICE_TOKEN_1.id);
-    expect(result[0].deviceType).toEqual(SESSION_TOKEN_1.uaDeviceType);
-    expect(result[0].sessionTokenId).toEqual('[REDACTED]');
-    expect(result[0].refreshTokenId).toBeNull();
-
-    // OAuth client
-    expect(result[1].name).toEqual(OAUTH_CLIENT_1.client_name);
-    expect(result[1].clientId).toEqual(OAUTH_CLIENT_1.client_id);
-    expect(result[1].deviceType).toBeNull();
-    expect(result[1].sessionTokenId).toBeNull();
-    expect(result[1].refreshTokenId).toEqual('[REDACTED]');
+    expect(result.length).toBe(1);
+    expect(result[0].tokenId).toEqual(SESSION_TOKEN_1.tokenId);
   });
 });

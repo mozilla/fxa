@@ -88,50 +88,24 @@ export function randomRecoveryKey(account: AccountIsh) {
   };
 }
 
-export function randomSessionToken(
-  account: AccountIsh,
-  lastAccessTime: number
-) {
+export function randomSessionToken(account: AccountIsh) {
   return {
     tokenId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     tokenData:
       '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     uid: account.uid,
-    createdAt: new Date(lastAccessTime - 2 * 60 * 60 * 1e3).getTime(),
+    createdAt: chance.timestamp(),
     uaBrowser: 'Chrome',
     uaBrowserVersion: '89.0.4389',
     uaOS: 'Mac OS X',
     uaOSVersion: '11.2.1',
-    uaDeviceType: 'desktop',
-    lastAccessTime,
+    uaDeviceType: 'Mac',
+    lastAccessTime: chance.timestamp(),
     uaFormFactor: 'abcd1234',
     authAt: chance.timestamp(),
     verificationMethod: 1,
     verifiedAt: chance.timestamp(),
     mustVerify: false,
-  };
-}
-
-export function randomDeviceToken(sessionTokenId: string) {
-  return {
-    id: '0123456789abcdef',
-    sessionTokenId,
-    name: 'Pocket',
-    pushEndpointExpired: false,
-    availableCommands: {},
-    location: {},
-  };
-}
-
-export function randomOauthClient(last_access_time: number) {
-  return {
-    refresh_token_id:
-      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    created_time: new Date(last_access_time - 60 * 60 * 1e3).getTime(),
-    last_access_time,
-    scope: [],
-    client_id: '0123456789abcdef',
-    client_name: 'oauth 1',
   };
 }
 
