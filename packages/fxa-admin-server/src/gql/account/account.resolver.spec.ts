@@ -15,7 +15,6 @@ import {
   TotpToken,
   RecoveryKey,
   SessionToken,
-  LinkedAccount,
 } from 'fxa-shared/db/models/auth';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
@@ -27,7 +26,6 @@ import {
   randomSessionToken,
   randomDeviceToken,
   randomOauthClient,
-  randomLinkedAccount,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import {
   SerializableAttachedClient,
@@ -44,7 +42,6 @@ const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 const TOTP_1 = randomTotp(USER_1);
 const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
-const LINKED_ACCOUNT_1 = randomLinkedAccount(USER_1);
 const SESSION_TOKEN_1 = randomSessionToken(USER_1, Date.now());
 const DEVICE_TOKEN_1 = randomDeviceToken(SESSION_TOKEN_1.tokenId);
 const OAUTH_CLIENT_1 = randomOauthClient(Date.now() - 60 * 1e3);
@@ -63,7 +60,6 @@ describe('AccountResolver', () => {
     totp: TotpToken,
     recoveryKeys: RecoveryKey,
     sessionTokens: SessionToken,
-    linkedAccounts: LinkedAccount,
     async authorizedClients(
       uid: string
     ): Promise<SerializableAttachedClient[]> {
@@ -92,7 +88,6 @@ describe('AccountResolver', () => {
     db.totp = TotpToken.bindKnex(knex);
     db.recoveryKeys = RecoveryKey.bindKnex(knex);
     db.sessionTokens = SessionToken.bindKnex(knex);
-    db.linkedAccounts = LinkedAccount.bindKnex(knex);
     await (db.account as any).query().insertGraph({
       ...USER_1,
       emails: [EMAIL_1],
@@ -100,7 +95,6 @@ describe('AccountResolver', () => {
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
     await db.totp.query().insert(TOTP_1);
     await db.recoveryKeys.query().insert(RECOVERY_KEY_1);
-    await db.linkedAccounts.query().insert(LINKED_ACCOUNT_1);
     await db.sessionTokens.query().insert(SESSION_TOKEN_1);
   });
 
@@ -245,15 +239,5 @@ describe('AccountResolver', () => {
     expect(result[1].deviceType).toBeNull();
     expect(result[1].sessionTokenId).toBeNull();
     expect(result[1].refreshTokenId).toEqual('[REDACTED]');
-  });
-
-  it('loads linkedAccounts', async () => {
-    const user = (await resolver.accountByEmail(
-      USER_1.email,
-      'joe'
-    )) as Account;
-    const result = await resolver.linkedAccounts(user);
-    expect(result).toBeDefined();
-    expect(result.length).toBe(1);
   });
 });

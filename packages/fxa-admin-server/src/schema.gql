@@ -92,19 +92,6 @@ type Totp {
   enabled: Boolean!
 }
 
-type LinkedAccount {
-  uid: String!
-  authAt: Float!
-  providerId: ProviderId!
-  enabled: Boolean!
-}
-
-enum ProviderId {
-  unmapped
-  GOOGLE
-  APPLE
-}
-
 type Account {
   uid: ID!
   email: String!
@@ -117,7 +104,6 @@ type Account {
   recoveryKeys: [RecoveryKeys!]
   securityEvents: [SecurityEvents!]
   attachedClients: [AttachedClient!]
-  linkedAccounts: [LinkedAccount!]
 }
 
 type Query {
@@ -129,6 +115,5 @@ type Query {
 type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
-  unlinkAccount(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!
 }
