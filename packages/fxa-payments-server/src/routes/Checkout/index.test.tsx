@@ -285,22 +285,6 @@ describe('routes/Checkout', () => {
       expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
     });
 
-    it('retries apiFetchCustomer', async () => {
-      (apiFetchCustomer as jest.Mock)
-        .mockClear()
-        .mockResolvedValueOnce({ ...CUSTOMER, subscriptions: [] })
-        .mockResolvedValueOnce(CUSTOMER);
-      await act(async () => {
-        render(<Subject />);
-      });
-      await fillOutZeForm();
-      await waitForExpect(() => {
-        expect(apiFetchCustomer).toHaveBeenCalledTimes(2);
-      });
-
-      expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
-    });
-
     it('displays an error when account creation failed', async () => {
       (apiCreatePasswordlessAccount as jest.Mock).mockRejectedValue(
         FXA_SIGNUP_ERROR
