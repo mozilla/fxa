@@ -242,10 +242,42 @@ export const Checkout = ({
 
   async function fetchProfileAndCustomer() {
     try {
-      const [profile, customer] = await Promise.all([
+      let [profile, customer] = await Promise.all([
         apiFetchProfile(),
         apiFetchCustomer(),
       ]);
+
+      // This function is called when there's a successful subscription.
+      // However, if the subscription was created with an initial inactive
+      // status (e.g. 'incomplete') and then transitioned to an active status
+      // after some action, there'd be a race between this function and the
+      // subscription update between Stripe and the auth-server.
+      //
+      // One use case where this happens is when the customer uses a credit
+      // card that requires 3D Secure authorization.  The subscription is
+      // created but 'incomplete' while the payment is awaiting the customer's
+      // authorization.
+      //
+      // Since we _expect_ a subscription, we conditionally retry the fetch as
+      // a workaround to reduce the likelihood of the customer encountering an
+      // error caused by the fetch being done ahead of the subscription update
+      // on the back end.
+      const maxRetries = 2;
+      const shouldRetry = (result: Customer) =>
+        result.subscriptions.length === 0;
+      const retryCustomer = async (
+        prevResult: Customer,
+        retries: number
+      ): Promise<Customer> => {
+        if (retries-- === 0 || !shouldRetry(prevResult)) {
+          return prevResult;
+        }
+        const retriedCustomer = await apiFetchCustomer();
+        return retryCustomer(retriedCustomer, retries);
+      };
+
+      customer = await retryCustomer(customer, maxRetries);
+
       setProfile(profile);
       setCustomer(customer);
       // Our stub accounts have a uid, append it to all future metric
