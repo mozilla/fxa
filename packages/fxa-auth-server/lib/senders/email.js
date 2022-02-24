@@ -431,13 +431,14 @@ module.exports = function (log, config, bounces) {
     const translator = this.translator(message.acceptLanguage);
     message.layout = message.layout || 'fxa';
 
-    const { html, text } = await this.fluentLocalizer.localizeEmail(
+    const { html, text, subject } = await this.fluentLocalizer.localizeEmail(
       message
     );
 
     return {
       html,
       language: translator.language,
+      subject,
       text,
     };
   };
