@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { convertError, notFound } from '../../mysql';
+
+import { convertError, MysqlErrors, notFound } from '../../mysql';
 import {
   aggregateNameValuePairs,
   intBoolTransformer,
@@ -73,8 +74,8 @@ export class Device extends BaseAuthModel {
     };
   }) {
     try {
-      await this.transaction(async (txn) => {
-        await this.callProcedure(
+      await Device.transaction(async (txn) => {
+        await Device.callProcedure(
           Proc.CreateDevice,
           txn,
           uuidTransformer.to(uid),
@@ -92,7 +93,7 @@ export class Device extends BaseAuthModel {
           for (const [commandName, commandData] of Object.entries(
             availableCommands
           )) {
-            await this.callProcedure(
+            await Device.callProcedure(
               Proc.UpsertAvailableCommands,
               txn,
               uuidTransformer.to(uid),
@@ -138,8 +139,8 @@ export class Device extends BaseAuthModel {
     };
   }) {
     try {
-      await this.transaction(async (txn) => {
-        const { status } = await this.callProcedure(
+      await Device.transaction(async (txn) => {
+        const { status } = await Device.callProcedure(
           Proc.UpdateDevice,
           txn,
           uuidTransformer.to(uid),
@@ -157,7 +158,7 @@ export class Device extends BaseAuthModel {
           throw notFound();
         }
         if (availableCommands) {
-          await this.callProcedure(
+          await Device.callProcedure(
             Proc.PurgeAvailableCommands,
             txn,
             uuidTransformer.to(uid),
@@ -166,7 +167,7 @@ export class Device extends BaseAuthModel {
           for (const [commandName, commandData] of Object.entries(
             availableCommands
           )) {
-            await this.callProcedure(
+            await Device.callProcedure(
               Proc.UpsertAvailableCommands,
               txn,
               uuidTransformer.to(uid),
@@ -185,7 +186,7 @@ export class Device extends BaseAuthModel {
   static async delete(uid: string, id: string) {
     const {
       rows: [result],
-    } = await this.callProcedure(
+    } = await Device.callProcedure(
       Proc.DeleteDevice,
       uuidTransformer.to(uid),
       uuidTransformer.to(id)
@@ -206,35 +207,35 @@ export class Device extends BaseAuthModel {
       'commandName',
       'commandData',
       'availableCommands'
-    ).map((row) => this.fromDatabaseJson(row));
+    ).map((row) => Device.fromDatabaseJson(row));
   }
 
   static async findByUid(uid: string) {
-    const { rows } = await this.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.AccountDevices,
       uuidTransformer.to(uid)
     );
-    return this.fromRows(rows);
+    return Device.fromRows(rows);
   }
 
   static async findByPrimaryKey(uid: string, id: string) {
-    const { rows } = await this.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.Device,
       uuidTransformer.to(uid),
       uuidTransformer.to(id)
     );
-    return this.fromRows(rows).shift() || null;
+    return Device.fromRows(rows).shift() || null;
   }
 
   static async findByUidAndTokenVerificationId(
     uid: string,
     tokenVerificationId: string
   ) {
-    const { rows } = await this.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.DeviceFromTokenVerificationId,
       uuidTransformer.to(uid),
       uuidTransformer.to(tokenVerificationId)
     );
-    return this.fromRows(rows).shift() || null;
+    return Device.fromRows(rows).shift() || null;
   }
 }

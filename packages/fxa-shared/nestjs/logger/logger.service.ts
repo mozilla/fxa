@@ -48,8 +48,4 @@ export class MozLoggerService {
   verbose(type: string, fields: Record<string, any>): void {
     this.mozlog.verbose(type, fields);
   }
-
-  trace(type: string, fields: Record<string, any>): void {
-    this.mozlog.trace(type, fields);
-  }
 }

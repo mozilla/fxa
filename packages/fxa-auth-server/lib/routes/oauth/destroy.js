@@ -8,7 +8,7 @@ const hex = require('buf').to.hex;
 
 const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('../../oauth/encrypt');
 const validators = require('../../oauth/validators');
 const { getTokenId } = require('../../oauth/token');
 const {

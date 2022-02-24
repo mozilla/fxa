@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.226.1",
+  "version": "1.226.2",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -12,8 +12,7 @@
     "start:prod": "node dist/main",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test": "yarn test:default && yarn test:e2e",
-    "test:default": "jest --runInBand",
+    "test": "jest --runInBand && yarn test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
