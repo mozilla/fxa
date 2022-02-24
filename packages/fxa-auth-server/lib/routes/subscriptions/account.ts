@@ -28,15 +28,12 @@ export async function sendFinishSetupEmailForStubAccount({
   // However, a successful subscription creation does not imply a successful
   // payment. For a user creating an account and subscribing to a product at
   // the same time, we should not send this email until we truly have a
-  // successful, active, subscription, OR, the payment method requires further
-  // action (e.g. a 3D Secure card that requires authorization from the issuing
-  // bank).  Otherwise, the user will see an error on the front end but also
-  // receive the welcome email.
+  // successful, active, subscription.  Otherwise, the user will see an error
+  // on the front end but also receive the welcome email.
   if (
     account &&
     account.verifierSetAt <= 0 &&
-    (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status) ||
-      subscription.latest_invoice?.payment_intent?.status === 'requires_action')
+    ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)
   ) {
     const token = await jwt.sign(
       {

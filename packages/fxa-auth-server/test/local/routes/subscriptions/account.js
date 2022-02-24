@@ -76,37 +76,6 @@ describe('routes/subscriptions/account', () => {
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
 
-    it('sends an email for subscription with a payment intent that "requires_action"', async () => {
-      const sub = {
-        ...subscription,
-        latest_invoice: {
-          ...subscription.latest_invoice,
-          payment_intent: { status: 'requires_action' },
-        },
-      };
-      await sendFinishSetupEmailForStubAccount({
-        uid,
-        account,
-        subscription: sub,
-        stripeHelper,
-        mailer,
-      });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractInvoiceDetailsForEmail,
-        sub.latest_invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        mailer.sendSubscriptionAccountFinishSetupEmail,
-        [],
-        account,
-        {
-          acceptLanguage: account.locale,
-          ...invoiceDetails,
-          token,
-        }
-      );
-    });
-
     it('sends an email to the stub account', async () => {
       await sendFinishSetupEmailForStubAccount({
         uid,
