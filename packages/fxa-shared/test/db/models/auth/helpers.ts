@@ -8,11 +8,8 @@ import path from 'path';
 import Chance from 'chance';
 import { knex, Knex } from 'knex';
 
-import {
-  Account,
-  BaseAuthModel,
-  EmailBounce,
-} from '../../../../db/models/auth';
+import { setupAuthDatabase } from '../../../../db';
+import { Account, EmailBounce } from '../../../../db/models/auth';
 
 export type AccountIsh = Pick<
   Account,
@@ -88,32 +85,19 @@ export function randomRecoveryKey(account: AccountIsh) {
   };
 }
 
-export function randomLinkedAccount(account: AccountIsh) {
-  return {
-    uid: account.uid,
-    providerId: 1,
-    id: Math.random() * 10000,
-    authAt: Date.now(),
-    enabled: true,
-  };
-}
-
-export function randomSessionToken(
-  account: AccountIsh,
-  lastAccessTime: number
-) {
+export function randomSessionToken(account: AccountIsh) {
   return {
     tokenId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     tokenData:
       '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     uid: account.uid,
-    createdAt: new Date(lastAccessTime - 2 * 60 * 60 * 1e3).getTime(),
+    createdAt: chance.timestamp(),
     uaBrowser: 'Chrome',
     uaBrowserVersion: '89.0.4389',
     uaOS: 'Mac OS X',
     uaOSVersion: '11.2.1',
-    uaDeviceType: 'desktop',
-    lastAccessTime,
+    uaDeviceType: 'Mac',
+    lastAccessTime: chance.timestamp(),
     uaFormFactor: 'abcd1234',
     authAt: chance.timestamp(),
     verificationMethod: 1,
@@ -122,31 +106,30 @@ export function randomSessionToken(
   };
 }
 
-export function randomDeviceToken(sessionTokenId: string) {
-  return {
-    id: '0123456789abcdef',
-    sessionTokenId,
-    name: 'Pocket',
-    pushEndpointExpired: false,
-    availableCommands: {},
-    location: {},
-  };
-}
+export async function testDatabaseSetup(): Promise<Knex> {
+  // Create the db if it doesn't exist
+  let instance = knex({
+    client: 'mysql',
+    connection: {
+      charset: 'UTF8MB4_BIN',
+      host: 'localhost',
+      password: '',
+      port: 3306,
+      user: 'root',
+    },
+  });
 
-export function randomOauthClient(last_access_time: number) {
-  return {
-    refresh_token_id:
-      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    created_time: new Date(last_access_time - 60 * 60 * 1e3).getTime(),
-    last_access_time,
-    scope: [],
-    client_id: '0123456789abcdef',
-    client_name: 'oauth 1',
-  };
-}
+  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
+  await instance.raw('CREATE DATABASE testAdmin');
+  await instance.destroy();
 
-export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
-  BaseAuthModel.knex(instance);
+  instance = setupAuthDatabase({
+    database: 'testAdmin',
+    host: 'localhost',
+    password: '',
+    port: 3306,
+    user: 'root',
+  });
 
   const runSql = async (filePaths: string[]) =>
     Promise.all(
@@ -168,19 +151,14 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './recovery-keys.sql',
     './session-tokens.sql',
     './linked-accounts.sql',
-    './deviceCommandIdentifiers.sql',
   ]);
   // The order matters for inserts or foreign key refs
-  await runSql([
-    './insert-email-types.sql',
-    './sent-emails.sql',
-    './deviceCommands.sql',
-    './sp_accountDevices.sql',
-  ]);
+  await runSql(['./insert-email-types.sql', './sent-emails.sql']);
 
   /*/ Debugging Assistance
   knex.on('query', (data) => {
     console.dir(data);
   });
   //*/
+  return instance;
 }

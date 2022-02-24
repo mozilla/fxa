@@ -23,7 +23,8 @@ describe('feature-flags/index:', () => {
   beforeEach((done) => {
     origSetTimeout = setTimeout;
     origClearTimeout = clearTimeout;
-
+    setTimeout = sinon.spy(() => 'wibble');
+    clearTimeout = sinon.spy();
     redis = {
       get: sinon.spy(
         () =>
@@ -39,12 +40,6 @@ describe('feature-flags/index:', () => {
     initialise = proxyquire('../../feature-flags', {
       ioredis: redisFactory,
     }).default;
-
-    // Prevents some kind of race condition. Something up ^ there
-    // is hitting clear timeout.
-    setTimeout = sinon.spy(() => 'wibble');
-    clearTimeout = sinon.spy();
-
     setImmediate(done);
   });
 

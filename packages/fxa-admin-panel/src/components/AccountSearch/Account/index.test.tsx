@@ -38,108 +38,31 @@ let accountResponse: AccountProps = {
       enabled: true,
     },
   ],
-  attachedClients: [
-    // The following values are based on a real response with modified ID values.
+  sessionTokens: [
     {
-      clientId: null,
-      createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-      createdTimeFormatted: '1 hour ago',
-      deviceId: 'xxxxxxxx-did-1',
-      deviceType: 'desktop',
-      lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-      lastAccessTimeFormatted: '5 seconds ago',
-      location: {
-        city: null,
-        country: null,
-        state: null,
-        stateCode: null,
-      },
-      name: "UserX's Nightly on machine-xyz",
-      os: 'Mac OS X',
-      userAgent: 'Chrome 89',
-      sessionTokenId: 'xxxxxxxx-stid-1',
-      refreshTokenId: null,
+      tokenId: 'abcd1234',
+      tokenData: 'abcd1234',
+      uid: 'ca1c61239f2448b2af618f0b50226cde',
+      createdAt: 1589467100316,
+      uaBrowser: 'Chrome',
+      uaBrowserVersion: '89.0.4389',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '11.2.1',
+      uaDeviceType: 'Mac',
+      lastAccessTime: 1589467100316,
     },
     {
-      clientId: 'xxxxxxxx-clid-1',
-      createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-      createdTimeFormatted: '1 hour ago',
-      deviceId: null,
-      deviceType: null,
-      lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-      lastAccessTimeFormatted: '5 seconds ago',
-      location: {
-        city: null,
-        country: null,
-        state: null,
-        stateCode: null,
-      },
-      name: 'Pocket',
-      os: null,
-      userAgent: '',
-      sessionTokenId: null,
-      refreshTokenId: null,
-    },
-    {
-      clientId: 'xxxxxxxx-mzvpn-1',
-      createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-      createdTimeFormatted: '1 hour ago',
-      deviceId: null,
-      deviceType: null,
-      lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-      lastAccessTimeFormatted: '5 seconds ago',
-      location: {
-        city: null,
-        country: null,
-        state: null,
-        stateCode: null,
-      },
-      name: 'Mozilla VPN',
-      os: null,
-      userAgent: '',
-      sessionTokenId: null,
-      refreshTokenId: 'xxxxxxxx-rtid-1',
-    },
-    {
-      clientId: null,
-      createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-      createdTimeFormatted: '1 hour ago',
-      deviceId: null,
-      deviceType: null,
-      lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-      lastAccessTimeFormatted: '5 seconds ago',
-      location: {
-        city: null,
-        country: null,
-        state: null,
-        stateCode: null,
-      },
-      name: 'Firefox 97, Ubuntu',
-      os: 'Ubuntu',
-      userAgent: 'Firefox 97',
-      sessionTokenId: 'xxxxxxxx-stid-2',
-      refreshTokenId: null,
-    },
-    {
-      clientId: null,
-      createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-      createdTimeFormatted: '1 hour ago',
-      deviceId: null,
-      deviceType: null,
-      lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-      lastAccessTimeFormatted: '5 seconds ago',
-      location: {
-        city: null,
-        country: null,
-        state: null,
-        stateCode: null,
-      },
-      name: 'Mobile Safari 15, iPhone',
-      os: 'iOS',
-      userAgent: 'Mobile Safari 15',
-      sessionTokenId: 'xxxxxxxx-stid-3',
-      refreshTokenId: null,
-    },
+      tokenId: 'abcd1235',
+      tokenData: 'abcd1235',
+      uid: 'ca1c61239f2448b2af618f0b50226cdf',
+      createdAt: 1589467100317,
+      uaBrowser: 'Chrome',
+      uaBrowserVersion: '89.0.4390',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '11.2.2',
+      uaDeviceType: null,
+      lastAccessTime: 1589467100317,
+    }
   ],
   securityEvents: [],
 };
@@ -204,45 +127,24 @@ it('displays the recovery key status', async () => {
   expect(getByTestId('recovery-keys-enabled')).toBeInTheDocument();
 });
 
-it('displays the attached clients', async () => {
+it('displays the session token status', async () => {
   const { findAllByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />
     </MockedProvider>
   );
 
-  const fields: Record<string, HTMLElement[]> = {
-    clientFields: await findAllByTestId('attached-clients-client'),
-    deviceTypeFields: await findAllByTestId('attached-clients-device-type'),
-    userAgentFields: await findAllByTestId('attached-clients-user-agent'),
-    osFields: await findAllByTestId('attached-clients-os'),
-    createdAtFields: await findAllByTestId('attached-clients-created-at'),
-    lastAccessFields: await findAllByTestId(
-      'attached-clients-last-accessed-at'
-    ),
-    locationFields: await findAllByTestId('attached-clients-location'),
-    clientIdFields: await findAllByTestId('attached-clients-client-id'),
-    deviceIdFields: await findAllByTestId('attached-clients-device-id'),
-    sessionTokenIdFields: await findAllByTestId(
-      'attached-clients-session-token-id'
-    ),
-    freshreshTokenIdFields: await findAllByTestId(
-      'attached-clients-refresh-token-id'
-    ),
-  };
+  expect(await findAllByTestId('session-token-accessed-at')).toHaveLength(2);
+  expect(await findAllByTestId('session-token-browser')).toHaveLength(2);
+  expect(await findAllByTestId('session-token-operating-system')).toHaveLength(2);
+  expect(await findAllByTestId('session-token-device')).toHaveLength(2);
+  await findAllByTestId('session-token-device').then((session) => {
+    // checks that the uaDeviceType value is returned if not null
+    expect(session[0]).toHaveTextContent('Mac');
 
-  // Make sure all data is rendered
-  Object.values(fields).forEach((x) => expect(x).toHaveLength(5));
-
-  // Make sure fields have some sort of content
-  Object.values(fields)
-    .flatMap((x) => x)
-    .forEach((x) => expect(x).toHaveTextContent(/N\/A|\w{3,}/));
-
-  // Make sure device types are mobile, desktop.
-  fields.deviceTypeFields.forEach((type) =>
-    expect(type).toHaveTextContent(/mobile|desktop|unknown/gi)
-  );
+    // checks that 'Desktop' is returned if uaDeviceType value is null
+    expect(session[1]).toHaveTextContent('Desktop');
+  });
 });
 
 it('displays secondary emails', async () => {
