@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   Args,
   Mutation,
@@ -11,21 +10,14 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
-import {
-  ClientFormatter,
-  ConnectedServicesFactory,
-} from 'fxa-shared/connected-services';
-import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
-import { Account, SessionToken } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
-import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
+import { Account } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
-import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 
 const ACCOUNT_COLUMNS = [
@@ -74,17 +66,7 @@ const SESSIONTOKEN_COLUMNS = [
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
-  private get clientFormatterConfig() {
-    return this.configService.get(
-      'clientFormatter'
-    ) as AppConfig['clientFormatter'];
-  }
-
-  constructor(
-    private log: MozLoggerService,
-    private db: DatabaseService,
-    private configService: ConfigService<AppConfig>
-  ) {}
+  constructor(private log: MozLoggerService, private db: DatabaseService) {}
 
   @Query((returns) => AccountType, { nullable: true })
   public accountByUid(
@@ -226,46 +208,5 @@ export class AccountResolver {
       .query()
       .select(SESSIONTOKEN_COLUMNS)
       .where('uid', uidBuffer);
-  }
-
-  @ResolveField(() => [AttachedClient])
-  public async attachedClients(@Root() account: Account) {
-    const clientFormatter = new ClientFormatter(
-      this.clientFormatterConfig,
-      () => this.log
-    );
-
-    const factory = new ConnectedServicesFactory({
-      formatLocation: (...args) => {
-        clientFormatter.formatLocation(...args);
-      },
-      formatTimestamps: (...args) => {
-        clientFormatter.formatTimestamps(...args);
-      },
-      deviceList: async () => {
-        return this.db.attachedDevices(account.uid);
-      },
-      oauthClients: async () => {
-        return await this.db.authorizedClients(account.uid);
-      },
-      sessions: async () => {
-        const sessions = await this.sessionTokens(account);
-        return sessions.map(
-          (x: SessionToken) =>
-            ({
-              id: x.tokenId,
-              createdAt: x.createdAt,
-              lastAccessTime: x.lastAccessTime,
-              uaBrowser: x.uaBrowser,
-              uaOS: x.uaOS,
-              uaBrowserVersion: x.uaBrowserVersion,
-              uaOSVersion: x.uaOSVersion,
-              uaFormFactor: x.uaFormFactor,
-            } as AttachedSession)
-        );
-      },
-    });
-
-    return await factory.build(account.uid, 'en');
   }
 }

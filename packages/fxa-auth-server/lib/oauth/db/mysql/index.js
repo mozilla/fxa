@@ -3,15 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const buf = require('buf').hex;
-const encrypt = require('fxa-shared/auth/encrypt');
+const mysql = require('mysql');
+
+const encrypt = require('../../encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 
-// Shared base class
-const { MysqlStoreShared } = require('fxa-shared/db/mysql');
-
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
+const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
+
+function MysqlStore(options) {
+  if (options.charset && options.charset !== REQUIRED_CHARSET) {
+    throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET);
+  } else {
+    options.charset = REQUIRED_CHARSET;
+  }
+  options.typeCast = function (field, next) {
+    if (field.type === 'TINY' && field.length === 1) {
+      return field.string() === '1';
+    }
+    return next();
+  };
+  this._pool = mysql.createPool(options);
+}
+
+MysqlStore.connect = async function mysqlConnect(options) {
+  return new MysqlStore(options);
+};
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
 const QUERY_CLIENT_REGISTER =
@@ -156,12 +175,8 @@ function firstRow(rows) {
   return rows[0];
 }
 
-class MysqlStore extends MysqlStoreShared {
-  constructor(config) {
-    super(config);
-  }
-
-  async ping() {
+MysqlStore.prototype = {
+  ping: async function ping() {
     const conn = await this._getConnection();
     try {
       return await new Promise(function (resolve, reject) {
@@ -175,15 +190,15 @@ class MysqlStore extends MysqlStoreShared {
     } finally {
       conn.release();
     }
-  }
+  },
 
-  getLock(lockName, timeout = 3) {
+  getLock: function getLock(lockName, timeout = 3) {
     // returns `acquired: 1` on success
     return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
-  }
+  },
 
   // createdAt is DEFAULT NOW() in the schema.sql
-  registerClient(client) {
+  registerClient: function registerClient(client) {
     var id;
     if (client.id) {
       id = buf(client.id);
@@ -205,8 +220,8 @@ class MysqlStore extends MysqlStoreShared {
       client.id = id;
       return client;
     });
-  }
-  registerClientDeveloper(developerId, clientId) {
+  },
+  registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
     if (!developerId || !clientId) {
       var err = new Error('Owner registration requires user and developer id');
       return Promise.reject(err);
@@ -219,16 +234,16 @@ class MysqlStore extends MysqlStoreShared {
       buf(developerId),
       buf(clientId),
     ]);
-  }
-  getClientDevelopers(clientId) {
+  },
+  getClientDevelopers: function getClientDevelopers(clientId) {
     if (!clientId) {
       return Promise.reject(new Error('Client id is required'));
     }
     return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
       buf(clientId),
     ]);
-  }
-  activateDeveloper(email) {
+  },
+  activateDeveloper: function activateDeveloper(email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
@@ -239,22 +254,22 @@ class MysqlStore extends MysqlStoreShared {
         return this.getDeveloper(email);
       }.bind(this)
     );
-  }
-  getDeveloper(email) {
+  },
+  getDeveloper: function (email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
 
     return this._readOne(QUERY_DEVELOPER, [email]);
-  }
-  removeDeveloper(email) {
+  },
+  removeDeveloper: function (email) {
     if (!email) {
       return Promise.reject(new Error('Email is required'));
     }
 
     return this._write(QUERY_DEVELOPER_DELETE, [email]);
-  }
-  developerOwnsClient(developerEmail, clientId) {
+  },
+  developerOwnsClient: function devOwnsClient(developerEmail, clientId) {
     return this._readOne(QUERY_DEVELOPER_OWNS_CLIENT, [
       developerEmail,
       buf(clientId),
@@ -265,8 +280,8 @@ class MysqlStore extends MysqlStoreShared {
         return Promise.reject(false);
       }
     });
-  }
-  updateClient(client) {
+  },
+  updateClient: function updateClient(client) {
     if (!client.id) {
       return Promise.reject(new Error('Update client needs an id'));
     }
@@ -293,18 +308,18 @@ class MysqlStore extends MysqlStoreShared {
       // WHERE
       buf(client.id),
     ]);
-  }
+  },
 
-  getClient(id) {
+  getClient: function getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
-  }
-  getClients(email) {
+  },
+  getClients: function getClients(email) {
     return this._read(QUERY_CLIENT_LIST, [email]);
-  }
-  removeClient(id) {
+  },
+  removeClient: function removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
-  }
-  generateCode(codeObj) {
+  },
+  generateCode: function generateCode(codeObj) {
     var code = unique.code();
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_INSERT, [
@@ -324,8 +339,8 @@ class MysqlStore extends MysqlStoreShared {
     ]).then(function () {
       return code;
     });
-  }
-  getCode(code) {
+  },
+  getCode: function getCode(code) {
     var hash = encrypt.hash(code);
     return this._readOne(QUERY_CODE_FIND, [hash]).then(function (code) {
       if (code) {
@@ -336,13 +351,13 @@ class MysqlStore extends MysqlStoreShared {
       }
       return code;
     });
-  }
-  removeCode(code) {
+  },
+  removeCode: function removeCode(code) {
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_DELETE, [hash]);
-  }
+  },
 
-  _generateAccessToken(accessToken) {
+  _generateAccessToken: function _generateAccessToken(accessToken) {
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       accessToken.clientId,
       accessToken.userId,
@@ -352,51 +367,51 @@ class MysqlStore extends MysqlStoreShared {
       accessToken.tokenId,
       accessToken.profileChangedAt,
     ]);
-  }
+  },
 
   /**
    * Get an access token by token id
    * @param id Token Id
    * @returns {*}
    */
-  _getAccessToken(id) {
+  _getAccessToken: function _getAccessToken(id) {
     return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function (t) {
       if (t) {
         t = AccessToken.fromMySQL(t);
       }
       return t;
     });
-  }
+  },
 
   /**
    * Remove token by token id
    * @param id
    * @returns {*}
    */
-  _removeAccessToken(id) {
+  _removeAccessToken: function _removeAccessToken(id) {
     return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
-  }
+  },
 
   /**
    * Get all access tokens for a given user.
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  async _getAccessTokensByUid(uid) {
+  _getAccessTokensByUid: async function _getAccessTokensByUid(uid) {
     const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
       buf(uid),
     ]);
     return accessTokens.map((t) => {
       return AccessToken.fromMySQL(t);
     });
-  }
+  },
 
   /**
    * Get all refresh tokens for a given user.
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  async _getRefreshTokensByUid(uid) {
+  _getRefreshTokensByUid: async function _getRefreshTokensByUid(uid) {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
@@ -404,7 +419,7 @@ class MysqlStore extends MysqlStoreShared {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
-  }
+  },
 
   /**
    * Get all refresh tokens for all users for a given clientId.
@@ -412,9 +427,11 @@ class MysqlStore extends MysqlStoreShared {
    * @param {String} uid
    * @returns {Promise}
    */
-  async getRefreshTokensByClientId(clientId) {
+  getRefreshTokensByClientId: async function getRefreshTokensByClientId(
+    clientId
+  ) {
     return this._read(QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID, [buf(clientId)]);
-  }
+  },
 
   /**
    * Delete all authorization grants for some clientId and uid.
@@ -423,7 +440,10 @@ class MysqlStore extends MysqlStoreShared {
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  _deleteClientAuthorization(clientId, uid) {
+  _deleteClientAuthorization: function _deleteClientAuthorization(
+    clientId,
+    uid
+  ) {
     const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid),
@@ -440,7 +460,7 @@ class MysqlStore extends MysqlStoreShared {
     );
 
     return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
-  }
+  },
 
   /**
    * Delete a specific refresh token, for some clientId and uid.
@@ -460,7 +480,11 @@ class MysqlStore extends MysqlStoreShared {
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
-  async _deleteClientRefreshToken(tokenId, clientId, uid) {
+  _deleteClientRefreshToken: async function _deleteClientRefreshToken(
+    tokenId,
+    clientId,
+    uid
+  ) {
     const deleteRefreshTokenRes = await this._write(
       DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID,
       [buf(tokenId), buf(clientId), buf(uid)]
@@ -477,9 +501,9 @@ class MysqlStore extends MysqlStoreShared {
     }
 
     return false;
-  }
+  },
 
-  generateRefreshToken(vals) {
+  generateRefreshToken: function generateRefreshToken(vals) {
     const t = {
       clientId: vals.clientId,
       userId: vals.userId,
@@ -499,9 +523,9 @@ class MysqlStore extends MysqlStoreShared {
       t.tokenId = tokenId;
       return t;
     });
-  }
+  },
 
-  _getRefreshToken(token) {
+  _getRefreshToken: function _getRefreshToken(token) {
     return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function (
       t
     ) {
@@ -510,21 +534,21 @@ class MysqlStore extends MysqlStoreShared {
       }
       return t;
     });
-  }
+  },
 
-  _touchRefreshToken(token, now) {
+  _touchRefreshToken: function _touchRefreshToken(token, now) {
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE
       buf(token),
     ]);
-  }
+  },
 
-  _removeRefreshToken(id) {
+  _removeRefreshToken: function _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
-  }
+  },
 
-  getEncodingInfo() {
+  getEncodingInfo: function getEncodingInfo() {
     var info = {};
 
     var self = this;
@@ -542,15 +566,15 @@ class MysqlStore extends MysqlStoreShared {
         return info;
       });
     });
-  }
+  },
 
-  _removeUser(userId) {
+  _removeUser: function _removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
-  }
+  },
 
   /**
    * Removes user's tokens and refreshTokens for canGrant and publicClient clients
@@ -558,7 +582,9 @@ class MysqlStore extends MysqlStoreShared {
    * @param {Buffer | string} userId
    * @returns {Promise}
    */
-  _removePublicAndCanGrantTokens(userId) {
+  _removePublicAndCanGrantTokens: function _removePublicAndCanGrantTokens(
+    userId
+  ) {
     const uid = buf(userId);
 
     return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
@@ -566,34 +592,34 @@ class MysqlStore extends MysqlStoreShared {
     ]).then(() =>
       this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
     );
-  }
+  },
 
-  async getScope(scope) {
+  getScope: async function getScope(scope) {
     // We currently only have database entries for URL-format scopes,
     // so don't bother hitting the db for common scopes like 'profile'.
     if (!scope.startsWith('https://')) {
       return null;
     }
     return (await this._readOne(QUERY_SCOPE_FIND, [scope])) || null;
-  }
+  },
 
-  registerScope(scope) {
+  registerScope: function registerScope(scope) {
     return this._write(QUERY_SCOPES_INSERT, [scope.scope, scope.hasScopedKeys]);
-  }
+  },
 
-  _write(sql, params) {
+  _write: function _write(sql, params) {
     return this._query(sql, params);
-  }
+  },
 
-  _read(sql, params) {
+  _read: function _read(sql, params) {
     return this._query(sql, params);
-  }
+  },
 
-  _readOne(sql, params) {
+  _readOne: function _readOne(sql, params) {
     return this._read(sql, params).then(firstRow);
-  }
+  },
 
-  async _getConnection() {
+  _getConnection: async function _getConnection() {
     var pool = this._pool;
     return new Promise(function (resolve, reject) {
       pool.getConnection(function (err, conn) {
@@ -647,9 +673,9 @@ class MysqlStore extends MysqlStoreShared {
         );
       });
     });
-  }
+  },
 
-  async _query(sql, params) {
+  _query: async function _query(sql, params) {
     const conn = await this._getConnection();
     try {
       return await new Promise(function (resolve, reject) {
@@ -663,18 +689,7 @@ class MysqlStore extends MysqlStoreShared {
     } finally {
       conn.release();
     }
-  }
+  },
+};
 
-  getProxyableFunctions() {
-    return Reflect.ownKeys(MysqlStore.prototype).filter(
-      (x) => x !== 'constructor' && /^[a-zA-Z]/.test(x)
-    );
-  }
-}
-
-function connect(config) {
-  return new MysqlStore(config);
-}
-
-module.exports = connect;
-module.exports.connect = connect;
+module.exports = MysqlStore;

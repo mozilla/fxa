@@ -1,27 +1,28 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import 'mocha';
+
 import 'reflect-metadata';
 
 import { assert } from 'chai';
 import { Knex } from 'knex';
+import 'mocha';
 
+import {
+  chance,
+  testDatabaseSetup,
+  randomAvatar,
+  randomProfile,
+  defaultProvider,
+} from './helpers';
+
+import { profileByUid, selectedAvatar } from '../../../../db/models/profile';
 import {
   Avatar,
   AvatarProvider,
   AvatarSelected,
   Profile,
-  profileByUid,
-  selectedAvatar,
 } from '../../../../db/models/profile';
-import { defaultOpts, testDatabaseSetup } from '../../helpers';
-import {
-  chance,
-  defaultProvider,
-  randomAvatar,
-  randomProfile,
-} from './helpers';
 
 const PROFILE_1 = randomProfile();
 const PROFILE_2 = randomProfile();
@@ -31,12 +32,7 @@ describe('auth', () => {
   let avatar: Avatar;
 
   before(async () => {
-    knex = await testDatabaseSetup({
-      ...defaultOpts,
-      auth: false,
-      profile: true,
-      oauth: false,
-    });
+    knex = await testDatabaseSetup();
     // Load the default provider and grab its id
     const provider = await AvatarProvider.query().insert(defaultProvider());
     // Load a random profile in

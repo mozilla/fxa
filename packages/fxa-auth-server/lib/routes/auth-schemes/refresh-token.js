@@ -10,10 +10,10 @@ const hex = require('buf').to.hex;
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('../../oauth/encrypt');
 const oauthDB = require('../../oauth/db');
 const client = require('../../oauth/client');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,
