@@ -8622,9 +8622,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.16.1":
-  version: 5.16.1
-  resolution: "@testing-library/jest-dom@npm:5.16.1"
+"@testing-library/jest-dom@npm:^5.16.2":
+  version: 5.16.2
+  resolution: "@testing-library/jest-dom@npm:5.16.2"
   dependencies:
     "@babel/runtime": ^7.9.2
     "@types/testing-library__jest-dom": ^5.9.1
@@ -8635,7 +8635,7 @@ __metadata:
     dom-accessibility-api: ^0.5.6
     lodash: ^4.17.15
     redent: ^3.0.0
-  checksum: c5e3b5b021b50478137f96b85f8f6f86d2b25555d2501548982e093986f9c089c7b394449c30283ca3e28a50e845587403d9124ad1b516c55cf9af20a0fbbde4
+  checksum: e4569df67c4c4998d2c60c6cf00ce2f1ac10c9397e0970320728c8be8f4e2c17a0e801705ce8a7384f7f5629b598a6f58db91d4401dde02044f5625405ca0988
   languageName: node
   linkType: hard
 
@@ -21530,7 +21530,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
     "@testing-library/dom": ^8.11.2
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@testing-library/user-event": ^13.5.0
     "@types/babel__core": 7.1.14
@@ -21580,7 +21580,7 @@ fsevents@~2.1.1:
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
     react: ^16.13.0
-    react-dom: ^16.13.0
+    react-dom: ^17.0.2
     react-router-dom: ^6.2.1
     react-scripts: ^4.0.3
     serve-static: ^1.14.2
@@ -21972,7 +21972,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     react: ^16.8.6
-    react-dom: ^16.8.6
+    react-dom: ^17.0.2
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^10.0.3
@@ -22292,7 +22292,7 @@ fsevents@~2.1.1:
     "@stripe/stripe-js": ^1.22.0
     "@svgr/webpack": ^5.4.0
     "@tailwindcss/postcss7-compat": ^2.2.17
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
@@ -22370,7 +22370,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
-    react-dom: ^16.12.0
+    react-dom: ^17.0.2
     react-redux: ^7.2.6
     react-router-dom: ^6.2.1
     react-scripts: ^4.0.3
@@ -22459,7 +22459,7 @@ fsevents@~2.1.1:
     "@svgr/webpack": ^5.5.0
     "@tailwindcss/postcss7-compat": ^2.2.17
     "@testing-library/dom": ^8.11.2
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@testing-library/user-event": ^13.5.0
     "@types/camelcase": 5.2.0
@@ -22491,7 +22491,7 @@ fsevents@~2.1.1:
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
     react: ^16.13.1
-    react-dom: ^16.13.1
+    react-dom: ^17.0.2
     react-helmet: ^6.1.0
     react-transition-group: ^4.4.2
     rimraf: ^3.0.2
@@ -22524,7 +22524,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
     "@testing-library/dom": ^8.11.2
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": ^13.5.0
@@ -22568,7 +22568,7 @@ fsevents@~2.1.1:
     postcss-import: ^12.0.1
     react: ^16.13.1
     react-async-hook: ^4.0.0
-    react-dom: ^16.13.1
+    react-dom: ^17.0.2
     react-easy-crop: ^4.0.1
     react-hook-form: ^6.15.8
     react-scripts: ^4.0.3
@@ -36110,7 +36110,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.14.0, react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.6":
+"react-dom@npm:16.14.0":
   version: 16.14.0
   resolution: "react-dom@npm:16.14.0"
   dependencies:
@@ -36121,6 +36121,19 @@ fsevents@~2.1.1:
   peerDependencies:
     react: ^16.14.0
   checksum: 5a5c49da0f106b2655a69f96c622c347febcd10532db391c262b26aec225b235357d9da1834103457683482ab1b229af7a50f6927a6b70e53150275e31785544
+  languageName: node
+  linkType: hard
+
+"react-dom@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react-dom@npm:17.0.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    scheduler: ^0.20.2
+  peerDependencies:
+    react: 17.0.2
+  checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
   languageName: node
   linkType: hard
 
