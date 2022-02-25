@@ -8639,6 +8639,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/jest-dom@npm:^5.16.2":
+  version: 5.16.2
+  resolution: "@testing-library/jest-dom@npm:5.16.2"
+  dependencies:
+    "@babel/runtime": ^7.9.2
+    "@types/testing-library__jest-dom": ^5.9.1
+    aria-query: ^5.0.0
+    chalk: ^3.0.0
+    css: ^3.0.0
+    css.escape: ^1.5.1
+    dom-accessibility-api: ^0.5.6
+    lodash: ^4.17.15
+    redent: ^3.0.0
+  checksum: e4569df67c4c4998d2c60c6cf00ce2f1ac10c9397e0970320728c8be8f4e2c17a0e801705ce8a7384f7f5629b598a6f58db91d4401dde02044f5625405ca0988
+  languageName: node
+  linkType: hard
+
 "@testing-library/react-hooks@npm:*, @testing-library/react-hooks@npm:^7.0.2":
   version: 7.0.2
   resolution: "@testing-library/react-hooks@npm:7.0.2"
@@ -19092,14 +19109,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-register@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "esbuild-register@npm:3.2.0"
-  dependencies:
-    jsonc-parser: ^3.0.0
+"esbuild-register@npm:^3.2.1":
+  version: 3.3.2
+  resolution: "esbuild-register@npm:3.3.2"
   peerDependencies:
     esbuild: ">=0.12 <1"
-  checksum: 834e7d14315abaceb5356a0aab73d60183f812b3eb045741be09c69e34811184bf23f1c69dceede4ff87d430575b88d405fbdfb7351a4f6936d5bf6ec7493584
+  checksum: 94c353571b23f9a54d00e4551f03696c99b068699f6afaa2bed9cdf5247ec54536f50ea4c68572485904026a4fd374625418682fd240837895839aeba3f29ec2
   languageName: node
   linkType: hard
 
@@ -21530,7 +21545,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
     "@testing-library/dom": ^8.11.2
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@testing-library/user-event": ^13.5.0
     "@types/babel__core": 7.1.14
@@ -21558,7 +21573,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -21624,7 +21639,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     express: ^4.17.2
     fxa-shared: "workspace:*"
@@ -21665,7 +21680,7 @@ fsevents@~2.1.1:
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     fast-text-encoding: ^1.0.3
     mocha: ^9.1.2
     node-fetch: ^2.6.1
@@ -21745,7 +21760,7 @@ fsevents@~2.1.1:
     email-addresses: 4.0.0
     emittery: ^0.10.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-customs-server: "workspace:*"
@@ -21891,7 +21906,7 @@ fsevents@~2.1.1:
     css-loader: 1.0.0
     duration-js: 4.0.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
@@ -22109,7 +22124,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-import: ^2.25.4
@@ -22205,7 +22220,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     express: ^4.17.2
     fxa-auth-client: "workspace:*"
@@ -22292,7 +22307,7 @@ fsevents@~2.1.1:
     "@stripe/stripe-js": ^1.22.0
     "@svgr/webpack": ^5.4.0
     "@tailwindcss/postcss7-compat": ^2.2.17
-    "@testing-library/jest-dom": ^5.16.1
+    "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.2
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
@@ -22331,7 +22346,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -22628,7 +22643,7 @@ fsevents@~2.1.1:
     cors: ^2.8.5
     db-migrations: "workspace:*"
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
@@ -22695,7 +22710,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.2.1
     eslint: ^7.32.0
     express: ^4.17.2
     fxa-shared: "workspace:*"
@@ -28482,7 +28497,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsonc-parser@npm:3.0.0, jsonc-parser@npm:^3.0.0":
+"jsonc-parser@npm:3.0.0":
   version: 3.0.0
   resolution: "jsonc-parser@npm:3.0.0"
   checksum: 1df2326f1f9688de30c70ff19c5b2a83ba3b89a1036160da79821d1361090775e9db502dc57a67c11b56e1186fc1ed70b887f25c5febf9a3ec4f91435836c99d
