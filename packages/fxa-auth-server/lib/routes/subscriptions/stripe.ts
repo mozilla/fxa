@@ -784,7 +784,7 @@ export const stripeRoutes = (
               clientId: isA.string(),
               capabilities: isA.array().items(isA.string()),
             })
-          ),
+          ) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
@@ -794,7 +794,9 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/plans',
       options: {
         response: {
-          schema: isA.array().items(validators.subscriptionsPlanValidator),
+          schema: isA
+            .array()
+            .items(validators.subscriptionsPlanValidator) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.listPlans(request),
@@ -808,7 +810,9 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: isA.array().items(validators.activeSubscriptionValidator),
+          schema: isA
+            .array()
+            .items(validators.activeSubscriptionValidator) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.listActive(request),
@@ -822,7 +826,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsCustomerValidator,
+          schema: validators.subscriptionsCustomerValidator as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getCustomer(request),
@@ -836,7 +840,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator as any,
         },
         validate: {
           payload: {
@@ -861,7 +865,7 @@ export const stripeRoutes = (
           schema: isA.object().keys({
             subscription: validators.subscriptionsStripeSubscriptionValidator,
             sourceCountry: validators.subscriptionPaymentCountryCode.required(),
-          }),
+          }) as any,
         },
         validate: {
           payload: {
@@ -885,7 +889,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeInvoiceValidator,
+          schema: validators.subscriptionsStripeInvoiceValidator as any,
         },
         validate: {
           payload: {
@@ -956,7 +960,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeIntentValidator,
+          schema: validators.subscriptionsStripeIntentValidator as any,
         },
       },
       handler: (request: AuthRequest) =>
@@ -971,7 +975,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator as any,
         },
         validate: {
           payload: {
@@ -995,7 +999,7 @@ export const stripeRoutes = (
             .object({
               id: validators.stripePaymentMethodId.required(),
             })
-            .unknown(true),
+            .unknown(true) as any,
         },
         validate: {
           payload: {
@@ -1013,7 +1017,7 @@ export const stripeRoutes = (
         response: {
           schema: isA.object({
             product_name: isA.string().required(),
-          }),
+          }) as any,
         },
         validate: {
           query: {

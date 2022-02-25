@@ -122,7 +122,7 @@ export const playPubsubRoutes = (db: any): ServerRoute[] => {
                 })
                 .required(),
             })
-            .required(),
+            .required() as any,
         },
       },
       handler: (request: AuthRequest) => playPubsubHandler.rtdn(request),
