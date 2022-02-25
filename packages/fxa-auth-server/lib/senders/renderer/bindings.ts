@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ILocalizerBindings } from '../../l10n/interfaces/ILocalizerBindings';
+import { LocalizerOpts } from '../../l10n/models/LocalizerOpts';
+
 // Supporting Types
 export type EjsOpts = {
   root?: string;
@@ -14,22 +17,17 @@ export type MjmlOpts = {
 };
 export type TemplateOpts = {
   basePath: string;
+  cssPath: string;
 };
-export type L10nOpts = {
-  basePath: string;
-};
+
 export type RenderOpts = {
   templates: TemplateOpts;
   ejs: EjsOpts;
   mjml: MjmlOpts;
 };
-export type LocalizationOpts = {
-  l10n: L10nOpts;
-};
 
 // Top level types
 export type TemplateContext = Record<string, any>;
-export type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type EjsComponent = {
   mjml: string;
   text: string;
@@ -39,21 +37,22 @@ export type TemplateResult = {
   text: string;
   rootElement: Element;
 };
-export type LocalizerOpts = RenderOpts & LocalizationOpts;
+export type RendererOpts = RenderOpts & LocalizerOpts;
+type ComponentType = 'templates' | 'layouts';
 
 /**
- * Abstraction for binding fluent localizer to different contexts, e.g. node vs browser.
+ * Abstraction for binding the renderer to different contexts, e.g. node vs browser.
  */
-export abstract class LocalizerBindings {
+export abstract class RendererBindings implements ILocalizerBindings {
   /**
-   * Customized options for the localizer
+   * Customized options for the renderer
    */
-  protected abstract opts: LocalizerOpts;
+  abstract opts: RendererOpts;
 
   /**
    * Renders a mjml template with support for fluent localization.
    * @param name Name of template
-   * @param context Contains placeholder values
+   * @param context Contains either values sent through mailer.send or mock values from Storybook
    * @param layout Optional layout, which acts as wrapper for for template
    * @returns Rendered template
    */
@@ -84,29 +83,20 @@ export abstract class LocalizerBindings {
     return { html, text, rootElement };
   }
 
-  protected async getComponent(type: string, name: string) {
+  protected async getComponent(type: ComponentType, name: string) {
     const path = `${this.opts.templates.basePath}/${type}/${name}`;
-    const mjml = await this.fetchResource(`${path}/index.mjml`);
-    const text = await this.fetchResource(`${path}/index.txt`);
+    const [mjml, text] = await Promise.all([
+      this.fetchResource(`${path}/index.mjml`),
+      this.fetchResource(`${path}/index.txt`),
+    ]);
     return { mjml, text };
   }
 
-  /**
-   * Returns the set of localization strings for the specified locale.
-   * @param locale Locale to use, defaults to en.
-   */
-  async fetchLocalizationMessages(locale?: string) {
-    // note: 'en' auth.ftl only exists for browser bindings / Storybook
-    // the fallback English strings within the templates will be shown in other envs
-    const path = `${this.opts.l10n.basePath}/${locale || 'en'}/auth.ftl`;
-
-    try {
-      return await this.fetchResource(path);
-    } catch (e) {
-      // We couldn't fetch any strings; just return nothing and fluent will fall
-      // back to the default locale if needed.
-      return '';
-    }
+  async renderSmsTemplate(template: string, context: TemplateContext) {
+    const text = await this.fetchResource(
+      `${this.opts.ejs.root}/templates/${template}/index.txt`
+    );
+    return this.renderEjs(text, context);
   }
 
   /**
@@ -131,7 +121,7 @@ export abstract class LocalizerBindings {
    * Fetches a resource
    * @param path Path to resource
    */
-  protected abstract fetchResource(path: string): Promise<string>;
+  abstract fetchResource(path: string): Promise<string>;
 
   /**
    * Renders EJS
@@ -140,7 +130,7 @@ export abstract class LocalizerBindings {
    * @param body Optional body to wrap
    * @returns Rendered EJS template
    */
-  protected abstract renderEjs(
+  abstract renderEjs(
     ejsTemplate: string,
     context: TemplateContext,
     body?: string

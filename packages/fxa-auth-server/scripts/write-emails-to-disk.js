@@ -161,6 +161,7 @@ function sendMail(mailer, messageToSend) {
     uid: '6510cb04abd742c6b3e4abefc7e39c9f',
     metricsEnabled: true,
     productMetadata,
+    providerName: 'Google',
     subscription: {
       planDownloadURL: 'http://getfirefox.com/',
       planEmailIconURL: 'http://placekitten.com/512/512',

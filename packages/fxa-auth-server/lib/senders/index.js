@@ -19,10 +19,9 @@ module.exports = async (
   const Mailer = createMailer(log, config, bounces);
 
   async function createSenders() {
-    const templates = await require('./templates')(log, translator);
     return {
       email: new Mailer(translator, config.smtp, sender),
-      sms: createSms(log, translator, templates, config, statsd),
+      sms: createSms(log, config, statsd),
     };
   }
 

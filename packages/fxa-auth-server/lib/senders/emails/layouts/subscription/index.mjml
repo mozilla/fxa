@@ -15,9 +15,9 @@
   </mj-head>
 
   <mj-body css-class="body">
-    <mj-include path="./css/global.css" type="css" css-inline="inline" />
-    <mj-include path="./css/subscription/index.css" type="css" css-inline="inline" />
-    <mj-include path="./css/locale-dir.css" type="css" />
+    <mj-include path="<%- locals.cssPath %>/global.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/subscription/index.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/locale-dir.css" type="css" />
 
     <% if (locals.preHeader) { %>
       <mj-section>

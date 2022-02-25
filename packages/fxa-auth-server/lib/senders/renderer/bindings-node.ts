@@ -4,11 +4,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { JSDOM } from 'jsdom';
-import {
-  LocalizerBindings,
-  LocalizerOpts,
-  TemplateContext,
-} from './localizer-bindings';
+import { RendererBindings, RendererOpts, TemplateContext } from './bindings';
 
 import ejs from 'ejs';
 import mjml2html from 'mjml';
@@ -18,20 +14,21 @@ import { join } from 'path';
  * Represents default set of bindings for fluent localizer. Used for nodejs
  * processes.
  */
-export class NodeLocalizerBindings extends LocalizerBindings {
-  protected readonly opts: LocalizerOpts;
+export class NodeRendererBindings extends RendererBindings {
+  readonly opts: RendererOpts;
 
-  constructor(opts?: Partial<LocalizerOpts>) {
+  constructor(opts?: Partial<RendererOpts>) {
     super();
 
-    // Backfill options with defaults
+    // Backfill options with (email) defaults
     this.opts = Object.assign(
       {
         templates: {
-          basePath: __dirname,
+          basePath: join(__dirname, '../emails'),
+          cssPath: join(__dirname, '../emails/css'),
         },
         ejs: {
-          root: __dirname,
+          root: join(__dirname, '../emails'),
         },
         mjml: {
           validationLevel: 'strict',
@@ -41,7 +38,7 @@ export class NodeLocalizerBindings extends LocalizerBindings {
           ignoreIncludes: typeof global.it === 'function',
           minify: true,
         },
-        l10n: {
+        translations: {
           basePath: join(__dirname, '../../../public/locales'),
         },
       },
@@ -53,12 +50,12 @@ export class NodeLocalizerBindings extends LocalizerBindings {
   }
 
   protected validateConfig() {
-    if (!existsSync(this.opts.l10n.basePath)) {
-      throw new Error('Invalid l10n basePath');
+    if (!existsSync(this.opts.translations.basePath)) {
+      throw new Error('Invalid ftl translations basePath');
     }
   }
 
-  protected async fetchResource(path: string): Promise<string> {
+  async fetchResource(path: string): Promise<string> {
     const raw = readFileSync(path, {
       encoding: 'utf8',
     });
@@ -66,11 +63,7 @@ export class NodeLocalizerBindings extends LocalizerBindings {
     return raw;
   }
 
-  protected renderEjs(
-    template: string,
-    context: TemplateContext,
-    body?: string
-  ) {
+  renderEjs(template: string, context: TemplateContext, body?: string) {
     return ejs.render(template, { ...context, body: body }, this.opts.ejs);
   }
 

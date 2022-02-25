@@ -2,36 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FluentBundle, FluentResource } from '@fluent/bundle';
+import { FluentBundle } from '@fluent/bundle';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import FluentLocalizer, {
-  splitPlainTextLine,
-  parseAcceptLanguage,
-} from '../../../../lib/senders/emails/fluent-localizer';
-
-import { NodeLocalizerBindings } from '../../../../lib/senders/emails/localizer-bindings-node';
+import Localizer, { parseAcceptLanguage } from '../../../lib/l10n';
+import { LocalizerBindings } from '../../../lib/l10n/bindings';
 
 chai.use(chaiAsPromised);
 
-describe('fluent localizer', () => {
+describe('Localizer', () => {
   describe('fetches bundles', () => {
-    let LocalizerBindings = new NodeLocalizerBindings();
-    let localizer = new FluentLocalizer(LocalizerBindings);
+    let localizerBindings = new LocalizerBindings();
+    let localizer = new Localizer(localizerBindings);
 
-    it('fails with a bad localizer 1l0n basePath', () => {
+    it('fails with a bad localizer ftl basePath', () => {
       assert.throws(() => {
-        let LocalizerBindings = new NodeLocalizerBindings({
-          l10n: {
+        let localizerBindings = new LocalizerBindings({
+          translations: {
             basePath: '/not/a/apth',
           },
         });
-        new FluentLocalizer(LocalizerBindings);
-      }, 'Invalid l10n basePath');
+        new Localizer(localizerBindings);
+      }, 'Invalid ftl translations basePath');
     });
 
     it('produces the current locales', async () => {
-      const { currentLocales } = await localizer.setupLocalizer(
+      const { currentLocales } = await localizer.getLocalizerDeps(
         'de-CH,it;q=0.8,en-US;q=0.5,en;q=0.3'
       );
 
@@ -47,7 +43,7 @@ describe('fluent localizer', () => {
     });
 
     it('generates a proper bundle', async () => {
-      const { generateBundles } = await localizer.setupLocalizer('de,en');
+      const { generateBundles } = await localizer.getLocalizerDeps('de,en');
 
       const bundles: Array<FluentBundle> = [];
       for await (const bundle of generateBundles(['de'])) {
@@ -65,7 +61,7 @@ describe('fluent localizer', () => {
         );
 
         const result = await l10n.formatValue(
-          'subscriptionAccountFinishSetup-action',
+          'subscriptionAccountReminderFirst-action',
           {}
         );
 
@@ -87,7 +83,7 @@ describe('fluent localizer', () => {
     });
   });
 
-  describe('lanugage negotiation', () => {
+  describe('language negotiation', () => {
     it('handles empty case', () => {
       const result = parseAcceptLanguage('');
 
@@ -147,48 +143,6 @@ describe('fluent localizer', () => {
       const result = parseAcceptLanguage('en-NZ, en-GB, en-MY');
 
       assert.deepEqual(result, ['en-GB', 'en']);
-    });
-  });
-
-  describe('key value extraction', () => {
-    const pair = {
-      key: 'foo_2-Bar',
-      val: 'foo - bar',
-    };
-
-    it('splits line with default format', () => {
-      const { key, val } = splitPlainTextLine(`${pair.key} = "${pair.val}"`);
-
-      assert.equal(key, pair.key);
-      assert.equal(val, pair.val);
-    });
-
-    it('handles line with trailing whitespace', () => {
-      const { key, val } = splitPlainTextLine(
-        `  ${pair.key}  =  "${pair.val}"  `
-      );
-      assert.equal(key, pair.key);
-      assert.equal(val, pair.val);
-    });
-
-    it('handles compact line format', () => {
-      const { key, val } = splitPlainTextLine(`${pair.key}="${pair.val}"`);
-      assert.equal(key, pair.key);
-      assert.equal(val, pair.val);
-    });
-
-    it('handles escaped quote format', () => {
-      const { key, val } = splitPlainTextLine(
-        `${pair.key}="${pair.val} \"baz\" "`
-      );
-      assert.equal(key, pair.key);
-      assert.equal(val, pair.val + ' "baz" ');
-    });
-
-    it('requires value to be quoted string', () => {
-      const { key, val } = splitPlainTextLine(`${pair.key} = ${pair.val}`);
-      assert.notExists(key);
-      assert.notExists(val);
     });
   });
 });
