@@ -5,12 +5,12 @@ import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import { Stripe } from 'stripe';
 
 /**
- * Formats a Stripe Invoice to the InvoicePreview DTO format.
+ * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
  */
-export function stripeInvoiceToInvoicePreviewDTO(
+export function stripeInvoiceToFirstInvoicePreviewDTO(
   invoice: Stripe.Invoice
-): invoiceDTO.InvoicePreview {
-  const invoicePreview: invoiceDTO.invoicePreviewSchema = {
+): invoiceDTO.FirstInvoicePreview {
+  const invoicePreview: invoiceDTO.firstInvoicePreviewSchema = {
     subtotal: invoice.subtotal,
     total: invoice.total,
     line_items: invoice.lines.data.map((line) => ({
@@ -45,4 +45,17 @@ export function stripeInvoiceToInvoicePreviewDTO(
     };
   }
   return invoicePreview;
+}
+
+/**
+ * Formats an array of Stripe Invoice to the SubsequentInvoicePreview DTO format.
+ */
+export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
+  invoices: Stripe.Invoice[]
+): invoiceDTO.SubsequentInvoicePreview[] {
+  return invoices.map((invoice) => ({
+    subscriptionId: invoice.subscription as string,
+    period_start: invoice.period_end,
+    total: invoice.total,
+  }));
 }

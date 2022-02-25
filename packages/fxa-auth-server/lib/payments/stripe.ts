@@ -636,6 +636,19 @@ export class StripeHelper {
     });
   }
 
+  /**
+   * Previews the subsequent invoice for a specific subscription
+   */
+  async previewInvoiceBySubscriptionId({
+    subscriptionId,
+  }: {
+    subscriptionId: string;
+  }) {
+    return this.stripe.invoices.retrieveUpcoming({
+      subscription: subscriptionId,
+    });
+  }
+
   /** Fetch a coupon with `applies_to` expanded. */
   async getCoupon(couponId: string) {
     return this.stripe.coupons.retrieve(couponId, {

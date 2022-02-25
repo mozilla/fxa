@@ -36,7 +36,8 @@ const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const {
-  stripeInvoiceToInvoicePreviewDTO,
+  stripeInvoiceToFirstInvoicePreviewDTO,
+  stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } = require('../../../../lib/payments/stripe-formatter');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
@@ -580,7 +581,100 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.previewInvoice,
         { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
       );
-      assert.deepEqual(stripeInvoiceToInvoicePreviewDTO(expected), actual);
+      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+    });
+  });
+
+  describe('subsequentInvoicePreviews', () => {
+    it('returns array of next invoices', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+        id: 'cus_id',
+        subscriptions: {
+          data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
+        },
+      });
+      VALID_REQUEST.payload = {
+        subscriptionIds: ['sub_id1', 'sub_id2'],
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'subsequentInvoicePreviews'
+      );
+      sinon.assert.calledTwice(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+        { subscriptionId: 'sub_id1' }
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+        { subscriptionId: 'sub_id2' }
+      );
+      assert.deepEqual(
+        stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected]),
+        actual
+      );
+    });
+
+    it('return empty array if customer has no subscriptions', async () => {
+      const expected = [];
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+        id: 'cus_id',
+        subscriptions: {
+          data: [],
+        },
+      });
+      VALID_REQUEST.payload = {
+        subscriptionIds: ['sub_id1', 'sub_id2'],
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'subsequentInvoicePreviews'
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      assert.deepEqual(expected, actual);
+    });
+
+    it('errors if customer isnt found', async () => {
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
+      VALID_REQUEST.payload = {
+        subscriptionIds: ['sub_id1', 'sub_id2'],
+      };
+      VALID_REQUEST.app.geo = {};
+      try {
+        await directStripeRoutesInstance.subsequentInvoicePreviews(
+          VALID_REQUEST
+        );
+        assert.fail(
+          'Finding subsequent invoices should fail when no customer is found.'
+        );
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
     });
   });
 
