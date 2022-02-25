@@ -92,7 +92,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             >
               Are you sure you want to unlink your Google account? Unlinking
               your account does not automatically sign you out of those
-              services, to do that you will need to manually sign out from the
+              services. To do that you will need to manually sign out from the
               Connected services section.
             </p>
           </Localized>
