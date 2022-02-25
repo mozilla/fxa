@@ -324,6 +324,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
             flowBeginTime,
             ip,
             location: request.app.geo.location,
+            timeZone: request.app.geo.timeZone,
             uaBrowser: request.app.ua.browser,
             uaBrowserVersion: request.app.ua.browserVersion,
             uaOS: request.app.ua.os,
