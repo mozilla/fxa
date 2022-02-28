@@ -3775,6 +3775,7 @@ describe('StripeHelper', () => {
           'product:privacyNoticeURL': privacyNoticeURL,
           'product:termsOfServiceURL': termsOfServiceURL,
         },
+        showPaymentMethod: true,
       };
 
       const expectedDiscount = {
@@ -3862,6 +3863,25 @@ describe('StripeHelper', () => {
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, expectedDiscount);
+      });
+
+      it('extracts expected details from an invoice with 100% discount', async () => {
+        const fixtureDiscount100 = fixtureDiscount;
+        fixtureDiscount100.total = 0;
+        fixtureDiscount100.total_discount_amounts[0].amount = 500;
+        const expectedDiscount100 = {
+          ...expectedDiscount,
+          invoiceDiscountAmountInCents: 500,
+          invoiceTotalInCents: 0,
+          showPaymentMethod: false,
+        };
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureDiscount100
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, expectedDiscount100);
       });
 
       it('throws an exception for deleted customer', async () => {

@@ -2285,6 +2285,7 @@ export class StripeHelper {
       planEmailIconURL,
       planDownloadURL,
       productMetadata,
+      showPaymentMethod: !!invoiceTotalInCents,
     };
   }
 

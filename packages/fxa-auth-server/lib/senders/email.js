@@ -403,7 +403,7 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype._constructLocalTimeString = function (
     timeZone,
-    acceptLanguage,
+    acceptLanguage
   ) {
     return constructLocalTimeString(timeZone, acceptLanguage);
   };
@@ -625,7 +625,7 @@ module.exports = function (log, config, bounces) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -801,7 +801,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateLinks(null, message, query, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -873,7 +873,7 @@ module.exports = function (log, config, bounces) {
       const action = gettext('Confirm sign-in');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage,
+        message.acceptLanguage
       );
 
       return this.send({
@@ -933,7 +933,7 @@ module.exports = function (log, config, bounces) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1000,7 +1000,7 @@ module.exports = function (log, config, bounces) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1046,7 +1046,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateLinks(undefined, message, {}, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1109,7 +1109,7 @@ module.exports = function (log, config, bounces) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1152,7 +1152,7 @@ module.exports = function (log, config, bounces) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1253,7 +1253,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1304,7 +1304,7 @@ module.exports = function (log, config, bounces) {
       const action = gettext('Manage account');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage,
+        message.acceptLanguage
       );
 
       return this.send({
@@ -1500,7 +1500,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1543,7 +1543,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1585,7 +1585,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1630,7 +1630,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1725,7 +1725,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1773,7 +1773,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1821,7 +1821,7 @@ module.exports = function (log, config, bounces) {
     const action = gettext('Create new recovery key');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -2609,6 +2609,7 @@ module.exports = function (log, config, bounces) {
       payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
+      showPaymentMethod,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2680,6 +2681,7 @@ module.exports = function (log, config, bounces) {
         nextInvoiceDate,
         paymentProrated,
         showProratedAmount,
+        showPaymentMethod,
       },
     });
   };
@@ -2707,6 +2709,7 @@ module.exports = function (log, config, bounces) {
       payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
+      showPaymentMethod,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2788,6 +2791,7 @@ module.exports = function (log, config, bounces) {
         nextInvoiceDate,
         paymentProrated,
         showProratedAmount,
+        showPaymentMethod,
       },
     });
   };
@@ -2809,6 +2813,7 @@ module.exports = function (log, config, bounces) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      showPaymentMethod,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2867,6 +2872,7 @@ module.exports = function (log, config, bounces) {
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
+        showPaymentMethod,
       },
     });
   };
@@ -2892,6 +2898,7 @@ module.exports = function (log, config, bounces) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      showPaymentMethod,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2960,6 +2967,7 @@ module.exports = function (log, config, bounces) {
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
+        showPaymentMethod,
       },
     });
   };
