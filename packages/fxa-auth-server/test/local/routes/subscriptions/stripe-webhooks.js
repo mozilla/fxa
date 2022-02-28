@@ -1593,16 +1593,21 @@ describe('StripeWebhookHandler', () => {
     const commonSendSubscriptionInvoiceEmailTest =
       (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
       async () => {
-        const invoice =
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
-            ? deepCopy(eventInvoicePaidDiscount)
-            : deepCopy(eventInvoicePaid.data.object);
+        const invoice = [
+          'sendSubscriptionFirstInvoiceDiscountEmail',
+          'sendSubscriptionSubsequentInvoiceDiscountEmail',
+        ].includes(expectedMethodName)
+          ? deepCopy(eventInvoicePaidDiscount)
+          : deepCopy(eventInvoicePaid.data.object);
 
         invoice.billing_reason = billingReason;
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
         if (
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
+          [
+            'sendSubscriptionFirstInvoiceDiscountEmail',
+            'sendSubscriptionSubsequentInvoiceDiscountEmail',
+          ].includes(expectedMethodName)
         ) {
           mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
@@ -1634,7 +1639,7 @@ describe('StripeWebhookHandler', () => {
         );
         if (
           [
-            'sendSubscriptionFirstInvoiceDiscountEmail',
+            'sendSubscriptionFirstInvoiceEmail',
             'sendSubscriptionFirstInvoiceDiscountEmail',
           ].includes(expectedMethodName)
         ) {
@@ -1697,6 +1702,14 @@ describe('StripeWebhookHandler', () => {
       'sends the subsequent invoice email for billing reasons besides creation',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
+        'subscription_cycle'
+      )
+    );
+
+    it(
+      'sends the subsequent invoice email for billing reasons besides creation with a discount',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionSubsequentInvoiceDiscountEmail',
         'subscription_cycle'
       )
     );

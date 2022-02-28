@@ -58,10 +58,10 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
 
     <mj-text css-class="text-body-no-bottom-margin">
       <span
-        data-l10n-id="subscriptionFirstInvoiceDiscount-content-onetime-discount"
+        data-l10n-id="subscriptionFirstInvoiceDiscount-content-discount"
         data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>"
       >
-        One-time discount: -<%- invoiceDiscountAmount %>
+        Discount: -<%- invoiceDiscountAmount %>
       </span>
     </mj-text>
 

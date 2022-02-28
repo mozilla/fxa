@@ -1,0 +1,63 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<%- include ('/partials/icon/index.mjml') %>
+
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-title">Thank you for being a subscriber!</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-received" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        We received your latest payment for <%- productName %>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
+        Invoice Number: <b><%- invoiceNumber %></b>
+      </span>
+    </mj-text>
+
+    <% if (showProratedAmount) { %>
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-plan-change" data-l10n-args="<%= JSON.stringify({paymentProrated}) %>">
+        Plan change: <%- paymentProrated %>
+      </span>
+    </mj-text>
+    <% } %>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-subtotal" data-l10n-args="<%= JSON.stringify({invoiceSubtotal}) %>">
+        Subtotal: <%- invoiceSubtotal %>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-discount" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>">
+        Discount: -<%- invoiceDiscountAmount %>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
+        Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
+      </span>
+    </mj-text>
+
+    <%- include ('/partials/viewInvoice/index.mjml') %>
+    <%- include ('/partials/paymentProvider/index.mjml') %>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+        Next Invoice: <%- nextInvoiceDateOnly %>
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

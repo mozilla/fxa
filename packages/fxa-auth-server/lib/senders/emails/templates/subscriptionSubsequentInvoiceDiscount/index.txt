@@ -1,0 +1,16 @@
+subscriptionSubsequentInvoiceDiscount-subject = "<%- productName %> payment received"
+
+subscriptionSubsequentInvoiceDiscount-title = "Thank you for being a subscriber!"
+
+subscriptionSubsequentInvoiceDiscount-content-received = "We received your latest payment for <%- productName %>."
+
+subscriptionSubsequentInvoiceDiscount-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
+<% if (showProratedAmount) { %>subscriptionSubsequentInvoiceDiscount-content-plan-change = "Plan change: <%- paymentProrated %>"<% } %>
+subscriptionSubsequentInvoiceDiscountDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
+subscriptionSubsequentInvoiceDiscountDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
+subscriptionSubsequentInvoiceDiscountDiscount-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>
+
+subscriptionSubsequentInvoiceDiscount-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+
+<%- include ('/partials/subscriptionSupport/index.txt') %>

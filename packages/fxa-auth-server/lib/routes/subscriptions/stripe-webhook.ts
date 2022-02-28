@@ -737,7 +737,15 @@ export class StripeWebhookHandler extends StripeHandler {
       default:
         // Other billing reasons should be covered in subsequent invoice email
         // https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason
-        await this.mailer.sendSubscriptionSubsequentInvoiceEmail(...mailParams);
+        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
+          this.mailer.sendSubscriptionSubsequentInvoiceDiscountEmail(
+            ...mailParams
+          );
+        } else {
+          await this.mailer.sendSubscriptionSubsequentInvoiceEmail(
+            ...mailParams
+          );
+        }
         break;
     }
     return invoiceDetails;

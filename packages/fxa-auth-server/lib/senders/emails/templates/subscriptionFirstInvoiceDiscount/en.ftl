@@ -20,7 +20,7 @@ subscriptionFirstInvoiceDiscount-content-invoice-number-plaintext = Invoice Numb
 subscriptionFirstInvoiceDiscount-content-subtotal = Subtotal: { $invoiceSubtotal }
 # Variables:
 #  $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
-subscriptionFirstInvoiceDiscount-content-onetime-discount = One-time discount: -{ $invoiceDiscountAmount }
+subscriptionFirstInvoiceDiscount-content-discount = Discount: -{ $invoiceDiscountAmount }
 # Variables:
 #  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
 #  $invoiceTotal (String) - The amount, after discount, of the subscription invoice, including currency, e.g. $8.00

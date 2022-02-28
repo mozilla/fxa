@@ -57,6 +57,8 @@ module.exports = function (log, config, bounces) {
     subscriptionFailedPaymentsCancellation:
       'subscription-failed-payments-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
+    subscriptionSubsequentInvoiceDiscount:
+      'subscription-subsequent-invoice-discount',
     subscriptionFirstInvoice: 'subscription-first-invoice',
     subscriptionFirstInvoiceDiscount: 'subscription-first-invoice-discount',
     downloadSubscription: 'new-subscription',
@@ -106,6 +108,7 @@ module.exports = function (log, config, bounces) {
     subscriptionCancellation: 'subscriptions',
     subscriptionFailedPaymentsCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
+    subscriptionSubsequentInvoiceDiscount: 'subscriptions',
     subscriptionFirstInvoice: 'subscriptions',
     subscriptionFirstInvoiceDiscount: 'subscriptions',
     downloadSubscription: 'subscriptions',
@@ -2668,6 +2671,114 @@ module.exports = function (log, config, bounces) {
         invoiceDate,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        payment_provider,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
+        paymentProrated,
+        showProratedAmount,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionSubsequentInvoiceDiscountEmail = async function (
+    message
+  ) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceLink,
+      invoiceNumber,
+      invoiceDate,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+      payment_provider,
+      paymentProratedInCents,
+      paymentProratedCurrency,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionSubsequentInvoiceDiscount', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionSubsequentInvoiceDiscount';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = { productName };
+    const subject = translator.gettext('%(productName)s payment received');
+
+    let paymentProrated;
+    let showProratedAmount = false;
+    if (typeof paymentProratedInCents !== 'undefined') {
+      showProratedAmount = true;
+      paymentProrated = this._getLocalizedCurrencyString(
+        paymentProratedInCents,
+        paymentProratedCurrency,
+        message.acceptLanguage
+      );
+    }
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceLink,
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceSubtotal: this._getLocalizedCurrencyString(
+          invoiceSubtotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceDiscountAmount: this._getLocalizedCurrencyString(
+          invoiceDiscountAmountInCents,
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
