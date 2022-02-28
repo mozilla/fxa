@@ -2709,6 +2709,7 @@ module.exports = function (log, config, bounces) {
       payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
+      showPaymentMethod,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2790,6 +2791,7 @@ module.exports = function (log, config, bounces) {
         nextInvoiceDate,
         paymentProrated,
         showProratedAmount,
+        showPaymentMethod,
       },
     });
   };

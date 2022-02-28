@@ -53,5 +53,5 @@ export const SubscriptionFirstInvoiceWithCoupon = createStory(
     invoiceDiscountAmount: '$20.00',
     showPaymentMethod: false,
   },
-  'Payment method - coupon covered entire amount'
+  'Payment method hidden - coupon covered entire amount'
 );

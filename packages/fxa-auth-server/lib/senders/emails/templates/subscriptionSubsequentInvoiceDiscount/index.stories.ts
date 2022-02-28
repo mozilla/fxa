@@ -24,6 +24,7 @@ const createStory = subplatStoryWithProps(
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     nextInvoiceDateOnly: '1/14/2022',
     subscriptionSupportUrl: 'http://localhost:3030/support',
+    showPaymentMethod: true,
   }
 );
 
@@ -63,4 +64,15 @@ export const SubscriptionSubsequentInvoiceStripeNoProrated = createStory(
     showProratedAmount: false,
   },
   'Stripe with no prorated amount'
+);
+
+export const SubscriptionSubsequentInvoiceCouponFullAmount = createStory(
+  {
+    cardType: 'MasterCard',
+    lastFour: '5309',
+    payment_provider: 'stripe',
+    showProratedAmount: false,
+    showPaymentMethod: false,
+  },
+  'Payment method hidden - coupon covered entire amount'
 );
