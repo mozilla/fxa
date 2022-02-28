@@ -187,9 +187,6 @@ export async function handleSubscriptionPayment({
     });
   } else {
     // 3b. Retry payment for the subscription invoice created earlier.
-
-    // It looks like this will not happen if a user refreshes the page, or closes
-    // the page and reopens the page. Causing a hanging incomplete subscription.
     const { invoiceId } = retryStatus;
     const retryInvoiceResult = await apiRetryInvoice({
       invoiceId: retryStatus.invoiceId,
@@ -252,12 +249,6 @@ export async function handlePaymentIntent({
         paymentMethodId
       ) {
         apiDetachFailedPaymentMethod({ paymentMethodId });
-        // Delete incomplete subscription.
-        // If we do not do this, and a new subscription is added, with valid payment card,
-        // then both subscriptions will be paid, resulting in a duplicate charge.
-        // A new subscription will be created if the customer refreshes the page,
-        // instead of hitting the try again button.
-        // apiDeleteSubscriptionId({ subscriptionId });
       }
       return onRetry({ invoiceId });
     }
