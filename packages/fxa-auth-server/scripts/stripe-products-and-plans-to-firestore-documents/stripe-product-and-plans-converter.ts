@@ -240,20 +240,30 @@ export class StripeProductsAndPlansConverter {
   }
 
   // TODO JSDoc
-  stripePlanToPlanConfig(plan: Stripe.Plan): PlanConfig {}
+  stripePlanToPlanConfig(
+    plan: Stripe.Plan,
+    productConfigId: string
+  ): PlanConfig {
+    return {
+      stripePriceId: plan.id,
+      active: plan.active,
+      productConfigId,
+    };
+  }
 
   // TODO: Better method name and JSDoc
   /**
-   * For each Stripe Product (only the product with productId else all products)
+   * For each Stripe Product (only the product with `productId` else all products)
    *  - Initialize an empty object to represent a productConfig Firestore doc
    *  - Copy any product metadata to the productConfig
+   *  - Check if a document already exists for this Stripe product ID and get its doc ID
    *  - For each Stripe Plan
    *    - Copy any plan locale metadata to productConfig.locales
-   *      - If the plan does not have a valid locale (language-region or language only), throw an error.
    *    - Initialize an empty object to represent a planConfig Firestore doc
    *    - Copy any other plan metadata to the planConfig
-   *    - Insert the planConfig into the PlanConfig collection in Firestore
-   *  - Insert the productConfig into the ProductConfig collection in Firestore
+   *    - Check if a document already exists for this Stripe plan ID and get its doc ID
+   *    - Update or add the planConfig into the PlanConfig collection in Firestore
+   *  - Update or add the productConfig into the ProductConfig collection in Firestore
    */
   async convert({
     productId,
@@ -269,22 +279,26 @@ export class StripeProductsAndPlansConverter {
       isDryRun,
       delay,
     });
+    await this.paymentConfigManager.load();
+    this.paymentConfigManager.startListeners();
     const params = productId ? { ids: [productId] } : {};
     for await (const product of this.stripeHelper.stripe.products.list(
       params
     )) {
       const productConfig = this.stripeProductToProductConfig(product);
-      // TODO: How do I obtain a productConfigId for an existing productConfig
-      // document when I re-run this script to update an existing productConfig?
-      const productConfigId =
-        await this.paymentConfigManager.storeProductConfig(productConfig);
-      this.log.info(
-        'StripeProductsAndPlansConverter.convertProductNoLocalesSuccess',
-        {
-          productConfigId,
-          productId: product.id,
-        }
-      );
+      // We need a productConfigId to store a planConfig; this may require
+      // storing a new productConfig with `locales: {}` and updating it after
+      // we've iterated through the Stripe Plans.
+      const existingProductConfigId =
+        await this.paymentConfigManager.getDocumentIdByStripeId(product.id);
+      let productConfigId;
+      if (existingProductConfigId) {
+        productConfigId = existingProductConfigId;
+      } else {
+        productConfigId = await this.paymentConfigManager.storeProductConfig(
+          productConfig
+        );
+      }
       for await (const plan of this.stripeHelper.stripe.plans.list({
         product: product.id,
       })) {
@@ -293,19 +307,28 @@ export class StripeProductsAndPlansConverter {
           ...productConfig.locales,
           ...this.stripePlanLocalesToProductConfigLocales(plan),
         };
-        const planConfig = this.stripePlanToPlanConfig(plan);
-        // TODO: How do I obtain a planConfigId for an existing planConfig
-        // document when I re-run this script to update an existing planConfig?
-        const planConfigId = await this.paymentConfigManager.storePlanConfig(
-          planConfig,
-          productConfigId
-        );
+        const planConfig = this.stripePlanToPlanConfig(plan, productConfigId);
+        // If a planConfig doc already exists, update it rather than creating
+        // a new doc
+        const existingPlanConfigId =
+          await this.paymentConfigManager.getDocumentIdByStripeId(plan.id);
+        const planConfigId = existingPlanConfigId
+          ? await this.paymentConfigManager.storePlanConfig(
+              planConfig,
+              productConfigId,
+              existingPlanConfigId
+            )
+          : await this.paymentConfigManager.storePlanConfig(
+              planConfig,
+              productConfigId
+            );
         this.log.info('StripeProductsAndPlansConverter.convertPlanSuccess', {
           planConfigId,
           planId: plan.id,
         });
         break; // TODO remove after I get it to work for the first plan
       }
+      // Whether just added above or not, the productConfig exists now, so update it.
       await this.paymentConfigManager.storeProductConfig(
         productConfig,
         productConfigId
@@ -316,5 +339,6 @@ export class StripeProductsAndPlansConverter {
         productId: product.id,
       });
     }
+    this.paymentConfigManager.stopListeners();
   }
 }
