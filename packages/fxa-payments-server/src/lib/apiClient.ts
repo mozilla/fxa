@@ -4,7 +4,7 @@ import * as Amplitude from './amplitude';
 import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
-import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponErrorMessageType } from '../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
@@ -390,7 +390,7 @@ export async function apiRetryInvoice(params: {
 export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
-}): Promise<InvoicePreview> {
+}): Promise<FirstInvoicePreview> {
   return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,

@@ -34,7 +34,11 @@ const FUZZY_EVENTS = new Map([
   ],
 ]);
 
-const transform = initialize({}, {}, FUZZY_EVENTS);
+const transform = initialize(
+  config.get('oauth_client_id_map'),
+  {},
+  FUZZY_EVENTS
+);
 
 module.exports = (event, request, data) => {
   const statsd = Container.get(StatsD);

@@ -481,7 +481,7 @@ export const paypalRoutes = (
         response: {
           schema: isA.object({
             token: isA.string().required(),
-          }),
+          }) as any,
         },
         validate: {
           payload: {
@@ -504,7 +504,7 @@ export const paypalRoutes = (
           schema: isA.object().keys({
             subscription: validators.subscriptionsStripeSubscriptionValidator,
             sourceCountry: validators.subscriptionPaymentCountryCode.required(),
-          }),
+          }) as any,
         },
         validate: {
           payload: {
@@ -528,7 +528,7 @@ export const paypalRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator as any,
         },
         validate: {
           payload: {

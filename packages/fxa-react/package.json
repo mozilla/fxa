@@ -1,6 +1,6 @@
 {
   "name": "fxa-react",
-  "version": "1.225.3",
+  "version": "1.226.2",
   "description": "Shared components for FxA React Apps",
   "exports": {
     "./components/": "./dist/components/",
@@ -46,7 +46,7 @@
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.2.17",
     "@testing-library/dom": "^8.11.2",
-    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/camelcase": "5.2.0",
@@ -68,7 +68,7 @@
     "eslint": "^7.32.0",
     "file-loader": "^4.3.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "27.4.7",
+    "jest": "27.5.1",
     "jest-environment-jsdom": "^27.3.1",
     "pm2": "^5.1.2",
     "postcss-cli": "^7.1.1",

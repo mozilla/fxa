@@ -46,7 +46,7 @@ export const supportPanelRoutes = ({
           strategy: 'supportPanelSecret',
         },
         response: {
-          schema: validators.subscriptionsSubscriptionSupportValidator,
+          schema: validators.subscriptionsSubscriptionSupportValidator as any,
         },
         validate: {
           query: {

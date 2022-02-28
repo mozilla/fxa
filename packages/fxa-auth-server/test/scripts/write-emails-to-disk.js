@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const templateNames = require('../../lib/senders/templates/_versions.json');
+const templateNames = require('../../lib/senders/emails/templates/_versions.json');
 const OUTPUT_DIRECTORY =
   require('../../scripts/write-emails-to-disk').OUTPUT_DIRECTORY;
 

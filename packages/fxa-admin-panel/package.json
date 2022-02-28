@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-panel",
-  "version": "1.225.3",
+  "version": "1.226.2",
   "description": "FxA Admin Panel",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
@@ -70,7 +70,7 @@
     "@storybook/react": "^6.3.12",
     "@tailwindcss/postcss7-compat": "^2.2.17",
     "@testing-library/dom": "^8.11.2",
-    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/babel__core": "7.1.14",
@@ -100,7 +100,7 @@
     "eslint-plugin-jest": "^24.5.2",
     "eslint-plugin-react": "^7.26.1",
     "fxa-shared": "workspace:*",
-    "jest": "27.4.7",
+    "jest": "27.5.1",
     "jest-watch-typeahead": "0.6.5",
     "pm2": "^5.1.2",
     "postcss-cli": "^7.1.1",

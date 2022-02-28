@@ -26,7 +26,10 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
-import { stripeInvoiceToInvoicePreviewDTO } from '../../payments/stripe-formatter';
+import {
+  stripeInvoiceToFirstInvoicePreviewDTO,
+  stripeInvoicesToSubsequentInvoicePreviewsDTO,
+} from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
@@ -405,7 +408,7 @@ export class StripeHandler {
    */
   async previewInvoice(
     request: AuthRequest
-  ): Promise<invoiceDTO.invoicePreviewSchema> {
+  ): Promise<invoiceDTO.firstInvoicePreviewSchema> {
     this.log.begin('subscriptions.previewInvoice', request);
     await this.customs.checkIpOnly(request, 'previewInvoice');
 
@@ -419,7 +422,41 @@ export class StripeHandler {
       promotionCode,
       priceId,
     });
-    return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
+    return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
+  }
+
+  /**
+   * Preview invoices for an array of subscriptionIds
+   */
+  async subsequentInvoicePreviews(
+    request: AuthRequest
+  ): Promise<invoiceDTO.subsequentInvoicePreviewsSchema> {
+    this.log.begin('subscriptions.subsequentInvoicePreview', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'subsequentInvoicePreviews');
+
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    if (!customer.subscriptions?.data.length) {
+      return [];
+    }
+
+    const subsequentInvoicePreviews = await Promise.all(
+      customer.subscriptions?.data.map((sub) =>
+        this.stripeHelper.previewInvoiceBySubscriptionId({
+          subscriptionId: sub.id,
+        })
+      )
+    );
+
+    return stripeInvoicesToSubsequentInvoicePreviewsDTO(
+      subsequentInvoicePreviews
+    );
   }
 
   async retrieveCouponDetails(
@@ -747,7 +784,7 @@ export const stripeRoutes = (
               clientId: isA.string(),
               capabilities: isA.array().items(isA.string()),
             })
-          ),
+          ) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
@@ -757,7 +794,9 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/plans',
       options: {
         response: {
-          schema: isA.array().items(validators.subscriptionsPlanValidator),
+          schema: isA
+            .array()
+            .items(validators.subscriptionsPlanValidator) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.listPlans(request),
@@ -771,7 +810,9 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: isA.array().items(validators.activeSubscriptionValidator),
+          schema: isA
+            .array()
+            .items(validators.activeSubscriptionValidator) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.listActive(request),
@@ -785,7 +826,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsCustomerValidator,
+          schema: validators.subscriptionsCustomerValidator as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getCustomer(request),
@@ -799,7 +840,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator as any,
         },
         validate: {
           payload: {
@@ -824,7 +865,7 @@ export const stripeRoutes = (
           schema: isA.object().keys({
             subscription: validators.subscriptionsStripeSubscriptionValidator,
             sourceCountry: validators.subscriptionPaymentCountryCode.required(),
-          }),
+          }) as any,
         },
         validate: {
           payload: {
@@ -848,7 +889,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeInvoiceValidator,
+          schema: validators.subscriptionsStripeInvoiceValidator as any,
         },
         validate: {
           payload: {
@@ -866,7 +907,7 @@ export const stripeRoutes = (
       options: {
         auth: false,
         response: {
-          schema: invoiceDTO.invoicePreviewSchema as any,
+          schema: invoiceDTO.firstInvoicePreviewSchema as any,
         },
         validate: {
           payload: {
@@ -876,6 +917,21 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+    },
+    {
+      method: 'GET',
+      path: '/oauth/subscriptions/invoice/preview-subsequent',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: invoiceDTO.subsequentInvoicePreviewsSchema as any,
+        },
+      },
+      handler: (request: AuthRequest) =>
+        stripeHandler.subsequentInvoicePreviews(request),
     },
     {
       method: 'POST',
@@ -904,7 +960,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeIntentValidator,
+          schema: validators.subscriptionsStripeIntentValidator as any,
         },
       },
       handler: (request: AuthRequest) =>
@@ -919,7 +975,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator as any,
         },
         validate: {
           payload: {
@@ -943,7 +999,7 @@ export const stripeRoutes = (
             .object({
               id: validators.stripePaymentMethodId.required(),
             })
-            .unknown(true),
+            .unknown(true) as any,
         },
         validate: {
           payload: {
@@ -961,7 +1017,7 @@ export const stripeRoutes = (
         response: {
           schema: isA.object({
             product_name: isA.string().required(),
-          }),
+          }) as any,
         },
         validate: {
           query: {

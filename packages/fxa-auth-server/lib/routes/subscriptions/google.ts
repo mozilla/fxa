@@ -115,7 +115,7 @@ export const googleIapRoutes = (db: any): ServerRoute[] => {
               sku: isA.string().required(),
               token: isA.string().required(),
             })
-            .required(),
+            .required() as any,
         },
       },
       handler: (request: AuthRequest) =>

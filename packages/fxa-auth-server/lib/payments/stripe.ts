@@ -42,6 +42,7 @@ import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import error from '../error';
 import { GoogleMapsService } from '../google-maps-services';
+// @ts-ignore
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
@@ -633,6 +634,19 @@ export class StripeHelper {
         },
       ],
       ...params,
+    });
+  }
+
+  /**
+   * Previews the subsequent invoice for a specific subscription
+   */
+  async previewInvoiceBySubscriptionId({
+    subscriptionId,
+  }: {
+    subscriptionId: string;
+  }) {
+    return this.stripe.invoices.retrieveUpcoming({
+      subscription: subscriptionId,
     });
   }
 
@@ -2721,7 +2735,8 @@ export class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
-      productPaymentCycleOld: planOld.interval ?? baseDetails.productPaymentCycleNew,
+      productPaymentCycleOld:
+        planOld.interval ?? baseDetails.productPaymentCycleNew,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
       invoiceNumber,
@@ -2899,9 +2914,23 @@ export class StripeHelper {
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
-    return this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
-      paymentMethod
-    );
+    try {
+      await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
+        paymentMethod
+      );
+    } catch (err) {
+      if (
+        !(
+          err.name === FirestoreStripeError.STRIPE_CUSTOMER_DELETED &&
+          [
+            'payment_method.card_automatically_updated',
+            'payment_method.updated',
+          ].includes(event.type)
+        )
+      ) {
+        throw err;
+      }
+    }
   }
 
   /**

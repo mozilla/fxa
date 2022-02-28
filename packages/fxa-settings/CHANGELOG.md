@@ -1,3 +1,21 @@
+## 1.226.2
+
+No changes.
+
+## 1.226.1
+
+No changes.
+
+## 1.226.0
+
+### New features
+
+- google: Add frontend screens for linked accounts ([69797644f](https://github.com/mozilla/fxa/commit/69797644f))
+
+### Bug fixes
+
+- settings: Move change password to under security section in settings ([932c99869](https://github.com/mozilla/fxa/commit/932c99869))
+
 ## 1.225.3
 
 No changes.

@@ -57,7 +57,7 @@ import {
   apiRetrieveCouponDetails,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
-import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 function nock(it: any) {
@@ -480,7 +480,7 @@ describe('API requests', () => {
 
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
       const promotionCode = 'VALID';
-      const expected: InvoicePreview = {
+      const expected: FirstInvoicePreview = {
         subtotal: 200,
         total: 170,
         line_items: [

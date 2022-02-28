@@ -729,7 +729,7 @@ describe('metrics/amplitude', () => {
     });
 
     describe('email templates', () => {
-      const templates = require('../../../lib/senders/templates/_versions');
+      const templates = require('../../../lib/senders/emails/templates/_versions');
       const emailTypes = amplitudeModule.EMAIL_TYPES;
 
       for (const template in templates) {

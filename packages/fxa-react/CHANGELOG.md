@@ -1,3 +1,17 @@
+## 1.226.2
+
+No changes.
+
+## 1.226.1
+
+No changes.
+
+## 1.226.0
+
+### Other changes
+
+- deps-dev: bump sass from 1.48.0 to 1.49.7 (#11945) ([d610b5664](https://github.com/mozilla/fxa/commit/d610b5664))
+
 ## 1.225.3
 
 No changes.

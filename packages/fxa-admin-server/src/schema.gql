@@ -2,34 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Location {
-  city: String
-  country: String
-  countryCode: String
-  state: String
-  stateCode: String
-}
-
-type AttachedClient {
-  clientId: String
-  deviceId: String
-  sessionTokenId: String
-  refreshTokenId: String
-  isCurrentSession: Boolean
-  deviceType: String
-  name: String
-  scope: [String!]
-  location: Location
-  userAgent: String
-  os: String
-  createdTime: Float
-  createdTimeFormatted: String
-  lastAccessTime: Float
-  lastAccessTimeFormatted: String
-  approximateLastAccessTime: Float
-  approximateLastAccessTimeFormatted: String
-}
-
 type EmailBounce {
   email: String!
   templateName: String!
@@ -70,12 +42,6 @@ type Email {
   createdAt: Float!
 }
 
-type RecoveryKeys {
-  createdAt: Float
-  verifiedAt: Float
-  enabled: Boolean
-}
-
 type SecurityEvents {
   uid: String
   nameId: Float
@@ -92,6 +58,25 @@ type Totp {
   enabled: Boolean!
 }
 
+type RecoveryKeys {
+  createdAt: Float
+  verifiedAt: Float
+  enabled: Boolean
+}
+
+type SessionTokens {
+  tokenId: String
+  tokenData: String
+  uid: String
+  createdAt: Float
+  uaBrowser: String
+  uaBrowserVersion: String
+  uaOS: String
+  uaOSVersion: String
+  uaDeviceType: String
+  lastAccessTime: Float
+}
+
 type Account {
   uid: ID!
   email: String!
@@ -102,8 +87,8 @@ type Account {
   emailBounces: [EmailBounce!]
   totp: [Totp!]
   recoveryKeys: [RecoveryKeys!]
+  sessionTokens: [SessionTokens!]
   securityEvents: [SecurityEvents!]
-  attachedClients: [AttachedClient!]
 }
 
 type Query {

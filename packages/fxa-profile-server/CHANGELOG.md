@@ -1,3 +1,22 @@
+## 1.226.2
+
+No changes.
+
+## 1.226.1
+
+No changes.
+
+## 1.226.0
+
+### New features
+
+- payments: remove Coupons Feature Flag (#11576) ([02aeb5165](https://github.com/mozilla/fxa/commit/02aeb5165))
+
+### Other changes
+
+- deps: bump sharp from 0.29.3 to 0.30.1 ([9e9c098ab](https://github.com/mozilla/fxa/commit/9e9c098ab))
+- deps: bump aws-sdk from 2.1063.0 to 2.1068.0 (#11853) ([99e20de89](https://github.com/mozilla/fxa/commit/99e20de89))
+
 ## 1.225.3
 
 No changes.

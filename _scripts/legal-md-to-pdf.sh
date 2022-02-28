@@ -25,6 +25,8 @@ documents_to_convert=(
   mozilla_vpn_tos.md
   firefox_relay_tos.md
   firefox_relay_privacy_notice.md
+  mdn_plus_privacy.md
+  mdn_plus_terms.md
 )
 
 legal_docs_path=""

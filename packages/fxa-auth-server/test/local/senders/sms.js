@@ -10,20 +10,14 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 const ROOT_DIR = '../../..';
-const ISO_8601_FORMAT = /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:00Z$/;
+const ISO_8601_FORMAT =
+  /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:00Z$/;
 
 describe('lib/senders/sms:', () => {
-  let config,
-    log,
-    results,
-    cloudwatch,
-    sns,
-    mockSns,
-    smsModule,
-    translator,
-    templates;
+  let config, log, results, cloudwatch, sns, mockSns, smsModule;
 
-  beforeEach(() => {
+  beforeEach(function () {
+    this.timeout(10000);
     config = {
       smtp: {},
       sms: {
@@ -75,20 +69,13 @@ describe('lib/senders/sms:', () => {
         return mockSns;
       },
     });
-    return Promise.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`)(mocks.mockLog()),
-    ]).then((results) => {
-      translator = results[0];
-      templates = results[1];
-    });
   });
 
   describe('initialise:', () => {
     let sms;
 
     beforeEach(() => {
-      sms = smsModule(log, translator, templates, config);
+      sms = smsModule(log, config);
     });
 
     it('returned the expected interface', () => {
@@ -196,8 +183,8 @@ describe('lib/senders/sms:', () => {
     });
 
     describe('send a valid sms without a signinCode:', () => {
-      beforeEach(() => {
-        return sms.send('+442078553000', 'installFirefox', 'en');
+      beforeEach(async function () {
+        return await sms.send('+442078553000', 'installFirefox', 'en');
       });
 
       it('called sns.publish correctly', () => {
@@ -305,7 +292,7 @@ describe('lib/senders/sms:', () => {
 
       beforeEach(() => {
         statsd = { timing: sinon.stub() };
-        sms = smsModule(log, translator, templates, config, statsd);
+        sms = smsModule(log, config, statsd);
       });
 
       it('should collect timing stat on success', async () => {
@@ -354,7 +341,7 @@ describe('lib/senders/sms:', () => {
 
     beforeEach(() => {
       config.sms.useMock = true;
-      sms = smsModule(log, translator, templates, config);
+      sms = smsModule(log, config);
     });
 
     it('isBudgetOk returns true', () => {
@@ -421,7 +408,7 @@ describe('lib/senders/sms:', () => {
 
       it('sends the configured message type', async () => {
         config.sms.smsType = 'Transactional';
-        sms = smsModule(log, translator, templates, config);
+        sms = smsModule(log, config);
         await sms.send('+442078553000', 'installFirefox', 'en');
         const args = mockSns.publish.args[0];
         assert.equal(
@@ -432,7 +419,7 @@ describe('lib/senders/sms:', () => {
 
       it('sends a Promotional message when given invalid config value', async () => {
         config.sms.smsType = 'spooky';
-        sms = smsModule(log, translator, templates, config);
+        sms = smsModule(log, config);
         await sms.send('+442078553000', 'installFirefox', 'en');
         const args = mockSns.publish.args[0];
         assert.equal(

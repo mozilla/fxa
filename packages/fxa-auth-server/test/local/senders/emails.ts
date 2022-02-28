@@ -10,6 +10,7 @@ import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { URL } from 'url';
 
+const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();
 if (!config.smtp.prependVerificationSubdomain.enabled) {
   config.smtp.prependVerificationSubdomain.enabled = true;
@@ -25,7 +26,7 @@ config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 // Force enable the subscription transactional emails
 config.subscriptions.transactionalEmails.enabled = true;
 
-const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
+const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/emails/templates/_versions.json`);
 
 const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
@@ -40,7 +41,7 @@ const MESSAGE = {
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
   appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
-  date: 'Wednesday, Apr 7, 2021',
+  date: moment().tz('America/Los_Angeles').format('dddd, ll'),
   deviceId: 'foo',
   location: {
     city: 'Mountain View',
@@ -55,7 +56,7 @@ const MESSAGE = {
   numberRemaining: 2,
   primaryEmail: 'c@d.com',
   service: 'sync',
-  time: '5:48:20 PM (PDT)',
+  time: moment().tz('America/Los_Angeles').format('LTS (z)'),
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
   type: 'secondary',
@@ -103,6 +104,7 @@ const MESSAGE = {
   productPaymentCycleOld: 'year',
   providerName: 'Google',
   reminderLength: 14,
+  secondaryEmail: 'secondary@email.com',
   serviceLastActiveDate: new Date(1587339098816),
   subscription: {
     productName: 'Cooking with Foxkeh',
@@ -426,7 +428,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: 'If yes, use this verification code in your registration form:' },
       { test: 'include', expected: MESSAGE.code },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -437,7 +439,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `If yes, use this verification code in your registration form:\n${MESSAGE.code}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -462,7 +464,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.code}` },
       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -477,7 +479,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.code}` },
       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -525,7 +527,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -537,7 +539,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -559,7 +561,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -571,7 +573,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -591,7 +593,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -602,7 +604,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -624,7 +626,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: MESSAGE.unblockCode },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -635,7 +637,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.unblockCode}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -658,7 +660,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -670,7 +672,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -690,7 +692,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: 'If yes, use this verification code in your registration form:' },
       { test: 'include', expected: MESSAGE.code },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -701,7 +703,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `If yes, use this verification code in your registration form:\n${MESSAGE.code}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -723,7 +725,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -734,7 +736,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -753,7 +755,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-signin-verify-code', 'support')) },
       { test: 'include', expected: MESSAGE.code },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -762,7 +764,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-signin-verify-code', 'support')}` },
       { test: 'include', expected: `If yes, here is the verification code:\n${MESSAGE.code}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -781,7 +783,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -791,7 +793,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -813,7 +815,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -825,7 +827,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -844,7 +846,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-generated', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-recovery-generated', 'support')) },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -853,7 +855,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-generated', 'support')}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -875,7 +877,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -887,7 +889,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -909,7 +911,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -921,7 +923,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -967,7 +969,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -979,7 +981,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -1025,7 +1027,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1037,7 +1039,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -1059,7 +1061,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1071,7 +1073,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
-      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -1181,7 +1183,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
       { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1193,7 +1195,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1847,7 +1849,7 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
   ],
 ]);
 
-describe('lib/senders/mjml-emails:', () => {
+describe('lib/senders/emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
 
   let mockLog: Record<any, any>,
@@ -2045,6 +2047,96 @@ describe('lib/senders/mjml-emails:', () => {
     return mailer.send({
       ...MESSAGE,
       template: 'wibble-blee-definitely-does-not-exist',
+    });
+  });
+
+  describe('constructLocalTimeString - returns date/time', () => {
+    it('returns date/time based on given values', () => {
+      const message = {
+        timeZone: 'America/Los_Angeles',
+        acceptLanguage: 'en',
+      };
+
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      const testTime = moment().tz(message.timeZone).format('LTS (z)');
+      const testDay = moment().tz(message.timeZone).format('dddd, ll');
+      assert.deepEqual(result, [testTime, testDay]);
+    });
+
+    it('returns date/time based on default timezone (UTC) if timezone is undefined', () => {
+      const message = {
+        timeZone: undefined,
+        acceptLanguage: 'en',
+      };
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(result[0], 'UTC');
+    });
+
+    it('returns date/time based on default locale (en) if locale is undefined', () => {
+      const message = {
+        timeZone: 'Europe/Berlin',
+        acceptLanguage: undefined,
+      };
+
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(
+        [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ],
+        result[1].split(',')[0]
+      );
+    });
+
+    it('returns date/time in another timezone (at the time of writing - EST', () => {
+      const message = {
+        timeZone: 'Europe/Berlin',
+        acceptLanguage: 'en',
+      };
+
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(result[0], 'CET');
+    });
+
+    it('returns date/time in Spanish', () => {
+      const message = {
+        timeZone: 'America/Los_Angeles',
+        acceptLanguage: 'es',
+      };
+
+      const result = mailer._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
+      assert.include(
+        [
+          'lunes',
+          'martes',
+          'miércoles',
+          'jueves',
+          'viernes',
+          'sábado',
+          'domingo',
+        ],
+        result[1].split(',')[0]
+      );
     });
   });
 

@@ -1,3 +1,30 @@
+## 1.226.2
+
+### Other changes
+
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817)" ([4cbc3bce3](https://github.com/mozilla/fxa/commit/4cbc3bce3))
+- #11915: 9f29305b3 Revert "Issues/11091 (#11915)" ([9f29305b3](https://github.com/mozilla/fxa/commit/9f29305b3))
+- google: Add support for linked accounts in admin panel (#11937)" ([580cc2fcc](https://github.com/mozilla/fxa/commit/580cc2fcc))
+
+## 1.226.1
+
+No changes.
+
+## 1.226.0
+
+### New features
+
+- google: Add support for linked accounts in admin panel (#11937) ([7c93a6b9d](https://github.com/mozilla/fxa/commit/7c93a6b9d))
+
+### Other changes
+
+- #11915: e6531d51c Issues/11091 (#11915) ([e6531d51c](https://github.com/mozilla/fxa/commit/e6531d51c))
+- deps: bump knex from 1.0.2 to 1.0.3 ([977321030](https://github.com/mozilla/fxa/commit/977321030))
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817) ([6b89206ff](https://github.com/mozilla/fxa/commit/6b89206ff))
+- deps: bump knex from 1.0.1 to 1.0.2 (#11892) ([b955eb809](https://github.com/mozilla/fxa/commit/b955eb809))
+- deps: bump ts-morph from 13.0.2 to 13.0.3 ([f66e200c3](https://github.com/mozilla/fxa/commit/f66e200c3))
+- deps: bump @nestjs/core from 8.2.4 to 8.2.6 ([bd863179b](https://github.com/mozilla/fxa/commit/bd863179b))
+
 ## 1.225.3
 
 No changes.

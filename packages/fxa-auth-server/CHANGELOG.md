@@ -1,3 +1,55 @@
+## 1.226.2
+
+### Other changes
+
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817)" ([4cbc3bce3](https://github.com/mozilla/fxa/commit/4cbc3bce3))
+- auth: Fixes build error in CI. (#11903)" ([8b0d09690](https://github.com/mozilla/fxa/commit/8b0d09690))
+- #11915: 9f29305b3 Revert "Issues/11091 (#11915)" ([9f29305b3](https://github.com/mozilla/fxa/commit/9f29305b3))
+
+## 1.226.1
+
+### Bug fixes
+
+- subscriptions: send email and reduce errors for SCA flow ([f1e45db2d](https://github.com/mozilla/fxa/commit/f1e45db2d))
+
+## 1.226.0
+
+### New features
+
+- auth-server: FXA-4319 - add email template to notify user has connected Google auth (#11870) ([b039acee0](https://github.com/mozilla/fxa/commit/b039acee0))
+- mailer: Add maxConnection and maxMessages env vars, re-enable isMetricsEnabled oauth client db calls ([6028093a0](https://github.com/mozilla/fxa/commit/6028093a0))
+- google: Add backend support to disconnect goolge linked account ([97686e415](https://github.com/mozilla/fxa/commit/97686e415))
+- payments: remove Coupons Feature Flag (#11576) ([02aeb5165](https://github.com/mozilla/fxa/commit/02aeb5165))
+
+### Bug fixes
+
+- auth-server: time is not expressed based on user's location in emails (#11954) ([81cdbae32](https://github.com/mozilla/fxa/commit/81cdbae32))
+- auth-server: FXA-4523 - revise email template stories (#11831) ([c49a570f1](https://github.com/mozilla/fxa/commit/c49a570f1))
+- subscriptions: stop cancellation email on failed PayPal payment (#11871) ([b829f1566](https://github.com/mozilla/fxa/commit/b829f1566))
+- google: Delete linked accounts when user deletes FxA account ([920fc8eb8](https://github.com/mozilla/fxa/commit/920fc8eb8))
+- subscriptions: allow zero dollar invoices (#11719) ([058a7fd07](https://github.com/mozilla/fxa/commit/058a7fd07))
+- emails: Add conditional around payment method ([3fd6197ad](https://github.com/mozilla/fxa/commit/3fd6197ad))
+
+### Refactorings
+
+- auth: Remove MJML feature flags, remove verifySecondary ## 1.225.3 logic, remove old templates (#11862) ([31061b071](https://github.com/mozilla/fxa/commit/31061b071))
+
+### Other changes
+
+- subscriptions: send email for expired card (#11933) ([e413f8e9a](https://github.com/mozilla/fxa/commit/e413f8e9a))
+- #11915: e6531d51c Issues/11091 (#11915) ([e6531d51c](https://github.com/mozilla/fxa/commit/e6531d51c))
+- deps-dev: bump sass from 1.48.0 to 1.49.7 (#11945) ([d610b5664](https://github.com/mozilla/fxa/commit/d610b5664))
+- deps: bump i18n-iso-countries from 7.2.0 to 7.3.0 (#11946) ([8892915d0](https://github.com/mozilla/fxa/commit/8892915d0))
+- deps: bump stripe from 8.200.0 to 8.202.0 ([6c2767c02](https://github.com/mozilla/fxa/commit/6c2767c02))
+- deps-dev: bump @storybook/addon-controls from 6.4.14 to 6.4.18 ([7f6c49d0f](https://github.com/mozilla/fxa/commit/7f6c49d0f))
+- auth: Fixes build error in CI. (#11903) ([7b1c62eaa](https://github.com/mozilla/fxa/commit/7b1c62eaa))
+- shared,auth,admin: Refactor attached-clients so routines can be shared with admin panel (#11817) ([6b89206ff](https://github.com/mozilla/fxa/commit/6b89206ff))
+- deps: bump keyv from 4.1.0 to 4.1.1 ([cacc24d8b](https://github.com/mozilla/fxa/commit/cacc24d8b))
+- deps: bump @type-cacheable/ioredis-adapter from 10.0.2 to 10.0.3 ([b084b1152](https://github.com/mozilla/fxa/commit/b084b1152))
+- deps-dev: bump @storybook/addon-docs from 6.4.14 to 6.4.18 (#11858) ([1a199eb16](https://github.com/mozilla/fxa/commit/1a199eb16))
+- deps: bump aws-sdk from 2.1063.0 to 2.1068.0 (#11853) ([99e20de89](https://github.com/mozilla/fxa/commit/99e20de89))
+- deps: bump keyv from 4.0.5 to 4.1.0 (#11821) ([46b73d951](https://github.com/mozilla/fxa/commit/46b73d951))
+
 ## 1.225.3
 
 ### New features

@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.225.3",
+  "version": "1.226.2",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -31,13 +31,13 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.2.4",
+    "@nestjs/common": "^8.3.1",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.6",
+    "@nestjs/core": "^8.3.1",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.1.0",
-    "@nestjs/platform-express": "^8.2.6",
+    "@nestjs/platform-express": "^8.3.1",
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "apollo-datasource": "^0.9.0",
@@ -75,7 +75,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.0",
+    "@nestjs/cli": "^8.2.1",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/get-stream": "3.0.2",
@@ -93,7 +93,7 @@
     "esbuild": "^0.14.2",
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
-    "jest": "27.4.7",
+    "jest": "27.5.1",
     "nock": "^13.2.2",
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
