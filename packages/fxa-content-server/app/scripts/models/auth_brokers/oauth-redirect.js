@@ -96,9 +96,10 @@ export default BaseAuthenticationBroker.extend({
    *   @param {String} [result.state] - OAuth state
    *   @param {String} [result.error] - OAuth error string
    *   @param {String} [result.action] - Action taken by the user, such as 'signin' or 'signup'
+   *   @param {Object} [account] - Account object
    * @returns {Promise}
    */
-  sendOAuthResultToRelier(result) {
+  sendOAuthResultToRelier(result, account) {
     if (this.hasCapability('supportsPairing') || result.action === 'pairing') {
       if (!this.relier.has('service')) {
         // the service in the query parameter currently overrides the status message
@@ -116,6 +117,12 @@ export default BaseAuthenticationBroker.extend({
       }
       if (result.action) {
         extraParams.action = result.action;
+      }
+      const providerUid = account && account.get('providerUid');
+      if (providerUid) {
+        // When we support multiple providers, the provider id might
+        // be returned in different param. For Google, it is returned as `gid`.
+        extraParams.gid = providerUid;
       }
       // Always use the state the RP passed in.
       // This is necessary to complete the prompt=none

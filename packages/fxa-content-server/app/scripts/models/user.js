@@ -352,7 +352,6 @@ var User = Backbone.Model.extend({
   setSignedInAccount(accountData) {
     var account = this.initAccount(accountData);
     account.set('lastLogin', Date.now());
-
     return this.updateSignedInAccount(account);
   },
 

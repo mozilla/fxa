@@ -43,9 +43,9 @@ export default {
   googleSignIn() {
     this.clearStoredParams();
 
-    // We stash all FxA oauth params in the Google state oauth param
+    // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
-    const state = encodeURIComponent(this.window.location.search);
+    const state = encodeURIComponent(this.window.location.href);
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
@@ -88,8 +88,8 @@ export default {
       searchParams
     );
 
-    const oauthState = decodeURIComponent(searchParams.state);
-    this.navigateAway(`/oauth/${oauthState}`);
+    const redirectUrl = decodeURIComponent(searchParams.state);
+    this.navigateAway(redirectUrl);
   },
 
   completeSignIn() {
@@ -105,7 +105,7 @@ export default {
         this.clearStoredParams();
         return this.signIn(updatedAccount);
       })
-      .catch((err) => {
+      .catch(() => {
         this.clearStoredParams();
       });
   },

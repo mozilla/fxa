@@ -203,11 +203,16 @@ $(document).ready(function () {
         });
     };
 
-    function authenticate(endpoint) {
-      // propagate query parameters to the authorization request.
+    function authenticate(endpoint, params = {}) {
+      // propagate or override query parameters to the authorization request.
       // This is used by the functional tests to, e.g., override
       // the client_id or propagate an email.
-      window.location.href = `/api/${endpoint}${window.location.search}`;
+
+      const currentParams = new URLSearchParams(window.location.search);
+      Object.keys(params).forEach((key) => {
+        currentParams.set(key, params[key]);
+      });
+      window.location.href = `/api/${endpoint}?${currentParams.toString()}`;
     }
 
     $('button.signin').click(function (ev) {
@@ -232,6 +237,13 @@ $(document).ready(function () {
 
     $('button.two-step-authentication').click(function (ev) {
       authenticate('two_step_authentication');
+    });
+
+    $('button.third-party').click(function (ev) {
+      authenticate('best_choice', {
+        forceExperiment: 'thirdPartyAuth',
+        forceExperimentGroup: 'google',
+      });
     });
 
     $('button.force-auth').click(function (ev) {
