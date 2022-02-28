@@ -257,7 +257,7 @@ export async function handlePaymentIntent({
         // then both subscriptions will be paid, resulting in a duplicate charge.
         // A new subscription will be created if the customer refreshes the page,
         // instead of hitting the try again button.
-        apiDeleteSubscriptionId({ subscriptionId });
+        // apiDeleteSubscriptionId({ subscriptionId });
       }
       return onRetry({ invoiceId });
     }
