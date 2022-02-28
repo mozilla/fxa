@@ -1593,20 +1593,21 @@ describe('StripeWebhookHandler', () => {
     const commonSendSubscriptionInvoiceEmailTest =
       (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
       async () => {
-        const invoice =
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail' ||
-          expectedMethodName ===
-            'sendSubscriptionSubsequentInvoiceDiscountEmail'
-            ? deepCopy(eventInvoicePaidDiscount)
-            : deepCopy(eventInvoicePaid.data.object);
+        const invoice = [
+          'sendSubscriptionFirstInvoiceDiscountEmail',
+          'sendSubscriptionSubsequentInvoiceDiscountEmail',
+        ].includes(expectedMethodName)
+          ? deepCopy(eventInvoicePaidDiscount)
+          : deepCopy(eventInvoicePaid.data.object);
 
         invoice.billing_reason = billingReason;
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
         if (
-          expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail' ||
-          expectedMethodName ===
-            'sendSubscriptionSubsequentInvoiceDiscountEmail'
+          [
+            'sendSubscriptionFirstInvoiceDiscountEmail',
+            'sendSubscriptionSubsequentInvoiceDiscountEmail',
+          ].includes(expectedMethodName)
         ) {
           mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
@@ -1638,7 +1639,7 @@ describe('StripeWebhookHandler', () => {
         );
         if (
           [
-            'sendSubscriptionFirstInvoiceDiscountEmail',
+            'sendSubscriptionFirstInvoiceEmail',
             'sendSubscriptionFirstInvoiceDiscountEmail',
           ].includes(expectedMethodName)
         ) {
