@@ -18,6 +18,7 @@ import ConnectAnotherDeviceView from '../views/connect_another_device';
 import CookiesDisabledView from '../views/cookies_disabled';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
+import ThirdPartyAuthIndexView from '../views/third_party_auth';
 import InlineTotpSetupView from '../views/inline_totp_setup';
 import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
@@ -84,6 +85,7 @@ function createViewModel(data) {
 const Router = Backbone.Router.extend({
   routes: {
     '(/)': createViewHandler(IndexView),
+    'auth(/)': createViewHandler(ThirdPartyAuthIndexView),
     'account_recovery_confirm_key(/)': createViewHandler(
       AccountRecoveryConfirmKey
     ),

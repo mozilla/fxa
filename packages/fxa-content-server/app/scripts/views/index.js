@@ -20,7 +20,6 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
-import GoogleAuthMixin from './mixins/google-auth-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 import Template from 'templates/index.mustache';
@@ -271,7 +270,6 @@ Cocktail.mixin(
   FormPrefillMixin,
   ServiceMixin,
   SignedInNotificationMixin,
-  GoogleAuthMixin,
   SyncSuggestionMixin({
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',

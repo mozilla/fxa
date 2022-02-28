@@ -8,7 +8,7 @@ const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
 const surveys = require('../../config/surveys.json');
 
-module.exports = function (config) {
+module.exports = function (config, path = '/', template = 'index') {
   let featureFlags;
   const featureFlagConfig = config.get('featureFlags');
   if (featureFlagConfig.enabled) {
@@ -90,7 +90,7 @@ module.exports = function (config) {
 
   return {
     method: 'get',
-    path: '/',
+    path,
     process: async function (req, res) {
       const flowEventData = flowMetrics.create(
         FLOW_ID_KEY,
@@ -113,7 +113,7 @@ module.exports = function (config) {
         req.query.client_id &&
         PROMPT_NONE_ENABLED_CLIENT_IDS.has(req.query.client_id);
 
-      res.render('index', {
+      res.render(template, {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
         config: encodeURIComponent(

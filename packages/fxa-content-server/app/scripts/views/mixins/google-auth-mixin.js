@@ -22,6 +22,20 @@ export default {
     });
   },
 
+  navigateToThirdPartyAuth() {
+    const params = new URLSearchParams(this.window.location.search);
+    params.set('thirdPartyAuth', 'true');
+    const newUrl = `${this.window.location.origin}/auth?${params.toString()}`;
+    return this.navigateAway(newUrl);
+  },
+
+  navigateAwayThirdPartyAuth(url, email, options) {
+    const params = new URLSearchParams(this.window.location.search);
+    params.set('email', email);
+    const newUrl = `${this.window.location.origin}/${url}?${params.toString()}`;
+    return this.navigateAway(newUrl);
+  },
+
   beforeRender() {
     // Check to see if this page is being redirected to at the end of a
     // Google auth flow and if so, restore the original
@@ -31,6 +45,14 @@ export default {
     );
     if (thirdPartyAuth) {
       return this.completeSignIn();
+    } else if (
+      this.isInThirdPartyAuthExperiment() &&
+      this.window.location.pathname !== '/auth'
+    ) {
+      const params = new URLSearchParams(this.window.location.search);
+      if (!params.get('thirdPartyAuth')) {
+        return this.navigateToThirdPartyAuth();
+      }
     }
   },
 

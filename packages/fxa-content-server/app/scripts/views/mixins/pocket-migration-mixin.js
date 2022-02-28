@@ -9,10 +9,7 @@ export const POCKET_CLIENTIDS = [
 
 export default {
   setInitialContext(context) {
-    const isPocketClient = POCKET_CLIENTIDS.includes(
-      this.relier.get('clientId')
-    );
-
+    const isPocketClient = this.isPocketClient();
     if (isPocketClient) {
       context.set({
         newsletters: [], // Disables newsletters
@@ -20,5 +17,9 @@ export default {
         isPocketClient, // In signup pages we add more terms and conditions for Pocket
       });
     }
+  },
+
+  isPocketClient() {
+    return POCKET_CLIENTIDS.includes(this.relier.get('clientId'));
   },
 };
