@@ -2264,8 +2264,6 @@ export class StripeHelper {
 
     const payment_provider = this.getPaymentProvider(customer);
 
-    const showPaymentMethod: boolean = !!invoiceTotalInCents;
-
     return {
       uid,
       email,
@@ -2287,7 +2285,7 @@ export class StripeHelper {
       planEmailIconURL,
       planDownloadURL,
       productMetadata,
-      showPaymentMethod,
+      showPaymentMethod: !!invoiceTotalInCents,
     };
   }
 
