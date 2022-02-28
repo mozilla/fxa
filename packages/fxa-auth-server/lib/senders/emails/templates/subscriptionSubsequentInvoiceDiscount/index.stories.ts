@@ -71,6 +71,8 @@ export const SubscriptionSubsequentInvoiceCouponFullAmount = createStory(
     cardType: 'MasterCard',
     lastFour: '5309',
     payment_provider: 'stripe',
+    invoiceTotal: '$0.00',
+    invoiceDiscountAmount: '$20.00',
     showProratedAmount: false,
     showPaymentMethod: false,
   },
