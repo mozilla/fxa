@@ -126,6 +126,9 @@ module.exports = {
   MOZ_ORG_SYNC_GET_STARTED_LINK:
     'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
 
+  POCKET_MORE_INFO_LINK:
+    'https://support.mozilla.org/en-US/kb/pocket-firefox-account-migration',
+
   // 20 most popular email domains, used for metrics. Matches the list
   // we use in the auth server, converted to a map for faster lookup.
   POPULAR_EMAIL_DOMAINS: popularDomains.reduce((map, domain) => {
