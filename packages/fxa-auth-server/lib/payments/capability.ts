@@ -7,7 +7,7 @@ import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
-import { commaSeparatedListToArray } from './configuration/utils';
+import { commaSeparatedListToArray } from './utils';
 import error from '../error';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';

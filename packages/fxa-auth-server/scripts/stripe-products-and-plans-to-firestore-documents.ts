@@ -23,11 +23,6 @@ async function init() {
       true
     )
     .option(
-      '-d, --delay [milliseconds]',
-      'Amount of time to wait between processing customers.  Defaults to 100ms.',
-      100
-    )
-    .option(
       '-p, --productId [string]',
       'The Stripe product ID for a single product to process. Defaults to all products.',
       ''
@@ -40,7 +35,6 @@ async function init() {
 
   const isDryRun = parseDryRun(program.dryRun);
   const productId = program.productId;
-  const delay = parseInt(program.delay);
 
   const config = Container.get(AppConfig);
 
@@ -49,7 +43,7 @@ async function init() {
     stripeHelper,
     supportedLanguages: config.i18n.supportedLanguages,
   });
-  await stripeProductsAndPlansConverter.convert({ productId, isDryRun, delay });
+  await stripeProductsAndPlansConverter.convert({ productId, isDryRun });
   return 0;
 }
 

@@ -118,9 +118,7 @@ export class PaymentConfigManager {
    * Looks up a Firestore ProductConfig or PlanConfig document id based
    * on the provided Stripe Product or Plan id.
    */
-  public async getDocumentIdByStripeId(
-    stripeId: string
-  ): Promise<string | null> {
+  public getDocumentIdByStripeId(stripeId: string): string | null {
     for (const [docId, productConfig] of Object.entries(this.products)) {
       if (productConfig.stripeProductId === stripeId) {
         return docId;

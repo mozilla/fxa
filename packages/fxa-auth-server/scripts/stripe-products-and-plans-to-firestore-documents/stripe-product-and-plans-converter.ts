@@ -18,9 +18,12 @@ import {
   UrlConfigKeys,
 } from '../../lib/payments/configuration/base';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
-import { PlanConfig } from '../../lib/payments/configuration/plan';
+import {
+  PlanConfig,
+  planConfigSchema,
+} from '../../lib/payments/configuration/plan';
 import { ProductConfig } from '../../lib/payments/configuration/product';
-import { commaSeparatedListToArray } from '../../lib/payments/configuration/utils';
+import { commaSeparatedListToArray } from '../../lib/payments/utils';
 import { StripeHelper } from '../../lib/payments/stripe';
 
 /**
@@ -29,7 +32,7 @@ import { StripeHelper } from '../../lib/payments/stripe';
  * Documents could already exist and just need updating.
  */
 export class StripeProductsAndPlansConverter {
-  private supportedLanguages: any;
+  private supportedLanguages: string[];
   private log: Logger;
   private stripeHelper: StripeHelper;
   private paymentConfigManager: PaymentConfigManager;
@@ -41,7 +44,7 @@ export class StripeProductsAndPlansConverter {
   }: {
     log: Logger;
     stripeHelper: StripeHelper;
-    supportedLanguages: any;
+    supportedLanguages: string[];
   }) {
     this.log = log;
     this.stripeHelper = stripeHelper;
@@ -67,28 +70,30 @@ export class StripeProductsAndPlansConverter {
   }
 
   // TODO JSDoc
-  // For each metadata key that starts with "capabilities", add it to the returned object
-  // TODO Will we reuse these same methods for Plan metadata that overrides
-  // product metadata? E.g. I think MDN uses capabilities on plans for product tiers.
   capabilitiesMetadataToCapabilityConfig(
-    product: Stripe.Product
+    stripeObject: Stripe.Product | Stripe.Plan
   ): CapabilityConfig {
     const capabilities: CapabilityConfig = {};
-    for (const capability of Object.keys(product.metadata).filter((key) =>
+    for (const oldKey of Object.keys(stripeObject.metadata!).filter((key) =>
       key.toLowerCase().startsWith('capabilities')
     )) {
-      capabilities[capability] = commaSeparatedListToArray(
-        product.metadata[capability]
+      // Parse the key to determine if it's an "all RP" or single RP capability
+      const [_, clientId] = oldKey.split(':');
+      const newKey = clientId ?? '*';
+      capabilities[newKey] = commaSeparatedListToArray(
+        stripeObject.metadata![oldKey]
       );
     }
     return capabilities;
   }
 
   // TODO JSDoc
-  stylesMetadataToStyleConfig(product: Stripe.Product): StyleConfig {
+  stylesMetadataToStyleConfig(
+    stripeObject: Stripe.Product | Stripe.Plan
+  ): StyleConfig {
     const styleConfig: StyleConfig = {};
     for (const key of StyleConfigKeys) {
-      const value = product.metadata[key];
+      const value = stripeObject.metadata![key];
       if (value) {
         styleConfig[key] = value;
       }
@@ -125,10 +130,8 @@ export class StripeProductsAndPlansConverter {
     if (!stripeObject.metadata) {
       return uiContentConfig;
     }
-    for (const key of UiContentConfigKeys) {
+    for (const key of Object.values(UiContentConfigKeys)) {
       let value;
-      // TODO: How to filter keys by type (e.g. `string` versus `string[]`);
-      // should `details` have a sub-subtype? Would that even help?
       if (key === 'details') {
         const metadataKeyPrefix = `product:${key}`;
         value = this.getArrayOfStringsFromMetadataKeys(
@@ -143,6 +146,7 @@ export class StripeProductsAndPlansConverter {
       value =
         stripeObject.metadata[key] ?? stripeObject.metadata[`product:${key}`];
       if (value) {
+        // @ts-ignore We need to be able to assign values to all keys
         uiContentConfig[key] = value;
       }
     }
@@ -188,20 +192,19 @@ export class StripeProductsAndPlansConverter {
     productConfig.urls = this.urlMetadataToUrlConfig(product);
 
     // Extended by ProductConfig
-    if (product.id) {
-      productConfig.stripeProductId = product.id;
+    const { id, productSet, promotionCodes } = product.metadata;
+    productConfig.stripeProductId = id;
+    if (productSet) {
+      productConfig.productSet = productSet;
     }
-    if (product.metadata.productSet) {
-      productConfig.productSet = product.metadata.productSet;
-    }
-    if (product.metadata.promotionCodes) {
-      productConfig.promotionCodes = commaSeparatedListToArray(
-        product.metadata.promotionCodes
-      );
+    if (promotionCodes) {
+      productConfig.promotionCodes = commaSeparatedListToArray(promotionCodes);
     }
     return productConfig;
   }
 
+  // TODO: JSDoc
+  // TODO: #12053: Improve heuristics
   findLocaleStringFromStripePlan(plan: Stripe.Plan): null | string {
     // Try to extract a locale from the plan nickname
     const { nickname } = plan;
@@ -211,10 +214,6 @@ export class StripeProductsAndPlansConverter {
     if (locale && locale.length > 0) {
       return locale[0];
     }
-    // Failing that, try to ascertain the language of any localized strings
-    //  - Use Google Translate Client https://cloud.google.com/translate/docs/samples/translate-v3-detect-language#translate_v3_detect_language-nodejs
-    // If the locale is not valid, throw an error
-    // Return the locale
     return null;
   }
 
@@ -230,12 +229,11 @@ export class StripeProductsAndPlansConverter {
     const uiContent = this.uiContentMetadataToUiContentConfig(plan);
     const urls = this.urlMetadataToUrlConfig(plan);
     const support = this.supportMetadataToSupportConfig(plan);
-    const locale: ProductConfig['locales'][string] = {
+    locales[localeStr] = {
       uiContent,
       urls,
       support,
     };
-    locales[localeStr] = locale;
     return locales;
   }
 
@@ -244,11 +242,54 @@ export class StripeProductsAndPlansConverter {
     plan: Stripe.Plan,
     productConfigId: string
   ): PlanConfig {
-    return {
-      stripePriceId: plan.id,
-      active: plan.active,
-      productConfigId,
-    };
+    // Firestore cannot serialize class instances
+    const planConfig: any = {};
+
+    planConfig.productConfigId = productConfigId;
+    planConfig.active = plan.active;
+
+    if (!plan.metadata) {
+      return planConfig;
+    }
+
+    const metadataKeys = Object.keys(plan.metadata);
+
+    // Optional BaseConfig
+    if (
+      metadataKeys.some((key) => key.toLowerCase().startsWith('capabilities'))
+    ) {
+      planConfig.capabilities =
+        this.capabilitiesMetadataToCapabilityConfig(plan);
+    }
+    if (metadataKeys.some((key) => key.toLowerCase().includes('url'))) {
+      planConfig.urls = this.urlMetadataToUrlConfig(plan);
+    }
+    if (
+      metadataKeys.some((key) => Object.keys(UiContentConfigKeys).includes(key))
+    ) {
+      planConfig.uiContent = this.uiContentMetadataToUiContentConfig(plan);
+    }
+    if (metadataKeys.some((key) => StyleConfigKeys.includes(key))) {
+      planConfig.styles = this.stylesMetadataToStyleConfig(plan);
+    }
+    if (metadataKeys.some((key) => key.toLowerCase().startsWith('support'))) {
+      planConfig.support = this.supportMetadataToSupportConfig(plan);
+    }
+    // TODO Do we need `locales` on the planConfig, since they'll exist on productConfig?
+
+    // Extended by PlanConfig
+    const { id, productOrder, googlePlaySku, appleProductId } = plan.metadata;
+    planConfig.stripePriceId = id;
+    if (productOrder) {
+      planConfig.productOrder = productOrder;
+    }
+    if (googlePlaySku) {
+      planConfig.googlePlaySku = commaSeparatedListToArray(googlePlaySku);
+    }
+    if (appleProductId) {
+      planConfig.appleProductId = commaSeparatedListToArray(appleProductId);
+    }
+    return planConfig;
   }
 
   // TODO: Better method name and JSDoc
@@ -268,16 +309,13 @@ export class StripeProductsAndPlansConverter {
   async convert({
     productId,
     isDryRun,
-    delay,
   }: {
     productId: string;
     isDryRun: boolean;
-    delay: number;
   }): Promise<void> {
     this.log.info('StripeProductsAndPlansConverter.convertBegin', {
       productId,
       isDryRun,
-      delay,
     });
     await this.paymentConfigManager.load();
     this.paymentConfigManager.startListeners();

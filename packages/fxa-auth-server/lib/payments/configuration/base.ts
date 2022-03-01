@@ -40,24 +40,16 @@ const urlsSchema = joi.object({
   appStore: joi.string().uri(),
 });
 
-export const UiContentConfigKeys = [
-  'subtitle',
-  'details',
-  'successActionButtonLabel',
-  'upgradeCTA',
-] as const;
+export const UiContentConfigKeys = {
+  subtitle: 'subtitle',
+  details: 'details',
+  successActionButtonLabel: 'successActionButtonLabel',
+  upgradeCTA: 'upgradeCTA',
+} as const;
 type UiContentConfigKeysT = typeof UiContentConfigKeys;
-// TODO: How to get `details` as an array of strings? Figure out and swap
-// types used below; should `details` have a sub-subtype? Would that even help?
-// export type UiContentConfig = {
-//   [key in UiContentConfigKeysT[number]]?: string;
-// };
 export type UiContentConfig = {
-  subtitle?: string;
-  details?: string[];
-  successActionButtonLabel?: string;
-  upgradeCTA?: string;
-};
+  [k in keyof Omit<UiContentConfigKeysT, 'details'>]?: string;
+} & { details?: string[] };
 
 const uiContentSchema = joi.object({
   subtitle: joi.string(),
