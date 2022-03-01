@@ -333,6 +333,7 @@ export const Subscriptions = ({
               (customerSubscription, idx) =>
                 (isWebSubscription(customerSubscription) && (
                   <SubscriptionItem
+                    key={idx}
                     subsequentInvoice={subsequentInvoices?.result?.find(
                       (invoice) =>
                         invoice.subscriptionId ===
