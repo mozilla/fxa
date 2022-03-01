@@ -12,7 +12,7 @@ import {
 } from '../../../lib/formats';
 import { useCheckboxState } from '../../../lib/hooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { CustomerSubscription, Plan, Customer } from '../../../store/types';
+import { Plan } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';

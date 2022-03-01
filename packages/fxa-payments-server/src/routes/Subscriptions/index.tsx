@@ -46,6 +46,7 @@ export type SubscriptionsProps = {
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  subsequentInvoices: SelectorReturns['subsequentInvoices'];
   reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
   customerSubscriptions: SelectorReturns['customerSubscriptions'];
   cancelSubscription: SequenceFunctions['cancelSubscriptionAndRefresh'];
@@ -62,6 +63,7 @@ export const Subscriptions = ({
   customer,
   plans,
   customerSubscriptions,
+  subsequentInvoices,
   fetchSubscriptionsRouteResources,
   cancelSubscription,
   cancelSubscriptionStatus,
@@ -325,7 +327,11 @@ export const Subscriptions = ({
               (customerSubscription, idx) =>
                 (isWebSubscription(customerSubscription) && (
                   <SubscriptionItem
-                    key={idx}
+                    subsequentInvoice={subsequentInvoices?.result?.find(
+                      (invoice) =>
+                        invoice.subscriptionId ===
+                        customerSubscription.subscription_id
+                    )}
                     {...{
                       customer: customer.result,
                       cancelSubscription,
@@ -507,6 +513,7 @@ export default connect(
     profile: selectors.profile(state),
     customer: selectors.customer(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
+    subsequentInvoices: selectors.subsequentInvoices(state),
     cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
     reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
     plansByProductId: selectors.plansByProductId(state),

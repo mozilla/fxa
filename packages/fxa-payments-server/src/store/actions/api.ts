@@ -7,6 +7,7 @@ import {
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
+  apiSubsequentInvoicePreview,
 } from '../../lib/apiClient';
 
 import { Plan } from '../types';
@@ -17,6 +18,11 @@ export default {
     ({ type: 'fetchProfile', payload: apiFetchProfile() } as const),
   fetchToken: () => ({ type: 'fetchToken', payload: apiFetchToken() } as const),
   fetchPlans: () => ({ type: 'fetchPlans', payload: apiFetchPlans() } as const),
+  fetchSubsequentInvoices: () =>
+    ({
+      type: 'fetchSubsequentInvoices',
+      payload: apiSubsequentInvoicePreview(),
+    } as const),
   fetchSubscriptions: () => {
     return {
       type: 'fetchSubscriptions',

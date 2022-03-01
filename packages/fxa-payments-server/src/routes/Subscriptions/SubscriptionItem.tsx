@@ -16,6 +16,7 @@ import CancelSubscriptionPanel from './Cancel/CancelSubscriptionPanel';
 import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export type SubscriptionItemProps = {
   customerSubscription: WebSubscription;
@@ -24,6 +25,7 @@ export type SubscriptionItemProps = {
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
   customer: Customer;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  subsequentInvoice: SubsequentInvoicePreview | undefined;
 };
 
 export const SubscriptionItem = ({
@@ -33,6 +35,7 @@ export const SubscriptionItem = ({
   customer,
   plan,
   customerSubscription,
+  subsequentInvoice,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -55,11 +58,20 @@ export const SubscriptionItem = ({
     );
   }
 
+  if (
+    subsequentInvoice &&
+    plan.amount &&
+    subsequentInvoice.total !== plan.amount &&
+    subsequentInvoice.total < plan.amount
+  ) {
+    plan.amount = subsequentInvoice.total;
+  }
+
   return (
     <div className="settings-unit">
       <div className="subscription" data-testid="subscription-item">
         <header>
-          <h2>{plan.product_name}</h2>
+          <h2>{plan.product_name} test</h2>
         </header>
 
         {!customerSubscription.cancel_at_period_end ? (

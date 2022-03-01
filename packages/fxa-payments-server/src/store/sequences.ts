@@ -10,6 +10,7 @@ const {
   updateSubscriptionPlan,
   cancelSubscription,
   reactivateSubscription,
+  fetchSubsequentInvoices,
 } = actions;
 
 // This is the length fo time that alert bar is displayed before
@@ -45,6 +46,7 @@ export const fetchSubscriptionsRouteResources =
       dispatch(fetchPlans()),
       dispatch(fetchProfile()),
       dispatch(fetchCustomer()),
+      dispatch(fetchSubsequentInvoices()),
     ]).catch(handleThunkError);
   };
 
