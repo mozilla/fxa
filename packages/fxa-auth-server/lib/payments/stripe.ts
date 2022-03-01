@@ -492,12 +492,13 @@ export class StripeHelper {
       .payment_intent as Stripe.PaymentIntent;
 
     if (paymentIntent?.last_payment_error) {
-      // Delete subscription
-      this.cancelSubscription(subscription.id);
+      await this.cancelSubscription(subscription.id);
 
       throw error.rejectedSubscriptionPaymentToken(
         paymentIntent.last_payment_error.code,
-        new Error(paymentIntent.last_payment_error.code)
+        new Error(
+          `Subscription creation failed with error code ${paymentIntent.last_payment_error.code}`
+        )
       );
     }
 
