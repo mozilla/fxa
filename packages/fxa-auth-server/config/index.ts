@@ -326,6 +326,12 @@ const conf = convict({
       default: 'Firefox Accounts <no-reply@lcip.org>',
       env: 'SMTP_SENDER',
     },
+    pool: {
+      default: false,
+      doc: 'Should pooling be enabled for sending mail?',
+      env: 'SMTP_POOL',
+      format: Boolean,
+    },
     maxMessages: {
       default: 10,
       doc: 'Maximum number of messages to be sent via nodemailer before a new SES SMTP connection is made',
