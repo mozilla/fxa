@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const POCKET_CLIENTIDS = [
+export const POCKET_CLIENTIDS = [
   '7377719276ad44ee', // pocket-mobile
   '749818d3f2e7857f', // pocket-web
 ];

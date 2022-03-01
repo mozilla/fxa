@@ -168,6 +168,7 @@ require('./spec/views/index');
 require('./spec/views/marketing_snippet');
 require('./spec/views/mixins/account-by-uid-mixin');
 require('./spec/views/mixins/account-reset-mixin');
+require('./spec/views/mixins/account-suggestion-mixin');
 require('./spec/views/mixins/avatar-mixin');
 require('./spec/views/mixins/back-mixin');
 require('./spec/views/mixins/cached-credentials-mixin');
