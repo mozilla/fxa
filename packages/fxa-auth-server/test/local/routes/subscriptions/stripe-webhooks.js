@@ -154,6 +154,7 @@ describe('StripeWebhookHandler', () => {
         product_metadata: validProduct.data.object.metadata,
       });
       StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves({});
+      StripeWebhookHandlerInstance.stripeHelper.getCard.resolves({});
     });
 
     describe('handleWebhookEvent', () => {
@@ -232,10 +233,17 @@ describe('StripeWebhookHandler', () => {
               'Expected to not call Sentry'
             );
           }
-          assert.equal(
-            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce,
-            expectExpandResource
-          );
+          if (expectedHandlerName === 'handleCustomerSourceExpiringEvent') {
+            sinon.assert.calledOnce(
+              StripeWebhookHandlerInstance.stripeHelper.getCard
+            );
+          } else {
+            assert.equal(
+              StripeWebhookHandlerInstance.stripeHelper.expandResource
+                .calledOnce,
+              expectExpandResource
+            );
+          }
         });
 
       describe('ignorable errors', () => {

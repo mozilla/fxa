@@ -106,6 +106,12 @@ export class StripeWebhookHandler extends StripeHandler {
             resourceType as typeof VALID_RESOURCE_TYPES[number]
           );
         }
+      } else if (stripeObject.object === 'card' && stripeObject.customer) {
+        // Cards are not expandable using `expandResource` and are handled separately.
+        event.data.object = await this.stripeHelper.getCard(
+          stripeObject.customer,
+          stripeObject.id
+        );
       } else if (
         !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
       ) {
