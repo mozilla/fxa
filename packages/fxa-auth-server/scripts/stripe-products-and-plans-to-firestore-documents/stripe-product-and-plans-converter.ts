@@ -6,7 +6,6 @@ import Stripe from 'stripe';
 import { Container } from 'typedi';
 
 import {
-  BaseConfig,
   CapabilityConfig,
   StyleConfig,
   StyleConfigKeys,
@@ -18,18 +17,15 @@ import {
   UrlConfigKeys,
 } from '../../lib/payments/configuration/base';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
-import {
-  PlanConfig,
-  planConfigSchema,
-} from '../../lib/payments/configuration/plan';
+import { PlanConfig } from '../../lib/payments/configuration/plan';
 import { ProductConfig } from '../../lib/payments/configuration/product';
-import { commaSeparatedListToArray } from '../../lib/payments/utils';
 import { StripeHelper } from '../../lib/payments/stripe';
+import { commaSeparatedListToArray } from '../../lib/payments/utils';
 
 /**
- * TODO: write JSDOC
- * Handles conversion and updates of Stripe metadata into Firestore documents.
- * Documents could already exist and just need updating.
+ * Handles converting Stripe Products and Plans to Firestore ProductConfig
+ * and PlanConfig Firestore documents. Updates existing documents if they
+ * already exist.
  */
 export class StripeProductsAndPlansConverter {
   private supportedLanguages: string[];
@@ -54,12 +50,14 @@ export class StripeProductsAndPlansConverter {
     this.paymentConfigManager = Container.get(PaymentConfigManager);
   }
 
-  // Get all of the metadata keys that start with the prefix
+  /**
+   * Get all of the metadata keys that start with the prefix, and
+   * concatenate them into a single list.
+   * */
   getArrayOfStringsFromMetadataKeys(
     metadata: Stripe.Product['metadata'],
     metadataKeyPrefix: string
   ): string[] {
-    // Get all of the metadata keys that start with the prefix
     const metadataValues = [];
     for (const [metadataKey, metadataValue] of Object.entries(metadata)) {
       if (metadataKey.startsWith(metadataKeyPrefix)) {
@@ -69,7 +67,21 @@ export class StripeProductsAndPlansConverter {
     return metadataValues;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert Stripe Product or Plan capabilities metadata keys into a
+   * nested CapabilityConfig object.
+   *
+   * For example, a Stripe object with the capabilities `metadata` keys:
+   *   {
+   *     capabilities: 'abc',
+   *     capabilities[clientId]: 'def',
+   *   }
+   * Would result in the following `capabilities` object:
+   *   {
+   *     '*': 'abc',
+   *     [clientId]: 'def',
+   *   }
+   */
   capabilitiesMetadataToCapabilityConfig(
     stripeObject: Stripe.Product | Stripe.Plan
   ): CapabilityConfig {
@@ -87,7 +99,10 @@ export class StripeProductsAndPlansConverter {
     return capabilities;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert Stripe Product or Plan style metadata keys into a
+   * StyleConfig object.
+   */
   stylesMetadataToStyleConfig(
     stripeObject: Stripe.Product | Stripe.Plan
   ): StyleConfig {
@@ -101,7 +116,10 @@ export class StripeProductsAndPlansConverter {
     return styleConfig;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert Stripe Product or Plan support metadata keys prefixed
+   * with 'support:' into a SupportConfig object.
+   */
   supportMetadataToSupportConfig(
     stripeObject: Stripe.Product | Stripe.Plan
   ): SupportConfig {
@@ -122,7 +140,11 @@ export class StripeProductsAndPlansConverter {
     return supportConfig;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert Stripe Product or Plan UI Content metadata keys
+   * with and without a 'product:' prefix into a UiContentConfig
+   * object.
+   */
   uiContentMetadataToUiContentConfig(
     stripeObject: Stripe.Product | Stripe.Plan
   ): UiContentConfig {
@@ -153,7 +175,10 @@ export class StripeProductsAndPlansConverter {
     return uiContentConfig;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert Stripe Product or Plan URL metadata keys with various prefixes
+   * and suffixes to a UrlConfig object.
+   */
   urlMetadataToUrlConfig(
     stripeObject: Stripe.Product | Stripe.Plan
   ): UrlConfig {
@@ -173,9 +198,10 @@ export class StripeProductsAndPlansConverter {
     return urlConfig;
   }
 
-  // TODO JSDoc
-  // This method will return a valid ProductConfig, but it will need to be
-  // appended with any locale data for Stripe plans if present.
+  /**
+   * Convert a Stripe Product to a ProductConfig object with an empty
+   * `locales` key.
+   */
   stripeProductToProductConfig(product: Stripe.Product): ProductConfig {
     // Firestore cannot serialize class instances
     const productConfig: any = {};
@@ -203,8 +229,10 @@ export class StripeProductsAndPlansConverter {
     return productConfig;
   }
 
-  // TODO: JSDoc
-  // TODO: #12053: Improve heuristics
+  /**
+   * Infer a locale (language only or language and region) from a Stripe Plan.
+   * TODO: #12053: Improve heuristics
+   */
   findLocaleStringFromStripePlan(plan: Stripe.Plan): null | string {
     // Try to extract a locale from the plan nickname
     const { nickname } = plan;
@@ -217,7 +245,10 @@ export class StripeProductsAndPlansConverter {
     return null;
   }
 
-  // Extract any locale data from a Stripe plan and convert it to ProductConfig.locales
+  /**
+   * Extract localized data from a Stripe Plan and convert it to
+   * ProductConfig.locales
+   */
   stripePlanLocalesToProductConfigLocales(
     plan: Stripe.Plan
   ): ProductConfig['locales'] {
@@ -237,7 +268,9 @@ export class StripeProductsAndPlansConverter {
     return locales;
   }
 
-  // TODO JSDoc
+  /**
+   * Convert a Stripe Plan to a PlanConfig object
+   */
   stripePlanToPlanConfig(plan: Stripe.Plan): PlanConfig {
     // Firestore cannot serialize class instances
     const planConfig: any = {};
@@ -265,14 +298,13 @@ export class StripeProductsAndPlansConverter {
     ) {
       planConfig.uiContent = this.uiContentMetadataToUiContentConfig(plan);
     }
-    // @ts-ignore `includes` isn't allowing SearchElement to be any string
+    // @ts-ignore `includes` doesn't allow SearchElement to be any `string`
     if (metadataKeys.some((key) => StyleConfigKeys.includes(key))) {
       planConfig.styles = this.stylesMetadataToStyleConfig(plan);
     }
     if (metadataKeys.some((key) => key.toLowerCase().startsWith('support'))) {
       planConfig.support = this.supportMetadataToSupportConfig(plan);
     }
-    // TODO Do we need `locales` on the planConfig, since they'll exist on productConfig?
 
     // Extended by PlanConfig
     const { id, productOrder, googlePlaySku, appleProductId } = plan.metadata;
@@ -289,19 +321,20 @@ export class StripeProductsAndPlansConverter {
     return planConfig;
   }
 
-  // TODO: Better method name and JSDoc
   /**
-   * For each Stripe Product (only the product with `productId` else all products)
-   *  - Initialize an empty object to represent a productConfig Firestore doc
-   *  - Copy any product metadata to the productConfig
-   *  - Check if a document already exists for this Stripe product ID and get its doc ID
-   *  - For each Stripe Plan
-   *    - Copy any plan locale metadata to productConfig.locales
-   *    - Initialize an empty object to represent a planConfig Firestore doc
-   *    - Copy any other plan metadata to the planConfig
-   *    - Check if a document already exists for this Stripe plan ID and get its doc ID
-   *    - Update or add the planConfig into the PlanConfig collection in Firestore
-   *  - Update or add the productConfig into the ProductConfig collection in Firestore
+   * Iterates through all Stripe Plans for all Stripe Products to convert each
+   * plan to a PlanConfig object and each product to a ProductConfig object,
+   * moving localized metadata from the plan to the ProductConfig.
+   *
+   * Stores the PlanConfigs and ProductConfigs in Firestore as new document(s) if
+   * none existed, else updates the existing Firestore document(s).
+   *
+   * Logs errors, but does not abort early on failure.
+   *
+   * If a `productId` is passed, processes all plans for the given product ID only.
+   *
+   * If `dryRun` is true, logs each Product and its ProductConfig and each plan
+   * and its PlanConfig, but doesn't update Firestore.
    */
   async convert({
     productId,
@@ -310,7 +343,7 @@ export class StripeProductsAndPlansConverter {
     productId: string;
     isDryRun: boolean;
   }): Promise<void> {
-    this.log.info('StripeProductsAndPlansConverter.convertBegin', {
+    this.log.debug('StripeProductsAndPlansConverter.convertBegin', {
       productId,
       isDryRun,
     });
@@ -320,59 +353,79 @@ export class StripeProductsAndPlansConverter {
     for await (const product of this.stripeHelper.stripe.products.list(
       params
     )) {
-      const productConfig = this.stripeProductToProductConfig(product);
-      // We need a productConfigId to store a planConfig; this may require
-      // storing a new productConfig with `locales: {}` and updating it after
-      // we've iterated through the Stripe Plans.
-      const existingProductConfigId =
-        await this.paymentConfigManager.getDocumentIdByStripeId(product.id);
-      let productConfigId;
-      if (existingProductConfigId) {
-        productConfigId = existingProductConfigId;
-      } else {
-        productConfigId = await this.paymentConfigManager.storeProductConfig(
-          productConfig
-        );
-      }
-      for await (const plan of this.stripeHelper.stripe.plans.list({
-        product: product.id,
-      })) {
-        this.stripePlanLocalesToProductConfigLocales(plan);
-        productConfig.locales = {
-          ...productConfig.locales,
-          ...this.stripePlanLocalesToProductConfigLocales(plan),
-        };
-        const planConfig = this.stripePlanToPlanConfig(plan);
-        // If a planConfig doc already exists, update it rather than creating
-        // a new doc
-        const existingPlanConfigId =
-          await this.paymentConfigManager.getDocumentIdByStripeId(plan.id);
-        const planConfigId = existingPlanConfigId
-          ? await this.paymentConfigManager.storePlanConfig(
-              planConfig,
-              productConfigId,
-              existingPlanConfigId
-            )
-          : await this.paymentConfigManager.storePlanConfig(
-              planConfig,
-              productConfigId
+      try {
+        const productConfig = this.stripeProductToProductConfig(product);
+        // We need a productConfigId to store a planConfig. For a new
+        // productConfig, this requires storing the new object with locales = {}
+        // to get an id and updating it after we've iterated through the Stripe
+        // Plans.
+        const existingProductConfigId =
+          await this.paymentConfigManager.getDocumentIdByStripeId(product.id);
+        let productConfigId;
+        if (existingProductConfigId) {
+          productConfigId = existingProductConfigId;
+        } else {
+          productConfigId = await this.paymentConfigManager.storeProductConfig(
+            productConfig
+          );
+        }
+        for await (const plan of this.stripeHelper.stripe.plans.list({
+          product: product.id,
+        })) {
+          this.stripePlanLocalesToProductConfigLocales(plan);
+          productConfig.locales = {
+            ...productConfig.locales,
+            ...this.stripePlanLocalesToProductConfigLocales(plan),
+          };
+          try {
+            const planConfig = this.stripePlanToPlanConfig(plan);
+            // If a planConfig doc already exists, update it rather than creating
+            // a new doc
+            const existingPlanConfigId =
+              await this.paymentConfigManager.getDocumentIdByStripeId(plan.id);
+            const planConfigId = existingPlanConfigId
+              ? await this.paymentConfigManager.storePlanConfig(
+                  planConfig,
+                  productConfigId,
+                  existingPlanConfigId
+                )
+              : await this.paymentConfigManager.storePlanConfig(
+                  planConfig,
+                  productConfigId
+                );
+            this.log.debug(
+              'StripeProductsAndPlansConverter.convertPlanSuccess',
+              {
+                planConfigId,
+                stripePlanId: plan.id,
+              }
             );
-        this.log.info('StripeProductsAndPlansConverter.convertPlanSuccess', {
-          planConfigId,
-          planId: plan.id,
+          } catch (error) {
+            this.log.error('StripeProductsAndPlansConverter.convertPlanError', {
+              error: error.message,
+              stripePlanId: plan.id,
+              stripeProductId: product.id,
+            });
+          }
+        }
+        // Whether just added above or not, the productConfig exists now, so update it.
+        await this.paymentConfigManager.storeProductConfig(
+          productConfig,
+          productConfigId
+        );
+        this.log.debug(
+          'StripeProductsAndPlansConverter.convertProductSuccess',
+          {
+            productConfigId,
+            stripeProductId: product.id,
+          }
+        );
+      } catch (error) {
+        this.log.error('StripeProductsAndPlansConverter.convertProductError', {
+          error: error.message,
+          stripeProductId: product.id,
         });
-        break; // TODO remove after I get it to work for the first plan
       }
-      // Whether just added above or not, the productConfig exists now, so update it.
-      await this.paymentConfigManager.storeProductConfig(
-        productConfig,
-        productConfigId
-      );
-      // TODO: Put an error statement on failure to convert or insert errors
-      this.log.info('StripeProductsAndPlansConverter.convertProductSuccess', {
-        productConfigId,
-        productId: product.id,
-      });
     }
     this.paymentConfigManager.stopListeners();
   }

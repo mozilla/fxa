@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
-
-import { StripeProductsAndPlansConverter } from './stripe-products-and-plans-to-firestore-documents/stripe-product-and-plans-converter';
-import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import Container from 'typedi';
+
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
+import { StripeProductsAndPlansConverter } from './stripe-products-and-plans-to-firestore-documents/stripe-product-and-plans-converter';
 
 const pckg = require('../package.json');
 
