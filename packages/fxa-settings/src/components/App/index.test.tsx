@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { render, act, screen } from '@testing-library/react';
+import React, { ReactNode } from 'react';
+import { render, act } from '@testing-library/react';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import { Account, AppContext, useInitialState } from '../../models';
@@ -15,6 +15,20 @@ import { HomePath } from '../../constants';
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialState: jest.fn(),
+}));
+
+jest.mock('fxa-react/lib/AppLocalizationProvider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => (
+    <section data-testid="AppLocalizationProvider">{children}</section>
+  ),
+}));
+
+jest.mock('../ScrollToTop', () => ({
+  __esModule: true,
+  ScrollToTop: ({ children }: { children: ReactNode }) => (
+    <span data-testid="ScrollTop">{children}</span>
+  ),
 }));
 
 const appProps = {
@@ -108,59 +122,161 @@ describe('performance metrics', () => {
 describe('App component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('renders `LoadingSpinner` component when loading initial state is true', async () => {
+  it('renders `LoadingSpinner` component when loading initial state is true', () => {
     (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
-    const { getByTestId } = renderWithRouter(<App {...appProps} />);
+    const { getByLabelText } = renderWithRouter(<App {...appProps} />);
 
-    expect(getByTestId('loading-spinner')).toBeInTheDocument();
+    expect(getByLabelText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders `LoadingSpinner` component when the error message includes "Invalid token"', async() => {
+  it('renders `LoadingSpinner` component when the error message includes "Invalid token"',() => {
     (useInitialState as jest.Mock).mockReturnValueOnce({ error: { message: "Invalid token" }});
-    const { getByTestId } = renderWithRouter(<App {...appProps} />);
+    const { getByLabelText } = renderWithRouter(<App {...appProps} />);
 
-    expect(getByTestId('loading-spinner')).toBeInTheDocument();
+    expect(getByLabelText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', async () => {
+  it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
     (useInitialState as jest.Mock).mockReturnValueOnce({ error: { message: "Error" }});
-    const { getByTestId } = renderWithRouter(<App {...appProps} />);
+    const { getByRole } = renderWithRouter(<App {...appProps} />);
 
-    expect(getByTestId('error-loading-app')).toBeInTheDocument();
+    expect(getByRole('heading', { level: 2 })).toHaveTextContent('General application error');
   });
 
-  it('renders PageSettings', async () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: false });
+  (useInitialState as jest.Mock).mockReturnValue({ loading: false });
 
-    renderWithRouter(
-      <App {...appProps} />,
-      { route: HomePath }
-    );
+  it('routes to PageSettings', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-    screen.debug();
+    await navigate(HomePath);
+
+    expect(getByTestId('settings-profile')).toBeInTheDocument();
   });
 
-  // routes to `/display_name`
+  it('routes to PageDisplayName', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-  // routes to `/avatar`
+    await navigate(HomePath + '/display_name');
 
-  // routes to `/change_password`
+    expect(getByTestId('input-label')).toHaveTextContent('Enter display name');
+  });
 
-  // routes to `/account_recovery`
+  it('routes to PageAvatar', async () => {
+    const {
+      getAllByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-  // routes to `/emails`
+    await navigate(HomePath + '/avatar');
 
-  // routes to `/emails/verify`
+    expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
+  });
 
-  // routes to `/two_step_authentication`
+  it('routes to PageChangePassword', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-  // routes to `/two_step_authentication/replace_codes`
+    await navigate(HomePath + '/change_password');
 
-  // routes to `/delete_account`
+    expect(getByTestId('change-password-requirements')).toBeInTheDocument();
+  });
 
-  // redirects to `/settings#connected-services`
+  it('routes to PageRecoveryKeyAdd', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-  // redirects to `/settings/avatar/"
+    await navigate(HomePath + '/account_recovery');
+
+    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
+  });
+
+  it('routes to PageSecondaryEmailAdd', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/emails');
+
+    expect(getByTestId('secondary-email-input')).toBeInTheDocument();
+  });
+
+  it('routes to PageSecondaryEmailVerify', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/emails/verify');
+
+    expect(getByTestId('secondary-email-verify-form')).toBeInTheDocument();
+  });
+
+  it('routes to PageTwoStepAuthentication', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/two_step_authentication');
+
+    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
+  });
+
+  it('routes to Page2faReplaceRecoveryCodes', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/two_step_authentication/replace_codes' );
+
+    expect(getByTestId('2fa-recovery-codes')).toBeInTheDocument();
+  });
+
+  it('routes to PageDeleteAccount', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/delete_account');
+
+    expect(getByTestId('delete-account-confirm')).toBeInTheDocument();
+  });
+
+  it('redirects to ConnectedServices', async () => {
+    const {
+      history,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/clients');
+
+    expect(history.location.pathname).toBe('/settings#connected-services');
+  });
+
+  it('redirects to PageAvatar', async () => {
+    const {
+      history,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/avatar/change');
+
+    expect(history.location.pathname).toBe('/settings/avatar');
+  });
 });
