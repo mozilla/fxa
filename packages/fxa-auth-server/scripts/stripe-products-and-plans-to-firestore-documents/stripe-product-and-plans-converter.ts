@@ -238,14 +238,10 @@ export class StripeProductsAndPlansConverter {
   }
 
   // TODO JSDoc
-  stripePlanToPlanConfig(
-    plan: Stripe.Plan,
-    productConfigId: string
-  ): PlanConfig {
+  stripePlanToPlanConfig(plan: Stripe.Plan): PlanConfig {
     // Firestore cannot serialize class instances
     const planConfig: any = {};
 
-    planConfig.productConfigId = productConfigId;
     planConfig.active = plan.active;
 
     if (!plan.metadata) {
@@ -269,6 +265,7 @@ export class StripeProductsAndPlansConverter {
     ) {
       planConfig.uiContent = this.uiContentMetadataToUiContentConfig(plan);
     }
+    // @ts-ignore `includes` isn't allowing SearchElement to be any string
     if (metadataKeys.some((key) => StyleConfigKeys.includes(key))) {
       planConfig.styles = this.stylesMetadataToStyleConfig(plan);
     }
@@ -345,7 +342,7 @@ export class StripeProductsAndPlansConverter {
           ...productConfig.locales,
           ...this.stripePlanLocalesToProductConfigLocales(plan),
         };
-        const planConfig = this.stripePlanToPlanConfig(plan, productConfigId);
+        const planConfig = this.stripePlanToPlanConfig(plan);
         // If a planConfig doc already exists, update it rather than creating
         // a new doc
         const existingPlanConfigId =

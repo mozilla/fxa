@@ -15,7 +15,6 @@ import {
 
 export const planConfigSchema = baseConfigSchema
   .keys({
-    productConfigId: joi.string().required(),
     stripePriceId: joi.string().optional(),
     productOrder: joi.number().optional(),
     googlePlaySku: joi.array().items(joi.string()).optional(),
