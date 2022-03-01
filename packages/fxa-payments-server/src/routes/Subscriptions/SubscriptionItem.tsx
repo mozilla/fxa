@@ -61,9 +61,9 @@ export const SubscriptionItem = ({
   if (
     subsequentInvoice &&
     plan.amount &&
-    subsequentInvoice.total !== plan.amount &&
     subsequentInvoice.total < plan.amount
   ) {
+    // update the plan amount to reflect the next charged price
     plan.amount = subsequentInvoice.total;
   }
 

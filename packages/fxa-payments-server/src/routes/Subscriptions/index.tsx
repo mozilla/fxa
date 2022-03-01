@@ -145,7 +145,13 @@ export const Subscriptions = ({
     [navigateToUrl, SUPPORT_FORM_URL]
   );
 
-  if (!accessToken || customer.loading || profile.loading || plans.loading) {
+  if (
+    !accessToken ||
+    customer.loading ||
+    profile.loading ||
+    plans.loading ||
+    subsequentInvoices.loading
+  ) {
     return <LoadingOverlay isLoading={true} />;
   }
 
