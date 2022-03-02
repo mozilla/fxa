@@ -1,3 +1,9 @@
+## 1.226.3
+
+### Bug fixes
+
+- email: remove pooling to fix delivery failures (#12058) (#12060) ([1657741b7](https://github.com/mozilla/fxa/commit/1657741b7))
+
 ## 1.226.2
 
 ### Other changes
