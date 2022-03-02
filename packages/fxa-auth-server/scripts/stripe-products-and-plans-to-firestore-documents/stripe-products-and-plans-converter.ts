@@ -22,6 +22,8 @@ import { ProductConfig } from '../../lib/payments/configuration/product';
 import { StripeHelper } from '../../lib/payments/stripe';
 import { commaSeparatedListToArray } from '../../lib/payments/utils';
 
+const DEFAULT_LOCALE = 'en';
+
 /**
  * Handles converting Stripe Products and Plans to Firestore ProductConfig
  * and PlanConfig Firestore documents. Updates existing documents if they
@@ -48,6 +50,7 @@ export class StripeProductsAndPlansConverter {
       l.toLowerCase()
     );
     this.paymentConfigManager = Container.get(PaymentConfigManager);
+    this.paymentConfigManager.startListeners();
   }
 
   /**
@@ -89,7 +92,7 @@ export class StripeProductsAndPlansConverter {
     for (const oldKey of Object.keys(stripeObject.metadata!).filter((key) =>
       key.toLowerCase().startsWith('capabilities')
     )) {
-      // Parse the key to determine if it's an "all RP" or single RP capability
+      // Parse the key to determine if it's an 'all RP' or single RP capability
       const [_, clientId] = oldKey.split(':');
       const newKey = clientId ?? '*';
       capabilities[newKey] = commaSeparatedListToArray(
@@ -218,8 +221,8 @@ export class StripeProductsAndPlansConverter {
     productConfig.urls = this.urlMetadataToUrlConfig(product);
 
     // Extended by ProductConfig
-    const { id, productSet, promotionCodes } = product.metadata;
-    productConfig.stripeProductId = id;
+    productConfig.stripeProductId = product.id;
+    const { productSet, promotionCodes } = product.metadata;
     if (productSet) {
       productConfig.productSet = productSet;
     }
@@ -254,7 +257,11 @@ export class StripeProductsAndPlansConverter {
   ): ProductConfig['locales'] {
     const locales: ProductConfig['locales'] = {};
     const localeStr = this.findLocaleStringFromStripePlan(plan);
-    if (!localeStr) {
+    // These keys exist on the top level of ProductConfig for the default locale
+    if (
+      !localeStr ||
+      localeStr.toLowerCase() === DEFAULT_LOCALE.toLowerCase()
+    ) {
       return locales;
     }
     const uiContent = this.uiContentMetadataToUiContentConfig(plan);
@@ -307,10 +314,10 @@ export class StripeProductsAndPlansConverter {
     }
 
     // Extended by PlanConfig
-    const { id, productOrder, googlePlaySku, appleProductId } = plan.metadata;
-    planConfig.stripePriceId = id;
+    planConfig.stripePriceId = plan.id;
+    const { productOrder, googlePlaySku, appleProductId } = plan.metadata;
     if (productOrder) {
-      planConfig.productOrder = productOrder;
+      planConfig.productOrder = parseInt(productOrder);
     }
     if (googlePlaySku) {
       planConfig.googlePlaySku = commaSeparatedListToArray(googlePlaySku);
@@ -319,6 +326,10 @@ export class StripeProductsAndPlansConverter {
       planConfig.appleProductId = commaSeparatedListToArray(appleProductId);
     }
     return planConfig;
+  }
+
+  async load() {
+    await this.paymentConfigManager.load();
   }
 
   /**
@@ -347,8 +358,6 @@ export class StripeProductsAndPlansConverter {
       productId,
       isDryRun,
     });
-    await this.paymentConfigManager.load();
-    this.paymentConfigManager.startListeners();
     const params = productId ? { ids: [productId] } : {};
     for await (const product of this.stripeHelper.stripe.products.list(
       params
@@ -359,14 +368,14 @@ export class StripeProductsAndPlansConverter {
         // productConfig, this requires storing the new object with locales = {}
         // to get an id and updating it after we've iterated through the Stripe
         // Plans.
-        const existingProductConfigId =
+        let productConfigId =
           await this.paymentConfigManager.getDocumentIdByStripeId(product.id);
-        let productConfigId;
-        if (existingProductConfigId) {
-          productConfigId = existingProductConfigId;
+        if (isDryRun) {
+          // We'll log the full productConfig with `locales` updated further down
         } else {
           productConfigId = await this.paymentConfigManager.storeProductConfig(
-            productConfig
+            productConfig,
+            productConfigId
           );
         }
         for await (const plan of this.stripeHelper.stripe.plans.list({
@@ -383,23 +392,29 @@ export class StripeProductsAndPlansConverter {
             // a new doc
             const existingPlanConfigId =
               await this.paymentConfigManager.getDocumentIdByStripeId(plan.id);
-            const planConfigId = existingPlanConfigId
-              ? await this.paymentConfigManager.storePlanConfig(
+            if (isDryRun) {
+              this.log.debug(
+                'StripeProductsAndPlansConverter.dryRun.convertPlanSuccess',
+                {
+                  stripePlanId: plan.id,
                   planConfig,
-                  productConfigId,
+                }
+              );
+            } else {
+              const planConfigId =
+                await this.paymentConfigManager.storePlanConfig(
+                  planConfig,
+                  productConfigId as string,
                   existingPlanConfigId
-                )
-              : await this.paymentConfigManager.storePlanConfig(
-                  planConfig,
-                  productConfigId
                 );
-            this.log.debug(
-              'StripeProductsAndPlansConverter.convertPlanSuccess',
-              {
-                planConfigId,
-                stripePlanId: plan.id,
-              }
-            );
+              this.log.debug(
+                'StripeProductsAndPlansConverter.convertPlanSuccess',
+                {
+                  planConfigId,
+                  stripePlanId: plan.id,
+                }
+              );
+            }
           } catch (error) {
             this.log.error('StripeProductsAndPlansConverter.convertPlanError', {
               error: error.message,
@@ -408,18 +423,28 @@ export class StripeProductsAndPlansConverter {
             });
           }
         }
-        // Whether just added above or not, the productConfig exists now, so update it.
-        await this.paymentConfigManager.storeProductConfig(
-          productConfig,
-          productConfigId
-        );
-        this.log.debug(
-          'StripeProductsAndPlansConverter.convertProductSuccess',
-          {
-            productConfigId,
-            stripeProductId: product.id,
-          }
-        );
+        if (isDryRun) {
+          this.log.debug(
+            'StripeProductsAndPlansConverter.dryRun.convertProductSuccess',
+            {
+              stripeProductId: product.id,
+              productConfig,
+            }
+          );
+        } else {
+          // Whether just added above or not, the productConfig exists now, so update it.
+          await this.paymentConfigManager.storeProductConfig(
+            productConfig,
+            productConfigId
+          );
+          this.log.debug(
+            'StripeProductsAndPlansConverter.convertProductSuccess',
+            {
+              productConfigId,
+              stripeProductId: product.id,
+            }
+          );
+        }
       } catch (error) {
         this.log.error('StripeProductsAndPlansConverter.convertProductError', {
           error: error.message,

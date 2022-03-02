@@ -119,17 +119,12 @@ export class PaymentConfigManager {
    * on the provided Stripe Product or Plan id.
    */
   public getDocumentIdByStripeId(stripeId: string): string | null {
-    for (const [docId, productConfig] of Object.entries(this.products)) {
-      if (productConfig.stripeProductId === stripeId) {
-        return docId;
-      }
-    }
-    for (const [docId, planConfig] of Object.entries(this.plans)) {
-      if (planConfig.stripePriceId === stripeId) {
-        return docId;
-      }
-    }
-    return null;
+    const products = this.allProducts();
+    const plans = this.allPlans();
+    const match =
+      products.find((product) => product.stripeProductId === stripeId) ||
+      plans.find((plan) => plan.stripePriceId === stripeId);
+    return match?.id ?? null;
   }
 
   /**
@@ -142,7 +137,7 @@ export class PaymentConfigManager {
    */
   public async storeProductConfig(
     productConfig: any,
-    productConfigId?: string
+    productConfigId?: string | null
   ) {
     const { error } = await ProductConfig.validate(productConfig);
     if (error) {
@@ -165,7 +160,7 @@ export class PaymentConfigManager {
   public async storePlanConfig(
     planConfig: any,
     productConfigId: string,
-    planConfigId?: string
+    planConfigId?: string | null
   ) {
     const { error } = await PlanConfig.validate(planConfig);
     if (error) {

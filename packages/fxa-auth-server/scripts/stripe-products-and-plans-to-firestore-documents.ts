@@ -6,7 +6,7 @@ import Container from 'typedi';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
-import { StripeProductsAndPlansConverter } from './stripe-products-and-plans-to-firestore-documents/stripe-product-and-plans-converter';
+import { StripeProductsAndPlansConverter } from './stripe-products-and-plans-to-firestore-documents/stripe-products-and-plans-converter';
 
 const pckg = require('../package.json');
 
@@ -43,6 +43,7 @@ async function init() {
     stripeHelper,
     supportedLanguages: config.i18n.supportedLanguages,
   });
+  await stripeProductsAndPlansConverter.load();
   await stripeProductsAndPlansConverter.convert({ productId, isDryRun });
   return 0;
 }

@@ -4,10 +4,12 @@
 
 'use strict';
 
+const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
 const { cloneDeep } = require('lodash');
 const retry = require('async-retry');
+const { deleteCollection } = require('../util');
 
 const {
   AuthFirestore,
@@ -20,6 +22,8 @@ const {
 const { setupFirestore } = require('../../../../lib/firestore-db');
 const { randomUUID } = require('crypto');
 const errors = require('../../../../lib/error');
+
+const sandbox = sinon.createSandbox();
 
 const mockConfig = {
   authFirestore: {
@@ -70,38 +74,6 @@ const planConfig = {
   uiContent: {},
 };
 
-async function deleteQueryBatch(db, query, resolve) {
-  const snapshot = await query.get();
-
-  const batchSize = snapshot.size;
-  if (batchSize === 0) {
-    // When there are no documents left, we are done
-    resolve();
-    return;
-  }
-
-  // Delete documents in a batch
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-  await batch.commit();
-
-  // Recurse on the next process tick, to avoid
-  // exploding the stack.
-  process.nextTick(() => {
-    deleteQueryBatch(db, query, resolve);
-  });
-}
-
-async function deleteCollection(db, collectionRef, batchSize) {
-  const query = collectionRef.orderBy('__name__').limit(batchSize);
-
-  return new Promise((resolve, reject) => {
-    deleteQueryBatch(db, query, resolve).catch(reject);
-  });
-}
-
 describe('PaymentConfigManager', () => {
   let paymentConfigManager;
   let testProductId;
@@ -138,6 +110,7 @@ describe('PaymentConfigManager', () => {
       planConfigDbRef,
       100
     );
+    sandbox.reset();
     Container.reset();
   });
 
@@ -197,6 +170,53 @@ describe('PaymentConfigManager', () => {
         }
       );
       await paymentConfigManager.stopListeners();
+    });
+  });
+
+  describe('getDocumentIdByStripeId', () => {
+    it('returns a matching product document id if found', async () => {
+      paymentConfigManager.allProducts = sandbox.stub().returns([
+        {
+          ...productConfig,
+          id: testProductId,
+        },
+      ]);
+      const actual = paymentConfigManager.getDocumentIdByStripeId(
+        productConfig.stripeProductId
+      );
+      const expected = testProductId;
+      assert.deepEqual(actual, expected);
+    });
+    it('returns a matching plan document id if found', async () => {
+      paymentConfigManager.allPlans = sandbox.stub().returns([
+        {
+          ...planConfig,
+          id: testPlanId,
+        },
+      ]);
+      const actual = paymentConfigManager.getDocumentIdByStripeId(
+        planConfig.stripePriceId
+      );
+      const expected = testPlanId;
+      assert.deepEqual(actual, expected);
+    });
+    it('returns null if neither is found', async () => {
+      paymentConfigManager.allProducts = sandbox.stub().returns([
+        {
+          ...productConfig,
+          id: testProductId,
+        },
+      ]);
+      paymentConfigManager.allPlans = sandbox.stub().returns([
+        {
+          ...planConfig,
+          id: testPlanId,
+        },
+      ]);
+      const actual = paymentConfigManager.getDocumentIdByStripeId(
+        'random-nonmatching-id'
+      );
+      assert.isNull(actual);
     });
   });
 
