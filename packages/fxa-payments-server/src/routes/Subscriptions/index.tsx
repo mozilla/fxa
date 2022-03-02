@@ -209,6 +209,19 @@ export const Subscriptions = ({
     return <LoadingOverlay isLoading={true} />;
   }
 
+  if (subsequentInvoices.error !== null) {
+    return (
+      <Localized id="sub-invoice-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-invoice"
+          title="Problem loading invoices"
+          fetchState={subsequentInvoices}
+          onDismiss={locationReload}
+        />
+      </Localized>
+    );
+  }
+
   const activeWebSubscription =
     customerSubscriptions &&
     customerSubscriptions.find(

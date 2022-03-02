@@ -71,7 +71,7 @@ export const SubscriptionItem = ({
     <div className="settings-unit">
       <div className="subscription" data-testid="subscription-item">
         <header>
-          <h2>{plan.product_name} test</h2>
+          <h2>{plan.product_name}</h2>
         </header>
 
         {!customerSubscription.cancel_at_period_end ? (

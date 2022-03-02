@@ -52,6 +52,7 @@ import {
   MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
   PLAN_ID,
   PRODUCT_ID,
+  MOCK_SUBSEQUENT_INVOICES,
 } from '../../lib/test-utils';
 
 import FlowEvent from '../../lib/flow-event';
@@ -140,11 +141,13 @@ describe('routes/Subscriptions', () => {
     mockCustomer = MOCK_CUSTOMER,
     mockActiveSubscriptions = MOCK_ACTIVE_SUBSCRIPTIONS,
     mockPlans = MOCK_PLANS,
+    mockSubsequentInvoices = MOCK_SUBSEQUENT_INVOICES,
   }: {
     displayName?: string | undefined;
     mockCustomer?: typeof MOCK_CUSTOMER;
     mockActiveSubscriptions?: typeof MOCK_ACTIVE_SUBSCRIPTIONS;
     mockPlans?: typeof MOCK_PLANS;
+    mockSubsequentInvoices?: typeof MOCK_SUBSEQUENT_INVOICES;
   } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
@@ -156,6 +159,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, mockCustomer),
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, mockSubsequentInvoices),
   ];
 
   it('uses PaymentUpdateForm', async () => {
@@ -316,6 +322,24 @@ describe('routes/Subscriptions', () => {
       .reply(403, {});
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
+  });
+
+  it('displays an error if subsequent invoice fetch fails', async () => {
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/plans')
+      .reply(200, MOCK_PLANS);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, MOCK_CUSTOMER);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(500, MOCK_SUBSEQUENT_INVOICES);
+    const { findByTestId } = render(<Subject />);
+    await findByTestId('error-loading-invoice');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
@@ -653,6 +677,9 @@ describe('routes/Subscriptions', () => {
         nock(authServer)
           .post('/v1/oauth/subscriptions/reactivate')
           .reply(200, {});
+        nock(authServer)
+          .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+          .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
         const { findByTestId, getByTestId, getByAltText, queryByTestId } =
           render(<Subject />);
@@ -693,6 +720,9 @@ describe('routes/Subscriptions', () => {
         nock(authServer)
           .post('/v1/oauth/subscriptions/reactivate')
           .reply(500, {});
+        nock(authServer)
+          .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+          .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
         const { findByTestId, getByTestId } = render(<Subject />);
 
@@ -724,6 +754,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, MOCK_CUSTOMER);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');
   });
