@@ -597,9 +597,6 @@ describe('DirectStripeRoutes', () => {
           data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
         },
       });
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1', 'sub_id2'],
-      };
       VALID_REQUEST.app.geo = {};
 
       const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
@@ -629,6 +626,32 @@ describe('DirectStripeRoutes', () => {
       );
     });
 
+    it('filter out subscriptions that have already been cancelled', async () => {
+      const expected = [];
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+        id: 'cus_id',
+        subscriptions: {
+          data: [{ id: 'sub_id1', canceled_at: 1646244417 }],
+        },
+      });
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'subsequentInvoicePreviews'
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      assert.deepEqual(expected, actual);
+    });
+
     it('return empty array if customer has no subscriptions', async () => {
       const expected = [];
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
@@ -637,9 +660,6 @@ describe('DirectStripeRoutes', () => {
           data: [],
         },
       });
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1', 'sub_id2'],
-      };
       VALID_REQUEST.app.geo = {};
 
       const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
@@ -660,9 +680,6 @@ describe('DirectStripeRoutes', () => {
 
     it('errors if customer isnt found', async () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
-      VALID_REQUEST.payload = {
-        subscriptionIds: ['sub_id1', 'sub_id2'],
-      };
       VALID_REQUEST.app.geo = {};
       try {
         await directStripeRoutesInstance.subsequentInvoicePreviews(
