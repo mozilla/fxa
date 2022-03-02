@@ -57,7 +57,6 @@ import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
 import AppError from '../error';
 
-export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
 export const CREDIT_NOTE_RESOURCE = 'creditNotes';
@@ -67,7 +66,7 @@ export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 export const PLAN_RESOURCE = 'plans';
 export const PRICE_RESOURCE = 'prices';
 export const PRODUCT_RESOURCE = 'products';
-export const SOURCE_RESOURSE = 'sources';
+export const SOURCE_RESOURCE = 'sources';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
 export const TAX_RATE_RESOURCE = 'taxRates';
 
@@ -84,7 +83,6 @@ enum STRIPE_CUSTOMER_METADATA {
 }
 
 export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
-  card: CARD_RESOURCE,
   charge: CHARGES_RESOURCE,
   coupon: COUPON_RESOURCE,
   credit_note: CREDIT_NOTE_RESOURCE,
@@ -94,7 +92,7 @@ export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
   plan: PLAN_RESOURCE,
   price: PRICE_RESOURCE,
   product: PRODUCT_RESOURCE,
-  source: SOURCE_RESOURSE,
+  source: SOURCE_RESOURCE,
   subscription: SUBSCRIPTIONS_RESOURCE,
   tax_rate: TAX_RATE_RESOURCE,
 };
@@ -876,6 +874,16 @@ export class StripeHelper {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Get Card for a customer.
+   */
+  async getCard(customerId: string, cardId: string): Promise<Stripe.Card> {
+    return this.stripe.customers.retrieveSource(
+      customerId,
+      cardId
+    ) as Promise<Stripe.Card>;
   }
 
   /**
@@ -2285,6 +2293,7 @@ export class StripeHelper {
       planEmailIconURL,
       planDownloadURL,
       productMetadata,
+      showPaymentMethod: !!invoiceTotalInCents,
     };
   }
 

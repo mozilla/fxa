@@ -115,6 +115,7 @@ const MESSAGE = {
     { productName: 'Firefox Fortress' },
     { productName: 'Cooking with Foxkeh' },
   ],
+  showPaymentMethod: true,
 };
 
 const MESSAGE_FORMATTED = {
@@ -1382,6 +1383,42 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
+  // Do not display the Payment Method when "showPaymentMethod" is false
+  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]]),
+    {updateTemplateValues: x => (
+      {...x, showPaymentMethod: false})}
+  ],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
@@ -1610,6 +1647,46 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
+  ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+      ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+      ['headers', new Map([
+        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
+        ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
+        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+      ])],
+      ['html', [
+        { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
+        { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+        { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+        { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+        { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+        { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+        { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+        { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+        { test: 'include', expected: `Next Invoice: 04/19/2020` },
+        { test: 'include', expected: `View your invoice` },
+        { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        { test: 'notInclude', expected: 'utm_source=email' },
+        { test: 'notInclude', expected: 'PayPal' },
+      ]],
+      ['text', [
+        { test: 'include', expected: `${MESSAGE.productName} payment received` },
+        { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+        { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+        { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+        { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+        { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+        { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+        { test: 'include', expected: `Next Invoice: 04/19/2020` },
+        { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+        { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        { test: 'notInclude', expected: 'utm_source=email' },
+        { test: 'notInclude', expected: 'PayPal' },
+      ]]
+    ]),
+    {updateTemplateValues: x => ({...x, showPaymentMethod: false})}
+  ],
 
   ['subscriptionUpgradeEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
@@ -1641,7 +1718,11 @@ const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
 
 PAYPAL_MESSAGE.payment_provider = 'paypal';
 
-const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
+const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
+  string,
+  any,
+  Record<string, any>?
+][] = [
   [
     'subscriptionFirstInvoiceEmail',
     new Map<string, Test | any>([
@@ -1741,6 +1822,58 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
         ],
       ],
     ]),
+  ],
+  [
+    'subscriptionFirstInvoiceDiscountEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionFirstInvoiceDiscount'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'notInclude', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'notInclude', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+    { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
   ],
   [
     'subscriptionSubsequentInvoiceEmail',
@@ -1847,7 +1980,62 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
       ],
     ]),
   ],
-]);
+  [
+    'subscriptionSubsequentInvoiceDiscountEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment received`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionSubsequentInvoiceDiscount'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            {
+              test: 'equal',
+              expected: 'subscriptionSubsequentInvoiceDiscount',
+            },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'notInclude', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'notInclude', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+    ]),
+    { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
+  ],
+];
 
 describe('lib/senders/emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
@@ -1916,14 +2104,22 @@ describe('lib/senders/emails:', () => {
   }
 
   describe('payment info is correctly rendered when payment_provider === "paypal"', () => {
-    for (const [type, test] of TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER) {
+    for (const [
+      type,
+      test,
+      opts = {},
+    ] of TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER) {
       it(`"Paypal" is rendered instead of credit card and last four digits - ${type}`, async () => {
         mailer.mailer.sendMail = stubSendMail((message) => {
           test.forEach((assertions, property) => {
             applyAssertions(type, message, property, assertions);
           });
         });
-        await mailer[type](PAYPAL_MESSAGE);
+        const { updateTemplateValues }: any = opts;
+        const tmplVals = updateTemplateValues
+          ? updateTemplateValues(PAYPAL_MESSAGE)
+          : PAYPAL_MESSAGE;
+        await mailer[type](tmplVals);
       });
     }
   });

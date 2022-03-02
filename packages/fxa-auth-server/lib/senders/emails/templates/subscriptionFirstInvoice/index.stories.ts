@@ -22,6 +22,7 @@ const createStory = subplatStoryWithProps(
     invoiceTotal: '$20.00',
     nextInvoiceDateOnly: '11/13/2021',
     subscriptionSupportUrl: 'http://localhost:3030/support',
+    showPaymentMethod: true,
   }
 );
 

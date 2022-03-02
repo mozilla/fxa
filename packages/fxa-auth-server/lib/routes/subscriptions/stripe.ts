@@ -446,13 +446,19 @@ export class StripeHandler {
       return [];
     }
 
-    const subsequentInvoicePreviews = await Promise.all(
-      customer.subscriptions?.data.map((sub) =>
-        this.stripeHelper.previewInvoiceBySubscriptionId({
-          subscriptionId: sub.id,
+    const subsequentInvoicePreviews = (
+      await Promise.all(
+        customer.subscriptions.data.map((sub) => {
+          if (!sub.canceled_at) {
+            return this.stripeHelper.previewInvoiceBySubscriptionId({
+              subscriptionId: sub.id,
+            });
+          } else {
+            return Promise.resolve(null);
+          }
         })
       )
-    );
+    ).filter((sub): sub is Stripe.Response<Stripe.Invoice> => sub !== null);
 
     return stripeInvoicesToSubsequentInvoicePreviewsDTO(
       subsequentInvoicePreviews

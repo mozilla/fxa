@@ -22,6 +22,7 @@ const createStory = subplatStoryWithProps(
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     nextInvoiceDateOnly: '1/14/2022',
     subscriptionSupportUrl: 'http://localhost:3030/support',
+    showPaymentMethod: true,
   }
 );
 
