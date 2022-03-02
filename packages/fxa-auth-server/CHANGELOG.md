@@ -1,3 +1,9 @@
+## 1.226.4
+
+### Bug fixes
+
+- emails: add logger to Container for email notifications script ([ff53dd0ea](https://github.com/mozilla/fxa/commit/ff53dd0ea))
+
 ## 1.226.3
 
 ### Bug fixes
