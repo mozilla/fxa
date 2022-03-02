@@ -9,7 +9,7 @@ const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 
 const { Container } = require('typedi');
-const { AuthFirestore, AppConfig } = require('../lib/types');
+const { AuthFirestore, AppConfig, AuthLogger } = require('../lib/types');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { setupFirestore } = require('../lib/firestore-db');
 
@@ -20,6 +20,7 @@ const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
 });
 
 Container.set(AppConfig, config);
+Container.set(AuthLogger, log);
 
 // Set currencyHelper before stripe and paypal helpers, so they can use it.
 try {
