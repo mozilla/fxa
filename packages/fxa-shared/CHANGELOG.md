@@ -1,5 +1,22 @@
 # Change history
 
+## 1.227.0
+
+### New features
+
+- coupon: support coupon on sub manage page (#11890) ([3c23dde9f](https://github.com/mozilla/fxa/commit/3c23dde9f))
+
+### Other changes
+
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps: bump aws-sdk from 2.1068.0 to 2.1081.0 (#12026) ([7b305a3cd](https://github.com/mozilla/fxa/commit/7b305a3cd))
+- deps: bump @sentry/browser from 6.17.2 to 6.17.9 (#11994) ([f32ae3f1a](https://github.com/mozilla/fxa/commit/f32ae3f1a))
+- deps: bump @nestjs/core from 8.2.6 to 8.3.1 (#11989) ([11ad2b6ee](https://github.com/mozilla/fxa/commit/11ad2b6ee))
+- deps: bump stripe from 8.202.0 to 8.203.0 (#11988) ([5df09116f](https://github.com/mozilla/fxa/commit/5df09116f))
+- deps: bump @nestjs/common from 8.3.0 to 8.3.1 (#11975) ([bbd474450](https://github.com/mozilla/fxa/commit/bbd474450))
+- deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
+- deps: bump @nestjs/common from 8.2.4 to 8.3.0 (#11949) ([116f4310e](https://github.com/mozilla/fxa/commit/116f4310e))
+
 ## 1.226.4
 
 No changes.

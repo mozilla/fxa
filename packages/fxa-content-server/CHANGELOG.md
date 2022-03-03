@@ -1,3 +1,17 @@
+## 1.227.0
+
+### New features
+
+- pocket: Add FAQ for pocket migration (#12054) ([5a97f2c92](https://github.com/mozilla/fxa/commit/5a97f2c92))
+- google: return provider user id to the oauth client (#11999) ([aea4cbe07](https://github.com/mozilla/fxa/commit/aea4cbe07))
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 12.1.2 to 12.1.3 (#12042) ([a3f0f7aec](https://github.com/mozilla/fxa/commit/a3f0f7aec))
+- deps: bump react-dom from 16.14.0 to 17.0.2 (#12036) ([64f0864fb](https://github.com/mozilla/fxa/commit/64f0864fb))
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps: bump @sentry/browser from 6.17.2 to 6.17.9 (#11994) ([f32ae3f1a](https://github.com/mozilla/fxa/commit/f32ae3f1a))
+
 ## 1.226.4
 
 No changes.

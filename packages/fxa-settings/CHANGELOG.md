@@ -1,3 +1,18 @@
+## 1.227.0
+
+### Bug fixes
+
+- l10n: Update unlink account text (#12029) ([d6ce72ab4](https://github.com/mozilla/fxa/commit/d6ce72ab4))
+
+### Other changes
+
+- settings: Include additional tests within App component (#12041) ([7e8619aa0](https://github.com/mozilla/fxa/commit/7e8619aa0))
+- deps-dev: bump @testing-library/react from 12.1.2 to 12.1.3 (#12042) ([a3f0f7aec](https://github.com/mozilla/fxa/commit/a3f0f7aec))
+- deps: bump react-dom from 16.14.0 to 17.0.2 (#12036) ([64f0864fb](https://github.com/mozilla/fxa/commit/64f0864fb))
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps-dev: bump @testing-library/jest-dom from 5.16.1 to 5.16.2 (#12032) ([2fc10e301](https://github.com/mozilla/fxa/commit/2fc10e301))
+- deps: bump @sentry/browser from 6.17.2 to 6.17.9 (#11994) ([f32ae3f1a](https://github.com/mozilla/fxa/commit/f32ae3f1a))
+
 ## 1.226.4
 
 No changes.
