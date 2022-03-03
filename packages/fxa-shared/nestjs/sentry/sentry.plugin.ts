@@ -16,7 +16,7 @@ import { ApolloError } from 'apollo-server';
 import { ExtraContext, reportRequestException } from './reporting';
 
 export const SentryPlugin = {
-  async requestDidStart(requestContext: any) {
+  requestDidStart(requestContext: any) {
     return {
       didEncounterErrors(ctx: any) {
         // If we couldn't parse the operation, don't
