@@ -22641,7 +22641,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
-    react-dom: ^17.0.2
+    react-dom: 16.12.0
     react-redux: ^7.2.6
     react-router-dom: ^6.2.1
     react-scripts: ^4.0.3
@@ -36378,6 +36378,20 @@ fsevents@~2.1.1:
     prop-types: ^15.5.6
     react-side-effect: ^1.0.2
   checksum: fd3f5e0574a496805bd38a2db55b17a4a22edc1c539f3a6b2382369c3dab15a9085ea929e8fc86073f0f550ab61d1bec4838e254064c41254a7b8ece5853e6b1
+  languageName: node
+  linkType: hard
+
+"react-dom@npm:16.12.0":
+  version: 16.12.0
+  resolution: "react-dom@npm:16.12.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    prop-types: ^15.6.2
+    scheduler: ^0.18.0
+  peerDependencies:
+    react: ^16.0.0
+  checksum: e3bc9bf9ea4e28abfe83ec9200ebc45c86795ded9ad486c955d28c6df4ebde94359c841b8096209d13b017c0a3a751b6be34fd123105faad73467bfbbe8c84fb
   languageName: node
   linkType: hard
 
