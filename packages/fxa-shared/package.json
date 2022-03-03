@@ -87,7 +87,7 @@
     "@types/uuid": "^8.3.1",
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
-    "apollo-server": "^2.25.3",
+    "apollo-server": "^3.6.3",
     "aws-sdk": "^2.1081.0",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.5.1",
