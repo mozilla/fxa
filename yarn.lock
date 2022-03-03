@@ -12954,9 +12954,6 @@ __metadata:
   linkType: hard
 
 "aws-sdk@npm:^2.1081.0":
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
   version: 2.1081.0
   resolution: "aws-sdk@npm:2.1081.0"
   dependencies:
@@ -12974,9 +12971,6 @@ __metadata:
   linkType: hard
 
 "aws-sdk@npm:^2.1081.0":
-=======
->>>>>>> b4f9c7259 (yarn lock)
->>>>>>> 71f95ac4e (yarn lock)
   version: 2.1082.0
   resolution: "aws-sdk@npm:2.1082.0"
   dependencies:
