@@ -1,3 +1,19 @@
+## 1.227.1
+
+No changes.
+
+## 1.227.0
+
+### Other changes
+
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps-dev: bump @nestjs/cli from 8.2.0 to 8.2.1 (#11995) ([66d429d41](https://github.com/mozilla/fxa/commit/66d429d41))
+- deps: bump @nestjs/platform-express from 8.2.6 to 8.3.1 (#11990) ([17b895b35](https://github.com/mozilla/fxa/commit/17b895b35))
+- deps: bump @nestjs/core from 8.2.6 to 8.3.1 (#11989) ([11ad2b6ee](https://github.com/mozilla/fxa/commit/11ad2b6ee))
+- deps: bump @nestjs/common from 8.3.0 to 8.3.1 (#11975) ([bbd474450](https://github.com/mozilla/fxa/commit/bbd474450))
+- deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
+- deps: bump @nestjs/common from 8.2.4 to 8.3.0 (#11949) ([116f4310e](https://github.com/mozilla/fxa/commit/116f4310e))
+
 ## 1.226.4
 
 No changes.

@@ -1,3 +1,19 @@
+## 1.227.1
+
+### Other changes
+
+- deps: bump react-dom from 16.14.0 to 17.0.2 (#12036)" (#12088) ([6d9b9c8a8](https://github.com/mozilla/fxa/commit/6d9b9c8a8))
+
+## 1.227.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 12.1.2 to 12.1.3 (#12042) ([a3f0f7aec](https://github.com/mozilla/fxa/commit/a3f0f7aec))
+- deps: bump react-dom from 16.14.0 to 17.0.2 (#12036) ([64f0864fb](https://github.com/mozilla/fxa/commit/64f0864fb))
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps-dev: bump @testing-library/jest-dom from 5.16.1 to 5.16.2 (#12032) ([2fc10e301](https://github.com/mozilla/fxa/commit/2fc10e301))
+- deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
+
 ## 1.226.4
 
 No changes.
