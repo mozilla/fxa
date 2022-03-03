@@ -1,5 +1,11 @@
 # Change history
 
+## 1.227.1
+
+### Other changes
+
+- deps: bump react-dom from 16.14.0 to 17.0.2 (#12036)" (#12088) ([6d9b9c8a8](https://github.com/mozilla/fxa/commit/6d9b9c8a8))
+
 ## 1.227.0
 
 ### New features
