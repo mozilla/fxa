@@ -8,6 +8,12 @@ const crypto = require('crypto');
 const error = require('../error');
 const random = require('../crypto/random');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const {
+  mergeDevicesAndSessionTokens,
+  mergeDeviceAndSessionToken,
+  mergeCachedSessionTokens,
+  filterExpiredTokens,
+} = require('fxa-shared/connected-services');
 const { setupAuthDatabase } = require('fxa-shared/db');
 const {
   Account,
@@ -158,31 +164,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.sessions = async function (uid) {
     log.trace('DB.sessions', { uid });
     const getMysqlSessionTokens = async () => {
-      let sessionTokens = await RawSessionToken.findByUid(uid);
-      if (!MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
-        return sessionTokens;
-      }
-
-      const expiredSessionTokens = [];
-
-      // Filter out any expired sessions
-      sessionTokens = sessionTokens.filter((sessionToken) => {
-        if (sessionToken.deviceId) {
-          return true;
-        }
-
-        if (
-          sessionToken.createdAt >
-          Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
-        ) {
-          return true;
-        }
-
-        expiredSessionTokens.push(
-          Object.assign({}, sessionToken, { id: sessionToken.tokenId })
-        );
-        return false;
-      });
+      const { sessionTokens, expiredSessionTokens } = filterExpiredTokens(
+        await RawSessionToken.findByUid(uid),
+        MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
+      );
 
       if (expiredSessionTokens.length === 0) {
         return sessionTokens;
@@ -209,20 +194,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     // for each db session token, if there is a matching redis token
     // overwrite the properties of the db token with the redis token values
     const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid);
-    const sessions = mysqlSessionTokens.map((sessionToken) => {
-      const id = sessionToken.tokenId;
-      const redisToken = redisSessionTokens[id];
-      const mergedToken = Object.assign({}, sessionToken, redisToken, {
-        // Map from the db's tokenId property to this repo's id property
-        id,
-      });
-      delete mergedToken.tokenId;
-      // Don't return potentially-stale lastAccessTime
-      if (!lastAccessTimeEnabled) {
-        mergedToken.lastAccessTime = null;
-      }
-      return mergedToken;
-    });
+
+    const sessions = mergeCachedSessionTokens(
+      mysqlSessionTokens,
+      redisSessionTokens,
+      lastAccessTimeEnabled
+    );
     log.debug('db.sessions.count', {
       mysql: mysqlSessionTokens.length,
       redis: redisSessionTokens.length,
@@ -313,13 +290,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       const [devices, redisSessionTokens = {}] = await Promise.all(promises);
       const lastAccessTimeEnabled =
         features.isLastAccessTimeEnabledForUser(uid);
-      return devices.map((device) => {
-        return mergeDeviceInfoFromRedis(
-          device,
-          redisSessionTokens,
-          lastAccessTimeEnabled
-        );
-      });
+      return mergeDevicesAndSessionTokens(
+        devices,
+        redisSessionTokens,
+        lastAccessTimeEnabled
+      );
     } catch (err) {
       if (isNotFoundError(err)) {
         throw error.unknownAccount();
@@ -355,11 +330,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       throw error.unknownDevice();
     }
     const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid);
-    return mergeDeviceInfoFromRedis(
-      device,
-      redisSessionTokens,
-      lastAccessTimeEnabled
-    );
+    const token = redisSessionTokens[device.sessionTokenId];
+    return mergeDeviceAndSessionToken(device, token, lastAccessTimeEnabled);
   };
 
   DB.prototype.getSecondaryEmail = async function (email) {
@@ -1074,38 +1046,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     log.trace('DB.updateEcosystemAnonId', { uid, ecosystemAnonId });
     return {};
   };
-
-  function mergeDeviceInfoFromRedis(
-    device,
-    redisSessionTokens,
-    lastAccessTimeEnabled
-  ) {
-    // If there's a matching sessionToken in redis, use the more up-to-date
-    // location and access-time info from there rather than from the DB.
-    const token = redisSessionTokens[device.sessionTokenId];
-    const mergedInfo = Object.assign({}, device, token);
-    return {
-      id: mergedInfo.id,
-      sessionTokenId: mergedInfo.sessionTokenId,
-      refreshTokenId: mergedInfo.refreshTokenId,
-      lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
-      location: mergedInfo.location,
-      name: mergedInfo.name,
-      type: mergedInfo.type,
-      createdAt: mergedInfo.createdAt,
-      pushCallback: mergedInfo.callbackURL,
-      pushPublicKey: mergedInfo.callbackPublicKey,
-      pushAuthKey: mergedInfo.callbackAuthKey,
-      pushEndpointExpired: !!mergedInfo.callbackIsExpired,
-      availableCommands: mergedInfo.availableCommands || {},
-      uaBrowser: mergedInfo.uaBrowser,
-      uaBrowserVersion: mergedInfo.uaBrowserVersion,
-      uaOS: mergedInfo.uaOS,
-      uaOSVersion: mergedInfo.uaOSVersion,
-      uaDeviceType: mergedInfo.uaDeviceType,
-      uaFormFactor: mergedInfo.uaFormFactor,
-    };
-  }
 
   return DB;
 };
