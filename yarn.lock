@@ -12970,6 +12970,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aws-sdk@npm:^2.1081.0":
+  version: 2.1082.0
+  resolution: "aws-sdk@npm:2.1082.0"
+  dependencies:
+    buffer: 4.9.2
+    events: 1.1.1
+    ieee754: 1.1.13
+    jmespath: 0.16.0
+    querystring: 0.2.0
+    sax: 1.2.1
+    url: 0.10.3
+    uuid: 3.3.2
+    xml2js: 0.4.19
+  checksum: 64053e040d1cc550dde4102c7d6a4c6324f9c5ebe13b73e5e84cfaf7c4322de5478d5604c665ca18bb67db02c9edba500ec5f199ee7738c2370c0ef18c0cbe74
+  languageName: node
+  linkType: hard
+
 "aws-sign2@npm:~0.7.0":
   version: 0.7.0
   resolution: "aws-sign2@npm:0.7.0"
@@ -22055,7 +22072,7 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
-    luxon: ^2.3.0
+    luxon: ^2.3.1
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.12.0
@@ -30116,10 +30133,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "luxon@npm:2.3.0"
-  checksum: 3d00e1b812a31082cf0d97e844d7354c93891fbd14795756f396ee5656387e21d2c862edb841516114eb391f8314a6cf3848799acc6d59cf9560c88c909b91f0
+"luxon@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "luxon@npm:2.3.1"
+  checksum: ce5eec873a0172a0956618531e28010e8d8319a8b3a836b893d0f92239413a1fc5f77841ca24988e27bd61e8b2748e160e9dfcb13e92d7f031c1e31ad1c8ae91
   languageName: node
   linkType: hard
 
