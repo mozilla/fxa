@@ -1,3 +1,9 @@
+## 1.226.5
+
+### Other changes
+
+- cedc69696 Revert "Merge pull request #12024 from mozilla/train-226-uplift-1" ([cedc69696](https://github.com/mozilla/fxa/commit/cedc69696))
+
 ## 1.226.4
 
 No changes.

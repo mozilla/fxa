@@ -1,5 +1,11 @@
 # Change history
 
+## 1.226.5
+
+### Other changes
+
+- shared: Add logging to connection pools ([da2b5ba5e](https://github.com/mozilla/fxa/commit/da2b5ba5e))
+
 ## 1.226.4
 
 No changes.
