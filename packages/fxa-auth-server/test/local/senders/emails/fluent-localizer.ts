@@ -65,11 +65,11 @@ describe('fluent localizer', () => {
         );
 
         const result = await l10n.formatValue(
-          'subscriptionAccountFinishSetup-action',
+          'subscriptionAccountFinishSetup-action-2',
           {}
         );
 
-        assert.equal(result, 'Passwort erstellen');
+        assert.equal(result, 'Einführung');
       });
 
       it('localizes properly with preferred Dialect', async () => {

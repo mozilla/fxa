@@ -51,6 +51,32 @@ const conf = convict({
     env: 'SENTRY_DSN',
     format: 'String',
   },
+  metrics: {
+    host: {
+      default: '',
+      doc: 'Metrics host to report to',
+      env: 'METRIC_HOST',
+      format: String,
+    },
+    port: {
+      default: 8125,
+      doc: 'Metric port to report to',
+      env: 'METRIC_PORT',
+      format: Number,
+    },
+    prefix: {
+      default: 'fxa-auth-server.',
+      doc: 'Metric prefix for statsD',
+      env: 'METRIC_PREFIX',
+      format: String,
+    },
+    telegraf: {
+      default: true,
+      doc: 'Whether to use telegraf formatted metrics',
+      env: 'METRIC_USE_TELEGRAF',
+      format: Boolean,
+    },
+  },
   hstsEnabled: {
     default: true,
     doc: 'Send a Strict-Transport-Security header',

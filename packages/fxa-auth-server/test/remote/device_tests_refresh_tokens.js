@@ -12,7 +12,7 @@ const config = require('../../config').getProperties();
 const buf = require('buf').hex;
 const testUtils = require('../lib/util');
 const encrypt = require('fxa-shared/auth/encrypt');
-const log = { trace() {}, info() {}, error() {} };
+const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
 const lastAccessTimeUpdates = {
   enabled: true,
