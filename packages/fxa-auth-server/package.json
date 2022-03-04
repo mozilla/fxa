@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.226.4",
+  "version": "1.227.1",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -100,7 +100,7 @@
     "jwks-rsa": "^2.0.4",
     "keyv": "4.1.1",
     "lodash": "^4.17.21",
-    "luxon": "^2.3.0",
+    "luxon": "^2.3.1",
     "memcached": "^2.2.2",
     "mjml": "^4.12.0",
     "moment-timezone": "^0.5.34",

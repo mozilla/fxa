@@ -487,6 +487,21 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+
+    const paymentIntent = (subscription.latest_invoice as Stripe.Invoice)
+      .payment_intent as Stripe.PaymentIntent;
+
+    if (paymentIntent?.last_payment_error) {
+      await this.cancelSubscription(subscription.id);
+
+      throw error.rejectedSubscriptionPaymentToken(
+        paymentIntent.last_payment_error.code,
+        new Error(
+          `Subscription creation failed with error code ${paymentIntent.last_payment_error.code}`
+        )
+      );
+    }
+
     const updatedSubscription = await this.postSubscriptionCreationUpdates({
       subscription,
       promotionCode,

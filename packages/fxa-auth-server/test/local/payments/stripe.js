@@ -52,6 +52,7 @@ const subscription1 = require('./fixtures/stripe/subscription1.json');
 const subscription2 = require('./fixtures/stripe/subscription2.json');
 const multiPlanSubscription = require('./fixtures/stripe/subscription_multiplan.json');
 const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expanded.json');
+const subscriptionPMIExpandedIncompleteCVCFail = require('./fixtures/stripe/subscription_pmi_expanded_incomplete_cvc_fail.json');
 const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
@@ -820,6 +821,64 @@ describe('StripeHelper', () => {
             : null,
         }
       );
+    });
+
+    it('errors and deletes subscription when a cvc check fails on subscription creation', async () => {
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .resolves(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpandedIncompleteCVCFail);
+      sandbox.stub(stripeHelper, 'cancelSubscription').resolves({});
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+
+      try {
+        await stripeHelper.createSubscriptionWithPMI({
+          customerId: 'customerId',
+          priceId: 'priceId',
+          paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          subIdempotencyKey,
+          taxRateId: 'tr_asdf',
+        });
+        sinon.assert.fail();
+      } catch (err) {
+        assert.equal(
+          err.errno,
+          error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+        );
+      }
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: 'customerId',
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice.payment_intent'],
+          default_tax_rates: ['tr_asdf'],
+          promotion_code: undefined,
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.cancelSubscription,
+        subscriptionPMIExpandedIncompleteCVCFail.id
+      );
+      sinon.assert.notCalled(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
     it('surfaces payment issues', async () => {

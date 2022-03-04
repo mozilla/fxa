@@ -1,3 +1,41 @@
+## 1.227.1
+
+No changes.
+
+## 1.227.0
+
+### New features
+
+- auth: get cards with card API ([c69f52977](https://github.com/mozilla/fxa/commit/c69f52977))
+- google: return provider user id to the oauth client (#11999) ([aea4cbe07](https://github.com/mozilla/fxa/commit/aea4cbe07))
+- auth: add Coupon Info to Subsequent Invoice Emails (#11979) ([1ea1fc449](https://github.com/mozilla/fxa/commit/1ea1fc449))
+- auth: add metadata from firestore ([c3f60596f](https://github.com/mozilla/fxa/commit/c3f60596f))
+- coupon: support coupon on sub manage page (#11890) ([3c23dde9f](https://github.com/mozilla/fxa/commit/3c23dde9f))
+
+### Bug fixes
+
+- subscriptions: sub invoice api 500 on cancel (#12072) ([68b34a632](https://github.com/mozilla/fxa/commit/68b34a632))
+- emails: add logger to Container for email notifications script ([b392b498d](https://github.com/mozilla/fxa/commit/b392b498d))
+- email: remove pooling to fix delivery failures (#12058) ([2d657eb82](https://github.com/mozilla/fxa/commit/2d657eb82))
+- coupon: In email hide pay method on 0 invoice (#12038) ([bafa58d9e](https://github.com/mozilla/fxa/commit/bafa58d9e))
+- auth-server: Time isn't always passed into the templates (#11985) ([1507eefe3](https://github.com/mozilla/fxa/commit/1507eefe3))
+- subscriptions: send email and reduce errors for SCA flow (#12014) ([8d059b4e9](https://github.com/mozilla/fxa/commit/8d059b4e9))
+- subscriptions: ignore deleted customers on payment method updates (#11983) ([6be401fc6](https://github.com/mozilla/fxa/commit/6be401fc6))
+
+### Refactorings
+
+- auth-server: Remove old renderer, separate FluentLocalizer into Renderer and Localizer (#11962) ([858e1dfd5](https://github.com/mozilla/fxa/commit/858e1dfd5))
+
+### Other changes
+
+- deps: bump luxon from 2.3.0 to 2.3.1 (#12043) ([a9564a092](https://github.com/mozilla/fxa/commit/a9564a092))
+- #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
+- deps: bump aws-sdk from 2.1068.0 to 2.1081.0 (#12026) ([7b305a3cd](https://github.com/mozilla/fxa/commit/7b305a3cd))
+- deps-dev: bump @storybook/addon-docs from 6.4.18 to 6.4.19 (#12033) ([10c06113e](https://github.com/mozilla/fxa/commit/10c06113e))
+- subscriptions: send email and reduce errors for SCA flow" (#12020) ([2ff71bf99](https://github.com/mozilla/fxa/commit/2ff71bf99))
+- deps: bump stripe from 8.202.0 to 8.203.0 (#11988) ([5df09116f](https://github.com/mozilla/fxa/commit/5df09116f))
+- emails: update finish setup email with more generic language (#11977) ([3f39572f8](https://github.com/mozilla/fxa/commit/3f39572f8))
+
 ## 1.226.4
 
 ### Bug fixes

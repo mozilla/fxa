@@ -12954,8 +12954,8 @@ __metadata:
   linkType: hard
 
 "aws-sdk@npm:^2.1081.0":
-  version: 2.1081.0
-  resolution: "aws-sdk@npm:2.1081.0"
+  version: 2.1082.0
+  resolution: "aws-sdk@npm:2.1082.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -12966,7 +12966,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 425f30c51ae23af7c6eb0de8845b594f41d5444bba9b34d40e8ced7fdc99274623a9d37b47a8a0a637a03e2547e3554dc8b83bc4a4cdbc731cb2f5bc75980fdd
+  checksum: 64053e040d1cc550dde4102c7d6a4c6324f9c5ebe13b73e5e84cfaf7c4322de5478d5604c665ca18bb67db02c9edba500ec5f199ee7738c2370c0ef18c0cbe74
   languageName: node
   linkType: hard
 
@@ -21852,7 +21852,7 @@ fsevents@~2.1.1:
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
     react: ^16.13.0
-    react-dom: ^17.0.2
+    react-dom: ^16.13.0
     react-router-dom: ^6.2.1
     react-scripts: ^4.0.3
     serve-static: ^1.14.2
@@ -22055,7 +22055,7 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
-    luxon: ^2.3.0
+    luxon: ^2.3.1
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.12.0
@@ -22243,7 +22243,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     react: ^16.8.6
-    react-dom: ^17.0.2
+    react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^10.0.3
@@ -22641,7 +22641,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
-    react-dom: ^17.0.2
+    react-dom: ^16.12.0
     react-redux: ^7.2.6
     react-router-dom: ^6.2.1
     react-scripts: ^4.0.3
@@ -22762,7 +22762,7 @@ fsevents@~2.1.1:
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
     react: ^16.13.1
-    react-dom: ^17.0.2
+    react-dom: ^16.13.1
     react-helmet: ^6.1.0
     react-transition-group: ^4.4.2
     rimraf: ^3.0.2
@@ -22839,7 +22839,7 @@ fsevents@~2.1.1:
     postcss-import: ^12.0.1
     react: ^16.13.1
     react-async-hook: ^4.0.0
-    react-dom: ^17.0.2
+    react-dom: ^16.13.1
     react-easy-crop: ^4.0.1
     react-hook-form: ^6.15.8
     react-scripts: ^4.0.3
@@ -30116,10 +30116,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "luxon@npm:2.3.0"
-  checksum: 3d00e1b812a31082cf0d97e844d7354c93891fbd14795756f396ee5656387e21d2c862edb841516114eb391f8314a6cf3848799acc6d59cf9560c88c909b91f0
+"luxon@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "luxon@npm:2.3.1"
+  checksum: ce5eec873a0172a0956618531e28010e8d8319a8b3a836b893d0f92239413a1fc5f77841ca24988e27bd61e8b2748e160e9dfcb13e92d7f031c1e31ad1c8ae91
   languageName: node
   linkType: hard
 
@@ -36381,7 +36381,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.14.0":
+"react-dom@npm:16.14.0, react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.6":
   version: 16.14.0
   resolution: "react-dom@npm:16.14.0"
   dependencies:
@@ -36392,19 +36392,6 @@ fsevents@~2.1.1:
   peerDependencies:
     react: ^16.14.0
   checksum: 5a5c49da0f106b2655a69f96c622c347febcd10532db391c262b26aec225b235357d9da1834103457683482ab1b229af7a50f6927a6b70e53150275e31785544
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^17.0.2":
-  version: 17.0.2
-  resolution: "react-dom@npm:17.0.2"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-    scheduler: ^0.20.2
-  peerDependencies:
-    react: 17.0.2
-  checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
   languageName: node
   linkType: hard
 
