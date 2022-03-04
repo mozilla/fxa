@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postVerifySecondary-subject",
+    "message": "Secondary email added"
+  },
+  "action": {
+    "id": "postVerifySecondary-action",
+    "message": "Manage account"
+  }
+}

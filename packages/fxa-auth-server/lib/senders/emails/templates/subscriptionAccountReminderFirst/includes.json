@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "subscriptionAccountReminderFirst-subject",
+    "message": "Reminder: Finish setting up your account"
+  },
+  "action": {
+    "id": "subscriptionAccountReminderFirst-action",
+    "message": "Create Password"
+  }
+}

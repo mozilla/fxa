@@ -18,7 +18,8 @@ const RTL_LOCALES = [
   'ur',
   'ug',
 ];
-interface GlobalTemplateValues {
+
+export interface GlobalTemplateValues {
   subject: FtlIdMsg;
   action?: FtlIdMsg;
 }
@@ -63,51 +64,27 @@ class Renderer extends Localizer {
 
     if (template !== '_storybook') {
       /*
-       * TODO: finish pulling subject & actions out of mailer and into template files, then
-       * this 'if' can be removed. FXA-4623
-       *
        * 'Subject' and 'action' must be localized BEFORE the email is rendered because:
        * 1) These values are needed in layout files and aren't easily localized, since
        * `subject` goes inside `mj-title` and `action` goes in a script in `metadata.mjml`
        * 2) We need to return a localized `subject` back to the mailer
        */
-      if (
-        template === 'verify' ||
-        template === 'postRemoveTwoStepAuthentication' ||
-        template === 'verifyLoginCode' ||
-        template === 'downloadSubscription'
-      ) {
-        const { subject, action } = JSON.parse(
-          await this.bindings.fetchResource(
-            `${this.bindings.opts.templates.basePath}/templates/${template}/includes.json`
-          )
-        ) as unknown as GlobalTemplateValues;
+      const { subject, action } = await this.getGlobalTemplateValues(context);
+      const localizeAndRenderSubject = this.localizeAndRender(
+        l10n,
+        subject,
+        context
+      );
+      if (action) {
+        const [localizedSubject, localizedAction] = await Promise.all([
+          localizeAndRenderSubject,
+          this.localizeAndRender(l10n, action, context),
+        ]);
 
-        if (action) {
-          const [localizedSubject, localizedAction] = await Promise.all([
-            this.localizeAndRender(l10n, subject, context),
-            this.localizeAndRender(l10n, action, context),
-          ]);
-
-          context.subject = localizedSubject;
-          context.action = localizedAction;
-        } else {
-          context.subject = await this.localizeAndRender(
-            l10n,
-            subject,
-            context
-          );
-        }
+        context.subject = localizedSubject;
+        context.action = localizedAction;
       } else {
-        context.subject = await l10n.formatValue(
-          `${template}-subject`,
-          context
-        );
-        // metadata.mjml needs a localized version of `action`, but only if oneClickLink is present.
-        if (context.oneClickLink) {
-          context.action =
-            (await l10n.formatValue(`${template}-action`, context)) || '';
-        }
+        context.subject = await localizeAndRenderSubject;
       }
     }
 
@@ -137,6 +114,24 @@ class Renderer extends Localizer {
       text: localizedPlaintext,
       subject: context.subject,
     };
+  }
+
+  private async getGlobalTemplateValues(
+    context: TemplateContext
+  ): Promise<GlobalTemplateValues> {
+    // We must use 'require' here, 'import' causes an 'unknown file extension .ts'
+    // error. Might be a config option to make it work?
+    try {
+      // make this a switch statement on 'template' if more cases arise?
+      if (context.template === 'lowRecoveryCodes' && context.numberRemaining) {
+        return (
+          await require('../emails/templates/lowRecoveryCodes/includes')
+        ).getIncludes(context.numberRemaining);
+      }
+      return require(`../emails/templates/${context.template}/includes.json`);
+    } catch (e) {
+      throw e;
+    }
   }
 
   // NOTE: We don't currently send any SMS messages. This will be removed later.

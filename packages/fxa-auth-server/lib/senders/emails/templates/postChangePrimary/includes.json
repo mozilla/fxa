@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postChangePrimary-subject",
+    "message": "Primary email updated"
+  },
+  "action": {
+    "id": "postChangePrimary-action",
+    "message": "Manage account"
+  }
+}

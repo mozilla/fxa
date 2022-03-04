@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "subscriptionAccountReminderSecond-subject",
+    "message": "Final reminder: Setup your account"
+  },
+  "action": {
+    "id": "subscriptionAccountReminderSecond-action",
+    "message": "Create Password"
+  }
+}

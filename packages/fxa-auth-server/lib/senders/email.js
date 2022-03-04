@@ -147,11 +147,6 @@ module.exports = function (log, config, bounces) {
     return target;
   }
 
-  // helper used to ensure strings are extracted
-  function gettext(txt) {
-    return txt;
-  }
-
   function linkAttributes(url) {
     // Not very nice to have presentation code in here, but this is to help l10n
     // contributors not deal with extraneous noise in strings.
@@ -615,8 +610,6 @@ module.exports = function (log, config, bounces) {
     const templateName = 'verifyShortCode';
     const metricsTemplateName = 'verify';
     const code = message.code;
-    const subject = gettext('Verification code: %(code)s');
-
     const links = this._generateLinks(
       this.verificationUrl,
       message,
@@ -636,7 +629,6 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       metricsTemplate: metricsTemplateName,
-      subject,
       template: templateName,
       templateValues: {
         code,
@@ -646,7 +638,6 @@ module.exports = function (log, config, bounces) {
         ip: message.ip,
         location: this._constructLocationString(message),
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -661,12 +652,6 @@ module.exports = function (log, config, bounces) {
     const template = `verificationReminder${key[0].toUpperCase()}${key.substr(
       1
     )}`;
-    let subject;
-    if (index < verificationReminders.keys.length - 1) {
-      subject = gettext('Reminder: Finish creating your account');
-    } else {
-      subject = gettext('Final reminder: Activate your account');
-    }
 
     templateNameToCampaignMap[template] = `${key}-verification-reminder`;
     templateNameToContentMap[template] = 'confirm-email';
@@ -683,7 +668,6 @@ module.exports = function (log, config, bounces) {
         query,
         template
       );
-      const action = gettext('Confirm email');
       const headers = {
         'X-Link': links.link,
         'X-Verify-Code': code,
@@ -692,15 +676,12 @@ module.exports = function (log, config, bounces) {
       return this.send({
         ...message,
         headers,
-        subject,
         template,
         templateValues: {
-          action,
           email,
           link: links.link,
           oneClickLink: links.oneClickLink,
           privacyUrl: links.privacyUrl,
-          subject,
           supportUrl: links.supportUrl,
           supportLinkAttributes: links.supportLinkAttributes,
         },
@@ -714,12 +695,6 @@ module.exports = function (log, config, bounces) {
     const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
       1
     )}`;
-    let subject;
-    if (index < subscriptionAccountReminders.keys.length - 1) {
-      subject = gettext('Reminder: Finish setting up your account');
-    } else {
-      subject = gettext('Final reminder: Setup your account');
-    }
 
     templateNameToCampaignMap[
       template
@@ -760,22 +735,17 @@ module.exports = function (log, config, bounces) {
         'X-Link': links.link,
       };
 
-      const action = gettext('Create a password');
-
       return this.send({
         ...message,
         headers,
         layout: 'subscription',
-        subject,
         template,
         templateValues: {
-          action,
           email,
           ...links,
           oneClickLink: links.oneClickLink,
           privacyUrl: links.privacyUrl,
           termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
-          subject,
           supportUrl: links.supportUrl,
           supportLinkAttributes: links.supportLinkAttributes,
           reminderShortForm: true,
@@ -796,7 +766,6 @@ module.exports = function (log, config, bounces) {
       email: message.email,
       uid: message.uid,
     };
-    const subject = gettext('Account authorization code');
 
     const links = this._generateLinks(null, message, query, templateName);
     const [time, date] = this._constructLocalTimeString(
@@ -812,7 +781,6 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
         date,
@@ -823,7 +791,6 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
-        subject,
         time,
         unblockCode: message.unblockCode,
       },
@@ -841,7 +808,6 @@ module.exports = function (log, config, bounces) {
       code: message.code,
       uid: message.uid,
     };
-    const translator = this.translator(message.acceptLanguage);
 
     if (message.service) {
       query.service = message.service;
@@ -867,10 +833,6 @@ module.exports = function (log, config, bounces) {
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
       const clientName = clientInfo.name;
-      const subject = translator.gettext(
-        'Confirm new sign-in to %(clientName)s'
-      );
-      const action = gettext('Confirm sign-in');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
@@ -879,10 +841,8 @@ module.exports = function (log, config, bounces) {
       return this.send({
         ...message,
         headers,
-        subject,
         template: templateName,
         templateValues: {
-          action,
           clientName,
           date,
           device: this._formatUserAgentInfo(message),
@@ -894,7 +854,6 @@ module.exports = function (log, config, bounces) {
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           privacyUrl: links.privacyUrl,
-          subject,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
           time,
@@ -979,9 +938,6 @@ module.exports = function (log, config, bounces) {
       primary_email_verified: message.email,
     };
 
-    const subject = gettext('Confirm primary email');
-    const action = gettext('Verify email');
-
     if (message.service) {
       query.service = message.service;
     }
@@ -1011,10 +967,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         date,
         device: this._formatUserAgentInfo(message),
         email: message.primaryEmail,
@@ -1025,7 +979,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1040,9 +993,6 @@ module.exports = function (log, config, bounces) {
     });
 
     const templateName = 'verifySecondaryCode';
-    const subject = gettext('Confirm secondary email');
-    const action = gettext('Verify email');
-
     const links = this._generateLinks(undefined, message, {}, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
@@ -1056,10 +1006,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         code: message.code,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1070,7 +1018,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         primaryEmail: message.primaryEmail,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1098,8 +1045,6 @@ module.exports = function (log, config, bounces) {
     if (message.emailToHashWith) {
       query.emailToHashWith = message.emailToHashWith;
     }
-    const subject = gettext('Reset your password');
-    const action = gettext('Create new password');
 
     const links = this._generateLinks(
       this.passwordResetUrl,
@@ -1120,10 +1065,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         code: message.code,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1132,7 +1075,6 @@ module.exports = function (log, config, bounces) {
         link: links.link,
         location: this._constructLocationString(message),
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1142,7 +1084,6 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.passwordChangedEmail = function (message) {
     const templateName = 'passwordChanged';
-    const subject = gettext('Password updated');
 
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
@@ -1162,7 +1103,6 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
         date,
@@ -1172,7 +1112,6 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1182,7 +1121,6 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.passwordChangeRequiredEmail = function (message) {
     const templateName = 'passwordChangeRequired';
-    const subject = gettext('Suspicious activity detected');
     const links = this._generateLinks(
       this.initiatePasswordChangeUrl,
       message,
@@ -1197,21 +1135,18 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
         passwordManagerInfoUrl: links.passwordManagerInfoUrl,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         supportUrl: links.supportUrl,
-        subject,
       },
     });
   };
 
   Mailer.prototype.passwordResetEmail = function (message) {
     const templateName = 'passwordReset';
-    const subject = gettext('Password updated');
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
@@ -1226,13 +1161,11 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1247,10 +1180,7 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postAddLinkedAccount';
     const links = this._generateSettingLinks(message, templateName);
-    const translator = this.translator(message.acceptLanguage);
 
-    const subject = translator.gettext('New account linked to Firefox');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1264,10 +1194,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         date,
         device: this._formatUserAgentInfo(message),
         ip: message.ip,
@@ -1277,7 +1205,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
         providerName: message.providerName,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1292,7 +1219,6 @@ module.exports = function (log, config, bounces) {
     });
     const templateName = 'newDeviceLogin';
     const links = this._generateSettingLinks(message, templateName);
-    const translator = this.translator(message.acceptLanguage);
 
     const headers = {
       'X-Link': links.passwordChangeLink,
@@ -1300,8 +1226,6 @@ module.exports = function (log, config, bounces) {
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
       const clientName = clientInfo.name;
-      const subject = translator.gettext('New sign-in to %(clientName)s');
-      const action = gettext('Manage account');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
@@ -1310,10 +1234,8 @@ module.exports = function (log, config, bounces) {
       return this.send({
         ...message,
         headers,
-        subject,
         template: templateName,
         templateValues: {
-          action,
           clientName,
           date,
           device: this._formatUserAgentInfo(message),
@@ -1323,7 +1245,6 @@ module.exports = function (log, config, bounces) {
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           privacyUrl: links.privacyUrl,
-          subject,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
           time,
@@ -1339,12 +1260,7 @@ module.exports = function (log, config, bounces) {
     });
     const onDesktopOrTabletDevice = !message.onMobileDevice;
     const templateName = 'postVerify';
-    const subject = gettext(
-      'Account verified. Next, sync another device to finish setup'
-    );
     const query = {};
-
-    const action = gettext('Set up next device');
 
     const links = this._generateLinks(
       this.syncUrl,
@@ -1360,10 +1276,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         onDesktopOrTabletDevice,
         androidLinkAttributes: linkAttributes(links.androidLink),
         androidUrl: links.androidLink,
@@ -1375,7 +1289,6 @@ module.exports = function (log, config, bounces) {
         link: links.link,
         privacyUrl: links.privacyUrl,
         style: message.style,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1390,8 +1303,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postVerifySecondary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Secondary email added');
-    const action = gettext('Manage account');
 
     const headers = {
       'X-Link': links.link,
@@ -1400,10 +1311,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         iosLink: links.iosLink,
         link: links.link,
@@ -1411,7 +1320,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
         secondaryEmail: message.secondaryEmail,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1426,8 +1334,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postChangePrimary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Primary email updated');
-    const action = gettext('Manage account');
 
     const headers = {
       'X-Link': links.link,
@@ -1436,10 +1342,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         email: message.email,
         iosLink: links.iosLink,
@@ -1447,7 +1351,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1462,8 +1365,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postRemoveSecondary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Secondary email removed');
-    const action = gettext('Manage account');
 
     const headers = {
       'X-Link': links.link,
@@ -1472,16 +1373,13 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         iosLink: links.iosLink,
         link: links.link,
         privacyUrl: links.privacyUrl,
         secondaryEmail: message.secondaryEmail,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1496,8 +1394,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postAddTwoStepAuthentication';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Two-step authentication enabled');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1510,10 +1406,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1525,7 +1419,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1581,8 +1474,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postNewRecoveryCodes';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('New recovery codes generated');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1595,10 +1486,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1610,7 +1499,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1626,8 +1514,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postConsumeRecoveryCode';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Recovery code used');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1640,10 +1526,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1655,7 +1539,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1679,25 +1562,11 @@ module.exports = function (log, config, bounces) {
       'X-Link': links.link,
     };
 
-    // For now, passing down the subject using gettext since email.js tests were failing
-    // Fluent is still going to conditionally render the subject
-    // based on numberRemaining var for the new templates
-    let subject;
-    if (numberRemaining === 1) {
-      subject = gettext('1 recovery code remaining');
-    } else {
-      subject = gettext('%(numberRemaining)s recovery codes remaining');
-    }
-
-    const action = gettext('Generate codes');
-
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         email: message.email,
         iosLink: links.iosLink,
@@ -1706,7 +1575,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
       },
@@ -1721,8 +1589,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postAddAccountRecovery';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Account recovery key generated');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1735,10 +1601,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1753,7 +1617,6 @@ module.exports = function (log, config, bounces) {
         revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
         revokeAccountRecoveryLinkAttributes:
           links.revokeAccountRecoveryLinkAttributes,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1769,8 +1632,6 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postRemoveAccountRecovery';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Account recovery key removed');
-    const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1783,10 +1644,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1798,7 +1657,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1817,8 +1675,6 @@ module.exports = function (log, config, bounces) {
       message,
       templateName
     );
-    const subject = gettext('Password updated using recovery key');
-    const action = gettext('Create new recovery key');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1831,10 +1687,8 @@ module.exports = function (log, config, bounces) {
     return this.send({
       ...message,
       headers,
-      subject,
       template: templateName,
       templateValues: {
-        action,
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
@@ -1846,7 +1700,6 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1896,7 +1749,6 @@ module.exports = function (log, config, bounces) {
       deviceId,
     };
     const template = 'subscriptionAccountFinishSetup';
-    const translator = this.translator(message.acceptLanguage);
 
     const links = this._generateLinks(
       this.accountFinishSetupUrl,
@@ -1908,23 +1760,12 @@ module.exports = function (log, config, bounces) {
       'X-Link': links.link,
     };
 
-    const action = gettext('Create a password');
-    const translatorParams = { productName };
-    const subject = translator.format(
-      translator.gettext(
-        'Welcome to %(productName)s: Please set your password.'
-      ),
-      translatorParams
-    );
-
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
-        action,
         ...links,
         uid,
         email,
@@ -1947,7 +1788,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject,
       },
     });
   };
@@ -1980,20 +1820,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionUpgrade';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productNameNew };
-    const subject = translator.gettext(
-      'You have upgraded to %(productNameNew)s'
-    );
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2023,7 +1857,6 @@ module.exports = function (log, config, bounces) {
         productPaymentCycleOld,
         icon: productIconURLNew,
         product: productNameNew,
-        subject: translator.format(subject, translatorParams),
       },
     });
   };
@@ -2061,20 +1894,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionDowngrade';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productNameNew };
-    const subject = translator.gettext(
-      'You have switched to %(productNameNew)s'
-    );
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2104,7 +1931,6 @@ module.exports = function (log, config, bounces) {
         productPaymentCycleOld,
         icon: productIconURLNew,
         product: productNameNew,
-        subject: translator.format(subject, translatorParams),
       },
     });
   };
@@ -2123,18 +1949,12 @@ module.exports = function (log, config, bounces) {
     }
 
     const headers = {};
-    const translator = this.translator(message.acceptLanguage);
-
-    let subject;
     let productName;
     let template = 'subscriptionPaymentExpired';
     let links = {};
 
     if (subscriptions.length === 1) {
       productName = subscriptions[0].productName;
-      subject = translator.gettext(
-        'Credit card for %(productName)s expiring soon'
-      );
       links = this._generateLinks(
         null,
         message,
@@ -2146,9 +1966,6 @@ module.exports = function (log, config, bounces) {
         template
       );
     } else {
-      subject = translator.gettext(
-        'Credit card for your subscriptions is expiring soon'
-      );
       template = 'subscriptionsPaymentExpired';
       links = this._generateLinks(null, message, {}, template);
     }
@@ -2157,13 +1974,11 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
         uid,
         email,
-        subject,
         subscriptions,
         productName,
       },
@@ -2186,22 +2001,12 @@ module.exports = function (log, config, bounces) {
     }
 
     const headers = {};
-    const translator = this.translator(message.acceptLanguage);
-
-    let subject;
     let productName;
     let template = 'subscriptionPaymentProviderCancelled';
     let links = {};
 
     if (subscriptions.length === 1) {
       productName = subscriptions[0].productName;
-      const translatorParams = { productName };
-      subject = translator.format(
-        translator.gettext(
-          'Payment information update required for %(productName)s'
-        ),
-        translatorParams
-      );
       links = this._generateLinks(
         null,
         message,
@@ -2213,9 +2018,6 @@ module.exports = function (log, config, bounces) {
         template
       );
     } else {
-      subject = translator.gettext(
-        'Payment information update required for Mozilla subscriptions'
-      );
       template = 'subscriptionsPaymentProviderCancelled';
       links = this._generateLinks(null, message, {}, template);
     }
@@ -2224,13 +2026,11 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
         uid,
         email,
-        subject,
         subscriptions,
         productName,
       },
@@ -2254,18 +2054,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionPaymentFailed';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext('%(productName)s payment failed');
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2274,7 +2070,6 @@ module.exports = function (log, config, bounces) {
         email,
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
       },
     });
   };
@@ -2305,20 +2100,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionAccountDeletion';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext(
-      'Your %(productName)s subscription has been cancelled'
-    );
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2333,7 +2122,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2370,20 +2158,15 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionCancellation';
-    const translator = this.translator(message.acceptLanguage);
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext(
-      'Your %(productName)s subscription has been cancelled'
-    );
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2403,7 +2186,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2431,20 +2213,14 @@ module.exports = function (log, config, bounces) {
 
       const query = { plan_id: planId, product_id: productId, uid };
       const template = 'subscriptionFailedPaymentsCancellation';
-      const translator = this.translator(message.acceptLanguage);
-
       const links = this._generateLinks(null, message, query, template);
       const headers = {};
       const translatorParams = { productName };
-      const subject = translator.gettext(
-        'Your %(productName)s subscription has been cancelled'
-      );
 
       return this.send({
         ...message,
         headers,
         layout: 'subscription',
-        subject,
         template,
         templateValues: {
           ...links,
@@ -2454,7 +2230,6 @@ module.exports = function (log, config, bounces) {
           isCancellationEmail: true,
           icon: planEmailIconURL,
           product: productName,
-          subject: translator.format(subject, translatorParams),
         },
       });
     };
@@ -2488,20 +2263,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionReactivation';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext(
-      '%(productName)s subscription reactivated'
-    );
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2515,7 +2284,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2543,15 +2311,8 @@ module.exports = function (log, config, bounces) {
     }
 
     const headers = {};
-    const translator = this.translator(message.acceptLanguage);
-
     const template = 'subscriptionRenewalReminder';
-
     const productName = subscription.productName;
-    const translatorParams = { productName };
-    const subject = translator.gettext(
-      '%(productName)s automatic renewal notice'
-    );
     const links = this._generateLinks(
       null,
       message,
@@ -2567,13 +2328,11 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
         uid,
         email,
-        subject: translator.format(subject, translatorParams),
         subscription,
         productName,
         reminderLength: message.reminderLength,
@@ -2625,12 +2384,9 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionSubsequentInvoice';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext('%(productName)s payment received');
 
     let paymentProrated;
     let showProratedAmount = false;
@@ -2647,7 +2403,6 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2666,7 +2421,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2725,12 +2479,10 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionSubsequentInvoiceDiscount';
-    const translator = this.translator(message.acceptLanguage);
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext('%(productName)s payment received');
 
     let paymentProrated;
     let showProratedAmount = false;
@@ -2747,7 +2499,6 @@ module.exports = function (log, config, bounces) {
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2766,7 +2517,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2829,18 +2579,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionFirstInvoice';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext('%(productName)s payment confirmed');
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2859,7 +2605,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2914,18 +2659,14 @@ module.exports = function (log, config, bounces) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionFirstInvoiceDiscount';
-    const translator = this.translator(message.acceptLanguage);
-
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
     const translatorParams = { productName };
-    const subject = translator.gettext('%(productName)s payment confirmed');
 
     return this.send({
       ...message,
       headers,
       layout: 'subscription',
-      subject,
       template,
       templateValues: {
         ...links,
@@ -2944,7 +2685,6 @@ module.exports = function (log, config, bounces) {
         ),
         icon: planEmailIconURL,
         product: productName,
-        subject: translator.format(subject, translatorParams),
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -3022,25 +2762,6 @@ module.exports = function (log, config, bounces) {
     // where `First` is the key derived from config, with an initial capital letter.
     const template = `cadReminder${key[0].toUpperCase()}${key.substr(1)}`;
 
-    const isFirstCadReminderEmail = index < cadReminders.keys.length - 1;
-
-    const subject = isFirstCadReminderEmail
-      ? gettext('Your Friendly Reminder: How To Complete Your Sync Setup')
-      : gettext('Final Reminder: Complete Sync Setup');
-
-    const headerText = isFirstCadReminderEmail
-      ? gettext("Here's your reminder to sync devices.")
-      : gettext('Last reminder to sync devices!');
-
-    const bodyText = isFirstCadReminderEmail
-      ? gettext(
-          'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.'
-        )
-      : gettext(
-          'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.'
-        );
-
-    const action = gettext('Sync another device');
     const query = {};
 
     templateNameToCampaignMap[template] = `cad-reminder-${key}`;
@@ -3059,10 +2780,8 @@ module.exports = function (log, config, bounces) {
       return this.send({
         ...message,
         headers,
-        subject,
         template,
         templateValues: {
-          action,
           androidLinkAttributes: linkAttributes(links.androidLink),
           androidUrl: links.androidLink,
           cadLinkAttributes: linkAttributes(links.link),
@@ -3071,11 +2790,8 @@ module.exports = function (log, config, bounces) {
           link: links.link,
           privacyUrl: links.privacyUrl,
           style: message.style,
-          subject,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
-          headerText,
-          bodyText,
         },
       });
     };

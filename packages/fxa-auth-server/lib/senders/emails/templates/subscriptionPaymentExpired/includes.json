@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionPaymentExpired-subject",
+    "message": "Credit card for <%- productName %> expiring soon"
+  }
+}

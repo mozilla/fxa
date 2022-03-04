@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionFirstInvoiceDiscount-subject",
+    "message": "<%- productName %> payment confirmed"
+  }
+}

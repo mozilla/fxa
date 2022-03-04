@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "passwordChangeRequired-subject",
+    "message": "Suspicious activity detected"
+  }
+}

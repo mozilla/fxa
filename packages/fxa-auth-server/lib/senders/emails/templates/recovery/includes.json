@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "recovery-subject",
+    "message": "Reset your password"
+  },
+  "action": {
+    "id": "recovery-action",
+    "message": "Create new password"
+  }
+}
