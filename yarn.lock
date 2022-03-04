@@ -15486,7 +15486,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.4, chai@npm:~4.3.4":
+"chai@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "chai@npm:4.3.6"
+  dependencies:
+    assertion-error: ^1.1.0
+    check-error: ^1.0.2
+    deep-eql: ^3.0.1
+    get-func-name: ^2.0.0
+    loupe: ^2.3.1
+    pathval: ^1.1.1
+    type-detect: ^4.0.5
+  checksum: acff93fd537f96d4a4d62dd83810285dffcfccb5089e1bf2a1205b28ec82d93dff551368722893cf85004282df10ee68802737c33c90c5493957ed449ed7ce71
+  languageName: node
+  linkType: hard
+
+"chai@npm:~4.3.4":
   version: 4.3.4
   resolution: "chai@npm:4.3.4"
   dependencies:
@@ -21888,7 +21903,7 @@ fsevents@~2.1.1:
     apollo-server: ^2.25.3
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
-    chai: ^4.3.4
+    chai: ^4.3.6
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
@@ -22005,7 +22020,7 @@ fsevents@~2.1.1:
     binary-split: 1.0.5
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
-    chai: ^4.3.4
+    chai: ^4.3.6
     chai-as-promised: ^7.1.1
     cldr-core: ^40.0.0
     cldr-localenames-full: 40.0.0
@@ -22148,7 +22163,7 @@ fsevents@~2.1.1:
     base64url: 3.0.1
     body-parser: ^1.19.1
     cache-loader: ^4.1.0
-    chai: ^4.3.4
+    chai: ^4.3.6
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
     consolidate: 0.16.0
@@ -22295,7 +22310,7 @@ fsevents@~2.1.1:
     bl: 5.0.0
     bluebird: ^3.7.2
     bunyan: ^1.8.15
-    chai: ^4.3.4
+    chai: ^4.3.6
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -22421,7 +22436,7 @@ fsevents@~2.1.1:
   dependencies:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
-    chai: ^4.3.4
+    chai: ^4.3.6
     cron: 1.8.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
@@ -22892,7 +22907,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     aws-sdk: ^2.1081.0
     celebrate: ^10.0.1
-    chai: ^4.3.4
+    chai: ^4.3.6
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
@@ -30018,6 +30033,15 @@ fsevents@~2.1.1:
   bin:
     loose-envify: cli.js
   checksum: 6517e24e0cad87ec9888f500c5b5947032cdfe6ef65e1c1936a0c48a524b81e65542c9c3edc91c97d5bddc806ee2a985dbc79be89215d613b1de5db6d1cfe6f4
+  languageName: node
+  linkType: hard
+
+"loupe@npm:^2.3.1":
+  version: 2.3.4
+  resolution: "loupe@npm:2.3.4"
+  dependencies:
+    get-func-name: ^2.0.0
+  checksum: 5af91db61aa18530f1749a64735ee194ac263e65e9f4d1562bf3036c591f1baa948289c193e0e34c7b5e2c1b75d3c1dc4fce87f5edb3cee10b0c0df46bc9ffb3
   languageName: node
   linkType: hard
 
