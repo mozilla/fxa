@@ -5,6 +5,7 @@
 const hex = require('buf').to.hex;
 
 const config = require('../../../config');
+import { Container } from 'typedi';
 const encrypt = require('fxa-shared/auth/encrypt');
 const mysql = require('./mysql');
 const redis = require('./redis');
@@ -12,6 +13,7 @@ const AccessToken = require('./accessToken');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
 const { ConnectedServicesDb } = require('fxa-shared/connected-services');
+import { AuthLogger } from '../../types';
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
@@ -34,6 +36,12 @@ const POCKET_IDS = getPocketIds(
   config.get('oauthServer.clientIdToServiceNames')
 );
 
+function resolveLogger() {
+  try {
+    return Container.get(AuthLogger);
+  } catch {}
+}
+
 class OauthDB extends ConnectedServicesDb {
   get mysql() {
     return this.db;
@@ -44,7 +52,14 @@ class OauthDB extends ConnectedServicesDb {
   }
 
   constructor() {
-    super(mysql.connect(config.get('oauthServer.mysql')), redis(config));
+    super(
+      mysql.connect(
+        config.get('oauthServer.mysql'),
+        undefined,
+        resolveLogger()
+      ),
+      redis(config)
+    );
 
     // A better inheritance model would be preferable, but for now
     // this is still backwards compatible.

@@ -15,8 +15,6 @@ const config = require('../../config').getProperties();
 
 export async function setupProcesingTaskObjects(processName: string) {
   configureSentry(undefined, config, processName);
-  // Establish database connection and bind instance to Model using Knex
-  setupAuthDatabase(config.database.mysql.auth);
 
   Container.set(AppConfig, config);
 
@@ -42,6 +40,9 @@ export async function setupProcesingTaskObjects(processName: string) {
 
   const log = require('../log')({ ...config.log, statsd });
   Container.set(AuthLogger, log);
+
+  // Establish database connection and bind instance to Model using Knex
+  setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
   const translator = await require('../senders/translator')(
     config.i18n.supportedLanguages,

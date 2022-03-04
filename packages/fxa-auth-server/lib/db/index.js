@@ -7,7 +7,9 @@
 const crypto = require('crypto');
 const error = require('../error');
 const random = require('../crypto/random');
+const { StatsD } = require('hot-shots');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { Container } = require('typedi');
 const {
   mergeDevicesAndSessionTokens,
   mergeDeviceAndSessionToken,
@@ -32,6 +34,12 @@ const {
   SecurityEvent,
 } = require('fxa-shared/db/models/auth');
 const { base32 } = require('../crypto/random');
+
+function resolveMetrics() {
+  if (Container.has(StatsD)) {
+    return Container.get(StatsD);
+  }
+}
 
 module.exports = (config, log, Token, UnblockCode = null) => {
   const scrypt = require('../crypto/scrypt')(log, config);
@@ -59,7 +67,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   DB.connect = async function (config, redis) {
     // Establish database connection and bind instance to Model using Knex
-    const knex = setupAuthDatabase(config.database?.mysql?.auth);
+    const knex = setupAuthDatabase(
+      config.database?.mysql?.auth,
+      log,
+      resolveMetrics()
+    );
     if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
       knex.on('query', (data) => {
         console.dir(data);
@@ -201,6 +213,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       lastAccessTimeEnabled
     );
     log.debug('db.sessions.count', {
+      lastAccessTimeEnabled,
       mysql: mysqlSessionTokens.length,
       redis: redisSessionTokens.length,
     });
@@ -506,9 +519,17 @@ module.exports = (config, log, Token, UnblockCode = null) => {
    * redis, use touchSessionToken instead.
    */
   DB.prototype.updateSessionToken = async function (sessionToken, geo) {
-    const { id, uid } = sessionToken;
+    const { id, uid, lastAccessTime, lastAccessTimeEnabled } = sessionToken;
 
     log.trace('DB.updateSessionToken', { id, uid });
+
+    // Just for connection pool issue investigation. Make sure the last access time is set to something realistic.
+    log.debug('DB.updateSessionToken.FXA-4648', {
+      id,
+      uid,
+      lastAccessTime,
+      lastAccessTimeEnabled,
+    });
 
     await this.touchSessionToken(sessionToken, geo);
     await RawSessionToken.update({ id, ...sessionToken });

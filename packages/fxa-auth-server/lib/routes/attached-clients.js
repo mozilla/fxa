@@ -65,10 +65,8 @@ module.exports = (log, db, devices, clientUtils) => {
         log.begin('Account.attachedClients', request);
 
         const sessionToken = request.auth && request.auth.credentials;
-        sessionToken.lastAccessTime = Date.now(
-          sessionToken.id,
-          request.app.acceptLanguage
-        );
+
+        sessionToken.lastAccessTime = Date.now();
         await db.touchSessionToken(sessionToken, {}, true);
         const { uid, id } = sessionToken;
         const factory = new ConnectedServicesFactory({

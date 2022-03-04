@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StatsD } from 'hot-shots';
 import { knex, Knex } from 'knex';
 import { promisify } from 'util';
+import { ILogger } from '../log';
 
 import { MySQLConfig } from './config';
 import { BaseAuthModel } from './models/auth';
@@ -54,8 +56,64 @@ function typeCasting(field: any, next: any) {
   return next();
 }
 
-export function setupDatabase(opts: MySQLConfig): Knex {
-  return knex({
+export function monitorKnexConnectionPool(
+  pool?: any,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  metrics?.increment('mysql.pool_creation');
+  const getPoolStats = () => {
+    return {
+      // returns the number of non-free resources
+      numUsed: pool.numUsed(),
+      // returns the number of free resources
+      numFree: pool.numFree(),
+      // how many acquires are waiting for a resource to be released
+      numPendingAcquires: pool.numPendingAcquires(),
+      // how many asynchronous create calls are running
+      numPendingCreates: pool.numPendingCreates(),
+    };
+  };
+  pool.on('acquireRequest', (eventId: any) => {
+    log?.debug('db.FXA-4648', {
+      msg: `Knex acquireRequest`,
+      eventId,
+      ...getPoolStats(),
+    });
+    metrics?.increment('knex.aquire_request');
+  });
+  pool.on('createRequest', (eventId: any) => {
+    log?.debug('db.FXA-4648', {
+      msg: `Knex createRequest`,
+      eventId,
+      ...getPoolStats(),
+    });
+    metrics?.increment('knex.create_request');
+  });
+  pool.on('destroyRequest', (eventId: any, resource: any) => {
+    log?.debug('db.FXA-4648', {
+      msg: `Knex destroyRequest`,
+      eventId,
+      ...getPoolStats(),
+    });
+    metrics?.increment('knex.destroy_request');
+  });
+  pool.on('destroyFail', (eventId: any, resource: any) => {
+    log?.debug('db.FXA-4648', {
+      msg: `Knex destroyFail`,
+      eventId,
+      ...getPoolStats(),
+    });
+    metrics?.increment('knex.destroy_fail');
+  });
+}
+
+export function setupDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+): Knex {
+  const db = knex({
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',
@@ -69,16 +127,38 @@ export function setupDatabase(opts: MySQLConfig): Knex {
       acquireTimeoutMillis: opts.acquireTimeoutMillis,
     },
   });
+
+  // Monitor connection pool
+  monitorKnexConnectionPool(db.client.pool, log, metrics);
+
+  log?.info('db.FXA-4648', {
+    msg: `Creating Knex`,
+    connLimit: opts.connectionLimitMax,
+  });
+  log?.debug('db.FXA-4648', { msg: `Creating Knex`, stack: Error().stack });
+  // if (!log) {
+  //   console.trace('db.FXA-4648', 'missing logger!')
+  // }
+
+  return db;
 }
 
-export function setupAuthDatabase(opts: MySQLConfig) {
-  const knex = setupDatabase(opts);
+export function setupAuthDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  const knex = setupDatabase(opts, log, metrics);
   BaseAuthModel.knex(knex);
   return knex;
 }
 
-export function setupProfileDatabase(opts: MySQLConfig) {
-  const knex = setupDatabase(opts);
+export function setupProfileDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  const knex = setupDatabase(opts, log, metrics);
   ProfileBaseModel.knex(knex);
   return knex;
 }

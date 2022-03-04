@@ -114,6 +114,32 @@ const conf = convict({
       },
     },
   },
+  metrics: {
+    host: {
+      default: '',
+      doc: 'Metrics host to report to',
+      env: 'METRIC_HOST',
+      format: String,
+    },
+    port: {
+      default: 8125,
+      doc: 'Metric port to report to',
+      env: 'METRIC_PORT',
+      format: Number,
+    },
+    prefix: {
+      default: 'fxa-graphql-api.',
+      doc: 'Metric prefix for statsD',
+      env: 'METRIC_PREFIX',
+      format: String,
+    },
+    telegraf: {
+      default: true,
+      doc: 'Whether to use telegraf formatted metrics',
+      env: 'METRIC_USE_TELEGRAF',
+      format: Boolean,
+    },
+  },
   oauth: {
     clientId: {
       default: '98e6508e88680e1a',

@@ -94,6 +94,8 @@ function adjustText(input = '') {
 
 async function main() {
   const batchSize = program.batchSize ?? 10;
+
+  // TODO: Add Logger and StatsD
   const authKnex = setupAuthDatabase(config.database.mysql.auth);
   const oauthKnex = setupDatabase(config.database.mysql.oauth);
   const json = JSON.parse(

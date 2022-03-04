@@ -66,6 +66,15 @@ export class RedisShared {
       config.keyPrefix = config.prefix;
     }
 
+    log?.info('redis.FXA-4648', { msg: 'Creating RedisShared' });
+    log?.debug('redis.FXA-4648', {
+      msg: 'Creating RedisShared',
+      stack: Error().stack,
+    });
+    // if (!log) {
+    //   console.trace('redis.FXA-4648', 'missing logger!')
+    // }
+
     const redis = new Redis(config);
     const scriptsDirectory = resolve(__dirname, 'luaScripts');
 

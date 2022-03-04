@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   AuthorizedClientsFactory,
@@ -21,11 +21,14 @@ import {
   TotpToken,
   LinkedAccount,
 } from 'fxa-shared/db/models/auth';
-import { MysqlStoreShared } from 'fxa-shared/db/mysql';
+import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
+import { StatsD } from 'hot-shots';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { Knex, knex } from 'knex';
 
 import { AppConfig } from '../config';
+import { monitorKnexConnectionPool } from 'fxa-shared/db';
 
 function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
@@ -49,7 +52,11 @@ export class DatabaseService implements OnModuleDestroy {
 
   protected connectedServicesDb: ConnectedServicesDb;
 
-  constructor(configService: ConfigService<AppConfig>) {
+  constructor(
+    configService: ConfigService<AppConfig>,
+    logger: MozLoggerService,
+    @Inject('METRICS') metrics: StatsD
+  ) {
     const dbConfig = configService.get('database') as AppConfig['database'];
     const redisConfig = configService.get('redis') as AppConfig['redis'];
 
@@ -57,6 +64,8 @@ export class DatabaseService implements OnModuleDestroy {
       connection: { typeCast: typeCasting, ...dbConfig.fxa },
       client: 'mysql',
     });
+    monitorKnexConnectionPool(this.knex.client.pool, logger, metrics);
+
     this.account = Account.bindKnex(this.knex);
     this.emails = Email.bindKnex(this.knex);
     this.emailBounces = EmailBounce.bindKnex(this.knex);
@@ -68,11 +77,11 @@ export class DatabaseService implements OnModuleDestroy {
     this.linkedAccounts = LinkedAccount.bindKnex(this.knex);
 
     this.connectedServicesDb = new ConnectedServicesDb(
-      new MysqlStoreShared(dbConfig.fxa_oauth),
+      new MysqlOAuthShared(dbConfig.fxa_oauth, undefined, logger, metrics),
       new ConnectedServicesCache(
-        new RedisShared(redisConfig.accessTokens),
-        new RedisShared(redisConfig.refreshTokens),
-        new RedisShared(redisConfig.sessionTokens)
+        new RedisShared(redisConfig.accessTokens, logger),
+        new RedisShared(redisConfig.refreshTokens, logger),
+        new RedisShared(redisConfig.sessionTokens, logger)
       )
     );
   }

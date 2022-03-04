@@ -1,15 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Provider } from '@nestjs/common';
+import { Logger, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import config from '../config';
 import { DatabaseService } from './database.service';
 
 describe('DatabaseService', () => {
   let service: DatabaseService;
+  let logger: any;
 
   beforeEach(async () => {
     const MockConfig: Provider = {
@@ -35,8 +37,19 @@ describe('DatabaseService', () => {
         }),
       },
     };
+    const logger = {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      trace: jest.fn(),
+    };
+    const MockLogService: Provider = {
+      provide: MozLoggerService,
+      useValue: logger,
+    };
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DatabaseService, MockConfig],
+      providers: [DatabaseService, MockConfig, MockLogService],
     }).compile();
 
     service = module.get<DatabaseService>(DatabaseService);

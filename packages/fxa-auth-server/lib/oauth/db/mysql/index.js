@@ -9,7 +9,10 @@ const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 
 // Shared base class
-const { MysqlStoreShared } = require('fxa-shared/db/mysql');
+const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
+const { Container } = require('typedi');
+const { AuthLogger } = require('../../../types');
+const { StatsD } = require('hot-shots');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
@@ -156,9 +159,20 @@ function firstRow(rows) {
   return rows[0];
 }
 
-class MysqlStore extends MysqlStoreShared {
+function resolveLogger() {
+  if (Container.has(AuthLogger)) {
+    return Container.get(AuthLogger);
+  }
+}
+function resolveMetrics() {
+  if (Container.has(StatsD)) {
+    return Container.get(StatsD);
+  }
+}
+
+class MysqlStore extends MysqlOAuthShared {
   constructor(config) {
-    super(config);
+    super(config, undefined, resolveLogger(), resolveMetrics());
   }
 
   async ping() {
@@ -513,6 +527,7 @@ class MysqlStore extends MysqlStoreShared {
   }
 
   _touchRefreshToken(token, now) {
+    this.log('authdb.FXA-4648', { msg: 'touchRefreshToken', now });
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE

@@ -7,9 +7,11 @@ import { DatabaseService } from './database.service';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'fxa-shared/db/models/auth';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 describe('DatabaseService', () => {
   let service: DatabaseService;
+  let logger: any;
 
   beforeEach(async () => {
     const dbConfig = {
@@ -33,8 +35,14 @@ describe('DatabaseService', () => {
         }),
       },
     };
+    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    const MockMozLogger: Provider = {
+      provide: MozLoggerService,
+      useValue: logger,
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DatabaseService, MockConfig],
+      providers: [DatabaseService, MockConfig, MockMozLogger],
     }).compile();
 
     service = module.get<DatabaseService>(DatabaseService);
