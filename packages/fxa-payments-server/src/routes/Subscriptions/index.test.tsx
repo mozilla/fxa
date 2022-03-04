@@ -263,6 +263,9 @@ describe('routes/Subscriptions', () => {
         .reply(200, MOCK_PLANS),
       nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []),
       nock(authServer)
+        .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+        .reply(200, MOCK_SUBSEQUENT_INVOICES),
+      nock(authServer)
         .get(
           '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
         )
@@ -355,6 +358,9 @@ describe('routes/Subscriptions', () => {
       .reply(404, {
         errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
       });
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
