@@ -162,7 +162,7 @@
     "audit-filter": "^0.5.0",
     "babel-loader": "^8.2.2",
     "binary-split": "1.0.5",
-    "chai": "^4.3.4",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "esbuild": "^0.14.2",
     "esbuild-register": "^3.2.0",
