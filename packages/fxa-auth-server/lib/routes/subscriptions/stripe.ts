@@ -438,11 +438,8 @@ export class StripeHandler {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
-    if (!customer) {
-      throw error.unknownCustomer(uid);
-    }
 
-    if (!customer.subscriptions?.data.length) {
+    if (!customer || !customer.subscriptions?.data.length) {
       return [];
     }
 
