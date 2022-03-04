@@ -1,3 +1,9 @@
+## 1.226.6
+
+### Other changes
+
+- a2dd40eb1 Fix typescript build error ([a2dd40eb1](https://github.com/mozilla/fxa/commit/a2dd40eb1))
+
 ## 1.226.5
 
 ### Other changes
