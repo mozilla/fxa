@@ -50,7 +50,7 @@ const sessionToken = {
 describe('Redis', () => {
   after(async () => {
     await redis.del(uid);
-    redis.close();
+    await redis.close();
   });
 
   describe('touchSessionToken', () => {

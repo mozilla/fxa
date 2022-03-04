@@ -1,11 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import acceptLanguage from 'accept-language';
 import moment from 'moment';
 
-type localizeOptions = {
+export type LocalizeOptions = {
   defaultLanguage: string;
   supportedLanguages?: string[];
 };
@@ -16,8 +15,8 @@ type localizeOptions = {
 export function localizeTimestamp({
   defaultLanguage,
   supportedLanguages = [],
-}: localizeOptions) {
-  if (supportedLanguages.length === 0) {
+}: LocalizeOptions) {
+  if (!supportedLanguages || supportedLanguages.length === 0) {
     // must support at least one language.
     supportedLanguages = [defaultLanguage];
   } else {
@@ -58,7 +57,10 @@ export function localizeTimestamp({
           ) {
             // the 'accept-language' will fallback to unsupported locale if it cannot find anything
             // we do not want that, only set language if it is a supported locale.
-            if (supportedLanguages.indexOf(parseHeader[0].language) !== -1) {
+            if (
+              supportedLanguages &&
+              supportedLanguages.indexOf(parseHeader[0].language) > -1
+            ) {
               language = parseHeader[0].language;
             }
           }

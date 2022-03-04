@@ -27,6 +27,7 @@ import path from 'path';
 import fs from 'fs';
 
 import Config from '../config';
+import { StatsD } from 'hot-shots';
 import { setupAuthDatabase, setupDatabase } from 'fxa-shared/db';
 import { batchAccountUpdate } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
@@ -34,6 +35,16 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 const config = Config.getProperties();
 const logger = mozlog(config.log)('must-change-password');
 const requiredOptions = ['input'];
+
+const metrics = config.metrics?.host
+  ? new StatsD({
+      ...config.metrics,
+      errorHandler: (err) => {
+        // eslint-disable-next-line no-use-before-define
+        logger.error('statsd.error', { err });
+      },
+    })
+  : undefined;
 
 program
   .option('-e, --emails [emails]', 'Email addresses')
@@ -94,8 +105,12 @@ function adjustText(input = '') {
 
 async function main() {
   const batchSize = program.batchSize ?? 10;
-  const authKnex = setupAuthDatabase(config.database.mysql.auth);
-  const oauthKnex = setupDatabase(config.database.mysql.oauth);
+  const authKnex = setupAuthDatabase(
+    config.database.mysql.auth,
+    logger,
+    metrics
+  );
+  const oauthKnex = setupDatabase(config.database.mysql.oauth, logger, metrics);
   const json = JSON.parse(
     fs.readFileSync(path.resolve(program.input), { encoding: 'utf8' })
   );

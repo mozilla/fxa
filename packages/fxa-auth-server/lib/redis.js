@@ -1,115 +1,27 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+const { RedisShared } = require('fxa-shared/db/redis');
+const { resolve } = require('path');
+const { AuthLogger } = require('./types');
+import { Container } from 'typedi';
 
-'use strict';
+('use strict');
 
-const Redis = require('ioredis');
-const { readdirSync, readFileSync } = require('fs');
-const { basename, extname, resolve } = require('path');
-const AccessToken = require('./oauth/db/accessToken');
-const RefreshTokenMetadata = require('./oauth/db/refreshTokenMetadata');
 const hex = require('buf').to.hex;
 
-const scriptNames = readdirSync(resolve(__dirname, 'luaScripts'), {
-  withFileTypes: true,
-})
-  .filter((dirent) => dirent.isFile() && extname(dirent.name) === '.lua')
-  .map((dirent) => basename(dirent.name, '.lua'));
-
-function readScript(name) {
-  return readFileSync(resolve(__dirname, 'luaScripts', `${name}.lua`), {
-    encoding: 'utf8',
-  });
+function resolveLogger() {
+  if (Container.has(AuthLogger)) return Container.get(AuthLogger);
 }
 
-function resolveInMs(ms, value) {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
-}
+class FxaRedis extends RedisShared {
+  constructor(config) {
+    super(config, resolveLogger());
 
-function rejectInMs(ms, err = new Error('redis timeout')) {
-  return new Promise((_, reject) => setTimeout(() => reject(err), ms));
-}
-
-class FxaRedis {
-  constructor(config, log) {
-    config.keyPrefix = config.prefix;
-    this.recordLimit = config.recordLimit;
-    this.maxttl = config.maxttl;
-    this.log = log || { error: () => {} };
-    this.redis = new Redis(config);
-    this.timeoutMs = config.timeoutMs || 1000;
-    scriptNames.forEach((name) => this.defineCommand(name));
-  }
-
-  defineCommand(scriptName) {
-    const [name, numberOfKeys] = scriptName.split('_');
-    this.redis.defineCommand(name, {
-      lua: readScript(scriptName),
-      numberOfKeys: +numberOfKeys,
-    });
-  }
-
-  touchSessionToken(uid, token) {
-    // remove keys with null values
-    const json = JSON.stringify(token, (k, v) => (v == null ? undefined : v));
-    return Promise.race([
-      this.redis.touchSessionToken(uid, json),
-      resolveInMs(this.timeoutMs),
-    ]);
-  }
-
-  pruneSessionTokens(uid, tokenIds = []) {
-    return Promise.race([
-      this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds)),
-      rejectInMs(this.timeoutMs),
-    ]);
-  }
-
-  async getSessionTokens(uid) {
-    try {
-      const value = await Promise.race([
-        this.redis.getSessionTokens(uid),
-        rejectInMs(this.timeoutMs),
-      ]);
-      return JSON.parse(value);
-    } catch (e) {
-      this.log.error('redis', e);
-      return {};
-    }
-  }
-
-  /**
-   *
-   * @param {Buffer | string} tokenId
-   * @return {Promise<AccessToken>}
-   */
-  async getAccessToken(tokenId) {
-    try {
-      const value = await this.redis.get(hex(tokenId));
-      if (!value) {
-        return null;
-      }
-      return AccessToken.parse(value);
-    } catch (e) {
-      this.log.error('redis', e);
-      return null;
-    }
-  }
-
-  /**
-   *
-   * @param {Buffer | string} uid
-   * @return {Promise<AccessToken[]>}
-   */
-  async getAccessTokens(uid) {
-    try {
-      const values = await this.redis.getAccessTokens(hex(uid));
-      return values.map((v) => AccessToken.parse(v));
-    } catch (e) {
-      this.log.error('redis', e);
-      return [];
-    }
+    // Applies custom scripts which are turned into methods on
+    // the redis object.
+    const scriptsDirectory = resolve(__dirname, 'luaScripts');
+    this.defineCommands(this.redis, scriptsDirectory);
   }
 
   /**
@@ -172,61 +84,20 @@ class FxaRedis {
   }
 
   /**
-   *
-   * @param {Buffer | string} uid
-   * @param {Buffer | string} tokenId
-   * @return {Promise<RefreshTokenMetadata>}
-   */
-  async getRefreshToken(uid, tokenId) {
-    try {
-      const data = await Promise.race([
-        this.redis.hget(hex(uid), hex(tokenId)),
-        resolveInMs(this.timeoutMs),
-      ]);
-      return data ? RefreshTokenMetadata.parse(data) : null;
-    } catch (e) {
-      this.log.error('redis', e);
-      return null;
-    }
-  }
-
-  /**
-   *
-   * @param {Buffer | string} uid
-   * @return {Promise<{[key: string]: RefreshTokenMetadata}>}
-   */
-  async getRefreshTokens(uid) {
-    try {
-      const tokens = await Promise.race([
-        this.redis.hgetall(hex(uid)),
-        resolveInMs(this.timeoutMs, {}),
-      ]);
-      for (const id of Object.keys(tokens)) {
-        tokens[id] = RefreshTokenMetadata.parse(tokens[id]);
-      }
-      return tokens;
-    } catch (e) {
-      this.log.error('redis', e);
-      return {};
-    }
-  }
-
-  /**
    * @param {Buffer | string} uid
    * @param {Buffer | string} tokenId
    * @param {RefreshTokenMetadata} token
    */
   setRefreshToken(uid, tokenId, token) {
-    return Promise.race([
-      this.redis.setRefreshToken(
-        hex(uid),
-        hex(tokenId),
-        JSON.stringify(token),
-        this.recordLimit,
-        this.maxttl
-      ),
-      resolveInMs(this.timeoutMs),
-    ]);
+    const p1 = this.redis.setRefreshToken(
+      hex(uid),
+      hex(tokenId),
+      JSON.stringify(token),
+      this.recordLimit,
+      this.maxttl
+    );
+    const p2 = this.resolveInMs(p1, this.timeoutMs);
+    return Promise.race([p1, p2]);
   }
 
   /**
@@ -235,10 +106,9 @@ class FxaRedis {
    * @param {Buffer | string} tokenId
    */
   async removeRefreshToken(uid, tokenId) {
-    return Promise.race([
-      this.redis.hdel(hex(uid), hex(tokenId)),
-      resolveInMs(this.timeoutMs),
-    ]);
+    const p1 = this.redis.hdel(hex(uid), hex(tokenId));
+    const p2 = this.resolveInMs(p1, this.timeoutMs);
+    return Promise.race([p1, p2]);
   }
 
   /**
@@ -246,30 +116,9 @@ class FxaRedis {
    * @param {Buffer | string} uid
    */
   removeRefreshTokensForUser(uid) {
-    return Promise.race([
-      this.redis.unlink(hex(uid)),
-      resolveInMs(this.timeoutMs),
-    ]);
-  }
-
-  /**
-   *
-   * @param {Buffer | string} uid
-   * @param {(Buffer | string)[]} tokenIdsToPrune
-   */
-  pruneRefreshTokens(uid, tokenIdsToPrune) {
-    return Promise.race([
-      this.redis.hdel(hex(uid), ...tokenIdsToPrune.map((v) => hex(v))),
-      resolveInMs(this.timeoutMs),
-    ]);
-  }
-
-  close() {
-    return this.redis.quit();
-  }
-
-  del(key) {
-    return this.redis.del(key);
+    const p1 = this.redis.unlink(hex(uid));
+    const p2 = this.resolveInMs(p1, this.timeoutMs);
+    return Promise.race([p1, p2]);
   }
 
   get(key) {
@@ -321,4 +170,4 @@ module.exports = (config, log) => {
   }
   return new FxaRedis(config, log);
 };
-module.exports.FxARedis = FxaRedis;
+module.exports.FxaRedis = FxaRedis;

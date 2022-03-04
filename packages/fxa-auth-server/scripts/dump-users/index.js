@@ -12,6 +12,8 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     error: (msg) => {},
     info: (msg) => {},
     trace: (msg) => {},
+    debug: (msg) => {},
+    warn: (msg) => {},
   };
 
   const Token = require('../../lib/tokens')(log, config);
