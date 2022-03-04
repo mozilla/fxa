@@ -198,17 +198,6 @@ export const Subscriptions = ({
     );
   }
 
-  // If the customer has no subscriptions, redirect to the settings page
-  if (
-    (customerSubscriptions && customerSubscriptions.length === 0) ||
-    (customer.error &&
-      customer.error.errno === AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER)
-  ) {
-    const SETTINGS_URL = `${config.servers.content.url}/settings`;
-    navigateToUrl(SETTINGS_URL);
-    return <LoadingOverlay isLoading={true} />;
-  }
-
   if (subsequentInvoices.error !== null) {
     return (
       <Localized id="sub-invoice-error">
@@ -220,6 +209,17 @@ export const Subscriptions = ({
         />
       </Localized>
     );
+  }
+
+  // If the customer has no subscriptions, redirect to the settings page
+  if (
+    (customerSubscriptions && customerSubscriptions.length === 0) ||
+    (customer.error &&
+      customer.error.errno === AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER)
+  ) {
+    const SETTINGS_URL = `${config.servers.content.url}/settings`;
+    navigateToUrl(SETTINGS_URL);
+    return <LoadingOverlay isLoading={true} />;
   }
 
   const activeWebSubscription =
