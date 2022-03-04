@@ -35,6 +35,7 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
+import mapValues from 'lodash/mapValues';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -1608,6 +1609,8 @@ export class StripeHelper {
         );
         continue;
       }
+      item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
+      item.metadata = mapValues(item.metadata, (v) => v.trim());
 
       const { error } =
         await subscriptionProductMetadataValidator.validateAsync({

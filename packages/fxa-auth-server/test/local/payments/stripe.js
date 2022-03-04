@@ -2356,6 +2356,7 @@ describe('StripeHelper', () => {
         object: 'plan',
         product: {
           metadata: Object.assign({}, validProductMetadata, {
+            // Include some invalid whitespace that will be trimmed.
             'product:privacyNoticeDownloadURL': 'https://example.com',
           }),
         },
@@ -2363,6 +2364,11 @@ describe('StripeHelper', () => {
 
       const goodPlan = deepCopy(plan1);
       goodPlan.product = deepCopy(product1);
+      goodPlan.product.metadata['product:privacyNoticeURL'] =
+        'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+      goodPlan.metadata['product:privacyNoticeURL'] =
+        'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+      const dupeGoodPlan = deepCopy(goodPlan);
 
       const planList = [
         planMissingProduct,
@@ -2379,6 +2385,17 @@ describe('StripeHelper', () => {
 
       /** Assert that only the "good" plan was returned */
       assert.deepEqual(actual, [goodPlan]);
+
+      // Assert that the product metadata was trimmed
+      assert.equal(
+        actual[0].product.metadata['product:privacyNoticeURL'],
+        dupeGoodPlan.product.metadata['product:privacyNoticeURL'].trim()
+      );
+      // Assert that the plan metadata was trimmed
+      assert.equal(
+        actual[0].metadata['product:privacyNoticeURL'],
+        dupeGoodPlan.metadata['product:privacyNoticeURL'].trim()
+      );
 
       /** Verify the error cases were handled properly */
       assert.equal(stripeHelper.log.error.callCount, 4);
