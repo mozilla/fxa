@@ -61,11 +61,11 @@ describe('Localizer', () => {
         );
 
         const result = await l10n.formatValue(
-          'subscriptionAccountReminderFirst-action',
+          'subscriptionAccountFinishSetup-action-2',
           {}
         );
 
-        assert.equal(result, 'Passwort erstellen');
+        assert.equal(result, 'Einführung');
       });
 
       it('localizes properly with preferred Dialect', async () => {
