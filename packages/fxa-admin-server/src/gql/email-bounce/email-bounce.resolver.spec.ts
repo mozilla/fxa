@@ -55,11 +55,16 @@ describe('EmailBounceResolver', () => {
         get: jest.fn().mockReturnValue({ authHeader: 'test' }),
       },
     };
+    const MockMetricsFactory: Provider = {
+      provide: 'METRICS',
+      useFactory: () => undefined,
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EmailBounceResolver,
         MockMozLogger,
         MockConfig,
+        MockMetricsFactory,
         { provide: DatabaseService, useValue: db },
       ],
     }).compile();

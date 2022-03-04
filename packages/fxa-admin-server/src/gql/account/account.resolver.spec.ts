@@ -125,11 +125,16 @@ describe('AccountResolver', () => {
         }),
       },
     };
+    const MockMetricsFactory: Provider = {
+      provide: 'METRICS',
+      useFactory: () => undefined,
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
         MockMozLogger,
         MockConfig,
+        MockMetricsFactory,
         { provide: DatabaseService, useValue: db },
       ],
     }).compile();

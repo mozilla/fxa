@@ -13,6 +13,7 @@ import Config, { AppConfig } from './config';
 import { RemoteLookupService } from './remote-lookup/remote-lookup.service';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
+import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 
 const version = getVersionInfo(__dirname);
 
@@ -43,6 +44,6 @@ const version = getVersionInfo(__dirname);
     }),
   ],
   controllers: [AppController],
-  providers: [RemoteLookupService],
+  providers: [RemoteLookupService, MetricsFactory],
 })
 export class AppModule {}

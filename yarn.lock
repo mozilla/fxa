@@ -21565,6 +21565,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     graphql-tools: ^8.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.4.7
     knex: ^1.0.3
     mozlog: ^3.0.2
@@ -22150,6 +22151,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^13.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     ioredis: ^4.28.2
     jest: 27.4.7
     knex: ^1.0.3
@@ -22637,6 +22639,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hbs: ^4.2.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.4.7
     mozlog: ^3.0.2
     pm2: ^5.1.2

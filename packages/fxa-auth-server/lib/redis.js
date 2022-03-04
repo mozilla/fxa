@@ -3,14 +3,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 const { RedisShared } = require('fxa-shared/db/redis');
 const { resolve } = require('path');
+const { AuthLogger } = require('./types');
+import { Container } from 'typedi';
 
 ('use strict');
 
 const hex = require('buf').to.hex;
 
+function resolveLogger() {
+  if (Container.has(AuthLogger)) return Container.get(AuthLogger);
+}
+
 class FxaRedis extends RedisShared {
   constructor(config) {
-    super(config);
+    super(config, resolveLogger());
 
     // Applies custom scripts which are turned into methods on
     // the redis object.

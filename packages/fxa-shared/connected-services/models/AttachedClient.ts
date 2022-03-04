@@ -31,7 +31,7 @@ export const attachedClientsDefaults: AttachedClient = {
   isCurrentSession: false,
   deviceType: null,
   name: null,
-  createdTime: null,
+  createdTime: Infinity,
   lastAccessTime: 0,
   scope: null,
   location: null,

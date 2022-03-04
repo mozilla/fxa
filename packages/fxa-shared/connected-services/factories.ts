@@ -189,12 +189,12 @@ export class ConnectedServicesFactory {
       }
 
       client.createdTime = Math.min(
-        client.createdTime || Number.MAX_VALUE,
+        client.createdTime || Number.POSITIVE_INFINITY,
         session.createdAt
       );
 
       client.lastAccessTime = Math.max(
-        client.lastAccessTime || Number.MIN_VALUE,
+        client.lastAccessTime || 0,
         session.lastAccessTime
       );
 
@@ -241,11 +241,11 @@ export class ConnectedServicesFactory {
       client.clientId = oauthClient.client_id;
       client.scope = oauthClient.scope;
       client.createdTime = Math.min(
-        client.createdTime || Number.MAX_VALUE,
+        client.createdTime || Number.POSITIVE_INFINITY,
         oauthClient.created_time
       );
       client.lastAccessTime = Math.max(
-        client.lastAccessTime || Number.MIN_VALUE,
+        client.lastAccessTime || 0,
         oauthClient.last_access_time
       );
       // We fill in a default device name from the OAuth client name,
