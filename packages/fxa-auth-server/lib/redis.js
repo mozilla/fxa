@@ -4,7 +4,7 @@
 const { RedisShared } = require('fxa-shared/db/redis');
 const { resolve } = require('path');
 const { AuthLogger } = require('./types');
-import { Container } from 'typedi';
+const { Container } = require('typedi');
 
 ('use strict');
 
