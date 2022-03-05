@@ -5,7 +5,7 @@
 const hex = require('buf').to.hex;
 
 const config = require('../../../config');
-import { Container } from 'typedi';
+const { Container } = require('typedi');
 const encrypt = require('fxa-shared/auth/encrypt');
 const mysql = require('./mysql');
 const redis = require('./redis');
@@ -13,7 +13,7 @@ const AccessToken = require('./accessToken');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
 const { ConnectedServicesDb } = require('fxa-shared/connected-services');
-import { AuthLogger } from '../../types';
+const { AuthLogger } = require('../../types');
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
