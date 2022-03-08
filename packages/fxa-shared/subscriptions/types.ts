@@ -22,12 +22,12 @@ export interface Plan {
   product_name: string;
 }
 
-// https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/fxa-sub-platform#product-metadata
+// https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#product-metadata
 export interface PlanMetadata {
   // note: empty for now, but may be expanded in the future
 }
 
-// https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/fxa-sub-platform#product-metadata
+// https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#product-metadata
 export interface ProductMetadata {
   appStoreLink?: string;
   capabilities?: string;
@@ -43,6 +43,7 @@ export interface ProductMetadata {
   'product:termsOfServiceURL': string;
   'product:privacyNoticeDownloadURL'?: string;
   'product:privacyNoticeURL': string;
+  'product:cancellationSurveyURL'?: string;
   // capabilities:{clientID}: string // filtered out or ignored for now
 }
 

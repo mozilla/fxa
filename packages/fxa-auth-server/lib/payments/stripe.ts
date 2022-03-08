@@ -2312,6 +2312,7 @@ export class StripeHelper {
       planDownloadURL,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
+      cancellationSurveyURL: productMetadata['product:cancellationSurveyURL'],
     };
   }
 
@@ -2583,6 +2584,7 @@ export class StripeHelper {
       productId,
       productNameNew: productName,
       productIconURLNew: planEmailIconURL,
+      productMetadata,
     } = baseDetails;
 
     const {
@@ -2603,6 +2605,7 @@ export class StripeHelper {
       invoiceTotalInCents,
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
+      cancellationSurveyURL: productMetadata['product:cancellationSurveyURL'],
     };
   }
 
