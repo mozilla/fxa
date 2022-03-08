@@ -1,3 +1,9 @@
+## 1.226.7
+
+### Bug fixes
+
+- auth: Startup issue ([cae1f613d](https://github.com/mozilla/fxa/commit/cae1f613d))
+
 ## 1.226.6
 
 ### Other changes
