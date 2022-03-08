@@ -149,6 +149,11 @@ export class PaymentConfigManager {
     }
     const productId = productConfigId ?? randomUUID();
     await this.productConfigDbRef.doc(productId).set(productConfig);
+    const productSnapshot = await this.productConfigDbRef.doc(productId).get();
+    this.products[productId] = ProductConfig.fromFirestoreObject(
+      productSnapshot.data(),
+      productSnapshot.id
+    );
     return productId;
   }
 
@@ -180,6 +185,11 @@ export class PaymentConfigManager {
     const planId = planConfigId ?? randomUUID();
     (planConfig as PlanConfig).productConfigId = productConfigId;
     await this.planConfigDbRef.doc(planId).set(planConfig);
+    const planSnapshot = await this.planConfigDbRef.doc(planId).get();
+    this.plans[planId] = PlanConfig.fromFirestoreObject(
+      planSnapshot.data(),
+      planSnapshot.id
+    );
     return planId;
   }
 
