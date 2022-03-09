@@ -37,20 +37,26 @@ exports.sessionToken = authServerValidators.sessionToken;
 
 const scopeString = Joi.string().max(256);
 exports.scope = Joi.extend({
-  name: 'scope',
+  type: 'scope',
   base: Joi.any(), // We're not returning a string, so don't base this on Joi.string().
-  language: {
+  messages: {
     base: 'needs to be a valid scope string',
   },
-  pre(value, state, options) {
+  prepare(value, state, options) {
     const err = scopeString.validate(value).err;
     if (err) {
-      return err;
+      return {
+        errors: err
+      }
     }
     try {
-      return ScopeSet.fromString(value || '');
+      return {
+        value: ScopeSet.fromString(value || '')
+      };
     } catch (err) {
-      return this.createError('scope.base', { v: value }, state, options);
+      return {
+        errors: this.createError('scope.base', { v: value }, state, options)
+      };
     }
   },
 }).scope();
