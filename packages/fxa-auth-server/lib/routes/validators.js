@@ -141,7 +141,7 @@ module.exports.jwt = isA
 
 module.exports.accessToken = isA
   .alternatives()
-  .try([module.exports.hexString.length(64), module.exports.jwt]);
+  .try(module.exports.hexString.length(64), module.exports.jwt);
 
 // Function to validate an email address.
 //
@@ -266,13 +266,13 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href;
 }
 
-module.exports.verificationMethod = isA.string().valid([
+module.exports.verificationMethod = isA.string().valid(
   'email', // Verification by email link
   'email-otp', // Verification by email otp code using account long code (`emailCode`) as secret
   'email-2fa', // Verification by email code using randomly generated code (used in login flow)
   'email-captcha', // Verification by email code using randomly generated code (used in unblock flow)
   'totp-2fa', // Verification by TOTP authenticator device code, secret is randomly generated
-]);
+);
 
 module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
 module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
@@ -700,7 +700,7 @@ module.exports.newsletters = isA
 module.exports.thirdPartyProvider = isA
   .string()
   .max(256)
-  .allow(['google', 'apple'])
+  .allow('google', 'apple')
   .required();
 
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();

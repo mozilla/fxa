@@ -1637,7 +1637,7 @@ export const accountRoutes = (
               .optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            style: isA.string().allow(['trailhead']).optional(),
+            style: isA.string().allow('trailhead').optional(),
             verificationMethod: validators.verificationMethod.optional(),
             // preVerified is not available in production mode.
             ...(!(config as any).isProduction && {

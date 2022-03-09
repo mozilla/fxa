@@ -77,7 +77,7 @@ exports.jwt = Joi.string()
   // JWT format: 'header.payload.signature'
   .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
 
-exports.accessToken = Joi.alternatives().try([exports.token, exports.jwt]);
+exports.accessToken = Joi.alternatives().try(exports.token, exports.jwt);
 
 exports.ppidSeed = authServerValidators.ppidSeed.default(0);
 
