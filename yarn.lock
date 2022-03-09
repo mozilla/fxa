@@ -9368,6 +9368,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/eslint-scope@npm:^3.7.3":
+  version: 3.7.3
+  resolution: "@types/eslint-scope@npm:3.7.3"
+  dependencies:
+    "@types/eslint": "*"
+    "@types/estree": "*"
+  checksum: 6772b05e1b92003d1f295e81bc847a61f4fbe8ddab77ffa49e84ed3f9552513bdde677eb53ef167753901282857dd1d604d9f82eddb34a233495932b2dc3dc17
+  languageName: node
+  linkType: hard
+
 "@types/eslint@npm:*, @types/eslint@npm:7.2.13, @types/eslint@npm:^7.2.6":
   version: 7.2.13
   resolution: "@types/eslint@npm:7.2.13"
@@ -9389,6 +9399,13 @@ __metadata:
   version: 0.0.39
   resolution: "@types/estree@npm:0.0.39"
   checksum: 412fb5b9868f2c418126451821833414189b75cc6bf84361156feed733e3d92ec220b9d74a89e52722e03d5e241b2932732711b7497374a404fad49087adc248
+  languageName: node
+  linkType: hard
+
+"@types/estree@npm:^0.0.51":
+  version: 0.0.51
+  resolution: "@types/estree@npm:0.0.51"
+  checksum: e56a3bcf759fd9185e992e7fdb3c6a5f81e8ff120e871641607581fb3728d16c811702a7d40fa5f869b7f7b4437ab6a87eb8d98ffafeee51e85bbe955932a189
   languageName: node
   linkType: hard
 
@@ -12967,6 +12984,23 @@ __metadata:
     uuid: 3.3.2
     xml2js: 0.4.19
   checksum: 64053e040d1cc550dde4102c7d6a4c6324f9c5ebe13b73e5e84cfaf7c4322de5478d5604c665ca18bb67db02c9edba500ec5f199ee7738c2370c0ef18c0cbe74
+  languageName: node
+  linkType: hard
+
+"aws-sdk@npm:^2.1089.0":
+  version: 2.1089.0
+  resolution: "aws-sdk@npm:2.1089.0"
+  dependencies:
+    buffer: 4.9.2
+    events: 1.1.1
+    ieee754: 1.1.13
+    jmespath: 0.16.0
+    querystring: 0.2.0
+    sax: 1.2.1
+    url: 0.10.3
+    uuid: 3.3.2
+    xml2js: 0.4.19
+  checksum: ad31c214a14cded9777c894b011f21ea54594412b1ceba51a28189d03c0b7a2cc04973bfa72a05fe15e09c43dae73e491b4c745bc3aef6d12bbb30ef39d33994
   languageName: node
   linkType: hard
 
@@ -19039,6 +19073,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"enhanced-resolve@npm:^5.9.2":
+  version: 5.9.2
+  resolution: "enhanced-resolve@npm:5.9.2"
+  dependencies:
+    graceful-fs: ^4.2.4
+    tapable: ^2.2.0
+  checksum: 792b7a01abb4ee4433b658c71f92d5948675938e0c03cad1732abe843b87395f15cb880ace4f819f78ead94163278283afc79b8be63c0eddca8ab45f7d8c515d
+  languageName: node
+  linkType: hard
+
 "enquirer@npm:2.3.6, enquirer@npm:^2.3.5":
   version: 2.3.6
   resolution: "enquirer@npm:2.3.6"
@@ -21861,7 +21905,7 @@ fsevents@~2.1.1:
     tailwindcss-textshadow: ^2.1.3
     ts-jest: ^27.1.3
     typescript: ^4.5.2
-    webpack: ^4.43.0
+    webpack: ^5.70.0
   languageName: unknown
   linkType: soft
 
@@ -21999,7 +22043,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     async-retry: ^1.3.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1081.0
+    aws-sdk: ^2.1089.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -22102,7 +22146,7 @@ fsevents@~2.1.1:
     uuid: ^8.3.2
     verror: ^1.10.1
     web-push: 3.4.4
-    webpack: ^4.43.0
+    webpack: ^5.70.0
     webpack-watch-files-plugin: ^1.2.0
     ws: ^8.0.0
   bin:
@@ -22264,7 +22308,7 @@ fsevents@~2.1.1:
     url-loader: 4.1.1
     verror: 1.10.1
     webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
-    webpack: ^4.41.2
+    webpack: ^5.70.0
     webpack-cli: ^4.9.2
     webpack-dev-middleware: ^5.0.0
     xmlhttprequest: "https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror"
@@ -22664,7 +22708,7 @@ fsevents@~2.1.1:
     typescript: ^4.5.2
     uuid: ^8.3.2
     wait-for-expect: ^3.0.2
-    webpack: ^4.43.0
+    webpack: ^5.70.0
   languageName: unknown
   linkType: soft
 
@@ -22773,7 +22817,7 @@ fsevents@~2.1.1:
     tailwindcss-dir: ^4.0.0
     ts-jest: ^27.1.3
     typescript: ^4.5.2
-    webpack: ^4.43.0
+    webpack: ^5.70.0
   languageName: unknown
   linkType: soft
 
@@ -22850,7 +22894,7 @@ fsevents@~2.1.1:
     tailwindcss: ^1.9.1
     typescript: ^4.5.2
     uuid: ^8.3.2
-    webpack: ^4.43.0
+    webpack: ^5.70.0
     webpack-merge-and-include-globally: ^2.3.4
     webpack-watch-files-plugin: ^1.2.0
   languageName: unknown
@@ -43396,6 +43440,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"webpack-sources@npm:^3.2.3":
+  version: 3.2.3
+  resolution: "webpack-sources@npm:3.2.3"
+  checksum: 989e401b9fe3536529e2a99dac8c1bdc50e3a0a2c8669cbafad31271eadd994bc9405f88a3039cd2e29db5e6d9d0926ceb7a1a4e7409ece021fe79c37d9c4607
+  languageName: node
+  linkType: hard
+
 "webpack-virtual-modules@npm:^0.2.2":
   version: 0.2.2
   resolution: "webpack-virtual-modules@npm:0.2.2"
@@ -43417,7 +43468,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webpack@npm:4, webpack@npm:^4.41.2, webpack@npm:^4.43.0":
+"webpack@npm:4, webpack@npm:^4.43.0":
   version: 4.46.0
   resolution: "webpack@npm:4.46.0"
   dependencies:
@@ -43564,6 +43615,43 @@ resolve@^2.0.0-next.3:
   bin:
     webpack: bin/webpack.js
   checksum: d2a1baddaed03f2ce70c13501b89935d4bb4af30b4accb0d2dfbd00ec6f491eaf46272346cedcf013b477e131c8cc202ee0b2d2c51ece1cfb713fd2d98b80a52
+  languageName: node
+  linkType: hard
+
+"webpack@npm:^5.70.0":
+  version: 5.70.0
+  resolution: "webpack@npm:5.70.0"
+  dependencies:
+    "@types/eslint-scope": ^3.7.3
+    "@types/estree": ^0.0.51
+    "@webassemblyjs/ast": 1.11.1
+    "@webassemblyjs/wasm-edit": 1.11.1
+    "@webassemblyjs/wasm-parser": 1.11.1
+    acorn: ^8.4.1
+    acorn-import-assertions: ^1.7.6
+    browserslist: ^4.14.5
+    chrome-trace-event: ^1.0.2
+    enhanced-resolve: ^5.9.2
+    es-module-lexer: ^0.9.0
+    eslint-scope: 5.1.1
+    events: ^3.2.0
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.2.9
+    json-parse-better-errors: ^1.0.2
+    loader-runner: ^4.2.0
+    mime-types: ^2.1.27
+    neo-async: ^2.6.2
+    schema-utils: ^3.1.0
+    tapable: ^2.1.1
+    terser-webpack-plugin: ^5.1.3
+    watchpack: ^2.3.1
+    webpack-sources: ^3.2.3
+  peerDependenciesMeta:
+    webpack-cli:
+      optional: true
+  bin:
+    webpack: bin/webpack.js
+  checksum: 00439884a9cdd5305aed3ce93735635785a15c5464a6d2cfce87e17727a07585de02420913e82aa85ddd2ae7322175d2cfda6ac0878a17f061cb605e6a7db57a
   languageName: node
   linkType: hard
 
