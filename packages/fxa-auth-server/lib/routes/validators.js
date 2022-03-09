@@ -543,7 +543,7 @@ module.exports.subscriptionsStripeIntentValidator = isA
       .alternatives(isA.string(), isA.object({}).unknown(true))
       .optional()
       .allow(null),
-    source: isA.alternatives().when('payment_method', {
+    source: isA.alternatives().conditional('payment_method', {
       // cannot be that strict here since this validator is used in two routes
       is: null,
       then: isA.string().optional(),
