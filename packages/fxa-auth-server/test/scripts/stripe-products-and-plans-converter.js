@@ -34,11 +34,11 @@ const mockSupportedLanguages = ['es-ES', 'fr'];
 
 describe('StripeProductsAndPlansConverter', () => {
   let converter;
-  mockLog.error = sandbox.fake.returns({});
-  mockLog.info = sandbox.fake.returns({});
-  mockLog.debug = sandbox.fake.returns({});
 
   beforeEach(() => {
+    mockLog.error = sandbox.fake.returns({});
+    mockLog.info = sandbox.fake.returns({});
+    mockLog.debug = sandbox.fake.returns({});
     Container.set(PaymentConfigManager, mockPaymentConfigManager);
     converter = new StripeProductsAndPlansConverter({
       log: mockLog,

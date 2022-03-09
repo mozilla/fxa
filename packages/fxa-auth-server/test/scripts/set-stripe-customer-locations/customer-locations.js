@@ -44,11 +44,11 @@ describe('CustomerLocations', () => {
       count: 6,
     },
   ];
-  mockLog.error = sandbox.fake.returns({});
-  mockLog.info = sandbox.fake.returns({});
-  mockLog.debug = sandbox.fake.returns({});
 
   beforeEach(() => {
+    mockLog.error = sandbox.fake.returns({});
+    mockLog.info = sandbox.fake.returns({});
+    mockLog.debug = sandbox.fake.returns({});
     customerLocations = new CustomerLocations({
       log: mockLog,
       stripeHelper: mockStripeHelper,
