@@ -1280,22 +1280,33 @@ export class StripeHelper {
   }
 
   /**
-   * Returns whether or not the customer has any active subscriptions that
-   * have an open invoice (payment has not been processed).
+   * Fetches all latest invoices for all active subscriptions.
    */
-  async hasOpenInvoice(customer: Stripe.Customer) {
-    const activeInvoices = customer.subscriptions?.data
+  async getLatestInvoicesForActiveSubscriptions(
+    customer: Stripe.Customer
+  ): Promise<Stripe.Invoice[]> {
+    const invoices = customer.subscriptions?.data
       .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
       .map((sub) => sub.latest_invoice)
       .filter((invoice) => invoice !== null);
-    if (!activeInvoices?.length) {
-      return false;
+    if (!invoices?.length) {
+      return [];
     }
-    const invoices = await Promise.all(
-      activeInvoices.map((invoice) =>
+    return Promise.all(
+      invoices.map((invoice) =>
         this.expandResource<Stripe.Invoice>(invoice!, INVOICES_RESOURCE)
       )
     );
+  }
+
+  /**
+   * Returns whether or not any of the invoices passed in are open (payment
+   * has not been processed).
+   */
+  hasOpenInvoice(invoices: Stripe.Invoice[]) {
+    if (!invoices?.length) {
+      return false;
+    }
     return invoices.some((invoice) => invoice.status === 'open');
   }
 
@@ -1977,10 +1988,16 @@ export class StripeHelper {
       billingDetails.payment_provider === 'paypal' &&
       this.hasSubscriptionRequiringPaymentMethod(customer)
     ) {
+      const invoices = await this.getLatestInvoicesForActiveSubscriptions(
+        customer
+      );
       if (!this.getCustomerPaypalAgreement(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (await this.hasOpenInvoice(customer)) {
+      } else if (
+        this.hasOpenInvoice(invoices) &&
+        invoices.some((invoice) => this.getPaymentAttempts(invoice) > 0)
+      ) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }

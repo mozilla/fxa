@@ -533,24 +533,61 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('hasOpenInvoice', () => {
+  describe('getLatestInvoicesForActiveSubscriptions', () => {
     let customerExpanded;
     let invoice;
+    let subscription;
 
     beforeEach(() => {
       customerExpanded = deepCopy(customer1);
       invoice = deepCopy(paidInvoice);
-      customerExpanded.subscriptions.data[0] = subscription2;
+      subscription = deepCopy(subscription2);
+      customerExpanded.subscriptions.data[0] = subscription;
       sandbox.stub(stripeHelper, 'expandResource').resolves(invoice);
     });
 
-    it('returns true for an open invoice', async () => {
-      invoice.status = 'open';
-      assert.isTrue(await stripeHelper.hasOpenInvoice(customerExpanded));
+    it('returns latest invoices for any active subscriptions', async () => {
+      const expected = [invoice];
+      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+        customerExpanded
+      );
+      assert.deepEqual(actual, expected);
     });
 
-    it('returns false for no open invoices', async () => {
-      assert.isFalse(await stripeHelper.hasOpenInvoice(customerExpanded));
+    it('returns [] if there are no active subscriptions', async () => {
+      subscription.status = 'incomplete';
+      const expected = [];
+      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+        customerExpanded
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('returns [] if no invoices are found', async () => {
+      subscription.latest_invoice = null;
+      const expected = [];
+      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+        customerExpanded
+      );
+      assert.deepEqual(actual, expected);
+    });
+  });
+
+  describe('hasOpenInvoice', () => {
+    let invoice;
+
+    beforeEach(() => {
+      invoice = deepCopy(paidInvoice);
+    });
+
+    it('returns true if any open invoices are found', () => {
+      const openInvoice = deepCopy(invoice);
+      openInvoice.status = 'open';
+      assert.isTrue(stripeHelper.hasOpenInvoice([invoice, openInvoice]));
+    });
+
+    it('returns false for no open invoices', () => {
+      assert.isFalse(stripeHelper.hasOpenInvoice([invoice]));
     });
   });
 
@@ -5021,6 +5058,9 @@ describe('StripeHelper', () => {
     const customer = { id: 'cus_xyz' };
     const billingDetails = { payment_provider: 'paypal' };
     const billingAgreementId = 'ba-123';
+    const mockInvoice = { status: 'paid' };
+    let getLatestInvoicesForActiveSubscriptionsStub;
+    let getPaymentAttemptsStub;
 
     beforeEach(() => {
       sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
@@ -5033,7 +5073,13 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
         .returns(true);
+      getLatestInvoicesForActiveSubscriptionsStub = sandbox
+        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .resolves([mockInvoice]);
       sandbox.stub(stripeHelper, 'hasOpenInvoice').returns(true);
+      getPaymentAttemptsStub = sandbox
+        .stub(stripeHelper, 'getPaymentAttempts')
+        .returns(0);
     });
 
     it('returns null when no customer is found', async () => {
@@ -5116,6 +5162,9 @@ describe('StripeHelper', () => {
     });
 
     it('includes the funding source error state', async () => {
+      const openInvoice = { status: 'open' };
+      getLatestInvoicesForActiveSubscriptionsStub.resolves([openInvoice]);
+      getPaymentAttemptsStub.returns(1);
       const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
         'uid'
       );
@@ -5127,7 +5176,35 @@ describe('StripeHelper', () => {
         paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
         ...billingDetails,
       });
-      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, customer);
+      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, [
+        openInvoice,
+      ]);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentAttempts,
+        openInvoice
+      );
+    });
+
+    it('excludes funding source error state with open invoices but no payment attempts', async () => {
+      const openInvoice = { status: 'open' };
+      getLatestInvoicesForActiveSubscriptionsStub.resolves([openInvoice]);
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: null,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, [
+        openInvoice,
+      ]);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentAttempts,
+        openInvoice
+      );
     });
 
     it('includes a list of subscriptions', async () => {
