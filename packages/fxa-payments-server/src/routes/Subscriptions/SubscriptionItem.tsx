@@ -59,12 +59,24 @@ export const SubscriptionItem = ({
   }
 
   if (
-    subsequentInvoice &&
-    plan.amount &&
-    subsequentInvoice.total < plan.amount
+    !(
+      subsequentInvoice &&
+      subsequentInvoice.total &&
+      subsequentInvoice.period_start
+    )
   ) {
-    // update the plan amount to reflect the next charged price
-    plan.amount = subsequentInvoice.total;
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <Localized id="product-plan-not-found">
+          <h4 data-testid="error-subhub-missing-subsequent-invoice">
+            Subsequent invoice not found
+          </h4>
+        </Localized>
+        <Localized id="sub-item-no-such-subsequent-invoice">
+          <p>Subsequent invoice not found for this subscription.</p>
+        </Localized>
+      </DialogMessage>
+    );
   }
 
   return (
@@ -83,6 +95,8 @@ export const SubscriptionItem = ({
               plan,
               paymentProvider,
               promotionCode,
+              subsequentInvoiceAmount: subsequentInvoice.total,
+              subsequentInvoiceDate: subsequentInvoice.period_start,
             }}
           />
         ) : (

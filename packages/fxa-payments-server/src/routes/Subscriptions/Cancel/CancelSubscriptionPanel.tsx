@@ -27,6 +27,8 @@ export type CancelSubscriptionPanelProps = {
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   paymentProvider: PaymentProvider | undefined;
   promotionCode: string | undefined;
+  subsequentInvoiceAmount: number;
+  subsequentInvoiceDate: number;
 };
 
 const CancelSubscriptionPanel = ({
@@ -36,6 +38,8 @@ const CancelSubscriptionPanel = ({
   cancelSubscriptionStatus,
   paymentProvider,
   promotionCode,
+  subsequentInvoiceAmount,
+  subsequentInvoiceDate,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
@@ -101,12 +105,12 @@ const CancelSubscriptionPanel = ({
   );
 
   const planPricing = formatPlanPricing(
-    plan.amount,
+    subsequentInvoiceAmount,
     plan.currency,
     plan.interval,
     plan.interval_count
   );
-  const nextBillDate = getLocalizedDateString(current_period_end, true);
+  const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBill = `Next billed on ${nextBillDate}`;
   const { upgradeCTA } = metadataFromPlan(plan);
 
@@ -120,7 +124,10 @@ const CancelSubscriptionPanel = ({
                 <Localized
                   id={`sub-plan-price-${plan.interval}`}
                   vars={{
-                    amount: getLocalizedCurrency(plan.amount, plan.currency),
+                    amount: getLocalizedCurrency(
+                      subsequentInvoiceAmount,
+                      plan.currency
+                    ),
                     intervalCount: plan.interval_count,
                   }}
                 >
