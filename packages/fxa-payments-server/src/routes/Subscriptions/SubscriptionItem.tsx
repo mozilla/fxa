@@ -59,11 +59,8 @@ export const SubscriptionItem = ({
   }
 
   if (
-    !(
-      subsequentInvoice &&
-      subsequentInvoice.total &&
-      subsequentInvoice.period_start
-    )
+    customerSubscription.cancel_at_period_end === false &&
+    !(subsequentInvoice?.total && subsequentInvoice?.period_start)
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
