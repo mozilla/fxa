@@ -76,6 +76,7 @@ module.exports.email = function () {
   const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
   // Imma add a custom test to this Joi object using internal
   // properties because I can't find a nice API to do that.
+  email._tests = [];
   email._tests.push({
     func: function (value, state, options) {
       if (value !== undefined && value !== null) {
@@ -184,6 +185,7 @@ module.exports.redirectTo = function redirectTo(base) {
   if (base) {
     hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
   }
+  validator._tests = [];
   validator._tests.push({
     func: (value, state, options) => {
       if (value !== undefined && value !== null) {
@@ -200,6 +202,7 @@ module.exports.redirectTo = function redirectTo(base) {
 
 module.exports.url = function url(options) {
   const validator = isA.string().uri(options);
+  validator._tests = [];
   validator._tests.push({
     func: (value, state, options) => {
       if (value !== undefined && value !== null) {
@@ -220,6 +223,7 @@ module.exports.resourceUrl = module.exports.url().regex(/#/, { invert: true });
 
 module.exports.pushCallbackUrl = function pushUrl(options) {
   const validator = isA.string().uri(options);
+  validator._tests = [];
   validator._tests.push({
     func: (value, state, options) => {
       if (value !== undefined && value !== null) {
