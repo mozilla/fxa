@@ -1988,18 +1988,20 @@ export class StripeHelper {
       billingDetails.payment_provider === 'paypal' &&
       this.hasSubscriptionRequiringPaymentMethod(customer)
     ) {
-      const invoices = await this.getLatestInvoicesForActiveSubscriptions(
-        customer
-      );
       if (!this.getCustomerPaypalAgreement(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (
-        this.hasOpenInvoice(invoices) &&
-        invoices.some((invoice) => this.getPaymentAttempts(invoice) > 0)
-      ) {
-        billingDetails.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+      } else {
+        const invoices = await this.getLatestInvoicesForActiveSubscriptions(
+          customer
+        );
+        if (
+          this.hasOpenInvoice(invoices) &&
+          invoices.some((invoice) => this.getPaymentAttempts(invoice) > 0)
+        ) {
+          billingDetails.paypal_payment_error =
+            PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+        }
       }
     }
 
