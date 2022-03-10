@@ -41,9 +41,12 @@ import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import Url from './url';
+import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
+
+const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
@@ -394,14 +397,29 @@ const Router = Backbone.Router.extend({
    * @param {String} url
    * @returns {Promise}
    */
-  navigateAway(url) {
+  async navigateAway(url) {
     // issue #5626: external links should not get transformed
     if (!/^https?:/.test(url)) {
       url = this.broker.transformLink(url);
     }
-    return this.metrics.flush().then(() => {
-      this.window.location.href = url;
-    });
+
+    await this.metrics.flush();
+
+    // issue https://github.com/mozilla/fxa/issues/11917:
+    // For mobile devices, we add a small delay before redirecting so that our metric
+    // events get flushed properly. This is a workaround since they're
+    // getting blocked on mobile devices when the flushing occurs too quickly.
+    const userAgent = UserAgent(this.window.navigator.userAgent);
+    if (userAgent && userAgent.device && userAgent.device.type === 'mobile') {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          this.window.location.href = url;
+          resolve();
+        }, NAVIGATE_AWAY_IN_MOBILE_DELAY_MS);
+      });
+    }
+
+    this.window.location.href = url;
   },
 
   /**
