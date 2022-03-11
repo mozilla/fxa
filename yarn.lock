@@ -4885,19 +4885,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^1.1.6":
-  version: 1.1.6
-  resolution: "@nestjs/config@npm:1.1.6"
+"@nestjs/config@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@nestjs/config@npm:1.2.0"
   dependencies:
-    dotenv: 10.0.0
-    dotenv-expand: 5.1.0
+    dotenv: 16.0.0
+    dotenv-expand: 8.0.1
     lodash: 4.17.21
     uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.13
     rxjs: ^6.0.0 || ^7.2.0
-  checksum: 0f1f6b17ba82aca3cfbcdeb445e186403a5ef55737857d2cc338af51bf6d6beb8fadbe623f5339a5f993be8a621aa0e998985454c6eaca5e28c1332213152b46
+  checksum: f18a4444e85992a0ab33dfdf8f8526711266830cf331eea8d8aa59e349ba40df81e7cabc3c7f87b482eac8cb206bbc59deb3941e3c4c422f34671e59c2f5c27d
   languageName: node
   linkType: hard
 
@@ -18686,6 +18686,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-expand@npm:8.0.1":
+  version: 8.0.1
+  resolution: "dotenv-expand@npm:8.0.1"
+  checksum: 872a573d64c5cc1d0773df5822546fa47022124dbbf5d260756e081970dc27adf6b0822db952280b5ba3d175971ca8faf23b64204ee5003588a08152fd5e806e
+  languageName: node
+  linkType: hard
+
 "dotenv-webpack@npm:^1.8.0":
   version: 1.8.0
   resolution: "dotenv-webpack@npm:1.8.0"
@@ -18697,10 +18704,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:10.0.0":
-  version: 10.0.0
-  resolution: "dotenv@npm:10.0.0"
-  checksum: f412c5fe8c24fbe313d302d2500e247ba8a1946492db405a4de4d30dd0eb186a88a43f13c958c5a7de303938949c4231c56994f97d05c4bc1f22478d631b4005
+"dotenv@npm:16.0.0":
+  version: 16.0.0
+  resolution: "dotenv@npm:16.0.0"
+  checksum: 664cebb51f0a9a1d1b930f51f0271e72e26d62feaecc9dc03df39453dd494b4e724809ca480fb3ec3213382b1ed3f791aaeb83569a137f9329ce58efd4853dbf
   languageName: node
   linkType: hard
 
@@ -21876,7 +21883,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.2.1
     "@nestjs/common": ^8.3.1
-    "@nestjs/config": ^1.1.6
+    "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
@@ -22351,7 +22358,7 @@ fsevents@~2.1.1:
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.2.1
     "@nestjs/common": ^8.3.1
-    "@nestjs/config": ^1.1.6
+    "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
@@ -22449,7 +22456,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.2.1
     "@nestjs/common": ^8.3.1
-    "@nestjs/config": ^1.1.6
+    "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
@@ -22866,7 +22873,7 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@nestjs/common": ^8.3.1
-    "@nestjs/config": ^1.1.6
+    "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
@@ -22952,7 +22959,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.2.1
     "@nestjs/common": ^8.3.1
-    "@nestjs/config": ^1.1.6
+    "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.3.1
