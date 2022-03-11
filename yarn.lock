@@ -14091,12 +14091,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"backbone@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "backbone@npm:1.4.0"
+"backbone@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "backbone@npm:1.4.1"
   dependencies:
     underscore: ">=1.8.3"
-  checksum: 09abdf184c485a4cd2c68218298cf772fbefeaa166ef8eb795cdb0159b4ad1d2f6823dde089352eaf0be929e5bbef67c57555722f4d1886f969d954f77814870
+  checksum: 709bd7dde1bbd93eee9375ae9bcd33efa9f253a56f5bf22d67197d8e3c57574f93ab230dcbb750d224a0d9bc58a66ade1d4c6082b998b6c89e939c2e66b65832
   languageName: node
   linkType: hard
 
@@ -22154,7 +22154,7 @@ fsevents@~2.1.1:
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-plugin-dynamic-import-webpack: 1.1.0
-    backbone: ^1.4.0
+    backbone: ^1.4.1
     backbone.cocktail: 0.5.15
     base32-decode: 1.0.0
     base64url: 3.0.1
