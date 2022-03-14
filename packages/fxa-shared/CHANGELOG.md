@@ -1,5 +1,11 @@
 # Change history
 
+## 1.226.8
+
+### Other changes
+
+- auth,shared: Logging improvements after observing last canary deployment's logs. ([32b9f66d2](https://github.com/mozilla/fxa/commit/32b9f66d2))
+
 ## 1.226.7
 
 No changes.
