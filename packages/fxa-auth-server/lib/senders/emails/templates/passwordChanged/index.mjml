@@ -14,5 +14,5 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/location/index.mjml', { cssClass: 'text-body-grey-no-margin' }) %>
+<%- include('/partials/userInfo/index.mjml', { cssClass: 'text-body-grey-no-margin' }) %>
 <%- include('/partials/automatedEmailResetPassword/index.mjml') %>

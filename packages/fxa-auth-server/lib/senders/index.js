@@ -11,7 +11,6 @@ module.exports = async (
   log,
   config,
   bounces,
-  translator,
   statsd,
   sender // This is only used in tests
 ) => {
@@ -20,7 +19,7 @@ module.exports = async (
 
   async function createSenders() {
     return {
-      email: new Mailer(translator, config.smtp, sender),
+      email: new Mailer(config.smtp, sender),
       sms: createSms(log, config, statsd),
     };
   }
@@ -73,9 +72,6 @@ module.exports = async (
         return wrappedMailer;
       },
       {
-        translator(...args) {
-          return mailer.translator.apply(mailer, args);
-        },
         stop() {
           return mailer.stop();
         },

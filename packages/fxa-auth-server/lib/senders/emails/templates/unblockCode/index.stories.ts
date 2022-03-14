@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { MOCK_USER_INFO } from '../../partials/userInfo/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
@@ -14,7 +14,7 @@ const createStory = storyWithProps(
   'unblockCode',
   'Sent to verify or unblock an account via code that has reached the login attempt rate limit.',
   {
-    ...MOCK_LOCATION,
+    ...MOCK_USER_INFO,
     unblockCode: '1ILO0Z5P',
     reportSignInLink: 'http://localhost:3030/report_signin',
   }

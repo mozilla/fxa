@@ -9,6 +9,19 @@ import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { URL } from 'url';
+import {
+  MOCK_LOCATION_ALL,
+  MOCK_LOCATION_CITY_COUNTRY,
+  MOCK_LOCATION_COUNTRY,
+  MOCK_LOCATION_STATE_COUNTRY,
+} from '../../../lib/senders/emails/partials/userLocation/mocks';
+import {
+  MOCK_DEVICE_ALL,
+  MOCK_DEVICE_BROWSER,
+  MOCK_DEVICE_BROWSER_OS,
+  MOCK_DEVICE_OS,
+  MOCK_DEVICE_OS_VERSION,
+} from '../../../lib/senders/emails/partials/userDevice/mocks';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();
@@ -47,11 +60,7 @@ const MESSAGE = {
   code: 'abc123',
   date: moment().tz('America/Los_Angeles').format('dddd, ll'),
   deviceId: 'foo',
-  location: {
-    city: 'Mountain View',
-    country: 'USA',
-    stateCode: 'CA',
-  },
+  location: MOCK_LOCATION_ALL,
   email: 'a@b.com',
   flowBeginTime: Date.now(),
   flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -64,14 +73,11 @@ const MESSAGE = {
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
   type: 'secondary',
-  uaBrowser: 'Firefox',
-  uaBrowserVersion: '70.0a1',
-  uaOS: 'Windows',
-  uaOSVersion: '10',
+  device: MOCK_DEVICE_ALL,
   uid: 'uid',
   metricsEnabled: true,
   unblockCode: 'AS6334PK',
-  cardType: 'mastercard',
+  cardType: 'MasterCard',
   icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
   invoiceDate: new Date(1584747098816),
   invoiceLink:
@@ -418,7 +424,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: 'alt="Sync devices"' },
       { test: 'notInclude', expected: 'alt="Firefox logo"' },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -448,7 +454,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: 'If yes, use this verification code in your registration form:' },
@@ -482,7 +488,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account:` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: 'Use this verification code:' },
       { test: 'include', expected: `${MESSAGE.code}` },
       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
@@ -497,7 +503,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account:` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: 'Use this verification code:' },
       { test: 'include', expected: `${MESSAGE.code}` },
       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
@@ -552,7 +558,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-linked', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -565,7 +571,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-linked', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -588,7 +594,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-device-signin', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -601,7 +607,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -623,7 +629,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-changed-success', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -635,7 +641,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -658,7 +664,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: MESSAGE.unblockCode },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
@@ -670,7 +676,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.unblockCode}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
@@ -696,7 +702,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -709,7 +715,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Verify email:\n${configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -732,7 +738,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -744,7 +750,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -796,7 +802,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -807,7 +813,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -830,7 +836,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-reset-account-recovery-success', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -843,7 +849,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-account-recovery-success', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -896,7 +902,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-recovery-removed', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -909,7 +915,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -932,7 +938,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-disabled', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -945,7 +951,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -996,7 +1002,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-enabled', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1010,7 +1016,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1062,7 +1068,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-consume-recovery-code', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1076,7 +1082,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-consume-recovery-code', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1100,7 +1106,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-replace-recovery-codes', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1114,7 +1120,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-replace-recovery-codes', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1244,7 +1250,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
-      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
+      { test: 'include', expected: `alt="${MESSAGE.productName}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1334,7 +1340,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your subscription will automatically renew' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
-  ])],
+    // If expected `productName` differs from MESSAGE.productName, set the value for testing
+    // only; we do the equivalent in the mailer methods, e.g. `productName: newProductName`
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.productNameNew})}],
 
   ['subscriptionCancellationEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
@@ -1698,7 +1706,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
-  ])],
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName })}],
 
   ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
@@ -1843,7 +1851,71 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
-  ])],
+  ]), {updateTemplateValues: x => (
+    {...x, productName: MESSAGE.productNameNew})}],
+
+  // Template partial specific tests (choose a template containing the partial)
+  ['verifyLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Mountain View, CA, United States (estimated)' },
+      { test: 'include', expected: 'Firefox Nightly on Mac OSX 10.11' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Mountain View, CA, United States (estimated)' },
+      { test: 'include', expected: 'Firefox Nightly on Mac OSX 10.11' },
+    ]]])],
+  ['verifyLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Madrid, Spain (estimated)' },
+      { test: 'include', expected: 'Firefox Nightly on Mac OSX' },
+      { test: 'notInclude', expected: '10.11' }
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Madrid, Spain (estimated)' },
+      { test: 'include', expected: 'Firefox Nightly on Mac OSX' },
+      { test: 'notInclude', expected: '10.11' }
+    ]]]),
+      {updateTemplateValues: values => ({...values, location: MOCK_LOCATION_CITY_COUNTRY, device: MOCK_DEVICE_BROWSER_OS })}],
+  ['verifyLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'CA, United States (estimated)' },
+      { test: 'notInclude', expected: 'Mountain View' },
+      { test: 'include', expected: 'Firefox Nightly' },
+      { test: 'notInclude', expected: 'Firefox Nightly on' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'CA, United States (estimated)' },
+      { test: 'notInclude', expected: 'Mountain View' },
+      { test: 'include', expected: 'Firefox Nightly' },
+      { test: 'notInclude', expected: 'Firefox Nightly on' },
+    ]]]),
+      {updateTemplateValues: values => ({...values, location: MOCK_LOCATION_STATE_COUNTRY, device: MOCK_DEVICE_BROWSER })}],
+  ['verifyLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Spain (estimated)' },
+      { test: 'notInclude', expected: 'Madrid' },
+      { test: 'include', expected: 'Mac OSX' },
+      { test: 'notInclude', expected: '10.11' },
+      { test: 'notInclude', expected: 'Firefox Nightly' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Spain (estimated)' },
+      { test: 'notInclude', expected: 'Madrid' },
+      { test: 'include', expected: 'Mac OSX' },
+      { test: 'notInclude', expected: '10.11' },
+      { test: 'notInclude', expected: 'Firefox Nightly' },
+    ]]]),
+      {updateTemplateValues: values => ({...values, location: MOCK_LOCATION_COUNTRY, device: MOCK_DEVICE_OS })}],
+  ['verifyLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Mac OSX 10.11' },
+      { test: 'notInclude', expected: 'Firefox Nightly' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Mac OSX 10.11' },
+      { test: 'notInclude', expected: 'Firefox Nightly' },
+    ]]]),
+      {updateTemplateValues: values => ({...values, device: MOCK_DEVICE_OS_VERSION })}],
 ];
 
 const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
@@ -2256,110 +2328,75 @@ describe('lib/senders/emails:', () => {
     }
   });
 
-  it('formats user-agent strings sanely', () => {
-    let result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
-      uaOS: 'Windows',
-      uaOSVersion: '10',
+  describe('formats user agent strings sanely', () => {
+    it('with all safe properties, returns the same data', () => {
+      const uaInfo = {
+        uaBrowser: 'Firefox',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+      };
+
+      const result = mailer._formatUserAgentInfo(uaInfo);
+      assert.deepEqual(result, uaInfo);
     });
-    assert.equal(result, 'Firefox on Windows 10');
 
-    result = mailer._formatUserAgentInfo({
-      uaBrowserVersion: '70',
-      uaOS: 'Windows',
-      uaOSVersion: '10',
+    it('with missing optional property', () => {
+      const uaInfo = {
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+        uaBrowser: null,
+      };
+      const result = mailer._formatUserAgentInfo(uaInfo);
+      assert.deepEqual(result, uaInfo);
     });
-    assert.equal(result, 'Windows 10');
 
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
-      uaOS: 'Windows',
+    it('with falsey required properties', () => {
+      const result = mailer._formatUserAgentInfo({
+        uaOS: null,
+        uaBrowser: null,
+        uaOSVersion: '10',
+      });
+      assert.equal(result, null);
     });
-    assert.equal(result, 'Firefox on Windows');
 
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
-      uaOSVersion: '10',
+    it('with suspicious uaBrowser', () => {
+      const result = mailer._formatUserAgentInfo({
+        uaOS: 'Windows',
+        uaBrowser: '<a>Firefox</a>',
+        uaOSVersion: '10',
+      });
+      assert.deepEqual(result, {
+        uaOS: 'Windows',
+        uaBrowser: null,
+        uaOSVersion: '10',
+      });
     });
-    assert.equal(result, 'Firefox');
 
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
+    it('with suspicious uaOS', () => {
+      const result = mailer._formatUserAgentInfo({
+        uaOS: 'http://example.com/',
+        uaBrowser: 'Firefox',
+        uaOSVersion: '10',
+      });
+      assert.deepEqual(result, {
+        uaOS: null,
+        uaBrowser: 'Firefox',
+        uaOSVersion: '10',
+      });
     });
-    assert.equal(result, 'Firefox');
 
-    result = mailer._formatUserAgentInfo({ uaOS: 'Windows' });
-    assert.equal(result, 'Windows');
-
-    result = mailer._formatUserAgentInfo({});
-    assert.equal(result, '');
-
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: '<a>Firefox</a>',
-      uaBrowserVersion: '70',
-      uaOS: 'Windows',
-      uaOSVersion: '10',
+    it('with suspicious uaOSVersion', () => {
+      const result = mailer._formatUserAgentInfo({
+        uaOS: 'Windows',
+        uaBrowser: 'Firefox',
+        uaOSVersion: 'dodgy-looking',
+      });
+      assert.deepEqual(result, {
+        uaOS: 'Windows',
+        uaBrowser: 'Firefox',
+        uaOSVersion: null,
+      });
     });
-    assert.equal(result, 'Windows 10');
-
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
-      uaOS: 'http://example.com/',
-      uaOSVersion: '10',
-    });
-    assert.equal(result, 'Firefox');
-
-    result = mailer._formatUserAgentInfo({
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70',
-      uaOS: 'Windows',
-      uaOSVersion: 'dodgy-looking',
-    });
-    assert.equal(result, 'Firefox on Windows');
-  });
-
-  it('formats location strings sanely', () => {
-    const localMessage = {
-      ...MESSAGE,
-      location: {
-        city: 'Bournemouth',
-        state: 'England',
-        stateCode: 'EN',
-        country: 'United Kingdom',
-        countryCode: 'GB',
-      },
-    };
-    assert.equal(
-      mailer._constructLocationString(localMessage),
-      'Bournemouth, EN, United Kingdom (estimated)'
-    );
-
-    localMessage.location.stateCode = null;
-    assert.equal(
-      mailer._constructLocationString(localMessage),
-      'Bournemouth, United Kingdom (estimated)'
-    );
-
-    localMessage.location.city = null;
-    localMessage.location.stateCode = 'EN';
-    assert.equal(
-      mailer._constructLocationString(localMessage),
-      'EN, United Kingdom (estimated)'
-    );
-
-    localMessage.location.stateCode = null;
-    assert.equal(
-      mailer._constructLocationString(localMessage),
-      'United Kingdom (estimated)'
-    );
-
-    localMessage.location = null;
-    assert.equal(mailer._constructLocationString(localMessage), '');
   });
 
   it('formats currency strings when given an invalid language tag', () => {
@@ -2642,9 +2679,6 @@ async function setup(
   locale: string = 'en',
   sender: any = null
 ) {
-  const translator = await Promise.resolve(
-    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale)
-  );
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
     config,
@@ -2652,7 +2686,7 @@ async function setup(
       check: () => Promise.resolve(),
     }
   );
-  return new Mailer(translator, config.smtp, sender);
+  return new Mailer(config.smtp, sender);
 }
 
 type CallbackFunction = (arg: any) => void;

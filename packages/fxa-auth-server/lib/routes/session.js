@@ -8,14 +8,11 @@ const error = require('../error');
 const isA = require('@hapi/joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-
 const validators = require('./validators');
+const Localizer = require('../l10n').default;
+const NodeRendererBindings =
+  require('../senders/renderer/bindings-node').default;
 const HEX_STRING = validators.HEX_STRING;
-
-// helper used to ensure strings are extracted
-function gettext(txt) {
-  return txt;
-}
 
 module.exports = function (
   log,
@@ -506,9 +503,31 @@ module.exports = function (
           JSON.stringify(location)
         )}&ip=${encodeURIComponent(request.app.clientAddress)}`;
 
+        const localizer = new Localizer(new NodeRendererBindings());
+
+        // If/when we use .localizeStrings in other files, probably move where strings are
+        // maintained to separate file?
+        const titleFtlId = 'session-verify-send-push-title';
+        const bodyFtlId = 'session-verify-send-push-body';
+
+        const ftlIdMsgs = [
+          {
+            id: titleFtlId,
+            message: 'Logging in to Firefox accounts?',
+          },
+          {
+            id: bodyFtlId,
+            message: 'Click here to verify it’s you',
+          },
+        ];
+        const localizedStrings = await localizer.localizeStrings(
+          request.app.locale,
+          ftlIdMsgs
+        );
+
         const options = {
-          title: gettext('Logging in to Firefox Accounts?'),
-          body: gettext("Click here to verify it's you"),
+          title: localizedStrings[titleFtlId],
+          body: localizedStrings[bodyFtlId],
           url,
         };
 

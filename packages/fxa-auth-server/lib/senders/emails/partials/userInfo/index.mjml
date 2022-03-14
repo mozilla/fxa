@@ -2,21 +2,21 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<mj-include path="<%- cssPath %>/location/index.css" type="css" css-inline="inline" />
+<mj-include path="<%- cssPath %>/userInfo/index.css" type="css" css-inline="inline" />
 
 <mj-section>
   <mj-column>
     <mj-text css-class="<%= locals.cssClass || 'text-body-grey' %>">
       <% if (locals.primaryEmail) { %>
-        <span><%- primaryEmail %></span>
+        <%- primaryEmail %>
         <br />
       <% } %>
       <% if (locals.device) { %>
-        <span><%- device %></span>
+        <%- include('/partials/userDevice/index.mjml') %>
         <br />
       <% } %>
       <% if (locals.location) { %>
-        <span><%- location %></span>
+        <%- include('/partials/userLocation/index.mjml') %>
         <br />
       <% } %>
       <% if (locals.ip) { %>
@@ -26,11 +26,11 @@
         <br />
       <% } %>
       <% if (locals.date) { %>
-        <span><%- date %></span>
+        <%- date %>
         <br />
       <% } %>
       <% if (locals.time) { %>
-        <span><%- time %></span>
+        <%- time %>
         <br />
       <% } %>
     </mj-text>

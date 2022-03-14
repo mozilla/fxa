@@ -76,3 +76,5 @@ export class NodeRendererBindings extends RendererBindings {
     return mjml2html(mjml, this.opts.mjml).html;
   }
 }
+
+export default NodeRendererBindings;
