@@ -58,7 +58,7 @@ import {
 import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
-import { SubscriptionPurchase } from './google-play/subscription-purchase';
+import { SubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
 // @ts-ignore

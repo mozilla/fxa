@@ -8,18 +8,18 @@ const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
 
-const { mockLog } = require('../../../mocks');
+const { mockLog } = require('../../../../mocks');
 
 const {
   UserManager,
-} = require('../../../../lib/payments/google-play/user-manager');
-const { AuthLogger } = require('../../../../lib/types');
+} = require('../../../../../lib/payments/iap/google-play/user-manager');
+const { AuthLogger } = require('../../../../../lib/types');
 const {
   SubscriptionPurchase,
-} = require('../../../../lib/payments/google-play/subscription-purchase');
+} = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
 const {
   PurchaseQueryError,
-} = require('../../../../lib/payments/google-play/types');
+} = require('../../../../../lib/payments/iap/google-play/types');
 
 const USER_ID = 'testUser';
 const VALID_SUB_API_RESPONSE = {

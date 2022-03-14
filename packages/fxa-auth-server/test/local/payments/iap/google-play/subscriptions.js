@@ -5,14 +5,14 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
-const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { PlayBilling } = require('../../../../../lib/payments/iap/google-play');
 const {
   PlaySubscriptions,
   abbrevPlayPurchaseFromSubscriptionPurchase,
-} = require('../../../../lib/payments/google-play/subscriptions');
+} = require('../../../../../lib/payments/iap/google-play/subscriptions');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
-const { AppConfig } = require('../../../../lib/types');
-const { StripeHelper } = require('../../../../lib/payments/stripe');
+const { AppConfig } = require('../../../../../lib/types');
+const { StripeHelper } = require('../../../../../lib/payments/stripe');
 
 describe('PlaySubscriptions', () => {
   const mockConfig = { subscriptions: { enabled: true } };

@@ -4,7 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
-import { PlaySubscriptions } from '../../../lib/payments/google-play/subscriptions';
+import { PlaySubscriptions } from '../../../lib/payments/iap/google-play/subscriptions';
 import error from '../../error';
 import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';

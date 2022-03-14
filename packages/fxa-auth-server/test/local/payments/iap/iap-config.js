@@ -6,7 +6,7 @@
 
 const sinon = require('sinon');
 const { assert } = require('chai');
-const { default: Container } = require('typedi');
+const { Container } = require('typedi');
 
 const { mockLog } = require('../../../mocks');
 const {
@@ -14,37 +14,26 @@ const {
   AuthLogger,
   AppConfig,
 } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
 
 const mockConfig = {
   authFirestore: {
     prefix: 'mock-fxa-',
   },
-  subscriptions: {
-    playApiServiceAccount: {
-      credentials: {
-        clientEmail: 'mock-client-email',
-      },
-      keyFile: 'mock-private-keyfile',
-    },
-  },
 };
 
-describe('PlayBilling', () => {
+describe('IAPConfig', () => {
   let sandbox;
   let firestore;
   let log;
-  let playBilling;
+  let iapConfig;
   let planDbRefMock;
-  let purchasesDbRefMock;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     planDbRefMock = {};
-    purchasesDbRefMock = {};
     const collectionMock = sinon.stub();
-    collectionMock.onFirstCall().returns(planDbRefMock);
-    collectionMock.onSecondCall().returns(purchasesDbRefMock);
+    collectionMock.returns(planDbRefMock);
     firestore = {
       collection: collectionMock,
     };
@@ -52,7 +41,7 @@ describe('PlayBilling', () => {
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
-    Container.remove(PlayBilling);
+    Container.remove(IAPConfig);
   });
 
   afterEach(() => {
@@ -61,17 +50,17 @@ describe('PlayBilling', () => {
   });
 
   it('can be instantiated', () => {
-    const playBilling = Container.get(PlayBilling);
-    assert.strictEqual(playBilling.log, log);
-    assert.strictEqual(playBilling.firestore, firestore);
-    assert.strictEqual(playBilling.prefix, 'mock-fxa-iap-');
+    const iapConfig = Container.get(IAPConfig);
+    assert.strictEqual(iapConfig.log, log);
+    assert.strictEqual(iapConfig.firestore, firestore);
+    assert.strictEqual(iapConfig.prefix, 'mock-fxa-iap-');
   });
 
   describe('plans', () => {
     beforeEach(() => {
       // Create and set a new one per test
-      playBilling = new PlayBilling();
-      Container.set(PlayBilling, playBilling);
+      iapConfig = new IAPConfig();
+      Container.set(IAPConfig, iapConfig);
     });
 
     it('returns successfully', async () => {
@@ -81,7 +70,7 @@ describe('PlayBilling', () => {
           data: sinon.fake.returns({ plans: 'testObject' }),
         }),
       });
-      const result = await playBilling.plans();
+      const result = await iapConfig.plans();
       assert.strictEqual(result, 'testObject');
     });
 
@@ -92,7 +81,7 @@ describe('PlayBilling', () => {
         }),
       });
       try {
-        await playBilling.plans('testApp');
+        await iapConfig.plans('testApp');
         assert.fail('Expected exception thrown.');
       } catch (err) {
         assert.strictEqual(
@@ -106,8 +95,8 @@ describe('PlayBilling', () => {
   describe('packageName', () => {
     beforeEach(() => {
       // Create and set a new one per test
-      playBilling = new PlayBilling();
-      Container.set(PlayBilling, playBilling);
+      iapConfig = new IAPConfig();
+      Container.set(IAPConfig, iapConfig);
     });
 
     it('returns successfully', async () => {
@@ -120,7 +109,7 @@ describe('PlayBilling', () => {
           }),
         }),
       });
-      const result = await playBilling.packageName('testApp');
+      const result = await iapConfig.packageName('testApp');
       assert.strictEqual(result, 'org.mozilla.testApp');
     });
 
@@ -131,7 +120,46 @@ describe('PlayBilling', () => {
         }),
       });
       try {
-        await playBilling.packageName('testApp');
+        await iapConfig.packageName('testApp');
+        assert.fail('Expected exception thrown.');
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'IAP Plans document does not exist for testApp'
+        );
+      }
+    });
+  });
+
+  describe('getBundleId', () => {
+    beforeEach(() => {
+      // Create and set a new one per test
+      iapConfig = new IAPConfig();
+      Container.set(IAPConfig, iapConfig);
+    });
+
+    it('returns successfully', async () => {
+      planDbRefMock.doc = sinon.fake.returns({
+        get: sinon.fake.resolves({
+          exists: true,
+          data: sinon.fake.returns({
+            bundleId: 'org.mozilla.testApp',
+            plans: 'testObject',
+          }),
+        }),
+      });
+      const result = await iapConfig.getBundleId('testApp');
+      assert.strictEqual(result, 'org.mozilla.testApp');
+    });
+
+    it('throws error with no document found', async () => {
+      planDbRefMock.doc = sinon.fake.returns({
+        get: sinon.fake.resolves({
+          exists: false,
+        }),
+      });
+      try {
+        await iapConfig.getBundleId('testApp');
         assert.fail('Expected exception thrown.');
       } catch (err) {
         assert.strictEqual(

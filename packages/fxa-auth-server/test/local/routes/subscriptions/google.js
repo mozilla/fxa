@@ -15,10 +15,11 @@ const {
 } = require('../../../../lib/routes/subscriptions/google');
 const {
   PurchaseUpdateError,
-} = require('../../../../lib/payments/google-play/types/errors');
+} = require('../../../../lib/payments/iap/google-play/types/errors');
 const error = require('../../../../lib/error');
 const { AuthLogger } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
+const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
@@ -37,6 +38,7 @@ const VALID_REQUEST = {
 };
 
 describe('GoogleIapHandler', () => {
+  let iapConfig;
   let playBilling;
   let log;
   let googleIapHandler;
@@ -47,6 +49,8 @@ describe('GoogleIapHandler', () => {
     log = mocks.mockLog();
     playBilling = {};
     Container.set(AuthLogger, log);
+    iapConfig = {};
+    Container.set(IAPConfig, iapConfig);
     Container.set(PlayBilling, playBilling);
     db = mocks.mockDB({
       uid: UID,
@@ -67,11 +71,11 @@ describe('GoogleIapHandler', () => {
 
   describe('plans', () => {
     it('returns the plans', async () => {
-      playBilling.plans = sinon.fake.resolves({ test: 'plan' });
+      iapConfig.plans = sinon.fake.resolves({ test: 'plan' });
       const result = await googleIapHandler.plans({
         params: { appName: 'test' },
       });
-      assert.calledOnce(playBilling.plans);
+      assert.calledOnce(iapConfig.plans);
       assert.deepEqual(result, { test: 'plan' });
     });
   });
@@ -87,10 +91,10 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
-      playBilling.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = sinon.fake.resolves('testPackage');
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-      assert.calledOnce(playBilling.packageName);
+      assert.calledOnce(iapConfig.packageName);
       assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
@@ -102,10 +106,10 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
-      playBilling.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = sinon.fake.resolves('testPackage');
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-      assert.calledOnce(playBilling.packageName);
+      assert.calledOnce(iapConfig.packageName);
       assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
@@ -114,12 +118,12 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
-      playBilling.packageName = sinon.fake.resolves(undefined);
+      iapConfig.packageName = sinon.fake.resolves(undefined);
       try {
         await googleIapHandler.registerToken(request);
         assert.fail('Expected failure');
       } catch (err) {
-        assert.calledOnce(playBilling.packageName);
+        assert.calledOnce(iapConfig.packageName);
         assert.strictEqual(err.errno, error.ERRNO.IAP_UNKNOWN_APPNAME);
       }
     });
@@ -131,14 +135,14 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(libraryError),
       };
-      playBilling.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = sinon.fake.resolves('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.IAP_INVALID_TOKEN);
         assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(playBilling.packageName);
+        assert.calledOnce(iapConfig.packageName);
       }
     });
 
@@ -149,14 +153,14 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(libraryError),
       };
-      playBilling.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = sinon.fake.resolves('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.IAP_INTERNAL_OTHER);
         assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(playBilling.packageName);
+        assert.calledOnce(iapConfig.packageName);
       }
     });
 
@@ -164,14 +168,14 @@ describe('GoogleIapHandler', () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(new Error('Unknown error')),
       };
-      playBilling.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = sinon.fake.resolves('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
         assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(playBilling.packageName);
+        assert.calledOnce(iapConfig.packageName);
       }
     });
   });

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { RequireAtLeastOne } from 'type-fest';
+
 /**
  * Represents the plan blob that is returned to the client as-is.
  *
@@ -14,7 +16,16 @@
  * Apple and are intended for consumption by the relying party that
  * services the subscription.
  */
-export interface IapConfig {
-  packageName: string;
+export interface IapConfigOptions {
+  // Apple only
+  bundleId?: string;
+  // Google only
+  packageName?: string;
+  // Shared
   plans: any;
 }
+
+export type IapConfig = RequireAtLeastOne<
+  IapConfigOptions,
+  'packageName' | 'bundleId'
+>;

@@ -18,7 +18,7 @@ const { StripeHelper } = require('../../lib/payments/stripe');
 const { AuthLogger } = require('../../lib/types');
 const {
   PlaySubscriptions,
-} = require('../../lib/payments/google-play/subscriptions');
+} = require('../../lib/payments/iap/google-play/subscriptions');
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient

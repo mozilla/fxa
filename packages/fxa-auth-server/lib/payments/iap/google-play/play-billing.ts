@@ -4,29 +4,20 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Auth, google } from 'googleapis';
 import { Container } from 'typedi';
-import { TypedCollectionReference } from 'typesafe-node-firestore';
 
-import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../../../types';
 import { PurchaseManager } from './purchase-manager';
-import { IapConfig } from './types';
 import { UserManager } from './user-manager';
 
 export class PlayBilling {
   private firestore: Firestore;
   private log: AuthLogger;
   private prefix: string;
-  private iapConfigDbRef: TypedCollectionReference<IapConfig>;
-
   public purchaseManager: PurchaseManager;
   public userManager: UserManager;
 
   constructor() {
     const config = Container.get(AppConfig);
-    this.prefix = `${config.authFirestore.prefix}iap-`;
-    this.firestore = Container.get(AuthFirestore);
-    this.iapConfigDbRef = this.firestore.collection(
-      `${config.authFirestore.prefix}iap-config`
-    ) as TypedCollectionReference<IapConfig>;
     this.log = Container.get(AuthLogger);
 
     // Initialize Google Play Developer API client
@@ -42,6 +33,8 @@ export class PlayBilling {
       version: 'v3',
       auth: new Auth.JWT(authConfig),
     });
+    this.prefix = `${config.authFirestore.prefix}iap-`;
+    this.firestore = Container.get(AuthFirestore);
     const purchasesDbRef = this.firestore.collection(
       `${this.prefix}play-purchases`
     );
@@ -50,31 +43,5 @@ export class PlayBilling {
       playDeveloperApiClient
     );
     this.userManager = new UserManager(purchasesDbRef, this.purchaseManager);
-  }
-
-  /**
-   * Fetch the Google plan object for Android client usage.
-   */
-  public async plans(appName: string) {
-    // TODO: use a cached version of the iap config
-    const doc = await this.iapConfigDbRef.doc(appName).get();
-    if (doc.exists) {
-      return doc.data()?.plans;
-    } else {
-      throw Error(`IAP Plans document does not exist for ${appName}`);
-    }
-  }
-
-  /**
-   * Fetch the Google Play packageName for the given appName.
-   */
-  public async packageName(appName: string) {
-    // TODO: use a cached version of the iap config
-    const doc = await this.iapConfigDbRef.doc(appName).get();
-    if (doc.exists) {
-      return doc.data()?.packageName;
-    } else {
-      throw Error(`IAP Plans document does not exist for ${appName}`);
-    }
   }
 }

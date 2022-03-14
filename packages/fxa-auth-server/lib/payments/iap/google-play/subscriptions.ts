@@ -8,9 +8,9 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
 
-import { internalValidationError } from '../../../lib/error';
-import { AppConfig } from '../../types';
-import { StripeHelper } from '../stripe';
+import { internalValidationError } from '../../../../lib/error';
+import { AppConfig } from '../../../types';
+import { StripeHelper } from '../../stripe';
 import { PlayBilling } from './play-billing';
 import { SubscriptionPurchase } from './subscription-purchase';
 

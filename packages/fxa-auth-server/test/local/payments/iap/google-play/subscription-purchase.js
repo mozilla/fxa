@@ -9,8 +9,10 @@ const { assert } = require('chai');
 const {
   SubscriptionPurchase,
   GOOGLE_PLAY_FORM_OF_PAYMENT,
-} = require('../../../../lib/payments/google-play/subscription-purchase');
-const { SkuType } = require('../../../../lib/payments/google-play/types');
+} = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
+const {
+  SkuType,
+} = require('../../../../../lib/payments/iap/google-play/types');
 
 describe('SubscriptionPurchase', () => {
   beforeEach(() => {});
