@@ -3401,11 +3401,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/bigquery@npm:^5.10.0":
-  version: 5.10.0
-  resolution: "@google-cloud/bigquery@npm:5.10.0"
+"@google-cloud/bigquery@npm:^5.11.0":
+  version: 5.11.0
+  resolution: "@google-cloud/bigquery@npm:5.11.0"
   dependencies:
-    "@google-cloud/common": ^3.1.0
+    "@google-cloud/common": ^3.9.0
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/promisify": ^2.0.0
     arrify: ^2.0.1
@@ -3414,15 +3414,16 @@ __metadata:
     extend: ^3.0.2
     is: ^3.3.0
     p-event: ^4.1.0
+    readable-stream: ^3.6.0
     stream-events: ^1.0.5
     uuid: ^8.0.0
-  checksum: 79110add93887a88a54d4df9186cbdd79a646acb0bc684463744a6ccaf14a41990d1976210b9421bd71be692323018c3ea6088ddc39b7de82da6a6913b96ce22
+  checksum: d4963bd03835a7005464b19b8d2dc9654740ec1342004a0e665e8fe855fe5794852aa7fecacdbe6ee4b7dd7e15bdccdd879f878779affb11e2f7ebba0348b564
   languageName: node
   linkType: hard
 
-"@google-cloud/common@npm:^3.1.0":
-  version: 3.8.1
-  resolution: "@google-cloud/common@npm:3.8.1"
+"@google-cloud/common@npm:^3.9.0":
+  version: 3.10.0
+  resolution: "@google-cloud/common@npm:3.10.0"
   dependencies:
     "@google-cloud/projectify": ^2.0.0
     "@google-cloud/promisify": ^2.0.0
@@ -3430,10 +3431,10 @@ __metadata:
     duplexify: ^4.1.1
     ent: ^2.2.0
     extend: ^3.0.2
-    google-auth-library: ^7.9.2
+    google-auth-library: ^7.14.0
     retry-request: ^4.2.2
     teeny-request: ^7.0.0
-  checksum: b1b384fe066572c3b221013837e9423f62c501e04dc820012642449b6faf0f95b3b5aea9521a9fc8ff1ab4a4ee28cf170924d981205077fdc076c4be86312d86
+  checksum: 833b593777425c4193620e94d5eba6b63065b35681b9a45d3c77fbfcf728844a1cc15ec383c7dabb9926d3d40a1e96f6a7386f26939cf69575671aff91e81717
   languageName: node
   linkType: hard
 
@@ -22046,7 +22047,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.6.1
-    "@google-cloud/bigquery": ^5.10.0
+    "@google-cloud/bigquery": ^5.11.0
     "@google-cloud/firestore": ^5.0.2
     "@googlemaps/google-maps-services-js": ^3.3.10
     "@hapi/hapi": ^20.2.1
@@ -23819,7 +23820,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.11.0, google-auth-library@npm:^7.9.2":
+"google-auth-library@npm:^7.11.0":
   version: 7.11.0
   resolution: "google-auth-library@npm:7.11.0"
   dependencies:
@@ -23833,6 +23834,23 @@ fsevents@~2.1.1:
     jws: ^4.0.0
     lru-cache: ^6.0.0
   checksum: fb1d0c39bbd19163d07f3d4958ab1af695b5fbc33caa1fcbb2acede43cf31c3cc449da949629ac6a212c55b1190a8c5b38e11015cdbdf1ec902d99d0e2ee4f07
+  languageName: node
+  linkType: hard
+
+"google-auth-library@npm:^7.14.0":
+  version: 7.14.0
+  resolution: "google-auth-library@npm:7.14.0"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^4.0.0
+    gcp-metadata: ^4.2.0
+    gtoken: ^5.0.4
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: 0fe254bc985c7b3be5ae6708afae9cd8a92cb468d956458e8fb6ec76ce8900ee90dbf1c8aa51790039c388682db6a6b510b6bef48ae6e1cea6f5d893b163381c
   languageName: node
   linkType: hard
 
