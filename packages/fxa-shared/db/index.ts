@@ -63,7 +63,7 @@ export function monitorKnexConnectionPool(
 ) {
   metrics?.increment('mysql.pool_creation');
   const getPoolStats = () => {
-    return {
+    return JSON.stringify({
       // returns the number of non-free resources
       numUsed: pool.numUsed(),
       // returns the number of free resources
@@ -72,37 +72,37 @@ export function monitorKnexConnectionPool(
       numPendingAcquires: pool.numPendingAcquires(),
       // how many asynchronous create calls are running
       numPendingCreates: pool.numPendingCreates(),
-    };
+    });
   };
   pool.on('acquireRequest', (eventId: any) => {
-    log?.info('db.FXA-4648', {
-      msg: `Knex acquireRequest`,
+    log?.info('db', {
+      msg: `db.FXA-4648: Knex acquireRequest`,
       eventId,
-      ...getPoolStats(),
+      poolStats: getPoolStats(),
     });
     metrics?.increment('knex.aquire_request');
   });
   pool.on('createRequest', (eventId: any) => {
-    log?.info('db.FXA-4648', {
-      msg: `Knex createRequest`,
+    log?.info('db', {
+      msg: `db.FXA-4648: Knex createRequest`,
       eventId,
-      ...getPoolStats(),
+      poolStats: getPoolStats(),
     });
     metrics?.increment('knex.create_request');
   });
   pool.on('destroyRequest', (eventId: any, resource: any) => {
-    log?.info('db.FXA-4648', {
-      msg: `Knex destroyRequest`,
+    log?.info('db', {
+      msg: `db.FXA-4648: Knex destroyRequest`,
       eventId,
-      ...getPoolStats(),
+      poolStats: getPoolStats(),
     });
     metrics?.increment('knex.destroy_request');
   });
   pool.on('destroyFail', (eventId: any, resource: any) => {
-    log?.info('db.FXA-4648', {
-      msg: `Knex destroyFail`,
+    log?.info('db', {
+      msg: `db.FXA-4648: Knex destroyFail`,
       eventId,
-      ...getPoolStats(),
+      poolStats: getPoolStats(),
     });
     metrics?.increment('knex.destroy_fail');
   });
@@ -131,11 +131,10 @@ export function setupDatabase(
   // Monitor connection pool
   monitorKnexConnectionPool(db.client.pool, log, metrics);
 
-  log?.info('db.FXA-4648', {
-    msg: `Creating Knex`,
+  log?.info('db', {
+    msg: `db.FXA-4648: Creating Knex`,
     connLimit: opts.connectionLimitMax,
   });
-  log?.info('db.FXA-4648', { msg: `Creating Knex`, stack: Error().stack });
 
   return db;
 }

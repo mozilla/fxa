@@ -137,7 +137,7 @@ class OauthDB extends ConnectedServicesDb {
   async getAccessTokensByUid(uid) {
     await this.ready();
     const tokens = await this.redis.getAccessTokens(uid);
-    const otherTokens = await await this.mysql._getAccessTokensByUid(uid);
+    const otherTokens = await this.mysql._getAccessTokensByUid(uid);
     return tokens.concat(otherTokens);
   }
 
@@ -164,7 +164,7 @@ class OauthDB extends ConnectedServicesDb {
 
   async getRefreshTokensByUid(uid) {
     await this.ready();
-    const tokens = await await this.mysql._getRefreshTokensByUid(uid);
+    const tokens = await this.mysql._getRefreshTokensByUid(uid);
     const extraMetadata = await this.redis.getRefreshTokens(uid);
     // We'll take this opportunity to clean up any tokens that exist in redis but
     // not in mysql, so this loop deletes each token from `extraMetadata` once handled.

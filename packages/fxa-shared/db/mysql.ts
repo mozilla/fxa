@@ -150,44 +150,55 @@ export class MysqlStoreShared {
 
     // Monitor pool events
     const getPoolStats = () => {
-      return {
+      return JSON.stringify({
         uid: this._uid,
         connectionLimit: this._pool.config.connectionLimit,
         connections: (<any>this._pool)._allConnections?.length,
         aquiring: (<any>this._pool)._acquiringConnections?.length,
         free: (<any>this._pool)._acquiringConnections?.length,
-      };
+      });
     };
     this._pool.on('enqueue', () => {
-      log?.info('mysql.FXA-4648', { msg: 'on enqueue', uid: this._uid });
+      log?.info('MysqlStoreShared', {
+        msg: 'MysqlStoreShared.FXA-4648: on enqueue',
+        poolStats: getPoolStats(),
+      });
       this.metrics?.increment('mysql.connection');
       this.events?.onPoolEnqueue();
     });
 
     this._pool.on('connection', (connection: any) => {
-      log?.info('mysql.FXA-4648', { msg: 'on enqueue', ...getPoolStats() });
+      log?.info('MysqlStoreShared', {
+        msg: 'MysqlStoreShared.FXA-4648: on connection',
+        poolStats: getPoolStats(),
+      });
       this.metrics?.increment('mysql.connection', {
         new: (!!connection._ruid).toString(),
       });
       this.events?.onPoolConnection(connection);
     });
     this._pool.on('acquire', (connection: any) => {
-      log?.info('mysql.FXA-4648', { msg: 'on enqueue', ...getPoolStats() });
+      log?.info('MysqlStoreShared', {
+        msg: 'MysqlStoreShared.FXA-4648: on aquire',
+        poolStats: getPoolStats(),
+      });
       this.events?.onPoolAquired(connection);
       this.metrics?.increment('mysql.aquire', {
         new: (!!connection._ruid).toString(),
       });
     });
     this._pool.on('release', (connection) => {
-      log?.info('mysql.FXA-4648', { msg: 'on enqueue', ...getPoolStats() });
+      log?.info('MysqlStoreShared', {
+        msg: 'MysqlStoreShared.FXA-4648: on release',
+        poolStats: getPoolStats(),
+      });
       this.events?.onPoolRelease(connection);
       this.metrics?.increment('mysql.release');
     });
 
-    log?.info('mysql.FXA-4648', {
-      msg: 'Creating new MysqlStoreShared.',
-      ...getPoolStats(),
-      stack: Error().stack,
+    log?.info('MysqlStoreShared', {
+      msg: 'MysqlStoreShared.FXA-4648: Creating new MysqlStoreShared.',
+      poolStats: getPoolStats(),
     });
   }
 
@@ -196,14 +207,17 @@ export class MysqlStoreShared {
     const uid = this._uid;
     const conn: any = await this._getConnection();
 
-    log?.debug('FXA-4648', { msg: `Got connection, ${conn?._ruid}`, uid });
+    log?.debug('MysqlStoreShared', {
+      msg: `Got connection, ${conn?._ruid}`,
+      uid,
+    });
 
     try {
       return await new Promise(function (resolve, reject) {
         conn.query(sql, params || [], function (err: any, results: any) {
           if (err) {
-            log?.error('mysql.FXA-4648', {
-              msg: `Mysql query failed, ${conn?._ruid}`,
+            log?.error('MysqlStoreShared', {
+              msg: `MysqlStoreShared.FXA-4648: Mysql query failed, ${conn?._ruid}`,
               err,
               uid,
             });
@@ -213,8 +227,8 @@ export class MysqlStoreShared {
         });
       });
     } finally {
-      log?.debug('mysql.FXA-4648', {
-        msg: `Released connection, ${conn?._ruid}`,
+      log?.info('MysqlStoreShared', {
+        msg: `MysqlStoreShared.FXA-4648: Released connection, ${conn?._ruid}`,
         uid,
       });
       conn.release();
@@ -241,23 +255,29 @@ export class MysqlStoreShared {
     var uid = this._uid;
 
     return new Promise(function (resolve, reject) {
-      log?.debug('mysql.FXA-4648', { msg: 'Requesting connection', uid });
+      log?.debug('MysqlStoreShared', {
+        msg: 'MysqlStoreShared.FXA-4648: Requesting connection',
+        uid,
+      });
 
       pool.getConnection(function (err: any, conn: any) {
-        log?.debug('mysql.FXA-4648', { msg: 'Got connection', uid });
+        log?.debug('MysqlStoreShared', {
+          msg: 'MysqlStoreShared.FXA-4648: Got connection',
+          uid,
+        });
         events?.onConnection(conn, err);
 
         if (err) {
-          log?.error('mysql.FXA-4648', {
-            msg: 'Failed to get connection.',
+          log?.error('MysqlStoreShared', {
+            msg: 'MysqlStoreShared.FXA-4648: Failed to get connection.',
             err,
           });
           return reject(err);
         }
 
         if (conn._fxa_initialized) {
-          log?.debug('mysql.FXA-4648', {
-            msg: 'Reusing connection',
+          log?.info('MysqlStoreShared', {
+            msg: 'MysqlStoreShared.FXA-4648: Reusing connection',
             uid,
             conn_ruid: conn._ruid,
           });
@@ -271,8 +291,8 @@ export class MysqlStoreShared {
           new Promise<any>((resolve, reject) => {
             conn.query(sql, (err: any, result: any) => {
               if (err) {
-                log?.error('FXA-4648', {
-                  msg: `Mysql connection init query failed`,
+                log?.error('MysqlStoreShared', {
+                  msg: `MysqlStoreShared.FXA-4648: Mysql connection init query failed`,
                   err,
                   uid,
                   conn_ruid: conn._ruid,
@@ -319,8 +339,8 @@ export class MysqlStoreShared {
             } catch (err) {
               events?.onInitializeError(err);
               metrics?.increment('mysql.initialize_connection_error');
-              log?.error('mysql.FXA-4648', {
-                msg: 'Error initializing connection.',
+              log?.error('MysqlStoreShared', {
+                msg: 'MysqlStoreShared.FXA-4648: Error initializing connection.',
                 err,
                 uid,
               });
@@ -329,8 +349,8 @@ export class MysqlStoreShared {
               // fails, we must close the connection. Otherwise, the connection can
               // get stuck in an unreleased state
               if (conn) {
-                log?.info('mysql.FXA-4648', {
-                  msg: 'Release connection after DB initialization fails.',
+                log?.info('MysqlStoreShared', {
+                  msg: 'MysqlStoreShared.FXA-4648: Release connection after DB initialization fails.',
                   uid,
                 });
 
