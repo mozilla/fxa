@@ -56,6 +56,7 @@ export enum ProductDetailsStringProperties {
   'termsOfServiceDownloadURL',
   'privacyNoticeURL',
   'privacyNoticeDownloadURL',
+  'cancellationSurveyURL',
 }
 export enum ProductDetailsListProperties {
   'details',

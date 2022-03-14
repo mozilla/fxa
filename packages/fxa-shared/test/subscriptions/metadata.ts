@@ -167,6 +167,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        cancellationSurveyURL: DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });
@@ -186,6 +187,7 @@ describe('subscriptions/metadata', () => {
           'https://example.org/xx-pirate/terms/download',
         privacyNoticeDownloadURL:
           'https://example.org/xx-pirate/privacy/download',
+        cancellationSurveyURL: DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL,
         successActionButtonLabel: 'Yarr...',
       });
     });
@@ -203,6 +205,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        cancellationSurveyURL: DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });
@@ -220,6 +223,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        cancellationSurveyURL: DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });

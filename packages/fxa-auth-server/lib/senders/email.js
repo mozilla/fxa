@@ -17,6 +17,9 @@ const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
+const {
+  DEFAULT_PRODUCT_DETAILS,
+} = require('fxa-shared/subscriptions/metadata');
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_TIMEZONE = 'Etc/UTC';
@@ -2975,8 +2978,9 @@ module.exports = function (log, config, bounces) {
     links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
 
     links.cancellationSurveyUrl =
-      message.cancellationSurveyURL ||
-      'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21';
+      (message.productMetadata &&
+        message.productMetadata['product:cancellationSurveyURL']) ||
+      DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL;
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 

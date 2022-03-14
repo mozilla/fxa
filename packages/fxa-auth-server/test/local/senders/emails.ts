@@ -9,6 +9,7 @@ import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { URL } from 'url';
+import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();
@@ -32,7 +33,7 @@ const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
   'https://example.com/subscription-product/privacy';
 const SUBSCRIPTION_CANCELLATION_SURVEY_URL =
-  'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21';
+  DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL;
 const SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM =
   'https://www.mozilla.com/links/survey/custom';
 const productMetadata = {
@@ -1215,39 +1216,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
   ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
-      ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
-      ['headers', new Map([
-        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountDeletion') }],
-        ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountDeletion' }],
-        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
-      ])],
       ['html', [
-        { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
-        { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
-        { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-        { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
-        { test: 'include', expected: 'alt="Firefox logo"' },
-        { test: 'include', expected: 'alt="Mozilla logo"' },
         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-        { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
-        { test: 'notInclude', expected: 'alt="Devices"' },
-        { test: 'notInclude', expected: 'alt="Sync Devices"' },
-        { test: 'notInclude', expected: 'utm_source=email' },
       ]],
       ['text', [
-        { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
-        { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-        { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
-        { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-        { test: 'notInclude', expected: 'utm_source=email' },
       ]]
     ]),
     {updateTemplateValues: x => (
-      {...x, cancellationSurveyURL: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM})}
+      {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
   ],
 
   ['subscriptionAccountFinishSetupEmail', new Map<string, Test | any>([
@@ -1388,35 +1367,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
   ['subscriptionCancellationEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
-    ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionCancellation') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionCancellation' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
-    ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms')) },
       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
-      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
-      { test: 'include', expected: `billing period, which is 04/19/2020.` },
       { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"`},
-      { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
-      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
-      { test: 'include', expected: `billing period, which is 04/19/2020.` },
       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
       { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-      { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]),
     {updateTemplateValues: x => (
-      {...x, cancellationSurveyURL: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM})}
+      {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
   ],
 
   ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
@@ -1445,29 +1406,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
-      ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
-      ['headers', new Map([
-        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFailedPaymentsCancellation') }],
-        ['X-Template-Name', { test: 'equal', expected: 'subscriptionFailedPaymentsCancellation' }],
-        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFailedPaymentsCancellation }],
-      ])],
       ['html', [
-        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms') },
-        { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-failed-payments-cancellation', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
-        { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-        { test: 'notInclude', expected: 'utm_source=email' },
       ]],
       ['text', [
-        { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
-        { test: 'notInclude', expected: 'utm_source=email' },
       ]]
     ]),
     {updateTemplateValues: x => (
-      {...x, cancellationSurveyURL: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM})}
+      {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
   ],
 
   ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([

@@ -3854,7 +3854,6 @@ describe('StripeHelper', () => {
           'product:termsOfServiceURL': termsOfServiceURL,
         },
         showPaymentMethod: true,
-        cancellationSurveyURL: undefined,
       };
 
       const expectedDiscount = {
@@ -3988,7 +3987,6 @@ describe('StripeHelper', () => {
             ...expected.productMetadata,
             'product:cancellationSurveyURL': cancellationSurveyURL,
           },
-          cancellationSurveyURL,
         });
       });
 
@@ -4715,41 +4713,7 @@ describe('StripeHelper', () => {
           serviceLastActiveDate: new Date(
             subscription.current_period_end * 1000
           ),
-          cancellationSurveyURL: undefined,
-        });
-      });
-
-      it('extracts expected details for a subscription cancellation with custom cancellation survey url', async () => {
-        const productMetadata = {
-          ...expectedBaseUpdateDetails.productMetadata,
-          'product:cancellationSurveyURL': cancellationSurveyURL,
-        };
-        const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const result =
-          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
-            event.data.object,
-            {
-              ...expectedBaseUpdateDetails,
-              productMetadata,
-            },
-            mockInvoice
-          );
-        const subscription = event.data.object;
-        assert.deepEqual(result, {
-          updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
-          email,
-          uid,
-          productId,
-          planId,
-          planEmailIconURL: productIconURLNew,
-          productName,
-          invoiceDate: new Date(mockInvoice.created * 1000),
-          invoiceTotalInCents: mockInvoice.total,
-          invoiceTotalCurrency: mockInvoice.currency,
-          serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
-          ),
-          cancellationSurveyURL,
+          productMetadata: expectedBaseUpdateDetails.productMetadata,
         });
       });
     });

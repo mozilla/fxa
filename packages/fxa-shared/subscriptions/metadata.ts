@@ -32,6 +32,8 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
   privacyNoticeURL: 'https://www.mozilla.org/privacy/firefox-private-network',
   privacyNoticeDownloadURL:
     'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_privacy_notice/en-US.pdf',
+  cancellationSurveyURL:
+    'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
 };
 
 // Support some default null values for product / plan metadata and
