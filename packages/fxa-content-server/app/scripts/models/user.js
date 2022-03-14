@@ -610,8 +610,8 @@ var User = Backbone.Model.extend({
     });
   },
 
-  verifyAccountThirdParty(account, relier, code) {
-    return account.verifyAccountThirdParty(relier, code).then(() => {
+  verifyAccountThirdParty(account, relier, code, provider) {
+    return account.verifyAccountThirdParty(relier, code, provider).then(() => {
       this._notifyOfAccountSignIn(account);
       return this.setSignedInAccount(account);
     });

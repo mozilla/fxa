@@ -246,19 +246,26 @@
 }
 
 .third-party-auth {
-  #google-login-button {
+  .login-button {
     border: 1px solid #b2b2b2;
     background-color: white;
+    margin-bottom: 5px;
+    font-weight: normal;
+    &:hover {
+      border-color: #1a1a1a;
+    }
     .google-logo {
       background: url('/images/third_party_auth/google_btn_normal.svg') 50% no-repeat;
       width: 40px;
       height: 40px;
     }
-
-    &:hover {
-      border-color: #1a1a1a;
+    .apple-logo {
+      background: url('/images/third_party_auth/apple_btn_normal.svg') 50% no-repeat;;
+      width: 40px;
+      height: 40px;
     }
   }
+
   .separator {
     font-weight: 200;
     font-size: 16px;

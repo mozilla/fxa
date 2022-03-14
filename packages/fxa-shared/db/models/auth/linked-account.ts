@@ -7,9 +7,10 @@ import { uuidTransformer } from '../../transformers';
 
 const PROVIDER = {
   __fxa__unmapped: 0,
-  GOOGLE: 1,
-  APPLE: 2,
+  google: 1,
+  apple: 2,
 } as const;
+export type Provider = keyof typeof PROVIDER;
 
 export class LinkedAccount extends BaseAuthModel {
   static tableName = 'linkedAccounts';
@@ -28,31 +29,35 @@ export class LinkedAccount extends BaseAuthModel {
     return LinkedAccount.query().where('uid', uuidTransformer.to(uid));
   }
 
-  static async findByGoogleId(id: string) {
+  static async findByLinkedAccount(id: string, provider: Provider) {
     return LinkedAccount.query()
       .where({
         id: id,
-        providerId: PROVIDER['GOOGLE'],
+        providerId: PROVIDER[provider],
       })
       .first();
   }
 
-  static async createLinkedGoogleAccount(uid: string, id: string) {
+  static async createLinkedAccount(
+    uid: string,
+    id: string,
+    provider: Provider
+  ) {
     return LinkedAccount.query().insert({
       uid: uuidTransformer.to(uid),
       id,
       authAt: Date.now(),
       enabled: true,
-      providerId: PROVIDER['GOOGLE'],
+      providerId: PROVIDER[provider],
     });
   }
 
-  static async deleteLinkedGoogleAccount(uid: string) {
+  static async deleteLinkedAccount(uid: string, provider: Provider) {
     return LinkedAccount.query()
       .delete()
       .where({
         uid: uuidTransformer.to(uid),
-        providerId: PROVIDER['GOOGLE'],
+        providerId: PROVIDER[provider],
       });
 
     // TODO: In a follow up we can consider automatically revoking sessions

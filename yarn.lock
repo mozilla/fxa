@@ -22166,6 +22166,7 @@ fsevents@~2.1.1:
     jsxgettext-recursive-next: 1.1.0
     jwks-rsa: ^2.0.4
     jws: 4.0.0
+    jwt-decode: ^3.1.2
     keypair: 1.0.4
     keyv: 4.1.1
     leftpad: 0.0.1
@@ -29207,6 +29208,13 @@ fsevents@~2.1.1:
     jwa: ^1.4.1
     safe-buffer: ^5.0.1
   checksum: f0213fe5b79344c56cd443428d8f65c16bf842dc8cb8f5aed693e1e91d79c20741663ad6eff07a6d2c433d1831acc9814e8d7bada6a0471fbb91d09ceb2bf5c2
+  languageName: node
+  linkType: hard
+
+"jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
   languageName: node
   linkType: hard
 

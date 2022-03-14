@@ -14,6 +14,7 @@ export default {
 
   events: {
     'click #google-login-button': 'googleSignIn',
+    'click #apple-login-button': 'appleSignIn',
   },
 
   setInitialContext(context) {
@@ -79,6 +80,44 @@ export default {
     form.submit();
   },
 
+  appleSignIn() {
+    this.clearStoredParams();
+
+    const state = encodeURIComponent(this.window.location.href);
+
+    // To avoid any CORs issues we create element to store the
+    // params need for the request and do a form submission
+    const form = this.window.document.createElement('form');
+    form.setAttribute('method', 'GET');
+    form.setAttribute(
+      'action',
+      this.config.appleAuthConfig.authorizationEndpoint
+    );
+
+    /* eslint-disable camelcase */
+    const params = {
+      client_id: this.config.appleAuthConfig.clientId,
+      scope: 'email',
+      redirect_uri: this.config.appleAuthConfig.redirectUri,
+      state,
+      access_type: 'offline',
+      prompt: 'consent',
+      response_type: 'code id_token',
+      response_mode: 'form_post',
+    };
+    /* eslint-enable camelcase */
+    for (const p in params) {
+      const input = this.window.document.createElement('input');
+      input.setAttribute('type', 'hidden');
+      input.setAttribute('name', p);
+      input.setAttribute('value', params[p]);
+      form.appendChild(input);
+    }
+    this.window.document.body.appendChild(form);
+
+    form.submit();
+  },
+
   handleOauthResponse() {
     // To finish the oauth flow, we will need to stash away the response from
     // Google (contains state and code) and redirect back to the original FxA login page.
@@ -98,9 +137,10 @@ export default {
       'fxa_third_party_params'
     );
     const code = authParams.code;
+    const provider = authParams.provider || 'google';
 
     return this.user
-      .verifyAccountThirdParty(account, this.relier, code)
+      .verifyAccountThirdParty(account, this.relier, code, provider)
       .then((updatedAccount) => {
         this.clearStoredParams();
         return this.signIn(updatedAccount);

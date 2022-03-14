@@ -795,8 +795,10 @@ export class Account implements AccountData {
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        linkedAccounts: () => {
-          return [];
+        linkedAccounts: (existingAccounts) => {
+          return existingAccounts.filter((linkedAcc: LinkedAccount) => {
+            return linkedAcc.providerId !== providerId;
+          });
         },
       },
     });

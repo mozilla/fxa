@@ -6,6 +6,7 @@ import React from 'react';
 
 import { Localized, useLocalization } from '@fluent/react';
 import { ReactComponent as GoogleIcon } from './google.svg';
+import { ReactComponent as AppleIcon } from './apple.svg';
 import { Modal } from '../Modal';
 import { useAccount } from '../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
@@ -35,15 +36,15 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
       <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
         <div className="flex flex-grow w-full mobileLandscape:flex-2">
           <span className="flex justify-center items-center flex-0">
-            {providerId === 1 && <GoogleIcon />}
+            {providerId === 1 && <GoogleIcon role="img" aria-label="Google" />}
+            {providerId === 2 && <AppleIcon role="img" aria-label="Apple" />}
           </span>
           <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
             <div className="flex flex-col mobileLandscape:flex-2">
-              <Localized id="settings-provider-name">
-                <p className="text-xs break-word" data-testid="provider-name">
-                  Google
-                </p>
-              </Localized>
+              <p className="text-xs break-word" data-testid="provider-name">
+                {providerId === 1 && 'Google'}
+                {providerId === 2 && 'Apple'}
+              </p>
             </div>
           </div>
         </div>
@@ -85,15 +86,15 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             </h2>
           </Localized>
 
-          <Localized id="la-unlink-content">
+          <Localized id="la-unlink-content-2">
             <p
               id="linked-accounts-unlink-description"
               className="my-4 text-center"
             >
-              Are you sure you want to unlink your Google account? Unlinking
-              your account does not automatically sign you out of those
-              services. To do that you will need to manually sign out from the
-              Connected services section.
+              Are you sure you want to unlink your account? Unlinking your
+              account does not automatically sign you out of those services. To
+              do that you will need to manually sign out from the Connected
+              services section.
             </p>
           </Localized>
         </Modal>
