@@ -5593,6 +5593,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/browser@npm:^6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/browser@npm:6.18.2"
+  dependencies:
+    "@sentry/core": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: 7aa55cb291af7eb89cb385062481b984eb0401bd8efe6b05e28fbf9e16582da584d284c616bdda4765c24ad488391bfb0e7515072df923075bd5f4531daece1e
+  languageName: node
+  linkType: hard
+
 "@sentry/core@npm:6.16.1":
   version: 6.16.1
   resolution: "@sentry/core@npm:6.16.1"
@@ -5619,6 +5631,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/core@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/core@npm:6.18.2"
+  dependencies:
+    "@sentry/hub": 6.18.2
+    "@sentry/minimal": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: d9d739f866609af5a5e0890e1966b6769c4df73a32cce6048662166f5b307ade92e0b29c9b091371e20d4e7c99a7ad122d37b9aa74928989dbda98af104d097e
+  languageName: node
+  linkType: hard
+
 "@sentry/hub@npm:6.16.1":
   version: 6.16.1
   resolution: "@sentry/hub@npm:6.16.1"
@@ -5638,6 +5663,17 @@ __metadata:
     "@sentry/utils": 6.17.9
     tslib: ^1.9.3
   checksum: 6a87435dcb17edf19ca6f04b1926f6ae19985c104a0a4c6052e05db2e04891e5c55b00b88ed93b975b1a0d9f1b3f149428fd8bf8ddb12afe39027fbbcc0362ad
+  languageName: node
+  linkType: hard
+
+"@sentry/hub@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/hub@npm:6.18.2"
+  dependencies:
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: 60bbffbf0039d5ec6f80a1d30b57144b0973abd571f04c1a99b9addd12ae455088da7c36967785698c9b034716150e673c1423cdbeec8c3ca6d1af4e8e78b5ff
   languageName: node
   linkType: hard
 
@@ -5672,6 +5708,17 @@ __metadata:
     "@sentry/types": 6.17.9
     tslib: ^1.9.3
   checksum: 4cf238f2246151a00ded5639a984d20553ed6c46f68f2b7b889393d2be1477b30859535100d0b3d5fdcf4f9d3c733ce994e036703665d5e595d0837c73024bc7
+  languageName: node
+  linkType: hard
+
+"@sentry/minimal@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/minimal@npm:6.18.2"
+  dependencies:
+    "@sentry/hub": 6.18.2
+    "@sentry/types": 6.18.2
+    tslib: ^1.9.3
+  checksum: 1191bef110a0139a2a6e1f9677a2ba5aa81197354fa51f332b8f640a7cd0079937ecc8b9d1cb4d9720d3ff63c1f3f63e41871321cb09901c166225adfde8d5f9
   languageName: node
   linkType: hard
 
@@ -5719,6 +5766,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/types@npm:6.18.2"
+  checksum: 495600418adb30bb98bddbd4674845b27e70be181892d61aa95db44f2c5d631646aacae0cd562fdceaad362cc6a17819fcff91ea8031ae34cd06e57ebe6b305e
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:6.16.1":
   version: 6.16.1
   resolution: "@sentry/utils@npm:6.16.1"
@@ -5736,6 +5790,16 @@ __metadata:
     "@sentry/types": 6.17.9
     tslib: ^1.9.3
   checksum: 2a272e00372020613947ae4f65546814c18c58dcf9a08648d01cf4e720c07fb46b3cd62b53e8009a2bbcbd9d4ce0c3c042b787630375c4aa7fee9ec0516c5a89
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/utils@npm:6.18.2"
+  dependencies:
+    "@sentry/types": 6.18.2
+    tslib: ^1.9.3
+  checksum: 01c4f75a691bcbe471fe3784379c46b3d055772a91bb8afdd16d83fce6e411390ff39bc8b481d9f4ac6f80a3a21689d0eb300058c7242930af6aadf9cd6debe6
   languageName: node
   linkType: hard
 
@@ -22881,7 +22945,7 @@ fsevents@~2.1.1:
     "@material-ui/core": v5.0.0-alpha.24
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.16
-    "@sentry/browser": ^6.17.9
+    "@sentry/browser": ^6.18.2
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
@@ -22933,7 +22997,7 @@ fsevents@~2.1.1:
     react: ^16.13.1
     react-async-hook: ^4.0.0
     react-dom: ^16.13.1
-    react-easy-crop: ^4.0.1
+    react-easy-crop: ^4.1.3
     react-hook-form: ^6.15.8
     react-scripts: ^4.0.3
     react-test-renderer: ^17.0.2
@@ -36556,16 +36620,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-easy-crop@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "react-easy-crop@npm:4.0.1"
+"react-easy-crop@npm:^4.1.3":
+  version: 4.1.3
+  resolution: "react-easy-crop@npm:4.1.3"
   dependencies:
     normalize-wheel: ^1.0.1
     tslib: 2.0.1
   peerDependencies:
     react: ">=16.4.0"
     react-dom: ">=16.4.0"
-  checksum: 3705dfb95ecec54da3d6e0abc29a639d7d9a0d465b38577bfed18022101896d56299456eab0d9dcfdcc0d5a9be4d92ba1fe2f24e0bcd297f064becc7b790acb2
+  checksum: f47ad5025141b6f40703806cc8f77d16a2ce014d1bbaaf3d45e23f4961f930a20c4fb2f716f5c7e7503d9aaad21cb1855de02506fc20d084869c22a1fa68587f
   languageName: node
   linkType: hard
 
