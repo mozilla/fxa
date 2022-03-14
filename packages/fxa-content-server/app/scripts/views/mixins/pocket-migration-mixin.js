@@ -5,6 +5,7 @@
 export const POCKET_CLIENTIDS = [
   '7377719276ad44ee', // pocket-mobile
   '749818d3f2e7857f', // pocket-web
+  'dcdb5ae7add825d2', // pocket-web
 ];
 
 export default {

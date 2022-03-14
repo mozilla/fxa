@@ -19,6 +19,7 @@ import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import Template from 'templates/sign_up_password.mustache';
+import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 
 const t = (msg) => msg;
 
@@ -157,7 +158,8 @@ Cocktail.mixin(
   ServiceMixin,
   SignedInNotificationMixin,
   SignUpMixin,
-  PocketMigrationMixin
+  PocketMigrationMixin,
+  AccountSuggestionMixin
 );
 
 export default SignUpPasswordView;
