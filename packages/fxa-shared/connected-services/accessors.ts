@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { ILogger } from '../log';
 import { hex } from './util';
 
 /** Base token cache interface */
@@ -47,16 +48,26 @@ export class ConnectedServicesCache {
   constructor(
     protected readonly redisAccessTokens: IAccessTokensCache,
     protected readonly redisRefreshTokens: IRefreshTokensCache,
-    protected readonly redisSessionTokens: ISessionTokensCache
+    protected readonly redisSessionTokens: ISessionTokensCache,
+    protected readonly log?: ILogger
   ) {
     if (!redisAccessTokens) {
-      throw new Error('redisAccessTokens not provided');
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: redisAccessTokens not provided.',
+        stack: Error().stack,
+      });
     }
     if (!redisRefreshTokens) {
-      throw new Error('redisRefreshTokens not provided');
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: redisRefreshTokens not provided.',
+        stack: Error().stack,
+      });
     }
     if (!redisSessionTokens) {
-      throw new Error('redisSessionTokens not provided');
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: redisSessionTokens not provided.',
+        stack: Error().stack,
+      });
     }
   }
 
@@ -65,6 +76,10 @@ export class ConnectedServicesCache {
     tokenIdsToPrune: Buffer[] | string[]
   ): Promise<void | null> {
     if (!this.redisRefreshTokens) {
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: pruneRefreshTokens invoked but redisRefreshTokens instance not provided.',
+        stack: Error().stack,
+      });
       return null;
     }
     return await this.redisRefreshTokens.pruneRefreshTokens(
@@ -83,6 +98,10 @@ export class ConnectedServicesCache {
 
   async getRefreshTokens(uid: Buffer | string) {
     if (!this.redisRefreshTokens) {
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: getRefreshTokens invoked but redisRefreshTokens instance not provided.',
+        stack: Error().stack,
+      });
       return {};
     }
     return this.redisRefreshTokens.getRefreshTokens(uid);
@@ -90,6 +109,10 @@ export class ConnectedServicesCache {
 
   async getSessionTokens(uid: string) {
     if (!this.redisSessionTokens) {
+      this.log?.warn('ConnectedServicesCache', {
+        msg: 'ConnectedServicesCache.FXA-4648: getSessionTokens invoked but redisSessionTokens instance not provided.',
+        stack: Error().stack,
+      });
       return {};
     }
     return await this.redisSessionTokens.getSessionTokens(uid);

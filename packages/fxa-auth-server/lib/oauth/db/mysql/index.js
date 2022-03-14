@@ -523,7 +523,10 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   _touchRefreshToken(token, now) {
-    this.log('authdb.FXA-4648', { msg: 'touchRefreshToken', now });
+    this.log?.info('MysqlStore', {
+      msg: 'MysqlStore.FXA-4648: touchRefreshToken',
+      now,
+    });
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE

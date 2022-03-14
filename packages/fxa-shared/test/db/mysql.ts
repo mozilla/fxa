@@ -136,8 +136,6 @@ describe('mysql', function () {
     }
     await Promise.all(promises);
 
-    console.log('connectionLimit', dbOpts.connectionLimit * 2);
-    console.log('otehr', Object.keys(events.stats.pool.threadIds).length);
     assert.equal(events.stats.pool.aquire, events.stats.pool.release);
     assert.equal(events.stats.pool.connection, dbOpts.connectionLimit * 2);
     assert.equal(

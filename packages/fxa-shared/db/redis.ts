@@ -66,24 +66,64 @@ export class RedisShared {
       config.keyPrefix = config.prefix;
     }
 
-    log?.info('redis.FXA-4648', { msg: 'Creating RedisShared' });
-    log?.debug('redis.FXA-4648', {
-      msg: 'Creating RedisShared',
-      stack: Error().stack,
+    log?.info('RedisShared', {
+      msg: `RedisShared.FXA-4648: Creating RedisShared host:${config.host} port:${config.port}`,
     });
 
     const redis = new Redis(config);
+
+    // Listen to all client events
+    redis.on('connect', () => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Connected to redis`,
+      });
+    });
+
+    redis.on('ready', () => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Redis ready`,
+      });
+    });
+
+    redis.on('error', (err) => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Redis error encountered ${err}`,
+        error: err,
+      });
+    });
+
+    redis.on('close', () => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Redis close`,
+      });
+    });
+
+    redis.on('reconnecting', () => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Redis reconnecting`,
+      });
+    });
+
+    redis.on('end', () => {
+      log?.info('RedisShared', {
+        msg: `RedisShared.FXA-4648: Redis end`,
+      });
+    });
+
     const scriptsDirectory = resolve(__dirname, 'luaScripts');
 
     // Applies custom scripts which are turned into methods on
     // the redis object.
     this.defineCommands(redis, scriptsDirectory);
 
-    // Invoke type gaurd to make sure custom scripts were loaded
+    // Invoke type guard to make sure custom scripts were loaded
     // properly. Fail hard otherwise.
     if (isCustomRedisCache(redis)) {
       this.redis = redis;
     } else {
+      this.log?.warn('RedisShared', {
+        msg: 'RedisShared.FXA-4648: Missing scripts to fully define a customized redis instance.',
+      });
       throw new Error(
         'Missing scripts to fully define a customized redis instance.'
       );
@@ -127,6 +167,11 @@ export class RedisShared {
     directory: string
   ) {
     const [name, numberOfKeys] = scriptName.split('_');
+
+    this.log?.info('RedisShared', {
+      msg: `RedisShared.FXA-4648: defining redis command name:${name} directory:${directory}, scriptName:${scriptName}`,
+    });
+
     redis.defineCommand(name, {
       lua: this.readScript(directory, scriptName),
       numberOfKeys: +numberOfKeys,
@@ -168,7 +213,7 @@ export class RedisShared {
       }
       return tokens;
     } catch (e) {
-      this.log?.error('redis', e);
+      this.log?.error('RedisShared', { error: e });
       return {};
     }
   }
@@ -195,7 +240,9 @@ export class RedisShared {
       const value = await Promise.race([p1, p2]);
       return JSON.parse(value as string);
     } catch (e) {
-      this.log?.error('redis', e);
+      this.log?.error('RedisShared', {
+        error: e,
+      });
       return {};
     }
   }
@@ -205,7 +252,9 @@ export class RedisShared {
       const values = await this.redis.getAccessTokens(hex(uid));
       return values.map((v: string) => AccessToken.parse(v));
     } catch (e) {
-      this.log?.error('redis', e);
+      this.log?.error('RedisShared', {
+        error: e,
+      });
       return [];
     }
   }
@@ -215,7 +264,9 @@ export class RedisShared {
       const value = await this.redis.getAccessToken(hex(uid));
       if (value) return AccessToken.parse(value);
     } catch (e) {
-      this.log?.error('redis', e);
+      this.log?.error('RedisShared', {
+        error: e,
+      });
     }
 
     return null;

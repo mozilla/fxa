@@ -81,7 +81,8 @@ export class DatabaseService implements OnModuleDestroy {
       new ConnectedServicesCache(
         new RedisShared(redisConfig.accessTokens, logger),
         new RedisShared(redisConfig.refreshTokens, logger),
-        new RedisShared(redisConfig.sessionTokens, logger)
+        new RedisShared(redisConfig.sessionTokens, logger),
+        logger
       )
     );
   }
