@@ -48,9 +48,6 @@ const requiredProductMetadata = {
   webIconURL: null,
 };
 
-const cancellationSurveyURL =
-  'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21';
-
 describe('subscriptions/metadata', () => {
   describe('metadataFromPlan', () => {
     it('produces default null values', () => {
@@ -170,7 +167,6 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
-        cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });
@@ -190,7 +186,6 @@ describe('subscriptions/metadata', () => {
           'https://example.org/xx-pirate/terms/download',
         privacyNoticeDownloadURL:
           'https://example.org/xx-pirate/privacy/download',
-        cancellationSurveyURL,
         successActionButtonLabel: 'Yarr...',
       });
     });
@@ -208,7 +203,6 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
-        cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });
@@ -226,7 +220,6 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
-        cancellationSurveyURL,
         successActionButtonLabel: 'Do something else',
       });
     });
