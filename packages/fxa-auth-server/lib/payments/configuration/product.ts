@@ -35,21 +35,21 @@ export const productConfigSchema = baseConfigSchema
 
 export class ProductConfig implements BaseConfig {
   // Firestore document id
-  id: string;
+  id!: string;
 
-  active: boolean;
-  capabilities: CapabilityConfig;
-  locales: {
+  active!: boolean;
+  capabilities!: CapabilityConfig;
+  locales!: {
     [key: string]: {
       uiContent: Partial<UiContentConfig>;
       urls: Partial<UrlConfig>;
       support: Partial<SupportConfig>;
     };
   };
-  styles: StyleConfig;
-  support: SupportConfig;
-  uiContent: UiContentConfig;
-  urls: UrlConfig;
+  styles!: StyleConfig;
+  support!: SupportConfig;
+  uiContent!: UiContentConfig;
+  urls!: UrlConfig;
 
   // Extended by ProductConfig
   stripeProductId?: string;
@@ -73,6 +73,7 @@ export class ProductConfig implements BaseConfig {
   ): ProductConfig {
     const productConfig = new ProductConfig();
     Object.keys(firestoreObject).map((key) => {
+      // @ts-ignore
       productConfig[key] = firestoreObject[key];
     });
     productConfig.id = docId;

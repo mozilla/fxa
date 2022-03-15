@@ -24,11 +24,11 @@ export const planConfigSchema = baseConfigSchema
 
 export class PlanConfig implements BaseConfig {
   // Firestore document id
-  id: string;
+  id!: string;
   // Firestore ProductConfig document id
-  productConfigId: string;
+  productConfigId!: string;
 
-  active: boolean;
+  active!: boolean;
   capabilities?: CapabilityConfig;
   urls?: UrlConfig;
   uiContent?: UiContentConfig;
@@ -62,6 +62,7 @@ export class PlanConfig implements BaseConfig {
   static fromFirestoreObject(firestoreObject: any, docId: string): PlanConfig {
     const planConfig = new PlanConfig();
     Object.keys(firestoreObject).map((key) => {
+      // @ts-ignore
       planConfig[key] = firestoreObject[key];
     });
     planConfig.id = docId;
