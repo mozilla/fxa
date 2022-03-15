@@ -6,7 +6,6 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
-const retry = require('async-retry');
 
 const { deleteCollection } = require('../local/payments/util');
 const { AuthFirestore, AuthLogger, AppConfig } = require('../../lib/types');
@@ -471,19 +470,8 @@ describe('StripeProductsAndPlansConverter', () => {
     });
     it('processes new products and plans', async () => {
       await converter.convert(args);
-      await retry(
-        async () => {
-          products = paymentConfigManager.allProducts();
-          plans = paymentConfigManager.allPlans();
-
-          assert.equal(products.length, 2);
-          assert.equal(plans.length, 3);
-        },
-        {
-          retries: 10,
-          minTimeout: 20,
-        }
-      );
+      products = paymentConfigManager.allProducts();
+      plans = paymentConfigManager.allPlans();
       // We don't care what the values of the Firestore doc IDs as long
       // as they match the expected productConfigId for planConfigs.
       assert.deepEqual(products[0], {
@@ -519,19 +507,8 @@ describe('StripeProductsAndPlansConverter', () => {
         planConfig1,
         productConfigDocId1
       );
-      await retry(
-        async () => {
-          products = paymentConfigManager.allProducts();
-          plans = paymentConfigManager.allPlans();
-
-          assert.equal(products.length, 1);
-          assert.equal(plans.length, 1);
-        },
-        {
-          retries: 10,
-          minTimeout: 20,
-        }
-      );
+      products = paymentConfigManager.allProducts();
+      plans = paymentConfigManager.allPlans();
       assert.deepEqual(products[0], {
         ...productConfig1,
         id: products[0].id,
@@ -580,19 +557,8 @@ describe('StripeProductsAndPlansConverter', () => {
         plans: { list: sandbox.stub().returns(planGeneratorUpdated()) },
       };
       await converter.convert(args);
-      await retry(
-        async () => {
-          products = paymentConfigManager.allProducts();
-          plans = paymentConfigManager.allPlans();
-
-          assert.equal(products.length, 1);
-          assert.equal(plans.length, 1);
-        },
-        {
-          retries: 10,
-          minTimeout: 20,
-        }
-      );
+      products = paymentConfigManager.allProducts();
+      plans = paymentConfigManager.allPlans();
       assert.deepEqual(products[0], {
         ...updatedProductConfig,
         id: products[0].id,
@@ -656,21 +622,8 @@ describe('StripeProductsAndPlansConverter', () => {
         },
       };
       await converter.convert(args);
-      let products;
-      let plans;
-      await retry(
-        async () => {
-          products = paymentConfigManager.allProducts();
-          plans = paymentConfigManager.allPlans();
-
-          assert.equal(products.length, 1);
-          assert.equal(plans.length, 2);
-        },
-        {
-          retries: 10,
-          minTimeout: 20,
-        }
-      );
+      products = paymentConfigManager.allProducts();
+      plans = paymentConfigManager.allPlans();
       const expected = {
         'es-ES': {
           uiContent: {

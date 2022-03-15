@@ -89,7 +89,10 @@ export class StripeProductsAndPlansConverter {
     stripeObject: Stripe.Product | Stripe.Plan
   ): CapabilityConfig {
     const capabilities: CapabilityConfig = {};
-    for (const oldKey of Object.keys(stripeObject.metadata!).filter((key) =>
+    if (!stripeObject.metadata) {
+      return capabilities;
+    }
+    for (const oldKey of Object.keys(stripeObject.metadata).filter((key) =>
       key.toLowerCase().startsWith('capabilities')
     )) {
       // Parse the key to determine if it's an 'all RP' or single RP capability
@@ -110,8 +113,11 @@ export class StripeProductsAndPlansConverter {
     stripeObject: Stripe.Product | Stripe.Plan
   ): StyleConfig {
     const styleConfig: StyleConfig = {};
+    if (!stripeObject.metadata) {
+      return styleConfig;
+    }
     for (const key of StyleConfigKeys) {
-      const value = stripeObject.metadata![key];
+      const value = stripeObject.metadata[key];
       if (value) {
         styleConfig[key] = value;
       }
@@ -210,7 +216,7 @@ export class StripeProductsAndPlansConverter {
     const productConfig: any = {};
 
     // BaseConfig
-    productConfig.active = product.active;
+    productConfig.active = true;
     productConfig.capabilities =
       this.capabilitiesMetadataToCapabilityConfig(product);
     // `locales` will be populated once we iterate through the Stripe Plans
@@ -282,7 +288,7 @@ export class StripeProductsAndPlansConverter {
     // Firestore cannot serialize class instances
     const planConfig: any = {};
 
-    planConfig.active = plan.active;
+    planConfig.active = true;
 
     if (!plan.metadata) {
       return planConfig;
