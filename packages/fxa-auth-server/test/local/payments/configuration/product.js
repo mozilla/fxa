@@ -56,6 +56,5 @@ describe('ProductConfig', () => {
     delete obj.urls.download;
     const result = await ProductConfig.validate(obj);
     assert.isDefined(result.error);
-    assert.isUndefined(result.value);
   });
 });

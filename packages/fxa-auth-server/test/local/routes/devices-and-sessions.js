@@ -7,7 +7,6 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const crypto = require('crypto');
-const Joi = require('@hapi/joi');
 const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
 const isA = require('@hapi/joi');
@@ -77,7 +76,8 @@ async function runTest(route, request, onSuccess, onError) {
   try {
     const response = await route.handler(request);
     if (route.options.response.schema) {
-      await Joi.validate(response, route.options.response.schema);
+      const validationSchema = route.options.response.schema;
+      await validationSchema.validateAsync(response);
     }
     if (onSuccess) {
       onSuccess(response);
@@ -808,10 +808,8 @@ describe('/account/device/commands', () => {
       '/account/device/commands'
     );
 
-    mockRequest.query = isA.validate(
-      mockRequest.query,
-      route.options.validate.query
-    ).value;
+    const validationSchema = route.options.validate.query;
+    mockRequest.query = validationSchema.validate(mockRequest.query).value;
     assert.ok(mockRequest.query);
     return runTest(route, mockRequest).then((response) => {
       assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called');
@@ -911,10 +909,8 @@ describe('/account/device/commands', () => {
       '/account/device/commands'
     );
 
-    mockRequest.query = isA.validate(
-      mockRequest.query,
-      route.options.validate.query
-    ).value;
+    const validationSchema = route.options.validate.query;
+    mockRequest.query = validationSchema.validate(mockRequest.query).value;
     assert.ok(mockRequest.query);
     return runTest(route, mockRequest).then((response) => {
       assert.callCount(mockLog.info, 2);
