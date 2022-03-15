@@ -449,6 +449,7 @@ module.exports.subscriptionProductMetadataValidator = {
         error: 'Capability missing from metadata',
       };
     }
+<<<<<<< HEAD
     const { value, error } =
       module.exports.subscriptionProductMetadataBaseValidator.validate(
         metadata,
@@ -456,6 +457,14 @@ module.exports.subscriptionProductMetadataValidator = {
           abortEarly: false,
         }
       );
+=======
+    const { value, error } = module.exports.subscriptionProductMetadataBaseValidator.validate(
+      metadata,
+      {
+        abortEarly: false,
+      }
+    );
+>>>>>>> 20fd6cb85 (Error: Joi.validate is not a function)
 
     if (error) {
       return { error };
@@ -475,11 +484,13 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     try {
-      const validationSchema =
-        module.exports.subscriptionProductMetadataBaseValidator;
-      const value = await validationSchema.validateAsync(metadata, {
-        abortEarly: false,
-      });
+      const validationSchema = module.exports.subscriptionProductMetadataBaseValidator;
+      const value = await validationSchema.validateAsync(
+        metadata,
+        {
+          abortEarly: false,
+        }
+      );
       return { value };
     } catch (error) {
       return { error };

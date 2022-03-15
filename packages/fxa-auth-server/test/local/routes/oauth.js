@@ -38,7 +38,7 @@ describe('/oauth/ routes', () => {
     if (route.config.validate.payload) {
       const validationSchema = route.config.validate.payload;
       // eslint-disable-next-line require-atomic-updates
-      request.payload = await validationSchema.validateAsync(
+      const { value, error } = await validationSchema.validate(
         request.payload,
         {
           context: {
@@ -46,6 +46,7 @@ describe('/oauth/ routes', () => {
           },
         }
       );
+      request.payload = value || error;
     }
     const response = await route.handler(request);
     if (response instanceof Error) {

@@ -181,7 +181,9 @@ async function create(log, error, config, routes, db, translator, statsd) {
       return xff
         .filter(Boolean)
         .map((address) => address.trim())
-        .filter((address) => !validationSchema.validate(address).error);
+        .filter(
+          (address) => !validationSchema.validate(address).error
+        );
     });
 
     defineLazyGetter(request.app, 'clientAddress', () => {
