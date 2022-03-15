@@ -9,7 +9,6 @@ import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { URL } from 'url';
-import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();
@@ -33,7 +32,7 @@ const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
   'https://example.com/subscription-product/privacy';
 const SUBSCRIPTION_CANCELLATION_SURVEY_URL =
-  DEFAULT_PRODUCT_DETAILS.cancellationSurveyURL;
+  'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21';
 const SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM =
   'https://www.mozilla.com/links/survey/custom';
 const productMetadata = {
