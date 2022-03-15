@@ -2600,6 +2600,7 @@ export class StripeHelper {
       productId,
       productNameNew: productName,
       productIconURLNew: planEmailIconURL,
+      productMetadata,
     } = baseDetails;
 
     const {
@@ -2620,6 +2621,7 @@ export class StripeHelper {
       invoiceTotalInCents,
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
+      productMetadata,
     };
   }
 

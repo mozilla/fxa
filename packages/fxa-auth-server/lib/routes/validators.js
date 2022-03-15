@@ -449,6 +449,7 @@ module.exports.subscriptionProductMetadataBaseValidator = isA
       .regex(legalResourceDomainPattern)
       .optional(),
     'product:privacyNoticeURL': isA.string().uri().required(),
+    'product:cancellationSurveyURL': isA.string().uri().optional(),
   })
   .pattern(capabilitiesClientIdPattern, isA.string(), {
     fallthrough: true,

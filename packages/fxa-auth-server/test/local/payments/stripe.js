@@ -3737,6 +3737,8 @@ describe('StripeHelper', () => {
       'https://www.mozilla.org/privacy/firefox-private-network';
     const termsOfServiceURL =
       'https://www.mozilla.org/about/legal/terms/firefox-private-network';
+    const cancellationSurveyURL =
+      'https://www.mozilla.org/legal/mozilla_cancellation_survey_url';
 
     const mockPlan = {
       id: planId,
@@ -4028,6 +4030,34 @@ describe('StripeHelper', () => {
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, expectedDiscount100);
+      });
+
+      it('extract expected details for Product with custom cancellationSurveyURL', async () => {
+        const mockAllAbbrevProducts = [
+          {
+            product_id: mockProduct.id,
+            product_name: mockProduct.name,
+            product_metadata: {
+              ...mockProduct.metadata,
+              'product:cancellationSurveyURL': cancellationSurveyURL,
+            },
+          },
+        ];
+        stripeHelper.allAbbrevProducts.resolves(mockAllAbbrevProducts);
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, {
+          ...expected,
+          productMetadata: {
+            ...expected.productMetadata,
+            'product:cancellationSurveyURL': cancellationSurveyURL,
+          },
+        });
       });
 
       it('throws an exception for deleted customer', async () => {
@@ -4753,6 +4783,7 @@ describe('StripeHelper', () => {
           serviceLastActiveDate: new Date(
             subscription.current_period_end * 1000
           ),
+          productMetadata: expectedBaseUpdateDetails.productMetadata,
         });
       });
     });
