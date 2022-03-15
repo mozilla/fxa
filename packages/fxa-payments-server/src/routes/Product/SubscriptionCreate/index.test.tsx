@@ -1,44 +1,44 @@
 /**
  * @jest-environment jsdom
  */
-import {
-  screen,
-  render,
-  cleanup,
-  act,
-  fireEvent,
-} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+
 import { PaymentMethod } from '@stripe/stripe-js';
-import { SignInLayout } from '../../../components/AppLayout';
 import {
-  CUSTOMER,
-  PROFILE,
-  PLAN,
-  NEW_CUSTOMER,
-  PAYPAL_CUSTOMER,
-  SUBSCRIPTION_RESULT,
-  DETACH_PAYMENT_METHOD_RESULT,
-  RETRY_INVOICE_RESULT,
-  PAYMENT_METHOD_RESULT,
-  CONFIRM_CARD_RESULT,
-} from '../../../lib/mock-data';
-import { PickPartial } from '../../../lib/types';
-
-import {
-  defaultAppContextValue,
-  MockApp,
-  MOCK_CHECKOUT_TOKEN,
-  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
-  mockStripeElementOnChangeFns,
-  elementChangeResponse,
-} from '../../../lib/test-utils';
-
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import waitForExpect from 'wait-for-expect';
 
-import SubscriptionCreate, { SubscriptionCreateProps } from './index';
-
+import SubscriptionCreate, { SubscriptionCreateProps } from '.';
+import { SignInLayout } from '../../../components/AppLayout';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
+import { useNonce } from '../../../lib/hooks';
+import {
+  CONFIRM_CARD_RESULT,
+  CUSTOMER,
+  DETACH_PAYMENT_METHOD_RESULT,
+  IAP_CUSTOMER,
+  NEW_CUSTOMER,
+  PAYMENT_METHOD_RESULT,
+  PAYPAL_CUSTOMER,
+  PLAN,
+  PROFILE,
+  RETRY_INVOICE_RESULT,
+  SUBSCRIPTION_RESULT,
+} from '../../../lib/mock-data';
+import {
+  defaultAppContextValue,
+  elementChangeResponse,
+  MOCK_CHECKOUT_TOKEN,
+  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
+  MockApp,
+  mockStripeElementOnChangeFns,
+} from '../../../lib/test-utils';
+import { PickPartial } from '../../../lib/types';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -47,8 +47,6 @@ jest.mock('../../../lib/hooks', () => {
     useNonce: () => [Math.random(), refreshNonceMock],
   };
 });
-import { useNonce } from '../../../lib/hooks';
-import { updateConfig } from '../../../lib/config';
 
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
@@ -279,31 +277,57 @@ describe('routes/Product/SubscriptionCreate', () => {
     };
   }
 
+  enum CustomerType {
+    NoCustomer,
+    WithCustomer,
+    WithCustomerCard,
+    IapCustomerOnly,
+  }
+
   const commonPaymentSubmissionTest =
     ({
       // "Customer" here is one _without_ any subs or CC info.
       // It affects the number of calls to apiClientOverrides.apiCreateCustomer.
-      withCustomer,
-      withExistingCard = false,
+      customerType,
     }: {
-      withCustomer: boolean;
-      withExistingCard?: boolean;
+      customerType: CustomerType;
     }) =>
     async () => {
-      const customer = withExistingCard ? CUSTOMER : withCustomer ? {} : null;
-      const expectedCreateCustomerCalls = customer === null ? 1 : 0;
-      const expectedCreatePaymentMethodCalls = !withExistingCard ? 1 : 0;
+      let customer;
+      switch (customerType) {
+        case CustomerType.NoCustomer:
+          customer = null;
+          break;
+        case CustomerType.WithCustomer:
+          customer = { payment_provider: 'not_chosen' };
+          break;
+        case CustomerType.WithCustomerCard:
+          customer = CUSTOMER;
+          break;
+        case CustomerType.IapCustomerOnly:
+          customer = IAP_CUSTOMER;
+          break;
+      }
+      const expectedCreateCustomerCalls = [
+        CustomerType.NoCustomer,
+        CustomerType.IapCustomerOnly,
+      ].includes(customerType)
+        ? 1
+        : 0;
+      const expectedCreatePaymentMethodCalls =
+        customerType !== CustomerType.WithCustomerCard ? 1 : 0;
       const _expectedCreateSubArgs = {
         // idempotencyKey (ignored)
         priceId: PLAN.plan_id,
         productId: PLAN.product_id,
       };
-      const expectedCreateSubArgs = withExistingCard
-        ? _expectedCreateSubArgs
-        : {
-            ..._expectedCreateSubArgs,
-            paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
-          };
+      const expectedCreateSubArgs =
+        customerType === CustomerType.WithCustomerCard
+          ? _expectedCreateSubArgs
+          : {
+              ..._expectedCreateSubArgs,
+              paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
+            };
 
       const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
         await commonSubmitSetup({
@@ -476,15 +500,19 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it(
     'handles a successful payment submission as new customer',
-    commonPaymentSubmissionTest({ withCustomer: false })
+    commonPaymentSubmissionTest({ customerType: CustomerType.NoCustomer })
   );
   it(
     'handles a successful payment submission as existing customer',
-    commonPaymentSubmissionTest({ withCustomer: true })
+    commonPaymentSubmissionTest({ customerType: CustomerType.WithCustomer })
   );
   it(
     'handles a successful subscription submission as an existing subscriber',
-    commonPaymentSubmissionTest({ withCustomer: true, withExistingCard: true })
+    commonPaymentSubmissionTest({ customerType: CustomerType.WithCustomerCard })
+  );
+  it(
+    'handles a successful subscription submission with an existing IAP subscription only',
+    commonPaymentSubmissionTest({ customerType: CustomerType.IapCustomerOnly })
   );
 
   it(

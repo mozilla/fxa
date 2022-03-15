@@ -147,7 +147,7 @@ export async function handleSubscriptionPayment({
   }
 
   // 2. Create the customer, if necessary.
-  if (!customer) {
+  if (!customer?.payment_provider) {
     // We look up the customer by UID & email on the server.
     // No need to retain the result of this call for later.
     await apiCreateCustomer({

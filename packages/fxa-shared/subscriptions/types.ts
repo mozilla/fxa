@@ -129,6 +129,7 @@ export interface GooglePlaySubscription extends AbbrevPlayPurchase {
   _subscription_type: SubscriptionTypes[1];
   product_id: Stripe.Product['id'];
   product_name: Stripe.Product['name'];
+  price_id: Stripe.Plan['id'];
 }
 export type AppleSubscription = {
   _subscription_type: SubscriptionTypes[2];

@@ -112,7 +112,7 @@ export const PaypalButton = ({
           ...apiClient,
           ...apiClientOverrides,
         };
-        if (!customer) {
+        if (!customer?.payment_provider) {
           await apiCreateCustomer({
             idempotencyKey,
           });

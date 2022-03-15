@@ -231,12 +231,17 @@ export const IAP_GOOGLE_SUBSCRIPTION = {
   package_name: 'org.mozilla.cooking.with.foxkeh',
   sku: 'org.mozilla.foxkeh.yearly',
   product_name: 'Cooking with Foxkeh',
+  price_id: 'plan_123',
 };
 
 export const IAP_APPLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
+};
+
+export const IAP_CUSTOMER: Customer = {
+  subscriptions: [IAP_GOOGLE_SUBSCRIPTION],
 };
 
 export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
