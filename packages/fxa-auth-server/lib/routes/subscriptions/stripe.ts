@@ -24,7 +24,7 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { splitCapabilities } from '../../payments/capability';
+import { commaSeparatedListToArray } from '../../payments/utils';
 import { StripeHelper } from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
@@ -131,14 +131,16 @@ export class StripeHandler {
     for (const plan of plans) {
       const metadata = metadataFromPlan(plan);
       if (metadata.capabilities) {
-        capabilitiesForAll.push(...splitCapabilities(metadata.capabilities));
+        capabilitiesForAll.push(
+          ...commaSeparatedListToArray(metadata.capabilities)
+        );
       }
       const capabilityKeys = Object.keys(metadata).filter((key) =>
         key.startsWith('capabilities:')
       );
       for (const key of capabilityKeys) {
         const clientId = key.split(':')[1];
-        const capabilities = splitCapabilities((metadata as any)[key]);
+        const capabilities = commaSeparatedListToArray((metadata as any)[key]);
         capabilitiesByClientId[clientId] = (
           capabilitiesByClientId[clientId] || []
         ).concat(capabilities);

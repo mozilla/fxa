@@ -13,7 +13,7 @@ import { StripeHelper } from './stripe';
 
 const config = require('../../config').getProperties();
 
-export async function setupProcesingTaskObjects(processName: string) {
+export async function setupProcessingTaskObjects(processName: string) {
   configureSentry(undefined, config, processName);
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);

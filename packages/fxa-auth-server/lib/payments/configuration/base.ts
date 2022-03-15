@@ -12,16 +12,20 @@ const capabilitySchema = joi
   .pattern(joi.string(), joi.array().items(joi.string()).min(1))
   .min(1);
 
+export const UrlConfigKeys = [
+  'download',
+  'webIcon',
+  'emailIcon',
+  'termsOfService',
+  'termsOfServiceDownload',
+  'privacyNotice',
+  'privacyNoticeDownload',
+  'playStore',
+  'appStore',
+] as const;
+type UrlConfigKeysT = typeof UrlConfigKeys;
 export type UrlConfig = {
-  download?: string;
-  webIcon?: string;
-  emailIcon?: string;
-  termsOfService?: string;
-  termsOfServiceDownload?: string;
-  privacyNotice?: string;
-  privacyNoticeDownload?: string;
-  playStore?: string;
-  appStore?: string;
+  [key in UrlConfigKeysT[number]]?: string;
 };
 
 const urlsSchema = joi.object({
@@ -36,12 +40,16 @@ const urlsSchema = joi.object({
   appStore: joi.string().uri(),
 });
 
+export const UiContentConfigKeys = {
+  subtitle: 'subtitle',
+  details: 'details',
+  successActionButtonLabel: 'successActionButtonLabel',
+  upgradeCTA: 'upgradeCTA',
+} as const;
+type UiContentConfigKeysT = typeof UiContentConfigKeys;
 export type UiContentConfig = {
-  subtitle?: string;
-  details?: string[];
-  successActionButtonLabel?: string;
-  upgradeCTA?: string;
-};
+  [k in keyof Omit<UiContentConfigKeysT, 'details'>]?: string;
+} & { details?: string[] };
 
 const uiContentSchema = joi.object({
   subtitle: joi.string(),
@@ -50,16 +58,20 @@ const uiContentSchema = joi.object({
   upgradeCTA: joi.string(),
 });
 
+export const StyleConfigKeys = ['webIconBackground'] as const;
+type StyleConfigKeysT = typeof StyleConfigKeys;
 export type StyleConfig = {
-  webIconBackground?: string;
+  [key in StyleConfigKeysT[number]]?: string;
 };
 
 const stylesSchema = joi.object({
   webIconBackground: joi.string(),
 });
 
+export const SupportConfigKeys = ['app'] as const;
+type SupportConfigKeysT = typeof SupportConfigKeys;
 export type SupportConfig = {
-  app?: string[];
+  [key in SupportConfigKeysT[number]]?: string[];
 };
 
 const supportSchema = joi.object({

@@ -13,12 +13,14 @@ import {
   UrlConfig,
 } from './base';
 
-export const planConfigSchema = baseConfigSchema.keys({
-  stripePriceId: joi.string().optional(),
-  productOrder: joi.number().optional(),
-  googlePlaySku: joi.array().items(joi.string()).optional(),
-  appleProductId: joi.array().items(joi.string()).optional(),
-});
+export const planConfigSchema = baseConfigSchema
+  .keys({
+    stripePriceId: joi.string().optional(),
+    productOrder: joi.number().optional(),
+    googlePlaySku: joi.array().items(joi.string()).optional(),
+    appleProductId: joi.array().items(joi.string()).optional(),
+  })
+  .requiredKeys('active');
 
 export class PlanConfig implements BaseConfig {
   // Firestore document id

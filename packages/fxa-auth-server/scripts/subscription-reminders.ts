@@ -6,7 +6,7 @@ import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 import { promisify } from 'util';
 
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
 
 const pckg = require('../package.json');
@@ -31,7 +31,7 @@ async function init() {
     .parse(process.argv);
 
   const { log, database, senders, stripeHelper } =
-    await setupProcesingTaskObjects('subscription-reminders');
+    await setupProcessingTaskObjects('subscription-reminders');
 
   const subscriptionReminders = new SubscriptionReminders(
     log,

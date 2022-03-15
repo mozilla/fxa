@@ -115,6 +115,19 @@ export class PaymentConfigManager {
   }
 
   /**
+   * Looks up a Firestore ProductConfig or PlanConfig document id based
+   * on the provided Stripe Product or Plan id.
+   */
+  public getDocumentIdByStripeId(stripeId: string): string | null {
+    const products = this.allProducts();
+    const plans = this.allPlans();
+    const match =
+      products.find((product) => product.stripeProductId === stripeId) ||
+      plans.find((plan) => plan.stripePriceId === stripeId);
+    return match?.id ?? null;
+  }
+
+  /**
    * Store an object as a ProductConfig.
    *
    * This will validate the object is a ProductConfig before storing it, and
@@ -124,7 +137,7 @@ export class PaymentConfigManager {
    */
   public async storeProductConfig(
     productConfig: any,
-    productConfigId?: string
+    productConfigId?: string | null
   ) {
     const { error } = await ProductConfig.validate(productConfig);
     if (error) {
@@ -136,6 +149,11 @@ export class PaymentConfigManager {
     }
     const productId = productConfigId ?? randomUUID();
     await this.productConfigDbRef.doc(productId).set(productConfig);
+    const productSnapshot = await this.productConfigDbRef.doc(productId).get();
+    this.products[productId] = ProductConfig.fromFirestoreObject(
+      productSnapshot.data(),
+      productSnapshot.id
+    );
     return productId;
   }
 
@@ -147,7 +165,7 @@ export class PaymentConfigManager {
   public async storePlanConfig(
     planConfig: any,
     productConfigId: string,
-    planConfigId?: string
+    planConfigId?: string | null
   ) {
     const { error } = await PlanConfig.validate(planConfig);
     if (error) {
@@ -167,6 +185,11 @@ export class PaymentConfigManager {
     const planId = planConfigId ?? randomUUID();
     (planConfig as PlanConfig).productConfigId = productConfigId;
     await this.planConfigDbRef.doc(planId).set(planConfig);
+    const planSnapshot = await this.planConfigDbRef.doc(planId).get();
+    this.plans[planId] = PlanConfig.fromFirestoreObject(
+      planSnapshot.data(),
+      planSnapshot.id
+    );
     return planId;
   }
 
