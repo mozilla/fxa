@@ -1300,14 +1300,20 @@ export class StripeHelper {
   }
 
   /**
-   * Returns whether or not any of the invoices passed in are open (payment
-   * has not been processed).
+   * Returns whether or not any of the invoices for the customer are open (payment
+   * has not been processed) and have any payment attempts.
    */
-  hasOpenInvoice(invoices: Stripe.Invoice[]) {
+  async hasOpenInvoiceWithPaymentAttempts(customer: Stripe.Customer) {
+    const invoices = await this.getLatestInvoicesForActiveSubscriptions(
+      customer
+    );
     if (!invoices?.length) {
       return false;
     }
-    return invoices.some((invoice) => invoice.status === 'open');
+    return invoices.some(
+      (invoice) =>
+        invoice.status === 'open' && this.getPaymentAttempts(invoice) > 0
+    );
   }
 
   /**
@@ -1991,17 +1997,9 @@ export class StripeHelper {
       if (!this.getCustomerPaypalAgreement(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else {
-        const invoices = await this.getLatestInvoicesForActiveSubscriptions(
-          customer
-        );
-        if (
-          this.hasOpenInvoice(invoices) &&
-          invoices.some((invoice) => this.getPaymentAttempts(invoice) > 0)
-        ) {
-          billingDetails.paypal_payment_error =
-            PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
-        }
+      } else if (await this.hasOpenInvoiceWithPaymentAttempts(customer)) {
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }
     }
 

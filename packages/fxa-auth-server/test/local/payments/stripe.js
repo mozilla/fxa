@@ -573,21 +573,54 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('hasOpenInvoice', () => {
+  describe('hasOpenInvoiceWithPaymentAttempts', async () => {
+    let customerExpanded;
     let invoice;
 
     beforeEach(() => {
       invoice = deepCopy(paidInvoice);
+      customerExpanded = deepCopy(customer1);
     });
 
-    it('returns true if any open invoices are found', () => {
+    it('returns true if any open invoices are found with payment attempts', async () => {
       const openInvoice = deepCopy(invoice);
       openInvoice.status = 'open';
-      assert.isTrue(stripeHelper.hasOpenInvoice([invoice, openInvoice]));
+      openInvoice.metadata.paymentAttempts = 1;
+      sandbox
+        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .resolves([invoice, openInvoice]);
+      assert.isTrue(
+        await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getLatestInvoicesForActiveSubscriptions,
+        customerExpanded
+      );
     });
 
-    it('returns false for no open invoices', () => {
-      assert.isFalse(stripeHelper.hasOpenInvoice([invoice]));
+    it('returns false for open invoices with no payment attempts', async () => {
+      const openInvoice = deepCopy(invoice);
+      openInvoice.status = 'open';
+      openInvoice.metadata.paymentAttempts = 0;
+      sandbox
+        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .resolves([invoice]);
+      assert.isFalse(
+        await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
+      );
+    });
+
+    it('returns false for open invoices with no payment attempts and paid invoices with payment attempts', async () => {
+      const openInvoice = deepCopy(invoice);
+      openInvoice.status = 'open';
+      openInvoice.metadata.paymentAttempts = 0;
+      invoice.metadata.paymentAttempts = 1;
+      sandbox
+        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .resolves([invoice, openInvoice]);
+      assert.isFalse(
+        await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
+      );
     });
   });
 
@@ -5076,7 +5109,9 @@ describe('StripeHelper', () => {
       getLatestInvoicesForActiveSubscriptionsStub = sandbox
         .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
         .resolves([mockInvoice]);
-      sandbox.stub(stripeHelper, 'hasOpenInvoice').returns(true);
+      sandbox
+        .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
+        .resolves(true);
       getPaymentAttemptsStub = sandbox
         .stub(stripeHelper, 'getPaymentAttempts')
         .returns(0);
@@ -5176,12 +5211,9 @@ describe('StripeHelper', () => {
         paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
         ...billingDetails,
       });
-      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, [
-        openInvoice,
-      ]);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentAttempts,
-        openInvoice
+        stripeHelper.hasOpenInvoiceWithPaymentAttempts,
+        customer
       );
     });
 
@@ -5198,12 +5230,9 @@ describe('StripeHelper', () => {
         billing_agreement_id: null,
         ...billingDetails,
       });
-      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, [
-        openInvoice,
-      ]);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentAttempts,
-        openInvoice
+        stripeHelper.hasOpenInvoiceWithPaymentAttempts,
+        customer
       );
     });
 
