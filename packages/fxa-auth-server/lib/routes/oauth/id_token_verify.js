@@ -11,11 +11,11 @@ module.exports = () => ({
   config: {
     cors: { origin: 'ignore' },
     validate: {
-      payload: {
+      payload: Joi.object({
         client_id: Joi.string().required(),
         id_token: Joi.string().required(),
         expiry_grace_period: Joi.number().default(0),
-      },
+      }),
     },
     response: {
       schema: Joi.object()

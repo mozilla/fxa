@@ -13,9 +13,9 @@ module.exports = ({ log }) => ({
   config: {
     cors: { origin: 'ignore' },
     validate: {
-      payload: {
+      payload: Joi.object({
         token: validators.accessToken.required(),
-      },
+      }),
     },
     response: {
       schema: {

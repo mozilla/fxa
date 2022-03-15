@@ -19,9 +19,8 @@ export const planConfigSchema = baseConfigSchema
     productOrder: joi.number().optional(),
     googlePlaySku: joi.array().items(joi.string()).optional(),
     appleProductId: joi.array().items(joi.string()).optional(),
+    active: joi.boolean().required(),
   })
-  .requiredKeys('active');
-
 export class PlanConfig implements BaseConfig {
   // Firestore document id
   id!: string;
@@ -50,9 +49,14 @@ export class PlanConfig implements BaseConfig {
 
   static async validate(planConfig: PlanConfig) {
     try {
-      const value = await joi.validate(planConfig, planConfigSchema, {
+      const { value, error } = planConfigSchema.validate(planConfig, {
         abortEarly: false,
       });
+
+      if (error) {
+        return { error };
+      }
+
       return { value };
     } catch (error) {
       return { error };

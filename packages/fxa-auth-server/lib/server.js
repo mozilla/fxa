@@ -6,7 +6,6 @@
 
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
-const joi = require('@hapi/joi');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -178,11 +177,12 @@ async function create(log, error, config, routes, db, translator, statsd) {
 
       xff.push(request.info.remoteAddress);
 
+      const validationSchema = IP_ADDRESS.required();
       return xff
         .filter(Boolean)
         .map((address) => address.trim())
         .filter(
-          (address) => !joi.validate(address, IP_ADDRESS.required()).error
+          (address) => !validationSchema.validate(address).error
         );
     });
 
