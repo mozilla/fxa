@@ -127,10 +127,12 @@ export function makeRedisConfig() {
         doc: 'Maximum number of access tokens per account at any one time',
       },
       maxttl: {
-        default: 86400000,
-        env: 'ACCESS_TOKEN_REDIS_MAX_TTL',
-        format: Number,
-        doc: 'ttl for redis data',
+        doc: 'Access Tokens maximum expiration (can live shorter)',
+        format: 'duration',
+        // Warning: See notes about token expiration time in auth config on FXA_EXPIRATION_ACCESS_TOKEN.
+        //          This is a sensetive setting with some history.
+        default: '365 minutes',
+        env: 'FXA_EXPIRATION_ACCESS_TOKEN',
       },
     },
     refreshTokens: {

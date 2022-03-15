@@ -6,9 +6,10 @@
 
 const { assert } = require('chai');
 const AccessToken = require('../../lib/oauth/db/accessToken');
-const sinon = require('sinon');
 const RefreshTokenMetadata = require('../../lib/oauth/db/refreshTokenMetadata');
 const config = require('../../config').getProperties();
+const mocks = require('../mocks');
+
 const recordLimit = 20;
 const prefix = 'test:';
 const maxttl = 1337;
@@ -20,12 +21,12 @@ const redis = require('../../lib/redis')(
     recordLimit,
     maxttl,
   },
-  { error: sinon.spy() }
+  mocks.mockLog()
 );
 
 const downRedis = require('../../lib/redis')(
   { enabled: true, port: 1, timeoutMs: 10, lazyConnect: true },
-  { error: sinon.spy() }
+  mocks.mockLog()
 );
 downRedis.redis.on('error', () => {});
 

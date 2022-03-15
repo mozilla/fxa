@@ -44,6 +44,7 @@ export class ConnectedServicesCache {
    * @param redisAccessTokens a redis instance configured to point at an access tokens store
    * @param redisRefreshTokens a redis instance configured to point at a refresh tokens store
    * @param redisSessionTokens a redis instance configured to point at a session tokens store
+   * @param log optional logger
    */
   constructor(
     protected readonly redisAccessTokens: IAccessTokensCache,

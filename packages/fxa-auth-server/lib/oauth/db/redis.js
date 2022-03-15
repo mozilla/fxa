@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const config = require('../../../config');
 const redis = require('../../redis');
 const { ConnectedServicesCache } = require('fxa-shared/connected-services');
+const { AuthLogger } = require('../../types');
+const { Container } = require('typedi');
 
 // These are used only in type declarations.
 // eslint-disable-next-line no-unused-vars
@@ -11,6 +14,10 @@ const AccessToken = require('./accessToken');
 
 // eslint-disable-next-line no-unused-vars
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
+
+function resolveLogger() {
+  if (Container.has(AuthLogger)) return Container.get(AuthLogger);
+}
 
 // We store both access token and refresh token data in redis, separated
 // into two namespaces by using the "key prefix" feature of our  redis library.
@@ -22,11 +29,23 @@ const RefreshTokenMetadata = require('./refreshTokenMetadata');
 // to keep the calling code a bit simpler.
 
 class OAuthRedis extends ConnectedServicesCache {
-  constructor(config) {
+  constructor() {
     super(
-      redis(config.get('redis.accessTokens')),
-      redis(config.get('redis.refreshTokens')),
-      redis(config.get('redis.sessionTokens'))
+      redis({
+        ...config.get('redis.accessTokens'),
+
+        // TOOD: Once validated, rely values present in redis.accessTokens instead.
+        enabled: true,
+        maxttl: config.get('oauthServer.expiration.accessToken'),
+      }),
+      redis({
+        ...config.get('redis.refreshTokens'),
+      }),
+      redis({
+        ...config.get('redis'),
+        ...config.get('redis.refreshTokens'),
+      }),
+      resolveLogger()
     );
   }
 
@@ -112,6 +131,6 @@ class OAuthRedis extends ConnectedServicesCache {
   }
 }
 
-module.exports = (config) => {
-  return new OAuthRedis(config);
+module.exports = () => {
+  return new OAuthRedis();
 };

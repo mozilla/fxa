@@ -63,7 +63,7 @@ export function monitorKnexConnectionPool(
 ) {
   metrics?.increment('mysql.pool_creation');
   const getPoolStats = () => {
-    return JSON.stringify({
+    return {
       // returns the number of non-free resources
       numUsed: pool.numUsed(),
       // returns the number of free resources
@@ -72,7 +72,7 @@ export function monitorKnexConnectionPool(
       numPendingAcquires: pool.numPendingAcquires(),
       // how many asynchronous create calls are running
       numPendingCreates: pool.numPendingCreates(),
-    });
+    };
   };
   pool.on('acquireRequest', (eventId: any) => {
     log?.info('db', {
@@ -134,6 +134,7 @@ export function setupDatabase(
   log?.info('db', {
     msg: `db.FXA-4648: Creating Knex`,
     connLimit: opts.connectionLimitMax,
+    stack: Error().stack,
   });
 
   return db;

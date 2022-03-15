@@ -150,20 +150,20 @@ export class MysqlStoreShared {
 
     // Monitor pool events
     const getPoolStats = () => {
-      return JSON.stringify({
+      return {
         uid: this._uid,
         connectionLimit: this._pool.config.connectionLimit,
         connections: (<any>this._pool)._allConnections?.length,
         aquiring: (<any>this._pool)._acquiringConnections?.length,
         free: (<any>this._pool)._acquiringConnections?.length,
-      });
+      };
     };
     this._pool.on('enqueue', () => {
       log?.info('MysqlStoreShared', {
         msg: 'MysqlStoreShared.FXA-4648: on enqueue',
         poolStats: getPoolStats(),
       });
-      this.metrics?.increment('mysql.connection');
+      this.metrics?.increment('mysql.enqueue');
       this.events?.onPoolEnqueue();
     });
 
@@ -199,6 +199,7 @@ export class MysqlStoreShared {
     log?.info('MysqlStoreShared', {
       msg: 'MysqlStoreShared.FXA-4648: Creating new MysqlStoreShared.',
       poolStats: getPoolStats(),
+      stack: Error().stack,
     });
   }
 
