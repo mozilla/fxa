@@ -188,10 +188,10 @@ module.exports = (
       path: '/account/device/commands',
       options: {
         validate: {
-          query: {
+          query: isA.object({
             index: isA.number().optional(),
             limit: isA.number().optional().min(0).max(100).default(100),
-          },
+          }),
         },
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
@@ -270,11 +270,11 @@ module.exports = (
           },
         },
         response: {
-          schema: {
+          schema: isA.object({
             enqueued: isA.boolean().optional(),
             notified: isA.boolean().optional(),
             notifyError: isA.string().optional(),
-          },
+          }),
         },
       },
       handler: async function (request) {
@@ -401,7 +401,7 @@ module.exports = (
           ),
         },
         response: {
-          schema: {},
+          schema: isA.object({}),
         },
       },
       handler: async function (request) {
@@ -717,7 +717,7 @@ module.exports = (
           },
         },
         response: {
-          schema: {},
+          schema: isA.object({}),
         },
       },
       handler: async function (request) {
@@ -735,9 +735,9 @@ module.exports = (
           strategy: 'supportPanelSecret',
         },
         validate: {
-          query: {
+          query: isA.object({
             uid: isA.string().required(),
-          },
+          }),
         },
         response: {
           schema: isA.array().items(

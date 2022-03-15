@@ -471,12 +471,18 @@ module.exports.subscriptionProductMetadataValidator = {
         error: 'Capability missing from metadata',
       };
     }
-    return module.exports.subscriptionProductMetadataBaseValidator.validate(
+    const { value, error } = module.exports.subscriptionProductMetadataBaseValidator.validate(
       metadata,
       {
         abortEarly: false,
       }
     );
+
+    if (error) {
+      return { error };
+    }
+
+    return { value };
   },
   async validateAsync(metadata) {
     const hasCapability = Object.keys(metadata).some((k) =>
@@ -490,9 +496,9 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     try {
-      const value = await isA.validate(
+      const validationSchema = module.exports.subscriptionProductMetadataBaseValidator;
+      const value = await validationSchema.validateAsync(
         metadata,
-        module.exports.subscriptionProductMetadataBaseValidator,
         {
           abortEarly: false,
         }

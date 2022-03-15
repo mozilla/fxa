@@ -122,7 +122,7 @@ module.exports = async function verifyAssertion(assertion) {
     }
   }
   try {
-    return await CLAIMS_SCHEMA.validate(claims);
+    return await CLAIMS_SCHEMA.validateAsync(claims);
   } catch (err) {
     return error(assertion, err, claims);
   }

@@ -47,6 +47,5 @@ describe('PlanConfig', () => {
     delete obj.active;
     const result = await PlanConfig.validate(obj);
     assert.isDefined(result.error);
-    assert.isUndefined(result.value);
   });
 });
