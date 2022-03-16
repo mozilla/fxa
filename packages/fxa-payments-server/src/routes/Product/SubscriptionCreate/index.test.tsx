@@ -302,7 +302,7 @@ describe('routes/Product/SubscriptionCreate', () => {
           customer = null;
           break;
         case CustomerType.WithCustomer:
-          customer = { payment_provider: PaymentProviders.none };
+          customer = { customerId: 'cus_123xyz' };
           break;
         case CustomerType.WithCustomerCard:
           customer = CUSTOMER;

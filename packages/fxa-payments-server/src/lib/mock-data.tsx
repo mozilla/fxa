@@ -23,6 +23,7 @@ export const NEW_CUSTOMER: Customer = {
 };
 
 export const CUSTOMER: Customer = {
+  customerId: 'cus_123xyz',
   billing_name: 'Foo Barson',
   billing_agreement_id: 'ba-131243',
   payment_provider: 'stripe',

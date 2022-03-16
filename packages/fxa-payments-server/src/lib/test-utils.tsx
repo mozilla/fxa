@@ -585,6 +585,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 ];
 
 export const MOCK_CUSTOMER: Customer = {
+  customerId: 'cus_123xyz',
   billing_name: 'Jane Doe',
   payment_type: 'card',
   payment_provider: 'stripe',
