@@ -55,17 +55,6 @@ function setupVariantStories(
       <SubscriptionsRoute
         routeProps={{
           ...subscribedProps,
-          subsequentInvoices: {
-            error: null,
-            loading: false,
-            result: [
-              {
-                subscriptionId: 'sub_5551212',
-                period_start: 0,
-                total: 100,
-              },
-            ],
-          },
         }}
       />
     ))
@@ -364,6 +353,17 @@ const subscribedProps: SubscriptionsProps = {
     },
   },
   customerSubscriptions: customerSubscriptions,
+  subsequentInvoices: {
+    error: null,
+    loading: false,
+    result: [
+      {
+        subscriptionId: 'sub_5551212',
+        period_start: 1,
+        total: 100,
+      },
+    ],
+  },
 };
 
 const cancelledProps: SubscriptionsProps = {

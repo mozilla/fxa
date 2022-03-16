@@ -300,6 +300,8 @@ sub-item-cancel-msg =
 sub-item-cancel-confirm =
     Cancel my access and my saved information within
     { $name } on { $period }
+invoice-not-found = Subsequent invoice not found
+sub-item-no-such-subsequent-invoice = Subsequent invoice not found for this subscription.
 
 ## subscription iap item
 sub-iap-item-google-purchase = { -brand-name-google }: In-App purchase
