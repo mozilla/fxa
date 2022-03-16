@@ -83,7 +83,9 @@ export const SubscriptionItem = ({
           <h2>{plan.product_name}</h2>
         </header>
 
-        {!customerSubscription.cancel_at_period_end ? (
+        {!customerSubscription.cancel_at_period_end &&
+        subsequentInvoice?.total &&
+        subsequentInvoice.period_start ? (
           <CancelSubscriptionPanel
             {...{
               cancelSubscription,
