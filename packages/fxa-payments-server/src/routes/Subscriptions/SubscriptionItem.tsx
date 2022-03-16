@@ -64,7 +64,7 @@ export const SubscriptionItem = ({
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <Localized id="product-plan-not-found">
+        <Localized id="invoice-not-found">
           <h4 data-testid="error-subhub-missing-subsequent-invoice">
             Subsequent invoice not found
           </h4>
