@@ -22,7 +22,6 @@ import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import GoogleAuthMixin from './mixins/google-auth-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
-import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
@@ -276,7 +275,6 @@ Cocktail.mixin(
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',
   }),
-  AccountSuggestionMixin,
   PocketMigrationMixin
 );
 
