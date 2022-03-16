@@ -371,24 +371,24 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return emailRecord;
   };
 
-  DB.prototype.getGoogleId = async function (googleId) {
-    log.trace('DB.getGoogleId', { googleId });
-    return LinkedAccount.findByGoogleId(googleId);
-  };
-
   DB.prototype.getLinkedAccounts = async function (uid) {
     log.trace('DB.getLinkedAccounts', { uid });
     return LinkedAccount.findByUid(uid);
   };
 
-  DB.prototype.createLinkedGoogleAccount = async function (uid, googleUserId) {
-    log.trace('DB.createLinkedGoogleAccount', { uid, googleUserId });
-    return LinkedAccount.createLinkedGoogleAccount(uid, googleUserId);
+  DB.prototype.createLinkedAccount = async function (uid, id, provider) {
+    log.trace('DB.createLinkedAccount', { uid, id, provider });
+    return LinkedAccount.createLinkedAccount(uid, id, provider);
   };
 
-  DB.prototype.deleteLinkedGoogleAccount = async function (uid) {
-    log.trace('DB.deleteLinkedGoogleAccount', { uid });
-    return LinkedAccount.deleteLinkedGoogleAccount(uid);
+  DB.prototype.deleteLinkedAccount = async function (uid, provider) {
+    log.trace('DB.deleteLinkedAccount', { uid, provider });
+    return LinkedAccount.deleteLinkedAccount(uid, provider);
+  };
+
+  DB.prototype.getLinkedAccount = async function (id, provider) {
+    log.trace('DB.getLinkedAccount', { id, provider });
+    return LinkedAccount.findByLinkedAccount(id, provider);
   };
 
   DB.prototype.totpToken = async function (uid) {

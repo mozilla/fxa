@@ -266,6 +266,32 @@ const conf = (module.exports = convict({
       doc: 'Google auth token endpoint',
     },
   },
+  appleAuthConfig: {
+    enabled: {
+      default: true,
+      env: 'APPLE_AUTH_ENABLED',
+      format: String,
+    },
+    clientId: {
+      default: 'com.mozilla.firefox.accounts.auth',
+      env: 'APPLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Apple auth client id',
+    },
+    redirectUri: {
+      default:
+        'https://localhost.dev:3030/post_verify/third_party_auth/callback',
+      env: 'APPLE_AUTH_REDIRECT_URI',
+      format: String,
+      doc: 'Apple auth redirect uri',
+    },
+    authorizationEndpoint: {
+      default: 'https://appleid.apple.com/auth/authorize',
+      env: 'APPLE_AUTH_AUTHORIZATION_ENDPOINT',
+      format: String,
+      doc: 'Apple auth token endpoint',
+    },
+  },
   geodb: {
     dbPath: {
       default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),

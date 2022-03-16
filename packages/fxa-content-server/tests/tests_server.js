@@ -35,6 +35,7 @@ module.exports = [
   'tests/server/routes/navigation-timing.js',
   'tests/server/routes/post-csp.js',
   'tests/server/routes/post-metrics.js',
+  'tests/server/routes/post-third-party-auth-redirect.js',
   'tests/server/routes/redirect-download-firefox.js',
   'tests/server/routes/redirect-m-to-adjust.js',
   'tests/server/routes/validate-email-domain.js',

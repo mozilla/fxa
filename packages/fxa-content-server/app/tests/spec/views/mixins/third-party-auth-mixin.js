@@ -7,7 +7,7 @@ import BaseView from 'views/base';
 import Cocktail from 'cocktail';
 import Relier from 'models/reliers/base';
 import sinon from 'sinon';
-import GoogleAuthMixin from 'views/mixins/google-auth-mixin';
+import ThirdPartyAuthMixin from 'views/mixins/third-party-auth-mixin';
 import Notifier from 'lib/channels/notifier';
 import WindowMock from '../../../mocks/window';
 import Storage from 'lib/storage';
@@ -17,7 +17,7 @@ const View = BaseView.extend({
   template: () => '<div><div class="views"></div></div>',
 });
 
-Cocktail.mixin(View, GoogleAuthMixin);
+Cocktail.mixin(View, ThirdPartyAuthMixin);
 
 function assertInputEl(el, name, value) {
   assert.isTrue(el.setAttribute.calledWith('type', 'hidden'));
@@ -25,7 +25,7 @@ function assertInputEl(el, name, value) {
   assert.isTrue(el.setAttribute.calledWith('value', value));
 }
 
-describe('views/mixins/google-auth-mixin', function () {
+describe('views/mixins/third-party-auth-mixin', function () {
   let relier;
   let view;
   let windowMock;

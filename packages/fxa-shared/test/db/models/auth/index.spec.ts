@@ -498,14 +498,15 @@ describe('auth', () => {
 
   describe('linkedAccounts', () => {
     const userId = '263e29ad86d245eeabf309e6a125bbfb';
+    const GOOGLE_PROVIDER = 'google';
     function getRandomId() {
       return `${Date.now() + Math.random() * 1000}`;
     }
 
-    describe('createLinkedGoogleAccount', () => {
-      it('creates and get new linked google account', async () => {
+    describe('createLinkedAccount', () => {
+      it('creates and get new linked linked account', async () => {
         const id = getRandomId();
-        await LinkedAccount.createLinkedGoogleAccount(userId, id);
+        await LinkedAccount.createLinkedAccount(userId, id, GOOGLE_PROVIDER);
 
         const linkedAccounts = await LinkedAccount.findByUid(userId);
 
@@ -515,19 +516,25 @@ describe('auth', () => {
         assert.equal(linkedAccounts[0].id, id);
         assert.equal(linkedAccounts[0].providerId, 1);
 
-        const linkedAccount = await LinkedAccount.findByGoogleId(id);
+        const linkedAccount = await LinkedAccount.findByLinkedAccount(
+          id,
+          GOOGLE_PROVIDER
+        );
         assert.equal(linkedAccount.uid, userId);
         assert.equal(linkedAccount.id, id);
         assert.equal(linkedAccount.providerId, 1);
       });
 
-      it('can delete linked google account', async () => {
+      it('can delete linked account', async () => {
         const id = getRandomId();
-        await LinkedAccount.createLinkedGoogleAccount(userId, id);
+        await LinkedAccount.createLinkedAccount(userId, id, GOOGLE_PROVIDER);
 
-        await LinkedAccount.deleteLinkedGoogleAccount(userId);
+        await LinkedAccount.deleteLinkedAccount(userId, GOOGLE_PROVIDER);
 
-        const linkedAccount = await LinkedAccount.findByGoogleId(id);
+        const linkedAccount = await LinkedAccount.findByLinkedAccount(
+          id,
+          GOOGLE_PROVIDER
+        );
         assert.isUndefined(linkedAccount);
       });
     });

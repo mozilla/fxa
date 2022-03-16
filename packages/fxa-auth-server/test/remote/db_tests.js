@@ -1497,7 +1497,7 @@ describe('remote db', function () {
   });
 
   it('should create and delete linked account', async () => {
-    await db.createLinkedGoogleAccount(account.uid, 'googleid');
+    await db.createLinkedAccount(account.uid, 'googleid', 'google');
 
     let records = await db.getLinkedAccounts(account.uid);
 

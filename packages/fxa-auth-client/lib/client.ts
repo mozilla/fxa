@@ -18,6 +18,11 @@ enum tokenType {
   passwordChangeToken = 'passwordChangeToken',
 }
 
+enum AUTH_PROVIDER {
+  GOOGLE = 'google',
+  APPLE = 'apple',
+}
+
 export type AuthServerError = Error & {
   error?: string;
   errno?: number;
@@ -479,15 +484,17 @@ export default class AuthClient {
     return await this.request('POST', '/account/finish_setup', payload);
   }
 
-  async verifyAccountThirdParty(code: string): Promise<{
+  async verifyAccountThirdParty(
+    code: string,
+    provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE
+  ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
     verified: boolean;
   }> {
     const payload = {
       code,
-      // Once we land support for more auth providers we can update this
-      provider: 'google',
+      provider,
     };
     return await this.request('POST', '/linked_account/login', payload);
   }
@@ -496,10 +503,17 @@ export default class AuthClient {
     sessionToken: hexstring,
     providerId: number
   ): Promise<{ success: boolean }> {
-    // Let's change this once we land support for more than one third
-    // party account
-    let provider = providerId === 1 ? 'google' : '';
+    let provider: AUTH_PROVIDER;
 
+    switch (providerId) {
+      case 2: {
+        provider = AUTH_PROVIDER.APPLE;
+        break;
+      }
+      default: {
+        provider = AUTH_PROVIDER.GOOGLE;
+      }
+    }
     return await this.sessionPost('/linked_account/unlink', sessionToken, {
       provider,
     });

@@ -11,6 +11,9 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const proxyquire = require('proxyquire');
 
+const GOOGLE_PROVIDER = 'google';
+const APPLE_PROVIDER = 'apple';
+
 const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
   config.signinConfirmation = config.signinConfirmation || {};
@@ -65,9 +68,8 @@ describe('/linked_account', () => {
         mockRequest = mocks.mockRequest({
           log: mockLog,
           payload: {
-            idToken: JSON.stringify({
-              credentials: 'id_token_returned_from_google_oauth_flow',
-            }),
+            provider: 'google',
+            code: '123',
           },
         });
 
@@ -140,13 +142,15 @@ describe('/linked_account', () => {
         assert.isTrue(axiosMock.post.calledOnce);
         assert.equal(axiosMock.post.args[0][1].code, 'oauth code');
 
-        assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
+          )
+        );
         assert.isTrue(mockDB.createAccount.calledOnce);
         assert.isTrue(
-          mockDB.createLinkedGoogleAccount.calledOnceWith(
-            UID,
-            mockGoogleUser.sub
-          )
+          mockDB.createLinkedAccount.calledOnceWith(UID, mockGoogleUser.sub)
         );
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
@@ -160,13 +164,18 @@ describe('/linked_account', () => {
 
         const result = await runTest(route, mockRequest);
 
-        assert.isTrue(axiosMock.post.notCalled);
-        assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
+          )
+        );
         assert.isTrue(mockDB.createAccount.calledOnce);
         assert.isTrue(
-          mockDB.createLinkedGoogleAccount.calledOnceWith(
+          mockDB.createLinkedAccount.calledOnceWith(
             UID,
-            mockGoogleUser.sub
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
           )
         );
         assert.isTrue(mockDB.createSessionToken.calledOnce);
@@ -177,13 +186,18 @@ describe('/linked_account', () => {
       it('should linking existing fxa account and new google account and return session', async () => {
         const result = await runTest(route, mockRequest);
 
-        assert.isTrue(axiosMock.post.notCalled);
-        assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
+          )
+        );
         assert.isTrue(mockDB.createAccount.notCalled);
         assert.isTrue(
-          mockDB.createLinkedGoogleAccount.calledOnceWith(
+          mockDB.createLinkedAccount.calledOnceWith(
             UID,
-            mockGoogleUser.sub
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
           )
         );
         assert.equal(mockMailer.sendPostAddLinkedAccountEmail.callCount, 1);
@@ -193,7 +207,7 @@ describe('/linked_account', () => {
       });
 
       it('should return session with valid google id token', async () => {
-        mockDB.getGoogleId = sinon.spy(() =>
+        mockDB.getLinkedAccount = sinon.spy(() =>
           Promise.resolve({
             id: mockGoogleUser.sub,
             uid: UID,
@@ -202,10 +216,189 @@ describe('/linked_account', () => {
 
         const result = await runTest(route, mockRequest);
 
-        assert.isTrue(axiosMock.post.notCalled);
-        assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockGoogleUser.sub,
+            GOOGLE_PROVIDER
+          )
+        );
         assert.isTrue(mockDB.account.calledOnceWith(UID));
-        assert.isTrue(mockDB.createLinkedGoogleAccount.notCalled);
+        assert.isTrue(mockDB.createLinkedAccount.notCalled);
+        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.equal(result.uid, UID);
+        assert.ok(result.sessionToken);
+      });
+    });
+
+    describe('apple auth', () => {
+      const mockAppleUser = {
+        sub: '1234567890',
+        email: 'bloop@mozilla.com',
+      };
+
+      beforeEach(async () => {
+        mockLog = mocks.mockLog();
+        mockLog.info = sinon.spy();
+        mockDB = mocks.mockDB({
+          email: mockAppleUser.email,
+          uid: UID,
+        });
+        const mockConfig = {
+          appleAuthConfig: { clientId: 'OooOoo' },
+        };
+        mockMailer = mocks.mockMailer();
+        mockRequest = mocks.mockRequest({
+          log: mockLog,
+          payload: {
+            provider: 'apple',
+            code: '123',
+          },
+        });
+
+        const mockAppleAuthResponse = {
+          data: {
+            id_token:
+              'eyJhbGciOiJSUzI1NiIsImN0eSI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjogMTYwMzM3NjAxMSwgImVtYWlsIjogImJsb29wQG1vemlsbGEuY29tIn0=',
+          },
+        };
+        axiosMock = {
+          post: sinon.spy(() => mockAppleAuthResponse),
+        };
+
+        route = getRoute(
+          makeRoutes(
+            {
+              config: mockConfig,
+              db: mockDB,
+              log: mockLog,
+              mailer: mockMailer,
+            },
+            {
+              axios: axiosMock,
+            }
+          ),
+          '/linked_account/login'
+        );
+      });
+
+      it('fails if no apple config', async () => {
+        const mockConfig = {};
+        mockConfig.appleAuthConfig = {};
+
+        route = getRoute(
+          makeRoutes({
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+            mailer: mockMailer,
+          }),
+          '/linked_account/login'
+        );
+
+        try {
+          await runTest(route, mockRequest);
+          assert.fail();
+        } catch (err) {
+          assert.equal(err.errno, error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR);
+        }
+      });
+
+      it('should exchange oauth code for `id_token` and create account', async () => {
+        mockDB.accountRecord = sinon.spy(() =>
+          Promise.reject(new error.unknownAccount(mockAppleUser.email))
+        );
+
+        mockRequest.payload.code = 'oauth code';
+        const result = await runTest(route, mockRequest);
+
+        assert.isTrue(axiosMock.post.calledOnce);
+        assert.equal(
+          axiosMock.post.args[0][1],
+          'code=oauth+code&client_id=OooOoo&client_secret=undefined&grant_type=authorization_code'
+        );
+
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.isTrue(mockDB.createAccount.calledOnce);
+        assert.isTrue(
+          mockDB.createLinkedAccount.calledOnceWith(UID, mockAppleUser.sub)
+        );
+        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.equal(result.uid, UID);
+        assert.ok(result.sessionToken);
+      });
+
+      it('should create new fxa account from new apple account and return session', async () => {
+        mockDB.accountRecord = sinon.spy(() =>
+          Promise.reject(new error.unknownAccount(mockAppleUser.email))
+        );
+
+        const result = await runTest(route, mockRequest);
+
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.isTrue(mockDB.createAccount.calledOnce);
+        assert.isTrue(
+          mockDB.createLinkedAccount.calledOnceWith(
+            UID,
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.equal(result.uid, UID);
+        assert.ok(result.sessionToken);
+      });
+
+      it('should link existing fxa account and new apple account and return session', async () => {
+        const result = await runTest(route, mockRequest);
+
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.isTrue(mockDB.createAccount.notCalled);
+        assert.isTrue(
+          mockDB.createLinkedAccount.calledOnceWith(
+            UID,
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.equal(mockMailer.sendPostAddLinkedAccountEmail.callCount, 1);
+        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.equal(result.uid, UID);
+        assert.ok(result.sessionToken);
+      });
+
+      it('should return session with valid google id token', async () => {
+        mockDB.getLinkedAccount = sinon.spy(() =>
+          Promise.resolve({
+            id: mockAppleUser.sub,
+            uid: UID,
+          })
+        );
+
+        const result = await runTest(route, mockRequest);
+
+        assert.isTrue(
+          mockDB.getLinkedAccount.calledOnceWith(
+            mockAppleUser.sub,
+            APPLE_PROVIDER
+          )
+        );
+        assert.isTrue(mockDB.account.calledOnceWith(UID));
+        assert.isTrue(mockDB.createLinkedAccount.notCalled);
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
@@ -269,9 +462,9 @@ describe('/linked_account', () => {
       );
     });
 
-    it('calls deleteLinkedGoogleAccount', async () => {
+    it('calls deleteLinkedAccount', async () => {
       const result = await runTest(route, mockRequest);
-      assert.isTrue(mockDB.deleteLinkedGoogleAccount.calledOnceWith(UID));
+      assert.isTrue(mockDB.deleteLinkedAccount.calledOnceWith(UID));
       assert.isTrue(result.success);
     });
   });

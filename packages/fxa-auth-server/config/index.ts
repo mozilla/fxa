@@ -137,6 +137,33 @@ const conf = convict({
       format: Boolean,
     },
   },
+  appleAuthConfig: {
+    clientId: {
+      default: 'com.mozilla.firefox.accounts.auth',
+      env: 'APPLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Apple auth client id',
+    },
+    clientSecret: {
+      default: 'SSHH',
+      env: 'APPLE_AUTH_CLIENT_SECRET',
+      format: String,
+      doc: 'Apple auth client secret',
+    },
+    redirectUri: {
+      default:
+        'https://localhost.dev:3030/post_verify/third_party_auth/callback',
+      env: 'APPLE_AUTH_REDIRECT_URI',
+      format: String,
+      doc: 'Apple auth redirect uri',
+    },
+    tokenEndpoint: {
+      default: 'https://appleid.apple.com/auth/token',
+      env: 'APPLE_AUTH_TOKEN_ENDPOINT',
+      format: String,
+      doc: 'Apple auth token endpoint',
+    },
+  },
   googleAuthConfig: {
     clientId: {
       default:

@@ -4,7 +4,7 @@
 
 import BaseView from '../../base';
 import Template from '../../../templates/post_verify/third_party_auth/callback.mustache';
-import GoogleAuthMixin from '../../mixins/google-auth-mixin';
+import ThirdPartyAuthMixin from '../../mixins/third-party-auth-mixin';
 import Cocktail from 'cocktail';
 
 class ThirdPartyAuthCallback extends BaseView {
@@ -15,6 +15,6 @@ class ThirdPartyAuthCallback extends BaseView {
   }
 }
 
-Cocktail.mixin(ThirdPartyAuthCallback, GoogleAuthMixin);
+Cocktail.mixin(ThirdPartyAuthCallback, ThirdPartyAuthMixin);
 
 export default ThirdPartyAuthCallback;

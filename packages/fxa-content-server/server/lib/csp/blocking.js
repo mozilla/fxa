@@ -36,6 +36,7 @@ module.exports = function (config) {
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
   const GOOGLE_AUTH = 'https://accounts.google.com';
+  const APPLE_AUTH = 'https://appleid.apple.com';
   // create a unique array of origins from survey urls
   const SURVEYS = [...new Set(surveyList.map((s) => getOrigin(s.url)))];
   const surveysEnabledAndSet =
@@ -77,10 +78,14 @@ module.exports = function (config) {
   const frameSrc = addCdnRuleIfRequired(
     surveysEnabledAndSet ? SURVEYS : [NONE]
   );
+  const fontSrc = addCdnRuleIfRequired([SELF]);
 
   const formAction = [SELF];
   if (config.get('googleAuthConfig.enabled')) {
     formAction.push(GOOGLE_AUTH);
+  }
+  if (config.get('appleAuthConfig.enabled')) {
+    formAction.push(APPLE_AUTH);
   }
 
   const rules = {
@@ -88,7 +93,7 @@ module.exports = function (config) {
       connectSrc,
       defaultSrc: [SELF],
       formAction,
-      fontSrc: addCdnRuleIfRequired([SELF]),
+      fontSrc,
       frameSrc,
       imgSrc: addCdnRuleIfRequired([
         SELF,

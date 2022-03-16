@@ -8,6 +8,8 @@ import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import validators from './validators';
+import jwtDecode from 'jwt-decode';
+import { Provider } from 'fxa-shared/db/models/auth/linked-account';
 
 const error = require('../error');
 
@@ -37,64 +39,97 @@ export class LinkedAccountHandler {
   async loginOrCreateAccount(request: AuthRequest) {
     const requestPayload = request.payload as any;
 
-    if (!this.googleAuthClient) {
-      throw error.thirdPartyAccountError();
-    }
+    const provider = requestPayload.provider as Provider;
 
-    const { clientId, clientSecret, redirectUri } =
-      this.config.googleAuthConfig;
-
-    // Currently, FxA supports creating an account via Google
-    // by providing an oauth code that can be exchanged for an
-    // `id_token` or being provided the `id_token` directly.
-    let idToken;
+    // Currently, FxA supports creating a linked account via the oauth authorization flow
+    // This flow returns an `id_token` which is used create/get FxA account.
+    let idToken: any;
     const code = requestPayload.code;
-    if (code) {
-      const data = {
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code',
-      };
 
-      try {
-        const res = await axios.post(
-          this.config.googleAuthConfig.tokenEndpoint,
-          data
-        );
-        // We currently only use the `id_token` after completing the
-        // authorization code exchange. In the future we could store a
-        // refresh token to do other things like revoking sessions.
-        //
-        // See https://developers.google.com/identity/protocols/oauth2/openid-connect#exchangecode
-        idToken = res.data['id_token'];
-      } catch (err) {
-        this.log.error('linked_account.code_exchange_error', err);
-        throw error.thirdPartyAccountError();
+    switch (provider) {
+      case 'google': {
+        if (!this.googleAuthClient) {
+          throw error.thirdPartyAccountError();
+        }
+
+        const { clientId, clientSecret, redirectUri } =
+          this.config.googleAuthConfig;
+        let rawIdToken;
+        if (code) {
+          const data = {
+            code,
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code',
+          };
+
+          try {
+            const res = await axios.post(
+              this.config.googleAuthConfig.tokenEndpoint,
+              data
+            );
+            // We currently only use the `id_token` after completing the
+            // authorization code exchange. In the future we could store a
+            // refresh token to do other things like revoking sessions.
+            //
+            // See https://developers.google.com/identity/protocols/oauth2/openid-connect#exchangecode
+            rawIdToken = res.data['id_token'];
+
+            const verifiedToken = await this.googleAuthClient.verifyIdToken({
+              idToken: rawIdToken,
+              audience: clientId,
+            });
+
+            idToken = verifiedToken.getPayload();
+          } catch (err) {
+            this.log.error('linked_account.code_exchange_error', err);
+            throw error.thirdPartyAccountError();
+          }
+        }
+        break;
+      }
+      case 'apple': {
+        const { clientId, clientSecret } = this.config.appleAuthConfig;
+        const code = requestPayload.code;
+        if (code) {
+          const data = {
+            code,
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: 'authorization_code',
+          };
+
+          try {
+            const res = await axios.post(
+              this.config.appleAuthConfig.tokenEndpoint,
+              new URLSearchParams(data).toString()
+            );
+            idToken = jwtDecode(res.data['id_token']);
+          } catch (err) {
+            this.log.error('linked_account.code_exchange_error', err);
+            throw error.thirdPartyAccountError();
+          }
+        }
+        break;
       }
     }
 
-    const verifiedToken = await this.googleAuthClient.verifyIdToken({
-      idToken,
-      audience: clientId,
-    });
-
-    const payload = verifiedToken.getPayload();
-    if (!payload) {
+    if (!idToken) {
       throw error.thirdPartyAccountError();
     }
-    const userid = payload['sub'];
+
+    const userid = idToken.sub;
+    const email = idToken.email;
 
     let accountRecord;
-    let googleRecord = await this.db.getGoogleId(userid);
+    let linkedAccountRecord = await this.db.getLinkedAccount(userid, provider);
 
-    if (!googleRecord) {
-      const email = payload.email;
+    if (!linkedAccountRecord) {
       try {
-        // This is a new Google account linking an existing FxA account
-        accountRecord = await this.db.accountRecord(payload.email);
-        await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
+        // This is a new third party account linking an existing FxA account
+        accountRecord = await this.db.accountRecord(email);
+        await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
@@ -107,7 +142,7 @@ export class LinkedAccountHandler {
           flowBeginTime,
           ip,
           location: geoData.location,
-          providerName: 'Google',
+          providerName: provider,
           timeZone: geoData.timeZone,
           uaBrowser: request.app.ua.browser,
           uaBrowserVersion: request.app.ua.browserVersion,
@@ -132,7 +167,7 @@ export class LinkedAccountHandler {
         if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
           throw err;
         }
-        // This is a new Google user creating a new FxA account, we
+        // This is a new user creating a new FxA account, we
         // create the FxA account with random password and mark email
         // verified
         const emailCode = await random.hex(16);
@@ -152,11 +187,11 @@ export class LinkedAccountHandler {
           verifierSetAt: 0,
           locale: request.app.acceptLanguage,
         });
-        await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
+        await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
       }
     } else {
-      // This is an existing Google user and existing FxA user
-      accountRecord = await this.db.account(googleRecord.uid);
+      // This is an existing user and existing FxA user
+      accountRecord = await this.db.account(linkedAccountRecord.uid);
     }
 
     const sessionTokenOptions = {
@@ -183,10 +218,9 @@ export class LinkedAccountHandler {
       throw error.thirdPartyAccountError();
     }
     const uid = request.auth.credentials.uid;
-    if ((request.payload as any).provider.toLowerCase() === 'google') {
-      // TODO: here we'll also delete any session tokens created via a google login
-      await this.db.deleteLinkedGoogleAccount(uid);
-    }
+    const provider = (request.payload as any).provider.toLowerCase();
+    // TODO: here we'll also delete any session tokens created via a google login
+    await this.db.deleteLinkedAccount(uid, provider);
     return {
       success: true,
     };

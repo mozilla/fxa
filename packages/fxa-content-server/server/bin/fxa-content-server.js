@@ -161,6 +161,11 @@ function makeApp() {
       type: ['json', '*/json', 'application/csp-report'],
     })
   );
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    })
+  );
 
   if (isCorsRequired()) {
     // JS, CSS and web font resources served from a CDN
