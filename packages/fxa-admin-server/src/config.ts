@@ -65,7 +65,7 @@ const conf = convict({
       format: Number,
     },
     prefix: {
-      default: 'fxa-auth-server.',
+      default: 'fxa-admin-server.',
       doc: 'Metric prefix for statsD',
       env: 'METRIC_PREFIX',
       format: String,

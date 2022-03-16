@@ -79,9 +79,13 @@ export class DatabaseService implements OnModuleDestroy {
     this.connectedServicesDb = new ConnectedServicesDb(
       new MysqlOAuthShared(dbConfig.fxa_oauth, undefined, logger, metrics),
       new ConnectedServicesCache(
-        new RedisShared(redisConfig.accessTokens, logger),
-        new RedisShared(redisConfig.refreshTokens, logger),
-        new RedisShared(redisConfig.sessionTokens, logger),
+        new RedisShared(redisConfig.accessTokens, logger, metrics),
+        new RedisShared(redisConfig.refreshTokens, logger, metrics),
+        new RedisShared(
+          { ...redisConfig, ...redisConfig.sessionTokens },
+          logger,
+          metrics
+        ),
         logger
       )
     );

@@ -4,6 +4,7 @@
 import { readdirSync, readFileSync } from 'fs';
 import Redis from 'ioredis';
 import { basename, extname, resolve } from 'path';
+import { StatsD } from 'hot-shots';
 
 import { ILogger } from '../log';
 import { AccessToken as AccessToken } from './models/auth/access-token';
@@ -12,9 +13,10 @@ import { RefreshTokenMetadata } from './models/auth/refresh-token-meta-data';
 const hex = require('buf').to.hex;
 
 export type Config = {
+  enabled?: boolean;
   prefix?: string;
   recordLimit?: number;
-  maxttl?: number;
+  maxttl?: number | string;
   timeoutMs?: number;
 } & Redis.RedisOptions;
 
@@ -60,53 +62,61 @@ export class RedisShared {
 
   constructor(
     protected readonly config: Config,
-    protected readonly log?: ILogger
+    protected readonly log?: ILogger,
+    protected readonly metrics?: StatsD
   ) {
     if (!config.keyPrefix && config.prefix) {
       config.keyPrefix = config.prefix;
     }
 
     log?.info('RedisShared', {
-      msg: `RedisShared.FXA-4648: Creating RedisShared host:${config.host} port:${config.port}`,
+      msg: `RedisShared.FXA-4648: Creating RedisShared enabled:${config.enabled} host:${config.host} port:${config.port}`,
+      stack: Error().stack,
     });
 
     const redis = new Redis(config);
 
     // Listen to all client events
     redis.on('connect', () => {
+      this.metrics?.increment('redis.connect');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Connected to redis`,
+        msg: `RedisShared.FXA-4648: Connected to redis (${config.host}:${config.port})`,
       });
     });
 
     redis.on('ready', () => {
+      this.metrics?.increment('redis.ready');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Redis ready`,
+        msg: `RedisShared.FXA-4648: Redis ready (${config.host}:${config.port})`,
       });
     });
 
     redis.on('error', (err) => {
+      this.metrics?.increment('redis.error');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Redis error encountered ${err}`,
+        msg: `RedisShared.FXA-4648: Redis error encountered ${err} (${config.host}:${config.port})`,
         error: err,
       });
     });
 
     redis.on('close', () => {
+      this.metrics?.increment('redis.close');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Redis close`,
+        msg: `RedisShared.FXA-4648: Redis close (${config.host}:${config.port})`,
       });
     });
 
     redis.on('reconnecting', () => {
+      this.metrics?.increment('redis.reconnecting');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Redis reconnecting`,
+        msg: `RedisShared.FXA-4648: Redis reconnecting (${config.host}:${config.port})`,
       });
     });
 
     redis.on('end', () => {
+      this.metrics?.increment('redis.end');
       log?.info('RedisShared', {
-        msg: `RedisShared.FXA-4648: Redis end`,
+        msg: `RedisShared.FXA-4648: Redis end (${config.host}:${config.port})`,
       });
     });
 

@@ -5,6 +5,7 @@ const { RedisShared } = require('fxa-shared/db/redis');
 const { resolve } = require('path');
 const { AuthLogger } = require('./types');
 const { Container } = require('typedi');
+const { StatsD } = require('hot-shots');
 
 ('use strict');
 
@@ -13,10 +14,15 @@ const hex = require('buf').to.hex;
 function resolveLogger() {
   if (Container.has(AuthLogger)) return Container.get(AuthLogger);
 }
+function resolveMetrics() {
+  if (Container.has(StatsD)) {
+    return Container.get(StatsD);
+  }
+}
 
 class FxaRedis extends RedisShared {
   constructor(config) {
-    super(config, resolveLogger());
+    super(config, resolveLogger(), resolveMetrics());
 
     // Applies custom scripts which are turned into methods on
     // the redis object.
@@ -165,9 +171,32 @@ class FxaRedis extends RedisShared {
 }
 
 module.exports = (config, log) => {
-  if (!config.enabled) {
+  log = log || resolveLogger();
+
+  if (!config) {
+    log?.warn('redis', {
+      msg: `No redis config provided`,
+      stack: Error().stack,
+    });
     return;
   }
+  if (!config.enabled) {
+    log?.warn('redis', {
+      msg: `Redis not enabled, config.enabled:${config?.enabled} `,
+      stack: Error().stack,
+    });
+    return;
+  }
+
+  // Sanity check
+  if (!config.host || !config.port) {
+    log?.warn('redis', {
+      msg: `No redis host/port defined, config.host:${config?.host} config.port:${config?.port}`,
+      stack: Error().stack,
+    });
+  }
+
   return new FxaRedis(config, log);
 };
-module.exports.FxaRedis = FxaRedis;
+
+// module.exports.FxaRedis = FxaRedis;
