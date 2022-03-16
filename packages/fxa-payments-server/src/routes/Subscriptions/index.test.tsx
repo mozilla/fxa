@@ -861,8 +861,7 @@ describe('routes/Subscriptions', () => {
         mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       });
 
-      const blag = render(<Subject />);
-      const { findByTestId, queryAllByTestId } = blag;
+      const { findByTestId, queryAllByTestId } = render(<Subject />);
 
       await findByTestId('subscription-management-loaded');
 
@@ -870,7 +869,6 @@ describe('routes/Subscriptions', () => {
       expect(paymentUpdateForm).toBeInTheDocument();
 
       const items = queryAllByTestId('subscription-item');
-      console.log(items[0]);
       expect(items.length).toBe(3);
     });
   });
