@@ -15,7 +15,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
-import { Plan, Profile, Token } from '../../src/store/types';
+import { Customer, Plan, Profile, Token } from '../../src/store/types';
 import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
@@ -584,7 +584,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   },
 ];
 
-export const MOCK_CUSTOMER = {
+export const MOCK_CUSTOMER: Customer = {
   billing_name: 'Jane Doe',
   payment_type: 'card',
   payment_provider: 'stripe',

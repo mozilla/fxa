@@ -39,6 +39,9 @@ import {
   mockStripeElementOnChangeFns,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
+import PaymentProvider, {
+  PaymentProviders,
+} from '../../../lib/PaymentProvider';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -299,7 +302,7 @@ describe('routes/Product/SubscriptionCreate', () => {
           customer = null;
           break;
         case CustomerType.WithCustomer:
-          customer = { payment_provider: 'not_chosen' };
+          customer = { payment_provider: PaymentProviders.none };
           break;
         case CustomerType.WithCustomerCard:
           customer = CUSTOMER;

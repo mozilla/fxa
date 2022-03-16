@@ -9,12 +9,14 @@ import {
   isExistingCustomer,
   isExistingPaypalCustomer,
   isExistingStripeCustomer,
+  needsCustomer,
 } from './customer';
+import { IAP_CUSTOMER } from './mock-data';
 import { MOCK_CUSTOMER } from './test-utils';
 
 describe('hasSubscriptions', () => {
   it('returns false when the customer does not have a list of subscriptions', () => {
-    const actual = hasSubscriptions(({ id: 'cus_123' } as unknown) as Customer);
+    const actual = hasSubscriptions({ id: 'cus_123' } as unknown as Customer);
     expect(actual).toBe(false);
   });
 
@@ -149,5 +151,20 @@ describe('isExistingStripeCustomer', () => {
       payment_provider: 'stripe',
     });
     expect(actual).toBe(true);
+  });
+});
+
+describe('needsCustomer', () => {
+  it('return true when customer is empty', () => {
+    const actual = needsCustomer(null);
+    expect(actual).toBe(true);
+  });
+  it('return true when does not have payment_provider set', () => {
+    const actual = needsCustomer(IAP_CUSTOMER);
+    expect(actual).toBe(true);
+  });
+  it('return false when payment_provider is set', () => {
+    const actual = needsCustomer(MOCK_CUSTOMER);
+    expect(actual).toBe(false);
   });
 });

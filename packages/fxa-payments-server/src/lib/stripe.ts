@@ -14,7 +14,7 @@ import {
   handlePasswordlessSignUp,
   PasswordlessSignupHandlerParam,
 } from './account';
-import { isExistingStripeCustomer } from './customer';
+import { isExistingStripeCustomer, needsCustomer } from './customer';
 import { GeneralError } from './errors';
 
 export type RetryStatus = undefined | { invoiceId: string };
@@ -147,7 +147,7 @@ export async function handleSubscriptionPayment({
   }
 
   // 2. Create the customer, if necessary.
-  if (!customer?.payment_provider) {
+  if (needsCustomer(customer)) {
     // We look up the customer by UID & email on the server.
     // No need to retain the result of this call for later.
     await apiCreateCustomer({
