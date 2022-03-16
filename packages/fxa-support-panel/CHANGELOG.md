@@ -1,5 +1,12 @@
 # Change history
 
+## 1.228.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.3.1 to 8.4.0 (#12134) ([43100d0df](https://github.com/mozilla/fxa/commit/43100d0df))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+
 ## 1.227.1
 
 No changes.

@@ -1,3 +1,10 @@
+## 1.228.0
+
+### Other changes
+
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+- deps-dev: bump tap from 15.0.10 to 16.0.0 (#12116) ([cdefad6b4](https://github.com/mozilla/fxa/commit/cdefad6b4))
+
 ## 1.227.1
 
 No changes.

@@ -1,5 +1,11 @@
 # Change history
 
+## 1.228.0
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+
 ## 1.227.1
 
 ### Other changes
