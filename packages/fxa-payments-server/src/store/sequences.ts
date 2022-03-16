@@ -95,6 +95,7 @@ export const reactivateSubscriptionAndRefresh =
   async (dispatch: Function, getState: Function) => {
     try {
       await dispatch(reactivateSubscription(subscriptionId, plan));
+      await dispatch(fetchSubsequentInvoices());
       await dispatch(fetchCustomerAndSubscriptions());
     } catch (err) {
       handleThunkError(err);

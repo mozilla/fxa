@@ -179,8 +179,10 @@ describe('routes/Subscriptions', () => {
   it('lists all subscriptions', async () => {
     // Use mocks for subscription lists that exercise multiple plans
     initApiMocks({
-      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+      mockPlans: MOCK_PLANS,
+      mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
     const { findByTestId, queryAllByTestId, queryByTestId } = render(
       <Subject />
@@ -208,6 +210,7 @@ describe('routes/Subscriptions', () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+      mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       mockPlans: MOCK_PLANS.map((plan) => ({
         ...plan,
         product_metadata: {
@@ -435,6 +438,9 @@ describe('routes/Subscriptions', () => {
           },
         ],
       });
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
     const { findByTestId, queryAllByTestId, queryByTestId, getByTestId } =
       render(<Subject />);
@@ -653,6 +659,9 @@ describe('routes/Subscriptions', () => {
           },
         ],
       });
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
   }
 
   const expectProductImage = ({
@@ -686,7 +695,6 @@ describe('routes/Subscriptions', () => {
         nock(authServer)
           .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
           .reply(200, MOCK_SUBSEQUENT_INVOICES);
-
         const { findByTestId, getByTestId, getByAltText, queryByTestId } =
           render(<Subject />);
 
@@ -849,9 +857,12 @@ describe('routes/Subscriptions', () => {
             webSubscription,
           ],
         },
+        mockPlans: MOCK_PLANS,
+        mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       });
 
-      const { findByTestId, queryAllByTestId } = render(<Subject />);
+      const blag = render(<Subject />);
+      const { findByTestId, queryAllByTestId } = blag;
 
       await findByTestId('subscription-management-loaded');
 
@@ -859,6 +870,7 @@ describe('routes/Subscriptions', () => {
       expect(paymentUpdateForm).toBeInTheDocument();
 
       const items = queryAllByTestId('subscription-item');
+      console.log(items[0]);
       expect(items.length).toBe(3);
     });
   });

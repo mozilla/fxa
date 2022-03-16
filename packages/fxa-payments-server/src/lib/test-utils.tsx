@@ -571,8 +571,13 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
 export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   {
     subscriptionId: 'sub0.28964929339372136',
-    period_start: 0,
-    total: 100,
+    period_start: 1565816388.815,
+    total: 500,
+  },
+  {
+    subscriptionId: 'sub0.21234123424',
+    period_start: 1565816388.815,
+    total: 500,
   },
 ];
 
