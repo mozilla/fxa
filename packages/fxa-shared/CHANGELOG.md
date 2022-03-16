@@ -1,5 +1,11 @@
 # Change history
 
+## 1.226.9
+
+### Other changes
+
+- auth,admin: Redis config potentially missing ([887a9a579](https://github.com/mozilla/fxa/commit/887a9a579))
+
 ## 1.226.8
 
 ### Other changes
