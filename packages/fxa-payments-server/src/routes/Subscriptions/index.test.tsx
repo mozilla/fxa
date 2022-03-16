@@ -348,6 +348,24 @@ describe('routes/Subscriptions', () => {
     await findByTestId('error-loading-invoice');
   });
 
+  it('displays an error if subsequent invoice response is an empty array', async () => {
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/plans')
+      .reply(200, MOCK_PLANS);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, MOCK_CUSTOMER);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, []);
+    const { findByTestId } = render(<Subject />);
+    await findByTestId('error-subhub-missing-subsequent-invoice');
+  });
+
   it('redirects to settings if customer fetch fails with 404', async () => {
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
