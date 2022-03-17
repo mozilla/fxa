@@ -1502,7 +1502,11 @@ export class StripeHelper {
   async addPriceInfoToAbbrevPlayPurchases(
     purchases: AbbrevPlayPurchase[]
   ): Promise<
-    (AbbrevPlayPurchase & { product_id: string; product_name: string })[]
+    (AbbrevPlayPurchase & {
+      product_id: string;
+      product_name: string;
+      price_id: string;
+    })[]
   > {
     const plans = await this.allAbbrevPlans();
     const appendedAbbrevPlayPurchases = [];
