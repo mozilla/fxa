@@ -10,6 +10,7 @@ import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentU
 import classNames from 'classnames';
 
 import './index.scss';
+import { needsCustomer } from '../../lib/customer';
 
 declare var paypal: {
   Buttons: {
@@ -112,7 +113,7 @@ export const PaypalButton = ({
           ...apiClient,
           ...apiClientOverrides,
         };
-        if (!customer) {
+        if (needsCustomer(customer)) {
           await apiCreateCustomer({
             idempotencyKey,
           });
