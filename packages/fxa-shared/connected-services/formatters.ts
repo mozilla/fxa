@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as i18n from 'i18n-abide';
 
-import { localizeTimestamp as fnLocalizeTimestamp } from '../l10n/localizeTimestamp';
+import { localizeTimestamp } from '../l10n/localizeTimestamp';
 import { ILogger } from '../log';
 import { AttachedClient } from './models/AttachedClient';
 import { ClientFormatterConfig } from './models/ClientFormatterConfig';
@@ -26,18 +26,32 @@ export interface IClientFormatter {
 }
 
 export class ClientFormatter implements IClientFormatter {
+  private readonly supportedLanguages: string[];
+  private readonly defaultLanguage: string;
+  private readonly earliestSaneAccessTime: number;
+  private readonly localizeTimestamp: any;
+
   constructor(
     public readonly config: ClientFormatterConfig,
     private readonly logProvider: () => ILogger
-  ) {}
+  ) {
+    // Important! Resolving the following can be expensive, particularly localizeTimestamp.
+    // Hold in private readonly fields!
+    this.supportedLanguages = this.config.i18n.supportedLanguages || [];
+    this.defaultLanguage = this.config.i18n.defaultLanguage;
+    this.earliestSaneAccessTime =
+      this.config.lastAccessTimeUpdates.earliestSaneTimestamp;
+    this.localizeTimestamp = localizeTimestamp({
+      supportedLanguages: this.supportedLanguages,
+      defaultLanguage: this.defaultLanguage,
+    });
+  }
 
   public formatLocation(
     client: AttachedClient,
     request: IClientFormatterRequest
   ) {
     let language;
-    const { supportedLanguages, defaultLanguage } = this.config.i18n;
-
     if (!client.location) {
       client.location = {};
     } else {
@@ -46,8 +60,8 @@ export class ClientFormatter implements IClientFormatter {
         const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage);
         language = i18n.bestLanguage(
           languages,
-          supportedLanguages || [],
-          defaultLanguage
+          this.supportedLanguages,
+          this.defaultLanguage
         );
         // For English, we can leave all the location components intact.
         // For other languages, only return what we can translate
@@ -61,7 +75,6 @@ export class ClientFormatter implements IClientFormatter {
         } else if (location.countryCode) {
           const territoriesLang =
             language === 'en-US' ? 'en-US-POSIX' : language;
-
           const territories = require(`cldr-localenames-full/main/${territoriesLang}/territories.json`);
           client.location = {
             country:
@@ -88,35 +101,22 @@ export class ClientFormatter implements IClientFormatter {
     client: AttachedClient,
     request: IClientFormatterRequest
   ) {
-    const { supportedLanguages, defaultLanguage } = this.config.i18n;
-
-    const earliestSaneAccessTime =
-      this.config.lastAccessTimeUpdates.earliestSaneTimestamp;
-
     const languages = request.app.acceptLanguage;
-
-    const localizeTimestamp = fnLocalizeTimestamp({
-      supportedLanguages: supportedLanguages,
-      defaultLanguage: defaultLanguage,
-    });
-
     if (client.createdTime) {
-      client.createdTimeFormatted = localizeTimestamp.format(
+      client.createdTimeFormatted = this.localizeTimestamp.format(
         client.createdTime,
         languages
       );
     }
     if (client.lastAccessTime) {
-      client.lastAccessTimeFormatted = localizeTimestamp.format(
+      client.lastAccessTimeFormatted = this.localizeTimestamp.format(
         client.lastAccessTime,
         languages
       );
-      if (client.lastAccessTime < earliestSaneAccessTime) {
-        client.approximateLastAccessTime = earliestSaneAccessTime;
-        client.approximateLastAccessTimeFormatted = localizeTimestamp.format(
-          earliestSaneAccessTime,
-          languages
-        );
+      if (client.lastAccessTime < this.earliestSaneAccessTime) {
+        client.approximateLastAccessTime = this.earliestSaneAccessTime;
+        client.approximateLastAccessTimeFormatted =
+          this.localizeTimestamp.format(this.earliestSaneAccessTime, languages);
       }
     }
     return client;
