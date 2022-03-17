@@ -30,9 +30,14 @@ import {
   PaypalPaymentError,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  ConfiguredPlan,
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import {
+  formatPlanConfigDto,
+  PlanConfigurationDtoT,
+} from 'fxa-shared/dto/auth/payments/plan-configuration';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
@@ -50,13 +55,15 @@ import {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } from '../sentry';
-import { AuthFirestore } from '../types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
 import AppError from '../error';
+import { PaymentConfigManager } from './configuration/manager';
+import { mapPlanConfigsByPriceId } from 'fxa-shared/subscriptions/configuration/utils';
 
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
@@ -188,6 +195,8 @@ export class StripeHelper {
   private taxIds: { [key: string]: string };
   private firestore: Firestore;
   private stripeFirestore: StripeFirestore;
+  // TODO remove the ? when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+  private paymentConfigManager?: PaymentConfigManager;
   readonly googleMapsService: GoogleMapsService;
   readonly stripe: Stripe;
   public currencyHelper: CurrencyHelper;
@@ -222,6 +231,15 @@ export class StripeHelper {
       maxNetworkRetries: 3,
     });
 
+    // Set the app config and logger for any downstream dependencies that
+    // expect them to exist.
+    if (!Container.has(AppConfig)) {
+      Container.set(AppConfig, config);
+    }
+    if (!Container.has(AuthLogger)) {
+      Container.set(AuthLogger, log);
+    }
+
     this.firestore = Container.get(AuthFirestore);
     const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
     const customerCollectionDbRef = this.firestore.collection(
@@ -233,6 +251,10 @@ export class StripeHelper {
       this.stripe,
       firestore_prefix
     );
+
+    if (config.subscriptions.productConfigsFirestore.enabled === true) {
+      this.paymentConfigManager = Container.get(PaymentConfigManager);
+    }
     this.googleMapsService = Container.get(GoogleMapsService);
 
     cacheManager.setOptions({
@@ -1646,6 +1668,7 @@ export class StripeHelper {
    */
   async fetchAllPlans(): Promise<Stripe.Plan[]> {
     const plans = [];
+
     for await (const item of this.stripe.plans.list({
       active: true,
       expand: ['data.product'],
@@ -1673,6 +1696,7 @@ export class StripeHelper {
         );
         continue;
       }
+
       item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
       item.metadata = mapValues(item.metadata, (v) => v.trim());
 
@@ -1692,6 +1716,36 @@ export class StripeHelper {
       plans.push(item);
     }
     return plans;
+  }
+
+  async allConfiguredPlans(): Promise<ConfiguredPlan[] | Stripe.Plan[]> {
+    // for a transitional period we will include configs from both Firestore
+    // docs and Stripe metadata when enabled by the feature flag, making it
+    // possible for Payments to toggle the Firestore configs feature flag
+    // without any changes or re-deploy necessary on the auth-server
+
+    const allPlans = await this.allPlans();
+
+    // TODO remove when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+    if (!this.paymentConfigManager) {
+      return allPlans;
+    }
+
+    const planConfigs = mapPlanConfigsByPriceId(
+      await this.paymentConfigManager.allPlans()
+    );
+
+    return allPlans.map((p) => {
+      (p as ConfiguredPlan).configuration = null;
+      const planConfig = planConfigs[p.id];
+      if (planConfig) {
+        const mergedConfig =
+          // TODO remove the ! when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+          this.paymentConfigManager!.getMergedConfig(planConfig);
+        (p as ConfiguredPlan).configuration = formatPlanConfigDto(mergedConfig);
+      }
+      return p as ConfiguredPlan;
+    });
   }
 
   /**
@@ -1718,7 +1772,7 @@ export class StripeHelper {
   }
 
   async allAbbrevPlans(): Promise<AbbrevPlan[]> {
-    const plans = await this.allPlans();
+    const plans = await this.allConfiguredPlans();
     return plans.map((p) => ({
       amount: p.amount,
       currency: p.currency,
@@ -1730,6 +1784,9 @@ export class StripeHelper {
       product_id: (p.product as Stripe.Product).id,
       product_metadata: (p.product as Stripe.Product).metadata,
       product_name: (p.product as Stripe.Product).name,
+      // TODO simple copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does have a `configuration`
+      configuration: p.configuration ?? null,
     }));
   }
 

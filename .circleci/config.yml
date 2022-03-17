@@ -98,10 +98,9 @@ jobs:
       - image: pafortin/goaws
       - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
-        environment:
-          NODE_ENV: dev
-          AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
-
+    environment:
+      NODE_ENV: dev
+      FIRESTORE_EMULATOR_HOST: localhost:9090
     parameters:
       package:
         type: string

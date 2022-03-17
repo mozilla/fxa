@@ -272,6 +272,7 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_HzXGNuO76B5o6g',
         product_metadata: { 'support:app:1': 'Pop!_OS' },
         product_name: 'myproduct',
+        configuration: null,
       },
     ];
 

@@ -21,8 +21,10 @@ const {
   PaymentConfigManager,
 } = require('../../lib/payments/configuration/manager');
 const { Container } = require('typedi');
-const { ProductConfig } = require('../../lib/payments/configuration/product');
-const { PlanConfig } = require('../../lib/payments/configuration/plan');
+const {
+  ProductConfig,
+} = require('fxa-shared/subscriptions/configuration/product');
+const { PlanConfig } = require('fxa-shared/subscriptions/configuration/plan');
 
 const sandbox = sinon.createSandbox();
 
@@ -470,8 +472,8 @@ describe('StripeProductsAndPlansConverter', () => {
     });
     it('processes new products and plans', async () => {
       await converter.convert(args);
-      products = paymentConfigManager.allProducts();
-      plans = paymentConfigManager.allPlans();
+      products = await paymentConfigManager.allProducts();
+      plans = await paymentConfigManager.allPlans();
       // We don't care what the values of the Firestore doc IDs as long
       // as they match the expected productConfigId for planConfigs.
       assert.deepEqual(products[0], {
@@ -507,8 +509,8 @@ describe('StripeProductsAndPlansConverter', () => {
         planConfig1,
         productConfigDocId1
       );
-      products = paymentConfigManager.allProducts();
-      plans = paymentConfigManager.allPlans();
+      products = await paymentConfigManager.allProducts();
+      plans = await paymentConfigManager.allPlans();
       assert.deepEqual(products[0], {
         ...productConfig1,
         id: products[0].id,
@@ -557,8 +559,8 @@ describe('StripeProductsAndPlansConverter', () => {
         plans: { list: sandbox.stub().returns(planGeneratorUpdated()) },
       };
       await converter.convert(args);
-      products = paymentConfigManager.allProducts();
-      plans = paymentConfigManager.allPlans();
+      products = await paymentConfigManager.allProducts();
+      plans = await paymentConfigManager.allPlans();
       assert.deepEqual(products[0], {
         ...updatedProductConfig,
         id: products[0].id,
@@ -622,8 +624,8 @@ describe('StripeProductsAndPlansConverter', () => {
         },
       };
       await converter.convert(args);
-      products = paymentConfigManager.allProducts();
-      plans = paymentConfigManager.allPlans();
+      products = await paymentConfigManager.allProducts();
+      plans = await paymentConfigManager.allPlans();
       const expected = {
         'es-ES': {
           uiContent: {

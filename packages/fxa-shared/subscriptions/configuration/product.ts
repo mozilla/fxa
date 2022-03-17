@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from '@hapi/joi';
+import joi from 'joi';
 
 import {
   BaseConfig,
@@ -13,12 +13,14 @@ import {
   UrlConfig,
 } from './base';
 
+export const productConfigJoiKeys = {
+  stripeProductId: joi.string().optional(),
+  productSet: joi.string().optional(),
+  promotionCodes: joi.array().items(joi.string()).optional(),
+};
+
 export const productConfigSchema = baseConfigSchema
-  .keys({
-    stripeProductId: joi.string().optional(),
-    productSet: joi.string().optional(),
-    promotionCodes: joi.array().items(joi.string()).optional(),
-  })
+  .keys(productConfigJoiKeys)
   .requiredKeys(
     'capabilities',
     'locales',
@@ -41,20 +43,20 @@ export class ProductConfig implements BaseConfig {
   capabilities!: CapabilityConfig;
   locales!: {
     [key: string]: {
-      uiContent: Partial<UiContentConfig>;
-      urls: Partial<UrlConfig>;
-      support: Partial<SupportConfig>;
+      uiContent?: Partial<UiContentConfig>;
+      urls?: Partial<UrlConfig>;
+      support?: Partial<SupportConfig>;
     };
   };
   styles!: StyleConfig;
   support!: SupportConfig;
   uiContent!: UiContentConfig;
   urls!: UrlConfig;
+  promotionCodes?: string[];
 
   // Extended by ProductConfig
   stripeProductId?: string;
   productSet?: string;
-  promotionCodes?: string[];
 
   static async validate(productConfig: ProductConfig) {
     try {

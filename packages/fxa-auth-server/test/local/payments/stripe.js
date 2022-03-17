@@ -109,6 +109,7 @@ const mockConfig = {
   publicUrl: 'https://accounts.example.com',
   subscriptions: {
     cacheTtlSeconds: 10,
+    productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
@@ -216,6 +217,13 @@ function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
+const mockConfigCollection = (configDocs) => ({
+  select: () => ({
+    get: () => ({ docs: configDocs.map((c) => ({ id: c.id, data: () => c })) }),
+  }),
+  onSnapshot: () => {},
+});
+
 describe('StripeHelper', () => {
   /** @type StripeHelper */
   let stripeHelper;
@@ -252,7 +260,31 @@ describe('StripeHelper', () => {
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(AuthFirestore, {
-      collection: sinon.fake.returns({}),
+      collection: sandbox.stub().callsFake((arg) => {
+        if (arg.endsWith('products')) {
+          return mockConfigCollection([
+            { id: 'doc1', stripeProductId: product1.id },
+            { id: 'doc2', stripeProductId: product2.id },
+            { id: 'doc3', stripeProductId: product3.id },
+          ]);
+        }
+        if (arg.endsWith('plans')) {
+          return mockConfigCollection([
+            {
+              id: 'doc1',
+              productConfigId: 'doc1',
+              stripePriceId: plan1.id,
+            },
+            {
+              id: 'doc2',
+              productConfigId: 'doc2',
+              stripePriceId: plan2.id,
+            },
+          ]);
+        }
+
+        return {};
+      }),
     });
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
@@ -2369,6 +2401,29 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('allConfiguredPlans', () => {
+    it('gets a list of configured plans', async () => {
+      const thePlans = await stripeHelper.allPlans();
+      sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper.paymentConfigManager, 'getMergedConfig');
+      const actual = await stripeHelper.allConfiguredPlans();
+      actual.forEach((p, idx) => {
+        assert.equal(p.id, thePlans[idx].id);
+        assert.isTrue('configuration' in p);
+        if (p.id === plan3.id) {
+          assert.isNull(p.configuration);
+        } else {
+          assert.isNotNull(p.configuration);
+        }
+      });
+      assert.isTrue(stripeHelper.allPlans.calledOnce);
+      assert.isTrue(
+        // one of the plans does not have a matching ProductConfig
+        stripeHelper.paymentConfigManager.getMergedConfig.calledTwice
+      );
+    });
+  });
+
   describe('allPlans', () => {
     it('pulls a list of plans and caches it', async () => {
       assert.lengthOf(await stripeHelper.allPlans(), 3);
@@ -2411,24 +2466,51 @@ describe('StripeHelper', () => {
   describe('allAbbrevPlans', () => {
     it('returns a AbbrevPlan list based on allPlans', async () => {
       sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper, 'allConfiguredPlans');
       const actual = await stripeHelper.allAbbrevPlans();
+      assert(stripeHelper.allConfiguredPlans.calledOnce);
       assert(stripeHelper.allPlans.calledOnce);
       assert(stripeHelper.stripe.plans.list.calledOnce);
 
       assert.deepEqual(
         actual,
-        [plan1, plan2, plan3].map((p) => ({
-          amount: p.amount,
-          currency: p.currency,
-          interval_count: p.interval_count,
-          interval: p.interval,
-          plan_id: p.id,
-          plan_metadata: p.metadata,
-          plan_name: p.nickname || '',
-          product_id: p.product.id,
-          product_metadata: p.product.metadata,
-          product_name: p.product.name,
-        }))
+        [plan1, plan2]
+          .map((p) => ({
+            amount: p.amount,
+            currency: p.currency,
+            interval_count: p.interval_count,
+            interval: p.interval,
+            plan_id: p.id,
+            plan_metadata: p.metadata,
+            plan_name: p.nickname || '',
+            product_id: p.product.id,
+            product_metadata: p.product.metadata,
+            product_name: p.product.name,
+            configuration: {
+              locales: {},
+              productSet: undefined,
+              stripePriceId: p.id,
+              styles: {},
+              support: {},
+              uiContent: {},
+              urls: {},
+            },
+          }))
+          .concat(
+            [plan3].map((p) => ({
+              amount: p.amount,
+              currency: p.currency,
+              interval_count: p.interval_count,
+              interval: p.interval,
+              plan_id: p.id,
+              plan_metadata: p.metadata,
+              plan_name: p.nickname || '',
+              product_id: p.product.id,
+              product_metadata: p.product.metadata,
+              product_name: p.product.name,
+              configuration: null,
+            }))
+          )
       );
     });
   });
