@@ -12,7 +12,7 @@ import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
-export default ({
+const ReactivateSubscriptionPanel = ({
   plan,
   customerSubscription,
   customer,
@@ -86,3 +86,5 @@ export default ({
     </>
   );
 };
+
+export default ReactivateSubscriptionPanel;

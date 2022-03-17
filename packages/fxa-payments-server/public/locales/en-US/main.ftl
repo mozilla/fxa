@@ -300,6 +300,8 @@ sub-item-cancel-msg =
 sub-item-cancel-confirm =
     Cancel my access and my saved information within
     { $name } on { $period }
+invoice-not-found = Subsequent invoice not found
+sub-item-no-such-subsequent-invoice = Subsequent invoice not found for this subscription.
 
 ## subscription iap item
 sub-iap-item-google-purchase = { -brand-name-google }: In-App purchase
@@ -326,6 +328,8 @@ sub-subscription-error =
   .title = Problem loading subscriptions
 sub-customer-error =
   .title = Problem loading customer
+sub-invoice-error =
+  .title = Problem loading invoices
 sub-billing-update-success = Your billing information has been updated successfully
 sub-route-payment-modal-heading = Invalid billing information
 sub-route-payment-modal-message = There seems to be an error with your { -brand-name-paypal } account, we need you to take the necessary steps to resolve this payment issue.

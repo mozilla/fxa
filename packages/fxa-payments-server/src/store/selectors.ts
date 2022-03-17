@@ -6,16 +6,19 @@ export const selectors = {
   token: (state: State) => state.token,
   subscriptions: (state: State) => state.subscriptions,
   plans: (state: State) => state.plans,
+  subsequentInvoices: (state: State) => state.subsequentInvoices,
   customer: (state: State) => state.customer,
 
   updateSubscriptionPlanStatus: (state: State) => state.updateSubscriptionPlan,
   cancelSubscriptionStatus: (state: State) => state.cancelSubscription,
   reactivateSubscriptionStatus: (state: State) => state.reactivateSubscription,
 
-  plansByProductId: (state: State) => (productId: string): Array<Plan> => {
-    const fetchedPlans = selectors.plans(state).result || [];
-    return fetchedPlans.filter((plan) => plan.product_id === productId);
-  },
+  plansByProductId:
+    (state: State) =>
+    (productId: string): Array<Plan> => {
+      const fetchedPlans = selectors.plans(state).result || [];
+      return fetchedPlans.filter((plan) => plan.product_id === productId);
+    },
 
   customerSubscriptions: (state: State) => {
     const fetchedCustomer = selectors.customer(state);

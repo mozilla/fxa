@@ -55,9 +55,13 @@ import {
   apiSignupForNewsletter,
   apiInvoicePreview,
   apiRetrieveCouponDetails,
+  apiSubsequentInvoicePreview,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  SubsequentInvoicePreview,
+} from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 function nock(it: any) {
@@ -506,6 +510,23 @@ describe('API requests', () => {
         })
       ).toEqual(expected);
 
+      requestMock.done();
+    });
+  });
+
+  describe('apiSubsequentInvoicePreview', () => {
+    const path = '/v1/oauth/subscriptions/invoice/preview-subsequent';
+
+    it(`GET {auth-server}${path}`, async () => {
+      const invoicePreview: SubsequentInvoicePreview = {
+        subscriptionId: 'test',
+        period_start: 0,
+        total: 100,
+      };
+      const expected = [invoicePreview];
+      const requestMock = nock(AUTH_BASE_URL).get(path).reply(200, expected);
+
+      expect(await apiSubsequentInvoicePreview()).toEqual(expected);
       requestMock.done();
     });
   });
