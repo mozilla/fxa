@@ -82,6 +82,7 @@ const PLANS = [
       downloadURL: 'http://getfirefox.com',
       capabilities: 'exampleCap0',
       'capabilities:client1': 'exampleCap1',
+      promotionCodes: 'earlybirds',
     },
   },
   {
@@ -107,6 +108,7 @@ const PLANS = [
       'capabilities:client1': 'exampleCap3',
       // NOTE: whitespace in capabilities list should be flexible for human entry
       'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
+      promotionCodes: 'gettheworms?',
     },
     product_metadata: {},
   },
