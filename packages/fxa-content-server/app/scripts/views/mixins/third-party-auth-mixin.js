@@ -24,6 +24,20 @@ export default {
   },
 
   beforeRender() {
+    // Check to see if this is a request to deeplink into Google/Apple login
+    // flow. We do a promise we want to keep our loading indicator on while
+    // page navigates to third party auth flow.
+    const params = new URLSearchParams(this.window.location.search);
+    if (params.get('deeplink') === 'googleLogin') {
+      return new Promise(()=> {
+        this.googleSignIn();
+      });
+    } else if (params.get('deeplink') === 'appleLogin') {
+      return new Promise(()=> {
+        this.appleSignIn();
+      });
+    }
+
     // Check to see if this page is being redirected to at the end of a
     // Google auth flow and if so, restore the original
     // query params and complete the FxA oauth signin
@@ -46,7 +60,10 @@ export default {
 
     // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
-    const state = encodeURIComponent(this.window.location.href);
+    const currentParams = new URLSearchParams(this.window.location.search);
+    currentParams.delete("deeplink");
+
+    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
@@ -83,7 +100,10 @@ export default {
   appleSignIn() {
     this.clearStoredParams();
 
-    const state = encodeURIComponent(this.window.location.href);
+    const currentParams = new URLSearchParams(this.window.location.search);
+    currentParams.delete("deeplink");
+
+    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
