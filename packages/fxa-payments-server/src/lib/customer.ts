@@ -52,6 +52,9 @@ export const findCustomerIapSubscriptionByProductId = (
     (s) => isIapSubscription(s) && s.product_id === productId
   ) as IapSubscription);
 
+export const needsCustomer = (customer: Customer | null) =>
+  !(customer && customer.customerId);
+
 export default {
   hasSubscriptions,
   hasPaymentProvider,

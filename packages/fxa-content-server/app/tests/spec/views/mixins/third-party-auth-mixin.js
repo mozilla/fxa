@@ -87,7 +87,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
   });
 
   it('googleSignIn', async () => {
-    windowMock.location.href = 'http://localhost?orignal_oauth_params';
+    windowMock.location.href = 'http://127.0.0.1:3030/?orignal_oauth_params';
 
     view.googleSignIn();
 
@@ -111,7 +111,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assertInputEl(
       mockInput,
       'state',
-      encodeURIComponent(windowMock.location.href)
+      encodeURIComponent(`${windowMock.location.origin}${windowMock.location.pathname}?`)
     );
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');

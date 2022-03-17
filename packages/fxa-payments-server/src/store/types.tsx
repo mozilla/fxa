@@ -76,6 +76,7 @@ export interface CustomerSubscription {
 }
 
 export type Customer = {
+  customerId?: string;
   billing_name?: string | null;
   billing_agreement_id?: string | null;
   // https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card-brand

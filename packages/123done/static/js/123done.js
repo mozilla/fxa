@@ -243,6 +243,7 @@ $(document).ready(function () {
       authenticate('best_choice', {
         forceExperiment: 'thirdPartyAuth',
         forceExperimentGroup: 'google',
+        deeplink: 'googleLogin',
       });
     });
 
