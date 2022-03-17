@@ -159,11 +159,11 @@ describe('needsCustomer', () => {
     const actual = needsCustomer(null);
     expect(actual).toBe(true);
   });
-  it('return true when does not have payment_provider set', () => {
+  it('return true when does not have a customerId set', () => {
     const actual = needsCustomer(IAP_CUSTOMER);
     expect(actual).toBe(true);
   });
-  it('return false when payment_provider is set', () => {
+  it('return false when customerId is set', () => {
     const actual = needsCustomer(MOCK_CUSTOMER);
     expect(actual).toBe(false);
   });
