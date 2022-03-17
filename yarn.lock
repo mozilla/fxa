@@ -9656,6 +9656,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/i18n-abide@npm:^0":
+  version: 0.0.2
+  resolution: "@types/i18n-abide@npm:0.0.2"
+  dependencies:
+    "@types/express": "*"
+  checksum: 5fbdd033bdd183e5e54bbfd470a51512a11297d58f5debfe2b3fa3cd92b2c7de9a04c4fc10523bc4381a75fa0a2602b0d8b6819d5eb060de61c99842a6951587
+  languageName: node
+  linkType: hard
+
 "@types/ioredis@npm:^4.26.4":
   version: 4.26.4
   resolution: "@types/ioredis@npm:4.26.4"
@@ -14627,7 +14636,7 @@ __metadata:
     certify: ./bin/certify
     check-assertion: ./bin/check-assertion
     generate-keypair: ./bin/generate-keypair
-  checksum: 60b3b815e30ebdde181a36c59f99eff75606e8bce3469cd2f4f0e0f2d652d6dcd59cc89ecdeae6e2ffaaa23e3edc3be5c6f3b2fba08fe9562f9aa751741fc0de
+  checksum: c184da87bd315a964d8610b96799c052ec4ba18424a4fc56478dd4a26062a812ad861a75bc3ddf2b141d57fb5a7e9b3d6211bf3b99b79c4a588d3381bcee6a27
   languageName: node
   linkType: hard
 
@@ -14897,7 +14906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buf@npm:0.1.1":
+"buf@npm:0.1.1, buf@npm:^0.1.1":
   version: 0.1.1
   resolution: "buf@npm:0.1.1"
   checksum: 7ef58d0e5e0225af23cddc9557ea5db32b6330bb66b1922b8441b29bf444b92761ceb1e9a5dea69fc7407a15ecd443afa6703e07134a1f84f8fbe6db99404057
@@ -15772,7 +15781,7 @@ __metadata:
 "chosen-js@https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0":
   version: 1.8.7
   resolution: "chosen-js@https://github.com/mozilla-fxa/chosen.git#commit=3bea55b356c249ae82980c04f67ccc98ff3b28b0"
-  checksum: 3f52a81bc6160f6d69fd65c7c183b045e49ff229012af59e4aa9d7b339a25a616102fa0a5444f7c21bbaf1d912a32cef4b6bca6fcf0447070aca9436370821d3
+  checksum: 107b5ae4b4184a5f2861c9fddf98b894fde599ed6186a267323d9dd582c0b106277989d361b24d82707d82cd0b521b06825da3bd22f6013d9caf0fc9c9f91e51
   languageName: node
   linkType: hard
 
@@ -21903,6 +21912,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     graphql-tools: ^8.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.5.1
     knex: ^1.0.3
     mozlog: ^3.0.2
@@ -22008,7 +22018,6 @@ fsevents@~2.1.1:
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
     cldr-core: ^40.0.0
-    cldr-localenames-full: 40.0.0
     commander: 2.18.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
@@ -22490,6 +22499,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^13.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     ioredis: ^4.28.2
     jest: 27.5.1
     knex: ^1.0.3
@@ -22872,6 +22882,7 @@ fsevents@~2.1.1:
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
+    "@types/i18n-abide": ^0
     "@types/ioredis": ^4.26.4
     "@types/ip": ^1
     "@types/jest": ^26.0.23
@@ -22891,11 +22902,13 @@ fsevents@~2.1.1:
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
     aws-sdk: ^2.1081.0
+    buf: ^0.1.1
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
+    cldr-localenames-full: 40.0.0
     cors: ^2.8.5
     db-migrations: "workspace:*"
     esbuild: ^0.14.2
@@ -22906,6 +22919,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.6.1
     hot-shots: ^9.0.0
+    i18n-abide: ^0.0.26
     ioredis: ^4.28.2
     ip: ^1.1.5
     jest: 27.5.1
@@ -22973,6 +22987,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hbs: ^4.2.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.5.1
     mozlog: ^3.0.2
     pm2: ^5.1.2
@@ -23686,7 +23701,7 @@ fsevents@~2.1.1:
 "gobbledygook@https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2":
   version: 0.0.4
   resolution: "gobbledygook@https://github.com/mozilla-fxa/gobbledygook.git#commit=354042684056e57ca77f036989e907707a36cff2"
-  checksum: 6f4efd024a0a324975843145e43e6c3eba565077ed9a91ceab58e778032853e495e7229eadf1284804a54c09ab1bf321528ee7da646226425cdbf0658d5ea266
+  checksum: ac2afbce18e30bef37e6215dfe41d216ac490e14b570fb5a5da537a1f57baabc9762ec659ea606b2003992572356a1f248f854ea6b9cd6384acd4a56b8eaa86a
   languageName: node
   linkType: hard
 
@@ -24217,7 +24232,7 @@ fsevents@~2.1.1:
     po2json: "*"
   peerDependencies:
     grunt: ">=0.4.1"
-  checksum: 2f275000e9d8554b3d4d42c519f6f7400cd4fd63df5ca5ba5b922e904cfe9af0210c091b259de49b747e23832730751c2815144cf8f79ac8c1ac37a46c55c45d
+  checksum: fe0722ab7c47a3c91821bad55f2380be198f68ec9beb96afb6fb1d29635d9cd815e22acc52f8c28e6e07101e4a36555cd2d72c308b1583c205a6b7d91dd90c21
   languageName: node
   linkType: hard
 
@@ -25351,7 +25366,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"i18n-abide@npm:0.0.26":
+"i18n-abide@npm:0.0.26, i18n-abide@npm:^0.0.26":
   version: 0.0.26
   resolution: "i18n-abide@npm:0.0.26"
   dependencies:
@@ -28356,7 +28371,7 @@ fsevents@~2.1.1:
 "jquery-modal@https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503":
   version: 0.7.1
   resolution: "jquery-modal@https://github.com/mozilla-fxa/jquery-modal.git#commit=0576775d1b4590314b114386019f4c7421c77503"
-  checksum: 3896bd67f9e8baedcb067bed117b1b4cec52d3ac8bd31be24a5a97a7c1f930bb581e1a1150571a68b6dd4680b14933ee5aebafd93935e5299afac89eda950cd2
+  checksum: 85d2ab271e09853a3ac4e061a7c67548304a3beb171ca9e87e112ba4b57b7843a6839a75bfeb6669f335b805adde1896be88bb1166f2023870a16053e3b74c31
   languageName: node
   linkType: hard
 
@@ -29324,7 +29339,7 @@ fsevents@~2.1.1:
 "legal-docs@https://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc":
   version: 1.0.0
   resolution: "legal-docs@https://github.com/mozilla/legal-docs.git#commit=569f5c812ef288c4ebf19b8d521ba90b99e99cfc"
-  checksum: 0084b25cfdf2b7ff22c6cd16d5f5e514bd08db35e256f376c374ef20dd3607fe3d0579ceb9c1c54b65a176c21a556eac9758c5ff6920daadd05ea39b2e7692bf
+  checksum: b57975dae82c208f358db0119811115fefc831ea42895585b93ac811555581df3f322ceef30cfbdc1bd9dddc5a35dabe16c0e17401508e7c14bc0b9706a1b85c
   languageName: node
   linkType: hard
 
@@ -32246,7 +32261,7 @@ fsevents@~2.1.1:
     uap-core: "https://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
     uap-ref-impl: 0.2.0
     yamlparser: 0.0.2
-  checksum: 276cf06bfabf27aeee6f6a5aed742d2842cee5b520892d57a2bb8df99acacc5c11e152072c109ed7cb4e9ef4f6018a6c1531c40800b192c07b4b174f77e8b999
+  checksum: 1f00984a6db0df3300e9685c913487acebadd120ecabdf5c16a9e278a97c05f35433f268ca025328839883008059a947573a0e0865d317090d1de896b3aec390
   languageName: node
   linkType: hard
 
@@ -42027,14 +42042,14 @@ resolve@^2.0.0-next.3:
 "ua-parser-js@https://github.com/mozilla-fxa/ua-parser-js.git#fxa-version":
   version: 0.7.10
   resolution: "ua-parser-js@https://github.com/mozilla-fxa/ua-parser-js.git#commit=643d1698aef5bed095e1264ae258902bf346175c"
-  checksum: f80940e57ec9cc8e96927640dada19fa9e8d15827d64d04c58cbc1ac78fd7a876b23ae02e2f40eccc2736b4930a3c2c8a664c9bd9a33de56a79d5681390556ed
+  checksum: e00082eba939e3fae650ec3c5f8ab962394762e5340fd81dc227898c0866221ae2de6c862f0ce18c52ac98a4983a877f29d2d5be947c7e8a530a27bf4b9d7d04
   languageName: node
   linkType: hard
 
 "uap-core@https://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af":
   version: 0.6.7
   resolution: "uap-core@https://github.com/ua-parser/uap-core#commit=2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
-  checksum: 66623ae9913352f46d18f3e0ce6b9dfb9415323f02dba860ef7d855c04412f248318024b9ba77dc375dc366bda98ee10d0309feaccef7f7572869ffdc3f6fce2
+  checksum: 6adddeae11951e25532cfbef71cb325086b6140236b1c2253931267332d8a881e1edd32e30746baf70ff47efbd730eba9ce19b7139b26917eb1e99b7c9329ec1
   languageName: node
   linkType: hard
 
@@ -43124,7 +43139,7 @@ resolve@^2.0.0-next.3:
   resolution: "webcrypto-core@https://github.com/mozilla-fxa/webcrypto-core.git#commit=e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
   dependencies:
     tslib: ^1.7.1
-  checksum: f4517671da54620b5ac643749313c63b479427e8ffd59e4dc52b0c2b255555fec5d02b9aa4c55fe1d3d582a2bf3800313a20164ff9fbe2c284694994605660d7
+  checksum: 5e71b2fe5041a5bcdae1884d9ff427c2db331fdc50e70f2aa110b8ecc43fc4f39013cd0bd2e1818df5221421ff33aa18e4baaa23346466babed14e4bdfea1897
   languageName: node
   linkType: hard
 
@@ -43148,7 +43163,7 @@ resolve@^2.0.0-next.3:
     "@dannycoates/elliptic": ^6.4.2
     asmcrypto.js: ^0.22.0
     webcrypto-core: "https://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
-  checksum: ca2b7ea2b8af2d8def878ecfa69b5fdf49ea3d848fb30f3db87fc1a763bdaeaa9de54715bebea4f05acac2a2967164b76420a42bf84e98984643ec2369151181
+  checksum: 0fdbef79faa88cd6f374bf6caf253be5465256604d85b059ec40223d58a57d506f856e1bb365dad13fdcc3e69492dd041f55f0e5f97f676afa449888285342fc
   languageName: node
   linkType: hard
 
@@ -44236,7 +44251,7 @@ resolve@^2.0.0-next.3:
 "xmlhttprequest@https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror":
   version: 1.5.1
   resolution: "xmlhttprequest@https://github.com/mozilla-fxa/node-XMLHttpRequest.git#commit=3f904613b860b4438e65a31b7b82f09a4d2d64dd"
-  checksum: 3d531894194e0b5bbd9373ebc02d278f0d5e60c35c0f5dbe4cc3d5cc74e1930b30ff2193d14c9756c42c89a2bf83a2380fbeac7fe438122284596564fec23876
+  checksum: aae187b20514b2e113c1c27cef3e82b25f8383f7b3b3fa1ba0d2eb2e4584b1fcad6f3608410e7076e270d0aa99e2ce271fb55802812df2f7c280fb4b5731bf7c
   languageName: node
   linkType: hard
 

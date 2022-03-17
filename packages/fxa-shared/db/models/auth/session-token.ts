@@ -133,7 +133,7 @@ export class SessionToken extends BaseToken {
     tokenVerificationCode?: string;
     tokenVerificationCodeExpiresAt: number;
   }) {
-    return SessionToken.callProcedure(
+    return this.callProcedure(
       Proc.CreateSessionToken,
       uuidTransformer.to(id),
       uuidTransformer.to(data),
@@ -180,7 +180,7 @@ export class SessionToken extends BaseToken {
     id: string;
   }) {
     try {
-      await SessionToken.callProcedure(
+      await this.callProcedure(
         Proc.UpdateSessionToken,
         uuidTransformer.to(id),
         uaBrowser ?? null,
@@ -200,8 +200,8 @@ export class SessionToken extends BaseToken {
 
   static async verify(id: string, method: VerificationMethod | number) {
     try {
-      await SessionToken.transaction(async (txn) => {
-        const { status } = await SessionToken.callProcedure(
+      await this.transaction(async (txn) => {
+        const { status } = await this.callProcedure(
           Proc.VerifyTokenWithMethod,
           txn,
           uuidTransformer.to(id),
@@ -211,7 +211,7 @@ export class SessionToken extends BaseToken {
         if (status.affectedRows < 1) {
           throw notFound();
         }
-        const token = await SessionToken.query(txn)
+        const token = await this.query(txn)
           .select(
             'sessionTokens.uid as uid',
             'unverifiedTokens.tokenVerificationId as tokenVerificationId'
@@ -224,7 +224,7 @@ export class SessionToken extends BaseToken {
           .where('sessionTokens.tokenId', uuidTransformer.to(id))
           .first();
         if (token) {
-          await SessionToken.callProcedure(
+          await this.callProcedure(
             Proc.VerifyToken,
             txn,
             uuidTransformer.to(token.tokenVerificationId),
@@ -238,21 +238,18 @@ export class SessionToken extends BaseToken {
   }
 
   static async delete(id: string) {
-    return SessionToken.callProcedure(
-      Proc.DeleteSessionToken,
-      uuidTransformer.to(id)
-    );
+    return this.callProcedure(Proc.DeleteSessionToken, uuidTransformer.to(id));
   }
 
   static async findByTokenId(id: string) {
-    const { rows } = await SessionToken.callProcedure(
+    const { rows } = await this.callProcedure(
       Proc.SessionWithDevice,
       uuidTransformer.to(id)
     );
     if (!rows.length) {
       return null;
     }
-    const token = SessionToken.fromDatabaseJson(
+    const token = this.fromDatabaseJson(
       aggregateNameValuePairs(
         rows,
         'deviceId',
@@ -264,8 +261,8 @@ export class SessionToken extends BaseToken {
     return notExpired(token) ? token : null;
   }
 
-  static async findByUid(uid: string) {
-    const { rows } = await SessionToken.callProcedure(
+  static async findByUid(uid: string): Promise<SessionToken[]> {
+    const { rows } = await this.callProcedure(
       Proc.Sessions,
       uuidTransformer.to(uid)
     );
@@ -279,7 +276,9 @@ export class SessionToken extends BaseToken {
       'deviceCommandData',
       'deviceAvailableCommands'
     )
-      .map((row) => SessionToken.fromDatabaseJson(row))
+      .map((row) => {
+        return this.fromDatabaseJson(row);
+      })
       .filter(notExpired);
   }
 }

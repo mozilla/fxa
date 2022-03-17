@@ -14,6 +14,33 @@ No changes.
 - deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
 - deps: bump @nestjs/common from 8.2.4 to 8.3.0 (#11949) ([116f4310e](https://github.com/mozilla/fxa/commit/116f4310e))
 
+## 1.226.9
+
+### Other changes
+
+- auth,admin: Redis config potentially missing ([887a9a579](https://github.com/mozilla/fxa/commit/887a9a579))
+
+## 1.226.8
+
+### Other changes
+
+- auth,shared: Logging improvements after observing last canary deployment's logs. ([32b9f66d2](https://github.com/mozilla/fxa/commit/32b9f66d2))
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+### Other changes
+
+- shared: Add logging to connection pools ([da2b5ba5e](https://github.com/mozilla/fxa/commit/da2b5ba5e))
+- cedc69696 Revert "Merge pull request #12024 from mozilla/train-226-uplift-1" ([cedc69696](https://github.com/mozilla/fxa/commit/cedc69696))
+
 ## 1.226.4
 
 No changes.

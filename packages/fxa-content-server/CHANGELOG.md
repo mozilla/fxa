@@ -18,6 +18,26 @@
 - #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
 - deps: bump @sentry/browser from 6.17.2 to 6.17.9 (#11994) ([f32ae3f1a](https://github.com/mozilla/fxa/commit/f32ae3f1a))
 
+## 1.226.9
+
+No changes.
+
+## 1.226.8
+
+No changes.
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+No changes.
+
 ## 1.226.4
 
 No changes.

@@ -14,6 +14,26 @@
 - deps-dev: bump @testing-library/jest-dom from 5.16.1 to 5.16.2 (#12032) ([2fc10e301](https://github.com/mozilla/fxa/commit/2fc10e301))
 - deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
 
+## 1.226.9
+
+No changes.
+
+## 1.226.8
+
+No changes.
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+No changes.
+
 ## 1.226.4
 
 No changes.

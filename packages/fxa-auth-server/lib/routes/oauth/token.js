@@ -37,7 +37,7 @@ const {
   OAUTH_SCOPE_SESSION_TOKEN,
 } = require('fxa-shared/oauth/constants');
 const config = require('../../../config');
-const encrypt = require('../../oauth/encrypt');
+const encrypt = require('fxa-shared/auth/encrypt');
 const util = require('../../oauth/util');
 const oauthRouteUtils = require('../utils/oauth');
 const token = require('../../oauth/token');

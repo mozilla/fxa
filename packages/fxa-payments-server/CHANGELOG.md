@@ -28,6 +28,26 @@
 - deps: bump @sentry/browser from 6.17.2 to 6.17.9 (#11994) ([f32ae3f1a](https://github.com/mozilla/fxa/commit/f32ae3f1a))
 - deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
 
+## 1.226.9
+
+No changes.
+
+## 1.226.8
+
+No changes.
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+No changes.
+
 ## 1.226.4
 
 No changes.

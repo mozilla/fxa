@@ -36,6 +36,37 @@ No changes.
 - deps: bump stripe from 8.202.0 to 8.203.0 (#11988) ([5df09116f](https://github.com/mozilla/fxa/commit/5df09116f))
 - emails: update finish setup email with more generic language (#11977) ([3f39572f8](https://github.com/mozilla/fxa/commit/3f39572f8))
 
+## 1.226.9
+
+### Other changes
+
+- auth,admin: Redis config potentially missing ([887a9a579](https://github.com/mozilla/fxa/commit/887a9a579))
+
+## 1.226.8
+
+### Other changes
+
+- auth,shared: Logging improvements after observing last canary deployment's logs. ([32b9f66d2](https://github.com/mozilla/fxa/commit/32b9f66d2))
+
+## 1.226.7
+
+### Bug fixes
+
+- auth: Startup issue ([cae1f613d](https://github.com/mozilla/fxa/commit/cae1f613d))
+
+## 1.226.6
+
+### Other changes
+
+- a2dd40eb1 Fix typescript build error ([a2dd40eb1](https://github.com/mozilla/fxa/commit/a2dd40eb1))
+
+## 1.226.5
+
+### Other changes
+
+- shared: Add logging to connection pools ([da2b5ba5e](https://github.com/mozilla/fxa/commit/da2b5ba5e))
+- cedc69696 Revert "Merge pull request #12024 from mozilla/train-226-uplift-1" ([cedc69696](https://github.com/mozilla/fxa/commit/cedc69696))
+
 ## 1.226.4
 
 ### Bug fixes

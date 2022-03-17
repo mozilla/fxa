@@ -9,6 +9,26 @@ No changes.
 - #12061: 85c20f658 Train 226.3 (#12061) ([85c20f658](https://github.com/mozilla/fxa/commit/85c20f658))
 - deps: bump aws-sdk from 2.1068.0 to 2.1081.0 (#12026) ([7b305a3cd](https://github.com/mozilla/fxa/commit/7b305a3cd))
 
+## 1.226.9
+
+No changes.
+
+## 1.226.8
+
+No changes.
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+No changes.
+
 ## 1.226.4
 
 No changes.

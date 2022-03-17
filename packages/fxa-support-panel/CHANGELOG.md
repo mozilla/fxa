@@ -16,6 +16,28 @@ No changes.
 - deps-dev: bump jest from 27.4.7 to 27.5.1 (#11974) ([8ba05a381](https://github.com/mozilla/fxa/commit/8ba05a381))
 - deps: bump @nestjs/common from 8.2.4 to 8.3.0 (#11949) ([116f4310e](https://github.com/mozilla/fxa/commit/116f4310e))
 
+## 1.226.9
+
+No changes.
+
+## 1.226.8
+
+No changes.
+
+## 1.226.7
+
+No changes.
+
+## 1.226.6
+
+No changes.
+
+## 1.226.5
+
+### Other changes
+
+- shared: Add logging to connection pools ([da2b5ba5e](https://github.com/mozilla/fxa/commit/da2b5ba5e))
+
 ## 1.226.4
 
 No changes.
