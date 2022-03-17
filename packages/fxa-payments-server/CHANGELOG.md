@@ -1,5 +1,11 @@
 # Change history
 
+## 1.228.1
+
+### Bug fixes
+
+- subscriptions: create customer for iap sub (#12164) ([7c54513ac](https://github.com/mozilla/fxa/commit/7c54513ac))
+
 ## 1.228.0
 
 ### Other changes

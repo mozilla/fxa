@@ -1,3 +1,9 @@
+## 1.228.1
+
+### Bug fixes
+
+- google: Pocket third party auth fixes, FAQ link fix (#12177) ([06c16ccf1](https://github.com/mozilla/fxa/commit/06c16ccf1))
+
 ## 1.228.0
 
 ### New features
