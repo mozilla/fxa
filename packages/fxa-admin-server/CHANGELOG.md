@@ -1,3 +1,12 @@
+## 1.228.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.3.1 to 8.4.0 (#12134) ([43100d0df](https://github.com/mozilla/fxa/commit/43100d0df))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+- deps-dev: bump tsconfig-paths from 3.12.0 to 3.13.0 (#12119) ([749e554a6](https://github.com/mozilla/fxa/commit/749e554a6))
+
 ## 1.227.1
 
 No changes.

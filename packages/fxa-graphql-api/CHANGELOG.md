@@ -1,3 +1,11 @@
+## 1.228.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.3.1 to 8.4.0 (#12134) ([43100d0df](https://github.com/mozilla/fxa/commit/43100d0df))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps: bump @nestjs/passport from 8.1.0 to 8.2.1 (#12131) ([707a31f58](https://github.com/mozilla/fxa/commit/707a31f58))
+
 ## 1.227.1
 
 No changes.

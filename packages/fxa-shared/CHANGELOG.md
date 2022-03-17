@@ -1,5 +1,20 @@
 # Change history
 
+## 1.228.0
+
+### New features
+
+- apple: Add Sign-in with Apple support (#12148) ([fa817cb37](https://github.com/mozilla/fxa/commit/fa817cb37))
+- subscriptions: add config for cancel survey (#12114) ([49598b251](https://github.com/mozilla/fxa/commit/49598b251))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+- deps-dev: bump tsconfig-paths from 3.12.0 to 3.13.0 (#12119) ([749e554a6](https://github.com/mozilla/fxa/commit/749e554a6))
+- deps: bump aws-sdk from 2.1082.0 to 2.1089.0 (#12117) ([014363918](https://github.com/mozilla/fxa/commit/014363918))
+
 ## 1.227.1
 
 No changes.
