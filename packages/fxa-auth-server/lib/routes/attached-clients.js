@@ -12,8 +12,6 @@ const error = require('../error');
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
 
-const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
-
 module.exports = (log, db, devices, clientUtils) => {
   return [
     {
@@ -67,26 +65,157 @@ module.exports = (log, db, devices, clientUtils) => {
         const sessionToken = request.auth && request.auth.credentials;
 
         sessionToken.lastAccessTime = Date.now();
+
         await db.touchSessionToken(sessionToken, {}, true);
-        const { uid, id } = sessionToken;
-        const factory = new ConnectedServicesFactory({
-          formatTimestamps: (...args) => {
-            clientUtils.formatTimestamps(...args);
-          },
-          formatLocation: (...args) => {
-            clientUtils.formatLocation(...args);
-          },
-          deviceList: async () => {
-            return await request.app.devices;
-          },
-          oauthClients: async () => {
-            return await authorizedClients.list(request.auth.credentials.uid);
-          },
-          sessions: async () => {
-            return await db.sessions(uid);
-          },
-        });
-        return await factory.build(id, request.app.acceptLanguage);
+
+        const { uid } = sessionToken;
+
+        const attachedClients = [];
+
+        const defaultFields = {
+          clientId: null,
+          deviceId: null,
+          sessionTokenId: null,
+          refreshTokenId: null,
+          isCurrentSession: false,
+          deviceType: null,
+          name: null,
+          createdTime: Infinity,
+          lastAccessTime: 0,
+          scope: null,
+          location: null,
+          userAgent: '',
+          os: null,
+        };
+
+        // To generate the full list of attached clients, we have to merge three lists:
+        //  * The auth-server's list of active session tokens
+        //  * The auth-server's list of active device records
+        //  * The oauth-server's list of authorized clients
+        // Fetch them in parallel.
+        // XXX TODO: we could obtain `sessions` and `devices` in a single query to the DB,
+        // but would need to add a new db-server endpoint because each set can contain items
+        // that the other does not.
+        const devicesList = await request.app.devices;
+        const oauthClients = await authorizedClients.list(
+          request.auth.credentials.uid
+        );
+        const sessions = await db.sessions(uid);
+
+        // Let's start with the devices, since each device is annotated with
+        // the appropriate `sessionTokenId` and/or `refreshTokenId` to merge
+        // with the other lists.
+        const clientsBySessionTokenId = new Map();
+        const clientsByRefreshTokenId = new Map();
+        for (const device of devicesList) {
+          const client = {
+            ...defaultFields,
+            sessionTokenId: device.sessionTokenId || null,
+            // The refreshTokenId might be a dangling pointer, don't set it
+            // until we know whether the corresponding token exists in the OAuth db.
+            refreshTokenId: null,
+            deviceId: device.id,
+            deviceType: device.type,
+            name: device.name,
+            createdTime: device.createdAt,
+            lastAccessTime: device.createdAt,
+          };
+          attachedClients.push(client);
+          if (device.sessionTokenId) {
+            clientsBySessionTokenId.set(device.sessionTokenId, client);
+          }
+          if (device.refreshTokenId) {
+            clientsByRefreshTokenId.set(device.refreshTokenId, client);
+          }
+        }
+
+        // Merge with OAuth clients, which may or may not be linked to a device record.
+        for (const oauthClient of oauthClients) {
+          let client = clientsByRefreshTokenId.get(
+            oauthClient.refresh_token_id
+          );
+          if (client) {
+            client.refreshTokenId = oauthClient.refresh_token_id;
+          } else {
+            client = {
+              ...defaultFields,
+              refreshTokenId: oauthClient.refresh_token_id || null,
+              createdTime: oauthClient.created_time,
+              lastAccessTime: oauthClient.last_access_time,
+            };
+            attachedClients.push(client);
+          }
+          client.clientId = oauthClient.client_id;
+          client.scope = oauthClient.scope;
+          client.createdTime = Math.min(
+            client.createdTime,
+            oauthClient.created_time
+          );
+          client.lastAccessTime = Math.max(
+            client.lastAccessTime,
+            oauthClient.last_access_time
+          );
+          // We fill in a default device name from the OAuth client name,
+          // but individual clients can override this in their device record registration.
+          if (!client.name) {
+            client.name = oauthClient.client_name;
+          }
+          // For now we assume that all oauth clients that register a device record are mobile apps.
+          // Ref https://github.com/mozilla/fxa/issues/449
+          if (client.deviceId && !client.deviceType) {
+            client.deviceType = 'mobile';
+          }
+        }
+
+        // Merge with sessions, which may or may not be linked to a device record.
+        for (const session of sessions) {
+          let client = clientsBySessionTokenId.get(session.id);
+          if (!client) {
+            client = {
+              ...defaultFields,
+              sessionTokenId: session.id,
+              createdTime: session.createdAt,
+            };
+            attachedClients.push(client);
+          }
+          client.createdTime = Math.min(client.createdTime, session.createdAt);
+          client.lastAccessTime = Math.max(
+            client.lastAccessTime,
+            session.lastAccessTime
+          );
+          if (client.sessionTokenId === request.auth.credentials.id) {
+            client.isCurrentSession = true;
+          }
+          // Any client holding a sessionToken can grant themselves any scope.
+          client.scope = null;
+          // Location, OS and UA are currently only available on sessionTokens, so we can
+          // copy across without worrying about merging with data from the device record.
+          client.location = session.location ? { ...session.location } : null;
+          client.os = session.uaOS || null;
+          if (!session.uaBrowser) {
+            client.userAgent = '';
+          } else if (!session.uaBrowserVersion) {
+            client.userAgent = session.uaBrowser;
+          } else {
+            const { uaBrowser: browser, uaBrowserVersion: version } = session;
+            client.userAgent = `${browser} ${version.split('.')[0]}`;
+          }
+          if (!client.name) {
+            client.name = devices.synthesizeName(session);
+          }
+        }
+
+        // Now we can do some final tweaks of each item for display.
+        for (const client of attachedClients) {
+          clientUtils.formatTimestamps(client, request);
+          clientUtils.formatLocation(client, request);
+          if (client.deviceId && !client.deviceType) {
+            client.deviceType = 'desktop';
+          }
+          client.name = client.name.replace('Mac OS X', 'macOS');
+        }
+
+        return attachedClients;
       },
     },
     {
