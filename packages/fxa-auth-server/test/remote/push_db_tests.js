@@ -9,7 +9,7 @@ const uuid = require('uuid');
 const crypto = require('crypto');
 const base64url = require('base64url');
 const proxyquire = require('proxyquire');
-const log = { trace() {}, info() {}, error() {} };
+const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
 const config = require('../../config').getProperties();
 const TestServer = require('../test_server');

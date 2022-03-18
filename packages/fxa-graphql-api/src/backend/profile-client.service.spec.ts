@@ -29,10 +29,15 @@ describe('ProfileClientService', () => {
         }),
       },
     };
+    const MockMetricsFactory: Provider = {
+      provide: 'METRICS',
+      useFactory: () => undefined,
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProfileClientService,
         MockConfig,
+        MockMetricsFactory,
         { provide: AuthClientService, useValue: authClient },
       ],
     }).compile();

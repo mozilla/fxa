@@ -126,7 +126,8 @@ describe('AppErrors', () => {
       originalError
     );
     const fullError = verror.fullStack(err);
-    assert.include(fullError, 'caused by: Error: Service timed out.');
+    assert.include(fullError, 'caused by:');
+    assert.include(fullError, 'Error: Service timed out.');
   });
 
   it('tooManyRequests', () => {

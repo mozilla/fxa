@@ -5,12 +5,13 @@
 const hex = require('buf').to.hex;
 
 const config = require('../../../config');
-const encrypt = require('../encrypt');
+const encrypt = require('fxa-shared/auth/encrypt');
 const mysql = require('./mysql');
 const redis = require('./redis');
 const AccessToken = require('./accessToken');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
+const { ConnectedServicesDb } = require('fxa-shared/connected-services');
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
@@ -33,28 +34,45 @@ const POCKET_IDS = getPocketIds(
   config.get('oauthServer.clientIdToServiceNames')
 );
 
-class OauthDB {
+class OauthDB extends ConnectedServicesDb {
+  get mysql() {
+    return this.db;
+  }
+
+  get redis() {
+    return this.cache;
+  }
+
   constructor() {
-    this.mysql = mysql.connect(config.get('oauthServer.mysql'));
-    this.mysql.then(async (db) => {
-      await preClients();
-      await scopes();
-    });
+    super(mysql.connect(config.get('oauthServer.mysql')), redis());
 
-    this.redis = redis();
+    // A better inheritance model would be preferable, but for now
+    // this is still backwards compatible.
+    for (const functionName of this.mysql.getProxyableFunctions()) {
+      if (this[functionName] === undefined) {
+        this[functionName] = (...args) => {
+          return this.proxy(functionName, ...args);
+        };
+      }
+    }
+  }
 
-    Object.keys(mysql.prototype).forEach((key) => {
-      const self = this;
-      this[key] = async function () {
-        const db = await self.mysql;
-        return db[key].apply(db, Array.from(arguments));
-      };
-    });
+  async proxy(method, ...args) {
+    await this.ready();
+    return await this.mysql[method](...args);
+  }
+
+  async ready() {
+    if (!this._isReady) {
+      this._isReady = initDb(this.mysql);
+    }
+    await this._isReady;
   }
 
   disconnect() {}
 
   async generateAccessToken(vals) {
+    await this.ready();
     const token = AccessToken.generate(
       vals.clientId,
       vals.name,
@@ -79,8 +97,7 @@ class OauthDB {
       // reasons: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
       // since they are long lived we continue to store them in mysql
       // so that redis can be exclusively ephemeral
-      const db = await this.mysql;
-      await db._generateAccessToken(token);
+      await this.mysql._generateAccessToken(token);
     } else {
       await this.redis.setAccessToken(token);
     }
@@ -88,32 +105,32 @@ class OauthDB {
   }
 
   async getAccessToken(id) {
+    await this.ready();
     const t = await this.redis.getAccessToken(id);
     if (t) {
       return t;
     }
-    const db = await this.mysql;
-    return db._getAccessToken(id);
+    return await this.mysql._getAccessToken(id);
   }
 
   async removeAccessToken(token) {
+    await this.ready();
     const done = await this.redis.removeAccessToken(token.tokenId);
     if (!done) {
-      const db = await this.mysql;
-      return db._removeAccessToken(token.tokenId);
+      return await this.mysql._removeAccessToken(token.tokenId);
     }
   }
 
   async getAccessTokensByUid(uid) {
+    await this.ready();
     const tokens = await this.redis.getAccessTokens(uid);
-    const db = await this.mysql;
-    const otherTokens = await db._getAccessTokensByUid(uid);
+    const otherTokens = await this.mysql._getAccessTokensByUid(uid);
     return tokens.concat(otherTokens);
   }
 
   async getRefreshToken(id) {
-    const db = await this.mysql;
-    const t = await db._getRefreshToken(id);
+    await this.ready();
+    const t = await this.mysql._getRefreshToken(id);
     if (t) {
       const extraMetadata = new RefreshTokenMetadata(new Date());
       await this.redis.setRefreshToken(t.userId, id, extraMetadata);
@@ -122,7 +139,10 @@ class OauthDB {
         extraMetadata.lastUsedAt - t.lastUsedAt >
         REFRESH_LAST_USED_AT_UPDATE_AFTER_MS
       ) {
-        await db._touchRefreshToken(t.tokenId, extraMetadata.lastUsedAt);
+        await this.mysql._touchRefreshToken(
+          t.tokenId,
+          extraMetadata.lastUsedAt
+        );
       }
       Object.assign(t, extraMetadata || {});
     }
@@ -130,8 +150,8 @@ class OauthDB {
   }
 
   async getRefreshTokensByUid(uid) {
-    const db = await this.mysql;
-    const tokens = await db._getRefreshTokensByUid(uid);
+    await this.ready();
+    const tokens = await this.mysql._getRefreshTokensByUid(uid);
     const extraMetadata = await this.redis.getRefreshTokens(uid);
     // We'll take this opportunity to clean up any tokens that exist in redis but
     // not in mysql, so this loop deletes each token from `extraMetadata` once handled.
@@ -151,9 +171,9 @@ class OauthDB {
   }
 
   async removeRefreshToken(token) {
+    await this.ready();
     await this.redis.removeRefreshToken(token.userId, token.tokenId);
-    const db = await this.mysql;
-    return db._removeRefreshToken(token.tokenId);
+    return this.mysql._removeRefreshToken(token.tokenId);
   }
 
   async removePublicAndCanGrantTokens(userId) {
@@ -167,9 +187,9 @@ class OauthDB {
   }
 
   async deleteClientAuthorization(clientId, uid) {
+    await this.ready();
     await this.redis.removeAccessTokensForUserAndClient(uid, clientId);
-    const db = await this.mysql;
-    return db._deleteClientAuthorization(clientId, uid);
+    return await this.mysql._deleteClientAuthorization(clientId, uid);
     // Note that we do not clear metadata for deleted refresh tokens from redis,
     // because it's awkward to enumerate the list of deleted refresh token ids.
     // Instead we rely on a future call to `getRefreshTokensByUid` or
@@ -177,8 +197,8 @@ class OauthDB {
   }
 
   async deleteClientRefreshToken(refreshTokenId, clientId, uid) {
-    const db = await this.mysql;
-    const ok = await db._deleteClientRefreshToken(
+    await this.ready();
+    const ok = await this.mysql._deleteClientRefreshToken(
       refreshTokenId,
       clientId,
       uid
@@ -191,10 +211,10 @@ class OauthDB {
   }
 
   async removeUser(uid) {
+    await this.ready();
     await this.redis.removeAccessTokensForUser(uid);
     await this.redis.removeRefreshTokensForUser(uid);
-    const db = await this.mysql;
-    await db._removeUser(uid);
+    await this.mysql._removeUser(uid);
   }
 
   getPocketIds() {
@@ -202,6 +222,7 @@ class OauthDB {
   }
 }
 
+// Helper functions
 function clientEquals(configClient, dbClient) {
   var props = Object.keys(configClient);
   for (var i = 0; i < props.length; i++) {
@@ -230,11 +251,16 @@ function convertClientToConfigFormat(client) {
   return out;
 }
 
-function preClients() {
+async function initDb(db) {
+  await preClients(db);
+  await scopes(db);
+}
+
+async function preClients(db) {
   var clients = config.get('oauthServer.clients');
   if (clients && clients.length) {
-    return Promise.all(
-      clients.map(function (c) {
+    return await Promise.all(
+      clients.map(async function (c) {
         if (c.secret) {
           // eslint-disable-next-line no-console
           console.error(
@@ -245,13 +271,10 @@ function preClients() {
             c.id,
             hex(encrypt.hash(c.secret))
           );
-          return Promise.reject(
-            new Error('Do not keep client secrets in the config file.')
-          );
+          throw new Error('Do not keep client secrets in the config file.');
         }
 
         // ensure the required keys are present.
-        var err = null;
         var REQUIRED_CLIENTS_KEYS = [
           'id',
           'hashedSecret',
@@ -263,12 +286,9 @@ function preClients() {
         ];
         REQUIRED_CLIENTS_KEYS.forEach(function (key) {
           if (!(key in c)) {
-            err = new Error('Client config has missing keys');
+            throw new Error('Client config has missing keys');
           }
         });
-        if (err) {
-          return Promise.reject(err);
-        }
 
         // ensure booleans are boolean and not undefined
         c.trusted = !!c.trusted;
@@ -278,44 +298,39 @@ function preClients() {
         // Modification of the database at startup in production and stage is
         // not preferred. This option will be set to false on those stacks.
         if (!config.get('oauthServer.db.autoUpdateClients')) {
-          return Promise.resolve();
+          return;
         }
 
-        return module.exports.getClient(c.id).then(function (client) {
-          if (client) {
-            client = convertClientToConfigFormat(client);
-            if (!clientEquals(client, c)) {
-              return module.exports.updateClient(c);
-            }
-          } else {
-            return module.exports.registerClient(c);
+        let client = await db.getClient(c.id);
+        if (client) {
+          client = convertClientToConfigFormat(client);
+          if (!clientEquals(client, c)) {
+            return await db.updateClient(c);
           }
-        });
+        } else {
+          return await db.registerClient(c);
+        }
       })
     );
-  } else {
-    return Promise.resolve();
   }
 }
 
 /**
  * Insert pre-defined list of scopes into the DB
  */
-function scopes() {
+async function scopes(db) {
   var scopes = config.get('oauthServer.scopes');
   if (scopes && scopes.length) {
-    return Promise.all(
-      scopes.map(function (s) {
-        return module.exports.getScope(s.scope).then(function (existing) {
-          if (existing) {
-            return;
-          }
+    return await Promise.all(
+      scopes.map(async function (s) {
+        const existing = await db.getScope(s.scope);
+        if (existing) {
+          return;
+        }
 
-          return module.exports.registerScope(s);
-        });
+        return await db.registerScope(s);
       })
     );
   }
 }
-
 module.exports = new OauthDB();

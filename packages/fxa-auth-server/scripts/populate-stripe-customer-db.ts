@@ -38,6 +38,7 @@ export async function init() {
     maxNetworkRetries: 3,
   });
 
+  // TODO: Setup Logger and StatsD
   setupAuthDatabase(config.database.mysql.auth);
 
   await processCustomers(stripe);
