@@ -7,6 +7,7 @@ import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import PlanDetails from './index';
 import { Profile } from '../../store/types';
+import { COUPON_DETAILS_VALID } from '../../lib/mock-data';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -79,6 +80,61 @@ storiesOf('components/PlanDetail', module)
           showExpandButton: true,
           selectedPlan,
           isMobile: false,
+        }}
+      />
+    </MockApp>
+  ))
+  .add('with coupon - type "forever"', () => (
+    <MockApp>
+      <PlanDetails
+        {...{
+          profile: userProfile,
+          showExpandButton: false,
+          selectedPlan,
+          isMobile: false,
+          coupon: { ...COUPON_DETAILS_VALID, type: 'forever' },
+        }}
+      />
+    </MockApp>
+  ))
+  .add('with coupon - type "once"', () => (
+    <MockApp>
+      <PlanDetails
+        {...{
+          profile: userProfile,
+          showExpandButton: false,
+          selectedPlan,
+          isMobile: false,
+          coupon: { ...COUPON_DETAILS_VALID, type: 'once' },
+        }}
+      />
+    </MockApp>
+  ))
+  .add(
+    'with coupon - type "repeating" with misaligned plan and coupon interval',
+    () => (
+      <MockApp>
+        <PlanDetails
+          {...{
+            profile: userProfile,
+            showExpandButton: false,
+            selectedPlan: { ...selectedPlan, interval_count: 6 },
+            isMobile: false,
+            coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
+          }}
+        />
+      </MockApp>
+    )
+  )
+  .add('with coupon - type "repeating"', () => (
+    <MockApp>
+      <PlanDetails
+        {...{
+          profile: userProfile,
+          showExpandButton: false,
+          selectedPlan,
+          isMobile: false,
+          coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
         }}
       />
     </MockApp>

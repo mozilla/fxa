@@ -16,7 +16,6 @@ import {
 } from '../../lib/test-utils';
 import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
-import CouponForm from '../CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Profile } from '../../store/types';
 
@@ -192,17 +191,19 @@ describe('PlanDetails', () => {
   });
 
   describe('Valid Coupon Used', () => {
+    const coupon: CouponDetails = {
+      promotionCode: 'CODE10',
+      type: 'once',
+      durationInMonths: null,
+      valid: true,
+      discountAmount: 200,
+    };
+
     it('updates price', async () => {
       updateConfig({
         featureFlags: {},
       });
 
-      const coupon: CouponDetails = {
-        discountAmount: 200,
-        promotionCode: '',
-        type: '',
-        valid: true,
-      };
       const props = {
         ...{
           profile: userProfile,
@@ -232,7 +233,7 @@ describe('PlanDetails', () => {
       );
     });
 
-    it('displays a success message', () => {
+    it('for coupon info box without couponDurationDate, display coupon-success message', () => {
       const subject = () => {
         return render(
           <PlanDetails
@@ -241,7 +242,7 @@ describe('PlanDetails', () => {
               showExpandButton: false,
               isMobile: false,
               selectedPlan,
-              coupon: { amount: 200, promotionCode: '' },
+              coupon,
             }}
           />
         );
@@ -249,6 +250,54 @@ describe('PlanDetails', () => {
 
       const { queryByTestId } = subject();
       expect(queryByTestId('coupon-success')).toBeInTheDocument();
+      expect(queryByTestId('coupon-success-with-date')).not.toBeInTheDocument();
+    });
+
+    it('for coupon info box with couponDurationDate, display coupon-success-with-date message', () => {
+      const subject = () => {
+        return render(
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+              coupon: {
+                ...coupon,
+                type: 'repeating',
+                durationInMonths: 1,
+              },
+            }}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
+      expect(queryByTestId('coupon-success-with-date')).toBeInTheDocument();
+    });
+
+    it('do not show either coupon-success message, if info box is empty', () => {
+      const subject = () => {
+        return render(
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+              coupon: {
+                ...coupon,
+                type: 'forever',
+              },
+            }}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
+      expect(queryByTestId('coupon-success-with-date')).not.toBeInTheDocument();
     });
   });
 

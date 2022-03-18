@@ -775,6 +775,7 @@ export class StripeHelper {
       const couponDetails: Coupon.couponDetailsSchema = {
         promotionCode: promotionCode,
         type: stripeCoupon.duration,
+        durationInMonths: stripeCoupon.duration_in_months,
         valid: false,
       };
 

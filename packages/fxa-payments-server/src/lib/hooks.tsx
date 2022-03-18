@@ -13,6 +13,9 @@ import React, {
 import AppContext from './AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { planIntervalLessThanCouponDuration } from './coupon';
+import { Plan } from 'fxa-shared/subscriptions/types';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
@@ -100,4 +103,63 @@ export function usePaypalButtonSetup(
     };
     document.body.appendChild(script);
   }, [config, setPaypalScriptLoaded, paypalButtonBase]);
+}
+
+export const enum CouponInfoBoxMessageType {
+  Repeating = 'coupon-success-repeating',
+  Default = 'coupon-success',
+}
+
+export function useInfoBoxMessage(
+  coupon: CouponDetails | undefined,
+  selectedPlan: Plan
+) {
+  const [infoBoxMessage, setInfoBoxMessage] = useState<{
+    message: string;
+    couponDurationDate?: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!coupon) {
+      setInfoBoxMessage(null);
+      return;
+    }
+
+    switch (coupon.type) {
+      case 'repeating':
+        if (
+          coupon.durationInMonths &&
+          planIntervalLessThanCouponDuration(
+            selectedPlan.interval_count,
+            selectedPlan.interval,
+            coupon.durationInMonths
+          )
+        ) {
+          const date = new Date();
+          const couponDurationDate = new Date(
+            date.setMonth(date.getMonth() + coupon.durationInMonths)
+          );
+          setInfoBoxMessage({
+            message: CouponInfoBoxMessageType.Repeating,
+            couponDurationDate: Math.round(couponDurationDate.getTime() / 1000),
+          });
+        } else {
+          setInfoBoxMessage({
+            message: CouponInfoBoxMessageType.Default,
+          });
+        }
+        break;
+      case 'once':
+        setInfoBoxMessage({
+          message: CouponInfoBoxMessageType.Default,
+        });
+        break;
+      case 'forever':
+      default:
+        setInfoBoxMessage(null);
+        break;
+    }
+  }, [coupon, selectedPlan]);
+
+  return infoBoxMessage;
 }

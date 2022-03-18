@@ -279,6 +279,7 @@ export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
 export const COUPON_DETAILS_VALID: CouponDetails = {
   promotionCode: 'VALID',
   type: '',
+  durationInMonths: 1,
   valid: true,
   discountAmount: 50,
   expired: false,
@@ -288,12 +289,14 @@ export const COUPON_DETAILS_VALID: CouponDetails = {
 export const COUPON_DETAILS_INVALID: CouponDetails = {
   promotionCode: 'INVALID',
   type: '',
+  durationInMonths: 1,
   valid: false,
 };
 
 export const COUPON_DETAILS_EXPIRED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   expired: true,
 };
@@ -301,6 +304,7 @@ export const COUPON_DETAILS_EXPIRED: CouponDetails = {
 export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   maximallyRedeemed: true,
 };
