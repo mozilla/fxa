@@ -55,7 +55,7 @@ exports.scope = Joi.extend({
       };
     } catch (err) {
       return {
-        errors: this.createError('scope.base', { v: value }, state, options)
+        errors: this.$_createError('scope.base', { v: value }, state, options)
       };
     }
   },
