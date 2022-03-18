@@ -75,6 +75,7 @@ const coupon: CouponDetails = {
   discountAmount: 200,
   promotionCode: 'TEST',
   type: '',
+  durationInMonths: 1,
   valid: true,
 };
 
