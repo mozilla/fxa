@@ -85,7 +85,7 @@ module.exports.email = function () {
         }
       }
 
-      return email.createError('string.base', { value }, state, options);
+      return email.$_createError('string.base', { value }, state, options);
     },
   });
 
@@ -194,7 +194,7 @@ module.exports.redirectTo = function redirectTo(base) {
         }
       }
 
-      return validator.createError('string.base', { value }, state, options);
+      return validator.$_createError('string.base', { value }, state, options);
     },
   });
   return validator;
@@ -211,7 +211,7 @@ module.exports.url = function url(options) {
         }
       }
 
-      return validator.createError('string.base', { value }, state, options);
+      return validator.$_createError('string.base', { value }, state, options);
     },
   });
   return validator;
@@ -239,7 +239,7 @@ module.exports.pushCallbackUrl = function pushUrl(options) {
         }
       }
 
-      return validator.createError('string.base', { value }, state, options);
+      return validator.$_createError('string.base', { value }, state, options);
     },
   });
   return validator;
