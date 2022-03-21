@@ -69,6 +69,8 @@ export const supportRoutes = (
             app: isA.string().allow('').optional(),
             subject: isA.string().allow('').optional(),
             message: isA.string().required(),
+            product: isA.string().allow('').optional(),
+            category: isA.string().allow('').optional(),
           }) as any,
         },
         response: {
