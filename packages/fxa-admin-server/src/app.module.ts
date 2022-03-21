@@ -8,6 +8,7 @@ import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
+import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 
@@ -62,6 +63,6 @@ const version = getVersionInfo(__dirname);
     }),
   ],
   controllers: [],
-  providers: [],
+  providers: [MetricsFactory],
 })
 export class AppModule {}

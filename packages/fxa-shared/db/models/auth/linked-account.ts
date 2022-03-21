@@ -5,7 +5,7 @@
 import { BaseAuthModel } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-const PROVIDER = {
+export const PROVIDER = {
   __fxa__unmapped: 0,
   google: 1,
   apple: 2,
