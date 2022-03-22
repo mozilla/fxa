@@ -2307,6 +2307,38 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('updateCustomerPaymentMethodTaxRates', () => {
+    it('ignores deleted customers or with no country or no subscriptions', async () => {
+      let customer = deepCopy(customer1);
+      customer.deleted = true;
+      const paymentMethod = deepCopy(paymentMethodAttach);
+      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
+        customer,
+        paymentMethod
+      );
+      assert.deepEqual(result, undefined);
+      customer = deepCopy(customer1);
+      customer.subscriptions = undefined;
+      const result2 = await stripeHelper.updateCustomerPaymentMethodTaxRates(
+        customer,
+        paymentMethod
+      );
+      assert.deepEqual(result2, undefined);
+    });
+
+    it('updates the subscription tax rates from one rate to a different one', async () => {
+      const customer = deepCopy(customer1);
+      const paymentMethod = deepCopy(paymentMethodAttach);
+      sinon.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
+      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
+        customer,
+        paymentMethod
+      );
+      assert.deepEqual(result, [{}]);
+      assert(stripeHelper.stripe.subscriptions.update.calledOnce);
+    });
+  });
+
   describe('allPlans', () => {
     it('pulls a list of plans and caches it', async () => {
       assert.lengthOf(await stripeHelper.allPlans(), 3);

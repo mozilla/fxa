@@ -354,6 +354,39 @@ export class StripeHelper {
   }
 
   /**
+   * Handles updating a Stripe customer appropriately for a new payment methods tax rates.
+   *
+   */
+  async updateCustomerPaymentMethodTaxRates(
+    customer: Stripe.Customer,
+    paymentMethod: Stripe.PaymentMethod
+  ) {
+    const paymentMethodCountry = paymentMethod.card?.country;
+    if (!paymentMethodCountry || customer.deleted || !customer.subscriptions) {
+      return;
+    }
+
+    // Check if the customers tax rate id is the same as the payment method's
+    const taxRateId = (await this.taxRateByCountryCode(paymentMethodCountry))
+      ?.id;
+    const taxRates = new Set(taxRateId ? [taxRateId] : []);
+
+    const subUpdates = customer.subscriptions.data
+      .filter((sub) => {
+        const subTaxRates = new Set(
+          (sub.default_tax_rates ?? []).map((tr) => tr.id)
+        );
+        return taxRates !== subTaxRates;
+      })
+      .map((sub) =>
+        this.stripe.subscriptions.update(sub.id, {
+          default_tax_rates: [...taxRates],
+        })
+      );
+    return Promise.all(subUpdates);
+  }
+
+  /**
    * Create a stripe customer.
    */
   async createPlainCustomer(
