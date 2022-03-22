@@ -4,15 +4,12 @@
 
 'use strict';
 
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const validators = require('./routes/validators');
 const error = require('./error');
 const oauthDB = require('./oauth/db');
-const {
-  DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
-  HEX_STRING,
-  URL_SAFE_BASE_64,
-} = validators;
+const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
+  validators;
 const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex');
 
 const SCHEMA = {

@@ -7,7 +7,7 @@
 
 const { URL } = require('url');
 const punycode = require('punycode.js');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
 // Match any non-empty hex-encoded string.
@@ -275,7 +275,7 @@ module.exports.verificationMethod = isA.string().valid(
   'email-otp', // Verification by email otp code using account long code (`emailCode`) as secret
   'email-2fa', // Verification by email code using randomly generated code (used in login flow)
   'email-captcha', // Verification by email code using randomly generated code (used in unblock flow)
-  'totp-2fa', // Verification by TOTP authenticator device code, secret is randomly generated
+  'totp-2fa' // Verification by TOTP authenticator device code, secret is randomly generated
 );
 
 module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
@@ -471,12 +471,13 @@ module.exports.subscriptionProductMetadataValidator = {
         error: 'Capability missing from metadata',
       };
     }
-    const { value, error } = module.exports.subscriptionProductMetadataBaseValidator.validate(
-      metadata,
-      {
-        abortEarly: false,
-      }
-    );
+    const { value, error } =
+      module.exports.subscriptionProductMetadataBaseValidator.validate(
+        metadata,
+        {
+          abortEarly: false,
+        }
+      );
 
     if (error) {
       return { error };
@@ -496,13 +497,11 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     try {
-      const validationSchema = module.exports.subscriptionProductMetadataBaseValidator;
-      const value = await validationSchema.validateAsync(
-        metadata,
-        {
-          abortEarly: false,
-        }
-      );
+      const validationSchema =
+        module.exports.subscriptionProductMetadataBaseValidator;
+      const value = await validationSchema.validateAsync(metadata, {
+        abortEarly: false,
+      });
       return { value };
     } catch (error) {
       return { error };

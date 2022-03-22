@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';

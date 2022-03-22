@@ -30,7 +30,7 @@ const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const {
   OAUTH_SCOPE_OLD_SYNC,

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const authServerValidators = require('../routes/validators');
 
@@ -46,16 +46,16 @@ exports.scope = Joi.extend({
     const err = scopeString.validate(value).err;
     if (err) {
       return {
-        errors: err
-      }
+        errors: err,
+      };
     }
     try {
       return {
-        value: ScopeSet.fromString(value || '')
+        value: ScopeSet.fromString(value || ''),
       };
     } catch (err) {
       return {
-        errors: this.$_createError('scope.base', { v: value }, state, options)
+        errors: this.$_createError('scope.base', { v: value }, state, options),
       };
     }
   },

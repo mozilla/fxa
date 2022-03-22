@@ -5,7 +5,7 @@
 const exec = require('child_process').exec;
 const path = require('path');
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const version = require('../../package.json').version;
 let commitHash, source;

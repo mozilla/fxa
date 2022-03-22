@@ -6,7 +6,7 @@ const assert = require('assert');
 const config = require('../../config');
 const { jwk2pem, pem2jwk } = require('pem-jwk');
 const crypto = require('crypto');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 
@@ -47,7 +47,7 @@ if (currentPrivJWK) {
   assert.strictEqual(
     PRIVATE_KEY_SCHEMA.validate(currentPrivJWK).error,
     undefined,
-    'openid.key must be a valid private key',
+    'openid.key must be a valid private key'
   );
   PRIVATE_JWKS_MAP.set(currentPrivJWK.kid, currentPrivJWK);
 } else if (!config.get('oauthServer.openid.unsafelyAllowMissingActiveKey')) {

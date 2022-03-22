@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*jshint camelcase: false*/
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const validators = require('../../oauth/validators');
 const hex = require('buf').to.hex;
 const AppError = require('../../oauth/error');
