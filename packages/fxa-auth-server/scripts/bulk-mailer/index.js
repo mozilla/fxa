@@ -52,7 +52,11 @@ module.exports = async function (
         console.info(JSON.stringify(msg));
       }
     },
-    debug() {},
+    debug(msg) {
+      if (useVerboseLogging) {
+        console.debug(JSON.stringify(msg));
+      }
+    },
   };
 
   const translator = await createTranslator(config);

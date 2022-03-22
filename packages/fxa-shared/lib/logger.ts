@@ -1,19 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { ILogger } from '../log';
 
 /**
  * Logging module that performs proper checks and string
  * interpolation before logging message.
  *
  */
-
-interface Logger {
+interface Logger extends ILogger {
   _window: Window;
-  info: (...args: any) => void;
-  trace: (...args: any) => void;
-  warn: (...args: any) => void;
-  error: (...args: any) => void;
 }
 
 interface ModuleError {
@@ -29,9 +25,9 @@ interface ModuleError {
  *
  * @constructor
  */
-const Logger = (function (this: Logger, logWindow?: Window) {
+const Logger = function (this: Logger, logWindow?: Window) {
   this._window = logWindow || window;
-} as any) as new (logWindow?: Window) => Logger;
+} as any as new (logWindow?: Window) => Logger;
 
 Logger.prototype = {
   /**

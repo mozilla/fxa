@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.228.1",
+  "version": "1.228.2",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -49,6 +49,7 @@
     "handlebars": "^4.7.7",
     "hbs": "^4.2.0",
     "helmet": "^5.0.0",
+    "hot-shots": "^9.0.0",
     "mozlog": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

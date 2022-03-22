@@ -35,12 +35,17 @@ describe('AccountResolver', () => {
       provide: MozLoggerService,
       useValue: logger,
     };
+    const MockMetricsFactory: Provider = {
+      provide: 'METRICS',
+      useFactory: () => undefined,
+    };
     authClient = {};
     profileClient = {};
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
         MockMozLogger,
+        MockMetricsFactory,
         { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
         { provide: ProfileClientService, useValue: profileClient },

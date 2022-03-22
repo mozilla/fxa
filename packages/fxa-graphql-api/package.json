@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.228.1",
+  "version": "1.228.2",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -61,6 +61,7 @@
     "graphql-tools": "^8.0.0",
     "graphql-upload": "^13.0.0",
     "helmet": "^5.0.0",
+    "hot-shots": "^9.0.0",
     "ioredis": "^4.28.2",
     "knex": "^1.0.3",
     "mozlog": "^3.0.2",

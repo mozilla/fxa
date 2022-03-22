@@ -9699,6 +9699,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/i18n-abide@npm:^0":
+  version: 0.0.2
+  resolution: "@types/i18n-abide@npm:0.0.2"
+  dependencies:
+    "@types/express": "*"
+  checksum: 5fbdd033bdd183e5e54bbfd470a51512a11297d58f5debfe2b3fa3cd92b2c7de9a04c4fc10523bc4381a75fa0a2602b0d8b6819d5eb060de61c99842a6951587
+  languageName: node
+  linkType: hard
+
 "@types/ioredis@npm:^4.26.4":
   version: 4.26.4
   resolution: "@types/ioredis@npm:4.26.4"
@@ -14975,7 +14984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buf@npm:0.1.1":
+"buf@npm:0.1.1, buf@npm:^0.1.1":
   version: 0.1.1
   resolution: "buf@npm:0.1.1"
   checksum: 7ef58d0e5e0225af23cddc9557ea5db32b6330bb66b1922b8441b29bf444b92761ceb1e9a5dea69fc7407a15ecd443afa6703e07134a1f84f8fbe6db99404057
@@ -22037,6 +22046,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     graphql-tools: ^8.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.5.1
     knex: ^1.0.3
     mozlog: ^3.0.2
@@ -22142,7 +22152,6 @@ fsevents@~2.1.1:
     chai: ^4.3.6
     chai-as-promised: ^7.1.1
     cldr-core: ^40.0.0
-    cldr-localenames-full: 40.0.0
     commander: 2.18.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
@@ -22625,6 +22634,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^13.0.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     ioredis: ^4.28.2
     jest: 27.5.1
     knex: ^1.0.3
@@ -23007,6 +23017,7 @@ fsevents@~2.1.1:
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
+    "@types/i18n-abide": ^0
     "@types/ioredis": ^4.26.4
     "@types/ip": ^1
     "@types/jest": ^26.0.23
@@ -23026,11 +23037,13 @@ fsevents@~2.1.1:
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
     aws-sdk: ^2.1089.0
+    buf: ^0.1.1
     celebrate: ^10.0.1
     chai: ^4.3.6
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
+    cldr-localenames-full: 40.0.0
     cors: ^2.8.5
     db-migrations: "workspace:*"
     esbuild: ^0.14.2
@@ -23041,6 +23054,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.6.1
     hot-shots: ^9.0.0
+    i18n-abide: ^0.0.26
     ioredis: ^4.28.2
     ip: ^1.1.5
     jest: 27.5.1
@@ -23108,6 +23122,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hbs: ^4.2.0
     helmet: ^5.0.0
+    hot-shots: ^9.0.0
     jest: 27.5.1
     mozlog: ^3.0.2
     pm2: ^5.1.2
@@ -25503,7 +25518,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"i18n-abide@npm:0.0.26":
+"i18n-abide@npm:0.0.26, i18n-abide@npm:^0.0.26":
   version: 0.0.26
   resolution: "i18n-abide@npm:0.0.26"
   dependencies:

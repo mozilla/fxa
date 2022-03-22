@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.228.1",
+  "version": "1.228.2",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -72,7 +72,6 @@
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
     "cldr-core": "^40.0.0",
-    "cldr-localenames-full": "40.0.0",
     "commander": "2.18.0",
     "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",

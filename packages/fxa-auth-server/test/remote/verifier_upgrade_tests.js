@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const log = { trace() {}, info() {} };
+const log = { trace() {}, info() {}, debug() {}, warn() {}, error() {} };
 
 const config = require('../../config').getProperties();
 
