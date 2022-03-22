@@ -4,6 +4,8 @@
 
 'use strict';
 
+require('joi/lib/errors');
+
 const { assert } = require('chai');
 
 const validators = require('../../../lib/routes/validators');
