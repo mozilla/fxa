@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import isA from '@hapi/joi';
+import isA from 'joi';
 import crypto from 'crypto';
 import {
   deleteAllPayPalBAs,
@@ -1847,8 +1847,7 @@ export const accountRoutes = (
           query: {
             keys: isA.boolean().optional(),
           },
-          payload: isA
-            .object({
+          payload: isA.object({
               authPW: validators.authPW,
               wrapKb: validators.wrapKb.optional(),
               recoveryKeyId: validators.recoveryKeyId.optional(),

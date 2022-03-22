@@ -164,7 +164,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
   }
 
   const server = new Hapi.Server(serverOptions);
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request);

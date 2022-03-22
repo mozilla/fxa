@@ -3655,15 +3655,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/address@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@hapi/address@npm:4.0.1"
-  dependencies:
-    "@hapi/hoek": ^9.0.0
-  checksum: 365547dbed1dcc8404a2cf5212fbe4c279f069e2ed817cb2a1b53bcc85a5e8ea7ce0e5377dc111cfff9d31e46275dbf83b316b0e4aba5abd05416c2a38914ea5
-  languageName: node
-  linkType: hard
-
 "@hapi/ammo@npm:5.x.x, @hapi/ammo@npm:^5.0.1":
   version: 5.0.1
   resolution: "@hapi/ammo@npm:5.0.1"
@@ -3783,13 +3774,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/formula@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@hapi/formula@npm:2.0.0"
-  checksum: 902da057c53027d9356de15e53a8af9ea4795d3fb78c066668b36cfca54abd2d707860469618448e7de02eb8364ead86e53b839dbd363e1aeb65ee9a195e5fad
-  languageName: node
-  linkType: hard
-
 "@hapi/hapi@npm:^20.2.1":
   version: 20.2.1
   resolution: "@hapi/hapi@npm:20.2.1"
@@ -3881,7 +3865,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:15.x.x, @hapi/joi@npm:^15.1.0, @hapi/joi@npm:^15.1.1":
+"@hapi/joi@npm:15.x.x, @hapi/joi@npm:^15.1.0":
   version: 15.1.1
   resolution: "@hapi/joi@npm:15.1.1"
   dependencies:
@@ -3890,19 +3874,6 @@ __metadata:
     "@hapi/hoek": 8.x.x
     "@hapi/topo": 3.x.x
   checksum: 5bc3df9d43d4a53c41fd172d2958a4a846dbacbe2a2abe16830059109c436776d7be98144f14af9d328ebd107dbebafe55e00a9032a905aef45aadff988b54bf
-  languageName: node
-  linkType: hard
-
-"@hapi/joi@npm:^17.1.1":
-  version: 17.1.1
-  resolution: "@hapi/joi@npm:17.1.1"
-  dependencies:
-    "@hapi/address": ^4.0.1
-    "@hapi/formula": ^2.0.0
-    "@hapi/hoek": ^9.0.0
-    "@hapi/pinpoint": ^2.0.0
-    "@hapi/topo": ^5.0.0
-  checksum: 803d77e19e26802860de22b8d1ae3435679844202703d20bfd6246a8c6aa00143ce48d0e8beecf55812334e8e89ac04b79301264d4a3f87c980eb0c0646b33ab
   languageName: node
   linkType: hard
 
@@ -3936,13 +3907,6 @@ __metadata:
     "@hapi/hoek": 9.x.x
     "@hapi/nigel": 4.x.x
   checksum: eb8efb6c0fa6165ebe6d9eb6f37643fae69672972ffa000235382c83bce51191d16b01d8127104a5ca1fa647ab38ee6246afc0b3f5ebe57761d1405b42a2c796
-  languageName: node
-  linkType: hard
-
-"@hapi/pinpoint@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@hapi/pinpoint@npm:2.0.0"
-  checksum: ed011c0af4eeab75f7ea2b4657f16a93e31d449a43b40a4f398e2f1a0752357af2badd7b3f3e2da9554cb9d13adb52bde123b250acef1709260954d0301eed16
   languageName: node
   linkType: hard
 
@@ -9605,7 +9569,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__joi@npm:^15.0.1, @types/hapi__joi@npm:^15.0.4":
+"@types/hapi__joi@npm:^15.0.1":
   version: 15.0.4
   resolution: "@types/hapi__joi@npm:15.0.4"
   dependencies:
@@ -12634,7 +12598,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"arrify@npm:^1.0.1":
+"arrify@npm:^1.0.0, arrify@npm:^1.0.1":
   version: 1.0.1
   resolution: "arrify@npm:1.0.1"
   checksum: 745075dd4a4624ff0225c331dacb99be501a515d39bcb7c84d24660314a6ec28e68131b137e6f7e16318170842ce97538cd298fc4cd6b2cc798e0b957f2747e7
@@ -15024,6 +14988,13 @@ __metadata:
   version: 1.1.1
   resolution: "buffer-from@npm:1.1.1"
   checksum: ccc53b69736008bff764497367c4d24879ba7122bc619ee499ff47eef3a5b885ca496e87272e7ebffa0bec3804c83f84041c616f6e3318f40624e27c1d80f045
+  languageName: node
+  linkType: hard
+
+"buffer-from@npm:^1.1.0":
+  version: 1.1.2
+  resolution: "buffer-from@npm:1.1.2"
+  checksum: 0448524a562b37d4d7ed9efd91685a5b77a50672c556ea254ac9a6d30e3403a517d8981f10e565db24e8339413b43c97ca2951f10e399c6125a0d8911f5679bb
   languageName: node
   linkType: hard
 
@@ -22094,7 +22065,6 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
-    "@hapi/joi": ^17.1.1
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@storybook/addon-controls": ^6.4.18
@@ -22109,7 +22079,6 @@ fsevents@~2.1.1:
     "@types/chai-as-promised": ^7
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^20.0.10
-    "@types/hapi__joi": ^15.0.4
     "@types/ioredis": ^4.26.4
     "@types/jsdom": ^16
     "@types/jsonwebtoken": ^8.5.1
@@ -22177,6 +22146,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.3.0
     ioredis: ^4.28.2
     jed: 0.5.4
+    joi: ^17.6.0
     jsdom: ^19.0.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
@@ -22231,6 +22201,7 @@ fsevents@~2.1.1:
     stripe: ^8.203.0
     superagent: ^7.1.1
     through: 2.3.8
+    ts-mocha: ^9.0.2
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.5.2
@@ -22478,7 +22449,6 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.18.4
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.2.0
-    "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.2.1
     "@nestjs/common": ^8.3.1
     "@nestjs/config": ^1.2.0
@@ -22527,6 +22497,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     hot-shots: ^9.0.0
     jest: 27.5.1
+    joi: ^17.6.0
     jwks-rsa: ^2.0.5
     mozlog: ^3.0.2
     nock: ^13.2.2
@@ -22812,7 +22783,6 @@ fsevents@~2.1.1:
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 6.0.5
-    "@hapi/joi": ^17.1.1
     "@sentry/node": ^6.16.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
@@ -22829,6 +22799,7 @@ fsevents@~2.1.1:
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     insist: 1.0.1
+    joi: ^17.6.0
     lodash: ^4.17.21
     mkdirp: 0.5.1
     mocha: ^9.1.2
@@ -28476,7 +28447,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:^17.3.0":
+"joi@npm:^17.3.0, joi@npm:^17.6.0":
   version: 17.6.0
   resolution: "joi@npm:17.6.0"
   dependencies:
@@ -31003,6 +30974,13 @@ fsevents@~2.1.1:
   version: 1.2.5
   resolution: "minimist@npm:1.2.5"
   checksum: 86706ce5b36c16bfc35c5fe3dbb01d5acdc9a22f2b6cc810b6680656a1d2c0e44a0159c9a3ba51fb072bb5c203e49e10b51dcd0eec39c481f4c42086719bae52
+  languageName: node
+  linkType: hard
+
+"minimist@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "minimist@npm:1.2.6"
+  checksum: d15428cd1e11eb14e1233bcfb88ae07ed7a147de251441d61158619dfb32c4d7e9061d09cab4825fdee18ecd6fce323228c8c47b5ba7cd20af378ca4048fb3fb
   languageName: node
   linkType: hard
 
@@ -41921,6 +41899,23 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"ts-mocha@npm:^9.0.2":
+  version: 9.0.2
+  resolution: "ts-mocha@npm:9.0.2"
+  dependencies:
+    ts-node: 7.0.1
+    tsconfig-paths: ^3.5.0
+  peerDependencies:
+    mocha: ^3.X.X || ^4.X.X || ^5.X.X || ^6.X.X || ^7.X.X || ^8.X.X || ^9.X.X
+  dependenciesMeta:
+    tsconfig-paths:
+      optional: true
+  bin:
+    ts-mocha: bin/ts-mocha
+  checksum: 142a7fc2b7be156e2933b31ec0577d092789d4c55e5be0e42c038b92644983e970fdc3fd7b2fb12b007288e2be749d5897c064ecf7c48cb021f38401f5a95a67
+  languageName: node
+  linkType: hard
+
 "ts-morph@npm:^13.0.3":
   version: 13.0.3
   resolution: "ts-morph@npm:13.0.3"
@@ -41928,6 +41923,24 @@ resolve@^2.0.0-next.3:
     "@ts-morph/common": ~0.12.3
     code-block-writer: ^11.0.0
   checksum: 0983a7c4e0e1063e3900186bf2e85c5080621e31b754434136d2130a82bda6556985fdf012b766a87b9ae47d6f63732a562bb80854c34644f9352bea9a35b8ee
+  languageName: node
+  linkType: hard
+
+"ts-node@npm:7.0.1":
+  version: 7.0.1
+  resolution: "ts-node@npm:7.0.1"
+  dependencies:
+    arrify: ^1.0.0
+    buffer-from: ^1.1.0
+    diff: ^3.1.0
+    make-error: ^1.1.1
+    minimist: ^1.2.0
+    mkdirp: ^0.5.1
+    source-map-support: ^0.5.6
+    yn: ^2.0.0
+  bin:
+    ts-node: dist/bin.js
+  checksum: 07ed6ea1805361828737a767cfd6c57ea6e267ee8679282afb933610af02405e1a87c1f2aea1d38ed8e66b34fcbf6272b6021ab95d78849105d2e57fc283870b
   languageName: node
   linkType: hard
 
@@ -42007,6 +42020,18 @@ resolve@^2.0.0-next.3:
     minimist: ^1.2.0
     strip-bom: ^3.0.0
   checksum: 64f0de3c882c016cdfe34d5261087fcf0c75048c4206ee32540e36df9f99d82d2caa5872135d3b6704324f5fd7d9032131caf316c1da83c2ac465d5dfb2aafd4
+  languageName: node
+  linkType: hard
+
+"tsconfig-paths@npm:^3.5.0":
+  version: 3.14.1
+  resolution: "tsconfig-paths@npm:3.14.1"
+  dependencies:
+    "@types/json5": ^0.0.29
+    json5: ^1.0.1
+    minimist: ^1.2.6
+    strip-bom: ^3.0.0
+  checksum: 8afa01c673ebb4782ba53d3a12df97fa837ce524f8ad38ee4e2b2fd57f5ac79abc21c574e9e9eb014d93efe7fe8214001b96233b5c6ea75bd1ea82afe17a4c6d
   languageName: node
   linkType: hard
 
@@ -44798,6 +44823,13 @@ resolve@^2.0.0-next.3:
   version: 3.1.1
   resolution: "yn@npm:3.1.1"
   checksum: 2c487b0e149e746ef48cda9f8bad10fc83693cd69d7f9dcd8be4214e985de33a29c9e24f3c0d6bcf2288427040a8947406ab27f7af67ee9456e6b84854f02dd6
+  languageName: node
+  linkType: hard
+
+"yn@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "yn@npm:2.0.0"
+  checksum: 9d49527cb3e9a0948cc057223810bf30607bf04b9ff7666cc1681a6501d660b60d90000c16f9e29311b0f28d8a06222ada565ccdca5f1049cdfefb1908217572
   languageName: node
   linkType: hard
 
