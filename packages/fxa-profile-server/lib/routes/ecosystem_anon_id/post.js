@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const logger = require('../../logging')('routes.ecosystem_anon_id.post');
 const notifyProfileUpdated = require('../../updates-queue');

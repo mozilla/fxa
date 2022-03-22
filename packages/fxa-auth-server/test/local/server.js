@@ -5,8 +5,7 @@
 'use strict';
 
 // magic, muhahaha
-const x = require('joi/lib/errors');
-console.log('WTFXXX', x);
+require('joi/lib/errors');
 
 const ROOT_DIR = '../..';
 

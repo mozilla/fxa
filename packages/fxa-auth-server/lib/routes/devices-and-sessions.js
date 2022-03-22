@@ -10,7 +10,7 @@ const ajv = new Ajv();
 const hex = require('buf').to.hex;
 const error = require('../error');
 const fs = require('fs');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const path = require('path');
 const validators = require('./validators');
 
@@ -124,7 +124,8 @@ module.exports = (
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
               pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-              pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+              pushEndpointExpired:
+                DEVICES_SCHEMA.pushEndpointExpired.optional(),
               availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
             })
             .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
@@ -520,7 +521,8 @@ module.exports = (
                   .allow(null)
                   .optional(),
                 pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
-                pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+                pushEndpointExpired:
+                  DEVICES_SCHEMA.pushEndpointExpired.optional(),
                 availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
               })
               .and('pushPublicKey', 'pushAuthKey')

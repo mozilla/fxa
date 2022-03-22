@@ -21,7 +21,7 @@
  *
  */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const validators = require('./validators');
 
 const OauthError = require('./error');

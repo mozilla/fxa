@@ -5,7 +5,7 @@
 'use strict';
 
 const inherits = require('util').inherits;
-const messages = require('@hapi/joi/lib/messages').errors;
+const messages = require('joi/lib/messages');
 const OauthError = require('./oauth/error');
 const verror = require('verror');
 
