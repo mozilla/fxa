@@ -19,23 +19,18 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="downloadSubscription-content" data-l10n-args="<%= JSON.stringify({productName}) %>" >
-        If you haven’t already downloaded <%- productName %>, let’s get started
-        using all the features included in your subscription:
+      <span data-l10n-id="downloadSubscription-content-2" data-l10n-args="<%= JSON.stringify({productName}) %>" >
+        Let’s get started using all the features included in your subscription:
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
-<mj-section>
-  <mj-column>
-    <mj-button css-class="primary-button" href="<%- link %>">
-      <span data-l10n-id="downloadSubscription-link-action" data-l10n-args="<%= JSON.stringify({productName}) %>">
-        Download <%- productName %>
-      </span>
-    </mj-button>
-  </mj-column>
-</mj-section>
+<%- include ('/partials/button/index.mjml', {
+  buttonL10nId: "downloadSubscription-link-action-2",
+  buttonText: "Get started",
+  cssClass: 'mb-8'
+  }) %>
 
 <%- include('/partials/appBadges/index.mjml', { hideDeviceLink: true }) %>
-<%- include('/partials/subscriptionSupport/index.mjml', { cssClass: 'mt-5' }) %>
+<%- include('/partials/subscriptionSupport/index.mjml') %>
