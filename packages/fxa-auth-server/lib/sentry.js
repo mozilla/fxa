@@ -228,7 +228,7 @@ function ignoreErrors(error) {
  * failed validation and in what way.
  *
  * @param {string} planId
- * @param {string | import('@hapi/joi').ValidationError} error
+ * @param {string | import('joi').ValidationError} error
  */
 function formatMetadataValidationErrorMessage(planId, error) {
   let msg = `${planId} metadata invalid:`;
@@ -246,7 +246,7 @@ function formatMetadataValidationErrorMessage(planId, error) {
  * Report a validation error to Sentry with validation details.
  *
  * @param {*} message
- * @param {string | import('@hapi/joi').ValidationError} error
+ * @param {string | import('joi').ValidationError} error
  */
 function reportValidationError(message, error) {
   const details = {};
