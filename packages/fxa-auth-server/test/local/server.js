@@ -4,6 +4,10 @@
 
 'use strict';
 
+// magic, muhahaha
+const x = require('joi/lib/errors');
+console.log('WTFXXX', x);
+
 const ROOT_DIR = '../..';
 
 const { assert } = require('chai');
