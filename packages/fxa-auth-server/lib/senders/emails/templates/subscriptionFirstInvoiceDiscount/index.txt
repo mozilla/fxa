@@ -4,7 +4,7 @@ subscriptionFirstInvoiceDiscount-title = "Thank you for subscribing to <%- produ
 
 subscriptionFirstInvoiceDiscount-content-processing = "Your payment is currently processing and may take up to four business days to complete."
 
-subscriptionFirstInvoiceDiscount-content-install = "You will receive a separate email with download instructions on how to start using <%- productName %>."
+subscriptionFirstInvoiceDiscount-content-install-2 = "You will receive a separate email on how to start using <%- productName %>."
 
 subscriptionFirstInvoiceDiscount-content-auto-renew = "Your subscription will automatically renew each billing period unless you choose to cancel."
 
