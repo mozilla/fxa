@@ -353,6 +353,8 @@ export class StripeHelper {
     return taxRates.find((tr) => tr.country?.toLowerCase() === lcCountryCode);
   }
 
+  //Testing
+
   /**
    * Create a stripe customer.
    */
