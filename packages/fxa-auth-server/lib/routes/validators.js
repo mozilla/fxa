@@ -68,25 +68,16 @@ module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
 // This is different to Joi's builtin email validator, and
 // requires a custom validation function.
 
-// The custom validators below need to either return the value
-// or create an error object using `createError`.
-// see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
-
 module.exports.email = function () {
-  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
-  // Imma add a custom test to this Joi object using internal
-  // properties because I can't find a nice API to do that.
-  email._tests = [];
-  email._tests.push({
-    func: function (value, state, options) {
-      if (value !== undefined && value !== null) {
-        if (module.exports.isValidEmailAddress(value)) {
-          return value;
-        }
-      }
 
-      return email.$_createError('string.base', { value }, state, options);
-    },
+  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).custom((value, helpers) => {
+    // Do custom validation
+    const isValid = module.exports.isValidEmailAddress(value);
+
+    if (!isValid) {
+      throw new Error('Not a valid email address');
+    }
+    return value;
   });
 
   return email;
@@ -180,39 +171,32 @@ module.exports.isValidEmailAddress = function (value) {
 };
 
 module.exports.redirectTo = function redirectTo(base) {
-  const validator = isA.string().max(512);
-  let hostnameRegex = null;
-  if (base) {
-    hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
-  }
-  validator._tests = [];
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        if (isValidUrl(value, hostnameRegex)) {
-          return value;
-        }
-      }
 
-      return validator.$_createError('string.base', { value }, state, options);
-    },
+  const validator = isA.string().max(512).custom((value, helpers) => {
+    let hostnameRegex = '';
+    if (base) {
+      hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
+    }
+    // Do your validation
+    const isValid = isValidUrl(value, hostnameRegex);
+
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
   });
+
   return validator;
 };
 
 module.exports.url = function url(options) {
-  const validator = isA.string().uri(options);
-  validator._tests = [];
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        if (isValidUrl(value)) {
-          return value;
-        }
-      }
+  const validator = isA.string().uri(options).custom((value, helpers) => {
+    const isValid = isValidUrl(value);
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
 
-      return validator.$_createError('string.base', { value }, state, options);
-    },
   });
   return validator;
 };
@@ -222,25 +206,19 @@ module.exports.url = function url(options) {
 module.exports.resourceUrl = module.exports.url().regex(/#/, { invert: true });
 
 module.exports.pushCallbackUrl = function pushUrl(options) {
-  const validator = isA.string().uri(options);
-  validator._tests = [];
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        let normalizedValue = value;
-        // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
-        // to fail because the :443 is expected to have been normalized away.
-        if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
-          normalizedValue = value.replace(':443', '');
-        }
+  const validator = isA.string().uri(options).custom((value, helpers) => {
+    let normalizedValue = value;
+    // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
+    // to fail because the :443 is expected to have been normalized away.
+    if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
+      normalizedValue = value.replace(':443', '');
+    }
+    const isValid = isValidUrl(normalizedValue);
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
 
-        if (isValidUrl(normalizedValue)) {
-          return value;
-        }
-      }
-
-      return validator.$_createError('string.base', { value }, state, options);
-    },
   });
   return validator;
 };

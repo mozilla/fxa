@@ -4,8 +4,6 @@
 
 'use strict';
 
-const Joi = require('joi');
-
 const { assert } = require('chai');
 
 const validators = require('../../../lib/routes/validators');
@@ -278,7 +276,18 @@ describe('lib/routes/validators:', () => {
       false
     );
   });
-
+  describe('validators.email:', () => {
+    it('email returns true if it is a valid email', () => {
+      const res = validators.email().validate('someone@domain.com');
+      assert.ok(!res.error);
+      assert.equal(res.value, 'someone@domain.com');
+    });
+    it('email returns false if the domain part does not have a period', () => {
+      const res = validators.email().validate('someone@domain');
+      assert.ok(res.error);
+      assert.equal(res.value, 'someone@domain');
+    });
+  });
   describe('validators.redirectTo without base hostname:', () => {
     const v = validators.redirectTo();
 
@@ -289,36 +298,32 @@ describe('lib/routes/validators:', () => {
     });
 
     it('accepts a well-formed http:// URL', () => {
-      const schema = Joi.string().uri();
-      const res = schema.validate('http://example.com/path');
+      const res = v.validate('http://example.com/path');
+      assert.ok(!res.error);
       assert.equal(res.value, 'http://example.com/path');
     });
 
     it('rejects a non-URL string', () => {
-      const schema = Joi.string().uri();
-      const res = schema.validate('not a url', {domain:true});
+      const res = v.validate('not a url', {domain:true});
       assert.ok(res.error);
       assert.equal(res.value, 'not a url');
     });
 
     it('rejects a non-http(s) URL', () => {
-      const schema = Joi.string().uri();
-      const res = schema.validate('mailto:test@example.com');
+      const res = v.validate('mailto:test@example.com');
       assert.ok(res.error);
       assert.equal(res.value, 'mailto:test@example.com');
     });
 
     it('rejects tricksy quoted chars in the hostname', () => {
-      const schema = Joi.string().domai();
-      const res = schema.validate('https://evil.com%2Emozilla.com',{allowUnicode: false});
+      const res = v.validate('https://evil.com%2Emozilla.com');
       assert.ok(res.error);
-      assert.equal(res.value, 'https://example.com%2Eevil.com');
+      assert.equal(res.value, 'https://evil.com%2Emozilla.com');
     });
   });
 
   describe('validators.redirectTo with a base hostname:', () => {
     const v = validators.redirectTo('mozilla.com');
-
     it('accepts a well-formed https:// URL at the base hostname', () => {
       const res = v.validate('https://test.mozilla.com/path');
       assert.ok(!res.error);
