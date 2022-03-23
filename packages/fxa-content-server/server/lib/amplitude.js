@@ -256,6 +256,10 @@ const EVENTS = {
     group: GROUPS.qrConnectDevice,
     event: 'connected_done',
   },
+  'enter-email.thirdPartyAuth': {
+    group: GROUPS.thirdPartyAuth,
+    event: 'view',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
@@ -453,6 +457,15 @@ const FUZZY_EVENTS = new Map([
     {
       group: GROUPS.registration,
       event: 'domain_validation_result',
+    },
+  ],
+  [
+    /^flow\.?(apple|google)?\.(deeplink|oauth-start|oauth-complete|signin-complete)$/,
+    {
+      group: GROUPS.thirdPartyAuth,
+      event: (eventCategory, eventTarget) => {
+       return `${eventCategory.replace(/-/g, '_')}_${eventTarget.replace(/-/g, '_')}`
+      }
     },
   ],
 ]);
