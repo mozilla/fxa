@@ -14,6 +14,7 @@ export class SubscribePage extends BaseLayout {
     await frame.fill('.InputElement[name=cvc]', '333');
     await frame.fill('.InputElement[name=postal]', '66666');
     await this.page.check('input[type=checkbox]');
+    await this.page.click('button[type=submit]');
   }
 
   async setPayPalInfo() {
@@ -22,7 +23,6 @@ export class SubscribePage extends BaseLayout {
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    await paypalWindow.waitForTimeout(500);
     await paypalWindow.waitForLoadState('load');
     await paypalWindow.fill(
       'input[type=email]',
@@ -35,9 +35,22 @@ export class SubscribePage extends BaseLayout {
     await paypalWindow.click('button[id=consentButton]');
   }
 
-  submit() {
+  /*submit() {
     return Promise.all([
       this.page.click('button[type=submit]'),
+      this.page.waitForResponse(
+        (r) =>
+          r.request().method() === 'GET' &&
+          /\/mozilla-subscriptions\/customer\/billing-and-subscriptions$/.test(
+            r.request().url()
+          )
+      ),
+    ]);
+  }*/
+
+  submit() {
+    return Promise.all([
+      this.page.waitForLoadState(),
       this.page.waitForResponse(
         (r) =>
           r.request().method() === 'GET' &&

@@ -29,6 +29,7 @@ test.describe('severity-1', () => {
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setPayPalInfo();
+    await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
     await login.submit();
