@@ -14,7 +14,7 @@ import AppContext from './AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { planIntervalLessThanCouponDuration } from './coupon';
+import { planIntervalLessThanEqualCouponDuration } from './coupon';
 import { Plan } from 'fxa-shared/subscriptions/types';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
@@ -129,7 +129,7 @@ export function useInfoBoxMessage(
       case 'repeating':
         if (
           coupon.durationInMonths &&
-          planIntervalLessThanCouponDuration(
+          planIntervalLessThanEqualCouponDuration(
             selectedPlan.interval_count,
             selectedPlan.interval,
             coupon.durationInMonths

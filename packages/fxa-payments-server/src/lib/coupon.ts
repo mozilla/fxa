@@ -1,4 +1,4 @@
-export const planIntervalLessThanCouponDuration = (
+export const planIntervalLessThanEqualCouponDuration = (
   interval_count: number,
   interval: string,
   durationInMonths: number
@@ -36,7 +36,7 @@ export const planIntervalLessThanCouponDuration = (
     currentDate.setMonth(currentDate.getMonth() + durationInMonths)
   );
 
-  return couponDurationDate.getTime() - renewalDate.getTime() < 0
+  return couponDurationDate.getTime() - renewalDate.getTime() <= 0
     ? false
     : true;
 };

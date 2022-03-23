@@ -1,6 +1,6 @@
-import { planIntervalLessThanCouponDuration } from './coupon';
+import { planIntervalLessThanEqualCouponDuration } from './coupon';
 
-describe('planIntervalLessThanCouponDuration', () => {
+describe('planIntervalLessThanEqualCouponDuration', () => {
   let interval: string;
   let interval_count: number;
   let durationInMonths: number;
@@ -11,7 +11,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = false;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -25,7 +25,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = true;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -39,7 +39,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = false;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -53,7 +53,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = true;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -67,7 +67,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = false;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -78,10 +78,10 @@ describe('planIntervalLessThanCouponDuration', () => {
   it('month - plan interval is less', () => {
     interval = 'month';
     interval_count = 1;
-    durationInMonths = 1;
+    durationInMonths = 2;
     const expected = true;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths
@@ -95,7 +95,7 @@ describe('planIntervalLessThanCouponDuration', () => {
     durationInMonths = 1;
     const expected = false;
 
-    const actual = planIntervalLessThanCouponDuration(
+    const actual = planIntervalLessThanEqualCouponDuration(
       interval_count,
       interval,
       durationInMonths

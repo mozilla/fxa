@@ -152,7 +152,7 @@ describe('useInfoBoxMessage', () => {
   it('coupon type is "repeating" plan interval great than coupon duration', () => {
     const { queryByTestId, getByTestId } = render(
       <Subject
-        coupon={{ ...coupon, type: 'once' }}
+        coupon={{ ...coupon, type: 'repeating' }}
         selectedPlan={selectedPlan}
       />
     );
@@ -163,7 +163,7 @@ describe('useInfoBoxMessage', () => {
     expect(messageText).toBe(CouponInfoBoxMessageType.Default);
   });
 
-  it('coupon type is "repeating" and plan interval less than or equalcoupon duration', () => {
+  it('coupon type is "repeating" and plan interval less than or equal coupon duration', () => {
     const { getByTestId } = render(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
