@@ -17,8 +17,8 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionFirstInvoice-content-install" data-l10n-args="<%= JSON.stringify({productName}) %>">
-        You will receive a separate email with download instructions on how to start using <%- productName %>.
+      <span data-l10n-id="subscriptionFirstInvoice-content-install-2" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        You will receive a separate email on how to start using <%- productName %>.
       </span>
     </mj-text>
 
