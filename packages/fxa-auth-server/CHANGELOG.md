@@ -1,3 +1,9 @@
+## 1.228.4
+
+### Bug fixes
+
+- emails: remove more "download" language from emails ([503300b25](https://github.com/mozilla/fxa/commit/503300b25))
+
 ## 1.228.3
 
 ### Bug fixes

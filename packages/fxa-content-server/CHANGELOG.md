@@ -1,3 +1,9 @@
+## 1.228.4
+
+### Bug fixes
+
+- content: fix validation tests Because: ([0f9277ae8](https://github.com/mozilla/fxa/commit/0f9277ae8))
+
 ## 1.228.3
 
 No changes.
