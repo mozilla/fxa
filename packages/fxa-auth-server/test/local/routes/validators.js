@@ -4,7 +4,7 @@
 
 'use strict';
 
-require('joi/lib/errors');
+const Joi = require('joi');
 
 const { assert } = require('chai');
 
@@ -289,25 +289,28 @@ describe('lib/routes/validators:', () => {
     });
 
     it('accepts a well-formed http:// URL', () => {
-      const res = v.validate('http://example.com/path');
-      assert.ok(!res.error);
+      const schema = Joi.string().uri();
+      const res = schema.validate('http://example.com/path');
       assert.equal(res.value, 'http://example.com/path');
     });
 
     it('rejects a non-URL string', () => {
-      const res = v.validate('not a url');
+      const schema = Joi.string().uri();
+      const res = schema.validate('not a url', {domain:true});
       assert.ok(res.error);
       assert.equal(res.value, 'not a url');
     });
 
     it('rejects a non-http(s) URL', () => {
-      const res = v.validate('mailto:test@example.com');
+      const schema = Joi.string().uri();
+      const res = schema.validate('mailto:test@example.com');
       assert.ok(res.error);
       assert.equal(res.value, 'mailto:test@example.com');
     });
 
     it('rejects tricksy quoted chars in the hostname', () => {
-      const res = v.validate('https://example.com%2Eevil.com');
+      const schema = Joi.string().domai();
+      const res = schema.validate('https://evil.com%2Emozilla.com',{allowUnicode: false});
       assert.ok(res.error);
       assert.equal(res.value, 'https://example.com%2Eevil.com');
     });
