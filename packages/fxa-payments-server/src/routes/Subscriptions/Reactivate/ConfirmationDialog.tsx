@@ -129,24 +129,34 @@ const ConfirmationDialog = ({
 
   useEffect(() => {
     const getSubscriptionPrice = async () => {
-      const { promotion_code: promotionCode, plan_id: priceId } =
-        customerSubscription;
-      if (promotionCode && priceId) {
-        if (promotionCode) {
-          try {
-            setLoading(true);
-            const preview = await apiInvoicePreview({ priceId, promotionCode });
-            setAmount(preview.total);
-          } catch (err) {
-            setError(true);
-          } finally {
-            setLoading(false);
-          }
-        } else {
-          setAmount(plan.amount);
+      const {
+        promotion_code: promotionCode,
+        plan_id: priceId,
+        promotion_end,
+        current_period_end,
+        promotion_duration,
+      } = customerSubscription;
+
+      if (
+        promotionCode &&
+        promotion_duration &&
+        ((promotion_duration === 'repeating' &&
+          promotion_end &&
+          promotion_end > current_period_end) ||
+          promotion_duration === 'forever')
+      ) {
+        try {
+          setLoading(true);
+          const preview = await apiInvoicePreview({ priceId, promotionCode });
+          setAmount(preview.total);
+        } catch (err) {
+          setError(true);
+        } finally {
+          setLoading(false);
         }
       } else {
-        setError(true);
+        setLoading(false);
+        setAmount(plan.amount);
       }
     };
 

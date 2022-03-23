@@ -118,6 +118,8 @@ export type WebSubscription = Pick<
     >;
     subscription_id: Stripe.Subscription['id'];
     promotion_code?: string;
+    promotion_duration?: string;
+    promotion_end?: number;
   };
 
 export interface AbbrevPlayPurchase {
