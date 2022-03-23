@@ -1,4 +1,6 @@
 import { BaseLayout } from '../layout';
+import { BrowserContext } from 'playwright';
+let context: BrowserContext;
 
 export class SubscribePage extends BaseLayout {
   setFullName(name: string = 'Cave Johnson') {
@@ -12,6 +14,25 @@ export class SubscribePage extends BaseLayout {
     await frame.fill('.InputElement[name=cvc]', '333');
     await frame.fill('.InputElement[name=postal]', '66666');
     await this.page.check('input[type=checkbox]');
+  }
+
+  async setPayPalInfo() {
+    await this.page.check('[data-testid="confirm"]');
+    const [paypalWindow] = await Promise.all([
+      this.page.waitForEvent('popup'),
+      this.page.click('[data-testid="paypal-button-container"]'),
+    ]);
+    await paypalWindow.waitForTimeout(500);
+    await paypalWindow.waitForLoadState('load');
+    await paypalWindow.fill(
+      'input[type=email]',
+      'qa-test-no-balance-16@personal.example.com'
+    );
+    await paypalWindow.click('button[id=btnNext]');
+    await paypalWindow.waitForLoadState('load');
+    await paypalWindow.fill('input[type=password]', 'Ah4SboP6UDZx95I');
+    await paypalWindow.click('button[id=btnLogin]');
+    await paypalWindow.click('button[id=consentButton]');
   }
 
   submit() {
