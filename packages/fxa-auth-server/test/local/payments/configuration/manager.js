@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+require('joi/lib/errors');
 
 const sinon = require('sinon');
 const { assert } = require('chai');
