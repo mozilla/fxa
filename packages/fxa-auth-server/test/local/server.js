@@ -26,6 +26,8 @@ describe('lib/server', () => {
   });
 
   describe('logEndpointErrors', () => {
+
+
     const msg = 'Timeout';
     const reason = 'Socket fail';
     const response = {
