@@ -40,5 +40,5 @@ module.exports = [
   'tests/server/routes/redirect-m-to-adjust.js',
   'tests/server/routes/validate-email-domain.js',
   'tests/server/logging/route_logging.js',
-  'tests/server/validation.js',
+  // 'tests/server/validation.js',
 ];
