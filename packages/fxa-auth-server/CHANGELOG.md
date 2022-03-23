@@ -1,3 +1,9 @@
+## 1.228.3
+
+### Bug fixes
+
+- emails: update download button to get started on sub welcome email ([865d623ef](https://github.com/mozilla/fxa/commit/865d623ef))
+
 ## 1.228.2
 
 ### Bug fixes
