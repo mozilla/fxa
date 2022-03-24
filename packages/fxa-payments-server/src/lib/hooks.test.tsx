@@ -149,7 +149,21 @@ describe('useInfoBoxMessage', () => {
     expect(messageText).toBe(CouponInfoBoxMessageType.Default);
   });
 
-  it('coupon type is "repeating" plan interval greater than or equal coupon duration', () => {
+  it('coupon type is "repeating" plan interval greater than coupon duration', () => {
+    const { queryByTestId, getByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'repeating' }}
+        selectedPlan={{ ...selectedPlan, interval_count: 6 }}
+      />
+    );
+    expect(
+      queryByTestId('couponDurationDate-container')
+    ).not.toBeInTheDocument();
+    const messageText = getByTestId('message').textContent;
+    expect(messageText).toBe(CouponInfoBoxMessageType.Default);
+  });
+
+  it('coupon type is "repeating" plan interval equal to coupon duration', () => {
     const { queryByTestId, getByTestId } = render(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
@@ -176,7 +190,7 @@ describe('useInfoBoxMessage', () => {
     const expectedCouponDurationDate = `${Math.round(
       new Date(
         date.setMonth(
-          date.getMonth() + (couponLongerDuration.durationInMonths || 1)
+          date.getMonth() + (couponLongerDuration.durationInMonths || 2)
         )
       ).getTime() / 1000
     )}`;
