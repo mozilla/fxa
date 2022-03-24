@@ -27,6 +27,7 @@
     "gen-keys": "node -r esbuild-register ./scripts/gen_keys.js; node -r esbuild-register ./scripts/oauth_gen_keys.js; node -r esbuild-register ./scripts/gen_vapid_keys.js",
     "write-emails": "yarn emails-scss && node -r esbuild-register ./scripts/write-emails-to-disk.js",
     "clean-up-old-ci-stripe-customers": "node -r esbuild-register ./scripts/clean-up-old-ci-stripe-customers.js --limit 1000",
+    "populate-firestore-customers": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/populate-firestore-customers.ts",
     "populate-vat-taxes": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/populate-vat-taxes.ts",
     "paypal-processor": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/paypal-processor.ts",
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
