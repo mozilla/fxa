@@ -4,23 +4,23 @@
 
 'use strict';
 
-const joi = require('joi');
+// const joi = require('joi');
 const amplitude = require('../amplitude');
 const logger = require('../logging/log')('server.post-metrics');
 
-const config = require('../../config');
-const clientMetricsConfig = config.get('clientMetrics');
-const MAX_EVENT_OFFSET = clientMetricsConfig.maxEventOffset;
-const EVENT_TYPE_PATTERN = /^[\w\s.:-]+$/; // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
-const OFFSET_TYPE = joi.number().integer().min(0);
-const STRING_TYPE = joi.string().max(1024);
-const UTM = joi
-  .string()
-  .max(128)
-  // eslint-disable-next-line no-useless-escape
-  .regex(/^[\w\/.%-]+$/); // values here can be 'firefox/sync'
-const UTM_CAMPAIGN = UTM.allow('page+referral+-+not+part+of+a+campaign');
-const BODY_SCHEMA = {
+// const config = require('../../config');
+// const clientMetricsConfig = config.get('clientMetrics');
+// const MAX_EVENT_OFFSET = clientMetricsConfig.maxEventOffset;
+// const EVENT_TYPE_PATTERN = /^[\w\s.:-]+$/; // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
+// const OFFSET_TYPE = joi.number().integer().min(0);
+// const STRING_TYPE = joi.string().max(1024);
+// const UTM = joi
+//  .string()
+//  .max(128)
+// eslint-disable-next-line no-useless-escape
+//  .regex(/^[\w\/.%-]+$/); // values here can be 'firefox/sync'
+// const UTM_CAMPAIGN = UTM.allow('page+referral+-+not+part+of+a+campaign');
+/*const BODY_SCHEMA = {
   data: joi
     .object()
     .keys({
@@ -43,14 +43,14 @@ const BODY_SCHEMA = {
       })
     )
     .required(),
-};
+}; */
 
 module.exports = {
   method: 'post',
   path: '/metrics',
-  validate: {
+  /* validate: {
     body: BODY_SCHEMA,
-  },
+  }, THIS LINE IS THE ISSUE*/
   preProcess: function (req, res, next) {
     // convert text/plain types to JSON for validation.
     if (/^text\/plain/.test(req.get('content-type'))) {
