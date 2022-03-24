@@ -5728,15 +5728,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sideway/address@npm:^4.1.0":
-  version: 4.1.2
-  resolution: "@sideway/address@npm:4.1.2"
-  dependencies:
-    "@hapi/hoek": ^9.0.0
-  checksum: 1e4910f7b3205347f78e698923dd7e0bb400c9e9e9bdd4a059edb6d2e32a540b426aba4652d095ea299fb75019d87883251dd9b96b350c00a35454bcdfa5f9f5
-  languageName: node
-  linkType: hard
-
 "@sideway/address@npm:^4.1.3":
   version: 4.1.3
   resolution: "@sideway/address@npm:4.1.3"
@@ -15528,7 +15519,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"celebrate@npm:^10.0.1, celebrate@npm:^10.1.0":
+"celebrate@npm:^10.1.0":
   version: 10.1.0
   resolution: "celebrate@npm:10.1.0"
   dependencies:
@@ -15536,6 +15527,17 @@ __metadata:
     escape-html: 1.0.3
     lodash.get: 4.4.x
   checksum: b229c9fccca47152bf9ea70f98dfe7a3679d6cc565d2ff5d2d7c808f37ef3889898c85ea04714714cc06158cea16a38c945acba7073d1ba749f26b6e6a75ddf2
+  languageName: node
+  linkType: hard
+
+"celebrate@npm:^15.0.1":
+  version: 15.0.1
+  resolution: "celebrate@npm:15.0.1"
+  dependencies:
+    escape-html: 1.0.3
+    joi: 17.x.x
+    lodash: 4.17.x
+  checksum: 8f20e47f1285fbb914f80f1f6ebb60eb224805f737a7652f1423cbcd2307f5b6e4e9681859a84e59154f7625214abe086c24a516c5483fe798db54d3066c790a
   languageName: node
   linkType: hard
 
@@ -22997,7 +22999,7 @@ fsevents@~2.1.1:
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
     aws-sdk: ^2.1089.0
-    celebrate: ^10.0.1
+    celebrate: ^15.0.1
     chai: ^4.3.6
     chance: ^1.1.8
     class-transformer: ^0.5.1
@@ -28423,20 +28425,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:17.x.x":
-  version: 17.4.0
-  resolution: "joi@npm:17.4.0"
-  dependencies:
-    "@hapi/hoek": ^9.0.0
-    "@hapi/topo": ^5.0.0
-    "@sideway/address": ^4.1.0
-    "@sideway/formula": ^3.0.0
-    "@sideway/pinpoint": ^2.0.0
-  checksum: c293bb7f1218b446cbed96a2cd7fbcb0c6d0ab98b9896e1ae683b1b66603718af52b100d8b5032647127bace29f50fabeaa7e0bc16c7167f2df7491d5c4827d0
-  languageName: node
-  linkType: hard
-
-"joi@npm:^17.1.1, joi@npm:^17.3.0":
+"joi@npm:17.x.x, joi@npm:^17.1.1, joi@npm:^17.3.0":
   version: 17.6.0
   resolution: "joi@npm:17.6.0"
   dependencies:
@@ -29996,7 +29985,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:>=3.5 <5, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.21":
+"lodash@npm:4.17.21, lodash@npm:4.17.x, lodash@npm:>=3.5 <5, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
