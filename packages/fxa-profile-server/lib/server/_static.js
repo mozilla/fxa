@@ -28,7 +28,7 @@ exports.create = async function () {
     host: config.server.host,
     port: config.server.port + 1,
   });
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   await server.register(Inert);
 

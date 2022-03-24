@@ -20,7 +20,7 @@ exports.create = async function () {
     host: config.worker.host,
     port: config.worker.port,
   });
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   server.route({
     method: 'GET',

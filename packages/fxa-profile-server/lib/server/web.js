@@ -82,7 +82,7 @@ exports.create = async function createServer() {
       },
     },
   });
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   // configure Sentry
   const sentryDsn = config.sentryDsn;
