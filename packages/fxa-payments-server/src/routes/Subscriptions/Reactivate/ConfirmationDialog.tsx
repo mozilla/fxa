@@ -13,6 +13,20 @@ import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { apiInvoicePreview } from '../../../lib/apiClient';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import LoadingSpinner from '../../../components/LoadingSpinner';
+import { useHandleConfirmationDialog } from '../../../lib/hooks';
+
+const ConfirmationDialogErrorContent = () => (
+  <>
+    <Localized id="general-error-heading">
+      <h4 data-testid="reactivate-confirm-error-loading">
+        General application error
+      </h4>
+    </Localized>
+    <Localized id="basic-error-message">
+      <p>Something went wrong. Please try again later.</p>
+    </Localized>
+  </>
+);
 
 const ConfirmationDialogContent = ({
   onConfirm,
@@ -123,62 +137,18 @@ const ConfirmationDialog = ({
   const { webIconURL, webIconBackground } = metadataFromPlan(plan);
   const { last4 } = customer;
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-  const [amount, setAmount] = useState<number | null>(null);
-
-  useEffect(() => {
-    const getSubscriptionPrice = async () => {
-      const {
-        promotion_code: promotionCode,
-        plan_id: priceId,
-        promotion_end,
-        current_period_end,
-        promotion_duration,
-      } = customerSubscription;
-
-      if (
-        promotionCode &&
-        promotion_duration &&
-        ((promotion_duration === 'repeating' &&
-          promotion_end &&
-          promotion_end > current_period_end) ||
-          promotion_duration === 'forever')
-      ) {
-        try {
-          setLoading(true);
-          const preview = await apiInvoicePreview({ priceId, promotionCode });
-          setAmount(preview.total);
-        } catch (err) {
-          setError(true);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-        setAmount(plan.amount);
-      }
-    };
-
-    getSubscriptionPrice();
-  }, [customerSubscription, plan]);
+  const { loading, error, amount } = useHandleConfirmationDialog(
+    customerSubscription,
+    plan
+  );
 
   return (
     <DialogMessage onDismiss={onDismiss}>
       {!loading ? (
         <>
           {/* TO DO: display card type, IE 'to the Visa card ending...' */}
-          {error || !amount ? (
-            <>
-              <Localized id="general-error-heading">
-                <h4 data-testid="reactivate-confirm-error-loading">
-                  General application error
-                </h4>
-              </Localized>
-              <Localized id="basic-error-message">
-                <p>Something went wrong. Please try again later.</p>
-              </Localized>
-            </>
+          {error ? (
+            <ConfirmationDialogErrorContent />
           ) : (
             <ConfirmationDialogContent
               onConfirm={onConfirm}
