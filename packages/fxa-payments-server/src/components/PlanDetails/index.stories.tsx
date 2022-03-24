@@ -111,7 +111,7 @@ storiesOf('components/PlanDetail', module)
     </MockApp>
   ))
   .add(
-    'with coupon - type "repeating" with misaligned plan and coupon interval',
+    'with coupon - type "repeating" where plan interval is greater than coupon duration',
     () => (
       <MockApp>
         <PlanDetails
@@ -134,7 +134,11 @@ storiesOf('components/PlanDetail', module)
           showExpandButton: false,
           selectedPlan,
           isMobile: false,
-          coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
+          coupon: {
+            ...COUPON_DETAILS_VALID,
+            durationInMonths: 3,
+            type: 'repeating',
+          },
         }}
       />
     </MockApp>
