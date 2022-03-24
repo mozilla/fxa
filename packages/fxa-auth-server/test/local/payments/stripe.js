@@ -1357,6 +1357,7 @@ describe('StripeHelper', () => {
         type: 'forever',
         discountAmount: 200,
         valid: true,
+        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1368,6 +1369,7 @@ describe('StripeHelper', () => {
           id: 'promo',
           duration: 'forever',
           valid: true,
+          duration_in_months: null,
         },
       });
 
@@ -1396,6 +1398,7 @@ describe('StripeHelper', () => {
         type: 'forever',
         discountAmount: 200,
         valid: true,
+        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1407,6 +1410,7 @@ describe('StripeHelper', () => {
           id: 'promo',
           duration: 'forever',
           valid: true,
+          duration_in_months: null,
         },
       });
 
@@ -1435,6 +1439,7 @@ describe('StripeHelper', () => {
         type: 'forever',
         expired: true,
         valid: false,
+        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1447,6 +1452,7 @@ describe('StripeHelper', () => {
           duration: 'forever',
           valid: false,
           redeem_by: 1000,
+          duration_in_months: null,
         },
       });
 
@@ -1464,6 +1470,7 @@ describe('StripeHelper', () => {
         type: 'forever',
         maximallyRedeemed: true,
         valid: false,
+        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1477,6 +1484,7 @@ describe('StripeHelper', () => {
           valid: false,
           max_redemptions: 1,
           times_redeemed: 1,
+          duration_in_months: null,
         },
       });
 
@@ -1493,6 +1501,7 @@ describe('StripeHelper', () => {
         promotionCode: 'promo',
         type: 'forever',
         valid: false,
+        durationInMonths: null,
       };
       const err = new AppError('previewInvoiceFailed');
       sandbox.stub(stripeHelper, 'previewInvoice').rejects(err);
@@ -1503,6 +1512,7 @@ describe('StripeHelper', () => {
           id: 'promo',
           duration: 'forever',
           valid: true,
+          duration_in_months: null,
         },
       });
 
@@ -1529,6 +1539,7 @@ describe('StripeHelper', () => {
         promotionCode: 'promo',
         type: 'forever',
         valid: false,
+        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1540,6 +1551,7 @@ describe('StripeHelper', () => {
           id: 'promo',
           duration: 'forever',
           valid: true,
+          duration_in_months: null,
         },
       });
 
@@ -1571,6 +1583,7 @@ describe('StripeHelper', () => {
           id: 'promo',
           duration: 'forever',
           valid: true,
+          duration_in_months: null,
         },
       });
       try {

@@ -126,17 +126,9 @@ export const CouponForm = ({
     event.stopPropagation();
     try {
       setCheckingCoupon(true);
-      const { discountAmount, type, valid } = await checkPromotionCode(
-        planId,
-        promotionCode
-      );
+      const coupon = await checkPromotionCode(planId, promotionCode);
       setHasCoupon(true);
-      setCoupon({
-        promotionCode,
-        discountAmount,
-        type,
-        valid,
-      });
+      setCoupon(coupon);
     } catch (err) {
       setCoupon(undefined);
       setError(err.message);

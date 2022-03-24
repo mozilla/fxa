@@ -1,12 +1,20 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { useCheckboxState, useNonce } from './hooks';
+import { cleanup, fireEvent, render } from '@testing-library/react';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { Plan } from 'fxa-shared/subscriptions/types';
+import React from 'react';
+
+import {
+  CouponInfoBoxMessageType,
+  useCheckboxState,
+  useInfoBoxMessage,
+  useNonce,
+} from './hooks';
+import { COUPON_DETAILS_VALID, SELECTED_PLAN } from './mock-data';
 
 afterEach(cleanup);
 
@@ -66,5 +74,130 @@ describe('useNonce', () => {
       expect(knownNonces).not.toContain(afterRefreshNonce);
       knownNonces.push(afterRefreshNonce);
     }
+  });
+});
+
+describe('useInfoBoxMessage', () => {
+  const selectedPlan = SELECTED_PLAN;
+  const coupon = COUPON_DETAILS_VALID;
+
+  const Subject = ({
+    coupon,
+    selectedPlan,
+  }: {
+    coupon: CouponDetails | undefined;
+    selectedPlan: Plan;
+  }) => {
+    const infoBoxMessage = useInfoBoxMessage(coupon, selectedPlan);
+    return infoBoxMessage ? (
+      <div data-testid="info-box-message">
+        <span data-testid="message">{infoBoxMessage.message}</span>
+        {infoBoxMessage.couponDurationDate ? (
+          <div data-testid="couponDurationDate-container">
+            <span data-testid="couponDurationDate">
+              {infoBoxMessage.couponDurationDate}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    ) : (
+      <div data-testid="info-box-message-empty"></div>
+    );
+  };
+
+  it('coupon has no value', () => {
+    const { queryByTestId } = render(
+      <Subject coupon={undefined} selectedPlan={selectedPlan} />
+    );
+    expect(queryByTestId('info-box-message')).not.toBeInTheDocument();
+    expect(queryByTestId('info-box-message-empty')).toBeInTheDocument();
+  });
+
+  it('coupon type is "forever"', () => {
+    const { queryByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'forever' }}
+        selectedPlan={selectedPlan}
+      />
+    );
+    expect(queryByTestId('info-box-message')).not.toBeInTheDocument();
+    expect(queryByTestId('info-box-message-empty')).toBeInTheDocument();
+  });
+
+  it('coupon type is an unexpected value', () => {
+    const { queryByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'unexpected-value' }}
+        selectedPlan={selectedPlan}
+      />
+    );
+    expect(queryByTestId('info-box-message')).not.toBeInTheDocument();
+    expect(queryByTestId('info-box-message-empty')).toBeInTheDocument();
+  });
+
+  it('coupon type is "once"', () => {
+    const { queryByTestId, getByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'once' }}
+        selectedPlan={selectedPlan}
+      />
+    );
+    expect(
+      queryByTestId('couponDurationDate-container')
+    ).not.toBeInTheDocument();
+    const messageText = getByTestId('message').textContent;
+    expect(messageText).toBe(CouponInfoBoxMessageType.Default);
+  });
+
+  it('coupon type is "repeating" plan interval greater than coupon duration', () => {
+    const { queryByTestId, getByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'repeating' }}
+        selectedPlan={{ ...selectedPlan, interval_count: 6 }}
+      />
+    );
+    expect(
+      queryByTestId('couponDurationDate-container')
+    ).not.toBeInTheDocument();
+    const messageText = getByTestId('message').textContent;
+    expect(messageText).toBe(CouponInfoBoxMessageType.Default);
+  });
+
+  it('coupon type is "repeating" plan interval equal to coupon duration', () => {
+    const { queryByTestId, getByTestId } = render(
+      <Subject
+        coupon={{ ...coupon, type: 'repeating' }}
+        selectedPlan={selectedPlan}
+      />
+    );
+    expect(
+      queryByTestId('couponDurationDate-container')
+    ).not.toBeInTheDocument();
+    const messageText = getByTestId('message').textContent;
+    expect(messageText).toBe(CouponInfoBoxMessageType.Default);
+  });
+
+  it('coupon type is "repeating" and plan interval less than coupon duration', () => {
+    const couponLongerDuration = {
+      ...coupon,
+      durationInMonths: 2,
+      type: 'repeating',
+    };
+    const { getByTestId } = render(
+      <Subject coupon={couponLongerDuration} selectedPlan={selectedPlan} />
+    );
+    const date = new Date();
+    const expectedCouponDurationDate = `${Math.round(
+      new Date(
+        date.setMonth(
+          date.getMonth() + (couponLongerDuration.durationInMonths || 2)
+        )
+      ).getTime() / 1000
+    )}`;
+    const messageText = getByTestId('message').textContent;
+    const couponDurationDate = getByTestId('couponDurationDate').textContent;
+    expect(messageText).toBe(CouponInfoBoxMessageType.Repeating);
+    expect(couponDurationDate).not.toBeNull();
+    expect(couponDurationDate).toBe(expectedCouponDurationDate);
   });
 });
