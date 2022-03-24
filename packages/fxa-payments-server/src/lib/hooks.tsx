@@ -8,13 +8,11 @@ import React, {
   useEffect,
   useRef,
   ChangeEvent,
-  useContext,
 } from 'react';
-import AppContext from './AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { planIntervalLessThanEqualCouponDuration } from './coupon';
+import { checkCouponRepeating, incDateByMonth } from './coupon';
 import { Plan } from 'fxa-shared/subscriptions/types';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
@@ -129,16 +127,13 @@ export function useInfoBoxMessage(
       case 'repeating':
         if (
           coupon.durationInMonths &&
-          planIntervalLessThanEqualCouponDuration(
+          checkCouponRepeating(
             selectedPlan.interval_count,
             selectedPlan.interval,
             coupon.durationInMonths
           )
         ) {
-          const date = new Date();
-          const couponDurationDate = new Date(
-            date.setMonth(date.getMonth() + coupon.durationInMonths)
-          );
+          const couponDurationDate = incDateByMonth(coupon.durationInMonths);
           setInfoBoxMessage({
             message: CouponInfoBoxMessageType.Repeating,
             couponDurationDate: Math.round(couponDurationDate.getTime() / 1000),

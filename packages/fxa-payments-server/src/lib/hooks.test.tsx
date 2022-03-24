@@ -1,10 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+
+import { cleanup, fireEvent, render } from '@testing-library/react';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { Plan } from 'fxa-shared/subscriptions/types';
+import React from 'react';
 
 import {
   CouponInfoBoxMessageType,
@@ -13,8 +15,6 @@ import {
   useNonce,
 } from './hooks';
 import { COUPON_DETAILS_VALID, SELECTED_PLAN } from './mock-data';
-import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { Plan } from 'fxa-shared/subscriptions/types';
 
 afterEach(cleanup);
 
@@ -149,7 +149,7 @@ describe('useInfoBoxMessage', () => {
     expect(messageText).toBe(CouponInfoBoxMessageType.Default);
   });
 
-  it('coupon type is "repeating" plan interval great than coupon duration', () => {
+  it('coupon type is "repeating" plan interval greater than or equal coupon duration', () => {
     const { queryByTestId, getByTestId } = render(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
@@ -163,17 +163,21 @@ describe('useInfoBoxMessage', () => {
     expect(messageText).toBe(CouponInfoBoxMessageType.Default);
   });
 
-  it('coupon type is "repeating" and plan interval less than or equal coupon duration', () => {
+  it('coupon type is "repeating" and plan interval less than coupon duration', () => {
+    const couponLongerDuration = {
+      ...coupon,
+      durationInMonths: 2,
+      type: 'repeating',
+    };
     const { getByTestId } = render(
-      <Subject
-        coupon={{ ...coupon, type: 'repeating' }}
-        selectedPlan={selectedPlan}
-      />
+      <Subject coupon={couponLongerDuration} selectedPlan={selectedPlan} />
     );
     const date = new Date();
     const expectedCouponDurationDate = `${Math.round(
       new Date(
-        date.setMonth(date.getMonth() + (coupon.durationInMonths || 1))
+        date.setMonth(
+          date.getMonth() + (couponLongerDuration.durationInMonths || 1)
+        )
       ).getTime() / 1000
     )}`;
     const messageText = getByTestId('message').textContent;

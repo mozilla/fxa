@@ -265,7 +265,7 @@ describe('PlanDetails', () => {
               coupon: {
                 ...coupon,
                 type: 'repeating',
-                durationInMonths: 1,
+                durationInMonths: 2,
               },
             }}
           />
