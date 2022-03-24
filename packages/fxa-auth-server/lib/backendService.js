@@ -135,10 +135,10 @@ module.exports = function createBackendServiceAPI(
     // to the client.
 
     function validate(location, value, schema, options) {
-      const err = schema.validate(value, options).error;
+      const { value: result, error: err } = schema.validate(value, options);
       return new Promise((resolve, reject) => {
         if (!err) {
-          return resolve(value);
+          return resolve(result);
         }
         log.error(fullMethodName, {
           error: `${location} schema validation failed`,
