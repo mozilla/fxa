@@ -5,7 +5,7 @@
 'use strict';
 
 const config = require('../../config');
-// const joi = require('joi');
+const joi = require('joi');
 const fetch = require('node-fetch');
 const Sentry = require('@sentry/node');
 const { cdnFqdn, resultsCacheLimit } = config.get('legalDocLinks');
@@ -83,7 +83,9 @@ module.exports = {
   method: 'get',
   path: '/legal-docs',
   validate: {
-    // query: { url: joi.string().uri().required() },
+    query: joi.object({
+      url: joi.string().uri().required()
+    }),
   },
   async process(req, res) {
     const docUrl = new URL(req.query.url);

@@ -37,7 +37,7 @@ describe('navigation-timing route', () => {
   describe('request body validation', () => {
     test('should pass when given a validate request body', () => {
       const result = route.validate.body.validate(validRequestBody);
-      expect(result.error).toBeNull();
+      expect(result.error).toBeUndefined();
     });
     test('should fail when given an invalidate request body', () => {
       const result = route.validate.body.validate(invalidRequestBody);

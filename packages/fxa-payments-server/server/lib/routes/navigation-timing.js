@@ -5,14 +5,14 @@
 'use strict';
 
 const URL = require('url').URL;
-/* const {
+const {
   navigationTimingSchema,
-} = require('fxa-shared/metrics/navigation-timing-validation'); */
+} = require('fxa-shared/metrics/navigation-timing-validation');
 
 module.exports = (statsd) => ({
   method: 'post',
   path: '/navigation-timing',
-  /* validate: { body: navigationTimingSchema },*/
+    validate: { body: navigationTimingSchema },
 
   // TODO: safe to remove the preProcess function after GH #5071 is in prod
   preProcess: function (req, res, next) {
