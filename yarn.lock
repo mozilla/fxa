@@ -22728,7 +22728,7 @@ fsevents@~2.1.1:
     intl: 1.2.5
     intl-pluralrules: ^1.3.1
     jest: 27.5.1
-    joi: ^14.3.1
+    joi: ^17.6.0
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     morgan: ^1.10.0
     mozlog: ^3.0.2
@@ -23015,7 +23015,7 @@ fsevents@~2.1.1:
     ioredis: ^4.28.2
     ip: ^1.1.5
     jest: 27.5.1
-    joi: ^14.3.1
+    joi: ^17.6.0
     js-md5: ^0.7.3
     jsdom: 19.0.0
     jsdom-global: 3.0.2
