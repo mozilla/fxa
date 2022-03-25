@@ -124,6 +124,7 @@
     "stripe": "^8.203.0",
     "superagent": "^7.1.1",
     "typedi": "^0.8.0",
+    "typesafe-joi": "^2.1.0",
     "uuid": "^8.3.2",
     "verror": "^1.10.1",
     "web-push": "3.4.4"
