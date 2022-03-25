@@ -164,6 +164,7 @@
     "serve-static": "^1.14.2",
     "type-to-reducer": "^1.2.0",
     "typedi": "^0.8.0",
+    "typesafe-joi": "^2.1.0",
     "uuid": "^8.3.2"
   },
   "readmeFilename": "README.md",
