@@ -8,7 +8,7 @@ const UNBLOCK_CODES_DOCS =
   require('../../docs/swagger/unblock-codes-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
 

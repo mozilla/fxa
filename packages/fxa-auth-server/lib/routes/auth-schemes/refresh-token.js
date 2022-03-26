@@ -5,7 +5,7 @@
 'use strict';
 
 const AppError = require('../../error');
-const joi = require('@hapi/joi');
+const joi = require('joi');
 const hex = require('buf').to.hex;
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;

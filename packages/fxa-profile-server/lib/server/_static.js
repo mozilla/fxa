@@ -6,6 +6,7 @@ const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const path = require('path');
 const Inert = require('@hapi/inert');
+const Joi = require('joi');
 
 const config = require('../config').getProperties();
 const logger = require('../logging')('server.static');
@@ -37,7 +38,7 @@ exports.create = async function () {
       },
     },
   });
-  server.validator(require('@hapi/joi'));
+  server.validator(Joi);
 
   await server.register(Inert);
 

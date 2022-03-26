@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const AppError = require('../error');
 const logger = require('../logging')('routes.email');
@@ -13,9 +13,9 @@ module.exports = {
     scope: ['profile:email', /* openid-connect scope */ 'email'],
   },
   response: {
-    schema: {
+    schema: Joi.object({
       email: Joi.string().required(),
-    },
+    }),
   },
   handler: async function email(req) {
     return req.server

@@ -7,7 +7,6 @@
 const ROOT_DIR = '../../..';
 
 const sinon = require('sinon');
-const Joi = require('@hapi/joi');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
@@ -37,10 +36,10 @@ describe('/oauth/ routes', () => {
     );
     const route = await getRoute(routes, path);
     if (route.config.validate.payload) {
+      const validationSchema = route.config.validate.payload;
       // eslint-disable-next-line require-atomic-updates
-      request.payload = await Joi.validate(
+      request.payload = await validationSchema.validateAsync(
         request.payload,
-        route.config.validate.payload,
         {
           context: {
             headers: request.headers || {},

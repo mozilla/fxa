@@ -252,14 +252,14 @@ describe('lib/keys', () => {
 
   it('can generate new private keys', () => {
     const key = keys.generatePrivateKey();
-    assert.strictEqual(keys.PRIVATE_KEY_SCHEMA.validate(key).error, null);
+    assert.strictEqual(keys.PRIVATE_KEY_SCHEMA.validate(key).error, undefined);
     assert.ok(key['fxa-createdAt'] <= Date.now() / 1000);
     assert.ok(key['fxa-createdAt'] >= Date.now() / 1000 - 3600);
   });
 
   it('can extract public keys', () => {
     const key = keys.extractPublicKey(keys.generatePrivateKey());
-    assert.strictEqual(keys.PUBLIC_KEY_SCHEMA.validate(key).error, null);
-    assert.notEqual(keys.PRIVATE_KEY_SCHEMA.validate(key).error, null);
+    assert.strictEqual(keys.PUBLIC_KEY_SCHEMA.validate(key).error, undefined);
+    assert.notEqual(keys.PRIVATE_KEY_SCHEMA.validate(key).error, undefined);
   });
 });

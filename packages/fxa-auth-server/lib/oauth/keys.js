@@ -6,28 +6,28 @@ const assert = require('assert');
 const config = require('../../config');
 const { jwk2pem, pem2jwk } = require('pem-jwk');
 const crypto = require('crypto');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 
 const PUBLIC_KEY_SCHEMA = (exports.PUBLIC_KEY_SCHEMA = Joi.object({
-  kty: Joi.string().only('RSA').required(),
+  kty: Joi.string().valid('RSA').required(),
   kid: Joi.string().required(),
   n: Joi.string().regex(BASE64URL).required(),
   e: Joi.string().regex(BASE64URL).required(),
-  alg: Joi.string().only('RS256').optional(),
-  use: Joi.string().only('sig').optional(),
+  alg: Joi.string().valid('RS256').optional(),
+  use: Joi.string().valid('sig').optional(),
   'fxa-createdAt': Joi.number().integer().min(0).optional(),
 }));
 
 const PRIVATE_KEY_SCHEMA = (exports.PRIVATE_KEY_SCHEMA = Joi.object({
-  kty: Joi.string().only('RSA').required(),
+  kty: Joi.string().valid('RSA').required(),
   kid: Joi.string().required(),
   n: Joi.string().regex(BASE64URL).required(),
   e: Joi.string().regex(BASE64URL).required(),
   d: Joi.string().regex(BASE64URL).required(),
-  alg: Joi.string().only('RS256').optional(),
-  use: Joi.string().only('sig').optional(),
+  alg: Joi.string().valid('RS256').optional(),
+  use: Joi.string().valid('sig').optional(),
   p: Joi.string().regex(BASE64URL).required(),
   q: Joi.string().regex(BASE64URL).required(),
   dp: Joi.string().regex(BASE64URL).required(),
@@ -46,7 +46,7 @@ const currentPrivJWK = config.get('oauthServer.openid.key');
 if (currentPrivJWK) {
   assert.strictEqual(
     PRIVATE_KEY_SCHEMA.validate(currentPrivJWK).error,
-    null,
+    undefined,
     'openid.key must be a valid private key'
   );
   PRIVATE_JWKS_MAP.set(currentPrivJWK.kid, currentPrivJWK);
@@ -62,7 +62,7 @@ const newPrivJWK = config.get('oauthServer.openid.newKey');
 if (newPrivJWK) {
   assert.strictEqual(
     PRIVATE_KEY_SCHEMA.validate(newPrivJWK).error,
-    null,
+    undefined,
     'openid.newKey must be a valid private key'
   );
   assert.notEqual(
@@ -79,7 +79,7 @@ const oldPubJWK = config.get('oauthServer.openid.oldKey');
 if (oldPubJWK) {
   assert.strictEqual(
     PUBLIC_KEY_SCHEMA.validate(oldPubJWK).error,
-    null,
+    undefined,
     'openid.oldKey must be a valid public key'
   );
   assert.notEqual(

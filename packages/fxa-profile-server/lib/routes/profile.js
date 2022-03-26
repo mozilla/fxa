@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const crypto = require('crypto');
 const checksum = require('checksum');
 const {
@@ -60,7 +60,7 @@ module.exports = {
     strategy: 'oauth',
   },
   response: {
-    schema: {
+    schema: Joi.object({
       email: Joi.string().allow(null),
       uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
@@ -74,7 +74,7 @@ module.exports = {
 
       //openid-connect
       sub: Joi.string().allow(null),
-    },
+    }),
   },
   handler: async function profile(req, h) {
     const server = req.server;

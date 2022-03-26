@@ -4,7 +4,7 @@
 
 const assert = require('assert');
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const config = require('../../config');
 const db = require('../../db');
@@ -41,10 +41,10 @@ module.exports = {
     maxBytes: config.get('img.uploads.maxSize'),
   },
   response: {
-    schema: {
+    schema: Joi.object({
       id: Joi.string().regex(validate.hex).length(32),
       url: Joi.string().required(),
-    },
+    }),
   },
   handler: async function upload(req, h) {
     const uid = req.auth.credentials.user;

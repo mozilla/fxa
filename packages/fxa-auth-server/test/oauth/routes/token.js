@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('@hapi/joi');
 
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
@@ -30,14 +29,14 @@ const route = require('../../../lib/routes/oauth/token')({
 })[0];
 
 function joiRequired(err, param) {
-  assert.ok(err.isJoi);
-  assert.ok(err.name, 'ValidationError');
+  assert.isTrue(err.isJoi);
+  assert.equal(err.name, 'ValidationError');
   assert.equal(err.details[0].message, `"${param}" is required`);
 }
 
 function joiNotAllowed(err, param) {
-  assert.ok(err.isJoi);
-  assert.ok(err.name, 'ValidationError');
+  assert.isTrue(err.isJoi);
+  assert.equal(err.name, 'ValidationError');
   assert.equal(err.details[0].message, `"${param}" is not allowed`);
 }
 
@@ -49,51 +48,39 @@ describe('/token POST', function () {
         cb = ctx;
         ctx = undefined;
       }
-      Joi.validate(req, route.config.validate.payload, { context: ctx }, cb);
+      const validationSchema = route.config.validate.payload;
+      return validationSchema.validate(req, { context: ctx }, cb);
     }
 
-    it('fails with no client_id', (done) => {
-      v(
-        {
-          client_secret: CLIENT_SECRET,
-          code: CODE,
-        },
-        (err) => {
-          joiRequired(err, 'client_id');
-          done();
-        }
-      );
+    it('fails with no client_id', () => {
+      const res = v({
+        client_secret: CLIENT_SECRET,
+        code: CODE,
+      });
+      joiRequired(res.error, 'client_id');
     });
 
-    it('valid client_secret scheme', (done) => {
-      v(
-        {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          code: CODE,
-        },
-        (err) => {
-          assert.equal(err, null);
-          done();
-        }
-      );
+    it('valid client_secret scheme', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        code: CODE,
+      });
+
+      assert.equal(res.error, undefined);
     });
 
-    it('requires client_secret', (done) => {
-      v(
-        {
-          client_id: CLIENT_ID,
-          code: CODE,
-        },
-        (err) => {
-          joiRequired(err, 'client_secret');
-          done();
-        }
-      );
+    it('requires client_secret', () => {
+      const res = v({
+        client_id: CLIENT_ID,
+        code: CODE,
+      });
+
+      joiRequired(res.error, 'client_secret');
     });
 
-    it('forbids client_id when authz header provided', (done) => {
-      v(
+    it('forbids client_id when authz header provided', () => {
+      const res = v(
         {
           client_id: CLIENT_ID,
         },
@@ -101,16 +88,14 @@ describe('/token POST', function () {
           headers: {
             authorization: 'Basic ABCDEF',
           },
-        },
-        (err) => {
-          joiNotAllowed(err, 'client_id');
-          done();
         }
       );
+
+      joiNotAllowed(res.error, 'client_id');
     });
 
-    it('forbids client_secret when authz header provided', (done) => {
-      v(
+    it('forbids client_secret when authz header provided', () => {
+      const res = v(
         {
           client_secret: CLIENT_SECRET,
           code: CODE, // If we don't send `code`, then the missing `code` will fail validation first.
@@ -119,92 +104,75 @@ describe('/token POST', function () {
           headers: {
             authorization: 'Basic ABCDEF',
           },
-        },
-        (err) => {
-          joiNotAllowed(err, 'client_secret');
-          done();
         }
       );
+
+      joiNotAllowed(res.error, 'client_secret');
     });
 
     describe('pkce', () => {
-      it('accepts pkce code_verifier instead of client_secret', (done) => {
-        v(
-          {
-            client_id: CLIENT_ID,
-            code_verifier: PKCE_CODE_VERIFIER,
-            code: CODE,
-          },
-          (err) => {
-            assert.equal(err, null);
-            done();
-          }
-        );
+      it('accepts pkce code_verifier instead of client_secret', () => {
+        const res = v({
+          client_id: CLIENT_ID,
+          code_verifier: PKCE_CODE_VERIFIER,
+          code: CODE,
+        });
+
+        assert.equal(res.error, undefined);
       });
 
-      it('rejects pkce code_verifier that is too small', (done) => {
+      it('rejects pkce code_verifier that is too small', () => {
         const bad_code_verifier = PKCE_CODE_VERIFIER.substring(0, 32);
-        v(
-          {
-            client_id: CLIENT_ID,
-            code_verifier: bad_code_verifier,
-            code: CODE,
-          },
-          (err) => {
-            assert.ok(err.isJoi);
-            assert.ok(err.name, 'ValidationError');
-            assert.equal(
-              err.details[0].message,
-              // eslint-disable-next-line quotes
-              `"code_verifier" length must be at least 43 characters long`
-            ); // eslint-disable-line quotes
-            done();
-          }
-        );
+        const res = v({
+          client_id: CLIENT_ID,
+          code_verifier: bad_code_verifier,
+          code: CODE,
+        });
+
+        assert.isTrue(res.error.isJoi);
+        assert.equal(res.error.name, 'ValidationError');
+        assert.equal(
+          res.error.details[0].message,
+          // eslint-disable-next-line quotes
+          `"code_verifier" length must be at least 43 characters long`
+        ); // eslint-disable-line quotes
       });
 
-      it('rejects pkce code_verifier that is too big', (done) => {
+      it('rejects pkce code_verifier that is too big', () => {
         const bad_code_verifier =
           PKCE_CODE_VERIFIER +
           PKCE_CODE_VERIFIER +
           PKCE_CODE_VERIFIER +
           PKCE_CODE_VERIFIER;
-        v(
-          {
-            client_id: CLIENT_ID,
-            code_verifier: bad_code_verifier,
-            code: CODE,
-          },
-          (err) => {
-            assert.ok(err.isJoi);
-            assert.ok(err.name, 'ValidationError');
-            assert.equal(
-              err.details[0].message,
-              // eslint-disable-next-line quotes
-              `"code_verifier" length must be less than or equal to 128 characters long`
-            ); // eslint-disable-line quotes
-            done();
-          }
-        );
+
+        const res = v({
+          client_id: CLIENT_ID,
+          code_verifier: bad_code_verifier,
+          code: CODE,
+        });
+
+        assert.isTrue(res.error.isJoi);
+        assert.equal(res.error.name, 'ValidationError');
+        assert.equal(
+          res.error.details[0].message,
+          // eslint-disable-next-line quotes
+          `"code_verifier" length must be less than or equal to 128 characters long`
+        ); // eslint-disable-line quotes
       });
 
-      it('rejects pkce code_verifier that contains invalid characters', (done) => {
+      it('rejects pkce code_verifier that contains invalid characters', () => {
         const bad_code_verifier = PKCE_CODE_VERIFIER + ' :.';
-        v(
-          {
-            client_id: CLIENT_ID,
-            code_verifier: bad_code_verifier,
-            code: CODE,
-          },
-          (err) => {
-            assert.ok(err.isJoi);
-            assert.ok(err.name, 'ValidationError');
-            assert.equal(
-              err.details[0].message,
-              `"code_verifier" with value "${bad_code_verifier}" fails to match the required pattern: /^[A-Za-z0-9-_]+$/`
-            );
-            done();
-          }
+        const res = v({
+          client_id: CLIENT_ID,
+          code_verifier: bad_code_verifier,
+          code: CODE,
+        });
+
+        assert.isTrue(res.error.isJoi);
+        assert.equal(res.error.name, 'ValidationError');
+        assert.equal(
+          res.error.details[0].message,
+          `"code_verifier" with value "${bad_code_verifier}" fails to match the required pattern: /^[A-Za-z0-9-_]+$/`
         );
       });
     });
