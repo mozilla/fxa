@@ -30,7 +30,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "fxa-shared": "workspace:*",
-    "joi": "^17.6.0",
+    "joi": "17.4.0",
     "lodash": "^4.17.21",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
