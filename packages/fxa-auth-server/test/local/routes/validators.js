@@ -316,6 +316,7 @@ describe('lib/routes/validators:', () => {
 
     it('accepts a well-formed https:// URL at the base hostname', () => {
       const res = v.validate('https://test.mozilla.com/path');
+      console.log(res)
       assert.ok(!res.error);
       assert.equal(res.value, 'https://test.mozilla.com/path');
     });

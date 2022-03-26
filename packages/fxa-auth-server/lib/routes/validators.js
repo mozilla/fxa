@@ -7,7 +7,7 @@
 
 const { URL } = require('url');
 const punycode = require('punycode.js');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
 // Match any non-empty hex-encoded string.
@@ -68,24 +68,15 @@ module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
 // This is different to Joi's builtin email validator, and
 // requires a custom validation function.
 
-// The custom validators below need to either return the value
-// or create an error object using `createError`.
-// see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
-
 module.exports.email = function () {
-  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
-  // Imma add a custom test to this Joi object using internal
-  // properties because I can't find a nice API to do that.
-  email._tests.push({
-    func: function (value, state, options) {
-      if (value !== undefined && value !== null) {
-        if (module.exports.isValidEmailAddress(value)) {
-          return value;
-        }
-      }
+  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).custom((value, helpers) => {
+  // Do custom validation
+  const isValid = module.exports.isValidEmailAddress(value);
 
-      return email.createError('string.base', { value }, state, options);
-    },
+  if (!isValid) {
+    throw new Error('Not a valid email address');
+  }
+  return value;
   });
 
   return email;
@@ -141,7 +132,7 @@ module.exports.jwt = isA
 
 module.exports.accessToken = isA
   .alternatives()
-  .try([module.exports.hexString.length(64), module.exports.jwt]);
+  .try(module.exports.hexString.length(64), module.exports.jwt);
 
 // Function to validate an email address.
 //
@@ -179,37 +170,29 @@ module.exports.isValidEmailAddress = function (value) {
 };
 
 module.exports.redirectTo = function redirectTo(base) {
-  const validator = isA.string().max(512);
-  let hostnameRegex = null;
-  if (base) {
-    hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
-  }
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        if (isValidUrl(value, hostnameRegex)) {
-          return value;
-        }
-      }
+  const validator = isA.string().max(512).custom((value, helpers) => {
+    let hostnameRegex = '';
+    if (base) {
+      hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
+    }
+    // Do your validation
+    const isValid = isValidUrl(value, hostnameRegex);
 
-      return validator.createError('string.base', { value }, state, options);
-    },
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
   });
   return validator;
 };
 
 module.exports.url = function url(options) {
-  const validator = isA.string().uri(options);
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        if (isValidUrl(value)) {
-          return value;
-        }
-      }
-
-      return validator.createError('string.base', { value }, state, options);
-    },
+  const validator = isA.string().uri(options).custom((value, helpers) => {
+    const isValid = isValidUrl(value);
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
   });
   return validator;
 };
@@ -219,24 +202,18 @@ module.exports.url = function url(options) {
 module.exports.resourceUrl = module.exports.url().regex(/#/, { invert: true });
 
 module.exports.pushCallbackUrl = function pushUrl(options) {
-  const validator = isA.string().uri(options);
-  validator._tests.push({
-    func: (value, state, options) => {
-      if (value !== undefined && value !== null) {
-        let normalizedValue = value;
-        // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
-        // to fail because the :443 is expected to have been normalized away.
-        if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
-          normalizedValue = value.replace(':443', '');
-        }
-
-        if (isValidUrl(normalizedValue)) {
-          return value;
-        }
-      }
-
-      return validator.createError('string.base', { value }, state, options);
-    },
+  const validator = isA.string().uri(options).custom((value, helpers) => {
+    let normalizedValue = value;
+    // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
+    // to fail because the :443 is expected to have been normalized away.
+    if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
+      normalizedValue = value.replace(':443', '');
+    }
+    const isValid = isValidUrl(normalizedValue);
+    if (!isValid) {
+      throw new Error('Not a valid URL');
+    }
+    return value;
   });
   return validator;
 };
@@ -266,13 +243,13 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href;
 }
 
-module.exports.verificationMethod = isA.string().valid([
+module.exports.verificationMethod = isA.string().valid(
   'email', // Verification by email link
   'email-otp', // Verification by email otp code using account long code (`emailCode`) as secret
   'email-2fa', // Verification by email code using randomly generated code (used in login flow)
   'email-captcha', // Verification by email code using randomly generated code (used in unblock flow)
   'totp-2fa', // Verification by TOTP authenticator device code, secret is randomly generated
-]);
+);
 
 module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
 module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
@@ -469,12 +446,19 @@ module.exports.subscriptionProductMetadataValidator = {
         error: 'Capability missing from metadata',
       };
     }
-    return module.exports.subscriptionProductMetadataBaseValidator.validate(
+
+    const { value , error } = module.exports.subscriptionProductMetadataBaseValidator.validate(
       metadata,
       {
         abortEarly: false,
       }
     );
+
+    if (error) {
+      return { error };
+    }
+
+    return { value };
   },
   async validateAsync(metadata) {
     const hasCapability = Object.keys(metadata).some((k) =>
@@ -488,9 +472,9 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     try {
-      const value = await isA.validate(
+      const validationSchema = module.exports.subscriptionProductMetadataBaseValidator;
+      const value = await validationSchema.validateAsync(
         metadata,
-        module.exports.subscriptionProductMetadataBaseValidator,
         {
           abortEarly: false,
         }
@@ -545,7 +529,7 @@ module.exports.subscriptionsStripeIntentValidator = isA
       .alternatives(isA.string(), isA.object({}).unknown(true))
       .optional()
       .allow(null),
-    source: isA.alternatives().when('payment_method', {
+    source: isA.alternatives().conditional('payment_method', {
       // cannot be that strict here since this validator is used in two routes
       is: null,
       then: isA.string().optional(),
@@ -702,7 +686,7 @@ module.exports.newsletters = isA
 module.exports.thirdPartyProvider = isA
   .string()
   .max(256)
-  .allow(['google', 'apple'])
+  .allow('google', 'apple')
   .required();
 
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from '@hapi/joi';
+import joi from 'joi';
 
 import {
   BaseConfig,
@@ -19,9 +19,8 @@ export const planConfigSchema = baseConfigSchema
     productOrder: joi.number().optional(),
     googlePlaySku: joi.array().items(joi.string()).optional(),
     appleProductId: joi.array().items(joi.string()).optional(),
+    active: joi.boolean().required(),
   })
-  .requiredKeys('active');
-
 export class PlanConfig implements BaseConfig {
   // Firestore document id
   id!: string;
@@ -50,7 +49,7 @@ export class PlanConfig implements BaseConfig {
 
   static async validate(planConfig: PlanConfig) {
     try {
-      const value = await joi.validate(planConfig, planConfigSchema, {
+      const value = await planConfigSchema.validateAsync(planConfig, {
         abortEarly: false,
       });
       return { value };

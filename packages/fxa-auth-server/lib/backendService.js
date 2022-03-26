@@ -71,7 +71,7 @@
 
 'use strict';
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const Pool = require('./pool');
 const error = require('./error');
@@ -135,24 +135,23 @@ module.exports = function createBackendServiceAPI(
     // to the client.
 
     function validate(location, value, schema, options) {
+      const { value: result, error: err } = schema.validate(value, options);
       return new Promise((resolve, reject) => {
-        Joi.validate(value, schema, options, (err, value) => {
-          if (!err) {
-            return resolve(value);
-          }
-          log.error(fullMethodName, {
-            error: `${location} schema validation failed`,
-            message: err.message,
-            value,
-          });
-          reject(
-            error.internalValidationError(
-              fullMethodName,
-              { location, value },
-              err
-            )
-          );
+        if (!err) {
+          return resolve(result);
+        }
+        log.error(fullMethodName, {
+          error: `${location} schema validation failed`,
+          message: err.message,
+          value,
         });
+        reject(
+          error.internalValidationError(
+            fullMethodName,
+            { location, value },
+            err
+          )
+        );
       });
     }
 

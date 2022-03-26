@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const crypto = require('crypto');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const hex = require('buf').to.hex;
 
 const OauthError = require('../../oauth/error');
@@ -95,7 +95,7 @@ module.exports = ({ log, oauthDB }) => {
       config: {
         validate: {
           headers: clientAuthValidators.headers,
-          payload: {
+          payload: Joi.object({
             client_id: clientAuthValidators.clientId,
             client_secret: clientAuthValidators.clientSecret.optional(),
             token: Joi.alternatives().try(
@@ -105,7 +105,7 @@ module.exports = ({ log, oauthDB }) => {
             // The spec says we have to ignore invalid token_type_hint values,
             // but no way I'm going to accept an arbitrarily-long string here...
             token_type_hint: Joi.string().max(64).optional(),
-          },
+          }),
         },
         response: {},
       },

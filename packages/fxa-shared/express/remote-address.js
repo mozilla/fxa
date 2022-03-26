@@ -16,7 +16,7 @@ module.exports = (clientIpAddressDepth) => (request) => {
     .map((address) => address.trim());
   ipAddresses.push(request.ip || request.connection.remoteAddress);
   ipAddresses = ipAddresses.filter(
-    (ipAddress) => !joi.validate(ipAddress, IP_ADDRESS).error
+    (ipAddress) => !IP_ADDRESS.validate(ipAddress).error
   );
 
   let clientAddressIndex = ipAddresses.length - clientIpAddressDepth;

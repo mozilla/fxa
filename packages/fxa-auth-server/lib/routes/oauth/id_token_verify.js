@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const JWTIdToken = require('../../oauth/jwt_id_token');
 
 module.exports = () => ({
@@ -11,11 +11,11 @@ module.exports = () => ({
   config: {
     cors: { origin: 'ignore' },
     validate: {
-      payload: {
+      payload: Joi.object({
         client_id: Joi.string().required(),
         id_token: Joi.string().required(),
         expiry_grace_period: Joi.number().default(0),
-      },
+      }),
     },
     response: {
       schema: Joi.object()

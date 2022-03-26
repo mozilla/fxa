@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const CLIENT_ID = '98e6508e88680e1b';
 // jscs:disable
@@ -38,7 +38,6 @@ describe('/authorization POST', function () {
         Joi.assert(req, validation);
       } catch (err) {
         fail = true;
-        assert.ok(err.isJoi);
         assert.ok(err.name, 'ValidationError');
         assert.equal(err.details[0].message, `"${param}" ${messagePostfix}`);
       }

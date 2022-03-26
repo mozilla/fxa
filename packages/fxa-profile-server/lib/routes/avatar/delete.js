@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const hex = require('buf').to.hex;
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const P = require('../../promise');
 
 const AppError = require('../../error');
@@ -24,9 +24,9 @@ module.exports = {
     scope: ['profile:avatar:write'],
   },
   validate: {
-    params: {
+    params: Joi.object({
       id: Joi.string().length(32).regex(validate.hex).optional(),
-    },
+    }),
   },
   handler: async function deleteAvatar(req) {
     if (req.params.id === DEFAULT_AVATAR_ID) {

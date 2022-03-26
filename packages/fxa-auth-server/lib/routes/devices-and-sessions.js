@@ -10,9 +10,10 @@ const ajv = new Ajv();
 const hex = require('buf').to.hex;
 const error = require('../error');
 const fs = require('fs');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const path = require('path');
 const validators = require('./validators');
+const Joi = require('joi');
 
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
@@ -188,10 +189,10 @@ module.exports = (
       path: '/account/device/commands',
       options: {
         validate: {
-          query: {
+          query: isA.object({
             index: isA.number().optional(),
             limit: isA.number().optional().min(0).max(100).default(100),
-          },
+          }),
         },
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
@@ -270,11 +271,11 @@ module.exports = (
           },
         },
         response: {
-          schema: {
+          schema: isA.object({
             enqueued: isA.boolean().optional(),
             notified: isA.boolean().optional(),
             notifyError: isA.string().optional(),
-          },
+          }),
         },
       },
       handler: async function (request) {
@@ -401,7 +402,7 @@ module.exports = (
           ),
         },
         response: {
-          schema: {},
+          schema: Joi.object({}),
         },
       },
       handler: async function (request) {
@@ -717,7 +718,7 @@ module.exports = (
           },
         },
         response: {
-          schema: {},
+          schema: Joi.object({}),
         },
       },
       handler: async function (request) {

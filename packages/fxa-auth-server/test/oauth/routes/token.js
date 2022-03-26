@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('@hapi/joi');
 
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
@@ -44,15 +43,16 @@ function joiNotAllowed(err, param) {
 describe('/token POST', function () {
   describe('input validation', () => {
     // route validation function
-    function v(req, ctx, cb) {
+    async function v(req, ctx, cb) {
       if (typeof ctx === 'function' && !cb) {
         cb = ctx;
         ctx = undefined;
       }
-      Joi.validate(req, route.config.validate.payload, { context: ctx }, cb);
+      const validationSchema = route.config.validate.payload;
+      await validationSchema.validateAsync(req, { context: ctx }, cb);
     }
 
-    it('fails with no client_id', (done) => {
+    it('fails with no client_id', () => {
       v(
         {
           client_secret: CLIENT_SECRET,
@@ -60,12 +60,11 @@ describe('/token POST', function () {
         },
         (err) => {
           joiRequired(err, 'client_id');
-          done();
         }
       );
     });
 
-    it('valid client_secret scheme', (done) => {
+    it('valid client_secret scheme', () => {
       v(
         {
           client_id: CLIENT_ID,
@@ -74,12 +73,11 @@ describe('/token POST', function () {
         },
         (err) => {
           assert.equal(err, null);
-          done();
         }
       );
     });
 
-    it('requires client_secret', (done) => {
+    it('requires client_secret', () => {
       v(
         {
           client_id: CLIENT_ID,
@@ -87,12 +85,11 @@ describe('/token POST', function () {
         },
         (err) => {
           joiRequired(err, 'client_secret');
-          done();
         }
       );
     });
 
-    it('forbids client_id when authz header provided', (done) => {
+    it('forbids client_id when authz header provided', () => {
       v(
         {
           client_id: CLIENT_ID,
@@ -104,12 +101,11 @@ describe('/token POST', function () {
         },
         (err) => {
           joiNotAllowed(err, 'client_id');
-          done();
         }
       );
     });
 
-    it('forbids client_secret when authz header provided', (done) => {
+    it('forbids client_secret when authz header provided', () => {
       v(
         {
           client_secret: CLIENT_SECRET,
@@ -122,13 +118,12 @@ describe('/token POST', function () {
         },
         (err) => {
           joiNotAllowed(err, 'client_secret');
-          done();
         }
       );
     });
 
     describe('pkce', () => {
-      it('accepts pkce code_verifier instead of client_secret', (done) => {
+      it('accepts pkce code_verifier instead of client_secret', () => {
         v(
           {
             client_id: CLIENT_ID,
@@ -137,12 +132,12 @@ describe('/token POST', function () {
           },
           (err) => {
             assert.equal(err, null);
-            done();
+
           }
         );
       });
 
-      it('rejects pkce code_verifier that is too small', (done) => {
+      it('rejects pkce code_verifier that is too small', () => {
         const bad_code_verifier = PKCE_CODE_VERIFIER.substring(0, 32);
         v(
           {
@@ -158,12 +153,12 @@ describe('/token POST', function () {
               // eslint-disable-next-line quotes
               `"code_verifier" length must be at least 43 characters long`
             ); // eslint-disable-line quotes
-            done();
+
           }
         );
       });
 
-      it('rejects pkce code_verifier that is too big', (done) => {
+      it('rejects pkce code_verifier that is too big', () => {
         const bad_code_verifier =
           PKCE_CODE_VERIFIER +
           PKCE_CODE_VERIFIER +
@@ -183,12 +178,12 @@ describe('/token POST', function () {
               // eslint-disable-next-line quotes
               `"code_verifier" length must be less than or equal to 128 characters long`
             ); // eslint-disable-line quotes
-            done();
+
           }
         );
       });
 
-      it('rejects pkce code_verifier that contains invalid characters', (done) => {
+      it('rejects pkce code_verifier that contains invalid characters', () => {
         const bad_code_verifier = PKCE_CODE_VERIFIER + ' :.';
         v(
           {
@@ -203,7 +198,7 @@ describe('/token POST', function () {
               err.details[0].message,
               `"code_verifier" with value "${bad_code_verifier}" fails to match the required pattern: /^[A-Za-z0-9-_]+$/`
             );
-            done();
+
           }
         );
       });

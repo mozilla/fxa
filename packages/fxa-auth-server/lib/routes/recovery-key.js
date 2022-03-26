@@ -6,7 +6,7 @@
 
 const errors = require('../error');
 const validators = require('./validators');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 
 module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
   return [
