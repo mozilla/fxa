@@ -37,7 +37,7 @@ exports.create = async function () {
       },
     },
   });
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   await server.register(Inert);
 

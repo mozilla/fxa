@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ServerRoute } from '@hapi/hapi';
-import isA from '@hapi/joi';
+import isA from 'joi';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';

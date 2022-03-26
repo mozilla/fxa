@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from '@hapi/joi';
+import joi from 'joi';
 
 import {
   BaseConfig,
@@ -18,21 +18,24 @@ export const productConfigSchema = baseConfigSchema
     stripeProductId: joi.string().optional(),
     productSet: joi.string().optional(),
     promotionCodes: joi.array().items(joi.string()).optional(),
-  })
-  .requiredKeys(
-    'capabilities',
-    'locales',
-    'styles',
-    'support',
-    'uiContent',
-    'urls.download',
-    'urls.privacyNotice',
-    'urls.termsOfService',
-    'urls.termsOfServiceDownload',
-    'urls.webIcon',
-    'urls'
-  );
-
+    capabilities: joi.object().required(),
+    locales: joi.object().required(),
+    styles: joi.object().required(),
+    support: joi.object().required(),
+    uiContent: joi.object({
+      subtitle: joi.string(),
+      details: joi.array().items(joi.string()),
+      successActionButtonLabel: joi.string(),
+      upgradeCTA: joi.string(),
+    }).required(),
+    urls: joi.object({
+      download: joi.string().uri().required(),
+      privacyNotice: joi.string().uri().required(),
+      termsOfService: joi.string().uri().required(),
+      termsOfServiceDownload: joi.string().uri().required(),
+      webIcon: joi.string().uri().required(),
+    }).required(),
+  });
 export class ProductConfig implements BaseConfig {
   // Firestore document id
   id!: string;
@@ -58,7 +61,7 @@ export class ProductConfig implements BaseConfig {
 
   static async validate(productConfig: ProductConfig) {
     try {
-      const value = await joi.validate(productConfig, productConfigSchema, {
+      const value = await productConfigSchema.validateAsync(productConfig, {
         abortEarly: false,
       });
       return { value };

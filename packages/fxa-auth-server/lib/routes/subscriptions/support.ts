@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import isA from '@hapi/joi';
+import isA from 'joi';
 import zendesk from 'node-zendesk';
 import pRetry from 'p-retry';
 
