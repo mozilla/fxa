@@ -7,7 +7,7 @@
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
@@ -209,7 +209,7 @@ module.exports = (
               .string()
               .max(32)
               .alphanum()
-              .allow(['upgradeSession'])
+              .allow('upgradeSession')
               .optional(),
           },
           payload: {
@@ -219,12 +219,12 @@ module.exports = (
               .redirectTo(config.smtp.redirectDomain)
               .optional(),
             resume: isA.string().max(2048).optional(),
-            style: isA.string().allow(['trailhead']).optional(),
+            style: isA.string().allow('trailhead').optional(),
             type: isA
               .string()
               .max(32)
               .alphanum()
-              .allow(['upgradeSession'])
+              .allow('upgradeSession')
               .optional(),
           },
         },
@@ -367,7 +367,7 @@ module.exports = (
             service: validators.service,
             reminder: isA.string().regex(REMINDER_PATTERN).optional(),
             type: isA.string().max(32).alphanum().optional(),
-            style: isA.string().allow(['trailhead']).optional(),
+            style: isA.string().allow('trailhead').optional(),
             // The `marketingOptIn` is safe to remove after train-167+
             marketingOptIn: isA.boolean().optional(),
             newsletters: validators.newsletters,

@@ -4,7 +4,7 @@
 
 const crypto = require('crypto');
 const buf = require('buf').hex;
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const OauthError = require('./error');
 const validators = require('./validators');

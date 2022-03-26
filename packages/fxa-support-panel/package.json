@@ -32,6 +32,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
+    "@hapi/joi": "15.1.1",
     "@nestjs/common": "^8.4.4",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.4",
@@ -63,6 +64,7 @@
     "@nestjs/cli": "^8.2.5",
     "@types/convict": "^5.2.2",
     "@types/eslint": "7.2.13",
+    "@types/hapi__joi": "^15",
     "@types/hbs": "^4",
     "@types/node": "^16.11.3",
     "@types/superagent": "4.1.11",

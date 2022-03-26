@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import isA from '@hapi/joi';
+import isA from 'joi';
 import crypto from 'crypto';
 import {
   deleteAllPayPalBAs,
@@ -1567,7 +1567,7 @@ export const accountRoutes = (
               .optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            style: isA.string().allow(['trailhead']).optional(),
+            style: isA.string().allow('trailhead').optional(),
             verificationMethod: validators.verificationMethod.optional(),
             // preVerified is not available in production mode.
             ...(!(config as any).isProduction && {

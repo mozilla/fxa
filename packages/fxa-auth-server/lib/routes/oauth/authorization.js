@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const hex = require('buf').to.hex;
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
@@ -199,7 +199,7 @@ module.exports = ({ log, oauthDB, config }) => {
       config: {
         cors: { origin: 'ignore' },
         validate: {
-          payload: {
+          payload: Joi.object({
             client_id: validators.clientId,
             assertion: validators.assertion.required(),
             redirect_uri: Joi.string()
@@ -259,7 +259,7 @@ module.exports = ({ log, oauthDB, config }) => {
               then: Joi.optional(),
               otherwise: Joi.forbidden(),
             }),
-          },
+          }),
         },
         response: {
           schema: Joi.object()

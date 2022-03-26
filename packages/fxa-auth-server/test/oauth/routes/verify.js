@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('@hapi/joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -59,7 +58,8 @@ describe('/verify POST', () => {
 
   describe('validation', () => {
     function validate(req, context = {}) {
-      const result = Joi.validate(req, route.config.validate.payload, {
+      const validationSchema = route.config.validate.payload;
+      const result = validationSchema.validate(req, {
         context,
       });
       return result.error;
@@ -76,7 +76,7 @@ describe('/verify POST', () => {
       const err = validate({
         token: TOKEN,
       });
-      assert.strictEqual(err, null);
+      assert.strictEqual(err, undefined);
     });
   });
 

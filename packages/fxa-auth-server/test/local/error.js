@@ -6,16 +6,10 @@
 
 const { assert } = require('chai');
 const verror = require('verror');
-const messages = require('@hapi/joi/lib/language');
 const AppError = require('../../lib/error');
 const OauthError = require('../../lib/oauth/error');
 
 describe('AppErrors', () => {
-  it('tightly-coupled joi message hack is okay', () => {
-    assert.equal(typeof messages.errors.any.required, 'string');
-    assert.notEqual(messages.errors.any.required, '');
-  });
-
   it('exported functions exist', () => {
     assert.equal(typeof AppError, 'function');
     assert.equal(AppError.length, 4);
@@ -53,7 +47,7 @@ describe('AppErrors', () => {
     const result = AppError.translate(null, {
       output: {
         payload: {
-          message: `foo${messages.errors.any.required}`,
+          message: `foo${'is required'}`,
           validation: {
             keys: ['bar', 'baz'],
           },

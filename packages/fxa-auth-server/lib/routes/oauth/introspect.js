@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*jshint camelcase: false*/
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const validators = require('../../oauth/validators');
 const hex = require('buf').to.hex;
 const AppError = require('../../oauth/error');
@@ -11,7 +11,7 @@ const { getTokenId } = require('../../oauth/token');
 
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required(),
-  token_type_hint: Joi.string().equal(['access_token', 'refresh_token']),
+  token_type_hint: Joi.string().equal('access_token', 'refresh_token'),
 });
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
@@ -30,7 +30,7 @@ module.exports = ({ oauthDB }) => ({
         active: Joi.boolean().required(),
         scope: validators.scope.optional(),
         client_id: validators.clientId.optional(),
-        token_type: Joi.string().equal(['access_token', 'refresh_token']),
+        token_type: Joi.string().equal('access_token', 'refresh_token'),
         exp: Joi.number().optional(),
         iat: Joi.number().optional(),
         sub: Joi.string().optional(),

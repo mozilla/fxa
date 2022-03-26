@@ -6,7 +6,6 @@
 
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
-const joi = require('@hapi/joi');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -167,7 +166,7 @@ async function create(log, error, config, routes, db, statsd) {
   }
 
   const server = new Hapi.Server(serverOptions);
-  server.validator(require('@hapi/joi'));
+  server.validator(require('joi'));
 
   server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request);
@@ -184,7 +183,7 @@ async function create(log, error, config, routes, db, statsd) {
         .filter(Boolean)
         .map((address) => address.trim())
         .filter(
-          (address) => !joi.validate(address, IP_ADDRESS.required()).error
+          (address) => !IP_ADDRESS.required().validate(address).error
         );
     });
 

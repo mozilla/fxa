@@ -30,7 +30,7 @@ const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const {
   OAUTH_SCOPE_OLD_SYNC,
@@ -106,11 +106,11 @@ const PAYLOAD_SCHEMA = Joi.object({
   ttl: Joi.number().positive().default(MAX_TTL_S).optional(),
 
   scope: Joi.alternatives()
-    .when('grant_type', {
+    .conditional('grant_type', {
       is: GRANT_REFRESH_TOKEN,
       then: validators.scope.optional(),
     })
-    .when('grant_type', {
+    .conditional('grant_type', {
       is: GRANT_FXA_ASSERTION,
       then: validators.scope.required(),
       otherwise: Joi.forbidden(),
