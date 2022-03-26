@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import Stripe from 'stripe';
-import joi from 'typesafe-joi';
+import joi from 'joi';
 
 import {
   MozillaSubscriptionTypes,
@@ -21,9 +21,11 @@ export const iapExtraStripeInfoSchema = joi.object({
   product_name: joi.string().required(),
 });
 
-export type iapExtraStripeInfoSchema = joi.Literal<
-  typeof iapExtraStripeInfoSchema
->;
+export type iapExtraStripeInfoSchema = {
+  price_id: string;
+  product_id: string;
+  product_name: string;
+};
 
 export type PlayStoreSubscription = {
   auto_renewing: boolean;
@@ -45,10 +47,6 @@ export const playStoreSubscriptionSchema = joi
   })
   .concat(iapExtraStripeInfoSchema);
 
-export type playStoreSubscriptionSchema = joi.Literal<
-  typeof playStoreSubscriptionSchema
->;
-
 export type AppStoreSubscription = {
   app_store_product_id: string;
   auto_renewing: boolean;
@@ -68,7 +66,3 @@ export const appStoreSubscriptionSchema = joi
     _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   })
   .concat(iapExtraStripeInfoSchema);
-
-export type appStoreSubscriptionSchema = joi.Literal<
-  typeof appStoreSubscriptionSchema
->;
