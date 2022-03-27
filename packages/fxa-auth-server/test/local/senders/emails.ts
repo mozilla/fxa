@@ -198,6 +198,7 @@ const COMMON_METRICS_OPT_OUT_TESTS: { test: string; expected: string }[] = [
 ];
 
 // prettier-ignore
+<<<<<<< HEAD
 const TESTS: [string, any, Record<string, any>?][] = [
   ['cadReminderFirstEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
@@ -2401,6 +2402,1986 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
     { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
   ],
 ];
+=======
+// const TESTS: [string, any, Record<string, any>?][] = [
+//   ['cadReminderFirstEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'cadReminderFirst' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: "Here’s your reminder to sync devices." },
+//       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+//       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
+//       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+//       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+//       { test: 'include', expected: 'another device' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-first', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'include', expected: 'alt="Devices"' },
+//       { test: 'include', expected: `alt="Download Firefox on the App Store"` },
+//       { test: 'include', expected: `alt="Download Firefox on Google Play"` },
+//       { test: 'notInclude', expected: 'alt="Sync devices"' },
+//       { test: 'notInclude', expected: 'alt="Mozilla logo"' },
+//       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: "Here’s your reminder to sync devices." },
+//       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
+//       { test: 'include', expected: config.smtp.syncUrl },
+//       { test: 'notInclude', expected: config.smtp.androidUrl },
+//       { test: 'notInclude', expected: config.smtp.iosUrl },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ]),
+//     {updateTemplateValues: x => (
+//       {...x, productName: undefined})}],
+
+//   ['cadReminderSecondEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-second', 'connect-device') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderSecond') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'cadReminderSecond' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderSecond }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Last reminder to sync devices!' },
+//       { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+//       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-second', 'connect-device')) },
+//       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+//       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-second', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-second', 'support')) },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'include', expected: 'alt="Devices"' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Last reminder to sync devices!' },
+//       { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-second', 'privacy')}` },
+//       { test: 'include', expected: config.smtp.syncUrl },
+//       { test: 'notInclude', expected: config.smtp.androidUrl },
+//       { test: 'notInclude', expected: config.smtp.iosUrl },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
+//     ['subject', [
+//       { test: 'include', expected: '2 recovery codes remaining' }
+//     ]],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodes') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'lowRecoveryCodes' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodes }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: '2 recovery codes remaining' },
+//       { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Low recovery codes remaining' },
+//       { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+//   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
+//     ['subject', [
+//       { test: 'include', expected: '1 recovery code remaining' }
+//     ]]]),
+//       {updateTemplateValues: values => ({...values, numberRemaining: 1 })}],
+
+//   ['postVerifyEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Account verified. Next, sync another device to finish setup' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postVerify' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Account verified. Next, sync another device to finish setup' },
+//       { test: 'include', expected: "Firefox account verified. You’re almost there." },
+//       { test: 'include', expected: 'Next sync between your devices!' },
+//       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+//       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
+//       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+//       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+//       { test: 'include', expected: 'another desktop device' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-verified', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-verified', 'support')) },
+//       { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'include', expected: 'alt="Devices"' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Firefox account verified. You’re almost there.' },
+//       { test: 'include', expected: 'Next sync between your devices!' },
+//       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
+//       { test: 'include', expected: `Have questions? Visit` },
+//       { test: 'include', expected: configUrl('supportUrl', 'account-verified', 'support') },
+//       { test: 'include', expected: config.smtp.syncUrl },
+//       { test: 'notInclude', expected: config.smtp.androidUrl },
+//       { test: 'notInclude', expected: config.smtp.iosUrl },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postRemoveSecondaryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Secondary email removed' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondary') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondary' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondary }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-removed', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-email-removed', 'support')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Secondary email removed' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-removed', 'support')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verificationReminderFirstEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Reminder: Finish creating your account' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirst') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFirst' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFirst }],
+//       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Reminder: Finish creating your account' },
+//       { test: 'include', expected: 'Welcome to the Firefox family' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-verification-reminder', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-verification-reminder', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Welcome to the Firefox family' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'first-verification-reminder', 'support')}` },
+//       { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verificationReminderSecondEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Final reminder: Activate your account' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecond') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verificationReminderSecond' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderSecond }],
+//       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'second-verification-reminder', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'second-verification-reminder', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'second-verification-reminder', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'second-verification-reminder', 'support')}` },
+//       { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifyEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Finish creating your account' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verify' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verify }],
+//       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Finish creating your account' },
+//       { test: 'include', expected: 'Activate the Firefox family of products' },
+//       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: 'alt="Sync devices"' },
+//       { test: 'notInclude', expected: 'alt="Firefox logo"' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Activate the Firefox family of products' },
+//       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
+//       { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifyShortCodeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Verification code: ${MESSAGE.code}` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCode }],
+//       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `Verification code: ${MESSAGE.code}` },
+//       { test: 'include', expected: 'Is this you signing up?' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'include', expected: 'If yes, use this verification code in your registration form:' },
+//       { test: 'include', expected: MESSAGE.code },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Is this you signing up?' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'include', expected: `If yes, use this verification code in your registration form:\n${MESSAGE.code}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifySecondaryCodeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondaryCode') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verifySecondaryCode' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryCode }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Verify secondary email' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-secondary', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-secondary', 'support')) },
+//       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account:` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: 'Use this verification code:' },
+//       { test: 'include', expected: `${MESSAGE.code}` },
+//       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: configUrl('privacyUrl', 'welcome-secondary', 'privacy') },
+//       { test: 'include', expected: configUrl('supportUrl', 'welcome-secondary', 'support') },
+//       { test: 'include', expected: 'Verify secondary email' },
+//       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox account:` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: 'Use this verification code:' },
+//       { test: 'include', expected: `${MESSAGE.code}` },
+//       { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+//   ['verifySecondaryCodeEmail', new Map<string, Test | any>([
+//     ['html', COMMON_METRICS_OPT_OUT_TESTS],
+//     ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+//       {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
+
+//   ['passwordResetEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Password updated' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordReset') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'passwordReset' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordReset }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Password updated' },
+//       { test: 'include', expected: 'Your account password was changed' },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-success', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-reset-success', 'support')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Your account password was changed' },
+//       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-success', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-success', 'support')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postAddLinkedAccountEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'New account linked to Firefox' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordChangeUrl', 'account-linked', 'change-password', 'email') }],
+//       ['X-Linked-Account-Provider-Id', { test: 'equal', expected: 'Google'}],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddLinkedAccount') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postAddLinkedAccount' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddLinkedAccount }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'New account linked to Firefox' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-linked', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-linked', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-linked', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-linked', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'New account linked to Firefox' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-linked', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `change your password:\n${configUrl('initiatePasswordChangeUrl', 'account-linked', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-linked', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-linked', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['newDeviceLoginEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'New sign-in to Mock Relier' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('newDeviceLogin') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'newDeviceLogin' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLogin }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'New sign-in to Mock Relier' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-device-signin', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-device-signin', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'New sign-in to Mock Relier' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `change your password immediately at ${configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['passwordChangedEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Password updated' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChanged') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'passwordChanged' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChanged }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Password updated' },
+//       { test: 'include', expected: 'Password changed successfully' },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-changed-success', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-changed-success', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Password changed successfully' },
+//       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['unblockCodeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Account authorization code' }],
+//     ['headers', new Map([
+//       ['X-Report-SignIn-Link', { test: 'equal', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCode') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'unblockCode' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.unblockCode }],
+//       ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Account authorization code' },
+//       { test: 'include', expected: 'Is this you signing in?' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-unblock', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: MESSAGE.unblockCode },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Is this you signing in?' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-unblock', 'privacy')}` },
+//       { test: 'include', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.unblockCode}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifyPrimaryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Confirm primary email' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyPrimary') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verifyPrimary' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyPrimary }],
+//       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Confirm primary email' },
+//       { test: 'include', expected: 'Verify primary email' },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'welcome-primary', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-primary', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-primary', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Verify primary email' },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'welcome-primary', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-primary', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-primary', 'support')}` },
+//       { test: 'include', expected: `Verify email:\n${configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifyLoginEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Confirm new sign-in to Mock Relier' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLogin') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verifyLogin' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLogin }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Confirm new sign-in to Mock Relier' },
+//       { test: 'include', expected: 'New sign-in to Mock Relier' },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'New sign-in to Mock Relier' },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
+//       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['verifyLoginCodeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Sign-in code for Mock Relier' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCode') }],
+//       ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+//       ['X-Template-Name', { test: 'equal', expected: 'verifyLoginCode' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCode }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Sign-in code for Mock Relier' },
+//       { test: 'include', expected: 'Is this you signing in?' },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin-verify-code', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-signin-verify-code', 'support')) },
+//       { test: 'include', expected: MESSAGE.code },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Is this you signing in?' },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin-verify-code', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-signin-verify-code', 'support')}` },
+//       { test: 'include', expected: `If yes, here is the verification code:\n${MESSAGE.code}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['recoveryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Reset your password' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recovery') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'recovery' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recovery }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Need to reset your password?' },
+//       { test: 'include', expected: 'Create new password' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'forgot-password', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Need to reset your password?' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['passwordResetAccountRecoveryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Password updated using recovery key' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecovery') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'passwordResetAccountRecovery' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecovery }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Your account password was reset with a recovery key' },
+//       { test: 'include', expected: decodeUrl(configHref('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-account-recovery-success', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-reset-account-recovery-success', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Your account password was reset with a recovery key' },
+//       { test: 'include', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-account-recovery-success', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postAddAccountRecoveryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Account recovery key generated' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecovery') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postAddAccountRecovery' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecovery }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Account recovery key generated' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-generated', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-recovery-generated', 'support')) },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Account recovery key generated' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-generated', 'support')}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postRemoveAccountRecoveryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Account recovery key removed' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecovery') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postRemoveAccountRecovery' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecovery }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Account recovery key removed' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-removed', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-recovery-removed', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Account recovery key removed' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postRemoveTwoStepAuthenticationEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Two-step authentication is off' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postRemoveTwoStepAuthentication' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthentication }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Two-step authentication disabled' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-disabled', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-disabled', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Two-step authentication disabled' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postVerifySecondaryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Secondary email added' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifySecondary') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postVerifySecondary' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifySecondary }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `You have successfully verified ${MESSAGE.secondaryEmail}` },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-email-verified', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-verified', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-email-verified', 'support')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Secondary email added' },
+//       { test: 'include', expected: `You have successfully verified ${MESSAGE.secondaryEmail}` },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-verified', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-verified', 'privacy')}` },
+//       { test: 'notInclude', expected: config.smtp.supportUrl },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postAddTwoStepAuthenticationEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Two-step authentication enabled' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postAddTwoStepAuthentication' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthentication }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account from the following device:' },
+//       { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-enabled', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account.' },
+//       { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postChangePrimaryEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Primary email updated' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangePrimary') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postChangePrimary' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangePrimary }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'New primary email' },
+//       { test: 'include', expected: `You have successfully changed your primary email to ${MESSAGE.email}` },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-email-changed', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-changed', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-email-changed', 'support')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'New primary email' },
+//       { test: 'include', expected: `You have successfully changed your primary email to ${MESSAGE.email}` },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-changed', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-changed', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-changed', 'support')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postConsumeRecoveryCodeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Recovery code used' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCode') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postConsumeRecoveryCode' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCode }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Recovery code consumed' },
+//       { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-consume-recovery-code', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-consume-recovery-code', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Recovery code consumed' },
+//       { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-consume-recovery-code', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['postNewRecoveryCodesEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'New recovery codes generated' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodes') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'postNewRecoveryCodes' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodes }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'New recovery codes generated' },
+//       { test: 'include', expected: 'You have successfully generated new recovery codes' },
+//       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')) },
+//       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-replace-recovery-codes', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-replace-recovery-codes', 'support')) },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'New recovery codes generated' },
+//       { test: 'include', expected: 'You have successfully generated new recovery codes' },
+//       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')}` },
+//       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')}` },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },
+//       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-replace-recovery-codes', 'support')}` },
+//       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+//       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+//       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+//       { test: 'include', expected: `${MESSAGE.date}` },
+//       { test: 'exists', expected: `${MESSAGE.time}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['passwordChangeRequiredEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Suspicious activity detected' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChangeRequired') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'passwordChangeRequired' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangeRequired }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Password Change Required' },
+//       { test: 'include', expected: 'change your password as a precaution' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-change-required', 'privacy')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Password Change Required' },
+//       { test: 'include', expected: 'change your password as a precaution' },
+//       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-change-required', 'privacy')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['downloadSubscriptionEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.downloadSubscription }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'https://www.mozilla.org/privacy/websites/' },
+//       { test: 'include', expected: MESSAGE.planDownloadURL },
+//       { test: 'include', expected: MESSAGE.appStoreLink },
+//       { test: 'include', expected: MESSAGE.playStoreLink },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support')) },
+//       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
+//       { test: 'include', expected: 'get started using all the features included in your subscription' },
+//       { test: 'include', expected: 'Get Started' },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'include', expected: `alt="Download ${MESSAGE.productName} on the App Store"` },
+//       { test: 'include', expected: `alt="Download ${MESSAGE.productName} on Google Play"` },
+//       { test: 'include', expected: 'alt="Mozilla logo"' },
+//       { test: 'notInclude', expected: 'alt="Devices"'},
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: MESSAGE.planDownloadURL },
+//       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy') },
+//       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+//       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
+//       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
+//       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
+//       { test: 'include', expected: 'get started using all the features included in your subscription' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+//   ['downloadSubscriptionEmail', new Map<string, Test | any>([
+//     ['html', COMMON_METRICS_OPT_OUT_TESTS],
+//     ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+//       {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
+
+//   ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountDeletion') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountDeletion' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+//       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+//       { test: 'include', expected: 'alt="Firefox logo"' },
+//       { test: 'include', expected: 'alt="Mozilla logo"' },
+//       { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
+//       { test: 'notInclude', expected: 'alt="Devices"' },
+//       { test: 'notInclude', expected: 'alt="Sync Devices"' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+//       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+//       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+//       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+//   ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
+//       ['html', [
+//         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       ]],
+//       ['text', [
+//         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       ]]
+//     ]),
+//     {updateTemplateValues: x => (
+//       {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
+//   ],
+
+//   ['subscriptionAccountFinishSetupEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountFinishSetup') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountFinishSetup' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
+//       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
+//       { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
+//       { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
+//       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy') },
+//       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: 'Next, you’ll create a Firefox account password to start using your new subscription.' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionAccountReminderFirstEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Reminder: Finish setting up your account' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountReminderFirst') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountReminderFirst' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderFirst }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Reminder: Finish setting up your account' },
+//       { test: 'include', expected: 'Create Password' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-subscription-account-reminder', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-subscription-account-reminder', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Reminder: Finish setting up your account' },
+//       { test: 'include', expected: `Create Password:\n${configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['subscriptionAccountReminderSecondEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Final reminder: Setup your account' }],
+//     ['headers', new Map([
+//       ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountReminderSecond') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountReminderSecond' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderSecond }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Final reminder: Setup your account' },
+//       { test: 'include', expected: 'Create Password' },
+//       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'second-subscription-account-reminder', 'privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'second-subscription-account-reminder', 'support')) },
+//       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Final reminder: Setup your account' },
+//       { test: 'include', expected: `Create Password:\n${configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//   ])],
+
+//   ['subscriptionDowngradeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `You have switched to ${MESSAGE.productNameNew}` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionDowngrade') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionDowngrade' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionDowngrade }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `You have switched to ${MESSAGE.productNameNew}` },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
+//       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+//       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+//       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+//       { test: 'include', expected: 'Your subscription will automatically renew' },
+//       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+//       { test: 'include', expected: `alt="${MESSAGE.productNameNew}"` },
+//       { test: 'include', expected: `alt="${MESSAGE.productNameOld}"` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+//       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+//       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+//       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+//       { test: 'include', expected: 'Your subscription will automatically renew' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionCancellationEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionCancellation') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionCancellation' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+//       { test: 'include', expected: 'Sorry to see you go' },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms')) },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+//       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+//       { test: 'include', expected: `billing period, which is 04/19/2020.` },
+//       { test: 'notInclude', expected: `alt="${MESSAGE.productName}"`},
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+//       { test: 'include', expected: 'Sorry to see you go' },
+//       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+//       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+//       { test: 'include', expected: `billing period, which is 04/19/2020.` },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+//   ['subscriptionCancellationEmail', new Map<string, Test | any>([
+//     ['html', [
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//       { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//       { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//     ]]
+//   ]),
+//     {updateTemplateValues: x => (
+//       {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
+//   ],
+
+//   ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFailedPaymentsCancellation') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionFailedPaymentsCancellation' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFailedPaymentsCancellation }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+//       { test: 'include', expected: 'Your subscription has been cancelled' },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-failed-payments-cancellation', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+//       { test: 'include', expected: 'Your subscription has been cancelled' },
+//       { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
+//       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
+//       ['html', [
+//         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       ]],
+//       ['text', [
+//         { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
+//         { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+//       ]]
+//     ]),
+//     {updateTemplateValues: x => (
+//       {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
+//   ],
+
+//   ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
+//       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View your invoice` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]]
+//   ])],
+
+//   ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+//       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//       { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View your invoice` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//       { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]]
+//   ])],
+//   // Do not display the Payment Method when "showPaymentMethod" is false
+//   ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+//       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View your invoice` },
+//       { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+//       { test: 'include', expected: `start using ${MESSAGE.productName}` },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//       { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]]]),
+//     {updateTemplateValues: x => (
+//       {...x, showPaymentMethod: false})}
+//   ],
+
+//   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentExpired') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentExpired' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
+//       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Credit card for ${MESSAGE.productName} expiring soon` },
+//       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+//       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ]),
+//     {updateTemplateValues: x => (
+//       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}],
+
+//   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expiring soon' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentExpired' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
+//       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Credit card for your subscriptions is expiring soon' },
+//       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+//       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
+
+//   ['subscriptionPaymentFailedEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment failed` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentFailed') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentFailed' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentFailed }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment failed` },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `Payment information update required for ${MESSAGE.productName}` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentProviderCancelled') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentProviderCancelled' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentProviderCancelled }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-provider-cancelled', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-provider-cancelled', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+//       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Payment information update required for ${MESSAGE.productName}` },
+//       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+//       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ]),
+//     {updateTemplateValues: x => (
+//       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}
+//   ],
+
+//   // test for `subscriptionsPaymentProviderCancelledEmail` (plural)
+//   ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: 'Payment information update required for Mozilla subscriptions' }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentProviderCancelled') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentProviderCancelled' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionsPaymentProviderCancelled }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Payment information update required for Mozilla subscriptions' },
+//       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+//       { test: 'include', expected: 'Firefox Fortress' },
+//       { test: 'include', expected: 'Cooking with Foxkeh' },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
+//       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
+//       { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: 'Payment information update required for Mozilla subscriptions' },
+//       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
+//       { test: 'include', expected: 'Firefox Fortress' },
+//       { test: 'include', expected: 'Cooking with Foxkeh' },
+//       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
+
+//   ['subscriptionReactivationEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionReactivation') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionReactivation' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `Thank you for reactivating your ${MESSAGE.productName} subscription!` },
+//       { test: 'include', expected: `will be ${MESSAGE_FORMATTED.invoiceTotal} on 04/19/2020` },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
+//       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `Thank you for reactivating your ${MESSAGE.productName} subscription!` },
+//       { test: 'include', expected: `will be ${MESSAGE_FORMATTED.invoiceTotal} on 04/19/2020` },
+//       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionRenewalReminderEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionRenewalReminder') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionRenewalReminder' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support')) },
+//       { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+//       { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+//       { test: 'include', expected: "Sincerely," },
+//       { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+//       { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+//       { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+//       { test: 'include', expected: "Sincerely," },
+//       { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+
+//   ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: 'Thank you for being a subscriber!' },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View your invoice` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment received` },
+//       { test: 'include', expected: 'Thank you for being a subscriber!' },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]]
+//   ])],
+
+//   ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//       { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View your invoice` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `${MESSAGE.productName} payment received` },
+//       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//       { test: 'include', expected: `MasterCard card ending in 5309` },
+//       { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//       { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//       { test: 'notInclude', expected: 'PayPal' },
+//     ]]
+//   ])],
+//   ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+//       ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+//       ['headers', new Map([
+//         ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
+//         ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
+//         ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+//       ])],
+//       ['html', [
+//         { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//         { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
+//         { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+//         { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//         { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+//         { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//         { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//         { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//         { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//         { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//         { test: 'include', expected: `View your invoice` },
+//         { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         { test: 'notInclude', expected: 'utm_source=email' },
+//         { test: 'notInclude', expected: 'PayPal' },
+//       ]],
+//       ['text', [
+//         { test: 'include', expected: `${MESSAGE.productName} payment received` },
+//         { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+//         { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+//         { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+//         { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+//         { test: 'include', expected: `Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+//         { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+//         { test: 'include', expected: `Next Invoice: 04/19/2020` },
+//         { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+//         { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         { test: 'notInclude', expected: 'utm_source=email' },
+//         { test: 'notInclude', expected: 'PayPal' },
+//       ]]
+//     ]),
+//     {updateTemplateValues: x => ({...x, showPaymentMethod: false})}
+//   ],
+
+//   ['subscriptionUpgradeEmail', new Map<string, Test | any>([
+//     ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+//     ['headers', new Map([
+//       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+//       ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+//       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+//     ])],
+//     ['html', [
+//       { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+//       { test: 'include', expected: 'Thank you for upgrading!' },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+//       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+//       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+//       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+//       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+//       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]],
+//     ['text', [
+//       { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+//       { test: 'include', expected: 'Thank you for upgrading!' },
+//       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+//       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+//       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+//       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+//       { test: 'notInclude', expected: 'utm_source=email' },
+//     ]]
+//   ])],
+// ];
+
+// const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
+
+// PAYPAL_MESSAGE.payment_provider = 'paypal';
+
+// const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
+//   string,
+//   any,
+//   Record<string, any>?
+// ][] = [
+//   [
+//     'subscriptionFirstInvoiceEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice'),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             { test: 'equal', expected: 'subscriptionFirstInvoice' },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+//         ],
+//       ],
+//     ]),
+//   ],
+//   [
+//     'subscriptionFirstInvoiceDiscountEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue(
+//                 'subscriptionFirstInvoiceDiscount'
+//               ),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+//         ],
+//       ],
+//     ]),
+//   ],
+//   [
+//     'subscriptionFirstInvoiceDiscountEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue(
+//                 'subscriptionFirstInvoiceDiscount'
+//               ),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'notInclude', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'notInclude', expected: `PayPal` },
+//           { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+//         ],
+//       ],
+//     ]),
+//     { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
+//   ],
+//   [
+//     'subscriptionSubsequentInvoiceEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment received`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue(
+//                 'subscriptionSubsequentInvoice'
+//               ),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             { test: 'equal', expected: 'subscriptionSubsequentInvoice' },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//     ]),
+//   ],
+//   [
+//     'subscriptionSubsequentInvoiceDiscountEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment received`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue(
+//                 'subscriptionSubsequentInvoiceDiscount'
+//               ),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             {
+//               test: 'equal',
+//               expected: 'subscriptionSubsequentInvoiceDiscount',
+//             },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'include', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//     ]),
+//   ],
+//   [
+//     'subscriptionSubsequentInvoiceDiscountEmail',
+//     new Map<string, Test | any>([
+//       [
+//         'subject',
+//         {
+//           test: 'equal',
+//           expected: `${PAYPAL_MESSAGE.productName} payment received`,
+//         },
+//       ],
+//       [
+//         'headers',
+//         new Map([
+//           [
+//             'X-SES-MESSAGE-TAGS',
+//             {
+//               test: 'equal',
+//               expected: sesMessageTagsHeaderValue(
+//                 'subscriptionSubsequentInvoiceDiscount'
+//               ),
+//             },
+//           ],
+//           [
+//             'X-Template-Name',
+//             {
+//               test: 'equal',
+//               expected: 'subscriptionSubsequentInvoiceDiscount',
+//             },
+//           ],
+//           [
+//             'X-Template-Version',
+//             {
+//               test: 'equal',
+//               expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount,
+//             },
+//           ],
+//         ]),
+//       ],
+//       [
+//         'html',
+//         [
+//           { test: 'notInclude', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//       [
+//         'text',
+//         [
+//           { test: 'notInclude', expected: `PayPal` },
+//           { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+//         ],
+//       ],
+//     ]),
+//     { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
+//   ],
+// ];
+>>>>>>> 0c66151094 (Fix test in emails)
 
 describe('lib/senders/emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
@@ -2638,7 +4619,14 @@ describe('lib/senders/emails:', () => {
         message.timeZone,
         message.acceptLanguage
       );
+<<<<<<< HEAD
       assert.include(['CET', 'CEST'], result[0].replace(/(^.*\(|\).*$)/g, ''));
+=======
+
+      // daylight saving time affects timezones - CET, CEST
+      const zones = ['CET', 'CEST'];
+      assert.include(zones, result[0].split("(")[1].slice(0,-1));
+>>>>>>> 0c66151094 (Fix test in emails)
     });
 
     it('returns date/time in Spanish', () => {
