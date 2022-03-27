@@ -40,6 +40,7 @@
     "@types/chai": "^4.2.18",
     "@types/chance": "^1.1.2",
     "@types/generic-pool": "^3.1.9",
+    "@types/hapi__joi": "^15",
     "@types/i18n-abide": "^0",
     "@types/ioredis": "^4.26.4",
     "@types/ip": "^1",
@@ -77,6 +78,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
+    "@hapi/joi": "15.1.1",
     "@nestjs/common": "^8.3.1",
     "@nestjs/config": "^1.2.0",
     "@nestjs/core": "^8.3.1",
