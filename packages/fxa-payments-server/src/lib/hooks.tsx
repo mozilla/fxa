@@ -12,7 +12,11 @@ import React, {
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { checkCouponRepeating, incDateByMonth } from './coupon';
+import {
+  checkCouponRepeating,
+  couponOnSubsequentInvoice,
+  incDateByMonth,
+} from './coupon';
 import { Plan, WebSubscription } from 'fxa-shared/subscriptions/types';
 import { apiInvoicePreview } from './apiClient';
 
@@ -180,11 +184,11 @@ export function useHandleConfirmationDialog(
 
       if (
         promotionCode &&
-        promotion_duration &&
-        ((promotion_duration === 'repeating' &&
-          promotion_end &&
-          promotion_end > current_period_end) ||
-          promotion_duration === 'forever')
+        couponOnSubsequentInvoice(
+          current_period_end,
+          promotion_end,
+          promotion_duration
+        )
       ) {
         try {
           setLoading(true);

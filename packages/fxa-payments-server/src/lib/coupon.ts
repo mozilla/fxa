@@ -36,3 +36,19 @@ export const checkCouponRepeating = (
 
   return couponDurationDate.getTime() <= renewalDate.getTime() ? false : true;
 };
+
+/*
+ * Determine if the subsequent invoice will require a coupon
+ */
+export const couponOnSubsequentInvoice = (
+  invoiceCurrentPeriodEnd: number,
+  invoicePromotionEnd: number | null,
+  couponDuration: string | null
+) =>
+  !!(
+    couponDuration &&
+    (couponDuration === 'forever' ||
+      (couponDuration === 'repeating' &&
+        invoicePromotionEnd &&
+        invoicePromotionEnd > invoiceCurrentPeriodEnd))
+  );

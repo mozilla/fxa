@@ -2186,8 +2186,8 @@ export class StripeHelper {
         failure_message,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
-        promotion_duration: (discount?.coupon?.duration as string) ?? undefined,
-        promotion_end: discount?.end ?? undefined,
+        promotion_duration: (discount?.coupon?.duration as string) ?? null,
+        promotion_end: discount?.end ?? null,
       });
     }
     return subs;

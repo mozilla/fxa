@@ -3422,6 +3422,8 @@ describe('StripeHelper', () => {
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
             promotion_code: null,
+            promotion_duration: null,
+            promotion_end: null,
           },
         ];
 
@@ -3499,6 +3501,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
 
@@ -3532,6 +3536,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
 
@@ -3569,6 +3575,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
             const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -3649,6 +3657,8 @@ describe('StripeHelper', () => {
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
             promotion_code: 'jortssentme',
+            promotion_duration: null,
+            promotion_end: null,
           },
         ];
 
