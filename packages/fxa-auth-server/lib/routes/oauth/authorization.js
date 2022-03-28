@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import MISC_DOCS from '../../../docs/swagger/misc-api';
+import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
+import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
+
 const hex = require('buf').to.hex;
 const Joi = require('@hapi/joi');
 
@@ -177,6 +181,7 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'GET',
       path: '/authorization',
       config: {
+        ...MISC_DOCS.AUTHORIZATION_GET,
         cors: { origin: 'ignore' },
         handler: async function redirectAuthorization(req, h) {
           // keys_jwk is barred from transiting the OAuth server
@@ -197,9 +202,10 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'POST',
       path: '/authorization',
       config: {
+        ...MISC_DOCS.AUTHORIZATION_POST,
         cors: { origin: 'ignore' },
         validate: {
-          payload: {
+          payload: Joi.object({
             client_id: validators.clientId,
             assertion: validators.assertion.required(),
             redirect_uri: Joi.string()
@@ -259,7 +265,7 @@ module.exports = ({ log, oauthDB, config }) => {
               then: Joi.optional(),
               otherwise: Joi.forbidden(),
             }),
-          },
+          }).label('Authorization_payload'),
         },
         response: {
           schema: Joi.object()
@@ -280,7 +286,8 @@ module.exports = ({ log, oauthDB, config }) => {
               'expires_in',
             ])
             .with('code', ['state', 'redirect'])
-            .without('code', ['access_token']),
+            .without('code', ['access_token'])
+            .label('Authorization_response'),
         },
         handler: function (req) {
           // Refuse to generate new codes or tokens for disabled clients.
@@ -295,40 +302,62 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'POST',
       path: '/oauth/authorization',
       config: {
+        ...OAUTH_DOCS.OAUTH_AUTHORIZATION_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
           payload: Joi.object({
-            response_type: Joi.string().valid('code').default('code'),
-            client_id: validators.clientId.required(),
+            response_type: Joi.string()
+              .valid('code')
+              .default('code')
+              .description(DESCRIPTION.responseType),
+            client_id: validators.clientId
+              .required()
+              .description(DESCRIPTION.clientId),
             redirect_uri: Joi.string()
               .max(256)
               .uri({
                 scheme: ['http', 'https'],
               })
-              .optional(),
-            scope: validators.scope.optional(),
-            state: Joi.string().max(512).required(),
+              .optional()
+              .description(DESCRIPTION.redirectUri),
+            scope: validators.scope.optional().description(DESCRIPTION.scope),
+            state: Joi.string()
+              .max(512)
+              .required()
+              .description(DESCRIPTION.state),
             access_type: Joi.string()
               .valid('offline', 'online')
-              .default('online'),
-            code_challenge_method:
-              validators.pkceCodeChallengeMethod.optional(),
-            code_challenge: validators.pkceCodeChallenge.optional(),
-            keys_jwe: validators.jwe.optional(),
-            acr_values: Joi.string().max(256).allow(null).optional(),
+              .default('online')
+              .description(DESCRIPTION.accessType),
+            code_challenge_method: validators.pkceCodeChallengeMethod
+              .optional()
+              .description(DESCRIPTION.codeChallengeMethod),
+            code_challenge: validators.pkceCodeChallenge
+              .optional()
+              .description(DESCRIPTION.codeChallenge),
+            keys_jwe: validators.jwe
+              .optional()
+              .description(DESCRIPTION.keysJwe),
+            acr_values: Joi.string()
+              .max(256)
+              .allow(null)
+              .optional()
+              .description(DESCRIPTION.acrValues),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
-          }).and('code_challenge', 'code_challenge_method'),
+          })
+            .and('code_challenge', 'code_challenge_method')
+            .label('Oauth.authorization_payload'),
         },
         response: {
           schema: Joi.object({
             redirect: Joi.string(),
             code: Joi.string(),
             state: Joi.string().max(512),
-          }),
+          }).label('Oauth.authorization_response'),
         },
       },
       handler: async function (req) {

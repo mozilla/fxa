@@ -4,9 +4,11 @@
 
 'use strict';
 
+import MISC_DOCS from '../../docs/swagger/misc-api';
 const validators = require('./validators');
 const ScopeSet = require('fxa-shared/oauth/scopes');
 const AppError = require('../../lib/error');
+const Joi = require('joi');
 
 const { OAUTH_SCOPE_NEWSLETTERS } = require('fxa-shared/oauth/constants');
 
@@ -16,13 +18,14 @@ module.exports = (log, db) => {
       method: 'POST',
       path: '/newsletters',
       options: {
+        ...MISC_DOCS.NEWSLETTERS_POST,
         auth: {
           strategies: ['sessionToken', 'oauthToken'],
         },
         validate: {
-          payload: {
+          payload: Joi.object({
             newsletters: validators.newsletters.required(),
-          },
+          }).label('Newsletters_payload'),
         },
       },
       handler: async function (request) {
