@@ -2440,7 +2440,7 @@ describe('lib/senders/emails:', () => {
         message.timeZone,
         message.acceptLanguage
       );
-      assert.include(result[0], 'CET');
+      assert.include(['CET', 'CEST'], result[0].replace(/(^.*\(|\).*$)/g, ''));
     });
 
     it('returns date/time in Spanish', () => {
