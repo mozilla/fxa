@@ -74,36 +74,28 @@ export class MozillaSubscriptionHandler {
       email,
       'mozillaSubscriptionsCustomerBillingAndSubscriptions'
     );
-    try {
-      const stripeBillingDetailsAndSubscriptions =
-        await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
-      const iapGooglePlaySubscriptions =
-        await this.playSubscriptions.getSubscriptions(uid);
+    const stripeBillingDetailsAndSubscriptions =
+      await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
+    const iapGooglePlaySubscriptions =
+      await this.playSubscriptions.getSubscriptions(uid);
 
-      if (
-        !stripeBillingDetailsAndSubscriptions &&
-        iapGooglePlaySubscriptions.length === 0
-      ) {
-        throw error.unknownCustomer(uid);
-      }
-
-      const response: {
-        customerId?: string;
-        subscriptions: MozillaSubscription[];
-      } & Partial<PaymentBillingDetails> = stripeBillingDetailsAndSubscriptions || {
-        subscriptions: [],
-      };
-
-      return {
-        ...response,
-        subscriptions: [
-          ...response.subscriptions,
-          ...iapGooglePlaySubscriptions,
-        ],
-      };
-    } catch (err) {
-      console.log(err);
-      throw err;
+    if (
+      !stripeBillingDetailsAndSubscriptions &&
+      iapGooglePlaySubscriptions.length === 0
+    ) {
+      throw error.unknownCustomer(uid);
     }
+
+    const response: {
+      customerId?: string;
+      subscriptions: MozillaSubscription[];
+    } & Partial<PaymentBillingDetails> = stripeBillingDetailsAndSubscriptions || {
+      subscriptions: [],
+    };
+
+    return {
+      ...response,
+      subscriptions: [...response.subscriptions, ...iapGooglePlaySubscriptions],
+    };
   }
 }
