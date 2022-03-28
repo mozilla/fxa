@@ -621,6 +621,8 @@ export const MOCK_CUSTOMER: Customer = {
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     } as MozillaSubscription,
   ],
 };
