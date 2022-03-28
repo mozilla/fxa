@@ -22024,7 +22024,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     react: ^16.13.0
     react-dom: ^16.13.0
-    react-router-dom: ^6.2.1
+    react-router-dom: ^6.2.2
     react-scripts: ^4.0.3
     serve-static: ^1.14.2
     supertest: ^6.2.2
@@ -22816,7 +22816,7 @@ fsevents@~2.1.1:
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
     react-redux: ^7.2.6
-    react-router-dom: ^6.2.1
+    react-router-dom: ^6.2.2
     react-scripts: ^4.0.3
     react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.2
@@ -36885,7 +36885,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.0.0, react-router-dom@npm:^6.2.1":
+"react-router-dom@npm:^6.0.0":
   version: 6.2.1
   resolution: "react-router-dom@npm:6.2.1"
   dependencies:
@@ -36898,6 +36898,19 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"react-router-dom@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "react-router-dom@npm:6.2.2"
+  dependencies:
+    history: ^5.2.0
+    react-router: 6.2.2
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 83c5105af923c4f8af65a6de98283a95f46ffa643fd0c1a5005647c2c3deb946dae52dda32dc00cfcc3659517b08be806ff02ff03173361dba3d824850053e99
+  languageName: node
+  linkType: hard
+
 "react-router@npm:6.2.1, react-router@npm:^6.0.0":
   version: 6.2.1
   resolution: "react-router@npm:6.2.1"
@@ -36906,6 +36919,17 @@ fsevents@~2.1.1:
   peerDependencies:
     react: ">=16.8"
   checksum: 081a89237ab4f32195d1f2173bc4b3d95637cd6942a4d1a9e90d4ac8c80faa95528255ca2ec44c1e88c1b369e712c4ca74cba5ae3acef6fc30a51a62805b95a4
+  languageName: node
+  linkType: hard
+
+"react-router@npm:6.2.2":
+  version: 6.2.2
+  resolution: "react-router@npm:6.2.2"
+  dependencies:
+    history: ^5.2.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 1a2e7006d4d56bfae8ff11dd5ec15e8049578864dfb2764652510eb0ce4af26a8949790a3732c4f7beb14bcb6500469ea18841b8cfc953e09828e4e4113922f0
   languageName: node
   linkType: hard
 
