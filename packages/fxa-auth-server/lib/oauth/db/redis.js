@@ -41,10 +41,7 @@ class OAuthRedis extends ConnectedServicesCache {
       redis({
         ...config.get('redis.refreshTokens'),
       }),
-      redis({
-        ...config.get('redis'),
-        ...config.get('redis.refreshTokens'),
-      }),
+      undefined,
       resolveLogger()
     );
   }
