@@ -17,6 +17,10 @@ module.exports = (log, config, db, mailer, devices) => {
 
   const clientGetAlias = require('./client/get')({ log, oauthDB });
   clientGetAlias.path = '/oauth/client/{client_id}';
+  clientGetAlias.config.notes = [
+    'Retrieve metadata about the specified OAuth client, such as its display name and redirect URI.',
+  ];
+  clientGetAlias.config.tags = ['api', 'Oauth'];
   routes.push(clientGetAlias);
 
   routes.forEach((r) => {

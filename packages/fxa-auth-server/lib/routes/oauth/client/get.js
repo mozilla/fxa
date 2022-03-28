@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import MISC_DOCS from '../../../../docs/swagger/misc-api';
+
 const hex = require('buf').to.hex;
 const Joi = require('@hapi/joi');
 
@@ -12,6 +14,7 @@ module.exports = ({ log, oauthDB }) => ({
   method: 'GET',
   path: '/client/{client_id}',
   config: {
+    ...MISC_DOCS.CLIENT_CLIENTID_GET,
     cors: { origin: 'ignore' },
     validate: {
       params: {
@@ -19,13 +22,13 @@ module.exports = ({ log, oauthDB }) => ({
       },
     },
     response: {
-      schema: {
+      schema: Joi.object({
         id: validators.clientId,
         name: Joi.string().required(),
         trusted: Joi.boolean().required(),
         image_uri: Joi.any(),
         redirect_uri: Joi.string().required().allow(''),
-      },
+      }).label('Oauth.clientId_response'),
     },
     handler: async function requestInfoEndpoint(req) {
       const params = req.params;

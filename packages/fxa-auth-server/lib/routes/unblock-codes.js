@@ -4,6 +4,9 @@
 
 'use strict';
 
+import UNBLOCK_CODES_DOCS from '../../docs/swagger/unblock-codes-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+
 const isA = require('@hapi/joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
@@ -18,11 +21,17 @@ module.exports = (log, db, mailer, config, customs) => {
       method: 'POST',
       path: '/account/login/send_unblock_code',
       options: {
+        ...UNBLOCK_CODES_DOCS.ACCOUNT_LOGIN_SEND_UNBLOCK_CODE_POST,
         validate: {
-          payload: {
-            email: validators.email().required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.email),
+              metricsContext: METRICS_CONTEXT_SCHEMA,
+            })
+            .label('Account.SendUnblockCode_payload'),
         },
       },
       handler: async function (request) {
@@ -75,15 +84,24 @@ module.exports = (log, db, mailer, config, customs) => {
       method: 'POST',
       path: '/account/login/reject_unblock_code',
       options: {
+        ...UNBLOCK_CODES_DOCS.ACCOUNT_LOGIN_REJECT_UNBLOCK_CODE_POST,
         validate: {
-          payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            unblockCode: isA
-              .string()
-              .regex(BASE_36)
-              .length(unblockCodeLen)
-              .required(),
-          },
+          payload: isA
+            .object({
+              uid: isA
+                .string()
+                .max(32)
+                .regex(HEX_STRING)
+                .required()
+                .description(DESCRIPTION.uid),
+              unblockCode: isA
+                .string()
+                .regex(BASE_36)
+                .length(unblockCodeLen)
+                .required()
+                .description(DESCRIPTION.unblockCode),
+            })
+            .label('Account.RejectUnblockCode_payload'),
         },
       },
       handler: async function (request) {

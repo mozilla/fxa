@@ -322,13 +322,15 @@ module.exports.subscriptionPaymentCountryCode = isA
   .allow(null);
 
 // This is fxa-auth-db-mysql's perspective on an active subscription
-module.exports.activeSubscriptionValidator = isA.object({
-  uid: isA.string().required(),
-  subscriptionId: module.exports.subscriptionsSubscriptionId.required(),
-  productId: module.exports.subscriptionsProductId.required(),
-  createdAt: isA.number().required(),
-  cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
-});
+module.exports.activeSubscriptionValidator = isA
+  .object({
+    uid: isA.string().required(),
+    subscriptionId: module.exports.subscriptionsSubscriptionId.required(),
+    productId: module.exports.subscriptionsProductId.required(),
+    createdAt: isA.number().required(),
+    cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
+  })
+  .label('Active subscription');
 
 module.exports.subscriptionsSetupIntent = isA
   .object({
@@ -374,55 +376,65 @@ module.exports.subscriptionsInvoicePIExpandedValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsSubscriptionValidator = isA.object({
-  _subscription_type: MozillaSubscriptionTypes.WEB,
-  created: isA.number().required(),
-  current_period_end: isA.number().required(),
-  current_period_start: isA.number().required(),
-  cancel_at_period_end: isA.boolean().required(),
-  end_at: isA.alternatives(isA.number(), isA.any().allow(null)),
-  failure_code: isA.string().optional(),
-  failure_message: isA.string().optional(),
-  latest_invoice: isA.string().required(),
-  plan_id: module.exports.subscriptionsPlanId.required(),
-  product_id: module.exports.subscriptionsProductId.required(),
-  product_name: isA.string().required(),
-  status: isA.string().required(),
-  subscription_id: module.exports.subscriptionsSubscriptionId.required(),
-  promotion_code: isA.string().optional().allow(null),
-  promotion_duration: isA.string().optional().allow(null),
-  promotion_end: isA.number().optional().allow(null),
-});
+module.exports.subscriptionsSubscriptionValidator = isA
+  .object({
+    _subscription_type: MozillaSubscriptionTypes.WEB,
+    created: isA.number().required(),
+    current_period_end: isA.number().required(),
+    current_period_start: isA.number().required(),
+    cancel_at_period_end: isA.boolean().required(),
+    end_at: isA.alternatives(isA.number(), isA.any().allow(null)),
+    failure_code: isA.string().optional(),
+    failure_message: isA.string().optional(),
+    latest_invoice: isA.string().required(),
+    plan_id: module.exports.subscriptionsPlanId.required(),
+    product_id: module.exports.subscriptionsProductId.required(),
+    product_name: isA.string().required(),
+    status: isA.string().required(),
+    subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+    promotion_code: isA.string().optional().allow(null),
+    promotion_duration: isA.string().optional().allow(null),
+    promotion_end: isA.number().optional().allow(null),
+  })
+  .label('Subscription');
 
 // This is support-panel's perspective on a subscription
-module.exports.subscriptionsWebSubscriptionSupportValidator = isA.object({
-  created: isA.number().required(),
-  current_period_end: isA.number().required(),
-  current_period_start: isA.number().required(),
-  plan_changed: isA.alternatives(isA.number(), isA.any().allow(null)),
-  previous_product: isA.alternatives(isA.string(), isA.any().allow(null)),
-  product_name: isA.string().required(),
-  status: isA.string().required(),
-  subscription_id: module.exports.subscriptionsSubscriptionId.required(),
-});
-module.exports.subscriptionsPlaySubscriptionSupportValidator = isA.object({
-  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  auto_renewing: isA.bool().required(),
-  cancel_reason: isA.number().optional(),
-  expiry_time_millis: isA.number().required(),
-  package_name: isA.string().optional(),
-  sku: isA.string().optional(),
-  product_id: isA.string().optional(),
-  product_name: isA.string().required(),
-});
-module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
-  [MozillaSubscriptionTypes.WEB]: isA
-    .array()
-    .items(module.exports.subscriptionsWebSubscriptionSupportValidator),
-  [MozillaSubscriptionTypes.IAP_GOOGLE]: isA
-    .array()
-    .items(module.exports.subscriptionsPlaySubscriptionSupportValidator),
-});
+module.exports.subscriptionsWebSubscriptionSupportValidator = isA
+  .object({
+    created: isA.number().required(),
+    current_period_end: isA.number().required(),
+    current_period_start: isA.number().required(),
+    plan_changed: isA.alternatives(isA.number(), isA.any().allow(null)),
+    previous_product: isA.alternatives(isA.string(), isA.any().allow(null)),
+    product_name: isA.string().required(),
+    status: isA.string().required(),
+    subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+  })
+  .label('Web Subscription Support');
+
+module.exports.subscriptionsPlaySubscriptionSupportValidator = isA
+  .object({
+    _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+    auto_renewing: isA.bool().required(),
+    cancel_reason: isA.number().optional(),
+    expiry_time_millis: isA.number().required(),
+    package_name: isA.string().optional(),
+    sku: isA.string().optional(),
+    product_id: isA.string().optional(),
+    product_name: isA.string().required(),
+  })
+  .label('Play Subscription Support');
+
+module.exports.subscriptionsSubscriptionSupportValidator = isA
+  .object({
+    [MozillaSubscriptionTypes.WEB]: isA
+      .array()
+      .items(module.exports.subscriptionsWebSubscriptionSupportValidator),
+    [MozillaSubscriptionTypes.IAP_GOOGLE]: isA
+      .array()
+      .items(module.exports.subscriptionsPlaySubscriptionSupportValidator),
+  })
+  .label('OauthSupportPanelSubscriptions_responses');
 
 module.exports.subscriptionsSubscriptionListValidator = isA.object({
   subscriptions: isA
@@ -511,45 +523,49 @@ module.exports.subscriptionProductMetadataValidator = {
   },
 };
 
-module.exports.subscriptionsPlanValidator = isA.object({
-  plan_id: module.exports.subscriptionsPlanId.required(),
-  plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
-  product_id: module.exports.subscriptionsProductId.required(),
-  product_name: isA.string().required(),
-  plan_name: isA.string().allow('').optional(),
-  product_metadata:
-    module.exports.subscriptionProductMetadataBaseValidator.optional(),
-  interval: isA.string().required(),
-  interval_count: isA.number().required(),
-  amount: isA.number().required(),
-  currency: isA.string().required(),
-  configuration: minimalConfigSchema
-    .keys(productConfigJoiKeys)
-    .keys(planConfigJoiKeys)
-    .optional()
-    .allow(null),
-});
+module.exports.subscriptionsPlanValidator = isA
+  .object({
+    plan_id: module.exports.subscriptionsPlanId.required(),
+    plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
+    product_id: module.exports.subscriptionsProductId.required(),
+    product_name: isA.string().required(),
+    plan_name: isA.string().allow('').optional(),
+    product_metadata:
+      module.exports.subscriptionProductMetadataBaseValidator.optional(),
+    interval: isA.string().required(),
+    interval_count: isA.number().required(),
+    amount: isA.number().required(),
+    currency: isA.string().required(),
+    configuration: minimalConfigSchema
+      .keys(productConfigJoiKeys)
+      .keys(planConfigJoiKeys)
+      .optional()
+      .allow(null),
+  })
+  .label('Subscriptions Plan');
 
-module.exports.subscriptionsCustomerValidator = isA.object({
-  customerId: isA.string().optional(),
-  billing_name: isA
-    .alternatives(isA.string(), isA.any().allow(null))
-    .optional(),
-  exp_month: isA.number().optional(),
-  exp_year: isA.number().optional(),
-  last4: isA.string().optional(),
-  payment_provider: isA.string().optional(),
-  payment_type: isA.string().optional(),
-  paypal_payment_error: isA.string().optional(),
-  brand: isA.string().optional(),
-  billing_agreement_id: isA
-    .alternatives(isA.string(), isA.any().allow(null))
-    .optional(),
-  subscriptions: isA
-    .array()
-    .items(module.exports.subscriptionsSubscriptionValidator)
-    .optional(),
-});
+module.exports.subscriptionsCustomerValidator = isA
+  .object({
+    customerId: isA.string().optional(),
+    billing_name: isA
+      .alternatives(isA.string(), isA.any().allow(null))
+      .optional(),
+    exp_month: isA.number().optional(),
+    exp_year: isA.number().optional(),
+    last4: isA.string().optional(),
+    payment_provider: isA.string().optional(),
+    payment_type: isA.string().optional(),
+    paypal_payment_error: isA.string().optional(),
+    brand: isA.string().optional(),
+    billing_agreement_id: isA
+      .alternatives(isA.string(), isA.any().allow(null))
+      .optional(),
+    subscriptions: isA
+      .array()
+      .items(module.exports.subscriptionsSubscriptionValidator)
+      .optional(),
+  })
+  .label('Subscriptions Customer');
 
 module.exports.subscriptionsStripeIntentValidator = isA
   .object({
@@ -567,7 +583,8 @@ module.exports.subscriptionsStripeIntentValidator = isA
     }),
     status: isA.string().required(),
   })
-  .unknown(true);
+  .unknown(true)
+  .label('Subscriptions Stripe Intent');
 
 module.exports.subscriptionsStripeSourceValidator = isA
   .object({
@@ -633,6 +650,7 @@ module.exports.subscriptionsStripeSubscriptionValidator = isA
       .optional(),
     status: isA.string().required(),
   })
+  .label('Stripe_subscription')
   .unknown(true);
 
 module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
@@ -691,7 +709,8 @@ module.exports.subscriptionsMozillaSubscriptionsValidator = isA
       )
       .required(),
   })
-  .unknown(true);
+  .unknown(true)
+  .label('mozSubscriptionsValidator_response');
 
 module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 

@@ -32,6 +32,9 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
+
 // ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
 // will fetch the latest of for the webhook event, _instead of_ using the
 // object in the request payload.  Products and plans are excluded because
@@ -970,6 +973,7 @@ export const stripeWebhookRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/stripe/event',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_STRIPE_EVENT_POST,
         // We'll use the official Stripe library to authenticate the payload,
         // and it will also return an event.
         auth: false,

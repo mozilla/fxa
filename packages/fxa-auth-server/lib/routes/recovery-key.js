@@ -4,6 +4,9 @@
 
 'use strict';
 
+import RECOVERY_KEY_DOCS from '../../docs/swagger/recovery-key-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+
 const errors = require('../error');
 const validators = require('./validators');
 const isA = require('@hapi/joi');
@@ -14,16 +17,23 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       method: 'POST',
       path: '/recoveryKey',
       options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            recoveryKeyId: validators.recoveryKeyId,
-            recoveryData: validators.recoveryData,
-            enabled: isA.boolean().default(true),
-          },
+          payload: isA
+            .object({
+              recoveryKeyId: validators.recoveryKeyId.description(
+                DESCRIPTION.recoveryKeyId
+              ),
+              recoveryData: validators.recoveryData.description(
+                DESCRIPTION.recoveryData
+              ),
+              enabled: isA.boolean().default(true),
+            })
+            .label('createRecoveryKey_payload'),
         },
       },
       handler: async function (request) {
@@ -94,6 +104,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       method: 'POST',
       path: '/recoveryKey/verify',
       options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_VERIFY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
@@ -158,13 +169,16 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       method: 'GET',
       path: '/recoveryKey/{recoveryKeyId}',
       options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_RECOVERYKEYID_GET,
         auth: {
           strategy: 'accountResetToken',
         },
         validate: {
-          params: {
-            recoveryKeyId: validators.recoveryKeyId,
-          },
+          params: isA
+            .object({
+              recoveryKeyId: validators.recoveryKeyId,
+            })
+            .label('getRecoveryKey_params'),
         },
       },
       handler: async function (request) {
@@ -184,19 +198,24 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       method: 'POST',
       path: '/recoveryKey/exists',
       options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_EXISTS_POST,
         auth: {
           mode: 'optional',
           strategy: 'sessionToken',
         },
         validate: {
-          payload: {
-            email: validators.email().optional(),
-          },
+          payload: isA
+            .object({
+              email: validators.email().optional(),
+            })
+            .label('recoveryKeysExists_payload'),
         },
         response: {
-          schema: {
-            exists: isA.boolean().required(),
-          },
+          schema: isA
+            .object({
+              exists: isA.boolean().required(),
+            })
+            .label('recoveryKeyExists_response'),
         },
       },
       async handler(request) {
@@ -231,6 +250,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       method: 'DELETE',
       path: '/recoveryKey',
       options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_DELETE,
         auth: {
           strategy: 'sessionToken',
         },

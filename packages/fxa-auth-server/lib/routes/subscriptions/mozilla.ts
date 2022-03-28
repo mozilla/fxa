@@ -11,6 +11,9 @@ import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
+
 export const mozillaSubscriptionRoutes = ({
   log,
   db,
@@ -39,6 +42,7 @@ export const mozillaSubscriptionRoutes = ({
       method: 'GET',
       path: '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
         auth: {
           payload: false,
           strategy: 'oauthToken',

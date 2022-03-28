@@ -12,6 +12,9 @@ import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../docs/swagger/subscriptions-api').default;
+
 export const supportPanelRoutes = ({
   log,
   config,
@@ -41,6 +44,7 @@ export const supportPanelRoutes = ({
       method: 'GET',
       path: '/oauth/support-panel/subscriptions',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUPPORTPANEL_SUBSCRIPTIONS_GET,
         auth: {
           payload: false,
           strategy: 'supportPanelSecret',
