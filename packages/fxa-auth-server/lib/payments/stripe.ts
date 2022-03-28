@@ -2158,7 +2158,7 @@ export class StripeHelper {
         }
       }
 
-      const { discount } = latestInvoice!;
+      const { discount } = sub!;
 
       // @ts-ignore
       const product = products.find((p) => p.product_id === sub.plan.product);

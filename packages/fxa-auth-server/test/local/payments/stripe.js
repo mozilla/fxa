@@ -55,6 +55,9 @@ const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expa
 const subscriptionPMIExpandedIncompleteCVCFail = require('./fixtures/stripe/subscription_pmi_expanded_incomplete_cvc_fail.json');
 const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
+const subscriptionCouponOnce = require('./fixtures/stripe/subscription_coupon_once.json');
+const subscriptionCouponForever = require('./fixtures/stripe/subscription_coupon_forever.json');
+const subscriptionCouponRepeating = require('./fixtures/stripe/subscription_coupon_repeating.json');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
 const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
 const invoiceRetry = require('./fixtures/stripe/invoice_retry.json');
@@ -3627,12 +3630,8 @@ describe('StripeHelper', () => {
     });
 
     describe('when a subscription has a promotion code', () => {
-      it('includes the promotion code value in the returned value', async () => {
-        const subscription = deepCopy(subscription1);
-        subscription.metadata = {
-          ...subscription.metadata,
-          appliedPromotionCode: 'jortssentme',
-        };
+      it('"once" coupon duration do not include the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponOnce);
         const input = { data: [subscription] };
         sandbox
           .stub(stripeHelper.stripe.invoices, 'retrieve')
@@ -3643,22 +3642,96 @@ describe('StripeHelper', () => {
         const expected = [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
-            created: subscription1.created,
-            current_period_end: subscription1.current_period_end,
-            current_period_start: subscription1.current_period_start,
+            created: subscriptionCouponOnce.created,
+            current_period_end: subscriptionCouponOnce.current_period_end,
+            current_period_start: subscriptionCouponOnce.current_period_start,
             cancel_at_period_end: false,
             end_at: null,
-            plan_id: subscription1.plan.id,
+            plan_id: subscriptionCouponOnce.plan.id,
             product_id: product1.id,
             product_name: productName,
             status: 'active',
-            subscription_id: subscription1.id,
+            subscription_id: subscriptionCouponOnce.id,
             failure_code: undefined,
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
-            promotion_code: 'jortssentme',
+            promotion_code: null,
             promotion_duration: null,
             promotion_end: null,
+          },
+        ];
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+        assert.deepEqual(actual, expected);
+      });
+
+      it('forever coupon duration includes the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponForever);
+        const input = { data: [subscription] };
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(paidInvoice);
+        const callback = sandbox.stub(stripeHelper, 'expandResource');
+        callback.onCall(0).resolves(paidInvoice);
+        callback.onCall(1).resolves({ id: productId, name: productName });
+        const expected = [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: subscriptionCouponForever.created,
+            current_period_end: subscriptionCouponForever.current_period_end,
+            current_period_start:
+              subscriptionCouponForever.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_id: subscriptionCouponForever.plan.id,
+            product_id: product1.id,
+            product_name: productName,
+            status: 'active',
+            subscription_id: subscriptionCouponForever.id,
+            failure_code: undefined,
+            failure_message: undefined,
+            latest_invoice: paidInvoice.number,
+            promotion_code:
+              subscriptionCouponForever.metadata.appliedPromotionCode,
+            promotion_duration: 'forever',
+            promotion_end: null,
+          },
+        ];
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+        assert.deepEqual(actual, expected);
+      });
+
+      it('repeating coupon includes the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponRepeating);
+        const input = { data: [subscription] };
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(paidInvoice);
+        const callback = sandbox.stub(stripeHelper, 'expandResource');
+        callback.onCall(0).resolves(paidInvoice);
+        callback.onCall(1).resolves({ id: productId, name: productName });
+        const expected = [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: subscriptionCouponRepeating.created,
+            current_period_end: subscriptionCouponRepeating.current_period_end,
+            current_period_start:
+              subscriptionCouponRepeating.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_id: subscriptionCouponRepeating.plan.id,
+            product_id: product1.id,
+            product_name: productName,
+            status: 'active',
+            subscription_id: subscriptionCouponRepeating.id,
+            failure_code: undefined,
+            failure_message: undefined,
+            latest_invoice: paidInvoice.number,
+            promotion_code:
+              subscriptionCouponRepeating.metadata.appliedPromotionCode,
+            promotion_duration: 'repeating',
+            promotion_end: subscriptionCouponRepeating.discount.end,
           },
         ];
 
