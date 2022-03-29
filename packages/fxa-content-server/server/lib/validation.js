@@ -29,6 +29,7 @@ const PATTERNS = {
   SERVICE: /^([a-zA-Z0-9\-]{1,16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/,
+  UTM: /^[\w\/.%-]+$/,
 };
 
 const TYPES = {
@@ -66,7 +67,7 @@ const TYPES = {
     .string()
     .max(128)
     // eslint-disable-next-line no-useless-escape
-    .regex(/^[\w\/.%-]+$/), // values here can be 'firefox/sync'
+    .regex(PATTERNS.UTM), // values here can be 'firefox/sync'
 };
 
 // the crazy long allow comes from the firstrun page.
