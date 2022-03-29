@@ -37,7 +37,7 @@ const TYPES = {
   BOOLEAN: joi.boolean(),
   DIMENSION: joi.number().integer().min(0),
   DOMAIN: joi.string().max(32).regex(PATTERNS.DOMAIN),
-  EXPERIMENT: joi.string().valid(EXPERIMENT_NAMES),
+  EXPERIMENT: joi.string().valid(EXPERIMENT_NAMES.toString()),
   FLOW_ID: joi.string().hex().length(64),
   HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),

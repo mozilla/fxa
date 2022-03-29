@@ -71,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "coffeescript": "^2.6.1",
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^24.5.2",

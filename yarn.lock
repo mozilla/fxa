@@ -16311,6 +16311,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"coffeescript@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "coffeescript@npm:2.6.1"
+  bin:
+    cake: bin/cake
+    coffee: bin/coffee
+  checksum: c53db08b1baa7405b6c549fad5c28dd88eeb5f04c98a1eb495788205f1785789c4af22cb65343047f8b717f53b88293047450708cb92d4ea3b58d0cec0df7338
+  languageName: node
+  linkType: hard
+
 "collapse-white-space@npm:^1.0.2":
   version: 1.0.6
   resolution: "collapse-white-space@npm:1.0.6"
@@ -23196,6 +23206,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
   dependencies:
+    coffeescript: ^2.6.1
     diffparser: ^2.0.1
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
