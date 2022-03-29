@@ -333,6 +333,8 @@ const customerSubscriptions = [
     product_name: 'Example Product',
     status: 'active',
     subscription_id: 'sub_5551212',
+    promotion_duration: null,
+    promotion_end: null,
   },
 ] as WebSubscription[];
 

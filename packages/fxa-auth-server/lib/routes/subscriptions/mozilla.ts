@@ -74,7 +74,6 @@ export class MozillaSubscriptionHandler {
       email,
       'mozillaSubscriptionsCustomerBillingAndSubscriptions'
     );
-
     const stripeBillingDetailsAndSubscriptions =
       await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
     const iapGooglePlaySubscriptions =

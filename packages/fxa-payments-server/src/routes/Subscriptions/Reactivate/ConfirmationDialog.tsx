@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Localized } from '@fluent/react';
 import {
   getLocalizedDate,
@@ -10,33 +10,52 @@ import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { apiInvoicePreview } from '../../../lib/apiClient';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import LoadingSpinner from '../../../components/LoadingSpinner';
+import { useHandleConfirmationDialog } from '../../../lib/hooks';
 
-export default ({
-  onDismiss,
+const ConfirmationDialogErrorContent = () => (
+  <>
+    <Localized id="general-error-heading">
+      <h4 data-testid="reactivate-confirm-error-loading">
+        General application error
+      </h4>
+    </Localized>
+    <Localized id="basic-error-message">
+      <p>Something went wrong. Please try again later.</p>
+    </Localized>
+  </>
+);
+
+const ConfirmationDialogContent = ({
   onConfirm,
-  plan,
-  customer,
   periodEndDate,
+  currency,
+  productName,
+  amount,
+  last4,
+  webIconBackground,
+  webIconURL,
 }: {
-  onDismiss: Function;
   onConfirm: () => void;
-  plan: Plan;
-  customer: Customer;
   periodEndDate: number;
+  currency: string;
+  productName: string;
+  amount: number;
+  last4: string | undefined;
+  webIconBackground: string | null | undefined;
+  webIconURL: string | null;
 }) => {
-  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
-  const { last4 } = customer;
-
-  const setWebIconBackground = webIconBackground
-    ? { background: webIconBackground }
-    : '';
-
   return (
-    <DialogMessage onDismiss={onDismiss}>
-      <div className="dialog-icon" style={{ ...setWebIconBackground }}>
+    <>
+      <div
+        className="dialog-icon"
+        style={webIconBackground ? { background: webIconBackground } : {}}
+      >
         <img
           className="reactivate-subscription"
-          alt={plan.product_name}
+          alt={productName}
           src={webIconURL || fpnImage}
           height="48"
           width="48"
@@ -45,27 +64,26 @@ export default ({
       <Localized
         id="reactivate-confirm-dialog-header"
         vars={{
-          name: plan.product_name
+          name: productName,
         }}
       >
-        <h4>Want to keep using {plan.product_name}?</h4>
+        <h4>Want to keep using {productName}?</h4>
       </Localized>
-      {/* TO DO: display card type, IE 'to the Visa card ending...' */}
       {last4 && (
         <Localized
           id="reactivate-confirm-copy"
           vars={{
-            name: plan.product_name,
-            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            name: productName,
+            amount: getLocalizedCurrency(amount, currency),
             last: last4,
             endDate: getLocalizedDate(periodEndDate),
           }}
         >
           <p>
-            Your access to {plan.product_name} will continue, and your billing
-            cycle and payment will stay the same. Your next charge will be
-            {getLocalizedCurrencyString(plan.amount, plan.currency)} to the card
-            ending in {last4} on {getLocalizedDateString(periodEndDate)}.
+            Your access to {productName} will continue, and your billing cycle
+            and payment will stay the same. Your next charge will be
+            {getLocalizedCurrencyString(amount, currency)} to the card ending in{' '}
+            {last4} on {getLocalizedDateString(periodEndDate)}.
           </p>
         </Localized>
       )}
@@ -73,15 +91,15 @@ export default ({
         <Localized
           id="reactivate-confirm-without-payment-method-copy"
           vars={{
-            name: plan.product_name,
-            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            name: productName,
+            amount: getLocalizedCurrency(amount, currency),
             endDate: getLocalizedDate(periodEndDate),
           }}
         >
           <p>
-            Your access to {plan.product_name} will continue, and your billing
-            cycle and payment will stay the same. Your next charge will be{' '}
-            {getLocalizedCurrencyString(plan.amount, plan.currency)} on{' '}
+            Your access to {productName} will continue, and your billing cycle
+            and payment will stay the same. Your next charge will be{' '}
+            {getLocalizedCurrencyString(amount, currency)} on{' '}
             {getLocalizedDateString(periodEndDate)}.
           </p>
         </Localized>
@@ -97,6 +115,60 @@ export default ({
           </Localized>
         </button>
       </div>
+    </>
+  );
+};
+
+const ConfirmationDialog = ({
+  onDismiss,
+  onConfirm,
+  plan,
+  customer,
+  customerSubscription,
+  periodEndDate,
+}: {
+  onDismiss: Function;
+  onConfirm: () => void;
+  plan: Plan;
+  customer: Customer;
+  customerSubscription: WebSubscription;
+  periodEndDate: number;
+}) => {
+  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
+  const { last4 } = customer;
+
+  const { loading, error, amount } = useHandleConfirmationDialog(
+    customerSubscription,
+    plan
+  );
+
+  return (
+    <DialogMessage onDismiss={onDismiss}>
+      {!loading ? (
+        <>
+          {/* TO DO: display card type, IE 'to the Visa card ending...' */}
+          {error ? (
+            <ConfirmationDialogErrorContent />
+          ) : (
+            <ConfirmationDialogContent
+              onConfirm={onConfirm}
+              periodEndDate={periodEndDate}
+              currency={plan.currency}
+              productName={plan.product_name}
+              amount={amount}
+              last4={last4}
+              webIconURL={webIconURL}
+              webIconBackground={webIconBackground}
+            />
+          )}
+        </>
+      ) : (
+        <div className="my-24">
+          <LoadingSpinner />
+        </div>
+      )}
     </DialogMessage>
   );
 };
+
+export default ConfirmationDialog;

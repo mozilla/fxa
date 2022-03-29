@@ -11,22 +11,12 @@ import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 import waitForExpect from 'wait-for-expect';
 
-function nock(it: any) {
-  //@ts-ignore
-  return noc(...arguments).defaultReplyHeaders({
-    'Access-Control-Allow-Origin': '*',
-  });
-}
-
-jest.mock('../../lib/sentry');
-
 import {
   manageSubscriptionsMounted,
   manageSubscriptionsEngaged,
   cancelSubscriptionMounted,
   cancelSubscriptionEngaged,
 } from '../../lib/amplitude';
-jest.mock('../../lib/amplitude');
 
 import { ProductMetadata, Plan } from '../../store/types';
 
@@ -56,14 +46,6 @@ import {
 } from '../../lib/test-utils';
 
 import FlowEvent from '../../lib/flow-event';
-jest.mock('../../lib/flow-event');
-
-jest.mock('./PaymentUpdateForm', () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <section data-testid="PaymentUpdateForm">{children}</section>
-  ),
-}));
 
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
@@ -73,6 +55,24 @@ import {
   MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
+
+jest.mock('../../lib/sentry');
+jest.mock('../../lib/amplitude');
+jest.mock('../../lib/flow-event');
+
+jest.mock('./PaymentUpdateForm', () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => (
+    <section data-testid="PaymentUpdateForm">{children}</section>
+  ),
+}));
 
 const { location } = window;
 
@@ -823,6 +823,8 @@ describe('routes/Subscriptions', () => {
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
+      promotion_duration: null,
+      promotion_end: null,
     };
     const appleIapSubscription: IapSubscription = {
       _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,

@@ -2158,6 +2158,8 @@ export class StripeHelper {
         }
       }
 
+      const { discount } = sub!;
+
       // @ts-ignore
       const product = products.find((p) => p.product_id === sub.plan.product);
 
@@ -2184,6 +2186,8 @@ export class StripeHelper {
         failure_message,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
+        promotion_duration: (discount?.coupon?.duration as string) ?? null,
+        promotion_end: discount?.end ?? null,
       });
     }
     return subs;
