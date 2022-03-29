@@ -10,6 +10,7 @@ import * as random from '../crypto/random';
 import validators from './validators';
 import jwtDecode from 'jwt-decode';
 import { Provider } from 'fxa-shared/db/models/auth/linked-account';
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 const error = require('../error');
 
@@ -156,6 +157,10 @@ export class LinkedAccountHandler {
           accountRecord,
           emailOptions
         );
+        request.setMetricsFlowCompleteSignal('account.login', 'login');
+        await request.emitMetricsEvent('account.login', {
+          uid: accountRecord.uid,
+        });
       } catch (err) {
         this.log.trace(
           'Account.login.sendPostAddLinkedAccountNotification.error',
@@ -188,10 +193,21 @@ export class LinkedAccountHandler {
           locale: request.app.acceptLanguage,
         });
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
+        // Currently, we treat accounts created from a linked account as a new
+        // registration and emit the correspond event. Note that depending on
+        // where might not be a top of funnel for this completion event.
+        request.setMetricsFlowCompleteSignal('account.verified', 'registration');
+        await request.emitMetricsEvent('account.verified', {
+          uid: accountRecord.uid,
+        });
       }
     } else {
       // This is an existing user and existing FxA user
       accountRecord = await this.db.account(linkedAccountRecord.uid);
+      request.setMetricsFlowCompleteSignal('account.login', 'login');
+      await request.emitMetricsEvent('account.login', {
+        uid: accountRecord.uid,
+      });
     }
 
     const sessionTokenOptions = {
@@ -245,6 +261,7 @@ export const linkedAccountRoutes = (
             idToken: validators.thirdPartyIdToken,
             provider: validators.thirdPartyProvider,
             code: validators.thirdPartyOAuthCode,
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
       },
