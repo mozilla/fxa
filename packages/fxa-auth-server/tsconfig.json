@@ -9,5 +9,9 @@
     "types": ["accept-language", "mocha", "mozlog", "node"]
   },
   "references": [{ "path": "../fxa-shared" }],
-  "include": ["bin/*", "scripts/*.ts"]
+  "include": [
+    "bin/*",
+    "scripts/*.ts",
+    "lib/senders/emails/templates/*/includes.ts"
+  ]
 }
