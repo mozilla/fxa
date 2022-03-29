@@ -9080,12 +9080,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/core@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "@type-cacheable/core@npm:10.0.3"
+"@type-cacheable/core@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "@type-cacheable/core@npm:10.1.0"
   dependencies:
     serialize-javascript: ^6.0.0
-  checksum: eaed6922cb6365d8e7bee7980f7971a882df32abda987e2a3f8348808df18e6c865451c313d4b15362b3573987fe608ff10342b9e252cf8efd87867815edab37
+  checksum: 3c3c7a3ab872325e14c2183d40e31ca731850cfbb75867c8b9c58c0d59f7291136891d08c686b7ac9c4344fb8185670978b589ea38ddc655500b5d3dd3d8456c
   languageName: node
   linkType: hard
 
@@ -22139,7 +22139,7 @@ fsevents@~2.1.1:
     "@storybook/addon-docs": ^6.4.19
     "@storybook/addon-toolbars": ^6.3.12
     "@storybook/html": ^6.3.13
-    "@type-cacheable/core": ^10.0.3
+    "@type-cacheable/core": ^10.1.0
     "@type-cacheable/ioredis-adapter": ^10.0.3
     "@types/async-retry": ^1
     "@types/babel__core": 7.1.14
