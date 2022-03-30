@@ -23,6 +23,8 @@ module.exports = {
         CONFIG_FILES: '../config/secrets.json',
         PORT: '8091',
         PATH,
+        TEST_USER_EMAIL: 'hello@mozilla.com',
+        TEST_USER_GROUP: 'vpn_fxa_admin_panel_prod',
       },
       filter_env: ['npm_'],
       time: true,

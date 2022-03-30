@@ -18,8 +18,7 @@ const conf = convict({
   },
   proxyStaticResourcesFrom: {
     default: '',
-    doc:
-      'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
+    doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },
@@ -132,6 +131,20 @@ const conf = convict({
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url',
+    },
+  },
+  user: {
+    group: {
+      default: '',
+      doc: 'Group to operate under for dev / test.',
+      env: 'TEST_USER_GROUP',
+      format: String,
+    },
+    email: {
+      default: '',
+      doc: 'Email to operate under for dev / test.',
+      env: 'TEST_USER_EMAIL',
+      format: String,
     },
   },
 });

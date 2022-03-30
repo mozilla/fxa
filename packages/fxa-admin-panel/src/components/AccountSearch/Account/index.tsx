@@ -67,7 +67,7 @@ export const LinkedAccount = ({
   providerId: string;
   onCleared: () => void;
 }) => {
-  const [unlinkAccount, {}] = useMutation(UNLINK_ACCOUNT, {
+  const [unlinkAccount] = useMutation(UNLINK_ACCOUNT, {
     onCompleted: () => {
       window.alert('The linked account has been removed.');
     },
@@ -166,18 +166,15 @@ export const DangerZone = ({
     unverify({ variables: { email: email.email } });
   };
 
-  const [disableAccount, { loading: disableLoading }] = useMutation(
-    DISABLE_ACCOUNT,
-    {
-      onCompleted: () => {
-        window.alert('The account has been disabled.');
-        onCleared();
-      },
-      onError: () => {
-        window.alert('Error disabling account');
-      },
-    }
-  );
+  const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
+    onCompleted: () => {
+      window.alert('The account has been disabled.');
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error disabling account');
+    },
+  });
 
   const handleDisable = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {

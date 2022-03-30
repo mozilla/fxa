@@ -17,6 +17,7 @@ import log from './logging';
 import csp from '../lib/csp';
 import cspBlocking from '../lib/csp/blocking';
 import cspReportOnly from '../lib/csp/report-only';
+import { ClientConfig } from './client-config';
 
 const app = express();
 const logger = log('server.main');
@@ -25,15 +26,6 @@ const cspRulesBlocking = cspBlocking(config);
 const cspRulesReportOnly = cspReportOnly(config);
 
 logger.info('version', { version: version });
-
-const CLIENT_CONFIG = {
-  env: config.get('env'),
-  servers: {
-    admin: {
-      url: config.get('servers.admin.url'),
-    },
-  },
-};
 
 app.use(
   helmet.frameguard({
@@ -87,28 +79,6 @@ app.get('/__version__', (_, res) =>
   res.type('application/json').send(JSON.stringify(version))
 );
 
-function injectMetaContent(html: string, metaContent: { [x: string]: any }) {
-  let result = html;
-
-  Object.keys(metaContent).forEach((k) => {
-    result = result.replace(
-      k,
-      encodeURIComponent(JSON.stringify(metaContent[k]))
-    );
-  });
-
-  return result;
-}
-
-function injectHtmlConfig(
-  html: string,
-  config: { env: string; servers: { admin: { url: any } } }
-) {
-  return injectMetaContent(html, {
-    __SERVER_CONFIG__: config,
-  });
-}
-
 // Note - the static route handlers must come last
 // because the proxyUrl handler's app.use('/') captures
 // all requests that match no others.
@@ -132,7 +102,7 @@ if (proxyUrl) {
           return proxyResData;
         }
         const body = proxyResData.toString();
-        return injectHtmlConfig(body, CLIENT_CONFIG);
+        return ClientConfig.injectIntoHtml(body, userReq.headers);
       },
     })
   );
@@ -152,7 +122,7 @@ if (proxyUrl) {
   ['/', '/account-search'].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
     app.get(route, (req, res) => {
-      res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG));
+      res.send(ClientConfig.injectIntoHtml(STATIC_INDEX_HTML, req.headers));
     });
   });
 

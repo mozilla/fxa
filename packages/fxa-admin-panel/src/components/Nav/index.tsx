@@ -66,6 +66,23 @@ export const Nav = () => (
             Admin Logs
           </NavLink>
         </li>
+        <li>
+          <NavLink
+            to="/permissions"
+            className={({ isActive }) =>
+              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+              }`
+            }
+          >
+            <img
+              className="inline-flex mr-2 w-4"
+              src={logsIcon}
+              alt="logs icon"
+            />
+            Your Permissions
+          </NavLink>
+        </li>
       </ul>
     </div>
   </nav>
