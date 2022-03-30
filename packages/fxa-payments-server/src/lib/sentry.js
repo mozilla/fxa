@@ -4,7 +4,13 @@
 
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
-import { tagCriticalEvent } from 'fxa-shared/tags/sentry';
+import { BrowserTracing } from '@sentry/tracing';
+
+import {
+  tagFxaName,
+  tagCriticalEvent,
+  buildSentryConfig,
+} from 'fxa-shared/sentry';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
@@ -115,22 +121,35 @@ SentryMetrics.prototype = {
   /**
    * Configure the SentryMetrics instance for this singleton.
    *
-   * @param {String} dsn
-   * @param {String} [release] - content server release version
+   * @param {SentryClientConfigOpts} config
    */
-  configure(dsn, release) {
-    this._logger.info('release: ' + release);
-    this._release = release;
-    if (!dsn) {
+  configure(config) {
+    if (!config) {
+      this._logger.error('No config provided.');
+      return;
+    }
+    this._logger.info('release: ' + config.release);
+    this._release = config.release;
+
+    if (!config.sentry || !config.sentry.dsn) {
       this._logger.error('No Sentry dsn provided');
       return;
     }
 
     try {
+      const opts = buildSentryConfig(config, this._logger);
       Sentry.init({
-        release,
-        dsn,
-        beforeSend: tagCriticalEvent,
+        ...opts,
+        beforeSend(event) {
+          event = tagCriticalEvent(event);
+          event = tagFxaName(event, opts.clientName);
+          return event;
+        },
+        integrations: [
+          new BrowserTracing({
+            tracingOrigins: opts.tracingOrigins,
+          }),
+        ],
       });
     } catch (e) {
       this._logger.error(e);

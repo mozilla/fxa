@@ -17,7 +17,6 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule, GraphQLConfigFactory } from './gql/gql.module';
-
 const version = getVersionInfo(__dirname);
 
 @Module({
@@ -45,12 +44,13 @@ const version = getVersionInfo(__dirname);
     }),
     LoggerModule,
     SentryModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
+      imports: [ConfigModule, LoggerModule],
+      inject: [ConfigService, MozLoggerService],
       useFactory: (configService: ConfigService<AppConfig>) => ({
-        dsn: configService.get('sentryDsn'),
-        environment: configService.get('env'),
-        release: version.version,
+        sentryConfig: {
+          sentry: configService.get('sentry'),
+          version: version.version,
+        },
       }),
     }),
   ],

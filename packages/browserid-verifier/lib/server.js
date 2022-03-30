@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const Sentry = require('@sentry/node');
+const Tracing = require('@sentry/tracing');
+
 const express = require('express'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
@@ -15,10 +18,43 @@ const express = require('express'),
   v1api = require('./v1'),
   v2api = require('./v2');
 
+const {
+  tagCriticalEvent,
+  buildSentryConfig,
+  tagFxaName,
+} = require('fxa-shared/sentry');
+
 log.debug('starting');
 
 var app = express();
 var server = http.createServer(app);
+
+// Initialize Sentry
+const sentryConfig = config.get('sentry');
+if (sentryConfig.dsn) {
+  const release = require('../package.json').version;
+  const opts = buildSentryConfig(
+    {
+      sentry: sentryConfig,
+      release,
+    },
+    log
+  );
+  Sentry.init({
+    ...opts,
+    beforeSend(event, _hint) {
+      event = tagCriticalEvent(event);
+      event = tagFxaName(event, opts.serverName);
+      return event;
+    },
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+  });
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+}
 
 var verifier = new CCVerifier({
   httpTimeout: config.get('httpTimeout'),
@@ -129,6 +165,11 @@ function wrongMethod(req, res) {
 ['/verify', '/', '/v2'].forEach(function (route) {
   app.get(route, wrongMethod);
 });
+
+if (sentryConfig.dsn) {
+  // Send errors to sentry.
+  app.use(Sentry.Handlers.errorHandler());
+}
 
 // error handler goes last, to receive any errors from previous middleware
 app.use(function (err, req, res, next) {

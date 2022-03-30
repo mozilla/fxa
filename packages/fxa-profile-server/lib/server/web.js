@@ -4,6 +4,7 @@
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
+require('@sentry/tracing');
 const cloneDeep = require('lodash').cloneDeep;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -13,7 +14,11 @@ const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
 
-const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+const {
+  tagCriticalEvent,
+  buildSentryConfig,
+  tagFxaName,
+} = require('fxa-shared/sentry');
 
 function trimLocale(header) {
   if (!header) {
@@ -57,7 +62,13 @@ exports.create = async function createServer() {
     host: config.server.host,
     port: config.server.port,
     routes: {
-      cors: true,
+      cors: {
+        additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
+        additionalHeaders: ['sentry-trace'],
+        // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
+        // which is more forgiving of missing Origin header.
+        origin: ['*'],
+      },
       security: {
         hsts: {
           maxAge: 31536000,
@@ -85,15 +96,76 @@ exports.create = async function createServer() {
   server.validator(require('@hapi/joi'));
 
   // configure Sentry
-  const sentryDsn = config.sentryDsn;
-  if (sentryDsn) {
+  if (config.sentry && config.sentry.dsn) {
+    const release = require('../../package.json').version;
+    const opts = buildSentryConfig(
+      {
+        ...config,
+        release,
+      },
+      logger
+    );
     Sentry.init({
-      dsn: sentryDsn,
-      beforeSend: tagCriticalEvent,
+      ...opts,
+      beforeSend(event) {
+        event = tagCriticalEvent(event);
+        event = tagFxaName(event, opts.serverName);
+        return event;
+      },
+      integrations: [new Sentry.Integrations.Http({ tracing: true })],
     });
+
+    // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
+    server.ext({
+      type: 'onRequest',
+      method(request, h) {
+        request.sentryScope = new Sentry.Scope();
+
+        // Make a transaction per request so we can get performance monitoring. There are
+        // some limitations to this approach, and distributed tracing will be off due to
+        // hapi's architecture.
+        //
+        // See https://github.com/getsentry/sentry-javascript/issues/2172 for more into. It
+        // looks like there might be some other solutions that are more complex, but would work
+        // with hapi and distributed tracing.
+        //
+        const transaction = Sentry.startTransaction(
+          {
+            op: 'profile-server',
+            name: `${request.method.toUpperCase()} ${request.path}`,
+          },
+          {
+            request: Sentry.Handlers.extractRequestData(request.raw.req),
+          }
+        );
+
+        Sentry.configureScope((scope) => {
+          scope.setSpan(transaction);
+        });
+
+        request.app.sentry = {
+          transaction,
+        };
+
+        return h.continue;
+      },
+    });
+
+    // Finalize sentry transaction
+    server.events.on('response', (request) => {
+      request.app.sentry.transaction.name = `${request.method.toUpperCase()} ${
+        request.route.path
+      }`;
+      request.app.sentry.transaction.setHttpStatus(request.response.statusCode);
+      request.app.sentry.transaction.setData('url', request.path);
+      request.app.sentry.transaction.setData('query', request.query);
+      request.app.sentry.transaction.finish();
+    });
+
+    // Handle sentry errors
     server.events.on(
       { name: 'request', channels: 'error' },
-      (request, event) => {
+      (_request, event) => {
         const err = (event && event.error) || null;
         let exception = '';
         if (err && err.stack) {

@@ -1,12 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-import _ from 'underscore';
-import Logger from './logger';
 import * as Sentry from '@sentry/browser';
+import { BrowserTracing } from '@sentry/tracing';
+
+import {
+  buildSentryConfig,
+  tagCriticalEvent,
+  tagFxaName,
+} from 'fxa-shared/sentry';
+import _ from 'underscore';
+
+import Logger from './logger';
 import Url from './url';
-import { tagCriticalEvent } from 'fxa-shared/tags/sentry';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
@@ -113,24 +119,32 @@ const exceptionTags = ['code', 'context', 'errno', 'namespace', 'status'];
  *
  * Read more at https://docs.sentry.io/platforms/javascript
  *
- * @param {String} dsn
- * @param {String} [release] - content server release version
+ * @param {SentryClientConfigOpts} config - a configuration object for sentry
  * @constructor
  */
-function SentryMetrics(dsn, release) {
+function SentryMetrics(config) {
   this._logger = new Logger();
-  this._release = release;
+  this._release = config?.release;
 
-  if (!dsn) {
+  if (!config?.sentry?.dsn) {
     this._logger.error('No Sentry dsn provided');
     return;
   }
 
   try {
+    const opts = buildSentryConfig(config, this._logger);
     Sentry.init({
-      release,
-      dsn,
-      beforeSend,
+      ...opts,
+      beforeSend(event) {
+        event = tagFxaName(event, opts.clientName);
+        event = beforeSend(event);
+        return event;
+      },
+      integrations: [
+        new BrowserTracing({
+          tracingOrigins: opts.tracingOrigins,
+        }),
+      ],
     });
   } catch (e) {
     this._logger.error(e);

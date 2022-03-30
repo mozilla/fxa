@@ -31,6 +31,12 @@ const conf = convict({
     env: 'CLIENT_ADDRESS_DEPTH',
     default: 3,
   },
+  corsOrigin: {
+    doc: 'Value for the Access-Control-Allow-Origin response header',
+    format: Array,
+    env: 'CORS_ORIGIN',
+    default: ['*'],
+  },
   db: {
     driver: {
       env: 'DB',
@@ -298,12 +304,37 @@ const conf = convict({
       doc: 'how long catbox will wait for a value from db to cache before timing out',
     },
   },
-  sentryDsn: {
-    doc: 'Sentry DSN for error and log reporting',
-    sensitive: true,
-    default: '',
-    format: 'String',
-    env: 'SENTRY_DSN',
+  sentry: {
+    dsn: {
+      doc: 'Sentry DSN for error and log reporting',
+      default: '',
+      format: 'String',
+      env: 'SENTRY_DSN',
+    },
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    sampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_SAMPLE_RATE',
+    },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+    },
+    serverName: {
+      doc: 'Name used by sentry to identify the server.',
+      default: 'fxa-profile-server',
+      format: 'String',
+      env: 'SENTRY_SERVER_NAME',
+    },
   },
   secretBearerToken: {
     default: 'supersecret',

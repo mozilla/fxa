@@ -56,6 +56,38 @@ const conf = convict({
       env: 'CSP_REPORT_ONLY_URI',
     },
   },
+  sentry: {
+    dsn: {
+      doc: 'Sentry DSN for error and log reporting',
+      default: '',
+      format: 'String',
+      env: 'SENTRY_DSN',
+    },
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    sampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_SAMPLE_RATE',
+    },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+    },
+    serverName: {
+      doc: 'Name used by sentry to identify the server.',
+      default: 'fxa-admin-panel',
+      format: 'String',
+      env: 'SENTRY_SERVER_NAME',
+    },
+  },
   listen: {
     host: {
       default: 'localhost',

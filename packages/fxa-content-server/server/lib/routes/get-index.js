@@ -30,7 +30,11 @@ module.exports = function (config) {
     'marketing_email.preferences_url'
   );
   const MX_RECORD_VALIDATION = config.get('mxRecordValidation');
-  const SENTRY_CLIENT_DSN = config.get('sentry')['client_errors_dsn'];
+  const SENTRY_CLIENT_DSN = config.get('sentry.dsn');
+  const SENTRY_CLIENT_ENV = config.get('sentry.env');
+  const SENTRY_SAMPLE_RATE = config.get('sentry.sampleRate');
+  const SENTRY_TRACES_SAMPLE_RATE = config.get('sentry.tracesSampleRate');
+  const SENTRY_CLIENT_NAME = config.get('sentry.clientName');
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
   const PAIRING_CLIENTS = config.get('pairing.clients');
@@ -75,7 +79,13 @@ module.exports = function (config) {
     release: RELEASE,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
-    sentryDsn: SENTRY_CLIENT_DSN,
+    sentry: {
+      dsn: SENTRY_CLIENT_DSN,
+      env: SENTRY_CLIENT_ENV,
+      sampleRate: SENTRY_SAMPLE_RATE,
+      tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
+      clientName: SENTRY_CLIENT_NAME,
+    },
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
     surveys,

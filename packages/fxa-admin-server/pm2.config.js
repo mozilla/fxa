@@ -22,6 +22,8 @@ module.exports = {
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
         PORT: '8095',
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
       },
       filter_env: ['npm_'],
       watch: ['src'],

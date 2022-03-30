@@ -16,7 +16,7 @@
     "eject": "react-scripts eject",
     "test": "npm-run-all test:frontend test:server",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
-    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",
+    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "NODE_ENV=production npm run build-postcss && build-storybook && cp -r public/locales public/images storybook-static/"
@@ -117,8 +117,10 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@sentry/browser": "^6.18.2",
-    "@sentry/node": "^6.16.1",
+    "@sentry/browser": "^6.19.1",
+    "@sentry/integrations": "^6.19.1",
+    "@sentry/node": "^6.19.1",
+    "@sentry/tracing": "^6.19.1",
     "@stripe/react-stripe-js": "^1.7.0",
     "@stripe/stripe-js": "^1.25.0",
     "accept-language-parser": "^1.5.0",

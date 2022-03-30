@@ -10,4 +10,5 @@ module.exports = {
       statements: 0,
     },
   },
+  transform: { 'fxa-shared/.*': 'ts-jest' },
 };

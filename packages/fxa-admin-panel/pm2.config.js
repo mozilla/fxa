@@ -23,6 +23,8 @@ module.exports = {
         CONFIG_FILES: '../config/secrets.json',
         PORT: '8091',
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
         TEST_USER_EMAIL: 'hello@mozilla.com',
         TEST_USER_GROUP: 'vpn_fxa_admin_panel_prod',
       },
@@ -45,6 +47,8 @@ module.exports = {
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
       time: true,
+      SENTRY_ENV: 'local',
+      SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
     },
     {
       name: 'admin-css',

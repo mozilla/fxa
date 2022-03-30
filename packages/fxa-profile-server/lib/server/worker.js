@@ -19,6 +19,15 @@ exports.create = async function () {
     debug: false,
     host: config.worker.host,
     port: config.worker.port,
+    routes: {
+      cors: {
+        additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
+        additionalHeaders: ['sentry-trace'],
+        // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
+        // which is more forgiving of missing Origin header.
+        origin: ['*'],
+      },
+    },
   });
   server.validator(require('@hapi/joi'));
 

@@ -49,15 +49,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'BLOCK_INTERVAL_SECONDS',
       },
       suspectInterval: {
-        doc:
-          'Duration of a `suspect` flag, instigated by the Dataflow pipeline',
+        doc: 'Duration of a `suspect` flag, instigated by the Dataflow pipeline',
         default: '1 day',
         env: 'SUSPECT_INTERVAL',
         format: 'duration',
       },
       disableInterval: {
-        doc:
-          'Duration of a long-term `disable` flag, instigated by the Dataflow pipeline',
+        doc: 'Duration of a long-term `disable` flag, instigated by the Dataflow pipeline',
         default: '1 year',
         env: 'DISABLE_INTERVAL',
         format: 'duration',
@@ -69,29 +67,25 @@ module.exports = function (fs, path, url, convict) {
         env: 'RATE_LIMIT_INTERVAL_SECONDS',
       },
       maxEmails: {
-        doc:
-          'Number of emails sent within rateLimitIntervalSeconds before throttling',
+        doc: 'Number of emails sent within rateLimitIntervalSeconds before throttling',
         default: 3,
         format: 'nat',
         env: 'MAX_EMAILS',
       },
       maxBadLogins: {
-        doc:
-          'Number failed login attempts within rateLimitIntervalSeconds before throttling',
+        doc: 'Number failed login attempts within rateLimitIntervalSeconds before throttling',
         default: 2,
         format: 'nat',
         env: 'MAX_BAD_LOGINS',
       },
       maxBadLoginsPerIp: {
-        doc:
-          'Number failed login attempts within rateLimitIntervalSeconds on a single IP before throttling',
+        doc: 'Number failed login attempts within rateLimitIntervalSeconds on a single IP before throttling',
         default: 3,
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP',
       },
       maxBadLoginsPerEmail: {
-        doc:
-          'Number failed login attempts within rateLimitIntervalSeconds on a single email before throttling',
+        doc: 'Number failed login attempts within rateLimitIntervalSeconds on a single email before throttling',
         default: 3,
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_EMAIL',
@@ -103,21 +97,19 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
       },
       maxVerifyCodes: {
-        doc:
-          'Number code verifictions within rateLimitIntervalSeconds before throttling',
+        doc: 'Number code verifictions within rateLimitIntervalSeconds before throttling',
         default: 10,
         format: 'nat',
         env: 'MAX_VERIFY_CODES',
       },
       badLoginErrnoWeights: {
-        doc:
-          'Maps bad-login errnos to a weight multipler, because some bad logins are badder than others',
+        doc: 'Maps bad-login errnos to a weight multipler, because some bad logins are badder than others',
         format: Object,
         env: 'BAD_LOGIN_ERRNO_WEIGHTS',
         default: {
-          '102': 2,
-          '125': 4,
-          '126': 2,
+          102: 2,
+          125: 4,
+          126: 2,
         },
       },
       ipRateLimitIntervalSeconds: {
@@ -140,8 +132,7 @@ module.exports = function (fs, path, url, convict) {
           env: 'SMS_RATE_LIMIT_INTERVAL_SECONDS',
         },
         maxSms: {
-          doc:
-            'Number of sms sent within rateLimitIntervalSeconds before throttling',
+          doc: 'Number of sms sent within rateLimitIntervalSeconds before throttling',
           default: 3,
           format: 'nat',
           env: 'MAX_SMS',
@@ -161,23 +152,20 @@ module.exports = function (fs, path, url, convict) {
           env: 'UID_RATE_LIMIT_BAN_DURATION_SECONDS',
         },
         maxChecks: {
-          doc:
-            'Number of checks within uidRateLimitBanDurationSeconds before blocking',
+          doc: 'Number of checks within uidRateLimitBanDurationSeconds before blocking',
           default: 100,
           format: 'nat',
           env: 'UID_RATE_LIMIT',
         },
       },
       maxAccountStatusCheck: {
-        doc:
-          'Number of account status checks within rateLimitIntervalSeconds before throttling',
+        doc: 'Number of account status checks within rateLimitIntervalSeconds before throttling',
         default: 5,
         format: 'nat',
         env: 'MAX_ACCOUNT_STATUS_CHECK',
       },
       maxAccountAccess: {
-        doc:
-          'Number of account access actions within ipRateLimitIntervalSeconds before throttling',
+        doc: 'Number of account access actions within ipRateLimitIntervalSeconds before throttling',
         default: 5,
         format: 'nat',
         env: 'MAX_ACCOUNT_ACCESS',
@@ -203,16 +191,14 @@ module.exports = function (fs, path, url, convict) {
       default: [],
     },
     allowedEmailDomains: {
-      doc:
-        'An array of email domains that will not be blocked or rate-limited.',
+      doc: 'An array of email domains that will not be blocked or rate-limited.',
       format: Array,
       env: 'ALLOWED_EMAIL_DOMAINS',
       // These are emails frequently used for testing purposes
       default: ['restmail.net', 'restmail.dev.lcip.org'],
     },
     allowedPhoneNumbers: {
-      doc:
-        'An array of phone numbers that will not be blocked or rate-limited.',
+      doc: 'An array of phone numbers that will not be blocked or rate-limited.',
       format: Array,
       env: 'ALLOWED_PHONE_NUMBERS',
       default: [],
@@ -307,18 +293,43 @@ module.exports = function (fs, path, url, convict) {
         env: 'REPUTATION_SERVICE_HAWK_KEY',
       },
       timeout: {
-        doc:
-          'timeout in ms to wait for requests sent to the IP Reputation Service',
+        doc: 'timeout in ms to wait for requests sent to the IP Reputation Service',
         default: 50,
         format: 'int',
         env: 'REPUTATION_SERVICE_TIMEOUT',
       },
     },
-    sentryDsn: {
-      doc: 'Sentry DSN for error and log reporting',
-      default: '',
-      format: 'String',
-      env: 'SENTRY_DSN',
+    sentry: {
+      dsn: {
+        doc: 'Sentry DSN for error and log reporting',
+        default: '',
+        format: 'String',
+        env: 'SENTRY_DSN',
+      },
+      env: {
+        doc: 'Environment name to report to sentry',
+        default: 'local',
+        format: ['local', 'ci', 'dev', 'stage', 'prod'],
+        env: 'SENTRY_ENV',
+      },
+      sampleRate: {
+        doc: 'Rate at which sentry traces are captured.',
+        default: 1.0,
+        format: 'Number',
+        env: 'SENTRY_SAMPLE_RATE',
+      },
+      tracesSampleRate: {
+        doc: 'Rate at which sentry traces are captured.',
+        default: 1.0,
+        format: 'Number',
+        env: 'SENTRY_TRACES_SAMPLE_RATE',
+      },
+      serverName: {
+        doc: 'Name used by sentry to identify the server.',
+        default: 'fxa-customs-server',
+        format: 'String',
+        env: 'SENTRY_SERVER_NAME',
+      },
     },
     userDefinedRateLimitRules: {
       totpCodeRules: {
@@ -329,8 +340,7 @@ module.exports = function (fs, path, url, convict) {
         },
         limits: {
           max: {
-            doc:
-              'max actions during `period` that can occur before rate limit is applied',
+            doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
             default: 2,
             env: 'TOTP_CODE_RULE_MAX',
@@ -357,8 +367,7 @@ module.exports = function (fs, path, url, convict) {
         },
         limits: {
           max: {
-            doc:
-              'max actions during `period` that can occur before rate limit is applied',
+            doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
             default: 5,
             env: 'TOKEN_CODE_RULE_MAX',
@@ -386,15 +395,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'DATAFLOW_ENABLED',
       },
       reportOnly: {
-        doc:
-          'Treat all suggested actions from the Dataflow pipeline as `report`',
+        doc: 'Treat all suggested actions from the Dataflow pipeline as `report`',
         default: true,
         env: 'DATAFLOW_REPORT_ONLY',
         format: Boolean,
       },
       ignoreOlderThan: {
-        doc:
-          'Ignore messages older than this value. Or set to `0` to never ignore old messages',
+        doc: 'Ignore messages older than this value. Or set to `0` to never ignore old messages',
         default: '1 day',
         env: 'DATAFLOW_IGNORE_OLDER_THAN',
         format: 'duration',

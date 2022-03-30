@@ -60,17 +60,13 @@ module.exports = async function createServer(config, log) {
     log
   );
 
-  const {
-    fetchRecord,
-    fetchRecords,
-    setRecords,
-    setRecord,
-  } = require('./records')(
-    mc,
-    reputationService,
-    limits,
-    config.memcache.recordLifetimeSeconds
-  );
+  const { fetchRecord, fetchRecords, setRecords, setRecord } =
+    require('./records')(
+      mc,
+      reputationService,
+      limits,
+      config.memcache.recordLifetimeSeconds
+    );
 
   const checkUserDefinedRateLimitRules = require('./user_defined_rules')(
     config,
@@ -99,7 +95,12 @@ module.exports = async function createServer(config, log) {
     port: config.listen.port,
     host: config.listen.host,
     // To reduce connection timeouts, increase the server and socket timeouts
-    routes: { timeout: { server: 4 * 60 * 1000, socket: 8 * 60 * 1000 } },
+    routes: {
+      timeout: {
+        server: 4 * 60 * 1000,
+        socket: 8 * 60 * 1000,
+      },
+    },
   });
 
   // Allow Keep-Alive connections from the auth-server to be idle up to two
