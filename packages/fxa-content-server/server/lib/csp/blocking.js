@@ -8,7 +8,6 @@
 // tests.
 
 const url = require('url');
-const surveyList = require('../../config/surveys.json');
 
 function getOrigin(link) {
   const parsed = url.parse(link);
@@ -37,10 +36,7 @@ module.exports = function (config) {
   const SENTRY_SERVER = 'https://*.sentry.io';
   const GOOGLE_AUTH = 'https://accounts.google.com';
   const APPLE_AUTH = 'https://appleid.apple.com';
-  // create a unique array of origins from survey urls
-  const SURVEYS = [...new Set(surveyList.map((s) => getOrigin(s.url)))];
-  const surveysEnabledAndSet =
-    config.get('surveyFeature.enabled') && SURVEYS.length;
+
   //
   // Double quoted values
   //
@@ -75,9 +71,6 @@ module.exports = function (config) {
     styleSrc.push("'unsafe-inline'");
   }
 
-  const frameSrc = addCdnRuleIfRequired(
-    surveysEnabledAndSet ? SURVEYS : [NONE]
-  );
   const fontSrc = addCdnRuleIfRequired([SELF]);
 
   const formAction = [SELF];
@@ -94,7 +87,6 @@ module.exports = function (config) {
       defaultSrc: [SELF],
       formAction,
       fontSrc,
-      frameSrc,
       imgSrc: addCdnRuleIfRequired([
         SELF,
         BLOB,

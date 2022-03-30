@@ -770,20 +770,6 @@ const conf = (module.exports = convict({
       format: Boolean,
     },
   },
-  surveyFeature: {
-    enabled: {
-      default: false,
-      env: 'SURVEYS_ENABLED',
-      doc: 'Enable integrated surveys feature',
-      format: Boolean,
-    },
-    doNotBotherSpan: {
-      default: 2592000000,
-      env: 'SURVEY_DONT_BOTHER_MS',
-      doc: 'Minimum time span in milliseconds between surveys for a user',
-      format: 'integer',
-    },
-  },
   sync_tokenserver_url: {
     default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',

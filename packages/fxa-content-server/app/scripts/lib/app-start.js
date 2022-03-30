@@ -44,7 +44,6 @@ import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
 import SupplicantRelier from '../models/reliers/pairing/supplicant';
-import SurveyTargeter from './survey-targeter';
 import BrowserRelier from '../models/reliers/browser';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
@@ -131,8 +130,6 @@ Start.prototype = {
         // user depends on the auth broker, profileClient, oAuthClient,
         // and notifier.
         .then(() => this.initializeUser())
-        // depends on relier, user, and window
-        .then(() => this.initializeSurveyTargeter())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -517,25 +514,6 @@ Start.prototype = {
     this._window.router = this._router;
   },
 
-  initializeSurveyTargeter() {
-    if (
-      this._config &&
-      this._config.surveyFeature &&
-      this._config.surveyFeature.enabled &&
-      this._config.surveys.length &&
-      !this._surveyTargeter
-    ) {
-      this._surveyTargeter = new SurveyTargeter({
-        config: this._config.surveyFeature,
-        relier: this._relier,
-        user: this._user,
-        surveys: this._config.surveys,
-        window: this._window,
-        env: this._config.env,
-      });
-    }
-  },
-
   initializeAppView() {
     if (!this._appView) {
       this._appView = new AppView({
@@ -544,7 +522,6 @@ Start.prototype = {
         environment: new Environment(this._window),
         notifier: this._notifier,
         router: this._router,
-        surveyTargeter: this._surveyTargeter,
         translator: this._translator,
         window: this._window,
       });

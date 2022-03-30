@@ -95,9 +95,6 @@ module.exports = () => {
       profile: {
         url: config.get('servers.profile.url'),
       },
-      surveyGizmo: {
-        url: config.get('servers.surveyGizmo.url'),
-      },
     },
     paypal: {
       apiUrl: config.get('paypal.apiUrl'),
