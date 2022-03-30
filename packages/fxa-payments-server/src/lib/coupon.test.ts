@@ -1,5 +1,6 @@
 import {
   checkCouponRepeating,
+  couponOnSubsequentInvoice,
   incDateByInterval,
   incDateByMonth,
 } from './coupon';
@@ -112,6 +113,103 @@ describe('lib/coupon', () => {
         interval_count,
         interval,
         durationInMonths
+      );
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe('couponOnSubsequentInvoice', () => {
+    const invoiceCurrentPeriodEnd: number = Date.now();
+    let promotionEnd: number | null;
+    let couponDuration: string | null;
+
+    it('false - if couponDuration is null', () => {
+      promotionEnd = invoiceCurrentPeriodEnd + 10;
+      couponDuration = null;
+
+      const expected = false;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('false - couponDuration is once', () => {
+      promotionEnd = invoiceCurrentPeriodEnd;
+      couponDuration = 'once';
+
+      const expected = false;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('false - couponDuration is repeating and promotionEnd is empty', () => {
+      promotionEnd = null;
+      couponDuration = 'once';
+
+      const expected = false;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('false - couponDuration is repeating and promotionEnd is less than invoiceCurrentPeriodEnd', () => {
+      promotionEnd = invoiceCurrentPeriodEnd - 10;
+      couponDuration = 'once';
+
+      const expected = false;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('false - couponDuration is repeating and promotionEnd is equal to invoiceCurrentPeriodEnd', () => {
+      promotionEnd = invoiceCurrentPeriodEnd;
+      couponDuration = 'once';
+
+      const expected = false;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('true - couponDuration is forever', () => {
+      promotionEnd = null;
+      couponDuration = 'forever';
+
+      const expected = true;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
+      );
+      expect(actual).toEqual(expected);
+    });
+
+    it('true - couponDuration is repeating and promotionEnd is greater than invoiceCurrentPeriodEnd', () => {
+      promotionEnd = invoiceCurrentPeriodEnd + 10;
+      couponDuration = 'repeating';
+
+      const expected = true;
+      const actual = couponOnSubsequentInvoice(
+        invoiceCurrentPeriodEnd,
+        promotionEnd,
+        couponDuration
       );
       expect(actual).toEqual(expected);
     });

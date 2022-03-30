@@ -2,28 +2,39 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<%# This file is used for layout-only storybook stories. It is not used as an email template. %>
+<%# This file is used for layout-only or partial-only storybook stories.
+  # It is not used as an email template. %>
 
-<mj-section>
-  <mj-column>
-    <mj-text css-class="text-header">
-      Email header
-    </mj-text>
-  </mj-column>
-</mj-section>
+<% if (locals.partial) { %>
+  <mjml>
+    <mj-body>
+      <%- include(`/partials/${locals.partial}/index.mjml`) %>
+    </mj-body>
+  </mjml>
 
-<mj-section>
-  <mj-column>
-    <mj-text css-class="text-body">
-      Email body text, images, and other footers if applicable are displayed here.
-    </mj-text>
+<% } else { %>
 
-    <mj-text css-class="text-body">
-      Nunc venenatis cursus nulla vel dapibus. Ut nec ullamcorper arcu. Duis nec convallis leo, id condimentum tortor. Ut quis convallis massa. Pellentesque hendrerit velit id nisi malesuada, tincidunt vestibulum diam placerat. Fusce quis dolor enim. Cras eu metus quam. Nullam volutpat consectetur consectetur.
-    </mj-text>
+  <mj-section>
+    <mj-column>
+      <mj-text css-class="text-header">
+        Email header
+      </mj-text>
+    </mj-column>
+  </mj-section>
 
-    <mj-text css-class="text-body">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse laoreet, mauris in tincidunt finibus, mauris odio consequat massa, non porta nunc risus id nunc. Ut sodales finibus magna.
-    </mj-text>
-  </mj-column>
-</mj-section>
+  <mj-section>
+    <mj-column>
+      <mj-text css-class="text-body">
+        Email body text, images, and other footers if applicable are displayed here.
+      </mj-text>
+
+      <mj-text css-class="text-body">
+        Nunc venenatis cursus nulla vel dapibus. Ut nec ullamcorper arcu. Duis nec convallis leo, id condimentum tortor. Ut quis convallis massa. Pellentesque hendrerit velit id nisi malesuada, tincidunt vestibulum diam placerat. Fusce quis dolor enim. Cras eu metus quam. Nullam volutpat consectetur consectetur.
+      </mj-text>
+
+      <mj-text css-class="text-body">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse laoreet, mauris in tincidunt finibus, mauris odio consequat massa, non porta nunc risus id nunc. Ut sodales finibus magna.
+      </mj-text>
+    </mj-column>
+  </mj-section>
+<% } %>

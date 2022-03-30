@@ -1,25 +1,39 @@
 // This configuration is a subset of the configuration declared in server/config/index.ts
-// Which config is copied over is defined in server/lib/server.ts
-export interface Config {
-  env: string;
-  servers: {
-    admin: {
-      url: string;
-    };
-  };
-}
 
-export const config: Config = defaultConfig();
+import { SERVER_CONFIG_PLACEHOLDER } from '../../constants';
+import { IClientConfig } from '../../interfaces';
 
-export function defaultConfig(): Config {
+export const config: IClientConfig = defaultConfig();
+
+export function defaultConfig(): IClientConfig {
   return {
     env: 'development',
+    user: {
+      email: '',
+      group: '',
+      permissions: {},
+    },
     servers: {
       admin: {
         url: '',
       },
     },
   };
+}
+
+export function getExtraHeaders(config: IClientConfig) {
+  const headers: Record<string, string> = {};
+
+  if (process.env.NODE_ENV === 'development') {
+    if (config.user.email) {
+      headers['oidc-claim-id-token-email'] = config.user.email;
+    }
+
+    if (config.user.group) {
+      headers['REMOTE-GROUP'] = config.user.group;
+    }
+  }
+  return headers;
 }
 
 export function resetConfig() {
@@ -30,9 +44,10 @@ export function decodeConfig(content: string | null) {
   if (!content) {
     throw new Error('Configuration is empty');
   }
+
   // For development port, to prevent page from blowing
   // up in the absence of the replaced config string
-  if (content === '__SERVER_CONFIG__') {
+  if (content === SERVER_CONFIG_PLACEHOLDER) {
     return {};
   }
   const decoded = decodeURIComponent(content);

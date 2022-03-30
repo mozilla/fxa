@@ -1433,9 +1433,9 @@ FxaClientWrapper.prototype = {
     });
   }),
 
-  verifyAccountThirdParty: withClient((client, relier, token, provider) => {
+  verifyAccountThirdParty: withClient((client, relier, token, provider, metricsContext) => {
     return client
-      .verifyAccountThirdParty(token, provider)
+      .verifyAccountThirdParty(token, provider, metricsContext)
       .then((accountData) => {
         return getUpdatedSessionData(accountData.email, relier, accountData);
       });

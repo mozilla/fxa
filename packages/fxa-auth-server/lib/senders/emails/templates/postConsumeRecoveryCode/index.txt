@@ -2,7 +2,7 @@ postConsumeRecoveryCode-title = "Recovery code consumed"
 
 postConsumeRecoveryCode-description = "You have successfully consumed a recovery code from the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>
 

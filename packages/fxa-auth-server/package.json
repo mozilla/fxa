@@ -63,7 +63,7 @@
     "@hapi/joi": "^15.1.1",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
-    "@type-cacheable/core": "^10.0.3",
+    "@type-cacheable/core": "^10.1.0",
     "@type-cacheable/ioredis-adapter": "^10.0.3",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",

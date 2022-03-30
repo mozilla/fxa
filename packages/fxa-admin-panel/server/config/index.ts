@@ -165,6 +165,20 @@ const conf = convict({
       format: 'url',
     },
   },
+  user: {
+    group: {
+      default: '',
+      doc: 'Group to operate under for dev / test.',
+      env: 'TEST_USER_GROUP',
+      format: String,
+    },
+    email: {
+      default: '',
+      doc: 'Email to operate under for dev / test.',
+      env: 'TEST_USER_EMAIL',
+      format: String,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

@@ -12,8 +12,13 @@ import React, {
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { checkCouponRepeating, incDateByMonth } from './coupon';
-import { Plan } from 'fxa-shared/subscriptions/types';
+import {
+  checkCouponRepeating,
+  couponOnSubsequentInvoice,
+  incDateByMonth,
+} from './coupon';
+import { Plan, WebSubscription } from 'fxa-shared/subscriptions/types';
+import { apiInvoicePreview } from './apiClient';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
@@ -157,4 +162,55 @@ export function useInfoBoxMessage(
   }, [coupon, selectedPlan]);
 
   return infoBoxMessage;
+}
+
+export function useHandleConfirmationDialog(
+  customerSubscription: WebSubscription,
+  plan: Plan
+) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
+  const [amount, setAmount] = useState<number>(0);
+
+  useEffect(() => {
+    const getSubscriptionPrice = async () => {
+      const {
+        promotion_code: promotionCode,
+        plan_id: priceId,
+        promotion_end,
+        current_period_end,
+        promotion_duration,
+      } = customerSubscription;
+
+      if (
+        promotionCode &&
+        couponOnSubsequentInvoice(
+          current_period_end,
+          promotion_end,
+          promotion_duration
+        )
+      ) {
+        try {
+          setLoading(true);
+          const preview = await apiInvoicePreview({ priceId, promotionCode });
+          setAmount(preview.total);
+        } catch (err) {
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        if (plan.amount) {
+          setAmount(plan.amount);
+        } else {
+          setError(true);
+        }
+        setLoading(false);
+      }
+    };
+
+    getSubscriptionPrice();
+  }, [customerSubscription, plan]);
+
+  return { loading, error, amount };
 }

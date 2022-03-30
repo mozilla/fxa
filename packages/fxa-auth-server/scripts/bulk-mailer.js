@@ -42,7 +42,7 @@ requiredOptions.forEach(checkRequiredOption);
 // so after checking all the required options.
 const bulkMailer = require('./bulk-mailer/index');
 
-return bulkMailer(
+bulkMailer(
   path.resolve(program.input),
   program.method,
   BATCH_SIZE,

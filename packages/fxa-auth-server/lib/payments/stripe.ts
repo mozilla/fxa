@@ -943,6 +943,15 @@ export class StripeHelper {
     return this.expandResource<Stripe.Invoice>(id, INVOICES_RESOURCE);
   }
 
+  /*
+   * Expand the discounts property of an invoice
+   * TODO: We may be able to remove this method in the future if we want to add logic
+   * to expandResource to check if the discounts property is expanded.
+   */
+  getInvoiceWithDiscount(invoiceId: string) {
+    return this.stripe.invoices.retrieve(invoiceId, { expand: ['discounts'] });
+  }
+
   /**
    * Finalizes an invoice and marks auto_advance as false.
    */
@@ -2158,6 +2167,8 @@ export class StripeHelper {
         }
       }
 
+      const { discount } = sub!;
+
       // @ts-ignore
       const product = products.find((p) => p.product_id === sub.plan.product);
 
@@ -2184,6 +2195,8 @@ export class StripeHelper {
         failure_message,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
+        promotion_duration: (discount?.coupon?.duration as string) ?? null,
+        promotion_end: discount?.end ?? null,
       });
     }
     return subs;
@@ -2289,6 +2302,35 @@ export class StripeHelper {
       this.expandResource(invoice.charge, CHARGES_RESOURCE),
     ]);
 
+    // if the invoice does not have the deprecated discount property but has a discount ID in discounts
+    // expand the discount
+    let discountType = null;
+    let discountDuration = null;
+
+    if (invoice.discount) {
+      discountType = invoice.discount.coupon.duration;
+      discountDuration = invoice.discount.coupon.duration_in_months;
+    }
+
+    if (
+      !invoice.discount &&
+      !!invoice.discounts?.length &&
+      invoice.discounts.length === 1
+    ) {
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id);
+      const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
+      discountType = discount.coupon.duration;
+      discountDuration = discount.coupon.duration_in_months;
+    }
+
+    if (!!invoice.discounts?.length && invoice.discounts.length > 1) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(`Invoice has multiple discounts.`)
+      );
+    }
+
     if (!abbrevProduct) {
       throw error.internalValidationError(
         'extractInvoiceDetailsForEmail',
@@ -2367,6 +2409,8 @@ export class StripeHelper {
       planDownloadURL,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
+      discountType,
+      discountDuration,
     };
   }
 
@@ -2873,12 +2917,17 @@ export class StripeHelper {
         return this.stripeFirestore.retrieveAndFetchSubscription(resource);
       case INVOICES_RESOURCE:
         try {
+          // TODO we could remove the getInvoiceWithDiscount method if we add logic
+          // here to check if the discounts field is expanded but it would mean
+          // adding another stipe call to get discounts even when unnecessary
           const invoice = await this.stripeFirestore.retrieveInvoice(resource);
           // @ts-ignore
           return invoice;
         } catch (err) {
           if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
-            const invoice = await this.stripe.invoices.retrieve(resource);
+            const invoice = await this.stripe.invoices.retrieve(resource, {
+              expand: ['discounts'],
+            });
             await this.stripeFirestore.retrieveAndFetchCustomer(
               invoice.customer as string
             );

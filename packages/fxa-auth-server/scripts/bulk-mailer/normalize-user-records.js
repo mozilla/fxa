@@ -5,6 +5,7 @@
 'use strict';
 
 const leftpad = require('leftpad');
+const { parseAcceptLanguage } = require('../../lib/l10n');
 
 module.exports = class UserRecordNormalizer {
   /**
@@ -13,37 +14,25 @@ module.exports = class UserRecordNormalizer {
    * the a format suitable for the user.
    *
    * @param {Object[]} userRecords
-   * @param {Object} translator
    */
-  normalize(userRecords, translator) {
+  normalize(userRecords) {
     return (
       userRecords
         // no email can be sent if the record does not contain an email
         .filter((record) => !!record.primaryEmail)
-        .map((userRecord) => this.normalizeUserRecord(userRecord, translator))
+        .map((userRecord) => this.normalizeUserRecord(userRecord))
     );
   }
 
-  normalizeUserRecord(userRecord, translator) {
-    this.normalizeAcceptLanguage(userRecord);
-    this.normalizeLanguage(userRecord, translator);
+  normalizeUserRecord(userRecord) {
+    this.normalizeLanguage(userRecord);
     this.normalizeLocations(userRecord);
 
     return userRecord;
   }
 
-  normalizeAcceptLanguage(userRecord) {
-    // The Chinese translations were handed to us as "zh" w/o a country
-    // specified. We put these translations into "zh-cn", use "zh-cn" for
-    // Taiwan as well.
-    if (!userRecord.acceptLanguage && userRecord.locale) {
-      userRecord.acceptLanguage = userRecord.locale.replace(/zh-tw/gi, 'zh-cn');
-    }
-  }
-
-  normalizeLanguage(userRecord, translator) {
-    const { language } = translator.getTranslator(userRecord.acceptLanguage);
-    userRecord.language = language;
+  normalizeLanguage(userRecord) {
+    userRecord.language = parseAcceptLanguage(userRecord.acceptLanguage)[0];
   }
 
   normalizeLocations(userRecord) {

@@ -6,9 +6,11 @@ subscriptionSubsequentInvoiceDiscount-content-received = "We received your lates
 
 subscriptionSubsequentInvoiceDiscount-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
 <% if (showProratedAmount) { %>subscriptionSubsequentInvoiceDiscount-content-plan-change = "Plan change: <%- paymentProrated %>"<% } %>
-subscriptionSubsequentInvoiceDiscountDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
-subscriptionSubsequentInvoiceDiscountDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
-subscriptionSubsequentInvoiceDiscountDiscount-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+subscriptionSubsequentInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
+<% if (discountType === 'once') { %>subscriptionSubsequentInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'repeating') { %>subscriptionSubsequentInvoiceDiscount-content-discount-repeating = "<%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'forever') { %>subscriptionSubsequentInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"<% } %>
+subscriptionSubsequentInvoiceDiscount-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>
 
 subscriptionSubsequentInvoiceDiscount-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"

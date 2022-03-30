@@ -46,7 +46,12 @@ const ReactivateSubscriptionPanel = ({
     <>
       {reactivateConfirmationRevealed && (
         <ReactivationConfirmationDialog
-          {...{ plan, customer, periodEndDate: periodEndTimeStamp }}
+          {...{
+            plan,
+            customer,
+            periodEndDate: periodEndTimeStamp,
+            customerSubscription,
+          }}
           onDismiss={hideReactivateConfirmation}
           onConfirm={onReactivateClick}
         />

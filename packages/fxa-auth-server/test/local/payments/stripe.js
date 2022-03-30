@@ -55,6 +55,9 @@ const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expa
 const subscriptionPMIExpandedIncompleteCVCFail = require('./fixtures/stripe/subscription_pmi_expanded_incomplete_cvc_fail.json');
 const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
+const subscriptionCouponOnce = require('./fixtures/stripe/subscription_coupon_once.json');
+const subscriptionCouponForever = require('./fixtures/stripe/subscription_coupon_forever.json');
+const subscriptionCouponRepeating = require('./fixtures/stripe/subscription_coupon_repeating.json');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
 const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
 const invoiceRetry = require('./fixtures/stripe/invoice_retry.json');
@@ -1187,6 +1190,20 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.coupons.retrieve,
         coupon.id,
         { expand: ['applies_to'] }
+      );
+    });
+  });
+
+  describe('getInvoiceWithDiscount', () => {
+    it('returns an invoice with discounts expanded', async () => {
+      const invoice = { id: 'invoiceId' };
+      sandbox.stub(stripeHelper.stripe.invoices, 'retrieve').resolves(invoice);
+      const actual = await stripeHelper.getInvoiceWithDiscount('invoiceId');
+      assert.deepEqual(actual, invoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.retrieve,
+        invoice.id,
+        { expand: ['discounts'] }
       );
     });
   });
@@ -3422,6 +3439,8 @@ describe('StripeHelper', () => {
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
             promotion_code: null,
+            promotion_duration: null,
+            promotion_end: null,
           },
         ];
 
@@ -3499,6 +3518,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
 
@@ -3532,6 +3553,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
 
@@ -3569,6 +3592,8 @@ describe('StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
               },
             ];
             const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -3619,12 +3644,8 @@ describe('StripeHelper', () => {
     });
 
     describe('when a subscription has a promotion code', () => {
-      it('includes the promotion code value in the returned value', async () => {
-        const subscription = deepCopy(subscription1);
-        subscription.metadata = {
-          ...subscription.metadata,
-          appliedPromotionCode: 'jortssentme',
-        };
+      it('"once" coupon duration do not include the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponOnce);
         const input = { data: [subscription] };
         sandbox
           .stub(stripeHelper.stripe.invoices, 'retrieve')
@@ -3635,20 +3656,96 @@ describe('StripeHelper', () => {
         const expected = [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
-            created: subscription1.created,
-            current_period_end: subscription1.current_period_end,
-            current_period_start: subscription1.current_period_start,
+            created: subscriptionCouponOnce.created,
+            current_period_end: subscriptionCouponOnce.current_period_end,
+            current_period_start: subscriptionCouponOnce.current_period_start,
             cancel_at_period_end: false,
             end_at: null,
-            plan_id: subscription1.plan.id,
+            plan_id: subscriptionCouponOnce.plan.id,
             product_id: product1.id,
             product_name: productName,
             status: 'active',
-            subscription_id: subscription1.id,
+            subscription_id: subscriptionCouponOnce.id,
             failure_code: undefined,
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
-            promotion_code: 'jortssentme',
+            promotion_code: null,
+            promotion_duration: null,
+            promotion_end: null,
+          },
+        ];
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+        assert.deepEqual(actual, expected);
+      });
+
+      it('forever coupon duration includes the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponForever);
+        const input = { data: [subscription] };
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(paidInvoice);
+        const callback = sandbox.stub(stripeHelper, 'expandResource');
+        callback.onCall(0).resolves(paidInvoice);
+        callback.onCall(1).resolves({ id: productId, name: productName });
+        const expected = [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: subscriptionCouponForever.created,
+            current_period_end: subscriptionCouponForever.current_period_end,
+            current_period_start:
+              subscriptionCouponForever.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_id: subscriptionCouponForever.plan.id,
+            product_id: product1.id,
+            product_name: productName,
+            status: 'active',
+            subscription_id: subscriptionCouponForever.id,
+            failure_code: undefined,
+            failure_message: undefined,
+            latest_invoice: paidInvoice.number,
+            promotion_code:
+              subscriptionCouponForever.metadata.appliedPromotionCode,
+            promotion_duration: 'forever',
+            promotion_end: null,
+          },
+        ];
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+        assert.deepEqual(actual, expected);
+      });
+
+      it('repeating coupon includes the promotion values in the returned value', async () => {
+        const subscription = deepCopy(subscriptionCouponRepeating);
+        const input = { data: [subscription] };
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(paidInvoice);
+        const callback = sandbox.stub(stripeHelper, 'expandResource');
+        callback.onCall(0).resolves(paidInvoice);
+        callback.onCall(1).resolves({ id: productId, name: productName });
+        const expected = [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: subscriptionCouponRepeating.created,
+            current_period_end: subscriptionCouponRepeating.current_period_end,
+            current_period_start:
+              subscriptionCouponRepeating.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_id: subscriptionCouponRepeating.plan.id,
+            product_id: product1.id,
+            product_name: productName,
+            status: 'active',
+            subscription_id: subscriptionCouponRepeating.id,
+            failure_code: undefined,
+            failure_message: undefined,
+            latest_invoice: paidInvoice.number,
+            promotion_code:
+              subscriptionCouponRepeating.metadata.appliedPromotionCode,
+            promotion_duration: 'repeating',
+            promotion_end: subscriptionCouponRepeating.discount.end,
           },
         ];
 
@@ -3969,14 +4066,18 @@ describe('StripeHelper', () => {
           'product:termsOfServiceURL': termsOfServiceURL,
         },
         showPaymentMethod: true,
+        discountType: null,
+        discountDuration: null,
       };
 
-      const expectedDiscount = {
+      const expectedDiscount_foreverCoupon = {
         ...expected,
         invoiceNumber: '3432720C-0001',
         invoiceTotalInCents: 450,
         invoiceSubtotalInCents: 500,
         invoiceDiscountAmountInCents: 50,
+        discountType: 'forever',
+        discountDuration: null,
       };
 
       beforeEach(() => {
@@ -4055,7 +4156,7 @@ describe('StripeHelper', () => {
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
-        assert.deepEqual(result, expectedDiscount);
+        assert.deepEqual(result, expectedDiscount_foreverCoupon);
       });
 
       it('extracts expected details from an invoice with 100% discount', async () => {
@@ -4063,7 +4164,7 @@ describe('StripeHelper', () => {
         fixtureDiscount100.total = 0;
         fixtureDiscount100.total_discount_amounts[0].amount = 500;
         const expectedDiscount100 = {
-          ...expectedDiscount,
+          ...expectedDiscount_foreverCoupon,
           invoiceDiscountAmountInCents: 500,
           invoiceTotalInCents: 0,
           showPaymentMethod: false,
@@ -4156,6 +4257,75 @@ describe('StripeHelper', () => {
         }
         assert.isNotNull(thrownError);
         assert.equal(thrownError.name, 'TypeError');
+      });
+
+      it('throws an exception if an invoice has multiple discounts', async () => {
+        const fixtureDiscountMultiple = deepCopy(fixtureDiscount);
+        fixtureDiscountMultiple.discounts = ['discount1', 'discount2'];
+        let thrownError = null;
+        try {
+          await stripeHelper.extractInvoiceDetailsForEmail(
+            fixtureDiscountMultiple
+          );
+        } catch (err) {
+          thrownError = err;
+        }
+
+        assert.isNotNull(thrownError);
+      });
+
+      it('extracts the correct months and coupon type for a 3 month coupon', async () => {
+        const fixtureDiscount3Month = deepCopy(fixtureDiscount);
+        fixtureDiscount3Month.discount = {
+          coupon: {
+            duration: 'repeating',
+            duration_in_months: 3,
+          },
+        };
+
+        const actual = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureDiscount3Month
+        );
+        assert.equal(actual.discountType, 'repeating');
+        assert.equal(actual.discountDuration, 3);
+      });
+
+      it('extracts the correct months and coupon type for a one time coupon', async () => {
+        const fixtureDiscountOneTime = deepCopy(fixtureDiscount);
+        fixtureDiscountOneTime.discount = {
+          coupon: {
+            duration: 'once',
+            duration_in_months: null,
+          },
+        };
+
+        const actual = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureDiscountOneTime
+        );
+        assert.equal(actual.discountType, 'once');
+        assert.isNull(actual.discountDuration);
+      });
+
+      it('extracts the correct discount type when discounts property needs to be expanded', async () => {
+        const fixtureDiscountOneTime = deepCopy(fixture);
+        fixtureDiscountOneTime.discounts = ['discountId'];
+        sandbox.stub(stripeHelper, 'getInvoiceWithDiscount').resolves({
+          ...fixtureDiscountOneTime,
+          discounts: [
+            {
+              coupon: {
+                duration: 'once',
+                duration_in_months: null,
+              },
+            },
+          ],
+        });
+
+        const actual = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureDiscountOneTime
+        );
+        assert.equal(actual.discountType, 'once');
+        assert.isNull(actual.discountDuration);
       });
     });
 
