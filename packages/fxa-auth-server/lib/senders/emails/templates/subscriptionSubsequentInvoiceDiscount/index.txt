@@ -7,7 +7,9 @@ subscriptionSubsequentInvoiceDiscount-content-received = "We received your lates
 subscriptionSubsequentInvoiceDiscount-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
 <% if (showProratedAmount) { %>subscriptionSubsequentInvoiceDiscount-content-plan-change = "Plan change: <%- paymentProrated %>"<% } %>
 subscriptionSubsequentInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
-subscriptionSubsequentInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
+<% if (discountType === 'once') { %>subscriptionSubsequentInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'repeating') { %>subscriptionSubsequentInvoiceDiscount-content-discount-repeating = "<%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'forever') { %>subscriptionSubsequentInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"<% } %>
 subscriptionSubsequentInvoiceDiscount-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>
 

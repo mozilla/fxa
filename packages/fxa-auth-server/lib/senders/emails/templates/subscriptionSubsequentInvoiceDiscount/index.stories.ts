@@ -25,6 +25,8 @@ const createStory = subplatStoryWithProps(
     nextInvoiceDateOnly: '1/14/2022',
     subscriptionSupportUrl: 'http://localhost:3030/support',
     showPaymentMethod: true,
+    discountType: 'forever',
+    discountDuration: null,
   }
 );
 
@@ -77,4 +79,28 @@ export const SubscriptionSubsequentInvoiceCouponFullAmount = createStory(
     showPaymentMethod: false,
   },
   'Payment method hidden - coupon covered entire amount'
+);
+
+export const SubscriptionSubsequentInvoiceStripeNoProrated3Month = createStory(
+  {
+    cardType: 'MasterCard',
+    lastFour: '5309',
+    payment_provider: 'stripe',
+    showProratedAmount: false,
+    discountType: 'repeating',
+    discountDuration: 3,
+  },
+  'Stripe - 3 Month Coupon'
+);
+
+export const SubscriptionSubsequentInvoiceStripeNoProratedOneTime = createStory(
+  {
+    cardType: 'MasterCard',
+    lastFour: '5309',
+    payment_provider: 'stripe',
+    showProratedAmount: false,
+    discountType: 'once',
+    discountDuration: null,
+  },
+  'Stripe - One Time Coupon'
 );

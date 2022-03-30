@@ -2395,6 +2395,8 @@ module.exports = function (log, config, bounces) {
       paymentProratedInCents,
       paymentProratedCurrency,
       showPaymentMethod,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2471,6 +2473,8 @@ module.exports = function (log, config, bounces) {
         paymentProrated,
         showProratedAmount,
         showPaymentMethod,
+        discountType,
+        discountDuration,
       },
     });
   };
@@ -2571,6 +2575,8 @@ module.exports = function (log, config, bounces) {
       lastFour,
       nextInvoiceDate,
       showPaymentMethod,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2633,6 +2639,8 @@ module.exports = function (log, config, bounces) {
         lastFour,
         nextInvoiceDate,
         showPaymentMethod,
+        discountType,
+        discountDuration,
       },
     });
   };

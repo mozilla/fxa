@@ -1669,6 +1669,8 @@ describe('StripeWebhookHandler', () => {
         ) {
           mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
+          mockInvoiceDetails.discountType = 'forever';
+          mockInvoiceDetails.discountDuration = null;
         }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails

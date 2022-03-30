@@ -37,11 +37,29 @@
       </span>
     </mj-text>
 
+    <% if (discountType === 'once') { %>
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-discount-one-time" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>">
+        One time Discount: -<%- invoiceDiscountAmount %>
+      </span>
+    </mj-text>
+    <% } %>
+
+    <% if (discountType === 'repeating') { %>
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-discount-repeating" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount, discountDuration}) %>">
+        <%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>
+      </span>
+    </mj-text>
+    <% } %>
+
+    <% if (discountType === 'forever') { %>
     <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-discount" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>">
         Discount: -<%- invoiceDiscountAmount %>
       </span>
     </mj-text>
+    <% } %>
 
     <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionSubsequentInvoiceDiscount-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
