@@ -14,19 +14,19 @@ describe('express/routing:', () => {
   let celebrateMock;
   let corsHandler;
   let errorHandler;
-  let isCelebrate;
+  let isCelebrateError;
   let loggerMock;
   let routing;
   let routingFactory;
 
   beforeEach(() => {
     celebrateHandler = () => {};
-    isCelebrate = false;
+    isCelebrateError = false;
     errorHandler = sinon.spy();
 
     celebrateMock = {
       celebrate: () => celebrateHandler,
-      isCelebrate: () => isCelebrate,
+      isCelebrateError: () => isCelebrateError,
       errors: () => errorHandler,
     };
 
@@ -202,7 +202,7 @@ describe('express/routing:', () => {
     it('logs and delegates validation errors to celebrate', () => {
       const error = new Error('uh oh');
       const next = sinon.spy();
-      isCelebrate = true;
+      isCelebrateError = true;
 
       routing.validationErrorHandler(error, {}, {}, next);
 
@@ -213,7 +213,7 @@ describe('express/routing:', () => {
     it('passes on other errors to the next error handler', () => {
       const error = new Error('uh oh');
       const next = sinon.spy();
-      isCelebrate = false;
+      isCelebrateError = false;
 
       routing.validationErrorHandler(error, {}, {}, next);
 
