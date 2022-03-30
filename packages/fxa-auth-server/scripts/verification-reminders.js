@@ -43,21 +43,16 @@ run()
   });
 
 async function run() {
-  const [vReminders, saReminders, cReminders, db, translator] =
-    await Promise.all([
-      verificationReminders.process(),
-      subscriptionAccountReminders.process(),
-      cadReminders.process(),
-      require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
-      require(`${LIB_DIR}/senders/translator`)(
-        config.i18n.supportedLanguages,
-        config.i18n.defaultLanguage
-      ),
-    ]);
+  const [vReminders, saReminders, cReminders, db] = await Promise.all([
+    verificationReminders.process(),
+    subscriptionAccountReminders.process(),
+    cadReminders.process(),
+    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
+  ]);
   const bounces = require(`${LIB_DIR}/bounces`)(config, db);
   const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
 
-  const mailer = new Mailer(translator, config.smtp);
+  const mailer = new Mailer(config.smtp);
 
   const sent = {};
 

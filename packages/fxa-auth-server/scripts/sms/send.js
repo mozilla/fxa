@@ -11,18 +11,7 @@ const config = require('../../config').getProperties();
 const args = parseArgs();
 const log = require('../../lib/log')(config.log.level, 'send-sms');
 
-require('../../lib/senders/translator')(
-  config.i18n.supportedLanguages,
-  config.i18n.defaultLanguage
-)
-  .then((translator) => {
-    return require('../../lib/senders')(
-      log,
-      config,
-      { check: () => Promise.resolve() },
-      translator
-    );
-  })
+require('../../lib/senders')(log, config, { check: () => Promise.resolve() })
   .then((senders) => {
     return senders.sms.send.apply(null, args);
   })

@@ -2,7 +2,7 @@ passwordResetAccountRecovery-title = "Your account password was reset with a rec
 
 passwordResetAccountRecovery-description = "You have successfully reset your password using a recovery key from the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 passwordResetAccountRecovery-regen-required = "You will need to generate a new recovery key."
 

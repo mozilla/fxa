@@ -1,7 +1,7 @@
 verifyPrimary-title = "Verify primary email"
 
 verifyPrimary-description = "A request to perform an account change has been made from the following device:"
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 verifyPrimary-action-plaintext = "Verify email:"
 <%- link %>

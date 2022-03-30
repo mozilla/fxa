@@ -1,6 +1,6 @@
 verifyShortCode-title = "Is this you signing up?"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 verifyShortCode-prompt = "If yes, use this verification code in your registration form:"
 <%- code %>

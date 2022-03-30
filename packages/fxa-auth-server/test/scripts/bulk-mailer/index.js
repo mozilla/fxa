@@ -68,7 +68,6 @@ describe('bulk-mailer', () => {
   it('calls normalize as expected', () => {
     assert.isTrue(normalizerStub.normalize.calledOnce);
     assert.strictEqual(normalizerStub.normalize.args[0][0], userRecords);
-    assert.ok(normalizerStub.normalize.args[0][1]);
   });
 
   it('calls sendEmailBatches as expected', () => {

@@ -2,7 +2,7 @@ postNewRecoveryCodes-title = "New recovery codes generated"
 
 postNewRecoveryCodes-description = "You have successfully generated new recovery codes from the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>
 

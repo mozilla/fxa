@@ -19,7 +19,7 @@ const createStory = subplatStoryWithProps(
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     productIconURLOld:
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
-    productNameNew: 'Product Name B',
+    productName: 'Product Name B',
     productNameOld: 'Product Name A',
     productPaymentCycleNew: 'year',
     productPaymentCycleOld: 'month',

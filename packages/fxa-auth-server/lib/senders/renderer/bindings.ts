@@ -26,8 +26,36 @@ export type RenderOpts = {
   mjml: MjmlOpts;
 };
 
-// Top level types
-export type TemplateContext = Record<string, any>;
+type TemplateContextValue =
+  | string
+  | Record<string, any>
+  | number
+  | Date
+  | null
+  | undefined;
+
+// Eventually we can list all available values here, or separate them by template
+export type TemplateValues = {
+  numberRemaining?: number;
+  subscriptions?: Record<string, any>[];
+  [key: string]: TemplateContextValue;
+};
+
+// TODO: better typing for 'template' with enums? from _versions.json
+export interface TemplateContext {
+  acceptLanguage: string;
+  template: string;
+  layout?: string;
+  templateValues: TemplateValues;
+}
+
+export interface RendererContext extends TemplateContext, TemplateValues {
+  // cssPath is relative to where rendering occurs
+  cssPath: string;
+  subject: string;
+  action?: string;
+}
+
 export type EjsComponent = {
   mjml: string;
   text: string;

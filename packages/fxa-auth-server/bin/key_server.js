@@ -111,13 +111,7 @@ async function run(config) {
   const profile = require('../lib/profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
   const bounces = require('../lib/bounces')(config, database);
-  const senders = await require('../lib/senders')(
-    log,
-    config,
-    bounces,
-    translator,
-    statsd
-  );
+  const senders = await require('../lib/senders')(log, config, bounces, statsd);
 
   const serverPublicKeys = {
     primary: jwtool.JWK.fromFile(config.publicKeyFile, {

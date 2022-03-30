@@ -1,6 +1,6 @@
 verifyLoginCode-title = "Is this you signing in?"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 verifyLoginCode-prompt = "If yes, here is the verification code:"
 <%- code %>
