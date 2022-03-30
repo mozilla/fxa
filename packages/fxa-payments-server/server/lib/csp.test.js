@@ -22,6 +22,7 @@ describe('CSP blocking rules', () => {
     expect(connectSrc).toContain(Sources.PAYPAL_API_URL);
     expect(connectSrc).toContain(Sources.PROFILE_SERVER);
     expect(connectSrc).toContain(Sources.STRIPE_API_URL);
+    expect(connectSrc).toContain(Sources.SENTRY_SERVER);
   });
 
   it('has correct defaultSrc directives', () => {

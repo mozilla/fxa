@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // TO DO: CORS, other security-related tasks (#4312)
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
 
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
@@ -17,6 +19,11 @@ import log from './logging';
 import csp from '../lib/csp';
 import cspBlocking from '../lib/csp/blocking';
 import cspReportOnly from '../lib/csp/report-only';
+import {
+  buildSentryConfig,
+  tagCriticalEvent,
+  tagFxaName,
+} from 'fxa-shared/sentry';
 
 const app = express();
 const logger = log('server.main');
@@ -34,6 +41,33 @@ const CLIENT_CONFIG = {
     },
   },
 };
+
+// Initialize Sentry
+const sentryConfig = config.get('sentry');
+if (sentryConfig.dsn) {
+  const release = require('../../package.json').version;
+  const opts = buildSentryConfig(
+    {
+      sentry: sentryConfig,
+      release,
+    },
+    logger
+  );
+  Sentry.init({
+    ...opts,
+    beforeSend(event, _hint) {
+      event = tagCriticalEvent(event);
+      event = tagFxaName(event, opts.serverName);
+      return event;
+    },
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+  });
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+}
 
 app.use(
   helmet.frameguard({
@@ -162,6 +196,11 @@ if (proxyUrl) {
       maxAge: config.get('staticResources.maxAge'),
     })
   );
+}
+
+// Send errors to sentry.
+if (sentryConfig.dsn) {
+  app.use(Sentry.Handlers.errorHandler());
 }
 
 export default app;

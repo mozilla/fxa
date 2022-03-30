@@ -110,11 +110,37 @@ const conf = convict({
       format: Boolean,
     },
   },
-  sentryDsn: {
-    default: '',
-    doc: 'Sentry DSN for error and log reporting',
-    env: 'SENTRY_DSN',
-    format: 'String',
+  sentry: {
+    dsn: {
+      default: '',
+      doc: 'Sentry DSN for error and log reporting',
+      env: 'SENTRY_DSN',
+      format: String,
+    },
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    sampleRate: {
+      default: 1.0,
+      doc: 'Rate at which errors are sampled.',
+      env: 'SENTRY_SAMPLE_RATE',
+      format: 'Number',
+    },
+    tracesSampleRate: {
+      default: 1.0,
+      doc: 'Rate at which traces are sampled.',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+      format: 'Number',
+    },
+    serverName: {
+      doc: 'Name used by sentry to identify the server.',
+      default: 'fxa-support-panel',
+      format: 'String',
+      env: 'SENTRY_SERVER_NAME',
+    },
   },
   hstsEnabled: {
     default: true,

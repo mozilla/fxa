@@ -6,9 +6,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
-import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import {
+  createContext,
+  SentryPlugin,
+} from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 
@@ -39,7 +43,7 @@ const version = getVersionInfo(__dirname);
         definitions: {
           path: join(process.cwd(), 'src/graphql.ts'),
         },
-        context: ({ req }) => ({ req }),
+        context: ({ req, connection }) => createContext({ req, connection }),
         plugins: [SentryPlugin],
       }),
     }),
@@ -53,12 +57,13 @@ const version = getVersionInfo(__dirname);
     }),
     LoggerModule,
     SentryModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
+      imports: [ConfigModule, LoggerModule],
+      inject: [ConfigService, MozLoggerService],
       useFactory: (configService: ConfigService<AppConfig>) => ({
-        dsn: configService.get('sentryDsn'),
-        environment: configService.get('env'),
-        release: version.version,
+        sentryConfig: {
+          sentry: configService.get('sentry'),
+          version: version.version,
+        },
       }),
     }),
   ],

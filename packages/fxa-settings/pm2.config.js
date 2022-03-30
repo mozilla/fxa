@@ -30,6 +30,8 @@ module.exports = {
       cwd: __dirname,
       env: {
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_CONTENT, // NOTE: Shared with content server intentionally
       },
       filter_env: ['npm_'],
       autorestart: false,

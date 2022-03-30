@@ -17,7 +17,7 @@
     "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6009",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
-    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",
+    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
     "test": "CI=true npm-run-all test:frontend test:server"
   },
   "eslintConfig": {
@@ -41,6 +41,9 @@
   "dependencies": {
     "@apollo/client": "^3.4.5",
     "@emotion/react": "^11.7.1",
+    "@sentry/browser": "^6.19.2",
+    "@sentry/node": "^6.19.2",
+    "@sentry/tracing": "^6.19.2",
     "body-parser": "^1.19.1",
     "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",

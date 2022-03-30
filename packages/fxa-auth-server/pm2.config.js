@@ -27,6 +27,8 @@ module.exports = {
         EMAIL_CONFIG_USE_REDIS: 'false',
         PORT: '9000',
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_AUTH,
       },
       filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],

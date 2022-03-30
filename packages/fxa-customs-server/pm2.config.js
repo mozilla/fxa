@@ -17,6 +17,8 @@ module.exports = {
         NODE_ENV: 'dev',
         PORT: 7000,
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_CUSTOMS,
       },
       filter_env: ['npm_'],
       watch: ['bin', 'lib'],

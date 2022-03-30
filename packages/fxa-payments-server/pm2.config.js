@@ -22,6 +22,8 @@ module.exports = {
         CONFIG_FILES: 'server/config/secrets.json',
         PORT: '3031',
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_PAYMENTS,
       },
       filter_env: ['npm_'],
       time: true,

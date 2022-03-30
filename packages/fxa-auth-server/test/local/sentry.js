@@ -32,7 +32,7 @@ describe('Sentry', () => {
   });
 
   it('can be set up when sentry is enabled', async () => {
-    config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
+    config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
     let throws = false;
     try {
       await configureSentry(server, config);
@@ -89,7 +89,7 @@ describe('Sentry', () => {
   });
 
   it('adds EndpointError details to a reported error', async () => {
-    config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
+    config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
     await configureSentry(server, config);
     const endError = new EndpointError(
       'An internal server error has occurred',

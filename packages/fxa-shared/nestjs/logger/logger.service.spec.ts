@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import mozlog from 'mozlog';
-
 import { MozLoggerService } from './logger.service';
 
 describe('LoggerService', () => {
