@@ -8,53 +8,69 @@ import Account from './Account';
 import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 import iconSearch from '../../images/icon-search.svg';
 
+const ACCOUNT_SCHEMA = `
+  uid
+  createdAt
+  disabledAt
+  emails {
+    email
+    isVerified
+    isPrimary
+    createdAt
+  }
+  emailBounces {
+    email
+    templateName
+    createdAt
+    bounceType
+    bounceSubType
+  }
+  securityEvents {
+    uid
+    nameId
+    verified
+    createdAt
+    name
+  }
+  totp {
+    verified
+    createdAt
+    enabled
+  }
+  recoveryKeys {
+    createdAt
+    verifiedAt
+    enabled
+  }
+  linkedAccounts {
+    providerId
+    authAt
+    enabled
+  }
+  attachedClients {
+    createdTime
+    createdTimeFormatted
+    lastAccessTime
+    lastAccessTimeFormatted
+    deviceType
+    name
+    clientId
+    userAgent
+    os
+    sessionTokenId
+    location {
+      city
+      state
+      stateCode
+      country
+      countryCode
+    }
+  }
+`;
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
     accountByEmail(email: $email) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        templateName
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ${ACCOUNT_SCHEMA}
     }
   }
 `;
@@ -63,50 +79,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
 export const GET_ACCOUNT_BY_UID = gql`
   query getAccountByUid($uid: String!) {
     accountByUid(uid: $uid) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        templateName
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ${ACCOUNT_SCHEMA}
     }
   }
 `;
@@ -208,7 +181,6 @@ export const AccountSearch = () => {
   return (
     <div className="text-grey-600" data-testid="account-search">
       <h2 className="text-lg font-semibold mb-2">Account Search</h2>
-
       <p className="mb-1">
         Search for a Firefox user account by email or UID and view its details,
         including: secondary emails, email bounces, time-based one-time
@@ -289,7 +261,7 @@ const AccountSearchResult = ({
   data,
   query,
 }: {
-  onCleared: Function;
+  onCleared: () => void;
   loading: boolean;
   error?: {};
   data?: {

@@ -7,6 +7,7 @@ import Renderer from '../renderer';
 import { BrowserRendererBindings } from '../renderer/bindings-browser';
 
 interface StorybookEmailArgs {
+  partial?: string;
   template: string;
   layout: string;
   acceptLanguage: string;
@@ -39,6 +40,7 @@ const subplatCommonArgs = {
 };
 
 const storybookEmail = ({
+  partial,
   template,
   layout = 'fxa',
   acceptLanguage = 'en',
@@ -53,8 +55,10 @@ const storybookEmail = ({
     .then(({ html, text, subject }) => {
       container.innerHTML = `
         <header>
-          <h1 class="template-name"><span>${layout} / </span>${
-        template === '_storybook' ? 'layout' : template
+          <h1 class="template-name"><span>${
+            partial ? partial : layout
+          } / </span>${
+        template === '_storybook' ? (partial ? 'partial' : 'layout') : template
       }</h1>
           ${doc ? `<p class="template-description">${doc}</p>` : ''}
           <p class="email-subject">Subject: ${subject}</p>
@@ -90,9 +94,9 @@ async function renderUsingMJML({
   acceptLanguage: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
-  const localizer = new Renderer(new BrowserRendererBindings());
+  const renderer = new Renderer(new BrowserRendererBindings());
 
-  return localizer.renderEmail({
+  return renderer.renderEmail({
     template,
     layout,
     acceptLanguage,
@@ -106,7 +110,7 @@ const Template: Story<StorybookEmailArgs> = (args, context) =>
 export const storyWithProps = (
   templateName: string,
   templateDoc = '',
-  defaultArgs = {},
+  defaultArgs: Record<string, any> = {},
   layout = 'fxa'
 ) => {
   return (overrides: Record<string, any> = {}, storyName = 'Default') => {
@@ -114,6 +118,7 @@ export const storyWithProps = (
     template.args = {
       template: templateName,
       layout,
+      partial: defaultArgs.partial,
       doc: templateDoc,
       variables: {
         ...commonArgs,

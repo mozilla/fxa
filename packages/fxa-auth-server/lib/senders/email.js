@@ -15,6 +15,7 @@ const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
+const { parseAcceptLanguage } = require('../../lib/l10n');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
 
@@ -147,6 +148,7 @@ module.exports = function (log, config, bounces) {
     return target;
   }
 
+  // TODO: can this be modified/removed? FXA-4761 / #12259
   function linkAttributes(url) {
     // Not very nice to have presentation code in here, but this is to help l10n
     // contributors not deal with extraneous noise in strings.
@@ -247,7 +249,7 @@ module.exports = function (log, config, bounces) {
     );
   }
 
-  function Mailer(translator, mailerConfig, sender) {
+  function Mailer(mailerConfig, sender) {
     let options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
@@ -296,7 +298,6 @@ module.exports = function (log, config, bounces) {
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
-    this.translator = translator.getTranslator;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
@@ -330,70 +331,17 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype._formatUserAgentInfo = function (message) {
-    // Build a first cut at a device description,
-    // without using any new strings.
-    // Future iterations can localize this better.
-    const translator = this.translator(message.acceptLanguage);
     const uaBrowser = safeUserAgent.name(message.uaBrowser);
     const uaOS = safeUserAgent.name(message.uaOS);
     const uaOSVersion = safeUserAgent.version(message.uaOSVersion);
 
-    if (uaBrowser && uaOS && uaOSVersion) {
-      return translator.format(
-        translator.gettext('%(uaBrowser)s on %(uaOS)s %(uaOSVersion)s'),
-        { uaBrowser: uaBrowser, uaOS: uaOS, uaOSVersion: uaOSVersion }
-      );
-    } else if (uaBrowser && uaOS) {
-      return translator.format(
-        translator.gettext('%(uaBrowser)s on %(uaOS)s'),
-        { uaBrowser: uaBrowser, uaOS: uaOS }
-      );
-    } else {
-      if (uaBrowser) {
-        return uaBrowser;
-      } else if (uaOS) {
-        if (uaOSVersion) {
-          const parts = `${uaOS} ${uaOSVersion}`;
-          return parts;
-        } else {
-          return uaOS;
-        }
-      } else {
-        return '';
-      }
-    }
-  };
-
-  Mailer.prototype._constructLocationString = function (message) {
-    const translator = this.translator(message.acceptLanguage);
-    const location = message.location;
-    // construct the location string from the location object
-    if (location) {
-      if (location.city && location.stateCode) {
-        return translator.format(
-          translator.gettext(
-            '%(city)s, %(stateCode)s, %(country)s (estimated)'
-          ),
-          location
-        );
-      } else if (location.city) {
-        return translator.format(
-          translator.gettext('%(city)s, %(country)s (estimated)'),
-          location
-        );
-      } else if (location.stateCode) {
-        return translator.format(
-          translator.gettext('%(stateCode)s, %(country)s (estimated)'),
-          location
-        );
-      } else {
-        return translator.format(
-          translator.gettext('%(country)s (estimated)'),
-          location
-        );
-      }
-    }
-    return '';
+    return !uaBrowser && !uaOS
+      ? null
+      : {
+          uaBrowser,
+          uaOS,
+          uaOSVersion,
+        };
   };
 
   Mailer.prototype._constructLocalTimeString = function (
@@ -408,8 +356,11 @@ module.exports = function (log, config, bounces) {
     acceptLanguage,
     date
   ) {
-    const translator = this.translator(acceptLanguage);
-    return constructLocalDateString(timeZone, translator.language, date);
+    return constructLocalDateString(
+      timeZone,
+      parseAcceptLanguage(acceptLanguage)[0],
+      date
+    );
   };
 
   Mailer.prototype._getLocalizedCurrencyString = function (
@@ -426,14 +377,12 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype.localize = async function (message) {
-    const translator = this.translator(message.acceptLanguage);
     message.layout = message.layout || 'fxa';
-
     const { html, text, subject } = await this.renderer.renderEmail(message);
 
     return {
       html,
-      language: translator.language,
+      language: parseAcceptLanguage(message.acceptLanguage)[0],
       subject,
       text,
     };
@@ -589,7 +538,7 @@ module.exports = function (log, config, bounces) {
         email: message.email,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
         serviceName: serviceName,
@@ -636,7 +585,7 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
-        location: this._constructLocationString(message),
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -787,7 +736,7 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
-        location: this._constructLocationString(message),
+        location: message.location,
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
@@ -849,7 +798,7 @@ module.exports = function (log, config, bounces) {
           email: message.email,
           ip: message.ip,
           link: links.link,
-          location: this._constructLocationString(message),
+          location: message.location,
           oneClickLink: links.oneClickLink,
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -911,7 +860,7 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -974,7 +923,7 @@ module.exports = function (log, config, bounces) {
         email: message.primaryEmail,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         oneClickLink: links.oneClickLink,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1013,7 +962,7 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         primaryEmail: message.primaryEmail,
@@ -1073,7 +1022,7 @@ module.exports = function (log, config, bounces) {
         email: message.email,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -1108,7 +1057,7 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         ip: message.ip,
-        location: this._constructLocationString(message),
+        location: message.location,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
@@ -1200,7 +1149,7 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1241,7 +1190,7 @@ module.exports = function (log, config, bounces) {
           device: this._formatUserAgentInfo(message),
           ip: message.ip,
           link: links.link,
-          location: this._constructLocationString(message),
+          location: message.location,
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           privacyUrl: links.privacyUrl,
@@ -1415,7 +1364,7 @@ module.exports = function (log, config, bounces) {
         ip: message.ip,
         iosLink: links.iosLink,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1455,7 +1404,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1495,7 +1444,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1535,7 +1484,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1610,7 +1559,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1653,7 +1602,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1696,7 +1645,7 @@ module.exports = function (log, config, bounces) {
         iosLink: links.iosLink,
         ip: message.ip,
         link: links.link,
-        location: this._constructLocationString(message),
+        location: message.location,
         privacyUrl: links.privacyUrl,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1822,7 +1771,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionUpgrade';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productNameNew };
 
     return this.send({
       ...message,
@@ -1831,7 +1779,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         productIconURLNew,
@@ -1856,7 +1803,6 @@ module.exports = function (log, config, bounces) {
         productPaymentCycleNew,
         productPaymentCycleOld,
         icon: productIconURLNew,
-        product: productNameNew,
       },
     });
   };
@@ -1896,7 +1842,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionDowngrade';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productNameNew };
 
     return this.send({
       ...message,
@@ -1905,7 +1850,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         productIconURLNew,
@@ -1930,7 +1874,6 @@ module.exports = function (log, config, bounces) {
         productPaymentCycleNew,
         productPaymentCycleOld,
         icon: productIconURLNew,
-        product: productNameNew,
       },
     });
   };
@@ -2056,7 +1999,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionPaymentFailed';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2065,7 +2007,7 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
+        productName,
         uid,
         email,
         icon: planEmailIconURL,
@@ -2102,7 +2044,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionAccountDeletion';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2111,7 +2052,7 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
+        productName,
         uid,
         email,
         isCancellationEmail: true,
@@ -2121,7 +2062,6 @@ module.exports = function (log, config, bounces) {
           invoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2161,7 +2101,6 @@ module.exports = function (log, config, bounces) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2170,7 +2109,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         isCancellationEmail: true,
@@ -2185,7 +2123,7 @@ module.exports = function (log, config, bounces) {
           serviceLastActiveDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2215,7 +2153,6 @@ module.exports = function (log, config, bounces) {
       const template = 'subscriptionFailedPaymentsCancellation';
       const links = this._generateLinks(null, message, query, template);
       const headers = {};
-      const translatorParams = { productName };
 
       return this.send({
         ...message,
@@ -2224,12 +2161,11 @@ module.exports = function (log, config, bounces) {
         template,
         templateValues: {
           ...links,
-          ...translatorParams,
           uid,
           email,
           isCancellationEmail: true,
           icon: planEmailIconURL,
-          product: productName,
+          productName,
         },
       });
     };
@@ -2265,7 +2201,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionReactivation';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2274,7 +2209,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         nextInvoiceDateOnly: this._constructLocalDateString(
@@ -2283,7 +2217,7 @@ module.exports = function (log, config, bounces) {
           nextInvoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
@@ -2333,7 +2267,6 @@ module.exports = function (log, config, bounces) {
         ...links,
         uid,
         email,
-        subscription,
         productName,
         reminderLength: message.reminderLength,
         planIntervalCount: message.planIntervalCount,
@@ -2386,7 +2319,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionSubsequentInvoice';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     let paymentProrated;
     let showProratedAmount = false;
@@ -2406,7 +2338,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         invoiceDateOnly: this._constructLocalDateString(
@@ -2420,7 +2351,7 @@ module.exports = function (log, config, bounces) {
           nextInvoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2464,6 +2395,8 @@ module.exports = function (log, config, bounces) {
       paymentProratedInCents,
       paymentProratedCurrency,
       showPaymentMethod,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2482,7 +2415,6 @@ module.exports = function (log, config, bounces) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     let paymentProrated;
     let showProratedAmount = false;
@@ -2502,7 +2434,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         invoiceDateOnly: this._constructLocalDateString(
@@ -2516,7 +2447,7 @@ module.exports = function (log, config, bounces) {
           nextInvoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2542,6 +2473,8 @@ module.exports = function (log, config, bounces) {
         paymentProrated,
         showProratedAmount,
         showPaymentMethod,
+        discountType,
+        discountDuration,
       },
     });
   };
@@ -2581,7 +2514,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionFirstInvoice';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2590,7 +2522,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         invoiceDateOnly: this._constructLocalDateString(
@@ -2604,7 +2535,7 @@ module.exports = function (log, config, bounces) {
           nextInvoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2644,6 +2575,8 @@ module.exports = function (log, config, bounces) {
       lastFour,
       nextInvoiceDate,
       showPaymentMethod,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2661,7 +2594,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionFirstInvoiceDiscount';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = { productName };
 
     return this.send({
       ...message,
@@ -2670,7 +2602,6 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
         invoiceDateOnly: this._constructLocalDateString(
@@ -2684,7 +2615,7 @@ module.exports = function (log, config, bounces) {
           nextInvoiceDate
         ),
         icon: planEmailIconURL,
-        product: productName,
+        productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
@@ -2708,6 +2639,8 @@ module.exports = function (log, config, bounces) {
         lastFour,
         nextInvoiceDate,
         showPaymentMethod,
+        discountType,
+        discountDuration,
       },
     });
   };
@@ -2742,8 +2675,6 @@ module.exports = function (log, config, bounces) {
       'X-Link': links.link,
     };
 
-    const translatorParams = { productName, uid, email };
-
     return this.send({
       ...message,
       headers,
@@ -2751,7 +2682,9 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
+        productName,
+        uid,
+        email,
         icon: planEmailIconURL,
       },
     });
@@ -2853,7 +2786,6 @@ module.exports = function (log, config, bounces) {
     // set this to avoid passing `metricsEnabled` around to all link functions
     this.metricsEnabled = metricsEnabled;
 
-    const translator = this.translator(message.acceptLanguage);
     const {
       termsOfServiceDownloadURL = this.subscriptionTermsUrl,
       privacyNoticeDownloadURL = this.privacyUrl,
@@ -2861,7 +2793,7 @@ module.exports = function (log, config, bounces) {
       {
         product_metadata: message.productMetadata,
       },
-      translator.language
+      parseAcceptLanguage(message.acceptLanguage)[0]
     );
 
     // Generate all possible links. The option to use a specific link

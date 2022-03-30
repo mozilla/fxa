@@ -1,1 +1,1 @@
-<%# This isn't used but the renderer expects every template file to have a corresponding txt file. %>
+<%# This file is hit in all `_storybook` template stories since the renderer expects every template file to have a corresponding txt file, but this is used in partial-only Storybook stories. %><% if (locals.partial) { %><%- include(`/partials/${locals.partial}/index.txt`) %><% } %>

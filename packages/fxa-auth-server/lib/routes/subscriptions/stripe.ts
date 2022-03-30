@@ -45,9 +45,10 @@ const addressLookupCountries = Object.values(
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 /**
- * Delete any metadata keys prefixed by `capabilities:` before
- * sending response. We don't need to reveal those.
+ * Delete any metadata keys prefixed by `capabilities:` and promotion codes
+ * before sending response. We don't need to reveal those.
  * https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
+ * https://github.com/mozilla/fxa/issues/12181
  */
 export function sanitizePlans(plans: AbbrevPlan[]) {
   return plans.map((planIn) => {
@@ -55,8 +56,12 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     const plan = { ...planIn };
     const isCapabilityKey = (value: string, key: string) =>
       key.startsWith('capabilities');
-    plan.plan_metadata = omitBy(plan.plan_metadata, isCapabilityKey);
-    plan.product_metadata = omitBy(plan.product_metadata, isCapabilityKey);
+    const isPromotionCodes = (value: string, key: string) =>
+      key.toLowerCase() === 'promotioncodes';
+    const isOmittable = (value: string, key: string) =>
+      isCapabilityKey(value, key) || isPromotionCodes(value, key);
+    plan.plan_metadata = omitBy(plan.plan_metadata, isOmittable);
+    plan.product_metadata = omitBy(plan.product_metadata, isOmittable);
     return plan;
   });
 }
@@ -440,11 +445,8 @@ export class StripeHandler {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
-    if (!customer) {
-      throw error.unknownCustomer(uid);
-    }
 
-    if (!customer.subscriptions?.data.length) {
+    if (!customer || !customer.subscriptions?.data.length) {
       return [];
     }
 

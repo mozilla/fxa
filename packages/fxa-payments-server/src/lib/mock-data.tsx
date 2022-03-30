@@ -23,6 +23,7 @@ export const NEW_CUSTOMER: Customer = {
 };
 
 export const CUSTOMER: Customer = {
+  customerId: 'cus_123xyz',
   billing_name: 'Foo Barson',
   billing_agreement_id: 'ba-131243',
   payment_provider: 'stripe',
@@ -45,6 +46,8 @@ export const CUSTOMER: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -134,6 +137,8 @@ export const PAYPAL_CUSTOMER: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -231,12 +236,17 @@ export const IAP_GOOGLE_SUBSCRIPTION = {
   package_name: 'org.mozilla.cooking.with.foxkeh',
   sku: 'org.mozilla.foxkeh.yearly',
   product_name: 'Cooking with Foxkeh',
+  price_id: 'plan_123',
 };
 
 export const IAP_APPLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
+};
+
+export const IAP_CUSTOMER: Customer = {
+  subscriptions: [IAP_GOOGLE_SUBSCRIPTION],
 };
 
 export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
@@ -273,6 +283,7 @@ export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
 export const COUPON_DETAILS_VALID: CouponDetails = {
   promotionCode: 'VALID',
   type: '',
+  durationInMonths: 1,
   valid: true,
   discountAmount: 50,
   expired: false,
@@ -282,12 +293,14 @@ export const COUPON_DETAILS_VALID: CouponDetails = {
 export const COUPON_DETAILS_INVALID: CouponDetails = {
   promotionCode: 'INVALID',
   type: '',
+  durationInMonths: 1,
   valid: false,
 };
 
 export const COUPON_DETAILS_EXPIRED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   expired: true,
 };
@@ -295,6 +308,7 @@ export const COUPON_DETAILS_EXPIRED: CouponDetails = {
 export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   maximallyRedeemed: true,
 };

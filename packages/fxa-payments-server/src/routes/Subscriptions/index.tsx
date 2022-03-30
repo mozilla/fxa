@@ -46,6 +46,7 @@ export type SubscriptionsProps = {
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  subsequentInvoices: SelectorReturns['subsequentInvoices'];
   reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
   customerSubscriptions: SelectorReturns['customerSubscriptions'];
   cancelSubscription: SequenceFunctions['cancelSubscriptionAndRefresh'];
@@ -62,6 +63,7 @@ export const Subscriptions = ({
   customer,
   plans,
   customerSubscriptions,
+  subsequentInvoices,
   fetchSubscriptionsRouteResources,
   cancelSubscription,
   cancelSubscriptionStatus,
@@ -143,7 +145,13 @@ export const Subscriptions = ({
     [navigateToUrl, SUPPORT_FORM_URL]
   );
 
-  if (!accessToken || customer.loading || profile.loading || plans.loading) {
+  if (
+    !accessToken ||
+    customer.loading ||
+    profile.loading ||
+    plans.loading ||
+    subsequentInvoices.loading
+  ) {
     return <LoadingOverlay isLoading={true} />;
   }
 
@@ -184,6 +192,19 @@ export const Subscriptions = ({
           testid="error-loading-customer"
           title="Problem loading customer"
           fetchState={customer}
+          onDismiss={locationReload}
+        />
+      </Localized>
+    );
+  }
+
+  if (subsequentInvoices.error !== null) {
+    return (
+      <Localized id="sub-invoice-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-invoice"
+          title="Problem loading invoices"
+          fetchState={subsequentInvoices}
           onDismiss={locationReload}
         />
       </Localized>
@@ -326,6 +347,11 @@ export const Subscriptions = ({
                 (isWebSubscription(customerSubscription) && (
                   <SubscriptionItem
                     key={idx}
+                    subsequentInvoice={subsequentInvoices?.result?.find(
+                      (invoice) =>
+                        invoice.subscriptionId ===
+                        customerSubscription.subscription_id
+                    )}
                     {...{
                       customer: customer.result,
                       cancelSubscription,
@@ -507,6 +533,7 @@ export default connect(
     profile: selectors.profile(state),
     customer: selectors.customer(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
+    subsequentInvoices: selectors.subsequentInvoices(state),
     cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
     reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
     plansByProductId: selectors.plansByProductId(state),

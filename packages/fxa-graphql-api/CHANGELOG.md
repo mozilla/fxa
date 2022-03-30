@@ -1,3 +1,29 @@
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+### Other changes
+
+- 12ea05171 Cherry pick squash for experimental dot releases v1.226.5 to v1.226.9 on train-226. These changes address issues with connection pool spiking and high latency on the attached clients route. ([12ea05171](https://github.com/mozilla/fxa/commit/12ea05171))
+
+## 1.228.1
+
+No changes.
+
+## 1.228.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.3.1 to 8.4.0 (#12134) ([43100d0df](https://github.com/mozilla/fxa/commit/43100d0df))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps: bump @nestjs/passport from 8.1.0 to 8.2.1 (#12131) ([707a31f58](https://github.com/mozilla/fxa/commit/707a31f58))
+
 ## 1.227.1
 
 No changes.

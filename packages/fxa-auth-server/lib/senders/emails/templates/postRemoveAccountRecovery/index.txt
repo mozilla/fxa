@@ -2,7 +2,7 @@ postRemoveAccountRecovery-title = "Account recovery key removed"
 
 postRemoveAccountRecovery-description = "You have successfully removed an account recovery key for your Firefox account using the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 postRemoveAccountRecovery-invalid = "This recovery key can no longer be used to recover your account."
 

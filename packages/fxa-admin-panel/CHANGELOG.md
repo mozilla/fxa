@@ -1,3 +1,25 @@
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+### Other changes
+
+- 12ea05171 Cherry pick squash for experimental dot releases v1.226.5 to v1.226.9 on train-226. These changes address issues with connection pool spiking and high latency on the attached clients route. ([12ea05171](https://github.com/mozilla/fxa/commit/12ea05171))
+
+## 1.228.1
+
+No changes.
+
+## 1.228.0
+
+No changes.
+
 ## 1.227.1
 
 ### Other changes

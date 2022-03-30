@@ -1,3 +1,59 @@
+## 1.228.4
+
+### Bug fixes
+
+- emails: remove more "download" language from emails ([503300b25](https://github.com/mozilla/fxa/commit/503300b25))
+
+## 1.228.3
+
+### Bug fixes
+
+- emails: update download button to get started on sub welcome email ([865d623ef](https://github.com/mozilla/fxa/commit/865d623ef))
+
+## 1.228.2
+
+### Bug fixes
+
+- subscriptions: remove promo codes from plans ([0b3dc3dab](https://github.com/mozilla/fxa/commit/0b3dc3dab))
+
+### Other changes
+
+- 12ea05171 Cherry pick squash for experimental dot releases v1.226.5 to v1.226.9 on train-226. These changes address issues with connection pool spiking and high latency on the attached clients route. ([12ea05171](https://github.com/mozilla/fxa/commit/12ea05171))
+
+## 1.228.1
+
+### Bug fixes
+
+- subscriptions: create customer for iap sub (#12164) ([7c54513ac](https://github.com/mozilla/fxa/commit/7c54513ac))
+
+## 1.228.0
+
+### New features
+
+- apple: Add Sign-in with Apple support (#12148) ([fa817cb37](https://github.com/mozilla/fxa/commit/fa817cb37))
+- subscriptions: add config for cancel survey (#12114) ([49598b251](https://github.com/mozilla/fxa/commit/49598b251))
+- auth: script to convert Stripe products/plans to Firestore docs (#12040) ([fd05f95de](https://github.com/mozilla/fxa/commit/fd05f95de))
+- auth: trim whitespace off metadata ([c31ab3a91](https://github.com/mozilla/fxa/commit/c31ab3a91))
+
+### Bug fixes
+
+- auth: check paymentAttempts before returning a funding source error (#12130) ([a23d09ae6](https://github.com/mozilla/fxa/commit/a23d09ae6))
+- auth: address TS errors in ProductConfig and PlanConfig classes ([7f42a868f](https://github.com/mozilla/fxa/commit/7f42a868f))
+- auth: Broken l10n test (#12101) ([6ff2e3a8a](https://github.com/mozilla/fxa/commit/6ff2e3a8a))
+- subscriptions: Duplicate charge on cvc fail (#12046) ([b5b385610](https://github.com/mozilla/fxa/commit/b5b385610))
+
+### Refactorings
+
+- emails: Move email template subjects/actions out of email.js ([f2a175ae8](https://github.com/mozilla/fxa/commit/f2a175ae8))
+
+### Other changes
+
+- deps: bump @google-cloud/bigquery from 5.10.0 to 5.11.0 (#12136) ([11787472b](https://github.com/mozilla/fxa/commit/11787472b))
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.8 to 3.3.10 (#12122) ([c726f757d](https://github.com/mozilla/fxa/commit/c726f757d))
+- deps: bump aws-sdk from 2.1082.0 to 2.1089.0 (#12117) ([014363918](https://github.com/mozilla/fxa/commit/014363918))
+- deps: bump googleapis from 92.0.0 to 95.0.0 (#12107) ([89944dec6](https://github.com/mozilla/fxa/commit/89944dec6))
+
 ## 1.227.1
 
 No changes.

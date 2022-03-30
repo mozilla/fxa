@@ -17,6 +17,12 @@ export interface Config {
   };
   sentry: {
     dsn: string;
+    env: string;
+    sampleRate: number;
+    tracesSampleRate: number;
+    serverName: string;
+    clientName: string;
+    version: string;
   };
   servers: {
     gql: {
@@ -48,6 +54,11 @@ export function getDefault() {
     },
     sentry: {
       dsn: '',
+      env: 'local',
+      serverName: 'fxa-settings-server',
+      clientName: 'fxa-settings-client',
+      sampleRate: 1.0,
+      tracesSampleRate: 1.0,
     },
     servers: {
       gql: {

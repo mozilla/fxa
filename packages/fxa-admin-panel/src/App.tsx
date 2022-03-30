@@ -6,15 +6,18 @@ import React from 'react';
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/AccountSearch';
+import Permissions from './components/Permissions';
 import AdminLogs from './components/AdminLogs';
 import SiteStatus from './components/SiteStatus';
+import { IUserInfo } from '../interfaces';
 
-const App = () => (
+const App = ({ user }: { user: IUserInfo }) => (
   <BrowserRouter>
     <AppLayout>
       <Routes>
         <Route path="/admin-logs" element={<AdminLogs />} />
         <Route path="/site-status" element={<SiteStatus />} />
+        <Route path="/permissions" element={<Permissions {...{ user }} />} />
         <Route path="/account-search" element={<AccountSearch />} />
         <Route path="/" element={<Navigate to="/account-search" />} />
       </Routes>

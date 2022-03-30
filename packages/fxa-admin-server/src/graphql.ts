@@ -32,6 +32,40 @@ export enum BounceSubType {
     Virus = "Virus"
 }
 
+export enum ProviderId {
+    unmapped = "unmapped",
+    GOOGLE = "GOOGLE",
+    APPLE = "APPLE"
+}
+
+export interface Location {
+    city?: Nullable<string>;
+    country?: Nullable<string>;
+    countryCode?: Nullable<string>;
+    state?: Nullable<string>;
+    stateCode?: Nullable<string>;
+}
+
+export interface AttachedClient {
+    clientId?: Nullable<string>;
+    deviceId?: Nullable<string>;
+    sessionTokenId?: Nullable<string>;
+    refreshTokenId?: Nullable<string>;
+    isCurrentSession?: Nullable<boolean>;
+    deviceType?: Nullable<string>;
+    name?: Nullable<string>;
+    scope?: Nullable<string[]>;
+    location?: Nullable<Location>;
+    userAgent?: Nullable<string>;
+    os?: Nullable<string>;
+    createdTime?: Nullable<number>;
+    createdTimeFormatted?: Nullable<string>;
+    lastAccessTime?: Nullable<number>;
+    lastAccessTimeFormatted?: Nullable<string>;
+    approximateLastAccessTime?: Nullable<number>;
+    approximateLastAccessTimeFormatted?: Nullable<string>;
+}
+
 export interface EmailBounce {
     email: string;
     templateName: string;
@@ -45,6 +79,12 @@ export interface Email {
     isVerified: boolean;
     isPrimary: boolean;
     createdAt: number;
+}
+
+export interface RecoveryKeys {
+    createdAt?: Nullable<number>;
+    verifiedAt?: Nullable<number>;
+    enabled?: Nullable<boolean>;
 }
 
 export interface SecurityEvents {
@@ -63,23 +103,11 @@ export interface Totp {
     enabled: boolean;
 }
 
-export interface RecoveryKeys {
-    createdAt?: Nullable<number>;
-    verifiedAt?: Nullable<number>;
-    enabled?: Nullable<boolean>;
-}
-
-export interface SessionTokens {
-    tokenId?: Nullable<string>;
-    tokenData?: Nullable<string>;
-    uid?: Nullable<string>;
-    createdAt?: Nullable<number>;
-    uaBrowser?: Nullable<string>;
-    uaBrowserVersion?: Nullable<string>;
-    uaOS?: Nullable<string>;
-    uaOSVersion?: Nullable<string>;
-    uaDeviceType?: Nullable<string>;
-    lastAccessTime?: Nullable<number>;
+export interface LinkedAccount {
+    uid: string;
+    authAt: number;
+    providerId: ProviderId;
+    enabled: boolean;
 }
 
 export interface Account {
@@ -92,8 +120,9 @@ export interface Account {
     emailBounces?: Nullable<EmailBounce[]>;
     totp?: Nullable<Totp[]>;
     recoveryKeys?: Nullable<RecoveryKeys[]>;
-    sessionTokens?: Nullable<SessionTokens[]>;
     securityEvents?: Nullable<SecurityEvents[]>;
+    attachedClients?: Nullable<AttachedClient[]>;
+    linkedAccounts?: Nullable<LinkedAccount[]>;
 }
 
 export interface IQuery {
@@ -105,6 +134,7 @@ export interface IQuery {
 export interface IMutation {
     unverifyEmail(email: string): boolean | Promise<boolean>;
     disableAccount(uid: string): boolean | Promise<boolean>;
+    unlinkAccount(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
 }
 

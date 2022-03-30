@@ -14,12 +14,17 @@ import {
 } from './types';
 
 import { actions, ActionPayload } from './actions';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export const defaultState = {
   customer: uninitializedFetch<Customer, APIError>(),
   plans: uninitializedFetch<Array<Plan>, APIError>(),
   profile: uninitializedFetch<Profile, APIError>(),
   subscriptions: uninitializedFetch<Array<Subscription>>(),
+  subsequentInvoices: uninitializedFetch<
+    Array<SubsequentInvoicePreview>,
+    APIError
+  >(),
   token: uninitializedFetch<Token>(),
   cancelSubscription: uninitializedFetch<CancelSubscriptionResult>(),
   reactivateSubscription: uninitializedFetch<

@@ -13,8 +13,12 @@ export interface Config {
     [productId: string]: string;
   };
   sentry: {
-    url: string;
     dsn: string;
+    env: string;
+    sampleRate: number;
+    tracesSampleRate: number;
+    clientName?: string;
+    serverName?: string;
   };
   servers: {
     auth: {
@@ -59,8 +63,12 @@ export function defaultConfig(): Config {
     newsletterId: 'mozilla-and-you',
     productRedirectURLs: {},
     sentry: {
-      url: 'https://sentry.prod.mozaws.net',
       dsn: '',
+      env: 'test',
+      sampleRate: 1.0,
+      tracesSampleRate: 1.0,
+      serverName: 'fxa-payments-server',
+      clientName: 'fxa-payments-client',
     },
     servers: {
       auth: {

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   Args,
   Mutation,
@@ -10,14 +11,22 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import {
+  ClientFormatter,
+  ConnectedServicesFactory,
+  SessionToken,
+} from 'fxa-shared/connected-services';
+import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
+import { Account } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
-import { Account } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
+import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 
 const ACCOUNT_COLUMNS = [
@@ -46,27 +55,22 @@ const EMAIL_BOUNCE_COLUMNS = [
 ];
 const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
 const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
-const SESSIONTOKEN_COLUMNS = [
-  'tokenId',
-  'uid',
-  'createdAt',
-  'uaBrowser',
-  'uaBrowserVersion',
-  'uaOS',
-  'uaOSVersion',
-  'uaDeviceType',
-  'lastAccessTime',
-  'uaFormFactor',
-  'authAt',
-  'verificationMethod',
-  'verifiedAt',
-  'mustVerify',
-];
+const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
-  constructor(private log: MozLoggerService, private db: DatabaseService) {}
+  private get clientFormatterConfig() {
+    return this.configService.get(
+      'clientFormatter'
+    ) as AppConfig['clientFormatter'];
+  }
+
+  constructor(
+    private log: MozLoggerService,
+    private db: DatabaseService,
+    private configService: ConfigService<AppConfig>
+  ) {}
 
   @Query((returns) => AccountType, { nullable: true })
   public accountByUid(
@@ -202,11 +206,71 @@ export class AccountResolver {
   }
 
   @ResolveField()
-  public async sessionTokens(@Root() account: Account) {
+  public async linkedAccounts(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.sessionTokens
+    return await this.db.linkedAccounts
       .query()
-      .select(SESSIONTOKEN_COLUMNS)
+      .select(LINKEDACCOUNT_COLUMNS)
       .where('uid', uidBuffer);
+  }
+
+  @ResolveField(() => [AttachedClient])
+  public async attachedClients(@Root() account: Account) {
+    const clientFormatter = new ClientFormatter(
+      this.clientFormatterConfig,
+      () => this.log
+    );
+
+    const factory = new ConnectedServicesFactory({
+      formatLocation: (...args) => {
+        clientFormatter.formatLocation(...args);
+      },
+      formatTimestamps: (...args) => {
+        clientFormatter.formatTimestamps(...args);
+      },
+      deviceList: async () => {
+        return this.db.attachedDevices(account.uid);
+      },
+      oauthClients: async () => {
+        return await this.db.authorizedClients(account.uid);
+      },
+      sessions: async () => {
+        return (await this.db.attachedSessions(account.uid)).map(
+          (x: SessionToken) => {
+            const token = x;
+
+            // Require id is defined
+            if (!x.id) {
+              x.id = 'Unkown';
+            }
+
+            return token as AttachedSession;
+          }
+        );
+      },
+    });
+
+    return (await factory.build('', 'en'))
+      .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
+      .map((x) => {
+        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
+        if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
+        return x;
+      });
+  }
+
+  @Mutation((returns) => Boolean)
+  public async unlinkAccount(
+    @Args('uid') uid: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.linkedAccounts
+      .query()
+      .delete()
+      .where({
+        uid: uuidTransformer.to(uid),
+        providerId: 1,
+      });
+    return !!result;
   }
 }

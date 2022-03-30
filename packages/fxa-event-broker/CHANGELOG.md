@@ -1,5 +1,31 @@
 # Change history
 
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+No changes.
+
+## 1.228.1
+
+No changes.
+
+## 1.228.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.3.1 to 8.4.0 (#12134) ([43100d0df](https://github.com/mozilla/fxa/commit/43100d0df))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps: bump @nestjs/passport from 8.1.0 to 8.2.1 (#12131) ([707a31f58](https://github.com/mozilla/fxa/commit/707a31f58))
+- deps-dev: bump tsconfig-paths from 3.12.0 to 3.13.0 (#12119) ([749e554a6](https://github.com/mozilla/fxa/commit/749e554a6))
+- deps: bump aws-sdk from 2.1082.0 to 2.1089.0 (#12117) ([014363918](https://github.com/mozilla/fxa/commit/014363918))
+
 ## 1.227.1
 
 No changes.

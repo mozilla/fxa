@@ -46,21 +46,17 @@ const mailSender = {
 
   close: function () {},
 };
+
 if (require.main === module) {
-  require('../lib/senders/translator')(
-    config.i18n.supportedLanguages,
-    config.i18n.defaultLanguage
+  Promise.resolve(
+    createSenders(
+      log,
+      config,
+      { check: () => Promise.resolve() },
+      {},
+      mailSender
+    )
   )
-    .then((translator) => {
-      return createSenders(
-        log,
-        config,
-        { check: () => Promise.resolve() },
-        translator,
-        {},
-        mailSender
-      );
-    })
     .then((senders) => {
       const mailer = senders.email._ungatedMailer;
       checkMessageType(mailer);
@@ -121,7 +117,7 @@ function sendMail(mailer, messageToSend) {
     planIntervalCount: 4,
     playStoreLink: 'https://example.com/play-store',
     invoiceNumber: '8675309',
-    cardType: 'mastercard',
+    cardType: 'MasterCard',
     lastFour: '5309',
     invoiceDate: new Date(),
     nextInvoiceDate: new Date(Date.now() + 1000 * 3600 * 24 * 30),

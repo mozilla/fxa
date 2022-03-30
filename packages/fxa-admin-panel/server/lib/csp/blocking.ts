@@ -18,6 +18,7 @@ function getOrigin(link: string) {
  */
 export default function cspBlocking(config: { [key: string]: any }) {
   const ADMIN_SERVER = getOrigin(config.get('servers.admin.url'));
+  const SENTRY_SERVER = 'https//*.sentry.io';
   const CDN_URL = config.get('staticResources.url');
   const PUBLIC_URL = config.get('listen.publicUrl');
   const HOT_RELOAD_WEBSOCKET = PUBLIC_URL.replace(/^http/, 'ws');
@@ -45,7 +46,7 @@ export default function cspBlocking(config: { [key: string]: any }) {
 
   const rules = {
     directives: {
-      connectSrc: [SELF, ADMIN_SERVER],
+      connectSrc: [SELF, ADMIN_SERVER, SENTRY_SERVER],
       defaultSrc: [NONE],
       baseUri: [NONE],
       frameAncestors: [NONE],
@@ -69,6 +70,7 @@ export default function cspBlocking(config: { [key: string]: any }) {
       HOT_RELOAD_WEBSOCKET,
       PUBLIC_URL,
       SELF,
+      SENTRY_SERVER,
     },
   };
 

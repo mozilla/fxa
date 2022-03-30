@@ -26,6 +26,7 @@ storiesOf('components/Coupon', module)
     const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
+      durationInMonths: 1,
       discountAmount: 10,
       valid: true,
     });
@@ -59,6 +60,7 @@ storiesOf('components/Coupon', module)
     const [coupon, setCoupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
+      durationInMonths: 1,
       discountAmount: 10,
       valid: true,
     });

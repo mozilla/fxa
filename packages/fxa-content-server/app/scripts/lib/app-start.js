@@ -157,12 +157,7 @@ Start.prototype = {
   },
 
   enableSentryMetrics() {
-    let release;
-    if (this._config && this._config.release) {
-      release = this._config.release;
-    }
-
-    this._sentryMetrics = new SentryMetrics(this._config.sentryDsn, release);
+    this._sentryMetrics = new SentryMetrics(this._config);
   },
 
   initializeL10n() {
@@ -394,9 +389,8 @@ Start.prototype = {
 
   _updateUserFromSigninCodeAccount() {
     return Promise.resolve().then(() => {
-      const signinCodeAccount = this._authenticationBroker.get(
-        'signinCodeAccount'
-      );
+      const signinCodeAccount =
+        this._authenticationBroker.get('signinCodeAccount');
       if (signinCodeAccount) {
         return this._user.setSigninCodeAccount(signinCodeAccount);
       }
@@ -419,11 +413,12 @@ Start.prototype = {
         const isPairing =
           this.isDevicePairingAsAuthority() || this.isStartingPairing();
 
-        const shouldSetAsSignedInAccount = user.shouldSetSignedInAccountFromBrowser(
-          this._relier.get('service'),
-          isPairing,
-          browserAccount
-        );
+        const shouldSetAsSignedInAccount =
+          user.shouldSetSignedInAccountFromBrowser(
+            this._relier.get('service'),
+            isPairing,
+            browserAccount
+          );
 
         if (shouldSetAsSignedInAccount) {
           return user.updateSignedInAccount(browserAccount);
@@ -741,9 +736,8 @@ Start.prototype = {
     // Sync broker, for OAuth, use the OAuth broker.
     // If no service is specified and the user is verifies in a 2nd browser,
     // then fall back to the default content server context.
-    const sameBrowserVerificationContext = this._getSameBrowserVerificationModel(
-      'context'
-    ).get('context');
+    const sameBrowserVerificationContext =
+      this._getSameBrowserVerificationModel('context').get('context');
     if (sameBrowserVerificationContext) {
       // user is verifying in the same browser, use the same context they signed up with.
       return sameBrowserVerificationContext;

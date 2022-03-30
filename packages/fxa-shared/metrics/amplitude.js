@@ -34,6 +34,7 @@ const GROUPS = {
   subPayUpgrade: 'fxa_pay_upgrade',
   subSupport: 'fxa_subscribe_support',
   subCoupon: 'fxa_subscribe_coupon',
+  thirdPartyAuth: 'fxa_third_party_auth',
   qrConnectDevice: 'fxa_qr_connect_device',
 };
 
@@ -68,6 +69,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subSupport]: NOP,
   [GROUPS.subCoupon]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
+  [GROUPS.thirdPartyAuth]: NOP,
 };
 
 function NOP() {}

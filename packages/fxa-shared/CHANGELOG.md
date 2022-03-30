@@ -1,5 +1,40 @@
 # Change history
 
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+### Other changes
+
+- 12ea05171 Cherry pick squash for experimental dot releases v1.226.5 to v1.226.9 on train-226. These changes address issues with connection pool spiking and high latency on the attached clients route. ([12ea05171](https://github.com/mozilla/fxa/commit/12ea05171))
+
+## 1.228.1
+
+### Bug fixes
+
+- subscriptions: create customer for iap sub (#12164) ([7c54513ac](https://github.com/mozilla/fxa/commit/7c54513ac))
+
+## 1.228.0
+
+### New features
+
+- apple: Add Sign-in with Apple support (#12148) ([fa817cb37](https://github.com/mozilla/fxa/commit/fa817cb37))
+- subscriptions: add config for cancel survey (#12114) ([49598b251](https://github.com/mozilla/fxa/commit/49598b251))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+- deps: bump @nestjs/config from 1.1.6 to 1.2.0 (#12132) ([5383d1bda](https://github.com/mozilla/fxa/commit/5383d1bda))
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+- deps-dev: bump tsconfig-paths from 3.12.0 to 3.13.0 (#12119) ([749e554a6](https://github.com/mozilla/fxa/commit/749e554a6))
+- deps: bump aws-sdk from 2.1082.0 to 2.1089.0 (#12117) ([014363918](https://github.com/mozilla/fxa/commit/014363918))
+
 ## 1.227.1
 
 No changes.

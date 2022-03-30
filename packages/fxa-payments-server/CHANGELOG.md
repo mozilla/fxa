@@ -1,5 +1,29 @@
 # Change history
 
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+No changes.
+
+## 1.228.1
+
+### Bug fixes
+
+- subscriptions: create customer for iap sub (#12164) ([7c54513ac](https://github.com/mozilla/fxa/commit/7c54513ac))
+
+## 1.228.0
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+
 ## 1.227.1
 
 ### Other changes

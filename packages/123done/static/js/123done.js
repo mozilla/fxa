@@ -95,6 +95,7 @@ $(document).ready(function () {
       let currencyMappedURL = $(this).attr('href');
 
       if (data) {
+        flowData = data;
         const additionalParams =
           'service=dcdb5ae7add825d2&entrypoint=www.mozilla.org-vpn-product-page&form_type=button&utm_source=www.mozilla.org-vpn-product-page&utm_medium=referral&utm_campaign=vpn-product-page&data_cta_position=pricing';
         currencyMappedURL = `${currencyMappedURL}&${additionalParams}&flow_id=${data.flowId}&flow_begin_time=${data.flowBeginTime}&device_id=${data.deviceId}`;
@@ -212,6 +213,13 @@ $(document).ready(function () {
       Object.keys(params).forEach((key) => {
         currentParams.set(key, params[key]);
       });
+
+      if (flowData) {
+        currentParams.set('flow_id', flowData.flowId);
+        currentParams.set('flow_begin_time', flowData.flowBeginTime);
+        currentParams.set('device_id', flowData.deviceId);
+      }
+      
       window.location.href = `/api/${endpoint}?${currentParams.toString()}`;
     }
 
@@ -243,6 +251,7 @@ $(document).ready(function () {
       authenticate('best_choice', {
         forceExperiment: 'thirdPartyAuth',
         forceExperimentGroup: 'google',
+        deeplink: 'googleLogin',
       });
     });
 

@@ -51,6 +51,13 @@ function setupVariantStories(
         }}
       />
     ))
+    .add('subscribed with web subscription with coupon', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+        }}
+      />
+    ))
     .add('subscribed with Google IAP', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -305,6 +312,11 @@ const baseProps: SubscriptionsProps = {
     loading: false,
     result: null,
   },
+  subsequentInvoices: {
+    error: null,
+    loading: false,
+    result: null,
+  },
 };
 
 const customerSubscriptions = [
@@ -321,6 +333,8 @@ const customerSubscriptions = [
     product_name: 'Example Product',
     status: 'active',
     subscription_id: 'sub_5551212',
+    promotion_duration: null,
+    promotion_end: null,
   },
 ] as WebSubscription[];
 
@@ -341,6 +355,17 @@ const subscribedProps: SubscriptionsProps = {
     },
   },
   customerSubscriptions: customerSubscriptions,
+  subsequentInvoices: {
+    error: null,
+    loading: false,
+    result: [
+      {
+        subscriptionId: 'sub_5551212',
+        period_start: 1,
+        total: 100,
+      },
+    ],
+  },
 };
 
 const cancelledProps: SubscriptionsProps = {

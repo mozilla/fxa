@@ -4,13 +4,15 @@ subscriptionFirstInvoiceDiscount-title = "Thank you for subscribing to <%- produ
 
 subscriptionFirstInvoiceDiscount-content-processing = "Your payment is currently processing and may take up to four business days to complete."
 
-subscriptionFirstInvoiceDiscount-content-install = "You will receive a separate email with download instructions on how to start using <%- productName %>."
+subscriptionFirstInvoiceDiscount-content-install-2 = "You will receive a separate email on how to start using <%- productName %>."
 
 subscriptionFirstInvoiceDiscount-content-auto-renew = "Your subscription will automatically renew each billing period unless you choose to cancel."
 
 subscriptionFirstInvoiceDiscount-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
 subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
-subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
+<% if (discountType === 'once') { %>subscriptionFirstInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'repeating') { %>subscriptionFirstInvoiceDiscount-content-discount-repeating = "<%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'forever') { %>subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"<% } %>
 subscriptionFirstInvoiceDiscount-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %>
 <%- include ('/partials/paymentProvider/index.txt') %>

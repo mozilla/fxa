@@ -6,9 +6,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
+import { buildSentryConfig } from 'fxa-shared/sentry';
 
 import { AuthModule } from './auth/auth.module';
 import { ClientCapabilityModule } from './client-capability/client-capability.module';
@@ -36,12 +38,13 @@ const version = getVersionInfo(__dirname);
     LoggerModule,
     ScheduleModule.forRoot(),
     SentryModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
+      imports: [ConfigModule, LoggerModule],
+      inject: [ConfigService, MozLoggerService],
       useFactory: (configService: ConfigService<AppConfig>) => ({
-        dsn: configService.get('sentryDsn'),
-        environment: configService.get('env'),
-        release: version.version,
+        sentryConfig: {
+          sentry: configService.get('sentry'),
+          version: version.version,
+        },
       }),
     }),
     QueueworkerModule,

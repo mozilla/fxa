@@ -5,12 +5,17 @@
 import { BaseAuthModel } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-const PROVIDER = {
+export const PROVIDER = {
   __fxa__unmapped: 0,
   google: 1,
   apple: 2,
 } as const;
 export type Provider = keyof typeof PROVIDER;
+export const PROVIDER_NAME = {
+  __fxa__unmapped: 'Unknown',
+  google: 'Google',
+  apple: 'Apple',
+} as const;
 
 export class LinkedAccount extends BaseAuthModel {
   static tableName = 'linkedAccounts';

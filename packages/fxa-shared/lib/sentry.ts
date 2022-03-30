@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
+import { BrowserTracing } from '@sentry/tracing';
 import Logger from './logger';
+import { buildSentryConfig, SentryConfigOpts, tagFxaName } from '../sentry';
+import { options } from 'superagent';
 
 // HACK: allow tests to stub this function from Sentry
 // https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
@@ -104,7 +107,7 @@ const exceptionTags = ['code', 'context', 'errno', 'namespace', 'status'];
 
 interface SentryMetrics {
   _logger: Logger;
-  configure: (arg0: string, arg1?: string) => void;
+  configure: (config: SentryConfigOpts) => void;
   captureException: (arg0: Error) => void;
   __beforeSend: (arg0: Sentry.Event) => Sentry.Event;
   __cleanUpQueryParam: (arg0: string) => string;
@@ -127,22 +130,36 @@ SentryMetrics.prototype = {
   /**
    * Configure the SentryMetrics instance for this singleton.
    *
-   * @param {String} dsn
-   * @param {String} [release] - settings release version
+   * @param {SentryConfigOpts} config
    */
-  configure(dsn: string, release: string) {
+  configure(config: SentryConfigOpts) {
+    const release = config.release;
     this._logger.info('release: ' + release);
     this._release = release;
-    if (!dsn) {
+    if (!config.sentry?.dsn) {
       this._logger.error('No Sentry dsn provided');
       return;
     }
 
     try {
+      const opts = buildSentryConfig(config, this._logger);
       Sentry.init({
-        release,
-        dsn,
-        beforeSend,
+        ...opts,
+        beforeSend(event: Sentry.Event) {
+          event = beforeSend(event);
+          if (opts.clientName) {
+            event = tagFxaName(event, opts.clientName);
+          } else {
+            event = tagFxaName(event, opts.serverName);
+          }
+          return event;
+        },
+        integrations: [
+          // @ts-ignore
+          new BrowserTracing({
+            tracingOrigins: opts.tracingOrigins,
+          }),
+        ],
       });
     } catch (e) {
       this._logger.error(e);

@@ -18,8 +18,6 @@ import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
-import ThirdPartyAuthMixin from './mixins/third-party-auth-mixin';
-import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 
 const SignInPasswordView = FormView.extend({
   template: Template,
@@ -96,9 +94,7 @@ Cocktail.mixin(
   SignInMixin,
   SignedInNotificationMixin,
   UserCardMixin,
-  ThirdPartyAuthMixin,
   PocketMigrationMixin,
-  AccountSuggestionMixin
 );
 
 export default SignInPasswordView;

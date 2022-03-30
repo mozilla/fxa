@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
-import { makeMySQLConfig } from 'fxa-shared/db/config';
+import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
 import path from 'path';
 import url from 'url';
 
@@ -514,176 +514,7 @@ const conf = convict({
       env: 'SUPPORTED_LANGS',
     },
   },
-  redis: {
-    host: {
-      default: 'localhost',
-      env: 'REDIS_HOST',
-      format: String,
-      doc: 'IP address or host name for Redis server',
-    },
-    port: {
-      default: 6379,
-      env: 'REDIS_PORT',
-      format: 'port',
-      doc: 'Port for Redis server',
-    },
-    accessTokens: {
-      host: {
-        default: 'localhost',
-        env: 'ACCESS_TOKEN_REDIS_HOST',
-        format: String,
-      },
-      port: {
-        default: 6379,
-        env: 'ACCESS_TOKEN_REDIS_PORT',
-        format: 'port',
-      },
-      prefix: {
-        default: 'at:',
-        env: 'ACCESS_TOKEN_REDIS_KEY_PREFIX',
-        format: String,
-        doc: 'Key prefix for access tokens in Redis',
-      },
-      recordLimit: {
-        default: 100,
-        env: 'ACCESS_TOKEN_REDIS_LIMIT',
-        format: Number,
-        doc: 'Maximum number of access tokens per account at any one time',
-      },
-    },
-    refreshTokens: {
-      enabled: {
-        default: true,
-        doc: 'Enable Redis for refresh token metadata',
-        format: Boolean,
-        env: 'REFRESH_TOKEN_REDIS_ENABLED',
-      },
-      host: {
-        default: 'localhost',
-        env: 'REFRESH_TOKEN_REDIS_HOST',
-        format: String,
-      },
-      port: {
-        default: 6379,
-        env: 'REFRESH_TOKEN_REDIS_PORT',
-        format: 'port',
-      },
-      prefix: {
-        default: 'rt:',
-        env: 'REFRESH_TOKEN_REDIS_KEY_PREFIX',
-        format: String,
-        doc: 'Key prefix for refresh tokens in Redis',
-      },
-      maxttl: {
-        default: 86400000,
-        env: 'REFRESH_TOKEN_REDIS_MAX_TTL',
-        format: Number,
-        doc: 'ttl for redis data',
-      },
-      recordLimit: {
-        default: 20,
-        env: 'REFRESH_TOKEN_REDIS_LIMIT',
-        format: Number,
-        doc: 'Maximum number of refresh tokens per account stored in redis',
-      },
-    },
-    sessionTokens: {
-      enabled: {
-        default: true,
-        doc: 'Enable Redis for session tokens',
-        format: Boolean,
-        env: 'USE_REDIS',
-      },
-      prefix: {
-        default: 'fxa-auth-session',
-        env: 'SESSIONS_REDIS_KEY_PREFIX',
-        format: String,
-        doc: 'Key prefix for session tokens in Redis',
-      },
-      maxConnections: {
-        default: 200,
-        env: 'REDIS_POOL_MAX_CONNECTIONS',
-        format: 'int',
-        doc: 'Maximum connection count for the session token Redis pool',
-      },
-      minConnections: {
-        default: 2,
-        env: 'REDIS_POOL_MIN_CONNECTIONS',
-        format: 'int',
-        doc: 'Minimum connection count for the session token Redis pool',
-      },
-    },
-    email: {
-      enabled: {
-        default: true,
-        doc: 'Enable Redis for email config',
-        format: Boolean,
-        env: 'EMAIL_CONFIG_USE_REDIS',
-      },
-      prefix: {
-        default: 'email:',
-        env: 'EMAIL_CONFIG_REDIS_KEY_PREFIX',
-        format: String,
-        doc: 'Key prefix for the email config Redis pool',
-      },
-      maxConnections: {
-        default: 10,
-        env: 'EMAIL_CONFIG_REDIS_POOL_MAX_CONNECTIONS',
-        format: 'int',
-        doc: 'Maximum connection count for the email config Redis pool',
-      },
-      minConnections: {
-        default: 1,
-        env: 'EMAIL_CONFIG_REDIS_POOL_MIN_CONNECTIONS',
-        format: 'int',
-        doc: 'Minimum connection count for the email config Redis pool',
-      },
-    },
-    subhub: {
-      enabled: {
-        default: true,
-        doc: 'Enable Redis for subhub responses',
-        format: Boolean,
-        env: 'SUBHUB_USE_REDIS',
-      },
-      prefix: {
-        default: 'subhub:',
-        env: 'SUBHUB_REDIS_KEY_PREFIX',
-        format: String,
-        doc: 'Key prefix for subhub responses in Redis',
-      },
-      maxConnections: {
-        default: 10,
-        env: 'SUBHUB_REDIS_POOL_MAX_CONNECTIONS',
-        format: 'int',
-        doc: 'Maximum connection count for the subhub responses Redis pool',
-      },
-      minConnections: {
-        default: 1,
-        env: 'SUBHUB_REDIS_POOL_MIN_CONNECTIONS',
-        format: 'int',
-        doc: 'Minimum connection count for the subhub responses Redis pool',
-      },
-    },
-    maxPending: {
-      default: 1000,
-      env: 'REDIS_POOL_MAX_PENDING',
-      format: 'int',
-      doc: 'Pending request limit for Redis',
-    },
-    retryCount: {
-      default: 5,
-      env: 'REDIS_POOL_RETRY_COUNT',
-      format: 'int',
-      doc: 'Retry limit for Redis connection attempts',
-    },
-    initialBackoff: {
-      default: '100 milliseconds',
-      env: 'REDIS_POOL_TIMEOUT',
-      format: 'duration',
-      doc: 'Initial backoff for Redis connection retries, increases exponentially with each attempt',
-    },
-  },
+  redis: makeRedisConfig(),
   subhubServerMessaging: {
     region: {
       doc: 'The region where the queues live',
@@ -1499,12 +1330,6 @@ const conf = convict({
       format: 'String',
       default: 'private, no-cache, no-store, must-revalidate',
     },
-    sentryDsn: {
-      doc: 'Sentry DSN for error and log reporting',
-      default: '',
-      format: 'String',
-      env: 'SENTRY_DSN',
-    },
   },
   metrics: {
     flow_id_key: {
@@ -1816,11 +1641,37 @@ const conf = convict({
     format: 'duration',
     env: 'EMAIL_STATUS_POLLING_TIMEOUT',
   },
-  sentryDsn: {
-    doc: 'Sentry DSN for error and log reporting',
-    default: '',
-    format: 'String',
-    env: 'SENTRY_DSN',
+  sentry: {
+    dsn: {
+      doc: 'Sentry DSN for error and log reporting',
+      default: '',
+      format: 'String',
+      env: 'SENTRY_DSN',
+    },
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    sampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_SAMPLE_RATE',
+    },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured.',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+    },
+    serverName: {
+      doc: 'Name used by sentry to identify the server.',
+      default: 'fxa-auth-server',
+      format: 'String',
+      env: 'SENTRY_SERVER_NAME',
+    },
   },
   totp: {
     serviceName: {

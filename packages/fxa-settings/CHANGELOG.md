@@ -1,3 +1,30 @@
+## 1.228.4
+
+No changes.
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+No changes.
+
+## 1.228.1
+
+No changes.
+
+## 1.228.0
+
+### New features
+
+- apple: Add Sign-in with Apple support (#12148) ([fa817cb37](https://github.com/mozilla/fxa/commit/fa817cb37))
+
+### Other changes
+
+- deps: bump react-easy-crop from 4.0.1 to 4.1.3 (#12143) ([87021d54e](https://github.com/mozilla/fxa/commit/87021d54e))
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+
 ## 1.227.1
 
 ### Other changes

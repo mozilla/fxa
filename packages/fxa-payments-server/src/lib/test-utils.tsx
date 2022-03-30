@@ -15,12 +15,13 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
-import { Plan, Profile, Token } from '../../src/store/types';
+import { Customer, Plan, Profile, Token } from '../../src/store/types';
 import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
 import { MemoryRouter } from 'react-router-dom';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 declare global {
   namespace NodeJS {
@@ -567,6 +568,19 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
   },
 ];
 
+export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    total: 500,
+  },
+  {
+    subscriptionId: 'sub0.21234123424',
+    period_start: 1565816388.815,
+    total: 500,
+  },
+];
+
 export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   {
     uid: 'a90fef48240b49b2b6a33d333aee9b13',
@@ -584,7 +598,8 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   },
 ];
 
-export const MOCK_CUSTOMER = {
+export const MOCK_CUSTOMER: Customer = {
+  customerId: 'cus_123xyz',
   billing_name: 'Jane Doe',
   payment_type: 'card',
   payment_provider: 'stripe',
@@ -606,6 +621,8 @@ export const MOCK_CUSTOMER = {
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     } as MozillaSubscription,
   ],
 };

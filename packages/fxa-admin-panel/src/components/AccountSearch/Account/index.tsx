@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import {
@@ -12,11 +11,13 @@ import {
   SecurityEvents as SecurityEventsType,
   Totp as TotpType,
   RecoveryKeys as RecoveryKeysType,
-  SessionTokens as SessionTokensType,
+  AttachedClient as AttachedClientType,
+  Location,
+  LinkedAccount as LinkedAccountType,
 } from 'fxa-admin-server/src/graphql';
 
 export type AccountProps = AccountType & {
-  onCleared: Function;
+  onCleared: () => void;
   query: string;
 };
 
@@ -48,6 +49,60 @@ export const DISABLE_ACCOUNT = gql`
     disableAccount(uid: $uid)
   }
 `;
+
+export const UNLINK_ACCOUNT = gql`
+  mutation unlinkAccount($uid: String!) {
+    unlinkAccount(uid: $uid)
+  }
+`;
+
+export const LinkedAccount = ({
+  uid,
+  authAt,
+  providerId,
+  onCleared,
+}: {
+  uid: string;
+  authAt: number;
+  providerId: string;
+  onCleared: () => void;
+}) => {
+  const [unlinkAccount] = useMutation(UNLINK_ACCOUNT, {
+    onCompleted: () => {
+      window.alert('The linked account has been removed.');
+    },
+    onError: () => {
+      window.alert('Error unlinking account');
+    },
+  });
+
+  const handleUnlinkAccount = async () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    await unlinkAccount({ variables: { uid } });
+
+    onCleared();
+  };
+
+  return (
+    <tr key={`${authAt}-${providerId}`}>
+      <td>{providerId}</td>
+      <td className="text-left pl-8">
+        {dateFormat(new Date(authAt!), DATE_FORMAT)}
+      </td>
+      <td className="pl-4 align-middle">
+        <button
+          className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+          type="button"
+          onClick={handleUnlinkAccount}
+        >
+          Unlink
+        </button>
+      </td>
+    </tr>
+  );
+};
 
 export const ClearButton = ({
   emails,
@@ -111,18 +166,15 @@ export const DangerZone = ({
     unverify({ variables: { email: email.email } });
   };
 
-  const [disableAccount, { loading: disableLoading }] = useMutation(
-    DISABLE_ACCOUNT,
-    {
-      onCompleted: () => {
-        window.alert('The account has been disabled.');
-        onCleared();
-      },
-      onError: () => {
-        window.alert('Error disabling account');
-      },
-    }
-  );
+  const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
+    onCompleted: () => {
+      window.alert('The account has been disabled.');
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error disabling account');
+    },
+  });
 
   const handleDisable = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
@@ -189,15 +241,15 @@ export const Account = ({
   emailBounces,
   totp,
   recoveryKeys,
-  sessionTokens,
+  attachedClients,
   onCleared,
   query,
   securityEvents,
+  linkedAccounts,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
-
   return (
     <section className="mt-8" data-testid="account-section">
       <ul>
@@ -346,12 +398,17 @@ export const Account = ({
         <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">Connected Services</h3>
         </li>
-        {sessionTokens && sessionTokens.length > 0 ? (
+        {attachedClients && attachedClients.length > 0 ? (
           <>
-            {sessionTokens.map((sessionTokensIndex: SessionTokensType) => (
-              <SessionTokens
-                key={sessionTokensIndex.createdAt}
-                {...sessionTokensIndex}
+            {attachedClients.map((attachedClient: AttachedClientType) => (
+              <AttachedClients
+                key={`${attachedClient.name}-${
+                  attachedClient.sessionTokenId ||
+                  attachedClient.refreshTokenId ||
+                  attachedClient.clientId ||
+                  'unkonwn'
+                }-${attachedClient.createdTime}`}
+                {...attachedClient}
               />
             ))}
           </>
@@ -359,7 +416,7 @@ export const Account = ({
           <li
             className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
-            This account is not currently signed in.
+            This account has nothing attached.
           </li>
         )}
       </ul>
@@ -397,6 +454,41 @@ export const Account = ({
             className="security-events"
           >
             No account history to display.
+          </div>
+        )}
+      </div>
+      <h3 className="mt-0 my-0 mb-1 text-lg">Linked Accounts</h3>
+      <div className={styleClasses.borderInfoDisplay}>
+        {linkedAccounts && linkedAccounts.length > 0 ? (
+          <>
+            <table className="pt-1" aria-label="simple table">
+              <thead>
+                <tr>
+                  <th className="text-left">Event</th>
+                  <th className="text-left">Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {linkedAccounts.map((linkedAccount: LinkedAccountType) => (
+                  <LinkedAccount
+                    {...{
+                      uid,
+                      providerId: linkedAccount.providerId,
+                      authAt: linkedAccount.authAt,
+                      onCleared: onCleared,
+                    }}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <div
+            data-testid="account-security-events"
+            className="security-events"
+          >
+            No linked accounts.
           </div>
         )}
       </div>
@@ -537,66 +629,158 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
   );
 };
 
-const SessionTokens = ({
-  createdAt,
-  uaBrowser,
-  uaBrowserVersion,
-  uaOS,
-  uaOSVersion,
-  uaDeviceType,
+const AttachedClients = ({
+  clientId,
+  createdTime,
+  createdTimeFormatted,
+  deviceId,
+  deviceType,
   lastAccessTime,
-}: SessionTokensType) => {
+  lastAccessTimeFormatted,
+  location,
+  name,
+  os,
+  userAgent,
+  sessionTokenId,
+  refreshTokenId,
+}: AttachedClientType) => {
+  const testId = (id: string) => `attached-clients-${id}`;
   return (
     <li className={styleClasses.li}>
       <ul className={styleClasses.borderInfoDisplay}>
-        <li className={styleClasses.li}>
-          Created At:{' '}
-          <span
-            data-testid="session-token-created-at"
-            className={styleClasses.result}
-          >
-            {dateFormat(new Date(createdAt!), DATE_FORMAT)}
-          </span>
-        </li>
-        <li className={styleClasses.li}>
-          Last Used:{' '}
-          <span
-            data-testid="session-token-accessed-at"
-            className={styleClasses.result}
-          >
-            {dateFormat(new Date(lastAccessTime!), DATE_FORMAT)}
-          </span>
-        </li>
-        <li className={styleClasses.li}>
-          Browser:{' '}
-          <span
-            data-testid="session-token-browser"
-            className={styleClasses.result}
-          >
-            {uaBrowser} {uaBrowserVersion}
-          </span>
-        </li>
-        <li className={styleClasses.li}>
-          Operating System:{' '}
-          <span
-            data-testid="session-token-operating-system"
-            className={styleClasses.result}
-          >
-            {uaOS} {uaOSVersion}
-          </span>
-        </li>
-        <li className={styleClasses.li}>
-          Device:{' '}
-          <span
-            data-testid="session-token-device"
-            className={styleClasses.result}
-          >
-            {uaDeviceType === null ? 'Desktop' : uaDeviceType}
-          </span>
-        </li>
+        <ResultListItem
+          label="Client"
+          value={format.client(name, clientId)}
+          testId={testId('client')}
+        />
+        <ResultListItem
+          label="Device Type"
+          value={format.deviceType(deviceType, sessionTokenId, deviceId)}
+          testId={testId('device-type')}
+        />
+        <ResultListItem
+          label="User Agent"
+          value={userAgent}
+          testId={testId('user-agent')}
+        />
+        <ResultListItem
+          label="Operating System"
+          value={os}
+          testId={testId('os')}
+        />
+        <ResultListItem
+          label="Created At"
+          value={format.time(createdTime, createdTimeFormatted)}
+          testId={testId('created-at')}
+        />
+        <ResultListItem
+          label="Last Used"
+          value={format.time(lastAccessTime, lastAccessTimeFormatted)}
+          testId={testId('last-accessed-at')}
+        />
+        <ResultListItem
+          label="Location"
+          value={format.location(location)}
+          testId={testId('location')}
+        />
+        <ResultListItem
+          label="Client ID"
+          value={clientId || 'N/A'}
+          testId={testId('client-id')}
+        />
+        <ResultListItem
+          label="Device ID"
+          value={deviceId || 'N/A'}
+          testId={testId('device-id')}
+        />
+        <ResultListItem
+          label="Session Token ID"
+          value={sessionTokenId || 'N/A'}
+          testId={testId('session-token-id')}
+        />
+        <ResultListItem
+          label="Refresh Token ID"
+          value={refreshTokenId || 'N/A'}
+          testId={testId('refresh-token-id')}
+        />
       </ul>
     </li>
   );
+};
+
+const ResultListItem = ({
+  label,
+  value,
+  testId,
+}: {
+  label: string;
+  value: any;
+  testId: string;
+}) => {
+  return (
+    <li className={styleClasses.li}>
+      {label}:{' '}
+      <span data-testid={testId} className={styleClasses.result}>
+        {value ? value : <i>Unkown</i>}
+      </span>
+    </li>
+  );
+};
+
+type Nullable<T> = T | null;
+
+const format = {
+  location(location?: Nullable<Location>) {
+    if (
+      !location ||
+      (!location.city &&
+        !location.state &&
+        !location.stateCode &&
+        !location.country &&
+        !location.countryCode)
+    ) {
+      return null;
+    }
+
+    return (
+      <>
+        {[
+          location.city || <i>Unkown City</i>,
+          location.state || location.stateCode || '',
+          location.country || location.country || <i>Unkown Country</i>,
+        ].join(', ')}
+      </>
+    );
+  },
+  time(raw?: Nullable<number>, formatted?: Nullable<string>) {
+    if (!raw || raw < 1) return null;
+
+    return (
+      <>
+        {dateFormat(new Date(raw), DATE_FORMAT)}
+        {formatted ? <i> ({formatted})</i> : <></>}
+      </>
+    );
+  },
+  client(name?: Nullable<string>, clientId?: Nullable<string>) {
+    return (
+      <>
+        {name} {clientId && <i>[{clientId}]</i>}
+      </>
+    );
+  },
+  deviceType(
+    deviceType?: Nullable<string>,
+    sessionId?: Nullable<string>,
+    deviceId?: Nullable<string>
+  ) {
+    // This logic might be better at the api level, but it's probably better not to introduce a breaking change.
+    return deviceType
+      ? deviceType
+      : sessionId || deviceId
+      ? 'desktop'
+      : 'unknown';
+  },
 };
 
 export default Account;

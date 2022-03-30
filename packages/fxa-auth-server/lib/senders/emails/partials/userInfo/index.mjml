@@ -1,0 +1,38 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-include path="<%- cssPath %>/userInfo/index.css" type="css" css-inline="inline" />
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="<%= locals.cssClass || 'text-body-grey' %>">
+      <% if (locals.primaryEmail) { %>
+        <%- primaryEmail %>
+        <br />
+      <% } %>
+      <% if (locals.device) { %>
+        <%- include('/partials/userDevice/index.mjml') %>
+        <br />
+      <% } %>
+      <% if (locals.location) { %>
+        <%- include('/partials/userLocation/index.mjml') %>
+        <br />
+      <% } %>
+      <% if (locals.ip) { %>
+        <span data-l10n-id="user-ip" data-l10n-args="<%= JSON.stringify({ip}) %>">
+          IP address: <%- ip %>
+        </span>
+        <br />
+      <% } %>
+      <% if (locals.date) { %>
+        <%- date %>
+        <br />
+      <% } %>
+      <% if (locals.time) { %>
+        <%- time %>
+        <br />
+      <% } %>
+    </mj-text>
+  </mj-column>
+</mj-section>

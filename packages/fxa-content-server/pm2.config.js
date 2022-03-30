@@ -17,6 +17,8 @@ module.exports = {
         CONFIG_FILES: 'server/config/local.json',
         PORT: 3030,
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,
       },
       filter_env: ['npm_'],
       watch: ['server'],

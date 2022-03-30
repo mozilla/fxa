@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StatsD } from 'hot-shots';
 import { knex, Knex } from 'knex';
 import { promisify } from 'util';
+import { ILogger } from '../log';
 
 import { MySQLConfig } from './config';
 import { BaseAuthModel } from './models/auth';
@@ -54,8 +56,28 @@ function typeCasting(field: any, next: any) {
   return next();
 }
 
-export function setupDatabase(opts: MySQLConfig): Knex {
-  return knex({
+export function monitorKnexConnectionPool(pool: any, metrics?: StatsD) {
+  metrics?.increment('knex.pool_creation');
+  pool.on('acquireRequest', (eventId: any) => {
+    metrics?.increment('knex.aquire_request');
+  });
+  pool.on('createRequest', (eventId: any) => {
+    metrics?.increment('knex.create_request');
+  });
+  pool.on('destroyRequest', (eventId: any, resource: any) => {
+    metrics?.increment('knex.destroy_request');
+  });
+  pool.on('destroyFail', (eventId: any, resource: any) => {
+    metrics?.increment('knex.destroy_fail');
+  });
+}
+
+export function setupDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+): Knex {
+  const db = knex({
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',
@@ -69,16 +91,33 @@ export function setupDatabase(opts: MySQLConfig): Knex {
       acquireTimeoutMillis: opts.acquireTimeoutMillis,
     },
   });
+
+  monitorKnexConnectionPool(db.client.pool, metrics);
+
+  log?.debug('knex', {
+    msg: `knex: Creating Knex`,
+    connLimit: opts.connectionLimitMax,
+  });
+
+  return db;
 }
 
-export function setupAuthDatabase(opts: MySQLConfig) {
-  const knex = setupDatabase(opts);
+export function setupAuthDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  const knex = setupDatabase(opts, log, metrics);
   BaseAuthModel.knex(knex);
   return knex;
 }
 
-export function setupProfileDatabase(opts: MySQLConfig) {
-  const knex = setupDatabase(opts);
+export function setupProfileDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  const knex = setupDatabase(opts, log, metrics);
   ProfileBaseModel.knex(knex);
   return knex;
 }

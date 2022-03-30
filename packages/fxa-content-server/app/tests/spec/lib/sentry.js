@@ -6,7 +6,7 @@ import chai from 'chai';
 import SentryMetrics from 'lib/sentry';
 
 var assert = chai.assert;
-const dsn = 'https://public:private@host:port/1';
+const dsn = 'https://public:private@host:8080/1';
 
 describe('lib/sentry', function () {
   describe('init', function () {
@@ -20,7 +20,16 @@ describe('lib/sentry', function () {
 
     it('properly inits with dsn', function () {
       try {
-        void new SentryMetrics(dsn);
+        void new SentryMetrics({
+          release: 'v0.0.0',
+          sentry: {
+            dsn,
+            env: 'test',
+            sampleRate: 1.0,
+            tracesSampleRate: 1.0,
+            clientName: 'fxa-content-server-test',
+          },
+        });
       } catch (e) {
         assert.isNull(e);
       }

@@ -26,6 +26,7 @@ if (env !== 'development') {
 
 const settingsConfig = {
   env,
+  version: config.get('version'),
   marketingEmailPreferencesUrl: config.get('marketing_email.preferences_url'),
   metrics: {
     navTiming: {
@@ -34,7 +35,12 @@ const settingsConfig = {
     },
   },
   sentry: {
-    dsn: config.get('sentry.client_errors_dsn'),
+    dsn: config.get('sentry.dsn'),
+    env: config.get('sentry.env'),
+    sampleRate: config.get('sentry.sampleRate'),
+    tracesSampleRate: config.get('sentry.tracesSampleRate'),
+    clientName: config.get('sentry.clientName'),
+    serverName: config.get('sentry.serverName'),
   },
   servers: {
     gql: {

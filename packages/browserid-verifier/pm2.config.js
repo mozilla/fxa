@@ -17,6 +17,8 @@ module.exports = {
         PORT: '5050',
         IP_ADDRESS: '0.0.0.0',
         FORCE_INSECURE_LOOKUP_OVER_HTTP: 'true',
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_BROWSERID,
       },
       filter_env: ['npm_'],
       max_restarts: '1',

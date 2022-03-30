@@ -1,3 +1,41 @@
+## 1.228.4
+
+### Bug fixes
+
+- content: fix validation tests Because: ([0f9277ae8](https://github.com/mozilla/fxa/commit/0f9277ae8))
+
+## 1.228.3
+
+No changes.
+
+## 1.228.2
+
+No changes.
+
+## 1.228.1
+
+### Bug fixes
+
+- google: Pocket third party auth fixes, FAQ link fix (#12177) ([06c16ccf1](https://github.com/mozilla/fxa/commit/06c16ccf1))
+
+## 1.228.0
+
+### New features
+
+- apple: Add Sign-in with Apple support (#12148) ([fa817cb37](https://github.com/mozilla/fxa/commit/fa817cb37))
+
+### Bug fixes
+
+- pocket: Only show pocket account suggestion when creating an account (#12153) ([586e17b51](https://github.com/mozilla/fxa/commit/586e17b51))
+- metrics: Attempt to fix login complete events for mobile (#12090) ([829025b12](https://github.com/mozilla/fxa/commit/829025b12))
+
+### Other changes
+
+- deps-dev: bump @babel/cli from 7.16.8 to 7.17.6 (#12142) ([e0a571bb2](https://github.com/mozilla/fxa/commit/e0a571bb2))
+- deps: bump @sentry/browser from 6.17.9 to 6.18.2 (#12139) ([4359d2bd8](https://github.com/mozilla/fxa/commit/4359d2bd8))
+- deps: bump backbone from 1.4.0 to 1.4.1 (#12133) ([d3ea53e06](https://github.com/mozilla/fxa/commit/d3ea53e06))
+- deps-dev: bump chai from 4.3.4 to 4.3.6 (#12091) ([df319de11](https://github.com/mozilla/fxa/commit/df319de11))
+
 ## 1.227.1
 
 ### Other changes

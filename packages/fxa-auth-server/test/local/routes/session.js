@@ -1284,7 +1284,7 @@ describe('/session/resend_code', () => {
         country: 'United States',
         countryCode: 'US',
         state: 'California',
-        stateCode: 'CA'
+        stateCode: 'CA',
       },
       timeZone: 'America/Los_Angeles',
       uaBrowser: 'Firefox',
@@ -1301,12 +1301,12 @@ describe('/session/resend_code', () => {
     const args = mailer.sendVerifyShortCodeEmail.args[0];
     assert.equal(args[2].acceptLanguage, 'en-US');
     assert.equal(args[2].code, expectedCode);
-    assert.equal(args[2].location.city, 'Mountain View')
-    assert.equal(args[2].location.country, 'United States')
-    assert.equal(args[2].location.countryCode, 'US')
-    assert.equal(args[2].location.state, 'California')
-    assert.equal(args[2].location.stateCode, 'CA')
-    assert.equal(args[2].timeZone, 'America/Los_Angeles')
+    assert.equal(args[2].location.city, 'Mountain View');
+    assert.equal(args[2].location.country, 'United States');
+    assert.equal(args[2].location.countryCode, 'US');
+    assert.equal(args[2].location.state, 'California');
+    assert.equal(args[2].location.stateCode, 'CA');
+    assert.equal(args[2].timeZone, 'America/Los_Angeles');
   });
 
   it('should resend the verification code email with verified account', async () => {
@@ -1367,8 +1367,8 @@ describe('/session/verify/send_push', () => {
     const args = push.notifyVerifyLoginRequest.args[0];
     assert.equal(args[0], 'foo');
     assert.deepEqual(args[1], []);
-    assert.equal(args[2].title, 'Logging in to Firefox Accounts?');
-    assert.equal(args[2].body, "Click here to verify it's you");
+    assert.equal(args[2].title, 'Logging in to Firefox accounts?');
+    assert.equal(args[2].body, 'Click here to verify it’s you');
     assert.include(args[2].url, 'sometoken');
     assert.include(args[2].url, 'California');
     assert.include(args[2].url, encodeURIComponent('63.245.221.32'));

@@ -82,6 +82,7 @@ const PLANS = [
       downloadURL: 'http://getfirefox.com',
       capabilities: 'exampleCap0',
       'capabilities:client1': 'exampleCap1',
+      promotionCodes: 'earlybirds',
     },
   },
   {
@@ -107,6 +108,7 @@ const PLANS = [
       'capabilities:client1': 'exampleCap3',
       // NOTE: whitespace in capabilities list should be flexible for human entry
       'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
+      promotionCodes: 'gettheworms?',
     },
     product_metadata: {},
   },
@@ -678,20 +680,24 @@ describe('DirectStripeRoutes', () => {
       assert.deepEqual(expected, actual);
     });
 
-    it('errors if customer isnt found', async () => {
+    it('returns empty array if customer is not found', async () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
       VALID_REQUEST.app.geo = {};
-      try {
-        await directStripeRoutesInstance.subsequentInvoicePreviews(
-          VALID_REQUEST
-        );
-        assert.fail(
-          'Finding subsequent invoices should fail when no customer is found.'
-        );
-      } catch (err) {
-        assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
-      }
+      const expected = [];
+      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'subsequentInvoicePreviews'
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      assert.deepEqual(expected, actual);
     });
   });
 
