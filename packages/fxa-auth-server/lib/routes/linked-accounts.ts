@@ -9,7 +9,7 @@ import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import validators from './validators';
 import jwtDecode from 'jwt-decode';
-import { Provider } from 'fxa-shared/db/models/auth/linked-account';
+import { Provider, PROVIDER_NAME } from 'fxa-shared/db/models/auth/linked-account';
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 const error = require('../error');
@@ -143,7 +143,7 @@ export class LinkedAccountHandler {
           flowBeginTime,
           ip,
           location: geoData.location,
-          providerName: provider,
+          providerName: PROVIDER_NAME[provider],
           timeZone: geoData.timeZone,
           uaBrowser: request.app.ua.browser,
           uaBrowserVersion: request.app.ua.browserVersion,
