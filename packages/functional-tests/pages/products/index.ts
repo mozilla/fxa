@@ -1,6 +1,4 @@
 import { BaseLayout } from '../layout';
-import { BrowserContext } from 'playwright';
-let context: BrowserContext;
 
 export class SubscribePage extends BaseLayout {
   setFullName(name: string = 'Cave Johnson') {
@@ -47,7 +45,7 @@ export class SubscribePage extends BaseLayout {
   }
 
   async clickTryAgain() {
-    return Promise.all([this.page.click('[data-testid="retry-link"]')]);
+    this.page.click('[data-testid="retry-link"]');
   }
 
   submit() {
