@@ -437,6 +437,23 @@ describe('StripeWebhookHandler', () => {
           assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
         });
 
+        it('does not call sentry or expand resourche for event payment_method.detached', async () => {
+          const event = deepCopy(subscriptionCreated);
+          event.type = 'payment_method.detached';
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+          StripeWebhookHandlerInstance.stripeHelper.processWebhookEventToFirestore =
+            sinon.stub().resolves(true);
+          await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+          assertNamedHandlerCalled();
+          assert.equal(
+            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce,
+            false
+          );
+          sinon.assert.notCalled(scopeContextSpy);
+        });
+
         it('does not call sentry if handled by firestore', async () => {
           const event = deepCopy(subscriptionCreated);
           event.type = 'firestore.document.created';
