@@ -61,6 +61,9 @@ suite.tests['blockingRules'] = function () {
   assert.include(fontSrc, Sources.SELF);
   assert.include(fontSrc, CDN_SERVER);
 
+  const frameSrc = directives.frameSrc;
+  assert.include(frameSrc, "'none'");
+
   const imgSrc = directives.imgSrc;
   assert.lengthOf(imgSrc, 7);
   assert.include(imgSrc, Sources.SELF);

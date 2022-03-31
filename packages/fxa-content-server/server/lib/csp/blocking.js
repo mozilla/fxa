@@ -71,6 +71,8 @@ module.exports = function (config) {
     styleSrc.push("'unsafe-inline'");
   }
 
+  const frameSrc = [NONE];
+
   const fontSrc = addCdnRuleIfRequired([SELF]);
 
   const formAction = [SELF];
@@ -87,6 +89,7 @@ module.exports = function (config) {
       defaultSrc: [SELF],
       formAction,
       fontSrc,
+      frameSrc,
       imgSrc: addCdnRuleIfRequired([
         SELF,
         BLOB,
