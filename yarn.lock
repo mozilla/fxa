@@ -22070,6 +22070,7 @@ fsevents@~2.1.1:
     fxa-payments-server: "workspace:*"
     fxa-settings: "workspace:*"
     jsqr: ^1.4.0
+    playwright: ^1.20.1
     upng-js: ^2.1.0
   languageName: unknown
   linkType: soft
@@ -34447,6 +34448,17 @@ fsevents@~2.1.1:
   bin:
     playwright: cli.js
   checksum: a436eff4cfb88a68d6c2da7941c0ace35f940f885f97c125e1a0103e4601f1be313eada81283f1208d5cded57a841482f743526fc3960c5f2a383b08220401de
+  languageName: node
+  linkType: hard
+
+"playwright@npm:^1.20.1":
+  version: 1.20.1
+  resolution: "playwright@npm:1.20.1"
+  dependencies:
+    playwright-core: 1.20.1
+  bin:
+    playwright: cli.js
+  checksum: cf16309063467aa7dcccbef1fd4bacd19aa83827320ddd4806a0b9676f4cf683aae0a7cf9c73cf43ae99db02b16d5019c039c98fe811394d537be3a1331ea314
   languageName: node
   linkType: hard
 
