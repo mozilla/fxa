@@ -1499,6 +1499,69 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('retrieves details on an expired promotion code', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        expired: true,
+        valid: false,
+        durationInMonths: null,
+      };
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: false,
+        expires_at: 1000,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+          duration_in_months: null,
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves details on a maximally redeemed promotion code', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        maximallyRedeemed: true,
+        valid: false,
+        durationInMonths: null,
+      };
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: false,
+        max_redemptions: 1,
+        times_redeemed: 1,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+          duration_in_months: null,
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+
     it('return coupon details even when previewInvoice rejects', async () => {
       const expected = {
         promotionCode: 'promo',
@@ -1649,6 +1712,146 @@ describe('StripeHelper', () => {
         'planId'
       );
       assert.deepEqual(actual, undefined);
+    });
+  });
+
+  describe('verifyPromotionAndCoupon', () => {
+    const promotionCodeTemplate = {
+      active: true,
+      expires_at: null,
+      max_redemptions: null,
+      times_redeemed: 0,
+      coupon: {
+        valid: true,
+        max_redemptions: null,
+        times_redeemed: 0,
+        redeem_by: null,
+      },
+    };
+
+    it('return valid for valid coupon and promotion code', () => {
+      const expected = { valid: true };
+      const actual = stripeHelper.verifyPromotionAndCoupon(
+        promotionCodeTemplate
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid with maximallyRedeemed for max redeemed coupon', () => {
+      const promotionCode = {
+        ...promotionCodeTemplate,
+        coupon: {
+          ...promotionCodeTemplate.coupon,
+          valid: false,
+          max_redemptions: 1,
+          times_redeemed: 1,
+        },
+      };
+      const expected = { valid: false, maximallyRedeemed: true };
+      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid with expired for expired coupon', () => {
+      const promotionCode = {
+        ...promotionCodeTemplate,
+        coupon: {
+          valid: false,
+          redeem_by: 1000,
+        },
+      };
+      const expected = { valid: false, expired: true };
+      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid with maximallyRedeemed for max redeemed promotion code', () => {
+      const promotionCode = {
+        ...promotionCodeTemplate,
+        active: false,
+        max_redemptions: 1,
+        times_redeemed: 1,
+      };
+      const expected = { valid: false, maximallyRedeemed: true };
+      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid with expired for expired promotion code', () => {
+      const promotionCode = {
+        ...promotionCodeTemplate,
+        active: false,
+        expires_at: 1000,
+      };
+      const expected = { valid: false, expired: true };
+      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      assert.deepEqual(actual, expected);
+    });
+  });
+
+  describe('verifyPromotionAndCouponProperties', () => {
+    const propertiesTemplate = {
+      valid: false,
+      redeem_by: null,
+      max_redemptions: null,
+      times_redeemed: 0,
+    };
+    it('return valid', () => {
+      const properties = {
+        ...propertiesTemplate,
+        valid: true,
+      };
+      const expected = {
+        valid: true,
+        expired: false,
+        maximallyRedeemed: false,
+      };
+      const actual =
+        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid and maximally redeemed', () => {
+      const properties = {
+        ...propertiesTemplate,
+        max_redemptions: 1,
+        times_redeemed: 1,
+      };
+      const expected = {
+        valid: false,
+        expired: false,
+        maximallyRedeemed: true,
+      };
+      const actual =
+        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid and expired', () => {
+      const properties = {
+        ...propertiesTemplate,
+        redeem_by: 1000,
+      };
+      const expected = {
+        valid: false,
+        expired: true,
+        maximallyRedeemed: false,
+      };
+      const actual =
+        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid only if neither expired or maximally redeemed', () => {
+      const properties = propertiesTemplate;
+      const expected = {
+        valid: false,
+        expired: false,
+        maximallyRedeemed: false,
+      };
+      const actual =
+        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      assert.deepEqual(actual, expected);
     });
   });
 

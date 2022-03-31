@@ -746,6 +746,88 @@ export class StripeHelper {
   }
 
   /**
+   * Verify whether either a Promotion Code or Coupon is valid.
+   * If the properties are invalid, then return what's making it invalid.
+   * Current invalid states include:
+   * - Expired
+   * - Maximally redeemed
+   */
+  verifyPromotionAndCouponProperties({
+    valid,
+    redeem_by: redeemBy,
+    max_redemptions: maxRedemptions,
+    times_redeemed: timesRedeemed,
+  }: {
+    valid: boolean;
+    redeem_by: number | null;
+    max_redemptions: number | null;
+    times_redeemed: number;
+  }) {
+    let expired = false;
+    let maximallyRedeemed = false;
+
+    if (!valid) {
+      if (redeemBy) {
+        const expiry = new Date(redeemBy * 1000);
+        const now = new Date();
+        expired = now > expiry;
+      } else {
+        expired = false;
+      }
+
+      if (maxRedemptions) {
+        maximallyRedeemed = timesRedeemed >= maxRedemptions;
+      } else {
+        maximallyRedeemed = false;
+      }
+    }
+
+    return {
+      valid,
+      expired,
+      maximallyRedeemed,
+    };
+  }
+
+  /**
+   * Verify that the Promotion Code and Coupon are valid.
+   * If either are not valid, then return what's making it invalid.
+   * Current invalid states include:
+   * - Expired
+   * - Maximally redeemed
+   */
+  verifyPromotionAndCoupon(promotionCode: Stripe.PromotionCode) {
+    const { coupon } = promotionCode;
+    const returnValue: {
+      valid: boolean;
+      expired?: boolean;
+      maximallyRedeemed?: boolean;
+    } = { valid: false };
+
+    const verifyCoupon = this.verifyPromotionAndCouponProperties(coupon);
+    const verifyPromotionCode = this.verifyPromotionAndCouponProperties({
+      ...promotionCode,
+      valid: promotionCode.active,
+      redeem_by: promotionCode.expires_at,
+    });
+
+    returnValue.valid = verifyCoupon.valid && verifyPromotionCode.valid;
+
+    if (verifyCoupon.expired || verifyPromotionCode.expired) {
+      returnValue.expired = true;
+    }
+
+    if (
+      verifyCoupon.maximallyRedeemed ||
+      verifyPromotionCode.maximallyRedeemed
+    ) {
+      returnValue.maximallyRedeemed = true;
+    }
+
+    return returnValue;
+  }
+
+  /**
    * Retrieve details about a coupon for a given priceId and possible
    * promotion code for a customer in the provided country. Will also
    * provide the discount amount for the subscription via
@@ -779,60 +861,48 @@ export class StripeHelper {
         valid: false,
       };
 
-      try {
-        const { currency, discount, total, total_discount_amounts } =
-          await this.previewInvoice({
-            country,
-            priceId,
-            promotionCode,
-          });
+      const verifiedPromotionAndCoupon =
+        this.verifyPromotionAndCoupon(stripePromotionCode);
 
-        const minAmount = getMinimumAmount(currency);
-        if (total !== 0 && minAmount && total < minAmount) {
-          throw error.invalidPromoCode(promotionCode);
-        }
-
-        if (discount && total_discount_amounts) {
-          couponDetails.discountAmount = total_discount_amounts[0].amount;
-        }
-      } catch (error) {
-        if (
-          error instanceof AppError &&
-          error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
-        ) {
-          throw error;
-        } else {
-          Sentry.withScope((scope) => {
-            scope.setContext('retrieveCouponDetails', {
+      if (verifiedPromotionAndCoupon.valid) {
+        try {
+          const { currency, discount, total, total_discount_amounts } =
+            await this.previewInvoice({
+              country,
               priceId,
               promotionCode,
             });
-            Sentry.captureException(error);
-          });
+          const minAmount = getMinimumAmount(currency);
+          if (total !== 0 && minAmount && total < minAmount) {
+            throw error.invalidPromoCode(promotionCode);
+          }
+
+          if (discount && total_discount_amounts) {
+            couponDetails.discountAmount = total_discount_amounts[0].amount;
+          }
+        } catch (error) {
+          if (
+            error instanceof AppError &&
+            error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
+          ) {
+            throw error;
+          } else {
+            verifiedPromotionAndCoupon.valid = false;
+            Sentry.withScope((scope) => {
+              scope.setContext('retrieveCouponDetails', {
+                priceId,
+                promotionCode,
+              });
+              Sentry.captureException(error);
+            });
+          }
         }
       }
 
-      if (stripeCoupon.redeem_by) {
-        const expiry = new Date(stripeCoupon.redeem_by * 1000);
-        const now = new Date();
-        couponDetails.expired = now > expiry;
-      }
-
-      if (stripeCoupon.max_redemptions) {
-        couponDetails.maximallyRedeemed =
-          stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
-      }
-
-      if (
-        couponDetails.discountAmount &&
-        !couponDetails.expired &&
-        !couponDetails.maximallyRedeemed &&
-        stripePromotionCode.active
-      ) {
-        couponDetails.valid = true;
-      }
-
-      return couponDetails;
+      return {
+        ...couponDetails,
+        ...verifiedPromotionAndCoupon,
+      };
     } else {
       throw error.invalidPromoCode(promotionCode);
     }
