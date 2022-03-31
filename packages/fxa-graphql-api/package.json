@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.228.4",
+  "version": "1.228.5",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",

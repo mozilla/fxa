@@ -1,3 +1,9 @@
+## 1.228.5
+
+### Bug fixes
+
+- auth: update cached customer on customer.subscription.created ([f1dea10b18](https://github.com/mozilla/fxa/commit/f1dea10b18))
+
 ## 1.228.4
 
 ### Bug fixes
