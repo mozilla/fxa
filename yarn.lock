@@ -3865,7 +3865,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:15.1.1, @hapi/joi@npm:^15.1.0":
+"@hapi/joi@npm:15.1.1, @hapi/joi@npm:^15.1.0, @hapi/joi@npm:^15.1.1":
   version: 15.1.1
   resolution: "@hapi/joi@npm:15.1.1"
   dependencies:
@@ -15812,17 +15812,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"checksum@npm:1.0.0":
-  version: 1.0.0
-  resolution: "checksum@npm:1.0.0"
-  dependencies:
-    optimist: ~0.3.5
-  bin:
-    checksum: bin/checksum-cli.js
-  checksum: a20d56a530ba5ef3c9be2f707f4dd69e86bb2cb34a9e57bc8009c039a2a1e94f2fff2f82413f5acead0707ba21b01e49434f6627d1b953c21b8f02298f473214
-  languageName: node
-  linkType: hard
-
 "cheerio-select@npm:^1.5.0":
   version: 1.5.0
   resolution: "cheerio-select@npm:1.5.0"
@@ -22876,14 +22865,10 @@ fsevents@~2.1.1:
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 6.0.5
-    "@hapi/joi": ^17.1.1
     "@sentry/node": ^6.19.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
     aws-sdk: ^2.1089.0
-    bluebird: ^3.7.2
-    buf: 0.1.1
-    checksum: 1.0.0
     commander: 2.9.0
     compute-cluster: 0.0.9
     convict: ^6.2.1
@@ -33238,15 +33223,6 @@ fsevents@~2.1.1:
     minimist: ~0.0.1
     wordwrap: ~0.0.2
   checksum: 191ab2b119b2908a229065119349d9cbd295217a8777febd2812fc7b95c5f31f5f6ecb4fd0222351466cb33af8410299373229e78dd96713ed5348fcebfb96f4
-  languageName: node
-  linkType: hard
-
-"optimist@npm:~0.3.5":
-  version: 0.3.7
-  resolution: "optimist@npm:0.3.7"
-  dependencies:
-    wordwrap: ~0.0.2
-  checksum: adc02acb8b76d242e56714b47c8c96916b25a5ac2da7b9f735e1f946a970f266f71d53eff0b61d9582ef948301e94734f03b784fa7c309aed0fe7db403d22046
   languageName: node
   linkType: hard
 
