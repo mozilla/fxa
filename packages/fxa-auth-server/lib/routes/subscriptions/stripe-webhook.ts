@@ -688,7 +688,10 @@ export class StripeWebhookHandler extends StripeHandler {
           });
           reportValidationError(msg, error as any);
         } else {
-          updatedPlans.push({ ...plan, product });
+          updatedPlans.push({
+            ...plan,
+            product,
+          });
         }
       }
     }

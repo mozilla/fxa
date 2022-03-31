@@ -96,24 +96,30 @@ export interface BaseConfig {
     };
   };
   support?: SupportConfig;
+  promotionCodes?: string[];
 }
 
-export const baseConfigSchema = joi
-  .object({
+export const minimalConfigSchema = joi.object({
+  id: joi.string().optional().allow(null).allow(''),
+  productSet: joi.string().optional().allow(null).allow(''),
+  urls: urlsSchema,
+  uiContent: uiContentSchema,
+  styles: stylesSchema,
+  locales: joi.object({}).pattern(
+    joi.string(),
+    joi.object({
+      uiContent: uiContentSchema,
+      urls: urlsSchema,
+      support: supportSchema,
+    })
+  ),
+  support: supportSchema,
+});
+
+export const baseConfigSchema = minimalConfigSchema
+  .keys({
     active: joi.boolean().required(),
     promotionCodes: joi.array().items(joi.string()),
     capabilities: capabilitySchema,
-    urls: urlsSchema,
-    uiContent: uiContentSchema,
-    styles: stylesSchema,
-    locales: joi.object({}).pattern(
-      joi.string(),
-      joi.object({
-        uiContent: uiContentSchema,
-        urls: urlsSchema,
-        support: supportSchema,
-      })
-    ),
-    support: supportSchema,
   })
   .required();

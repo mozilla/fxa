@@ -9,6 +9,15 @@ const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('@hapi/joi');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const {
+  minimalConfigSchema,
+} = require('fxa-shared/subscriptions/configuration/base');
+const {
+  productConfigJoiKeys,
+} = require('fxa-shared/subscriptions/configuration/product');
+const {
+  planConfigJoiKeys,
+} = require('fxa-shared/subscriptions/configuration/plan');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -514,6 +523,11 @@ module.exports.subscriptionsPlanValidator = isA.object({
   interval_count: isA.number().required(),
   amount: isA.number().required(),
   currency: isA.string().required(),
+  configuration: minimalConfigSchema
+    .keys(productConfigJoiKeys)
+    .keys(planConfigJoiKeys)
+    .optional()
+    .allow(null),
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({

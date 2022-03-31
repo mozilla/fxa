@@ -4,6 +4,7 @@
 
 'use strict';
 
+const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
@@ -11,19 +12,25 @@ const { cloneDeep } = require('lodash');
 const retry = require('async-retry');
 const { deleteCollection } = require('../util');
 
+const sandbox = sinon.createSandbox();
+
 const {
   AuthFirestore,
   AuthLogger,
   AppConfig,
 } = require('../../../../lib/types');
-const {
-  PaymentConfigManager,
-} = require('../../../../lib/payments/configuration/manager');
+const mergeConfigsStub = sandbox.stub();
+const { PaymentConfigManager } = proxyquire(
+  '../../../../lib/payments/configuration/manager',
+  {
+    'fxa-shared/subscriptions/configuration/utils': {
+      mergeConfigs: mergeConfigsStub,
+    },
+  }
+);
 const { setupFirestore } = require('../../../../lib/firestore-db');
 const { randomUUID } = require('crypto');
 const errors = require('../../../../lib/error');
-
-const sandbox = sinon.createSandbox();
 
 const mockConfig = {
   authFirestore: {
@@ -41,7 +48,7 @@ const mockConfig = {
 
 const productConfig = {
   active: true,
-  stripeProductId: 'mock-stripe-product-id',
+  stripeProductId: 'test-product',
   capabilities: {
     '*': ['stuff'],
   },
@@ -92,9 +99,11 @@ describe('PaymentConfigManager', () => {
     productConfigDbRef = paymentConfigManager.productConfigDbRef;
     planConfigDbRef = paymentConfigManager.planConfigDbRef;
     await productConfigDbRef.doc(testProductId).set(productConfig);
-    await planConfigDbRef
-      .doc(testPlanId)
-      .set({ ...planConfig, productId: 'test-product' });
+    await planConfigDbRef.doc(testPlanId).set({
+      ...planConfig,
+      productId: 'test-product',
+      productConfigId: testProductId,
+    });
   });
 
   afterEach(async () => {
@@ -116,9 +125,8 @@ describe('PaymentConfigManager', () => {
 
   describe('load', async () => {
     it('loads products and plans and returns them', async () => {
-      await paymentConfigManager.load();
-      const products = paymentConfigManager.allProducts();
-      const plans = paymentConfigManager.allPlans();
+      const products = await paymentConfigManager.allProducts();
+      const plans = await paymentConfigManager.allPlans();
       assert.equal(products.length, 1);
       assert.equal(plans.length, 1);
     });
@@ -141,11 +149,10 @@ describe('PaymentConfigManager', () => {
       const newPlan = cloneDeep(planConfig);
       newPlan.id = randomUUID();
       newPlan.productId = newProduct.id;
-      await paymentConfigManager.load();
 
       await paymentConfigManager.startListeners();
-      let products = paymentConfigManager.allProducts();
-      let plans = paymentConfigManager.allPlans();
+      let products = await paymentConfigManager.allProducts();
+      let plans = await paymentConfigManager.allPlans();
       assert.equal(products.length, 1);
       assert.equal(plans.length, 1);
 
@@ -158,8 +165,8 @@ describe('PaymentConfigManager', () => {
       // expected number of products/plans within a reasonable time.
       await retry(
         async () => {
-          products = paymentConfigManager.allProducts();
-          plans = paymentConfigManager.allPlans();
+          products = await paymentConfigManager.allProducts();
+          plans = await paymentConfigManager.allPlans();
 
           assert.equal(products.length, 2);
           assert.equal(plans.length, 2);
@@ -175,45 +182,45 @@ describe('PaymentConfigManager', () => {
 
   describe('getDocumentIdByStripeId', () => {
     it('returns a matching product document id if found', async () => {
-      paymentConfigManager.allProducts = sandbox.stub().returns([
+      paymentConfigManager.allProducts = sandbox.stub().resolves([
         {
           ...productConfig,
           id: testProductId,
         },
       ]);
-      const actual = paymentConfigManager.getDocumentIdByStripeId(
+      const actual = await paymentConfigManager.getDocumentIdByStripeId(
         productConfig.stripeProductId
       );
       const expected = testProductId;
       assert.deepEqual(actual, expected);
     });
     it('returns a matching plan document id if found', async () => {
-      paymentConfigManager.allPlans = sandbox.stub().returns([
+      paymentConfigManager.allPlans = sandbox.stub().resolves([
         {
           ...planConfig,
           id: testPlanId,
         },
       ]);
-      const actual = paymentConfigManager.getDocumentIdByStripeId(
+      const actual = await paymentConfigManager.getDocumentIdByStripeId(
         planConfig.stripePriceId
       );
       const expected = testPlanId;
       assert.deepEqual(actual, expected);
     });
     it('returns null if neither is found', async () => {
-      paymentConfigManager.allProducts = sandbox.stub().returns([
+      paymentConfigManager.allProducts = sandbox.stub().resolves([
         {
           ...productConfig,
           id: testProductId,
         },
       ]);
-      paymentConfigManager.allPlans = sandbox.stub().returns([
+      paymentConfigManager.allPlans = sandbox.stub().resolves([
         {
           ...planConfig,
           id: testPlanId,
         },
       ]);
-      const actual = paymentConfigManager.getDocumentIdByStripeId(
+      const actual = await paymentConfigManager.getDocumentIdByStripeId(
         'random-nonmatching-id'
       );
       assert.isNull(actual);
@@ -223,18 +230,15 @@ describe('PaymentConfigManager', () => {
   describe('storeProductConfig', () => {
     it('stores a product config', async () => {
       const newProduct = cloneDeep(productConfig);
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allProducts().length, 1);
+      assert.equal((await paymentConfigManager.allProducts()).length, 1);
       await paymentConfigManager.storeProductConfig(newProduct, randomUUID());
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allProducts().length, 2);
+      assert.equal((await paymentConfigManager.allProducts()).length, 2);
     });
 
     it('throw if the product is invalid', async () => {
       const newProduct = cloneDeep(productConfig);
-      newProduct.id = 'noidallowedhere';
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allProducts().length, 1);
+      delete newProduct.urls;
+      assert.equal((await paymentConfigManager.allProducts()).length, 1);
       try {
         await paymentConfigManager.storeProductConfig(newProduct, randomUUID());
         assert.fail('should have thrown');
@@ -247,18 +251,15 @@ describe('PaymentConfigManager', () => {
   describe('storePlanConfig', () => {
     it('stores a plan config', async () => {
       const newPlan = cloneDeep(planConfig);
-      await paymentConfigManager.load();
-      const product = paymentConfigManager.allProducts()[0];
-      assert.equal(paymentConfigManager.allPlans().length, 1);
+      const product = (await paymentConfigManager.allProducts())[0];
+      assert.equal((await paymentConfigManager.allPlans()).length, 1);
       await paymentConfigManager.storePlanConfig(newPlan, product.id);
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allPlans().length, 2);
+      assert.equal((await paymentConfigManager.allPlans()).length, 2);
     });
 
     it('throws if the plan has an invalid product id', async () => {
       const newPlan = cloneDeep(planConfig);
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allPlans().length, 1);
+      assert.equal((await paymentConfigManager.allPlans()).length, 1);
       try {
         await paymentConfigManager.storePlanConfig(newPlan, randomUUID());
         assert.fail('should have thrown');
@@ -270,14 +271,42 @@ describe('PaymentConfigManager', () => {
 
     it('throws if the plan is invalid', async () => {
       const newPlan = cloneDeep(planConfig);
-      newPlan.id = 'noidallowedhere';
-      await paymentConfigManager.load();
-      assert.equal(paymentConfigManager.allPlans().length, 1);
+      delete newPlan.active;
+      assert.equal((await paymentConfigManager.allPlans()).length, 1);
       try {
         await paymentConfigManager.storePlanConfig(newPlan, randomUUID());
         assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.jse_cause.message, '"id" is not allowed');
+        assert.equal(
+          err.jse_cause.message,
+          'child "active" fails because ["active" is required]'
+        );
+        assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
+      }
+    });
+  });
+
+  describe('getMergedConfig', () => {
+    it('returns a merged config', async () => {
+      const planConfig = (await paymentConfigManager.allPlans())[0];
+      const productConfig = (await paymentConfigManager.allProducts())[0];
+      paymentConfigManager.getMergedConfig(planConfig);
+      sinon.assert.calledOnceWithExactly(
+        mergeConfigsStub,
+        planConfig,
+        productConfig
+      );
+    });
+
+    it('throws an error when the product config is not found', async () => {
+      const planConfig = (await paymentConfigManager.allPlans())[0];
+      planConfig.productConfigId = '404';
+
+      try {
+        paymentConfigManager.getMergedConfig(planConfig);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.jse_cause.message, 'ProductConfig does not exist');
         assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
     });

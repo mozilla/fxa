@@ -4,11 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const { PlanConfig } = require('../../../../lib/payments/configuration/plan');
+import { assert } from 'chai';
+import { PlanConfig } from '../../../subscriptions/configuration/plan';
 
 const firestoreObject = {
+  id: 'abc123',
+  productConfigId: 'bleepbloop',
   active: true,
   capabilities: {
     '*': ['stuff'],
@@ -19,6 +20,7 @@ const firestoreObject = {
   },
   support: {},
   uiContent: {},
+  urls: { download: 'gopher://example.gg' },
 };
 
 describe('PlanConfig', () => {

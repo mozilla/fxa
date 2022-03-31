@@ -9,8 +9,9 @@ import { TypedCollectionReference } from 'typesafe-node-firestore';
 
 import errors from '../../error';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
-import { PlanConfig } from './plan';
-import { ProductConfig } from './product';
+import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
+import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+import { mergeConfigs } from 'fxa-shared/subscriptions/configuration/utils';
 
 export class PaymentConfigManager {
   private firestore: Firestore;
@@ -24,6 +25,8 @@ export class PaymentConfigManager {
   private products: Record<string, ProductConfig> = {};
   private plans: Record<string, PlanConfig> = {};
 
+  private hasLoaded: boolean = false;
+
   constructor() {
     const config = Container.get(AppConfig);
     this.prefix = `${config.authFirestore.prefix}payment-config-`;
@@ -35,6 +38,9 @@ export class PaymentConfigManager {
     this.planConfigDbRef = this.firestore.collection(
       `${this.prefix}plans`
     ) as TypedCollectionReference<PlanConfig>;
+
+    this.load();
+    this.startListeners();
   }
 
   /**
@@ -56,6 +62,11 @@ export class PaymentConfigManager {
     planResults.docs.forEach((doc) => {
       this.plans[doc.id] = PlanConfig.fromFirestoreObject(doc.data(), doc.id);
     });
+    this.hasLoaded = true;
+  }
+
+  private async maybeLoad() {
+    this.hasLoaded || (await this.load());
   }
 
   /**
@@ -118,9 +129,11 @@ export class PaymentConfigManager {
    * Looks up a Firestore ProductConfig or PlanConfig document id based
    * on the provided Stripe Product or Plan id.
    */
-  public getDocumentIdByStripeId(stripeId: string): string | null {
-    const products = this.allProducts();
-    const plans = this.allPlans();
+  public async getDocumentIdByStripeId(
+    stripeId: string
+  ): Promise<string | null> {
+    const products = await this.allProducts();
+    const plans = await this.allPlans();
     const match =
       products.find((product) => product.stripeProductId === stripeId) ||
       plans.find((plan) => plan.stripePriceId === stripeId);
@@ -193,11 +206,29 @@ export class PaymentConfigManager {
     return planId;
   }
 
-  public allProducts() {
+  public async allProducts() {
+    await this.maybeLoad();
     return Object.values(this.products);
   }
 
-  public allPlans() {
+  public async allPlans() {
+    await this.maybeLoad();
     return Object.values(this.plans);
+  }
+
+  /**
+   * Get a complete, merged config for a plan, with the product's config merged
+   * with the plan's.
+   */
+  getMergedConfig(planConfig: PlanConfig) {
+    const productConfig = this.products[planConfig.productConfigId];
+    if (!productConfig) {
+      throw errors.internalValidationError(
+        'getMergedConfig',
+        planConfig,
+        new Error('ProductConfig does not exist')
+      );
+    }
+    return mergeConfigs(planConfig, productConfig);
   }
 }

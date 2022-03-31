@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from '@hapi/joi';
+import joi from 'joi';
 
 import {
   BaseConfig,
@@ -13,13 +13,16 @@ import {
   UrlConfig,
 } from './base';
 
+export const planConfigJoiKeys = {
+  productConfigId: joi.string().allow(null).allow(''),
+  stripePriceId: joi.string().optional(),
+  productOrder: joi.number().optional(),
+  googlePlaySku: joi.array().items(joi.string()).optional(),
+  appleProductId: joi.array().items(joi.string()).optional(),
+};
+
 export const planConfigSchema = baseConfigSchema
-  .keys({
-    stripePriceId: joi.string().optional(),
-    productOrder: joi.number().optional(),
-    googlePlaySku: joi.array().items(joi.string()).optional(),
-    appleProductId: joi.array().items(joi.string()).optional(),
-  })
+  .keys(planConfigJoiKeys)
   .requiredKeys('active');
 
 export class PlanConfig implements BaseConfig {
@@ -35,15 +38,17 @@ export class PlanConfig implements BaseConfig {
   styles?: StyleConfig;
   locales?: {
     [key: string]: {
-      uiContent: Partial<UiContentConfig>;
-      urls: Partial<UrlConfig>;
-      support: Partial<SupportConfig>;
+      uiContent?: Partial<UiContentConfig>;
+      urls?: Partial<UrlConfig>;
+      support?: Partial<SupportConfig>;
     };
   };
   support?: SupportConfig;
+  promotionCodes?: string[];
 
   // Extended by PlanConfig
   stripePriceId?: string;
+  productSet?: string;
   productOrder?: number;
   googlePlaySku?: string[];
   appleProductId?: string[];

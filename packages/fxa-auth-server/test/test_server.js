@@ -13,7 +13,7 @@ const proxyquire = require('proxyquire').noPreserveCache();
 const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
 const { CapabilityService } = require('../lib/payments/capability');
-const { AuthFirestore, AppConfig } = require('../lib/types');
+const { AppConfig } = require('../lib/types');
 
 let currentServer;
 
@@ -24,11 +24,6 @@ function TestServer(config, printLogs, options = {}) {
     Container.set(CapabilityService, {
       subscriptionCapabilities: sinon.fake.resolves([]),
       determineClientVisibleSubscriptionCapabilities: sinon.fake.resolves(''),
-    });
-  }
-  if (!Container.has(AuthFirestore)) {
-    Container.set(AuthFirestore, {
-      collection: sinon.fake.returns({}),
     });
   }
   this.options = options;

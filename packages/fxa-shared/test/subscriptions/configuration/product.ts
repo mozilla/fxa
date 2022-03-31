@@ -4,13 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const {
-  ProductConfig,
-} = require('../../../../lib/payments/configuration/product');
+import { assert } from 'chai';
+import { ProductConfig } from '../../../subscriptions/configuration/product';
 
 const firestoreObject = {
+  id: 'bleepbloop',
   active: true,
   capabilities: {
     '*': ['stuff'],
