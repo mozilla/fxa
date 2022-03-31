@@ -35,8 +35,6 @@ import SignInTokenCodeView from '../views/sign_in_token_code';
 import SignInTotpCodeView from '../views/sign_in_totp_code';
 import SignInUnblockView from '../views/sign_in_unblock';
 import SignUpPasswordView from '../views/sign_up_password';
-import SmsSendView from '../views/sms_send';
-import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
@@ -271,16 +269,6 @@ const Router = Backbone.Router.extend({
     'signup_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_UP,
     }),
-    'sms(/)': createViewHandler(SmsSendView),
-    'sms/sent(/)': createViewHandler(SmsSentView),
-    'sms/sent/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      SmsSentView
-    ),
-    'sms/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      SmsSendView
-    ),
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
     ),

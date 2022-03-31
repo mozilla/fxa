@@ -917,41 +917,6 @@ export default class AuthClient {
     });
   }
 
-  async sendSms(
-    sessionToken: hexstring,
-    phoneNumber: string,
-    messageId: string,
-    options: {
-      lang?: string;
-      features?: string[];
-      metricsContext?: MetricsContext;
-    } = {}
-  ) {
-    const payloadOptions = ({ lang, ...rest }: any) => rest;
-    return this.sessionPost(
-      '/sms',
-      sessionToken,
-      { phoneNumber, messageId, ...payloadOptions(options) },
-      langHeader(options.lang)
-    );
-  }
-
-  async smsStatus(
-    sessionToken: hexstring,
-    options: {
-      country?: string;
-    } = {}
-  ) {
-    return this.sessionGet(
-      `/sms/status${
-        options.country
-          ? `?country=${encodeURIComponent(options.country as string)}`
-          : ''
-      }`,
-      sessionToken
-    );
-  }
-
   async consumeSigninCode(
     code: string,
     flowId: string,

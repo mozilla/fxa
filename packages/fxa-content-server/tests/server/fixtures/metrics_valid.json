@@ -21,7 +21,7 @@
       "offset": 14841
     }
   ],
-  "experiments": [{ "choice": "sendSms", "group": "treatment" }],
+  "experiments": [{ "choice": "pushLogin", "group": "treatment" }],
   "flowBeginTime": 1485182859530,
   "flowId": "3722eb21d311f11cc04b4c9c52da0a611a46d41e92d78285a9b5b597925ab45e",
   "flushTime": 1485182874368,

@@ -46,12 +46,6 @@ module.exports = (printLogs) => {
           const sc = mail.headers['x-signin-verify-code'];
           const template = mail.headers['x-template-name'];
 
-          let smsLink;
-          if (/MockNexmo\.message\.sendSms/.test(mail.subject)) {
-            const smsUrlMatch = /(https?:\/\/.*$)/.exec(mail.text);
-            smsLink = smsUrlMatch && smsUrlMatch[1];
-          }
-
           // Workaround because the email service wraps this header in `< >`.
           // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
           // eslint-disable-next-line no-useless-escape
@@ -68,8 +62,6 @@ module.exports = (printLogs) => {
           } else if (uc) {
             console.log('\x1B[36mUnblock code:', uc, '\x1B[39m');
             console.log('\x1B[36mReport link:', rul, '\x1B[39m');
-          } else if (smsLink) {
-            console.log('\x1B[36mSMS link:', smsLink, '\x1B[39m');
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
           } else {

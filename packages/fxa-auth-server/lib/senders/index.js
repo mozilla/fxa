@@ -5,7 +5,6 @@
 'use strict';
 
 const createMailer = require('./email');
-const createSms = require('./sms');
 
 module.exports = async (
   log,
@@ -20,7 +19,6 @@ module.exports = async (
   async function createSenders() {
     return {
       email: new Mailer(config.smtp, sender),
-      sms: createSms(log, config, statsd),
     };
   }
 

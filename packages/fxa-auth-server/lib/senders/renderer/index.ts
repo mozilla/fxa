@@ -148,17 +148,6 @@ class Renderer extends Localizer {
     }
   }
 
-  // NOTE: We don't currently send any SMS messages. This will be removed later. If we somehow
-  // change our minds, we need to add 'lib/**/senders/sms/**/en.ftl' to the merge-ftl grunt task.
-  // It's not there now because we don't need to burden the l10n team with strings we aren't using
-  async renderSms(context: TemplateContext) {
-    const { acceptLanguage, template } = context;
-    const { l10n } = await super.setupLocalizer(acceptLanguage);
-
-    const text = await this.bindings.renderSmsTemplate(template, context);
-    return this.localizePlaintext(text, context, l10n);
-  }
-
   protected async localizePlaintext(
     text: string,
     context: TemplateContext | RendererContext,

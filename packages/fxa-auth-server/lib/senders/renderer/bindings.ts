@@ -120,13 +120,6 @@ export abstract class RendererBindings implements ILocalizerBindings {
     return { mjml, text };
   }
 
-  async renderSmsTemplate(template: string, context: TemplateContext) {
-    const text = await this.fetchResource(
-      `${this.opts.ejs.root}/templates/${template}/index.txt`
-    );
-    return this.renderEjs(text, context);
-  }
-
   /**
    * Renders an EJS template
    * @param component Component to render

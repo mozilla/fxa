@@ -12,7 +12,6 @@ module.exports = function (
   signer,
   db,
   mailer,
-  smsImpl,
   Password,
   config,
   customs,
@@ -129,8 +128,6 @@ module.exports = function (
     customs
   );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
-  const signinCodes = require('./signin-codes')(log, db, customs, config);
-  const smsRoute = require('./sms')(log, db, config, customs, smsImpl);
   const unblockCodes = require('./unblock-codes')(
     log,
     db,
@@ -192,9 +189,7 @@ module.exports = function (
     recoveryCodes,
     securityEvents,
     session,
-    signinCodes,
     sign,
-    smsRoute,
     totp,
     unblockCodes,
     util,

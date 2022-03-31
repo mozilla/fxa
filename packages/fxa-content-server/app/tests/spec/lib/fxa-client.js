@@ -1596,63 +1596,6 @@ describe('lib/fxa-client', function () {
     });
   });
 
-  describe('sendSms', () => {
-    it('delegates to the fxa-auth-client', () => {
-      sinon.stub(realClient, 'sendSms').callsFake(() => Promise.resolve());
-
-      return client
-        .sendSms('sessionToken', '+441234567890', 1, {
-          metricsContext: {},
-        })
-        .then(() => {
-          assert.isTrue(
-            realClient.sendSms.calledWith('sessionToken', '+441234567890', 1, {
-              metricsContext: {},
-            })
-          );
-        });
-    });
-
-    it('converts INVALID_PARAMETER w/ phoneNumber to AuthErrors.INVALID_PHONE_NUMBER', () => {
-      const serverError = {
-        code: 400,
-        errno: AuthErrors.toErrno('INVALID_PARAMETER'),
-        validation: {
-          keys: ['phoneNumber'],
-        },
-      };
-      sinon
-        .stub(realClient, 'sendSms')
-        .callsFake(() => Promise.reject(serverError));
-
-      return client
-        .sendSms('sessionToken', '1234567890', 1, {
-          metricsContext: {},
-        })
-        .then(assert.fail, (err) => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PHONE_NUMBER'));
-        });
-    });
-
-    it('passes back other errors', () => {
-      const serverError = {
-        code: 400,
-        errno: AuthErrors.toErrno('SMS_ID_INVALID'),
-      };
-      sinon
-        .stub(realClient, 'sendSms')
-        .callsFake(() => Promise.reject(serverError));
-
-      return client
-        .sendSms('sessionToken', '1234567890', 1, {
-          metricsContext: {},
-        })
-        .then(assert.fail, (err) => {
-          assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
-        });
-    });
-  });
-
   describe('securityEvents', () => {
     it('delegates to the fxa-auth-client', () => {
       const events = [
@@ -1696,46 +1639,6 @@ describe('lib/fxa-client', function () {
         assert.isTrue(realClient.deleteSecurityEvents.calledOnce);
 
         assert.deepEqual(res, {});
-      });
-    });
-  });
-
-  describe('smsStatus', () => {
-    it('delegates to the fxa-auth-client', () => {
-      sinon.stub(realClient, 'smsStatus').callsFake(() =>
-        Promise.resolve({
-          country: 'GB',
-          ok: true,
-        })
-      );
-
-      const smsStatusOptions = { country: 'GB ' };
-      return client.smsStatus('sessionToken', smsStatusOptions).then((resp) => {
-        assert.equal(resp.country, 'GB');
-        assert.isTrue(resp.ok);
-
-        assert.isTrue(realClient.smsStatus.calledOnce);
-        assert.isTrue(
-          realClient.smsStatus.calledWith('sessionToken', smsStatusOptions)
-        );
-      });
-    });
-  });
-
-  describe('consumeSigninCode', () => {
-    it('delegates to the fxa-auth-client', () => {
-      const resp = {
-        email: 'testuser@testuser.com',
-      };
-      sinon
-        .stub(realClient, 'consumeSigninCode')
-        .callsFake(() => Promise.resolve(resp));
-
-      return client.consumeSigninCode('thecode').then((_resp) => {
-        assert.strictEqual(_resp, resp);
-
-        assert.isTrue(realClient.consumeSigninCode.calledOnce);
-        assert.isTrue(realClient.consumeSigninCode.calledWith('thecode'));
       });
     });
   });

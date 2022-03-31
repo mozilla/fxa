@@ -37,7 +37,6 @@ module.exports = [
   'tests/server/routes/post-metrics.js',
   'tests/server/routes/post-third-party-auth-redirect.js',
   'tests/server/routes/redirect-download-firefox.js',
-  'tests/server/routes/redirect-m-to-adjust.js',
   'tests/server/routes/validate-email-domain.js',
   'tests/server/logging/route_logging.js',
   'tests/server/validation.js',

@@ -640,7 +640,7 @@ describe('lib/metrics', () => {
   describe('errorToId', () => {
     it('converts an error into an id that can be used for logging', () => {
       const error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
-      error.viewName = 'sms'; // this should be ignored, context is specified
+      error.viewName = 'oauth'; // this should be ignored, context is specified
 
       const id = metrics.errorToId(error);
       assert.equal(id, 'error.signup.auth.999');
@@ -648,19 +648,19 @@ describe('lib/metrics', () => {
 
     it('handles a viewName on the error', () => {
       const error = AuthErrors.toError('UNEXPECTED_ERROR');
-      error.viewName = 'sms';
+      error.viewName = 'oauth';
 
       const id = metrics.errorToId(error);
-      assert.equal(id, 'error.sms.auth.999');
+      assert.equal(id, 'error.oauth.auth.999');
     });
 
     it('handles viewName prefix', () => {
       const error = AuthErrors.toError('UNEXPECTED_ERROR');
-      error.viewName = 'sms';
+      error.viewName = 'oauth';
       metrics.setViewNamePrefix('signup');
 
       const id = metrics.errorToId(error);
-      assert.equal(id, 'error.signup.sms.auth.999');
+      assert.equal(id, 'error.signup.oauth.auth.999');
     });
   });
 
@@ -688,8 +688,8 @@ describe('lib/metrics', () => {
     it('adds the viewName prefix', () => {
       sinon.stub(metrics, 'logEvent');
       metrics.setViewNamePrefix('signup');
-      metrics.logView('sms');
-      assert.isTrue(metrics.logEvent.calledOnceWith('screen.signup.sms'));
+      metrics.logView('oauth');
+      assert.isTrue(metrics.logEvent.calledOnceWith('screen.signup.oauth'));
     });
   });
 

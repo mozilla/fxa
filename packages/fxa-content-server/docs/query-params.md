@@ -286,7 +286,6 @@ Force a particular AB test.
 #### Options
 
 - `emailFirst` - Should the user go through the email-first flow?
-- `sendSms` - Allow users to send an SMS containing a Firefox Mobile installation link
 
 ### `forceExperimentGroup`
 
@@ -295,9 +294,7 @@ Force the user into a particular AB test experiment group.
 #### Options
 
 - `control` - default behavior.
-- `treatment` - new behavior.
-- `signinCodes` - a second treatment group, only used for the `sendSms` experiment.
-  When sending an SMS, the install link contains a signinCode that helps the user sign in more easily on the second device.
+- `treatment` - new behavior. 
 
 ## Reset Password parameters
 

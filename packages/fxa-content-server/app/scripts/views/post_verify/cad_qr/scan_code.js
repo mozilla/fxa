@@ -55,10 +55,6 @@ class ScanCode extends FormView {
         });
     });
   }
-
-  clickUseSms() {
-    return this.navigate('/sms');
-  }
 }
 
 Cocktail.mixin(ScanCode, DeviceConnectedPollMixin);

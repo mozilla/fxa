@@ -4,7 +4,6 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const config = require('../../server/lib/configuration');
-const _ = require('lodash');
 const routesHelpers = require('./helpers/routesHelpers');
 
 var checkHeaders = routesHelpers.checkHeaders;
@@ -79,11 +78,7 @@ var routes = {
   '/signup_verified': { statusCode: 200 },
   '/subscriptions': { statusCode: 200 },
   '/subscriptions/products/123doneProProduct': { statusCode: 200 },
-  '/sms': { statusCode: 200 },
-  '/sms/sent': { statusCode: 200 },
-  '/sms/sent/why': { statusCode: 200 },
-  '/sms/why': { statusCode: 200 },
-  '/support': { statusCode: 200 },
+    '/support': { statusCode: 200 },
   // the following have a version prefix
   '/v1/complete_reset_password': { statusCode: 200 },
   '/v1/reset_password': { statusCode: 200 },
@@ -111,16 +106,6 @@ if (!intern._config.fxaProduction) {
   routes['/en/legal/non_existent'] = { statusCode: 404 };
 }
 
-var redirectedRoutes = {
-  '/m/12345678': {
-    location: _.template(config.get('sms.redirect.targetURITemplate'))({
-      channel: config.get('sms.redirect.channels.release'),
-      signinCode: '12345678',
-    }),
-    statusCode: 302,
-  },
-};
-
 Object.keys(routes).forEach(function (key) {
   var requestOptions = {
     headers: {
@@ -130,8 +115,6 @@ Object.keys(routes).forEach(function (key) {
 
   routeTest(key, routes[key].statusCode, requestOptions);
 });
-
-Object.keys(redirectedRoutes).forEach(redirectTest);
 
 registerSuite('front end routes', suite.tests);
 
@@ -162,31 +145,5 @@ function routeTest(route, expectedStatusCode, requestOptions) {
         assert.equal(res.statusCode, expectedStatusCode);
       })
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-  };
-}
-
-function redirectTest(route) {
-  suite['https get ' + httpsUrl + route] = function () {
-    var dfd = this.async(intern._config.asyncTimeout);
-
-    var routeConfig = redirectedRoutes[route];
-
-    var requestOptions = {
-      followRedirect: false,
-      headers: {
-        Accept: 'text/html',
-      },
-    };
-
-    makeRequest(httpsUrl + route, requestOptions)
-      .then(function (res) {
-        assert.equal(res.statusCode, routeConfig.statusCode);
-        assert.equal(res.headers.location, routeConfig.location);
-
-        return res;
-      })
-      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-    return dfd;
   };
 }

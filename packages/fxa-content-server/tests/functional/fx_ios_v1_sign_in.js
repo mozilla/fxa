@@ -13,7 +13,6 @@ const UA_STRINGS = require('./lib/ua-strings');
 const config = intern._config;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_ios_v1&service=sync`;
 const SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
-const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v3&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
 let email;
 const PASSWORD = '12345678';
@@ -22,18 +21,13 @@ const {
   clearBrowserState,
   click,
   createEmail,
-  createPhoneNumber,
   createUser,
-  deleteAllSms,
-  disableInProd,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
-  getSmsSigninCode,
   noPageTransition,
   openPage,
   testElementExists,
-  testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
   thenify,
@@ -176,45 +170,5 @@ registerSuite('FxiOS v1 signin', {
           .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }))
       );
     },
-
-    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(
-      function () {
-        const testPhoneNumber = createPhoneNumber();
-        const forceUA = UA_STRINGS['ios_firefox_6_1'];
-        const query = { forceUA };
-
-        return (
-          this.remote
-            // The phoneNumber is reused across tests, delete all
-            // if its SMS messages to ensure a clean slate.
-            .then(deleteAllSms(testPhoneNumber))
-            .then(setupTest({ preVerified: true, query }))
-
-            .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-            .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-            .then(click(selectors.SMS_SEND.SUBMIT))
-
-            .then(testElementExists(selectors.SMS_SENT.HEADER))
-            .then(getSmsSigninCode(testPhoneNumber, 0))
-            .then(function (signinCode) {
-              query.signin = signinCode;
-
-              return this.parent
-                .then(clearBrowserState({ force: true }))
-                .then(
-                  openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER, {
-                    query,
-                  })
-                )
-                .then(
-                  testElementTextEquals(
-                    selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-                    email
-                  )
-                );
-            })
-        );
-      }
-    ),
   },
 });

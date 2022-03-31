@@ -11,31 +11,23 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync`;
-const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v3&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
 let email;
 const PASSWORD = '12345678';
 
 const {
   clearBrowserState,
-  click,
   createEmail,
-  createPhoneNumber,
   createUser,
-  deleteAllSms,
-  disableInProd,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
-  getSmsSigninCode,
   openPage,
   respondToWebChannelMessage,
   testElementExists,
-  testElementTextEquals,
   testElementTextInclude,
   testIsBrowserNotified,
   thenify,
-  type,
 } = FunctionalHelpers;
 
 const setupTest = thenify(function (successSelector, options = {}) {
@@ -112,43 +104,5 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
-
-    'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(
-      function () {
-        const testPhoneNumber = createPhoneNumber();
-
-        return (
-          this.remote
-            // The phoneNumber is reused across tests, delete all
-            // if its SMS messages to ensure a clean slate.
-            .then(deleteAllSms(testPhoneNumber))
-            .then(setupTest(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-
-            .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-            .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-            .then(click(selectors.SMS_SEND.SUBMIT))
-
-            .then(testElementExists(selectors.SMS_SENT.HEADER))
-            .then(getSmsSigninCode(testPhoneNumber, 0))
-            .then(function (signinCode) {
-              const signinUrlWithSigninCode = `${ENTER_EMAIL_URL}&signin=${signinCode}`;
-              return this.parent
-                .then(clearBrowserState())
-                .then(
-                  openPage(
-                    signinUrlWithSigninCode,
-                    selectors.SIGNIN_PASSWORD.HEADER
-                  )
-                )
-                .then(
-                  testElementTextEquals(
-                    selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-                    email
-                  )
-                );
-            })
-        );
-      }
-    ),
   },
 });

@@ -179,9 +179,6 @@ in a sign-in or sign-up flow:
 | `email.verification.resent`                      | A sign-up verification email has been re-sent to a user.                                                                                                  |
 | `email.verify_code.clicked`                      | A user has clicked on the link in a confirmation/verification email.                                                                                      |
 | `email.${templateName}.delivered`                | An email was delivered to a user.                                                                                                                         |
-| `sms.region.${region}`                           | A user has tried to send SMS to `region`.                                                                                                                 |
-| `sms.${templateName}.sent`                       | An SMS message has been sent to a user's phone.                                                                                                           |
-| `signinCode.consumed`                            | A sign-in code has been consumed on the server.                                                                                                           |
 | `account.confirmed`                              | Sign-in to an existing account has been confirmed via email.                                                                                              |
 | `account.verified`                               | A new account has been verified via email.                                                                                                                |
 | `account.reminder.${reminder}`                   | A new account has been verified via a reminder email.                                                                                                     |
@@ -226,8 +223,6 @@ but are not limited to:
 | `signin-unblock`           | The sign-in unblock screen                                                              |
 | `choose-what-to-sync`      | Choose what to Sync                                                                     |
 | `connect-another-device`   | Connect another device, phase 1                                                         |
-| `sms`                      | Connect another device, phase 2, Send an SMS form                                       |
-| `sms.sent`                 | Connect another device, phase 2, SMS sent                                               |
 | `cookies-disabled`         | Error page shown if local storage or cookies are disabled                               |
 
 #### Action names
@@ -261,7 +256,6 @@ Possible values for `${experiment}` are:
 | Experiment name        | Description                            |
 | ---------------------- | -------------------------------------- |
 | `connectAnotherDevice` | Connect another device, phase 1        |
-| `sendSms`              | Connect another device, phases 2 and 3 |
 
 #### Connect method names
 

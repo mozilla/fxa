@@ -271,7 +271,6 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
   settings: GROUPS.settings,
   signin: GROUPS.login,
   signup: GROUPS.registration,
-  sms: GROUPS.connectDevice,
   subscribe: GROUPS.sub,
   support: GROUPS.subSupport,
 };

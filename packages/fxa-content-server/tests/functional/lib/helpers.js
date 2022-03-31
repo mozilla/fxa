@@ -754,79 +754,6 @@ function disableInProd(test) {
 }
 
 /**
- * Get SMS message `index` for `phoneNumber`.
- *
- * @param {String} phoneNumber
- * @param {Number} index
- * @param {Object} [options={}]
- *   @param {Number} [options.maxAttempts] - number of email fetch attempts
- *   to make. Defaults to 10.
- * @returns {Promise} resolves with the SMS, if found.
- */
-const getSms = thenify(function (phoneNumber, index, options = {}) {
-  return this.parent
-    .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
-    .then((email) => {
-      return email.text.trim();
-    });
-});
-
-/**
- * Delete all SMS messages for `phoneNumber`
- *
- * @param {String} phoneNumber
- * @returns {Promise} resolves when complete
- */
-const deleteAllSms = thenify(function (phoneNumber) {
-  return this.parent.then(
-    deleteAllEmails(phoneNumberToEmailAddress(phoneNumber))
-  );
-});
-
-/**
- * Convert a phone number to an email address
- *
- * @param {String} phoneNumber
- * @returns {String}
- */
-function phoneNumberToEmailAddress(phoneNumber) {
-  return `sms.+1${phoneNumber}`;
-}
-
-/**
- * Ensure SMS message `index` for `phoneNumber` matches `smsFormatRegExp`
- *
- * @param {String} phoneNumber
- * @param {Number} index
- * @param {RegExp} smsFormatRegExp
- * @returns {Promise} resolves when complete
- */
-const testSmsFormat = thenify(function (phoneNumber, index, smsFormatRegExp) {
-  return this.parent.then(getSms(phoneNumber, index)).then((sms) => {
-    assert.isTrue(smsFormatRegExp.test(sms));
-  });
-});
-
-const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
-
-/**
- * Get a signinCode from the SMS message `index` for `phoneNumber`
- *
- * @param {String} phoneNumber
- * @param {Number} index
- * @param {RegExp} smsFormatRegExp
- * @returns {Promise} resolves with the signinCode when complete
- */
-const getSmsSigninCode = thenify(function (phoneNumber, index, options = {}) {
-  return this.parent
-    .then(testSmsFormat(phoneNumber, index, SIGNIN_CODE_SMS_FORMAT))
-    .then(getSms(phoneNumber, index, options))
-    .then((sms) => {
-      return SIGNIN_CODE_SMS_FORMAT.exec(sms)[1];
-    });
-});
-
-/**
  * Get the email headers
  *
  * @param {string} user - username or email address
@@ -3032,7 +2959,6 @@ module.exports = {
   createUser,
   createUserAndLoadSettings,
   deleteAllEmails,
-  deleteAllSms,
   denormalizeStoredEmail,
   destroySessionForEmail,
   disableInProd,
@@ -3066,8 +2992,6 @@ module.exports = {
   getFxaClient,
   getQueryParamValue,
   getSignupCode,
-  getSms,
-  getSmsSigninCode,
   getStoredAccountByEmail,
   getTestProductSubscriptionUrl,
   getUnblockInfo,
@@ -3133,7 +3057,6 @@ module.exports = {
   testHrefEquals,
   testHrefIncludes,
   testIsBrowserNotified,
-  testSmsFormat,
   testSuccessWasShown,
   testSuccessWasNotShown,
   testUrlEquals,

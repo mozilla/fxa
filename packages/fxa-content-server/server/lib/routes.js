@@ -30,7 +30,6 @@ module.exports = function (config, i18n, statsd) {
     require('./routes/navigation-timing')(config, statsd),
     require('./routes/post-metrics')(),
     require('./routes/redirect-download-firefox')(config),
-    require('./routes/redirect-m-to-adjust')(config),
     require('./routes/post-third-party-auth-redirect')(config),
     require('./routes/get-500')(config),
     require('./routes/validate-email-domain')(config),

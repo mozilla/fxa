@@ -662,10 +662,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
   /**
    * Set the view name prefix for metrics that contain a viewName.
    * This is used to differentiate between flows when the same
-   * URL can appear in more than one place in the flow, e.g., the
-   * /sms screen. The /sms screen can be displayed in either the
-   * signup or verification tab, and we want to be able to
-   * differentiate between the two.
+   * URL can appear in more than one place in the flow.
    *
    * This prefix is prepended to the view name anywhere a view
    * name is used.

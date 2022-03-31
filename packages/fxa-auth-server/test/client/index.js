@@ -769,27 +769,6 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.smsSend = function (
-    phoneNumber,
-    messageId,
-    features,
-    mailbox
-  ) {
-    return this.api
-      .smsSend(this.sessionToken, phoneNumber, messageId, features)
-      .then((result) => {
-        if (mailbox) {
-          return mailbox.waitForSms(phoneNumber);
-        }
-
-        return result;
-      });
-  };
-
-  Client.prototype.smsStatus = function (country, clientIpAddress) {
-    return this.api.smsStatus(this.sessionToken, country, clientIpAddress);
-  };
-
   Client.prototype.consumeSigninCode = function (code, metricsContext) {
     return this.api.consumeSigninCode(code, metricsContext);
   };

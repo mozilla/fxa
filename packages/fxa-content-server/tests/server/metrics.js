@@ -63,8 +63,8 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
     'type',
     'signin-permissions.checkbox.change.profile:display_name.unchecked'
   ),
-  'valid experiment choice (sendSms)': testValidMetricsField('experiments', [
-    { choice: 'sendSms', group: 'treatment' },
+  'valid experiment choice (pushLogin)': testValidMetricsField('experiments', [
+    { choice: 'pushLogin', group: 'treatment' },
   ]),
   'valid initialView': testValidMetricsField('initialView', 'az_-'),
   'valid lang (pt)': testValidMetricsField('lang', 'pt'),
@@ -139,7 +139,7 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
     { choice: {}, group: 'treatment' },
   ]),
   'invalid experiment group (1255{})': testInvalidMetricsField('experiments', [
-    { choice: 'sendSms', group: '1255{}' },
+    { choice: 'pushLogin', group: '1255{}' },
   ]),
   'invalid experiments (123)': testInvalidMetricsField('experiments', '123'),
   'invalid flowBeginTime (asdf)': testInvalidMetricsField(

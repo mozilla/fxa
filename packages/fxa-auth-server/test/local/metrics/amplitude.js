@@ -657,22 +657,6 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('sms.installFirefox.sent', () => {
-      beforeEach(() => {
-        return amplitude('sms.installFirefox.sent', mocks.mockRequest({}));
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1);
-        const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].event_type, 'fxa_sms - sent');
-      });
-    });
-
     describe('device.created', () => {
       beforeEach(() => {
         return amplitude('device.created', mocks.mockRequest({}));
@@ -733,12 +717,6 @@ describe('metrics/amplitude', () => {
       const emailTypes = amplitudeModule.EMAIL_TYPES;
 
       for (const template in templates) {
-        // Ignore sms based templates since they don't have the
-        // same sent/bounce/delivered logic as emails
-        if (template.includes('sms')) {
-          continue;
-        }
-
         it(`${template} should be in amplitudes email types`, () => {
           assert.hasAnyKeys(emailTypes, template);
         });
@@ -884,7 +862,7 @@ describe('metrics/amplitude', () => {
     describe('with metricsContext', () => {
       beforeEach(() => {
         return amplitude(
-          'sms.installFirefox.sent',
+          'account.created',
           mocks.mockRequest({
             payload: {
               metricsContext: {
@@ -923,7 +901,7 @@ describe('metrics/amplitude', () => {
     describe('with subscription', () => {
       beforeEach(() => {
         return amplitude(
-          'sms.installFirefox.sent',
+          'account.created',
           mocks.mockRequest({
             payload: {
               metricsContext: {

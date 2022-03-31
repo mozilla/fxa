@@ -545,16 +545,13 @@ module.exports = {
     HEADER: '#fxa-cad-qr-ready-to-scan-header',
     SUBMIT: 'button[type="submit"]',
     LATER: '#maybe-later-link',
-    USE_SMS: '#use-sms-link',
   },
   POST_VERIFY_CAD_QR_SCAN_CODE: {
     HEADER: '#fxa-cad-qr-connect-your-mobile-device-header',
-    USE_SMS: '#use-sms-link',
   },
   POST_VERIFY_CAD_QR_CONNECTED: {
     HEADER: '#fxa-cad-qr-connected-header',
     SUBMIT: 'button[type="submit"]',
-    USE_SMS: '#use-sms-link',
     DONE: '#done-link',
   },
   PUSH_VERIFY_LOGIN: {
@@ -779,36 +776,6 @@ module.exports = {
     TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
     ...CWTS_ENGINES,
-  },
-  SMS_LEARN_MORE: {
-    HEADER: '#firefox-notice',
-  },
-  SMS_SEND: {
-    HEADER: '#fxa-send-sms-header',
-    PROMPT_HEADER: '[data-id="prompt-header"]',
-    PROMPT_SUBHEADER: '[data-id="prompt-subheader"]',
-    LINK_LEARN_MORE: 'a#learn-more',
-    LINK_MARKETING: '.marketing-link',
-    LINK_MARKETING_ANDROID: '.marketing-link-android',
-    LINK_MARKETING_IOS: '.marketing-link-ios',
-    LINK_NOT_NOW: 'a[href="https://www.mozilla.org/firefox/accounts"]',
-    LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
-    LINK_WHY_IS_THIS_REQUIRED: 'a[href="/sms/why"]',
-    PHONE_NUMBER: 'input[type="tel"]',
-    PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
-    SUBMIT: 'button[type="submit"]',
-    SUCCESS: '.success',
-  },
-  SMS_SENT: {
-    HEADER: '#fxa-sms-sent-header',
-    LINK_BACK: '#back',
-    LINK_RESEND: '#resend',
-    LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
-    PHONE_NUMBER_SENT_TO: '#sms-sent-to',
-  },
-  SMS_WHY_IS_THIS_REQUIRED: {
-    CLOSE: '.connect-another-device button[type="submit"]',
-    HEADER: '#fxa-why-connect-another-device-header',
   },
   TOS: {
     HEADER: '#fxa-tos-header',

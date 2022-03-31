@@ -1306,46 +1306,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Send an SMS.
-     *
-     * @param {String} phoneNumber - target phone number
-     * @param {Number} messageId - ID of message
-     * @param {Object} [options={}]
-     *   @param {String[]} [options.features] Features to enable for
-     *     the request, e.g., `signinCodes`
-     * @returns {Promise}
-     */
-    sendSms(phoneNumber, messageId, options = {}) {
-      return this._fxaClient.sendSms(
-        this.get('sessionToken'),
-        phoneNumber,
-        messageId,
-        {
-          features: options.features || [],
-          metricsContext: this._metrics.getFlowEventMetadata(),
-        }
-      );
-    },
-
-    /**
-     * Check whether SMS is enabled for the current account.
-     *
-     * @param {Object} [options={}] options
-     *   @param {Boolean} [options.country]  country code to force for testing.
-     * @returns {Promise} resolves to an object with:
-     *   * {Boolean} ok - true if user can send an SMS
-     *   * {String} country - user's country
-     */
-    smsStatus(options) {
-      const sessionToken = this.get('sessionToken');
-      if (!sessionToken) {
-        return Promise.resolve({ ok: false });
-      }
-
-      return this._fxaClient.smsStatus(sessionToken, options);
-    },
-
-    /**
      * Get emails associated with user.
      *
      * @returns {Promise}

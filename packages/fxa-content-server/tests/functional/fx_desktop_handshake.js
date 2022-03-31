@@ -27,12 +27,6 @@ const SETTINGS_PAGE_URL = `${
   config.fxaContentRoot
 }settings?forceUA=${encodeURIComponent(userAgent)}`;
 
-const SYNC_SMS_PAGE_URL = `${
-  config.fxaContentRoot
-}sms?service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(
-  userAgent
-)}`; //eslint-disable-line max-len
-
 var browserSignedInEmail;
 let browserSignedInAccount;
 
@@ -45,18 +39,13 @@ const {
   click,
   clearBrowserState,
   createEmail,
-  createPhoneNumber,
   createUser,
-  deleteAllSms,
-  disableInProd,
   fillOutEmailFirstSignIn,
-  getSmsSigninCode,
   openPage,
   testElementExists,
   testElementTextEquals,
   testElementValueEquals,
   thenify,
-  type,
 } = FunctionalHelpers;
 
 const ensureUsers = thenify(function () {
@@ -185,66 +174,7 @@ registerSuite('Firefox desktop user info handshake', {
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
-
-    'Sync - user signed into browser, signin code': disableInProd(function () {
-      const testPhoneNumber = createPhoneNumber();
-      let signinUrlWithSigninCode;
-
-      return (
-        this.remote
-          // The phoneNumber can be reused by different tests, delete all
-          // of its SMS messages to ensure a clean slate.
-          .then(deleteAllSms(testPhoneNumber))
-
-          .then(
-            openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  signedInUser: browserSignedInAccount,
-                },
-              },
-            })
-          )
-          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-          .then(click(selectors.SMS_SEND.SUBMIT))
-
-          .then(testElementExists(selectors.SMS_SENT.HEADER))
-          .then(getSmsSigninCode(testPhoneNumber, 0))
-          .then(function (signinCode) {
-            signinUrlWithSigninCode = `${SYNC_ENTER_EMAIL_PAGE_URL}&signin=${signinCode}`;
-            return (
-              this.parent
-                .then(clearBrowserState({ forceAll: true }))
-                // Synthesize opening the SMS message in a browser where another
-                // user is already signed in.
-                .then(
-                  openPage(
-                    signinUrlWithSigninCode,
-                    selectors.SIGNIN_PASSWORD.HEADER,
-                    {
-                      webChannelResponses: {
-                        'fxaccounts:fxa_status': {
-                          signedInUser: otherAccount,
-                        },
-                      },
-                    }
-                  )
-                )
-                // user opened an SMS w/ deferred deeplink in a browser that supports
-                // fxa_status. This can't happen currently because only Fx Desktop
-                // supports the query, but I want a test to ensure the behavior is
-                // defined so that we are ready when Fennec or iOS adds fxa_status support.
-                .then(
-                  testElementTextEquals(
-                    selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-                    browserSignedInEmail
-                  )
-                )
-            );
-          })
-      );
-    }),
-
+    
     'Sync - no user signed into browser, no user signed in locally': function () {
       return this.remote
         .then(openPage(SYNC_ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))

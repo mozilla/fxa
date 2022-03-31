@@ -15,8 +15,7 @@ class ScanCode extends FormView {
   viewName = 'connected';
 
   events = assign(this.events, {
-    'click #done-link': preventDefaultThen('clickDoneLink'),
-    'click #use-sms-link': preventDefaultThen('clickUseSms'),
+    'click #done-link': preventDefaultThen('clickDoneLink')
   });
 
   setInitialContext(context) {
@@ -27,10 +26,6 @@ class ScanCode extends FormView {
 
   submit() {
     return this.navigate('/post_verify/cad_qr/ready_to_scan');
-  }
-
-  clickUseSms() {
-    return this.navigate('/sms');
   }
 }
 

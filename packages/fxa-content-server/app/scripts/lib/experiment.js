@@ -21,9 +21,6 @@ const STARTUP_EXPERIMENTS = {};
  */
 const MANUAL_EXPERIMENTS = {
   emailMxValidation: BaseExperiment,
-  // For now, the send SMS experiment only needs to log "enrolled", so
-  // no special experiment is created.
-  sendSms: BaseExperiment,
   newsletterSync: BaseExperiment,
   qrCodeCad: BaseExperiment,
   pushLogin: BaseExperiment,

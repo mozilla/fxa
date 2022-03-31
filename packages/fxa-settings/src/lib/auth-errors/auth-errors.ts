@@ -111,6 +111,7 @@ const ERRORS = {
     errno: 130,
     message: 'Cannot send to this country',
   },
+  // We don't currently support sms but still keep the error codes to avoid conflicts
   SMS_ID_INVALID: {
     errno: 131,
     // should not be user facing, not wrapped in t
