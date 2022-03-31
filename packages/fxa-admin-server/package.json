@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.228.5",
+  "version": "1.228.6",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",

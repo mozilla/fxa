@@ -1,3 +1,9 @@
+## 1.228.6
+
+### Bug fixes
+
+- mailer: mailer chainging timezone test (#12257) ([aeebc5fbbf](https://github.com/mozilla/fxa/commit/aeebc5fbbf))
+
 ## 1.228.5
 
 ### Bug fixes
