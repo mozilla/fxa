@@ -154,9 +154,6 @@ const expectedMergedConfig = {
     profile: {
       url: '',
     },
-    surveyGizmo: {
-      url: '',
-    },
   },
   paypal: {
     apiUrl: '',

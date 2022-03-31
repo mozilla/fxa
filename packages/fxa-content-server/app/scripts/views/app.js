@@ -17,7 +17,6 @@ var AppView = BaseView.extend({
   initialize(options) {
     options = options || {};
 
-    this._surveyTargeter = options.surveyTargeter;
     this._environment = options.environment;
     this._createView = options.createView;
   },
@@ -125,8 +124,6 @@ var AppView = BaseView.extend({
 
           this.setTitle(viewToShow.titleFromView());
 
-          this._showSurvey(viewToShow, options);
-
           this.writeToDOM(viewToShow.el);
 
           // logView is done outside of the view itself because the settings
@@ -179,28 +176,8 @@ var AppView = BaseView.extend({
         childView.model.set(options.model.toJSON());
         childView.displayStatusMessages();
 
-        this._showSurvey(this._currentView, options);
-
         return childView;
       });
-  },
-
-  /**
-   * Get a survey from the survey targeting module.  If there's a survey,
-   * append it to the view.
-   *
-   * @param {Backbone.View} view the current (parent) view
-   * @param {Object} options the option for the view to be displayed
-   */
-  _showSurvey(view, options) {
-    if (this._surveyTargeter) {
-      this._surveyTargeter.getSurvey(options.viewName).then((survey) => {
-        if (survey) {
-          survey.render();
-          view.$el.append(survey.el);
-        }
-      });
-    }
   },
 
   /**

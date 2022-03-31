@@ -6,7 +6,6 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
-const surveys = require('../../config/surveys.json');
 
 module.exports = function (config) {
   let featureFlags;
@@ -43,7 +42,6 @@ module.exports = function (config) {
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   const SUBSCRIPTIONS = config.get('subscriptions');
-  const SURVEY_FEATURE = config.get('surveyFeature');
   const GOOGLE_AUTH_CONFIG = config.get('googleAuthConfig');
   const APPLE_AUTH_CONFIG = config.get('appleAuthConfig');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
@@ -88,8 +86,6 @@ module.exports = function (config) {
     },
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
-    surveys,
-    surveyFeature: SURVEY_FEATURE,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   };
 

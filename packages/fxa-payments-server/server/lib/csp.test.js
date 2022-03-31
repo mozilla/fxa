@@ -43,12 +43,11 @@ describe('CSP blocking rules', () => {
   it('has correct frameSrc directives', () => {
     const { frameSrc } = directives;
 
-    expect(frameSrc).toHaveLength(5);
+    expect(frameSrc).toHaveLength(4);
     expect(frameSrc).toContain(Sources.PAYPAL_API_URL);
     expect(frameSrc).toContain(Sources.PAYPAL_SCRIPT_URL);
     expect(frameSrc).toContain(Sources.STRIPE_SCRIPT_URL);
     expect(frameSrc).toContain(Sources.STRIPE_HOOKS_URL);
-    expect(frameSrc).toContain(Sources.SURVEY_GIZMO_IFRAME_EMBED_URL);
   });
 
   it('has correct imgSrc directives', () => {

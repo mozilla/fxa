@@ -34,9 +34,6 @@ export interface Config {
     profile: {
       url: string;
     };
-    surveyGizmo: {
-      url: string;
-    };
   };
   paypal: {
     apiUrl: string;
@@ -82,9 +79,6 @@ export function defaultConfig(): Config {
         clientId: '',
       },
       profile: {
-        url: '',
-      },
-      surveyGizmo: {
         url: '',
       },
     },

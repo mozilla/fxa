@@ -304,14 +304,6 @@ const conf = convict({
         format: 'url',
       },
     },
-    surveyGizmo: {
-      url: {
-        default: 'https://www.surveygizmo.com',
-        doc: 'The Survey Gizmo iframe embed url',
-        env: 'SURVEY_GIZMO_EMBED_URL',
-        format: 'url',
-      },
-    },
   },
   staticResources: {
     directory: {
