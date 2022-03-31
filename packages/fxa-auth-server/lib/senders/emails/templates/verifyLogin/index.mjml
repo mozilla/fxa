@@ -23,7 +23,7 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/location/index.mjml') %>
+<%- include('/partials/userInfo/index.mjml') %>
 <%- include('/partials/button/index.mjml', {
   buttonL10nId: "verifyLogin-action",
   buttonText: "Confirm sign-in"

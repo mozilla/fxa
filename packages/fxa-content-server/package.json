@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.228.6",
+  "version": "1.229.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
@@ -39,8 +39,10 @@
     "@babel/preset-env": "^7.16.7",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
-    "@sentry/browser": "^6.18.2",
-    "@sentry/node": "^6.16.1",
+    "@sentry/browser": "^6.19.1",
+    "@sentry/integrations": "^6.19.1",
+    "@sentry/node": "^6.19.1",
+    "@sentry/tracing": "^6.19.1",
     "asmcrypto.js": "^0.22.0",
     "autoprefixer": "10.4.0",
     "babel-loader": "^8.2.2",

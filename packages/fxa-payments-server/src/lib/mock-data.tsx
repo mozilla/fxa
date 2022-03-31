@@ -46,6 +46,8 @@ export const CUSTOMER: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -135,6 +137,8 @@ export const PAYPAL_CUSTOMER: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -279,6 +283,7 @@ export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
 export const COUPON_DETAILS_VALID: CouponDetails = {
   promotionCode: 'VALID',
   type: '',
+  durationInMonths: 1,
   valid: true,
   discountAmount: 50,
   expired: false,
@@ -288,12 +293,14 @@ export const COUPON_DETAILS_VALID: CouponDetails = {
 export const COUPON_DETAILS_INVALID: CouponDetails = {
   promotionCode: 'INVALID',
   type: '',
+  durationInMonths: 1,
   valid: false,
 };
 
 export const COUPON_DETAILS_EXPIRED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   expired: true,
 };
@@ -301,6 +308,7 @@ export const COUPON_DETAILS_EXPIRED: CouponDetails = {
 export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   promotionCode: 'EXPIRED',
   type: '',
+  durationInMonths: 1,
   valid: false,
   maximallyRedeemed: true,
 };

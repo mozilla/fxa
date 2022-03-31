@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { MOCK_USER_INFO } from '../../partials/userInfo/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
@@ -14,7 +14,7 @@ const createStory = storyWithProps(
   'passwordResetAccountRecovery',
   'Sent when recovery key is used',
   {
-    ...MOCK_LOCATION,
+    ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings/account_recovery',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }

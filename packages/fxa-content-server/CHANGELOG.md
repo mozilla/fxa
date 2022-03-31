@@ -1,3 +1,13 @@
+## 1.229.0
+
+### New features
+
+- auth: Add third party auth metrics (#12221) ([f4d13cf32](https://github.com/mozilla/fxa/commit/f4d13cf32))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+
 ## 1.228.6
 
 No changes.

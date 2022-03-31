@@ -1,6 +1,6 @@
 unblockCode-title = "Is this you signing in?"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 unblockCode-prompt-plaintext = "If yes, here is the authorization code you need: <%- unblockCode %>"
 

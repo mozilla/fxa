@@ -23,6 +23,8 @@ module.exports = {
         TS_NODE_FILES: 'true',
         PORT: '8290', // TODO: this needs to get added to src/config.ts
         CUSTOMS_SERVER_URL: 'none',
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_GRAPHQL_API,
       },
       filter_env: ['npm_'],
       watch: ['src'],

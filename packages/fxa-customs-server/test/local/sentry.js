@@ -22,7 +22,7 @@ let server;
 
 test('Sentry emits error', async () => {
   server = new Hapi.Server({});
-  config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
+  config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
 
   await configureSentry(server, config, log);
 

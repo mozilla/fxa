@@ -1,14 +1,23 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import 'jsdom-global/register';
 import { assert } from 'chai';
 import * as Sentry from '@sentry/browser';
 import sentryMetrics, { _Sentry } from '../../lib/sentry';
+import { SentryConfigOpts } from '../../sentry';
 const sinon = require('sinon');
 
-const dsn = 'https://public:private@host:port/1';
+const config: SentryConfigOpts = {
+  release: 'v0.0.0',
+  sentry: {
+    dsn: 'https://public:private@host:8080/1',
+    env: 'test',
+    clientName: 'fxa-shared-testing',
+    sampleRate: 0,
+    tracesSampleRate: 0,
+  },
+};
 
 describe('lib/sentry', () => {
   before(() => {
@@ -23,7 +32,7 @@ describe('lib/sentry', () => {
   describe('init', () => {
     it('properly configures with dsn', () => {
       try {
-        sentryMetrics.configure(dsn);
+        sentryMetrics.configure(config);
       } catch (e) {
         assert.isNull(e);
       }
@@ -31,7 +40,7 @@ describe('lib/sentry', () => {
   });
 
   describe('beforeSend', () => {
-    sentryMetrics.configure(dsn);
+    sentryMetrics.configure(config);
 
     it('works without request url', () => {
       const data = {

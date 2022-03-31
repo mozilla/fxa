@@ -7,7 +7,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="subscriptionUpgrade-title" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">Thank you for upgrading!</span>
+      <span data-l10n-id="subscriptionUpgrade-title">Thank you for upgrading!</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -15,7 +15,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-upgrade-info" data-l10n-args="<%= JSON.stringify({productNameNew, productNameOld}) %>">You have successfully upgraded from <%- productNameOld %> to <%- productNameNew %>.</span>
+      <span data-l10n-id="subscriptionUpgrade-upgrade-info" data-l10n-args="<%= JSON.stringify({productName, productNameOld}) %>">You have successfully upgraded from <%- productNameOld %> to <%- productName %>.</span>
     </mj-text>
 
     <mj-text css-class="text-body">
@@ -23,7 +23,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-install" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">If there is new software for you to install in order to use <%- productNameNew %>, you will receive a separate email with download instructions.</span>
+      <span data-l10n-id="subscriptionUpgrade-install" data-l10n-args="<%= JSON.stringify({productName}) %>">If there is new software for you to install in order to use <%- productName %>, you will receive a separate email with download instructions.</span>
     </mj-text>
 
     <mj-text css-class="text-body">

@@ -4,7 +4,10 @@ import * as Amplitude from './amplitude';
 import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  SubsequentInvoicePreview,
+} from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponErrorMessageType } from '../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
@@ -395,6 +398,15 @@ export async function apiInvoicePreview(params: {
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
     { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiSubsequentInvoicePreview(): Promise<
+  SubsequentInvoicePreview[]
+> {
+  return apiFetch(
+    'GET',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview-subsequent`
   );
 }
 

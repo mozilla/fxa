@@ -65,6 +65,8 @@ const customer: Customer = {
       current_period_end: Date.now() / 10 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -75,6 +77,7 @@ const coupon: CouponDetails = {
   discountAmount: 200,
   promotionCode: 'TEST',
   type: '',
+  durationInMonths: 1,
   valid: true,
 };
 

@@ -1,5 +1,23 @@
 # Change history
 
+## 1.229.0
+
+### New features
+
+- coupons: resub confirmation discount amount (#12237) ([028ad3dfe](https://github.com/mozilla/fxa/commit/028ad3dfe))
+- coupon: update info box for coupon type (#12187) ([2a4054cde](https://github.com/mozilla/fxa/commit/2a4054cde))
+- payments: update Manage Subscription Page to Reflect Discount Pricing (#12059) ([d7f9f0add](https://github.com/mozilla/fxa/commit/d7f9f0add))
+
+### Bug fixes
+
+- subscriptions: create customer for iap sub (#12164) ([ac80297f6](https://github.com/mozilla/fxa/commit/ac80297f6))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- deps: bump react-router-dom from 6.2.1 to 6.2.2 ([51401e914](https://github.com/mozilla/fxa/commit/51401e914))
+- deps: bump @stripe/stripe-js from 1.23.0 to 1.25.0 ([a56623834](https://github.com/mozilla/fxa/commit/a56623834))
+
 ## 1.228.6
 
 No changes.

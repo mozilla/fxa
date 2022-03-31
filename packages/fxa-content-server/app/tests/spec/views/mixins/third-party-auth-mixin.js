@@ -44,6 +44,11 @@ describe('views/mixins/third-party-auth-mixin', function () {
         redirectUri: 'http://redirect.com',
         authorizationEndpoint: 'http://example.com',
       },
+      appleAuthConfig: {
+        clientId: 'MOCK_CLIENT_ID',
+        redirectUri: 'http://redirect.com',
+        authorizationEndpoint: 'http://example.com',
+      },
     };
 
     mockForm = document.createElement('form');
@@ -66,19 +71,49 @@ describe('views/mixins/third-party-auth-mixin', function () {
       window: windowMock,
       user,
     });
-
+    sinon.spy(notifier, 'trigger');
     await view.render();
   });
 
-  it('beforeRender', () => {
-    sinon.stub(view, 'completeSignIn');
-    Storage.factory('localStorage', windowMock).set(
-      'fxa_third_party_params',
-      'some params'
-    );
+  describe('beforeRender', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'logViewEvent');
+      sinon.spy(view, 'logFlowEvent');
+      sinon.stub(view, 'completeSignIn');
+      sinon.stub(view, 'appleSignIn');
+      sinon.stub(view, 'googleSignIn');
+    });
 
-    view.beforeRender();
-    assert.isTrue(view.completeSignIn.calledOnce);
+    it('no deeplink', () => {
+      view.beforeRender();
+      assert.isTrue(view.logViewEvent.calledOnceWith('thirdPartyAuth'));
+    });
+
+    it('with third party auth set', () => {
+      Storage.factory('localStorage', windowMock).set(
+        'fxa_third_party_params',
+        'some params'
+      );
+      view.beforeRender();
+      assert.isTrue(view.completeSignIn.calledOnce);
+      assert.isTrue(notifier.trigger.calledOnce);
+      assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+      assert.isFalse(view.logViewEvent.called);
+    });
+
+    it('google login deeplink', () => {
+      windowMock.location.search = '?deeplink=googleLogin';
+      view.beforeRender();
+      assert.isTrue(view.googleSignIn.calledOnce);
+      assert.isTrue(view.logFlowEvent.calledOnceWith('google.deeplink'));
+    });
+
+    it('apple login deeplink', () => {
+      windowMock.location.search = '?deeplink=appleLogin';
+      view.beforeRender();
+      assert.isTrue(view.appleSignIn.calledOnce);
+      assert.isTrue(view.logFlowEvent.calledOnceWith('apple.deeplink'));
+    });
   });
 
   it('clearStoredParams', () => {
@@ -86,10 +121,14 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assert.isUndefined(windowMock.localStorage.get('fxa_third_party_params'));
   });
 
-  it('googleSignIn', async () => {
-    windowMock.location.href = 'http://127.0.0.1:3030/?orignal_oauth_params';
+  it('googleSignIn', () => {
+    sinon.spy(view, 'logFlowEvent');
+
+    windowMock.location.href = 'http://127.0.0.1:3030/?original_oauth_params';
 
     view.googleSignIn();
+
+    assert.isTrue(view.logFlowEvent.calledWith('google.oauth-start'));
 
     assert.isTrue(mockForm.setAttribute.calledWith('method', 'GET'));
     assert.isTrue(
@@ -111,13 +150,57 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assertInputEl(
       mockInput,
       'state',
-      encodeURIComponent(`${windowMock.location.origin}${windowMock.location.pathname}?`)
+      encodeURIComponent(
+        `${windowMock.location.origin}${windowMock.location.pathname}?`
+      )
     );
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');
     assertInputEl(mockInput, 'response_type', 'code');
 
     assert.equal(mockForm.appendChild.args.length, 7);
+    assert.isTrue(mockForm.submit.calledOnce);
+  });
+
+  it('appleSignIn', () => {
+    sinon.spy(view, 'logFlowEvent');
+
+    windowMock.location.href = 'http://127.0.0.1:3030/?original_oauth_params';
+
+    view.appleSignIn();
+
+    assert.isTrue(view.logFlowEvent.calledWith('apple.oauth-start'));
+
+    assert.isTrue(mockForm.setAttribute.calledWith('method', 'GET'));
+    assert.isTrue(
+      mockForm.setAttribute.calledWith(
+        'action',
+        config.appleAuthConfig.authorizationEndpoint
+      )
+    );
+
+    assert.equal(mockInput.setAttribute.args.length, 24);
+
+    assertInputEl(mockInput, 'client_id', config.appleAuthConfig.clientId);
+    assertInputEl(mockInput, 'scope', 'email');
+    assertInputEl(
+      mockInput,
+      'redirect_uri',
+      config.appleAuthConfig.redirectUri
+    );
+    assertInputEl(
+      mockInput,
+      'state',
+      encodeURIComponent(
+        `${windowMock.location.origin}${windowMock.location.pathname}?`
+      )
+    );
+    assertInputEl(mockInput, 'access_type', 'offline');
+    assertInputEl(mockInput, 'prompt', 'consent');
+    assertInputEl(mockInput, 'response_type', 'code id_token');
+    assertInputEl(mockInput, 'response_mode', 'form_post');
+
+    assert.equal(mockForm.appendChild.args.length, 8);
     assert.isTrue(mockForm.submit.calledOnce);
   });
 
@@ -135,6 +218,8 @@ describe('views/mixins/third-party-auth-mixin', function () {
     sinon.stub(view, 'signIn').callsFake(() => {});
     sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
     sinon.spy(view, 'clearStoredParams');
+    sinon.spy(view, 'logFlowEvent');
+
     Storage.factory('localStorage', windowMock).set('fxa_third_party_params', {
       code: '123',
     });
@@ -146,5 +231,6 @@ describe('views/mixins/third-party-auth-mixin', function () {
     );
     assert.isTrue(view.clearStoredParams.calledOnce);
     assert.isTrue(view.signIn.calledOnceWith(undefined));
+    assert.isTrue(view.logFlowEvent.calledWith('google.signin-complete'));
   });
 });

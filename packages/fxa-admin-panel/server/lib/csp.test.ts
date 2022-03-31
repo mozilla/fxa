@@ -19,9 +19,10 @@ describe('CSP blocking rules', () => {
   it('has correct connectSrc directives', () => {
     const { connectSrc } = directives;
 
-    expect(connectSrc).toHaveLength(2);
+    expect(connectSrc).toHaveLength(3);
     expect(connectSrc).toContain(Sources.SELF);
     expect(connectSrc).toContain(Sources.ADMIN_SERVER);
+    expect(connectSrc).toContain(Sources.SENTRY_SERVER);
   });
 
   it('has correct defaultSrc directives', () => {

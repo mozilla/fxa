@@ -12,7 +12,10 @@ import { GqlModuleOptions } from '@nestjs/graphql';
 import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
+import {
+  SentryPlugin,
+  createContext,
+} from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
@@ -40,7 +43,7 @@ export const GraphQLConfigFactory = async (
   debug: configService.get<string>('env') !== 'production',
   playground: configService.get<string>('env') !== 'production',
   autoSchemaFile: join(path.dirname(__dirname), './schema.gql'),
-  context: ({ req }) => ({ req }),
+  context: ({ req, connection }) => createContext({ req, connection }),
   // Disabling cors here allows the cors middleware from NestJS to be applied
   cors: false,
   uploads: false,

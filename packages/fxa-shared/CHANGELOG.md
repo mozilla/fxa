@@ -1,5 +1,22 @@
 # Change history
 
+## 1.229.0
+
+### New features
+
+- coupons: resub confirmation discount amount (#12237) ([028ad3dfe](https://github.com/mozilla/fxa/commit/028ad3dfe))
+- auth: Add third party auth metrics (#12221) ([f4d13cf32](https://github.com/mozilla/fxa/commit/f4d13cf32))
+- coupon: update info box for coupon type (#12187) ([2a4054cde](https://github.com/mozilla/fxa/commit/2a4054cde))
+
+### Bug fixes
+
+- email: Use uppercase provider name in email (#12286) ([c8f5998b0](https://github.com/mozilla/fxa/commit/c8f5998b0))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- auth: Remove confusing / unneded config from OauthRedis constructor ([fdbe83fd8](https://github.com/mozilla/fxa/commit/fdbe83fd8))
+
 ## 1.228.6
 
 No changes.

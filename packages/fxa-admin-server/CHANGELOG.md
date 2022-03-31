@@ -1,3 +1,15 @@
+## 1.229.0
+
+### Bug fixes
+
+- graphql: Fixes formatting on codegen file. ([42c82e32d](https://github.com/mozilla/fxa/commit/42c82e32d))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- admin-panel: Add support for user group spoofing ([53e93b9b1](https://github.com/mozilla/fxa/commit/53e93b9b1))
+- deps: bump @nestjs/platform-express from 8.4.0 to 8.4.3 ([d9579ee23](https://github.com/mozilla/fxa/commit/d9579ee23))
+
 ## 1.228.6
 
 No changes.

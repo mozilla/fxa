@@ -24,6 +24,8 @@ module.exports = {
         FIRESTORE_EMULATOR_HOST: 'localhost:9090',
         PUBSUB_PROXY_PORT: '8093',
         PATH,
+        SENTRY_ENV: 'local',
+        SENTRY_DSN: process.env.SENTRY_DSN_EVENT_BROKER,
       },
       filter_env: ['npm_'],
       watch: ['src', 'config'],
