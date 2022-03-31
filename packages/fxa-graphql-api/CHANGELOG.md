@@ -1,3 +1,11 @@
+## 1.229.0
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- deps: bump @nestjs/platform-express from 8.4.0 to 8.4.3 ([d9579ee23](https://github.com/mozilla/fxa/commit/d9579ee23))
+- deps: bump apollo-datasource from 0.9.0 to 3.3.1 ([30ef06901](https://github.com/mozilla/fxa/commit/30ef06901))
+
 ## 1.228.4
 
 No changes.
