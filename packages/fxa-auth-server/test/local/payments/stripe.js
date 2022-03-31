@@ -5024,11 +5024,19 @@ describe('StripeHelper', () => {
         stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
           .stub()
           .resolves({});
+        stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
         await stripeHelper.processWebhookEventToFirestore(event);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
-          subscription1
-        );
+        if (type === 'customer.subscription.created') {
+          sinon.assert.calledOnceWithExactly(
+            stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+            subscription1.customer
+          );
+        } else {
+          sinon.assert.calledOnceWithExactly(
+            stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
+            subscription1
+          );
+        }
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripe.subscriptions.retrieve,
           event.data.object.id
