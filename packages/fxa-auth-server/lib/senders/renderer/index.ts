@@ -123,7 +123,7 @@ class Renderer extends Localizer {
     // error. Might be a config option to make it work?
     try {
       // make this a switch statement on 'template' if more cases arise?
-      if (context.template === 'lowRecoveryCodes' && context.numberRemaining) {
+      if (context.template === 'lowRecoveryCodes') {
         return (
           await require('../emails/templates/lowRecoveryCodes/includes')
         ).getIncludes(context.numberRemaining);
