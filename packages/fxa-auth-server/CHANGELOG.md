@@ -1,3 +1,10 @@
+## 1.228.7
+
+### Bug fixes
+
+- recovery-codes: Remove context.numberRemaining check in getGlobalTemplateValues ([c66633722f](https://github.com/mozilla/fxa/commit/c66633722f))
+- tsconfig: Transpile email templates includes.ts files ([d9fb5d72ad](https://github.com/mozilla/fxa/commit/d9fb5d72ad))
+
 ## 1.228.6
 
 ### Bug fixes
