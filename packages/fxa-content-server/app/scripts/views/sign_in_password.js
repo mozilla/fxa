@@ -94,7 +94,7 @@ Cocktail.mixin(
   SignInMixin,
   SignedInNotificationMixin,
   UserCardMixin,
-  PocketMigrationMixin,
+  PocketMigrationMixin
 );
 
 export default SignInPasswordView;

@@ -37,12 +37,12 @@ export default {
     const params = new URLSearchParams(this.window.location.search);
     if (params.get('deeplink') === 'googleLogin') {
       this.logFlowEvent('google.deeplink');
-      return new Promise(()=> {
+      return new Promise(() => {
         this.googleSignIn();
       });
     } else if (params.get('deeplink') === 'appleLogin') {
       this.logFlowEvent('apple.deeplink');
-      return new Promise(()=> {
+      return new Promise(() => {
         this.appleSignIn();
       });
     }
@@ -74,9 +74,13 @@ export default {
     // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
     const currentParams = new URLSearchParams(this.window.location.search);
-    currentParams.delete("deeplink");
+    currentParams.delete('deeplink');
 
-    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
+    const state = encodeURIComponent(
+      `${this.window.location.origin}${
+        this.window.location.pathname
+      }?${currentParams.toString()}`
+    );
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
@@ -116,9 +120,13 @@ export default {
     this.logFlowEvent('apple.oauth-start');
 
     const currentParams = new URLSearchParams(this.window.location.search);
-    currentParams.delete("deeplink");
+    currentParams.delete('deeplink');
 
-    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
+    const state = encodeURIComponent(
+      `${this.window.location.origin}${
+        this.window.location.pathname
+      }?${currentParams.toString()}`
+    );
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission

@@ -83,7 +83,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
       sinon.stub(view, 'appleSignIn');
       sinon.stub(view, 'googleSignIn');
     });
-    
+
     it('no deeplink', () => {
       view.beforeRender();
       assert.isTrue(view.logViewEvent.calledOnceWith('thirdPartyAuth'));
@@ -100,8 +100,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
       assert.isFalse(view.logViewEvent.called);
     });
-    
-    
+
     it('google login deeplink', () => {
       windowMock.location.search = '?deeplink=googleLogin';
       view.beforeRender();
@@ -151,7 +150,9 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assertInputEl(
       mockInput,
       'state',
-      encodeURIComponent(`${windowMock.location.origin}${windowMock.location.pathname}?`)
+      encodeURIComponent(
+        `${windowMock.location.origin}${windowMock.location.pathname}?`
+      )
     );
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');
@@ -190,7 +191,9 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assertInputEl(
       mockInput,
       'state',
-      encodeURIComponent(`${windowMock.location.origin}${windowMock.location.pathname}?`)
+      encodeURIComponent(
+        `${windowMock.location.origin}${windowMock.location.pathname}?`
+      )
     );
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');
@@ -200,7 +203,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assert.equal(mockForm.appendChild.args.length, 8);
     assert.isTrue(mockForm.submit.calledOnce);
   });
-  
+
   it('handleOauthResponse', () => {
     windowMock.location.search = '?state=localhost';
     sinon.stub(view, 'navigateAway');

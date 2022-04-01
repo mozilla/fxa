@@ -10,6 +10,18 @@
 - all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
 - deps: bump react-webcam from 6.0.1 to 7.0.0 ([9a707fc29](https://github.com/mozilla/fxa/commit/9a707fc29))
 
+## 1.228.7
+
+No changes.
+
+## 1.228.6
+
+No changes.
+
+## 1.228.5
+
+No changes.
+
 ## 1.228.4
 
 No changes.

@@ -464,8 +464,11 @@ const FUZZY_EVENTS = new Map([
     {
       group: GROUPS.thirdPartyAuth,
       event: (eventCategory, eventTarget) => {
-       return `${eventCategory.replace(/-/g, '_')}_${eventTarget.replace(/-/g, '_')}`
-      }
+        return `${eventCategory.replace(/-/g, '_')}_${eventTarget.replace(
+          /-/g,
+          '_'
+        )}`;
+      },
     },
   ],
 ]);

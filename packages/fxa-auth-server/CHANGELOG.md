@@ -33,6 +33,25 @@
 - auth: Remove confusing / unneded config from OauthRedis constructor ([fdbe83fd8](https://github.com/mozilla/fxa/commit/fdbe83fd8))
 - deps: bump nodemailer from 6.7.2 to 6.7.3 ([9ee3caac6](https://github.com/mozilla/fxa/commit/9ee3caac6))
 
+## 1.228.7
+
+### Bug fixes
+
+- recovery-codes: Remove context.numberRemaining check in getGlobalTemplateValues ([c66633722f](https://github.com/mozilla/fxa/commit/c66633722f))
+- tsconfig: Transpile email templates includes.ts files ([d9fb5d72ad](https://github.com/mozilla/fxa/commit/d9fb5d72ad))
+
+## 1.228.6
+
+### Bug fixes
+
+- mailer: mailer chainging timezone test (#12257) ([aeebc5fbbf](https://github.com/mozilla/fxa/commit/aeebc5fbbf))
+
+## 1.228.5
+
+### Bug fixes
+
+- auth: update cached customer on customer.subscription.created ([f1dea10b18](https://github.com/mozilla/fxa/commit/f1dea10b18))
+
 ## 1.228.4
 
 ### Bug fixes

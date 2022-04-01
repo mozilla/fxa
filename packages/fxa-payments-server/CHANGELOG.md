@@ -18,6 +18,18 @@
 - deps: bump react-router-dom from 6.2.1 to 6.2.2 ([51401e914](https://github.com/mozilla/fxa/commit/51401e914))
 - deps: bump @stripe/stripe-js from 1.23.0 to 1.25.0 ([a56623834](https://github.com/mozilla/fxa/commit/a56623834))
 
+## 1.228.7
+
+No changes.
+
+## 1.228.6
+
+No changes.
+
+## 1.228.5
+
+No changes.
+
 ## 1.228.4
 
 No changes.

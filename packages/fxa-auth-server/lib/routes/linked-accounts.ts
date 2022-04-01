@@ -9,7 +9,10 @@ import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import validators from './validators';
 import jwtDecode from 'jwt-decode';
-import { Provider, PROVIDER_NAME } from 'fxa-shared/db/models/auth/linked-account';
+import {
+  Provider,
+  PROVIDER_NAME,
+} from 'fxa-shared/db/models/auth/linked-account';
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 const error = require('../error');
@@ -196,7 +199,10 @@ export class LinkedAccountHandler {
         // Currently, we treat accounts created from a linked account as a new
         // registration and emit the correspond event. Note that depending on
         // where might not be a top of funnel for this completion event.
-        request.setMetricsFlowCompleteSignal('account.verified', 'registration');
+        request.setMetricsFlowCompleteSignal(
+          'account.verified',
+          'registration'
+        );
         await request.emitMetricsEvent('account.verified', {
           uid: accountRecord.uid,
         });

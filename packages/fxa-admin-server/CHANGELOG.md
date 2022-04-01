@@ -10,6 +10,18 @@
 - admin-panel: Add support for user group spoofing ([53e93b9b1](https://github.com/mozilla/fxa/commit/53e93b9b1))
 - deps: bump @nestjs/platform-express from 8.4.0 to 8.4.3 ([d9579ee23](https://github.com/mozilla/fxa/commit/d9579ee23))
 
+## 1.228.7
+
+No changes.
+
+## 1.228.6
+
+No changes.
+
+## 1.228.5
+
+No changes.
+
 ## 1.228.4
 
 No changes.

@@ -4,6 +4,18 @@
 
 - all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
 
+## 1.228.7
+
+No changes.
+
+## 1.228.6
+
+No changes.
+
+## 1.228.5
+
+No changes.
+
 ## 1.228.4
 
 No changes.

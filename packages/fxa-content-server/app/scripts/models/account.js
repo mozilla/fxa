@@ -1186,7 +1186,12 @@ const Account = Backbone.Model.extend(
 
     verifyAccountThirdParty(relier, code, provider) {
       return this._fxaClient
-        .verifyAccountThirdParty(relier, code, provider, this._metrics.getFlowEventMetadata())
+        .verifyAccountThirdParty(
+          relier,
+          code,
+          provider,
+          this._metrics.getFlowEventMetadata()
+        )
         .then(this.set.bind(this));
     },
 

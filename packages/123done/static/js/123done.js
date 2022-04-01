@@ -219,7 +219,7 @@ $(document).ready(function () {
         currentParams.set('flow_begin_time', flowData.flowBeginTime);
         currentParams.set('device_id', flowData.deviceId);
       }
-      
+
       window.location.href = `/api/${endpoint}?${currentParams.toString()}`;
     }
 

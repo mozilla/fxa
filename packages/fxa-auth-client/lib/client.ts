@@ -496,7 +496,7 @@ export default class AuthClient {
     const payload = {
       code,
       provider,
-      metricsContext
+      metricsContext,
     };
     return await this.request('POST', '/linked_account/login', payload);
   }

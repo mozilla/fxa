@@ -1433,13 +1433,15 @@ FxaClientWrapper.prototype = {
     });
   }),
 
-  verifyAccountThirdParty: withClient((client, relier, token, provider, metricsContext) => {
-    return client
-      .verifyAccountThirdParty(token, provider, metricsContext)
-      .then((accountData) => {
-        return getUpdatedSessionData(accountData.email, relier, accountData);
-      });
-  }),
+  verifyAccountThirdParty: withClient(
+    (client, relier, token, provider, metricsContext) => {
+      return client
+        .verifyAccountThirdParty(token, provider, metricsContext)
+        .then((accountData) => {
+          return getUpdatedSessionData(accountData.email, relier, accountData);
+        });
+    }
+  ),
 };
 
 export default FxaClientWrapper;
