@@ -22025,7 +22025,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.2.2
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
-    node-zendesk: ^2.1.0
+    node-zendesk: ^2.1.1
     nodemailer: ^6.7.3
     nodemon: ^2.0.15
     npm-run-all: ^4.1.5
@@ -25690,14 +25690,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ini@npm:2.0.0, ini@npm:~2.0.0":
+"ini@npm:2.0.0, ini@npm:^2.0.0, ini@npm:~2.0.0":
   version: 2.0.0
   resolution: "ini@npm:2.0.0"
   checksum: e7aadc5fb2e4aefc666d74ee2160c073995a4061556b1b5b4241ecb19ad609243b9cceafe91bae49c219519394bbd31512516cb22a3b1ca6e66d869e0447e84e
   languageName: node
   linkType: hard
 
-"ini@npm:^1.3.0, ini@npm:^1.3.4, ini@npm:^1.3.5, ini@npm:~1.3.0":
+"ini@npm:^1.3.4, ini@npm:^1.3.5, ini@npm:~1.3.0":
   version: 1.3.7
   resolution: "ini@npm:1.3.7"
   checksum: f8f3801e8eb039f9e03cdc27ceb494a7ac6e6ca7b2dd8394a9ef97ed5ae66930fadefd5ec908e41e4b103d3c9063b5788d47de5e8e892083c7a67b489f3b962d
@@ -31840,15 +31840,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nconf@npm:0.11.0":
-  version: 0.11.0
-  resolution: "nconf@npm:0.11.0"
+"nconf@npm:0.11.3":
+  version: 0.11.3
+  resolution: "nconf@npm:0.11.3"
   dependencies:
     async: ^1.4.0
-    ini: ^1.3.0
+    ini: ^2.0.0
     secure-keys: ^1.0.0
     yargs: ^16.1.1
-  checksum: ab3bdc82000df76e8d99e9d3ebd0e12de37edec3dc0e12fe18d8c46f03401cc62c53f78186ec6be8970ddfb8b3d97a1782cd8d9707a3de03864dbcb61fd7603b
+  checksum: 708369c9526618936872fc7db4d257dda59cb55fb9e07949afcfac7cf60cdc840027a6bdf5bf3c5703129bea23090de1aa6f6f41aec004086963706c04bf81f5
   languageName: node
   linkType: hard
 
@@ -32295,15 +32295,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-zendesk@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "node-zendesk@npm:2.1.0"
+"node-zendesk@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "node-zendesk@npm:2.1.1"
   dependencies:
     async: 3.2.x
-    nconf: 0.11.0
+    nconf: 0.11.3
     querystring: 0.2.x
     request: 2.88.2
-  checksum: b5f41dc425f4496794794d41956a474910c04cd934d3d0f652d4c6fa1e5268212d8c9a450392da397ecbbef15ed657323194e7bf40bf0ded99f8d2d9310b3886
+  checksum: cb1f208bde28bf00c4019c724c2d5e35d818b6b5ff349ff9f14c4ca678013ce139ddd53c66cfdb2018af7cfdf80f28d93483b7d7ae4b1b6babfc69535c6ec3ff
   languageName: node
   linkType: hard
 
