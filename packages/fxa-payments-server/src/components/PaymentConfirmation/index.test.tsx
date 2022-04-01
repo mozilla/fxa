@@ -73,6 +73,8 @@ const customer: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -97,6 +99,8 @@ const paypalCustomer: Customer = {
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };

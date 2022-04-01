@@ -14,6 +14,10 @@ export interface FtlIdMsg {
   message: string;
 }
 
+interface LocalizedStrings {
+  [id: string]: string;
+}
+
 class Localizer {
   protected readonly bindings: ILocalizerBindings;
 
@@ -91,8 +95,8 @@ class Localizer {
    * @param locale Locale to use, defaults to en.
    */
   protected async fetchTranslatedMessages(locale?: string) {
-    // note: 'en' auth.ftl only exists for browser bindings / Storybook
-    // the fallback English strings within the templates will be shown in other envs
+    // Note: 'en' auth.ftl only exists for browser bindings / Storybook. The fallback
+    // English strings within the templates are tested and are shown in other envs
     const path = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/auth.ftl`;
@@ -100,17 +104,32 @@ class Localizer {
     return this.bindings.fetchResource(path);
   }
 
-  // NOTE: not currently used, will be implemented in FXA-4623
-  protected async localizeString(
-    acceptLanguage: string,
-    { id, message }: FtlIdMsg
-  ) {
+  async localizeStrings(
+    acceptLanguage = 'en',
+    ftlIdMsgs: FtlIdMsg[]
+  ): Promise<LocalizedStrings> {
     const { l10n } = await this.setupLocalizer(acceptLanguage);
-    return (await l10n.formatValue(id, message)) || message;
+
+    const localizedFtlIdMsgs = await Promise.all(
+      ftlIdMsgs.map(async (ftlIdMsg) => {
+        const { id, message } = ftlIdMsg;
+        let localizedMessage;
+        try {
+          localizedMessage = (await l10n.formatValue(id, message)) || message;
+        } catch {
+          localizedMessage = message;
+        }
+        return Promise.resolve({
+          [id]: localizedMessage,
+        });
+      })
+    );
+
+    return Object.assign({}, ...localizedFtlIdMsgs);
   }
 }
 
-export function parseAcceptLanguage(acceptLanguage: string) {
+export function parseAcceptLanguage(acceptLanguage = 'en') {
   const parsedLocales = acceptLanguage.split(',');
   const userLocales: string[] = [];
 

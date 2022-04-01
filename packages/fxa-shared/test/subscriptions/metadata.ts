@@ -240,6 +240,8 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_GvH2k78kKusAlV',
         status: 'active',
         subscription_id: 'sub_I1qKQD2YFCVdFI',
+        promotion_duration: null,
+        promotion_end: null,
       },
       {
         _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -254,6 +256,8 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_GjeBkx6iQFoVgg',
         status: 'active',
         subscription_id: 'sub_I1k3kT4hAg0TOV',
+        promotion_duration: null,
+        promotion_end: null,
       },
     ];
     const plans: AbbrevPlan[] = [
@@ -268,6 +272,7 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_HzXGNuO76B5o6g',
         product_metadata: { 'support:app:1': 'Pop!_OS' },
         product_name: 'myproduct',
+        configuration: null,
       },
     ];
 

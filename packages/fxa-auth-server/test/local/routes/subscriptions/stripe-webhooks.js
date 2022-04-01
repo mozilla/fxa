@@ -42,6 +42,7 @@ const eventPlanUpdated = require('../../payments/fixtures/stripe/plan_updated_ev
 const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
 const eventTaxRateCreated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
 const eventTaxRateUpdated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
+const eventPaymentMethodUpdated = require('../../payments/fixtures/stripe/event_payment_method_updated.json');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const { CapabilityService } = require('../../../../lib/payments/capability');
@@ -173,6 +174,7 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionDeletedEvent',
         'handleCustomerUpdatedEvent',
         'handleCustomerSourceExpiringEvent',
+        'handlePaymentMethodUpdated',
         'handleProductWebhookEvent',
         'handlePlanCreatedOrUpdatedEvent',
         'handlePlanDeletedEvent',
@@ -353,6 +355,13 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      describe('when the event.type is payment_method.updated', () => {
+        itOnlyCallsThisHandler(
+          'handlePaymentMethodUpdated',
+          eventPaymentMethodUpdated
+        );
+      });
+
       describe('when the event.type is product.updated', () => {
         itOnlyCallsThisHandler(
           'handleProductWebhookEvent',
@@ -426,6 +435,23 @@ describe('StripeWebhookHandler', () => {
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled();
           assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
+        });
+
+        it('does not call sentry or expand resourche for event payment_method.detached', async () => {
+          const event = deepCopy(subscriptionCreated);
+          event.type = 'payment_method.detached';
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+          StripeWebhookHandlerInstance.stripeHelper.processWebhookEventToFirestore =
+            sinon.stub().resolves(true);
+          await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+          assertNamedHandlerCalled();
+          assert.equal(
+            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce,
+            false
+          );
+          sinon.assert.notCalled(scopeContextSpy);
         });
 
         it('does not call sentry if handled by firestore', async () => {
@@ -1020,6 +1046,47 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
           invoiceCreatedEvent.data.object
+        );
+      });
+    });
+
+    describe('handlePaymentMethodUpdated', () => {
+      it('returns with no customer', async () => {
+        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
+        paymentMethodUpdatedEvent.data.object.customer = null;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves();
+        const result =
+          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
+            {},
+            paymentMethodUpdatedEvent
+          );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('updates tax rates', async () => {
+        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customerFixture
+        );
+        StripeWebhookHandlerInstance.stripeHelper.updateCustomerPaymentMethodTaxRates.resolves();
+        const result =
+          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
+            {},
+            paymentMethodUpdatedEvent
+          );
+        assert.equal(result, undefined);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          paymentMethodUpdatedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateCustomerPaymentMethodTaxRates,
+          customerFixture
         );
       });
     });
@@ -1619,6 +1686,8 @@ describe('StripeWebhookHandler', () => {
         ) {
           mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
+          mockInvoiceDetails.discountType = 'forever';
+          mockInvoiceDetails.discountDuration = null;
         }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails

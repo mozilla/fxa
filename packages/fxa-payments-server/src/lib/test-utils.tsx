@@ -21,6 +21,7 @@ import {
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
 import { MemoryRouter } from 'react-router-dom';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 declare global {
   namespace NodeJS {
@@ -567,6 +568,19 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
   },
 ];
 
+export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    total: 500,
+  },
+  {
+    subscriptionId: 'sub0.21234123424',
+    period_start: 1565816388.815,
+    total: 500,
+  },
+];
+
 export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   {
     uid: 'a90fef48240b49b2b6a33d333aee9b13',
@@ -607,6 +621,8 @@ export const MOCK_CUSTOMER: Customer = {
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
       end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     } as MozillaSubscription,
   ],
 };

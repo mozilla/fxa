@@ -14,6 +14,7 @@ import { RemoteLookupService } from './remote-lookup/remote-lookup.service';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 const version = getVersionInfo(__dirname);
 
@@ -34,12 +35,13 @@ const version = getVersionInfo(__dirname);
     }),
     LoggerModule,
     SentryModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
+      imports: [ConfigModule, LoggerModule],
+      inject: [ConfigService, MozLoggerService],
       useFactory: (configService: ConfigService<AppConfig>) => ({
-        dsn: configService.get('sentryDsn'),
-        environment: configService.get('env'),
-        release: version.version,
+        sentryConfig: {
+          sentry: configService.get('sentry'),
+          version: version.version,
+        },
       }),
     }),
   ],

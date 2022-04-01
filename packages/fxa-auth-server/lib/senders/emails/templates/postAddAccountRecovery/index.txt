@@ -2,7 +2,7 @@ postAddAccountRecovery-title = "Account recovery key generated"
 
 postAddAccountRecovery-description = "You have successfully generated an account recovery key for your Firefox account from the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 postAddAccountRecovery-revoke = "If this was not you, revoke key."
 

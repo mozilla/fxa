@@ -15,42 +15,11 @@ describe('normalize-user-records', () => {
     normalizer = new UserRecordNormalizer();
   });
 
-  describe('normalizeAcceptLanguage', () => {
-    it('uses acceptLanguage if available', () => {
-      const userRecord = { acceptLanguage: 'es' };
-      normalizer.normalizeAcceptLanguage(userRecord);
-
-      assert.equal(userRecord.acceptLanguage, 'es');
-    });
-
-    it('uses the locale if acceptLanguage not set', () => {
-      const userRecord = { locale: 'es' };
-      normalizer.normalizeAcceptLanguage(userRecord);
-
-      assert.equal(userRecord.acceptLanguage, 'es');
-    });
-
-    it('converts zh-tw locale to zh-cn', () => {
-      const userRecord = { locale: 'zh-tw' };
-      normalizer.normalizeAcceptLanguage(userRecord);
-
-      assert.equal(userRecord.acceptLanguage, 'zh-cn');
-    });
-  });
-
   describe('normalizeLanguage', () => {
-    it('updates the record language to what the translator says is best', () => {
+    it('updates the record language to what parseAcceptLanguage says is best', () => {
       const userRecord = { acceptLanguage: 'es,de' };
-      const translator = {
-        getTranslator: sinon.spy(() => {
-          return { language: 'de' };
-        }),
-      };
-      normalizer.normalizeLanguage(userRecord, translator);
-
-      assert.isTrue(translator.getTranslator.calledOnce);
-      assert.equal(translator.getTranslator.args[0][0], 'es,de');
-      assert.equal(userRecord.language, 'de');
+      normalizer.normalizeLanguage(userRecord);
+      assert.equal(userRecord.language, 'es');
     });
   });
 
@@ -122,22 +91,15 @@ describe('normalize-user-records', () => {
     before(() => {
       translator = sinon.spy((language) => ({ language }));
 
-      sinon.stub(normalizer, 'normalizeAcceptLanguage');
       sinon.stub(normalizer, 'normalizeLanguage');
       sinon.stub(normalizer, 'normalizeLocations');
 
       normalizer.normalizeUserRecord(userRecord, translator);
     });
 
-    it('calls normalizeAcceptLanguage', () => {
-      assert.isTrue(normalizer.normalizeAcceptLanguage.calledOnce);
-      assert.equal(normalizer.normalizeAcceptLanguage.args[0][0], userRecord);
-    });
-
     it('calls normalizeLanguage', () => {
       assert.isTrue(normalizer.normalizeLanguage.calledOnce);
       assert.equal(normalizer.normalizeLanguage.args[0][0], userRecord);
-      assert.equal(normalizer.normalizeLanguage.args[0][1], translator);
     });
 
     it('calls normalizeLocations', () => {

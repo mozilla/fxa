@@ -14,7 +14,7 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/location/index.mjml') %>
+<%- include('/partials/userInfo/index.mjml') %>
 
 <mj-section>
   <mj-column>

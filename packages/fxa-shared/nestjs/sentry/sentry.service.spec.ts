@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from 'aws-sdk';
 
+import { LoggerModule } from '../logger/logger.module';
+import { MozLoggerService } from '../logger/logger.service';
 import { SENTRY_CONFIG } from './sentry.constants';
 import { SentryService } from './sentry.service';
 
@@ -12,8 +15,32 @@ describe('SentryService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule],
-      providers: [SentryService, { provide: SENTRY_CONFIG, useValue: {} }],
+      imports: [
+        ConfigModule.forRoot({
+          load: [
+            () => ({
+              env: 'development',
+              log: { app: 'test' },
+            }),
+          ],
+        }),
+      ],
+      providers: [
+        ConfigService,
+        MozLoggerService,
+        SentryService,
+        {
+          provide: SENTRY_CONFIG,
+          useValue: {
+            sentryConfig: {
+              sentry: {
+                dsn: '',
+                env: '',
+              },
+            },
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<SentryService>(SentryService);

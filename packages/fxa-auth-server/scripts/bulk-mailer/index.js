@@ -9,7 +9,6 @@ const config = require('../../config').getProperties();
 const readUserRecords = require('./read-user-records');
 const sendEmailBatches = require('./send-email-batches');
 const Senders = require('../../lib/senders');
-const Translator = require('../../lib/senders/translator');
 const UserRecordNormalizer = require('./normalize-user-records');
 const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock');
 const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
@@ -59,21 +58,16 @@ module.exports = async function (
     },
   };
 
-  const translator = await createTranslator(config);
   const mailer = await createMailer(
     logMock,
     config,
-    translator,
     shouldSend,
     emailOutputDirname
   );
   const sendDelegate = createSendDelegate(mailer, mailerMethodName);
 
   const userRecords = await readUserRecords(userRecordsFilename);
-  const normalizedUserRecords = await normalizeUserRecords(
-    userRecords,
-    translator
-  );
+  const normalizedUserRecords = await normalizeUserRecords(userRecords);
   const batches = chunk(normalizedUserRecords, batchSize);
 
   const isTest = !shouldSend;
@@ -81,16 +75,15 @@ module.exports = async function (
   return sendEmailBatches(batches, batchDelayMS, sendDelegate, logMock, isTest);
 };
 
-function normalizeUserRecords(userRecords, translator) {
+function normalizeUserRecords(userRecords) {
   const normalizer = new UserRecordNormalizer();
-  return normalizer.normalize(userRecords, translator);
+  return normalizer.normalize(userRecords);
 }
 
 function getValidMailerMethodNames(mailer) {
   return Object.keys(mailer).filter((name) => {
     return (
-      typeof mailer[name] === 'function' &&
-      !/translator|stop|_ungatedMailer/.test(name)
+      typeof mailer[name] === 'function' && !/stop|_ungatedMailer/.test(name)
     );
   });
 }
@@ -115,24 +108,11 @@ function createSendDelegate(mailer, mailerMethodName) {
   };
 }
 
-async function createMailer(
-  log,
-  config,
-  translator,
-  shouldSend,
-  emailOutputDirname
-) {
+async function createMailer(log, config, shouldSend, emailOutputDirname) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
   return (
-    await Senders(
-      log,
-      config,
-      { check: () => Promise.resolve() },
-      translator,
-      {},
-      sender
-    )
+    await Senders(log, config, { check: () => Promise.resolve() }, {}, sender)
   ).email;
 }
 
@@ -147,11 +127,4 @@ function createSenderMock(emailOutputDirname) {
     failureRate: 0,
     stream: process.stdout,
   });
-}
-
-function createTranslator(config) {
-  return Translator(
-    config.i18n.supportedLanguages,
-    config.i18n.defaultLanguage
-  );
 }

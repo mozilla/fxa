@@ -1,5 +1,12 @@
 # Change history
 
+## 1.229.0
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- deps: bump @nestjs/platform-express from 8.4.0 to 8.4.3 ([d9579ee23](https://github.com/mozilla/fxa/commit/d9579ee23))
+
 ## 1.228.7
 
 No changes.

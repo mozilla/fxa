@@ -5,12 +5,17 @@
 const _ = require('lodash');
 
 const config = require('./configuration');
-const SENTRY_SERVER_ERRORS_DSN = config.get('sentry.server_errors_dsn');
 const STACKTRACE_FRAME_LENGTH = 10;
 const RELEASE = require('../../package.json').version;
-const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+const {
+  tagCriticalEvent,
+  buildSentryConfig,
+  tagFxaName,
+} = require('fxa-shared/sentry');
+const logger = require('./logging/log')('sentry');
 
 const Sentry = require('@sentry/node');
+require('@sentry/tracing');
 
 function removeQuery(url) {
   if (!url) {
@@ -46,13 +51,35 @@ const eventFilter = (event) => {
   return event;
 };
 
-// if no DSN provided then error reporting is disabled
-Sentry.init({
-  dsn: SENTRY_SERVER_ERRORS_DSN,
-  release: RELEASE,
-  beforeSend: eventFilter,
-  integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
-});
+if (config.get('sentry.dsn')) {
+  // if no DSN provided then error reporting is disabled
+  const opts = buildSentryConfig(
+    {
+      release: RELEASE,
+      sentry: {
+        dsn: config.get('sentry.dsn'),
+        env: config.get('sentry.env'),
+        sampleRate: config.get('sentry.sampleRate'),
+        tracesSampleRate: config.get('sentry.tracesSampleRate'),
+        serverName: config.get('sentry.serverName'),
+      },
+    },
+    logger
+  );
+
+  Sentry.init({
+    ...opts,
+    beforeSend(event, _hint) {
+      event = eventFilter(event);
+      event = tagFxaName(event, opts.serverName);
+      return event;
+    },
+    integrations: [
+      new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
+      new Sentry.Integrations.Http({ tracing: true }),
+    ],
+  });
+}
 
 module.exports = {
   _eventFilter: eventFilter, // exported for testing purposes

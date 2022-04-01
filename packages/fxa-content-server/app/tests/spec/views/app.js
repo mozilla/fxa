@@ -9,50 +9,10 @@ import Backbone from 'backbone';
 import chai from 'chai';
 import Environment from 'lib/environment';
 import Notifier from 'lib/channels/notifier';
-import SurveyTargeter from 'lib/survey-targeter';
 import sinon from 'sinon';
 import WindowMock from '../../mocks/window';
-import NullStorage from '../../../scripts/lib/null-storage';
-
-const sandbox = sinon.createSandbox();
-const trueFn = sandbox.stub().returns(true);
-const nullFn = sandbox.stub().returns(null);
 
 var assert = chai.assert;
-
-function getSurveyTargeter() {
-  const config = {
-    enabled: true,
-    doNotBotherSpan: 12334567000,
-  };
-  const surveys = [
-    {
-      id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
-      conditions: { relier: null },
-      view: 'settings',
-      rate: 1,
-      url: 'https://www.surveygizmo.com/s3/5541940/pizza',
-    },
-  ];
-
-  return new SurveyTargeter({
-    window: {
-      localStorage: new NullStorage(),
-      navigator: {
-        userAgent:
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0',
-      },
-    },
-    relier: {
-      get: nullFn,
-    },
-    user: {
-      getSignedInAccount: trueFn,
-    },
-    config,
-    surveys,
-  });
-}
 
 describe('views/app', function () {
   var environment;
@@ -365,98 +325,6 @@ describe('views/app', function () {
 
       it('sets the title', function () {
         assert.isTrue(view.setTitle.calledWith('the title'));
-      });
-    });
-
-    describe('with a survey', function () {
-      const ViewThatRenders = Backbone.View.extend({
-        afterVisible: sinon.spy(),
-        logView: sinon.spy(),
-        render() {
-          this.$el.html('<div id="rendered-view"></div>');
-          return Promise.resolve(true);
-        },
-        titleFromView() {
-          return 'the title';
-        },
-      });
-
-      before(function () {
-        createDeps({
-          surveyTargeter: getSurveyTargeter(),
-        });
-
-        sinon.spy(notifier, 'trigger');
-        sinon.spy(view, 'setTitle');
-
-        return view.showView(ViewThatRenders, {
-          viewName: 'settings',
-        });
-      });
-
-      it('adds the survey to the DOM', function () {
-        assert.equal($('.survey-wrapped').length, 1);
-      });
-    });
-
-    describe('with a survey, for different view', function () {
-      const ViewThatRenders = Backbone.View.extend({
-        afterVisible: sinon.spy(),
-        logView: sinon.spy(),
-        render() {
-          this.$el.html('<div id="rendered-view"></div>');
-          return Promise.resolve(true);
-        },
-        titleFromView() {
-          return 'the title';
-        },
-      });
-
-      before(function () {
-        createDeps({
-          surveyTargeter: getSurveyTargeter(),
-        });
-
-        return view.showView(ViewThatRenders, {
-          viewName: 'some-other-view',
-        });
-      });
-
-      it('does not add the survey to the DOM', function () {
-        assert.equal($('.survey-wrapped').length, 0);
-      });
-    });
-
-    describe('with a survey, but no targeter', function () {
-      let showSurveySpy;
-      const ViewThatRenders = Backbone.View.extend({
-        afterVisible: sinon.spy(),
-        logView: sinon.spy(),
-        render() {
-          this.$el.html('<div id="rendered-view"></div>');
-          return Promise.resolve(true);
-        },
-        titleFromView() {
-          return 'the title';
-        },
-      });
-
-      before(function () {
-        createDeps();
-        showSurveySpy = sinon.spy(view, '_showSurvey');
-        return view.showView(ViewThatRenders, {
-          viewName: 'some-other-view',
-        });
-      });
-
-      it('does call showSurvey with correct arguments', function () {
-        assert(showSurveySpy.called);
-        assert.equal(typeof showSurveySpy.args[0][0].el, 'object');
-        assert.equal(showSurveySpy.args[0][1].viewName, 'some-other-view');
-      });
-
-      it('does not add the survey to the DOM', function () {
-        assert.equal($('.survey-wrapped').length, 0);
       });
     });
   });

@@ -1,3 +1,38 @@
+## 1.229.0
+
+### New features
+
+- auth: add Coupon Duration Info to Invoice Emails Because: ([99b3300f8](https://github.com/mozilla/fxa/commit/99b3300f8))
+- coupons: resub confirmation discount amount (#12237) ([028ad3dfe](https://github.com/mozilla/fxa/commit/028ad3dfe))
+- auth: Add third party auth metrics (#12221) ([f4d13cf32](https://github.com/mozilla/fxa/commit/f4d13cf32))
+- auth: add firestore stripe populator ([0c0934fb3](https://github.com/mozilla/fxa/commit/0c0934fb3))
+- coupon: update info box for coupon type (#12187) ([2a4054cde](https://github.com/mozilla/fxa/commit/2a4054cde))
+- auth: update payment method tax rates on payment change ([6720267ed](https://github.com/mozilla/fxa/commit/6720267ed))
+- payments: update Manage Subscription Page to Reflect Discount Pricing (#12059) ([d7f9f0add](https://github.com/mozilla/fxa/commit/d7f9f0add))
+
+### Bug fixes
+
+- email: Use uppercase provider name in email (#12286) ([c8f5998b0](https://github.com/mozilla/fxa/commit/c8f5998b0))
+- tsconfig: Transpile email templates includes.ts files ([5397b6a65](https://github.com/mozilla/fxa/commit/5397b6a65))
+- mailer: mailer chainging timezone test (#12257) ([4cfc1e515](https://github.com/mozilla/fxa/commit/4cfc1e515))
+- emails: remove more "download" language from emails ([fca0291f3](https://github.com/mozilla/fxa/commit/fca0291f3))
+- emails: update download button to get started on sub welcome email ([ae336faee](https://github.com/mozilla/fxa/commit/ae336faee))
+- content: include Product and Category in validate (#12195) ([87a1d08cc](https://github.com/mozilla/fxa/commit/87a1d08cc))
+- subscriptions: remove promo codes from plans ([79b715c37](https://github.com/mozilla/fxa/commit/79b715c37))
+- subscriptions: create customer for iap sub (#12164) ([ac80297f6](https://github.com/mozilla/fxa/commit/ac80297f6))
+
+### Refactorings
+
+- auth: Retire gettext string extraction, remove Mailer 'translator' dependence, new partials + section in Storybook ([d8fa74dd3](https://github.com/mozilla/fxa/commit/d8fa74dd3))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- deps: bump @type-cacheable/core from 10.0.3 to 10.1.0 ([55388d48c](https://github.com/mozilla/fxa/commit/55388d48c))
+- deps: bump @google-cloud/bigquery from 5.11.0 to 5.12.0 ([82c2d378e](https://github.com/mozilla/fxa/commit/82c2d378e))
+- auth: Remove confusing / unneded config from OauthRedis constructor ([fdbe83fd8](https://github.com/mozilla/fxa/commit/fdbe83fd8))
+- deps: bump nodemailer from 6.7.2 to 6.7.3 ([9ee3caac6](https://github.com/mozilla/fxa/commit/9ee3caac6))
+
 ## 1.228.7
 
 ### Bug fixes

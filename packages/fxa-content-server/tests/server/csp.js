@@ -61,16 +61,8 @@ suite.tests['blockingRules'] = function () {
   assert.include(fontSrc, Sources.SELF);
   assert.include(fontSrc, CDN_SERVER);
 
-  let frameSrc = directives.frameSrc;
-
-  config.set('surveyFeature', { enabled: false });
+  const frameSrc = directives.frameSrc;
   assert.include(frameSrc, "'none'");
-  config.set('surveyFeature', {
-    enabled: true,
-    doNotBotherSpan: 2592000000,
-  });
-  frameSrc = blockingRules(config).directives.frameSrc;
-  assert.isAbove(frameSrc.length, 1);
 
   const imgSrc = directives.imgSrc;
   assert.lengthOf(imgSrc, 7);

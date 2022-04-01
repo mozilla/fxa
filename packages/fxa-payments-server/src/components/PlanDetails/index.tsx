@@ -4,6 +4,7 @@ import {
   getLocalizedCurrency,
   formatPlanPricing,
   getLocalizedCurrencyString,
+  getLocalizedDate,
 } from '../../lib/formats';
 import {
   metadataFromPlan,
@@ -19,6 +20,7 @@ import ffLogo from '../../images/firefox-logo.svg';
 import './index.scss';
 import { Plan } from '../../store/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { useInfoBoxMessage } from '../../lib/hooks';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
@@ -61,6 +63,8 @@ export const PlanDetails = ({
     interval,
     interval_count
   );
+
+  const infoBoxMessage = useInfoBoxMessage(coupon, selectedPlan);
 
   return (
     <div
@@ -191,12 +195,31 @@ export const PlanDetails = ({
                     </p>
                   </Localized>
                 </div>
-                {coupon ? (
-                  <Localized id="coupon-success">
-                    <div className="coupon-info" data-testid="coupon-success">
-                      Your plan will automatically renew at the list price.
-                    </div>
-                  </Localized>
+                {infoBoxMessage ? (
+                  infoBoxMessage.couponDurationDate ? (
+                    <Localized
+                      id={infoBoxMessage.message}
+                      vars={{
+                        couponDurationDate: getLocalizedDate(
+                          infoBoxMessage.couponDurationDate,
+                          true
+                        ),
+                      }}
+                    >
+                      <div
+                        className="coupon-info"
+                        data-testid="coupon-success-with-date"
+                      >
+                        {infoBoxMessage.message}
+                      </div>
+                    </Localized>
+                  ) : (
+                    <Localized id={infoBoxMessage.message}>
+                      <div className="coupon-info" data-testid="coupon-success">
+                        {infoBoxMessage.message}
+                      </div>
+                    </Localized>
+                  )
                 ) : null}
               </div>
             </div>

@@ -12,7 +12,11 @@ import CancelSubscriptionPanel, {
   CancelSubscriptionPanelProps,
 } from './CancelSubscriptionPanel';
 
-import { MOCK_PLANS, MOCK_CUSTOMER } from '../../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  MOCK_CUSTOMER,
+  MOCK_SUBSEQUENT_INVOICES,
+} from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
   formatPlanPricing,
@@ -38,6 +42,8 @@ describe('CancelSubscriptionPanel', () => {
     customerSubscription: subscription,
     cancelSubscription: jest.fn().mockResolvedValue(null),
     cancelSubscriptionStatus: defaultState.cancelSubscription,
+    subsequentInvoiceAmount: MOCK_SUBSEQUENT_INVOICES[0].total,
+    subsequentInvoiceDate: MOCK_SUBSEQUENT_INVOICES[0].period_start,
   };
 
   afterEach(() => {
@@ -56,13 +62,13 @@ describe('CancelSubscriptionPanel', () => {
           render(<CancelSubscriptionPanel {...props} />);
 
           const planPrice = formatPlanPricing(
-            props.plan.amount,
+            props.subsequentInvoiceAmount,
             props.plan.currency,
             props.plan.interval,
             props.plan.interval_count
           );
           const nextBillDate = getLocalizedDateString(
-            subscription.current_period_end,
+            baseProps.subsequentInvoiceDate,
             true
           );
           const nextBill = `Next billed on ${nextBillDate}`;
@@ -128,7 +134,11 @@ describe('CancelSubscriptionPanel', () => {
         const plan = findMockPlan('plan_daily');
         render(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
-            <CancelSubscriptionPanel {...baseProps} plan={plan} />
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoiceDate={1568408388.815}
+            />
           </LocalizationProvider>
         );
         expect(queryByText('$5.00 fooly')).toBeInTheDocument();

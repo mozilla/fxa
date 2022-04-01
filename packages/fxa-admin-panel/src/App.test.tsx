@@ -7,6 +7,7 @@ import { render } from '@testing-library/react';
 import App from './App';
 
 it('renders without imploding', () => {
-  const { queryByTestId } = render(<App />);
+  const user = { user: { email: 'test', group: 'test', permissions: {} } };
+  const { queryByTestId } = render(<App {...user} />);
   expect(queryByTestId('app')).toBeInTheDocument();
 });

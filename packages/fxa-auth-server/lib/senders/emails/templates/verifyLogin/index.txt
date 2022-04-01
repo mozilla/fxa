@@ -2,7 +2,7 @@ verifyLogin-title = "New sign-in to <%- clientName %>"
 
 verifyLogin-description = "For added security, please confirm this sign-in from the following device:"
 
-<%- include('/partials/location/index.txt') %>
+<%- include('/partials/userInfo/index.txt') %>
 
 verifyLogin-action = "Confirm sign-in:"
 <%- link %>

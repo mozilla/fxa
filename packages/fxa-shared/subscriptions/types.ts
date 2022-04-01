@@ -1,4 +1,5 @@
 import { Stripe } from 'stripe';
+import { PlanConfigurationDtoT } from '../dto/auth/payments/plan-configuration';
 
 export type PlanInterval = Stripe.Plan['interval'];
 
@@ -22,7 +23,10 @@ export interface Plan {
   product_name: string;
 }
 
-// https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#product-metadata
+export type ConfiguredPlan = Stripe.Plan & {
+  configuration: PlanConfigurationDtoT | null;
+};
+
 export interface PlanMetadata {
   // note: empty for now, but may be expanded in the future
 }
@@ -87,6 +91,8 @@ export type AbbrevPlan = {
   product_id: string;
   product_metadata: Stripe.Product['metadata'];
   product_name: string;
+  // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+  configuration?: PlanConfigurationDtoT | null;
 };
 
 // Do not re-order the list items without updating their references.
@@ -118,6 +124,8 @@ export type WebSubscription = Pick<
     >;
     subscription_id: Stripe.Subscription['id'];
     promotion_code?: string;
+    promotion_duration: string | null;
+    promotion_end: number | null;
   };
 
 export interface AbbrevPlayPurchase {

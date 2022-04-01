@@ -28,11 +28,6 @@ jest.mock('@sentry/node', () => ({
 const Sentry = require('@sentry/node');
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
-const amplitude = require('./amplitude');
-const log = require('./logging/log')();
-jest.spyOn(log, 'info').mockImplementation(() => {});
-jest.spyOn(log, 'error').mockImplementation(() => {});
-
 jest.mock('../config', () => ({
   ...jest.requireActual('../config'),
   get: (key) => {
@@ -42,6 +37,10 @@ jest.mock('../config', () => ({
     }
   },
 }));
+const amplitude = require('./amplitude');
+const log = require('./logging/log')();
+jest.spyOn(log, 'info').mockImplementation(() => {});
+jest.spyOn(log, 'error').mockImplementation(() => {});
 
 const mocks = {
   event: {

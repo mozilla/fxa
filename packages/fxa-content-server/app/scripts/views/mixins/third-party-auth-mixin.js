@@ -6,15 +6,22 @@ import SigninMixin from './signin-mixin';
 import Storage from '../../lib/storage';
 import Url from '../../lib/url';
 import ThirdPartyAuthExperimentMixin from '../../views/mixins/third-party-auth-experiment-mixin';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
 
 const DEFAULT_SCOPES = 'openid email profile';
 
 export default {
-  dependsOn: [SigninMixin, ThirdPartyAuthExperimentMixin],
+  dependsOn: [SigninMixin, ThirdPartyAuthExperimentMixin, FlowEventsMixin],
 
   events: {
     'click #google-login-button': 'googleSignIn',
     'click #apple-login-button': 'appleSignIn',
+  },
+
+  initialize() {
+    // Flow events need to be initialized before the navigation
+    // so the flow_id and flow_begin_time are propagated
+    this.initializeFlowEvents();
   },
 
   setInitialContext(context) {
@@ -25,15 +32,17 @@ export default {
 
   beforeRender() {
     // Check to see if this is a request to deeplink into Google/Apple login
-    // flow. We do a promise we want to keep our loading indicator on while
+    // flow. A bit of a hack but we do a promise to keep our loading indicator on while
     // page navigates to third party auth flow.
     const params = new URLSearchParams(this.window.location.search);
     if (params.get('deeplink') === 'googleLogin') {
-      return new Promise(()=> {
+      this.logFlowEvent('google.deeplink');
+      return new Promise(() => {
         this.googleSignIn();
       });
     } else if (params.get('deeplink') === 'appleLogin') {
-      return new Promise(()=> {
+      this.logFlowEvent('apple.deeplink');
+      return new Promise(() => {
         this.appleSignIn();
       });
     }
@@ -47,6 +56,8 @@ export default {
     if (thirdPartyAuth) {
       return this.completeSignIn();
     }
+
+    this.logViewEvent('thirdPartyAuth');
   },
 
   clearStoredParams() {
@@ -58,12 +69,18 @@ export default {
   googleSignIn() {
     this.clearStoredParams();
 
+    this.logFlowEvent('google.oauth-start');
+
     // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
     const currentParams = new URLSearchParams(this.window.location.search);
-    currentParams.delete("deeplink");
+    currentParams.delete('deeplink');
 
-    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
+    const state = encodeURIComponent(
+      `${this.window.location.origin}${
+        this.window.location.pathname
+      }?${currentParams.toString()}`
+    );
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
@@ -100,10 +117,16 @@ export default {
   appleSignIn() {
     this.clearStoredParams();
 
-    const currentParams = new URLSearchParams(this.window.location.search);
-    currentParams.delete("deeplink");
+    this.logFlowEvent('apple.oauth-start');
 
-    const state = encodeURIComponent(`${this.window.location.origin}${this.window.location.pathname}?${currentParams.toString()}`);
+    const currentParams = new URLSearchParams(this.window.location.search);
+    currentParams.delete('deeplink');
+
+    const state = encodeURIComponent(
+      `${this.window.location.origin}${
+        this.window.location.pathname
+      }?${currentParams.toString()}`
+    );
 
     // To avoid any CORs issues we create element to store the
     // params need for the request and do a form submission
@@ -151,7 +174,7 @@ export default {
     this.navigateAway(redirectUrl);
   },
 
-  completeSignIn() {
+  async completeSignIn() {
     const account = this.getSignedInAccount();
     const authParams = Storage.factory('localStorage', this.window).get(
       'fxa_third_party_params'
@@ -163,6 +186,9 @@ export default {
       .verifyAccountThirdParty(account, this.relier, code, provider)
       .then((updatedAccount) => {
         this.clearStoredParams();
+
+        this.logFlowEvent(`${provider}.signin-complete`);
+
         return this.signIn(updatedAccount);
       })
       .catch(() => {

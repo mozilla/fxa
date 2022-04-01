@@ -44,10 +44,6 @@ export async function setupProcessingTaskObjects(processName: string) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
-  const translator = await require('../senders/translator')(
-    config.i18n.supportedLanguages,
-    config.i18n.defaultLanguage
-  );
   const profile = require('../profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
 
@@ -55,7 +51,6 @@ export async function setupProcessingTaskObjects(processName: string) {
     log,
     config,
     { check: () => Promise.resolve() },
-    translator,
     statsd
   );
   const redis = require('../redis')(

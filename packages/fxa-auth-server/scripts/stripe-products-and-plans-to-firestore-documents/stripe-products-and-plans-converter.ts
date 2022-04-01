@@ -15,10 +15,10 @@ import {
   UiContentConfigKeys,
   UrlConfig,
   UrlConfigKeys,
-} from '../../lib/payments/configuration/base';
+} from 'fxa-shared/subscriptions/configuration/base';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
-import { PlanConfig } from '../../lib/payments/configuration/plan';
-import { ProductConfig } from '../../lib/payments/configuration/product';
+import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
+import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
 import { StripeHelper } from '../../lib/payments/stripe';
 import { commaSeparatedListToArray } from '../../lib/payments/utils';
 
@@ -50,7 +50,6 @@ export class StripeProductsAndPlansConverter {
       l.toLowerCase()
     );
     this.paymentConfigManager = Container.get(PaymentConfigManager);
-    this.paymentConfigManager.startListeners();
   }
 
   /**
@@ -332,10 +331,6 @@ export class StripeProductsAndPlansConverter {
       planConfig.appleProductId = commaSeparatedListToArray(appleProductId);
     }
     return planConfig;
-  }
-
-  async load() {
-    await this.paymentConfigManager.load();
   }
 
   /**

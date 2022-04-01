@@ -49,7 +49,7 @@ export class ConnectedServicesCache {
   constructor(
     protected readonly redisAccessTokens: IAccessTokensCache,
     protected readonly redisRefreshTokens: IRefreshTokensCache,
-    protected readonly redisSessionTokens: ISessionTokensCache,
+    protected readonly redisSessionTokens?: ISessionTokensCache,
     protected readonly log?: ILogger
   ) {}
 

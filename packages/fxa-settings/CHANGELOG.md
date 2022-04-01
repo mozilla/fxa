@@ -1,3 +1,15 @@
+## 1.229.0
+
+### Bug fixes
+
+- l10n: Add commas (#12244) ([205b15080](https://github.com/mozilla/fxa/commit/205b15080))
+- 0446087b4 fix typo ([0446087b4](https://github.com/mozilla/fxa/commit/0446087b4))
+
+### Other changes
+
+- all: d584a10bc maintenance(all) - Prepare for new sentry ([d584a10bc](https://github.com/mozilla/fxa/commit/d584a10bc))
+- deps: bump react-webcam from 6.0.1 to 7.0.0 ([9a707fc29](https://github.com/mozilla/fxa/commit/9a707fc29))
+
 ## 1.228.7
 
 No changes.

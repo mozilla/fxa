@@ -4,13 +4,20 @@
 
 'use strict';
 
+const config = require('../config').getProperties();
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
+require('@sentry/tracing');
 const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 const { ERRNO } = require('./error');
-const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+const {
+  tagCriticalEvent,
+  buildSentryConfig,
+  tagFxaName,
+} = require('fxa-shared/sentry');
 const getVersion = require('./version').getVersion;
+const logger = require('./log')(config.log.level, 'sentry');
 
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
@@ -161,19 +168,29 @@ function reportSentryError(err, request) {
 }
 
 async function configureSentry(server, config, processName = 'key_server') {
-  const sentryDsn = config.sentryDsn;
-  const versionData = await getVersion();
-  if (sentryDsn) {
-    Sentry.init({
-      dsn: sentryDsn,
-      release: versionData.version,
-      beforeSend(event, hint) {
-        return filterSentryEvent(event, hint);
+  if (config.sentry.dsn) {
+    const opts = buildSentryConfig(
+      {
+        ...config,
+        release: (await getVersion())?.version,
       },
+      logger
+    );
+
+    Sentry.init({
+      ...opts,
+      beforeSend(event, hint) {
+        event = tagFxaName(event, opts.serverName);
+        event = filterSentryEvent(event, hint);
+        return event;
+      },
+
+      //Extra config options
       normalizeDepth: 6,
       integrations: [
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
         new ExtraErrorData({ depth: 5 }),
+        new Sentry.Integrations.Http({ tracing: true }),
       ],
       // https://docs.sentry.io/platforms/node/configuration/options/#max-value-length
       maxValueLength: 500,
@@ -191,8 +208,45 @@ async function configureSentry(server, config, processName = 'key_server') {
       type: 'onRequest',
       method(request, h) {
         request.sentryScope = new Sentry.Scope();
+
+        // Make a transaction per request so we can get performance monitoring. There are
+        // some limitations to this approach, and distributed tracing will be off due to
+        // hapi's architecture.
+        //
+        // See https://github.com/getsentry/sentry-javascript/issues/2172 for more into. It
+        // looks like there might be some other solutions that are more complex, but would work
+        // with hapi and distributed tracing.
+        //
+        const transaction = Sentry.startTransaction(
+          {
+            op: 'auth-server',
+            name: `${request.method.toUpperCase()} ${request.path}`,
+          },
+          {
+            request: Sentry.Handlers.extractRequestData(request.raw.req),
+          }
+        );
+
+        Sentry.configureScope((scope) => {
+          scope.setSpan(transaction);
+        });
+
+        request.app.sentry = {
+          transaction,
+        };
+
         return h.continue;
       },
+    });
+
+    server.events.on('response', (request) => {
+      request.app.sentry.transaction.name = `${request.method.toUpperCase()} ${
+        request.route.path
+      }`;
+      request.app.sentry.transaction.setHttpStatus(request.response.statusCode);
+      request.app.sentry.transaction.setData('url', request.path);
+      request.app.sentry.transaction.setData('query', request.query);
+      request.app.sentry.transaction.finish();
     });
 
     // Sentry handler for hapi errors

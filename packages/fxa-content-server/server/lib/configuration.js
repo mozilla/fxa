@@ -145,6 +145,9 @@ const conf = (module.exports = convict({
     env: 'NODE_ENV',
     format: ['production', 'development'],
   },
+  version: {
+    default: versionInfo.version,
+  },
   featureFlags: {
     enabled: {
       default: true,
@@ -592,17 +595,35 @@ const conf = (module.exports = convict({
     },
   },
   sentry: {
-    client_errors_dsn: {
-      default: undefined,
-      doc: 'Sentry config for client side errors. If not set, then no errors reported.',
-      env: 'SENTRY_CLIENT_ERRORS_DSN',
+    dsn: {
+      default: '',
+      doc: 'Sentry config for reporting errors. If not set, then no errors reported.',
+      env: 'SENTRY_DSN',
       format: String,
     },
-    server_errors_dsn: {
-      default: undefined,
-      doc: 'Sentry config for Express server-side errors. If not set, then no errors reported.',
-      env: 'SENTRY_SERVER_ERRORS_DSN',
-      format: String,
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    clientName: {
+      default: 'fxa-content-client',
+    },
+    serverName: {
+      default: 'fxa-content-server',
+    },
+    sampleRate: {
+      default: 1,
+      doc: 'Sentry config for client side errors. If not set, then no errors reported.',
+      env: 'SENTRY_SAMPLE_RATE',
+      format: Number,
+    },
+    tracesSampleRate: {
+      default: 1.0,
+      doc: 'Sentry config for client side errors. If not set, then no errors reported.',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+      format: Number,
     },
   },
   sms: {
@@ -747,20 +768,6 @@ const conf = (module.exports = convict({
       doc: 'Feature flag on whether to expect Firestore (and not Stripe metadata) based product and plan configurations',
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
-    },
-  },
-  surveyFeature: {
-    enabled: {
-      default: false,
-      env: 'SURVEYS_ENABLED',
-      doc: 'Enable integrated surveys feature',
-      format: Boolean,
-    },
-    doNotBotherSpan: {
-      default: 2592000000,
-      env: 'SURVEY_DONT_BOTHER_MS',
-      doc: 'Minimum time span in milliseconds between surveys for a user',
-      format: 'integer',
     },
   },
   sync_tokenserver_url: {

@@ -12,19 +12,58 @@
  *   2. `SentryPlugin` is passed in the `plugins` option.
  */
 import { ApolloError } from 'apollo-server';
+import * as Sentry from '@sentry/node';
+import '@sentry/tracing';
+import { Transaction } from '@sentry/types';
 
 import { ExtraContext, reportRequestException } from './reporting';
+import { ApolloServerPlugin, BaseContext } from 'apollo-server-plugin-base';
 
-export const SentryPlugin = {
-  requestDidStart(requestContext: any) {
+interface Context extends BaseContext {
+  transaction: Transaction;
+}
+
+export async function createContext(ctx: any): Promise<Context> {
+  const transaction = Sentry.startTransaction({
+    op: 'gql',
+    name: 'GraphQLTransaction',
+  });
+  return { transaction };
+}
+
+export const SentryPlugin: ApolloServerPlugin<Context> = {
+  requestDidStart({ request, context }) {
+    // Set the transacion name if request has an operation name defined
+    if (!!request.operationName) {
+      context.transaction.setName('GQL ' + request.operationName!);
+    }
+
     return {
-      didEncounterErrors(ctx: any) {
+      willSendResponse({ context }) {
+        // Finalizes transactionand sends it off to Sentry
+        context.transaction.finish();
+      },
+      executionDidStart() {
+        return {
+          // Create child span for each field resolved
+          willResolveField({ context, info }) {
+            const span = context.transaction.startChild({
+              op: 'resolver',
+              description: `${info.parentType.name}.${info.fieldName}`,
+            });
+            return () => {
+              span.finish();
+            };
+          },
+        };
+      },
+      didEncounterErrors({ context, errors, operation }) {
         // If we couldn't parse the operation, don't
         // do anything here
-        if (!ctx.operation) {
+        if (!operation) {
           return;
         }
-        for (const err of ctx.errors) {
+        for (const err of errors) {
           // Only report internal server errors,
           // all errors extending ApolloError should be user-facing
           if (
@@ -34,7 +73,7 @@ export const SentryPlugin = {
             continue;
           }
           // Skip errors with a status already set or already reported
-          if (err.originalError?.status) {
+          if ((err.originalError as any)?.status) {
             continue;
           }
           const excContexts: ExtraContext[] = [];
@@ -49,7 +88,7 @@ export const SentryPlugin = {
           reportRequestException(
             err.originalError ?? err,
             excContexts,
-            ctx.context.req
+            context.req
           );
         }
       },

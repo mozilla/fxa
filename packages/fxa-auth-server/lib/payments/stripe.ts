@@ -30,9 +30,14 @@ import {
   PaypalPaymentError,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  ConfiguredPlan,
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import {
+  formatPlanConfigDto,
+  PlanConfigurationDtoT,
+} from 'fxa-shared/dto/auth/payments/plan-configuration';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
@@ -50,13 +55,15 @@ import {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } from '../sentry';
-import { AuthFirestore } from '../types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
 import AppError from '../error';
+import { PaymentConfigManager } from './configuration/manager';
+import { mapPlanConfigsByPriceId } from 'fxa-shared/subscriptions/configuration/utils';
 
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
@@ -188,6 +195,8 @@ export class StripeHelper {
   private taxIds: { [key: string]: string };
   private firestore: Firestore;
   private stripeFirestore: StripeFirestore;
+  // TODO remove the ? when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+  private paymentConfigManager?: PaymentConfigManager;
   readonly googleMapsService: GoogleMapsService;
   readonly stripe: Stripe;
   public currencyHelper: CurrencyHelper;
@@ -222,6 +231,15 @@ export class StripeHelper {
       maxNetworkRetries: 3,
     });
 
+    // Set the app config and logger for any downstream dependencies that
+    // expect them to exist.
+    if (!Container.has(AppConfig)) {
+      Container.set(AppConfig, config);
+    }
+    if (!Container.has(AuthLogger)) {
+      Container.set(AuthLogger, log);
+    }
+
     this.firestore = Container.get(AuthFirestore);
     const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
     const customerCollectionDbRef = this.firestore.collection(
@@ -233,6 +251,10 @@ export class StripeHelper {
       this.stripe,
       firestore_prefix
     );
+
+    if (config.subscriptions.productConfigsFirestore.enabled === true) {
+      this.paymentConfigManager = Container.get(PaymentConfigManager);
+    }
     this.googleMapsService = Container.get(GoogleMapsService);
 
     cacheManager.setOptions({
@@ -351,6 +373,39 @@ export class StripeHelper {
     const taxRates = await this.allTaxRates();
     const lcCountryCode = countryCode.toLowerCase();
     return taxRates.find((tr) => tr.country?.toLowerCase() === lcCountryCode);
+  }
+
+  /**
+   * Handles updating a Stripe customer appropriately for a new payment methods tax rates.
+   *
+   */
+  async updateCustomerPaymentMethodTaxRates(
+    customer: Stripe.Customer,
+    paymentMethod: Stripe.PaymentMethod
+  ) {
+    const paymentMethodCountry = paymentMethod.card?.country;
+    if (!paymentMethodCountry || customer.deleted || !customer.subscriptions) {
+      return;
+    }
+
+    // Check if the customers tax rate id is the same as the payment method's
+    const taxRateId = (await this.taxRateByCountryCode(paymentMethodCountry))
+      ?.id;
+    const taxRates = new Set(taxRateId ? [taxRateId] : []);
+
+    const subUpdates = customer.subscriptions.data
+      .filter((sub) => {
+        const subTaxRates = new Set(
+          (sub.default_tax_rates ?? []).map((tr) => tr.id)
+        );
+        return taxRates !== subTaxRates;
+      })
+      .map((sub) =>
+        this.stripe.subscriptions.update(sub.id, {
+          default_tax_rates: [...taxRates],
+        })
+      );
+    return Promise.all(subUpdates);
   }
 
   /**
@@ -742,6 +797,7 @@ export class StripeHelper {
       const couponDetails: Coupon.couponDetailsSchema = {
         promotionCode: promotionCode,
         type: stripeCoupon.duration,
+        durationInMonths: stripeCoupon.duration_in_months,
         valid: false,
       };
 
@@ -907,6 +963,15 @@ export class StripeHelper {
    */
   async getInvoice(id: string): Promise<Stripe.Invoice> {
     return this.expandResource<Stripe.Invoice>(id, INVOICES_RESOURCE);
+  }
+
+  /*
+   * Expand the discounts property of an invoice
+   * TODO: We may be able to remove this method in the future if we want to add logic
+   * to expandResource to check if the discounts property is expanded.
+   */
+  getInvoiceWithDiscount(invoiceId: string) {
+    return this.stripe.invoices.retrieve(invoiceId, { expand: ['discounts'] });
   }
 
   /**
@@ -1603,6 +1668,7 @@ export class StripeHelper {
    */
   async fetchAllPlans(): Promise<Stripe.Plan[]> {
     const plans = [];
+
     for await (const item of this.stripe.plans.list({
       active: true,
       expand: ['data.product'],
@@ -1630,6 +1696,7 @@ export class StripeHelper {
         );
         continue;
       }
+
       item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
       item.metadata = mapValues(item.metadata, (v) => v.trim());
 
@@ -1649,6 +1716,36 @@ export class StripeHelper {
       plans.push(item);
     }
     return plans;
+  }
+
+  async allConfiguredPlans(): Promise<ConfiguredPlan[] | Stripe.Plan[]> {
+    // for a transitional period we will include configs from both Firestore
+    // docs and Stripe metadata when enabled by the feature flag, making it
+    // possible for Payments to toggle the Firestore configs feature flag
+    // without any changes or re-deploy necessary on the auth-server
+
+    const allPlans = await this.allPlans();
+
+    // TODO remove when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+    if (!this.paymentConfigManager) {
+      return allPlans;
+    }
+
+    const planConfigs = mapPlanConfigsByPriceId(
+      await this.paymentConfigManager.allPlans()
+    );
+
+    return allPlans.map((p) => {
+      (p as ConfiguredPlan).configuration = null;
+      const planConfig = planConfigs[p.id];
+      if (planConfig) {
+        const mergedConfig =
+          // TODO remove the ! when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+          this.paymentConfigManager!.getMergedConfig(planConfig);
+        (p as ConfiguredPlan).configuration = formatPlanConfigDto(mergedConfig);
+      }
+      return p as ConfiguredPlan;
+    });
   }
 
   /**
@@ -1675,7 +1772,7 @@ export class StripeHelper {
   }
 
   async allAbbrevPlans(): Promise<AbbrevPlan[]> {
-    const plans = await this.allPlans();
+    const plans = await this.allConfiguredPlans();
     return plans.map((p) => ({
       amount: p.amount,
       currency: p.currency,
@@ -1687,6 +1784,9 @@ export class StripeHelper {
       product_id: (p.product as Stripe.Product).id,
       product_metadata: (p.product as Stripe.Product).metadata,
       product_name: (p.product as Stripe.Product).name,
+      // TODO simple copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does have a `configuration`
+      configuration: p.configuration ?? null,
     }));
   }
 
@@ -2124,6 +2224,8 @@ export class StripeHelper {
         }
       }
 
+      const { discount } = sub!;
+
       // @ts-ignore
       const product = products.find((p) => p.product_id === sub.plan.product);
 
@@ -2150,6 +2252,8 @@ export class StripeHelper {
         failure_message,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
+        promotion_duration: (discount?.coupon?.duration as string) ?? null,
+        promotion_end: discount?.end ?? null,
       });
     }
     return subs;
@@ -2255,6 +2359,35 @@ export class StripeHelper {
       this.expandResource(invoice.charge, CHARGES_RESOURCE),
     ]);
 
+    // if the invoice does not have the deprecated discount property but has a discount ID in discounts
+    // expand the discount
+    let discountType = null;
+    let discountDuration = null;
+
+    if (invoice.discount) {
+      discountType = invoice.discount.coupon.duration;
+      discountDuration = invoice.discount.coupon.duration_in_months;
+    }
+
+    if (
+      !invoice.discount &&
+      !!invoice.discounts?.length &&
+      invoice.discounts.length === 1
+    ) {
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id);
+      const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
+      discountType = discount.coupon.duration;
+      discountDuration = discount.coupon.duration_in_months;
+    }
+
+    if (!!invoice.discounts?.length && invoice.discounts.length > 1) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(`Invoice has multiple discounts.`)
+      );
+    }
+
     if (!abbrevProduct) {
       throw error.internalValidationError(
         'extractInvoiceDetailsForEmail',
@@ -2333,6 +2466,8 @@ export class StripeHelper {
       planDownloadURL,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
+      discountType,
+      discountDuration,
     };
   }
 
@@ -2839,12 +2974,17 @@ export class StripeHelper {
         return this.stripeFirestore.retrieveAndFetchSubscription(resource);
       case INVOICES_RESOURCE:
         try {
+          // TODO we could remove the getInvoiceWithDiscount method if we add logic
+          // here to check if the discounts field is expanded but it would mean
+          // adding another stipe call to get discounts even when unnecessary
           const invoice = await this.stripeFirestore.retrieveInvoice(resource);
           // @ts-ignore
           return invoice;
         } catch (err) {
           if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
-            const invoice = await this.stripe.invoices.retrieve(resource);
+            const invoice = await this.stripe.invoices.retrieve(resource, {
+              expand: ['discounts'],
+            });
             await this.stripeFirestore.retrieveAndFetchCustomer(
               invoice.customer as string
             );

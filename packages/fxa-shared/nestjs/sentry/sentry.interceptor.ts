@@ -8,15 +8,32 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
+import '@sentry/tracing';
+import { Span, Transaction } from '@sentry/types';
 import { ApolloError } from 'apollo-server';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
 import { processException } from './reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // If there is http context request start a transaction for it. Note that this will not
+    // pick up graphql queries
+    const req = context.switchToHttp().getRequest();
+    let transaction: Transaction;
+    if (req) {
+      transaction = Sentry.startTransaction({
+        op: 'nestjs.http',
+        name: `${context.switchToHttp().getRequest().method} ${
+          context.switchToHttp().getRequest().path
+        }`,
+      });
+    }
+
     return next.handle().pipe(
       tap({
         error: (exception) => {
@@ -35,6 +52,9 @@ export class SentryInterceptor implements NestInterceptor {
           }
           processException(context, exception);
         },
+      }),
+      finalize(() => {
+        transaction?.finish();
       })
     );
   }

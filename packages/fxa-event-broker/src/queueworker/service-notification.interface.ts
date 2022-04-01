@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import * as sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import joi from 'typesafe-joi';
 
@@ -63,7 +63,7 @@ export const ServiceNotification = {
         return validMessage;
       }
     } catch (err) {
-      sentry.captureException(err);
+      Sentry.captureException(err);
       logger.error('from.sqsMessage', {
         message: 'Invalid message',
         err,

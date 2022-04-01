@@ -43,7 +43,6 @@ async function init() {
     stripeHelper,
     supportedLanguages: config.i18n.supportedLanguages,
   });
-  await stripeProductsAndPlansConverter.load();
   await stripeProductsAndPlansConverter.convert({ productId, isDryRun });
   return 0;
 }

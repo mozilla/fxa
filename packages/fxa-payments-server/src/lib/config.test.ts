@@ -98,6 +98,15 @@ const mockConfig = {
     privacyNotice: 'https://abc.xyz/privacy',
     termsOfService: 'https://abc.xyz/terms',
   },
+  sentry: {
+    clientName: 'fxa-payments-client',
+    dsn: 'https://foo.sentry.io/bar',
+    env: 'test',
+    sampleRate: 1.0,
+    serverName: 'fxa-payments-server',
+    tracesSampleRate: 1.0,
+  },
+  version: '1.0.0',
 };
 
 const encodedConfig = encodeURIComponent(JSON.stringify(mockConfig));
@@ -124,8 +133,12 @@ const expectedMergedConfig = {
     },
   },
   sentry: {
-    dsn: '',
-    url: 'https://sentry.prod.mozaws.net',
+    clientName: 'fxa-payments-client',
+    dsn: 'https://foo.sentry.io/bar',
+    env: 'test',
+    sampleRate: 1.0,
+    serverName: 'fxa-payments-server',
+    tracesSampleRate: 1.0,
   },
   servers: {
     auth: {
@@ -141,9 +154,6 @@ const expectedMergedConfig = {
     profile: {
       url: '',
     },
-    surveyGizmo: {
-      url: '',
-    },
   },
   paypal: {
     apiUrl: '',
@@ -153,6 +163,7 @@ const expectedMergedConfig = {
   stripe: {
     apiKey: '',
   },
+  version: '1.0.0',
 };
 
 const headSelector = (name: string | null) => `meta[name="${name}"]`;

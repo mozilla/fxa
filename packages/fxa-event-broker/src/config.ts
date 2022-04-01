@@ -33,16 +33,14 @@ const conf = convict({
     },
     requireCapabilities: {
       default: true,
-      doc:
-        'Whether to fail to start if capabilties are not available from the auth server',
+      doc: 'Whether to fail to start if capabilties are not available from the auth server',
       env: 'CAPABILITY_FAIL_ON_START',
       format: Boolean,
     },
   },
   clientWebhooks: {
     default: {},
-    doc:
-      'Object of clientId:webhookUrl mappings for in-memory database for dev server',
+    doc: 'Object of clientId:webhookUrl mappings for in-memory database for dev server',
     env: 'CLIENT_WEBHOOK_URLS',
     format: Object,
   },
@@ -192,16 +190,41 @@ const conf = convict({
       format: String,
     },
   },
-  sentryDsn: {
-    default: '',
-    doc: 'Sentry DSN for error and log reporting',
-    env: 'SENTRY_DSN',
-    format: String,
+  sentry: {
+    dsn: {
+      default: '',
+      doc: 'Sentry DSN for error and log reporting',
+      env: 'SENTRY_DSN',
+      format: String,
+    },
+    env: {
+      doc: 'Environment name to report to sentry',
+      default: 'local',
+      format: ['local', 'ci', 'dev', 'stage', 'prod'],
+      env: 'SENTRY_ENV',
+    },
+    sampleRate: {
+      default: 1.0,
+      doc: 'Rate at which errors are sampled.',
+      env: 'SENTRY_SAMPLE_RATE',
+      format: 'Number',
+    },
+    tracesSampleRate: {
+      default: 1.0,
+      doc: 'Rate at which traces are sampled.',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+      format: 'Number',
+    },
+    serverName: {
+      doc: 'Name used by sentry to identify the server.',
+      default: 'fxa-event-broker',
+      format: 'String',
+      env: 'SENTRY_SERVER_NAME',
+    },
   },
   serviceNotificationQueueUrl: {
     default: '',
-    doc:
-      'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+    doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
     env: 'SERVICE_NOTIFICATION_QUEUE_URL',
     format: String,
   },

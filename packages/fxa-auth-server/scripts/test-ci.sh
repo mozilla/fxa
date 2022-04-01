@@ -14,6 +14,7 @@ node -r esbuild-register ./scripts/gen_keys.js
 node -r esbuild-register ./scripts/gen_vapid_keys.js
 node -r esbuild-register ./scripts/oauth_gen_keys.js
 ../../_scripts/check-mysql.sh
+../../_scripts/check-url.sh localhost:9090
 node ../db-migrations/bin/patcher.mjs
 
 yarn run merge-ftl:test

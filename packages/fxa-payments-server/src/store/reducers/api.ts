@@ -11,6 +11,7 @@ const apiTypeToStoreMap: ApiTypeToStoreMap = {
   fetchPlans: 'plans',
   fetchSubscriptions: 'subscriptions',
   fetchCustomer: 'customer',
+  fetchSubsequentInvoices: 'subsequentInvoices',
   updateSubscriptionPlan: 'updateSubscriptionPlan',
   cancelSubscription: 'cancelSubscription',
   reactivateSubscription: 'reactivateSubscription',

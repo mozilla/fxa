@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DOMLocalization, Localization } from '@fluent/dom';
-import { RendererBindings, TemplateContext } from './bindings';
+import {
+  RendererBindings,
+  TemplateContext,
+  RendererContext,
+  TemplateValues,
+} from './bindings';
 import Localizer, { FtlIdMsg } from '../../l10n';
 
 const RTL_LOCALES = [
@@ -32,13 +37,19 @@ class Renderer extends Localizer {
     this.bindings = bindings;
   }
 
-  private async localizeAndRender(
-    l10n: DOMLocalization | Localization,
+  async localizeAndRender(
+    l10n: DOMLocalization | Localization | undefined,
     string: FtlIdMsg,
-    context: TemplateContext
+    context: RendererContext
   ) {
+    // l10n will only be undefined in tests
+    if (!l10n) {
+      l10n = (await super.setupLocalizer(context.acceptLanguage)).l10n;
+    }
+
     const localizedString =
-      (await l10n.formatValue(string.id, context)) || string.message;
+      (await l10n.formatValue(string.id, flattenNestedObjects(context))) ||
+      string.message;
     return localizedString.includes('<%')
       ? this.bindings.renderEjs(localizedString, context)
       : localizedString;
@@ -46,21 +57,24 @@ class Renderer extends Localizer {
 
   /**
    * Renders and localizes an MJML/EJS email.
-   * @param context Contains either values sent through mailer.send or mock values from Storybook
+   * @param templateContext Contains either values sent through mailer.send or mock values from Storybook
    * @returns html HTML transformed from MJML that is rendered through EJS and localized
    * @returns text Plaintext rendered through EJS and localized
    * @returns subject Localized subject, for mailer use
    */
-  async renderEmail(context: TemplateContext) {
-    const { acceptLanguage, template, layout } = context;
+  async renderEmail(templateContext: TemplateContext) {
+    const { acceptLanguage, template, layout } = templateContext;
     const { l10n, selectedLocale } = await super.setupDomLocalizer(
       acceptLanguage
     );
-    // emails are sent with a `templateValues` object (though not in Storybook) but we spread
-    // them here to make them more top-level accessible
-    context = { ...context, ...context.templateValues };
-    // cssPath is relative to where rendering occurs
-    context.cssPath = this.bindings.opts.templates.cssPath;
+
+    const context = {
+      ...templateContext.templateValues,
+      ...templateContext,
+      cssPath: this.bindings.opts.templates.cssPath,
+      // subject will always be set later but initialize with a string to make TS happy
+      subject: '',
+    } as RendererContext;
 
     if (template !== '_storybook') {
       /*
@@ -117,7 +131,7 @@ class Renderer extends Localizer {
   }
 
   private async getGlobalTemplateValues(
-    context: TemplateContext
+    context: RendererContext
   ): Promise<GlobalTemplateValues> {
     // We must use 'require' here, 'import' causes an 'unknown file extension .ts'
     // error. Might be a config option to make it work?
@@ -134,7 +148,9 @@ class Renderer extends Localizer {
     }
   }
 
-  // NOTE: We don't currently send any SMS messages. This will be removed later.
+  // NOTE: We don't currently send any SMS messages. This will be removed later. If we somehow
+  // change our minds, we need to add 'lib/**/senders/sms/**/en.ftl' to the merge-ftl grunt task.
+  // It's not there now because we don't need to burden the l10n team with strings we aren't using
   async renderSms(context: TemplateContext) {
     const { acceptLanguage, template } = context;
     const { l10n } = await super.setupLocalizer(acceptLanguage);
@@ -145,12 +161,14 @@ class Renderer extends Localizer {
 
   protected async localizePlaintext(
     text: string,
-    context: TemplateContext,
+    context: TemplateContext | RendererContext,
     l10n?: DOMLocalization | Localization
   ): Promise<string> {
     if (!l10n) {
       l10n = (await super.setupLocalizer(context.acceptLanguage)).l10n;
     }
+    const ftlContext = flattenNestedObjects(context);
+
     const plainTextArr = text.split('\n');
     for (let i in plainTextArr) {
       // match the lines that are of format key = "value" since we will be extracting the key
@@ -158,7 +176,7 @@ class Renderer extends Localizer {
       const { key, val } = splitPlainTextLine(plainTextArr[i]);
 
       if (key && val) {
-        plainTextArr[i] = (await l10n.formatValue(key, context)) || val;
+        plainTextArr[i] = (await l10n.formatValue(key, ftlContext)) || val;
       }
     }
     // convert back to string and strip excessive line breaks
@@ -173,6 +191,33 @@ export function splitPlainTextLine(plainText: string) {
   const val = matches?.groups?.val;
 
   return { key, val };
+}
+
+/*
+ * We flatten objects coming from the mailer when localizing because Fluent expects to be passed
+ * a simple object containing variable names and their values, not an object containing objects
+ *
+ * NOTE: if in the future, any template value is an _array_ of objects containing strings needing
+ * l10n, we will need to account for those variable names differently to ensure the same EJS
+ * variable matches the variable name we pass to Fluent. Right now `subscriptions` containing
+ * `productName`s is the only array of objects and since we don't localize `productName`
+ * that case isn't handled since we don't need to (yet).
+ */
+export function flattenNestedObjects(
+  context: RendererContext | Record<string, any>
+): Record<string, string | number> {
+  const flattenedObj = {} as any;
+
+  for (const templateVar in context) {
+    const varValue = context[templateVar];
+    if (typeof varValue === 'object' && varValue !== null) {
+      Object.assign(flattenedObj, flattenNestedObjects(varValue));
+    } else {
+      flattenedObj[templateVar] = varValue;
+    }
+  }
+
+  return flattenedObj;
 }
 
 export default Renderer;

@@ -43,7 +43,10 @@ import { StripeHandler } from './stripe';
 // update our plans handling code.  Prices should be treated in the same
 // fashion as plans, so it's on this list.
 const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
-const BYPASS_LATEST_FETCH_EVENTS = ['invoice.upcoming'];
+const BYPASS_LATEST_FETCH_EVENTS = [
+  'invoice.upcoming',
+  'payment_method.detached',
+];
 const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
   Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
     ([k, _]) => !BYPASS_LATEST_FETCH_TYPES.includes(k)
@@ -180,6 +183,11 @@ export class StripeWebhookHandler extends StripeHandler {
         case 'invoice.upcoming':
           await this.handleInvoiceUpcomingEvent(request, event);
           break;
+        case 'payment_method.automatically_updated':
+        case 'payment_method.updated':
+        case 'payment_method.attached':
+          await this.handlePaymentMethodUpdated(request, event);
+          break;
         case 'product.created':
         case 'product.updated':
         case 'product.deleted':
@@ -219,6 +227,33 @@ export class StripeWebhookHandler extends StripeHandler {
       this.log.error('subscriptions.handleWebhookEvent.failure', { error });
     }
     return {};
+  }
+
+  /**
+   * Handle `payment_method.automatically_updated` and `payment_method.updated`
+   * Stripe webhook events.
+   *
+   * This requires us to check their subscription, and if its in a European
+   * country, ensure the VAT still matches the card country.
+   *
+   * Other card checks are performed before the update is accepted
+   */
+  async handlePaymentMethodUpdated(request: AuthRequest, event: Stripe.Event) {
+    const paymentMethod = event.data.object as Stripe.PaymentMethod;
+
+    // If this payment method isn't attached to a user, ignore it.
+    if (!paymentMethod.customer) {
+      return;
+    }
+    const customer = await this.stripeHelper.expandResource(
+      paymentMethod.customer,
+      CUSTOMER_RESOURCE
+    );
+    await this.stripeHelper.updateCustomerPaymentMethodTaxRates(
+      customer,
+      paymentMethod
+    );
+    return;
   }
 
   /**
@@ -656,7 +691,10 @@ export class StripeWebhookHandler extends StripeHandler {
           });
           reportValidationError(msg, error as any);
         } else {
-          updatedPlans.push({ ...plan, product });
+          updatedPlans.push({
+            ...plan,
+            product,
+          });
         }
       }
     }
@@ -713,8 +751,13 @@ export class StripeWebhookHandler extends StripeHandler {
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
       await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
-    const { uid, invoiceSubtotalInCents, invoiceDiscountAmountInCents } =
-      invoiceDetails;
+    const {
+      uid,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
+      discountType,
+      discountDuration,
+    } = invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
       account.emails,
@@ -726,7 +769,11 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
+        if (
+          invoiceSubtotalInCents &&
+          invoiceDiscountAmountInCents &&
+          discountType
+        ) {
           await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
             ...mailParams
           );
@@ -743,7 +790,11 @@ export class StripeWebhookHandler extends StripeHandler {
       default:
         // Other billing reasons should be covered in subsequent invoice email
         // https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason
-        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
+        if (
+          invoiceSubtotalInCents &&
+          invoiceDiscountAmountInCents &&
+          discountType
+        ) {
           this.mailer.sendSubscriptionSubsequentInvoiceDiscountEmail(
             ...mailParams
           );

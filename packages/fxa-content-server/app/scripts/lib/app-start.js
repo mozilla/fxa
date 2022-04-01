@@ -44,7 +44,6 @@ import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
 import SupplicantRelier from '../models/reliers/pairing/supplicant';
-import SurveyTargeter from './survey-targeter';
 import BrowserRelier from '../models/reliers/browser';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
@@ -131,8 +130,6 @@ Start.prototype = {
         // user depends on the auth broker, profileClient, oAuthClient,
         // and notifier.
         .then(() => this.initializeUser())
-        // depends on relier, user, and window
-        .then(() => this.initializeSurveyTargeter())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -157,12 +154,7 @@ Start.prototype = {
   },
 
   enableSentryMetrics() {
-    let release;
-    if (this._config && this._config.release) {
-      release = this._config.release;
-    }
-
-    this._sentryMetrics = new SentryMetrics(this._config.sentryDsn, release);
+    this._sentryMetrics = new SentryMetrics(this._config);
   },
 
   initializeL10n() {
@@ -394,9 +386,8 @@ Start.prototype = {
 
   _updateUserFromSigninCodeAccount() {
     return Promise.resolve().then(() => {
-      const signinCodeAccount = this._authenticationBroker.get(
-        'signinCodeAccount'
-      );
+      const signinCodeAccount =
+        this._authenticationBroker.get('signinCodeAccount');
       if (signinCodeAccount) {
         return this._user.setSigninCodeAccount(signinCodeAccount);
       }
@@ -419,11 +410,12 @@ Start.prototype = {
         const isPairing =
           this.isDevicePairingAsAuthority() || this.isStartingPairing();
 
-        const shouldSetAsSignedInAccount = user.shouldSetSignedInAccountFromBrowser(
-          this._relier.get('service'),
-          isPairing,
-          browserAccount
-        );
+        const shouldSetAsSignedInAccount =
+          user.shouldSetSignedInAccountFromBrowser(
+            this._relier.get('service'),
+            isPairing,
+            browserAccount
+          );
 
         if (shouldSetAsSignedInAccount) {
           return user.updateSignedInAccount(browserAccount);
@@ -522,25 +514,6 @@ Start.prototype = {
     this._window.router = this._router;
   },
 
-  initializeSurveyTargeter() {
-    if (
-      this._config &&
-      this._config.surveyFeature &&
-      this._config.surveyFeature.enabled &&
-      this._config.surveys.length &&
-      !this._surveyTargeter
-    ) {
-      this._surveyTargeter = new SurveyTargeter({
-        config: this._config.surveyFeature,
-        relier: this._relier,
-        user: this._user,
-        surveys: this._config.surveys,
-        window: this._window,
-        env: this._config.env,
-      });
-    }
-  },
-
   initializeAppView() {
     if (!this._appView) {
       this._appView = new AppView({
@@ -549,7 +522,6 @@ Start.prototype = {
         environment: new Environment(this._window),
         notifier: this._notifier,
         router: this._router,
-        surveyTargeter: this._surveyTargeter,
         translator: this._translator,
         window: this._window,
       });
@@ -741,9 +713,8 @@ Start.prototype = {
     // Sync broker, for OAuth, use the OAuth broker.
     // If no service is specified and the user is verifies in a 2nd browser,
     // then fall back to the default content server context.
-    const sameBrowserVerificationContext = this._getSameBrowserVerificationModel(
-      'context'
-    ).get('context');
+    const sameBrowserVerificationContext =
+      this._getSameBrowserVerificationModel('context').get('context');
     if (sameBrowserVerificationContext) {
       // user is verifying in the same browser, use the same context they signed up with.
       return sameBrowserVerificationContext;

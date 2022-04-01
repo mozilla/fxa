@@ -22,7 +22,7 @@ module.exports = function (config) {
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
   const ACCOUNTS_STATIC_CDN = getOrigin(config.get('servers.accountsCdn.url'));
-  const SENTRY_SERVER = getOrigin(config.get('sentry.url'));
+  const SENTRY_SERVER = 'https://*.sentry.io';
   const OAUTH_SERVER = getOrigin(config.get('servers.oauth.url'));
   const PROFILE_SERVER = getOrigin(config.get('servers.profile.url'));
   const PROFILE_IMAGES_SERVER = getOrigin(
@@ -37,9 +37,6 @@ module.exports = function (config) {
   const STRIPE_API_URL = getOrigin(config.get('stripe.apiUrl'));
   const STRIPE_HOOKS_URL = getOrigin(config.get('stripe.hooksUrl'));
   const STRIPE_SCRIPT_URL = getOrigin(config.get('stripe.scriptUrl'));
-  const SURVEY_GIZMO_IFRAME_EMBED_URL = getOrigin(
-    config.get('servers.surveyGizmo.url')
-  );
 
   const EXTRA_IMG_SRC = config.get('csp.extraImgSrc');
 
@@ -78,7 +75,6 @@ module.exports = function (config) {
         PAYPAL_SCRIPT_URL,
         STRIPE_SCRIPT_URL,
         STRIPE_HOOKS_URL,
-        SURVEY_GIZMO_IFRAME_EMBED_URL,
       ],
       imgSrc: addCdnRuleIfRequired([
         SELF,
@@ -114,7 +110,6 @@ module.exports = function (config) {
       HOT_RELOAD_WEBSOCKET,
       PROFILE_IMAGES_SERVER,
       ACCOUNTS_STATIC_CDN,
-      SURVEY_GIZMO_IFRAME_EMBED_URL,
       PAYPAL_API_URL,
       PAYPAL_SCRIPT_URL,
       PROFILE_SERVER,
