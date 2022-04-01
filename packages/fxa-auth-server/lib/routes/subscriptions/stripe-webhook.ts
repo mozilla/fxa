@@ -43,7 +43,10 @@ import { StripeHandler } from './stripe';
 // update our plans handling code.  Prices should be treated in the same
 // fashion as plans, so it's on this list.
 const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
-const BYPASS_LATEST_FETCH_EVENTS = ['invoice.upcoming'];
+const BYPASS_LATEST_FETCH_EVENTS = [
+  'invoice.upcoming',
+  'payment_method.detached',
+];
 const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
   Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
     ([k, _]) => !BYPASS_LATEST_FETCH_TYPES.includes(k)
