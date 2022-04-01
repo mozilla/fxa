@@ -41,7 +41,9 @@ const COMMANDS = {
   /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
     */
-  VERIFIED: 'fxaccounts:verified',
+  /*
+    VERIFIED: 'fxaccounts:verified', // Removed in issue #9389
+    */
 };
 
 function WebChannel(id) {
