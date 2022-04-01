@@ -39,7 +39,7 @@ export const PaymentConfirmation = ({
   const { config, navigatorLanguages } = useContext(AppContext);
   const { amount, currency, interval, interval_count, product_name } =
     selectedPlan;
-  const { displayName, email } = profile;
+  const { email } = profile;
 
   const { payment_provider, subscriptions } = customer;
 

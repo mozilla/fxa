@@ -98,7 +98,7 @@ export const Subscriptions = ({
   const resetUpdatePaymentIsSuccessAndAlert = useCallback(() => {
     resetUpdatePaymentIsSuccess();
     resetSuccessAlert();
-  }, [resetUpdatePaymentIsSuccess]);
+  }, [resetUpdatePaymentIsSuccess, resetSuccessAlert]);
 
   const showPaymentSuccessAlert =
     !updatePaymentSuccessAlertIsHidden && updatePaymentIsSuccessViaSCA;
@@ -405,7 +405,9 @@ export const Subscriptions = ({
                         rel="noopener noreferrer"
                         href="https://getpocket.com/premium/manage"
                         data-testid="manage-pocket-link"
-                      ></a>
+                      >
+                        click here
+                      </a>
                     ),
                   }}
                 >
@@ -499,7 +501,7 @@ const CancellationDialogMessage = ({
       <Localized
         id="sub-route-idx-cancel-aside"
         vars={{ url: supportFormUrl }}
-        elems={{ a: <a href={supportFormUrl}></a> }}
+        elems={{ a: <a href={supportFormUrl}>Mozilla Support</a> }}
       >
         <p className="small">
           Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.

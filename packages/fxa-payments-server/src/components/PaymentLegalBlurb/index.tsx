@@ -6,11 +6,11 @@ import * as PaymentProvider from '../../lib/PaymentProvider';
 import './index.scss';
 
 function getPrivacyLinkText(): string {
-  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>';
+  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>PayPal privacy policy</paypalPrivacyLink>';
 }
 
 function getPaypalPrivacyLinkText(): string {
-  return '<paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>';
+  return '<paypalPrivacyLink>PayPal privacy policy</paypalPrivacyLink>';
 }
 
 function getStripePrivacyLinkText(): string {
@@ -23,7 +23,7 @@ const PaypalPaymentLegalBlurb = () => (
     data-testid="payment-legal-blurb-component"
   >
     <Localized id="payment-legal-copy-paypal">
-      <p>Mozilla uses Paypal for secure payment processing.</p>
+      <p>Mozilla uses PayPal for secure payment processing.</p>
     </Localized>
 
     <Localized
@@ -34,7 +34,9 @@ const PaypalPaymentLegalBlurb = () => (
             href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
             target="_blank"
             rel="noopener noreferrer"
-          ></a>
+          >
+            PayPal privacy policy
+          </a>
         ),
       }}
     >
@@ -57,7 +59,9 @@ const StripePaymentLegalBlurb = () => (
             href="https://stripe.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
-          ></a>
+          >
+            Stripe privacy policy
+          </a>
         ),
       }}
     >
@@ -69,7 +73,7 @@ const StripePaymentLegalBlurb = () => (
 const DefaultPaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
     <Localized id="payment-legal-copy-stripe-and-paypal-2">
-      <p>Mozilla uses Stripe and Paypal for secure payment processing.</p>
+      <p>Mozilla uses Stripe and PayPal for secure payment processing.</p>
     </Localized>
 
     <Localized
@@ -80,14 +84,18 @@ const DefaultPaymentLegalBlurb = () => (
             href="https://stripe.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
-          ></a>
+          >
+            Stripe privacy policy
+          </a>
         ),
         paypalPrivacyLink: (
           <a
             href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
             target="_blank"
             rel="noopener noreferrer"
-          ></a>
+          >
+            PayPal privacy policy
+          </a>
         ),
       }}
     >

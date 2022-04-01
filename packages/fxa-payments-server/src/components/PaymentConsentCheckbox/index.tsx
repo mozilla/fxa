@@ -34,8 +34,8 @@ export const PaymentConsentCheckbox = ({
       }}
       elems={{
         strong: <strong></strong>,
-        termsOfServiceLink: <a href={termsOfServiceURL}></a>,
-        privacyNoticeLink: <a href={privacyNoticeURL}></a>,
+        termsOfServiceLink: <a href={termsOfServiceURL}>Terms of Service</a>,
+        privacyNoticeLink: <a href={privacyNoticeURL}>Privacy Notice</a>,
       }}
     >
       <Checkbox name="confirm" data-testid="confirm" onClick={onClick} required>

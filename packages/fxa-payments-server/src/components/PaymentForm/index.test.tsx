@@ -4,28 +4,17 @@ import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 
 import { Omit } from '../../lib/types';
-import { Plan } from '../../store/types';
-
-jest.mock('../../lib/sentry');
 
 import {
   mockStripeElementOnChangeFns,
   mockStripeElementOnBlurFns,
   elementChangeResponse,
-  MOCK_PLANS,
   MOCK_CUSTOMER,
 } from '../../lib/test-utils';
 
 import PaymentForm, { PaymentFormProps } from './index';
-import { getLocalizedCurrency } from '../../lib/formats';
 
-const findMockPlan = (planId: string): Plan => {
-  const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
-  if (plan) {
-    return plan;
-  }
-  throw new Error('unable to find suitable Plan object for test execution.');
-};
+jest.mock('../../lib/sentry');
 
 const MOCK_PLAN = {
   plan_id: 'plan_123',
@@ -232,7 +221,7 @@ it('displays an error for empty name', () => {
   expect(getByText('Please enter your name')).toBeInTheDocument();
 });
 
-it('enables submit button when all fields are valid', () => {
+it('submit button should still be enabled when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
   expect(getByTestId('submit')).not.toHaveAttribute('disabled');
 });

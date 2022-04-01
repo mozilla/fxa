@@ -21,8 +21,6 @@
 //
 // [1] https://support.google.com/webmasters/answer/93710
 
-'use strict';
-
 const htmlOnly = require('./html-middleware');
 
 module.exports = htmlOnly((req, res, next) => {

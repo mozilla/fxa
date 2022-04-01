@@ -7,7 +7,6 @@ import { screen, render, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 import * as Amplitude from '../../../lib/amplitude';
-jest.mock('../../../lib/amplitude');
 import CancelSubscriptionPanel, {
   CancelSubscriptionPanelProps,
 } from './CancelSubscriptionPanel';
@@ -25,6 +24,7 @@ import {
 import { defaultState } from 'fxa-payments-server/src/store/state';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
+jest.mock('../../../lib/amplitude');
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
 

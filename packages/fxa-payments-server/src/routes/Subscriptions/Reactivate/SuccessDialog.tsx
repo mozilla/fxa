@@ -5,7 +5,13 @@ import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Localized } from '@fluent/react';
 
-export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
+const SuccessDialog = ({
+  plan,
+  onDismiss,
+}: {
+  plan: Plan;
+  onDismiss: () => void;
+}) => {
   const { product_name: productName } = plan;
   const { webIconURL, webIconBackground } = metadataFromPlan(plan);
 
@@ -44,3 +50,5 @@ export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
     </DialogMessage>
   );
 };
+
+export default SuccessDialog;

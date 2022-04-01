@@ -1,12 +1,12 @@
 import FlowEvent from '../lib/flow-event';
+
+import * as Amplitude from './amplitude';
 jest.mock('../lib/flow-event');
 
 jest.mock('./sentry');
 
-import * as Amplitude from './amplitude';
-
 beforeEach(() => {
-  (<jest.Mock>FlowEvent.logAmplitudeEvent).mockClear();
+  (FlowEvent.logAmplitudeEvent as jest.Mock).mockClear();
 });
 
 it('should call logAmplitudeEvent with the correct event group and type names', () => {
@@ -45,6 +45,6 @@ it('should call logAmplitudeEvent with the correct event group and type names', 
       expect(FlowEvent.logAmplitudeEvent).toBeCalledWith(...args, {});
     }
 
-    (<jest.Mock>FlowEvent.logAmplitudeEvent).mockClear();
+    (FlowEvent.logAmplitudeEvent as jest.Mock).mockClear();
   }
 });

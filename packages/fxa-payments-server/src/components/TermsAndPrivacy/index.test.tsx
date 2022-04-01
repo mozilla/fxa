@@ -6,7 +6,6 @@ import { MOCK_PLANS } from '../../lib/test-utils';
 import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
-import { config } from '../../lib/config';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';

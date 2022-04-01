@@ -253,10 +253,10 @@ describe('API requests', () => {
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(200, expectedResponse);
       expect(await apiUpdateSubscriptionPlan(params)).toEqual(expectedResponse);
-      expect(<jest.Mock>updateSubscriptionPlan_PENDING).toBeCalledWith(
+      expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateSubscriptionPlan_FULFILLED).toBeCalledWith(
+      expect(updateSubscriptionPlan_FULFILLED as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       requestMock.done();
@@ -273,10 +273,10 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updateSubscriptionPlan_PENDING).toBeCalledWith(
+      expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateSubscriptionPlan_REJECTED).toBeCalledWith({
+      expect(updateSubscriptionPlan_REJECTED as jest.Mock).toBeCalledWith({
         ...metricsOptions,
         error,
       });
@@ -308,10 +308,10 @@ describe('API requests', () => {
       expect(await apiCancelSubscription(params)).toEqual({
         subscriptionId: params.subscriptionId,
       });
-      expect(<jest.Mock>cancelSubscription_PENDING).toBeCalledWith(
+      expect(cancelSubscription_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>cancelSubscription_FULFILLED).toBeCalledWith(
+      expect(cancelSubscription_FULFILLED as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       requestMock.done();
@@ -328,10 +328,10 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>cancelSubscription_PENDING).toBeCalledWith(
+      expect(cancelSubscription_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>cancelSubscription_REJECTED).toBeCalledWith({
+      expect(cancelSubscription_REJECTED as jest.Mock).toBeCalledWith({
         ...metricsOptions,
         error,
       });
@@ -397,10 +397,10 @@ describe('API requests', () => {
       );
 
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith(metricsOptions);
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: expected.sourceCountry,
@@ -421,10 +421,10 @@ describe('API requests', () => {
       }
       expect(error).not.toBeNull();
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith(metricsOptions);
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_REJECTED
+        createSubscriptionWithPaymentMethod_REJECTED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         error,
@@ -444,13 +444,13 @@ describe('API requests', () => {
       ).toEqual(expected.subscription);
 
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         promotionCode,
       });
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: expected.sourceCountry,
@@ -598,10 +598,10 @@ describe('API requests', () => {
         MOCK_CUSTOMER
       );
 
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_FULFILLED as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       requestMock.done();
@@ -619,10 +619,10 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
+      expect(updateDefaultPaymentMethod_REJECTED as jest.Mock).toBeCalledWith({
         ...metricsOptions,
         error,
       });
@@ -678,10 +678,10 @@ describe('API requests', () => {
       );
 
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith(metricsOptions);
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: 'FR',
@@ -702,10 +702,10 @@ describe('API requests', () => {
       }
       expect(error).not.toBeNull();
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith(metricsOptions);
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_REJECTED
+        createSubscriptionWithPaymentMethod_REJECTED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         error,
@@ -725,13 +725,13 @@ describe('API requests', () => {
       );
 
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         promotionCode,
       });
       expect(
-        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: 'FR',
@@ -758,10 +758,10 @@ describe('API requests', () => {
 
       expect(await apiUpdateBillingAgreement(params)).toEqual(MOCK_CUSTOMER);
 
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_FULFILLED as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       requestMock.done();
@@ -779,10 +779,10 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
-      expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
+      expect(updateDefaultPaymentMethod_REJECTED as jest.Mock).toBeCalledWith({
         ...metricsOptions,
         error,
       });

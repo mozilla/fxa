@@ -79,7 +79,13 @@ export const NewUserEmailForm = ({
     >
       <Localized
         id="new-user-sign-in-link"
-        elems={{ a: <a onClick={onClickSignInButton} href={signInURL}></a> }}
+        elems={{
+          a: (
+            <a onClick={onClickSignInButton} href={signInURL}>
+              Sign in
+            </a>
+          ),
+        }}
       >
         <p className="sign-in-copy" data-testid="sign-in-copy">
           Already have a Firefox account?{' '}
@@ -210,7 +216,13 @@ export async function emailInputValidationAndAccountCheck(
   const accountExistsMsg = (
     <Localized
       id="new-user-already-has-account-sign-in"
-      elems={{ a: <a onClick={onClickSignInButton} href={signInURL}></a> }}
+      elems={{
+        a: (
+          <a onClick={onClickSignInButton} href={signInURL}>
+            Sign in
+          </a>
+        ),
+      }}
     >
       <>
         You already have an account.{' '}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Localized } from '@fluent/react';
 import {
   getLocalizedDate,
@@ -10,7 +10,6 @@ import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
-import { apiInvoicePreview } from '../../../lib/apiClient';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import { useHandleConfirmationDialog } from '../../../lib/hooks';

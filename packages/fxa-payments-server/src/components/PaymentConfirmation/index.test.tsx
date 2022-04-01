@@ -10,7 +10,6 @@ import {
   MOCK_PLANS,
   setupFluentLocalizationTest,
   getLocalizedMessage,
-  defaultAppContextValue,
 } from '../../lib/test-utils';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';

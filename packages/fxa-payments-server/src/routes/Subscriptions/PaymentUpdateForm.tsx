@@ -175,7 +175,18 @@ export const PaymentUpdateForm = ({
       stripeSubmitResetInProgress();
       refreshSubmitNonce();
     },
-    []
+    [
+      stripeSubmitSetInProgress,
+      resetUpdatePaymentIsSuccess,
+      setPaymentError,
+      apiClientOverrides,
+      hideUpdate,
+      refreshSubmitNonce,
+      refreshSubscriptions,
+      setUpdatePaymentIsSuccess,
+      stripeOverride,
+      stripeSubmitResetInProgress,
+    ]
   );
 
   // clear any error rendered with `ErrorMessage`
@@ -230,7 +241,7 @@ export const PaymentUpdateForm = ({
             </Localized>
             <Localized id="sub-route-payment-modal-message">
               <p>
-                There seems to be an error with your Paypal account, we need you
+                There seems to be an error with your PayPal account, we need you
                 to take the necessary steps to resolve this payment issue.
               </p>
             </Localized>

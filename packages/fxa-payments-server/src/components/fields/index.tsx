@@ -316,7 +316,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
         ...onValidate(value, true, props, getString),
       });
     },
-    [name, props, validator, onValidate, elementValue]
+    [name, props, validator, onValidate, elementValue, getString]
   );
 
   const onBlur = useCallback(
@@ -327,7 +327,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
         ...onValidate(value, false, props, getString),
       });
     },
-    [name, props, validator, onValidate, elementValue]
+    [name, props, validator, onValidate, elementValue, getString]
   );
 
   const tooltipParentRef = useRef<any>(null);

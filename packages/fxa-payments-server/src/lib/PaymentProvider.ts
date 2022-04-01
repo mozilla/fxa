@@ -11,8 +11,8 @@ export const PaymentProviders = {
   none: 'not_chosen',
 } as const;
 
-type PaymentProviders = typeof PaymentProviders;
-export type PaymentProvider = PaymentProviders[keyof PaymentProviders];
+type PaymentProvidersType = typeof PaymentProviders;
+export type PaymentProvider = PaymentProvidersType[keyof PaymentProvidersType];
 export type NoPaymentProvider = 'not_chosen';
 
 type PaymentProviderKey = Exclude<PaymentProvider, NoPaymentProvider>;
@@ -45,7 +45,8 @@ export const getPaymentProviderMappedVal: GetPaymentProviderMappedVal = (
   }
 
   const k = Object.keys(PaymentProviders).find(
-    (x) => PaymentProviders[x as keyof PaymentProviders] === c!.payment_provider
+    (x) =>
+      PaymentProviders[x as keyof PaymentProvidersType] === c!.payment_provider
   );
 
   if (k && PaymentProviders[k as PaymentProviderKey] in dict) {
@@ -55,6 +56,7 @@ export const getPaymentProviderMappedVal: GetPaymentProviderMappedVal = (
   return dict.stripe;
 };
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   isStripe,
   isPaypal,

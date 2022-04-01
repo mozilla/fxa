@@ -151,7 +151,7 @@ export const PaymentForm = ({
         promotionCode: promotionCode,
       });
     },
-    [onSubmitForParent, submitNonce]
+    [onSubmitForParent, submitNonce, plan, promotionCode]
   );
 
   const onStripeFormSubmit = useCallback(
@@ -175,7 +175,16 @@ export const PaymentForm = ({
         });
       }
     },
-    [validator, onSubmitForParent, stripe, submitNonce, allowSubmit]
+    [
+      validator,
+      onSubmitForParent,
+      stripe,
+      submitNonce,
+      allowSubmit,
+      elements,
+      isStripeCustomer,
+      promotionCode,
+    ]
   );
 
   const onSubmit = getPaymentProviderMappedVal(customer, {

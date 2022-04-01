@@ -39,9 +39,6 @@ import {
   mockStripeElementOnChangeFns,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
-import PaymentProvider, {
-  PaymentProviders,
-} from '../../../lib/PaymentProvider';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -145,7 +142,7 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(queryByTestId('privacy')).toBeInTheDocument();
     expect(
       queryByText(
-        'Mozilla uses Stripe and Paypal for secure payment processing.'
+        'Mozilla uses Stripe and PayPal for secure payment processing.'
       )
     ).toBeInTheDocument();
     expect(queryByTestId('coupon-component')).toBeInTheDocument();
@@ -153,7 +150,7 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled', async () => {
     const { queryByTestId, findByTestId } = screen;
-    const MockedButtonBase = ({}: ButtonBaseProps) => {
+    const MockedButtonBase = () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
@@ -183,7 +180,7 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
     const { queryByTestId } = screen;
-    const MockedButtonBase = ({}: ButtonBaseProps) => {
+    const MockedButtonBase = () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
@@ -201,7 +198,7 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled and an existing PayPal customer', async () => {
     const { queryByTestId } = screen;
-    const MockedButtonBase = ({}: ButtonBaseProps) => {
+    const MockedButtonBase = () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
@@ -628,7 +625,7 @@ describe('routes/Product/SubscriptionCreate', () => {
           .fn()
           .mockRejectedValue(error),
       };
-      const { stripeOverride, refreshSubscriptions } = await commonSubmitSetup({
+      const { refreshSubscriptions } = await commonSubmitSetup({
         apiClientOverrides,
       });
       await act(async () => {
@@ -692,10 +689,9 @@ describe('routes/Product/SubscriptionCreate', () => {
           ...defaultStripeOverride(),
           createPaymentMethod,
         };
-        const { apiClientOverrides, refreshSubscriptions } =
-          await commonSubmitSetup({
-            stripeOverride,
-          });
+        const { refreshSubscriptions } = await commonSubmitSetup({
+          stripeOverride,
+        });
         await act(async () => {
           fireEvent.click(screen.getByTestId('submit'));
         });
@@ -868,7 +864,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('displays apiCapturePaypalPayment failure', async () => {
-    const [_, refreshSubmitNonce] = useNonce();
+    const [, refreshSubmitNonce] = useNonce();
     (refreshSubmitNonce as jest.Mock).mockClear();
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
       return (

@@ -9,7 +9,6 @@ import { Customer } from '../../store/types';
 import AppContext from '../../lib/AppContext';
 
 import * as PaymentProvider from '../../lib/PaymentProvider';
-import { lastEventId } from '@sentry/browser';
 import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
@@ -26,11 +25,8 @@ export const ActionButton = ({
   onRevealUpdateClick,
   revealFixPaymentModal,
 }: ActionButtonProps) => {
-  const {
-    billing_agreement_id,
-    payment_provider,
-    paypal_payment_error,
-  } = customer;
+  const { billing_agreement_id, payment_provider, paypal_payment_error } =
+    customer;
 
   const { config } = useContext(AppContext);
 

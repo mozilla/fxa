@@ -13,11 +13,6 @@ const {
   fetchSubsequentInvoices,
 } = actions;
 
-// This is the length fo time that alert bar is displayed before
-// auto-dismissing, in milliseconds. It should be long enough for the user to
-// read the message.
-const RESET_PAYMENT_DELAY = 5000;
-
 // TODO: Find another way to handle these errors? Rejected promises result
 // in Redux actions dispatched *and* exceptions thrown. We handle the
 // actions in the UI, but the exceptions bubble and get caught by dev server

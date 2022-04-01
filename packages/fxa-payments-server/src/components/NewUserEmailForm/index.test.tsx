@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
-jest.mock('../../lib/apiClient', () => ({
-  apiFetchAccountStatus: jest.fn(),
-}));
 import { apiFetchAccountStatus } from '../../lib/apiClient';
-
 import {
   NewUserEmailForm,
   emailInputValidationAndAccountCheck,
   checkAccountExists,
 } from './index';
 import { Localized } from '@fluent/react';
+
+jest.mock('../../lib/apiClient', () => ({
+  apiFetchAccountStatus: jest.fn(),
+}));
 const selectedPlan = {
   plan_id: 'planId',
   plan_name: 'Pro level',
@@ -36,9 +35,9 @@ const WrapNewUserEmailForm = ({
 }: {
   accountExistsReturnValue: boolean;
 }) => {
-  const [validEmail, setValidEmail] = useState<string>('');
-  const [accountExists, setAccountExists] = useState(false);
-  const [emailsMatch, setEmailsMatch] = useState(false);
+  const [, setValidEmail] = useState<string>('');
+  const [, setAccountExists] = useState(false);
+  const [, setEmailsMatch] = useState(false);
   (apiFetchAccountStatus as jest.Mock)
     .mockClear()
     .mockResolvedValue({ exists: accountExistsReturnValue });
@@ -184,7 +183,7 @@ describe('NewUserEmailForm test', () => {
     expect(result.valid).toEqual(true);
     expect(result.error).toMatchObject(
       <Localized
-        elems={{ a: <a href="example.com/signin" /> }}
+        elems={{ a: <a href="example.com/signin">Sign in</a> }}
         id="new-user-already-has-account-sign-in"
       >
         <React.Fragment>

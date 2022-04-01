@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Stripe, PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
 import { storiesOf } from '@storybook/react';
 import { linkTo } from '@storybook/addon-links';
@@ -69,7 +69,7 @@ function init() {
         stripeOverride={{
           ...defaultStripeOverride,
           createPaymentMethod: async () => {
-            throw 'barf';
+            throw new Error('barf');
           },
         }}
       />
@@ -88,7 +88,7 @@ function init() {
         stripeOverride={{
           ...defaultStripeOverride,
           confirmCardPayment: async () => {
-            throw 'barf';
+            throw new Error('barf');
           },
         }}
       />

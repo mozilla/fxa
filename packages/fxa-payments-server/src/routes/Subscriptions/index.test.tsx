@@ -18,15 +18,13 @@ import {
   cancelSubscriptionEngaged,
 } from '../../lib/amplitude';
 
-import { ProductMetadata, Plan } from '../../store/types';
+import { ProductMetadata } from '../../store/types';
 
 import { AuthServerErrno } from '../../lib/errors';
 
 import { Store } from '../../store';
 
-import { PAYMENT_ERROR_1 } from '../../lib/errors';
 import {
-  wait,
   defaultAppContextValue,
   MockApp,
   setupMockConfig,
@@ -44,8 +42,6 @@ import {
   PRODUCT_ID,
   MOCK_SUBSEQUENT_INVOICES,
 } from '../../lib/test-utils';
-
-import FlowEvent from '../../lib/flow-event';
 
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
@@ -259,24 +255,10 @@ describe('routes/Subscriptions', () => {
   });
 
   it('redirects to settings if no subscriptions are available', async () => {
-    const apiMocks = [
-      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
-      nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-        .reply(200, MOCK_SUBSEQUENT_INVOICES),
-      nock(authServer)
-        .get(
-          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
-        )
-        .reply(200, {
-          ...MOCK_CUSTOMER,
-          subscriptions: [],
-        }),
-    ];
+    initApiMocks({
+      mockActiveSubscriptions: [],
+      mockCustomer: { ...MOCK_CUSTOMER, subscriptions: [] },
+    });
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
@@ -773,9 +755,13 @@ describe('routes/Subscriptions', () => {
       });
     };
 
-  describe('reactivation with defined webIconURL', reactivationTests(false));
+  describe('reactivation with defined webIconURL', () => {
+    reactivationTests(false);
+  });
 
-  describe('reactivation with default icon', reactivationTests(true));
+  describe('reactivation with default icon', () => {
+    reactivationTests(true);
+  });
 
   it('should display an error message for a plan found in auth-server but not subhub', async () => {
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);

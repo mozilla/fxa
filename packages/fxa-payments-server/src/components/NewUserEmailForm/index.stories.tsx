@@ -7,9 +7,9 @@ const WrapNewUserEmailForm = ({
 }: {
   accountExistsReturnValue: boolean;
 }) => {
-  const [validEmail, setValidEmail] = useState<string>('');
-  const [accountExists, setAccountExists] = useState(false);
-  const [emailsMatch, setEmailsMatch] = useState(false);
+  const [, setValidEmail] = useState<string>('');
+  const [, setAccountExists] = useState(false);
+  const [, setEmailsMatch] = useState(false);
   return (
     <div style={{ display: 'flex' }}>
       <NewUserEmailForm

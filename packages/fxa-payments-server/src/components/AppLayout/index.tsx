@@ -24,15 +24,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   );
 };
 
-export type SignInLayout = {
-  children: ReactNode;
-};
-
 export const SignInLayoutContext = React.createContext({
   setHideLogo: (hideLogo: boolean) => {},
 });
 
-export const SignInLayout = ({ children }: SignInLayout) => {
+export const SignInLayout = ({ children }: { children: ReactNode }) => {
   const [hideLogo, setHideLogo] = useState(false);
   const mainContentClassNames = classNames('card', 'payments-card', {
     'hide-logo': hideLogo,
@@ -48,11 +44,7 @@ export const SignInLayout = ({ children }: SignInLayout) => {
   );
 };
 
-export type SettingsLayout = {
-  children: ReactNode;
-};
-
-export const SettingsLayout = ({ children }: SettingsLayout) => {
+export const SettingsLayout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     document.body.classList.add('settings');
     return () => document.body.classList.remove('settings');
