@@ -1,6 +1,0 @@
-{
-  "subject": {
-    "id": "subscriptionPaymentFailed-subject",
-    "message": "<%- productName %> payment failed"
-  }
-}

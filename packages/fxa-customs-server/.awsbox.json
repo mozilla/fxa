@@ -1,9 +1,0 @@
-{
-  "processes": [
-    "bin/customs_server.js"
-  ],
-  "packages": [
-    "memcached"
-  ],
-  "ssl": "disable"
-}

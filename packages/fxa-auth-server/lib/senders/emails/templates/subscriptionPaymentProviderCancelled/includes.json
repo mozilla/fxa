@@ -1,6 +1,0 @@
-{
-  "subject": {
-    "id": "subscriptionPaymentProviderCancelled-subject",
-    "message": "Payment information update required for <%- productName %>"
-  }
-}

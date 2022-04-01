@@ -1,4 +1,0 @@
-{
-  "extends": ["plugin:fxa/recommended"],
-  "plugins": ["fxa"]
-}

@@ -1,6 +1,0 @@
-This is a Terms Of Service document for 123done.org.  If this were a
-real site, it would give you the terms of service that you must accept
-to use the site.
-
-But this is not a real site, it's a demonstration.  So this document
-isn't really all that useful.

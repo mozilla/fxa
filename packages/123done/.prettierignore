@@ -1,9 +1,0 @@
-LICENSE
-.*
-Dockerfile
-*.sh
-*.ico
-*.txt
-ansible/*
-static/components/*
-static/img/*

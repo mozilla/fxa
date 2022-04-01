@@ -1,1 +1,0 @@
-automated-email-reset-plaintext = "If you did not change it, please reset your password now at <%- resetLink %>"

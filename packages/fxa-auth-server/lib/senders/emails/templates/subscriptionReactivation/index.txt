@@ -1,5 +1,0 @@
-subscriptionReactivation-title = "Thank you for reactivating your <%- productName %> subscription!"
-
-subscriptionReactivation-content = "Your billing cycle and payment will remain the same. Your next charge will be <%- invoiceTotal %> on <%- nextInvoiceDateOnly %>. Your subscription will automatically renew each billing period unless you choose to cancel."
-
-<%- include ('/partials/subscriptionSupport/index.txt') %>

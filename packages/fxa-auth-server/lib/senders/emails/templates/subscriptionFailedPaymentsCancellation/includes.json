@@ -1,6 +1,0 @@
-{
-  "subject": {
-    "id": "subscriptionFailedPaymentsCancellation-subject",
-    "message": "Your <%- productName %> subscription has been cancelled"
-  }
-}

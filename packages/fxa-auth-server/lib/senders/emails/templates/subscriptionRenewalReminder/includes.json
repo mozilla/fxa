@@ -1,6 +1,0 @@
-{
-  "subject": {
-    "id": "subscriptionRenewalReminder-subject",
-    "message": "<%- productName %> automatic renewal notice"
-  }
-}

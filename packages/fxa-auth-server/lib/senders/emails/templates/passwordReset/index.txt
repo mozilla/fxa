@@ -1,7 +1,0 @@
-passwordReset-title = "Your account password was changed"
-
-passwordReset-description = "You will need to enter your new password on other devices to resume syncing."
-
-<%- include('/partials/automatedEmailResetPassword/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>

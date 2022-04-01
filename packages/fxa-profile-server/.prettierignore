@@ -1,7 +1,0 @@
-LICENSE
-.*
-*.sh
-*.sql
-*.png
-Dockerfile*
-*.docker

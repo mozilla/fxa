@@ -1,5 +1,0 @@
-region: us-east-1
-ssl_certificate_name: arn:aws:acm:us-east-1:927034868273:certificate/675e0ac8-23af-4153-8295-acb28ccc9f0f
-issuer_uri: https://nightly.dev.lcip.org
-fqdn_trusted: 123done-nightly.dev.lcip.org
-fqdn_untrusted: 321done-nightly.dev.lcip.org

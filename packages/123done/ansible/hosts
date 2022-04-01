@@ -1,4 +1,0 @@
-# improves compatibility with OSX and other OSs with 
-# non-default system python interpreters
-# ref: http://docs.ansible.com/ansible/intro_inventory.html
-localhost ansible_python_interpreter="/usr/bin/env python"
