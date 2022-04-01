@@ -3004,6 +3004,21 @@ export class StripeHelper {
     const subscription = await this.stripe.subscriptions.retrieve(
       (event.data.object as Stripe.Subscription).id
     );
+    // For PayPal customers, Stripe fails to send a `customer.updated` webhook
+    // when it automatically updates the `customer.currency` on subscription
+    // creation. Update the cached customer here to ensure `customer.currency`
+    // is not `null`.
+    // Since we can't easily differentiate a PayPal customer from others with
+    // an unexpanded subscription object, we update all customers in Firestore.
+    if (event.type === 'customer.subscription.created') {
+      await this.stripeFirestore.fetchAndInsertCustomer(
+        subscription.customer as string
+      );
+      // This is not the exact same object as returned otherwise, but we don't
+      // specify or make use of the return value currently.
+      return subscription;
+    }
+
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
     );
