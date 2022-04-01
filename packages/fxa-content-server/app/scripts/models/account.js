@@ -18,15 +18,12 @@ import SignInReasons from '../lib/sign-in-reasons';
 import VerificationMethods from '../lib/verification-methods';
 import vat from '../lib/vat';
 import { emailsMatch } from 'fxa-shared/email/helpers';
-import VerificationReasons from '../lib/verification-reasons';
-import aet from '../lib/crypto/account-ecosystem-telemetry';
 
 // Account attributes that can be persisted
 const PERSISTENT = {
   accountResetToken: undefined,
   displayName: undefined,
   email: undefined,
-  ecosystemAnonId: undefined,
   grantedPermissions: undefined,
   hadProfileImageSetBefore: undefined,
   lastLogin: undefined,
@@ -64,7 +61,6 @@ const DEFAULTS = _.extend(
   {
     accessToken: undefined,
     declinedSyncEngines: undefined,
-    ecosystemAnonId: undefined,
     hasBounced: undefined,
     keyFetchToken: undefined,
     newsletters: undefined,
@@ -107,7 +103,6 @@ const Account = Backbone.Model.extend(
       this._notifier = options.notifier;
       this._sentryMetrics = options.sentryMetrics;
       this._subscriptionsConfig = options.subscriptionsConfig;
-      this._ecosystemAnonIdPublicKeys = options.ecosystemAnonIdPublicKeys;
 
       // upgrade old `grantedPermissions` to the new `permissions`.
       this._upgradeGrantedPermissions();
@@ -367,7 +362,6 @@ const Account = Backbone.Model.extend(
      *   authenticationMethods,
      *   authenticatorAssuranceLevel,
      *   profileChangedAt,
-     *   ecosystemAnonId,
      * }
      */
     accountProfile() {
@@ -379,117 +373,6 @@ const Account = Backbone.Model.extend(
 
         return this._fxaClient.accountProfile(sessionToken);
       });
-    },
-
-    /**
-     * Attempt to generate and set the ecosystem anon. At a high level
-     * this function attempts to generate the id in the following manner:
-     *
-     * 1. Use kB if it is specified
-     * 2. Attempt to use user's password to fetch keys
-     * 3. Attempt to fetch keys if valid authentication token exists to do so
-     *
-     * Note that on a password reset we will need to do a reauth since
-     * the browser will attempt to use the keyFetchToken.
-     *
-     * @param {Object} [options={}]
-     *   @param {String} [options.kB] Optional The user's kB, if specified takes priority.
-     *   @param {String} [options.password] Optional The user's password
-     * @returns {Promise}
-     */
-    async generateEcosystemAnonId(options = {}) {
-      let oldEcosystemAnonId, newEcosystemAnonId;
-
-      try {
-        oldEcosystemAnonId = (await this.accountProfile()).ecosystemAnonId;
-
-        if (!this._ecosystemAnonIdPublicKeys.length) {
-          return;
-        }
-
-        const randomIndex = Math.floor(
-          Math.random() * this._ecosystemAnonIdPublicKeys.length
-        );
-        const randomKey = this._ecosystemAnonIdPublicKeys[randomIndex];
-
-        if (options.kB) {
-          newEcosystemAnonId = await aet.generateEcosystemAnonID(
-            this.get('uid'),
-            options.kB,
-            randomKey
-          );
-        } else if (
-          options.password &&
-          (await this.sessionVerificationStatus()).sessionVerified
-        ) {
-          const res = await this._fxaClient.sessionReauth(
-            this.get('sessionToken'),
-            this.get('email'),
-            options.password,
-            {
-              wantsKeys: () => true,
-              has: () => false,
-              isSync: () => false,
-            },
-            {
-              keys: true,
-              reason: VerificationReasons.ECOSYSTEM_ANON_ID,
-            }
-          );
-
-          if (res.keyFetchToken && res.unwrapBKey) {
-            const keys = await this._fxaClient.accountKeys(
-              res.keyFetchToken,
-              res.unwrapBKey
-            );
-            newEcosystemAnonId = await aet.generateEcosystemAnonID(
-              this.get('uid'),
-              keys.kB,
-              randomKey
-            );
-          }
-        } else if (this.canFetchKeys()) {
-          const keys = await this.accountKeys();
-          newEcosystemAnonId = await aet.generateEcosystemAnonID(
-            this.get('uid'),
-            keys.kB,
-            randomKey
-          );
-        }
-
-        if (newEcosystemAnonId) {
-          const updateOptions = {};
-
-          if (oldEcosystemAnonId) {
-            updateOptions.ifMatch = oldEcosystemAnonId;
-          } else {
-            updateOptions.ifNoneMatch = '*';
-          }
-
-          this.set('ecosystemAnonId', newEcosystemAnonId);
-          await this._fxaClient.updateEcosystemAnonId(
-            this.get('sessionToken'),
-            newEcosystemAnonId,
-            updateOptions
-          );
-        }
-      } catch (err) {
-        this.unset('ecosystemAnonId');
-
-        // If we get 412 Precondition Failed it means we
-        // tried to update, but another client beat us to
-        // it. Use the existing anon ID instead.
-        if (
-          AuthErrors.is(err, 'ECOSYSTEM_ANON_ID_UPDATE_CONFLICT') &&
-          oldEcosystemAnonId
-        ) {
-          this.set('ecosystemAnonId', oldEcosystemAnonId);
-        } else {
-          if (this._sentryMetrics) {
-            this._sentryMetrics.captureException(err);
-          }
-        }
-      }
     },
 
     /**
@@ -655,7 +538,6 @@ const Account = Backbone.Model.extend(
 
         this.setProfileImage(profileImage);
         this.set('displayName', result.displayName);
-        this.set('ecosystemAnonId', result.ecosystemAnonId);
 
         this.on('change', this._boundOnChange);
       });
@@ -1114,10 +996,7 @@ const Account = Backbone.Model.extend(
             relier
           );
         })
-        .then(this.set.bind(this))
-        .then(async () => {
-          await this.generateEcosystemAnonId({});
-        });
+        .then(this.set.bind(this));
     },
 
     /**
@@ -1172,10 +1051,7 @@ const Account = Backbone.Model.extend(
             accountResetToken: this.get('accountResetToken'),
           }
         )
-        .then(this.set.bind(this))
-        .then(async () => {
-          await this.generateEcosystemAnonId({ password });
-        });
+        .then(this.set.bind(this));
     },
 
     finishSetup(relier, token, email, password) {
@@ -1186,7 +1062,12 @@ const Account = Backbone.Model.extend(
 
     verifyAccountThirdParty(relier, code, provider) {
       return this._fxaClient
-        .verifyAccountThirdParty(relier, code, provider, this._metrics.getFlowEventMetadata())
+        .verifyAccountThirdParty(
+          relier,
+          code,
+          provider,
+          this._metrics.getFlowEventMetadata()
+        )
         .then(this.set.bind(this));
     },
 
@@ -1793,10 +1674,7 @@ const Account = Backbone.Model.extend(
             metricsContext: this._metrics.getFlowEventMetadata(),
           }
         )
-        .then(this.set.bind(this))
-        .then(async () => {
-          await this.generateEcosystemAnonId({ kB });
-        });
+        .then(this.set.bind(this));
     },
 
     /**

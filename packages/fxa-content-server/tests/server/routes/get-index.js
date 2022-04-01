@@ -108,10 +108,6 @@ registerSuite('routes/get-index', {
                 sentConfig.subscriptions,
                 config.get('subscriptions')
               );
-              assert.deepEqual(
-                sentConfig.ecosystemAnonIdPublicKeys,
-                config.get('ecosystem_anon_id.keys')
-              );
               assert.equal(
                 sentConfig.webpackPublicPath,
                 `${config.get('static_resource_url')}/${config.get(

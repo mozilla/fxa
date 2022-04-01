@@ -19,7 +19,6 @@ import SignInReasons from 'lib/sign-in-reasons';
 import sinon from 'sinon';
 import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
-import aet from 'lib/crypto/account-ecosystem-telemetry';
 
 describe('models/account', function () {
   var account;
@@ -31,7 +30,6 @@ describe('models/account', function () {
   var profileClient;
   var relier;
   var subscriptionsConfig;
-  var ecosystemAnonIdPublicKeys;
 
   var CLIENT_ID = 'client_id';
   var EMAIL = 'user@example.domain';
@@ -71,14 +69,6 @@ describe('models/account', function () {
       managementClientId: 'foxkeh',
       managementScopes: 'quux',
     };
-    ecosystemAnonIdPublicKeys = [
-      {
-        kty: 'EC',
-      },
-      {
-        kty: 'RSA',
-      },
-    ];
 
     account = new Account(
       {
@@ -94,7 +84,6 @@ describe('models/account', function () {
         profileClient: profileClient,
         sentryMetrics: sentryMetrics,
         subscriptionsConfig,
-        ecosystemAnonIdPublicKeys,
       }
     );
   });
@@ -2057,10 +2046,6 @@ describe('models/account', function () {
   });
 
   describe('changePassword', function () {
-    beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
-    });
-
     it('returns `INCORRECT_PASSWORD` error if old password is incorrect (event if passwords are the same)', function () {
       sinon.stub(fxaClient, 'checkPassword').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
@@ -2128,7 +2113,6 @@ describe('models/account', function () {
             )
           );
 
-          assert.isTrue(account.generateEcosystemAnonId.calledWith({}));
           assert.equal(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
           assert.equal(account.get('sessionTokenContext'), 'foo');
@@ -2139,10 +2123,6 @@ describe('models/account', function () {
   });
 
   describe('completePasswordReset', function () {
-    beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
-    });
-
     it('completes the password reset', function () {
       account.set('email', EMAIL);
       var token = 'token';
@@ -2170,9 +2150,6 @@ describe('models/account', function () {
             )
           );
 
-          assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({ password: PASSWORD })
-          );
           assert.ok(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
           assert.equal(account.get('uid'), 'uid');
@@ -3121,234 +3098,6 @@ describe('models/account', function () {
       assert.isTrue(
         fxaClient.verifyIdToken.calledWith('someIDToken', 'aclientID', 100)
       );
-    });
-  });
-
-  describe('generateEcosystemAnonId', () => {
-    const sandbox = sinon.createSandbox();
-
-    beforeEach(() => {
-      sandbox.stub(fxaClient, 'updateEcosystemAnonId').resolves();
-      sandbox.stub(aet, 'generateEcosystemAnonID').resolves('test id');
-      account.set('sessionToken', SESSION_TOKEN);
-      sandbox.spy(account, 'accountProfile');
-      sandbox.stub(fxaClient, 'accountProfile').resolves({
-        ecosystemAnonId: 'wow',
-      });
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('with kB', async () => {
-      await account.generateEcosystemAnonId({
-        kB: 'kB',
-      });
-
-      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
-      const args = aet.generateEcosystemAnonID.args[0];
-      assert.equal(args[0], UID);
-      assert.equal(args[1], 'kB');
-      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
-      assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWithExactly(
-          SESSION_TOKEN,
-          'test id',
-          {
-            ifMatch: 'wow',
-          }
-        )
-      );
-    });
-
-    it('with valid authentication token', async () => {
-      account.set('keyFetchToken', 'keyFetchToken');
-      account.set('unwrapBKey', 'unwrapBKey');
-      sandbox.stub(account, 'accountKeys').resolves({
-        kB: 'kB0',
-      });
-
-      await account.generateEcosystemAnonId();
-
-      assert.isTrue(account.accountKeys.calledOnce);
-      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
-      const args = aet.generateEcosystemAnonID.args[0];
-      assert.equal(args[0], UID);
-      assert.equal(args[1], 'kB0');
-      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
-      assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWithExactly(
-          SESSION_TOKEN,
-          'test id',
-          {
-            ifMatch: 'wow',
-          }
-        )
-      );
-    });
-
-    it('sets with password and a verified session', async () => {
-      sandbox.stub(fxaClient, 'sessionReauth').resolves({
-        keyFetchToken: 'keyFetchToken',
-        unwrapBKey: 'unwrapBKey',
-      });
-      sandbox.stub(fxaClient, 'accountKeys').resolves({
-        kB: 'kB1',
-      });
-      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
-        sessionVerified: true,
-      });
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      assert.isTrue(fxaClient.sessionReauth.calledOnce);
-      assert.isTrue(fxaClient.accountKeys.calledOnce);
-      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
-      const args = aet.generateEcosystemAnonID.args[0];
-      assert.equal(args[0], UID);
-      assert.equal(args[1], 'kB1');
-      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
-      assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWithExactly(
-          SESSION_TOKEN,
-          'test id',
-          {
-            ifMatch: 'wow',
-          }
-        )
-      );
-    });
-
-    it('sets ifNoneMatch if an old eco anon id does not exist', async () => {
-      fxaClient.accountProfile.restore();
-      sandbox.stub(fxaClient, 'accountProfile').resolves({
-        ecosystemAnonId: null,
-      });
-
-      sandbox.stub(fxaClient, 'sessionReauth').resolves({
-        keyFetchToken: 'keyFetchToken',
-        unwrapBKey: 'unwrapBKey',
-      });
-      sandbox.stub(fxaClient, 'accountKeys').resolves({
-        kB: 'kB1',
-      });
-      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
-        sessionVerified: true,
-      });
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWithExactly(
-          SESSION_TOKEN,
-          'test id',
-          {
-            ifNoneMatch: '*',
-          }
-        )
-      );
-    });
-
-    it('does not set with password and unverified session', async () => {
-      sandbox.spy(fxaClient, 'sessionReauth');
-      sandbox.spy(fxaClient, 'accountKeys');
-      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
-        sessionVerified: false,
-      });
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      assert.isTrue(fxaClient.sessionReauth.notCalled);
-      assert.isTrue(fxaClient.accountKeys.notCalled);
-      assert.isTrue(aet.generateEcosystemAnonID.notCalled);
-      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
-    });
-
-    it('ignores with no options', async () => {
-      await account.generateEcosystemAnonId();
-      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
-    });
-
-    it('handles 412 errors by looking up existing eco anon id', async () => {
-      fxaClient.updateEcosystemAnonId.restore();
-      account.set({ sessionToken: SESSION_TOKEN });
-      sandbox.spy(account, 'set');
-      sandbox.stub(fxaClient, 'sessionReauth').resolves({
-        keyFetchToken: 'keyFetchToken',
-        unwrapBKey: 'unwrapBKey',
-      });
-      sandbox.stub(fxaClient, 'accountKeys').resolves({
-        kB: 'kB1',
-      });
-      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
-        sessionVerified: true,
-      });
-      sandbox
-        .stub(fxaClient, 'updateEcosystemAnonId')
-        .rejects(AuthErrors.toError('ECOSYSTEM_ANON_ID_UPDATE_CONFLICT'));
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      sinon.assert.called(account.accountProfile);
-      sinon.assert.calledWith(fxaClient.accountProfile, SESSION_TOKEN);
-      sinon.assert.calledWith(account.set, 'ecosystemAnonId', 'wow');
-    });
-
-    it('reports errors thrown by accountProfile when looking up existing eco anon id because of a 412 error', async () => {
-      fxaClient.updateEcosystemAnonId.restore();
-      fxaClient.accountProfile.restore();
-      account.set({ sessionToken: SESSION_TOKEN });
-      sandbox.spy(account._sentryMetrics, 'captureException');
-      sandbox.spy(account, 'set');
-      sandbox
-        .stub(fxaClient, 'accountProfile')
-        .rejects(AuthErrors.toError('UNAUTHORIZED'));
-      sandbox.stub(fxaClient, 'sessionReauth').resolves({
-        keyFetchToken: 'keyFetchToken',
-        unwrapBKey: 'unwrapBKey',
-      });
-      sandbox.stub(fxaClient, 'accountKeys').resolves({
-        kB: 'kB1',
-      });
-      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
-        sessionVerified: true,
-      });
-      sandbox
-        .stub(fxaClient, 'updateEcosystemAnonId')
-        .rejects(AuthErrors.toError('ECOSYSTEM_ANON_ID_UPDATE_CONFLICT'));
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      sinon.assert.called(account.accountProfile);
-      sinon.assert.calledWith(fxaClient.accountProfile, SESSION_TOKEN);
-      sinon.assert.called(account._sentryMetrics.captureException);
-      assert.isFalse(account.has('ecosystemAnonId'));
-    });
-
-    it('reports any other errors to sentry and removes the newly create anon id', async () => {
-      sandbox.restore();
-      sandbox.spy(account._sentryMetrics, 'captureException');
-      sandbox
-        .stub(aet, 'generateEcosystemAnonID')
-        .rejects(new Error('failure'));
-
-      await account.generateEcosystemAnonId({
-        password: 'passwordzxcv',
-      });
-
-      assert.isFalse(account.has('ecosystemAnonId'));
-      sinon.assert.called(account._sentryMetrics.captureException);
     });
   });
 });

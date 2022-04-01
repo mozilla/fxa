@@ -203,36 +203,4 @@ AppError.authError = function authError(err) {
   );
 };
 
-AppError.anonIdUpdateConflict = function anonIdExists(headerName, message) {
-  message =
-    message ||
-    `Could not update Ecosystem Anon ID because criteria set by ${headerName} was not met`;
-  return new AppError(
-    {
-      code: 412,
-      error: 'Precondition Failed',
-      errno: 106,
-      message,
-    },
-    {
-      cause: message,
-    }
-  );
-};
-
-AppError.anonIdNoCondition = function anonIdNoCondition(err) {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad Request',
-      errno: 107,
-      message:
-        'Header If-None-Match or If-Match is required to perform the request',
-    },
-    {
-      cause: err,
-    }
-  );
-};
-
 module.exports = AppError;

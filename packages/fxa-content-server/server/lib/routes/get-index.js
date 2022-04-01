@@ -50,7 +50,6 @@ module.exports = function (config) {
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
     config.get('oauth.prompt_none.enabled_client_ids')
   );
-  const ECOSYSTEM_ANON_ID_PUBLIC_KEYS = config.get('ecosystem_anon_id.keys');
 
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
@@ -61,7 +60,6 @@ module.exports = function (config) {
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
-    ecosystemAnonIdPublicKeys: ECOSYSTEM_ANON_ID_PUBLIC_KEYS,
     isCoppaEnabled: COPPA_ENABLED,
     isPromptNoneEnabled: PROMPT_NONE_ENABLED,
     googleAuthConfig: GOOGLE_AUTH_CONFIG,

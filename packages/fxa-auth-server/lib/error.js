@@ -102,8 +102,6 @@ const ERRNO = {
   PAYMENT_FAILED: 186,
   SUBSCRIPTION_ALREADY_EXISTS: 187,
   UNKNOWN_SUBSCRIPTION_FOR_SOURCE: 188,
-  ECOSYSTEM_ANON_ID_UPDATE_CONFLICT: 190,
-  ECOSYSTEM_ANON_ID_NO_CONDITION: 191,
   BILLING_AGREEMENT_EXISTS: 192,
   MISSING_PAYPAL_PAYMENT_TOKEN: 193,
   MISSING_PAYPAL_BILLING_AGREEMENT: 194,
@@ -1460,25 +1458,6 @@ AppError.invalidOrExpiredOtpCode = () => {
     error: 'Bad Request',
     errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
     message: 'Invalid or expired verification code',
-  });
-};
-
-AppError.anonIdUpdateConflict = (headerName) => {
-  return new AppError({
-    code: 412,
-    error: 'Precondition Failed',
-    errno: ERRNO.ECOSYSTEM_ANON_ID_UPDATE_CONFLICT,
-    message: `Could not update Ecosystem Anon ID because criteria set by ${headerName} was not met`,
-  });
-};
-
-AppError.anonIdNoCondition = (headerName) => {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: ERRNO.ECOSYSTEM_ANON_ID_NO_CONDITION,
-    message:
-      'Header If-None-Match or If-Match is required to perform the request',
   });
 };
 

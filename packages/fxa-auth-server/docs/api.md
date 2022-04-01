@@ -37,7 +37,6 @@ see [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-au
     - [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     - [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     - [POST /account/destroy (:lock::unlock: sessionToken)](#post-accountdestroy)
-    - [PUT /account/ecosystemAnonId (:lock: sessionToken, oauthToken)](#put-accountmetricsecosystemanonId)
   - [Devices and sessions](#devices-and-sessions)
     - [POST /account/device (:lock: sessionToken, refreshToken)](#post-accountdevice)
     - [GET /account/device/commands (:lock: sessionToken, refreshToken)](#get-accountdevicecommands)
@@ -1150,46 +1149,6 @@ by the following errors
 
 - `code: 400, errno: 138`:
   Unverified session
-
-#### PUT /account/ecosystemAnonId
-
-:lock: Authenticated with OAuth bearer token or HAWK-authenticated with session token
-
-<!--begin-route-put-accountmetricsecosystemanonId-->
-
-Adds new or updates existing user Ecosystem Anonymous ID.
-
-Note that _either_ request header `If-Match` or `If-None-Match` is required to perform this request.
-
-- `If-Match` with a value of your known Ecosystem Anonymous ID, SHA-256 hashed, to set a new ID if it matches the passed in ID.
-- `If-None-Match` with a value of `*` to set a new ID if one does not already exist, or your known Ecosystem Anonymous ID, SHA-256 hashed, to set a new ID if it does not match the passed in ID.
-
-<!--end-route-put-accountmetricsecosystemanonId-->
-
-##### Request body
-
-- `anonId`: _string, required_
-
-  <!--begin-request-body-put-accountmetricsecosystemanonId-anonId-->
-
-  The new Ecosystem Anonymous ID.
-
-  <!--end-request-body-put-accountmetricsecosystemanonId-email-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-- `code: 400, errno: 163`:
-  Token does not contain the correct scope.
-- `code: 412, errno: 190`:
-  Could not update because criteria set by a header,
-  either If-None-Match or If-Match, was not met
-- `code: 400, errno: 191`:
-  Header If-None-Match or If-Match is required to
-  perform the request
 
 ### Devices and sessions
 

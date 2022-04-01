@@ -1061,11 +1061,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, [id]);
   };
 
-  DB.prototype.updateEcosystemAnonId = async function (uid, ecosystemAnonId) {
-    log.trace('DB.updateEcosystemAnonId', { uid, ecosystemAnonId });
-    return {};
-  };
-
   return DB;
 };
 

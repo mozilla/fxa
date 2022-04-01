@@ -571,13 +571,9 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
             uid = tokenVerify.user;
           }
 
-          const account = await db.account(uid);
-          const ecosystemAnonId = account.ecosystemAnonId;
-
           await req.emitMetricsEvent('oauth.token.created', {
             grantType: req.payload.grant_type,
             uid,
-            ecosystemAnonId,
             clientId: req.payload.client_id,
             service: req.payload.client_id,
           });

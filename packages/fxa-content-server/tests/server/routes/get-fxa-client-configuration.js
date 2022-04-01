@@ -37,7 +37,6 @@ suite.tests['get-fxa-client-configuration route function'] = {
     mocks.config['pairing.server_base_uri'] = config.get(
       'pairing.server_base_uri'
     );
-    mocks.config.ecosystem_anon_id_keys = config.get('ecosystem_anon_id.keys');
     /*eslint-enable camelcase*/
   },
   tests: {
@@ -48,7 +47,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
 
     'route interface is correct': function () {
       route = getFxAClientConfig(mocks.config);
-      assert.equal(mocks.config.get.callCount, 7);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.isObject(route);
       assert.lengthOf(Object.keys(route), 3);
       assert.equal(route.method, 'get');
@@ -57,31 +56,32 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.lengthOf(route.process, 2);
     },
 
-    'route.process strips trailing slashes and suffixes from URLs in config': function () {
-      /*eslint-disable camelcase*/
-      mocks.config.fxaccount_url += '//v1/';
-      mocks.config.oauth_url += '/path/component/';
-      mocks.config.profile_url += '/path/component';
-      /*eslint-enable camelcase*/
+    'route.process strips trailing slashes and suffixes from URLs in config':
+      function () {
+        /*eslint-disable camelcase*/
+        mocks.config.fxaccount_url += '//v1/';
+        mocks.config.oauth_url += '/path/component/';
+        mocks.config.profile_url += '/path/component';
+        /*eslint-enable camelcase*/
 
-      route = getFxAClientConfig(mocks.config);
-      route.process(mocks.request, mocks.response);
+        route = getFxAClientConfig(mocks.config);
+        route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 7);
-      assert.equal(mocks.response.json.callCount, 1);
-      var args = mocks.response.json.args[0];
-      assert.lengthOf(args, 1);
-      var resp = args[0];
-      assert.equal(resp.auth_server_base_url, 'https://accounts.firefox.com');
-      assert.equal(
-        resp.oauth_server_base_url,
-        'https://oauth.accounts.firefox.com/path/component'
-      );
-      assert.equal(
-        resp.profile_server_base_url,
-        'https://profile.accounts.firefox.com/path/component'
-      );
-    },
+        assert.equal(mocks.config.get.callCount, 6);
+        assert.equal(mocks.response.json.callCount, 1);
+        var args = mocks.response.json.args[0];
+        assert.lengthOf(args, 1);
+        var resp = args[0];
+        assert.equal(resp.auth_server_base_url, 'https://accounts.firefox.com');
+        assert.equal(
+          resp.oauth_server_base_url,
+          'https://oauth.accounts.firefox.com/path/component'
+        );
+        assert.equal(
+          resp.profile_server_base_url,
+          'https://profile.accounts.firefox.com/path/component'
+        );
+      },
 
     'route.process sets cache-control header from config': function () {
       mocks.config['fxa_client_configuration.max_age'] = 12345;
@@ -89,7 +89,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 7);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -104,7 +104,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 7);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -113,16 +113,17 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(args[1], 'public, max-age=86400');
     },
 
-    'route.process omits cache-control header when max_age is zero': function () {
-      mocks.config['fxa_client_configuration.max_age'] = 0;
+    'route.process omits cache-control header when max_age is zero':
+      function () {
+        mocks.config['fxa_client_configuration.max_age'] = 0;
 
-      route = getFxAClientConfig(mocks.config);
-      route.process(mocks.request, mocks.response);
+        route = getFxAClientConfig(mocks.config);
+        route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 7);
-      assert.equal(mocks.response.json.callCount, 1);
-      assert.equal(mocks.response.header.callCount, 0);
-    },
+        assert.equal(mocks.config.get.callCount, 6);
+        assert.equal(mocks.response.json.callCount, 1);
+        assert.equal(mocks.response.header.callCount, 0);
+      },
   },
 };
 
@@ -143,7 +144,7 @@ suite.tests[
       assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
       var result = JSON.parse(res.body);
-      assert.equal(Object.keys(result).length, 6);
+      assert.equal(Object.keys(result).length, 5);
 
       var conf = intern._config;
       var expectAuthRoot = conf.fxaAuthRoot;
