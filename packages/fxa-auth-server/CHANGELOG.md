@@ -1,3 +1,10 @@
+## 1.229.1
+
+### Bug fixes
+
+- recovery-codes: Remove context.numberRemaining check in getGlobalTemplateValues ([c2b8dbec7a](https://github.com/mozilla/fxa/commit/c2b8dbec7a))
+- auth: update cached customer on customer.subscription.created ([a5ca3ea98b](https://github.com/mozilla/fxa/commit/a5ca3ea98b))
+
 ## 1.229.0
 
 ### New features
