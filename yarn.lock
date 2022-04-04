@@ -21821,7 +21821,7 @@ fsevents@~2.1.1:
     supertest: ^6.2.2
     tailwindcss: ^1.9.1
     tailwindcss-textshadow: ^2.1.3
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     typescript: ^4.5.2
     webpack: ^4.43.0
   languageName: unknown
@@ -21877,7 +21877,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^7.2.0
     supertest: ^6.2.2
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     ts-morph: ^13.0.3
     tsconfig-paths: ^3.13.0
     tslib: ^2.3.1
@@ -22370,7 +22370,7 @@ fsevents@~2.1.1:
     rxjs: ^7.2.0
     sqs-consumer: ^5.6.0
     supertest: ^6.2.2
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     ts-loader: ^8.3.0
     tsconfig-paths: ^3.13.0
     typesafe-joi: ^2.1.0
@@ -22472,7 +22472,7 @@ fsevents@~2.1.1:
     rxjs: ^7.2.0
     superagent: ^7.1.1
     supertest: ^6.2.2
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     tslib: ^2.3.1
     typescript: ^4.5.2
   languageName: unknown
@@ -22626,7 +22626,7 @@ fsevents@~2.1.1:
     style-loader: ^1.3.0
     supertest: ^6.2.2
     tailwindcss: 1.9.1
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
     typescript: ^4.5.2
@@ -22739,7 +22739,7 @@ fsevents@~2.1.1:
     sinon: ^9.2.3
     tailwindcss: ^1.9.1
     tailwindcss-dir: ^4.0.0
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     typescript: ^4.5.2
     webpack: ^4.43.0
   languageName: unknown
@@ -22906,7 +22906,7 @@ fsevents@~2.1.1:
     sinon: ^9.0.3
     stripe: ^8.203.0
     superagent: ^7.1.1
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     ts-loader: ^8.3.0
     tsconfig-paths: ^3.13.0
     typesafe-joi: ^2.1.0
@@ -22959,7 +22959,7 @@ fsevents@~2.1.1:
     semver: ^7.3.5
     superagent: ^7.1.1
     supertest: ^6.2.2
-    ts-jest: ^27.1.3
+    ts-jest: ^27.1.4
     tslib: ^2.3.1
     typesafe-joi: ^2.1.0
     typescript: ^4.5.2
@@ -41757,9 +41757,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^27.1.3":
-  version: 27.1.3
-  resolution: "ts-jest@npm:27.1.3"
+"ts-jest@npm:^27.1.4":
+  version: 27.1.4
+  resolution: "ts-jest@npm:27.1.4"
   dependencies:
     bs-logger: 0.x
     fast-json-stable-stringify: 2.x
@@ -41773,7 +41773,6 @@ resolve@^2.0.0-next.3:
     "@babel/core": ">=7.0.0-beta.0 <8"
     "@types/jest": ^27.0.0
     babel-jest: ">=27.0.0 <28"
-    esbuild: ~0.14.0
     jest: ^27.0.0
     typescript: ">=3.8 <5.0"
   peerDependenciesMeta:
@@ -41787,7 +41786,7 @@ resolve@^2.0.0-next.3:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: eb54e5b8fc5f06e4cc20ecec7891201ddc78a3537d5eb3775e29ffbc7e83fd2a68f91db801b6a8c820c872060b24dc41fb6decac800b76256d3cdda6520b5c4f
+  checksum: d2cc2719ed2884a880ab50d2c14c311834be9c88bc79d0064fa0189afce5c296d7676314d26cc3f7e82ddd52df272c2d4137a832c89616f30cbe8f43e30f9a29
   languageName: node
   linkType: hard
 
