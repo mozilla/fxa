@@ -618,10 +618,6 @@ var ERRORS = {
     errno: 1065,
     message: t('The image file size is too large to be uploaded.'),
   },
-  ECOSYSTEM_ANON_ID_UPDATE_CONFLICT: {
-    errno: 190,
-    message: 'Could not update Ecosystem Anon ID because precondition failed.', // only used for logging, no need for translation
-  },
 };
 
 export default _.extend({}, Errors, {

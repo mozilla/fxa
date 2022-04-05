@@ -88,7 +88,6 @@ const DB_METHOD_NAMES = [
   'touchSessionToken',
   'totpToken',
   'updateDevice',
-  'updateEcosystemAnonId',
   'updateLocale',
   'updateRecoveryCodes',
   'updateRecoveryKey',
@@ -263,7 +262,6 @@ function mockDB(data, errors) {
           isPrimary: true,
           emailCode: data.emailCode,
         },
-        ecosystemAnonId: data.ecosystemAnonId,
         emails: [
           {
             normalizedEmail: normalizeEmail(data.email),
@@ -519,11 +517,6 @@ function mockDB(data, errors) {
     updateDevice: sinon.spy((uid, device) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(device);
-    }),
-    updateEcosystemAnonId: sinon.spy((uid, ecosystemAnonId) => {
-      assert.ok(typeof uid === 'string');
-      assert.ok(typeof ecosystemAnonId === 'string');
-      return Promise.resolve({});
     }),
     sessionToken: sinon.spy(() => {
       const res = {

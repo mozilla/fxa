@@ -1272,47 +1272,6 @@ export default class AuthClient {
     return this.request('POST', '/oauth/id-token-verify', payload);
   }
 
-  /** Update a user's ecosystem anon ID */
-  async updateEcosystemAnonId(
-    /** Session token obtained from signIn */
-    sessionToken: string,
-    /** The new Ecosystem Anonymous ID */
-    ecosystemAnonId: string,
-    /** Additional options to be passed to the method */
-    options: {
-      /**
-       * Sets the If-None-Match header to the specified value.
-       * Use '*' to only update ID if one is not already set.
-       */
-      ifNoneMatch?: string;
-      /**
-       * Sets the If-Match header to the specified value.
-       * Use the first part of an existing ID to only update
-       * the ID if the values do not fuzzy match.
-       */
-      ifMatch?: string;
-    } = {}
-  ) {
-    const headers: { [header: string]: string } = {};
-
-    if (options.ifNoneMatch) {
-      headers['If-None-Match'] = options.ifNoneMatch;
-    }
-
-    if (options.ifMatch) {
-      headers['If-Match'] = options.ifMatch;
-    }
-
-    return this.sessionPut(
-      '/account/ecosystemAnonId',
-      sessionToken,
-      {
-        ecosystemAnonId,
-      },
-      new Headers(headers)
-    );
-  }
-
   async sendPushLoginRequest(sessionToken: string) {
     return this.sessionPost('/session/verify/send_push', sessionToken, {});
   }

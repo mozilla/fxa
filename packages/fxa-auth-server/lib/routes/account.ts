@@ -1092,12 +1092,6 @@ export class AccountHandler {
     const res: Record<string, any> = {};
     const account = await this.db.account(uid);
 
-    if (
-      scope.contains('profile:ecosystem_anon_id') &&
-      account.ecosystemAnonId
-    ) {
-      res.ecosystemAnonId = account.ecosystemAnonId;
-    }
     if (scope.contains('profile:email')) {
       res.email = account.primaryEmail.email;
     }
@@ -1522,70 +1516,6 @@ export class AccountHandler {
       subscriptions: [...iapGooglePlaySubscriptions, ...webSubscriptions],
     };
   }
-
-  async updateEcosystemAnonId(request: AuthRequest) {
-    this.log.begin('account.updateEcosystemAnonId', request);
-
-    const auth = request.auth;
-    let uid, scope;
-    if (auth.strategy === 'sessionToken') {
-      uid = auth.credentials.uid;
-      scope = { contains: () => true };
-    } else {
-      uid = auth.credentials.user;
-      scope = ScopeSet.fromArray(auth.credentials.scope);
-    }
-
-    const { ecosystemAnonId } = request.payload as any;
-
-    function hashAnonId(anonId: any) {
-      const hash = crypto.createHash('sha256');
-      return hash.update(anonId).digest('hex');
-    }
-
-    const ifNoneMatch = request.headers['if-none-match'];
-    const ifMatch = request.headers['if-match'];
-
-    if (!scope.contains('profile:ecosystem_anon_id:write')) {
-      throw error.invalidScopes(scope);
-    }
-
-    await this.customs.check(request, uid, 'updateEcosystemAnonId');
-
-    if (!ifNoneMatch && !ifMatch) {
-      throw error.anonIdNoCondition();
-    }
-
-    const { ecosystemAnonId: existingAnonId } = await this.db.account(uid);
-
-    if (existingAnonId) {
-      const hashedAnonId = hashAnonId(existingAnonId);
-
-      if (ifMatch && ifMatch !== hashedAnonId) {
-        throw error.anonIdUpdateConflict('If-Match');
-      }
-
-      if (ifNoneMatch === '*') {
-        throw error.anonIdUpdateConflict('If-None-Match');
-      } else if (ifNoneMatch === hashedAnonId) {
-        throw error.anonIdUpdateConflict('If-None-Match');
-      }
-    }
-
-    await this.db.updateEcosystemAnonId(uid, ecosystemAnonId);
-
-    // Order matters here: if the awaited `db.updateEcosystemAnonId` call
-    // doesn't throw, *then* log the (old, new) pair, so that the data
-    // pipeline can maintain an accurate historical list of anon_ids.
-    if (existingAnonId) {
-      this.log.info('account.updateEcosystemAnonId.complete', {
-        previous: existingAnonId,
-        next: ecosystemAnonId,
-      });
-    }
-
-    return {};
-  }
 }
 
 export const accountRoutes = (
@@ -1778,7 +1708,6 @@ export const accountRoutes = (
         },
         response: {
           schema: {
-            ecosystemAnonId: isA.string().optional().allow(null),
             email: isA.string().optional(),
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA
@@ -1902,30 +1831,6 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.getAccount(request),
-    },
-    {
-      method: 'PUT',
-      path: '/account/ecosystemAnonId',
-      apidoc: {
-        errors: [
-          error.invalidScopes,
-          error.anonIdUpdateConflict,
-          error.anonIdNoCondition,
-        ],
-      },
-      options: {
-        auth: {
-          payload: false,
-          strategies: ['sessionToken', 'oauthToken'],
-        },
-        validate: {
-          payload: {
-            ecosystemAnonId: isA.string().required(),
-          },
-        },
-      },
-      handler: (request: AuthRequest) =>
-        accountHandler.updateEcosystemAnonId(request),
     },
   ];
 
