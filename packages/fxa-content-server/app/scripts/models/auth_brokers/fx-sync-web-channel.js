@@ -16,8 +16,8 @@ import ChannelMixin from './mixins/channel';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 
-const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.extend(
-  {
+const FxSyncWebChannelAuthenticationBroker =
+  FxSyncChannelAuthenticationBroker.extend({
     type: 'fx-sync-web-channel',
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -30,8 +30,7 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
       'CHANGE_PASSWORD',
       'DELETE_ACCOUNT',
       'LOADED',
-      'LOGIN',
-      'VERIFIED'
+      'LOGIN'
     ),
 
     createChannel() {
@@ -73,8 +72,7 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
         proto.beforeForcePasswordChange.call(this, account)
       );
     },
-  }
-);
+  });
 
 Cocktail.mixin(FxSyncWebChannelAuthenticationBroker, ChannelMixin);
 
