@@ -39,7 +39,7 @@
     "@babel/preset-env": "^7.16.7",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
-    "@sentry/browser": "^6.19.1",
+    "@sentry/browser": "^6.19.4",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@sentry/tracing": "^6.19.1",

@@ -117,7 +117,7 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@sentry/browser": "^6.19.1",
+    "@sentry/browser": "^6.19.4",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@sentry/tracing": "^6.19.1",
