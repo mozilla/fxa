@@ -77,7 +77,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "@nestjs/common": "^8.3.1",
+    "@nestjs/common": "^8.4.3",
     "@nestjs/config": "^1.2.0",
     "@nestjs/core": "^8.3.1",
     "@nestjs/graphql": "^8.0.2",
