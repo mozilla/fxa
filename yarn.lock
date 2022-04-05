@@ -8867,15 +8867,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.3"
+"@type-cacheable/ioredis-adapter@npm:^10.0.4":
+  version: 10.0.4
+  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.4"
   dependencies:
     compare-versions: ^4.0.0
   peerDependencies:
     "@type-cacheable/core": ^10.0.0
     ioredis: ^4.14.1
-  checksum: 3ccaf145ae58553e59b0af1f492a2546a1564e616a3748a73d76f3766cb29bcdcd856a741c7d2bb4031738f7cdd25cdd32d8de40a5b754e86f6bffcf771d7b8a
+  checksum: 0716d9566bd2fb3da00ca26138576cc7300ba2142232527fc040290e9ec3c5dbe644977dbe16c9e5f8487a8b3a907b3d7b9da651e046f7c946332f87414621e2
   languageName: node
   linkType: hard
 
@@ -21931,7 +21931,7 @@ fsevents@~2.1.1:
     "@storybook/addon-toolbars": ^6.3.12
     "@storybook/html": ^6.3.13
     "@type-cacheable/core": ^10.1.0
-    "@type-cacheable/ioredis-adapter": ^10.0.3
+    "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/async-retry": ^1
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
