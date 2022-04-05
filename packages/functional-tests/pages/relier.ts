@@ -26,7 +26,7 @@ export class RelierPage extends BaseLayout {
   clickEmailFirst() {
     return Promise.all([
       this.page.click('button.email-first-button'),
-      this.page.waitForNavigation(),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 

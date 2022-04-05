@@ -1,22 +1,6 @@
 import { test, expect } from '../lib/fixtures/standard';
 
 test.describe('severity-1', () => {
-  test('subscribe and login to product', async ({
-    pages: { relier, login, subscribe },
-  }, { project }) => {
-    test.skip(project.name === 'production', 'prod needs a valid credit card');
-    test.slow();
-    await relier.goto();
-    await relier.clickSubscribe();
-    await subscribe.setFullName();
-    await subscribe.setCreditCardInfo();
-    await subscribe.submit();
-    await relier.goto();
-    await relier.clickEmailFirst();
-    await login.submit();
-    expect(await relier.isPro()).toBe(true);
-  });
-
   test('content-server mocha tests', async ({ target, page }, { project }) => {
     test.skip(project.name !== 'local', 'mocha tests are local only');
     test.slow();
