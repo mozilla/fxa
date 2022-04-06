@@ -620,7 +620,7 @@ const conf = (module.exports = convict({
       format: Number,
     },
     tracesSampleRate: {
-      default: 1.0,
+      default: 0.0,
       doc: 'Sentry config for client side errors. If not set, then no errors reported.',
       env: 'SENTRY_TRACES_SAMPLE_RATE',
       format: Number,

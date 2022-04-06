@@ -71,10 +71,10 @@ function checkSentryConfig(config: SentryConfigOpts, log: ILogger) {
     raiseError('config missing either release or version.');
   }
 
-  if (!config.sentry?.sampleRate) {
+  if (config.sentry?.sampleRate == null) {
     raiseError('config missing sentry.sampleRate');
   }
-  if (!config.sentry?.tracesSampleRate) {
+  if (config.sentry?.tracesSampleRate == null) {
     raiseError('config missing sentry.tracesSampleRate');
   }
   if (!config.sentry.clientName && !config.sentry.serverName) {
