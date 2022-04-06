@@ -541,6 +541,7 @@ describe('API requests', () => {
         promotionCode,
         type: '',
         valid: true,
+        durationInMonths: 1,
         discountAmount: 50,
         expired: false,
         maximallyRedeemed: false,

@@ -1346,6 +1346,15 @@ describe('StripeHelper', () => {
       total_discount_amounts: [{ amount: 200 }],
     };
 
+    const expectedTemplate = {
+      promotionCode: 'promo',
+      type: 'forever',
+      valid: true,
+      durationInMonths: null,
+      expired: false,
+      maximallyRedeemed: false,
+    };
+
     let sentryScope;
 
     beforeEach(() => {
@@ -1355,13 +1364,7 @@ describe('StripeHelper', () => {
     });
 
     it('retrieves coupon details', async () => {
-      const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        discountAmount: 200,
-        valid: true,
-        durationInMonths: null,
-      };
+      const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
         .resolves(validInvoicePreview);
@@ -1396,13 +1399,7 @@ describe('StripeHelper', () => {
     });
 
     it('retrieves coupon details for 100% discount', async () => {
-      const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        discountAmount: 200,
-        valid: true,
-        durationInMonths: null,
-      };
+      const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
         .resolves({ ...validInvoicePreview, total: 0 });
@@ -1438,11 +1435,9 @@ describe('StripeHelper', () => {
 
     it('retrieves details on an expired coupon', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        expired: true,
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
+        expired: true,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1469,11 +1464,9 @@ describe('StripeHelper', () => {
 
     it('retrieves details on a maximally redeemed coupon', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        maximallyRedeemed: true,
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
+        maximallyRedeemed: true,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1501,11 +1494,9 @@ describe('StripeHelper', () => {
 
     it('retrieves details on an expired promotion code', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        expired: true,
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
+        expired: true,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1532,11 +1523,9 @@ describe('StripeHelper', () => {
 
     it('retrieves details on a maximally redeemed promotion code', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
-        maximallyRedeemed: true,
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
+        maximallyRedeemed: true,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1564,10 +1553,8 @@ describe('StripeHelper', () => {
 
     it('return coupon details even when previewInvoice rejects', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
       };
       const err = new AppError('previewInvoiceFailed');
       sandbox.stub(stripeHelper, 'previewInvoice').rejects(err);
@@ -1602,10 +1589,8 @@ describe('StripeHelper', () => {
 
     it('return coupon details even when getMinAmount rejects', async () => {
       const expected = {
-        promotionCode: 'promo',
-        type: 'forever',
+        ...expectedTemplate,
         valid: false,
-        durationInMonths: null,
       };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
@@ -1729,8 +1714,14 @@ describe('StripeHelper', () => {
       },
     };
 
+    const expectedTemplate = {
+      valid: false,
+      expired: false,
+      maximallyRedeemed: false,
+    };
+
     it('return valid for valid coupon and promotion code', () => {
-      const expected = { valid: true };
+      const expected = { ...expectedTemplate, valid: true };
       const actual = stripeHelper.verifyPromotionAndCoupon(
         promotionCodeTemplate
       );
@@ -1747,7 +1738,7 @@ describe('StripeHelper', () => {
           times_redeemed: 1,
         },
       };
-      const expected = { valid: false, maximallyRedeemed: true };
+      const expected = { ...expectedTemplate, maximallyRedeemed: true };
       const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
       assert.deepEqual(actual, expected);
     });
@@ -1760,7 +1751,7 @@ describe('StripeHelper', () => {
           redeem_by: 1000,
         },
       };
-      const expected = { valid: false, expired: true };
+      const expected = { ...expectedTemplate, expired: true };
       const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
       assert.deepEqual(actual, expected);
     });
@@ -1772,7 +1763,7 @@ describe('StripeHelper', () => {
         max_redemptions: 1,
         times_redeemed: 1,
       };
-      const expected = { valid: false, maximallyRedeemed: true };
+      const expected = { ...expectedTemplate, maximallyRedeemed: true };
       const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
       assert.deepEqual(actual, expected);
     });
@@ -1783,13 +1774,13 @@ describe('StripeHelper', () => {
         active: false,
         expires_at: 1000,
       };
-      const expected = { valid: false, expired: true };
+      const expected = { ...expectedTemplate, expired: true };
       const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
       assert.deepEqual(actual, expected);
     });
   });
 
-  describe('verifyPromotionAndCouponProperties', () => {
+  describe('checkPromotionAndCouponProperties', () => {
     const propertiesTemplate = {
       valid: false,
       redeem_by: null,
@@ -1806,8 +1797,7 @@ describe('StripeHelper', () => {
         expired: false,
         maximallyRedeemed: false,
       };
-      const actual =
-        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      const actual = stripeHelper.checkPromotionAndCouponProperties(properties);
       assert.deepEqual(actual, expected);
     });
 
@@ -1822,8 +1812,7 @@ describe('StripeHelper', () => {
         expired: false,
         maximallyRedeemed: true,
       };
-      const actual =
-        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      const actual = stripeHelper.checkPromotionAndCouponProperties(properties);
       assert.deepEqual(actual, expected);
     });
 
@@ -1837,8 +1826,7 @@ describe('StripeHelper', () => {
         expired: true,
         maximallyRedeemed: false,
       };
-      const actual =
-        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      const actual = stripeHelper.checkPromotionAndCouponProperties(properties);
       assert.deepEqual(actual, expected);
     });
 
@@ -1849,8 +1837,7 @@ describe('StripeHelper', () => {
         expired: false,
         maximallyRedeemed: false,
       };
-      const actual =
-        stripeHelper.verifyPromotionAndCouponProperties(properties);
+      const actual = stripeHelper.checkPromotionAndCouponProperties(properties);
       assert.deepEqual(actual, expected);
     });
   });

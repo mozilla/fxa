@@ -746,13 +746,13 @@ export class StripeHelper {
   }
 
   /**
-   * Verify whether either a Promotion Code or Coupon is valid.
+   * Check various properties in Promotion Code or Coupon and if they are valid.
    * If the properties are invalid, then return what's making it invalid.
    * Current invalid states include:
    * - Expired
    * - Maximally redeemed
    */
-  verifyPromotionAndCouponProperties({
+  checkPromotionAndCouponProperties({
     valid,
     redeem_by: redeemBy,
     max_redemptions: maxRedemptions,
@@ -798,33 +798,20 @@ export class StripeHelper {
    */
   verifyPromotionAndCoupon(promotionCode: Stripe.PromotionCode) {
     const { coupon } = promotionCode;
-    const returnValue: {
-      valid: boolean;
-      expired?: boolean;
-      maximallyRedeemed?: boolean;
-    } = { valid: false };
 
-    const verifyCoupon = this.verifyPromotionAndCouponProperties(coupon);
-    const verifyPromotionCode = this.verifyPromotionAndCouponProperties({
+    const verifyCoupon = this.checkPromotionAndCouponProperties(coupon);
+    const verifyPromotionCode = this.checkPromotionAndCouponProperties({
       ...promotionCode,
       valid: promotionCode.active,
       redeem_by: promotionCode.expires_at,
     });
 
-    returnValue.valid = verifyCoupon.valid && verifyPromotionCode.valid;
-
-    if (verifyCoupon.expired || verifyPromotionCode.expired) {
-      returnValue.expired = true;
-    }
-
-    if (
-      verifyCoupon.maximallyRedeemed ||
-      verifyPromotionCode.maximallyRedeemed
-    ) {
-      returnValue.maximallyRedeemed = true;
-    }
-
-    return returnValue;
+    return {
+      valid: verifyCoupon.valid && verifyPromotionCode.valid,
+      expired: verifyCoupon.expired || verifyPromotionCode.expired,
+      maximallyRedeemed:
+        verifyCoupon.maximallyRedeemed || verifyPromotionCode.maximallyRedeemed,
+    };
   }
 
   /**
@@ -859,6 +846,8 @@ export class StripeHelper {
         type: stripeCoupon.duration,
         durationInMonths: stripeCoupon.duration_in_months,
         valid: false,
+        maximallyRedeemed: false,
+        expired: false,
       };
 
       const verifiedPromotionAndCoupon =

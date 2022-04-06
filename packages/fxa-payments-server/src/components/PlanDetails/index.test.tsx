@@ -197,6 +197,8 @@ describe('PlanDetails', () => {
       durationInMonths: null,
       valid: true,
       discountAmount: 200,
+      maximallyRedeemed: false,
+      expired: false,
     };
 
     it('updates price', async () => {

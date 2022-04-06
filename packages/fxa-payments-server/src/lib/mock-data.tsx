@@ -295,6 +295,8 @@ export const COUPON_DETAILS_INVALID: CouponDetails = {
   type: '',
   durationInMonths: 1,
   valid: false,
+  expired: false,
+  maximallyRedeemed: false,
 };
 
 export const COUPON_DETAILS_EXPIRED: CouponDetails = {
@@ -303,6 +305,7 @@ export const COUPON_DETAILS_EXPIRED: CouponDetails = {
   durationInMonths: 1,
   valid: false,
   expired: true,
+  maximallyRedeemed: false,
 };
 
 export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
@@ -311,6 +314,7 @@ export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
   durationInMonths: 1,
   valid: false,
   maximallyRedeemed: true,
+  expired: false,
 };
 
 export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: FirstInvoicePreview = {

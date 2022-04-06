@@ -14,6 +14,7 @@ import {
 } from '../../lib/test-utils';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -63,6 +64,7 @@ const customer: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
       subscription_id: 'sub0.28964929339372136',
       plan_id: 'plan_123',
@@ -75,6 +77,7 @@ const customer: Customer = {
       end_at: null,
       promotion_duration: null,
       promotion_end: null,
+      created: Date.now() / 1000 - 86400 * 31,
     },
   ],
 };
@@ -89,6 +92,7 @@ const paypalCustomer: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
       subscription_id: 'sub0.28964929339372136',
       plan_id: 'plan_123',
@@ -101,6 +105,7 @@ const paypalCustomer: Customer = {
       end_at: null,
       promotion_duration: null,
       promotion_end: null,
+      created: Date.now() / 1000 - 86400 * 31,
     },
   ],
 };
@@ -109,7 +114,10 @@ const coupon: CouponDetails = {
   discountAmount: 200,
   promotionCode: 'TEST',
   type: '',
+  durationInMonths: 1,
   valid: true,
+  expired: false,
+  maximallyRedeemed: false,
 };
 
 afterEach(cleanup);
