@@ -112,10 +112,6 @@ const EVENTS = {
     group: GROUPS.activity,
     event: 'oauth_access_token_created',
   },
-  'sms.installFirefox.sent': {
-    group: GROUPS.sms,
-    event: 'sent',
-  },
   'token.created': {
     group: GROUPS.activity,
     event: 'access_token_created',

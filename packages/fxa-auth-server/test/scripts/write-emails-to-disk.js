@@ -35,11 +35,6 @@ describe('scripts/write-emails-to-disk:', () => {
   });
 
   for (const template of Object.keys(templateNames)) {
-    // Ignore sms templates for now
-    if (template.includes('sms')) {
-      continue;
-    }
-
     // Ignore templates with the plural form because they break
     // the naming convention.
     if (template.includes('subscriptions')) {

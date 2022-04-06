@@ -52,7 +52,6 @@ describe('models/reliers/browser', () => {
         context: CONTEXT,
         country: COUNTRY,
         service: SYNC_SERVICE,
-        signin: 'signin-code',
       });
 
       return relier.fetch().then(() => {
@@ -60,7 +59,6 @@ describe('models/reliers/browser', () => {
         assert.equal(relier.get('context'), CONTEXT);
         assert.equal(relier.get('country'), COUNTRY);
         assert.equal(relier.get('service'), SYNC_SERVICE);
-        assert.equal(relier.get('signinCode'), 'signin-code');
       });
     });
 
@@ -142,127 +140,7 @@ describe('models/reliers/browser', () => {
         });
       });
     });
-
-    describe('country query parameter', () => {
-      describe('missing', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({});
-
-          return relier.fetch();
-        });
-
-        it("does not set a country, it'll be retrieved via a call to /sms/status", () => {
-          assert.isFalse(relier.has('country'));
-        });
-      });
-
-      describe('emtpy', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            country: '',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'country');
-        });
-      });
-
-      describe('invalid', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            country: 'AR',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'country');
-        });
-      });
-
-      describe('whitespace', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            country: ' ',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'country');
-        });
-      });
-    });
-
-    describe('signin query parameter', () => {
-      describe('missing', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-          });
-
-          return relier.fetch();
-        });
-
-        it('succeeds', () => {
-          assert.isUndefined(relier.get('signinCode'));
-        });
-      });
-
-      describe('emtpy', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            signin: '',
-          });
-
-          return relier.fetch();
-        });
-
-        it('succeeds', () => {
-          assert.isUndefined(relier.get('signinCode'));
-        });
-      });
-
-      describe('whitespace', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            signin: ' ',
-          });
-
-          return relier.fetch();
-        });
-
-        it('succeeds', () => {
-          assert.isUndefined(relier.get('signinCode'));
-        });
-      });
-
-      describe('a string', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            signin: 'signin-code',
-          });
-
-          return relier.fetch();
-        });
-
-        it('succeeds', () => {
-          assert.equal(relier.get('signinCode'), 'signin-code');
-        });
-      });
-    });
-
+    
     it('translates `service` to `serviceName`', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         context: CONTEXT,

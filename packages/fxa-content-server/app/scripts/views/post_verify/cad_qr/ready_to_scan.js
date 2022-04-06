@@ -30,10 +30,6 @@ class ReadyToScan extends FormView {
     this.navigate('/post_verify/cad_qr/scan_code');
   }
 
-  clickUseSms() {
-    return this.navigate('/sms');
-  }
-
   clickMaybeLater() {
     if (this.settingReminder) {
       return;

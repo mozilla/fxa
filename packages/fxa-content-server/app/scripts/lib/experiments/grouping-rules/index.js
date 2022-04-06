@@ -13,7 +13,6 @@ const _ = require('underscore');
 const experimentGroupingRules = [
   require('./communication-prefs'),
   require('./is-sampled-user'),
-  require('./send-sms-install-link'),
   require('./sentry'),
   require('./newsletter-sync'),
   require('./push'),

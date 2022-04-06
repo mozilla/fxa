@@ -36,22 +36,6 @@
   }
 }
 
-// Note this is non-standard styling for #main-content. It would
-// generally have a greater top padding value and the Firefox logo
-// across the top. But here we are intentionally making these
-// changes to a simpler look.
-#main-content.send-sms {
-  padding-top: 40px;
-
-  @include respond-to('small') {
-    padding-top: 52px;
-  }
-
-  &::before {
-    content: initial;
-  }
-}
-
 #about-mozilla {
   @include respond-to('big') {
     background: image-url('mozilla.svg') no-repeat center center;
@@ -121,56 +105,6 @@
   }
 }
 
-.send-sms {
-  h1 {
-    font-size: 22px;
-    font-weight: 400;
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin-bottom: 20px;
-  }
-
-  .sms-row {
-    position: relative;
-
-    .sms-send {
-      border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
-      height: $input-height - 2px;
-      min-width: 55px;
-      position: absolute;
-      top: 1px;
-      width: auto;
-      z-index: 3;
-
-      html[dir='ltr'] & {
-        border-left: 1px solid $input-border-color-default;
-        right: 1px;
-      }
-
-      html[dir='rtl'] & {
-        border-radius: $inner-button-border-radius 0 0
-          $inner-button-border-radius;
-        border-right: 1px solid $input-border-color-default;
-        left: 1px;
-      }
-
-      @include respond-to('big') {
-        padding: 0 20px;
-      }
-
-      @include respond-to('small') {
-        border-radius: 0 $inner-button-border-radius $inner-button-border-radius
-          0;
-        height: 38px;
-        line-height: 38px;
-        padding: 0 7px;
-      }
-    }
-  }
-}
-
 .faint {
   color: $grey-50;
   transition-duration: $short-transition;
@@ -185,26 +119,5 @@
       $grey-70,
       $grey-80
     );
-  }
-}
-
-.sms-disclaimer {
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 20px 0 22px;
-  padding: 0 20px;
-}
-
-.sms-sent {
-  header {
-    margin: 15px auto 32px auto;
-  }
-
-  .faint {
-    font-size: 12px;
-  }
-
-  #sms-sent-to {
-    font-size: 16px;
   }
 }

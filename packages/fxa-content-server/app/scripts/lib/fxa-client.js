@@ -928,67 +928,7 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves when complete.
    */
   rejectUnblockCode: createClientDelegate('rejectUnblockCode'),
-
-  /**
-   * Send an SMS
-   *
-   * @param {String} sessionToken - account session token.
-   * @param {String} phoneNumber - target phone number. Expected to have
-   *   a country code prefix, e.g., +1, +44.
-   * @param {Number} messageId - ID of message to send.
-   * @param {Object} [options]
-   *   @param {String[]} [options.features] - Features to enable for the request, e.g., `signinCodes`
-   *   @param {String} [options.metricsContext] - context metadata for use in
-   *                   flow events
-   * @returns {Promise}
-   */
-  sendSms: withClient(
-    (client, sessionToken, phoneNumber, messageId, options = {}) => {
-      return client
-        .sendSms(sessionToken, phoneNumber, messageId, options)
-        .catch((err) => {
-          function isInvalidPhoneNumberError(err) {
-            // If the number fails joi validation, the error
-            // returns in this format.
-            return (
-              AuthErrors.is(err, 'INVALID_PARAMETER') &&
-              err.validation &&
-              err.validation.keys &&
-              err.validation.keys[0] === 'phoneNumber'
-            );
-          }
-          if (isInvalidPhoneNumberError(err)) {
-            throw AuthErrors.toError('INVALID_PHONE_NUMBER');
-          }
-
-          throw err;
-        });
-    }
-  ),
-
-  /**
-   * Check whether SMS is enabled for the user
-   *
-   * @param {String} sessionToken
-   * @param {Object} [options={}] options
-   *   @param {String} [options.country] country code to force for testing.
-   * @returns {Promise} resolves to an object with:
-   *   * {Boolean} ok - true if user can send an SMS
-   *   * {String} country - user's country
-   */
-  smsStatus: createClientDelegate('smsStatus'),
-
-  /**
-   * Consume a signinCode
-   *
-   * @param {String} signinCode
-   * @param {String} flowId
-   * @param {String} flowBeginTime
-   * @param {String} [deviceId]
-   * @returns {Promise} resolves to an object with Account information.
-   */
-  consumeSigninCode: createClientDelegate('consumeSigninCode'),
-
+  
   /**
    * Get the recovery emails associated with the signed in account.
    *

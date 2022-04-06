@@ -871,38 +871,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return this.doRequest('GET', `${this.baseURL}/account`, token);
   };
-
-  ClientApi.prototype.smsSend = function (
-    sessionTokenHex,
-    phoneNumber,
-    messageId,
-    features
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) =>
-      this.doRequest('POST', `${this.baseURL}/sms`, token, {
-        phoneNumber,
-        messageId,
-        features,
-      })
-    );
-  };
-
-  ClientApi.prototype.smsStatus = function (
-    sessionTokenHex,
-    country,
-    clientIpAddress
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) =>
-      this.doRequest(
-        'GET',
-        `${this.baseURL}/sms/status${country ? `?country=${country}` : ''}`,
-        token,
-        null,
-        { 'X-Forwarded-For': clientIpAddress || '8.8.8.8' }
-      )
-    );
-  };
-
+  
   ClientApi.prototype.accountEmails = function (sessionTokenHex) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)

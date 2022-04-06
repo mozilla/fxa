@@ -8,10 +8,6 @@
     "fmt": "pretty",
     "level": "debug"
   },
-  "sms": {
-    "isStatusGeoEnabled": false,
-    "useMock": true
-  },
   "smtp": {
     "host": "localhost",
     "port": 9999,

@@ -18,14 +18,6 @@ const FEATURE_FLAGS = {
   communicationPrefLanguages: ['en', 'fr'],
   metricsSampleRate: 0.1,
   sentrySampleRate: 1,
-  smsCountries: {
-    FR: {
-      rolloutRate: 0.5,
-    },
-    GB: {
-      rolloutRate: 1,
-    },
-  },
   tokenCodeClients: {
     deadbeefbaadf00d: {
       rolloutRate: 0,

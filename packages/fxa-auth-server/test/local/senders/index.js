@@ -45,11 +45,7 @@ describe('lib/senders/index', () => {
     function createSender(config, log) {
       return senders(
         log || nullLog,
-        Object.assign({}, config, {
-          sms: {
-            enableBudgetChecks: false,
-          },
-        }),
+        Object.assign({}, config, {}),
         {
           check: sinon.stub().resolves(null),
         },

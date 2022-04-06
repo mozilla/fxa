@@ -89,9 +89,9 @@ describe('lib/experiment', () => {
 
   describe('createExperiment', () => {
     it('creates an experiment, only once, notifies of flow.initialize', () => {
-      const firstExperiment = expInt.createExperiment('sendSms', 'treatment');
+      const firstExperiment = expInt.createExperiment('pushLogin', 'treatment');
       assert.ok(firstExperiment);
-      const secondExperiment = expInt.createExperiment('sendSms', 'treatment');
+      const secondExperiment = expInt.createExperiment('pushLogin', 'treatment');
       // It's the same object, not updated
       assert.strictEqual(firstExperiment, secondExperiment);
       assert.isTrue(notifier.trigger.calledOnceWith('flow.initialize'));

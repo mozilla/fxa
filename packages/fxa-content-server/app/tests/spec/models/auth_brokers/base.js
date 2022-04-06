@@ -88,18 +88,6 @@ describe('models/auth_brokers/base', function () {
         });
       });
     });
-
-    it('if relier has a `signinCode`, it is consumed', () => {
-      relier.set('signinCode', 'signin-code');
-      sinon
-        .stub(broker, '_consumeSigninCode')
-        .callsFake(() => Promise.resolve());
-
-      return broker.fetch().then(() => {
-        assert.isTrue(broker._consumeSigninCode.calledOnce);
-        assert.isTrue(broker._consumeSigninCode.calledWith('signin-code'));
-      });
-    });
   });
 
   describe('openPairPreferences', () => {
@@ -639,42 +627,6 @@ describe('models/auth_brokers/base', function () {
     it('sets a behavior', function () {
       broker.setBehavior('new behavior', { halt: true });
       assert.isTrue(broker.getBehavior('new behavior').halt);
-    });
-  });
-
-  describe('_consumeSigninCode', () => {
-    beforeEach(() => {
-      sinon.stub(metrics, '_initializeFlowModel').callsFake(() => {});
-    });
-
-    it('delegates to the user, clears signinCode when complete', () => {
-      sinon.stub(fxaClient, 'consumeSigninCode').callsFake(() => {
-        return Promise.resolve({ email: 'signed-in-email@testuser.com' });
-      });
-
-      return broker._consumeSigninCode('signin-code').then(() => {
-        assert.isTrue(fxaClient.consumeSigninCode.calledOnce);
-        assert.isTrue(fxaClient.consumeSigninCode.calledWith('signin-code'));
-
-        assert.deepEqual(broker.get('signinCodeAccount'), {
-          email: 'signed-in-email@testuser.com',
-        });
-      });
-    });
-
-    it('logs and ignores errors, clears signinCode when complete', () => {
-      const err = AuthErrors.toError('INVALID_SIGNIN_CODE');
-      sinon.stub(fxaClient, 'consumeSigninCode').callsFake(() => {
-        return Promise.reject(err);
-      });
-      sinon.spy(metrics, 'logError');
-
-      return broker._consumeSigninCode('signin-code').then(() => {
-        assert.isFalse(broker.has('signinCodeAccount'));
-
-        assert.isTrue(metrics.logError.calledOnce);
-        assert.isTrue(metrics.logError.calledWith(err));
-      });
     });
   });
 });

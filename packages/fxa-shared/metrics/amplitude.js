@@ -24,7 +24,6 @@ const GROUPS = {
   registration: 'fxa_reg',
   rp: 'fxa_rp',
   settings: 'fxa_pref',
-  sms: 'fxa_sms',
   sub: 'fxa_subscribe',
   subCancel: 'fxa_subscribe_cancel',
   subManage: 'fxa_subscribe_manage',
@@ -42,8 +41,7 @@ const CONNECT_DEVICE_FLOWS = {
   'app-store': 'store_buttons',
   install_from: 'store_buttons',
   pair: 'pairing',
-  signin_from: 'signin',
-  sms: 'sms',
+  signin_from: 'signin'
 };
 
 const EVENT_PROPERTIES = {
@@ -58,7 +56,6 @@ const EVENT_PROPERTIES = {
   [GROUPS.registration]: mapDomainValidationResult,
   [GROUPS.rp]: NOP,
   [GROUPS.settings]: mapSettingsEventProperties,
-  [GROUPS.sms]: NOP,
   [GROUPS.sub]: NOP,
   [GROUPS.subCancel]: NOP,
   [GROUPS.subManage]: NOP,

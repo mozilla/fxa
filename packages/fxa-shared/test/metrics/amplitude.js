@@ -28,7 +28,6 @@ describe('metrics/amplitude:', () => {
     assert.isString(amplitude.GROUPS.notify);
     assert.isString(amplitude.GROUPS.registration);
     assert.isString(amplitude.GROUPS.settings);
-    assert.isString(amplitude.GROUPS.sms);
   });
 
   it('has an EVENT_PROPERTIES entry for each group', () => {
@@ -58,7 +57,7 @@ describe('metrics/amplitude:', () => {
             event: 'wibble',
           },
           sourceEvent2: {
-            group: amplitude.GROUPS.sms,
+            group: amplitude.GROUPS.connectDevice,
             event: 'blee',
           },
           'settings.change-password.success': {
@@ -93,7 +92,7 @@ describe('metrics/amplitude:', () => {
             },
           ],
           [
-            /(sms)\.(\w+)/,
+            /(pair)\.(\w+)/,
             {
               group: amplitude.GROUPS.connectDevice,
               event: 'cadEvent',
@@ -212,7 +211,7 @@ describe('metrics/amplitude:', () => {
             product_id: 'pid',
             service: 'qux',
           },
-          event_type: 'fxa_sms - blee',
+          event_type: 'fxa_connect_device - blee',
           language: 'n',
           op: 'amplitudeEvent',
           os_name: 'p',
@@ -318,13 +317,13 @@ describe('metrics/amplitude:', () => {
       let result;
 
       before(() => {
-        result = transform({ type: 'sms.ios' }, {});
+        result = transform({ type: 'pair.ios' }, {});
       });
 
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_connect_device - cadEvent');
         assert.deepEqual(result.event_properties, {
-          connect_device_flow: 'sms',
+          connect_device_flow: 'pairing',
           connect_device_os: 'ios',
         });
       });

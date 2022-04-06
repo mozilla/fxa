@@ -65,10 +65,6 @@ var pages = [
   'signup_complete', // redirects to signup_verified
   'signup_permissions',
   'signup_verified',
-  'sms',
-  'sms/sent',
-  'sms/sent/why',
-  'sms/why',
   'support',
   'verify_email',
   'v1/complete_reset_password',
