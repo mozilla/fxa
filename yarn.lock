@@ -22206,7 +22206,7 @@ fsevents@~2.1.1:
     verror: ^1.10.1
     web-push: 3.4.4
     webpack: ^4.43.0
-    webpack-watch-files-plugin: ^1.2.0
+    webpack-watch-files-plugin: ^1.2.1
     ws: ^8.0.0
   bin:
     fxa-auth: ./bin/key_server.js
@@ -22962,7 +22962,7 @@ fsevents@~2.1.1:
     uuid: ^8.3.2
     webpack: ^4.43.0
     webpack-merge-and-include-globally: ^2.3.4
-    webpack-watch-files-plugin: ^1.2.0
+    webpack-watch-files-plugin: ^1.2.1
   languageName: unknown
   linkType: soft
 
@@ -43662,15 +43662,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webpack-watch-files-plugin@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "webpack-watch-files-plugin@npm:1.2.0"
+"webpack-watch-files-plugin@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "webpack-watch-files-plugin@npm:1.2.1"
   dependencies:
     glob: ^7.2.0
     lodash: ^4.17.21
   peerDependencies:
     webpack: ^3 || ^4 || ^5
-  checksum: 9c00ede9abe4f4516ff25db9c963b672d5cabf88c6372dfeb4995c8715b120e4ac0d4d0ab71c36f688ed0917940a2365c49645a657512f2db1451fe7ce8d6526
+  checksum: b93ef5021b25d5a870b8937ba554a84ee76978f644aac356b36f33e6fa1c3cf44f7a8947ed6ee121f7f3434e979855428fd867590106eda9e347236d2954969c
   languageName: node
   linkType: hard
 
