@@ -350,7 +350,7 @@ export class PaypalProcessor {
     return;
   }
 
-  public async processInvoices() {
+  public async *processInvoices() {
     // Generate a time `invoiceAge` hours prior.
     const invoiceAgeInSeconds = hoursBeforeInSeconds(this.invoiceAge);
 
@@ -369,6 +369,8 @@ export class PaypalProcessor {
         });
         reportSentryError(err);
       }
+
+      yield;
     }
   }
 }
