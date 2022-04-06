@@ -36,7 +36,7 @@ describe('models/auth_brokers/base', function () {
       .stub(notificationChannel, 'isFxaStatusSupported')
       .callsFake(() => false);
     notifier = new Notifier();
-    relier = new Relier({ context: 'fx_fennec_v1' });
+    relier = new Relier({ context: 'fx_ios_v1' });
     windowMock = new WindowMock();
 
     broker = new BaseAuthenticationBroker({
@@ -286,7 +286,7 @@ describe('models/auth_brokers/base', function () {
     });
 
     it("persist the relier's `context` to localStorage", function () {
-      assert.equal(verificationInfo.get('context'), 'fx_fennec_v1');
+      assert.equal(verificationInfo.get('context'), 'fx_ios_v1');
     });
   });
 

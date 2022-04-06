@@ -162,11 +162,6 @@ v2 of the Fx Desktop authentication broker, it communicates with the browser usi
 
 v3 of the Fx Desktop authentication broker, it allows the uid of a user to change if the user's account has been deleted.
 
-###### fx-fennec-v1
-
-Interfaces with Firefox for Android when authenticating for Sync, it communicates with the browser
-using WebChannels.
-
 ###### fx-firstrun-v1
 
 Used by FxDesktop to embed FxA within an iframe on the firstrun page. Communicates with the browser using WebChannels.

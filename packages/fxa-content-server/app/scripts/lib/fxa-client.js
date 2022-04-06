@@ -28,7 +28,6 @@ const CONTEXTS_REQUIRE_KEYS = [
   Constants.FX_DESKTOP_V1_CONTEXT,
   Constants.FX_DESKTOP_V2_CONTEXT,
   Constants.FX_DESKTOP_V3_CONTEXT,
-  Constants.FX_FENNEC_V1_CONTEXT,
   // ios uses the old CustomEvents and cannot accept WebChannel messages
 ];
 
@@ -928,7 +927,7 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves when complete.
    */
   rejectUnblockCode: createClientDelegate('rejectUnblockCode'),
-  
+
   /**
    * Get the recovery emails associated with the signed in account.
    *

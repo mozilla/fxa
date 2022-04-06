@@ -144,7 +144,7 @@ Specify which non-OAuth service a user is signing in to.
 
 #### When to specify
 
-Only available if `context` equals `fx_desktop_v3`, `fx_fennec_v1`, or `fx_ios_v1`
+Only available if `context` equals `fx_desktop_v3` or `fx_ios_v1`
 
 ### `setting`
 
@@ -171,8 +171,6 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
 - `fx_desktop_v3` - Firefox Accounts is being used to sign in to Sync on
   Firefox Desktop using WebChannels. Used to add the `syncPreferencesNotification`
   capability
-- `fx_fennec_v1` - Firefox Accounts is being used to sign in to Sync on
-  Firefox for Android using WebChannels.
 - `fx_ios_v1` - Firefox Accounts is being used to sign in to Sync on Firefox
   for iOS using CustomEvents.
 
@@ -294,7 +292,7 @@ Force the user into a particular AB test experiment group.
 #### Options
 
 - `control` - default behavior.
-- `treatment` - new behavior. 
+- `treatment` - new behavior.
 
 ## Reset Password parameters
 

@@ -21,8 +21,6 @@ module.exports = testsSettings.concat([
   'tests/functional/email_opt_in.js',
   'tests/functional/force_auth.js',
   'tests/functional/fx_desktop_handshake.js',
-  'tests/functional/fx_fennec_v1_force_auth.js',
-  'tests/functional/fx_fennec_v1_settings.js',
   'tests/functional/legal.js',
   'tests/functional/oauth_webchannel.js',
   'tests/functional/oauth_require_totp.js',
