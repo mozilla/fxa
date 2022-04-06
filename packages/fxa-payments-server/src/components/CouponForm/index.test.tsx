@@ -77,7 +77,10 @@ describe('CouponForm', () => {
         discountAmount: 200,
         promotionCode: '',
         type: '',
+        durationInMonths: 1,
         valid: true,
+        expired: false,
+        maximallyRedeemed: false,
       };
       const subject = () => {
         return render(
@@ -147,7 +150,10 @@ describe('CouponForm', () => {
         discountAmount: 200,
         promotionCode: '',
         type: '',
+        durationInMonths: 1,
         valid: true,
+        expired: false,
+        maximallyRedeemed: false,
       };
       const subject = () => {
         return render(
@@ -191,7 +197,10 @@ describe('CouponForm', () => {
         discountAmount: 200,
         promotionCode: '',
         type: '',
+        durationInMonths: 1,
         valid: true,
+        expired: false,
+        maximallyRedeemed: false,
       };
       const subject = () => {
         return render(

@@ -79,6 +79,8 @@ const coupon: CouponDetails = {
   type: '',
   durationInMonths: 1,
   valid: true,
+  expired: false,
+  maximallyRedeemed: false,
 };
 
 storiesOf('components/PaymentConfirmation', module)

@@ -29,6 +29,8 @@ storiesOf('components/Coupon', module)
       durationInMonths: 1,
       discountAmount: 10,
       valid: true,
+      expired: false,
+      maximallyRedeemed: false,
     });
     return (
       <MockApp>
@@ -63,6 +65,8 @@ storiesOf('components/Coupon', module)
       durationInMonths: 1,
       discountAmount: 10,
       valid: true,
+      expired: false,
+      maximallyRedeemed: false,
     });
     return (
       <MockApp>

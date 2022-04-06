@@ -6,8 +6,8 @@ export interface CouponDetails {
   durationInMonths: number | null;
   valid: boolean;
   discountAmount?: number;
-  expired?: boolean;
-  maximallyRedeemed?: boolean;
+  expired: boolean;
+  maximallyRedeemed: boolean;
 }
 
 export const couponDetailsSchema = joi.object({
@@ -16,8 +16,8 @@ export const couponDetailsSchema = joi.object({
   durationInMonths: joi.number().required().allow(null),
   valid: joi.boolean().required(),
   discountAmount: joi.number().optional(),
-  expired: joi.boolean().optional(),
-  maximallyRedeemed: joi.boolean().optional(),
+  expired: joi.boolean().required(),
+  maximallyRedeemed: joi.boolean().required(),
 });
 
 export type couponDetailsSchema = joi.Literal<typeof couponDetailsSchema>;
