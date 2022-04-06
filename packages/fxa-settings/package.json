@@ -132,6 +132,6 @@
     "tailwindcss": "^1.9.1",
     "webpack": "^4.43.0",
     "webpack-merge-and-include-globally": "^2.3.4",
-    "webpack-watch-files-plugin": "^1.2.0"
+    "webpack-watch-files-plugin": "^1.2.1"
   }
 }
