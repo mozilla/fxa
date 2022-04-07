@@ -8,8 +8,8 @@ import stripe from 'stripe';
 import Container from 'typedi';
 
 import { CurrencyHelper } from '../lib/payments/currencies';
-import { PayPalHelper } from '../lib/payments/paypal';
-import { PayPalClient } from '../lib/payments/paypal-client';
+import { PayPalClient } from '../lib/payments/paypal/client';
+import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { STRIPE_INVOICE_METADATA, StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';
 

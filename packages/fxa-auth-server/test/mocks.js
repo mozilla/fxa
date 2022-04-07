@@ -843,7 +843,10 @@ function mockStripeHelper(methods) {
 }
 
 function mockPayPalHelper(methods) {
-  return mockObject(methods, require('../lib/payments/paypal').PayPalHelper);
+  return mockObject(
+    methods,
+    require('../lib/payments/paypal/helper').PayPalHelper
+  );
 }
 
 function mockPlaySubscriptions(methods) {

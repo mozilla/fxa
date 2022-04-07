@@ -8,20 +8,20 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const { Container } = require('typedi');
 
-const { PayPalHelper } = require('../../../lib/payments/paypal');
+const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
 const { mockLog } = require('../../mocks');
-const { PaypalProcessor } = require('../../../lib/payments/paypal-processor');
+const { PaypalProcessor } = require('../../../lib/payments/paypal/processor');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const error = require('../../../lib/error');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
 const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
 const customer1 = require('./fixtures/stripe/customer1.json');
 const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
-const { PayPalClientError } = require('../../../lib/payments/paypal-client');
+const { PayPalClientError } = require('../../../lib/payments/paypal/client');
 const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
-} = require('../../../lib/payments/paypal-error-codes');
+} = require('../../../lib/payments/paypal/error-codes');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 const { CapabilityService } = require('../../../lib/payments/capability');
 
