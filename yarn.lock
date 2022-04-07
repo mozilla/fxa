@@ -12992,9 +12992,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1089.0":
-  version: 2.1089.0
-  resolution: "aws-sdk@npm:2.1089.0"
+"aws-sdk@npm:^2.1109.0":
+  version: 2.1109.0
+  resolution: "aws-sdk@npm:2.1109.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -13005,7 +13005,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: ad31c214a14cded9777c894b011f21ea54594412b1ceba51a28189d03c0b7a2cc04973bfa72a05fe15e09c43dae73e491b4c745bc3aef6d12bbb30ef39d33994
+  checksum: 00da745b0cd08e810e9d3de30931dd982d412ffb58765a2a74a8df29f2e7c7c42f0f655cf323a8b201f763f4d066591f982a6b951f6feaddf49a7e7576a4da99
   languageName: node
   linkType: hard
 
@@ -22103,7 +22103,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     async-retry: ^1.3.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1089.0
+    aws-sdk: ^2.1109.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -22206,7 +22206,7 @@ fsevents@~2.1.1:
     verror: ^1.10.1
     web-push: 3.4.4
     webpack: ^4.43.0
-    webpack-watch-files-plugin: ^1.2.0
+    webpack-watch-files-plugin: ^1.2.1
     ws: ^8.0.0
   bin:
     fxa-auth: ./bin/key_server.js
@@ -22476,7 +22476,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1089.0
+    aws-sdk: ^2.1109.0
     axios: ^0.26.0
     chance: ^1.1.8
     class-transformer: ^0.5.1
@@ -22789,7 +22789,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.19.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1089.0
+    aws-sdk: ^2.1109.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -23002,7 +23002,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1089.0
+    aws-sdk: ^2.1109.0
     buf: ^0.1.1
     celebrate: ^10.0.1
     chai: ^4.3.6
@@ -43671,6 +43671,18 @@ resolve@^2.0.0-next.3:
   peerDependencies:
     webpack: ^3 || ^4 || ^5
   checksum: 9c00ede9abe4f4516ff25db9c963b672d5cabf88c6372dfeb4995c8715b120e4ac0d4d0ab71c36f688ed0917940a2365c49645a657512f2db1451fe7ce8d6526
+  languageName: node
+  linkType: hard
+
+"webpack-watch-files-plugin@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "webpack-watch-files-plugin@npm:1.2.1"
+  dependencies:
+    glob: ^7.2.0
+    lodash: ^4.17.21
+  peerDependencies:
+    webpack: ^3 || ^4 || ^5
+  checksum: b93ef5021b25d5a870b8937ba554a84ee76978f644aac356b36f33e6fa1c3cf44f7a8947ed6ee121f7f3434e979855428fd867590106eda9e347236d2954969c
   languageName: node
   linkType: hard
 
