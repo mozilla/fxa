@@ -650,34 +650,11 @@ describe('/recovery_email/resend_code', () => {
     });
 
     return runTest(route, mockRequest, (response) => {
-      assert.equal(mockMailer.sendVerifySecondaryCodeEmail.callCount, 1);
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
-        mockRequest.auth.credentials.deviceId
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowId,
-        mockMetricsContext.flowId
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowBeginTime,
-        mockMetricsContext.flowBeginTime
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].service,
-        'foo'
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
-        mockRequest.auth.credentials.uid
-      );
-
+      assert.equal(mockMailer.sendVerifySecondaryCodeEmail.callCount, 0);
       assert.equal(mockMailer.sendVerifyEmail.callCount, 0);
-      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0);
-      const args = mockMailer.sendVerifySecondaryCodeEmail.getCall(0).args;
-      assert.equal(args[2].code, secondEmailCode, 'email code set');
+      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1);
     }).then(() => {
-      mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
+      mockMailer.sendVerifyLoginEmail.resetHistory();
       mockLog.flowEvent.resetHistory();
     });
   });

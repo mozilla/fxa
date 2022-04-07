@@ -346,9 +346,6 @@ module.exports = (
           if (type && type === 'upgradeSession') {
             verifyFunction = mailer.sendVerifyPrimaryEmail;
             event = 'verification_email_primary';
-          } else if (email) {
-            verifyFunction = mailer.sendVerifySecondaryCodeEmail;
-            event = 'verification_email';
           } else if (!sessionToken.emailVerified) {
             verifyFunction = mailer.sendVerifyEmail;
             event = 'verification';
