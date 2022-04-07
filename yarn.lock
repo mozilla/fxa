@@ -22745,7 +22745,7 @@ fsevents@~2.1.1:
     photon-colors: 1.0.3
     pm2: ^5.1.2
     postcss-cli: 7.1.1
-    postcss-import: 12.0.1
+    postcss-import: 14.1.0
     prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
@@ -22946,7 +22946,7 @@ fsevents@~2.1.1:
     npm-run-all: ^4.1.5
     pm2: ^5.1.2
     postcss-cli: ^7.1.1
-    postcss-import: ^12.0.1
+    postcss-import: ^14.1.0
     react: ^16.13.1
     react-async-hook: ^4.0.0
     react-dom: ^16.13.1
@@ -34774,15 +34774,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss-import@npm:12.0.1, postcss-import@npm:^12.0.1":
-  version: 12.0.1
-  resolution: "postcss-import@npm:12.0.1"
+"postcss-import@npm:14.1.0, postcss-import@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "postcss-import@npm:14.1.0"
   dependencies:
-    postcss: ^7.0.1
-    postcss-value-parser: ^3.2.3
+    postcss-value-parser: ^4.0.0
     read-cache: ^1.0.0
     resolve: ^1.1.7
-  checksum: f891e16ace33337627d64a2b37a1c285f06aef6aa9d780768db96b7c509a649e8fa7f686768f9b96d42ff364f8a4c0d06c9e850d83bd00cbe625abdbf9fa046f
+  peerDependencies:
+    postcss: ^8.0.0
+  checksum: cd45d406e90f67cdab9524352e573cc6b4462b790934a05954e929a6653ebd31288ceebc8ce3c3ed7117ae672d9ebbec57df0bceec0a56e9b259c2e71d47ca86
   languageName: node
   linkType: hard
 
@@ -35457,10 +35458,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss-value-parser@npm:^3.0.0, postcss-value-parser@npm:^3.2.3, postcss-value-parser@npm:^3.3.0":
+"postcss-value-parser@npm:^3.0.0, postcss-value-parser@npm:^3.3.0":
   version: 3.3.1
   resolution: "postcss-value-parser@npm:3.3.1"
   checksum: 62cd26e1cdbcf2dcc6bcedf3d9b409c9027bc57a367ae20d31dd99da4e206f730689471fd70a2abe866332af83f54dc1fa444c589e2381bf7f8054c46209ce16
+  languageName: node
+  linkType: hard
+
+"postcss-value-parser@npm:^4.0.0":
+  version: 4.2.0
+  resolution: "postcss-value-parser@npm:4.2.0"
+  checksum: 819ffab0c9d51cf0acbabf8996dffbfafbafa57afc0e4c98db88b67f2094cb44488758f06e5da95d7036f19556a4a732525e84289a425f4f6fd8e412a9d7442f
   languageName: node
   linkType: hard
 
