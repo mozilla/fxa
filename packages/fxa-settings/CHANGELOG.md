@@ -1,3 +1,9 @@
+## 1.229.2
+
+### Other changes
+
+- all: Change default sentry trace sample rate to 0 ([34cc815199](https://github.com/mozilla/fxa/commit/34cc815199))
+
 ## 1.229.1
 
 No changes.
