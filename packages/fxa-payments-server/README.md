@@ -72,6 +72,18 @@ Note that prior to testing you may need to create a build of the React App. You 
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 
+### Debugging Tests
+
+A launch config for Visual Studio Code is provided to help debug tests. In order to use the launch config, open the `fxa-payments-server` folder in Visual Studio Code, then add a `debugger` statement in the body of the test you plan to debug. In the Visual Studio Code sidebar navigate to the Run and Debug tab, and select the "Debug FxA-Payments Tests." Click the run button and the tests will begin to run and a debugger will be attached to the process. You can now add further breakpoints to the test source code by clicking near the line number.
+
+#### Current Debugging Limitations
+
+As the launch config is currently offered, a `debugger` statement is needed to cause the debugger to properly attach; on initial run, simply selecting breakpoints on the side of the editor window will not work. Furthermore, the launch config currently runs all tests in a single process so it may take a moment before the test you are trying to debug is reached.
+
+We use rescripts and yarn workspaces to manage our node packages. If you are encountering any error with packages not being found, please make sure to run `yarn install` from the FxA root directory.
+
+This launch config currently only works for the tests under the `/src` directory in the `fxa-payments-server` package, not the `/server` directory.
+
 ## License
 
 MPL-2.0
