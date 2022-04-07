@@ -6,7 +6,7 @@ import { Account, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal-client';
+import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal/client';
 import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';

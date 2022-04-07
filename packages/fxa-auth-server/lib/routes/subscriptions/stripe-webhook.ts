@@ -17,14 +17,14 @@ import {
 } from '../../../lib/sentry';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
-import { PayPalHelper } from '../../payments/paypal';
+import { PayPalHelper } from '../../payments/paypal/helper';
 import {
   CUSTOMER_RESOURCE,
   FormattedSubscriptionForEmail,
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
-  StripeHelper,
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
+  StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
   VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';

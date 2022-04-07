@@ -28,7 +28,7 @@ const { PayPalNotificationHandler } = proxyquire(
   '../../../../lib/routes/subscriptions/paypal-notifications',
   { 'fxa-shared/db/models/auth': dbStub }
 );
-const { PayPalHelper } = require('../../../../lib/payments/paypal');
+const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const ACCOUNT_LOCALE = 'en-US';

@@ -45,8 +45,8 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
   Container.set(StripeHelper, stripeHelper);
 
   if (config.subscriptions.paypalNvpSigCredentials.enabled) {
-    const { PayPalClient } = require('../lib/payments/paypal-client');
-    const { PayPalHelper } = require('../lib/payments/paypal');
+    const { PayPalClient } = require('../lib/payments/paypal/client');
+    const { PayPalHelper } = require('../lib/payments/paypal/helper');
     const paypalClient = new PayPalClient(
       config.subscriptions.paypalNvpSigCredentials
     );

@@ -1,12 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { hasPaypalSubscription } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
 
-import error from '../error';
+import error from '../../error';
+import { CurrencyHelper } from '../currencies';
+import { StripeHelper } from '../stripe';
 import {
   BAUpdateOptions,
   CreateBillingAgreementOptions,
@@ -18,16 +21,13 @@ import {
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
-} from './paypal-client';
+} from './client';
 import {
   PAYPAL_APP_ERRORS,
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_RETRY_ERRORS,
   PAYPAL_SOURCE_ERRORS,
-} from './paypal-error-codes';
-import { StripeHelper } from './stripe';
-import { CurrencyHelper } from './currencies';
-import { hasPaypalSubscription } from 'fxa-shared/subscriptions/stripe';
+} from './error-codes';
 
 type PaypalHelperOptions = {
   log: Logger;

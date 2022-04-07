@@ -18,7 +18,7 @@ const {
   PAYPAL_SANDBOX_API,
   PAYPAL_LIVE_API,
   PLACEHOLDER_URL,
-} = require('../../../lib/payments/paypal-client');
+} = require('../../../lib/payments/paypal/client');
 
 const ERROR_RESPONSE =
   'TIMESTAMP=2011%2d11%2d15T20%3a27%3a02Z&CORRELATIONID=5be53331d9700&ACK=Failure&VERSION=78%2e0&BUILD=000000&L_ERRORCODE0=15005&L_SHORTMESSAGE0=Processor%20Decline&L_LONGMESSAGE0=This%20transaction%20cannot%20be%20processed%2e&L_SEVERITYCODE0=Error&L_ERRORPARAMID0=ProcessorResponse&L_ERRORPARAMVALUE0=0051&AMT=10%2e40&CURRENCYCODE=USD&AVSCODE=X&CVV2MATCH=M';
@@ -28,8 +28,8 @@ const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_r
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
-const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
-  .message;
+const sampleIpnMessage =
+  require('./fixtures/paypal/sample_ipn_message.json').message;
 
 const sandbox = sinon.createSandbox();
 

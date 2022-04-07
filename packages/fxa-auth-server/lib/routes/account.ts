@@ -25,7 +25,7 @@ import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { PlaySubscriptions } from '../payments/google-play/subscriptions';
-import { PayPalHelper } from '../payments/paypal';
+import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';

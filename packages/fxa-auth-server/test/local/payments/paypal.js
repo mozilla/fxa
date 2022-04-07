@@ -12,8 +12,8 @@ const { Container } = require('typedi');
 const {
   PayPalClient,
   PayPalClientError,
-} = require('../../../lib/payments/paypal-client');
-const { PayPalHelper } = require('../../../lib/payments/paypal');
+} = require('../../../lib/payments/paypal/client');
+const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
@@ -30,7 +30,7 @@ const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_APP_ERRORS,
   PAYPAL_RETRY_ERRORS,
-} = require('../../../lib/payments/paypal-error-codes');
+} = require('../../../lib/payments/paypal/error-codes');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */

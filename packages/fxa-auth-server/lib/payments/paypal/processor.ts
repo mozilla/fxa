@@ -6,18 +6,18 @@ import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
 
-import { ConfigType } from '../../config';
-import error from '../../lib/error';
-import { StripeWebhookHandler } from '../routes/subscriptions/stripe-webhook';
-import { reportSentryError } from '../sentry';
-import { AuthLogger } from '../types';
-import { PayPalHelper, TransactionSearchResult } from './paypal';
-import { PayPalClientError } from './paypal-client';
+import { ConfigType } from '../../../config';
+import error from '../../error';
+import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook';
+import { reportSentryError } from '../../sentry';
+import { AuthLogger } from '../../types';
+import { StripeHelper } from '../stripe';
+import { PayPalClientError } from './client';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
-} from './paypal-error-codes';
-import { StripeHelper } from './stripe';
+} from './error-codes';
+import { PayPalHelper, TransactionSearchResult } from './helper';
 
 /**
  * Generest a timestamp in seconds that is `hours` before the current
