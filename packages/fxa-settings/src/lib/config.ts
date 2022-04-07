@@ -58,7 +58,7 @@ export function getDefault() {
       serverName: 'fxa-settings-server',
       clientName: 'fxa-settings-client',
       sampleRate: 1.0,
-      tracesSampleRate: 1.0,
+      tracesSampleRate: 0.0,
     },
     servers: {
       gql: {

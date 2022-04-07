@@ -104,7 +104,7 @@ const mockConfig = {
     env: 'test',
     sampleRate: 1.0,
     serverName: 'fxa-payments-server',
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 0.0,
   },
   version: '1.0.0',
 };
@@ -138,7 +138,7 @@ const expectedMergedConfig = {
     env: 'test',
     sampleRate: 1.0,
     serverName: 'fxa-payments-server',
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 0.0,
   },
   servers: {
     auth: {

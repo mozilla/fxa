@@ -231,7 +231,7 @@ const conf = convict({
       format: 'Number',
     },
     tracesSampleRate: {
-      default: 1.0,
+      default: 0.0,
       doc: 'Rate at which traces are sampled.',
       env: 'SENTRY_TRACES_SAMPLE_RATE',
       format: 'Number',
