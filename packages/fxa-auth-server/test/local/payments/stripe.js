@@ -2038,6 +2038,24 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('updateInvoiceWithPaypalRefundReason', () => {
+    it('works successfully', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateInvoiceWithPaypalRefundReason(
+        unpaidInvoice,
+        'reason'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        unpaidInvoice.id,
+        {
+          metadata: { paypalRefundRefused: 'reason' },
+        }
+      );
+    });
+  });
+
   describe('getPaymentAttempts', () => {
     it('returns 0 with no attempts', () => {
       const actual = stripeHelper.getPaymentAttempts(unpaidInvoice);

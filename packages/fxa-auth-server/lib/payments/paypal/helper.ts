@@ -22,6 +22,7 @@ import {
   TransactionSearchOptions,
   TransactionStatus,
 } from './client';
+import { RefusedError } from './error';
 import {
   PAYPAL_APP_ERRORS,
   PAYPAL_BILLING_AGREEMENT_INVALID,
@@ -511,7 +512,22 @@ export class PayPalHelper {
    * @param options
    */
   public async refundTransaction(options: RefundTransactionOptions) {
-    const response = await this.client.refundTransaction(options);
+    let response;
+    try {
+      response = await this.client.refundTransaction(options);
+    } catch (err) {
+      if (!(err instanceof PayPalClientError)) {
+        throw err;
+      }
+      if (err.data.L && err.data.L[0].SHORTMESSAGE === 'Transaction refused') {
+        throw new RefusedError(
+          err.data.L[0].SHORTMESSAGE,
+          err.data.L[0].LONGMESSAGE,
+          err.data.L[0].ERRORCODE
+        );
+      }
+      throw err;
+    }
     return {
       pendingReason: response.PENDINGREASON,
       refundStatus: response.REFUNDSTATUS,

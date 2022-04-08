@@ -42,7 +42,6 @@ import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
 import moment from 'moment';
-import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
@@ -121,6 +120,7 @@ export enum STRIPE_PRODUCT_METADATA {
 export enum STRIPE_INVOICE_METADATA {
   PAYPAL_TRANSACTION_ID = 'paypalTransactionId',
   PAYPAL_REFUND_TRANSACTION_ID = 'paypalRefundTransactionId',
+  PAYPAL_REFUND_REASON = 'paypalRefundRefused',
   EMAIL_SENT = 'emailSent',
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
@@ -1066,6 +1066,20 @@ export class StripeHelper {
     return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID]: transactionId,
+      },
+    });
+  }
+
+  /**
+   * Updates invoice metadata with the reason the PayPal Refund failed.
+   */
+  async updateInvoiceWithPaypalRefundReason(
+    invoice: Stripe.Invoice,
+    reason: string
+  ) {
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: {
+        [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_REASON]: reason,
       },
     });
   }
