@@ -377,7 +377,7 @@ module.exports = (
       handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
-        const { code, service, type, uid } = request.payload;
+        const { code, uid } = request.payload;
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -401,12 +401,6 @@ module.exports = (
         // This endpoint is not authenticated, so we need to look up
         // the target email address before we can check it with customs.
         await customs.check(request, account.email, 'recoveryEmailVerifyCode');
-        // Check if param `type` is specified and equal to `secondary`
-        // If so, verify the secondary email and respond
-        if (type && type === 'secondary') {
-          await verifySecondaryCodeEmail(account);
-          return {};
-        }
 
         const isAccountVerification = butil.buffersAreEqual(
           code,
@@ -446,49 +440,6 @@ module.exports = (
         await signupUtils.verifyAccount(request, account, request.payload);
 
         return {};
-
-        async function verifySecondaryCodeEmail(account) {
-          let matchedEmail;
-          const emails = await db.accountEmails(uid);
-          const isEmailVerification = emails.some((email) => {
-            if (email.emailCode && code === email.emailCode) {
-              matchedEmail = email;
-              log.info('account.verifyEmail.secondary.started', {
-                uid,
-                code,
-              });
-              return true;
-            }
-          });
-
-          // Attempt to verify email token not associated with account
-          if (!isEmailVerification) {
-            throw error.invalidVerificationCode();
-          }
-
-          // User is attempting to verify a secondary email that has already been verified.
-          // Silently succeed and don't send post verification email.
-          if (matchedEmail.isVerified) {
-            log.info('account.verifyEmail.secondary.already-verified', {
-              uid,
-              code,
-            });
-            return;
-          }
-
-          await db.verifyEmail(account, code);
-          log.info('account.verifyEmail.secondary.confirmed', {
-            uid,
-            code,
-          });
-
-          await mailer.sendPostVerifySecondaryEmail([], account, {
-            acceptLanguage: request.app.acceptLanguage,
-            secondaryEmail: matchedEmail.email,
-            service,
-            uid,
-          });
-        }
 
         async function accountAndTokenVerification(
           isAccountVerification,

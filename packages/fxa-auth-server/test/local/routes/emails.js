@@ -1110,57 +1110,6 @@ describe('/recovery_email/verify_code', () => {
         );
       });
     });
-
-    it('secondary email verification', () => {
-      dbData.emailCode = crypto.randomBytes(16).toString('hex');
-      mockRequest.payload.code = dbData.secondEmailCode.toString('hex');
-      mockRequest.payload.type = 'secondary';
-      mockRequest.payload.verifiedEmail = dbData.secondEmail;
-
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail');
-        let args = mockDB.verifyEmail.args[0];
-        assert.equal(
-          args.length,
-          2,
-          'mockDB.verifyEmail was passed correct arguments'
-        );
-        assert.equal(
-          args[0].email,
-          dbData.email,
-          'correct account primary email was passed'
-        );
-        assert.equal(
-          args[1].toString('hex'),
-          dbData.secondEmailCode.toString('hex'),
-          'correct email code was passed'
-        );
-
-        assert.equal(
-          mockMailer.sendPostVerifySecondaryEmail.callCount,
-          1,
-          'call mailer.sendPostVerifySecondaryEmail'
-        );
-        args = mockMailer.sendPostVerifySecondaryEmail.args[0];
-        assert.equal(
-          args.length,
-          3,
-          'mockMailer.sendPostVerifySecondaryEmail was passed correct arguments'
-        );
-        assert.equal(
-          args[1].email,
-          dbData.email,
-          'correct account primary email was passed'
-        );
-        assert.equal(
-          args[2].secondaryEmail,
-          dbData.secondEmail,
-          'correct secondary email was passed'
-        );
-        assert.equal(args[2].service, mockRequest.payload.service);
-        assert.equal(args[2].uid, uid);
-      });
-    });
   });
 });
 
