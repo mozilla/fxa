@@ -121,7 +121,7 @@
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@sentry/tracing": "^6.19.1",
-    "@stripe/react-stripe-js": "^1.7.0",
+    "@stripe/react-stripe-js": "^1.7.1",
     "@stripe/stripe-js": "^1.25.0",
     "accept-language-parser": "^1.5.0",
     "celebrate": "^10.1.0",
