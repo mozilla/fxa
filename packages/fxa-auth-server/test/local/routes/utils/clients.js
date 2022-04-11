@@ -107,26 +107,6 @@ describe('clientUtils.formatLocation', () => {
     });
     assert.equal(log.warn.callCount, 0);
   });
-
-  it('unsets location if it fails', () => {
-    request.app.acceptLanguage = 'wibble';
-    const client = {
-      location: {
-        city: 'Bournemouth',
-        state: 'England',
-        stateCode: 'EN',
-        country: 'United Kingdom',
-        countryCode: 'GB',
-      },
-    };
-    clientUtils.formatLocation(client, request);
-    assert.deepEqual(client.location, {});
-
-    assert.equal(log.debug.callCount, 1);
-    const args = log.debug.args[0];
-    assert.lengthOf(args, 2);
-    assert.equal(args[0], 'attached-clients.formatLocation.warning');
-  });
 });
 
 describe('clientUtils.formatTimestamps', () => {

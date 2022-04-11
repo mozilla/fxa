@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import acceptLanguage from 'accept-language';
 import moment from 'moment';
+import { determineLocale } from './determineLocale';
 
 export type LocalizeOptions = {
   defaultLanguage: string;
@@ -24,9 +24,6 @@ export function localizeTimestamp({
     supportedLanguages.unshift(defaultLanguage);
   }
 
-  // setup supported languages
-  acceptLanguage.languages(supportedLanguages);
-
   return {
     /**
      * Convert a given `timestamp` to a moment 'time from now' format
@@ -42,37 +39,15 @@ export function localizeTimestamp({
       if (!timestamp) {
         return '';
       }
-      // create a new moment from a timestamp
-      const lastAccessTime = moment(timestamp);
-      let language = defaultLanguage;
-      try {
-        if (acceptLanguageHeader) {
-          const parseHeader = acceptLanguage.parse(acceptLanguageHeader);
-          // parse should return an Array of parsed languages in priority order based on the `acceptLanguageHeader`.
-          if (
-            parseHeader &&
-            Array.isArray(parseHeader) &&
-            parseHeader.length > 0 &&
-            parseHeader[0].language
-          ) {
-            // the 'accept-language' will fallback to unsupported locale if it cannot find anything
-            // we do not want that, only set language if it is a supported locale.
-            if (
-              supportedLanguages &&
-              supportedLanguages.indexOf(parseHeader[0].language) > -1
-            ) {
-              language = parseHeader[0].language;
-            }
-          }
-        }
-      } catch (e) {
-        // failed to parse the header, fallback to defaultLanguage
-      }
 
       // set the moment locale to determined `language`.
-      lastAccessTime.locale(language);
-      // return a formatted `timeago` type string
-      return lastAccessTime.fromNow();
+      const locale = determineLocale(
+        acceptLanguageHeader || '',
+        supportedLanguages
+      );
+      return moment(timestamp)
+        .locale(locale || defaultLanguage)
+        .fromNow();
     },
   };
 }

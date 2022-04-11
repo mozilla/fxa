@@ -104,10 +104,6 @@ async function run(config) {
     Container.get(PlayBilling);
   }
 
-  const translator = await require('../lib/senders/translator')(
-    config.i18n.supportedLanguages,
-    config.i18n.defaultLanguage
-  );
   const profile = require('../lib/profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
   const bounces = require('../lib/bounces')(config, database);
@@ -155,7 +151,6 @@ async function run(config) {
     config,
     routes,
     database,
-    translator,
     statsd
   );
 

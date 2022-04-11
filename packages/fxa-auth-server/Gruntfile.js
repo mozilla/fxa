@@ -14,5 +14,5 @@ module.exports = function (grunt) {
   grunt.loadTasks('grunttasks');
 
   grunt.registerTask('default', ['eslint', 'copyright']);
-  grunt.registerTask('mailer', ['templates', 'copy:strings', 'l10n-extract']);
+  grunt.registerTask('mailer', ['templates', 'copy:strings']);
 };

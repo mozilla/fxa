@@ -10,12 +10,11 @@ const AWS = require('aws-sdk');
 const nodemailer = require('nodemailer');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
-const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
-const { parseAcceptLanguage } = require('../../lib/l10n');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
 
@@ -358,7 +357,7 @@ module.exports = function (log, config, bounces) {
   ) {
     return constructLocalDateString(
       timeZone,
-      parseAcceptLanguage(acceptLanguage)[0],
+      determineLocale(acceptLanguage),
       date
     );
   };
@@ -371,8 +370,7 @@ module.exports = function (log, config, bounces) {
     return getLocalizedCurrencyString(
       amountInCents,
       currency,
-      // parse outputs them in 'quality' sorted order
-      i18n.parseAcceptLanguage(acceptLanguage).map((a) => a.lang)
+      determineLocale(acceptLanguage)
     );
   };
 
@@ -382,7 +380,7 @@ module.exports = function (log, config, bounces) {
 
     return {
       html,
-      language: parseAcceptLanguage(message.acceptLanguage)[0],
+      language: determineLocale(message.acceptLanguage),
       subject,
       text,
     };
@@ -2793,7 +2791,7 @@ module.exports = function (log, config, bounces) {
       {
         product_metadata: message.productMetadata,
       },
-      parseAcceptLanguage(message.acceptLanguage)[0]
+      determineLocale(message.acceptLanguage)
     );
 
     // Generate all possible links. The option to use a specific link

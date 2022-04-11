@@ -17,6 +17,7 @@ const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 const { Account } = require('fxa-shared/db/models/auth');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
 function trimLocale(header) {
   if (!header) {
@@ -53,7 +54,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(log, error, config, routes, db, translator, statsd) {
+async function create(log, error, config, routes, db, statsd) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -203,7 +204,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
       trimLocale(request.headers['accept-language'])
     );
     defineLazyGetter(request.app, 'locale', () =>
-      translator.getLocale(request.app.acceptLanguage)
+      determineLocale(request.app.acceptLanguage)
     );
 
     defineLazyGetter(request.app, 'ua', () =>

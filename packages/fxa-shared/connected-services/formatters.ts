@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import * as i18n from 'i18n-abide';
 
+import { determineLocale } from '../l10n/determineLocale';
 import { localizeTimestamp } from '../l10n/localizeTimestamp';
 import { ILogger } from '../log';
 import { AttachedClient } from './models/AttachedClient';
@@ -57,12 +57,11 @@ export class ClientFormatter implements IClientFormatter {
     } else {
       const location = client.location;
       try {
-        const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage);
-        language = i18n.bestLanguage(
-          languages,
-          this.supportedLanguages,
-          this.defaultLanguage
+        language = determineLocale(
+          request.app.acceptLanguage,
+          this.supportedLanguages
         );
+
         // For English, we can leave all the location components intact.
         // For other languages, only return what we can translate
         if (language[0] === 'e' || language[1] === 'n') {

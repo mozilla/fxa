@@ -4,10 +4,9 @@
 
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { negotiateLanguages } from '@fluent/langneg';
+import { parseAcceptLanguage } from 'fxa-shared/l10n/parseAcceptLanguage';
 import { ILocalizerBindings } from './interfaces/ILocalizerBindings';
-import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
-import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
+import { determineLocale } from 'fxa-shared/l10n/determineLocale';
 
 export interface FtlIdMsg {
   id: string;
@@ -70,7 +69,7 @@ class Localizer {
 
   async getLocalizerDeps(acceptLanguage: string) {
     const currentLocales = parseAcceptLanguage(acceptLanguage);
-    const selectedLocale = currentLocales[0] || 'en';
+    const selectedLocale = determineLocale(acceptLanguage);
     const messages = await this.fetchMessages(currentLocales);
     const generateBundles = this.createBundleGenerator(messages);
     return { currentLocales, messages, generateBundles, selectedLocale };
@@ -127,40 +126,6 @@ class Localizer {
 
     return Object.assign({}, ...localizedFtlIdMsgs);
   }
-}
-
-export function parseAcceptLanguage(acceptLanguage = 'en') {
-  const parsedLocales = acceptLanguage.split(',');
-  const userLocales: string[] = [];
-
-  for (let locale of parsedLocales) {
-    locale = locale.replace(/^\s*/, '').replace(/\s*$/, '');
-    let [lang] = locale.split(';');
-
-    if (EN_GB_LOCALES.includes(lang)) {
-      lang = 'en-GB';
-    }
-
-    if (!userLocales.includes(lang)) {
-      userLocales.push(lang);
-    }
-  }
-
-  /*
-   * We use the 'matching' strategy because the default strategy, 'filtering', will load all
-   * English locales with dialects included, e.g. `en-CA`, even when the user prefers 'en' or
-   * 'en-US', which would then be shown instead of the English (US) fallback text.
-   */
-  const currentLocales = negotiateLanguages(
-    [...userLocales],
-    [...availableLocales],
-    {
-      defaultLocale: 'en',
-      strategy: 'matching',
-    }
-  );
-
-  return currentLocales;
 }
 
 export default Localizer;
