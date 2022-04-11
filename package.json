@@ -91,7 +91,8 @@
     "http-proxy": "^1.18.1",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "fbjs/isomorphic-fetch": "^3.0.0",
-    "eslint-plugin-import": "^2.25.2"
+    "eslint-plugin-import": "^2.25.2",
+    "minimist": "^1.2.6"
   },
   "packageManager": "yarn@3.1.1"
 }
