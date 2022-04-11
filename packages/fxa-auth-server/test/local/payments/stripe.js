@@ -3379,13 +3379,24 @@ describe('StripeHelper', () => {
     });
 
     describe('when customer is found', () => {
-      it('deletes customer in Stripe, removes AccountCustomer record, removes Cached record', async () => {
+      it('deletes customer in Stripe, removes AccountCustomer and cached records, detach payment method', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
+          invoice_settings: { default_payment_method: { id: 'pm9001' } },
+        });
+        sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
         const testAccount = await createAccountCustomer(uid, customerId);
         await stripeHelper.removeCustomer(testAccount.uid, email);
         assert(stripeCustomerDel.calledOnce);
         assert((await getAccountCustomerByUid(uid)) === undefined);
+        sinon.assert.calledOnceWithExactly(stripeHelper.fetchCustomer, uid, [
+          'invoice_settings.default_payment_method',
+        ]);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripe.paymentMethods.detach,
+          'pm9001'
+        );
       });
     });
 
@@ -3403,6 +3414,10 @@ describe('StripeHelper', () => {
         const customerId = 'cus_1234456sdf';
         const testAccount = await createAccountCustomer(uid, customerId);
 
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
+          invoice_settings: { default_payment_method: { id: 'pm9001' } },
+        });
+        sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
         const deleteCustomer = sandbox
           .stub(dbStub, 'deleteAccountCustomer')
           .returns(0);

@@ -1553,9 +1553,21 @@ export class StripeHelper {
    * - remove the cache entry
    */
   async removeCustomer(uid: string, email: string) {
-    const customer = await getAccountCustomerByUid(uid);
-    if (customer && customer.stripeCustomerId) {
-      await this.stripe.customers.del(customer.stripeCustomerId);
+    const accountCustomer = await getAccountCustomerByUid(uid);
+    if (accountCustomer && accountCustomer.stripeCustomerId) {
+      const customer = await this.fetchCustomer(accountCustomer.uid, [
+        'invoice_settings.default_payment_method',
+      ]);
+      if (customer && customer.invoice_settings.default_payment_method) {
+        // detach the customer's payment method so we maybe won't get webhooks about it
+        await this.stripe.paymentMethods.detach(
+          (
+            customer.invoice_settings
+              .default_payment_method as Stripe.PaymentMethod
+          ).id
+        );
+      }
+      await this.stripe.customers.del(accountCustomer.stripeCustomerId);
       const recordsDeleted = await deleteAccountCustomer(uid);
       if (recordsDeleted === 0) {
         this.log.error(
