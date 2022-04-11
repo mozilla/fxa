@@ -528,7 +528,6 @@ module.exports = (
         validate: {
           payload: {
             email: validators.email().required(),
-            verificationMethod: validators.verificationMethod,
           },
         },
         response: {},
