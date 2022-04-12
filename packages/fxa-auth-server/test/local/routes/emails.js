@@ -625,40 +625,6 @@ describe('/recovery_email/resend_code', () => {
     });
   });
 
-  it('verification additional email', () => {
-    const mockRequest = mocks.mockRequest({
-      log: mockLog,
-      metricsContext: mockMetricsContext,
-      credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        email: TEST_EMAIL,
-        emailVerified: true,
-        tokenVerified: false,
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: '50',
-        uaOS: 'Android',
-        uaOSVersion: '6',
-        uaDeviceType: 'tablet',
-      },
-      query: {
-        service: 'foo',
-      },
-      payload: {
-        email: 'secondEmail@email.com',
-      },
-    });
-
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(mockMailer.sendVerifySecondaryCodeEmail.callCount, 0);
-      assert.equal(mockMailer.sendVerifyEmail.callCount, 0);
-      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1);
-    }).then(() => {
-      mockMailer.sendVerifyLoginEmail.resetHistory();
-      mockLog.flowEvent.resetHistory();
-    });
-  });
-
   it('confirmation', () => {
     const mockRequest = mocks.mockRequest({
       log: mockLog,
