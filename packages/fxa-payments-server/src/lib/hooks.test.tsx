@@ -210,13 +210,15 @@ describe('useInfoBoxMessage', () => {
         date.setMonth(
           date.getMonth() + (couponLongerDuration.durationInMonths || 2)
         )
-      ).getTime() / 1000
+      ).getTime() / 100
     )}`;
     const messageText = getByTestId('message').textContent;
     const couponDurationDate = getByTestId('couponDurationDate').textContent;
     expect(messageText).toBe(CouponInfoBoxMessageType.Repeating);
     expect(couponDurationDate).not.toBeNull();
-    expect(couponDurationDate).toBe(expectedCouponDurationDate);
+    expect(couponDurationDate?.slice(0, 8)).toBe(
+      expectedCouponDurationDate.slice(0, 8)
+    );
   });
 });
 
