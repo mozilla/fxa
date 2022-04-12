@@ -428,8 +428,7 @@ export class StripeWebhookHandler extends StripeHandler {
       }
 
       const uid = customer.metadata.userid;
-      const account = await this.db.account(uid);
-
+      const account = await Account.findByUid(uid);
       if (
         // When SubPlat cannot collect a PayPal customer's first payment while
         // attempting to subscribe to a product, the subscription is canceled.
@@ -437,6 +436,11 @@ export class StripeWebhookHandler extends StripeHandler {
         // `_createPaypalBillingAgreementAndSubscription` of the
         // `PayPalHandler` route handler.)  We should not send an email in that
         // case.
+        //
+        // If we can retreive the subscription and customer, but the account record
+        // cannot be retrieved from the db, the user has deleted their firefox
+        // account which subsequently deletes their subscription from stripe.
+        !account ||
         !(
           sub.collection_method === 'send_invoice' && account.verifierSetAt <= 0
         )
