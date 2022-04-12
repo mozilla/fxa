@@ -67,20 +67,13 @@ describe('lib/server', () => {
   });
 
   describe('set up mocks:', () => {
-    let config, log, locale, routes, Token, translator, response, statsd;
+    let config, log, routes, Token, response, statsd;
 
     beforeEach(() => {
       config = getConfig();
-      locale = 'en';
       log = mocks.mockLog();
       routes = getRoutes();
       Token = require(`${ROOT_DIR}/lib/tokens`)(log, config);
-      translator = {
-        getTranslator: sinon.spy(() => ({
-          en: { format: () => {}, language: 'en' },
-        })),
-        getLocale: sinon.spy(() => locale),
-      };
       statsd = { timing: sinon.fake() };
     });
 
@@ -93,7 +86,7 @@ describe('lib/server', () => {
         });
 
         return server
-          .create(log, error, config, routes, db, translator, statsd, Token)
+          .create(log, error, config, routes, db, statsd, Token)
           .then((s) => {
             instance = s;
           });
@@ -182,7 +175,7 @@ describe('lib/server', () => {
             assert.equal(args[0], 'server.onRequest');
             assert.ok(args[1]);
             assert.equal(args[1].path, '/account/create');
-            assert.equal(args[1].app.locale, 'en');
+            assert.equal(args[1].app.locale, 'en-GB');
           });
 
           it('called log.summary correctly', () => {
@@ -230,9 +223,9 @@ describe('lib/server', () => {
           });
 
           it('parsed locale correctly', () => {
-            assert.equal(translator.getLocale.callCount, 0);
-            assert.equal(request.app.locale, 'en');
-            assert.equal(translator.getLocale.callCount, 1);
+            // Note that fr-CH would be the correct language, but it is not in the list of supported
+            // languages. This means that en-GB has the highest q-value and should be selected.
+            assert.equal(request.app.locale, 'en-GB');
           });
 
           it('parsed user agent correctly', () => {
@@ -281,7 +274,6 @@ describe('lib/server', () => {
 
             beforeEach(() => {
               response = 'ok';
-              locale = 'fr';
               return instance
                 .inject({
                   headers: {
@@ -333,9 +325,9 @@ describe('lib/server', () => {
             });
 
             it('second request has its own locale', () => {
-              assert.equal(translator.getLocale.callCount, 0);
-              assert.equal(secondRequest.app.locale, 'fr');
-              assert.equal(translator.getLocale.callCount, 1);
+              // Note that fr-CH would be the correct language, but it is not in the list of supported
+              // languages. This means that en-GB has the highest q-value and should be selected.
+              assert.equal(secondRequest.app.locale, 'en-GB');
             });
 
             it('second request has its own user agent info', () => {
@@ -403,7 +395,7 @@ describe('lib/server', () => {
           it('called log.begin correctly', () => {
             assert.equal(log.begin.callCount, 1);
             const args = log.begin.args[0];
-            assert.equal(args[1].app.locale, 'en');
+            assert.equal(args[1].app.locale, 'fr');
             assert.equal(args[1].app.ua.browser, 'Chrome Mobile iOS');
             assert.equal(args[1].app.ua.browserVersion, '56.0.2924');
             assert.equal(args[1].app.ua.os, 'iOS');
@@ -555,7 +547,7 @@ describe('lib/server', () => {
         statsd = { increment: sinon.fake(), timing: sinon.fake() };
 
         return server
-          .create(log, error, config, routes, db, translator, statsd, Token)
+          .create(log, error, config, routes, db, statsd, Token)
           .then((s) => {
             instance = s;
             return instance.start().then(() => {

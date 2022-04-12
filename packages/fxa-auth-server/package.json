@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "yarn emails-scss && tsc --build && cp -R config fxa-content-server-l10n public lib scripts dist/fxa-auth-server",
+    "build": "yarn emails-scss && tsc --build && cp -R config public lib scripts dist/fxa-auth-server",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint . --ignore-pattern 'dist'",
@@ -90,10 +90,8 @@
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
     "hot-shots": "^9.0.0",
-    "i18n-abide": "0.0.26",
     "i18n-iso-countries": "^7.3.0",
     "ioredis": "^4.28.2",
-    "jed": "0.5.4",
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.4",
@@ -112,7 +110,6 @@
     "otplib": "^11.0.1",
     "p-retry": "^5.1.0",
     "pem-jwk": "^2.0.0",
-    "po2json": "0.4.5",
     "poolee": "^1.0.1",
     "punycode.js": "2.1.0",
     "qrcode": "^1.5.0",

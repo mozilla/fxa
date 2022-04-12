@@ -6,7 +6,8 @@ import { FluentBundle } from '@fluent/bundle';
 import { Localization } from '@fluent/dom';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import Localizer, { parseAcceptLanguage } from '../../../lib/l10n';
+import Localizer from '../../../lib/l10n';
+import { parseAcceptLanguage } from 'fxa-shared/l10n/parseAcceptLanguage';
 import { LocalizerBindings } from '../../../lib/l10n/bindings';
 
 chai.use(chaiAsPromised);

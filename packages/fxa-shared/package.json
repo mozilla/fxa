@@ -77,6 +77,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
+    "@fluent/langneg": "^0.6.1",
     "@nestjs/common": "^8.4.3",
     "@nestjs/config": "^1.2.0",
     "@nestjs/core": "^8.3.1",
@@ -88,7 +89,6 @@
     "@sentry/tracing": "^6.19.1",
     "@types/js-md5": "^0.4.2",
     "@types/uuid": "^8.3.1",
-    "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.3",
     "aws-sdk": "^2.1110.0",
@@ -103,7 +103,6 @@
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",
     "hot-shots": "^9.0.0",
-    "i18n-abide": "^0.0.26",
     "ioredis": "^4.28.2",
     "ip": "^1.1.5",
     "joi": "^14.3.1",

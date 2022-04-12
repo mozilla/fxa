@@ -5,7 +5,7 @@
 'use strict';
 
 const leftpad = require('leftpad');
-const { parseAcceptLanguage } = require('../../lib/l10n');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
 module.exports = class UserRecordNormalizer {
   /**
@@ -32,7 +32,7 @@ module.exports = class UserRecordNormalizer {
   }
 
   normalizeLanguage(userRecord) {
-    userRecord.language = parseAcceptLanguage(userRecord.acceptLanguage)[0];
+    userRecord.language = determineLocale(userRecord.acceptLanguage);
   }
 
   normalizeLocations(userRecord) {

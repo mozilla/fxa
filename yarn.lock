@@ -11485,15 +11485,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"accept-language@npm:^2.0.17":
-  version: 2.0.17
-  resolution: "accept-language@npm:2.0.17"
-  dependencies:
-    bcp47: ^1.1.2
-  checksum: e9a107f819b72fbe518d5007d512a454552cd2efdd56fb35c087962d9f822be9ad2cc74d2e8c8205b318ed3a6c6fd0d3e85217176a0cd1f050c2c298b38e1491
-  languageName: node
-  linkType: hard
-
 "accepts@npm:^1.3.5, accepts@npm:~1.3.4, accepts@npm:~1.3.5, accepts@npm:~1.3.7":
   version: 1.3.7
   resolution: "accepts@npm:1.3.7"
@@ -14220,13 +14211,6 @@ __metadata:
   version: 0.6.1
   resolution: "batch@npm:0.6.1"
   checksum: 61f9934c7378a51dce61b915586191078ef7f1c3eca707fdd58b96ff2ff56d9e0af2bdab66b1462301a73c73374239e6542d9821c0af787f3209a23365d07e7f
-  languageName: node
-  linkType: hard
-
-"bcp47@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "bcp47@npm:1.1.2"
-  checksum: 4e67daddfacf846e28895d682972f7de0c22669e99b2ed4561615f13c9a8fecc100ebe76f4b8496f535945db84ce04a32f7bce6ef26329a3cf49242cf0d36a0a
   languageName: node
   linkType: hard
 
@@ -22141,10 +22125,8 @@ fsevents@~2.1.1:
     hapi-error: ^2.3.0
     hkdf: 0.0.2
     hot-shots: ^9.0.0
-    i18n-abide: 0.0.26
     i18n-iso-countries: ^7.3.0
     ioredis: ^4.28.2
-    jed: 0.5.4
     jsdom: ^19.0.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
@@ -22181,7 +22163,6 @@ fsevents@~2.1.1:
     p-retry: ^5.1.0
     pem-jwk: ^2.0.0
     pm2: ^5.1.2
-    po2json: 0.4.5
     poolee: ^1.0.1
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -22970,6 +22951,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
+    "@fluent/langneg": ^0.6.1
     "@nestjs/common": ^8.4.3
     "@nestjs/config": ^1.2.0
     "@nestjs/core": ^8.3.1
@@ -22998,7 +22980,6 @@ fsevents@~2.1.1:
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
     "@types/uuid": ^8.3.1
-    accept-language: ^2.0.17
     ajv: ^6.12.2
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
@@ -23020,7 +23001,6 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.6.1
     hot-shots: ^9.0.0
-    i18n-abide: ^0.0.26
     ioredis: ^4.28.2
     ip: ^1.1.5
     jest: 27.5.1
@@ -25478,7 +25458,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"i18n-abide@npm:0.0.26, i18n-abide@npm:^0.0.26":
+"i18n-abide@npm:0.0.26":
   version: 0.0.26
   resolution: "i18n-abide@npm:0.0.26"
   dependencies:
@@ -27254,13 +27234,6 @@ fsevents@~2.1.1:
   bin:
     jake: ./bin/cli.js
   checksum: 4f672dc9bf3fae07adcb1f5e2345e98110aed8f05079d57bb6e49e34044ce818d54661097a5f73aff680abfd4f1879c75282033652beee664085a1ca1861c83b
-  languageName: node
-  linkType: hard
-
-"jed@npm:0.5.4":
-  version: 0.5.4
-  resolution: "jed@npm:0.5.4"
-  checksum: 159aacce863c979111ee4ef15c589289a0708f36b5baed401296c05f08db36ca37db373ee403059c4bd63add623e796a17a86b76758cec49cf3f31aa81f9822f
   languageName: node
   linkType: hard
 
@@ -34424,7 +34397,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"po2json@npm:*, po2json@npm:0.4.5":
+"po2json@npm:*":
   version: 0.4.5
   resolution: "po2json@npm:0.4.5"
   dependencies:
