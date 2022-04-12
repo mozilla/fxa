@@ -13,7 +13,7 @@ const {
   PayPalClient,
   PayPalClientError,
 } = require('../../../lib/payments/paypal/client');
-const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
+const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
@@ -305,6 +305,32 @@ describe('PayPalHelper', () => {
         'RefundTransaction',
         defaultData
       );
+    });
+
+    it('throws a RefusedError when a refund is refused', async () => {
+      paypalHelper.client.refundTransaction = sinon.fake.rejects(
+        new PayPalClientError('Fake', {
+          ACK: 'Failure',
+          L: [
+            {
+              ERRORCODE: '10009',
+              SHORTMESSAGE: 'Transaction refused',
+              LONGMESSAGE: 'This transaction already has a chargeback filed',
+            },
+          ],
+        })
+      );
+      try {
+        await paypalHelper.refundTransaction({
+          idempotencyKey: defaultData.MSGSUBID,
+          transactionId: defaultData.TRANSACTIONID,
+        });
+        assert.fail('Request should have thrown an error.');
+      } catch (err) {
+        assert.instanceOf(err, RefusedError);
+        assert.equal(err.message, 'Transaction refused');
+        assert.equal(err.errorCode, '10009');
+      }
     });
   });
 

@@ -17,7 +17,7 @@ import {
 } from '../../../lib/sentry';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
-import { PayPalHelper } from '../../payments/paypal/helper';
+import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import {
   CUSTOMER_RESOURCE,
   FormattedSubscriptionForEmail,
@@ -314,7 +314,18 @@ export class StripeWebhookHandler extends StripeHandler {
       );
       return;
     }
-    await this.paypalHelper.issueRefund(invoice, transactionId);
+    try {
+      await this.paypalHelper.issueRefund(invoice, transactionId);
+    } catch (error) {
+      if (error instanceof RefusedError) {
+        await this.stripeHelper.updateInvoiceWithPaypalRefundReason(
+          invoice,
+          error.longMessage
+        );
+      } else {
+        throw error;
+      }
+    }
     return;
   }
 

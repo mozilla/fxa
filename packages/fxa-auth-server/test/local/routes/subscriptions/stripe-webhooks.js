@@ -48,6 +48,7 @@ const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { asyncIterable } = require('../../../mocks');
+const { RefusedError } = require('../../../../lib/payments/paypal/error');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
@@ -1280,6 +1281,58 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
           'tx-1234'
+        );
+      });
+
+      it('updates the invoice to report refused refund if paypal refuses to refund', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'send_invoice';
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
+        invoice.amount_due = 500;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.returns('tx-1234');
+        StripeWebhookHandlerInstance.stripeHelper.updateInvoiceWithPaypalRefundReason =
+          sinon.fake.resolves({});
+        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        StripeWebhookHandlerInstance.paypalHelper.issueRefund =
+          sinon.fake.rejects(
+            new RefusedError(
+              'Transaction refused',
+              'This transaction already has a chargeback filed',
+              '10009'
+            )
+          );
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          1
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId,
+          invoice
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
+          invoice,
+          'tx-1234'
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateInvoiceWithPaypalRefundReason,
+          invoice,
+          'This transaction already has a chargeback filed'
         );
       });
     });
