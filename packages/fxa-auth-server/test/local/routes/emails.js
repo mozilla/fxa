@@ -625,63 +625,6 @@ describe('/recovery_email/resend_code', () => {
     });
   });
 
-  it('verification additional email', () => {
-    const mockRequest = mocks.mockRequest({
-      log: mockLog,
-      metricsContext: mockMetricsContext,
-      credentials: {
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        email: TEST_EMAIL,
-        emailVerified: true,
-        tokenVerified: false,
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: '50',
-        uaOS: 'Android',
-        uaOSVersion: '6',
-        uaDeviceType: 'tablet',
-      },
-      query: {
-        service: 'foo',
-      },
-      payload: {
-        email: 'secondEmail@email.com',
-      },
-    });
-
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(mockMailer.sendVerifySecondaryCodeEmail.callCount, 1);
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
-        mockRequest.auth.credentials.deviceId
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowId,
-        mockMetricsContext.flowId
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].flowBeginTime,
-        mockMetricsContext.flowBeginTime
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].service,
-        'foo'
-      );
-      assert.equal(
-        mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
-        mockRequest.auth.credentials.uid
-      );
-
-      assert.equal(mockMailer.sendVerifyEmail.callCount, 0);
-      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0);
-      const args = mockMailer.sendVerifySecondaryCodeEmail.getCall(0).args;
-      assert.equal(args[2].code, secondEmailCode, 'email code set');
-    }).then(() => {
-      mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
-      mockLog.flowEvent.resetHistory();
-    });
-  });
-
   it('confirmation', () => {
     const mockRequest = mocks.mockRequest({
       log: mockLog,
@@ -1131,57 +1074,6 @@ describe('/recovery_email/verify_code', () => {
           'accountConfirm',
           'third argument should have been reason'
         );
-      });
-    });
-
-    it('secondary email verification', () => {
-      dbData.emailCode = crypto.randomBytes(16).toString('hex');
-      mockRequest.payload.code = dbData.secondEmailCode.toString('hex');
-      mockRequest.payload.type = 'secondary';
-      mockRequest.payload.verifiedEmail = dbData.secondEmail;
-
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail');
-        let args = mockDB.verifyEmail.args[0];
-        assert.equal(
-          args.length,
-          2,
-          'mockDB.verifyEmail was passed correct arguments'
-        );
-        assert.equal(
-          args[0].email,
-          dbData.email,
-          'correct account primary email was passed'
-        );
-        assert.equal(
-          args[1].toString('hex'),
-          dbData.secondEmailCode.toString('hex'),
-          'correct email code was passed'
-        );
-
-        assert.equal(
-          mockMailer.sendPostVerifySecondaryEmail.callCount,
-          1,
-          'call mailer.sendPostVerifySecondaryEmail'
-        );
-        args = mockMailer.sendPostVerifySecondaryEmail.args[0];
-        assert.equal(
-          args.length,
-          3,
-          'mockMailer.sendPostVerifySecondaryEmail was passed correct arguments'
-        );
-        assert.equal(
-          args[1].email,
-          dbData.email,
-          'correct account primary email was passed'
-        );
-        assert.equal(
-          args[2].secondaryEmail,
-          dbData.secondEmail,
-          'correct secondary email was passed'
-        );
-        assert.equal(args[2].service, mockRequest.payload.service);
-        assert.equal(args[2].uid, uid);
       });
     });
   });
