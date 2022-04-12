@@ -93,7 +93,8 @@
     "fbjs/isomorphic-fetch": "^3.0.0",
     "eslint-plugin-import": "^2.25.2",
     "lodash": "^4.17.12",
-    "minimist": "^1.2.6"
+    "minimist": "^1.2.6",
+    "url-parse": "^1.5.8"
   },
   "packageManager": "yarn@3.1.1"
 }
