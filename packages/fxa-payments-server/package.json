@@ -144,7 +144,7 @@
     "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.2",
-    "nocache": "^3.0.1",
+    "nocache": "^3.0.3",
     "node-fetch": "^2.6.1",
     "node-sass": "^7.0.1",
     "normalize.css": "8.0.1",
