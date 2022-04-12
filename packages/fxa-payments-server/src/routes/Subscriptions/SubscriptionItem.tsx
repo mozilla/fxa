@@ -38,6 +38,8 @@ export const SubscriptionItem = ({
   subsequentInvoice,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
+  const total = subsequentInvoice && subsequentInvoice.total;
+  const period_start = subsequentInvoice && subsequentInvoice.period_start;
 
   const paymentProvider: PaymentProvider | undefined =
     customer?.payment_provider;
@@ -60,7 +62,7 @@ export const SubscriptionItem = ({
 
   if (
     customerSubscription.cancel_at_period_end === false &&
-    !(subsequentInvoice?.total && subsequentInvoice?.period_start)
+    !((total || total === 0) && period_start)
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
@@ -84,8 +86,8 @@ export const SubscriptionItem = ({
         </header>
 
         {!customerSubscription.cancel_at_period_end &&
-        subsequentInvoice?.total &&
-        subsequentInvoice.period_start ? (
+        (total || total === 0) &&
+        period_start ? (
           <CancelSubscriptionPanel
             {...{
               cancelSubscription,
@@ -94,8 +96,8 @@ export const SubscriptionItem = ({
               plan,
               paymentProvider,
               promotionCode,
-              subsequentInvoiceAmount: subsequentInvoice.total,
-              subsequentInvoiceDate: subsequentInvoice.period_start,
+              subsequentInvoiceAmount: total,
+              subsequentInvoiceDate: period_start,
             }}
           />
         ) : (
