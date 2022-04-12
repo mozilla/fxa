@@ -90,7 +90,7 @@
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
     "hot-shots": "^9.0.0",
-    "i18n-iso-countries": "^7.3.0",
+    "i18n-iso-countries": "^7.4.0",
     "ioredis": "^4.28.2",
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
