@@ -45,7 +45,6 @@ const {
 const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
   'fxa:enter_email'
 )}`;
-var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
 const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?signin=true`;
@@ -321,25 +320,6 @@ registerSuite('signup here', {
         .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
         .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
-        .then(testUrlInclude(SYNC_SERVICE))
-        .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
-    },
-
-    'sync suggestion for Fennec': function () {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: {
-              action: 'email',
-              forceUA: UA_STRINGS['android_firefox'],
-            },
-          })
-        )
-        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-
-        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
-        .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-        .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
         .then(testUrlInclude(SYNC_SERVICE))
         .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
     },

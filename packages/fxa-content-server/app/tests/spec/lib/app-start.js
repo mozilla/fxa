@@ -8,7 +8,6 @@ import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
 import ErrorUtils from 'lib/error-utils';
 import ExperimentGroupingRules from 'lib/experiments/grouping-rules';
-import FxFennecV1Broker from 'models/auth_brokers/fx-fennec-v1';
 import FxiOSV1Broker from 'models/auth_brokers/fx-ios-v1';
 import HistoryMock from '../../mocks/history';
 import Metrics from 'lib/metrics';
@@ -299,16 +298,6 @@ describe('lib/app-start', () => {
     afterEach(() => {
       appStart._metrics.destroy();
       appStart._metrics = null;
-    });
-
-    describe('fx-fennec-v1', () => {
-      it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', () => {
-        windowMock.location.search = Url.objToSearchString({
-          context: Constants.FX_FENNEC_V1_CONTEXT,
-        });
-
-        return testExpectedBrokerCreated(FxFennecV1Broker);
-      });
     });
 
     describe('fx-ios-v1', () => {

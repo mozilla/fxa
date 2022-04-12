@@ -50,9 +50,7 @@ export default {
    */
   _getSyncContext() {
     const uap = this.getUserAgent();
-    if (uap.isFirefoxAndroid()) {
-      return Constants.FX_FENNEC_V1_CONTEXT;
-    } else if (uap.isFirefoxDesktop()) {
+    if (uap.isFirefoxDesktop()) {
       // desktop_v3 is safe for all desktop versions that can
       // use WebChannels. The only difference between v2 and v3
       // was the Sync Preferences button, which has since

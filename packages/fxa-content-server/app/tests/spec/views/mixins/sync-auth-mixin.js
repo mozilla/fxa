@@ -33,17 +33,6 @@ describe('views/mixins/sync-auth-mixin', function () {
   });
 
   describe('_getSyncContext', () => {
-    it('returns fx_fennec_v1 for fennec', () => {
-      sinon.stub(view, 'getUserAgent').callsFake(() => {
-        return {
-          isFirefoxAndroid: () => true,
-          isFirefoxDesktop: () => false,
-        };
-      });
-
-      assert.equal(view._getSyncContext(), Constants.FX_FENNEC_V1_CONTEXT);
-    });
-
     it('returns fx_desktop_v3 for desktop users', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {

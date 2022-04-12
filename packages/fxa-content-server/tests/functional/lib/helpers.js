@@ -1352,9 +1352,7 @@ const openPage = thenify(function (url, readySelector, options = {}) {
   url = addQueryParamsToLink(url, options.query || {});
 
   function isWebChannelSync() {
-    return (
-      /context=fx_desktop_v3/.test(url) || /context=fx_fennec_v1/.test(url)
-    );
+    return /context=fx_desktop_v3/.test(url);
   }
 
   function isUAWithWebChannelSupport() {

@@ -100,27 +100,6 @@ describe('views/mixins/sync-suggestion-mixin', () => {
       });
     });
 
-    it('has sync auth supported on Firefox for Android', () => {
-      relier.set('service', null);
-      relier.set('context', 'web');
-
-      sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
-      sinon.stub(view, 'getUserAgent').callsFake(() => {
-        return {
-          isFirefoxAndroid: () => true,
-          isFirefoxDesktop: () => false,
-        };
-      });
-      return view.render().then(() => {
-        const $getStartedEl = view.$('#suggest-sync').find('a');
-        assert.equal(
-          $getStartedEl.attr('href'),
-          view.window.location.origin +
-            '/?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync&action=email'
-        );
-      });
-    });
-
     it('can be dismissed', () => {
       relier.set('service', null);
       relier.set('context', 'web');
