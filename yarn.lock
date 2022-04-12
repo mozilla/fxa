@@ -22715,7 +22715,7 @@ fsevents@~2.1.1:
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     morgan: ^1.10.0
     mozlog: ^3.0.2
-    nocache: ^3.0.1
+    nocache: ^3.0.3
     nock: ^13.2.2
     node-fetch: ^2.6.1
     node-sass: ^7.0.1
@@ -32093,10 +32093,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nocache@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "nocache@npm:3.0.1"
-  checksum: 1e08ab8a267f015f598ab1f9ba67f911deaea48cf9fe51fdc8aabad370d2c3f0d71948530dac5763445ba104ae2f2af0d1ac86f5c0ace5ac415cb04d8becd4b2
+"nocache@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "nocache@npm:3.0.3"
+  checksum: b7b6f7b693a7ad0c52aa9319e4b663e905f1ba83453685f24039ce03650beb686281b939967acba883009219b1a12dfe121a8d20a433b24db1b875ed08426d57
   languageName: node
   linkType: hard
 
