@@ -895,6 +895,8 @@ describe('StripeWebhookHandler', () => {
         const sendSubscriptionDeletedEmailStub = sandbox
           .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
           .resolves({ uid: UID, email: TEST_EMAIL });
+        const account = { email: customerFixture.email };
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
@@ -965,6 +967,40 @@ describe('StripeWebhookHandler', () => {
           CUSTOMER_RESOURCE
         );
         assert.notCalled(sendSubscriptionDeletedEmailStub);
+      });
+
+      it('does send an email when it cannot find the account because it was deleted', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customerFixture
+        );
+        const deletedEvent = deepCopy(subscriptionDeleted);
+        const sendSubscriptionDeletedEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .resolves({ uid: UID, email: TEST_EMAIL });
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+        assert.calledWith(mockCapabilityService.stripeUpdate, {
+          sub: deletedEvent.data.object,
+          uid: customerFixture.metadata.userid,
+        });
+        assert.calledWith(
+          sendSubscriptionDeletedEmailStub,
+          deletedEvent.data.object
+        );
+        assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          deletedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement,
+          customerFixture
+        );
       });
     });
 
