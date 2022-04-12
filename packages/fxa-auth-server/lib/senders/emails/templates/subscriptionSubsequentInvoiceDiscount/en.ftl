@@ -33,4 +33,4 @@ subscriptionSubsequentInvoiceDiscount-content-discount-one-time = One time Disco
 # Variables
 #  $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
 #  $discountDuration - The duration of the discount in number of months, e.g. 3 months
-subscriptionSubsequentInvoiceDiscount-content-discount-repeating = { $discountDuration } month Discount: -{ $invoiceDiscountAmount }
+subscriptionSubsequentInvoiceDiscount-content-discount-repeating = { $discountDuration }-month Discount: -{ $invoiceDiscountAmount }

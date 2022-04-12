@@ -8,7 +8,7 @@ subscriptionSubsequentInvoiceDiscount-content-invoice-number-plaintext = "Invoic
 <% if (showProratedAmount) { %>subscriptionSubsequentInvoiceDiscount-content-plan-change = "Plan change: <%- paymentProrated %>"<% } %>
 subscriptionSubsequentInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
 <% if (discountType === 'once') { %>subscriptionSubsequentInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"<% } %>
-<% if (discountType === 'repeating') { %>subscriptionSubsequentInvoiceDiscount-content-discount-repeating = "<%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>"<% } %>
+<% if (discountType === 'repeating') { %>subscriptionSubsequentInvoiceDiscount-content-discount-repeating = "<%discountDuration%>-month Discount: -<%- invoiceDiscountAmount %>"<% } %>
 <% if (discountType === 'forever') { %>subscriptionSubsequentInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"<% } %>
 subscriptionSubsequentInvoiceDiscount-content-charged = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>

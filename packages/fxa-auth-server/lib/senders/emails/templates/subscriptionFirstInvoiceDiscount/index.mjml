@@ -54,7 +54,7 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
     <% if (discountType === 'repeating') { %>
     <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionFirstInvoiceDiscount-content-discount-repeating" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount, discountDuration}) %>">
-        <%discountDuration%> month Discount: -<%- invoiceDiscountAmount %>
+        <%discountDuration%>-month Discount: -<%- invoiceDiscountAmount %>
       </span>
     </mj-text>
     <% } %>
