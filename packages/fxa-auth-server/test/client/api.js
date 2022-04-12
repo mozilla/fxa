@@ -871,7 +871,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return this.doRequest('GET', `${this.baseURL}/account`, token);
   };
-  
+
   ClientApi.prototype.accountEmails = function (sessionTokenHex) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
@@ -1177,14 +1177,6 @@ module.exports = (config) => {
       {
         paymentToken,
       }
-    );
-  };
-
-  ClientApi.prototype.getCustomer = function (refreshToken) {
-    return this.doRequestWithBearerToken(
-      'GET',
-      `${this.baseURL}/oauth/subscriptions/customer`,
-      refreshToken
     );
   };
 

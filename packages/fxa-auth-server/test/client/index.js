@@ -816,10 +816,6 @@ module.exports = (config) => {
     return this.api.updatePayment(refreshToken, paymentToken);
   };
 
-  Client.prototype.getCustomer = function (refreshToken) {
-    return this.api.getCustomer(refreshToken);
-  };
-
   Client.prototype.cancelSubscription = function (
     refreshToken,
     subscriptionId
