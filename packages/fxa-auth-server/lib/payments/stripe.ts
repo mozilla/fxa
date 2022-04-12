@@ -17,8 +17,12 @@ import {
   getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { formatPlanConfigDto } from 'fxa-shared/dto/auth/payments/plan-configuration';
+import { mapPlanConfigsByPriceId } from 'fxa-shared/subscriptions/configuration/utils';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
+  getMinimumAmount,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
@@ -26,28 +30,25 @@ import {
   AbbrevPlan,
   AbbrevPlayPurchase,
   AbbrevProduct,
+  ConfiguredPlan,
   MozillaSubscriptionTypes,
-  PaypalPaymentError,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  ConfiguredPlan,
+  PaypalPaymentError,
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
-import {
-  formatPlanConfigDto,
-  PlanConfigurationDtoT,
-} from 'fxa-shared/dto/auth/payments/plan-configuration';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
 import moment from 'moment';
+import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';
+
 import { ConfigType } from '../../config';
 import error from '../error';
 import { GoogleMapsService } from '../google-maps-services';
-// @ts-ignore
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
@@ -55,15 +56,12 @@ import {
   reportValidationError,
 } from '../sentry';
 import { AppConfig, AuthFirestore, AuthLogger } from '../types';
+import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
-import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
-import AppError from '../error';
-import { PaymentConfigManager } from './configuration/manager';
-import { mapPlanConfigsByPriceId } from 'fxa-shared/subscriptions/configuration/utils';
 
+// @ts-ignore
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
 export const CREDIT_NOTE_RESOURCE = 'creditNotes';
@@ -891,12 +889,12 @@ export class StripeHelper {
           if (discount && total_discount_amounts) {
             couponDetails.discountAmount = total_discount_amounts[0].amount;
           }
-        } catch (error) {
+        } catch (err) {
           if (
-            error instanceof AppError &&
-            error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
+            err instanceof error &&
+            err.errno === error.ERRNO.INVALID_PROMOTION_CODE
           ) {
-            throw error;
+            throw err;
           } else {
             verifiedPromotionAndCoupon.valid = false;
             Sentry.withScope((scope) => {
@@ -904,7 +902,7 @@ export class StripeHelper {
                 priceId,
                 promotionCode,
               });
-              Sentry.captureException(error);
+              Sentry.captureException(err);
             });
           }
         }
