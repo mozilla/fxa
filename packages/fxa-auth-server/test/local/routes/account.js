@@ -25,8 +25,9 @@ const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   PlaySubscriptions,
 } = require('../../../lib/payments/iap/google-play/subscriptions');
-
-const { AccountHandler } = require('../../../lib/routes/account');
+const {
+  deleteAccountIfUnverified,
+} = require('../../../lib/routes/utils/account');
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -521,20 +522,12 @@ describe('deleteAccountIfUnverified', () => {
       metricsContext: {},
     },
   });
-  const mockMailer = {};
-  const mockPassword = sinon.spy();
+
   const mockConfig = {};
   mockConfig.oauth = {};
   mockConfig.signinConfirmation = {};
   mockConfig.signinConfirmation.tokenVerificationCode = {};
   mockConfig.signinConfirmation.skipForEmailAddresses = [];
-  const mockCustoms = {};
-  const mockSigninUtils = {};
-  const mockSignupUtils = {};
-  const mockPush = {};
-  const mockVerificationReminders = {};
-  const mockSubscriptionAccountReminders = {};
-  const mockOauth = {};
   const emailRecord = {
     isPrimary: true,
     isVerified: false,
@@ -552,46 +545,29 @@ describe('deleteAccountIfUnverified', () => {
     const mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(false),
     };
-    const accountHandler = new AccountHandler(
-      mockLog,
+
+    await deleteAccountIfUnverified(
       mockDB,
-      mockMailer,
-      mockPassword,
-      mockConfig,
-      mockCustoms,
-      mockSigninUtils,
-      mockSignupUtils,
-      mockPush,
-      mockVerificationReminders,
-      mockSubscriptionAccountReminders,
-      mockOauth,
-      mockStripeHelper
+      mockStripeHelper,
+      mockLog,
+      mockRequest,
+      TEST_EMAIL
     );
-    await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
     sinon.assert.calledWithMatch(mockDB.deleteAccount, emailRecord);
   });
   it('should not delete an unverified account with a linked Stripe account and return early', async () => {
     const mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(true),
     };
-    const accountHandler = new AccountHandler(
-      mockLog,
-      mockDB,
-      mockMailer,
-      mockPassword,
-      mockConfig,
-      mockCustoms,
-      mockSigninUtils,
-      mockSignupUtils,
-      mockPush,
-      mockVerificationReminders,
-      mockSubscriptionAccountReminders,
-      mockOauth,
-      mockStripeHelper
-    );
     let failed = false;
     try {
-      await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+      await deleteAccountIfUnverified(
+        mockDB,
+        mockStripeHelper,
+        mockLog,
+        mockRequest,
+        TEST_EMAIL
+      );
     } catch (err) {
       failed = true;
       assert.equal(err.errno, error.ERRNO.ACCOUNT_EXISTS);
@@ -604,22 +580,14 @@ describe('deleteAccountIfUnverified', () => {
       hasActiveSubscription: async () => Promise.resolve(false),
       removeCustomer: sinon.stub().resolves(),
     };
-    const accountHandler = new AccountHandler(
-      mockLog,
+
+    await deleteAccountIfUnverified(
       mockDB,
-      mockMailer,
-      mockPassword,
-      mockConfig,
-      mockCustoms,
-      mockSigninUtils,
-      mockSignupUtils,
-      mockPush,
-      mockVerificationReminders,
-      mockSubscriptionAccountReminders,
-      mockOauth,
-      mockStripeHelper
+      mockStripeHelper,
+      mockLog,
+      mockRequest,
+      TEST_EMAIL
     );
-    await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
     sinon.assert.calledOnceWithExactly(
       mockStripeHelper.removeCustomer,
       emailRecord.uid,
@@ -634,23 +602,14 @@ describe('deleteAccountIfUnverified', () => {
     };
     const sentryModule = require('../../../lib/sentry');
     sinon.stub(sentryModule, 'reportSentryError').returns({});
-    const accountHandler = new AccountHandler(
-      mockLog,
-      mockDB,
-      mockMailer,
-      mockPassword,
-      mockConfig,
-      mockCustoms,
-      mockSigninUtils,
-      mockSignupUtils,
-      mockPush,
-      mockVerificationReminders,
-      mockSubscriptionAccountReminders,
-      mockOauth,
-      mockStripeHelper
-    );
     try {
-      await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+      await deleteAccountIfUnverified(
+        mockDB,
+        mockStripeHelper,
+        mockLog,
+        mockRequest,
+        TEST_EMAIL
+      );
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.removeCustomer,
         emailRecord.uid,

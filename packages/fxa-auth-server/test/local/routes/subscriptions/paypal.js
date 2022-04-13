@@ -31,6 +31,7 @@ const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
+const accountUtils = require('../../../../lib/routes/utils/account.ts');
 
 let log,
   config,
@@ -48,6 +49,7 @@ function runTest(routePath, requestOptions) {
     uid: UID,
     email: TEST_EMAIL,
     locale: ACCOUNT_LOCALE,
+    verifierSetAt: requestOptions.verifierSetAt,
   });
   const routes = buildRoutes(
     log,
@@ -241,6 +243,89 @@ describe('subscriptions payPalRoutes', () => {
         } catch (err) {
           assert.deepEqual(err, error.missingPaypalPaymentToken(customer.id));
         }
+      });
+
+      describe('eleteAccountIfUnverified', () => {
+        let sandbox;
+        beforeEach(() => {
+          sandbox = sinon.createSandbox();
+        });
+
+        afterEach(() => {
+          sandbox.restore();
+        });
+
+        it('calls deleteAccountIfUnverified', async () => {
+          const requestOptions = deepCopy(defaultRequestOptions);
+          requestOptions.verifierSetAt = 0;
+          stripeHelper.fetchCustomer = sinon.fake.throws(
+            error.backendServiceFailure()
+          );
+          const deleteAccountIfUnverifiedStub = sandbox
+            .stub(accountUtils, 'deleteAccountIfUnverified')
+            .returns(null);
+
+          try {
+            await runTest('/oauth/subscriptions/active/new-paypal', {
+              ...requestOptions,
+              payload: { token },
+            });
+            assert.fail(
+              'Create subscription with wrong planCurrency should fail.'
+            );
+          } catch (err) {
+            assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+          }
+        });
+
+        it('ignores account exists error from deleteAccountIfUnverified', async () => {
+          const requestOptions = deepCopy(defaultRequestOptions);
+          requestOptions.verifierSetAt = 0;
+          stripeHelper.fetchCustomer = sinon.fake.throws(
+            error.backendServiceFailure()
+          );
+          const deleteAccountIfUnverifiedStub = sandbox
+            .stub(accountUtils, 'deleteAccountIfUnverified')
+            .throws(error.accountExists(null));
+
+          try {
+            await runTest('/oauth/subscriptions/active/new-paypal', {
+              ...requestOptions,
+              payload: { token },
+            });
+            assert.fail(
+              'Create subscription with wrong planCurrency should fail.'
+            );
+          } catch (err) {
+            assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+          }
+        });
+
+        it('ignores verified email error from deleteAccountIfUnverified', async () => {
+          const requestOptions = deepCopy(defaultRequestOptions);
+          requestOptions.verifierSetAt = 0;
+          stripeHelper.fetchCustomer = sinon.fake.throws(
+            error.backendServiceFailure()
+          );
+          const deleteAccountIfUnverifiedStub = sandbox
+            .stub(accountUtils, 'deleteAccountIfUnverified')
+            .throws(error.verifiedSecondaryEmailAlreadyExists());
+
+          try {
+            await runTest('/oauth/subscriptions/active/new-paypal', {
+              ...requestOptions,
+              payload: { token },
+            });
+            assert.fail(
+              'Create subscription with wrong planCurrency should fail.'
+            );
+          } catch (err) {
+            assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+          }
+        });
       });
     });
 

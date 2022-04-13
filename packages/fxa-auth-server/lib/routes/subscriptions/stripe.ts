@@ -35,6 +35,7 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
+import { deleteAccountIfUnverified } from '../utils/account';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -472,111 +473,139 @@ export class StripeHandler {
       request.auth,
       true
     );
-    await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-    const customer = await this.stripeHelper.fetchCustomer(uid);
-    if (!customer) {
-      throw error.unknownCustomer(uid);
-    }
+    try {
+      await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-    const {
-      priceId,
-      paymentMethodId,
-      promotionCode: promotionCodeFromRequest,
-      idempotencyKey,
-      metricsContext,
-    } = request.payload as Record<string, string>;
-
-    const promotionCode: Stripe.PromotionCode | undefined =
-      await this.extractPromotionCode(promotionCodeFromRequest, priceId);
-
-    let taxRateId: string | undefined;
-    let paymentMethod: Stripe.PaymentMethod | undefined;
-
-    // Skip the payment source check if there's no payment method id.
-    if (paymentMethodId) {
-      const planCurrency = (await this.stripeHelper.findPlanById(priceId))
-        .currency;
-      paymentMethod = await this.stripeHelper.getPaymentMethod(paymentMethodId);
-      const paymentMethodCountry = paymentMethod.card?.country;
-      if (
-        !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
-          planCurrency,
-          paymentMethodCountry
-        )
-      ) {
-        throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+      const customer = await this.stripeHelper.fetchCustomer(uid);
+      if (!customer) {
+        throw error.unknownCustomer(uid);
       }
-      if (paymentMethodCountry) {
-        if (!this.stripeHelper.customerTaxId(customer)) {
-          await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
-        }
-        taxRateId = (
-          await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
-        )?.id;
-      }
-    }
 
-    const subIdempotencyKey = `${idempotencyKey}-createSub`;
-    const subscription: any = await this.stripeHelper.createSubscriptionWithPMI(
-      {
-        customerId: customer.id,
+      const {
         priceId,
         paymentMethodId,
-        promotionCode: promotionCode,
-        subIdempotencyKey,
-        taxRateId,
-      }
-    );
+        promotionCode: promotionCodeFromRequest,
+        idempotencyKey,
+        metricsContext,
+      } = request.payload as Record<string, string>;
 
-    const sourceCountry =
-      this.stripeHelper.extractSourceCountryFromSubscription(subscription);
+      const promotionCode: Stripe.PromotionCode | undefined =
+        await this.extractPromotionCode(promotionCodeFromRequest, priceId);
 
-    if (sourceCountry && addressLookupCountries.includes(sourceCountry)) {
-      if (paymentMethod?.billing_details?.address?.postal_code) {
-        this.stripeHelper.setCustomerLocation({
-          customerId: customer.id,
-          postalCode: paymentMethod.billing_details.address.postal_code,
-          country: sourceCountry,
-        });
-      } else if (paymentMethod) {
-        // Only report this if we have a payment method.
-        // Note: Payment method is already on the user if its a returning customer.
-        Sentry.withScope((scope) => {
-          scope.setContext('createSubscriptionWithPMI', {
-            customerId: customer.id,
-            subscriptionId: subscription.id,
-            paymentMethodId: paymentMethod?.id,
-          });
-          Sentry.captureMessage(
-            `Cannot find a postal code for customer.`,
-            Sentry.Severity.Error
+      let taxRateId: string | undefined;
+      let paymentMethod: Stripe.PaymentMethod | undefined;
+
+      // Skip the payment source check if there's no payment method id.
+      if (paymentMethodId) {
+        const planCurrency = (await this.stripeHelper.findPlanById(priceId))
+          .currency;
+        paymentMethod = await this.stripeHelper.getPaymentMethod(
+          paymentMethodId
+        );
+        const paymentMethodCountry = paymentMethod.card?.country;
+        if (
+          !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+            planCurrency,
+            paymentMethodCountry
+          )
+        ) {
+          throw error.currencyCountryMismatch(
+            planCurrency,
+            paymentMethodCountry
           );
-        });
+        }
+        if (paymentMethodCountry) {
+          if (!this.stripeHelper.customerTaxId(customer)) {
+            await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
+          }
+          taxRateId = (
+            await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
+          )?.id;
+        }
       }
+
+      const subIdempotencyKey = `${idempotencyKey}-createSub`;
+      const subscription: any =
+        await this.stripeHelper.createSubscriptionWithPMI({
+          customerId: customer.id,
+          priceId,
+          paymentMethodId,
+          promotionCode: promotionCode,
+          subIdempotencyKey,
+          taxRateId,
+        });
+
+      const sourceCountry =
+        this.stripeHelper.extractSourceCountryFromSubscription(subscription);
+
+      if (sourceCountry && addressLookupCountries.includes(sourceCountry)) {
+        if (paymentMethod?.billing_details?.address?.postal_code) {
+          this.stripeHelper.setCustomerLocation({
+            customerId: customer.id,
+            postalCode: paymentMethod.billing_details.address.postal_code,
+            country: sourceCountry,
+          });
+        } else if (paymentMethod) {
+          // Only report this if we have a payment method.
+          // Note: Payment method is already on the user if its a returning customer.
+          Sentry.withScope((scope) => {
+            scope.setContext('createSubscriptionWithPMI', {
+              customerId: customer.id,
+              subscriptionId: subscription.id,
+              paymentMethodId: paymentMethod?.id,
+            });
+            Sentry.captureMessage(
+              `Cannot find a postal code for customer.`,
+              Sentry.Severity.Error
+            );
+          });
+        }
+      }
+
+      await this.customerChanged(request, uid, email);
+
+      this.log.info('subscriptions.createSubscriptionWithPMI.success', {
+        uid,
+        subscriptionId: subscription.id,
+      });
+
+      await sendFinishSetupEmailForStubAccount({
+        uid,
+        account,
+        subscription,
+        stripeHelper: this.stripeHelper,
+        mailer: this.mailer,
+        subscriptionAccountReminders: this.subscriptionAccountReminders,
+        metricsContext,
+      });
+
+      return {
+        sourceCountry,
+        subscription: filterSubscription(subscription),
+      };
+    } catch (err) {
+      try {
+        if (account.verifierSetAt <= 0) {
+          await deleteAccountIfUnverified(
+            this.db,
+            this.stripeHelper,
+            this.log,
+            request,
+            email
+          );
+        }
+      } catch (deleteAccountError) {
+        if (
+          deleteAccountError.errno !== error.ERRNO.ACCOUNT_EXISTS &&
+          deleteAccountError.errno !==
+            error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS
+        ) {
+          throw deleteAccountError;
+        }
+      }
+      throw err;
     }
-
-    await this.customerChanged(request, uid, email);
-
-    this.log.info('subscriptions.createSubscriptionWithPMI.success', {
-      uid,
-      subscriptionId: subscription.id,
-    });
-
-    await sendFinishSetupEmailForStubAccount({
-      uid,
-      account,
-      subscription,
-      stripeHelper: this.stripeHelper,
-      mailer: this.mailer,
-      subscriptionAccountReminders: this.subscriptionAccountReminders,
-      metricsContext,
-    });
-
-    return {
-      sourceCountry,
-      subscription: filterSubscription(subscription),
-    };
   }
 
   /**

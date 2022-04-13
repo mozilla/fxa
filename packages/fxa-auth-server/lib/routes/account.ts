@@ -16,7 +16,6 @@ import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
-import { reportSentryError } from '../../lib/sentry';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
@@ -31,6 +30,7 @@ import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+import { deleteAccountIfUnverified } from './utils/account';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -89,57 +89,6 @@ export class AccountHandler {
       this.paypalHelper = Container.get(PayPalHelper);
     }
     this.capabilityService = Container.get(CapabilityService);
-  }
-
-  private async deleteAccountIfUnverified(request: AuthRequest, email: string) {
-    try {
-      const secondaryEmailRecord = await this.db.getSecondaryEmail(email);
-      // Currently, users cannot create an account from a verified
-      // secondary email address
-      if (secondaryEmailRecord.isPrimary) {
-        if (
-          secondaryEmailRecord.isVerified ||
-          (await this.stripeHelper.hasActiveSubscription(
-            secondaryEmailRecord.uid
-          ))
-        ) {
-          throw error.accountExists(secondaryEmailRecord.email);
-        }
-        request.app.accountRecreated = true;
-
-        // If an unverified (stub) account has a Stripe customer without any
-        // subscriptions, delete the customer.
-        try {
-          await this.stripeHelper.removeCustomer(
-            secondaryEmailRecord.uid,
-            secondaryEmailRecord.email
-          );
-        } catch (err) {
-          // It's not an error where we'd want to stop the deletion of the
-          // account.
-          reportSentryError(err, request);
-        }
-
-        const deleted = await this.db.deleteAccount(secondaryEmailRecord);
-        this.log.info('accountDeleted.unverifiedSecondaryEmail', {
-          ...secondaryEmailRecord,
-        });
-        return deleted;
-      } else {
-        if (secondaryEmailRecord.isVerified) {
-          throw error.verifiedSecondaryEmailAlreadyExists();
-        }
-
-        return await this.db.deleteEmail(
-          secondaryEmailRecord.uid,
-          secondaryEmailRecord.email
-        );
-      }
-    } catch (err) {
-      if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-        throw err;
-      }
-    }
   }
 
   private async generateRandomValues() {
@@ -470,7 +419,13 @@ export class AccountHandler {
     }
 
     await this.customs.check(request, email, 'accountCreate');
-    await this.deleteAccountIfUnverified(request, email);
+    await deleteAccountIfUnverified(
+      this.db,
+      this.stripeHelper,
+      this.log,
+      request,
+      email
+    );
 
     const {
       hex16: emailCode,
@@ -542,7 +497,13 @@ export class AccountHandler {
 
     const client = await getClientById(clientId);
 
-    await this.deleteAccountIfUnverified(request, email);
+    await deleteAccountIfUnverified(
+      this.db,
+      this.stripeHelper,
+      this.log,
+      request,
+      email
+    );
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();

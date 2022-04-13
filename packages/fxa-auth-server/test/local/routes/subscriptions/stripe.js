@@ -32,6 +32,7 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
   }
 );
 
+const accountUtils = require('../../../../lib/routes/utils/account.ts');
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
@@ -935,6 +936,149 @@ describe('DirectStripeRoutes', () => {
           err.message,
           'Funding source country does not match plan currency.'
         );
+      }
+    });
+
+    it('calls deleteAccountIfUnverified when there is an error', async () => {
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const deleteAccountIfUnverifiedStub = sandbox
+        .stub(accountUtils, 'deleteAccountIfUnverified')
+        .returns(null);
+
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+      }
+    });
+
+    it('ignores account exists error from deleteAccountIfUnverified', async () => {
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const deleteAccountIfUnverifiedStub = sandbox
+        .stub(accountUtils, 'deleteAccountIfUnverified')
+        .throws(error.accountExists(null));
+
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+      }
+    });
+
+    it('ignores verified email error from deleteAccountIfUnverified', async () => {
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const deleteAccountIfUnverifiedStub = sandbox
+        .stub(accountUtils, 'deleteAccountIfUnverified')
+        .throws(error.verifiedSecondaryEmailAlreadyExists());
+
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+      }
+    });
+
+    it('skips calling deleteAccountIfUnverified if verifiedSetAt is greater than 0', async () => {
+      sandbox = sinon.createSandbox();
+
+      config = {
+        subscriptions: {
+          enabled: true,
+          managementClientId: MOCK_CLIENT_ID,
+          managementTokenTTL: MOCK_TTL,
+          stripeApiKey: 'sk_test_1234',
+        },
+      };
+
+      log = mocks.mockLog();
+      customs = mocks.mockCustoms();
+      profile = mocks.mockProfile({
+        deleteCache: sinon.spy(async (uid) => ({})),
+      });
+      mailer = mocks.mockMailer();
+
+      db = mocks.mockDB({
+        uid: UID,
+        email: TEST_EMAIL,
+        locale: ACCOUNT_LOCALE,
+      });
+      const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+      stripeHelperMock.currencyHelper = currencyHelper;
+
+      directStripeRoutesInstance = new DirectStripeRoutes(
+        log,
+        db,
+        config,
+        customs,
+        push,
+        mailer,
+        profile,
+        stripeHelperMock
+      );
+
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const deleteAccountIfUnverifiedStub = sandbox
+        .stub(accountUtils, 'deleteAccountIfUnverified')
+        .throws(error.verifiedSecondaryEmailAlreadyExists());
+
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, false);
       }
     });
 
