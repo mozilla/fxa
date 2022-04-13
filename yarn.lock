@@ -5800,15 +5800,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/integrations@npm:6.19.1":
-  version: 6.19.1
-  resolution: "@sentry/integrations@npm:6.19.1"
+"@sentry/integrations@npm:6.19.6":
+  version: 6.19.6
+  resolution: "@sentry/integrations@npm:6.19.6"
   dependencies:
-    "@sentry/types": 6.19.1
-    "@sentry/utils": 6.19.1
+    "@sentry/types": 6.19.6
+    "@sentry/utils": 6.19.6
     localforage: ^1.8.1
     tslib: ^1.9.3
-  checksum: 13f70635d52814aad8fcc6c3a091060cd8fcbc86a14fcb6d3867552103cdc76c0b1bb28c2173d597a96022f7735732802ad49941999be7442395afebd46e3dcc
+  checksum: 77c18a7164507934431f7d7ddd27868f867ea2dac957aff7c1571dbd94da3710b7cc7dfe4a195ee87e4d7a0ab3a2d7f49669c1ec2d5b5f5150bf9b256a28b9be
   languageName: node
   linkType: hard
 
@@ -5936,6 +5936,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:6.19.6":
+  version: 6.19.6
+  resolution: "@sentry/types@npm:6.19.6"
+  checksum: a1564dabb657bf44a6ee380eb58dabcc6ea1c21b4060127469f8d39c76376d0e3f8c6b3fa27193fc50d9f1415ce63312fc3926d271918bba3e75f1f39691223a
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:6.19.1":
   version: 6.19.1
   resolution: "@sentry/utils@npm:6.19.1"
@@ -5963,6 +5970,16 @@ __metadata:
     "@sentry/types": 6.19.4
     tslib: ^1.9.3
   checksum: f2bcb6a45b9041811a37daf51f103fdb833673f0d7873759e2f708db77cac629846be188733a7a6193f3e8cd9896a685ac382c2bf96f01e03b0a6214496de3ee
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:6.19.6":
+  version: 6.19.6
+  resolution: "@sentry/utils@npm:6.19.6"
+  dependencies:
+    "@sentry/types": 6.19.6
+    tslib: ^1.9.3
+  checksum: 73a582b6827ea519f8a352f3bdc8b0f22fbbced99506af56f566a6567ad0d6df2f8c3e39532f8588bdccb93f9bf03289681ae90404fd1dd9904c3175d314136a
   languageName: node
   linkType: hard
 
@@ -14679,7 +14696,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "browserid-verifier@workspace:packages/browserid-verifier"
   dependencies:
-    "@sentry/integrations": 6.19.1
+    "@sentry/integrations": 6.19.6
     "@sentry/node": 6.19.1
     "@sentry/tracing": 6.19.1
     async: 3.2.3
