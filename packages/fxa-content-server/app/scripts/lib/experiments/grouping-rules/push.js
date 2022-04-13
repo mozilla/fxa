@@ -21,7 +21,7 @@ const GROUPS = [
 // `?forceExperiment=pushLogin&forceExperimentGroup=treatment`
 const ROLLOUT_RATE = 0.0;
 
-module.exports = class NewsletterSync extends BaseGroupingRule {
+module.exports = class PushLogin extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'pushLogin';
