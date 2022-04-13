@@ -16,7 +16,7 @@ function getPaypalPrivacyLinkText(): string {
 function getStripePrivacyLinkText(): string {
   return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>';
 }
-
+// Adding a comment
 const PaypalPaymentLegalBlurb = () => (
   <div
     className="payment-legal-blurb"
