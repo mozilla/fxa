@@ -9,6 +9,8 @@ import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
 
+//just a comment
+
 async function bootstrap() {
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
