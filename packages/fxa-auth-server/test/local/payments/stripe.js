@@ -2205,6 +2205,15 @@ describe('StripeHelper', () => {
         { paid_out_of_band: true }
       );
     });
+
+    it('ignores error if the invoice was already paid', async () => {
+      const paidInvoice = { ...deepCopy(unpaidInvoice), paid: true };
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'pay')
+        .rejects(new Error('Invoice is already paid'));
+      await stripeHelper.payInvoiceOutOfBand(paidInvoice);
+      sinon.assert.calledOnce(stripeHelper.stripe.invoices.pay);
+    });
   });
 
   describe('updateCustomerBillingAddress', () => {

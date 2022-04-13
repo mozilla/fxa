@@ -1151,7 +1151,17 @@ export class StripeHelper {
    * Pays an invoice out of band.
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
-    return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
+    try {
+      return await this.stripe.invoices.pay(invoice.id, {
+        paid_out_of_band: true,
+      });
+    } catch (err) {
+      if (err.message.includes('Invoice is already paid')) {
+        // This was already marked paid, we can ignore the error.
+        return;
+      }
+      throw err;
+    }
   }
 
   /**
