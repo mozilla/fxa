@@ -1,3 +1,21 @@
+## 1.230.0
+
+### Bug fixes
+
+- redirect: Fix issue where users could not redirect to a specific page in settings ([8fdbdcfc8a](https://github.com/mozilla/fxa/commit/8fdbdcfc8a))
+- email: Fixes issue where the user could not login when switching primary email ([311dca413e](https://github.com/mozilla/fxa/commit/311dca413e))
+
+### Other changes
+
+- deps: bump grunt-contrib-concat from 2.0.0 to 2.1.0 ([839e85b147](https://github.com/mozilla/fxa/commit/839e85b147))
+- fennec: Remove support for fx_fennec_v1 broker ([a3e6bfab91](https://github.com/mozilla/fxa/commit/a3e6bfab91))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- sms: Remove sms code (#12298) ([d697f20264](https://github.com/mozilla/fxa/commit/d697f20264))
+- deps: bump @sentry/browser from 6.19.2 to 6.19.4 ([a360064ed7](https://github.com/mozilla/fxa/commit/a360064ed7))
+- content: Remove fxaccounts:verified webchannel msg ([27f3467735](https://github.com/mozilla/fxa/commit/27f3467735))
+- auth,profile,settings,shared: Remove AET ([37e57852a8](https://github.com/mozilla/fxa/commit/37e57852a8))
+- survey: Remove survey code and documentation (#12293) ([c0bdf4819a](https://github.com/mozilla/fxa/commit/c0bdf4819a))
+
 ## 1.229.2
 
 ### Other changes

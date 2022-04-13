@@ -1,3 +1,15 @@
+## 1.230.0
+
+### Bug fixes
+
+- admin-panel: Fix sentry csp warning ([f9639fce8b](https://github.com/mozilla/fxa/commit/f9639fce8b))
+
+### Other changes
+
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps: bump @sentry/browser from 6.19.2 to 6.19.4 ([a360064ed7](https://github.com/mozilla/fxa/commit/a360064ed7))
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+
 ## 1.229.2
 
 ### Other changes

@@ -1,3 +1,12 @@
+## 1.230.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1089.0 to 2.1110.0 ([cdd8fd3bb3](https://github.com/mozilla/fxa/commit/cdd8fd3bb3))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps: bump sharp from 0.30.1 to 0.30.3 (#12312) ([8995e1c0ee](https://github.com/mozilla/fxa/commit/8995e1c0ee))
+- auth,profile,settings,shared: Remove AET ([37e57852a8](https://github.com/mozilla/fxa/commit/37e57852a8))
+
 ## 1.229.2
 
 ### Other changes

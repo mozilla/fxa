@@ -1,3 +1,10 @@
+## 1.230.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0 ([5e37ff89b4](https://github.com/mozilla/fxa/commit/5e37ff89b4))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+
 ## 1.229.2
 
 ### Other changes

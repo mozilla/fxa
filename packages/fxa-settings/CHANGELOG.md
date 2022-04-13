@@ -1,3 +1,16 @@
+## 1.230.0
+
+### Other changes
+
+- deps: bump postcss-import from 12.0.1 to 14.1.0" ([44bea3fbb9](https://github.com/mozilla/fxa/commit/44bea3fbb9))
+- deps: bump postcss-import from 12.0.1 to 14.1.0 ([6b81127291](https://github.com/mozilla/fxa/commit/6b81127291))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps-dev: bump webpack-watch-files-plugin from 1.2.0 to 1.2.1 ([04288e0b19](https://github.com/mozilla/fxa/commit/04288e0b19))
+- sms: Remove sms code (#12298) ([d697f20264](https://github.com/mozilla/fxa/commit/d697f20264))
+- deps: bump @sentry/browser from 6.19.2 to 6.19.4 ([a360064ed7](https://github.com/mozilla/fxa/commit/a360064ed7))
+- auth,profile,settings,shared: Remove AET ([37e57852a8](https://github.com/mozilla/fxa/commit/37e57852a8))
+- deps: bump react-easy-crop from 4.1.3 to 4.1.4 (#12306) ([d7311ecaef](https://github.com/mozilla/fxa/commit/d7311ecaef))
+
 ## 1.229.2
 
 ### Other changes

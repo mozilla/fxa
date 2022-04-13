@@ -1,3 +1,56 @@
+## 1.230.0
+
+### New features
+
+- subscriptions: detach payment method when deleting customer ([e03adff808](https://github.com/mozilla/fxa/commit/e03adff808))
+- scripts: use redlock to prevent >1 instance of paypal-processor ([8efb6aec89](https://github.com/mozilla/fxa/commit/8efb6aec89))
+- subscriptions: Del customer location script (#12411) ([ce9e704d99](https://github.com/mozilla/fxa/commit/ce9e704d99))
+- coupons: coupon detail api check valid promo (#12299) ([48cc6705c0](https://github.com/mozilla/fxa/commit/48cc6705c0))
+- auth: upgrade stripe dependency ([7817e1c498](https://github.com/mozilla/fxa/commit/7817e1c498))
+- subscriptions: add Firestore based config to plans ([b3ce441b98](https://github.com/mozilla/fxa/commit/b3ce441b98))
+
+### Bug fixes
+
+- auth: ignore already paid invoice errors ([6dfbd2a32b](https://github.com/mozilla/fxa/commit/6dfbd2a32b))
+- auth: send Subscription Delete Email When User Deletes Fx Account Because: ([6e560b43a9](https://github.com/mozilla/fxa/commit/6e560b43a9))
+- auth: repair imports for Logger/error ([269197ec6b](https://github.com/mozilla/fxa/commit/269197ec6b))
+- auth: handle paypal refused errors ([041987b2f2](https://github.com/mozilla/fxa/commit/041987b2f2))
+- subscriptions: no expand on payment detach (#12303) ([bacd13f120](https://github.com/mozilla/fxa/commit/bacd13f120))
+- recovery-codes: Remove context.numberRemaining check in getGlobalTemplateValues ([c66633722f](https://github.com/mozilla/fxa/commit/c66633722f))
+- tsconfig: Transpile email templates includes.ts files ([d9fb5d72ad](https://github.com/mozilla/fxa/commit/d9fb5d72ad))
+- recovery-codes: Remove context.numberRemaining check in getGlobalTemplateValues ([51340d03de](https://github.com/mozilla/fxa/commit/51340d03de))
+- mailer: mailer chainging timezone test (#12257) ([aeebc5fbbf](https://github.com/mozilla/fxa/commit/aeebc5fbbf))
+- auth: update cached customer on customer.subscription.created ([f1dea10b18](https://github.com/mozilla/fxa/commit/f1dea10b18))
+- auth: update cached customer on customer.subscription.created ([dca6218091](https://github.com/mozilla/fxa/commit/dca6218091))
+
+### Refactorings
+
+- auth: clean up paypal files into its own module ([4244f0900a](https://github.com/mozilla/fxa/commit/4244f0900a))
+
+### Other changes
+
+- auth: remove unused populate stripe script ([9b3f3df6e0](https://github.com/mozilla/fxa/commit/9b3f3df6e0))
+- deps: bump grunt-contrib-concat from 2.0.0 to 2.1.0 ([839e85b147](https://github.com/mozilla/fxa/commit/839e85b147))
+- subscriptions: remove route no longer in use ([6df5e99c82](https://github.com/mozilla/fxa/commit/6df5e99c82))
+- coupons: add hiphen ([0034daf6f3](https://github.com/mozilla/fxa/commit/0034daf6f3))
+- deps: bump i18n-iso-countries from 7.3.0 to 7.4.0 ([d84ac122be](https://github.com/mozilla/fxa/commit/d84ac122be))
+- d3a092e95d Revisions based on feedback ([d3a092e95d](https://github.com/mozilla/fxa/commit/d3a092e95d))
+- auth: Remove deprecated l10n code ([64d37f9a7d](https://github.com/mozilla/fxa/commit/64d37f9a7d))
+- cb5f65f7d7 Remove verificationMethod - email-otp is only option: cb5f65f7d7 Remove verificationMethod - email-otp is only option ([cb5f65f7d7](https://github.com/mozilla/fxa/commit/cb5f65f7d7))
+- 742106f75e Remove secondary email logic from /recovery_email/verify_code ([742106f75e](https://github.com/mozilla/fxa/commit/742106f75e))
+- deps: bump moment from 2.29.1 to 2.29.2 ([baba755082](https://github.com/mozilla/fxa/commit/baba755082))
+- docs: Update auth-server README around emails ([3c909fd382](https://github.com/mozilla/fxa/commit/3c909fd382))
+- deps: bump aws-sdk from 2.1089.0 to 2.1110.0 ([cdd8fd3bb3](https://github.com/mozilla/fxa/commit/cdd8fd3bb3))
+- 52fa6421cf Remove secondary email logic from /recovery_email/resend_code ([52fa6421cf](https://github.com/mozilla/fxa/commit/52fa6421cf))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps-dev: bump webpack-watch-files-plugin from 1.2.0 to 1.2.1 ([04288e0b19](https://github.com/mozilla/fxa/commit/04288e0b19))
+- sms: Remove sms code (#12298) ([d697f20264](https://github.com/mozilla/fxa/commit/d697f20264))
+- deps: bump p-retry from 4.6.1 to 5.1.0 ([d4d62b3b15](https://github.com/mozilla/fxa/commit/d4d62b3b15))
+- deps: bump googleapis from 95.0.0 to 100.0.0 ([9e6f6b63d7](https://github.com/mozilla/fxa/commit/9e6f6b63d7))
+- auth,profile,settings,shared: Remove AET ([37e57852a8](https://github.com/mozilla/fxa/commit/37e57852a8))
+- deps: bump node-zendesk from 2.1.0 to 2.1.1 (#12305) ([97568efbc7](https://github.com/mozilla/fxa/commit/97568efbc7))
+- deps-dev: bump @storybook/addon-controls from 6.4.18 to 6.4.19 (#12271) ([3d63cc215d](https://github.com/mozilla/fxa/commit/3d63cc215d))
+
 ## 1.229.2
 
 ### Other changes

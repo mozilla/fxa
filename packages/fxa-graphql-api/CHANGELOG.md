@@ -1,3 +1,12 @@
+## 1.230.0
+
+### Other changes
+
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps: bump @nestjs/common from 8.3.1 to 8.4.3 ([138adcebfe](https://github.com/mozilla/fxa/commit/138adcebfe))
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+- deps: bump knex from 1.0.3 to 1.0.4 ([a75cfe2922](https://github.com/mozilla/fxa/commit/a75cfe2922))
+
 ## 1.229.2
 
 ### Other changes

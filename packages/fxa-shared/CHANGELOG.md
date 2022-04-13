@@ -1,5 +1,27 @@
 # Change history
 
+## 1.230.0
+
+### New features
+
+- coupons: coupon detail api check valid promo (#12299) ([48cc6705c0](https://github.com/mozilla/fxa/commit/48cc6705c0))
+- auth: upgrade stripe dependency ([7817e1c498](https://github.com/mozilla/fxa/commit/7817e1c498))
+- subscriptions: add Firestore based config to plans ([b3ce441b98](https://github.com/mozilla/fxa/commit/b3ce441b98))
+
+### Other changes
+
+- auth: Remove deprecated l10n code ([64d37f9a7d](https://github.com/mozilla/fxa/commit/64d37f9a7d))
+- deps: bump moment from 2.29.1 to 2.29.2 ([baba755082](https://github.com/mozilla/fxa/commit/baba755082))
+- deps: bump aws-sdk from 2.1089.0 to 2.1110.0 ([cdd8fd3bb3](https://github.com/mozilla/fxa/commit/cdd8fd3bb3))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- sms: Remove sms code (#12298) ([d697f20264](https://github.com/mozilla/fxa/commit/d697f20264))
+- deps-dev: bump @nestjs/testing from 8.2.6 to 8.4.3 ([ee9673f9c9](https://github.com/mozilla/fxa/commit/ee9673f9c9))
+- deps: bump @sentry/browser from 6.19.2 to 6.19.4 ([a360064ed7](https://github.com/mozilla/fxa/commit/a360064ed7))
+- deps: bump @nestjs/common from 8.3.1 to 8.4.3 ([138adcebfe](https://github.com/mozilla/fxa/commit/138adcebfe))
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+- auth,profile,settings,shared: Remove AET ([37e57852a8](https://github.com/mozilla/fxa/commit/37e57852a8))
+- deps: bump knex from 1.0.3 to 1.0.4 ([a75cfe2922](https://github.com/mozilla/fxa/commit/a75cfe2922))
+
 ## 1.229.2
 
 ### Other changes
