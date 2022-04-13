@@ -9,6 +9,8 @@ import { v4 as uuid4 } from 'uuid';
 import { ClientWebhooks } from '../client-webhooks/client-webhooks.interface';
 import { FirestoreService } from './firestore.service';
 
+const TEST_TIMEOUT = 1000 * 30;
+
 // Set the env var to use the emulator
 process.env.FIRESTORE_EMULATOR_HOST = 'localhost:9090';
 
@@ -45,82 +47,114 @@ describe('FirestoreService', () => {
     expect(service).toBeDefined();
   });
 
-  it('stores a new login', async () => {
-    await service.storeLogin(uid1, 'fx_send');
-    const result = await service.fetchClientIds(uid1);
-    expect(result).toStrictEqual(['fx_send']);
-  });
+  it(
+    'stores a new login',
+    async () => {
+      await service.storeLogin(uid1, 'fx_send');
+      const result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual(['fx_send']);
+    },
+    TEST_TIMEOUT
+  );
 
-  it('ignores a duplicate login', async () => {
-    const result = await service.storeLogin(uid1, 'fx_send');
-    expect(result).toBeTruthy;
-    const result2 = await service.storeLogin(uid1, 'fx_send');
-    expect(result2).toBeFalsy;
-  });
+  it(
+    'ignores a duplicate login',
+    async () => {
+      const result = await service.storeLogin(uid1, 'fx_send');
+      expect(result).toBeTruthy;
+      const result2 = await service.storeLogin(uid1, 'fx_send');
+      expect(result2).toBeFalsy;
+    },
+    TEST_TIMEOUT
+  );
 
-  it('stores multiple user logins', async () => {
-    await service.storeLogin(uid1, 'fx_send');
-    await service.storeLogin(uid2, 'fx_screenshot');
-    let result = await service.fetchClientIds(uid1);
-    expect(result).toStrictEqual(['fx_send']);
-    result = await service.fetchClientIds(uid2);
-    expect(result).toStrictEqual(['fx_screenshot']);
-  });
+  it(
+    'stores multiple user logins',
+    async () => {
+      await service.storeLogin(uid1, 'fx_send');
+      await service.storeLogin(uid2, 'fx_screenshot');
+      let result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual(['fx_send']);
+      result = await service.fetchClientIds(uid2);
+      expect(result).toStrictEqual(['fx_screenshot']);
+    },
+    TEST_TIMEOUT
+  );
 
-  it('stores multiple client ids', async () => {
-    await service.storeLogin(uid1, 'fx_send');
-    await service.storeLogin(uid1, 'fx_screenshot');
-    const result = await service.fetchClientIds(uid1);
-    expect(result).toStrictEqual(['fx_send', 'fx_screenshot']);
-  });
+  it(
+    'stores multiple client ids',
+    async () => {
+      await service.storeLogin(uid1, 'fx_send');
+      await service.storeLogin(uid1, 'fx_screenshot');
+      const result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual(['fx_send', 'fx_screenshot']);
+    },
+    TEST_TIMEOUT
+  );
 
-  it('returns empty clientIds for non-existent login', async () => {
-    const result = await service.fetchClientIds(uid1);
-    expect(result).toStrictEqual([]);
-  });
+  it(
+    'returns empty clientIds for non-existent login',
+    async () => {
+      const result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual([]);
+    },
+    TEST_TIMEOUT
+  );
 
-  it('uses a collection prefix', async () => {
-    await service.storeLogin(uid1, 'fx_send');
-    const doc = await fs.doc('fxatest-users/' + uid1).get();
-    const data = doc.data();
-    expect(data).toStrictEqual({ oauth_clients: { fx_send: true } });
-  });
+  it(
+    'uses a collection prefix',
+    async () => {
+      await service.storeLogin(uid1, 'fx_send');
+      const doc = await fs.doc('fxatest-users/' + uid1).get();
+      const data = doc.data();
+      expect(data).toStrictEqual({ oauth_clients: { fx_send: true } });
+    },
+    TEST_TIMEOUT
+  );
 
-  it('fetches client id webhooks', async () => {
-    const result = await service.fetchClientIdWebhooks();
-    expect(result).toStrictEqual({});
-    const document = fs.doc('fxatest-clients/test');
-    await document.set({ webhookUrl: 'testUrl' });
-    const result2 = await service.fetchClientIdWebhooks();
-    expect(result2).toStrictEqual({ test: 'testUrl' });
-    await document.delete();
-  });
+  it(
+    'fetches client id webhooks',
+    async () => {
+      const result = await service.fetchClientIdWebhooks();
+      expect(result).toStrictEqual({});
+      const document = fs.doc('fxatest-clients/test');
+      await document.set({ webhookUrl: 'testUrl' });
+      const result2 = await service.fetchClientIdWebhooks();
+      expect(result2).toStrictEqual({ test: 'testUrl' });
+      await document.delete();
+    },
+    TEST_TIMEOUT
+  );
 
-  it('gets updated when the database changes', async () => {
-    const data: ClientWebhooks = {};
-    const change = new Promise<() => void>((resolve, reject) => {
-      const done = service.listenForClientIdWebhooks(
-        (changed, removed) => {
-          Object.assign(data, changed);
-          for (const key of Object.keys(removed)) {
-            delete data[key];
+  it(
+    'gets updated when the database changes',
+    async () => {
+      const data: ClientWebhooks = {};
+      const change = new Promise<() => void>((resolve, reject) => {
+        const done = service.listenForClientIdWebhooks(
+          (changed, removed) => {
+            Object.assign(data, changed);
+            for (const key of Object.keys(removed)) {
+              delete data[key];
+            }
+            resolve(done);
+          },
+          (err) => {
+            reject(err);
           }
-          resolve(done);
-        },
-        (err) => {
-          reject(err);
-        }
-      );
-    });
-    // Manually insert into the db
-    const document = fs.doc('fxatest-clients/test');
-    await document.set({ webhookUrl: 'testUrl' });
-    const stop = await change;
-    expect(data).toStrictEqual({ test: 'testUrl' });
+        );
+      });
+      // Manually insert into the db
+      const document = fs.doc('fxatest-clients/test');
+      await document.set({ webhookUrl: 'testUrl' });
+      const stop = await change;
+      expect(data).toStrictEqual({ test: 'testUrl' });
 
-    // Manually delete from the db
-    await document.delete();
-    expect(data).toStrictEqual({});
-    stop();
-  });
+      // Manually delete from the db
+      await document.delete();
+      expect(data).toStrictEqual({});
+      stop();
+    },
+    TEST_TIMEOUT
+  );
 });
