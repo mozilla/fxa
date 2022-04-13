@@ -651,6 +651,10 @@ const Account = Backbone.Model.extend(
           ) {
             updatedSessionData.email = options.originalLoginEmail;
           }
+          
+          // We don't really need this value other than in login flow, it can
+          // sometimes cause issues when user switches primary email
+          this.unset('originalLoginEmail');
 
           this.set(updatedSessionData);
 

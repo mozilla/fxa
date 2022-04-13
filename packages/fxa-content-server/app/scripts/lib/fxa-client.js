@@ -291,7 +291,13 @@ FxaClientWrapper.prototype = {
               accountData.verificationMethod = VerificationMethods.EMAIL;
             }
           }
-
+          
+          // The `originalLoginEmail` is a users current primary email, ensure
+          // the account model uses this email and updates local storage with it
+          if (signInOptions.originalLoginEmail) {
+            email = signInOptions.originalLoginEmail
+          }
+          
           return getUpdatedSessionData(email, relier, accountData, options);
         });
     }

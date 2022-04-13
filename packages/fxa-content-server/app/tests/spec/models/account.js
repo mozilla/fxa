@@ -654,7 +654,7 @@ describe('models/account', function () {
           );
 
           assert.equal(account.get('email'), EMAIL);
-          assert.equal(account.get('originalLoginEmail'), upperCaseEmail);
+          assert.equal(account.get('originalLoginEmail'), undefined);
         });
       });
 
