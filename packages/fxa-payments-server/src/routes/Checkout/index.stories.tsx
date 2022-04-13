@@ -8,8 +8,7 @@ import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
 import { Checkout, CheckoutProps } from './index';
-import { PLANS, PRODUCT_ID } from '../../lib/mock-data';
-import { linkTo } from '@storybook/addon-links';
+import { PLANS } from '../../lib/mock-data';
 
 function init() {
   storiesOf('routes/Checkout', module)

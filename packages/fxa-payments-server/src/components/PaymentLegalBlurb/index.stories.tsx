@@ -1,6 +1,5 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 import { MockApp } from '../../../.storybook/components/MockApp';
 import PaymentLegalBlub from './index';
 import * as PaymentProvider from '../../lib/PaymentProvider';

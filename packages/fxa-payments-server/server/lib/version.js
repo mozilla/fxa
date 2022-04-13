@@ -18,8 +18,6 @@
  *
  */
 
-'use strict';
-
 // TODO - Make this shared code
 
 const cp = require('child_process');

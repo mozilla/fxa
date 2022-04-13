@@ -179,6 +179,7 @@ describe('routes/Product', () => {
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-profile');
     expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
   });
 
   it('displays an error on failure to load plans', async () => {
@@ -196,6 +197,7 @@ describe('routes/Product', () => {
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-plans');
     expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
   });
 
   it('displays an error on failure to load customer', async () => {
@@ -215,6 +217,7 @@ describe('routes/Product', () => {
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-customer');
     expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
   });
 
   it('does not display an error on missing / new customer', async () => {
@@ -238,6 +241,7 @@ describe('routes/Product', () => {
     const { findAllByText } = render(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
     expect(headingEls.length).toBeGreaterThan(0);
+    expectNockScopesDone(apiMocks);
   });
 
   it('does not display an error on customer with no subscriptions', async () => {
@@ -261,6 +265,7 @@ describe('routes/Product', () => {
     const { findAllByText } = render(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
     expect(headingEls.length).toBeGreaterThan(0);
+    expectNockScopesDone(apiMocks);
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {

@@ -157,6 +157,7 @@ export const PaypalButton = ({
       postSubscriptionAttemptPaypalCallback,
       setSubscriptionError,
       setTransactionInProgress,
+      promotionCode,
     ]
   );
 

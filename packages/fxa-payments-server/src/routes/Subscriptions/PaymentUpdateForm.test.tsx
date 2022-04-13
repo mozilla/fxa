@@ -20,7 +20,7 @@ import {
 import { CUSTOMER, FILTERED_SETUP_INTENT, PLAN } from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
-import { defaultConfig, updateConfig } from '../../lib/config';
+import { defaultConfig } from '../../lib/config';
 import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,

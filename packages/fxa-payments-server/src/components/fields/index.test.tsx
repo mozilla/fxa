@@ -71,9 +71,7 @@ describe('Field', () => {
     );
     const label = container.querySelector('label .label-text');
     expect(label).not.toBeNull();
-    if (label) {
-      expect(label.textContent).toEqual('This is a label');
-    }
+    expect(label?.textContent).toEqual('This is a label');
   });
 
   it('renders a tooltip for errors', () => {
@@ -331,9 +329,6 @@ describe('StripeElement', () => {
 
   const buildMockStripeElement = (value: any) =>
     class extends React.Component<MockStripeElementProps> {
-      constructor(props: MockStripeElementProps) {
-        super(props);
-      }
       handleClick = (ev: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         ev.preventDefault();
         this.props.onChange(value);
@@ -543,9 +538,7 @@ describe('Checkbox', () => {
     );
     const label = container.querySelector('span.label-text.checkbox');
     expect(label).not.toBeNull();
-    if (label) {
-      expect(label.textContent).toContain('nice label');
-    }
+    expect(label?.textContent).toContain('nice label');
   });
 
   it('renders children as a label with markup when available', () => {
@@ -559,13 +552,9 @@ describe('Checkbox', () => {
     const label = container.querySelector('span.label-text.checkbox');
     const labelInnerSpan = container.querySelector('.label-inner-span');
     expect(label).not.toBeNull();
-    if (label) {
-      expect(label.textContent).toEqual('nice label');
-    }
+    expect(label?.textContent).toEqual('nice label');
     expect(labelInnerSpan).not.toBeNull();
-    if (labelInnerSpan) {
-      expect(labelInnerSpan.textContent).toEqual('label');
-    }
+    expect(labelInnerSpan?.textContent).toEqual('label');
   });
 
   it('accepts an alternate className', () => {

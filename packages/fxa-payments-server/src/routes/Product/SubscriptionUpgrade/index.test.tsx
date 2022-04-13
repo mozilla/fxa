@@ -7,13 +7,10 @@ import { APIError } from '../../../lib/apiClient';
 import { Plan } from '../../../store/types';
 import { PlanDetailsCard } from './PlanUpgradeDetails';
 
-jest.mock('../../../lib/sentry');
-
 import {
   updateSubscriptionPlanMounted,
   updateSubscriptionPlanEngaged,
 } from '../../../lib/amplitude';
-jest.mock('../../../lib/amplitude');
 
 import {
   MockApp,
@@ -33,6 +30,9 @@ import { SignInLayout } from '../../../components/AppLayout';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 import { getLocalizedCurrency } from '../../../lib/formats';
+
+jest.mock('../../../lib/sentry');
+jest.mock('../../../lib/amplitude');
 
 describe('routes/Product/SubscriptionUpgrade', () => {
   afterEach(() => {
@@ -93,7 +93,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 
   it('displays a loading spinner while submitting', async () => {
-    const { findByTestId, getByTestId, getByText } = render(
+    const { findByTestId, getByTestId } = render(
       <Subject
         props={{
           updateSubscriptionPlanStatus: {

@@ -5,7 +5,6 @@
 // Middleware to take care of CSP. CSP headers are not sent unless config
 // option 'csp.enabled' is set (default true).
 
-'use strict';
 const helmet = require('helmet');
 const htmlOnly = require('./html-middleware');
 

@@ -88,7 +88,7 @@ export const TermsAndPrivacy = ({
           </a>
         </Localized>
         &nbsp;&nbsp;&nbsp;
-        <Localized id="accounts-legal-copy">
+        <Localized id="privacy">
           <a
             href={`${contentServerURL}/legal/privacy`}
             target="_blank"

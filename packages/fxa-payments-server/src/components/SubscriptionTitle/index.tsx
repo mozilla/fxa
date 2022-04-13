@@ -44,5 +44,5 @@ export const SubscriptionTitle = ({
   );
 };
 
-export type SubscriptionTitle = typeof SubscriptionTitle;
+export type SubscriptionTitleType = typeof SubscriptionTitle;
 export default SubscriptionTitle;

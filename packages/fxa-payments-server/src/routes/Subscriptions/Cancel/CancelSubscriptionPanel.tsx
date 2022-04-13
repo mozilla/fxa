@@ -68,6 +68,8 @@ const CancelSubscriptionPanel = ({
     plan,
     paymentProvider,
     promotionCode,
+    resetIsLocalCancellation,
+    setIsLocalCancellation,
   ]);
 
   const viewed = useRef(false);
@@ -93,7 +95,7 @@ const CancelSubscriptionPanel = ({
       onConfirmationChanged(evt);
       hideCancel();
     },
-    [hideCancel, engage]
+    [hideCancel, engage, onConfirmationChanged]
   );
 
   const engagedOnConfirmationChanged = useCallback(

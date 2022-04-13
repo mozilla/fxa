@@ -3,7 +3,7 @@ import { FetchState } from '../store/types';
 import { APIError } from '../lib/apiClient';
 import DialogMessage from './DialogMessage';
 
-export default ({
+const FetchErrorDialogMessage = ({
   title,
   testid = '',
   fetchState,
@@ -21,3 +21,5 @@ export default ({
     )}
   </DialogMessage>
 );
+
+export default FetchErrorDialogMessage;

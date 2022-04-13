@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import '@testing-library/jest-dom/extend-expect';
 
-import {
-  cleanup,
-  fireEvent,
-  render,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Plan, WebSubscription } from 'fxa-shared/subscriptions/types';
 import React from 'react';
@@ -25,7 +19,6 @@ import { COUPON_DETAILS_VALID, CUSTOMER, SELECTED_PLAN } from './mock-data';
 
 // eslint-disable-next-line import/first
 import { apiInvoicePreview } from '../lib/apiClient';
-import { wait } from './test-utils';
 
 jest.mock('../lib/apiClient', () => {
   return {
@@ -63,7 +56,7 @@ describe('useCheckboxStateResult', () => {
 });
 
 describe('useNonce', () => {
-  const Subject = ({}) => {
+  const Subject = () => {
     const [nonce, refresh] = useNonce();
     return (
       <div>

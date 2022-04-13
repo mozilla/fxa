@@ -8,7 +8,6 @@ import {
   FirstInvoicePreview,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
-import { CouponErrorMessageType } from '../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 // TODO: Use a better type here

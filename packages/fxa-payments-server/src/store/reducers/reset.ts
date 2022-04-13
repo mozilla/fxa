@@ -9,7 +9,7 @@ const resetTypeToStoreMap: ResetTypeToStoreMap = {
   resetReactivateSubscription: 'reactivateSubscription',
 };
 
-export default (state: State, action: Action): State => {
+const resetReducer = (state: State, action: Action): State => {
   if (action.type in resetTypeToStoreMap) {
     const stateKey =
       resetTypeToStoreMap[action.type as keyof ResetTypeToStoreMap];
@@ -20,3 +20,5 @@ export default (state: State, action: Action): State => {
   }
   return state;
 };
+
+export default resetReducer;

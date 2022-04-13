@@ -55,6 +55,7 @@ export const findCustomerIapSubscriptionByProductId = (
 export const needsCustomer = (customer: Customer | null) =>
   !(customer && customer.customerId);
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   hasSubscriptions,
   hasPaymentProvider,

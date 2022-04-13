@@ -1,19 +1,16 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
 import MockApp, {
   defaultAppContextValue,
 } from '../../../.storybook/components/MockApp';
 import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
-import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';
 import { Customer, Plan, Profile } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import { Route, BrowserRouter, Routes } from 'react-router-dom';
 
 function init() {
   storiesOf('routes/Product', module)
@@ -275,68 +272,5 @@ const MOCK_PROPS: ProductProps = {
     result: null,
   },
 };
-
-const FAILURE_PROPS = {
-  ...MOCK_PROPS,
-  resetCreateSubscription: linkTo(
-    'routes/Product',
-    'subscribing with existing account'
-  ),
-};
-
-const mkValidPaymentFormState = (): ValidatorState => ({
-  error: null,
-  fields: {
-    name: {
-      value: 'Foo Barson',
-      valid: true,
-      error: null,
-      fieldType: 'input',
-      required: true,
-    },
-    zip: {
-      value: '90210',
-      valid: true,
-      error: null,
-      fieldType: 'input',
-      required: true,
-    },
-    creditCardNumber: {
-      value: true,
-      valid: null,
-      error: null,
-      fieldType: 'stripe',
-      required: true,
-    },
-    expDate: {
-      value: true,
-      valid: null,
-      error: null,
-      fieldType: 'stripe',
-      required: true,
-    },
-    cvc: {
-      value: true,
-      valid: null,
-      error: null,
-      fieldType: 'stripe',
-      required: true,
-    },
-    confirm: {
-      value: true,
-      valid: true,
-      error: null,
-      fieldType: 'input',
-      required: true,
-    },
-    submit: {
-      value: null,
-      valid: null,
-      error: null,
-      fieldType: 'input',
-      required: false,
-    },
-  },
-});
 
 init();

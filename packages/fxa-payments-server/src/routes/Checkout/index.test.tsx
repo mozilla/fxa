@@ -7,7 +7,6 @@ import {
   fireEvent,
   act,
   screen,
-  queryByTestId,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
@@ -47,6 +46,21 @@ import { FXA_NEWSLETTER_SIGNUP_ERROR } from '../../lib/newsletter';
 import { FXA_SIGNUP_ERROR } from '../../lib/account';
 import { getErrorMessage } from '../../lib/errors';
 
+import {
+  updateAPIClientToken,
+  apiCreateCustomer,
+  apiCreatePasswordlessAccount,
+  apiFetchCustomer,
+  apiFetchPlans,
+  apiFetchProfile,
+  apiCreateSubscriptionWithPaymentMethod,
+  apiFetchAccountStatus,
+  apiGetPaypalCheckoutToken,
+  apiCapturePaypalPayment,
+  apiSignupForNewsletter,
+} from '../../lib/apiClient';
+import { ButtonBaseProps } from '../../components/PayPalButton';
+
 jest.mock('../../lib/apiClient', () => {
   return {
     ...jest.requireActual('../../lib/apiClient'),
@@ -69,22 +83,6 @@ const stripeOverride = {
   createPaymentMethod: jest.fn(),
   confirmCardPayment: jest.fn(),
 };
-
-import {
-  updateAPIClientToken,
-  apiCreateCustomer,
-  apiCreatePasswordlessAccount,
-  apiFetchCustomer,
-  apiFetchPlans,
-  apiFetchProfile,
-  apiCreateSubscriptionWithPaymentMethod,
-  apiFetchAccountStatus,
-  apiGetPaypalCheckoutToken,
-  apiCapturePaypalPayment,
-  apiSignupForNewsletter,
-} from '../../lib/apiClient';
-import { ButtonBaseProps } from '../../components/PayPalButton';
-import { updateConfig } from '../../lib/config';
 
 const newAccountEmail = 'testo@example.gd';
 

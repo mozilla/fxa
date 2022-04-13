@@ -14,7 +14,6 @@ import PlanDetails from '../../../components/PlanDetails';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import { Customer, Profile, Plan } from '../../../store/types';
 import { getIapSubscriptionManagementUrl } from '../../../lib/formats';
-import { useNavigate } from 'react-router-dom';
 
 export type IapRoadblockProps = {
   isMobile: boolean;

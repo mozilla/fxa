@@ -5,7 +5,6 @@
 import {
   apiCreatePasswordlessAccount,
   updateAPIClientToken,
-  MetricsContext,
 } from './apiClient';
 import { GeneralError } from './errors';
 import sentry from './sentry';

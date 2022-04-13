@@ -49,7 +49,7 @@ for (const apiType in apiTypeToStoreMap) {
   }
 }
 
-export default (state: State, action: Action): State => {
+const apiReducer = (state: State, action: Action): State => {
   if (action.type in apiPromiseTypeToStoreMap) {
     // promise-middleware actions are close enough to ApiAction type
     const payload = (action as ApiAction).payload;
@@ -74,3 +74,5 @@ export default (state: State, action: Action): State => {
   }
   return state;
 };
+
+export default apiReducer;

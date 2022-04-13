@@ -23,7 +23,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('readOnly with Coupon - subscription success', () => {
-    const [coupon, setCoupon] = useState<CouponDetails>({
+    const [coupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
       durationInMonths: 1,
@@ -59,7 +59,7 @@ storiesOf('components/Coupon', module)
     );
   })
   .add('has coupon - subscription in progress', () => {
-    const [coupon, setCoupon] = useState<CouponDetails>({
+    const [coupon] = useState<CouponDetails>({
       promotionCode: 'Test',
       type: 'repeating',
       durationInMonths: 1,

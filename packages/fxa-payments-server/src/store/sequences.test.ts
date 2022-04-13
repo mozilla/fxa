@@ -1,5 +1,8 @@
 import { MOCK_PLANS } from '../lib/test-utils';
 
+import { actions } from './actions';
+import { sequences } from './sequences';
+
 jest.mock('../lib/sentry');
 
 jest.mock('./actions', () => ({
@@ -19,9 +22,6 @@ jest.mock('./actions', () => ({
   },
 }));
 
-import { actions } from './actions';
-import { sequences } from './sequences';
-
 const dispatch = jest.fn().mockImplementation(async (action) => {
   if (typeof action === 'function') {
     return await action(dispatch);
@@ -30,7 +30,7 @@ const dispatch = jest.fn().mockImplementation(async (action) => {
 });
 
 const dispatchError = jest.fn().mockImplementation(() => {
-  throw 'ohno';
+  throw new Error('ohno');
 });
 
 describe('updateSubscriptionPlanAndRefresh', () => {

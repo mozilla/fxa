@@ -5,7 +5,7 @@ import { StripeError } from '@stripe/stripe-js';
 
 import { getErrorMessage, GeneralError } from '../../lib/errors';
 import errorIcon from '../../images/error.svg';
-import SubscriptionTitle from '../SubscriptionTitle';
+import SubscriptionTitle, { SubscriptionTitleType } from '../SubscriptionTitle';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 
 import './index.scss';
@@ -18,7 +18,7 @@ export type PaymentErrorViewProps = {
   plan: Plan;
   error?: StripeError | GeneralError;
   className?: string;
-  subscriptionTitle?: React.ReactElement<SubscriptionTitle>;
+  subscriptionTitle?: React.ReactElement<SubscriptionTitleType>;
   showFxaLegalFooterLinks?: boolean;
   contentProps?: { [key: string]: unknown };
 };

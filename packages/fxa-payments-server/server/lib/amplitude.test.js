@@ -34,6 +34,7 @@ jest.mock('../config', () => ({
     switch (key) {
       case 'amplitude':
         return mockAmplitudeConfig;
+      default:
     }
   },
 }));

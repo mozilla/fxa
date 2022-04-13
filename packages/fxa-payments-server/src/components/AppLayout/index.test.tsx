@@ -6,7 +6,6 @@ import { AppContext, defaultAppContext } from '../../lib/AppContext';
 
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
-import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
 afterEach(cleanup);

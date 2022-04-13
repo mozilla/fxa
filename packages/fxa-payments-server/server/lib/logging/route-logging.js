@@ -4,8 +4,6 @@
 
 // Middleware to log the requests
 
-'use strict';
-
 const logger = require('./log')('server.requests');
 const morgan = require('morgan');
 const config = require('../../config');

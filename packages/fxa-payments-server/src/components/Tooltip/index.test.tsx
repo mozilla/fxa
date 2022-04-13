@@ -3,11 +3,7 @@ import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { Omit } from '../../lib/types';
 import ScreenInfo from '../../lib/screen-info';
-import {
-  AppContext,
-  AppContextType,
-  defaultAppContext,
-} from '../../lib/AppContext';
+import { AppContext, defaultAppContext } from '../../lib/AppContext';
 import {
   Tooltip,
   TooltipProps,
@@ -63,12 +59,10 @@ it('renders children as label', () => {
   const { queryByText } = render(<Subject>{LABEL_TEXT}</Subject>);
   const result = queryByText(LABEL_TEXT);
   expect(result).toBeInTheDocument();
-  if (result) {
-    expect(result).toHaveClass('tooltip');
-    expect(result).toHaveClass('tooltip-below');
-    expect(result).toHaveClass('fade-up-tt');
-    expect(result.style.top).not.toContain('-');
-  }
+  expect(result).toHaveClass('tooltip');
+  expect(result).toHaveClass('tooltip-below');
+  expect(result).toHaveClass('fade-up-tt');
+  expect(result?.style.top).not.toContain('-');
 });
 
 it('renders with expected id and class names', () => {

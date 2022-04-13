@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  apiCreatePasswordlessAccount,
+  updateAPIClientToken,
+} from './apiClient';
+import { FXA_SIGNUP_ERROR, handlePasswordlessSignUp } from './account';
+import sentry from './sentry';
 jest.mock('./apiClient', () => ({
   apiCreatePasswordlessAccount: jest
     .fn()
@@ -12,12 +18,6 @@ jest.mock('./sentry', () => ({
   __esModule: true,
   default: { captureException: jest.fn() },
 }));
-import {
-  apiCreatePasswordlessAccount,
-  updateAPIClientToken,
-} from './apiClient';
-import { FXA_SIGNUP_ERROR, handlePasswordlessSignUp } from './account';
-import sentry from './sentry';
 
 const accountParam = { email: 'me@example.com', clientId: 'tests' };
 

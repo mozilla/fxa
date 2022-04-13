@@ -302,24 +302,6 @@ export const STRIPE_ELEMENT_STYLES = {
   },
 };
 
-/**
- * Stripe locales do not exactly match FxA locales. Mostly language tags
- * without subtags. This function should convert / normalize as necessary.
- */
-type StripeLocale = StripeElementsOptions['locale'];
-export const localeToStripeLocale = (locale?: string): StripeLocale => {
-  if (locale) {
-    if (locale in stripeLocales) {
-      return locale as StripeLocale;
-    }
-    const lang = locale.split('-').shift();
-    if (lang && lang in stripeLocales) {
-      return lang as StripeLocale;
-    }
-  }
-  return 'auto';
-};
-
 // TODO: Move to fxa-shared/l10n?
 // see also: https://stripe.com/docs/js/appendix/supported_locales
 enum stripeLocales {
@@ -356,3 +338,21 @@ enum stripeLocales {
   'tk',
   'zh',
 }
+
+/**
+ * Stripe locales do not exactly match FxA locales. Mostly language tags
+ * without subtags. This function should convert / normalize as necessary.
+ */
+type StripeLocale = StripeElementsOptions['locale'];
+export const localeToStripeLocale = (locale?: string): StripeLocale => {
+  if (locale) {
+    if (locale in stripeLocales) {
+      return locale as StripeLocale;
+    }
+    const lang = locale.split('-').shift();
+    if (lang && lang in stripeLocales) {
+      return lang as StripeLocale;
+    }
+  }
+  return 'auto';
+};

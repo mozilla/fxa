@@ -3,13 +3,9 @@ import TestRenderer from 'react-test-renderer';
 import { render, cleanup, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { APIError } from '../../lib/apiClient';
 import { Plan } from '../../store/types';
 
-jest.mock('../../lib/sentry');
-
 import {
-  MockApp,
   MOCK_PLANS,
   setupFluentLocalizationTest,
   getLocalizedMessage,
@@ -17,9 +13,10 @@ import {
 
 import { getLocalizedCurrency } from '../../lib/formats';
 import { PaymentConsentCheckbox } from './index';
-import { SELECTED_PLAN, UPGRADE_FROM_PLAN } from '../../lib/mock-data';
 import useValidatorState from '../../lib/validator';
 import { Form } from '../fields';
+
+jest.mock('../../lib/sentry');
 
 const findMockPlan = (planId: string): Plan => {
   const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
@@ -62,7 +59,7 @@ describe('components/PaymentConsentCheckbox', () => {
       plan,
       onClick: onClickSpy,
     };
-    const { findByTestId, container } = render(<WrapCheckbox {...props} />);
+    const { findByTestId } = render(<WrapCheckbox {...props} />);
     const checkbox = await findByTestId('confirm');
 
     await act(async () => {
