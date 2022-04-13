@@ -10,6 +10,7 @@ const selectors = require('../lib/selectors');
 const config = intern._config;
 
 const ENTER_EMAIL_URL = config.fxaContentRoot;
+const DELETE_ACCOUNT_URL = `${config.fxaContentRoot}settings/delete_account` ;
 
 const PASSWORD = 'password1234567';
 let email;
@@ -104,7 +105,7 @@ registerSuite('delete_account', {
           .then((labels) => labels.map((label) => label.click()))
           .end()
           .then(click(selectors.SETTINGS.DELETE_ACCOUNT.SUBMIT_BUTTON))
-          // Enter password, but first, click the label to get it out of the way.
+
           .then(
             testElementExists(
               selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
@@ -119,6 +120,35 @@ registerSuite('delete_account', {
           .then(
             testElementTextInclude(selectors.SETTINGS.PROFILE_HEADER, email)
           )
+      );
+    },
+
+    'navigate directly to delete account, sign in': function () {
+      return (
+        this.remote
+          .then(openPage(DELETE_ACCOUNT_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+
+          // Intern won't click on checkboxes with SVGs on top. So click the
+          // checkbox labels instead :-\
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then((labels) => labels.map((label) => label.click()))
+          .end()
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.SUBMIT_BUTTON))
+          .then(
+            testElementExists(
+              selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+            )
+          )
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
+          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
       );
     },
   },

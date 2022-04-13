@@ -229,7 +229,12 @@ const Router = Backbone.Router.extend({
         uniqueUserId,
       } = this.metrics.getFilteredData();
 
-      const settingsLink = `/settings${Url.objToSearchString({
+      // Our GQL client sets the `redirect_to` param if a user attempts
+      // to navigate directly to a section in settings
+      const searchParams = new URLSearchParams(this.window.location.search);
+      const endpoint = searchParams.get('redirect_to') || `/settings`;
+      
+      const settingsLink = `${endpoint}${Url.objToSearchString({
         deviceId,
         flowBeginTime,
         flowId,
