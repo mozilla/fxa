@@ -1,5 +1,15 @@
 # Change history
 
+## 1.230.1
+
+### Bug fixes
+
+- broker: update test timeouts ([8bddb2939](https://github.com/mozilla/fxa/commit/8bddb2939))
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0" ([f3b198b17](https://github.com/mozilla/fxa/commit/f3b198b17))
+
 ## 1.230.0
 
 ### Other changes
