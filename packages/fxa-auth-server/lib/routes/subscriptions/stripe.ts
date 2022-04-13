@@ -324,36 +324,6 @@ export class StripeHandler {
   }
 
   /**
-   * This is a misnomer: it does not return a customer.  It returns an object
-   * with Stripe billing details and a list of subscriptions.
-   */
-  async getCustomer(request: AuthRequest) {
-    this.log.begin('subscriptions.getCustomer', request);
-
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'getCustomer');
-    const billingDetailsAndSubscriptions =
-      await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
-
-    if (!billingDetailsAndSubscriptions) {
-      throw error.unknownCustomer(uid);
-    }
-    if (
-      billingDetailsAndSubscriptions &&
-      (!billingDetailsAndSubscriptions.subscriptions ||
-        billingDetailsAndSubscriptions.subscriptions.length === 0)
-    ) {
-      throw error.internalValidationError(
-        'subscriptionsGetCustomer',
-        { customerId: billingDetailsAndSubscriptions.customerId },
-        'Customer has no subscriptions.'
-      );
-    }
-
-    return billingDetailsAndSubscriptions;
-  }
-
-  /**
    * Create a customer.
    */
   async createCustomer(
@@ -826,20 +796,6 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.listActive(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/subscriptions/customer',
-      options: {
-        auth: {
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        response: {
-          schema: validators.subscriptionsCustomerValidator as any,
-        },
-      },
-      handler: (request: AuthRequest) => stripeHandler.getCustomer(request),
     },
     {
       method: 'POST',

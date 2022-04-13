@@ -189,7 +189,6 @@ const PUSHBOX_METHOD_NAMES = ['retrieve', 'store'];
 
 const SUBHUB_METHOD_NAMES = [
   'listPlans',
-  'getCustomer',
   'updateCustomer',
   'deleteCustomer',
   'listSubscriptions',
