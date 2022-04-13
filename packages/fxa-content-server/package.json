@@ -82,7 +82,7 @@
     "grunt-babel": "8.0.0",
     "grunt-cdn": "0.6.5",
     "grunt-contrib-clean": "^2.0.0",
-    "grunt-contrib-concat": "2.0.0",
+    "grunt-contrib-concat": "2.1.0",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-cssmin": "4.0.0",
     "grunt-contrib-htmlmin": "3.1.0",
