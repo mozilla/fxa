@@ -1,3 +1,9 @@
+## 1.230.3
+
+### Other changes
+
+- deps: bump p-retry from 4.6.1 to 5.1.0" ([1c3f1107f1](https://github.com/mozilla/fxa/commit/1c3f1107f1))
+
 ## 1.230.2
 
 No changes.
