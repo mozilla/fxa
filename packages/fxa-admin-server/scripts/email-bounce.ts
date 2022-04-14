@@ -20,7 +20,7 @@ const argv = yargs.options({
 }).argv;
 
 async function addBounceToDB() {
-  const instance = knex({ client: 'mysql', connection: config.database });
+  const instance = knex({ client: 'mysql', connection: config.database.fxa });
   Model.knex(instance);
   const count = argv.count;
 
