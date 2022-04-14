@@ -5163,6 +5163,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/platform-express@npm:^8.4.4":
+  version: 8.4.4
+  resolution: "@nestjs/platform-express@npm:8.4.4"
+  dependencies:
+    body-parser: 1.20.0
+    cors: 2.8.5
+    express: 4.17.3
+    multer: 1.4.4
+    tslib: 2.3.1
+  peerDependencies:
+    "@nestjs/common": ^8.0.0
+    "@nestjs/core": ^8.0.0
+  checksum: 69616a33f5bf731ecec74e11b05d240b1c2ac52fca5c40e7120bac2dadb60e7c2942c885147914822e9507235326ea0ee8b185cbc55a3be7a61df0900ad9d202
+  languageName: node
+  linkType: hard
+
 "@nestjs/schedule@npm:^1.1.0":
   version: 1.1.0
   resolution: "@nestjs/schedule@npm:1.1.0"
@@ -16501,7 +16517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:8.3.0, commander@npm:^8.3.0":
+"commander@npm:8.3.0":
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
   checksum: 0f82321821fc27b83bd409510bb9deeebcfa799ff0bf5d102128b500b7af22872c0c92cb6a0ebc5a4cf19c6b550fba9cedfa7329d18c6442a625f851377bacf0
@@ -16533,6 +16549,13 @@ __metadata:
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
+  languageName: node
+  linkType: hard
+
+"commander@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "commander@npm:9.1.0"
+  checksum: 1428319b6b90600a813c28fe1e413996d1be99bf01afe9ebc4a9fc6f8077ff3e75f11809b2d2f85bd9b13d7cb592154278e9bbfdb16dc5843cef97bcba6a9cfd
   languageName: node
   linkType: hard
 
@@ -17849,6 +17872,18 @@ __metadata:
     supports-color:
       optional: true
   checksum: 14472d56fe4a94dbcfaa6dbed2dd3849f1d72ba78104a1a328047bb564643ca49df0224c3a17fa63533fd11dd3d4c8636cd861191232a2c6735af00cc2d4de16
+  languageName: node
+  linkType: hard
+
+"debug@npm:4.3.4":
+  version: 4.3.4
+  resolution: "debug@npm:4.3.4"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
   languageName: node
   linkType: hard
 
@@ -22034,7 +22069,7 @@ fsevents@~2.1.1:
     helmet: ^5.0.0
     hot-shots: ^9.0.0
     jest: 27.5.1
-    knex: ^1.0.4
+    knex: ^1.0.7
     mozlog: ^3.0.2
     mysql: ^2.18.1
     pm2: ^5.1.2
@@ -22621,7 +22656,7 @@ fsevents@~2.1.1:
     hot-shots: ^9.0.0
     ioredis: ^4.28.2
     jest: 27.5.1
-    knex: ^1.0.4
+    knex: ^1.0.7
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.2.2
@@ -23050,7 +23085,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 19.0.0
     jsdom-global: 3.0.2
-    knex: ^1.0.4
+    knex: ^1.0.7
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^9.1.2
@@ -29359,15 +29394,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "knex@npm:1.0.4"
+"knex@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "knex@npm:1.0.7"
   dependencies:
     colorette: 2.0.16
-    commander: ^8.3.0
-    debug: 4.3.3
+    commander: ^9.1.0
+    debug: 4.3.4
     escalade: ^3.1.1
     esm: ^3.2.25
+    get-package-type: ^0.1.0
     getopts: 2.3.0
     interpret: ^2.2.0
     lodash: ^4.17.21
@@ -29393,7 +29429,7 @@ fsevents@~2.1.1:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 7490763d92ff366732803a8bf721f88cd48ddab7794d2fd63a325996dcfc95d2cec7924d20c73cc45a7ba74d881531b6afdf6c5916c7e4673839a91f69603566
+  checksum: 57608a3a6813cb66da6f5a078016338166c53ab2cbaab66e81492352023db88fc158e4ad6bbd2156cd9d7c9cac14a4b1e581dd8232b4f9bab2285ea6f1efc5cf
   languageName: node
   linkType: hard
 
