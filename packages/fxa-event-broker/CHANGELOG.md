@@ -1,5 +1,11 @@
 # Change history
 
+## 1.230.2
+
+### Bug fixes
+
+- broker: use workspace focus first ([b68e3f4a2](https://github.com/mozilla/fxa/commit/b68e3f4a2))
+
 ## 1.230.1
 
 ### Bug fixes
