@@ -1,5 +1,38 @@
 # Change history
 
+## 1.230.2
+
+No changes.
+
+## 1.230.1
+
+No changes.
+
+## 1.230.0
+
+### New features
+
+- payments: add Launch Config for Debugging Payments Tests Because: ([33a1655fbd](https://github.com/mozilla/fxa/commit/33a1655fbd))
+- coupons: coupon detail api check valid promo (#12299) ([48cc6705c0](https://github.com/mozilla/fxa/commit/48cc6705c0))
+
+### Bug fixes
+
+- payments: fix lint script and suggestions Because: ([fddd58d814](https://github.com/mozilla/fxa/commit/fddd58d814))
+- Subscriptions: Sub manage zero sub amount Because: ([db04cd4cd4](https://github.com/mozilla/fxa/commit/db04cd4cd4))
+- payments: fix flaky test with different dates Because: ([4b603a7e84](https://github.com/mozilla/fxa/commit/4b603a7e84))
+
+### Other changes
+
+- deps: bump nocache from 3.0.1 to 3.0.3 ([1ff80ae756](https://github.com/mozilla/fxa/commit/1ff80ae756))
+- deps: bump @stripe/react-stripe-js from 1.7.0 to 1.7.1 ([90f3fcdfd3](https://github.com/mozilla/fxa/commit/90f3fcdfd3))
+- deps: bump postcss-import from 12.0.1 to 14.1.0" ([44bea3fbb9](https://github.com/mozilla/fxa/commit/44bea3fbb9))
+- deps: bump postcss-import from 12.0.1 to 14.1.0 ([6b81127291](https://github.com/mozilla/fxa/commit/6b81127291))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps: bump react-redux from 7.2.6 to 7.2.8 ([fe98984cd2](https://github.com/mozilla/fxa/commit/fe98984cd2))
+- deps: bump @sentry/browser from 6.19.2 to 6.19.4 ([a360064ed7](https://github.com/mozilla/fxa/commit/a360064ed7))
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+- survey: Remove survey code and documentation (#12293) ([c0bdf4819a](https://github.com/mozilla/fxa/commit/c0bdf4819a))
+
 ## 1.229.2
 
 ### Other changes

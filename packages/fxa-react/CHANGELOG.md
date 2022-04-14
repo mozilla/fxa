@@ -1,3 +1,18 @@
+## 1.230.2
+
+No changes.
+
+## 1.230.1
+
+No changes.
+
+## 1.230.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+- survey: Remove survey code and documentation (#12293) ([c0bdf4819a](https://github.com/mozilla/fxa/commit/c0bdf4819a))
+
 ## 1.229.2
 
 No changes.

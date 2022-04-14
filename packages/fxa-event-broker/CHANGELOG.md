@@ -1,5 +1,33 @@
 # Change history
 
+## 1.230.2
+
+### Bug fixes
+
+- broker: use workspace focus first ([b68e3f4a2](https://github.com/mozilla/fxa/commit/b68e3f4a2))
+
+## 1.230.1
+
+### Bug fixes
+
+- broker: update test timeouts ([8bddb2939](https://github.com/mozilla/fxa/commit/8bddb2939))
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0" ([f3b198b17](https://github.com/mozilla/fxa/commit/f3b198b17))
+
+## 1.230.0
+
+### Other changes
+
+- deps: bump @nestjs/schedule from 1.0.2 to 1.1.0 ([b34d97670d](https://github.com/mozilla/fxa/commit/b34d97670d))
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0 ([5e37ff89b4](https://github.com/mozilla/fxa/commit/5e37ff89b4))
+- deps: bump aws-sdk from 2.1089.0 to 2.1110.0 ([cdd8fd3bb3](https://github.com/mozilla/fxa/commit/cdd8fd3bb3))
+- all: Change default sentry trace sample rate to 0 ([8b4079c665](https://github.com/mozilla/fxa/commit/8b4079c665))
+- deps-dev: bump @nestjs/testing from 8.2.6 to 8.4.3 ([ee9673f9c9](https://github.com/mozilla/fxa/commit/ee9673f9c9))
+- deps: bump @nestjs/common from 8.3.1 to 8.4.3 ([138adcebfe](https://github.com/mozilla/fxa/commit/138adcebfe))
+- deps-dev: bump ts-jest from 27.1.3 to 27.1.4 ([947392814d](https://github.com/mozilla/fxa/commit/947392814d))
+
 ## 1.229.2
 
 ### Other changes
