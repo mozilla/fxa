@@ -80,6 +80,7 @@ type UnitRowProps = {
   alertBarRevealed?: boolean;
   hideCtaText?: boolean;
   prefixDataTestId?: string;
+  isLevelWithRefreshButton?: boolean;
 };
 
 export const UnitRow = ({
@@ -103,6 +104,7 @@ export const UnitRow = ({
   alertBarRevealed,
   hideCtaText,
   prefixDataTestId = '',
+  isLevelWithRefreshButton = false,
 }: UnitRowProps & RouteComponentProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
@@ -158,7 +160,10 @@ export const UnitRow = ({
         <div className="flex items-center">
           {!hideCtaText && route && (
             <Link
-              className="cta-neutral cta-base transition-standard rtl:ml-1"
+              className={classNames(
+                'cta-neutral cta-base transition-standard rtl:ml-1',
+                isLevelWithRefreshButton && 'mr-9'
+              )}
               data-testid={formatDataTestId('unit-row-route')}
               to={`${route}${location.search}`}
             >
