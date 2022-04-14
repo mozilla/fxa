@@ -118,7 +118,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "stripe": "^8.215.0",
-    "superagent": "^7.1.1",
+    "superagent": "^7.1.2",
     "typesafe-joi": "^2.1.0"
   },
   "jest": {
