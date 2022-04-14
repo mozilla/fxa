@@ -5163,22 +5163,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.4.4":
-  version: 8.4.4
-  resolution: "@nestjs/platform-express@npm:8.4.4"
-  dependencies:
-    body-parser: 1.20.0
-    cors: 2.8.5
-    express: 4.17.3
-    multer: 1.4.4
-    tslib: 2.3.1
-  peerDependencies:
-    "@nestjs/common": ^8.0.0
-    "@nestjs/core": ^8.0.0
-  checksum: 69616a33f5bf731ecec74e11b05d240b1c2ac52fca5c40e7120bac2dadb60e7c2942c885147914822e9507235326ea0ee8b185cbc55a3be7a61df0900ad9d202
-  languageName: node
-  linkType: hard
-
 "@nestjs/schedule@npm:^1.1.0":
   version: 1.1.0
   resolution: "@nestjs/schedule@npm:1.1.0"
