@@ -1364,6 +1364,152 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('validateCouponDurationForPlan', () => {
+    const priceId = 'priceId';
+    const promotionCode = 'promotionCode';
+    let couponDuration = 'repeating';
+    let couponDurationInMonths = 3;
+    let priceInterval = 'month';
+    let priceIntervalCount = 1;
+    let sentryScope;
+
+    beforeEach(() => {
+      couponDuration = 'repeating';
+      couponDurationInMonths = 3;
+      priceInterval = 'month';
+      priceIntervalCount = 1;
+
+      sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureException');
+    });
+
+    it('coupon duration other than repeating', () => {
+      couponDuration = 'once';
+      const expected = true;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+    });
+
+    it('valid yearly plan interval', async () => {
+      couponDurationInMonths = 12;
+      priceInterval = 'year';
+      priceIntervalCount = 1;
+      const expected = true;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+    });
+
+    it('invalid yearly plan interval', async () => {
+      priceInterval = 'year';
+      const expected = false;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'validateCouponDurationForPlan',
+        {
+          promotionCode,
+          priceId,
+          couponDuration,
+          priceInterval,
+          priceIntervalCount,
+        }
+      );
+    });
+
+    it('valid monthly plan interval', () => {
+      const expected = true;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+    });
+
+    it('invalid monthly plan interval', () => {
+      priceIntervalCount = 6;
+      const expected = false;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'validateCouponDurationForPlan',
+        {
+          promotionCode,
+          priceId,
+          couponDuration,
+          priceInterval,
+          priceIntervalCount,
+        }
+      );
+    });
+
+    it('invalid plan interval', () => {
+      priceInterval = 'week';
+      const expected = false;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+      sinon.assert.notCalled(Sentry.withScope);
+    });
+
+    it('missing coupon duration in months', () => {
+      couponDurationInMonths = null;
+      const expected = false;
+      const actual = stripeHelper.validateCouponDurationForPlan(
+        promotionCode,
+        couponDuration,
+        couponDurationInMonths,
+        priceId,
+        priceInterval,
+        priceIntervalCount
+      );
+      assert.equal(actual, expected);
+      sinon.assert.notCalled(Sentry.withScope);
+    });
+  });
+
   describe('findPromoCodeByCode', () => {
     it('finds a promo code', async () => {
       const promotionCode = { code: 'code1' };
@@ -1889,6 +2035,10 @@ describe('StripeHelper', () => {
   });
 
   describe('checkPromotionCodeForPlan', () => {
+    const couponTemplate = {
+      duration: 'once',
+      duration_in_months: null,
+    };
     it('finds a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
@@ -1899,7 +2049,8 @@ describe('StripeHelper', () => {
 
       const actual = await stripeHelper.checkPromotionCodeForPlan(
         promotionCode,
-        'planId'
+        'planId',
+        couponTemplate
       );
       assert.deepEqual(actual, true);
     });
@@ -1914,7 +2065,28 @@ describe('StripeHelper', () => {
 
       const actual = await stripeHelper.checkPromotionCodeForPlan(
         promotionCode,
-        'planId'
+        'planId',
+        couponTemplate
+      );
+      assert.deepEqual(actual, false);
+    });
+
+    it('finds promo code that is invalid for the given plan', async () => {
+      const promotionCode = 'promo1';
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+
+      const actual = await stripeHelper.checkPromotionCodeForPlan(
+        promotionCode,
+        'planId',
+        {
+          ...couponTemplate,
+          duration: 'repeating',
+          duration_in_months: 5,
+        }
       );
       assert.deepEqual(actual, false);
     });

@@ -756,7 +756,8 @@ export class StripeHelper {
     // Is the coupon valid for this price?
     const planContainsPromo = await this.checkPromotionCodeForPlan(
       code,
-      priceId
+      priceId,
+      promotionCode.coupon
     );
     if (!planContainsPromo) {
       return;
@@ -832,6 +833,52 @@ export class StripeHelper {
       maximallyRedeemed:
         verifyCoupon.maximallyRedeemed || verifyPromotionCode.maximallyRedeemed,
     };
+  }
+
+  /**
+   * Validate that the Coupon Duration is valid for a plan interval.
+   * Currently checking if the coupon duration is applied for the entire
+   * plan interval.
+   */
+  validateCouponDurationForPlan(
+    promotionCode: string,
+    couponDuration: string,
+    couponDurationInMonths: number | null,
+    priceId: string,
+    priceInterval: string,
+    priceIntervalCount: number
+  ) {
+    // If the coupon duration is repeating, check if the duration months will be
+    // applied for a whole plan interval. Currently we do not want to support
+    // coupons being applied for part of the plan interval.
+    if (couponDuration === 'repeating') {
+      // Currently we only support coupons for year and month plan intervals.
+      if (['month', 'year'].includes(priceInterval) && couponDurationInMonths) {
+        const multiplier = priceInterval === 'year' ? 12 : 1;
+        if (!(couponDurationInMonths % (priceIntervalCount * multiplier))) {
+          return true;
+        } else {
+          Sentry.withScope((scope) => {
+            scope.setContext('validateCouponDurationForPlan', {
+              promotionCode,
+              priceId,
+              couponDuration,
+              priceInterval,
+              priceIntervalCount,
+            });
+            Sentry.captureMessage(
+              'Coupon duration does not apply for entire plan interval',
+              Sentry.Severity.Error
+            );
+          });
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -931,8 +978,10 @@ export class StripeHelper {
 
     const planContainsPromo = await this.checkPromotionCodeForPlan(
       code,
-      priceId
+      priceId,
+      promotionCode.coupon
     );
+    console.log({ planContainsPromo });
     if (!planContainsPromo) {
       return;
     }
@@ -945,7 +994,8 @@ export class StripeHelper {
    */
   async checkPromotionCodeForPlan(
     code: string,
-    priceId: string
+    priceId: string,
+    coupon: Stripe.Coupon
   ): Promise<boolean> {
     const price = await this.findPlanById(priceId);
     const validPromotionCodes: string[] = [];
@@ -970,7 +1020,16 @@ export class StripeHelper {
       );
     }
 
-    return validPromotionCodes.includes(code);
+    const valid = await this.validateCouponDurationForPlan(
+      code,
+      coupon.duration,
+      coupon.duration_in_months,
+      price.plan_id,
+      price.interval,
+      price.interval_count
+    );
+
+    return validPromotionCodes.includes(code) && valid;
   }
 
   /**
