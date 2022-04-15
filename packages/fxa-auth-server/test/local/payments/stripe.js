@@ -3353,6 +3353,25 @@ describe('StripeHelper', () => {
       assert.deepEqual(result, customer1);
     });
 
+    it('fetches a customer and refreshes the cache if needed', async () => {
+      const customer = deepCopy(customer1);
+      customer.currency = null;
+      const customerSecond = deepCopy(customer1);
+      const expandStub = sandbox.stub(stripeHelper, 'expandResource');
+      stripeHelper.stripeFirestore = {
+        fetchAndInsertCustomer: sandbox.stub().resolves({}),
+      };
+      expandStub.onFirstCall().resolves(customer);
+      expandStub.onSecondCall().resolves(customerSecond);
+      const result = await stripeHelper.fetchCustomer(existingCustomer.uid);
+      assert.deepEqual(result, customerSecond);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+        customer.id
+      );
+      sinon.assert.calledTwice(expandStub);
+    });
+
     it('throws if the customer record has a fxa id mismatch', async () => {
       sandbox.stub(stripeHelper, 'expandResource').returns(newCustomer);
       let thrown;
@@ -5538,39 +5557,46 @@ describe('StripeHelper', () => {
       });
     }
 
-    for (const type of [
-      'customer.subscription.created',
-      'customer.subscription.updated',
-    ]) {
-      it(`handles ${type} operations`, async () => {
-        const event = deepCopy(eventSubscriptionUpdated);
-        event.type = type;
-        delete event.data.previous_attributes;
-        stripeHelper.stripe.subscriptions.retrieve = sandbox
-          .stub()
-          .resolves(subscription1);
-        stripeFirestore.retrieveSubscription = sandbox.stub().resolves({});
-        stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-          .stub()
-          .resolves({});
-        stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
-        await stripeHelper.processWebhookEventToFirestore(event);
-        if (type === 'customer.subscription.created') {
+    for (const hasCurrency of [true, false]) {
+      for (const type of [
+        'customer.subscription.created',
+        'customer.subscription.updated',
+      ]) {
+        it(`handles ${type} operations with currency: ${hasCurrency}`, async () => {
+          const event = deepCopy(eventSubscriptionUpdated);
+          event.type = type;
+          delete event.data.previous_attributes;
+          stripeHelper.stripe.subscriptions.retrieve = sandbox
+            .stub()
+            .resolves(subscription1);
+          const customer = deepCopy(newCustomer);
+          if (hasCurrency) {
+            customer.currency = 'usd';
+          }
+          stripeHelper.expandResource = sandbox.stub().resolves(customer);
+          stripeFirestore.retrieveSubscription = sandbox.stub().resolves({});
+          stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+            .stub()
+            .resolves({});
+          stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
+          await stripeHelper.processWebhookEventToFirestore(event);
+          if (!hasCurrency) {
+            sinon.assert.calledOnceWithExactly(
+              stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+              subscription1.customer
+            );
+          } else {
+            sinon.assert.calledOnceWithExactly(
+              stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
+              subscription1
+            );
+          }
           sinon.assert.calledOnceWithExactly(
-            stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-            subscription1.customer
+            stripeHelper.stripe.subscriptions.retrieve,
+            event.data.object.id
           );
-        } else {
-          sinon.assert.calledOnceWithExactly(
-            stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
-            subscription1
-          );
-        }
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.subscriptions.retrieve,
-          event.data.object.id
-        );
-      });
+        });
+      }
     }
 
     for (const type of [
