@@ -43,13 +43,15 @@ export class EmailBounce extends BaseAuthModel {
   bounceType!: number;
   bounceSubType!: number;
   createdAt!: number;
+  diagnosticCode?: string | null;
 
   static async create({
     email,
     templateName,
     bounceType,
     bounceSubType,
-  }: Pick<EmailBounce, 'email'> & {
+    diagnosticCode,
+  }: Pick<EmailBounce, 'email' | 'diagnosticCode'> & {
     templateName: string;
     bounceType: BounceType;
     bounceSubType: BounceSubType;
@@ -61,7 +63,8 @@ export class EmailBounce extends BaseAuthModel {
         templateName,
         BOUNCE_TYPES[bounceType],
         BOUNCE_SUB_TYPES[bounceSubType],
-        Date.now()
+        Date.now(),
+        diagnosticCode
       );
     } catch (e: any) {
       throw convertError(e);
