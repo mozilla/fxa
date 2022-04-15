@@ -52,6 +52,7 @@ const EMAIL_BOUNCE_COLUMNS = [
   'bounceType',
   'bounceSubType',
   'createdAt',
+  'diagnosticCode',
 ];
 const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
 const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
