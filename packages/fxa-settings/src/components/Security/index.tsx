@@ -33,6 +33,7 @@ export const Security = () => {
             headerValue="••••••••••••••••••"
             route="/settings/change_password"
             prefixDataTestId="password"
+            isLevelWithRefreshButton={true}
           >
             <Localized
               id="security-password-created-date"
