@@ -1524,7 +1524,7 @@ export class StripeHelper {
     }
 
     // By default this has subscriptions expanded.
-    const customer = await this.expandResource<Stripe.Customer>(
+    let customer = await this.expandResource<Stripe.Customer>(
       stripeCustomerId,
       CUSTOMER_RESOURCE
     );
@@ -1532,6 +1532,17 @@ export class StripeHelper {
     if (customer.deleted) {
       await deleteAccountCustomer(uid);
       return;
+    }
+
+    // If the customer has subscriptions and no currency, we must have a stale
+    // customer record. Let's update it.
+    if (customer.subscriptions?.data.length && !customer.currency) {
+      await this.stripeFirestore.fetchAndInsertCustomer(customer.id);
+      // Retrieve the customer again.
+      customer = await this.expandResource<Stripe.Customer>(
+        stripeCustomerId,
+        CUSTOMER_RESOURCE
+      );
     }
 
     // Since the uid is just metadata and it isn't required when creating a new
@@ -3154,18 +3165,18 @@ export class StripeHelper {
     const subscription = await this.stripe.subscriptions.retrieve(
       (event.data.object as Stripe.Subscription).id
     );
-    // For PayPal customers, Stripe fails to send a `customer.updated` webhook
-    // when it automatically updates the `customer.currency` on subscription
-    // creation. Update the cached customer here to ensure `customer.currency`
-    // is not `null`.
-    // Since we can't easily differentiate a PayPal customer from others with
-    // an unexpanded subscription object, we update all customers in Firestore.
-    if (event.type === 'customer.subscription.created') {
+    // Update the customer if our copy of the customer is missing the currency.
+    // This could occur in some edge cases where the subscription is created
+    // before a user paying with paypal has the paypal agreement ID set on the
+    // user.
+    const customer = await this.expandResource(
+      subscription.customer,
+      CUSTOMER_RESOURCE
+    );
+    if (!customer.deleted && !customer.currency) {
       await this.stripeFirestore.fetchAndInsertCustomer(
         subscription.customer as string
       );
-      // This is not the exact same object as returned otherwise, but we don't
-      // specify or make use of the return value currently.
       return subscription;
     }
 
