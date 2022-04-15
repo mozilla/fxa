@@ -72,6 +72,7 @@ export interface EmailBounce {
     bounceType: BounceType;
     bounceSubType: BounceSubType;
     createdAt: number;
+    diagnosticCode: string;
 }
 
 export interface Email {

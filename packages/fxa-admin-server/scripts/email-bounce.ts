@@ -17,6 +17,7 @@ const config = Config.getProperties();
 const argv = yargs.options({
   count: { type: 'number', default: 1 },
   email: { type: 'string' },
+  withDiagnosticCode: { type: 'boolean' },
 }).argv;
 
 async function addBounceToDB() {
@@ -29,7 +30,10 @@ async function addBounceToDB() {
 
   for (let i = 0; i < count; i++) {
     if (argv.email) {
-      bounce = randomEmailBounce(argv.email as string);
+      bounce = randomEmailBounce(
+        argv.email as string,
+        argv.withDiagnosticCode as boolean
+      );
     } else {
       account = randomAccount();
       bounce = randomEmailBounce(account.email);

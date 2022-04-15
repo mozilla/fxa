@@ -36,6 +36,7 @@ type EmailBounce {
   bounceType: BounceType!
   bounceSubType: BounceSubType!
   createdAt: Float!
+  diagnosticCode: String!
 }
 
 enum BounceType {
