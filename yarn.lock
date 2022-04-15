@@ -22393,7 +22393,7 @@ fsevents@~2.1.1:
     react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
-    sass-loader: ^10.0.3
+    sass-loader: ^11.1.1
     serve-static: ^1.14.2
     sinon: 4.5.0
     sinon-chai: ^3.7.0
@@ -22917,7 +22917,7 @@ fsevents@~2.1.1:
     react-transition-group: ^4.4.2
     rimraf: ^3.0.2
     sass: 1.49.7
-    sass-loader: ^10.0.3
+    sass-loader: ^11.1.1
     sinon: ^9.2.3
     tailwindcss: ^1.9.1
     tailwindcss-dir: ^4.0.0
@@ -38653,7 +38653,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^10.0.3, sass-loader@npm:^10.0.5":
+"sass-loader@npm:^10.0.5":
   version: 10.1.1
   resolution: "sass-loader@npm:10.1.1"
   dependencies:
@@ -38675,6 +38675,28 @@ resolve@^2.0.0-next.3:
     sass:
       optional: true
   checksum: dbd4ba06e2a7de50db4588c9e84e38fb458ca4a44e1fccdf6eded728662b6fe0bd556249970876f13b47424e4285f5c6a8953933f83d47fd1448cad5884f84a5
+  languageName: node
+  linkType: hard
+
+"sass-loader@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "sass-loader@npm:11.1.1"
+  dependencies:
+    klona: ^2.0.4
+    neo-async: ^2.6.2
+  peerDependencies:
+    fibers: ">= 3.1.0"
+    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
+    sass: ^1.3.0
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    fibers:
+      optional: true
+    node-sass:
+      optional: true
+    sass:
+      optional: true
+  checksum: e969351003cfb2db09fea9100d6075cd4a188b04596e0c950dbd3b3367635d25f474ce06a15fb2b4e85e29f115ace49eaa3e0d4a1ab1c096f12c598b048b2963
   languageName: node
   linkType: hard
 
