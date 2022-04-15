@@ -20,7 +20,12 @@ export type AccountIsh = Pick<
 >;
 export type BounceIsh = Pick<
   EmailBounce,
-  'bounceSubType' | 'bounceType' | 'createdAt' | 'email' | 'emailTypeId'
+  | 'bounceSubType'
+  | 'bounceType'
+  | 'createdAt'
+  | 'email'
+  | 'emailTypeId'
+  | 'diagnosticCode'
 >;
 
 export const chance = new Chance();
@@ -55,13 +60,17 @@ export function randomEmail(account: AccountIsh, primary = true) {
   };
 }
 
-export function randomEmailBounce(email: string): BounceIsh {
+export function randomEmailBounce(
+  email: string,
+  withDiagnosticCode: boolean = false
+): BounceIsh {
   return {
     bounceSubType: chance.integer({ min: 0, max: 14 }),
     bounceType: chance.integer({ min: 0, max: 3 }),
     createdAt: chance.timestamp(),
     emailTypeId: chance.integer({ min: 1, max: 30 }),
     email,
+    diagnosticCode: withDiagnosticCode ? 'smtp; 550 user unknown' : null,
   };
 }
 
