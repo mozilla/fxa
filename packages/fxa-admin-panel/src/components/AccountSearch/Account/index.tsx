@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import {
@@ -15,6 +14,9 @@ import {
   Location,
   LinkedAccount as LinkedAccountType,
 } from 'fxa-admin-server/src/graphql';
+
+import { AdminPanelFeature } from 'fxa-shared/guards';
+import Guard from '../../Guard';
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
@@ -112,7 +114,6 @@ export const ClearButton = ({
   onCleared: Function;
 }) => {
   const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
-
   const handleClear = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
@@ -126,13 +127,17 @@ export const ClearButton = ({
   };
 
   return (
-    <button
-      data-testid="clear-button"
-      className="bg-red-600 border-0 rounded-md text-base mt-3 mx-0 mb-6 px-4 py-3 text-white transition duration-200 hover:bg-red-700"
-      onClick={handleClear}
-    >
-      Clear all bounces
-    </button>
+    <>
+      <Guard features={[AdminPanelFeature.ClearEmailBounces]}>
+        <button
+          data-testid="clear-button"
+          className="bg-red-600 border-0 rounded-md text-base mt-3 mx-0 mb-6 px-4 py-3 text-white transition duration-200 hover:bg-red-700"
+          onClick={handleClear}
+        >
+          Clear all bounces
+        </button>
+      </Guard>
+    </>
   );
 };
 
@@ -191,44 +196,56 @@ export const DangerZone = ({
 
   return (
     <>
-      <h3 className="mt-0 my-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
-        Danger Zone
-      </h3>
-      <p className="text-base leading-6 mb-4">
-        Please run these commands with caution — some actions are irreversible.
-      </p>
-      <h2 className="text-lg">Email Verification</h2>
-      <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
-        Reset email verification. User needs to re-verify on next login.
-        <br />
-        <button
-          className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
-          type="button"
-          onClick={handleUnverify}
-        >
-          Unverify Email
-        </button>
-        <br />
-        {unverifyMessage}
-      </p>
-      <h2 className="text-lg">Disable Login</h2>
-      <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
-        Stops this account from logging in.
-        <br />
-        {disabledAt ? (
-          <div>
-            Disabled at: {dateFormat(new Date(disabledAt), DATE_FORMAT)}
-          </div>
-        ) : (
+      <Guard
+        features={[
+          AdminPanelFeature.UnVerifyAccounts,
+          AdminPanelFeature.DisableAccounts,
+        ]}
+      >
+        <h3 className="mt-0 my-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
+          Danger Zone
+        </h3>
+        <p className="text-base leading-6 mb-4">
+          Please run these commands with caution — some actions are
+          irreversible.
+        </p>
+      </Guard>
+      <Guard features={[AdminPanelFeature.UnVerifyAccounts]}>
+        <h2 className="text-lg">Email Verification</h2>
+        <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
+          Reset email verification. User needs to re-verify on next login.
+          <br />
           <button
             className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
             type="button"
-            onClick={handleDisable}
+            onClick={handleUnverify}
           >
-            Disable
+            Unverify Email
           </button>
-        )}
-      </p>
+          <br />
+          {unverifyMessage}
+        </p>
+      </Guard>
+      <Guard features={[AdminPanelFeature.DisableAccounts]}>
+        <h2 className="text-lg">Disable Login</h2>
+        <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
+          Stops this account from logging in.
+          <br />
+          {disabledAt ? (
+            <div>
+              Disabled at: {dateFormat(new Date(disabledAt), DATE_FORMAT)}
+            </div>
+          ) : (
+            <button
+              className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+              type="button"
+              onClick={handleDisable}
+            >
+              Disable
+            </button>
+          )}
+        </p>
+      </Guard>
     </>
   );
 };
@@ -395,30 +412,32 @@ export const Account = ({
           </li>
         )}
 
-        <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">Connected Services</h3>
-        </li>
-        {attachedClients && attachedClients.length > 0 ? (
-          <>
-            {attachedClients.map((attachedClient: AttachedClientType) => (
-              <AttachedClients
-                key={`${attachedClient.name}-${
-                  attachedClient.sessionTokenId ||
-                  attachedClient.refreshTokenId ||
-                  attachedClient.clientId ||
-                  'unkonwn'
-                }-${attachedClient.createdTime}`}
-                {...attachedClient}
-              />
-            ))}
-          </>
-        ) : (
-          <li
-            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
-          >
-            This account has nothing attached.
+        <Guard features={[AdminPanelFeature.ConnectedServices]}>
+          <li className={styleClasses.li}>
+            <h3 className="mt-0 my-0 mb-1 text-lg">Connected Services</h3>
           </li>
-        )}
+          {attachedClients && attachedClients.length > 0 ? (
+            <>
+              {attachedClients.map((attachedClient: AttachedClientType) => (
+                <AttachedClients
+                  key={`${attachedClient.name}-${
+                    attachedClient.sessionTokenId ||
+                    attachedClient.refreshTokenId ||
+                    attachedClient.clientId ||
+                    'unknown'
+                  }-${attachedClient.createdTime}`}
+                  {...attachedClient}
+                />
+              ))}
+            </>
+          ) : (
+            <li
+              className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+            >
+              This account has nothing attached.
+            </li>
+          )}
+        </Guard>
       </ul>
       <hr className="border-grey-50 mb-4" />
       <h3 className="mt-0 my-0 mb-1 text-lg">Account History</h3>
@@ -721,7 +740,7 @@ const ResultListItem = ({
     <li className={styleClasses.li}>
       {label}:{' '}
       <span data-testid={testId} className={styleClasses.result}>
-        {value ? value : <i>Unkown</i>}
+        {value ? value : <i>Unknown</i>}
       </span>
     </li>
   );
@@ -745,9 +764,9 @@ const format = {
     return (
       <>
         {[
-          location.city || <i>Unkown City</i>,
+          location.city || <i>Unknown City</i>,
           location.state || location.stateCode || '',
-          location.country || location.country || <i>Unkown Country</i>,
+          location.country || location.country || <i>Unknown Country</i>,
         ].join(', ')}
       </>
     );

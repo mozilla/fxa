@@ -4,29 +4,36 @@
 
 import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
-import { IUserInfo } from '../../../interfaces';
+import { IClientConfig } from '../../../interfaces';
 import { Permissions } from './index';
+import { AdminPanelGroup, guard, PermissionLevel } from 'fxa-shared/guards';
+import { mockConfigBuilder } from '../../lib/config';
 
-const testUser: IUserInfo = {
-  email: 'test@mozilla.com',
-  group: 'vpn_fxa_admin_panel_prod',
-  permissions: {
-    p1: {
-      name: 'Feature 1',
-      enabled: true,
-    },
-    p2: {
-      name: 'Feature 2',
-      enabled: false,
+export const mockConfig: IClientConfig = mockConfigBuilder({
+  user: {
+    email: 'test@mozilla.com',
+    group: {
+      name: AdminPanelGroup.SupportAgentProd,
+      level: PermissionLevel.Support,
     },
   },
-};
+});
 
-describe('rendered', () => {
+jest.mock('../../hooks/UserContext.ts', () => ({
+  useUserContext: () => {
+    const ctx = {
+      user: mockConfig.user,
+      setUser: () => {},
+    };
+    return ctx;
+  },
+}));
+
+describe('Permissions', () => {
   let renderResult: RenderResult;
 
   beforeEach(() => {
-    renderResult = render(<Permissions {...{ user: testUser }} />);
+    renderResult = render(<Permissions />);
   });
 
   function getByTestId(id: string) {
@@ -35,27 +42,41 @@ describe('rendered', () => {
 
   it('has user email', () => {
     expect(getByTestId('permissions-user-email-val').textContent).toEqual(
-      testUser.email
+      mockConfig.user.email
     );
   });
 
   it('has user group', () => {
     expect(getByTestId('permissions-user-group-val').textContent).toEqual(
-      testUser.group
+      mockConfig.user.group.name
     );
   });
 
   it('has enabled feature', () => {
-    expect(getByTestId('permissions-row-p1-label').textContent).toEqual(
-      testUser.permissions.p1.name
-    );
-    expect(getByTestId('permissions-row-p1-val').textContent).toEqual('✓');
+    const enabledFeature = guard
+      .getFeatureFlags(mockConfig.user.group)
+      .find((x) => x.enabled);
+
+    expect(enabledFeature).toBeDefined();
+    expect(
+      getByTestId(`permissions-row-${enabledFeature?.id}-label`).textContent
+    ).toEqual(enabledFeature?.name);
+    expect(
+      getByTestId(`permissions-row-${enabledFeature?.id}-val`).textContent
+    ).toEqual('✓');
   });
 
   it('has disabled feature', () => {
-    expect(getByTestId('permissions-row-p2-label').textContent).toEqual(
-      testUser.permissions.p2.name
-    );
-    expect(getByTestId('permissions-row-p2-val').textContent).toEqual('x');
+    const disabledFeature = guard
+      .getFeatureFlags(mockConfig.user.group)
+      .find((x) => !x.enabled);
+
+    expect(disabledFeature).toBeDefined();
+    expect(
+      getByTestId(`permissions-row-${disabledFeature?.id}-label`).textContent
+    ).toEqual(disabledFeature?.name);
+    expect(
+      getByTestId(`permissions-row-${disabledFeature?.id}-val`).textContent
+    ).toEqual('x');
   });
 });

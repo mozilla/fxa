@@ -6,7 +6,6 @@ describe('config', () => {
     expect(config.user).toBeDefined();
     expect(config.user.email).toBeDefined();
     expect(config.user.group).toBeDefined();
-    expect(config.user.permissions).toBeDefined();
     expect(config.servers).toBeDefined();
     expect(config.servers.admin).toBeDefined();
     expect(config.servers.admin.url).toBeDefined();

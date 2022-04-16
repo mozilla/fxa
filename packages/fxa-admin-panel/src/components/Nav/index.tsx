@@ -7,6 +7,8 @@ import { NavLink } from 'react-router-dom';
 import mailIcon from '../../images/icon-mail.svg';
 import statusIcon from '../../images/icon-site-status.svg';
 import logsIcon from '../../images/icon-logs.svg';
+import { AdminPanelFeature } from 'fxa-shared/guards';
+import Guard from '../Guard';
 
 export const Nav = () => (
   <nav className="mb-4 desktop:mr-5 desktop:flex-1 desktop:mb-0">
@@ -15,57 +17,63 @@ export const Nav = () => (
         Navigation
       </h2>
       <ul className="list-none p-0 m-0 text-sm">
-        <li>
-          <NavLink
-            to="/account-search"
-            className={({ isActive }) =>
-              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
-                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
-              }`
-            }
-          >
-            <img
-              className="inline-flex mr-2 w-4"
-              src={mailIcon}
-              alt="mail icon"
-            />
-            Account Search
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/site-status"
-            className={({ isActive }) =>
-              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
-                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
-              }`
-            }
-          >
-            <img
-              className="inline-flex mr-2 w-4"
-              src={statusIcon}
-              alt="status icon"
-            />
-            Site Status
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/admin-logs"
-            className={({ isActive }) =>
-              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
-                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
-              }`
-            }
-          >
-            <img
-              className="inline-flex mr-2 w-4"
-              src={logsIcon}
-              alt="logs icon"
-            />
-            Admin Logs
-          </NavLink>
-        </li>
+        <Guard features={[AdminPanelFeature.AccountSearch]}>
+          <li>
+            <NavLink
+              to="/account-search"
+              className={({ isActive }) =>
+                `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                  isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+                }`
+              }
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={mailIcon}
+                alt="mail icon"
+              />
+              Account Search
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.SiteStatus]}>
+          <li>
+            <NavLink
+              to="/site-status"
+              className={({ isActive }) =>
+                `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                  isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+                }`
+              }
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={statusIcon}
+                alt="status icon"
+              />
+              Site Status
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.AccountLogs]}>
+          <li>
+            <NavLink
+              to="/admin-logs"
+              className={({ isActive }) =>
+                `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                  isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+                }`
+              }
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={logsIcon}
+                alt="logs icon"
+              />
+              Admin Logs
+            </NavLink>
+          </li>
+        </Guard>
         <li>
           <NavLink
             to="/permissions"

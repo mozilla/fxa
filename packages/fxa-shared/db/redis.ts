@@ -28,7 +28,7 @@ interface ICustomRedisCache {
   touchSessionToken(uid: string, token: any): Promise<any>;
 }
 
-// Type gaurd for ICustomRedisCache
+// Type guard for ICustomRedisCache
 function isCustomRedisCache(
   redis: any
 ): redis is Redis.Redis & ICustomRedisCache {

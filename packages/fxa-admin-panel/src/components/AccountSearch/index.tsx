@@ -131,13 +131,7 @@ export const AccountSearch = () => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(event.target.value);
-    setShowSuggestion(true);
-    onTextChanged(event);
-  };
-
-  let filteredList: string[] = [];
+  const filteredList: string[] = [];
   if (returnedEmails != null && showSuggestion) {
     for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
       filteredList[i] = returnedEmails.getEmailsLike[i].email;
@@ -157,6 +151,17 @@ export const AccountSearch = () => {
     }
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(event.target.value);
+    setShowSuggestion(true);
+    onTextChanged(event);
+  };
+
+  const suggestionSelected = (value: string) => {
+    setSearchInput(value);
+    setShowSuggestion(false);
+  };
+
   const renderSuggestions = () => {
     return filteredList.map((item) => (
       <a
@@ -171,11 +176,6 @@ export const AccountSearch = () => {
         {item}
       </a>
     ));
-  };
-
-  const suggestionSelected = (value: string) => {
-    setSearchInput(value);
-    setShowSuggestion(false);
   };
 
   return (

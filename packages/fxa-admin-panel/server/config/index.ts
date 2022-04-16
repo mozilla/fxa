@@ -5,7 +5,6 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
-import { JSDOM } from 'jsdom';
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));

@@ -5,21 +5,18 @@
 import { ClientConfig } from '.';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../../constants';
 import { JSDOM } from 'jsdom';
+import { AdminPanelGroup, PermissionLevel } from 'fxa-shared/guards';
+import { IUserInfo } from '../../../interfaces';
 
 describe('ClientConfig', () => {
-  it('provides default config', () => {
-    const config = ClientConfig.defaultConfig;
-    expect(config).toBeDefined();
-  });
-
-  it('injects into html', () => {
+  function configCheck(remoteHeader: string, user: IUserInfo) {
     const html = `<head><meta name="fxa-config" content="${SERVER_CONFIG_PLACEHOLDER}"/></meta></head>`;
     const expectedConfig = Object.assign({}, ClientConfig.defaultConfig, {
-      user: { email: 'bar', group: 'foo', permissions: {} },
+      user,
     });
     const injectedHtml = ClientConfig.injectIntoHtml(html, {
-      'REMOTE-GROUP': expectedConfig.user.group,
-      'oidc-claim-id-token-email': expectedConfig.user.email,
+      'REMOTE-GROUP': remoteHeader,
+      'oidc-claim-id-token-email': user.email,
     });
 
     const injectedVal = JSDOM.fragment(injectedHtml)
@@ -31,5 +28,40 @@ describe('ClientConfig', () => {
     expect(JSON.parse(decodeURIComponent(injectedVal || ''))).toEqual(
       expectedConfig
     );
+  }
+
+  it('provides default config', () => {
+    const config = ClientConfig.defaultConfig;
+    expect(config).toBeDefined();
+  });
+
+  it('injects admin user config into html', () => {
+    configCheck(AdminPanelGroup.AdminProd, {
+      email: 'hello@mozilla.com',
+      group: {
+        name: 'Admin',
+        level: PermissionLevel.Admin,
+      },
+    });
+  });
+
+  it('injects support agent user config into html', () => {
+    configCheck(AdminPanelGroup.SupportAgentProd, {
+      email: 'hello@mozilla.com',
+      group: {
+        name: 'Support',
+        level: PermissionLevel.Support,
+      },
+    });
+  });
+
+  it('injects unknown user config into html', () => {
+    configCheck(AdminPanelGroup.None, {
+      email: 'hello@mozilla.com',
+      group: {
+        name: 'Unknown',
+        level: PermissionLevel.None,
+      },
+    });
   });
 });

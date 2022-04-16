@@ -241,7 +241,7 @@ export class AccountResolver {
 
             // Require id is defined
             if (!x.id) {
-              x.id = 'Unkown';
+              x.id = 'Unknown';
             }
 
             return token as AttachedSession;
