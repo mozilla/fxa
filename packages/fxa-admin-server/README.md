@@ -36,6 +36,8 @@ Use the `--email` flag to create a bounce for an existing account.
 
 Use the `--count` flag to create X number of bounces in a single command.
 
+Use the `--hasDiagnosticCode` flag to create a bounce with a diagnostic code (otherwise null).
+
 Example: `yarn email-bounce --email test@example.com --count 3`
 
 ## Testing
