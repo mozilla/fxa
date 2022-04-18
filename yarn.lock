@@ -16873,16 +16873,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict@npm:^6.2.2":
-  version: 6.2.2
-  resolution: "convict@npm:6.2.2"
-  dependencies:
-    lodash.clonedeep: ^4.5.0
-    yargs-parser: ^20.2.7
-  checksum: 8f965caa1e90f4ecd35ecf8861d8acb78c6a4a63ef81e79da633e757fde6f2ce0167b72c4864dd4c8e718881f72c1461bdfe1687b3fb9299590b0f10e3e62bc4
-  languageName: node
-  linkType: hard
-
 "cookie-parser@npm:1.4.6":
   version: 1.4.6
   resolution: "cookie-parser@npm:1.4.6"
