@@ -72,7 +72,7 @@ export interface EmailBounce {
     bounceType: BounceType;
     bounceSubType: BounceSubType;
     createdAt: number;
-    diagnosticCode: string;
+    diagnosticCode?: Nullable<string>;
 }
 
 export interface Email {
