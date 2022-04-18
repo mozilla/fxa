@@ -29,7 +29,10 @@ async function addBounceToDB() {
 
   for (let i = 0; i < count; i++) {
     if (argv.email) {
-      bounce = randomEmailBounce(argv.email as string);
+      bounce = randomEmailBounce(
+        argv.email as string,
+        argv.withDiagnosticCode as boolean
+      );
     } else {
       account = randomAccount();
       bounce = randomEmailBounce(account.email);

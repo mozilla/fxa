@@ -24,6 +24,7 @@ const ACCOUNT_SCHEMA = `
     createdAt
     bounceType
     bounceSubType
+    diagnosticCode
   }
   securityEvents {
     uid

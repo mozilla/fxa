@@ -60,14 +60,17 @@ export function randomEmail(account: AccountIsh, primary = true) {
   };
 }
 
-export function randomEmailBounce(email: string): BounceIsh {
+export function randomEmailBounce(
+  email: string,
+  withDiagnosticCode: boolean = false
+): BounceIsh {
   return {
     bounceSubType: chance.integer({ min: 0, max: 14 }),
     bounceType: chance.integer({ min: 0, max: 3 }),
     createdAt: chance.timestamp(),
     emailTypeId: chance.integer({ min: 1, max: 30 }),
     email,
-    diagnosticCode: chance.pickone(['smtp; 550 user unknown']),
+    diagnosticCode: withDiagnosticCode ? 'smtp; 550 user unknown' : undefined,
   };
 }
 

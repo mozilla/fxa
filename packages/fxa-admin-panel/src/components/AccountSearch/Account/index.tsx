@@ -511,6 +511,7 @@ const EmailBounce = ({
   createdAt,
   bounceType,
   bounceSubType,
+  diagnosticCode,
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
@@ -533,6 +534,12 @@ const EmailBounce = ({
           bounce subtype:{' '}
           <span className={styleClasses.result}>{bounceSubType}</span>
         </li>
+        {diagnosticCode && (
+          <li className={styleClasses.li}>
+            diagnostic code:{' '}
+            <span className={styleClasses.result}>{diagnosticCode}</span>
+          </li>
+        )}
       </ul>
     </li>
   );
