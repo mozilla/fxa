@@ -3619,16 +3619,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@googlemaps/google-maps-services-js@npm:^3.3.10":
-  version: 3.3.10
-  resolution: "@googlemaps/google-maps-services-js@npm:3.3.10"
+"@googlemaps/google-maps-services-js@npm:^3.3.12":
+  version: 3.3.12
+  resolution: "@googlemaps/google-maps-services-js@npm:3.3.12"
   dependencies:
     "@googlemaps/url-signature": ^1.0.4
     agentkeepalive: ^4.1.0
     axios: ^0.26.0
     query-string: ^7.0.1
     retry-axios: ^2.2.1
-  checksum: 0e4a646378520fcf38f432e33c6fb5ffd71f9215a164db254de57276b8ccf57e261333af1f815dad174b892595099538128d16fba905e795c911c64043266899
+  checksum: b3038974cb485a227bd7e5396b889359052deefd5a2d8d17a281b5612de640984ed4be03f0ac7a3938c504274053daaf64682ea9bd32ea7e48e787b3c16d03e9
   languageName: node
   linkType: hard
 
@@ -16873,6 +16873,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"convict@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "convict@npm:6.2.2"
+  dependencies:
+    lodash.clonedeep: ^4.5.0
+    yargs-parser: ^20.2.7
+  checksum: 8f965caa1e90f4ecd35ecf8861d8acb78c6a4a63ef81e79da633e757fde6f2ce0167b72c4864dd4c8e718881f72c1461bdfe1687b3fb9299590b0f10e3e62bc4
+  languageName: node
+  linkType: hard
+
 "cookie-parser@npm:1.4.6":
   version: 1.4.6
   resolution: "cookie-parser@npm:1.4.6"
@@ -22105,7 +22115,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.1
     "@google-cloud/bigquery": ^5.12.0
     "@google-cloud/firestore": ^5.0.2
-    "@googlemaps/google-maps-services-js": ^3.3.10
+    "@googlemaps/google-maps-services-js": ^3.3.12
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
