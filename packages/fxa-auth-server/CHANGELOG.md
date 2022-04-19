@@ -1,3 +1,9 @@
+## 1.230.4
+
+### Other changes
+
+- f4414856a2 Revert "Merge pull request #12403 from mozilla/fxa-4698-paypal-lock" ([f4414856a2](https://github.com/mozilla/fxa/commit/f4414856a2))
+
 ## 1.230.3
 
 ### Other changes
