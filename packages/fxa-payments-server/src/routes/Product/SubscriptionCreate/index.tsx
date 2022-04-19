@@ -185,6 +185,7 @@ export const SubscriptionCreate = ({
           await apiCapturePaypalPayment({
             idempotencyKey,
             priceId,
+            productId: selectedPlan.product_id,
           });
           refreshSubscriptions();
         } catch (error) {
@@ -193,7 +194,7 @@ export const SubscriptionCreate = ({
         setInProgress(false);
         refreshSubmitNonce();
       },
-      [setInProgress, refreshSubmitNonce, refreshSubscriptions]
+      [setInProgress, refreshSubmitNonce, refreshSubscriptions, selectedPlan]
     );
 
   const onSubmit = getPaymentProviderMappedVal<
@@ -253,11 +254,10 @@ export const SubscriptionCreate = ({
                         <PaypalButton
                           disabled={!checkboxSet}
                           apiClientOverrides={apiClientOverrides}
-                          currencyCode={selectedPlan.currency}
                           customer={customer}
                           idempotencyKey={submitNonce}
                           refreshSubmitNonce={refreshSubmitNonce}
-                          priceId={selectedPlan.plan_id}
+                          selectedPlan={selectedPlan}
                           newPaypalAgreement={true}
                           postSubscriptionAttemptPaypalCallback={
                             refreshSubscriptions

@@ -8,11 +8,10 @@ import { CUSTOMER, PLAN } from '../../lib/mock-data';
 
 const Subject = ({
   disabled = false,
-  currencyCode = 'USD',
   customer = CUSTOMER,
   idempotencyKey = '',
   refreshSubmitNonce = () => {},
-  priceId = PLAN.plan_id,
+  selectedPlan = PLAN,
   newPaypalAgreement = false,
   postSubscriptionAttemptPaypalCallback = () => {},
   setSubscriptionError = () => {},
@@ -21,11 +20,10 @@ const Subject = ({
 }: PickPartial<
   PaypalButtonProps,
   | 'disabled'
-  | 'currencyCode'
   | 'customer'
   | 'idempotencyKey'
   | 'refreshSubmitNonce'
-  | 'priceId'
+  | 'selectedPlan'
   | 'newPaypalAgreement'
   | 'postSubscriptionAttemptPaypalCallback'
   | 'setSubscriptionError'
@@ -35,11 +33,10 @@ const Subject = ({
     <PaypalButton
       {...{
         disabled,
-        currencyCode,
         customer,
         idempotencyKey,
         refreshSubmitNonce,
-        priceId,
+        selectedPlan,
         newPaypalAgreement,
         postSubscriptionAttemptPaypalCallback,
         setSubscriptionError,

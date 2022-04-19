@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import * as apiClient from '../../lib/apiClient';
-import { Customer } from '../../store/types';
+import { Customer, Plan } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
 import classNames from 'classnames';
@@ -19,7 +19,6 @@ declare var paypal: {
 };
 
 export type PaypalButtonProps = {
-  currencyCode: string;
   customer: Customer | null;
   disabled: boolean;
   idempotencyKey: string;
@@ -27,7 +26,7 @@ export type PaypalButtonProps = {
   postSubscriptionAttemptPaypalCallback: (() => void) | (() => Promise<void>);
   beforeCreateOrder?: () => Promise<void>;
   setSubscriptionError: Function;
-  priceId?: string;
+  selectedPlan: Plan;
   newPaypalAgreement?: boolean;
   apiClientOverrides?: Partial<
     SubscriptionCreateAuthServerAPIs | PaymentUpdateAuthServerAPIs
@@ -56,7 +55,6 @@ export const PaypalButtonBase =
     : null;
 
 export const PaypalButton = ({
-  currencyCode,
   customer,
   disabled,
   idempotencyKey,
@@ -64,13 +62,19 @@ export const PaypalButton = ({
   postSubscriptionAttemptPaypalCallback,
   beforeCreateOrder,
   setSubscriptionError,
-  priceId,
+  selectedPlan,
   newPaypalAgreement,
   apiClientOverrides,
   setTransactionInProgress,
   ButtonBase = PaypalButtonBase,
   promotionCode,
 }: PaypalButtonProps) => {
+  const {
+    currency: currencyCode,
+    plan_id: priceId,
+    product_id: productId,
+  } = selectedPlan;
+
   const createOrder = useCallback(async () => {
     try {
       if (beforeCreateOrder) {
@@ -125,6 +129,7 @@ export const PaypalButton = ({
             idempotencyKey,
             // @ts-ignore Doesn't like that the existence check for priceId is stored in isNewSubscription
             priceId,
+            productId,
             token,
             promotionCode,
           });
@@ -152,9 +157,9 @@ export const PaypalButton = ({
       customer,
       idempotencyKey,
       newPaypalAgreement,
-      priceId,
       refreshSubmitNonce,
       postSubscriptionAttemptPaypalCallback,
+      selectedPlan,
       setSubscriptionError,
       setTransactionInProgress,
       promotionCode,

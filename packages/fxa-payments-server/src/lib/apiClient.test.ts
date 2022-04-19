@@ -662,10 +662,12 @@ describe('API requests', () => {
     const params = {
       idempotencyKey: 'idk-8675309',
       priceId: 'price_12345',
+      productId: 'product_2a',
       ...MOCK_CHECKOUT_TOKEN,
     };
     const metricsOptions = {
       planId: params.priceId,
+      productId: params.productId,
       paymentProvider: 'paypal',
     };
 

@@ -13,11 +13,10 @@ const defaultApiClientOverrides = {
 const Subject = ({
   disabled = false,
   apiClientOverrides = defaultApiClientOverrides,
-  currencyCode = 'USD',
   customer = CUSTOMER,
   idempotencyKey = '',
   refreshSubmitNonce = () => {},
-  priceId = PLAN.plan_id,
+  selectedPlan = PLAN,
   newPaypalAgreement = false,
   postSubscriptionAttemptPaypalCallback = linkTo('routes/Product', 'success'),
   setSubscriptionError = () => {},
@@ -26,11 +25,10 @@ const Subject = ({
 }: PickPartial<
   PaypalButtonProps,
   | 'disabled'
-  | 'currencyCode'
   | 'customer'
   | 'idempotencyKey'
   | 'refreshSubmitNonce'
-  | 'priceId'
+  | 'selectedPlan'
   | 'newPaypalAgreement'
   | 'postSubscriptionAttemptPaypalCallback'
   | 'setSubscriptionError'
@@ -41,11 +39,10 @@ const Subject = ({
       {...{
         disabled,
         apiClientOverrides,
-        currencyCode,
         customer,
         idempotencyKey,
         refreshSubmitNonce,
-        priceId,
+        selectedPlan,
         newPaypalAgreement,
         postSubscriptionAttemptPaypalCallback,
         setSubscriptionError,
