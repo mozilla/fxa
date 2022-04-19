@@ -756,8 +756,7 @@ export class StripeHelper {
     // Is the coupon valid for this price?
     const planContainsPromo = await this.checkPromotionCodeForPlan(
       code,
-      priceId,
-      promotionCode.coupon
+      priceId
     );
     if (!planContainsPromo) {
       return;
@@ -817,7 +816,10 @@ export class StripeHelper {
    * - Expired
    * - Maximally redeemed
    */
-  verifyPromotionAndCoupon(promotionCode: Stripe.PromotionCode) {
+  async verifyPromotionAndCoupon(
+    priceId: string,
+    promotionCode: Stripe.PromotionCode
+  ) {
     const { coupon } = promotionCode;
 
     const verifyCoupon = this.checkPromotionAndCouponProperties(coupon);
@@ -827,8 +829,14 @@ export class StripeHelper {
       redeem_by: promotionCode.expires_at,
     });
 
+    const valid = await this.validateCouponDurationForPlan(
+      priceId,
+      promotionCode.code,
+      coupon
+    );
+
     return {
-      valid: verifyCoupon.valid && verifyPromotionCode.valid,
+      valid: verifyCoupon.valid && verifyPromotionCode.valid && valid,
       expired: verifyCoupon.expired || verifyPromotionCode.expired,
       maximallyRedeemed:
         verifyCoupon.maximallyRedeemed || verifyPromotionCode.maximallyRedeemed,
@@ -840,18 +848,22 @@ export class StripeHelper {
    * Currently checking if the coupon duration is applied for the entire
    * plan interval.
    */
-  validateCouponDurationForPlan(
-    promotionCode: string,
-    couponDuration: string,
-    couponDurationInMonths: number | null,
+  async validateCouponDurationForPlan(
     priceId: string,
-    priceInterval: string,
-    priceIntervalCount: number
+    promotionCode: string,
+    coupon: Stripe.Coupon
   ) {
+    const {
+      duration: couponDuration,
+      duration_in_months: couponDurationInMonths,
+    } = coupon;
     // If the coupon duration is repeating, check if the duration months will be
     // applied for a whole plan interval. Currently we do not want to support
     // coupons being applied for part of the plan interval.
     if (couponDuration === 'repeating') {
+      const { interval: priceInterval, interval_count: priceIntervalCount } =
+        await this.findPlanById(priceId);
+
       // Currently we only support coupons for year and month plan intervals.
       if (['month', 'year'].includes(priceInterval) && couponDurationInMonths) {
         const multiplier = priceInterval === 'year' ? 12 : 1;
@@ -917,8 +929,10 @@ export class StripeHelper {
         expired: false,
       };
 
-      const verifiedPromotionAndCoupon =
-        this.verifyPromotionAndCoupon(stripePromotionCode);
+      const verifiedPromotionAndCoupon = await this.verifyPromotionAndCoupon(
+        priceId,
+        stripePromotionCode
+      );
 
       if (verifiedPromotionAndCoupon.valid) {
         try {
@@ -978,10 +992,9 @@ export class StripeHelper {
 
     const planContainsPromo = await this.checkPromotionCodeForPlan(
       code,
-      priceId,
-      promotionCode.coupon
+      priceId
     );
-    console.log({ planContainsPromo });
+
     if (!planContainsPromo) {
       return;
     }
@@ -994,8 +1007,7 @@ export class StripeHelper {
    */
   async checkPromotionCodeForPlan(
     code: string,
-    priceId: string,
-    coupon: Stripe.Coupon
+    priceId: string
   ): Promise<boolean> {
     const price = await this.findPlanById(priceId);
     const validPromotionCodes: string[] = [];
@@ -1020,16 +1032,7 @@ export class StripeHelper {
       );
     }
 
-    const valid = await this.validateCouponDurationForPlan(
-      code,
-      coupon.duration,
-      coupon.duration_in_months,
-      price.plan_id,
-      price.interval,
-      price.interval_count
-    );
-
-    return validPromotionCodes.includes(code) && valid;
+    return validPromotionCodes.includes(code);
   }
 
   /**
