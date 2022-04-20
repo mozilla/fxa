@@ -153,6 +153,12 @@ const conf = convict({
       },
     },
   },
+  ipHmacKey: {
+    doc: 'A secret to hash IP addresses for security history events',
+    format: String,
+    default: 'changeme',
+    env: 'IP_HMAC_KEY',
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

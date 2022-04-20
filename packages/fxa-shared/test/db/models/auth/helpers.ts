@@ -70,7 +70,7 @@ export function randomEmailBounce(
     createdAt: chance.timestamp(),
     emailTypeId: chance.integer({ min: 1, max: 30 }),
     email,
-    diagnosticCode: withDiagnosticCode ? 'smtp; 550 user unknown' : null,
+    diagnosticCode: withDiagnosticCode ? 'smtp; 550 user unknown' : '',
   };
 }
 

@@ -12,6 +12,7 @@ const EVENT_NAMES = {
   'account.create': 1,
   'account.login': 2,
   'account.reset': 3,
+  'emails.clearBounces': 4,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
@@ -58,8 +59,10 @@ export class SecurityEvent extends BaseAuthModel {
   }) {
     const id = uuidTransformer.to(uid);
     const ipAddrHmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
+    let result;
+
     try {
-      await SecurityEvent.callProcedure(
+      result = await this.callProcedure(
         Proc.CreateSecurityEvent,
         id,
         tokenId ? uuidTransformer.to(tokenId) : null,
@@ -71,11 +74,13 @@ export class SecurityEvent extends BaseAuthModel {
       console.error(e);
       throw convertError(e);
     }
+
+    return !!result;
   }
 
   static async delete(uid: string) {
     try {
-      await SecurityEvent.callProcedure(
+      await this.callProcedure(
         Proc.DeleteSecurityEvents,
         uuidTransformer.to(uid)
       );
@@ -87,7 +92,7 @@ export class SecurityEvent extends BaseAuthModel {
 
   static async findByUid(uid: string) {
     const id = uuidTransformer.to(uid);
-    return SecurityEvent.query()
+    return this.query()
       .select(
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
