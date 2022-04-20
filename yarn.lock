@@ -22549,7 +22549,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     restify-clients: ^3.1.0
     sinon: ^9.0.3
-    tap: ^16.0.0
+    tap: ^16.0.1
     walk: ^2.3.15
   languageName: unknown
   linkType: soft
@@ -41161,9 +41161,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tap@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "tap@npm:16.0.0"
+"tap@npm:^16.0.1":
+  version: 16.0.1
+  resolution: "tap@npm:16.0.1"
   dependencies:
     "@isaacs/import-jsx": "*"
     "@types/react": "*"
@@ -41207,7 +41207,7 @@ resolve@^2.0.0-next.3:
       optional: true
   bin:
     tap: bin/run.js
-  checksum: d9cee19a2407c95c8f88ed76e9db4984bc27c455ba817fce1baf24c614ef42b10eedb804e2a18eb73f3b4ae1af051d83132a16ea27335e9d8f9355f3fb73134a
+  checksum: 5fa346dbe1b8d810c533661c705b546437bcb3b98cb8961aa02d3d001f4cee6af45dde1f15ac273ff3e930161abcb15b3cfc4833f475532b901e5875f356b000
   languageName: node
   linkType: hard
 
