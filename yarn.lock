@@ -22218,7 +22218,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^7.11.0
     googleapis: ^100.0.0
-    grunt: ^1.4.1
+    grunt: ^1.5.2
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-copy: 1.0.0
@@ -22375,7 +22375,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     got: 11.8.3
-    grunt: ^1.4.1
+    grunt: ^1.5.2
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
@@ -22494,7 +22494,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    grunt: ^1.4.1
+    grunt: ^1.5.2
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
@@ -24234,7 +24234,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-cli@npm:^1.4.3, grunt-cli@npm:~1.4.2":
+"grunt-cli@npm:^1.4.3, grunt-cli@npm:~1.4.3":
   version: 1.4.3
   resolution: "grunt-cli@npm:1.4.3"
   dependencies:
@@ -24496,16 +24496,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "grunt@npm:1.4.1"
+"grunt@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "grunt@npm:1.5.2"
   dependencies:
     dateformat: ~3.0.3
     eventemitter2: ~0.4.13
     exit: ~0.1.2
     findup-sync: ~0.3.0
     glob: ~7.1.6
-    grunt-cli: ~1.4.2
+    grunt-cli: ~1.4.3
     grunt-known-options: ~2.0.0
     grunt-legacy-log: ~3.0.0
     grunt-legacy-util: ~2.0.1
@@ -24517,7 +24517,7 @@ fsevents@~2.1.1:
     rimraf: ~3.0.2
   bin:
     grunt: bin/grunt
-  checksum: 0051fa0ea3bdfe7d133870cb4ec89d9b74bca16c5c8097558f73a2df77222459d89423d5b7516abd996dbd1b5d3537ada079dfa2a57274c4bfb6302ec2e4a897
+  checksum: 2cc69715f9ce9de0562457d224a8dd0a2aa2e870d7bd59c7f472a380c53e51fad1f83c0d771175f84a38d3a61f271924d18391cef35b883890e290da3f848091
   languageName: node
   linkType: hard
 
