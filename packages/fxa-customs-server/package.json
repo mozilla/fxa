@@ -46,7 +46,7 @@
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
-    "grunt": "^1.4.1",
+    "grunt": "^1.5.2",
     "grunt-cli": "^1.4.3",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "^23.0.0",
