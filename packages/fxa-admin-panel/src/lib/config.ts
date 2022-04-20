@@ -1,24 +1,35 @@
 // This configuration is a subset of the configuration declared in server/config/index.ts
 
+import { PermissionLevel } from 'fxa-shared/guards';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../constants';
 import { IClientConfig } from '../../interfaces';
 
 export const config: IClientConfig = defaultConfig();
 
+export function defaultUser() {
+  return {
+    email: 'hello@mozilla.com',
+    group: {
+      name: 'Unknown',
+      level: PermissionLevel.None,
+    },
+  };
+}
+
 export function defaultConfig(): IClientConfig {
   return {
     env: 'development',
-    user: {
-      email: '',
-      group: '',
-      permissions: {},
-    },
+    user: defaultUser(),
     servers: {
       admin: {
         url: '',
       },
     },
   };
+}
+
+export function mockConfigBuilder(overrides: Partial<IClientConfig>) {
+  return Object.assign({}, defaultConfig(), overrides);
 }
 
 export function getExtraHeaders(config: IClientConfig) {
@@ -30,7 +41,7 @@ export function getExtraHeaders(config: IClientConfig) {
     }
 
     if (config.user.group) {
-      headers['REMOTE-GROUP'] = config.user.group;
+      headers['REMOTE-GROUP'] = config.user.group.name;
     }
   }
   return headers;

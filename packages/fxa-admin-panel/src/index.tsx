@@ -30,7 +30,7 @@ const client = new ApolloClient({
 
 ReactDOM.render(
   <ApolloProvider {...{ client }}>
-    <App {...{ user: config.user }} />
+    <App {...{ config }} />
   </ApolloProvider>,
   document.getElementById('root')
 );

@@ -179,7 +179,7 @@ describe('Redis', () => {
       assert.isEmpty(tokens);
     });
 
-    it('does nothing for unkown token ids', async () => {
+    it('does nothing for unknown token ids', async () => {
       await redis.pruneSessionTokens(uid, ['x', 'y']);
       const tokens = await redis.getSessionTokens(uid);
       assert.deepEqual(Object.keys(tokens), [sessionToken.id, 'token2']);

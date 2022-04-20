@@ -5,7 +5,6 @@
 import config from '../../config';
 import {
   IClientConfig,
-  IUserInfo,
   IncomingAdminPanelHttpHeaders,
 } from '../../../interfaces';
 import {
@@ -13,14 +12,14 @@ import {
   USER_GROUP_HEADER,
   SERVER_CONFIG_PLACEHOLDER,
 } from '../../../constants';
+import { guard } from 'fxa-shared/guards';
 
 /** Client Config Defaults provided by env */
 const defaultConfig: IClientConfig = {
   env: config.get('env'),
   user: {
-    group: config.get('user.group'),
+    group: guard.getBestGroup(config.get('user.group')),
     email: config.get('user.email'),
-    permissions: {},
   },
   servers: {
     admin: {
@@ -64,21 +63,20 @@ export class ClientConfig {
     baseConfig: IClientConfig,
     headers: IncomingAdminPanelHttpHeaders
   ) {
-    const user = this.getUserFromHeader(headers, baseConfig.user);
-    const merged = this.mergeConfig(baseConfig, { user });
-    return merged;
-  }
+    // Only update state if header is actually defined. In non development environments,
+    // the headers are required and will be defined.
+    const clone = Object.assign({}, baseConfig);
 
-  private static getUserFromHeader(
-    headers: IncomingAdminPanelHttpHeaders,
-    user: IUserInfo
-  ) {
-    user.email = headers[USER_EMAIL_HEADER] || user.email;
-    user.group = headers[USER_GROUP_HEADER] || user.group;
-    return user;
-  }
+    const userEmailHeader = headers[USER_EMAIL_HEADER];
+    if (userEmailHeader != null) {
+      clone.user.email = userEmailHeader;
+    }
 
-  private static mergeConfig(c1: IClientConfig, c2: Partial<IClientConfig>) {
-    return Object.assign({}, c1, c2);
+    const userGroupHeader = headers[USER_GROUP_HEADER];
+    if (userGroupHeader != null) {
+      clone.user.group = guard.getBestGroup(userGroupHeader);
+    }
+
+    return clone;
   }
 }

@@ -4,16 +4,11 @@
 
 import { IncomingHttpHeaders } from 'http';
 import { USER_EMAIL_HEADER, USER_GROUP_HEADER } from '../constants';
-
-export interface IPermission {
-  name: string;
-  enabled: boolean;
-}
+import { IGroup } from 'fxa-shared/guards';
 
 export interface IUserInfo {
-  group: string;
+  group: IGroup;
   email: string;
-  permissions: Record<string, IPermission>;
 }
 
 export interface IServerInfo {

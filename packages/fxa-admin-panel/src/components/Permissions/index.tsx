@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { IUserInfo, IPermission } from '../../../interfaces';
+import { guard, IFeatureFlag } from 'fxa-shared/guards';
+import { useUserContext } from '../../hooks/UserContext';
 
 const styleClasses = {
   label: 'px-4 py-2',
@@ -29,57 +30,46 @@ export const LabelValRow = ({
   </tr>
 );
 
-export const PermissionRow = ({
-  id,
-  permission,
-}: {
-  id: string;
-  permission: IPermission;
-}) => {
-  const testId = `permissions-row-${id}`;
+export const PermissionRow = ({ flag }: { flag: IFeatureFlag }) => {
+  const testId = `permissions-row-${flag.id}`;
   return (
     <LabelValRow
       {...{
         testId,
-        label: permission.name,
-        val: permission.enabled ? '✓' : 'x',
+        label: flag.name,
+        val: flag.enabled ? '✓' : 'x',
       }}
     ></LabelValRow>
   );
 };
 
 export const PermissionsTable = ({
-  permissions,
+  featureFlags,
 }: {
-  permissions: Record<string, IPermission>;
+  featureFlags: IFeatureFlag[];
 }) => {
-  return Object.keys(permissions).length === 0 ? (
+  return featureFlags.length === 0 ? (
     <></>
   ) : (
     <table className="table-auto" aria-label="permissions table">
       <thead>
         <tr>
-          <th>Feature</th>
+          <th className="text-left pl-4">Feature</th>
           <th>Enabled</th>
         </tr>
       </thead>
       <tbody>
-        {Object.keys(permissions).map((id: string) => (
-          <PermissionRow key={id} {...{ id, permission: permissions[id] }} />
-        ))}
+        {featureFlags.map((flag) => {
+          return <PermissionRow key={flag.id} {...{ flag }} />;
+        })}
       </tbody>
     </table>
   );
 };
 
-export const Permissions = ({ user }: { user: IUserInfo }) => {
-  if (!user.permissions) {
-    // Features and permissions TBD!
-    user.permissions = {
-      p1: { name: 'Permissions for Feature 1', enabled: true },
-      p2: { name: 'Permissions for Feature 2', enabled: false },
-    };
-  }
+export const Permissions = () => {
+  const { user } = useUserContext();
+  const featureFlags: IFeatureFlag[] = guard.getFeatureFlags(user.group);
 
   return (
     <div className="text-grey-600">
@@ -100,13 +90,13 @@ export const Permissions = ({ user }: { user: IUserInfo }) => {
             {...{
               testId: 'permissions-user-group',
               label: 'Your Group:',
-              val: user.group,
+              val: user.group.name,
             }}
           />
         </tbody>
       </table>
       <br />
-      <PermissionsTable {...{ permissions: user.permissions }} />
+      <PermissionsTable {...{ featureFlags }} />
     </div>
   );
 };
