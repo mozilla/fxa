@@ -6,7 +6,9 @@
 # the package used by the browser.
 
 # Get current version
-ejs_version=$(npm info ejs version)
+# ejs_version=$(npm info ejs version)
+# Temporarily hard code the version, while .min.js is not available for newer versions.
+ejs_version="3.1.6"
 
 # Ensure vendor dir
 [ ! -d "./vendor" ] && mkdir vendor
