@@ -267,6 +267,7 @@ export async function apiGetPaypalCheckoutToken(params: {
 export async function apiCapturePaypalPayment(params: {
   idempotencyKey: string;
   priceId: string;
+  productId: string;
   token?: string;
   promotionCode?: string;
 }): Promise<{
@@ -275,6 +276,7 @@ export async function apiCapturePaypalPayment(params: {
 }> {
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
+    productId: params.productId,
     paymentProvider: 'paypal',
     promotionCode: params.promotionCode,
   };

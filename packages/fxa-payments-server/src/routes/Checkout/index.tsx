@@ -375,7 +375,6 @@ export const Checkout = ({
                     <div className="paypal-button">
                       <PaypalButton
                         beforeCreateOrder={beforePaypalCreateOrder}
-                        currencyCode={selectedPlan.currency}
                         customer={null}
                         disabled={
                           !checkboxSet ||
@@ -385,7 +384,7 @@ export const Checkout = ({
                         }
                         idempotencyKey={submitNonce}
                         newPaypalAgreement={true}
-                        priceId={selectedPlan.plan_id}
+                        selectedPlan={selectedPlan}
                         refreshSubmitNonce={refreshSubmitNonce}
                         postSubscriptionAttemptPaypalCallback={
                           postSubscriptionAttemptPaypalCallback

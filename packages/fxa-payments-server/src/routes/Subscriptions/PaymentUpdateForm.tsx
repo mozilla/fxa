@@ -205,9 +205,6 @@ export const PaymentUpdateForm = ({
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
 
-  const currencyCode = plan!.currency;
-  const planId = plan!.plan_id;
-
   return (
     <div className="settings-unit">
       <div className="payment-update" data-testid="payment-update">
@@ -250,11 +247,10 @@ export const PaymentUpdateForm = ({
                 <div className="paypal-button">
                   <PaypalButton
                     disabled={false}
-                    currencyCode={currencyCode}
                     customer={customer}
                     idempotencyKey={submitNonce}
                     refreshSubmitNonce={refreshSubmitNonce}
-                    priceId={planId}
+                    selectedPlan={plan!}
                     newPaypalAgreement={false}
                     postSubscriptionAttemptPaypalCallback={refreshSubscriptions}
                     setSubscriptionError={setPaymentError}
