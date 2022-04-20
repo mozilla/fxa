@@ -1,5 +1,7 @@
 # Contribution Guidelines for Firefox Accounts
 
+test test test
+
 Anyone is welcome to help with Firefox Accounts, but it's important to
 recognize that Firefox Accounts is a complex tool written by Mozilla and used
 solely within Mozilla or by parties tightly coupled to Mozilla. The team's
