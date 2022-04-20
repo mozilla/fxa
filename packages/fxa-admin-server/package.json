@@ -32,7 +32,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.4.3",
+    "@nestjs/common": "^8.4.4",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.4",
     "@nestjs/graphql": "^8.0.2",
