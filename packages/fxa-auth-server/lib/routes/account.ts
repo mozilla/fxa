@@ -1608,7 +1608,6 @@ export const accountRoutes = (
         validate: {
           payload: {
             token: validators.jwt,
-            authPW: validators.authPW,
           },
         },
       },
