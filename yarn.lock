@@ -16459,13 +16459,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color@npm:^4.2.1":
-  version: 4.2.1
-  resolution: "color@npm:4.2.1"
+"color@npm:^4.2.3":
+  version: 4.2.3
+  resolution: "color@npm:4.2.3"
   dependencies:
     color-convert: ^2.0.1
     color-string: ^1.9.0
-  checksum: 03fb3100a8ba457b45f3f9828f64e982d683f48c841e3d26a619bd88924fcc47f1124b2fdf3e4ae518c4129e9885c19052244ba1ea0b06d86beffc5f5e551d62
+  checksum: 0579629c02c631b426780038da929cca8e8d80a40158b09811a0112a107c62e10e4aad719843b791b1e658ab4e800558f2e87ca4522c8b32349d497ecb6adeb4
   languageName: node
   linkType: hard
 
@@ -22941,7 +22941,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.30.3
+    sharp: ^0.30.4
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -38993,6 +38993,17 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"semver@npm:^7.3.7":
+  version: 7.3.7
+  resolution: "semver@npm:7.3.7"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: 2fa3e877568cd6ce769c75c211beaed1f9fce80b28338cadd9d0b6c40f2e2862bafd62c19a6cff42f3d54292b7c623277bcab8816a2b5521cf15210d43e75232
+  languageName: node
+  linkType: hard
+
 "semver@npm:~7.2.0":
   version: 7.2.3
   resolution: "semver@npm:7.2.3"
@@ -39219,20 +39230,20 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.30.3":
-  version: 0.30.3
-  resolution: "sharp@npm:0.30.3"
+"sharp@npm:^0.30.4":
+  version: 0.30.4
+  resolution: "sharp@npm:0.30.4"
   dependencies:
-    color: ^4.2.1
+    color: ^4.2.3
     detect-libc: ^2.0.1
     node-addon-api: ^4.3.0
     node-gyp: latest
     prebuild-install: ^7.0.1
-    semver: ^7.3.5
+    semver: ^7.3.7
     simple-get: ^4.0.1
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: 05738f0a74f55217ccbbe74ad7b8b579e2e24cbcebd021ae53cfb81d7a3e8ab42b02526249ad7d04900a4ea0da80fa63805b492edab3bfa0541888169c079057
+  checksum: 80070d8cad5fe20e7bbb2a1cfddda3f7d421f6af8302c05af8307c0b3b1972e6ed2690563e90b2897b4b499b32967d28a15e37f5d196a1f8867d630609052211
   languageName: node
   linkType: hard
 
