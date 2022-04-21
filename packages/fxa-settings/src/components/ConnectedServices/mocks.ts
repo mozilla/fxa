@@ -231,6 +231,31 @@ const OAUTH_SERVICE_MOCKS = [
     approximateLastAccessTime: null,
     approximateLastAccessTimeFormatted: null,
   },
+  {
+    clientId: '720bc80adfa6988d',
+    deviceId: null,
+    sessionTokenId: null,
+    refreshTokenId:
+      'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc98833',
+    isCurrentSession: false,
+    deviceType: null,
+    name: 'MDN Plus',
+    createdTime: 1556745521000,
+    lastAccessTime: 1556745521000,
+    scope: ['profile'],
+    location: {
+      city: null,
+      country: null,
+      state: null,
+      stateCode: null,
+    },
+    userAgent: '',
+    os: null,
+    createdTimeFormatted: '6 months ago',
+    lastAccessTimeFormatted: '6 months ago',
+    approximateLastAccessTime: null,
+    approximateLastAccessTimeFormatted: null,
+  },
 ];
 
 const MOBILE_SYNC_SERVICE_MOCKS = [

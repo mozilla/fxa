@@ -113,7 +113,7 @@ describe('Connected Services', () => {
     const { sortedAndUniqueClients, groupedByName } =
       sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedAndUniqueClients.length).toEqual(10);
+    expect(sortedAndUniqueClients.length).toEqual(11);
 
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Firefox Monitor')
@@ -195,6 +195,16 @@ describe('Connected Services', () => {
     });
   });
 
+  it('should show the MDN Plus icon and link', async () => {
+    await getIconAndServiceLink('MDN Plus', 'mdnplus-icon').then((result) => {
+      expect(result.icon).toBeTruthy();
+      expect(result.link).toHaveAttribute(
+        'href',
+        'https://developer.mozilla.org/'
+      );
+    });
+  });
+
   it('should show the sync icon and link', async () => {
     await getIconAndServiceLink('Firefox Sync', 'sync-icon').then((result) => {
       expect(result.icon).toBeTruthy();
@@ -239,7 +249,7 @@ describe('Connected Services', () => {
     );
     expect(
       await screen.findAllByTestId('connected-service-sign-out')
-    ).toHaveLength(10);
+    ).toHaveLength(11);
   });
 
   it('renders proper modal when "sign out" is clicked', async () => {

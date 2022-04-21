@@ -17,6 +17,7 @@ import { ReactComponent as PocketIcon } from './pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';
+import { ReactComponent as MDNPlusIcon } from './mdnplus.svg';
 import { Localized } from '@fluent/react';
 
 export function Service({
@@ -65,6 +66,10 @@ export function Service({
       serviceLink =
         'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
       Icon = <SyncIcon data-testid="sync-icon" />;
+      break;
+    case 'MDN Plus':
+      serviceLink = 'https://developer.mozilla.org/';
+      Icon = <MDNPlusIcon data-testid="mdnplus-icon" />;
       break;
     default:
       if (name.toLowerCase().includes('ipad')) {
