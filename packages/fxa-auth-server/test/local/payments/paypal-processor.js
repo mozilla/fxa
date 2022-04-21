@@ -605,7 +605,11 @@ describe('PaypalProcessor', () => {
           yield invoice;
         },
       });
-      await processor.processInvoices();
+      // eslint-disable-next-line
+      for await (const _ of processor.processInvoices()) {
+        // No value yield'd; yielding control for potential distributed lock
+        // extension in actual use case
+      }
       sinon.assert.calledOnceWithExactly(
         mockLog.info,
         'processInvoice.processing',
@@ -628,7 +632,11 @@ describe('PaypalProcessor', () => {
         },
       });
       try {
-        await processor.processInvoices();
+        // eslint-disable-next-line
+        for await (const _ of processor.processInvoices()) {
+          // No value yield'd; yielding control for potential distributed lock
+          // extension in actual use case
+        }
         assert.fail('Process invoicce should fail');
       } catch (err) {
         sinon.assert.calledOnceWithExactly(
