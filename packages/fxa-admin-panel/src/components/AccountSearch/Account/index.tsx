@@ -534,12 +534,12 @@ const EmailBounce = ({
           bounce subtype:{' '}
           <span className={styleClasses.result}>{bounceSubType}</span>
         </li>
-        {diagnosticCode && (
-          <li className={styleClasses.li}>
-            diagnostic code:{' '}
-            <span className={styleClasses.result}>{diagnosticCode}</span>
-          </li>
-        )}
+        <li className={styleClasses.li}>
+          diagnostic code:{' '}
+          <span className={styleClasses.result}>
+            {diagnosticCode ? diagnosticCode : 'none'}
+          </span>
+        </li>
       </ul>
     </li>
   );
