@@ -105,6 +105,20 @@ enum ProviderId {
   APPLE
 }
 
+type MozSubscription {
+  created: Float!
+  currentPeriodEnd: Float!
+  currentPeriodStart: Float!
+  cancelAtPeriodEnd: Boolean!
+  endAt: Float!
+  latestInvoice: String!
+  planId: String!
+  productName: String!
+  productId: String!
+  status: String!
+  subscriptionId: String!
+}
+
 type Account {
   uid: ID!
   email: String!
@@ -117,6 +131,7 @@ type Account {
   recoveryKeys: [RecoveryKeys!]
   securityEvents: [SecurityEvents!]
   attachedClients: [AttachedClient!]
+  subscriptions: [MozSubscription!]
   linkedAccounts: [LinkedAccount!]
 }
 

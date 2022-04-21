@@ -66,6 +66,19 @@ const ACCOUNT_SCHEMA = `
       countryCode
     }
   }
+  subscriptions {
+    created
+    currentPeriodEnd
+    currentPeriodStart
+    cancelAtPeriodEnd
+    endAt
+    latestInvoice
+    planId
+    productName
+    productId
+    status
+    subscriptionId
+  }
 `;
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
@@ -270,8 +283,18 @@ const AccountSearchResult = ({
   };
   query: string;
 }) => {
-  if (loading) return <p data-testid="loading-message">Loading...</p>;
-  if (error) return <p data-testid="error-message">An error occurred.</p>;
+  if (loading)
+    return (
+      <p data-testid="loading-message" className="mt-2">
+        Loading...
+      </p>
+    );
+  if (error)
+    return (
+      <p data-testid="error-message" className="mt-2">
+        An error occurred.
+      </p>
+    );
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
@@ -280,7 +303,11 @@ const AccountSearchResult = ({
   if (data?.accountByUid) {
     return <Account {...{ query, onCleared }} {...data.accountByUid} />;
   }
-  return <p data-testid="no-account-message">Account not found.</p>;
+  return (
+    <p data-testid="no-account-message" className="mt-2">
+      Account not found.
+    </p>
+  );
 };
 
 export default AccountSearch;

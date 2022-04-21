@@ -206,6 +206,27 @@ export class AccountResolver {
   }
 
   @ResolveField()
+  public subscriptions(@Root() account: Account) {
+    // TODO: FXA-4237 / #11094, get real subscription data
+    return [
+      {
+        created: 1583259953,
+        currentPeriodEnd: 1596758906,
+        currentPeriodStart: 1594080506,
+        cancelAtPeriodEnd: false,
+        endAt: 1596758906,
+        latestInvoice:
+          'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_HbGuRujVERsyXZy0zArp7SLFRhY9i6S/pdf',
+        planId: 'plan_GqM9N6qyhvxaVk',
+        productName: 'Cooking with Foxkeh',
+        productId: 'il_1H24MIBVqmGyQTMa2hcoK0YW',
+        status: 'succeeded',
+        subscriptionId: 'sub_HbGu2EjvFQpuD2',
+      },
+    ];
+  }
+
+  @ResolveField()
   public async linkedAccounts(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.linkedAccounts

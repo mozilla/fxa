@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-dark path {
+  fill: #0c0c0d;
+}
+
+/* TODO: move this into AccountSearch/index.css. Can't seem to use @import here */
+.account-header {
+  @apply mt-0 my-0 mb-1 text-lg;
+}
+
+.account-li {
+  @apply list-none pl-0;
+}
+
+.account-li span {
+  @apply font-medium text-violet-900;
+}
+
+.account-border-info {
+  @apply border-l-2 border-grey-500 mb-8 pl-4;
+}
+
+.account-enabled-verified {
+  @apply font-semibold text-green-900;
+}
+
+.account-disabled-unverified {
+  @apply font-semibold text-red-600;
+}
+
+.account-border-info {
+  @apply border-l-2 border-grey-500 mb-8 pl-4;
+}

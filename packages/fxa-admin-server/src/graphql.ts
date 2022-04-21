@@ -110,6 +110,20 @@ export interface LinkedAccount {
     enabled: boolean;
 }
 
+export interface MozSubscription {
+    created: number;
+    currentPeriodEnd: number;
+    currentPeriodStart: number;
+    cancelAtPeriodEnd: boolean;
+    endAt: number;
+    latestInvoice: string;
+    planId: string;
+    productName: string;
+    productId: string;
+    status: string;
+    subscriptionId: string;
+}
+
 export interface Account {
     uid: string;
     email: string;
@@ -122,6 +136,7 @@ export interface Account {
     recoveryKeys?: Nullable<RecoveryKeys[]>;
     securityEvents?: Nullable<SecurityEvents[]>;
     attachedClients?: Nullable<AttachedClient[]>;
+    subscriptions?: Nullable<MozSubscription[]>;
     linkedAccounts?: Nullable<LinkedAccount[]>;
 }
 

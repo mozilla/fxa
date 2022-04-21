@@ -17,6 +17,7 @@ import {
 
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
+import Subscription from '../Subscription';
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
@@ -30,15 +31,7 @@ type DangerZoneProps = {
   onCleared: Function;
 };
 
-const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
-
-const styleClasses = {
-  enabledOrVerified: 'font-semibold text-green-900',
-  notEnabledOrVerified: 'font-semibold text-red-600',
-  borderInfoDisplay: 'border-l-2 border-grey-500 mb-8 pl-4',
-  li: 'list-none pl-0',
-  result: 'font-medium text-violet-900',
-};
+export const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 
 export const CLEAR_BOUNCES_BY_EMAIL = gql`
   mutation clearBouncesByEmail($email: String!) {
@@ -211,7 +204,7 @@ export const DangerZone = ({
         </p>
       </Guard>
       <Guard features={[AdminPanelFeature.UnVerifyAccounts]}>
-        <h2 className="text-lg">Email Verification</h2>
+        <h2 className="account-header">Email Verification</h2>
         <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
           Reset email verification. User needs to re-verify on next login.
           <br />
@@ -227,7 +220,7 @@ export const DangerZone = ({
         </p>
       </Guard>
       <Guard features={[AdminPanelFeature.DisableAccounts]}>
-        <h2 className="text-lg">Disable Login</h2>
+        <h2 className="account-header">Disable Login</h2>
         <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
           Stops this account from logging in.
           <br />
@@ -259,6 +252,7 @@ export const Account = ({
   totp,
   recoveryKeys,
   attachedClients,
+  subscriptions,
   onCleared,
   query,
   securityEvents,
@@ -270,8 +264,8 @@ export const Account = ({
   return (
     <section className="mt-8" data-testid="account-section">
       <ul>
-        <li className={`${styleClasses.li} flex justify-between`}>
-          <h3 data-testid="email-label" className="mt-0 my-0 mb-1 text-lg">
+        <li className="account-li flex justify-between">
+          <h3 data-testid="email-label" className="account-header">
             <span
               className={
                 query === primaryEmail.email ? 'bg-yellow-100' : undefined
@@ -284,39 +278,36 @@ export const Account = ({
             data-testid="verified-status"
             className={
               primaryEmail.isVerified
-                ? styleClasses.enabledOrVerified
-                : styleClasses.notEnabledOrVerified
+                ? 'account-enabled-verified'
+                : 'account-disabled-unverified'
             }
           >
             {primaryEmail.isVerified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           <div data-testid="uid-label">
-            uid: <span className={styleClasses.result}>{uid}</span>
+            uid: <span>{uid}</span>
           </div>
           <div className="text-right">
-            created at:{' '}
-            <span className={styleClasses.result} data-testid="createdat-label">
-              {createdAt}
-            </span>
+            created at: <span data-testid="createdat-label">{createdAt}</span>
             <br />
             {date}
             <br />
           </div>
         </li>
 
-        <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">Secondary Emails</h3>
+        <li className="account-li">
+          <h3 className="account-header">Secondary Emails</h3>
         </li>
         {secondaryEmails.length > 0 ? (
           <li
-            className={`{styleClasses.borderInfoDisplay} ${styleClasses.li} mb-5`}
+            className="account-li account-border-info"
             data-testid="secondary-section"
           >
             <ul>
               {secondaryEmails.map((secondaryEmail) => (
-                <li key={secondaryEmail.createdAt} className={styleClasses.li}>
+                <li key={secondaryEmail.createdAt} className="account-li">
                   <span
                     data-testid="secondary-email"
                     className={
@@ -331,8 +322,8 @@ export const Account = ({
                     data-testid="secondary-verified"
                     className={`ml-3 text-base ${
                       secondaryEmail.isVerified
-                        ? styleClasses.enabledOrVerified
-                        : styleClasses.notEnabledOrVerified
+                        ? 'account-enabled-verified'
+                        : 'account-disabled-unverified'
                     }`}
                   >
                     {secondaryEmail.isVerified ? 'verified' : 'not verified'}
@@ -342,15 +333,13 @@ export const Account = ({
             </ul>
           </li>
         ) : (
-          <li
-            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
-          >
+          <li className="account-li account-border-info">
             This account doesn't have any secondary emails.
           </li>
         )}
 
-        <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">Email bounces</h3>
+        <li className="account-li">
+          <h3 className="account-header">Email bounces</h3>
         </li>
         {emailBounces && emailBounces.length > 0 ? (
           <>
@@ -367,14 +356,14 @@ export const Account = ({
         ) : (
           <li
             data-testid="no-bounces-message"
-            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+            className="account-li account-border-info"
           >
             This account doesn't have any bounced emails.
           </li>
         )}
 
-        <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">
+        <li className="account-li">
+          <h3 className="account-header">
             TOTP (Time-Based One-Time Passwords)
           </h3>
         </li>
@@ -385,15 +374,13 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li
-            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
-          >
+          <li className="account-li account-border-info">
             This account doesn't have TOTP enabled.
           </li>
         )}
 
-        <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">Recovery Key</h3>
+        <li className="account-li">
+          <h3 className="account-header">Recovery Key</h3>
         </li>
         {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
@@ -405,16 +392,14 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li
-            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
-          >
+          <li className="account-li account-border-info">
             This account doesn't have a recovery key enabled.
           </li>
         )}
 
         <Guard features={[AdminPanelFeature.ConnectedServices]}>
-          <li className={styleClasses.li}>
-            <h3 className="mt-0 my-0 mb-1 text-lg">Connected Services</h3>
+          <li className="account-li">
+            <h3 className="account-header">Connected Services</h3>
           </li>
           {attachedClients && attachedClients.length > 0 ? (
             <>
@@ -431,17 +416,40 @@ export const Account = ({
               ))}
             </>
           ) : (
-            <li
-              className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
-            >
+            <li className="account-li account-border-info">
               This account has nothing attached.
             </li>
           )}
         </Guard>
+
+        {/* Temporary check for fake hard-coded value until we fetch actual subscriptions in FXA-4237 */}
+        {subscriptions &&
+          subscriptions[0].productName !== 'Cooking with Foxkeh' && (
+            <>
+              <li className="account-li">
+                <h3 className="account-header">Subscriptions</h3>
+              </li>
+              {subscriptions && subscriptions.length > 0 ? (
+                <>
+                  {subscriptions.map((subscription) => (
+                    <Subscription
+                      key={subscription.subscriptionId}
+                      {...subscription}
+                    />
+                  ))}
+                </>
+              ) : (
+                <li className="account-li account-border-info">
+                  This account doesn't have any subscriptions.
+                </li>
+              )}
+            </>
+          )}
       </ul>
+
       <hr className="border-grey-50 mb-4" />
-      <h3 className="mt-0 my-0 mb-1 text-lg">Account History</h3>
-      <div className={styleClasses.borderInfoDisplay}>
+      <h3 className="account-header">Account History</h3>
+      <div className="account-li account-border-info">
         {securityEvents && securityEvents.length > 0 ? (
           <>
             <table className="pt-1" aria-label="simple table">
@@ -468,16 +476,13 @@ export const Account = ({
             </table>
           </>
         ) : (
-          <div
-            data-testid="acccount-security-events"
-            className="security-events"
-          >
+          <div data-testid="acccount-security-events">
             No account history to display.
           </div>
         )}
       </div>
-      <h3 className="mt-0 my-0 mb-1 text-lg">Linked Accounts</h3>
-      <div className={styleClasses.borderInfoDisplay}>
+      <h3 className="account-header">Linked Accounts</h3>
+      <div className="account-border-info">
         {linkedAccounts && linkedAccounts.length > 0 ? (
           <>
             <table className="pt-1" aria-label="simple table">
@@ -503,12 +508,7 @@ export const Account = ({
             </table>
           </>
         ) : (
-          <div
-            data-testid="account-security-events"
-            className="security-events"
-          >
-            No linked accounts.
-          </div>
+          <div data-testid="account-security-events">No linked accounts.</div>
         )}
       </div>
       <hr className="border-grey-50 mb-4" />
@@ -533,24 +533,22 @@ const EmailBounce = ({
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="bounce-group" className={styleClasses.li}>
-      <ul className={styleClasses.borderInfoDisplay}>
-        <li className={styleClasses.li}>
-          email: <span className={styleClasses.result}>{email}</span>
+    <li data-testid="bounce-group" className="account-li">
+      <ul className="account-border-info">
+        <li className="account-li">
+          email: <span>{email}</span>
         </li>
-        <li className={styleClasses.li}>
-          template: <span className={styleClasses.result}>{templateName}</span>
+        <li className="account-li">
+          template: <span>{templateName}</span>
         </li>
-        <li className={styleClasses.li}>
-          created at: <span className={styleClasses.result}>{createdAt}</span> (
-          {date})
+        <li className="account-li">
+          created at: <span>{createdAt}</span> ({date})
         </li>
-        <li className={styleClasses.li}>
-          bounce type: <span className={styleClasses.result}>{bounceType}</span>
+        <li className="account-li">
+          bounce type: <span>{bounceType}</span>
         </li>
-        <li className={styleClasses.li}>
-          bounce subtype:{' '}
-          <span className={styleClasses.result}>{bounceSubType}</span>
+        <li className="account-li">
+          bounce subtype: <span>{bounceSubType}</span>
         </li>
       </ul>
     </li>
@@ -560,35 +558,32 @@ const EmailBounce = ({
 const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
   const totpDate = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li className={styleClasses.li}>
-      <ul className={styleClasses.borderInfoDisplay}>
-        <li className={styleClasses.li}>
-          TOTP Created At:{' '}
-          <span data-testid="totp-created-at" className={styleClasses.result}>
-            {totpDate}
-          </span>
+    <li className="account-li">
+      <ul className="account-border-info">
+        <li className="account-li">
+          TOTP Created At: <span data-testid="totp-created-at">{totpDate}</span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           TOTP Verified:{' '}
           <span
             data-testid="totp-verified"
             className={`ml-3 text-base ${
               verified
-                ? styleClasses.enabledOrVerified
-                : styleClasses.notEnabledOrVerified
+                ? 'account-enabled-verified'
+                : 'account-disabled-unverified'
             }`}
           >
             {verified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           TOTP Enabled:{' '}
           <span
             data-testid="totp-enabled"
             className={`ml-3 text-base ${
               enabled
-                ? styleClasses.enabledOrVerified
-                : styleClasses.notEnabledOrVerified
+                ? 'account-enabled-verified'
+                : 'account-disabled-unverified'
             }`}
           >
             {enabled ? 'enabled' : 'not-enabled'}
@@ -606,38 +601,35 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
     DATE_FORMAT
   );
   return (
-    <li className={styleClasses.li}>
-      <ul className={styleClasses.borderInfoDisplay}>
-        <li className={styleClasses.li}>
+    <li className="account-li">
+      <ul className="account-border-info">
+        <li className="account-li">
           Recovery Key Created At:{' '}
-          <span
-            data-testid="recovery-keys-created-at"
-            className={styleClasses.result}
-          >
+          <span data-testid="recovery-keys-created-at">
             {recoveryKeyCreatedDate}
           </span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           Recovery Key Verified At:{' '}
           <span
             data-testid="recovery-keys-verified"
             className={`ml-3 text-base ${
               verifiedAt
-                ? styleClasses.enabledOrVerified
-                : styleClasses.notEnabledOrVerified
+                ? 'account-enabled-verified'
+                : 'account-disabled-unverified'
             }`}
           >
             {verifiedAt ? recoveryKeyVerifiedDate : 'not verified'}
           </span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           Recovery Key Enabled:{' '}
           <span
             data-testid="recovery-keys-enabled"
             className={`ml-3 text-base ${
               enabled
-                ? styleClasses.enabledOrVerified
-                : styleClasses.notEnabledOrVerified
+                ? 'account-enabled-verified'
+                : 'account-disabled-unverified'
             }`}
           >
             {enabled ? 'enabled' : 'not-enabled'}
@@ -665,8 +657,8 @@ const AttachedClients = ({
 }: AttachedClientType) => {
   const testId = (id: string) => `attached-clients-${id}`;
   return (
-    <li className={styleClasses.li}>
-      <ul className={styleClasses.borderInfoDisplay}>
+    <li className="account-li">
+      <ul className="account-border-info">
         <ResultListItem
           label="Client"
           value={format.client(name, clientId)}
@@ -737,11 +729,9 @@ const ResultListItem = ({
   testId: string;
 }) => {
   return (
-    <li className={styleClasses.li}>
+    <li className="account-li">
       {label}:{' '}
-      <span data-testid={testId} className={styleClasses.result}>
-        {value ? value : <i>Unknown</i>}
-      </span>
+      <span data-testid={testId}>{value ? value : <i>Unknown</i>}</span>
     </li>
   );
 };
