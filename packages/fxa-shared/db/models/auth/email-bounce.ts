@@ -51,11 +51,10 @@ export class EmailBounce extends BaseAuthModel {
     bounceType,
     bounceSubType,
     diagnosticCode,
-  }: Pick<EmailBounce, 'email'> & {
+  }: Pick<EmailBounce, 'email' | 'diagnosticCode'> & {
     templateName: string;
     bounceType: BounceType;
     bounceSubType: BounceSubType;
-    diagnosticCode?: string;
   }) {
     try {
       await EmailBounce.callProcedure(

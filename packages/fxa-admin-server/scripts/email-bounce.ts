@@ -17,6 +17,7 @@ const config = Config.getProperties();
 const argv = yargs.options({
   count: { type: 'number', default: 1 },
   email: { type: 'string' },
+  withDiagnosticCode: { type: 'boolean' },
 }).argv;
 
 async function addBounceToDB() {
