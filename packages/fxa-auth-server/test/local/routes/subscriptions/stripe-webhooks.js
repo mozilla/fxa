@@ -553,6 +553,23 @@ describe('StripeWebhookHandler', () => {
         );
         assert.calledOnce(sentryModule.reportSentryError);
       });
+
+      it('does not report error with no customer if the customer was deleted', async () => {
+        const authDbModule = require('fxa-shared/db/models/auth');
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        const customer = deepCopy(customerFixture);
+        customer.deleted = true;
+        await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
+          {},
+          {
+            data: { object: customer },
+            type: 'customer.updated',
+          }
+        );
+        assert.notCalled(sentryModule.reportSentryError);
+      });
     });
 
     describe('handleProductWebhookEvent', () => {
