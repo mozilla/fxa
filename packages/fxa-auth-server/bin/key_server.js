@@ -9,7 +9,7 @@ const jwtool = require('fxa-jwtool');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
-const { PlayBilling } = require('../lib/payments/google-play');
+const { PlayBilling } = require('../lib/payments/iap/google-play');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 const {
   AuthLogger,

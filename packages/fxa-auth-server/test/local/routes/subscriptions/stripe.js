@@ -34,7 +34,7 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
 
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
-const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,

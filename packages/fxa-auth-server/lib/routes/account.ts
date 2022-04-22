@@ -24,7 +24,7 @@ import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
-import { PlaySubscriptions } from '../payments/google-play/subscriptions';
+import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';

@@ -9,19 +9,19 @@ const { assert } = require('chai');
 const { default: Container } = require('typedi');
 const proxyquire = require('proxyquire').noPreserveCache();
 
-const { mockLog } = require('../../../mocks');
-const { AuthLogger } = require('../../../../lib/types');
+const { mockLog } = require('../../../../mocks');
+const { AuthLogger } = require('../../../../../lib/types');
 const {
   PurchaseQueryError,
   SkuType,
   PurchaseUpdateError,
   NotificationType,
-} = require('../../../../lib/payments/google-play/types');
+} = require('../../../../../lib/payments/iap/google-play/types');
 
 const mockSubscriptionPurchase = {};
 const mockMergePurchase = sinon.fake.returns({});
 const { PurchaseManager } = proxyquire(
-  '../../../../lib/payments/google-play/purchase-manager',
+  '../../../../../lib/payments/iap/google-play/purchase-manager',
   {
     './subscription-purchase': {
       SubscriptionPurchase: mockSubscriptionPurchase,

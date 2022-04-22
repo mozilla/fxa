@@ -19,7 +19,7 @@
 import { CollectionReference } from '@google-cloud/firestore';
 import Container from 'typedi';
 
-import { AuthLogger } from '../../types';
+import { AuthLogger } from '../../../types';
 import { PurchaseManager } from './purchase-manager';
 import {
   GOOGLE_PLAY_FORM_OF_PAYMENT,

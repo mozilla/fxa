@@ -20,7 +20,7 @@ import { CollectionReference } from '@google-cloud/firestore';
 import { androidpublisher_v3 } from 'googleapis';
 import Container from 'typedi';
 
-import { AuthLogger } from '../../types';
+import { AuthLogger } from '../../../types';
 import {
   mergePurchaseWithFirestorePurchaseRecord,
   SubscriptionPurchase,

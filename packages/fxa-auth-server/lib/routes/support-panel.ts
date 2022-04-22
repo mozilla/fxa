@@ -7,7 +7,7 @@ import isA from '@hapi/joi';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
-import { PlaySubscriptions } from '../../lib/payments/google-play/subscriptions';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';

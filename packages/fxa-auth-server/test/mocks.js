@@ -851,6 +851,6 @@ function mockPayPalHelper(methods) {
 function mockPlaySubscriptions(methods) {
   return mockObject(
     methods,
-    require('../lib/payments/google-play/subscriptions').PlaySubscriptions
+    require('../lib/payments/iap/google-play/subscriptions').PlaySubscriptions
   );
 }
