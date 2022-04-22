@@ -113,7 +113,7 @@ describe('Connected Services', () => {
     const { sortedAndUniqueClients, groupedByName } =
       sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedAndUniqueClients.length).toEqual(8);
+    expect(sortedAndUniqueClients.length).toEqual(9);
 
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Firefox Monitor')
@@ -173,6 +173,18 @@ describe('Connected Services', () => {
     );
   });
 
+  it('should show the Firefox Relay icon and link', async () => {
+    await getIconAndServiceLink('Firefox Relay', 'relay-icon').then(
+      (result) => {
+        expect(result.icon).toBeTruthy();
+        expect(result.link).toHaveAttribute(
+          'href',
+          'https://relay.firefox.com/'
+        );
+      }
+    );
+  });
+
   it('should show the sync icon and link', async () => {
     await getIconAndServiceLink('Firefox Sync', 'sync-icon').then((result) => {
       expect(result.icon).toBeTruthy();
@@ -217,7 +229,7 @@ describe('Connected Services', () => {
     );
     expect(
       await screen.findAllByTestId('connected-service-sign-out')
-    ).toHaveLength(8);
+    ).toHaveLength(9);
   });
 
   it('renders proper modal when "sign out" is clicked', async () => {

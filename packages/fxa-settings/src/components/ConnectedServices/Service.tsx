@@ -15,6 +15,7 @@ import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
 import { ReactComponent as PocketIcon } from './pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
+import { ReactComponent as RelayIcon } from './relay.svg';
 import { Localized } from '@fluent/react';
 
 export function Service({
@@ -50,6 +51,10 @@ export function Service({
     case 'Firefox Private Network':
       serviceLink = 'https://vpn.mozilla.com/';
       Icon = <FPNIcon data-testid="fpn-icon" />;
+      break;
+    case 'Firefox Relay':
+      serviceLink = 'https://relay.firefox.com/';
+      Icon = <RelayIcon data-testid="relay-icon" />;
       break;
     case 'Firefox Sync':
       serviceLink =
