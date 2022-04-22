@@ -471,6 +471,10 @@ export class StripeWebhookHandler extends StripeHandler {
   async handleCustomerUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
     const customer = event.data.object as Stripe.Customer;
     const uid = customer.metadata.userid;
+    if (!uid || customer.deleted) {
+      // There's nothing to do if this event is for a customer being deleted.
+      return;
+    }
     const account = await Account.findByUid(uid, { include: ['emails'] });
     if (!account) {
       reportSentryError(
