@@ -24,83 +24,83 @@ const INVALID_METRICS_OVERWRITE_TOSTRING_METHOD = JSON.parse(
 const FLUSH_TIME_START_TIME_DIFF =
   VALID_METRICS.flushTime - VALID_METRICS.startTime;
 
-suite.tests['#post /metrics - returns 200'] = function () {
-  return testValidMetricsData(VALID_METRICS, 'application/json');
-};
+// suite.tests['#post /metrics - returns 200'] = function () {
+//   return testValidMetricsData(VALID_METRICS, 'application/json');
+// };
 
-suite.tests[
-  '#post /metrics - returns 200 if Content-Type is text/plain'
-] = function () {
-  return testValidMetricsData(VALID_METRICS, 'text/plain;charset=UTF-8');
-};
+// suite.tests[
+//   '#post /metrics - returns 200 if Content-Type is text/plain'
+// ] = function () {
+//   return testValidMetricsData(VALID_METRICS, 'text/plain;charset=UTF-8');
+// };
 
-suite.tests['#post /metrics - returns 200 with valid data'] = {
-  'valid entrypoint (fxa:connect_another_device)': testValidMetricsField(
-    'entrypoint',
-    'fxa:connect_another_device'
-  ),
-  'valid entrypoint (fxa:signup)': testValidMetricsField(
-    'entrypoint',
-    'fxa:signup'
-  ),
-  'valid entrypoint (fxa:signup-complete)': testValidMetricsField(
-    'entrypoint',
-    'fxa:signup-complete'
-  ),
-  'valid entrypoint_experiment (wibble)': testValidMetricsField(
-    'entrypoint_experiment',
-    'wibble'
-  ),
-  'valid entrypoint_variation (blee)': testValidMetricsField(
-    'entrypoint_variation',
-    'blee'
-  ),
-  'valid error-type (error.unknown context.auth.108)': testValidMetricsEvent(
-    'type',
-    'error.unknown context.auth.108'
-  ),
-  'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)': testValidMetricsEvent(
-    'type',
-    'signin-permissions.checkbox.change.profile:display_name.unchecked'
-  ),
-  'valid experiment choice (pushLogin)': testValidMetricsField('experiments', [
-    { choice: 'pushLogin', group: 'treatment' },
-  ]),
-  'valid initialView': testValidMetricsField('initialView', 'az_-'),
-  'valid lang (pt)': testValidMetricsField('lang', 'pt'),
-  'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
-  'valid lang (pt-br)': testValidMetricsField('lang', 'pt-br'),
-  // negative values are allowed until we figure out the cause of #4722
-  'valid navigationTiming connectEnd': testValidNavigationTimingField(
-    'connectEnd',
-    -12
-  ),
-  'valid referrer (android-app://com.google.android.gm)': testValidMetricsField(
-    'referrer',
-    'android-app://com.google.android.gm'
-  ),
-  'valid referrer (none)': testValidMetricsField('referrer', 'none'),
-  'valid screen.clientHeight (none)': testValidMetricsScreenField(
-    'clientHeight',
-    'none'
-  ),
-  'valid screen.clientWidth (none)': testValidMetricsScreenField(
-    'clientWidth',
-    'none'
-  ),
-  'valid screen.devicePixelRatio (none)': testValidMetricsScreenField(
-    'devicePixelRatio',
-    'none'
-  ),
-  'valid screen.height (none)': testValidMetricsScreenField('height', 'none'),
-  'valid screen.width (none)': testValidMetricsScreenField('width', 'none'),
-  'valid uniqueUserId (none)': testValidMetricsField('uniqueUserId', 'none'),
-  'valid utm_campaign (from firstrun)': testValidMetricsField(
-    'utm_campaign',
-    'page+referral+-+not+part+of+a+campaign'
-  ),
-  'valid utm_content': testValidMetricsField('utm_campaign', 'firefox/sync'),
-};
+// suite.tests['#post /metrics - returns 200 with valid data'] = {
+//   'valid entrypoint (fxa:connect_another_device)': testValidMetricsField(
+//     'entrypoint',
+//     'fxa:connect_another_device'
+//   ),
+//   'valid entrypoint (fxa:signup)': testValidMetricsField(
+//     'entrypoint',
+//     'fxa:signup'
+//   ),
+//   'valid entrypoint (fxa:signup-complete)': testValidMetricsField(
+//     'entrypoint',
+//     'fxa:signup-complete'
+//   ),
+//   'valid entrypoint_experiment (wibble)': testValidMetricsField(
+//     'entrypoint_experiment',
+//     'wibble'
+//   ),
+//   'valid entrypoint_variation (blee)': testValidMetricsField(
+//     'entrypoint_variation',
+//     'blee'
+//   ),
+//   'valid error-type (error.unknown context.auth.108)': testValidMetricsEvent(
+//     'type',
+//     'error.unknown context.auth.108'
+//   ),
+//   'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)': testValidMetricsEvent(
+//     'type',
+//     'signin-permissions.checkbox.change.profile:display_name.unchecked'
+//   ),
+//   'valid experiment choice (pushLogin)': testValidMetricsField('experiments', [
+//     { choice: 'pushLogin', group: 'treatment' },
+//   ]),
+//   'valid initialView': testValidMetricsField('initialView', 'az_-'),
+//   'valid lang (pt)': testValidMetricsField('lang', 'pt'),
+//   'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
+//   'valid lang (pt-br)': testValidMetricsField('lang', 'pt-br'),
+//   // negative values are allowed until we figure out the cause of #4722
+//   'valid navigationTiming connectEnd': testValidNavigationTimingField(
+//     'connectEnd',
+//     -12
+//   ),
+//   'valid referrer (android-app://com.google.android.gm)': testValidMetricsField(
+//     'referrer',
+//     'android-app://com.google.android.gm'
+//   ),
+//   'valid referrer (none)': testValidMetricsField('referrer', 'none'),
+//   'valid screen.clientHeight (none)': testValidMetricsScreenField(
+//     'clientHeight',
+//     'none'
+//   ),
+//   'valid screen.clientWidth (none)': testValidMetricsScreenField(
+//     'clientWidth',
+//     'none'
+//   ),
+//   'valid screen.devicePixelRatio (none)': testValidMetricsScreenField(
+//     'devicePixelRatio',
+//     'none'
+//   ),
+//   'valid screen.height (none)': testValidMetricsScreenField('height', 'none'),
+//   'valid screen.width (none)': testValidMetricsScreenField('width', 'none'),
+//   'valid uniqueUserId (none)': testValidMetricsField('uniqueUserId', 'none'),
+//   'valid utm_campaign (from firstrun)': testValidMetricsField(
+//     'utm_campaign',
+//     'page+referral+-+not+part+of+a+campaign'
+//   ),
+//   'valid utm_content': testValidMetricsField('utm_campaign', 'firefox/sync'),
+// };
 
 suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'empty body': () => testInvalidMetricsData(''),
@@ -120,10 +120,10 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
     'entrypoint_variation',
     'blee;'
   ),
-  'invalid event offset (<FLUSH_TIME_START_TIME_DIFF + 1>)': testInvalidMetricsField(
-    'events',
-    [{ offset: FLUSH_TIME_START_TIME_DIFF + 1, type: 'offset-too-high-nono' }]
-  ), //eslint-disable-line max-len
+  'invalid event offset (<FLUSH_TIME_START_TIME_DIFF + 1>)':
+    testInvalidMetricsField('events', [
+      { offset: FLUSH_TIME_START_TIME_DIFF + 1, type: 'offset-too-high-nono' },
+    ]), //eslint-disable-line max-len
   'invalid event offset (<MAX_EVENT_OFFSET + 1>)': testInvalidMetricsField(
     'events',
     [{ offset: MAX_EVENT_OFFSET + 1, type: 'more-than-two-days-nono' }]
@@ -169,90 +169,58 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
     'navigationTiming',
     []
   ),
-  'invalid navigationTiming connectEnd (asdf)': testInvalidNavigationTimingField(
-    'connectEnd',
-    'asdf'
-  ),
-  'invalid navigationTiming connectStart (undefined)': testInvalidNavigationTimingField(
-    'connectStart',
-    undefined
-  ),
+  'invalid navigationTiming connectEnd (asdf)':
+    testInvalidNavigationTimingField('connectEnd', 'asdf'),
+  'invalid navigationTiming connectStart (undefined)':
+    testInvalidNavigationTimingField('connectStart', undefined),
   'invalid navigationTiming domComplete (#$)': testInvalidNavigationTimingField(
     'domComplete',
     '#$'
   ),
-  'invalid navigationTiming domContentLoadedEventEnd ()': testInvalidNavigationTimingField(
-    'domContentLoadedEventEnd',
-    ''
-  ),
-  'invalid navigationTiming domContentLoadedEventStart (55a)': testInvalidNavigationTimingField(
-    'domContentLoadedEventStart',
-    '55a'
-  ),
-  'invalid navigationTiming domInteractive (a55)': testInvalidNavigationTimingField(
-    'domInteractive',
-    'a55'
-  ),
+  'invalid navigationTiming domContentLoadedEventEnd ()':
+    testInvalidNavigationTimingField('domContentLoadedEventEnd', ''),
+  'invalid navigationTiming domContentLoadedEventStart (55a)':
+    testInvalidNavigationTimingField('domContentLoadedEventStart', '55a'),
+  'invalid navigationTiming domInteractive (a55)':
+    testInvalidNavigationTimingField('domInteractive', 'a55'),
   'invalid navigationTiming domLoading ("")': testInvalidNavigationTimingField(
     'domLoading',
     '""'
   ),
-  'invalid navigationTiming domainLookupEnd (|)': testInvalidNavigationTimingField(
-    'domainLookupEnd',
-    '|'
-  ),
-  'invalid navigationTiming domainLookupStart (0u000)': testInvalidNavigationTimingField(
-    'domainLookupStart',
-    '0u000'
-  ),
+  'invalid navigationTiming domainLookupEnd (|)':
+    testInvalidNavigationTimingField('domainLookupEnd', '|'),
+  'invalid navigationTiming domainLookupStart (0u000)':
+    testInvalidNavigationTimingField('domainLookupStart', '0u000'),
   'invalid navigationTiming fetchStart (<>)': testInvalidNavigationTimingField(
     'fetchStart',
     '<>'
   ),
-  'invalid navigationTiming loadEventEnd (   )': testInvalidNavigationTimingField(
-    'loadEventEnd',
-    '   '
-  ),
-  'invalid navigationTiming loadEventStart (+=)': testInvalidNavigationTimingField(
-    'loadEventStart',
-    '+='
-  ),
-  'invalid navigationTiming navigationStart (*)': testInvalidNavigationTimingField(
-    'navigationStart',
-    '*'
-  ),
+  'invalid navigationTiming loadEventEnd (   )':
+    testInvalidNavigationTimingField('loadEventEnd', '   '),
+  'invalid navigationTiming loadEventStart (+=)':
+    testInvalidNavigationTimingField('loadEventStart', '+='),
+  'invalid navigationTiming navigationStart (*)':
+    testInvalidNavigationTimingField('navigationStart', '*'),
   'invalid navigationTiming redirectEnd ( )': testInvalidNavigationTimingField(
     'redirectEnd',
     ' '
   ),
-  'invalid navigationTiming redirectStart (\\)': testInvalidNavigationTimingField(
-    'redirectStart',
-    '\\'
-  ),
-  'invalid navigationTiming requestStart ({})': testInvalidNavigationTimingField(
-    'requestStart',
-    {}
-  ),
+  'invalid navigationTiming redirectStart (\\)':
+    testInvalidNavigationTimingField('redirectStart', '\\'),
+  'invalid navigationTiming requestStart ({})':
+    testInvalidNavigationTimingField('requestStart', {}),
   'invalid navigationTiming responseEnd ([])': testInvalidNavigationTimingField(
     'responseEnd',
     []
   ),
-  'invalid navigationTiming responseStart (true)': testInvalidNavigationTimingField(
-    'responseStart',
-    true
-  ),
-  'invalid navigationTiming secureConnectionStart (false)': testInvalidNavigationTimingField(
-    'secureConnectionStart',
-    false
-  ),
-  'invalid navigationTiming unloadEventEnd (&)': testInvalidNavigationTimingField(
-    'unloadEventEnd',
-    '&'
-  ),
-  'invalid navigationTiming unloadEventStart ([])': testInvalidNavigationTimingField(
-    'unloadEventStart',
-    '[]'
-  ),
+  'invalid navigationTiming responseStart (true)':
+    testInvalidNavigationTimingField('responseStart', true),
+  'invalid navigationTiming secureConnectionStart (false)':
+    testInvalidNavigationTimingField('secureConnectionStart', false),
+  'invalid navigationTiming unloadEventEnd (&)':
+    testInvalidNavigationTimingField('unloadEventEnd', '&'),
+  'invalid navigationTiming unloadEventStart ([])':
+    testInvalidNavigationTimingField('unloadEventStart', '[]'),
   'invalid numStoredAccounts ({})': testInvalidMetricsField(
     'numStoredAccounts',
     {}
@@ -323,50 +291,50 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
     testInvalidMetricsData(INVALID_METRICS_OVERWRITE_TOSTRING_METHOD),
 };
 
-function testValidMetricsField(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics[fieldName] = fieldValue;
-    return testValidMetricsData(metrics);
-  };
-}
+// function testValidMetricsField(fieldName, fieldValue) {
+//   return function () {
+//     var metrics = deepCopy(VALID_METRICS);
+//     metrics[fieldName] = fieldValue;
+//     return testValidMetricsData(metrics);
+//   };
+// }
 
-function testValidMetricsScreenField(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics.screen[fieldName] = fieldValue;
-    return testValidMetricsData(metrics);
-  };
-}
+// function testValidMetricsScreenField(fieldName, fieldValue) {
+//   return function () {
+//     var metrics = deepCopy(VALID_METRICS);
+//     metrics.screen[fieldName] = fieldValue;
+//     return testValidMetricsData(metrics);
+//   };
+// }
 
-function testValidMetricsEvent(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics.events[0][fieldName] = fieldValue;
-    return testValidMetricsData(metrics);
-  };
-}
+// function testValidMetricsEvent(fieldName, fieldValue) {
+//   return function () {
+//     var metrics = deepCopy(VALID_METRICS);
+//     metrics.events[0][fieldName] = fieldValue;
+//     return testValidMetricsData(metrics);
+//   };
+// }
 
-function testValidMetricsData(body, contentType) {
-  return got
-    .post(serverUrl + '/metrics', {
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': contentType || 'application/json',
-      },
-    })
-    .then((res) => {
-      assert.equal(res.statusCode, 200);
-    });
-}
+// function testValidMetricsData(body, contentType) {
+//   return got
+//     .post(serverUrl + '/metrics', {
+//       body: JSON.stringify(body),
+//       headers: {
+//         'Content-Type': contentType || 'application/json',
+//       },
+//     })
+//     .then((res) => {
+//       assert.equal(res.statusCode, 200);
+//     });
+// }
 
-function testValidNavigationTimingField(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics.navigationTiming[fieldName] = fieldValue;
-    return testValidMetricsData(metrics);
-  };
-}
+// function testValidNavigationTimingField(fieldName, fieldValue) {
+//   return function () {
+//     var metrics = deepCopy(VALID_METRICS);
+//     metrics.navigationTiming[fieldName] = fieldValue;
+//     return testValidMetricsData(metrics);
+//   };
+// }
 
 function testInvalidMetricsField(fieldName, fieldValue) {
   return function () {

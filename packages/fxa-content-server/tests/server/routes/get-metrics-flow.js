@@ -4,15 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
-const got = require('got');
+// const got = require('got');
 const joi = require('joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-const origin = require('../../../server/lib/configuration').get(
-  'allowed_metrics_flow_cors_origins'
-)[0];
-const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '/metrics-flow');
+// const origin = require('../../../server/lib/configuration').get(
+//   'allowed_metrics_flow_cors_origins'
+// )[0];
+// const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '/metrics-flow');
 
 let instance, request, response, route, mocks, sandbox;
 
@@ -485,85 +485,85 @@ registerSuite('routes/get-metrics-flow', {
   },
 });
 
-registerSuite('routes/get-metrics-flow remote request', {
-  'valid query parameters': function () {
-    const headers = {
-      Origin: origin,
-    };
+// registerSuite('routes/get-metrics-flow remote request', {
+//   'valid query parameters': function () {
+//     const headers = {
+//       Origin: origin,
+//     };
 
-    const query = {
-      context: 'blee',
-      entrypoint: 'zoo',
-      entrypoint_experiment: 'herf',
-      entrypoint_variation: 'menk',
-      form_type: 'other',
-      service: 'sync',
-      utm_campaign: 'foo',
-      utm_content: 'bar',
-      utm_medium: 'biz',
-      utm_source: 'baz',
-      utm_term: 'quix',
-    };
+//     const query = {
+//       context: 'blee',
+//       entrypoint: 'zoo',
+//       entrypoint_experiment: 'herf',
+//       entrypoint_variation: 'menk',
+//       form_type: 'other',
+//       service: 'sync',
+//       utm_campaign: 'foo',
+//       utm_content: 'bar',
+//       utm_medium: 'biz',
+//       utm_source: 'baz',
+//       utm_term: 'quix',
+//     };
 
-    return got(serverUrl, { headers, query });
-  },
+//     return got(serverUrl, { headers, query });
+//   },
 
-  'invalid context query parameter': function () {
-    return testInvalidFlowQueryParam('context', 'con text');
-  },
+//   'invalid context query parameter': function () {
+//     return testInvalidFlowQueryParam('context', 'con text');
+//   },
 
-  'invalid entrypoint query parameter': function () {
-    return testInvalidFlowQueryParam('entrypoint', 'foo bar');
-  },
+//   'invalid entrypoint query parameter': function () {
+//     return testInvalidFlowQueryParam('entrypoint', 'foo bar');
+//   },
 
-  'invalid entrypoint_experiment query parameter': function () {
-    return testInvalidFlowQueryParam('entrypoint_experiment', 'herf menk');
-  },
+//   'invalid entrypoint_experiment query parameter': function () {
+//     return testInvalidFlowQueryParam('entrypoint_experiment', 'herf menk');
+//   },
 
-  'invalid entrypoint_variation query parameter': function () {
-    return testInvalidFlowQueryParam('entrypoint_variation', 'menk herf');
-  },
+//   'invalid entrypoint_variation query parameter': function () {
+//     return testInvalidFlowQueryParam('entrypoint_variation', 'menk herf');
+//   },
 
-  'invalid form_type query parameter': function () {
-    return testInvalidFlowQueryParam('form_type', 'biz');
-  },
+//   'invalid form_type query parameter': function () {
+//     return testInvalidFlowQueryParam('form_type', 'biz');
+//   },
 
-  'invalid service query parameter': function () {
-    return testInvalidFlowQueryParam('service', 'zz$z');
-  },
+//   'invalid service query parameter': function () {
+//     return testInvalidFlowQueryParam('service', 'zz$z');
+//   },
 
-  'invalid utm_campaign query parameter': function () {
-    return testInvalidFlowQueryParam('utm_campaign', 'moo cow');
-  },
+//   'invalid utm_campaign query parameter': function () {
+//     return testInvalidFlowQueryParam('utm_campaign', 'moo cow');
+//   },
 
-  'invalid utm_content query parameter': function () {
-    return testInvalidFlowQueryParam('utm_content', 'quix quix');
-  },
+//   'invalid utm_content query parameter': function () {
+//     return testInvalidFlowQueryParam('utm_content', 'quix quix');
+//   },
 
-  'invalid utm_medium query parameter': function () {
-    return testInvalidFlowQueryParam('utm_medium', 'wimble!@$');
-  },
+//   'invalid utm_medium query parameter': function () {
+//     return testInvalidFlowQueryParam('utm_medium', 'wimble!@$');
+//   },
 
-  'invalid utm_source query parameter': function () {
-    return testInvalidFlowQueryParam('utm_source', '%!@%womble');
-  },
+//   'invalid utm_source query parameter': function () {
+//     return testInvalidFlowQueryParam('utm_source', '%!@%womble');
+//   },
 
-  'invalid utm_term query parameter': function () {
-    return testInvalidFlowQueryParam('utm_term', 'jum!%^gle');
-  },
-});
+//   'invalid utm_term query parameter': function () {
+//     return testInvalidFlowQueryParam('utm_term', 'jum!%^gle');
+//   },
+// });
 
-async function testInvalidFlowQueryParam(paramName, paramValue) {
-  const searchParams = { [paramName]: paramValue };
-  const headers = {
-    Origin: origin,
-  };
+// async function testInvalidFlowQueryParam(paramName, paramValue) {
+//   const searchParams = { [paramName]: paramValue };
+//   const headers = {
+//     Origin: origin,
+//   };
 
-  try {
-    await got(serverUrl, { headers, searchParams });
-    assert.fail('request should have failed');
-  } catch (err) {
-    assert.equal(err.response.statusCode, 400);
-    assert.include(JSON.parse(err.response.body).validation.keys, paramName);
-  }
-}
+//   try {
+//     await got(serverUrl, { headers, searchParams });
+//     assert.fail('request should have failed');
+//   } catch (err) {
+//     assert.equal(err.response.statusCode, 400);
+//     assert.include(JSON.parse(err.response.body).validation.keys, paramName);
+//   }
+// }
