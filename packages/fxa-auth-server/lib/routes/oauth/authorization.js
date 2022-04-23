@@ -335,7 +335,7 @@ module.exports = ({ log, oauthDB, config }) => {
         checkDisabledClientId(req.payload);
         const sessionToken = req.auth.credentials;
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
-        const result = authorizationHandler(req);
+        const result = await authorizationHandler(req);
 
         const geoData = req.app.geo;
         const country = geoData.location && geoData.location.country;
