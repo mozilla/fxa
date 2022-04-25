@@ -43,7 +43,7 @@ export class EmailBounce extends BaseAuthModel {
   bounceType!: number;
   bounceSubType!: number;
   createdAt!: number;
-  diagnosticCode?: string;
+  diagnosticCode?: string | null;
 
   static async create({
     email,

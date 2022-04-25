@@ -52,6 +52,6 @@ export class EmailBounce {
   @Field()
   public createdAt!: number;
 
-  @Field({ nullable: true })
-  public diagnosticCode?: string;
+  @Field()
+  public diagnosticCode?: string | null;
 }
