@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.4.5",
-    "@emotion/react": "^11.7.1",
+    "@emotion/react": "^11.9.0",
     "@sentry/browser": "^6.19.4",
     "@sentry/node": "^6.19.2",
     "@sentry/tracing": "^6.19.2",
