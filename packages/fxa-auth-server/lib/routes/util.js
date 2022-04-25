@@ -4,8 +4,6 @@
 
 'use strict';
 
-import UTIL_DOCS from '../../docs/swagger/util-api';
-
 const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const validators = require('./validators');
@@ -16,9 +14,6 @@ module.exports = (log, config, redirectDomain) => {
     {
       method: 'POST',
       path: '/get_random_bytes',
-      options: {
-        ...UTIL_DOCS.GET_RANDOM_BYTES_POST,
-      },
       handler: async function getRandomBytes(request) {
         let bytes;
         // eslint-disable-next-line no-useless-catch
@@ -34,7 +29,6 @@ module.exports = (log, config, redirectDomain) => {
       method: 'GET',
       path: '/verify_email',
       options: {
-        ...UTIL_DOCS.VERIFY_EMAIL_GET,
         validate: {
           query: {
             code: isA.string().max(32).regex(HEX_STRING).required(),
@@ -52,7 +46,6 @@ module.exports = (log, config, redirectDomain) => {
       method: 'GET',
       path: '/complete_reset_password',
       options: {
-        ...UTIL_DOCS.COMPLETE_RESET_PASSWORD_GET,
         validate: {
           query: {
             email: validators.email().required(),

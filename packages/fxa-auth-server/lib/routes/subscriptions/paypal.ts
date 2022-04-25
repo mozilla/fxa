@@ -17,7 +17,6 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal/helper';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
@@ -477,7 +476,6 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paypal-checkout',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYPAL_CHECKOUT_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -500,7 +498,6 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/active/new-paypal',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_PAYPAL_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -528,7 +525,6 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paymentmethod/billing-agreement',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_BILLING_AGREEMENT_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
