@@ -10,8 +10,10 @@ import { ConfigType } from '../../config';
 import { PlaySubscriptions } from '../../lib/payments/google-play/subscriptions';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
-import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 import validators from './validators';
+
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
 
 export const supportPanelRoutes = ({
   log,

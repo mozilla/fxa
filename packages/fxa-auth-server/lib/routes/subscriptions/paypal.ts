@@ -17,7 +17,6 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal/helper';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
@@ -32,6 +31,9 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
+
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 

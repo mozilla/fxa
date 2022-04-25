@@ -16,9 +16,6 @@ import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
-import ACCOUNT_DOCS from '../../docs/swagger/account-api';
-import MISC_DOCS from '../../docs/swagger/misc-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { reportSentryError } from '../../lib/sentry';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
@@ -34,6 +31,10 @@ import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+
+const ACCOUNT_DOCS = require('../../docs/swagger/account-api').default;
+const MISC_DOCS = require('../../docs/swagger/misc-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 

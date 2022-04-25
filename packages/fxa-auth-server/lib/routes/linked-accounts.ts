@@ -10,11 +10,14 @@ import * as random from '../crypto/random';
 import validators from './validators';
 import Joi from 'joi';
 import jwtDecode from 'jwt-decode';
-import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 import {
   Provider,
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
+
+const THIRD_PARTY_AUTH_DOCS =
+  require('../../docs/swagger/third-party-auth-api').default;
+
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 const error = require('../error');

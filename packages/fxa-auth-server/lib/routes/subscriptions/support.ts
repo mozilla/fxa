@@ -7,12 +7,13 @@ import zendesk from 'node-zendesk';
 import pRetry from 'p-retry';
 
 import { ConfigType } from '../../../config';
-import MISC_DOCS from '../../../docs/swagger/misc-api';
 import error from '../../error';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
 import { email } from '../validators';
 import AppError from '../../error';
+
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 
 export const supportRoutes = (
   log: AuthLogger,

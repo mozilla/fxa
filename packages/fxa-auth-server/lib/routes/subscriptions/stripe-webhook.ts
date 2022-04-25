@@ -10,7 +10,6 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import {
   formatMetadataValidationErrorMessage,
   reportSentryError,
@@ -32,6 +31,9 @@ import {
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
+
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
 
 // ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
 // will fetch the latest of for the webhook event, _instead of_ using the

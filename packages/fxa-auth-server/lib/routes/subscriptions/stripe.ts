@@ -23,7 +23,6 @@ import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import error from '../../error';
 import { commaSeparatedListToArray } from '../../payments/utils';
 import { StripeHelper } from '../../payments/stripe';
@@ -36,6 +35,9 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
+
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
 
 // List of countries for which we need to look up the province/state of the
 // customer.
