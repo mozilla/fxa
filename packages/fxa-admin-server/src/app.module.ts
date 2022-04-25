@@ -39,7 +39,7 @@ const version = getVersionInfo(__dirname);
         useGlobalPrefix: true,
         debug: configService.get<string>('env') !== 'production',
         playground: configService.get<string>('env') !== 'production',
-        autoSchemaFile: join(__dirname, './schema.gql'),
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         definitions: {
           path: join(process.cwd(), 'src/graphql.ts'),
         },
