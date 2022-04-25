@@ -4,9 +4,6 @@
 
 'use strict';
 
-import SIGN_DOCS from '../../docs/swagger/sign-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const error = require('../error');
 const isA = require('@hapi/joi');
 const validators = require('./validators');
@@ -19,39 +16,34 @@ module.exports = (log, signer, db, domain, devices) => {
       method: 'POST',
       path: '/certificate/sign',
       options: {
-        ...SIGN_DOCS.CERTIFICATE_SIGN_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          query: isA.object({
+          query: {
             service: validators.service.optional(),
-          }),
-          payload: isA
-            .object({
-              publicKey: isA
-                .object({
-                  algorithm: isA.string().valid('RS', 'DS').required(),
-                  n: isA.string(),
-                  e: isA.string(),
-                  y: isA.string(),
-                  p: isA.string(),
-                  q: isA.string(),
-                  g: isA.string(),
-                  version: isA.string(),
-                })
-                .required()
-                .description(DESCRIPTION.publicKey),
-              duration: isA
-                .number()
-                .integer()
-                .min(0)
-                .max(24 * HOUR)
-                .required()
-                .description(DESCRIPTION.duration),
-            })
-            .label('Sign.cert_payload'),
+          },
+          payload: {
+            publicKey: isA
+              .object({
+                algorithm: isA.string().valid('RS', 'DS').required(),
+                n: isA.string(),
+                e: isA.string(),
+                y: isA.string(),
+                p: isA.string(),
+                q: isA.string(),
+                g: isA.string(),
+                version: isA.string(),
+              })
+              .required(),
+            duration: isA
+              .number()
+              .integer()
+              .min(0)
+              .max(24 * HOUR)
+              .required(),
+          },
         },
       },
       handler: async function certificateSign(request) {

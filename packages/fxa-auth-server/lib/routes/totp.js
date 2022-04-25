@@ -4,9 +4,6 @@
 
 'use strict';
 
-import TOTP_DOCS from '../../docs/swagger/totp-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const errors = require('../error');
 const validators = require('./validators');
 const isA = require('@hapi/joi');
@@ -34,26 +31,21 @@ module.exports = (log, db, mailer, customs, config) => {
       method: 'POST',
       path: '/totp/create',
       options: {
-        ...TOTP_DOCS.TOTP_CREATE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-            })
-            .label('totp.create_payload'),
+          payload: {
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          },
         },
         response: {
-          schema: isA
-            .object({
-              qrCodeUrl: isA.string().required(),
-              secret: isA.string().required(),
-              recoveryCodes: isA.array().items(isA.string()).required(),
-            })
-            .label('totp.create_response'),
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+            recoveryCodes: isA.array().items(isA.string()).required(),
+          }),
         },
       },
       handler: async function (request) {
@@ -123,7 +115,6 @@ module.exports = (log, db, mailer, customs, config) => {
       method: 'POST',
       path: '/totp/destroy',
       options: {
-        ...TOTP_DOCS.TOTP_DESTROY_POST,
         auth: {
           strategy: 'sessionToken',
         },
@@ -198,17 +189,14 @@ module.exports = (log, db, mailer, customs, config) => {
       method: 'GET',
       path: '/totp/exists',
       options: {
-        ...TOTP_DOCS.TOTP_EXISTS_GET,
         auth: {
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .object({
-              exists: isA.boolean(),
-              verified: isA.boolean(),
-            })
-            .label('totp.exists_response'),
+          schema: isA.object({
+            exists: isA.boolean(),
+            verified: isA.boolean(),
+          }),
         },
       },
       handler: async function (request) {
@@ -238,30 +226,20 @@ module.exports = (log, db, mailer, customs, config) => {
       method: 'POST',
       path: '/session/verify/totp',
       options: {
-        ...TOTP_DOCS.SESSION_VERIFY_TOTP_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              code: isA
-                .string()
-                .max(32)
-                .regex(validators.DIGITS)
-                .required()
-                .description(DESCRIPTION.codeTotp),
-              service: validators.service,
-            })
-            .label('session.verify.totp_payload'),
+          payload: {
+            code: isA.string().max(32).regex(validators.DIGITS).required(),
+            service: validators.service,
+          },
         },
         response: {
-          schema: isA
-            .object({
-              success: isA.boolean().required(),
-            })
-            .label('session.verify.totp_response'),
+          schema: {
+            success: isA.boolean().required(),
+          },
         },
       },
       handler: async function (request) {

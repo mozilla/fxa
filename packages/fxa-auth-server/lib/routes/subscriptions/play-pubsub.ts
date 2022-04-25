@@ -7,8 +7,8 @@ import { Container } from 'typedi';
 
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
-import { PlayBilling } from '../../payments/google-play/play-billing';
-import { DeveloperNotification } from '../../payments/google-play/types';
+import { PlayBilling } from '../../payments/iap/google-play/play-billing';
+import { DeveloperNotification } from '../../payments/iap/google-play/types';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 
@@ -113,7 +113,6 @@ export const playPubsubRoutes = (db: any): ServerRoute[] => {
       method: 'POST',
       path: '/oauth/subscriptions/iap/rtdn',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST,
         auth: {
           strategy: 'pubsub',
         },

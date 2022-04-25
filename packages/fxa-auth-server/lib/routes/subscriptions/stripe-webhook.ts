@@ -474,6 +474,10 @@ export class StripeWebhookHandler extends StripeHandler {
   async handleCustomerUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
     const customer = event.data.object as Stripe.Customer;
     const uid = customer.metadata.userid;
+    if (!uid || customer.deleted) {
+      // There's nothing to do if this event is for a customer being deleted.
+      return;
+    }
     const account = await Account.findByUid(uid, { include: ['emails'] });
     if (!account) {
       reportSentryError(
@@ -969,7 +973,6 @@ export const stripeWebhookRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/stripe/event',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_STRIPE_EVENT_POST,
         // We'll use the official Stripe library to authenticate the payload,
         // and it will also return an event.
         auth: false,

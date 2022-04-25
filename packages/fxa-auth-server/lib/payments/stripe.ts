@@ -58,7 +58,7 @@ import {
 import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
-import { SubscriptionPurchase } from './google-play/subscription-purchase';
+import { SubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
 // @ts-ignore
@@ -816,7 +816,10 @@ export class StripeHelper {
    * - Expired
    * - Maximally redeemed
    */
-  verifyPromotionAndCoupon(promotionCode: Stripe.PromotionCode) {
+  async verifyPromotionAndCoupon(
+    priceId: string,
+    promotionCode: Stripe.PromotionCode
+  ) {
     const { coupon } = promotionCode;
 
     const verifyCoupon = this.checkPromotionAndCouponProperties(coupon);
@@ -826,12 +829,70 @@ export class StripeHelper {
       redeem_by: promotionCode.expires_at,
     });
 
+    const validCouponDuration = await this.validateCouponDurationForPlan(
+      priceId,
+      promotionCode.code,
+      coupon
+    );
+
     return {
-      valid: verifyCoupon.valid && verifyPromotionCode.valid,
+      valid:
+        verifyCoupon.valid && verifyPromotionCode.valid && validCouponDuration,
       expired: verifyCoupon.expired || verifyPromotionCode.expired,
       maximallyRedeemed:
         verifyCoupon.maximallyRedeemed || verifyPromotionCode.maximallyRedeemed,
     };
+  }
+
+  /**
+   * Validate that the Coupon Duration is valid for a plan interval.
+   * Currently checking if the coupon duration is applied for the entire
+   * plan interval.
+   */
+  async validateCouponDurationForPlan(
+    priceId: string,
+    promotionCode: string,
+    coupon: Stripe.Coupon
+  ) {
+    const {
+      duration: couponDuration,
+      duration_in_months: couponDurationInMonths,
+    } = coupon;
+    // If the coupon duration is repeating, check if the duration months will be
+    // applied for a whole plan interval. Currently we do not want to support
+    // coupons being applied for part of the plan interval.
+    if (couponDuration === 'repeating') {
+      const { interval: priceInterval, interval_count: priceIntervalCount } =
+        await this.findPlanById(priceId);
+
+      // Currently we only support coupons for year and month plan intervals.
+      if (['month', 'year'].includes(priceInterval) && couponDurationInMonths) {
+        const multiplier = priceInterval === 'year' ? 12 : 1;
+        if (!(couponDurationInMonths % (priceIntervalCount * multiplier))) {
+          return true;
+        } else {
+          Sentry.withScope((scope) => {
+            scope.setContext('validateCouponDurationForPlan', {
+              promotionCode,
+              priceId,
+              couponDuration,
+              couponDurationInMonths,
+              priceInterval,
+              priceIntervalCount,
+            });
+            Sentry.captureMessage(
+              'Coupon duration does not apply for entire plan interval',
+              Sentry.Severity.Error
+            );
+          });
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -870,8 +931,10 @@ export class StripeHelper {
         expired: false,
       };
 
-      const verifiedPromotionAndCoupon =
-        this.verifyPromotionAndCoupon(stripePromotionCode);
+      const verifiedPromotionAndCoupon = await this.verifyPromotionAndCoupon(
+        priceId,
+        stripePromotionCode
+      );
 
       if (verifiedPromotionAndCoupon.valid) {
         try {
@@ -933,6 +996,7 @@ export class StripeHelper {
       code,
       priceId
     );
+
     if (!planContainsPromo) {
       return;
     }

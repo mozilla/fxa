@@ -7,9 +7,6 @@
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const joi = require('@hapi/joi');
-const HapiSwagger = require('hapi-swagger');
-const Inert = require('inert');
-const Vision = require('vision');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -19,7 +16,6 @@ const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
-const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
@@ -430,16 +426,6 @@ async function create(log, error, config, routes, db, statsd) {
   server.auth.strategy('supportSecret', 'supportSecret');
 
   server.auth.strategy('pubsub', 'jwt', pubsubAuth.strategy(config));
-
-  // register all plugins and Swagger configuration
-  await server.register([
-    Inert,
-    Vision,
-    {
-      plugin: HapiSwagger,
-      options: swaggerOptions,
-    },
-  ]);
 
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth

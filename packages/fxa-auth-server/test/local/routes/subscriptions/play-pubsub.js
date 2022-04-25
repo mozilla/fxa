@@ -16,7 +16,7 @@ const {
 const { default: Container } = require('typedi');
 const { mockLog } = require('../../../mocks');
 const { AuthLogger } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const ACCOUNT_LOCALE = 'en-US';

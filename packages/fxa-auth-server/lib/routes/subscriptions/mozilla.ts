@@ -4,7 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
-import { PlaySubscriptions } from '../../../lib/payments/google-play/subscriptions';
+import { PlaySubscriptions } from '../../../lib/payments/iap/google-play/subscriptions';
 import error from '../../error';
 import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -42,7 +42,6 @@ export const mozillaSubscriptionRoutes = ({
       method: 'GET',
       path: '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
         auth: {
           payload: false,
           strategy: 'oauthToken',

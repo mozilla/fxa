@@ -15,6 +15,9 @@ import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
 import { ReactComponent as PocketIcon } from './pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
+import { ReactComponent as RelayIcon } from './relay.svg';
+import { ReactComponent as AddonIcon } from './addon.svg';
+import { ReactComponent as MDNPlusIcon } from './mdnplus.svg';
 import { Localized } from '@fluent/react';
 
 export function Service({
@@ -35,6 +38,10 @@ export function Service({
   let serviceLink, Icon;
 
   switch (name) {
+    case 'Add-ons':
+      serviceLink = 'https://addons.mozilla.org/';
+      Icon = <AddonIcon data-testid="addon-icon" />;
+      break;
     case 'Pocket':
       serviceLink = 'https://www.mozilla.org/en-US/firefox/pocket/';
       Icon = <PocketIcon data-testid="pocket-icon" />;
@@ -51,10 +58,18 @@ export function Service({
       serviceLink = 'https://vpn.mozilla.com/';
       Icon = <FPNIcon data-testid="fpn-icon" />;
       break;
+    case 'Firefox Relay':
+      serviceLink = 'https://relay.firefox.com/';
+      Icon = <RelayIcon data-testid="relay-icon" />;
+      break;
     case 'Firefox Sync':
       serviceLink =
         'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
       Icon = <SyncIcon data-testid="sync-icon" />;
+      break;
+    case 'MDN Plus':
+      serviceLink = 'https://developer.mozilla.org/';
+      Icon = <MDNPlusIcon data-testid="mdnplus-icon" />;
       break;
     default:
       if (name.toLowerCase().includes('ipad')) {

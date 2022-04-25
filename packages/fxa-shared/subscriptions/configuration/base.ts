@@ -22,6 +22,7 @@ export const UrlConfigKeys = [
   'privacyNoticeDownload',
   'playStore',
   'appStore',
+  'cancellationSurvey',
 ] as const;
 type UrlConfigKeysT = typeof UrlConfigKeys;
 export type UrlConfig = {
@@ -38,6 +39,7 @@ const urlsSchema = joi.object({
   privacyNoticeDownload: joi.string().uri(),
   playStore: joi.string().uri(),
   appStore: joi.string().uri(),
+  cancellationSurvey: joi.string().uri(),
 });
 
 export const UiContentConfigKeys = {

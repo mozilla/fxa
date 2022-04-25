@@ -4,9 +4,6 @@
 
 'use strict';
 
-import DEVICES_AND_SERVICES_DOCS from '../../docs/swagger/devices-and-sessions-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
@@ -97,7 +94,6 @@ module.exports = (
       method: 'POST',
       path: '/account/device',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_POST,
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
@@ -116,8 +112,7 @@ module.exports = (
               // We accept but ignore it.
               capabilities: isA.array().length(0).optional(),
             })
-            .and('pushCallback', 'pushPublicKey', 'pushAuthKey')
-            .label('Account.device_payload'),
+            .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
         },
         response: {
           schema: isA
@@ -129,12 +124,10 @@ module.exports = (
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
               pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-              pushEndpointExpired:
-                DEVICES_SCHEMA.pushEndpointExpired.optional(),
+              pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
               availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
             })
-            .and('pushCallback', 'pushPublicKey', 'pushAuthKey')
-            .label('Account.device_response'),
+            .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
         },
       },
       handler: async function (request) {
@@ -194,18 +187,11 @@ module.exports = (
       method: 'GET',
       path: '/account/device/commands',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_COMMANDS_GET,
         validate: {
-          query: isA.object({
-            index: isA.number().optional().description(DESCRIPTION.indexQuery),
-            limit: isA
-              .number()
-              .optional()
-              .min(0)
-              .max(100)
-              .default(100)
-              .description(DESCRIPTION.limit),
-          }),
+          query: {
+            index: isA.number().optional(),
+            limit: isA.number().optional().min(0).max(100).default(100),
+          },
         },
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
@@ -213,32 +199,25 @@ module.exports = (
         response: {
           schema: isA
             .object({
-              index: isA
-                .number()
-                .required()
-                .description(DESCRIPTION.indexSchema),
-              last: isA.boolean().optional().description(DESCRIPTION.last),
+              index: isA.number().required(),
+              last: isA.boolean().optional(),
               messages: isA
                 .array()
                 .items(
-                  isA
-                    .object({
-                      index: isA.number().required(),
-                      data: isA
-                        .object({
-                          command: isA.string().max(255).required(),
-                          payload: isA.object().required(),
-                          sender: DEVICES_SCHEMA.id.optional(),
-                        })
-                        .required(),
-                    })
-                    .label('message')
+                  isA.object({
+                    index: isA.number().required(),
+                    data: isA
+                      .object({
+                        command: isA.string().max(255).required(),
+                        payload: isA.object().required(),
+                        sender: DEVICES_SCHEMA.id.optional(),
+                      })
+                      .required(),
+                  })
                 )
-                .optional()
-                .description(DESCRIPTION.messages),
+                .optional(),
             })
-            .and('last', 'messages')
-            .label('Account.deviceCommands_response'),
+            .and('last', 'messages'),
         },
       },
       handler: async function (request) {
@@ -279,36 +258,23 @@ module.exports = (
       method: 'POST',
       path: '/account/devices/invoke_command',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_INVOKE_COMMAND_POST,
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
-          payload: isA
-            .object({
-              target: DEVICES_SCHEMA.id
-                .required()
-                .description(DESCRIPTION.target),
-              command: isA.string().required().description(DESCRIPTION.command),
-              payload: isA.object().required().description(DESCRIPTION.payload),
-              ttl: isA
-                .number()
-                .integer()
-                .min(0)
-                .max(10000000)
-                .optional()
-                .description(DESCRIPTION.ttl),
-            })
-            .label('Account.invokeDeviceCommand_payload'),
+          payload: {
+            target: DEVICES_SCHEMA.id.required(),
+            command: isA.string().required(),
+            payload: isA.object().required(),
+            ttl: isA.number().integer().min(0).max(10000000).optional(),
+          },
         },
         response: {
-          schema: isA
-            .object({
-              enqueued: isA.boolean().optional(),
-              notified: isA.boolean().optional(),
-              notifyError: isA.string().optional(),
-            })
-            .label('Account.invokeDeviceCommand_response'),
+          schema: {
+            enqueued: isA.boolean().optional(),
+            notified: isA.boolean().optional(),
+            notifyError: isA.string().optional(),
+          },
         },
       },
       handler: async function (request) {
@@ -400,41 +366,25 @@ module.exports = (
       method: 'POST',
       path: '/account/devices/notify',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_NOTIFY_POST,
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.alternatives().try(
-            isA
-              .object({
-                to: isA
-                  .string()
-                  .valid('all')
-                  .required()
-                  .description(DESCRIPTION.to),
-                _endpointAction: isA.string().valid('accountVerify').optional(),
-                excluded: isA
-                  .array()
-                  .items(isA.string().length(32).regex(HEX_STRING))
-                  .optional()
-                  .description(DESCRIPTION.excluded),
-                payload: isA
-                  .object()
-                  .when('_endpointAction', {
-                    is: 'accountVerify',
-                    then: isA.required(),
-                    otherwise: isA.required(),
-                  })
-                  .description(DESCRIPTION.pushPayload),
-                TTL: isA
-                  .number()
-                  .integer()
-                  .min(0)
-                  .optional()
-                  .description(DESCRIPTION.ttlPushNotification),
-              })
-              .label('Account.devicesNotify_payload'),
+            isA.object({
+              to: isA.string().valid('all').required(),
+              _endpointAction: isA.string().valid('accountVerify').optional(),
+              excluded: isA
+                .array()
+                .items(isA.string().length(32).regex(HEX_STRING))
+                .optional(),
+              payload: isA.object().when('_endpointAction', {
+                is: 'accountVerify',
+                then: isA.required(),
+                otherwise: isA.required(),
+              }),
+              TTL: isA.number().integer().min(0).optional(),
+            }),
             isA.object({
               to: isA
                 .array()
@@ -544,46 +494,37 @@ module.exports = (
       method: 'GET',
       path: '/account/devices',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_GET,
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object({
-                  id: DEVICES_SCHEMA.id.required(),
-                  isCurrentDevice: isA.boolean().required(),
-                  lastAccessTime: isA.number().min(0).required().allow(null),
-                  lastAccessTimeFormatted: isA.string().optional().allow(''),
-                  approximateLastAccessTime: isA.number().min(0).optional(),
-                  approximateLastAccessTimeFormatted: isA
-                    .string()
-                    .optional()
-                    .allow(''),
-                  location: DEVICES_SCHEMA.location,
-                  name: DEVICES_SCHEMA.nameResponse.allow('').required(),
-                  type: DEVICES_SCHEMA.type.required(),
-                  pushCallback: DEVICES_SCHEMA.pushCallback
-                    .allow(null)
-                    .optional(),
-                  pushPublicKey: DEVICES_SCHEMA.pushPublicKey
-                    .allow(null)
-                    .optional(),
-                  pushAuthKey: DEVICES_SCHEMA.pushAuthKey
-                    .allow(null)
-                    .optional(),
-                  pushEndpointExpired:
-                    DEVICES_SCHEMA.pushEndpointExpired.optional(),
-                  availableCommands:
-                    DEVICES_SCHEMA.availableCommands.optional(),
-                })
-                .and('pushPublicKey', 'pushAuthKey')
-                .label('Account.device_model')
-            )
-            .label('Account.devices_response'),
+          schema: isA.array().items(
+            isA
+              .object({
+                id: DEVICES_SCHEMA.id.required(),
+                isCurrentDevice: isA.boolean().required(),
+                lastAccessTime: isA.number().min(0).required().allow(null),
+                lastAccessTimeFormatted: isA.string().optional().allow(''),
+                approximateLastAccessTime: isA.number().min(0).optional(),
+                approximateLastAccessTimeFormatted: isA
+                  .string()
+                  .optional()
+                  .allow(''),
+                location: DEVICES_SCHEMA.location,
+                name: DEVICES_SCHEMA.nameResponse.allow('').required(),
+                type: DEVICES_SCHEMA.type.required(),
+                pushCallback: DEVICES_SCHEMA.pushCallback
+                  .allow(null)
+                  .optional(),
+                pushPublicKey: DEVICES_SCHEMA.pushPublicKey
+                  .allow(null)
+                  .optional(),
+                pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
+                pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+                availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
+              })
+              .and('pushPublicKey', 'pushAuthKey')
+          ),
         },
       },
       handler: async function (request) {
@@ -660,7 +601,6 @@ module.exports = (
       // N.B. This route is deprecated in favour of /account/attached_clients
       path: '/account/sessions',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_GET,
         auth: {
           strategies: [
             'sessionToken',
@@ -669,51 +609,46 @@ module.exports = (
           ],
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object({
-                  id: isA.string().regex(HEX_STRING).required(),
-                  lastAccessTime: isA.number().min(0).required().allow(null),
-                  lastAccessTimeFormatted: isA.string().optional().allow(''),
-                  approximateLastAccessTime: isA.number().min(0).optional(),
-                  approximateLastAccessTimeFormatted: isA
-                    .string()
-                    .optional()
-                    .allow(''),
-                  createdTime: isA.number().min(0).required().allow(null),
-                  createdTimeFormatted: isA.string().optional().allow(''),
-                  location: DEVICES_SCHEMA.location,
-                  userAgent: isA.string().max(255).required().allow(''),
-                  os: isA.string().max(255).allow('').allow(null),
-                  deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-                  deviceName: DEVICES_SCHEMA.nameResponse
-                    .allow('')
-                    .allow(null)
-                    .required(),
-                  deviceAvailableCommands: DEVICES_SCHEMA.availableCommands
-                    .allow(null)
-                    .required(),
-                  deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-                  deviceCallbackURL: DEVICES_SCHEMA.pushCallback
-                    .allow(null)
-                    .required(),
-                  deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey
-                    .allow(null)
-                    .required(),
-                  deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey
-                    .allow(null)
-                    .required(),
-                  deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired
-                    .allow(null)
-                    .required(),
-                  isDevice: isA.boolean().required(),
-                  isCurrentDevice: isA.boolean().required(),
-                })
-                .label('Account.session_model')
-            )
-            .label('Account.session_response'),
+          schema: isA.array().items(
+            isA.object({
+              id: isA.string().regex(HEX_STRING).required(),
+              lastAccessTime: isA.number().min(0).required().allow(null),
+              lastAccessTimeFormatted: isA.string().optional().allow(''),
+              approximateLastAccessTime: isA.number().min(0).optional(),
+              approximateLastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              createdTime: isA.number().min(0).required().allow(null),
+              createdTimeFormatted: isA.string().optional().allow(''),
+              location: DEVICES_SCHEMA.location,
+              userAgent: isA.string().max(255).required().allow(''),
+              os: isA.string().max(255).allow('').allow(null),
+              deviceId: DEVICES_SCHEMA.id.allow(null).required(),
+              deviceName: DEVICES_SCHEMA.nameResponse
+                .allow('')
+                .allow(null)
+                .required(),
+              deviceAvailableCommands: DEVICES_SCHEMA.availableCommands
+                .allow(null)
+                .required(),
+              deviceType: DEVICES_SCHEMA.type.allow(null).required(),
+              deviceCallbackURL: DEVICES_SCHEMA.pushCallback
+                .allow(null)
+                .required(),
+              deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey
+                .allow(null)
+                .required(),
+              deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey
+                .allow(null)
+                .required(),
+              deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired
+                .allow(null)
+                .required(),
+              isDevice: isA.boolean().required(),
+              isCurrentDevice: isA.boolean().required(),
+            })
+          ),
         },
       },
       handler: async function (request) {
@@ -773,16 +708,13 @@ module.exports = (
       method: 'POST',
       path: '/account/device/destroy',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_DESTROY_POST,
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
-          payload: isA
-            .object({
-              id: DEVICES_SCHEMA.id.required(),
-            })
-            .label('Account.deviceDestroy_payload'),
+          payload: {
+            id: DEVICES_SCHEMA.id.required(),
+          },
         },
         response: {
           schema: {},
@@ -798,7 +730,6 @@ module.exports = (
       method: 'GET',
       path: '/account/sessions/locations',
       options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_LOCATIONS_GET,
         auth: {
           payload: false,
           strategy: 'supportPanelSecret',
@@ -809,21 +740,16 @@ module.exports = (
           },
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object({
-                  city: isA.string().required().allow(null),
-                  state: isA.string().required().allow(null),
-                  stateCode: isA.string().required().allow(null),
-                  country: isA.string().required().allow(null),
-                  countryCode: isA.string().required().allow(null),
-                  lastAccessTime: isA.number().required(),
-                })
-                .label('Account.sessionsLocation')
-            )
-            .label('Account.sessionsLocations_response'),
+          schema: isA.array().items(
+            isA.object({
+              city: isA.string().required().allow(null),
+              state: isA.string().required().allow(null),
+              stateCode: isA.string().required().allow(null),
+              country: isA.string().required().allow(null),
+              countryCode: isA.string().required().allow(null),
+              lastAccessTime: isA.number().required(),
+            })
+          ),
         },
       },
       handler: async function (request) {

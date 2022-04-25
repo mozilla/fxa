@@ -11,7 +11,7 @@ const { Container } = require('typedi');
 const { mockLog } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
-const { PlayBilling } = require('../../../lib/payments/google-play');
+const { PlayBilling } = require('../../../lib/payments/iap/google-play');
 
 const subscriptionCreated =
   require('./fixtures/stripe/subscription_created.json').data.object;
@@ -19,13 +19,13 @@ const subscriptionCreated =
 const { ProfileClient } = require('../../../lib/types');
 const {
   SubscriptionPurchase,
-} = require('../../../lib/payments/google-play/subscription-purchase');
+} = require('../../../lib/payments/iap/google-play/subscription-purchase');
 const proxyquire = require('proxyquire').noPreserveCache();
 
 const authDbModule = require('fxa-shared/db/models/auth');
 const {
   PurchaseQueryError,
-} = require('../../../lib/payments/google-play/types');
+} = require('../../../lib/payments/iap/google-play/types');
 
 const mockAuthEvents = {};
 

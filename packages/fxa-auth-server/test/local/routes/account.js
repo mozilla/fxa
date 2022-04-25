@@ -24,7 +24,7 @@ const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   PlaySubscriptions,
-} = require('../../../lib/payments/google-play/subscriptions');
+} = require('../../../lib/payments/iap/google-play/subscriptions');
 
 const { AccountHandler } = require('../../../lib/routes/account');
 

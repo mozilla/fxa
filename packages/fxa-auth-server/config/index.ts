@@ -780,6 +780,28 @@ const conf = convict({
         env: 'PAYPAL_NVP_SIGNATURE',
       },
     },
+    appStore: {
+      credentials: {
+        doc: 'Map of AppStore Connect credentials by app bundle ID',
+        format: Object,
+        default: {
+          // Cannot use an actual bundleId (e.g. 'org.mozilla.ios.FirefoxVPN') as the key
+          // due to https://github.com/mozilla/node-convict/issues/250
+          org_mozilla_ios_FirefoxVPN: {
+            issuerId: 'issuer_id',
+            serverApiKey: 'key',
+            serverApiKeyId: 'key_id',
+          },
+        },
+        env: 'APP_STORE_CREDENTIALS',
+      },
+      sandbox: {
+        doc: 'Apple App Store Sandbox mode',
+        format: Boolean,
+        env: 'APP_STORE_SANDBOX',
+        default: true,
+      },
+    },
     playApiServiceAccount: {
       credentials: {
         client_email: {

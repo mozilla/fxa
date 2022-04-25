@@ -83,7 +83,7 @@ const {
 } = require('fxa-shared/db/models/auth');
 const {
   SubscriptionPurchase,
-} = require('../../../lib/payments/google-play/subscription-purchase');
+} = require('../../../lib/payments/iap/google-play/subscription-purchase');
 const { AuthFirestore, AuthLogger, AppConfig } = require('../../../lib/types');
 const {
   INVOICES_RESOURCE,
@@ -1364,6 +1364,186 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('validateCouponDurationForPlan', () => {
+    const priceId = 'priceId';
+    const promotionCode = 'promotionCode';
+    const couponTemplate = {
+      duration: 'repeating',
+      duration_in_months: 3,
+    };
+    const planTemplate = {
+      interval: 'month',
+      interval_count: 1,
+    };
+    const couponDuration = 'repeating';
+    const couponDurationInMonths = 3;
+    const priceInterval = 'month';
+    const priceIntervalCount = 1;
+    let sentryScope;
+
+    const setDefaultFindPlanById = () =>
+      sandbox.stub(stripeHelper, 'findPlanById').resolves(planTemplate);
+
+    beforeEach(() => {
+      sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureException');
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('coupon duration other than repeating', async () => {
+      const expected = true;
+      const coupon = {
+        ...couponTemplate,
+        duration: 'once',
+      };
+      setDefaultFindPlanById();
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+      assert.equal(actual, expected);
+    });
+
+    it('valid yearly plan interval', async () => {
+      const expected = true;
+      const coupon = {
+        ...couponTemplate,
+        duration_in_months: 12,
+      };
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        ...planTemplate,
+        interval: 'year',
+        interval_count: 1,
+      });
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+    });
+
+    it('invalid yearly plan interval', async () => {
+      const expected = false;
+      const coupon = couponTemplate;
+      const priceIntervalOverride = 'year';
+
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        ...planTemplate,
+        interval: priceIntervalOverride,
+      });
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'validateCouponDurationForPlan',
+        {
+          promotionCode,
+          priceId,
+          couponDuration,
+          couponDurationInMonths,
+          priceInterval: priceIntervalOverride,
+          priceIntervalCount,
+        }
+      );
+    });
+
+    it('valid monthly plan interval', async () => {
+      const expected = true;
+      const coupon = couponTemplate;
+      setDefaultFindPlanById();
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+    });
+
+    it('invalid monthly plan interval', async () => {
+      const expected = false;
+      const coupon = couponTemplate;
+      const priceIntervalCountOverride = 6;
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        ...planTemplate,
+        interval_count: priceIntervalCountOverride,
+      });
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'validateCouponDurationForPlan',
+        {
+          promotionCode,
+          priceId,
+          couponDuration,
+          couponDurationInMonths,
+          priceInterval,
+          priceIntervalCount: priceIntervalCountOverride,
+        }
+      );
+    });
+
+    it('invalid plan interval', async () => {
+      const expected = false;
+      const coupon = couponTemplate;
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        ...planTemplate,
+        interval: 'week',
+      });
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+      sinon.assert.notCalled(Sentry.withScope);
+    });
+
+    it('missing coupon duration in months', async () => {
+      const expected = false;
+      const coupon = {
+        ...couponTemplate,
+        duration_in_months: null,
+      };
+      setDefaultFindPlanById();
+
+      const actual = await stripeHelper.validateCouponDurationForPlan(
+        priceId,
+        promotionCode,
+        coupon
+      );
+
+      assert.equal(actual, expected);
+      sinon.assert.notCalled(Sentry.withScope);
+    });
+  });
+
   describe('findPromoCodeByCode', () => {
     it('finds a promo code', async () => {
       const promotionCode = { code: 'code1' };
@@ -1747,6 +1927,7 @@ describe('StripeHelper', () => {
   });
 
   describe('verifyPromotionAndCoupon', () => {
+    const priceId = 'priceId';
     const promotionCodeTemplate = {
       active: true,
       expires_at: null,
@@ -1766,15 +1947,26 @@ describe('StripeHelper', () => {
       maximallyRedeemed: false,
     };
 
-    it('return valid for valid coupon and promotion code', () => {
+    beforeEach(() => {
+      sandbox
+        .stub(stripeHelper, 'validateCouponDurationForPlan')
+        .resolves(true);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('return valid for valid coupon and promotion code', async () => {
       const expected = { ...expectedTemplate, valid: true };
-      const actual = stripeHelper.verifyPromotionAndCoupon(
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
         promotionCodeTemplate
       );
       assert.deepEqual(actual, expected);
     });
 
-    it('return invalid with maximallyRedeemed for max redeemed coupon', () => {
+    it('return invalid with maximallyRedeemed for max redeemed coupon', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
         coupon: {
@@ -1785,11 +1977,14 @@ describe('StripeHelper', () => {
         },
       };
       const expected = { ...expectedTemplate, maximallyRedeemed: true };
-      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
+        promotionCode
+      );
       assert.deepEqual(actual, expected);
     });
 
-    it('return invalid with expired for expired coupon', () => {
+    it('return invalid with expired for expired coupon', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
         coupon: {
@@ -1798,11 +1993,14 @@ describe('StripeHelper', () => {
         },
       };
       const expected = { ...expectedTemplate, expired: true };
-      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
+        promotionCode
+      );
       assert.deepEqual(actual, expected);
     });
 
-    it('return invalid with maximallyRedeemed for max redeemed promotion code', () => {
+    it('return invalid with maximallyRedeemed for max redeemed promotion code', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
         active: false,
@@ -1810,18 +2008,39 @@ describe('StripeHelper', () => {
         times_redeemed: 1,
       };
       const expected = { ...expectedTemplate, maximallyRedeemed: true };
-      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
+        promotionCode
+      );
       assert.deepEqual(actual, expected);
     });
 
-    it('return invalid with expired for expired promotion code', () => {
+    it('return invalid with expired for expired promotion code', async () => {
       const promotionCode = {
         ...promotionCodeTemplate,
         active: false,
         expires_at: 1000,
       };
       const expected = { ...expectedTemplate, expired: true };
-      const actual = stripeHelper.verifyPromotionAndCoupon(promotionCode);
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
+        promotionCode
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('return invalid for invalid coupon duration for plan', async () => {
+      const promotionCode = promotionCodeTemplate;
+      sandbox.restore();
+      sandbox
+        .stub(stripeHelper, 'validateCouponDurationForPlan')
+        .resolves(false);
+
+      const expected = expectedTemplate;
+      const actual = await stripeHelper.verifyPromotionAndCoupon(
+        priceId,
+        promotionCode
+      );
       assert.deepEqual(actual, expected);
     });
   });
@@ -1889,6 +2108,10 @@ describe('StripeHelper', () => {
   });
 
   describe('checkPromotionCodeForPlan', () => {
+    const couponTemplate = {
+      duration: 'once',
+      duration_in_months: null,
+    };
     it('finds a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
@@ -1899,7 +2122,8 @@ describe('StripeHelper', () => {
 
       const actual = await stripeHelper.checkPromotionCodeForPlan(
         promotionCode,
-        'planId'
+        'planId',
+        couponTemplate
       );
       assert.deepEqual(actual, true);
     });
@@ -1914,7 +2138,8 @@ describe('StripeHelper', () => {
 
       const actual = await stripeHelper.checkPromotionCodeForPlan(
         promotionCode,
-        'planId'
+        'planId',
+        couponTemplate
       );
       assert.deepEqual(actual, false);
     });

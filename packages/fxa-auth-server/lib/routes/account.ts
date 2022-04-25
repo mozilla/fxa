@@ -24,7 +24,7 @@ import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
-import { PlaySubscriptions } from '../payments/google-play/subscriptions';
+import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
@@ -1557,49 +1557,36 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/create',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_CREATE_POST,
         validate: {
-          query: isA.object({
-            keys: isA.boolean().optional().description(DESCRIPTION.keys),
-            service: validators.service.description(DESCRIPTION.service),
-          }),
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              service: validators.service.description(DESCRIPTION.service),
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional()
-                .description(DESCRIPTION.redirectTo),
-              resume: isA
-                .string()
-                .max(2048)
-                .optional()
-                .description(DESCRIPTION.resume),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              style: isA.string().allow(['trailhead']).optional(),
-              verificationMethod: validators.verificationMethod.optional(),
-              // preVerified is not available in production mode.
-              ...(!(config as any).isProduction && {
-                preVerified: isA.boolean(),
-              }),
-            })
-            .label('Account.create_payload'),
+          query: {
+            keys: isA.boolean().optional(),
+            service: validators.service,
+          },
+          payload: {
+            email: validators.email().required(),
+            authPW: validators.authPW,
+            service: validators.service,
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA.string().max(2048).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            style: isA.string().allow(['trailhead']).optional(),
+            verificationMethod: validators.verificationMethod.optional(),
+            // preVerified is not available in production mode.
+            ...(!(config as any).isProduction && {
+              preVerified: isA.boolean(),
+            }),
+          },
         },
         response: {
-          schema: isA
-            .object({
-              uid: isA.string().regex(HEX_STRING).required(),
-              sessionToken: isA.string().regex(HEX_STRING).required(),
-              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-              authAt: isA.number().integer().description(DESCRIPTION.authAt),
-              verificationMethod: validators.verificationMethod.optional(),
-            })
-            .label('Account.create_response'),
+          schema: {
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            authAt: isA.number().integer(),
+            verificationMethod: validators.verificationMethod.optional(),
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountCreate(request),
@@ -1608,15 +1595,12 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/stub',
       options: {
-        ...MISC_DOCS.ACCOUNT_STUB_POST,
         validate: {
-          payload: isA
-            .object({
-              email: validators.email().required(),
-              clientId: validators.clientId.required(),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-            })
-            .label('Account.stub_payload'),
+          payload: {
+            email: validators.email().required(),
+            clientId: validators.clientId.required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountStub(request),
@@ -1625,14 +1609,11 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/finish_setup',
       options: {
-        ...MISC_DOCS.ACCOUNT_FINISH_SETUP_POST,
         validate: {
-          payload: isA
-            .object({
-              token: validators.jwt,
-              authPW: validators.authPW,
-            })
-            .label('Account.finishSetup_payload'),
+          payload: {
+            token: validators.jwt,
+            authPW: validators.authPW,
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.finishSetup(request),
@@ -1652,65 +1633,38 @@ export const accountRoutes = (
         ],
       },
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_LOGIN_POST,
         validate: {
-          query: isA.object({
-            keys: isA.boolean().optional().description(DESCRIPTION.keys),
-            service: validators.service.description(DESCRIPTION.service),
-            verificationMethod: validators.verificationMethod
-              .optional()
-              .description(DESCRIPTION.verificationMethod),
-          }),
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              service: validators.service.description(DESCRIPTION.service),
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional(),
-              resume: isA.string().optional().description(DESCRIPTION.resume),
-              reason: isA
-                .string()
-                .max(16)
-                .optional()
-                .description(DESCRIPTION.reason),
-              unblockCode: signinUtils.validators.UNBLOCK_CODE.description(
-                DESCRIPTION.unblockCode
-              ),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              originalLoginEmail: validators
-                .email()
-                .optional()
-                .description(DESCRIPTION.originalLoginEmail),
-              verificationMethod: validators.verificationMethod
-                .optional()
-                .description(DESCRIPTION.verificationMethod),
-            })
-            .label('Account.login_payload'),
+          query: {
+            keys: isA.boolean().optional(),
+            service: validators.service,
+            verificationMethod: validators.verificationMethod.optional(),
+          },
+          payload: {
+            email: validators.email().required(),
+            authPW: validators.authPW,
+            service: validators.service,
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA.string().optional(),
+            reason: isA.string().max(16).optional(),
+            unblockCode: signinUtils.validators.UNBLOCK_CODE,
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            originalLoginEmail: validators.email().optional(),
+            verificationMethod: validators.verificationMethod.optional(),
+          },
         },
         response: {
-          schema: isA
-            .object({
-              uid: isA.string().regex(HEX_STRING).required(),
-              sessionToken: isA.string().regex(HEX_STRING).required(),
-              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-              verificationMethod: isA
-                .string()
-                .optional()
-                .description(DESCRIPTION.verificationMethod),
-              verificationReason: isA
-                .string()
-                .optional()
-                .description(DESCRIPTION.verificationReason),
-              verified: isA.boolean().required(),
-              authAt: isA.number().integer().description(DESCRIPTION.authAt),
-              metricsEnabled: isA.boolean().required(),
-            })
-            .label('Account.login_response'),
+          schema: {
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verificationMethod: isA.string().optional(),
+            verificationReason: isA.string().optional(),
+            verified: isA.boolean().required(),
+            authAt: isA.number().integer(),
+            metricsEnabled: isA.boolean().required(),
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.login(request),
@@ -1719,7 +1673,6 @@ export const accountRoutes = (
       method: 'GET',
       path: '/account/status',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_STATUS_GET,
         auth: {
           mode: 'optional',
           strategy: 'sessionToken',
@@ -1736,20 +1689,15 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/status',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_STATUS_POST,
         validate: {
-          payload: isA
-            .object({
-              email: validators.email().required(),
-            })
-            .label('AccountStatusCheck_payload'),
+          payload: {
+            email: validators.email().required(),
+          },
         },
         response: {
-          schema: isA
-            .object({
-              exists: isA.boolean().required(),
-            })
-            .label('AccountStausCheck_response'),
+          schema: {
+            exists: isA.boolean().required(),
+          },
         },
       },
       handler: (request: AuthRequest) =>
@@ -1759,25 +1707,22 @@ export const accountRoutes = (
       method: 'GET',
       path: '/account/profile',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_PROFILE_GET,
         auth: {
           strategies: ['sessionToken', 'oauthToken'],
         },
         response: {
-          schema: isA
-            .object({
-              email: isA.string().optional(),
-              locale: isA.string().optional().allow(null),
-              authenticationMethods: isA
-                .array()
-                .items(isA.string().required())
-                .optional(),
-              authenticatorAssuranceLevel: isA.number().min(0),
-              subscriptionsByClientId: isA.object().unknown(true).optional(),
-              profileChangedAt: isA.number().min(0),
-              metricsEnabled: isA.boolean().optional(),
-            })
-            .label('Account.profile_response'),
+          schema: {
+            email: isA.string().optional(),
+            locale: isA.string().optional().allow(null),
+            authenticationMethods: isA
+              .array()
+              .items(isA.string().required())
+              .optional(),
+            authenticatorAssuranceLevel: isA.number().min(0),
+            subscriptionsByClientId: isA.object().unknown(true).optional(),
+            profileChangedAt: isA.number().min(0),
+            metricsEnabled: isA.boolean().optional(),
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.profile(request),
@@ -1786,19 +1731,13 @@ export const accountRoutes = (
       method: 'GET',
       path: '/account/keys',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_KEYS_GET,
         auth: {
           strategy: 'keyFetchTokenWithVerificationStatus',
         },
         response: {
-          schema: isA
-            .object({
-              bundle: isA
-                .string()
-                .regex(HEX_STRING)
-                .description(DESCRIPTION.bundle),
-            })
-            .label('Account.keys_response'),
+          schema: {
+            bundle: isA.string().regex(HEX_STRING),
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.keys(request),
@@ -1807,7 +1746,6 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/unlock/resend_code',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_RESEND_CODE_POST,
         validate: {
           payload: true,
         },
@@ -1821,7 +1759,6 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/unlock/verify_code',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_VERIFY_CODE_POST,
         validate: {
           payload: true,
         },
@@ -1835,27 +1772,22 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/reset',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_RESET_POST,
         auth: {
           strategy: 'accountResetToken',
           payload: 'required',
         },
         validate: {
-          query: isA.object({
-            keys: isA.boolean().optional().description(DESCRIPTION.queryKeys),
-          }),
+          query: {
+            keys: isA.boolean().optional(),
+          },
           payload: isA
             .object({
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPW: validators.authPW,
               wrapKb: validators.wrapKb.optional(),
               recoveryKeyId: validators.recoveryKeyId.optional(),
-              sessionToken: isA
-                .boolean()
-                .optional()
-                .description(DESCRIPTION.sessionToken),
+              sessionToken: isA.boolean().optional(),
             })
-            .and('wrapKb', 'recoveryKeyId')
-            .label('Account.reset_payload'),
+            .and('wrapKb', 'recoveryKeyId'),
         },
       },
       handler: (request: AuthRequest) => accountHandler.reset(request),
@@ -1864,21 +1796,15 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/destroy',
       options: {
-        ...ACCOUNT_DOCS.ACCOUNT_DESTROY_POST,
         auth: {
           mode: 'optional',
           strategy: 'sessionToken',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-            })
-            .label('Account.destroy_payload'),
+          payload: {
+            email: validators.email().required(),
+            authPW: validators.authPW,
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.destroy(request),
@@ -1887,28 +1813,25 @@ export const accountRoutes = (
       method: 'GET',
       path: '/account',
       options: {
-        ...MISC_DOCS.ACCOUNT_GET,
         auth: {
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .object({
-              // This endpoint is evolving, it's not just for subscriptions.
-              // Ultimately we want it to become a one-stop shop for all of
-              // the account data needed by the settings screen, so that we
-              // can drastically reduce how many requests are made to the
-              // backend. Discussion in:
-              //
-              // https://github.com/mozilla/fxa/issues/1808
-              subscriptions: isA
-                .array()
-                .items(
-                  validators.subscriptionsSubscriptionValidator,
-                  validators.subscriptionsGooglePlaySubscriptionValidator
-                ),
-            })
-            .label('Account.subscriptions'),
+          schema: {
+            // This endpoint is evolving, it's not just for subscriptions.
+            // Ultimately we want it to become a one-stop shop for all of
+            // the account data needed by the settings screen, so that we
+            // can drastically reduce how many requests are made to the
+            // backend. Discussion in:
+            //
+            // https://github.com/mozilla/fxa/issues/1808
+            subscriptions: isA
+              .array()
+              .items(
+                validators.subscriptionsSubscriptionValidator,
+                validators.subscriptionsGooglePlaySubscriptionValidator
+              ),
+          },
         },
       },
       handler: (request: AuthRequest) => accountHandler.getAccount(request),
@@ -1922,11 +1845,10 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/lock',
       options: {
-        ...MISC_DOCS.ACCOUNT_LOCK_POST,
         validate: {
           payload: true,
         },
-      } as any,
+      },
       handler: async function (request) {
         log.error('Account.lock', { request: request });
         throw error.gone();

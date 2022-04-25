@@ -8,9 +8,10 @@ import { Container } from 'typedi';
 
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
-import { PlayBilling } from '../../payments/google-play/play-billing';
-import { PurchaseUpdateError } from '../../payments/google-play/types/errors';
-import { SkuType } from '../../payments/google-play/types/purchases';
+import { PlayBilling } from '../../payments/iap/google-play/play-billing';
+import { PurchaseUpdateError } from '../../payments/iap/google-play/types/errors';
+import { SkuType } from '../../payments/iap/google-play/types/purchases';
+import { IAPConfig } from '../../payments/iap/iap-config';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuthScoped } from './utils';
 
@@ -19,12 +20,14 @@ const SUBSCRIPTIONS_DOCS =
 
 export class GoogleIapHandler {
   private log: AuthLogger;
+  private iapConfig: IAPConfig;
   private playBilling: PlayBilling;
   private capabilityService: CapabilityService;
   private db: any;
 
   constructor(db: any) {
     this.db = db;
+    this.iapConfig = Container.get(IAPConfig);
     this.log = Container.get(AuthLogger);
     this.playBilling = Container.get(PlayBilling);
     this.capabilityService = Container.get(CapabilityService);
@@ -35,7 +38,7 @@ export class GoogleIapHandler {
   public async plans(request: AuthRequest) {
     const { appName } = request.params;
     this.log.begin('googleIap.plans', request);
-    return this.playBilling.plans(appName);
+    return this.iapConfig.plans(appName);
   }
 
   /**
@@ -49,7 +52,7 @@ export class GoogleIapHandler {
 
     const { appName } = request.params;
     const { sku, token } = request.payload as any;
-    const packageName = await this.playBilling.packageName(appName);
+    const packageName = await this.iapConfig.packageName(appName);
     if (!packageName) {
       throw error.unknownAppName(appName);
     }
@@ -91,7 +94,6 @@ export const googleIapRoutes = (db: any): ServerRoute[] => {
       method: 'GET',
       path: '/oauth/subscriptions/iap/plans/{appName}',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_PLANS_APPNAME_GET,
         // No auth needed to fetch the plan blob.
         auth: false,
         validate: {
@@ -106,7 +108,6 @@ export const googleIapRoutes = (db: any): ServerRoute[] => {
       method: 'POST',
       path: '/oauth/subscriptions/iap/play-token/{appName}',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
