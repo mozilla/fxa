@@ -10,6 +10,7 @@ import { ConfigType } from '../../config';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
+import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 import validators from './validators';
 
 export const supportPanelRoutes = ({
@@ -41,6 +42,7 @@ export const supportPanelRoutes = ({
       method: 'GET',
       path: '/oauth/support-panel/subscriptions',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUPPORTPANEL_SUBSCRIPTIONS_GET,
         auth: {
           payload: false,
           strategy: 'supportPanelSecret',

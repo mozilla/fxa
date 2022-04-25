@@ -4,6 +4,9 @@
 
 'use strict';
 
+import SESSION_DOCS from '../../docs/swagger/session-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+
 const error = require('../error');
 const isA = require('@hapi/joi');
 const requestHelper = require('../routes/utils/request_helper');
@@ -38,6 +41,7 @@ module.exports = function (
       method: 'POST',
       path: '/session/destroy',
       options: {
+        ...SESSION_DOCS.SESSION_DESTROY_POST,
         auth: {
           strategy: 'sessionToken',
           // since payload is allowed to be empty we do not
@@ -51,9 +55,11 @@ module.exports = function (
                 .min(64)
                 .max(64)
                 .regex(HEX_STRING)
-                .optional(),
+                .optional()
+                .description(DESCRIPTION.customSessionToken),
             })
-            .allow(null),
+            .allow(null)
+            .label('Session.destroy_payload'),
         },
       },
       handler: async function (request) {
@@ -96,41 +102,46 @@ module.exports = function (
         ],
       },
       options: {
+        ...SESSION_DOCS.SESSION_REAUTH_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          query: {
+          query: isA.object({
             keys: isA.boolean().optional(),
             service: validators.service,
             verificationMethod: validators.verificationMethod.optional(),
-          },
-          payload: {
-            email: validators.email().required(),
-            authPW: validators.authPW,
-            service: validators.service,
-            redirectTo: validators
-              .redirectTo(config.smtp.redirectDomain)
-              .optional(),
-            resume: isA.string().optional(),
-            reason: isA.string().max(16).optional(),
-            unblockCode: signinUtils.validators.UNBLOCK_CODE,
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-            originalLoginEmail: validators.email().optional(),
-            verificationMethod: validators.verificationMethod.optional(),
-          },
+          }),
+          payload: isA
+            .object({
+              email: validators.email().required(),
+              authPW: validators.authPW,
+              service: validators.service,
+              redirectTo: validators
+                .redirectTo(config.smtp.redirectDomain)
+                .optional(),
+              resume: isA.string().optional(),
+              reason: isA.string().max(16).optional(),
+              unblockCode: signinUtils.validators.UNBLOCK_CODE,
+              metricsContext: METRICS_CONTEXT_SCHEMA,
+              originalLoginEmail: validators.email().optional(),
+              verificationMethod: validators.verificationMethod.optional(),
+            })
+            .label('Session.reauth_payload'),
         },
         response: {
-          schema: {
-            uid: isA.string().regex(HEX_STRING).required(),
-            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            verificationMethod: isA.string().optional(),
-            verificationReason: isA.string().optional(),
-            verified: isA.boolean().required(),
-            authAt: isA.number().integer(),
-            metricsEnabled: isA.boolean().required(),
-          },
+          schema: isA
+            .object({
+              uid: isA.string().regex(HEX_STRING).required(),
+              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+              verificationMethod: isA.string().optional(),
+              verificationReason: isA.string().optional(),
+              verified: isA.boolean().required(),
+              authAt: isA.number().integer(),
+              metricsEnabled: isA.boolean().required(),
+            })
+            .label('Session.reauth_response'),
         },
       },
       handler: async function (request) {
@@ -242,14 +253,17 @@ module.exports = function (
       method: 'GET',
       path: '/session/status',
       options: {
+        ...SESSION_DOCS.SESSION_STATUS_GET,
         auth: {
           strategy: 'sessionToken',
         },
         response: {
-          schema: {
-            state: isA.string().required(),
-            uid: isA.string().regex(HEX_STRING).required(),
-          },
+          schema: isA
+            .object({
+              state: isA.string().required(),
+              uid: isA.string().regex(HEX_STRING).required(),
+            })
+            .label('Session.status_response'),
         },
       },
       handler: async function (request) {
@@ -265,14 +279,17 @@ module.exports = function (
       method: 'POST',
       path: '/session/duplicate',
       options: {
+        ...SESSION_DOCS.SESSION_DUPLICATE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            reason: isA.string().max(16).optional(),
-          },
+          payload: isA
+            .object({
+              reason: isA.string().max(16).optional(),
+            })
+            .label('Session.duplicate_payload'),
         },
       },
       handler: async function (request) {
@@ -330,19 +347,22 @@ module.exports = function (
       method: 'POST',
       path: '/session/verify_code',
       options: {
+        ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            code: validators.DIGITS,
-            service: validators.service,
-            scopes: validators.scopes,
-            // The `marketingOptIn` is safe to remove after train-167+
-            marketingOptIn: isA.boolean().optional(),
-            newsletters: validators.newsletters,
-          },
+          payload: isA
+            .object({
+              code: validators.DIGITS,
+              service: validators.service,
+              scopes: validators.scopes,
+              // The `marketingOptIn` is safe to remove after train-167+
+              marketingOptIn: isA.boolean().optional(),
+              newsletters: validators.newsletters,
+            })
+            .label('Session.verifyCode_payload'),
         },
       },
       handler: async function (request) {
@@ -391,6 +411,7 @@ module.exports = function (
       method: 'POST',
       path: '/session/resend_code',
       options: {
+        ...SESSION_DOCS.SESSION_RESEND_CODE_POST,
         auth: {
           strategy: 'sessionToken',
         },
@@ -456,6 +477,7 @@ module.exports = function (
       method: 'POST',
       path: '/session/verify/send_push',
       options: {
+        ...SESSION_DOCS.SESSION_VERIFY_SEND_PUSH_POST,
         auth: {
           strategy: 'sessionToken',
         },

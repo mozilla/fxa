@@ -10,6 +10,7 @@ import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export const mozillaSubscriptionRoutes = ({
   log,
@@ -39,6 +40,7 @@ export const mozillaSubscriptionRoutes = ({
       method: 'GET',
       path: '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
         auth: {
           payload: false,
           strategy: 'oauthToken',

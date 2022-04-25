@@ -24,6 +24,10 @@
 //
 // So, we've tried to make it as readable as possible, but...be careful in there!
 
+import MISC_DOCS from '../../../docs/swagger/misc-api';
+import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
+import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
+
 /*jshint camelcase: false*/
 const crypto = require('crypto');
 const OauthError = require('../../oauth/error');
@@ -352,6 +356,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       method: 'POST',
       path: '/token',
       config: {
+        ...MISC_DOCS.TOKEN_POST,
         cors: { origin: 'ignore' },
         validate: {
           headers: clientAuthValidators.headers,
@@ -359,20 +364,24 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
           // with FxA OAuth. Sometimes, they will send other parameters that
           // we don't use, such as `response_type`, or something else. Instead
           // of giving an error here, we can just ignore them.
-          payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
+          payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }).label(
+            'Token_payload'
+          ),
         },
         response: {
-          schema: Joi.object().keys({
-            access_token: validators.accessToken.required(),
-            refresh_token: validators.token,
-            id_token: validators.assertion,
-            session_token_id: validators.sessionTokenId.optional(),
-            scope: validators.scope.required(),
-            token_type: Joi.string().valid('bearer').required(),
-            expires_in: Joi.number().max(MAX_TTL_S).required(),
-            auth_at: Joi.number(),
-            keys_jwe: validators.jwe.optional(),
-          }),
+          schema: Joi.object()
+            .keys({
+              access_token: validators.accessToken.required(),
+              refresh_token: validators.token,
+              id_token: validators.assertion,
+              session_token_id: validators.sessionTokenId.optional(),
+              scope: validators.scope.required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().max(MAX_TTL_S).required(),
+              auth_at: Joi.number(),
+              keys_jwe: validators.jwe.optional(),
+            })
+            .label('Token_response'),
         },
         handler: tokenHandler,
       },
@@ -381,6 +390,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       method: 'POST',
       path: '/oauth/token',
       config: {
+        ...OAUTH_DOCS.OAUTH_TOKEN_POST,
         auth: {
           // XXX TODO: To be able to fully replace the /token route from oauth-server,
           // this route must also be able to accept 'client_secret' as Basic Auth in header.
@@ -396,18 +406,30 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
             Joi.object({
               grant_type: Joi.string()
                 .valid('authorization_code')
-                .default('authorization_code'),
-              client_id: validators.clientId,
-              client_secret: validators.clientSecret.optional(),
+                .default('authorization_code')
+                .description(DESCRIPTION.grantType),
+              client_id: validators.clientId.description(DESCRIPTION.clientId),
+              client_secret: validators.clientSecret
+                .optional()
+                .description(DESCRIPTION.clientSecret),
               code: validators.authorizationCode.required(),
               code_verifier: validators.pkceCodeVerifier.optional(),
               redirect_uri: validators.url().optional(),
               // Note: the max allowed TTL is currently configured in oauth-server config,
               // making it hard to know what limit to set here.
-              ttl: Joi.number().positive().optional(),
-              ppid_seed: validators.ppidSeed.optional(),
-              resource: validators.resourceUrl.optional(),
-            }).xor('client_secret', 'code_verifier'),
+              ttl: Joi.number()
+                .positive()
+                .optional()
+                .description(DESCRIPTION.ttlValidate),
+              ppid_seed: validators.ppidSeed
+                .optional()
+                .description(DESCRIPTION.ppidSeed),
+              resource: validators.resourceUrl
+                .optional()
+                .description(DESCRIPTION.resource),
+            })
+              .xor('client_secret', 'code_verifier')
+              .label('Oauth.token_authorizationCode'),
             // refresh token
             Joi.object({
               grant_type: Joi.string().valid('refresh_token').required(),
@@ -420,7 +442,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               ttl: Joi.number().positive().optional(),
               ppid_seed: validators.ppidSeed.optional(),
               resource: validators.resourceUrl.optional(),
-            }),
+            }).label('Oauth.token_refreshToken'),
             // credentials
             Joi.object({
               grant_type: Joi.string()
@@ -436,23 +458,34 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               ttl: Joi.number().positive().optional(),
               resource: validators.resourceUrl.optional(),
               assertion: Joi.forbidden(),
-            })
+            }).label('Oauth.token_fxaCredentials')
           ),
         },
         response: {
           schema: Joi.alternatives().try(
             // authorization code
             Joi.object({
-              access_token: validators.accessToken.required(),
-              refresh_token: validators.refreshToken.optional(),
-              id_token: validators.assertion.optional(),
+              access_token: validators.accessToken
+                .required()
+                .description(DESCRIPTION.accessToken),
+              refresh_token: validators.refreshToken
+                .optional()
+                .description(DESCRIPTION.refreshToken),
+              id_token: validators.assertion
+                .optional()
+                .description(DESCRIPTION.idToken),
               session_token: validators.sessionToken.optional(),
-              scope: validators.scope.required(),
-              token_type: Joi.string().valid('bearer').required(),
-              expires_in: Joi.number().required(),
-              auth_at: Joi.number().required(),
+              scope: validators.scope.required().description(DESCRIPTION.scope),
+              token_type: Joi.string()
+                .valid('bearer')
+                .required()
+                .description(DESCRIPTION.tokenType),
+              expires_in: Joi.number()
+                .required()
+                .description(DESCRIPTION.expiresIn),
+              auth_at: Joi.number().required().description(DESCRIPTION.authAt),
               keys_jwe: validators.jwe.optional(),
-            }),
+            }).label('Oauth.token_response'),
             // refresh token
             Joi.object({
               access_token: validators.accessToken.required(),

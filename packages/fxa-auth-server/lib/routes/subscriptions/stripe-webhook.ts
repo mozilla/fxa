@@ -10,6 +10,7 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import {
   formatMetadataValidationErrorMessage,
   reportSentryError,
@@ -970,6 +971,7 @@ export const stripeWebhookRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/stripe/event',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_STRIPE_EVENT_POST,
         // We'll use the official Stripe library to authenticate the payload,
         // and it will also return an event.
         auth: false,

@@ -8,7 +8,9 @@ import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import validators from './validators';
+import Joi from 'joi';
 import jwtDecode from 'jwt-decode';
+import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 import {
   Provider,
   PROVIDER_NAME,
@@ -262,13 +264,14 @@ export const linkedAccountRoutes = (
       method: 'POST',
       path: '/linked_account/login',
       options: {
+        ...THIRD_PARTY_AUTH_DOCS.LINKED_ACCOUNT_LOGIN_POST,
         validate: {
-          payload: {
+          payload: Joi.object({
             idToken: validators.thirdPartyIdToken,
             provider: validators.thirdPartyProvider,
             code: validators.thirdPartyOAuthCode,
             metricsContext: METRICS_CONTEXT_SCHEMA,
-          },
+          }).label('LinkedAccount.login_payload'),
         },
       },
       handler: async (request: AuthRequest) =>
@@ -278,13 +281,14 @@ export const linkedAccountRoutes = (
       method: 'POST',
       path: '/linked_account/unlink',
       options: {
+        ...THIRD_PARTY_AUTH_DOCS.LINKED_ACCOUNT_UNLINK_POST,
         auth: {
           strategy: 'sessionToken',
         },
         validate: {
-          payload: {
+          payload: Joi.object({
             provider: validators.thirdPartyProvider,
-          },
+          }).label('LinkedAccount.unlink_payload'),
         },
       },
       handler: (request: AuthRequest) => handler.unlinkAccount(request),

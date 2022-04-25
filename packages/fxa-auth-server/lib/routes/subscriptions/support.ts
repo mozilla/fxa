@@ -7,6 +7,7 @@ import zendesk from 'node-zendesk';
 import pRetry from 'p-retry';
 
 import { ConfigType } from '../../../config';
+import MISC_DOCS from '../../../docs/swagger/misc-api';
 import error from '../../error';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
@@ -50,6 +51,7 @@ export const supportRoutes = (
       method: 'POST',
       path: '/support/ticket',
       options: {
+        ...MISC_DOCS.SUPPORT_TICKET_POST,
         auth: {
           payload: false,
           // The order here matters.  When the supportSecret strategy fails,
@@ -60,25 +62,31 @@ export const supportRoutes = (
           maxBytes: config.support.ticketPayloadLimit,
         },
         validate: {
-          payload: isA.object().keys({
-            email: email().optional(),
-            productName: isA.string().required(),
-            productPlatform: isA.string().optional(),
-            productVersion: isA.string().optional(),
-            topic: isA.string().required(),
-            app: isA.string().allow('').optional(),
-            subject: isA.string().allow('').optional(),
-            message: isA.string().required(),
-            product: isA.string().allow('').optional(),
-            category: isA.string().allow('').optional(),
-          }) as any,
+          payload: isA
+            .object()
+            .keys({
+              email: email().optional(),
+              productName: isA.string().required(),
+              productPlatform: isA.string().optional(),
+              productVersion: isA.string().optional(),
+              topic: isA.string().required(),
+              app: isA.string().allow('').optional(),
+              subject: isA.string().allow('').optional(),
+              message: isA.string().required(),
+              product: isA.string().allow('').optional(),
+              category: isA.string().allow('').optional(),
+            })
+            .label('SupportTicket_payload') as any,
         },
         response: {
-          schema: isA.object().keys({
-            success: isA.bool().required(),
-            ticket: isA.number().optional(),
-            error: isA.string().optional(),
-          }) as any,
+          schema: isA
+            .object()
+            .keys({
+              success: isA.bool().required(),
+              ticket: isA.number().optional(),
+              error: isA.string().optional(),
+            })
+            .label('SupportTicket_response') as any,
         },
       },
       handler: async function (
