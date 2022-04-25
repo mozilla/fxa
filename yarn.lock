@@ -22159,6 +22159,7 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
+    "@hapi/joi": 15.1.1
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@storybook/addon-controls": ^6.4.19
@@ -22173,6 +22174,7 @@ fsevents@~2.1.1:
     "@types/chai-as-promised": ^7
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^20.0.10
+    "@types/hapi__joi": ^15
     "@types/ioredis": ^4.26.4
     "@types/jsdom": ^16
     "@types/jsonwebtoken": ^8.5.1
