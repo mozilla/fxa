@@ -4,8 +4,6 @@
 
 'use strict';
 
-import MISC_DOCS from '../../docs/swagger/misc-api';
-
 const jwtool = require('fxa-jwtool');
 
 function b64toDec(str) {
@@ -46,7 +44,6 @@ module.exports = function (log, serverPublicKeys) {
       method: 'GET',
       path: '/.well-known/browserid',
       options: {
-        ...MISC_DOCS.WELLKNOWN_BROWSERID_GET,
         cache: {
           privacy: 'public',
           expiresIn: 10000,
@@ -60,9 +57,6 @@ module.exports = function (log, serverPublicKeys) {
     {
       method: 'GET',
       path: '/.well-known/public-keys',
-      options: {
-        ...MISC_DOCS.WELLKNOWN_PUBLIC_KEYS,
-      },
       handler: async function (request) {
         // FOR DEV PURPOSES ONLY
         return {

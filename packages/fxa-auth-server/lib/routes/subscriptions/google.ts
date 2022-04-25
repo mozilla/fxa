@@ -14,7 +14,6 @@ import { SkuType } from '../../payments/iap/google-play/types/purchases';
 import { IAPConfig } from '../../payments/iap/iap-config';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuthScoped } from './utils';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export class GoogleIapHandler {
   private log: AuthLogger;
@@ -92,7 +91,6 @@ export const googleIapRoutes = (db: any): ServerRoute[] => {
       method: 'GET',
       path: '/oauth/subscriptions/iap/plans/{appName}',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_PLANS_APPNAME_GET,
         // No auth needed to fetch the plan blob.
         auth: false,
         validate: {
@@ -107,7 +105,6 @@ export const googleIapRoutes = (db: any): ServerRoute[] => {
       method: 'POST',
       path: '/oauth/subscriptions/iap/play-token/{appName}',
       options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
