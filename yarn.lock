@@ -3585,7 +3585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/common@npm:^3.9.0":
+"@google-cloud/common@npm:^3.0.0, @google-cloud/common@npm:^3.9.0":
   version: 3.10.0
   resolution: "@google-cloud/common@npm:3.10.0"
   dependencies:
@@ -3665,6 +3665,21 @@ __metadata:
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
   checksum: e100c488b168e5e64518a610f7d1d2ef06f327c407e802cec4d21078ad87954e3fda5b1ca6ffa22308dc22ee043a8a534c253c2895ef829dc41b56014a12ee58
+  languageName: node
+  linkType: hard
+
+"@google-cloud/translate@npm:^6.3.1":
+  version: 6.3.1
+  resolution: "@google-cloud/translate@npm:6.3.1"
+  dependencies:
+    "@google-cloud/common": ^3.0.0
+    "@google-cloud/promisify": ^2.0.0
+    arrify: ^2.0.0
+    extend: ^3.0.2
+    google-gax: ^2.24.1
+    is-html: ^2.0.0
+    protobufjs: ^6.8.8
+  checksum: 1a18170a42d31dc2bf62651287e86f18ed0f45eeeeb31c0a217ed083d591fd2ca7bd3afd49abbcb03b4c57d386706f83209e56400d885d9d23c75e6832bea226
   languageName: node
   linkType: hard
 
@@ -22395,6 +22410,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.1
     "@google-cloud/bigquery": ^5.12.0
     "@google-cloud/firestore": ^5.0.2
+    "@google-cloud/translate": ^6.3.1
     "@googlemaps/google-maps-services-js": ^3.3.13
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
@@ -25471,6 +25487,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"html-tags@npm:^3.0.0":
+  version: 3.2.0
+  resolution: "html-tags@npm:3.2.0"
+  checksum: a0c9e96ac26c84adad9cc66d15d6711a17f60acda8d987218f1d4cbaacd52864939b230e635cce5a1179f3ddab2a12b9231355617dfbae7945fcfec5e96d2041
+  languageName: node
+  linkType: hard
+
 "html-tags@npm:^3.1.0":
   version: 3.1.0
   resolution: "html-tags@npm:3.1.0"
@@ -26987,6 +27010,15 @@ fsevents@~2.1.1:
   version: 1.0.4
   resolution: "is-hexadecimal@npm:1.0.4"
   checksum: a452e047587b6069332d83130f54d30da4faf2f2ebaa2ce6d073c27b5703d030d58ed9e0b729c8e4e5b52c6f1dab26781bb77b7bc6c7805f14f320e328ff8cd5
+  languageName: node
+  linkType: hard
+
+"is-html@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "is-html@npm:2.0.0"
+  dependencies:
+    html-tags: ^3.0.0
+  checksum: 0cc233e3851453913023560bcd2411a9294bfa18f994d4428f2692d2cfb7f90e5521a42cd4c6a62bf1bc7d42301cb214de442766cbd12a9aa52398d34ab5a2a7
   languageName: node
   linkType: hard
 
@@ -36363,7 +36395,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:6.11.2, protobufjs@npm:^6.10.0, protobufjs@npm:^6.11.2, protobufjs@npm:^6.8.6":
+"protobufjs@npm:6.11.2, protobufjs@npm:^6.10.0, protobufjs@npm:^6.11.2, protobufjs@npm:^6.8.6, protobufjs@npm:^6.8.8":
   version: 6.11.2
   resolution: "protobufjs@npm:6.11.2"
   dependencies:
