@@ -31,6 +31,7 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
+import { deleteAccountIfUnverified } from '../utils/account';
 
 const SUBSCRIPTIONS_DOCS =
   require('../../../docs/swagger/subscriptions-api').default;
@@ -92,66 +93,93 @@ export class PayPalHandler extends StripeWebhookHandler {
       request.auth,
       true
     );
-    await this.customs.check(request, email, 'createSubscriptionWithPaypal');
 
-    let customer = await this.stripeHelper.fetchCustomer(uid, [
-      'subscriptions',
-    ]);
+    try {
+      await this.customs.check(request, email, 'createSubscriptionWithPaypal');
 
-    if (!customer) {
-      throw error.unknownCustomer(uid);
+      let customer = await this.stripeHelper.fetchCustomer(uid, [
+        'subscriptions',
+      ]);
+
+      if (!customer) {
+        throw error.unknownCustomer(uid);
+      }
+
+      const isPaypalCustomer = hasPaypalSubscription(customer);
+      const { token, metricsContext } = request.payload as Record<
+        string,
+        string
+      >;
+      const currentBillingAgreement =
+        this.stripeHelper.getCustomerPaypalAgreement(customer);
+
+      // In theory the frontend should handle this state upon the customer
+      // response.  The customer should fix their payment method before we can
+      // allow any additional subscriptions.
+      if (isPaypalCustomer && !currentBillingAgreement) {
+        throw error.missingPaypalBillingAgreement(customer.id);
+      }
+      if (!isPaypalCustomer && !token) {
+        throw error.missingPaypalPaymentToken(customer.id);
+      }
+      if (isPaypalCustomer && token) {
+        // This seems unfriendly to users since we could just proceed with the BA
+        // on record.  But it's a bug with the frontend if it happens and we
+        // shouldn't allow it.
+        throw error.billingAgreementExists(customer.id);
+      }
+
+      const { sourceCountry, subscription } = !!token
+        ? await this._createPaypalBillingAgreementAndSubscription({
+            request,
+            uid,
+            customer,
+          })
+        : await this._createPaypalSubscription({ request, customer });
+
+      await this.customerChanged(request, uid, email);
+
+      this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
+        uid,
+        subscriptionId: subscription.id,
+      });
+
+      await sendFinishSetupEmailForStubAccount({
+        uid,
+        account,
+        subscription,
+        stripeHelper: this.stripeHelper,
+        mailer: this.mailer,
+        subscriptionAccountReminders: this.subscriptionAccountReminders,
+        metricsContext,
+      });
+
+      return {
+        sourceCountry,
+        subscription: filterSubscription(subscription),
+      };
+    } catch (err) {
+      try {
+        if (account.verifierSetAt <= 0) {
+          await deleteAccountIfUnverified(
+            this.db,
+            this.stripeHelper,
+            this.log,
+            request,
+            email
+          );
+        }
+      } catch (deleteAccountError) {
+        if (
+          deleteAccountError.errno !== error.ERRNO.ACCOUNT_EXISTS &&
+          deleteAccountError.errno !==
+            error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS
+        ) {
+          throw deleteAccountError;
+        }
+      }
+      throw err;
     }
-
-    const isPaypalCustomer = hasPaypalSubscription(customer);
-    const { token, metricsContext } = request.payload as Record<string, string>;
-    const currentBillingAgreement =
-      this.stripeHelper.getCustomerPaypalAgreement(customer);
-
-    // In theory the frontend should handle this state upon the customer
-    // response.  The customer should fix their payment method before we can
-    // allow any additional subscriptions.
-    if (isPaypalCustomer && !currentBillingAgreement) {
-      throw error.missingPaypalBillingAgreement(customer.id);
-    }
-    if (!isPaypalCustomer && !token) {
-      throw error.missingPaypalPaymentToken(customer.id);
-    }
-    if (isPaypalCustomer && token) {
-      // This seems unfriendly to users since we could just proceed with the BA
-      // on record.  But it's a bug with the frontend if it happens and we
-      // shouldn't allow it.
-      throw error.billingAgreementExists(customer.id);
-    }
-
-    const { sourceCountry, subscription } = !!token
-      ? await this._createPaypalBillingAgreementAndSubscription({
-          request,
-          uid,
-          customer,
-        })
-      : await this._createPaypalSubscription({ request, customer });
-
-    await this.customerChanged(request, uid, email);
-
-    this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
-      uid,
-      subscriptionId: subscription.id,
-    });
-
-    await sendFinishSetupEmailForStubAccount({
-      uid,
-      account,
-      subscription,
-      stripeHelper: this.stripeHelper,
-      mailer: this.mailer,
-      subscriptionAccountReminders: this.subscriptionAccountReminders,
-      metricsContext,
-    });
-
-    return {
-      sourceCountry,
-      subscription: filterSubscription(subscription),
-    };
   }
 
   async _createPaypalBillingAgreementAndSubscription({
