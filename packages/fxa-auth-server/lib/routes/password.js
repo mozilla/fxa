@@ -4,6 +4,9 @@
 
 'use strict';
 
+import PASSWORD_DOCS from '../../docs/swagger/password-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
 
@@ -42,11 +45,17 @@ module.exports = function (
       method: 'POST',
       path: '/password/change/start',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
         validate: {
-          payload: {
-            email: validators.email().required(),
-            oldAuthPW: validators.authPW,
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.email),
+              oldAuthPW: validators.authPW.description(DESCRIPTION.authPW),
+            })
+            .label('Password.changeStart_payload'),
         },
       },
       handler: async function (request) {
@@ -125,24 +134,28 @@ module.exports = function (
       method: 'POST',
       path: '/password/change/finish',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_CHANGE_FINISH_POST,
         auth: {
           strategy: 'passwordChangeToken',
           payload: 'required',
         },
         validate: {
-          query: {
-            keys: isA.boolean().optional(),
-          },
-          payload: {
-            authPW: validators.authPW,
-            wrapKb: validators.wrapKb,
-            sessionToken: isA
-              .string()
-              .min(64)
-              .max(64)
-              .regex(HEX_STRING)
-              .optional(),
-          },
+          query: isA.object({
+            keys: isA.boolean().optional().description(DESCRIPTION.queryKeys),
+          }),
+          payload: isA
+            .object({
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              wrapKb: validators.wrapKb.description(DESCRIPTION.wrapKb),
+              sessionToken: isA
+                .string()
+                .min(64)
+                .max(64)
+                .regex(HEX_STRING)
+                .optional()
+                .description(DESCRIPTION.sessionToken),
+            })
+            .label('Password.changeFinish_payload'),
         },
       },
       handler: async function (request) {
@@ -418,26 +431,41 @@ module.exports = function (
       method: 'POST',
       path: '/password/forgot/send_code',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_SEND_CODE_POST,
         validate: {
-          query: {
-            service: validators.service,
+          query: isA.object({
+            service: validators.service.description(DESCRIPTION.serviceRP),
             keys: isA.boolean().optional(),
-          },
-          payload: {
-            email: validators.email().required(),
-            service: validators.service,
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          },
+          }),
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailRecovery),
+              service: validators.service.description(DESCRIPTION.serviceRP),
+              redirectTo: validators
+                .redirectTo(redirectDomain)
+                .optional()
+                .description(DESCRIPTION.redirectTo),
+              resume: isA
+                .string()
+                .max(2048)
+                .optional()
+                .description(DESCRIPTION.resume),
+              metricsContext: METRICS_CONTEXT_SCHEMA,
+            })
+            .label('Password.forgotSend_payload'),
         },
         response: {
-          schema: {
-            passwordForgotToken: isA.string(),
-            ttl: isA.number(),
-            codeLength: isA.number(),
-            tries: isA.number(),
-          },
+          schema: isA
+            .object({
+              passwordForgotToken: isA.string(),
+              ttl: isA.number(),
+              codeLength: isA.number(),
+              tries: isA.number(),
+            })
+            .label('Password.forgotSend_response'),
         },
       },
       handler: async function (request) {
@@ -531,28 +559,43 @@ module.exports = function (
       method: 'POST',
       path: '/password/forgot/resend_code',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_RESEND_CODE_POST,
         auth: {
           strategy: 'passwordForgotToken',
           payload: 'required',
         },
         validate: {
-          query: {
-            service: validators.service,
-          },
-          payload: {
-            email: validators.email().required(),
-            service: validators.service,
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional(),
-          },
+          query: isA.object({
+            service: validators.service.description(DESCRIPTION.serviceRP),
+          }),
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailRecovery),
+              service: validators.service.description(DESCRIPTION.serviceRP),
+              redirectTo: validators
+                .redirectTo(redirectDomain)
+                .optional()
+                .description(DESCRIPTION.redirectTo),
+              resume: isA
+                .string()
+                .max(2048)
+                .optional()
+                .description(DESCRIPTION.resume),
+            })
+            .label('Password.forgotResend_payload'),
         },
         response: {
-          schema: {
-            passwordForgotToken: isA.string(),
-            ttl: isA.number(),
-            codeLength: isA.number(),
-            tries: isA.number(),
-          },
+          schema: isA
+            .object({
+              passwordForgotToken: isA.string(),
+              ttl: isA.number(),
+              codeLength: isA.number(),
+              tries: isA.number(),
+            })
+            .label('Password.forgotResend_response'),
         },
       },
       handler: async function (request) {
@@ -625,20 +668,31 @@ module.exports = function (
       method: 'POST',
       path: '/password/forgot/verify_code',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_VERIFY_CODE_POST,
         auth: {
           strategy: 'passwordForgotToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            accountResetWithRecoveryKey: isA.boolean().optional(),
-          },
+          payload: isA
+            .object({
+              code: isA
+                .string()
+                .min(32)
+                .max(32)
+                .regex(HEX_STRING)
+                .required()
+                .description(DESCRIPTION.codeRecovery),
+              accountResetWithRecoveryKey: isA.boolean().optional(),
+            })
+            .label('Password.forgotVerify_payload'),
         },
         response: {
-          schema: {
-            accountResetToken: isA.string(),
-          },
+          schema: isA
+            .object({
+              accountResetToken: isA.string(),
+            })
+            .label('Password.forgotVerify_response'),
         },
       },
       handler: async function (request) {
@@ -715,14 +769,17 @@ module.exports = function (
       method: 'GET',
       path: '/password/forgot/status',
       options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_STATUS_GET,
         auth: {
           strategy: 'passwordForgotToken',
         },
         response: {
-          schema: {
-            tries: isA.number(),
-            ttl: isA.number(),
-          },
+          schema: isA
+            .object({
+              tries: isA.number(),
+              ttl: isA.number(),
+            })
+            .label('Password.forgotStatus_response'),
         },
       },
       handler: async function (request) {

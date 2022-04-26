@@ -12,6 +12,9 @@ import { DeveloperNotification } from '../../payments/iap/google-play/types';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
+
 export class PlayPubsubHandler {
   private log: AuthLogger;
   private playBilling: PlayBilling;
@@ -110,6 +113,7 @@ export const playPubsubRoutes = (db: any): ServerRoute[] => {
       method: 'POST',
       path: '/oauth/subscriptions/iap/rtdn',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST,
         auth: {
           strategy: 'pubsub',
         },

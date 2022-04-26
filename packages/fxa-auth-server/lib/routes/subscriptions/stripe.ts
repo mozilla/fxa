@@ -36,6 +36,9 @@ import validators from '../validators';
 import { handleAuth } from './utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
+
 // List of countries for which we need to look up the province/state of the
 // customer.
 const addressLookupCountries = Object.values(
@@ -754,17 +757,24 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/clients',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_CLIENTS_GET,
         auth: {
           payload: false,
           strategy: 'subscriptionsSecret',
         },
         response: {
-          schema: isA.array().items(
-            isA.object().keys({
-              clientId: isA.string(),
-              capabilities: isA.array().items(isA.string()),
-            })
-          ) as any,
+          schema: isA
+            .array()
+            .items(
+              isA
+                .object()
+                .keys({
+                  clientId: isA.string(),
+                  capabilities: isA.array().items(isA.string()),
+                })
+                .label('subscriptionClient')
+            )
+            .label('subscriptionsClient_response') as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
@@ -773,9 +783,11 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/plans',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PLANS_GET,
         response: {
           schema: isA
             .array()
+            .label('OauthSubscriptionsPlans')
             .items(validators.subscriptionsPlanValidator) as any,
         },
       },
@@ -785,6 +797,7 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/active',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_GET,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -792,6 +805,7 @@ export const stripeRoutes = (
         response: {
           schema: isA
             .array()
+            .label('OauthSubscriptionsActive')
             .items(validators.activeSubscriptionValidator) as any,
         },
       },
@@ -801,6 +815,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/customer',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_CUSTOMER_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -823,6 +838,7 @@ export const stripeRoutes = (
       // same time the old routes are removed when the client is updated.
       path: '/oauth/subscriptions/active/new',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -850,6 +866,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/invoice/retry',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_INVOICE_RETRY_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -871,9 +888,12 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/invoice/preview',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST,
         auth: false,
         response: {
-          schema: invoiceDTO.firstInvoicePreviewSchema as any,
+          schema: invoiceDTO.firstInvoicePreviewSchema.label(
+            'OauthSubscriptionsInvoicePreview_response'
+          ) as any,
         },
         validate: {
           payload: {
@@ -888,12 +908,15 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/invoice/preview-subsequent',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_SUBSEQUENT_GET,
         auth: {
           payload: false,
           strategy: 'oauthToken',
         },
         response: {
-          schema: invoiceDTO.subsequentInvoicePreviewsSchema as any,
+          schema: invoiceDTO.subsequentInvoicePreviewsSchema.label(
+            'OauthSubscriptionsInvoicePreviewSubsequent_response'
+          ) as any,
         },
       },
       handler: (request: AuthRequest) =>
@@ -903,9 +926,12 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/coupon',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_COUPON_POST,
         auth: false,
         response: {
-          schema: couponDTO.couponDetailsSchema as any,
+          schema: couponDTO.couponDetailsSchema.label(
+            'OauthSubscriptionsCoupon_response'
+          ) as any,
         },
         validate: {
           payload: {
@@ -921,6 +947,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/setupintent/create',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_SETUPINTENT_CREATE_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -936,6 +963,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paymentmethod/default',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_DEFAULT_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -956,6 +984,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paymentmethod/failed/detach',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_FAILED_DETACH_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -980,10 +1009,13 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/productname',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PRODUCTNAME_GET,
         response: {
-          schema: isA.object({
-            product_name: isA.string().required(),
-          }) as any,
+          schema: isA
+            .object({
+              product_name: isA.string().required(),
+            })
+            .label('Product Name') as any,
         },
         validate: {
           query: {
@@ -997,6 +1029,7 @@ export const stripeRoutes = (
       method: 'PUT',
       path: '/oauth/subscriptions/active/{subscriptionId}',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_PUT,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -1017,6 +1050,7 @@ export const stripeRoutes = (
       method: 'DELETE',
       path: '/oauth/subscriptions/active/{subscriptionId}',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_DELETE,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -1034,6 +1068,7 @@ export const stripeRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/reactivate',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_REACTIVATE_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',

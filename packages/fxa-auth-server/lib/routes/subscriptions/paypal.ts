@@ -32,6 +32,9 @@ import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 
+const SUBSCRIPTIONS_DOCS =
+  require('../../../docs/swagger/subscriptions-api').default;
+
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
@@ -476,6 +479,7 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paypal-checkout',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYPAL_CHECKOUT_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -498,6 +502,7 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/active/new-paypal',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_PAYPAL_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',
@@ -525,6 +530,7 @@ export const paypalRoutes = (
       method: 'POST',
       path: '/oauth/subscriptions/paymentmethod/billing-agreement',
       options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_BILLING_AGREEMENT_POST,
         auth: {
           payload: false,
           strategy: 'oauthToken',

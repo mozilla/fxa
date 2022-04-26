@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import MISC_DOCS from '../../../docs/swagger/misc-api';
+import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
+import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
+
 const crypto = require('crypto');
 const Joi = require('@hapi/joi');
 const hex = require('buf').to.hex;
@@ -67,6 +71,7 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/destroy',
       config: {
+        ...MISC_DOCS.DESTROY_POST,
         cors: { origin: 'ignore' },
         validate: {
           headers: clientAuthValidators.headers,
@@ -84,7 +89,8 @@ module.exports = ({ log, oauthDB }) => {
               refresh_token_id: validators.token,
             })
             .rename('token', 'access_token')
-            .xor('access_token', 'refresh_token', 'refresh_token_id'),
+            .xor('access_token', 'refresh_token', 'refresh_token_id')
+            .label('Destroy_payload'),
         },
         handler: destroyHandler,
       },
@@ -93,19 +99,26 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/oauth/destroy',
       config: {
+        ...OAUTH_DOCS.OAUTH_DESTROY_POST,
         validate: {
           headers: clientAuthValidators.headers,
-          payload: {
-            client_id: clientAuthValidators.clientId,
-            client_secret: clientAuthValidators.clientSecret.optional(),
-            token: Joi.alternatives().try(
-              validators.accessToken,
-              validators.refreshToken
+          payload: Joi.object({
+            client_id: clientAuthValidators.clientId.description(
+              DESCRIPTION.clientId
             ),
+            client_secret: clientAuthValidators.clientSecret
+              .optional()
+              .description(DESCRIPTION.clientSecret),
+            token: Joi.alternatives()
+              .try(validators.accessToken, validators.refreshToken)
+              .description(DESCRIPTION.token),
             // The spec says we have to ignore invalid token_type_hint values,
             // but no way I'm going to accept an arbitrarily-long string here...
-            token_type_hint: Joi.string().max(64).optional(),
-          },
+            token_type_hint: Joi.string()
+              .max(64)
+              .optional()
+              .description(DESCRIPTION.tokenTypeHint),
+          }).label('oauth.destroy_payload'),
         },
         response: {},
       },

@@ -4,12 +4,15 @@
 
 'use strict';
 
+import SECURITY_EVENTS_DOCS from '../../docs/swagger/security-events-api';
+
 module.exports = (log, db, config) => {
   return [
     {
       method: 'GET',
       path: '/securityEvents',
       options: {
+        ...SECURITY_EVENTS_DOCS.SECURITYEVENTS_GET,
         auth: {
           strategy: 'sessionToken',
         },
@@ -26,6 +29,7 @@ module.exports = (log, db, config) => {
       method: 'DELETE',
       path: '/securityEvents',
       options: {
+        ...SECURITY_EVENTS_DOCS.SECURITYEVENTS_DELETE,
         auth: {
           strategy: 'sessionToken',
         },

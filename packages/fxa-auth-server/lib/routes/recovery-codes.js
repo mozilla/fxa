@@ -4,6 +4,8 @@
 
 'use strict';
 
+import RECOVERY_CODES_DOCS from '../../docs/swagger/recovery-codes-api';
+
 const errors = require('../error');
 const isA = require('@hapi/joi');
 const validators = require('./validators');
@@ -15,16 +17,16 @@ module.exports = (log, db, config, customs, mailer) => {
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
 
   // Validate recovery codes
-  const recoveryCodesSchema = validators.recoveryCodes(
-    RECOVERY_CODE_COUNT,
-    RECOVERY_CODE_SANE_MAX_LENGTH
-  );
+  const recoveryCodesSchema = validators
+    .recoveryCodes(RECOVERY_CODE_COUNT, RECOVERY_CODE_SANE_MAX_LENGTH)
+    .label('replaceRecoveryCodes_response');
 
   return [
     {
       method: 'GET',
       path: '/recoveryCodes',
       options: {
+        ...RECOVERY_CODES_DOCS.RECOVERYCODES_GET,
         auth: {
           strategy: 'sessionToken',
         },
@@ -73,8 +75,8 @@ module.exports = (log, db, config, customs, mailer) => {
     {
       method: 'PUT',
       path: '/recoveryCodes',
-
       options: {
+        ...RECOVERY_CODES_DOCS.RECOVERY_CODES_PUT,
         auth: {
           strategy: 'sessionToken',
         },
@@ -82,9 +84,11 @@ module.exports = (log, db, config, customs, mailer) => {
           payload: recoveryCodesSchema,
         },
         response: {
-          schema: {
-            success: isA.boolean(),
-          },
+          schema: isA
+            .object({
+              success: isA.boolean(),
+            })
+            .label('success'),
         },
       },
       async handler(request) {
@@ -128,24 +132,29 @@ module.exports = (log, db, config, customs, mailer) => {
       method: 'POST',
       path: '/session/verify/recoveryCode',
       options: {
+        ...RECOVERY_CODES_DOCS.SESSION_VERIFY_RECOVERYCODE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            // Validation here is done with BASE_36 superset to be backwards compatible...
-            // Ideally all recovery codes are Crockford Base32.
-            code: validators.recoveryCode(
-              RECOVERY_CODE_SANE_MAX_LENGTH,
-              validators.BASE_36
-            ),
-          },
+          payload: isA
+            .object({
+              // Validation here is done with BASE_36 superset to be backwards compatible...
+              // Ideally all recovery codes are Crockford Base32.
+              code: validators.recoveryCode(
+                RECOVERY_CODE_SANE_MAX_LENGTH,
+                validators.BASE_36
+              ),
+            })
+            .label('session.verify.recoveryCode_payload'),
         },
         response: {
-          schema: {
-            remaining: isA.number(),
-          },
+          schema: isA
+            .object({
+              remaining: isA.number(),
+            })
+            .label('session.verify.recoveryCode_response'),
         },
       },
       async handler(request) {

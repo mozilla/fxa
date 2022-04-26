@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import MISC_DOCS from '../../../docs/swagger/misc-api';
+import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
+
 const Joi = require('@hapi/joi');
 
 const OauthError = require('../../oauth/error');
@@ -96,13 +99,14 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/key-data',
       config: {
+        ...MISC_DOCS.KEY_DATA_POST,
         cors: { origin: 'ignore' },
         validate: {
-          payload: {
+          payload: Joi.object({
             client_id: validators.clientId,
             assertion: validators.assertion.required(),
             scope: validators.scope.required(),
-          },
+          }).label('KeyData_payload'),
         },
         response: {
           schema: Joi.object().pattern(/^/, [
@@ -120,16 +124,17 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/account/scoped-key-data',
       config: {
+        ...OAUTH_DOCS.ACCOUNT_SCOPED_KEY_DATA_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
+          payload: Joi.object({
             client_id: validators.clientId.required(),
             scope: validators.scope.required(),
             assertion: Joi.forbidden(),
-          },
+          }).label('Oauth.scopedKeyData_payload'),
         },
         response: {
           schema: Joi.object().pattern(
@@ -138,7 +143,7 @@ module.exports = ({ log, oauthDB }) => {
               identifier: validators.scope.required(),
               keyRotationSecret: validators.hexString.length(64).required(),
               keyRotationTimestamp: Joi.number().required(),
-            })
+            }).label('Oauth.scopedKeyData_response')
           ),
         },
       },

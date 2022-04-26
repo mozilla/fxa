@@ -4,6 +4,8 @@
 
 'use strict';
 
+import DESCRIPTION from '../docs/swagger/shared/descriptions';
+
 const isA = require('@hapi/joi');
 const validators = require('./routes/validators');
 const error = require('./error');
@@ -15,12 +17,14 @@ const { synthesizeClientName } = require('fxa-shared/connected-services');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
-  location: isA.object({
-    city: isA.string().optional().allow(null),
-    country: isA.string().optional().allow(null),
-    state: isA.string().optional().allow(null),
-    stateCode: isA.string().optional().allow(null),
-  }),
+  location: isA
+    .object({
+      city: isA.string().optional().allow(null),
+      country: isA.string().optional().allow(null),
+      state: isA.string().optional().allow(null),
+      stateCode: isA.string().optional().allow(null),
+    })
+    .description(DESCRIPTION.location),
   name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
   // We previously allowed devices to register with arbitrary unicode names,
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.

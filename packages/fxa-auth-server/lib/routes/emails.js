@@ -4,6 +4,9 @@
 
 'use strict';
 
+import EMAILS_DOCS from '../../docs/swagger/emails-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
@@ -100,6 +103,7 @@ module.exports = (
       method: 'GET',
       path: '/recovery_email/status',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_STATUS_GET,
         auth: {
           strategy: 'sessionToken',
         },
@@ -109,14 +113,16 @@ module.exports = (
           },
         },
         response: {
-          schema: {
-            // There's code in the handler that checks for a valid email,
-            // no point adding overhead by doing it again here.
-            email: isA.string().required(),
-            verified: isA.boolean().required(),
-            sessionVerified: isA.boolean().optional(),
-            emailVerified: isA.boolean().optional(),
-          },
+          schema: isA
+            .object({
+              // There's code in the handler that checks for a valid email,
+              // no point adding overhead by doing it again here.
+              email: isA.string().required(),
+              verified: isA.boolean().required(),
+              sessionVerified: isA.boolean().optional(),
+              emailVerified: isA.boolean().optional(),
+            })
+            .label('Account.RecoveryEmailStatus_response'),
         },
       },
       handler: async function (request) {
@@ -198,35 +204,42 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/resend_code',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_RESEND_CODE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          query: {
-            service: validators.service,
+          query: isA.object({
+            service: validators.service.description(DESCRIPTION.service),
             type: isA
               .string()
               .max(32)
               .alphanum()
               .allow(['upgradeSession'])
               .optional(),
-          },
-          payload: {
-            email: validators.email().optional(),
-            service: validators.service,
-            redirectTo: validators
-              .redirectTo(config.smtp.redirectDomain)
-              .optional(),
-            resume: isA.string().max(2048).optional(),
-            style: isA.string().allow(['trailhead']).optional(),
-            type: isA
-              .string()
-              .max(32)
-              .alphanum()
-              .allow(['upgradeSession'])
-              .optional(),
-          },
+          }),
+          payload: isA
+            .object({
+              email: validators.email().optional(),
+              service: validators.service.description(DESCRIPTION.service),
+              redirectTo: validators
+                .redirectTo(config.smtp.redirectDomain)
+                .optional(),
+              resume: isA
+                .string()
+                .max(2048)
+                .optional()
+                .description(DESCRIPTION.resume),
+              style: isA.string().allow(['trailhead']).optional(),
+              type: isA
+                .string()
+                .max(32)
+                .alphanum()
+                .allow(['upgradeSession'])
+                .optional(),
+            })
+            .label('Account.RecoveryEmailResend_payload'),
         },
       },
       handler: async function (request) {
@@ -360,18 +373,30 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/verify_code',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_VERIFY_CODE_POST,
         validate: {
-          payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            service: validators.service,
-            reminder: isA.string().regex(REMINDER_PATTERN).optional(),
-            type: isA.string().max(32).alphanum().optional(),
-            style: isA.string().allow(['trailhead']).optional(),
-            // The `marketingOptIn` is safe to remove after train-167+
-            marketingOptIn: isA.boolean().optional(),
-            newsletters: validators.newsletters,
-          },
+          payload: isA
+            .object({
+              uid: isA.string().max(32).regex(HEX_STRING).required(),
+              code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
+              service: validators.service.description(DESCRIPTION.service),
+              reminder: isA
+                .string()
+                .regex(REMINDER_PATTERN)
+                .optional()
+                .description(DESCRIPTION.reminder),
+              type: isA
+                .string()
+                .max(32)
+                .alphanum()
+                .optional()
+                .description(DESCRIPTION.type),
+              style: isA.string().allow(['trailhead']).optional(),
+              // The `marketingOptIn` is safe to remove after train-167+
+              marketingOptIn: isA.boolean().optional(),
+              newsletters: validators.newsletters,
+            })
+            .label('Account.RecoveryEmailVerify_payload'),
         },
       },
       handler: async function (request) {
@@ -490,17 +515,23 @@ module.exports = (
       method: 'GET',
       path: '/recovery_emails',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAILS_GET,
         auth: {
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA.array().items(
-            isA.object({
-              verified: isA.boolean().required(),
-              isPrimary: isA.boolean().required(),
-              email: validators.email().required(),
-            })
-          ),
+          schema: isA
+            .array()
+            .items(
+              isA
+                .object({
+                  verified: isA.boolean().required(),
+                  isPrimary: isA.boolean().required(),
+                  email: validators.email().required(),
+                })
+                .label('Account.RecoveryEmail')
+            )
+            .label('Account.RecoveryEmailEmails_response'),
         },
       },
       handler: async function (request) {
@@ -521,14 +552,20 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            email: validators.email().required(),
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailAdd),
+            })
+            .label('Account.RecoveryEmailCreate_payload'),
         },
         response: {},
       },
@@ -668,14 +705,20 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/destroy',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_DESTROY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            email: validators.email().required(),
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailDelete),
+            })
+            .label('Account.RecoveryEmailDestroy_payload'),
         },
         response: {},
       },
@@ -726,14 +769,20 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/set_primary',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_SET_PRIMARY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            email: validators.email().required(),
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailNewPrimary),
+            })
+            .label('Account.RecoveryEmailSetPrimary_payload'),
         },
         response: {},
       },
@@ -831,14 +880,20 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/secondary/resend_code',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            email: validators.email().required(),
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .description(DESCRIPTION.emailSecondaryVerify)
+                .required(),
+            })
+            .label('Account.RecoveryEmailSecondaryResend_payload'),
         },
         response: {},
       },
@@ -912,15 +967,26 @@ module.exports = (
       method: 'POST',
       path: '/recovery_email/secondary/verify_code',
       options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
-          payload: {
-            email: validators.email().required(),
-            code: isA.string().max(32).regex(validators.DIGITS).required(),
-          },
+          payload: isA
+            .object({
+              email: validators
+                .email()
+                .required()
+                .description(DESCRIPTION.emailSecondaryVerify),
+              code: isA
+                .string()
+                .max(32)
+                .regex(validators.DIGITS)
+                .description(DESCRIPTION.code)
+                .required(),
+            })
+            .label('Account.RecoveryEmailSecondaryVerify_payload'),
         },
       },
       handler: async function (request) {
@@ -982,6 +1048,7 @@ module.exports = (
       method: 'POST',
       path: '/emails/reminders/cad',
       options: {
+        ...EMAILS_DOCS.EMAILS_REMINDERS_CAD_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
