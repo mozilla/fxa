@@ -104,6 +104,7 @@ module.exports = function (log, error) {
         };
         const bounce = {
           email: email,
+          diagnosticCode: recipient.diagnosticCode,
         };
 
         // Template name corresponds directly with the email template that was used

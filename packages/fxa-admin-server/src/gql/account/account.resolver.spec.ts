@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { Knex } from 'knex';
+import Chance from 'chance';
 
 import {
   Account,
@@ -38,10 +39,13 @@ import {
 import { AccountResolver } from './account.resolver';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { boolean } from 'yargs';
+
+export const chance = new Chance();
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
-const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
+const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email, chance.bool());
 const TOTP_1 = randomTotp(USER_1);
 const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
 const LINKED_ACCOUNT_1 = randomLinkedAccount(USER_1);
