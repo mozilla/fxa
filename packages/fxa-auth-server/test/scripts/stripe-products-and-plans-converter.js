@@ -218,7 +218,9 @@ describe('StripeProductsAndPlansConverter', () => {
       const actualProductConfig =
         converter.stripeProductToProductConfig(testProduct);
       assert.deepEqual(expectedProductConfig, actualProductConfig);
-      const { error } = await ProductConfig.validate(actualProductConfig);
+      const { error } = await ProductConfig.validate(actualProductConfig, {
+        cdnUrlRegex: '^http',
+      });
       assert.isUndefined(error);
     });
   });
@@ -251,7 +253,9 @@ describe('StripeProductsAndPlansConverter', () => {
       };
       const actualPlanConfig = converter.stripePlanToPlanConfig(testPlan);
       assert.deepEqual(expectedPlanConfig, actualPlanConfig);
-      const { error } = await PlanConfig.validate(actualPlanConfig);
+      const { error } = await PlanConfig.validate(actualPlanConfig, {
+        cdnUrlRegex: '^https://',
+      });
       assert.isUndefined(error);
     });
   });
@@ -342,6 +346,11 @@ describe('StripeProductsAndPlansConverter', () => {
             clientEmail: 'mock-client-email',
           },
           keyFile: 'mock-private-keyfile',
+        },
+        productConfigsFirestore: {
+          schemaValidation: {
+            cdnUrlRegex: '^http',
+          },
         },
       },
     };

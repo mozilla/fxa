@@ -43,6 +43,11 @@ const mockConfig = {
       },
       keyFile: 'mock-private-keyfile',
     },
+    productConfigsFirestore: {
+      schemaValidation: {
+        cdnUrlRegex: '^https://',
+      },
+    },
   },
 };
 

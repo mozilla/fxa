@@ -11,6 +11,8 @@ import {
   SupportConfig,
   UiContentConfig,
   UrlConfig,
+  extendBaseConfigSchema,
+  ProductConfigSchemaValidation,
 } from './base';
 
 export const productConfigJoiKeys = {
@@ -19,21 +21,22 @@ export const productConfigJoiKeys = {
   promotionCodes: joi.array().items(joi.string()).optional(),
 };
 
-export const productConfigSchema = baseConfigSchema
-  .keys(productConfigJoiKeys)
-  .requiredKeys(
-    'capabilities',
-    'locales',
-    'styles',
-    'support',
-    'uiContent',
-    'urls.download',
-    'urls.privacyNotice',
-    'urls.termsOfService',
-    'urls.termsOfServiceDownload',
-    'urls.webIcon',
-    'urls'
-  );
+const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
+  baseSchema
+    .keys(productConfigJoiKeys)
+    .requiredKeys(
+      'capabilities',
+      'locales',
+      'styles',
+      'support',
+      'uiContent',
+      'urls.download',
+      'urls.privacyNotice',
+      'urls.termsOfService',
+      'urls.termsOfServiceDownload',
+      'urls.webIcon',
+      'urls'
+    );
 
 export class ProductConfig implements BaseConfig {
   // Firestore document id
@@ -58,7 +61,17 @@ export class ProductConfig implements BaseConfig {
   stripeProductId?: string;
   productSet?: string;
 
-  static async validate(productConfig: ProductConfig) {
+  static async validate(
+    productConfig: ProductConfig,
+    schemaValidation: ProductConfigSchemaValidation
+  ) {
+    const extendedBaseSchema = extendBaseConfigSchema(
+      baseConfigSchema,
+      schemaValidation.cdnUrlRegex
+    );
+
+    const productConfigSchema = buildProductConfigSchema(extendedBaseSchema);
+
     try {
       const value = await joi.validate(productConfig, productConfigSchema, {
         abortEarly: false,
