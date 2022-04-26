@@ -126,6 +126,27 @@ describe('models/user', function () {
       });
   });
 
+  it('will not create invalid account', function () {
+    assert.throws(() => {
+      user.initAccount({
+        email: EMAIL,
+        boom: 'yes',
+      });
+    }, 'boom cannot be set on an Account');
+  });
+
+  it('will handles deprecated settings account', function () {
+    const account = user.initAccount({
+      email: EMAIL,
+      ecosystemAnonId: '123',
+    });
+
+    assert.equal(account.get('email'), EMAIL);
+    assert.deepEqual(account.pick('email'), { email: EMAIL });
+    assert.equal(account._notifier, notifier);
+    assert.notExists(account.ecosystemAnonId);
+  });
+
   describe('sessionStatus', () => {
     it('checks passed in account', () => {
       const account = user.initAccount({
