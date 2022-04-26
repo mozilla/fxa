@@ -120,6 +120,7 @@ describe('UserManager', () => {
         await userManager.queryCurrentSubscriptions(USER_ID);
         assert.fail('should have thrown');
       } catch (err) {
+        console.log(err);
         assert.strictEqual(err.name, PurchaseQueryError.OTHER_ERROR);
       }
     });

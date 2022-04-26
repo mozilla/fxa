@@ -2,17 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference } from '@google-cloud/firestore';
-import {
-  decodeRenewalInfo,
-  decodeTransaction,
-  TransactionType,
-} from 'app-store-server-api';
+import { decodeRenewalInfo, decodeTransaction } from 'app-store-server-api';
 import Container from 'typedi';
 
 import { AuthLogger } from '../../../types';
 import { AppStoreHelper } from './app-store-helper';
+import { PurchaseManagerBase } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager-base';
 import {
-  APPLE_APP_STORE_FORM_OF_PAYMENT,
   mergePurchaseWithFirestorePurchaseRecord,
   SubscriptionPurchase,
 } from './subscription-purchase';
@@ -24,10 +20,8 @@ import { PurchaseQueryError, PurchaseUpdateError } from './types';
  * This is using the V2 App Store Server API implementation:
  * https://developer.apple.com/documentation/appstoreserverapi
  */
-export class PurchaseManager {
+export class PurchaseManager extends PurchaseManagerBase {
   private appStoreHelper: AppStoreHelper;
-  private log: AuthLogger;
-  private purchasesDbRef: CollectionReference;
 
   /*
    * This class is intended to be initialized by the library.
@@ -37,8 +31,9 @@ export class PurchaseManager {
     purchasesDbRef: CollectionReference,
     appStoreHelper: AppStoreHelper
   ) {
+    super(purchasesDbRef, Container.get(AuthLogger));
+
     this.appStoreHelper = appStoreHelper;
-    this.log = Container.get(AuthLogger);
     this.purchasesDbRef = purchasesDbRef;
   }
 
@@ -217,21 +212,11 @@ export class PurchaseManager {
 
     try {
       // Create query to fetch possibly active subscriptions from Firestore
-      let query = this.purchasesDbRef
-        .where('formOfPayment', '==', APPLE_APP_STORE_FORM_OF_PAYMENT)
-        .where('type', '==', TransactionType.AutoRenewableSubscription)
-        .where('userId', '==', userId);
-
-      if (productId) {
-        query = query.where('productId', '==', productId);
-      }
-
-      if (bundleId) {
-        query = query.where('bundleId', '==', bundleId);
-      }
-
-      // Do fetch possibly active subscription from Firestore
-      const queryResult = await query.get();
+      const queryResult = await this.getSubscriptions(
+        userId,
+        productId,
+        bundleId
+      );
 
       // Loop through these subscriptions and filter those that are indeed active
       for (const purchaseRecordSnapshot of queryResult.docs) {

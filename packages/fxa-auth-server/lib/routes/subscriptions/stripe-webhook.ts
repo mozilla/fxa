@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import * as Sentry from '@sentry/node';
+import Sentry from '@sentry/node';
 import { Account } from 'fxa-shared/db/models/auth';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
@@ -646,7 +646,7 @@ export class StripeWebhookHandler extends StripeHandler {
         error,
         plan,
       });
-      reportValidationError(msg, error as any);
+      reportValidationError(Sentry, msg, error as any);
       this.stripeHelper.updateAllPlans(updatedList);
       return;
     }
@@ -708,7 +708,7 @@ export class StripeWebhookHandler extends StripeHandler {
             error,
             product,
           });
-          reportValidationError(msg, error as any);
+          reportValidationError(Sentry, msg, error as any);
         } else {
           updatedPlans.push({
             ...plan,

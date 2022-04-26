@@ -9,7 +9,6 @@ import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/iap/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/iap/google-play/types';
-import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 
 export class PlayPubsubHandler {

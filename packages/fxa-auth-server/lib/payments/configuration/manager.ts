@@ -5,139 +5,31 @@ import { Firestore } from '@google-cloud/firestore';
 import { randomUUID } from 'crypto';
 import { Logger } from 'mozlog';
 import { Container } from 'typedi';
-import { TypedCollectionReference } from 'typesafe-node-firestore';
 
 import errors from '../../error';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
+
+import {
+  PaymentConfigManager as PaymentConfigManagerBase,
+  PaymentConfigManagerError,
+} from 'fxa-shared/payments/configuration/manager';
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
 import { mergeConfigs } from 'fxa-shared/subscriptions/configuration/utils';
 
-export class PaymentConfigManager {
-  private firestore: Firestore;
-  private productConfigDbRef: TypedCollectionReference<ProductConfig>;
-  private planConfigDbRef: TypedCollectionReference<PlanConfig>;
-  private log: Logger;
-  private prefix: string;
-  private cancelProductListener: (() => void) | undefined;
-  private cancelPlanListener: (() => void) | undefined;
-
-  private products: Record<string, ProductConfig> = {};
-  private plans: Record<string, PlanConfig> = {};
-
-  private hasLoaded: boolean = false;
+export class PaymentConfigManager extends PaymentConfigManagerBase {
+  protected mergeConfigs(
+    planConfig: PlanConfig,
+    productConfig: ProductConfig
+  ): PlanConfig {
+    return mergeConfigs(planConfig, productConfig);
+  }
 
   constructor() {
     const config = Container.get(AppConfig);
-    this.prefix = `${config.authFirestore.prefix}payment-config-`;
-    this.firestore = Container.get(AuthFirestore);
-    this.log = Container.get(AuthLogger) as any as Logger;
-    this.productConfigDbRef = this.firestore.collection(
-      `${this.prefix}products`
-    ) as TypedCollectionReference<ProductConfig>;
-    this.planConfigDbRef = this.firestore.collection(
-      `${this.prefix}plans`
-    ) as TypedCollectionReference<PlanConfig>;
-
-    this.load();
-    this.startListeners();
-  }
-
-  /**
-   * Load all products and plans from firestore.
-   *
-   * Note that this will overwrite any existing products and plans.
-   */
-  public async load() {
-    const [productResults, planResults] = await Promise.all([
-      this.productConfigDbRef.select().get(),
-      this.planConfigDbRef.select().get(),
-    ]);
-    productResults.docs.forEach((doc) => {
-      this.products[doc.id] = ProductConfig.fromFirestoreObject(
-        doc.data(),
-        doc.id
-      );
-    });
-    planResults.docs.forEach((doc) => {
-      this.plans[doc.id] = PlanConfig.fromFirestoreObject(doc.data(), doc.id);
-    });
-    this.hasLoaded = true;
-  }
-
-  private async maybeLoad() {
-    this.hasLoaded || (await this.load());
-  }
-
-  /**
-   * Start the listeners for changes to the product and plan configs.
-   *
-   * Note that this will exit the process if it fails to start the listeners.
-   */
-  public startListeners() {
-    this.cancelProductListener = this.productConfigDbRef.onSnapshot(
-      (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (['added', 'modified'].includes(change.type)) {
-            this.products[change.doc.id] = ProductConfig.fromFirestoreObject(
-              change.doc.data(),
-              change.doc.id
-            );
-          } else {
-            if (change.doc.id in this.products) {
-              delete this.products[change.doc.id];
-            }
-          }
-        });
-      },
-      (err) => {
-        this.log.error('startListener', { err });
-        process.exit(1);
-      }
-    );
-    this.cancelPlanListener = this.planConfigDbRef.onSnapshot(
-      (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (['added', 'modified'].includes(change.type)) {
-            this.plans[change.doc.id] = PlanConfig.fromFirestoreObject(
-              change.doc.data(),
-              change.doc.id
-            );
-          } else {
-            if (change.doc.id in this.plans) {
-              delete this.plans[change.doc.id];
-            }
-          }
-        });
-      },
-      (err) => {
-        this.log.error('startListener', { err });
-        process.exit(1);
-      }
-    );
-  }
-
-  /**
-   * Stop the listeners for changes to the product and plan configs.
-   */
-  public stopListeners() {
-    this.cancelProductListener?.();
-    this.cancelPlanListener?.();
-  }
-
-  /**
-   * Looks up a Firestore ProductConfig or PlanConfig document id based
-   * on the provided Stripe Product or Plan id.
-   */
-  public async getDocumentIdByStripeId(
-    stripeId: string
-  ): Promise<string | null> {
-    const products = await this.allProducts();
-    const plans = await this.allPlans();
-    const match =
-      products.find((product) => product.stripeProductId === stripeId) ||
-      plans.find((plan) => plan.stripePriceId === stripeId);
-    return match?.id ?? null;
+    const firestore = Container.get(AuthFirestore);
+    const log = Container.get(AuthLogger) as any as Logger;
+    super(config, firestore, log);
   }
 
   /**
@@ -152,22 +44,9 @@ export class PaymentConfigManager {
     productConfig: any,
     productConfigId?: string | null
   ) {
-    const { error } = await ProductConfig.validate(productConfig);
-    if (error) {
-      throw errors.internalValidationError(
-        'storeProductConfig',
-        productConfig,
-        error
-      );
-    }
-    const productId = productConfigId ?? randomUUID();
-    await this.productConfigDbRef.doc(productId).set(productConfig);
-    const productSnapshot = await this.productConfigDbRef.doc(productId).get();
-    this.products[productId] = ProductConfig.fromFirestoreObject(
-      productSnapshot.data(),
-      productSnapshot.id
-    );
-    return productId;
+    return await this.asyncWrapValidationError(async () => {
+      return await super.storeProductConfig(productConfig, productConfigId);
+    });
   }
 
   /**
@@ -180,40 +59,13 @@ export class PaymentConfigManager {
     productConfigId: string,
     planConfigId?: string | null
   ) {
-    const { error } = await PlanConfig.validate(planConfig);
-    if (error) {
-      throw errors.internalValidationError(
-        'storePlanConfig',
+    return await this.asyncWrapValidationError(async () => {
+      return await super.storePlanConfig(
         planConfig,
-        error
+        productConfigId,
+        planConfigId
       );
-    }
-    if (!this.products[productConfigId]) {
-      throw errors.internalValidationError(
-        'storePlanConfig',
-        planConfig,
-        new Error('ProductConfig does not exist')
-      );
-    }
-    const planId = planConfigId ?? randomUUID();
-    (planConfig as PlanConfig).productConfigId = productConfigId;
-    await this.planConfigDbRef.doc(planId).set(planConfig);
-    const planSnapshot = await this.planConfigDbRef.doc(planId).get();
-    this.plans[planId] = PlanConfig.fromFirestoreObject(
-      planSnapshot.data(),
-      planSnapshot.id
-    );
-    return planId;
-  }
-
-  public async allProducts() {
-    await this.maybeLoad();
-    return Object.values(this.products);
-  }
-
-  public async allPlans() {
-    await this.maybeLoad();
-    return Object.values(this.plans);
+    });
   }
 
   /**
@@ -221,14 +73,35 @@ export class PaymentConfigManager {
    * with the plan's.
    */
   getMergedConfig(planConfig: PlanConfig) {
-    const productConfig = this.products[planConfig.productConfigId];
-    if (!productConfig) {
-      throw errors.internalValidationError(
-        'getMergedConfig',
-        planConfig,
-        new Error('ProductConfig does not exist')
-      );
+    return this.wrapValidationError(() => {
+      return super.getMergedConfig(planConfig);
+    });
+  }
+
+  private async asyncWrapValidationError<T>(action: () => T) {
+    try {
+      console.log('K');
+      return await action();
+    } catch (err) {
+      console.log('WUT', err);
+      if (err instanceof PaymentConfigManagerError) {
+        throw errors.internalValidationError(err.op, err.config, err.error);
+      } else {
+        throw err;
+      }
     }
-    return mergeConfigs(planConfig, productConfig);
+  }
+
+  private wrapValidationError<T>(action: () => T) {
+    try {
+      return action();
+    } catch (err) {
+      console.log('WUT', err);
+      if (err instanceof PaymentConfigManagerError) {
+        throw errors.internalValidationError(err.op, err.config, err.error);
+      } else {
+        throw err;
+      }
+    }
   }
 }
