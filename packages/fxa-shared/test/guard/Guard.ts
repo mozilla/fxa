@@ -26,10 +26,12 @@ describe('support agents', () => {
         {
           foo: {
             name: 'test foo',
+            header: 'test_foo',
             level: 0,
           },
           bar: {
             name: 'test bar',
+            header: 'test_bar',
             level: 1,
           },
         }
@@ -39,21 +41,25 @@ describe('support agents', () => {
     it('gets best group', () => {
       expect(guard.getBestGroup('foo')).deep.equal({
         name: 'test foo',
+        header: 'test_foo',
         level: 0,
       });
 
       expect(guard.getBestGroup('bar')).deep.equal({
         name: 'test bar',
+        header: 'test_bar',
         level: 1,
       });
 
       expect(guard.getBestGroup('foo, bar')).deep.equal({
         name: 'test foo',
+        header: 'test_foo',
         level: 0,
       });
 
       expect(guard.getBestGroup('bar, foo')).deep.equal({
         name: 'test foo',
+        header: 'test_foo',
         level: 0,
       });
     });
@@ -61,10 +67,12 @@ describe('support agents', () => {
     it('gets group', () => {
       expect(guard.getGroup('foo')).deep.equal({
         name: 'test foo',
+        header: 'test_foo',
         level: 0,
       });
       expect(guard.getGroup('bar')).deep.equal({
         name: 'test bar',
+        header: 'test_bar',
         level: 1,
       });
     });

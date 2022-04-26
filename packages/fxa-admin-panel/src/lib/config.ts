@@ -1,6 +1,6 @@
 // This configuration is a subset of the configuration declared in server/config/index.ts
 
-import { PermissionLevel } from 'fxa-shared/guards';
+import { AdminPanelGroup, guard, PermissionLevel } from 'fxa-shared/guards';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../constants';
 import { IClientConfig } from '../../interfaces';
 
@@ -9,10 +9,7 @@ export const config: IClientConfig = defaultConfig();
 export function defaultUser() {
   return {
     email: 'hello@mozilla.com',
-    group: {
-      name: 'Unknown',
-      level: PermissionLevel.None,
-    },
+    group: guard.getGroup(AdminPanelGroup.None),
   };
 }
 
@@ -41,7 +38,7 @@ export function getExtraHeaders(config: IClientConfig) {
     }
 
     if (config.user.group) {
-      headers['REMOTE-GROUP'] = config.user.group.name;
+      headers['REMOTE-GROUP'] = config.user.group.header;
     }
   }
   return headers;

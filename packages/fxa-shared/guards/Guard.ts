@@ -25,8 +25,11 @@ export interface IFeatureFlag extends Pick<IFeature, 'name' | 'description'> {
 
 /** Group configuration */
 export interface IGroup {
-  /* Human readable name for group */
+  /** Human readable name for group */
   name: string;
+
+  /** Header value */
+  header: string;
 
   /** Groups assigned permission level */
   level: number;
@@ -48,7 +51,7 @@ export abstract class Guard<TFeatures extends string, TGroup extends string> {
     if (list.length > 0) {
       return list[0];
     }
-    return { name: '', level: MaxPermissionLevel };
+    return { name: '', header: '', level: MaxPermissionLevel };
   }
 
   private getBestGroups(remoteGroupHeader: string): IGroup[] {

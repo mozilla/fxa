@@ -40,6 +40,7 @@ describe('ClientConfig', () => {
       email: 'hello@mozilla.com',
       group: {
         name: 'Admin',
+        header: 'vpn_fxa_admin_panel_prod',
         level: PermissionLevel.Admin,
       },
     });
@@ -50,6 +51,7 @@ describe('ClientConfig', () => {
       email: 'hello@mozilla.com',
       group: {
         name: 'Support',
+        header: 'vpn_fxa_supportagent_prod',
         level: PermissionLevel.Support,
       },
     });
@@ -60,6 +62,7 @@ describe('ClientConfig', () => {
       email: 'hello@mozilla.com',
       group: {
         name: 'Unknown',
+        header: '',
         level: PermissionLevel.None,
       },
     });

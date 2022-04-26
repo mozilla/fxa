@@ -20,6 +20,8 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule } from './gql/gql.module';
+import { APP_GUARD } from '@nestjs/core';
+import { UserGroupGuard } from './auth/user-group-header.guard';
 
 const version = getVersionInfo(__dirname);
 
@@ -45,6 +47,7 @@ const version = getVersionInfo(__dirname);
         },
         context: ({ req, connection }) => createContext({ req, connection }),
         plugins: [SentryPlugin],
+        fieldResolverEnhancers: ['guards'],
       }),
     }),
     HealthModule.forRootAsync({
@@ -68,6 +71,12 @@ const version = getVersionInfo(__dirname);
     }),
   ],
   controllers: [],
-  providers: [MetricsFactory],
+  providers: [
+    MetricsFactory,
+    {
+      provide: APP_GUARD,
+      useClass: UserGroupGuard,
+    },
+  ],
 })
 export class AppModule {}

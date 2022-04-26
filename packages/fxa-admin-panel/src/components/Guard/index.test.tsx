@@ -6,20 +6,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
 import { Guard } from './index';
-import {
-  AdminPanelFeature,
-  AdminPanelGroup,
-  PermissionLevel,
-} from 'fxa-shared/guards';
+import { AdminPanelFeature, AdminPanelGroup, guard } from 'fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: {
-      name: AdminPanelGroup.SupportAgentProd,
-      level: PermissionLevel.Support,
-    },
+    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
   },
 });
 
@@ -43,7 +36,7 @@ describe('Permissions', () => {
   }
 
   it('restricts access', async () => {
-    const renderResult = renderTest([AdminPanelFeature.DisableAccounts]);
+    const renderResult = renderTest([AdminPanelFeature.DisableAccount]);
     expect(renderResult.getByTestId('foo').textContent).toEqual('');
   });
 
@@ -55,7 +48,7 @@ describe('Permissions', () => {
   it('allows access if one or more features is allowed', () => {
     const renderResult = renderTest([
       AdminPanelFeature.AccountSearch,
-      AdminPanelFeature.DisableAccounts,
+      AdminPanelFeature.DisableAccount,
     ]);
     expect(renderResult.getByTestId('foo').textContent).toEqual('bar');
   });
