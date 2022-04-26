@@ -27,7 +27,7 @@ import {
   PurchaseUpdateError,
   SkuType,
 } from './types';
-import { SubscriptionPurchase } from './subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 
 /*
  * A class that provides user-purchase linking features
@@ -69,7 +69,9 @@ export class PurchaseManager extends PurchaseManagerBase {
       .doc(purchaseToken)
       .get();
     if (purchaseRecordDoc.exists) {
-      return SubscriptionPurchase.fromFirestoreObject(purchaseRecordDoc.data());
+      return PlayStoreSubscriptionPurchase.fromFirestoreObject(
+        purchaseRecordDoc.data()
+      );
     }
     return;
   }
@@ -88,7 +90,7 @@ export class PurchaseManager extends PurchaseManagerBase {
     purchaseToken: string,
     skuType: SkuType,
     userId: string
-  ): Promise<SubscriptionPurchase> {
+  ): Promise<PlayStoreSubscriptionPurchase> {
     // The original Google Play sample code did not use Google API efficiency
     // guidelines, the updated version here checks our local Firestore record
     // first to determine if we've seen the token before, and if not, it will
@@ -143,7 +145,7 @@ export class PurchaseManager extends PurchaseManagerBase {
   async processDeveloperNotification(
     packageName: string,
     notification: DeveloperNotification
-  ): Promise<SubscriptionPurchase | null> {
+  ): Promise<PlayStoreSubscriptionPurchase | null> {
     // Type-guard for a real-time developer notification.
     const subscriptionNotification = notification.subscriptionNotification;
     if (!subscriptionNotification) {

@@ -24,6 +24,11 @@ const dbStub = {
   getUidAndEmailByStripeCustomerId: sinon.stub(),
 };
 const {
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} = require('../../../../fxa-shared/subscriptions/types');
+const {
   StripeHelper,
   STRIPE_INVOICE_METADATA,
   SUBSCRIPTION_UPDATE_TYPES,
@@ -77,12 +82,21 @@ const eventPaymentMethodAttached = require('./fixtures/stripe/event_payment_meth
 const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
+
+// App Store Server API response fixtures
+const appStoreApiResponse = require('./fixtures/apple-app-store/api_response_subscription_status.json');
+const renewalInfo = require('./fixtures/apple-app-store/decoded_renewal_info.json');
+const transactionInfo = require('./fixtures/apple-app-store/decoded_transaction_info.json');
+
 const {
   createAccountCustomer,
   getAccountCustomerByUid,
 } = require('fxa-shared/db/models/auth');
 const {
-  SubscriptionPurchase,
+  AppStoreSubscriptionPurchase,
+} = require('../../../lib/payments/iap/apple-app-store/subscription-purchase');
+const {
+  PlayStoreSubscriptionPurchase,
 } = require('../../../lib/payments/iap/google-play/subscription-purchase');
 const { AuthFirestore, AuthLogger, AppConfig } = require('../../../lib/types');
 const {
@@ -95,11 +109,6 @@ const {
   FirestoreStripeError,
   newFirestoreStripeError,
 } = require('../../../lib/payments/stripe-firestore');
-const {
-  MozillaSubscriptionTypes,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-} = require('../../../../fxa-shared/subscriptions/types');
 const AppError = require('../../../lib/error');
 
 const mockConfig = {
@@ -6308,6 +6317,8 @@ describe('StripeHelper', () => {
         plan_id: priceId,
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
+          [STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS]:
+            'cooking.with.Foxkeh,skydiving.with.foxkeh',
         },
         product_id: productId,
         product_name: productName,
@@ -6326,23 +6337,40 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
     });
 
-    describe('priceToPlaySkus', () => {
-      it('formats skus from price metadata, including transforming them to lowercase', () => {
-        const result = stripeHelper.priceToPlaySkus(mockPrice);
+    describe('priceToIapIdentifiers', () => {
+      it('formats Play skus from price metadata, including transforming them to lowercase', () => {
+        const result = stripeHelper.priceToIapIdentifiers(
+          mockPrice,
+          MozillaSubscriptionTypes.IAP_GOOGLE
+        );
         assert.deepEqual(result, ['testsku', 'testsku2']);
       });
 
-      it('handles empty price metadata skus', () => {
+      it('formats App Store productIds from price metadata, including transforming them to lowercase', () => {
+        const result = stripeHelper.priceToIapIdentifiers(
+          mockPrice,
+          MozillaSubscriptionTypes.IAP_APPLE
+        );
+        assert.deepEqual(result, [
+          'cooking.with.foxkeh',
+          'skydiving.with.foxkeh',
+        ]);
+      });
+
+      it('handles empty price metadata', () => {
         const price = {
           ...mockPrice,
           plan_metadata: {},
         };
-        const result = stripeHelper.priceToPlaySkus(price);
+        const result = stripeHelper.priceToIapIdentifiers(
+          price,
+          MozillaSubscriptionTypes.IAP_GOOGLE
+        );
         assert.deepEqual(result, []);
       });
     });
 
-    describe('purchasesToPriceIds', () => {
+    describe('iapPurchasesToPriceIds', () => {
       beforeEach(() => {
         const apiResponse = {
           kind: 'androidpublisher#subscriptionPurchase',
@@ -6357,7 +6385,7 @@ describe('StripeHelper', () => {
           orderId: 'GPA.3313-5503-3858-32549',
         };
 
-        subPurchase = SubscriptionPurchase.fromApiResponse(
+        subPurchase = PlayStoreSubscriptionPurchase.fromApiResponse(
           apiResponse,
           'testPackage',
           'testToken',
@@ -6366,15 +6394,34 @@ describe('StripeHelper', () => {
         );
       });
 
-      it('returns price ids for the subscription purchase', async () => {
-        const result = await stripeHelper.purchasesToPriceIds([subPurchase]);
+      it('returns price ids for the Play subscription purchase', async () => {
+        const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
+        assert.deepEqual(result, [priceId]);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans);
+      });
+
+      it('returns price ids for the App Store subscription purchase', async () => {
+        const apiResponse = deepCopy(appStoreApiResponse);
+        const { originalTransactionId, status } = apiResponse;
+        const decodedTransactionInfo = deepCopy(transactionInfo);
+        const decodedRenewalInfo = deepCopy(renewalInfo);
+        const verifiedAt = Date.now();
+        subPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+          apiResponse,
+          status,
+          decodedTransactionInfo,
+          decodedRenewalInfo,
+          originalTransactionId,
+          verifiedAt
+        );
+        const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
         assert.deepEqual(result, [priceId]);
         sinon.assert.calledOnce(stripeHelper.allAbbrevPlans);
       });
 
       it('returns no price ids for unknown subscription purchase', async () => {
         subPurchase.sku = 'wrongSku';
-        const result = await stripeHelper.purchasesToPriceIds([subPurchase]);
+        const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
         assert.deepEqual(result, []);
         sinon.assert.calledOnce(stripeHelper.allAbbrevPlans);
       });

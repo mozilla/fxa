@@ -15,7 +15,7 @@ const {
 } = require('../../../../../lib/payments/iap/google-play/user-manager');
 const { AuthLogger } = require('../../../../../lib/types');
 const {
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
 } = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
 const {
   PurchaseQueryError,
@@ -62,13 +62,14 @@ describe('UserManager', () => {
 
   describe('queryCurrentSubscriptions', () => {
     it('returns the current subscriptions', async () => {
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
-        VALID_SUB_API_RESPONSE,
-        'testPackage',
-        'testToken',
-        'testSku',
-        Date.now()
-      );
+      const subscriptionPurchase =
+        PlayStoreSubscriptionPurchase.fromApiResponse(
+          VALID_SUB_API_RESPONSE,
+          'testPackage',
+          'testToken',
+          'testSku',
+          Date.now()
+        );
       const subscriptionSnapshot = {
         data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
       };
@@ -79,13 +80,14 @@ describe('UserManager', () => {
     });
 
     it('queries expired subscription purchases', async () => {
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
-        VALID_SUB_API_RESPONSE,
-        'testPackage',
-        'testToken',
-        'testSku',
-        Date.now()
-      );
+      const subscriptionPurchase =
+        PlayStoreSubscriptionPurchase.fromApiResponse(
+          VALID_SUB_API_RESPONSE,
+          'testPackage',
+          'testToken',
+          'testSku',
+          Date.now()
+        );
       subscriptionPurchase.expiryTimeMillis = Date.now() - 10000;
       subscriptionPurchase.autoRenewing = false;
       const subscriptionSnapshot = {
@@ -100,13 +102,14 @@ describe('UserManager', () => {
     });
 
     it('throws library error on failure', async () => {
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
-        VALID_SUB_API_RESPONSE,
-        'testPackage',
-        'testToken',
-        'testSku',
-        Date.now()
-      );
+      const subscriptionPurchase =
+        PlayStoreSubscriptionPurchase.fromApiResponse(
+          VALID_SUB_API_RESPONSE,
+          'testPackage',
+          'testToken',
+          'testSku',
+          Date.now()
+        );
       subscriptionPurchase.expiryTimeMillis = Date.now() - 10000;
       subscriptionPurchase.autoRenewing = false;
       const subscriptionSnapshot = {

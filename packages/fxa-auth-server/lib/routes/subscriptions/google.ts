@@ -80,7 +80,7 @@ export class GoogleIapHandler {
           );
       }
     }
-    await this.capabilityService.playUpdate(uid, purchase);
+    await this.capabilityService.iapUpdate(uid, purchase);
     return { tokenValid: true };
   }
 }

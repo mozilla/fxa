@@ -23323,6 +23323,8 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@sentry/tracing": ^6.19.1
+    "@type-cacheable/core": ^10.1.0
+    "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9

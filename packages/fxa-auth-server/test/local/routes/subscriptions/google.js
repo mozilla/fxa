@@ -59,7 +59,7 @@ describe('GoogleIapHandler', () => {
     });
     db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
     mockCapabilityService = {};
-    mockCapabilityService.playUpdate = sinon.fake.resolves({});
+    mockCapabilityService.iapUpdate = sinon.fake.resolves({});
     Container.set(CapabilityService, mockCapabilityService);
     googleIapHandler = new GoogleIapHandler(db);
   });
@@ -95,7 +95,7 @@ describe('GoogleIapHandler', () => {
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(iapConfig.packageName);
-      assert.calledOnce(mockCapabilityService.playUpdate);
+      assert.calledOnce(mockCapabilityService.iapUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
 
@@ -110,7 +110,7 @@ describe('GoogleIapHandler', () => {
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(iapConfig.packageName);
-      assert.calledOnce(mockCapabilityService.playUpdate);
+      assert.calledOnce(mockCapabilityService.iapUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
 

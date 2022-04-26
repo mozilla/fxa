@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 
 const {
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
   GOOGLE_PLAY_FORM_OF_PAYMENT,
 } = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
 const {
@@ -32,7 +32,7 @@ describe('SubscriptionPurchase', () => {
         orderId: 'GPA.3313-5503-3858-32549',
       };
 
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         'testPackage',
         'testToken',
@@ -71,7 +71,7 @@ describe('SubscriptionPurchase', () => {
         paymentState: 2,
         orderId: 'GPA.3313-5503-3858-32549',
       };
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         'testPackage',
         'testToken',
@@ -94,7 +94,7 @@ describe('SubscriptionPurchase', () => {
         paymentState: 0, // payment haven't been made
         orderId: 'GPA.3313-5503-3858-32549..1',
       };
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         'testPackage',
         'testToken',
@@ -118,7 +118,7 @@ describe('SubscriptionPurchase', () => {
         purchaseType: 0,
         orderId: 'GPA.3313-5503-3858-32549',
       };
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         'testPackage',
         'testToken',
@@ -145,7 +145,7 @@ describe('SubscriptionPurchase', () => {
     let subscription;
 
     beforeEach(() => {
-      subscription = SubscriptionPurchase.fromApiResponse(
+      subscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         'testPackage',
         'testToken',
@@ -163,7 +163,8 @@ describe('SubscriptionPurchase', () => {
     it('converts from firestore', () => {
       const firestoreObj = subscription.toFirestoreObject();
       firestoreObj.userId = 'testUser';
-      const result = SubscriptionPurchase.fromFirestoreObject(firestoreObj);
+      const result =
+        PlayStoreSubscriptionPurchase.fromFirestoreObject(firestoreObj);
       // Internal keys are not defined on the subscription purchase.
       assert.isUndefined(result.skuType);
       assert.strictEqual(result.userId, 'testUser');
@@ -176,7 +177,7 @@ describe('SubscriptionPurchase', () => {
       const testApiResponse = {
         purchaseType: 0,
       };
-      const testSubscription = SubscriptionPurchase.fromApiResponse(
+      const testSubscription = PlayStoreSubscriptionPurchase.fromApiResponse(
         testApiResponse,
         'testPackage',
         'testToken',

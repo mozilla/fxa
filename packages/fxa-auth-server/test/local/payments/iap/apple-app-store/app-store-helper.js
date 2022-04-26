@@ -31,7 +31,7 @@ const { AppStoreHelper } = proxyquire(
 );
 
 const mockBundleIdWithUnderscores = 'org_mozilla_ios_FirefoxVPN';
-const mockBundleId = mockBundleIdWithUnderscores.replace('_', '.');
+const mockBundleId = mockBundleIdWithUnderscores.replace(/_/g, '.');
 const mockConfig = {
   subscriptions: {
     appStore: {

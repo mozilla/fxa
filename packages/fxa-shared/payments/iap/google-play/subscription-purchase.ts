@@ -61,7 +61,7 @@ export function mergePurchaseWithFirestorePurchaseRecord(
 /* Library's internal implementation of an SubscriptionPurchase object
  * It's used inside of the library, not to be exposed to library's consumers.
  */
-export class SubscriptionPurchase implements Purchase {
+export class PlayStoreSubscriptionPurchase implements Purchase {
   // Raw response from server
   // https://developers.google.com/android-publisher/api-ref/purchases/subscriptions/get
   startTimeMillis!: number;
@@ -95,11 +95,11 @@ export class SubscriptionPurchase implements Purchase {
     purchaseToken: string,
     sku: string,
     verifiedAt: number
-  ): SubscriptionPurchase {
+  ): PlayStoreSubscriptionPurchase {
     // Intentionally hide developerPayload as the field was deprecated
     apiResponse.developerPayload = null;
 
-    const purchase = new SubscriptionPurchase();
+    const purchase = new PlayStoreSubscriptionPurchase();
     Object.assign(purchase, apiResponse);
     purchase.purchaseToken = purchaseToken;
     purchase.sku = sku;
@@ -126,8 +126,10 @@ export class SubscriptionPurchase implements Purchase {
     return purchase;
   }
 
-  static fromFirestoreObject(firestoreObject: any): SubscriptionPurchase {
-    const purchase = new SubscriptionPurchase();
+  static fromFirestoreObject(
+    firestoreObject: any
+  ): PlayStoreSubscriptionPurchase {
+    const purchase = new PlayStoreSubscriptionPurchase();
     purchase.mergeWithFirestorePurchaseRecord(firestoreObject);
     return purchase;
   }

@@ -1,10 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Logger } from 'mozlog';
-import Stripe from 'stripe';
-import { Container } from 'typedi';
-
+import { STRIPE_PRICE_METADATA } from 'fxa-shared/payments/stripe';
 import {
   CapabilityConfig,
   StyleConfig,
@@ -16,9 +13,13 @@ import {
   UrlConfig,
   UrlConfigKeys,
 } from 'fxa-shared/subscriptions/configuration/base';
-import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+import { Logger } from 'mozlog';
+import Stripe from 'stripe';
+import { Container } from 'typedi';
+
+import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { StripeHelper } from '../../lib/payments/stripe';
 import { commaSeparatedListToArray } from '../../lib/payments/utils';
 
@@ -320,15 +321,20 @@ export class StripeProductsAndPlansConverter {
 
     // Extended by PlanConfig
     planConfig.stripePriceId = plan.id;
-    const { productOrder, googlePlaySku, appleProductId } = plan.metadata;
+    const { productOrder } = plan.metadata;
+    const playSkuIds = plan.metadata[STRIPE_PRICE_METADATA.PLAY_SKU_IDS];
+    const appStoreProductIds =
+      plan.metadata[STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS];
     if (productOrder) {
       planConfig.productOrder = parseInt(productOrder);
     }
-    if (googlePlaySku) {
-      planConfig.googlePlaySku = commaSeparatedListToArray(googlePlaySku);
+    if (playSkuIds) {
+      planConfig[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] =
+        commaSeparatedListToArray(playSkuIds);
     }
-    if (appleProductId) {
-      planConfig.appleProductId = commaSeparatedListToArray(appleProductId);
+    if (appStoreProductIds) {
+      planConfig[STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS] =
+        commaSeparatedListToArray(appStoreProductIds);
     }
     return planConfig;
   }

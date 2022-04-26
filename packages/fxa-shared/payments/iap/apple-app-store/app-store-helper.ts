@@ -41,7 +41,7 @@ export class AppStoreHelper {
     )) {
       // Cannot use an actual bundleId (e.g. 'org.mozilla.ios.FirefoxVPN') as the key
       // due to https://github.com/mozilla/node-convict/issues/250
-      const bundleId = bundleIdWithUnderscores.replace('_', '.');
+      const bundleId = bundleIdWithUnderscores.replace(/_/g, '.');
       this.credentialsByBundleId[bundleId] = credentials;
       this.clientByBundleId(bundleId);
     }

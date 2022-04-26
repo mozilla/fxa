@@ -9,10 +9,12 @@ import Container from 'typedi';
 
 import { commaSeparatedListToArray } from './utils';
 import error from '../error';
+import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { PlayBilling } from './iap/google-play/play-billing';
-import { SubscriptionPurchase } from './iap/google-play/subscription-purchase';
+import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
 
@@ -35,6 +37,7 @@ function allCapabilities(capabilityMap: ClientIdCapabilityMap): string[] {
  */
 export class CapabilityService {
   private log: AuthLogger;
+  private appleIap?: AppleIAP;
   private playBilling?: PlayBilling;
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
@@ -46,13 +49,16 @@ export class CapabilityService {
     this.stripeHelper = Container.has(StripeHelper)
       ? Container.get(StripeHelper)
       : ({
-          purchasesToPriceIds: () => Promise.resolve([]),
+          iapPurchasesToPriceIds: () => Promise.resolve([]),
           fetchCustomer: () => Promise.resolve(null),
           allAbbrevPlans: () => Promise.resolve([]),
         } as unknown as StripeHelper);
     this.profileClient = Container.get(ProfileClient);
     if (Container.has(PlayBilling)) {
       this.playBilling = Container.get(PlayBilling);
+    }
+    if (Container.has(AppleIAP)) {
+      this.appleIap = Container.get(AppleIAP);
     }
     this.log = Container.get(AuthLogger);
 
@@ -153,14 +159,17 @@ export class CapabilityService {
   }
 
   /**
-   * Handle a Google Play purchase change.
+   * Handle a Google Play or Apple App Store purchase change.
    *
    * This handles broadcasting and refreshing the subscription capabilities for
    * the price ids that were possibly updated.
    */
-  public async playUpdate(uid: string, purchase: SubscriptionPurchase) {
+  public async iapUpdate(
+    uid: string,
+    purchase: PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase
+  ) {
     const affectedPriceId = (
-      await this.stripeHelper.purchasesToPriceIds([purchase])
+      await this.stripeHelper.iapPurchasesToPriceIds([purchase])
     ).shift();
     if (!affectedPriceId) {
       // Purchase is not mapped to a price id.
@@ -195,17 +204,27 @@ export class CapabilityService {
    * Return a list of all price ids with an active subscription.
    */
   private async subscribedPriceIds(uid: string) {
-    const [subscribedStripePrices, subscribedPlayPrices] = await Promise.all([
+    const [
+      subscribedStripePrices,
+      subscribedPlayPrices,
+      subscribedAppStorePrices,
+    ] = await Promise.all([
       this.fetchSubscribedPricesFromStripe(uid),
       this.fetchSubscribedPricesFromPlay(uid),
+      this.fetchSubscribedPricesFromAppStore(uid),
     ]);
-    return [...new Set([...subscribedStripePrices, ...subscribedPlayPrices])];
+    return [
+      ...new Set([
+        ...subscribedStripePrices,
+        ...subscribedPlayPrices,
+        ...subscribedAppStorePrices,
+      ]),
+    ];
   }
 
   /**
    * Diff a list of prior price ids to the list of current price ids
-   * and emit the necessary events for added/removed prices as well as
-   * added/removed capabilities.
+   * and emit the necessary events for added/removed capabilities.
    */
   public async processPriceIdDiff(options: {
     uid: string;
@@ -343,10 +362,38 @@ export class CapabilityService {
       );
       return purchases.length === 0
         ? []
-        : this.stripeHelper.purchasesToPriceIds(purchases);
+        : this.stripeHelper.iapPurchasesToPriceIds(purchases);
     } catch (err) {
       if (err.name === PurchaseQueryError.OTHER_ERROR) {
         this.log.error('Failed to query purchases from Google Play', {
+          uid,
+          err,
+        });
+      }
+      return [];
+    }
+  }
+
+  private async fetchSubscribedPricesFromAppStore(
+    uid: string
+  ): Promise<string[]> {
+    if (!this.appleIap) {
+      return [];
+    }
+    try {
+      const allPurchases =
+        await this.appleIap.purchaseManager.queryCurrentSubscriptionPurchases(
+          uid
+        );
+      const purchases = allPurchases.filter((purchase) =>
+        purchase.isEntitlementActive()
+      );
+      return purchases.length === 0
+        ? []
+        : this.stripeHelper.iapPurchasesToPriceIds(purchases);
+    } catch (err) {
+      if (err.name === PurchaseQueryError.OTHER_ERROR) {
+        this.log.error('Failed to query purchases from Apple App Store', {
           uid,
           err,
         });

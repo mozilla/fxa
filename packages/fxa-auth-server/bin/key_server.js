@@ -18,6 +18,7 @@ const {
   ProfileClient,
 } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
+const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -102,6 +103,11 @@ async function run(config) {
     config.subscriptions.playApiServiceAccount.enabled
   ) {
     Container.get(PlayBilling);
+  }
+
+  // Create AppleIAP if enabled by fetching it.
+  if (config?.subscriptions?.appStore?.enabled) {
+    Container.get(AppleIAP);
   }
 
   const profile = require('../lib/profile/client')(log, config, statsd);

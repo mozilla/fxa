@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import joi from 'joi';
 
+import { STRIPE_PRICE_METADATA } from '../../payments/stripe';
 import {
   BaseConfig,
   baseConfigSchema,
@@ -19,8 +20,14 @@ export const planConfigJoiKeys = {
   productConfigId: joi.string().allow(null).allow(''),
   stripePriceId: joi.string().optional(),
   productOrder: joi.number().optional(),
-  googlePlaySku: joi.array().items(joi.string()).optional(),
-  appleProductId: joi.array().items(joi.string()).optional(),
+  [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]: joi
+    .array()
+    .items(joi.string())
+    .optional(),
+  [STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS]: joi
+    .array()
+    .items(joi.string())
+    .optional(),
 };
 
 export const planConfigSchema = baseConfigSchema
@@ -55,8 +62,8 @@ export class PlanConfig implements BaseConfig {
   stripePriceId?: string;
   productSet?: string;
   productOrder?: number;
-  googlePlaySku?: string[];
-  appleProductId?: string[];
+  [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]?: string[];
+  [STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS]?: string[];
 
   static async validate(
     planConfig: PlanConfig,
