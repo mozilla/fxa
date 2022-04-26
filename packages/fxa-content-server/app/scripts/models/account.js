@@ -80,6 +80,7 @@ const DEFAULTS = _.extend(
 
 const ALLOWED_KEYS = Object.keys(DEFAULTS);
 const ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
+const DEPRECATED_KEYS = ['ecosystemAnonId'];
 
 const CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
@@ -651,7 +652,7 @@ const Account = Backbone.Model.extend(
           ) {
             updatedSessionData.email = options.originalLoginEmail;
           }
-          
+
           // We don't really need this value other than in login flow, it can
           // sometimes cause issues when user switches primary email
           this.unset('originalLoginEmail');
@@ -1022,6 +1023,16 @@ const Account = Backbone.Model.extend(
 
         // eslint-disable-next-line no-unused-vars
         for (const key in attributes) {
+          // As fields are phased out and no longer needed, they may drop out
+          // of the set of ALLOWED_KEYS. In this case, we should no longer store
+          // or use the associated key; however, it may still exist in a client's
+          // cached state (e.g. in local storage). The following ensures that
+          // deprecated keys are cleaned up over time.
+          if (_.contains(DEPRECATED_KEYS, key)) {
+            delete attributes[key];
+            continue;
+          }
+
           if (!_.contains(ALLOWED_KEYS, key)) {
             throw new Error(key + ' cannot be set on an Account');
           }
