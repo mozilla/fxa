@@ -4,6 +4,12 @@
 
 import { Guard, Permissions, Groups, MaxPermissionLevel } from './Guard';
 
+/** The header key containing the user group. */
+export const USER_GROUP_HEADER = 'REMOTE-GROUP';
+
+/** The header key containing the user email. */
+export const USER_EMAIL_HEADER = 'oidc-claim-id-token-email';
+
 /** Enum of known permission levels. A lower level will indicate increased permissions. */
 export enum PermissionLevel {
   Admin = 0,
@@ -15,11 +21,14 @@ export enum PermissionLevel {
 export enum AdminPanelFeature {
   AccountLogs = 'AccountLogs',
   AccountSearch = 'AccountSearch',
-  ConnectedServices = 'ActiveSessions',
+  AccountHistory = 'AccountHistory',
+  ConnectedServices = 'ConnectedServices',
+  LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
-  DisableAccounts = 'DisableAccounts',
+  DisableAccount = 'DisableAccount',
   SiteStatus = 'SiteStatus',
-  UnVerifyAccounts = 'UnVerifyAccounts',
+  UnverifyEmail = 'UnverifyEmail',
+  UnlinkAccount = 'UnlinkAccount',
 }
 
 /** Enum of known user groups */
@@ -28,28 +37,33 @@ export enum AdminPanelGroup {
   AdminStage = 'vpn_fxa_admin_panel_stage',
   SupportAgentProd = 'vpn_fxa_supportagent_prod',
   SupportAgentStage = 'vpn_fxa_supportagent_stage',
-  None = 'None',
+  None = '',
 }
 
-const defaultAdminPanelGroups: Groups = {
+const adminPanelGroups: Groups = {
   [AdminPanelGroup.AdminProd]: {
     name: 'Admin',
+    header: AdminPanelGroup.AdminProd,
     level: PermissionLevel.Admin,
   },
   [AdminPanelGroup.AdminStage]: {
     name: 'Admin',
+    header: AdminPanelGroup.AdminStage,
     level: PermissionLevel.Admin,
   },
   [AdminPanelGroup.SupportAgentProd]: {
     name: 'Support',
+    header: AdminPanelGroup.SupportAgentProd,
     level: PermissionLevel.Support,
   },
   [AdminPanelGroup.SupportAgentStage]: {
     name: 'Support',
+    header: AdminPanelGroup.SupportAgentStage,
     level: PermissionLevel.Support,
   },
   [AdminPanelGroup.None]: {
     name: 'Unknown',
+    header: AdminPanelGroup.None,
     level: PermissionLevel.None,
   },
 };
@@ -60,6 +74,10 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'Lookup Account By Email/UID',
     level: PermissionLevel.Support,
   },
+  [AdminPanelFeature.AccountHistory]: {
+    name: 'Account History',
+    level: PermissionLevel.Support,
+  },
   [AdminPanelFeature.AccountLogs]: {
     name: 'View Account Logs',
     level: PermissionLevel.Support,
@@ -68,20 +86,28 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'View Active Sessions',
     level: PermissionLevel.Support,
   },
+  [AdminPanelFeature.LinkedAccounts]: {
+    name: 'View Linked Accounts',
+    level: PermissionLevel.Support,
+  },
   [AdminPanelFeature.ClearEmailBounces]: {
     name: 'Clear Email Bounces',
     level: PermissionLevel.Support,
   },
-  [AdminPanelFeature.DisableAccounts]: {
-    name: 'Disable Accounts',
+  [AdminPanelFeature.DisableAccount]: {
+    name: 'Disable Account',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.SiteStatus]: {
     name: 'Site Status',
     level: PermissionLevel.Support,
   },
-  [AdminPanelFeature.UnVerifyAccounts]: {
-    name: 'Unverify Accounts',
+  [AdminPanelFeature.UnverifyEmail]: {
+    name: 'Unverify Email Address',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.UnlinkAccount]: {
+    name: 'Unlink Account',
     level: PermissionLevel.Admin,
   },
 };
@@ -89,7 +115,7 @@ const defaultAdminPanelPermissions: Permissions = {
 /** Setup configured guard for admin panel */
 class AdminPanelGuard extends Guard<AdminPanelFeature, AdminPanelGroup> {
   constructor() {
-    super(defaultAdminPanelPermissions, defaultAdminPanelGroups);
+    super(defaultAdminPanelPermissions, adminPanelGroups);
   }
 }
 

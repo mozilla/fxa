@@ -16,6 +16,20 @@ const conf = convict({
     env: 'AUTH_HEADER',
     format: String,
   },
+  user: {
+    group: {
+      default: '',
+      doc: 'Group to operate under for dev / test.',
+      env: 'TEST_USER_GROUP',
+      format: String,
+    },
+    email: {
+      default: '',
+      doc: 'Email to operate under for dev / test.',
+      env: 'TEST_USER_EMAIL',
+      format: String,
+    },
+  },
   database: {
     fxa: makeMySQLConfig('AUTH', 'fxa'),
     fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),

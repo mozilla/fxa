@@ -2,22 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, AccountProps } from './index';
-import { AdminPanelGroup } from 'fxa-shared/guards';
+import { AdminPanelGroup, guard } from 'fxa-shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
-import { PermissionLevel } from 'fxa-shared/guards';
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: {
-      name: AdminPanelGroup.SupportAgentProd,
-      level: PermissionLevel.Support,
-    },
+    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
   },
 });
 

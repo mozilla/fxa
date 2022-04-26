@@ -6,16 +6,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import App from './App';
 import { mockConfigBuilder } from './lib/config';
-import { PermissionLevel } from 'fxa-shared/guards';
+import { AdminPanelGroup, guard } from 'fxa-shared/guards';
 
 it('renders without imploding', () => {
   const config = mockConfigBuilder({
     user: {
       email: 'hello@mozilla.com',
-      group: {
-        name: 'Admin',
-        level: PermissionLevel.Admin,
-      },
+      group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
     },
   });
   const { queryByTestId } = render(<App {...{ config }} />);
