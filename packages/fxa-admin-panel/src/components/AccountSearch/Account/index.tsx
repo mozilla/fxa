@@ -551,9 +551,9 @@ const EmailBounce = ({
         <li className="account-li">
           bounce subtype: <span>{bounceSubType}</span>
         </li>
-        <li className={styleClasses.li}>
+        <li className="account-li">
           diagnostic code:{' '}
-          <span className={styleClasses.result}>
+          <span>
             {diagnosticCode?.length ? diagnosticCode : 'none'}
           </span>
         </li>
