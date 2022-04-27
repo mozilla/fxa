@@ -1,6 +1,6 @@
 [![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
 
-## Firefox Accounts
+## Firefox Account!s
 
 The Firefox Accounts (fxa) monorepo
 
