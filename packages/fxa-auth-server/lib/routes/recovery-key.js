@@ -4,8 +4,9 @@
 
 'use strict';
 
-import RECOVERY_KEY_DOCS from '../../docs/swagger/recovery-key-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+const RECOVERY_KEY_DOCS =
+  require('../../docs/swagger/recovery-key-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 const errors = require('../error');
 const validators = require('./validators');

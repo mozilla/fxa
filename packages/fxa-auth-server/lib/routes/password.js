@@ -4,9 +4,6 @@
 
 'use strict';
 
-import PASSWORD_DOCS from '../../docs/swagger/password-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
 
@@ -17,6 +14,8 @@ const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 
+const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 module.exports = function (

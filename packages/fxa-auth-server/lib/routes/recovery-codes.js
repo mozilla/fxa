@@ -4,11 +4,11 @@
 
 'use strict';
 
-import RECOVERY_CODES_DOCS from '../../docs/swagger/recovery-codes-api';
-
 const errors = require('../error');
 const isA = require('@hapi/joi');
 const validators = require('./validators');
+const RECOVERY_CODES_DOCS =
+  require('../../docs/swagger/recovery-codes-api').default;
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 

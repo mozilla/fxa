@@ -4,11 +4,11 @@
 
 'use strict';
 
-import UTIL_DOCS from '../../docs/swagger/util-api';
-
 const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const validators = require('./validators');
+const UTIL_DOCS = require('../../docs/swagger/util-api').default;
+
 const HEX_STRING = validators.HEX_STRING;
 
 module.exports = (log, config, redirectDomain) => {
