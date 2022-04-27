@@ -14,28 +14,29 @@ describe('support agents', () => {
   describe('Admin Panel Guard', () => {
     it('allows', () => {
       expect(
-        guard.allow(
-          AdminPanelFeature.DisableAccounts,
-          AdminPanelGroup.AdminProd
-        )
+        guard.allow(AdminPanelFeature.DisableAccount, AdminPanelGroup.AdminProd)
       ).true;
     });
 
     it('looks up group', () => {
       expect(guard.getGroup(AdminPanelGroup.AdminProd)).deep.equal({
         name: 'Admin',
+        header: 'vpn_fxa_admin_panel_prod',
         level: PermissionLevel.Admin,
       });
       expect(guard.getGroup(AdminPanelGroup.AdminStage)).deep.equal({
         name: 'Admin',
+        header: 'vpn_fxa_admin_panel_stage',
         level: PermissionLevel.Admin,
       });
       expect(guard.getGroup(AdminPanelGroup.SupportAgentProd)).deep.equal({
         name: 'Support',
+        header: 'vpn_fxa_supportagent_prod',
         level: PermissionLevel.Support,
       });
       expect(guard.getGroup(AdminPanelGroup.SupportAgentStage)).deep.equal({
         name: 'Support',
+        header: 'vpn_fxa_supportagent_stage',
         level: PermissionLevel.Support,
       });
     });
@@ -43,7 +44,7 @@ describe('support agents', () => {
     it('denies', () => {
       expect(
         guard.allow(
-          AdminPanelFeature.DisableAccounts,
+          AdminPanelFeature.DisableAccount,
           AdminPanelGroup.SupportAgentStage
         )
       ).false;

@@ -32,6 +32,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
+    "@golevelup/ts-jest": "^0.3.2",
     "@nestjs/common": "^8.4.4",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.4",

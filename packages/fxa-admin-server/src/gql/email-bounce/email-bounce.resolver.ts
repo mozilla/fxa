@@ -5,16 +5,19 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
+import { Features } from '../../auth/user-group-header.decorator';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { DatabaseService } from '../../database/database.service';
 import { EmailBounce as EmailBounceType } from '../../gql/model/email-bounces.model';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => EmailBounceType)
 export class EmailBounceResolver {
   constructor(private log: MozLoggerService, private db: DatabaseService) {}
 
+  @Features(AdminPanelFeature.ClearEmailBounces)
   @Mutation((returns) => Boolean)
   public async clearEmailBounce(
     @Args('email') email: string,

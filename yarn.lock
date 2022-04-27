@@ -3558,6 +3558,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@golevelup/ts-jest@npm:^0.3.2":
+  version: 0.3.3
+  resolution: "@golevelup/ts-jest@npm:0.3.3"
+  checksum: be7f2258f349e480f7a8537321743349e3b39d8fdf9dad8d93de296f0fbbb7e2891fb29872fad0aca1f973a7726fd89fba235082ef127c2cfcd1865837595bd5
+  languageName: node
+  linkType: hard
+
 "@google-cloud/bigquery@npm:^5.12.0":
   version: 5.12.0
   resolution: "@google-cloud/bigquery@npm:5.12.0"
@@ -22299,6 +22306,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
+    "@golevelup/ts-jest": ^0.3.2
     "@nestjs/cli": ^8.2.5
     "@nestjs/common": ^8.4.4
     "@nestjs/config": ^2.0.0

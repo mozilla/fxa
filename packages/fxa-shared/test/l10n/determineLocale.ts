@@ -55,7 +55,7 @@ describe('l10n/determineLocale:', () => {
   });
 
   it('handles q-values out of range', () => {
-    // The spec says q-values must be between 0 and 1. We will still gaurd against bad q-values,
+    // The spec says q-values must be between 0 and 1. We will still guard against bad q-values,
     // by forcing them into that range.
     expect(determineLocale('en;q=0.5, fr;q=1.1')).to.eq('fr');
     expect(determineLocale('en;q=0.5, fr;q=-.1')).to.eq('en');

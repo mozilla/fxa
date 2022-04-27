@@ -6,16 +6,13 @@ import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
 import { Permissions } from './index';
-import { AdminPanelGroup, guard, PermissionLevel } from 'fxa-shared/guards';
+import { AdminPanelGroup, guard } from 'fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: {
-      name: AdminPanelGroup.SupportAgentProd,
-      level: PermissionLevel.Support,
-    },
+    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
   },
 });
 
