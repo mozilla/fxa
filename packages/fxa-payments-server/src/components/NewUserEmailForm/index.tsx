@@ -20,8 +20,11 @@ export type NewUserEmailFormProps = {
   signInURL: string;
   setValidEmail: (value: string) => void;
   setAccountExists: (value: boolean) => void;
+  setInvalidEmailDomain: (value: boolean) => void;
   setEmailsMatch: (value: boolean) => void;
-  checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
+  checkAccountExists: (
+    email: string
+  ) => Promise<{ exists: boolean; invalidDomain: boolean }>;
   onToggleNewsletterCheckbox: () => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -33,6 +36,7 @@ export const NewUserEmailForm = ({
   signInURL,
   setValidEmail,
   setAccountExists,
+  setInvalidEmailDomain,
   setEmailsMatch,
   checkAccountExists,
   onToggleNewsletterCheckbox,
@@ -113,6 +117,7 @@ export const NewUserEmailForm = ({
               focused,
               setValidEmail,
               setAccountExists,
+              setInvalidEmailDomain,
               setEmailInputState,
               checkAccountExists,
               signInURL,
@@ -167,7 +172,9 @@ export const NewUserEmailForm = ({
 };
 
 export const checkAccountExists = (() => {
-  const results: { [key: string]: { exists: boolean } } = {};
+  const results: {
+    [key: string]: { exists: boolean; invalidDomain: boolean };
+  } = {};
   const memoizedCheck = async (userEmail: string) => {
     if (results[userEmail]) {
       return results[userEmail];
@@ -184,8 +191,11 @@ export async function emailInputValidationAndAccountCheck(
   focused: boolean,
   setValidEmail: (value: string) => void,
   setAccountExists: (value: boolean) => void,
+  setInvalidEmailDomain: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
-  checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  checkAccountExists: (
+    email: string
+  ) => Promise<{ exists: boolean; invalidDomain: boolean }>,
   signInURL: string,
   onClickSignInButton: () => void,
   getString?: (id: string) => string
@@ -193,6 +203,7 @@ export async function emailInputValidationAndAccountCheck(
   let error = null;
   let valid = false;
   let hasAccount = false;
+  let invalidEmailDomain = false;
   setEmailInputState(value);
   if (isEmailValid(value)) {
     valid = true;
@@ -201,7 +212,10 @@ export async function emailInputValidationAndAccountCheck(
       const response = await checkAccountExists(value);
       if (response?.exists) {
         hasAccount = response.exists;
+      } else if (response?.invalidDomain) {
+        invalidEmailDomain = response.invalidDomain;
       }
+      setInvalidEmailDomain(invalidEmailDomain);
       setAccountExists(hasAccount);
     }
   } else {
@@ -237,12 +251,23 @@ export async function emailInputValidationAndAccountCheck(
     </Localized>
   );
 
+  const invalidEmailDomainMsg = (
+    <Localized
+      id="new-user-invalid-email-domain"
+      vars={{ domain: value.split('@')[1] }}
+    >
+      <>{`Mistyped email? ${value.split('@')[1]} does not provide email.`}</>
+    </Localized>
+  );
+
   if (!valid && !focused && errorMsg) {
     error = errorMsg;
   }
 
   if (hasAccount) {
     error = accountExistsMsg;
+  } else if (invalidEmailDomain) {
+    error = invalidEmailDomainMsg;
   }
 
   return {

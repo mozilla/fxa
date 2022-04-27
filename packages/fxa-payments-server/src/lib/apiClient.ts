@@ -109,9 +109,9 @@ async function apiFetch(
 
 export async function apiFetchAccountStatus(
   email: string
-): Promise<{ exists: boolean }> {
+): Promise<{ exists: boolean; invalidDomain: boolean }> {
   return apiFetch('POST', `${config.servers.auth.url}/v1/account/status`, {
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, checkDomain: true }),
   });
 }
 

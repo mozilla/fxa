@@ -120,6 +120,8 @@ const ERRNO = {
 
   THIRD_PARTY_ACCOUNT_ERROR: 205,
   CANNOT_CREATE_PASSWORD: 206,
+  ACCOUNT_CREATION_REJECTED: 207,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -1572,6 +1574,15 @@ AppError.missingSubscriptionForSourceError = (op, data) =>
       data,
     }
   );
+
+AppError.accountCreationRejected = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.ACCOUNT_CREATION_REJECTED,
+    message: 'Account creation rejected.',
+  });
+};
 
 function decorateErrorWithRequest(error, request) {
   if (request) {

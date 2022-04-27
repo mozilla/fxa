@@ -32,11 +32,14 @@ const selectedPlan = {
 
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
+  invalidDomain,
 }: {
   accountExistsReturnValue: boolean;
+  invalidDomain: boolean;
 }) => {
   const [, setValidEmail] = useState<string>('');
   const [, setAccountExists] = useState(false);
+  const [, setInvalidEmailDomain] = useState(false);
   const [, setEmailsMatch] = useState(false);
   (apiFetchAccountStatus as jest.Mock)
     .mockClear()
@@ -51,9 +54,13 @@ const WrapNewUserEmailForm = ({
         setEmailsMatch={setEmailsMatch}
         setValidEmail={setValidEmail}
         setAccountExists={setAccountExists}
+        setInvalidEmailDomain={setInvalidEmailDomain}
         getString={(id: string) => id}
         checkAccountExists={() =>
-          Promise.resolve({ exists: accountExistsReturnValue })
+          Promise.resolve({
+            exists: accountExistsReturnValue,
+            invalidDomain,
+          })
         }
         selectedPlan={selectedPlan}
       />
@@ -66,7 +73,10 @@ describe('NewUserEmailForm test', () => {
     let subject;
     act(() => {
       subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={false} />
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
       );
     });
     const form = subject.queryByTestId('new-user-email-form');
@@ -94,7 +104,10 @@ describe('NewUserEmailForm test', () => {
     let subject;
     await act(async () => {
       subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={false} />
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
       );
       const firstEmail = subject.getByTestId('new-user-email');
 
@@ -107,7 +120,12 @@ describe('NewUserEmailForm test', () => {
   it('shows no error when valid email is input to first field', async () => {
     let subject;
 
-    subject = render(<WrapNewUserEmailForm accountExistsReturnValue={false} />);
+    subject = render(
+      <WrapNewUserEmailForm
+        accountExistsReturnValue={false}
+        invalidDomain={false}
+      />
+    );
     const firstEmail = subject.getByTestId('new-user-email');
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.blur(firstEmail);
@@ -117,7 +135,10 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when empty string is provided to second field', async () => {
     let subject = render(
-      <WrapNewUserEmailForm accountExistsReturnValue={false} />
+      <WrapNewUserEmailForm
+        accountExistsReturnValue={false}
+        invalidDomain={false}
+      />
     );
 
     const firstEmail = subject.getByTestId('new-user-email');
@@ -132,7 +153,10 @@ describe('NewUserEmailForm test', () => {
 
   it('shows error when emails do not match', async () => {
     let subject = render(
-      <WrapNewUserEmailForm accountExistsReturnValue={false} />
+      <WrapNewUserEmailForm
+        accountExistsReturnValue={false}
+        invalidDomain={false}
+      />
     );
     const firstEmail = subject.getByTestId('new-user-email');
     const secondEmail = subject.getByTestId('new-user-confirm-email');
@@ -149,7 +173,10 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when emails match', async () => {
     let subject = render(
-      <WrapNewUserEmailForm accountExistsReturnValue={false} />
+      <WrapNewUserEmailForm
+        accountExistsReturnValue={false}
+        invalidDomain={false}
+      />
     );
     const firstEmail = subject.getByTestId('new-user-email');
     const secondEmail = subject.getByTestId('new-user-confirm-email');
@@ -165,12 +192,13 @@ describe('NewUserEmailForm test', () => {
 
   it('Notifies the user if they already have an account', async () => {
     const checkAccountExists = (userAccount: string) =>
-      Promise.resolve({ exists: true });
+      Promise.resolve({ exists: true, invalidDomain: false });
 
     const result = await emailInputValidationAndAccountCheck(
       'foxy@mozilla.com',
       false,
       (state: string) => {},
+      (value: boolean) => {},
       (value: boolean) => {},
       (value: string) => {},
       checkAccountExists,
@@ -191,6 +219,37 @@ describe('NewUserEmailForm test', () => {
           <a data-testid="already-have-account-link" href="example.com/signin">
             Sign in
           </a>
+        </React.Fragment>
+      </Localized>
+    );
+  });
+
+  it('Notifies the user if domain does not provide email', async () => {
+    const checkAccountExists = (userAccount: string) =>
+      Promise.resolve({ exists: false, invalidDomain: true });
+    debugger;
+    const result = await emailInputValidationAndAccountCheck(
+      'foxy@mozilla.com',
+      false,
+      (state: string) => {},
+      (value: boolean) => {},
+      (value: boolean) => {},
+      (value: string) => {},
+      checkAccountExists,
+      'example.com/signin',
+      () => {},
+      (id: string) => id
+    );
+
+    expect(result.value).toEqual('foxy@mozilla.com');
+    expect(result.valid).toEqual(true);
+    expect(result.error).toMatchObject(
+      <Localized
+        id="new-user-invalid-email-domain"
+        vars={{ domain: 'mozilla.com' }}
+      >
+        <React.Fragment>
+          Mistyped email? mozilla.com does not provide email.
         </React.Fragment>
       </Localized>
     );

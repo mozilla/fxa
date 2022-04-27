@@ -4,11 +4,14 @@ import { NewUserEmailForm } from './index';
 
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
+  invalidDomain,
 }: {
   accountExistsReturnValue: boolean;
+  invalidDomain: boolean;
 }) => {
   const [, setValidEmail] = useState<string>('');
   const [, setAccountExists] = useState(false);
+  const [, setInvalidEmailDomain] = useState(false);
   const [, setEmailsMatch] = useState(false);
   return (
     <div style={{ display: 'flex' }}>
@@ -18,10 +21,14 @@ const WrapNewUserEmailForm = ({
         }
         setValidEmail={setValidEmail}
         setAccountExists={setAccountExists}
+        setInvalidEmailDomain={setInvalidEmailDomain}
         setEmailsMatch={setEmailsMatch}
         getString={(id: string) => id}
         checkAccountExists={() =>
-          Promise.resolve({ exists: accountExistsReturnValue })
+          Promise.resolve({
+            exists: accountExistsReturnValue,
+            invalidDomain,
+          })
         }
         selectedPlan={{}}
         onToggleNewsletterCheckbox={() => {}}
@@ -32,8 +39,20 @@ const WrapNewUserEmailForm = ({
 
 storiesOf('components/NewUserEmailForm', module)
   .add('default', () => (
-    <WrapNewUserEmailForm accountExistsReturnValue={false} />
+    <WrapNewUserEmailForm
+      accountExistsReturnValue={false}
+      invalidDomain={false}
+    />
   ))
   .add('existing account', () => (
-    <WrapNewUserEmailForm accountExistsReturnValue={true} />
+    <WrapNewUserEmailForm
+      accountExistsReturnValue={true}
+      invalidDomain={false}
+    />
+  ))
+  .add('invalid email domain', () => (
+    <WrapNewUserEmailForm
+      accountExistsReturnValue={false}
+      invalidDomain={true}
+    />
   ));

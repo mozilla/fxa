@@ -112,7 +112,7 @@ describe('routes/Checkout', () => {
     (apiFetchPlans as jest.Mock).mockClear().mockResolvedValue(PLANS);
     (apiFetchAccountStatus as jest.Mock)
       .mockClear()
-      .mockResolvedValue({ exists: false });
+      .mockResolvedValue({ exists: false, invalidDomain: false });
     (apiCreatePasswordlessAccount as jest.Mock)
       .mockClear()
       .mockResolvedValue(STUB_ACCOUNT_RESULT);

@@ -119,6 +119,7 @@ export const Checkout = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
+  const [invalidEmailDomain, setInvalidEmailDomain] = useState(false);
   const [emailsMatch, setEmailsMatch] = useState(false);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
@@ -348,6 +349,7 @@ export const Checkout = ({
             setValidEmail={setValidEmail}
             signInURL={signInURL}
             setAccountExists={setAccountExists}
+            setInvalidEmailDomain={setInvalidEmailDomain}
             checkAccountExists={checkAccountExists}
             setEmailsMatch={setEmailsMatch}
             getString={l10n.getString.bind(l10n)}
@@ -379,6 +381,7 @@ export const Checkout = ({
                           !checkboxSet ||
                           validEmail === '' ||
                           accountExists ||
+                          invalidEmailDomain ||
                           !emailsMatch
                         }
                         idempotencyKey={submitNonce}
@@ -430,6 +433,7 @@ export const Checkout = ({
                   checkboxSet &&
                   validEmail !== '' &&
                   !accountExists &&
+                  !invalidEmailDomain &&
                   emailsMatch,
 
                 inProgress,

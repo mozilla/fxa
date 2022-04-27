@@ -464,6 +464,8 @@ new-user-subscribe-product-assurance = We only use your email to create your acc
 new-user-email-validate = Email is not valid
 new-user-email-validate-confirm = Emails do not match
 new-user-already-has-account-sign-in = You already have an account. <a>Sign in</a>
+# $domain (String) - the email domain provided by the user during sign up
+new-user-invalid-email-domain = Mistyped email? { $domain } does not offer email.
 new-user-card-title = Enter your card information
 new-user-submit = Subscribe Now
 
