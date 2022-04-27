@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import MISC_DOCS from '../../../docs/swagger/misc-api';
-
 /*jshint camelcase: false*/
 const Joi = require('@hapi/joi');
 const validators = require('../../oauth/validators');
 const hex = require('buf').to.hex;
 const AppError = require('../../oauth/error');
 const { getTokenId } = require('../../oauth/token');
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required(),

@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import MISC_DOCS from '../../../docs/swagger/misc-api';
-import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
-import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
-
 const crypto = require('crypto');
 const Joi = require('@hapi/joi');
 const hex = require('buf').to.hex;
@@ -19,6 +15,10 @@ const {
   authenticateClient,
   clientAuthValidators,
 } = require('../../oauth/client');
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const DESCRIPTION =
+  require('../../../docs/swagger/shared/descriptions').default;
 
 /*jshint camelcase: false*/
 module.exports = ({ log, oauthDB }) => {

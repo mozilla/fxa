@@ -4,7 +4,7 @@
 
 'use strict';
 
-import MISC_DOCS from '../../docs/swagger/misc-api';
+const MISC_DOCS = require('../../docs/swagger/misc-api').default;
 const validators = require('./validators');
 const ScopeSet = require('fxa-shared/oauth/scopes');
 const AppError = require('../../lib/error');

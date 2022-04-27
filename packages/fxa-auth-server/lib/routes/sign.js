@@ -4,12 +4,11 @@
 
 'use strict';
 
-import SIGN_DOCS from '../../docs/swagger/sign-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const error = require('../error');
 const isA = require('@hapi/joi');
 const validators = require('./validators');
+const SIGN_DOCS = require('../../docs/swagger/sign-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 module.exports = (log, signer, db, domain, devices) => {
   const HOUR = 1000 * 60 * 60;

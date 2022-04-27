@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import MISC_DOCS from '../../../docs/swagger/misc-api';
-import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
-import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
-
 const hex = require('buf').to.hex;
 const Joi = require('@hapi/joi');
 
@@ -15,6 +11,10 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const DESCRIPTION =
+  require('../../../docs/swagger/shared/descriptions').default;
 
 const RESPONSE_TYPE_CODE = 'code';
 const RESPONSE_TYPE_TOKEN = 'token';

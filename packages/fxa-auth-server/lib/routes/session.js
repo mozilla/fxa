@@ -4,9 +4,6 @@
 
 'use strict';
 
-import SESSION_DOCS from '../../docs/swagger/session-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const error = require('../error');
 const isA = require('@hapi/joi');
 const requestHelper = require('../routes/utils/request_helper');
@@ -15,6 +12,8 @@ const validators = require('./validators');
 const Localizer = require('../l10n').default;
 const NodeRendererBindings =
   require('../senders/renderer/bindings-node').default;
+const SESSION_DOCS = require('../../docs/swagger/session-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 
 module.exports = function (

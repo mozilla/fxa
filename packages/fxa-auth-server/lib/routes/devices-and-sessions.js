@@ -4,9 +4,6 @@
 
 'use strict';
 
-import DEVICES_AND_SERVICES_DOCS from '../../docs/swagger/devices-and-sessions-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
@@ -17,6 +14,9 @@ const isA = require('@hapi/joi');
 const path = require('path');
 const validators = require('./validators');
 
+const DEVICES_AND_SERVICES_DOCS =
+  require('../../docs/swagger/devices-and-sessions-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(

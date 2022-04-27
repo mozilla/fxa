@@ -4,9 +4,8 @@
 
 'use strict';
 
-import DESCRIPTION from '../docs/swagger/shared/descriptions';
-
 const isA = require('@hapi/joi');
+const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
 const validators = require('./routes/validators');
 const error = require('./error');
 const oauthDB = require('./oauth/db');
