@@ -1,3 +1,9 @@
+## 1.231.1
+
+### Bug fixes
+
+- swagger: SyntaxError: Cannot use import statement outside a module ([e6de4302f](https://github.com/mozilla/fxa/commit/e6de4302f))
+
 ## 1.231.0
 
 ### New features
