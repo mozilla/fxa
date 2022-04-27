@@ -4,8 +4,6 @@
 
 'use strict';
 
-import doc from '../../docs/swagger/devices-and-sessions-api';
-
 const isA = require('@hapi/joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
@@ -13,6 +11,8 @@ const error = require('../error');
 
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
+const DEVICES_AND_SESSIONS_DOC =
+  require('../../docs/swagger/devices-and-sessions-api').default;
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 
@@ -22,7 +22,7 @@ module.exports = (log, db, devices, clientUtils) => {
       method: 'GET',
       path: '/account/attached_clients',
       options: {
-        ...doc.ACCOUNT_ATTACHED_CLIENTS_GET,
+        ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENTS_GET,
         auth: {
           strategy: 'sessionToken',
         },
@@ -109,7 +109,7 @@ module.exports = (log, db, devices, clientUtils) => {
       method: 'POST',
       path: '/account/attached_client/destroy',
       options: {
-        ...doc.ACCOUNT_ATTACHED_CLIENT_DESTROY_POST,
+        ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENT_DESTROY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',

@@ -4,9 +4,6 @@
 
 'use strict';
 
-import EMAILS_DOCS from '../../docs/swagger/emails-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
@@ -16,6 +13,8 @@ const Sentry = require('@sentry/node');
 const validators = require('./validators');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 
+const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
 

@@ -4,8 +4,9 @@
 
 'use strict';
 
-import UNBLOCK_CODES_DOCS from '../../docs/swagger/unblock-codes-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+const UNBLOCK_CODES_DOCS =
+  require('../../docs/swagger/unblock-codes-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 const isA = require('@hapi/joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
