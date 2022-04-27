@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import MISC_DOCS from '../../../docs/swagger/misc-api';
-import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
-
 const Joi = require('@hapi/joi');
 
 const OauthError = require('../../oauth/error');
@@ -14,6 +11,8 @@ const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');
 const { validateRequestedGrant } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 
 /**
  * We don't yet support rotating individual scoped keys,

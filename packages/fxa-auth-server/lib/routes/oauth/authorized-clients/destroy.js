@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import MISC_DOCS from '../../../../docs/swagger/misc-api';
-
+const Joi = require('joi');
 const validators = require('../../../oauth/validators');
 const authorizedClients = require('../../../oauth/authorized_clients');
 const verifyAssertion = require('../../../oauth/assertion');
-const Joi = require('joi');
+const MISC_DOCS = require('../../../../docs/swagger/misc-api').default;
 
 module.exports = () => ({
   method: 'POST',

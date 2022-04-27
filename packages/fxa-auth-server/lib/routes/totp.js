@@ -4,9 +4,6 @@
 
 'use strict';
 
-import TOTP_DOCS from '../../docs/swagger/totp-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-
 const errors = require('../error');
 const validators = require('./validators');
 const isA = require('@hapi/joi');
@@ -14,6 +11,8 @@ const otplib = require('otplib');
 const qrcode = require('qrcode');
 const { promisify } = require('util');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
+const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 module.exports = (log, db, mailer, customs, config) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);

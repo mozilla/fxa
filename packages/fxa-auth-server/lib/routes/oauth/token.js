@@ -24,10 +24,6 @@
 //
 // So, we've tried to make it as readable as possible, but...be careful in there!
 
-import MISC_DOCS from '../../../docs/swagger/misc-api';
-import OAUTH_DOCS from '../../../docs/swagger/oauth-api';
-import DESCRIPTION from '../../../docs/swagger/shared/descriptions';
-
 /*jshint camelcase: false*/
 const crypto = require('crypto');
 const OauthError = require('../../oauth/error');
@@ -54,6 +50,10 @@ const {
   clientAuthValidators,
 } = require('../../oauth/client');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const DESCRIPTION =
+  require('../../../docs/swagger/shared/descriptions').default;
 
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 
