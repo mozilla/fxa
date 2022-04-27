@@ -1,5 +1,17 @@
 # Change history
 
+## 1.231.0
+
+### Other changes
+
+- deps: bump @nestjs/common from 8.4.3 to 8.4.4 ([a23d28822](https://github.com/mozilla/fxa/commit/a23d28822))
+- deps: bump @nestjs/core from 8.3.1 to 8.4.4 ([21d4afa43](https://github.com/mozilla/fxa/commit/21d4afa43))
+- deps-dev: bump @nestjs/cli from 8.2.1 to 8.2.5 ([5f91e2991](https://github.com/mozilla/fxa/commit/5f91e2991))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+- deps: bump @nestjs/config from 1.2.0 to 2.0.0 ([97b5a3990](https://github.com/mozilla/fxa/commit/97b5a3990))
+- deps: bump @nestjs/platform-express from 8.4.3 to 8.4.4 ([27a0c8a78](https://github.com/mozilla/fxa/commit/27a0c8a78))
+- deps: bump superagent from 7.1.1 to 7.1.2 ([2e3443574](https://github.com/mozilla/fxa/commit/2e3443574))
+
 ## 1.230.5
 
 No changes.

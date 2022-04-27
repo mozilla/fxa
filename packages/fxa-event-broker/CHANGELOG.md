@@ -1,5 +1,25 @@
 # Change history
 
+## 1.231.0
+
+### Bug fixes
+
+- broker: use workspace focus first ([414cdd7df](https://github.com/mozilla/fxa/commit/414cdd7df))
+- broker: update test timeouts ([507e1b55b](https://github.com/mozilla/fxa/commit/507e1b55b))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1116.0 to 2.1120.0 ([688c3bdc4](https://github.com/mozilla/fxa/commit/688c3bdc4))
+- deps: bump @nestjs/common from 8.4.3 to 8.4.4 ([a23d28822](https://github.com/mozilla/fxa/commit/a23d28822))
+- deps: bump @nestjs/core from 8.3.1 to 8.4.4 ([21d4afa43](https://github.com/mozilla/fxa/commit/21d4afa43))
+- deps-dev: bump @nestjs/cli from 8.2.1 to 8.2.5 ([5f91e2991](https://github.com/mozilla/fxa/commit/5f91e2991))
+- deps: bump aws-sdk from 2.1115.0 to 2.1116.0 ([61c44a934](https://github.com/mozilla/fxa/commit/61c44a934))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+- deps: bump @nestjs/config from 1.2.0 to 2.0.0 ([97b5a3990](https://github.com/mozilla/fxa/commit/97b5a3990))
+- deps: bump aws-sdk from 2.1110.0 to 2.1115.0 ([e6d1b72d0](https://github.com/mozilla/fxa/commit/e6d1b72d0))
+- deps: bump @nestjs/platform-express from 8.4.3 to 8.4.4 ([27a0c8a78](https://github.com/mozilla/fxa/commit/27a0c8a78))
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0" ([f8293253d](https://github.com/mozilla/fxa/commit/f8293253d))
+
 ## 1.230.5
 
 No changes.

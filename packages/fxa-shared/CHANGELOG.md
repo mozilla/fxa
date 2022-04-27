@@ -1,5 +1,25 @@
 # Change history
 
+## 1.231.0
+
+### New features
+
+- fxa-admin-panel: get diagnosticCode from event and add to bounce obj ([24e4b400c](https://github.com/mozilla/fxa/commit/24e4b400c))
+- subscriptions: Add cancel to productConfig Because: ([881ac8bdc](https://github.com/mozilla/fxa/commit/881ac8bdc))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1116.0 to 2.1120.0 ([688c3bdc4](https://github.com/mozilla/fxa/commit/688c3bdc4))
+- deps: bump @nestjs/common from 8.4.3 to 8.4.4 ([a23d28822](https://github.com/mozilla/fxa/commit/a23d28822))
+- deps: bump @nestjs/core from 8.3.1 to 8.4.4 ([21d4afa43](https://github.com/mozilla/fxa/commit/21d4afa43))
+- deps: bump stripe from 8.215.0 to 8.218.0 ([c2a45dee1](https://github.com/mozilla/fxa/commit/c2a45dee1))
+- deps: bump aws-sdk from 2.1115.0 to 2.1116.0 ([61c44a934](https://github.com/mozilla/fxa/commit/61c44a934))
+- deps: bump @nestjs/config from 1.2.0 to 2.0.0 ([97b5a3990](https://github.com/mozilla/fxa/commit/97b5a3990))
+- 73ae2d546 WIP ([73ae2d546](https://github.com/mozilla/fxa/commit/73ae2d546))
+- deps: bump aws-sdk from 2.1110.0 to 2.1115.0 ([e6d1b72d0](https://github.com/mozilla/fxa/commit/e6d1b72d0))
+- deps: bump knex from 1.0.4 to 1.0.7 ([bf88e8f40](https://github.com/mozilla/fxa/commit/bf88e8f40))
+- deps: bump superagent from 7.1.1 to 7.1.2 ([2e3443574](https://github.com/mozilla/fxa/commit/2e3443574))
+
 ## 1.230.5
 
 No changes.

@@ -1,3 +1,12 @@
+## 1.231.0
+
+### Other changes
+
+- deps-dev: bump tap from 16.0.0 to 16.0.1 ([759ee6a82](https://github.com/mozilla/fxa/commit/759ee6a82))
+- deps: bump grunt from 1.4.1 to 1.5.2 ([37611e619](https://github.com/mozilla/fxa/commit/37611e619))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+- deps: bump @google-cloud/pubsub from 2.18.4 to 2.19.0" ([f8293253d](https://github.com/mozilla/fxa/commit/f8293253d))
+
 ## 1.230.5
 
 No changes.

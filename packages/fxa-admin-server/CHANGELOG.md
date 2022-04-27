@@ -1,3 +1,24 @@
+## 1.231.0
+
+### New features
+
+- admin-panel: Add subscriptions field + display in UI, CSS tweaks ([d42d6cbbc](https://github.com/mozilla/fxa/commit/d42d6cbbc))
+- fxa-admin-panel: get diagnosticCode from event and add to bounce obj ([24e4b400c](https://github.com/mozilla/fxa/commit/24e4b400c))
+
+### Bug fixes
+
+- admin-server: Fix watch on schema.gql ([1c3d22056](https://github.com/mozilla/fxa/commit/1c3d22056))
+- admin-sever: fix broken connection in email-bounce script ([32ca380f0](https://github.com/mozilla/fxa/commit/32ca380f0))
+
+### Other changes
+
+- deps: bump @nestjs/common from 8.4.3 to 8.4.4 ([a23d28822](https://github.com/mozilla/fxa/commit/a23d28822))
+- deps: bump @nestjs/core from 8.3.1 to 8.4.4 ([21d4afa43](https://github.com/mozilla/fxa/commit/21d4afa43))
+- deps-dev: bump @nestjs/cli from 8.2.1 to 8.2.5 ([5f91e2991](https://github.com/mozilla/fxa/commit/5f91e2991))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+- deps: bump @nestjs/config from 1.2.0 to 2.0.0 ([97b5a3990](https://github.com/mozilla/fxa/commit/97b5a3990))
+- deps: bump knex from 1.0.4 to 1.0.7 ([bf88e8f40](https://github.com/mozilla/fxa/commit/bf88e8f40))
+
 ## 1.230.5
 
 No changes.

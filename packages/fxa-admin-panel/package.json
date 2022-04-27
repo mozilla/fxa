@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-panel",
-  "version": "1.230.5",
+  "version": "1.231.0",
   "description": "FxA Admin Panel",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
