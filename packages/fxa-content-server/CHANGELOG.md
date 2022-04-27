@@ -1,3 +1,9 @@
+## 1.230.5
+
+### Bug fixes
+
+- content-server: Fix issue on login with legacy accounts ([fa047a97cd](https://github.com/mozilla/fxa/commit/fa047a97cd))
+
 ## 1.230.4
 
 No changes.
