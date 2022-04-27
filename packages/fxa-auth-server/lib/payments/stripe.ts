@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
-import cacheManager, {
+import {
   Cacheable,
   CacheClearStrategy,
   CacheClearStrategyContext,
   CacheUpdate,
 } from '@type-cacheable/core';
-import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import {
   createAccountCustomer,
   deleteAccountCustomer,
@@ -18,8 +17,6 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
-import { formatPlanConfigDto } from 'fxa-shared/dto/auth/payments/plan-configuration';
-import { mapPlanConfigsByPriceId } from 'fxa-shared/subscriptions/configuration/utils';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getMinimumAmount,
@@ -28,9 +25,7 @@ import {
 } from 'fxa-shared/subscriptions/stripe';
 import {
   AbbrevPlan,
-  AbbrevPlayPurchase,
   AbbrevProduct,
-  ConfiguredPlan,
   MozillaSubscriptionTypes,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
@@ -40,7 +35,6 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
-import mapValues from 'lodash/mapValues';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -60,57 +54,29 @@ import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import {
+  StripeHelper as StripeHelperBase,
+  CHARGES_RESOURCE,
+  CUSTOMER_RESOURCE,
+  INVOICES_RESOURCE,
+  PAYMENT_METHOD_RESOURCE,
+  PLAN_RESOURCE,
+  PRODUCT_RESOURCE,
+  STRIPE_PLANS_CACHE_KEY,
+  STRIPE_PRICE_METADATA,
+  STRIPE_PRODUCTS_CACHE_KEY,
+  SUBSCRIPTIONS_RESOURCE,
+} from 'fxa-shared/payments/stripe';
 
-// @ts-ignore
-export const CHARGES_RESOURCE = 'charges';
-export const COUPON_RESOURCE = 'coupons';
-export const CREDIT_NOTE_RESOURCE = 'creditNotes';
-export const CUSTOMER_RESOURCE = 'customers';
-export const INVOICES_RESOURCE = 'invoices';
-export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
-export const PLAN_RESOURCE = 'plans';
-export const PRICE_RESOURCE = 'prices';
-export const PRODUCT_RESOURCE = 'products';
-export const SOURCE_RESOURCE = 'sources';
-export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
-export const TAX_RATE_RESOURCE = 'taxRates';
+// Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
+export * from 'fxa-shared/payments/stripe';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
-
-export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
-export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
-
 export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
-
-enum STRIPE_CUSTOMER_METADATA {
+export enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
-
-export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
-  charge: CHARGES_RESOURCE,
-  coupon: COUPON_RESOURCE,
-  credit_note: CREDIT_NOTE_RESOURCE,
-  customer: CUSTOMER_RESOURCE,
-  invoice: INVOICES_RESOURCE,
-  payment_method: PAYMENT_METHOD_RESOURCE,
-  plan: PLAN_RESOURCE,
-  price: PRICE_RESOURCE,
-  product: PRODUCT_RESOURCE,
-  source: SOURCE_RESOURCE,
-  subscription: SUBSCRIPTIONS_RESOURCE,
-  tax_rate: TAX_RATE_RESOURCE,
-};
-
-export const VALID_RESOURCE_TYPES = Object.values(
-  STRIPE_OBJECT_TYPE_TO_RESOURCE
-);
-
-export enum STRIPE_PRICE_METADATA {
-  PROMOTION_CODES = 'promotionCodes',
-  PLAY_SKU_IDS = 'playSkuIds',
-}
-
 export enum STRIPE_PRODUCT_METADATA {
   PROMOTION_CODES = 'promotionCodes',
 }
@@ -140,7 +106,7 @@ export type FormattedSubscriptionForEmail = {
   productMetadata: Stripe.Metadata;
 };
 
-type BillingAddressOptions = {
+export type BillingAddressOptions = {
   city: string;
   country: string;
   line1: string;
@@ -181,40 +147,33 @@ class NoopCacheClearStrategy implements CacheClearStrategy {
 }
 const noopCacheClearStrategy = new NoopCacheClearStrategy();
 
-export class StripeHelper {
+export class StripeHelper extends StripeHelperBase {
+  // Base class requirements
+  public override readonly stripe: Stripe;
+  protected override readonly stripeFirestore: StripeFirestore;
+  protected override readonly paymentConfigManager?: PaymentConfigManager;
+  protected override readonly redis?: ioredis.Redis;
+
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
-  private log: Logger;
   private plansAndProductsCacheTtlSeconds: number;
   private stripeTaxRatesCacheTtlSeconds: number;
   private webhookSecret: string;
-  private redis: ioredis.Redis | undefined;
-  private statsd: StatsD;
   private taxIds: { [key: string]: string };
   private firestore: Firestore;
-  private stripeFirestore: StripeFirestore;
-  // TODO remove the ? when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-  private paymentConfigManager?: PaymentConfigManager;
   readonly googleMapsService: GoogleMapsService;
-  readonly stripe: Stripe;
   public currencyHelper: CurrencyHelper;
 
   /**
    * Create a Stripe Helper with built-in caching.
    */
   constructor(log: Logger, config: ConfigType, statsd: StatsD) {
-    this.log = log;
-    this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
-    this.stripeTaxRatesCacheTtlSeconds =
-      config.subhub.stripeTaxRatesCacheTtlSeconds;
-    this.webhookSecret = config.subscriptions.stripeWebhookSecret;
-    this.taxIds = config.subscriptions.taxIds;
-    this.currencyHelper = Container.get(CurrencyHelper);
+    super(config, statsd, log);
 
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
     // introduce a second setting for cache enable / disable.
-    const redis = this.plansAndProductsCacheTtlSeconds
+    this.redis = config.subhub.plansCacheTtlSeconds
       ? Redis(
           {
             ...config.redis,
@@ -254,26 +213,39 @@ export class StripeHelper {
       this.paymentConfigManager = Container.get(PaymentConfigManager);
     }
     this.googleMapsService = Container.get(GoogleMapsService);
+    this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
+    this.stripeTaxRatesCacheTtlSeconds =
+      config.subhub.stripeTaxRatesCacheTtlSeconds;
+    this.webhookSecret = config.subscriptions.stripeWebhookSecret;
+    this.taxIds = config.subscriptions.taxIds;
+    this.currencyHelper = Container.get(CurrencyHelper);
 
-    cacheManager.setOptions({
-      // Ensure the StripeHelper instance is passed into TTLBuilder functions
-      excludeContext: false,
+    // Initializes caching
+    this.initRedis();
+
+    // Listens to stripe events
+    this.initStripe();
+  }
+
+  /**
+   * Validates state of stripe plan
+   * @param plan
+   * @returns true if plan is valid
+   */
+  protected override async validatePlan(plan: Stripe.Plan): Promise<boolean> {
+    const { error } = await subscriptionProductMetadataValidator.validateAsync({
+      ...plan.metadata,
+      ...(plan.product as Stripe.Product)?.metadata,
     });
-    this.redis = redis;
-    if (this.redis) {
-      useAdapter(this.redis);
+
+    if (error) {
+      const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
+      this.log.error(`fetchAllPlans: ${msg}`, { error, plan: plan });
+      reportValidationError(Sentry, msg, error as any);
+      return false;
     }
 
-    this.statsd = statsd;
-    this.stripe.on('response', (response) => {
-      statsd.timing('stripe_request', response.elapsed);
-      // Note that we can't record the method/path as a tag
-      // because ids are in the path which results in too great
-      // of cardinality.
-      statsd.increment('stripe_call', {
-        error: (response.status >= 500).toString(),
-      });
-    });
+    return true;
   }
 
   /**
@@ -285,32 +257,6 @@ export class StripeHelper {
       product_name: product.name,
       product_metadata: product.metadata,
     };
-  }
-
-  /**
-   * Fetch all product data and cache it if Redis is enabled.
-   *
-   * Use `allProducts` below to use the cached-enhanced version.
-   */
-  async fetchAllProducts(): Promise<Stripe.Product[]> {
-    const products = [];
-    for await (const product of this.stripe.products.list()) {
-      products.push(product);
-    }
-    return products;
-  }
-
-  /**
-   * Fetches all products from stripe and returns them.
-   *
-   * Uses Redis caching if configured.
-   */
-  @Cacheable({
-    cacheKey: STRIPE_PRODUCTS_CACHE_KEY,
-    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
-  })
-  async allProducts(): Promise<Stripe.Product[]> {
-    return this.fetchAllProducts();
   }
 
   @CacheUpdate({
@@ -1582,66 +1528,11 @@ export class StripeHelper {
     uid: string,
     expand?: ('subscriptions' | 'invoice_settings.default_payment_method')[]
   ): Promise<Stripe.Customer | void> {
-    const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
-    if (!stripeCustomerId) {
-      return;
-    }
-
-    // By default this has subscriptions expanded.
-    let customer = await this.expandResource<Stripe.Customer>(
-      stripeCustomerId,
-      CUSTOMER_RESOURCE
-    );
-
-    if (customer.deleted) {
-      await deleteAccountCustomer(uid);
-      return;
-    }
-
-    // If the customer has subscriptions and no currency, we must have a stale
-    // customer record. Let's update it.
-    if (customer.subscriptions?.data.length && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customer.id);
-      // Retrieve the customer again.
-      customer = await this.expandResource<Stripe.Customer>(
-        stripeCustomerId,
-        CUSTOMER_RESOURCE
-      );
-    }
-
-    // Since the uid is just metadata and it isn't required when creating a new
-    // customer _on Stripe dashboard_, we have an edge case where the customer
-    // is created on Stripe and locally via the `customer.created` event, but
-    // the uid metadata is still missing.  Throwing an error here causes a
-    // profile fetch to fail, thus would block the user completely.
-    //
-    // Customers created through our regular flow will always have their uid in
-    // the metadata.
-    //
-    // So, we'll only throw an error if the uid metadata is found and it does
-    // not match.
-
-    if (customer.metadata.userid && customer.metadata.userid !== uid) {
-      // Duplicate email with non-match uid
-      const err = new Error(
-        `Stripe Customer: ${customer.id} has mismatched uid in metadata.`
-      );
+    try {
+      return await super.fetchCustomer(uid, expand);
+    } catch (err) {
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
-
-    // There's only 2 expansions used in our code-base:
-    //  - subscriptions
-    //  - invoice_settings.default_payment_method
-    // Subscriptions is already expanded. Manually fetch the other if needed.
-    if (expand?.includes('invoice_settings.default_payment_method')) {
-      customer.invoice_settings.default_payment_method =
-        await this.expandResource(
-          customer.invoice_settings.default_payment_method,
-          PAYMENT_METHOD_RESOURCE
-        );
-    }
-
-    return customer;
   }
 
   /**
@@ -1699,19 +1590,6 @@ export class StripeHelper {
   }
 
   /**
-   * Return a list of skus for a given price.
-   */
-  priceToPlaySkus(price: AbbrevPlan) {
-    const priceSkus =
-      price.plan_metadata?.[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] || '';
-    return priceSkus
-      .trim()
-      .split(',')
-      .map((c) => c.trim().toLowerCase())
-      .filter((c) => !!c);
-  }
-
-  /**
    * Fetch all price ids that correspond to a list of Play SubscriptionPurchases.
    */
   async purchasesToPriceIds(purchases: SubscriptionPurchase[]) {
@@ -1727,37 +1605,6 @@ export class StripeHelper {
       }
     }
     return purchasedPrices;
-  }
-
-  /**
-   * Append any matching price ids and names to their corresponding AbbrevPlayPurchase.
-   */
-  async addPriceInfoToAbbrevPlayPurchases(
-    purchases: AbbrevPlayPurchase[]
-  ): Promise<
-    (AbbrevPlayPurchase & {
-      product_id: string;
-      product_name: string;
-      price_id: string;
-    })[]
-  > {
-    const plans = await this.allAbbrevPlans();
-    const appendedAbbrevPlayPurchases = [];
-    for (const plan of plans) {
-      const playSkus = this.priceToPlaySkus(plan);
-      const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
-        playSkus.includes(purchase.sku.toLowerCase())
-      );
-      for (const matchingAbbrevPlayPurchase of matchingAbbrevPlayPurchases) {
-        appendedAbbrevPlayPurchases.push({
-          ...matchingAbbrevPlayPurchase,
-          product_id: plan.product_id,
-          product_name: plan.product_name,
-          price_id: plan.plan_id,
-        });
-      }
-    }
-    return appendedAbbrevPlayPurchases;
   }
 
   /**
@@ -1829,106 +1676,6 @@ export class StripeHelper {
     return allProducts.find((p) => p.id === productId);
   }
 
-  /**
-   * Fetches all plans from stripe and returns them.
-   *
-   * Use `allPlans` below to use the cached-enhanced version.
-   */
-  async fetchAllPlans(): Promise<Stripe.Plan[]> {
-    const plans = [];
-
-    for await (const item of this.stripe.plans.list({
-      active: true,
-      expand: ['data.product'],
-    })) {
-      if (!item.product) {
-        this.log.error(
-          `fetchAllPlans - Plan "${item.id}" missing Product`,
-          item
-        );
-        continue;
-      }
-
-      if (typeof item.product === 'string') {
-        this.log.error(
-          `fetchAllPlans - Plan "${item.id}" failed to load Product`,
-          item
-        );
-        continue;
-      }
-
-      if (item.product.deleted === true) {
-        this.log.error(
-          `fetchAllPlans - Plan "${item.id}" associated with Deleted Product`,
-          item
-        );
-        continue;
-      }
-
-      item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
-      item.metadata = mapValues(item.metadata, (v) => v.trim());
-
-      const { error } =
-        await subscriptionProductMetadataValidator.validateAsync({
-          ...item.product.metadata,
-          ...item.metadata,
-        });
-
-      if (error) {
-        const msg = formatMetadataValidationErrorMessage(item.id, error as any);
-        this.log.error(`fetchAllPlans: ${msg}`, { error, plan: item });
-        reportValidationError(msg, error as any);
-        continue;
-      }
-
-      plans.push(item);
-    }
-    return plans;
-  }
-
-  async allConfiguredPlans(): Promise<ConfiguredPlan[] | Stripe.Plan[]> {
-    // for a transitional period we will include configs from both Firestore
-    // docs and Stripe metadata when enabled by the feature flag, making it
-    // possible for Payments to toggle the Firestore configs feature flag
-    // without any changes or re-deploy necessary on the auth-server
-
-    const allPlans = await this.allPlans();
-
-    // TODO remove when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-    if (!this.paymentConfigManager) {
-      return allPlans;
-    }
-
-    const planConfigs = mapPlanConfigsByPriceId(
-      await this.paymentConfigManager.allPlans()
-    );
-
-    return allPlans.map((p) => {
-      (p as ConfiguredPlan).configuration = null;
-      const planConfig = planConfigs[p.id];
-      if (planConfig) {
-        const mergedConfig =
-          // TODO remove the ! when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-          this.paymentConfigManager!.getMergedConfig(planConfig);
-        (p as ConfiguredPlan).configuration = formatPlanConfigDto(mergedConfig);
-      }
-      return p as ConfiguredPlan;
-    });
-  }
-
-  /**
-   * Fetches all plans from stripe and returns them.
-   *
-   * Uses Redis caching if configured.
-   */
-  @Cacheable({
-    cacheKey: STRIPE_PLANS_CACHE_KEY,
-    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
-  })
-  async allPlans(): Promise<Stripe.Plan[]> {
-    return this.fetchAllPlans();
-  }
-
   @CacheUpdate({
     cacheKey: STRIPE_PLANS_CACHE_KEY,
     ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
@@ -1937,25 +1684,6 @@ export class StripeHelper {
   })
   async updateAllPlans(allPlans: Stripe.Plan[]) {
     return allPlans;
-  }
-
-  async allAbbrevPlans(): Promise<AbbrevPlan[]> {
-    const plans = await this.allConfiguredPlans();
-    return plans.map((p) => ({
-      amount: p.amount,
-      currency: p.currency,
-      interval_count: p.interval_count,
-      interval: p.interval,
-      plan_id: p.id,
-      plan_metadata: p.metadata,
-      plan_name: p.nickname || '',
-      product_id: (p.product as Stripe.Product).id,
-      product_metadata: (p.product as Stripe.Product).metadata,
-      product_name: (p.product as Stripe.Product).name,
-      // TODO simple copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does have a `configuration`
-      configuration: p.configuration ?? null,
-    }));
   }
 
   /**
@@ -3097,111 +2825,6 @@ export class StripeHelper {
       paymentProratedInCents,
       paymentProratedCurrency,
     };
-  }
-
-  /**
-   * Accept a string ID or resource object, return a resource object after
-   * retrieving (if necessary)
-   *
-   * @template T
-   * @param {string | T} resource
-   * @param {string} resourceType
-   *
-   * @returns {Promise<T>}
-   */
-  async expandResource<T>(
-    resource: string | T,
-    resourceType: typeof VALID_RESOURCE_TYPES[number]
-  ): Promise<T> {
-    if (typeof resource !== 'string') {
-      return resource;
-    }
-
-    if (!VALID_RESOURCE_TYPES.includes(resourceType)) {
-      const errorMsg = `stripeHelper.expandResource was provided an invalid resource type: ${resourceType}`;
-      const error = new Error(errorMsg);
-      this.log.error(`stripeHelper.expandResource.failed`, { error });
-      throw error;
-    }
-
-    switch (resourceType) {
-      case CUSTOMER_RESOURCE:
-        const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
-          resource
-        );
-        const subscriptions =
-          await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
-        (customer as any).subscriptions = {
-          data: subscriptions as any,
-          has_more: false,
-        };
-        // @ts-ignore
-        return customer;
-      case SUBSCRIPTIONS_RESOURCE:
-        // @ts-ignore
-        return this.stripeFirestore.retrieveAndFetchSubscription(resource);
-      case INVOICES_RESOURCE:
-        try {
-          // TODO we could remove the getInvoiceWithDiscount method if we add logic
-          // here to check if the discounts field is expanded but it would mean
-          // adding another stipe call to get discounts even when unnecessary
-          const invoice = await this.stripeFirestore.retrieveInvoice(resource);
-          // @ts-ignore
-          return invoice;
-        } catch (err) {
-          if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
-            const invoice = await this.stripe.invoices.retrieve(resource, {
-              expand: ['discounts'],
-            });
-            await this.stripeFirestore.retrieveAndFetchCustomer(
-              invoice.customer as string
-            );
-            await this.stripeFirestore.insertInvoiceRecord(invoice);
-            // @ts-ignore
-            return invoice;
-          }
-          throw err;
-        }
-      case PAYMENT_METHOD_RESOURCE:
-        try {
-          const paymentMethod =
-            await this.stripeFirestore.retrievePaymentMethod(resource);
-          // @ts-ignore
-          return paymentMethod;
-        } catch (err) {
-          if (
-            err.name === FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
-          ) {
-            const paymentMethod = await this.stripe.paymentMethods.retrieve(
-              resource
-            );
-            // Payment methods may not be attached to customers, in which case we
-            // cannot store it in Firestore.
-            if (paymentMethod.customer) {
-              await this.stripeFirestore.retrieveAndFetchCustomer(
-                paymentMethod.customer as string
-              );
-              await this.stripeFirestore.insertPaymentMethodRecord(
-                paymentMethod
-              );
-            }
-            // @ts-ignore
-            return paymentMethod;
-          }
-          throw err;
-        }
-      case PRODUCT_RESOURCE:
-        const products = await this.allProducts();
-        // @ts-ignore
-        return products.find((p) => p.id === resource);
-      case PLAN_RESOURCE:
-        const plans = await this.allPlans();
-        // @ts-ignore
-        return plans.find((p) => p.id === resource);
-      default:
-        // @ts-ignore
-        return this.stripe[resourceType].retrieve(resource);
-    }
   }
 
   /**

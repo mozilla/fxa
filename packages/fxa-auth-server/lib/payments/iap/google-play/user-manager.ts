@@ -21,27 +21,23 @@ import Container from 'typedi';
 
 import { AuthLogger } from '../../../types';
 import { PurchaseManager } from './purchase-manager';
-import {
-  GOOGLE_PLAY_FORM_OF_PAYMENT,
-  SubscriptionPurchase,
-} from './subscription-purchase';
-import { PurchaseQueryError } from './types/errors';
-import { SkuType } from './types/purchases';
+import { SubscriptionPurchase } from './subscription-purchase';
+import { PurchaseQueryError } from './types';
+import { UserManager as UserManagerBase } from 'fxa-shared/payments/iap/google-play/user-manager';
 
 /*
  * A class that allows looking up purchases registered to a particular user
  */
-export class UserManager {
-  private log: AuthLogger;
+export class UserManager extends UserManagerBase {
   /*
    * This class is intended to be initialized by the library.
    * Library consumer should not initialize this class themselves.
    */
   constructor(
-    private purchasesDbRef: CollectionReference,
-    private purchaseManager: PurchaseManager
+    public purchasesDbRef: CollectionReference,
+    protected purchaseManager: PurchaseManager
   ) {
-    this.log = Container.get(AuthLogger);
+    super(purchasesDbRef, Container.get(AuthLogger));
   }
 
   /*
@@ -57,19 +53,7 @@ export class UserManager {
 
     try {
       // Create query to fetch possibly active subscriptions from Firestore
-      let query = this.purchasesDbRef
-        .where('formOfPayment', '==', GOOGLE_PLAY_FORM_OF_PAYMENT)
-        .where('skuType', '==', SkuType.SUBS)
-        .where('userId', '==', userId)
-        .where('isMutable', '==', true);
-
-      if (sku) {
-        query = query.where('sku', '==', sku);
-      }
-
-      if (packageName) {
-        query = query.where('packageName', '==', packageName);
-      }
+      let query = super.buildSubscriptionQuery(userId, sku, packageName);
 
       // Do fetch possibly active subscription from Firestore
       const queryResult = await query.get();

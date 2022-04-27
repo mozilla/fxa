@@ -647,7 +647,7 @@ export class StripeWebhookHandler extends StripeHandler {
         error,
         plan,
       });
-      reportValidationError(msg, error as any);
+      reportValidationError(Sentry, msg, error as any);
       this.stripeHelper.updateAllPlans(updatedList);
       return;
     }
@@ -709,7 +709,7 @@ export class StripeWebhookHandler extends StripeHandler {
             error,
             product,
           });
-          reportValidationError(msg, error as any);
+          reportValidationError(Sentry, msg, error as any);
         } else {
           updatedPlans.push({
             ...plan,
