@@ -241,7 +241,7 @@ export class StripeHelper extends StripeHelperBase {
     if (error) {
       const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
       this.log.error(`fetchAllPlans: ${msg}`, { error, plan: plan });
-      reportValidationError(Sentry, msg, error as any);
+      reportValidationError(msg, error as any);
       return false;
     }
 

@@ -14,7 +14,6 @@ import {
 } from 'fxa-shared/payments/configuration/manager';
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
-import { mergeConfigs } from 'fxa-shared/subscriptions/configuration/utils';
 
 export class PaymentConfigManager extends PaymentConfigManagerBase {
   constructor() {
@@ -22,19 +21,6 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
     const firestore = Container.get(AuthFirestore);
     const log = Container.get(AuthLogger) as any as Logger;
     super(config, firestore, log);
-  }
-
-  /**
-   * Merges two configs together.
-   * @param planConfig
-   * @param productConfig
-   * @returns merged config
-   */
-  protected override mergeConfigs(
-    planConfig: PlanConfig,
-    productConfig: ProductConfig
-  ): PlanConfig {
-    return mergeConfigs(planConfig, productConfig);
   }
 
   /**

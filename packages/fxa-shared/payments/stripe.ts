@@ -3,23 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import cacheManager, { Cacheable } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
+import { StatsD } from 'hot-shots';
+import ioredis from 'ioredis';
+import mapValues from 'lodash/mapValues';
+import { Stripe } from 'stripe';
 import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
 } from '../db/models/auth';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
+import { ILogger } from '../log';
 import { mapPlanConfigsByPriceId } from '../subscriptions/configuration/utils';
-
 import {
   AbbrevPlan,
   AbbrevPlayPurchase,
   ConfiguredPlan,
 } from '../subscriptions/types';
-import { StatsD } from 'hot-shots';
-import ioredis from 'ioredis';
-import mapValues from 'lodash/mapValues';
-import { Stripe } from 'stripe';
-import { ILogger } from '../log';
 import { PaymentConfigManager } from './configuration/manager';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 

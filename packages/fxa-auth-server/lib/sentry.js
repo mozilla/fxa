@@ -12,12 +12,14 @@ const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 const { ERRNO } = require('./error');
 const {
-  formatMetadataValidationErrorMessage,
-  reportValidationError,
   tagCriticalEvent,
   buildSentryConfig,
   tagFxaName,
 } = require('fxa-shared/sentry');
+const {
+  formatMetadataValidationErrorMessage,
+  reportValidationError,
+} = require('fxa-shared/sentry/report-validation-error');
 const getVersion = require('./version').getVersion;
 const logger = require('./log')(config.log.level, 'sentry');
 

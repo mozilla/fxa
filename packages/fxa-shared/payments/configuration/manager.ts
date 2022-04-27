@@ -5,6 +5,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { TypedCollectionReference } from 'typesafe-node-firestore';
 import { PlanConfig } from '../../subscriptions/configuration/plan';
 import { ProductConfig } from '../../subscriptions/configuration/product';
+import { mergeConfigs } from '../../subscriptions/configuration/utils';
 import { ILogger } from '../../log';
 import { ProductConfigSchemaValidation } from '../../subscriptions/configuration/base';
 
@@ -38,8 +39,8 @@ export type PaymentConfigManagerConfig = {
  * shared across workspaces.
  */
 export abstract class PaymentConfigManager {
-  public productConfigDbRef: TypedCollectionReference<ProductConfig>;
-  public planConfigDbRef: TypedCollectionReference<PlanConfig>;
+  protected productConfigDbRef: TypedCollectionReference<ProductConfig>;
+  protected planConfigDbRef: TypedCollectionReference<PlanConfig>;
   protected prefix: string;
   protected cancelProductListener: (() => void) | undefined;
   protected cancelPlanListener: (() => void) | undefined;
@@ -180,16 +181,6 @@ export abstract class PaymentConfigManager {
         new Error('ProductConfig does not exist')
       );
     }
-    return this.mergeConfigs(planConfig, productConfig);
+    return mergeConfigs(planConfig, productConfig);
   }
-
-  /**
-   * Should return a set of merged plans and product configurations.
-   * @param planConfig
-   * @param productConfig
-   */
-  protected abstract mergeConfigs(
-    planConfig: PlanConfig,
-    productConfig: ProductConfig
-  ): PlanConfig;
 }

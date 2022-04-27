@@ -17,11 +17,16 @@ const mockAppStoreServerAPI = sinon.createStubInstance(AppStoreServerAPI);
 const { AppStoreHelper } = proxyquire(
   '../../../../../lib/payments/iap/apple-app-store/app-store-helper',
   {
-    'app-store-server-api': {
-      AppStoreServerAPI: function () {
-        return mockAppStoreServerAPI;
-      },
-    },
+    'fxa-shared/payments/iap/apple-app-store/app-store-helper': proxyquire(
+      'fxa-shared/payments/iap/apple-app-store/app-store-helper',
+      {
+        'app-store-server-api': {
+          AppStoreServerAPI: function () {
+            return mockAppStoreServerAPI;
+          },
+        },
+      }
+    ),
   }
 );
 
