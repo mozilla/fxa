@@ -4,6 +4,7 @@
 .DS_Store
 **/coverage
 **/docs
+!packages/fxa-auth-server/docs/swagger
 **/node_modules
 #**/test
 **/tests
