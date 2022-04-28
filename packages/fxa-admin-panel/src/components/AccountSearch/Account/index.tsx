@@ -39,6 +39,12 @@ export const CLEAR_BOUNCES_BY_EMAIL = gql`
   }
 `;
 
+export const RECORD_ADMIN_SECURITY_EVENT = gql`
+  mutation recordAdminSecurityEvent($uid: String!, $name: String!) {
+    recordAdminSecurityEvent(uid: $uid, name: $name)
+  }
+`;
+
 export const DISABLE_ACCOUNT = gql`
   mutation disableAccount($uid: String!) {
     disableAccount(uid: $uid)
@@ -102,11 +108,15 @@ export const LinkedAccount = ({
 export const ClearButton = ({
   emails,
   onCleared,
+  uid,
 }: {
   emails: string[];
   onCleared: Function;
+  uid: string;
 }) => {
   const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
+  const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
+
   const handleClear = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
@@ -116,6 +126,9 @@ export const ClearButton = ({
     // addresses, but for now it seems satisfactory to clear all bounces
     // for all emails, since they own all of the addresses
     emails.forEach((email) => clearBounces({ variables: { email } }));
+    recordAdminSecurityEvent({
+      variables: { uid: uid, name: 'emails.clearBounces' },
+    });
     onCleared();
   };
 
@@ -345,6 +358,7 @@ export const Account = ({
           <>
             <ClearButton
               {...{
+                uid,
                 emails: emails!.map((emails) => emails.email),
                 onCleared,
               }}

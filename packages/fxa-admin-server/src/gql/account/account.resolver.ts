@@ -69,6 +69,10 @@ export class AccountResolver {
     ) as AppConfig['clientFormatter'];
   }
 
+  private get ipHmacKey() {
+    return this.configService.get('ipHmacKey') as AppConfig['ipHmacKey'];
+  }
+
   constructor(
     private log: MozLoggerService,
     private db: DatabaseService,
@@ -151,6 +155,22 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
+  @Mutation((returns) => Boolean)
+  public async recordAdminSecurityEvent(
+    @Args('uid') uid: string,
+    @Args('name') name: string
+  ) {
+    // the ipAddr and ipHmacKey values here are required, but also have no bearing on this type of record.
+    // the securityEvents table is being repurposed to store a broader variety of events, hence the dummy values.
+    const result = await this.db.securityEvents.create({
+      uid,
+      name: 'emails.clearBounces',
+      ipAddr: '',
+      ipHmacKey: this.ipHmacKey,
+    });
+    return !!result;
+  }
+
   @ResolveField()
   public async emailBounces(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
