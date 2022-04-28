@@ -17,7 +17,8 @@ describe('Security', () => {
       },
       emails: [],
       displayName: 'Jody',
-      passwordCreated: 0,
+      passwordCreated: 123456789,
+      hasPassword: true,
       recoveryKey: false,
       totp: { exists: false },
     } as unknown as Account;
@@ -54,5 +55,62 @@ describe('Security', () => {
 
     const result = await screen.findAllByText('Enabled');
     expect(result).toHaveLength(2);
+  });
+
+  describe('Password row', () => {
+    it('renders as expected when account has a password', async () => {
+      const account = {
+        recoveryKey: false,
+        totp: { exists: false },
+        primaryEmail: {
+          email: 'jody@mozilla.com',
+        },
+        passwordCreated: 1234567890,
+        hasPassword: true,
+      } as unknown as Account;
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <Security />
+        </AppContext.Provider>
+      );
+      const passwordRouteLink = screen.getByTestId('password-unit-row-route');
+
+      await screen.findByText('••••••••••••••••••');
+      await screen.findByText('Created 1/15/1970');
+
+      expect(passwordRouteLink).toHaveTextContent('Change');
+      expect(passwordRouteLink).toHaveAttribute(
+        'href',
+        '/settings/change_password'
+      );
+    });
+
+    it('renders as expected when account does not have a password', async () => {
+      const account = {
+        recoveryKey: false,
+        totp: { exists: false },
+        primaryEmail: {
+          email: 'jody@mozilla.com',
+        },
+        passwordCreated: 0,
+        hasPassword: false,
+      } as unknown as Account;
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <Security />
+        </AppContext.Provider>
+      );
+
+      const passwordRouteLink = screen.getByTestId('password-unit-row-route');
+
+      await screen.findByText('Set a password', { exact: false });
+      expect(await screen.findAllByText('Not Set')).toHaveLength(3);
+
+      expect(passwordRouteLink).toHaveTextContent('Create');
+      expect(passwordRouteLink).toHaveAttribute(
+        'href',
+        '/settings/create_password'
+      );
+    });
   });
 });

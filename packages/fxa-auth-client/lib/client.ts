@@ -820,14 +820,11 @@ export default class AuthClient {
   }
 
   async createPassword(
-   sessionToken: string,
-   email: string,
-   newPassword: string
-  ): Promise<any> {
-    const newCredentials = await crypto.getCredentials(
-     email,
-     newPassword
-    );
+    sessionToken: string,
+    email: string,
+    newPassword: string
+  ): Promise<number> {
+    const newCredentials = await crypto.getCredentials(email, newPassword);
 
     const payload = {
       authPW: newCredentials.authPW,

@@ -293,6 +293,16 @@ describe('App component', () => {
     expect(history.location.pathname).toBe('/settings/avatar');
   });
 
+  it('redirects to CreatePassword', async () => {
+    const {
+      history,
+      history: { navigate },
+    } = renderWithRouter(<App {...appProps} />, { route: HomePath });
+
+    await navigate(HomePath + '/create_password');
+    expect(history.location.pathname).toBe('/settings/change_password');
+  });
+
   describe('prevents access to certain routes when account has no password', () => {
     let history: History;
 
@@ -306,7 +316,7 @@ describe('App component', () => {
         metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
       } as Config;
 
-      ({ history } = await renderWithRouter(
+      ({ history } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account, config })}>
           <App {...appProps} />
         </AppContext.Provider>,
@@ -329,6 +339,11 @@ describe('App component', () => {
         HomePath + '/two_step_authentication/replace_codes'
       );
       expect(history.location.pathname).toBe('/settings');
+    });
+
+    it('redirects ChangePassword', async () => {
+      await history.navigate(HomePath + '/change_password');
+      expect(history.location.pathname).toBe('/settings/create_password');
     });
   });
 });

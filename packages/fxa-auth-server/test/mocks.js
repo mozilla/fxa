@@ -559,6 +559,9 @@ function mockDB(data, errors) {
     updateRecoveryCodes: sinon.spy(() => {
       return Promise.resolve({ succes: true });
     }),
+    createPassword: sinon.spy(() => {
+      return Promise.resolve(1584397692000);
+    }),
   });
 }
 

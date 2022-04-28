@@ -652,7 +652,7 @@ describe('/password', () => {
       mockDB = mocks.mockDB({
         uid,
         email: TEST_EMAIL,
-        verifierSetAt: 0
+        verifierSetAt: 0,
       });
       mockMailer = mocks.mockMailer();
       const mockLog = mocks.mockLog();
@@ -666,7 +666,7 @@ describe('/password', () => {
         log: mockLog,
         credentials: {
           email: TEST_EMAIL,
-          uid
+          uid,
         },
         payload: {
           authPW,
@@ -675,28 +675,32 @@ describe('/password', () => {
     });
 
     it('should create password', async () => {
-      const res = await runRoute(passwordRoutes, '/password/create', mockRequest);
+      const res = await runRoute(
+        passwordRoutes,
+        '/password/create',
+        mockRequest
+      );
       assert.equal(mockDB.account.callCount, 1);
       assert.equal(mockDB.createPassword.callCount, 1);
-      assert.deepEqual(res, {});
+      assert.deepEqual(res, 1584397692000);
     });
 
     it('should fail if password already created', async () => {
       mockDB = mocks.mockDB({
         uid,
         email: TEST_EMAIL,
-        verifierSetAt: Date.now()
+        verifierSetAt: Date.now(),
       });
       passwordRoutes = makeRoutes({
         db: mockDB,
         mailer: mockMailer,
       });
-      
+
       try {
         await runRoute(passwordRoutes, '/password/create', mockRequest);
         assert.fail('should not set password');
-      } catch(err) {
-        assert.equal(err.errno, 206, 'can not create password error')
+      } catch (err) {
+        assert.equal(err.errno, 206, 'can not create password error');
       }
     });
 
@@ -704,19 +708,19 @@ describe('/password', () => {
       mockDB.totpToken = sinon.spy(() => {
         return {
           verified: true,
-          enabled: true
-        }
-      })
+          enabled: true,
+        };
+      });
       passwordRoutes = makeRoutes({
         db: mockDB,
         mailer: mockMailer,
       });
-      mockRequest.auth.credentials.authenticatorAssuranceLevel = 1
+      mockRequest.auth.credentials.authenticatorAssuranceLevel = 1;
       try {
         await runRoute(passwordRoutes, '/password/create', mockRequest);
         assert.fail('should not set password');
-      } catch(err) {
-        assert.equal(err.errno, 138, 'unverified session error')
+      } catch (err) {
+        assert.equal(err.errno, 138, 'unverified session error');
       }
     });
 
@@ -724,18 +728,22 @@ describe('/password', () => {
       mockDB.totpToken = sinon.spy(() => {
         return {
           verified: true,
-          enabled: true
-        }
-      })
+          enabled: true,
+        };
+      });
       passwordRoutes = makeRoutes({
         db: mockDB,
         mailer: mockMailer,
       });
       mockRequest.auth.credentials.authenticatorAssuranceLevel = 2;
-      const res = await runRoute(passwordRoutes, '/password/create', mockRequest);
+      const res = await runRoute(
+        passwordRoutes,
+        '/password/create',
+        mockRequest
+      );
       assert.equal(mockDB.account.callCount, 1);
       assert.equal(mockDB.createPassword.callCount, 1);
-      assert.deepEqual(res, {});
+      assert.deepEqual(res, 1584397692000);
     });
   });
 });

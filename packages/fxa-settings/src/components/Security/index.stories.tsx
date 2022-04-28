@@ -3,32 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { Security } from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
+import { Account } from '../../models/Account';
+import { Meta } from '@storybook/react';
 
-storiesOf('Components/Security', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account: { recoveryKey: false, totp: { exists: false } } as any,
-      })}
-    >
-      <Security />
-    </AppContext.Provider>
-  ))
-  .add('account recovery key set and two factor enabled', () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account: {
-          recoveryKey: true,
-          totp: { verified: true, exists: true },
-        } as any,
-      })}
-    >
-      <Security />
-    </AppContext.Provider>
-  ));
+export default {
+  title: 'components/Security',
+  component: Security,
+} as Meta;
+
+const storyWithAccount = (account: Partial<Account>, storyName?: string) => {
+  const story = () => (
+    <LocationProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: account as Account })}
+      >
+        <Security />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const Default = storyWithAccount({
+  recoveryKey: false,
+  totp: { exists: false, verified: false },
+  hasPassword: true,
+  passwordCreated: 1651860173938,
+});
+
+export const SecurityFeaturesEnabled = storyWithAccount(
+  {
+    recoveryKey: true,
+    totp: { verified: true, exists: true },
+    hasPassword: true,
+    passwordCreated: 1651860173938,
+  },
+  'Account recovery key set and two factor enabled'
+);
+
+export const NoPassword = storyWithAccount(
+  {
+    recoveryKey: false,
+    totp: { verified: false, exists: false },
+    hasPassword: false,
+  },
+  'Third party auth, no password set'
+);
