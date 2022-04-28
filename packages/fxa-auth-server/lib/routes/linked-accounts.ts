@@ -15,8 +15,7 @@ import {
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
 
-const THIRD_PARTY_AUTH_DOCS =
-  require('../../docs/swagger/third-party-auth-api').default;
+import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
