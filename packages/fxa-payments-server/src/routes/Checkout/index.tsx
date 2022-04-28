@@ -185,7 +185,6 @@ export const Checkout = ({
             setSubscriptionError({ type: 'card_error', code: 'card_declined' });
           },
         });
-        Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
         if (subscribeToNewsletter) {
           await handleNewsletterSignup();
         }
