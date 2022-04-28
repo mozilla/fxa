@@ -47,14 +47,19 @@ const mockApiResult = {
 const { PurchaseManager } = proxyquire(
   '../../../../../lib/payments/iap/apple-app-store/purchase-manager',
   {
-    './subscription-purchase': {
-      SubscriptionPurchase: mockSubscriptionPurchase,
-      mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
-    },
-    'app-store-server-api': {
-      decodeRenewalInfo: mockDecodeRenewalInfo,
-      decodeTransaction: mockDecodeTransactionInfo,
-    },
+    'fxa-shared/payments/iap/apple-app-store/purchase-manager': proxyquire(
+      'fxa-shared/payments/iap/apple-app-store/purchase-manager',
+      {
+        './subscription-purchase': {
+          SubscriptionPurchase: mockSubscriptionPurchase,
+          mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
+        },
+        'app-store-server-api': {
+          decodeRenewalInfo: mockDecodeRenewalInfo,
+          decodeTransaction: mockDecodeTransactionInfo,
+        },
+      }
+    ),
   }
 );
 
@@ -67,10 +72,15 @@ const { PurchaseManager } = proxyquire(
 const { PurchaseManager: UnmockedPurchaseManager } = proxyquire(
   '../../../../../lib/payments/iap/apple-app-store/purchase-manager',
   {
-    'app-store-server-api': {
-      decodeRenewalInfo: mockDecodeRenewalInfo,
-      decodeTransaction: mockDecodeTransactionInfo,
-    },
+    'fxa-shared/payments/iap/apple-app-store/purchase-manager': proxyquire(
+      'fxa-shared/payments/iap/apple-app-store/purchase-manager',
+      {
+        'app-store-server-api': {
+          decodeRenewalInfo: mockDecodeRenewalInfo,
+          decodeTransaction: mockDecodeTransactionInfo,
+        },
+      }
+    ),
   }
 );
 

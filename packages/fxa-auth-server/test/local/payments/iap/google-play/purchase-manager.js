@@ -25,8 +25,16 @@ const { PurchaseManager } = proxyquire(
   {
     './subscription-purchase': {
       SubscriptionPurchase: mockSubscriptionPurchase,
-      mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
     },
+    'fxa-shared/payments/iap/google-play/purchase-manager': proxyquire(
+      'fxa-shared/payments/iap/google-play/purchase-manager',
+      {
+        './subscription-purchase': {
+          SubscriptionPurchase: mockSubscriptionPurchase,
+          mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
+        },
+      }
+    ),
   }
 );
 

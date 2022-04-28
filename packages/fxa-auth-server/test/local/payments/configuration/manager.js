@@ -20,12 +20,18 @@ const {
   AppConfig,
 } = require('../../../../lib/types');
 const mergeConfigsStub = sandbox.stub();
+
 const { PaymentConfigManager } = proxyquire(
   '../../../../lib/payments/configuration/manager',
   {
-    'fxa-shared/subscriptions/configuration/utils': {
-      mergeConfigs: mergeConfigsStub,
-    },
+    'fxa-shared/payments/configuration/manager': proxyquire(
+      'fxa-shared/payments/configuration/manager',
+      {
+        '../../subscriptions/configuration/utils': {
+          mergeConfigs: mergeConfigsStub,
+        },
+      }
+    ),
   }
 );
 const { setupFirestore } = require('../../../../lib/firestore-db');

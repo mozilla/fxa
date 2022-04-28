@@ -25,23 +25,22 @@ import {
   GOOGLE_PLAY_FORM_OF_PAYMENT,
   SubscriptionPurchase,
 } from './subscription-purchase';
-import { PurchaseQueryError } from './types/errors';
-import { SkuType } from './types/purchases';
+import { PurchaseQueryError, SkuType } from './types';
+import { UserManager as UserManagerBase } from 'fxa-shared/payments/iap/google-play/user-manager';
 
 /*
  * A class that allows looking up purchases registered to a particular user
  */
-export class UserManager {
-  private log: AuthLogger;
+export class UserManager extends UserManagerBase {
   /*
    * This class is intended to be initialized by the library.
    * Library consumer should not initialize this class themselves.
    */
   constructor(
-    private purchasesDbRef: CollectionReference,
-    private purchaseManager: PurchaseManager
+    purchasesDbRef: CollectionReference,
+    purchaseManager: PurchaseManager
   ) {
-    this.log = Container.get(AuthLogger);
+    super(purchasesDbRef, purchaseManager, Container.get(AuthLogger));
   }
 
   /*
@@ -56,6 +55,7 @@ export class UserManager {
     const purchaseList = new Array<SubscriptionPurchase>();
 
     try {
+      // Create query to fetch possibly active subscriptions from Firestore
       // Create query to fetch possibly active subscriptions from Firestore
       let query = this.purchasesDbRef
         .where('formOfPayment', '==', GOOGLE_PLAY_FORM_OF_PAYMENT)
