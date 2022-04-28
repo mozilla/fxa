@@ -12,8 +12,7 @@ import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
 
-const SUBSCRIPTIONS_DOCS =
-  require('../../docs/swagger/subscriptions-api').default;
+import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 
 export const supportPanelRoutes = ({
   log,

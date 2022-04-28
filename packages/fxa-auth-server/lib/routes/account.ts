@@ -32,9 +32,9 @@ import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { deleteAccountIfUnverified } from './utils/account';
 
-const ACCOUNT_DOCS = require('../../docs/swagger/account-api').default;
-const MISC_DOCS = require('../../docs/swagger/misc-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import ACCOUNT_DOCS from '../../docs/swagger/account-api';
+import MISC_DOCS from '../../docs/swagger/misc-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
