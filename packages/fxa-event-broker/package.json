@@ -93,7 +93,7 @@
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.26.0",
     "factory-bot-ts": "^0.1.5",
     "jest": "27.5.1",
     "nock": "^13.2.2",
