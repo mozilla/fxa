@@ -2584,14 +2584,20 @@ export class StripeHelper {
       total: invoiceTotalInCents,
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
-      lines: {
-        data: [
-          {
-            period: { end: nextInvoiceDate },
-          },
-        ],
-      },
+      lines: { data: invoiceLines },
     } = invoice;
+
+    const nextInvoiceDate = invoiceLines.find(
+      (line) => line.type === 'subscription'
+    )?.period.end;
+
+    if (!nextInvoiceDate) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        'Could not find next invoice date for subscription.'
+      );
+    }
 
     const invoiceDiscountAmountInCents =
       (invoice.total_discount_amounts &&
