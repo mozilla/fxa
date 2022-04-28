@@ -32,9 +32,7 @@ import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 import { deleteAccountIfUnverified } from '../utils/account';
-
-const SUBSCRIPTIONS_DOCS =
-  require('../../../docs/swagger/subscriptions-api').default;
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 

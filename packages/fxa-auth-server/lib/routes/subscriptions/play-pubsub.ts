@@ -11,9 +11,7 @@ import { PlayBilling } from '../../payments/iap/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/iap/google-play/types';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
-
-const SUBSCRIPTIONS_DOCS =
-  require('../../../docs/swagger/subscriptions-api').default;
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export class PlayPubsubHandler {
   private log: AuthLogger;
