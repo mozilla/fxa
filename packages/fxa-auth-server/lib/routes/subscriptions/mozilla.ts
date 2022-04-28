@@ -10,9 +10,7 @@ import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
-
-const SUBSCRIPTIONS_DOCS =
-  require('../../../docs/swagger/subscriptions-api').default;
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export const mozillaSubscriptionRoutes = ({
   log,

@@ -36,9 +36,7 @@ import validators from '../validators';
 import { handleAuth } from './utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
-
-const SUBSCRIPTIONS_DOCS =
-  require('../../../docs/swagger/subscriptions-api').default;
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
