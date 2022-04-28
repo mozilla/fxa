@@ -101,7 +101,7 @@
     "db-migrations": "workspace:*",
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
-    "graphql": "^15.6.1",
+    "graphql": "^16.4.0",
     "hot-shots": "^9.0.0",
     "ioredis": "^4.28.2",
     "ip": "^1.1.5",

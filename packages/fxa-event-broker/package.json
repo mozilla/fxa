@@ -58,7 +58,7 @@
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
     "google-auth-library": "^7.11.0",
-    "graphql": "^15.6.1",
+    "graphql": "^16.4.0",
     "hot-shots": "^9.0.0",
     "jwks-rsa": "^2.0.5",
     "mozlog": "^3.0.2",
