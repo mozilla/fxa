@@ -23,6 +23,16 @@ const firestoreObject = {
   urls: { download: 'gopher://example.gg' },
 };
 
+const localesObject = {
+  support: {},
+  uiContent: {},
+  urls: { webIcon: 'https://web-icon.com' },
+};
+
+const validSchemaValidation = {
+  cdnUrlRegex: '^https://',
+};
+
 describe('PlanConfig', () => {
   it('loads an object from firestore', () => {
     const planConfig = PlanConfig.fromFirestoreObject(
@@ -39,7 +49,32 @@ describe('PlanConfig', () => {
   });
 
   it('validates a valid planConfig', async () => {
-    const result = await PlanConfig.validate(firestoreObject);
+    const result = await PlanConfig.validate(
+      firestoreObject,
+      validSchemaValidation
+    );
+    assert.isDefined(result.value);
+    assert.isUndefined(result.error);
+  });
+
+  it('validates a valid URL regex in planConfig', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.urls.webIcon = 'https://web-icon.com';
+    const result = await PlanConfig.validate(
+      firestoreObject,
+      validSchemaValidation
+    );
+    assert.isDefined(result.value);
+    assert.isUndefined(result.error);
+  });
+
+  it('validates a valid URL regex in planConfig.locales', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.locales = localesObject;
+    const result = await PlanConfig.validate(
+      firestoreObject,
+      validSchemaValidation
+    );
     assert.isDefined(result.value);
     assert.isUndefined(result.error);
   });
@@ -47,7 +82,27 @@ describe('PlanConfig', () => {
   it('validates with error on an invalid planConfig', async () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
     delete obj.active;
-    const result = await PlanConfig.validate(obj);
+    const result = await PlanConfig.validate(obj, validSchemaValidation);
+    assert.isDefined(result.error);
+    assert.isUndefined(result.value);
+  });
+
+  it('validates with error on an invalid URL regex in planConfig', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.urls.webIcon = 'https://web-icon.com';
+    const result = await PlanConfig.validate(obj, {
+      cdnUrlRegex: 'invalidpattern',
+    });
+    assert.isDefined(result.error);
+    assert.isUndefined(result.value);
+  });
+
+  it('validates with error on an invalid URL regex in planConfig.locales', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.locales = localesObject;
+    const result = await PlanConfig.validate(obj, {
+      cdnUrlRegex: 'invalidpattern',
+    });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
   });

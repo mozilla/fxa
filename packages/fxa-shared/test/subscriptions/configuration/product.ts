@@ -28,6 +28,18 @@ const firestoreObject = {
   },
 };
 
+const localesObject = {
+  en: {
+    support: {},
+    uiContent: {},
+    urls: { webIcon: 'https://web-icon.com' },
+  },
+};
+
+const validSchemaValidation = {
+  cdnUrlRegex: '^https://',
+};
+
 describe('ProductConfig', () => {
   it('loads an object from firestore', () => {
     const prodConfig = ProductConfig.fromFirestoreObject(
@@ -44,7 +56,18 @@ describe('ProductConfig', () => {
   });
 
   it('validates a valid productConfig', async () => {
-    const result = await ProductConfig.validate(firestoreObject);
+    const result = await ProductConfig.validate(
+      firestoreObject,
+      validSchemaValidation
+    );
+    assert.isDefined(result.value);
+    assert.isUndefined(result.error);
+  });
+
+  it('validates a valid URL Regex in productConfig.locales', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.locales = localesObject;
+    const result = await ProductConfig.validate(obj, validSchemaValidation);
     assert.isDefined(result.value);
     assert.isUndefined(result.error);
   });
@@ -52,7 +75,25 @@ describe('ProductConfig', () => {
   it('validates with error on an invalid productConfig', async () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
     delete obj.urls.download;
-    const result = await ProductConfig.validate(obj);
+    const result = await ProductConfig.validate(obj, validSchemaValidation);
+    assert.isDefined(result.error);
+    assert.isUndefined(result.value);
+  });
+
+  it('validates with error on an invalid URL Regex in productConfig', async () => {
+    const result = await ProductConfig.validate(firestoreObject, {
+      cdnUrlRegex: 'invalidpattern',
+    });
+    assert.isDefined(result.error);
+    assert.isUndefined(result.value);
+  });
+
+  it('validates with error on an invalid URL Regex in productConfig.locales', async () => {
+    const obj = JSON.parse(JSON.stringify(firestoreObject));
+    obj.locales = localesObject;
+    const result = await ProductConfig.validate(obj, {
+      cdnUrlRegex: 'invalidpattern',
+    });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
   });

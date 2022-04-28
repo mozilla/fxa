@@ -12,12 +12,14 @@ import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
 import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
 import { mergeConfigs } from 'fxa-shared/subscriptions/configuration/utils';
+import { ConfigType } from '../../../config';
 
 export class PaymentConfigManager {
   private firestore: Firestore;
   private productConfigDbRef: TypedCollectionReference<ProductConfig>;
   private planConfigDbRef: TypedCollectionReference<PlanConfig>;
   private log: Logger;
+  private config: ConfigType;
   private prefix: string;
   private cancelProductListener: (() => void) | undefined;
   private cancelPlanListener: (() => void) | undefined;
@@ -28,8 +30,8 @@ export class PaymentConfigManager {
   private hasLoaded: boolean = false;
 
   constructor() {
-    const config = Container.get(AppConfig);
-    this.prefix = `${config.authFirestore.prefix}payment-config-`;
+    this.config = Container.get(AppConfig);
+    this.prefix = `${this.config.authFirestore.prefix}payment-config-`;
     this.firestore = Container.get(AuthFirestore);
     this.log = Container.get(AuthLogger) as any as Logger;
     this.productConfigDbRef = this.firestore.collection(
@@ -152,7 +154,10 @@ export class PaymentConfigManager {
     productConfig: any,
     productConfigId?: string | null
   ) {
-    const { error } = await ProductConfig.validate(productConfig);
+    const { error } = await ProductConfig.validate(
+      productConfig,
+      this.config.subscriptions.productConfigsFirestore.schemaValidation
+    );
     if (error) {
       throw errors.internalValidationError(
         'storeProductConfig',
@@ -180,7 +185,10 @@ export class PaymentConfigManager {
     productConfigId: string,
     planConfigId?: string | null
   ) {
-    const { error } = await PlanConfig.validate(planConfig);
+    const { error } = await PlanConfig.validate(
+      planConfig,
+      this.config.subscriptions.productConfigsFirestore.schemaValidation
+    );
     if (error) {
       throw errors.internalValidationError(
         'storePlanConfig',

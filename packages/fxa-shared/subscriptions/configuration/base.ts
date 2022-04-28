@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from '@hapi/joi';
+import joi from 'joi';
 
 export type CapabilityConfig = {
   [key: string]: string[];
@@ -80,6 +80,13 @@ const supportSchema = joi.object({
   app: joi.array().items(joi.string()),
 });
 
+const localesPatternValue = (urlsSchema: joi.ObjectSchema) =>
+  joi.object({
+    uiContent: uiContentSchema,
+    urls: urlsSchema,
+    support: supportSchema,
+  });
+
 /**
  * Base config class that has common components both Products and Plans
  * can extend from.
@@ -101,20 +108,19 @@ export interface BaseConfig {
   promotionCodes?: string[];
 }
 
+export interface ProductConfigSchemaValidation {
+  cdnUrlRegex: string;
+}
+
 export const minimalConfigSchema = joi.object({
   id: joi.string().optional().allow(null).allow(''),
   productSet: joi.string().optional().allow(null).allow(''),
   urls: urlsSchema,
   uiContent: uiContentSchema,
   styles: stylesSchema,
-  locales: joi.object({}).pattern(
-    joi.string(),
-    joi.object({
-      uiContent: uiContentSchema,
-      urls: urlsSchema,
-      support: supportSchema,
-    })
-  ),
+  locales: joi
+    .object({})
+    .pattern(joi.string(), localesPatternValue(urlsSchema)),
   support: supportSchema,
 });
 
@@ -125,3 +131,23 @@ export const baseConfigSchema = minimalConfigSchema
     capabilities: capabilitySchema,
   })
   .required();
+
+export function extendBaseConfigSchema(
+  baseConfigSchema: joi.ObjectSchema,
+  cdnUrl: string
+): joi.ObjectSchema {
+  const pattern: RegExp = new RegExp(`${cdnUrl}`);
+
+  const updatedUrls = urlsSchema.keys({
+    webIcon: joi.string().uri().regex(pattern),
+    termsOfServiceDownload: joi.string().uri().regex(pattern),
+    privacyNoticeDownload: joi.string().uri().regex(pattern),
+  });
+
+  return baseConfigSchema.keys({
+    urls: updatedUrls,
+    locales: joi
+      .object({})
+      .pattern(joi.string(), localesPatternValue(updatedUrls)),
+  });
+}

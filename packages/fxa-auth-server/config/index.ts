@@ -843,6 +843,14 @@ const conf = convict({
         env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
         format: Boolean,
       },
+      schemaValidation: {
+        cdnUrlRegex: {
+          default: '^https://accounts-static.cdn.mozilla.net',
+          doc: 'CDN URL Regex',
+          env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_CDN_URL_REGEX',
+          format: String,
+        },
+      },
     },
     sharedSecret: {
       doc: 'Shared secret for authentication between backend subscription services',
