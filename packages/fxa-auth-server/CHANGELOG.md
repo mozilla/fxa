@@ -1,3 +1,13 @@
+## 1.231.3
+
+### Bug fixes
+
+- swagger: import for .ts files, require for .js files ([2dfd4b9fee](https://github.com/mozilla/fxa/commit/2dfd4b9fee))
+
+### Other changes
+
+- 1df877595c import for .ts files ([1df877595c](https://github.com/mozilla/fxa/commit/1df877595c))
+
 ## 1.231.2
 
 No changes.
