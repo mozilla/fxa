@@ -161,6 +161,30 @@ describe('AccountResolver', () => {
     expect(logger.info).toBeCalledTimes(1);
   });
 
+  it('disables an account by uid', async () => {
+    const success = (await resolver.disableAccount(USER_1.uid)) as Boolean;
+    expect(success).toBeTruthy();
+    const updatedResult = (await resolver.accountByUid(
+      USER_1.uid,
+      'joe'
+    )) as Account;
+    expect(updatedResult).toBeDefined();
+    expect(updatedResult.disabledAt).not.toBeNull();
+    expect(logger.info).toBeCalledTimes(1);
+  });
+
+  it('enables an account by uid', async () => {
+    const success = (await resolver.enableAccount(USER_1.uid)) as Boolean;
+    expect(success).toBeTruthy();
+    const updatedResult = (await resolver.accountByUid(
+      USER_1.uid,
+      'joe'
+    )) as Account;
+    expect(updatedResult).toBeDefined();
+    expect(updatedResult.disabledAt).toBeNull();
+    expect(logger.info).toBeCalledTimes(1);
+  });
+
   it('does not locate non-existent users by uid', async () => {
     const result = await resolver.accountByUid(USER_2.uid, 'joe');
     expect(result).toBeUndefined();
