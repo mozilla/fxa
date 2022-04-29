@@ -125,17 +125,22 @@ export const AccountSearch = () => {
     useLazyQuery(GET_EMAILS_LIKE);
 
   const handleSubmit = (event: React.FormEvent) => {
+    const trimmedSearchInput = searchInput.trim();
     event.preventDefault();
-    const isUID = validateUID(searchInput);
+    const isUID = validateUID(trimmedSearchInput);
     // choose correct query if email or uid
     if (isUID) {
       // uid and non-empty
-      getAccountbyUID({ variables: { uid: searchInput } });
+      getAccountbyUID({ variables: { uid: trimmedSearchInput } });
       setIsEmail(false);
       setShowResult(true);
-    } else if (!isUID && searchInput.search('@') !== -1 && searchInput !== '') {
+    } else if (
+      !isUID &&
+      trimmedSearchInput.search('@') !== -1 &&
+      trimmedSearchInput !== ''
+    ) {
       // assume email if not uid and non-empty; must at least have '@'
-      getAccountbyEmail({ variables: { email: searchInput } });
+      getAccountbyEmail({ variables: { email: trimmedSearchInput } });
       setIsEmail(true);
       setShowResult(true);
     }
@@ -153,14 +158,12 @@ export const AccountSearch = () => {
   }
 
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-
-    setSearchInput(value);
+    const value = event.target.value.trim();
 
     if (value.length < 5) {
       setShowSuggestion(false);
     } else if (value.length >= 5) {
-      getEmailLike({ variables: { search: value } });
+      getEmailLike({ variables: { search: value.trim() } });
       setShowSuggestion(true);
     }
   };
@@ -260,7 +263,7 @@ export const AccountSearch = () => {
             loading: queryResults.loading,
             error: queryResults.error,
             data: queryResults.data,
-            query: searchInput,
+            query: searchInput.trim(),
           }}
         />
       ) : null}
