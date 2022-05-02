@@ -21,7 +21,7 @@ export class IAPConfig {
     this.prefix = `${authFirestore.prefix}iap-`;
     this.firestore = Container.get(AuthFirestore);
     this.iapConfigDbRef = this.firestore.collection(
-      `${this.prefix}iap-config`
+      `${this.prefix}config`
     ) as TypedCollectionReference<IapConfig>;
   }
 
