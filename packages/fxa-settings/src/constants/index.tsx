@@ -5,5 +5,3 @@
 export const ROOTPATH = '/';
 export const HomePath = '/settings';
 export const DeleteAccountPath = '/settings/delete_account';
-export const VPNLink = 'https://vpn.mozilla.org/';
-export const MonitorLink = 'https://monitor.firefox.com/';
