@@ -150,7 +150,7 @@
     "normalize.css": "8.0.1",
     "on-headers": "^1.0.2",
     "photon-colors": "1.0.3",
-    "react": "^16.12.0",
+    "react": "^18.1.0",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.12.0",
     "react-redux": "^7.2.8",
