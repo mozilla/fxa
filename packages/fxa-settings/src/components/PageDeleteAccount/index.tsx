@@ -9,7 +9,7 @@ import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { HomePath, MonitorLink, ROOTPATH, VPNLink } from '../../constants';
+import { HomePath, ROOTPATH } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
@@ -21,7 +21,7 @@ type FormData = {
 };
 
 const checkboxLabels = [
-  'delete-account-chk-box-1-v2',
+  'delete-account-chk-box-1-v3',
   'delete-account-chk-box-2',
   'delete-account-chk-box-3',
   'delete-account-chk-box-4',
@@ -115,25 +115,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
             <Localized id="delete-account-confirm-title-2">
               <p className="mb-4">
                 You've connected your Firefox account to Mozilla products that
-                keep you secure and productive on the web:
+                keep you secure and productive on the web.
               </p>
             </Localized>
-            <div className="p-2">
-              <ul className="list-inside mb-4">
-                <li className="list-disc">
-                  <a className="link-blue" href={VPNLink}>
-                    <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
-                  </a>
-                </li>
-                <li className="list-disc">
-                  <a className="link-blue" href={MonitorLink}>
-                    <Localized id="product-firefox-monitor">
-                      Firefox Monitor
-                    </Localized>
-                  </a>
-                </li>
-              </ul>
-            </div>
             <Localized id="delete-account-acknowledge">
               <p className="mb-4">
                 Please acknowledge that by deleting your account:
