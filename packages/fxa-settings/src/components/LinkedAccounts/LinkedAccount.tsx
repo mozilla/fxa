@@ -39,7 +39,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             {providerId === 1 && <GoogleIcon role="img" aria-label="Google" />}
             {providerId === 2 && <AppleIcon role="img" aria-label="Apple" />}
           </span>
-          <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
+          <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row justify-center">
             <div className="flex flex-col mobileLandscape:flex-2">
               <p className="text-xs break-word" data-testid="provider-name">
                 {providerId === 1 && 'Google'}
