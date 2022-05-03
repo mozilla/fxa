@@ -4,6 +4,7 @@
 
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserGroupGuard } from './user-group-header.guard';
 import {
@@ -11,12 +12,15 @@ import {
   AdminPanelFeature,
   AdminPanelGroup,
 } from 'fxa-shared/guards';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+
 import { createMock } from '@golevelup/ts-jest';
 
 describe('UserGroupGuard for graphql', () => {
   let module: TestingModule;
   let guard: UserGroupGuard;
   let reflector: Reflector;
+  let logger: any;
 
   function buildRequest(group?: AdminPanelGroup) {
     const headers: Record<string, AdminPanelGroup | undefined> = {
@@ -44,9 +48,16 @@ describe('UserGroupGuard for graphql', () => {
   }
 
   beforeEach(async () => {
+    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    const MockMozLogger: Provider = {
+      provide: MozLoggerService,
+      useValue: logger,
+    };
+
     module = await Test.createTestingModule({
       providers: [
         Reflector,
+        MockMozLogger,
         {
           provide: UserGroupGuard,
           useClass: UserGroupGuard,
