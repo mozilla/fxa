@@ -86,15 +86,15 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             </h2>
           </Localized>
 
-          <Localized id="la-unlink-content-2">
+          <Localized id="la-unlink-content-3">
             <p
               id="linked-accounts-unlink-description"
               className="my-4 text-center"
             >
               Are you sure you want to unlink your account? Unlinking your
-              account does not automatically sign you out of those services. To
-              do that you will need to manually sign out from the Connected
-              services section.
+              account does not automatically sign you out of your Connected
+              Services. To do that, you will need to manually sign out from the
+              Connected Services section.
             </p>
           </Localized>
         </Modal>
