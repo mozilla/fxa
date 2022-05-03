@@ -94,9 +94,9 @@ export class EmailClient {
       const mail = (await got(
         `${this.host}/mail/${toUsername(emailAddress)}`
       ).json()) as any[];
-      const msg = mail.find(
-        (m) => m.headers[EmailHeader.templateName] === EmailType[type]
-      );
+      const msg = mail
+        .reverse()
+        .find((m) => m.headers[EmailHeader.templateName] === EmailType[type]);
       if (msg) {
         return header ? msg.headers[header] : msg;
       }

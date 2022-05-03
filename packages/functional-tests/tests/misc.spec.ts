@@ -33,6 +33,41 @@ test.describe('severity-1', () => {
     expect(page.url()).toBe(settings.url);
   });
 
+  /**
+   * Important! Initial email address is based on test name. This test needs to operate such that
+   * both primary and secondary emails are of types that receive unblock codes. Therefore,
+   * be aware that this test title matters. Essentially, the title must start with 'blocked' to
+   * work as intended effectively.
+   */
+  test('blocked change twice', async ({
+    credentials,
+    pages: { page, login, settings, secondaryEmail },
+  }) => {
+    await settings.goto();
+
+    // add blocked secondary email address (#1, #2)
+    let currentEmail = credentials.email.replace(
+      '@restmail.net',
+      '+2@restmail.net'
+    );
+    await settings.secondaryEmail.clickAdd();
+    await secondaryEmail.addAndVerify(currentEmail);
+    await settings.signOut();
+
+    // swap primary and secondary blocked emails
+    await login.login(credentials.email, credentials.password);
+    await login.unblock(credentials.email);
+    await settings.secondaryEmail.clickMakePrimary();
+    credentials.email = currentEmail;
+    await settings.signOut();
+
+    // Try logging in again
+    await login.login(credentials.email, credentials.password);
+    await new Promise((r) => setTimeout(r, 1000));
+    await login.unblock(credentials.email);
+    expect(page.url()).toBe(settings.url);
+  });
+
   test('prompt=consent', async ({
     credentials,
     pages: { page, relier, login },

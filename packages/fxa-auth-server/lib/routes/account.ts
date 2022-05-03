@@ -722,6 +722,12 @@ export class AccountHandler {
       }
     };
 
+    const clearUnblockCode = async () => {
+      if (didSigninUnblock) {
+        await this.signinUtils.clearUnblockCode(request, accountRecord);
+      }
+    };
+
     const checkTotpToken = async () => {
       // Check to see if the user has a TOTP token and it is verified and
       // enabled, if so then the verification method is automatically forced so that
@@ -997,6 +1003,7 @@ export class AccountHandler {
 
     await checkCustomsAndLoadAccount();
     await checkEmailAndPassword();
+    await clearUnblockCode();
     await checkSecurityHistory();
     await checkTotpToken();
     await createSessionToken();

@@ -834,10 +834,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  DB.prototype.consumeUnblockCode = async function (uid, code) {
+  DB.prototype.consumeUnblockCode = async function (uid, code, clearCode) {
     log.trace('DB.consumeUnblockCode', { uid });
     try {
-      return await Account.consumeUnblockCode(uid, code);
+      return await Account.consumeUnblockCode(uid, code, clearCode);
     } catch (err) {
       if (isNotFoundError(err)) {
         throw error.invalidUnblockCode();

@@ -12,7 +12,7 @@ export enum Proc {
   AccountDevices = 'accountDevices_16',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',
   ConsumeSigninCode = 'consumeSigninCode_4',
-  ConsumeUnblockCode = 'consumeUnblockCode_3',
+  ConsumeUnblockCode = 'consumeUnblockCode_4',
   CreateAccount = 'createAccount_9',
   CreateDevice = 'createDevice_5',
   CreateEmail = 'createEmail_2',

@@ -253,8 +253,12 @@ describe('checkCustomsAndLoadAccount', () => {
       payload: {},
     });
     request.emitMetricsEvent = sinon.spy(() => Promise.resolve());
-    checkCustomsAndLoadAccount = makeSigninUtils({ log, config, db, customs })
-      .checkCustomsAndLoadAccount;
+    checkCustomsAndLoadAccount = makeSigninUtils({
+      log,
+      config,
+      db,
+      customs,
+    }).checkCustomsAndLoadAccount;
   });
 
   it('should load the account record when customs allows the request', () => {
@@ -425,7 +429,7 @@ describe('checkCustomsAndLoadAccount', () => {
       assert.calledOnce(db.accountRecord);
 
       assert.calledOnce(db.consumeUnblockCode);
-      assert.calledWithExactly(db.consumeUnblockCode, TEST_UID, 'VALID'); // unblockCode got uppercased
+      assert.calledWithExactly(db.consumeUnblockCode, TEST_UID, 'VALID', false); // unblockCode got uppercased
 
       assert.calledTwice(request.emitMetricsEvent);
       assert.calledWithExactly(
@@ -694,8 +698,12 @@ describe('sendSigninNotifications', () => {
       otp: otpOptions,
     };
 
-    sendSigninNotifications = makeSigninUtils({ log, db, mailer, config })
-      .sendSigninNotifications;
+    sendSigninNotifications = makeSigninUtils({
+      log,
+      db,
+      mailer,
+      config,
+    }).sendSigninNotifications;
   });
 
   it('emits correct notifications when no verifications are required', () => {
@@ -1304,8 +1312,9 @@ describe('getSessionVerificationStatus', () => {
   let getSessionVerificationStatus;
 
   beforeEach(() => {
-    getSessionVerificationStatus = makeSigninUtils({})
-      .getSessionVerificationStatus;
+    getSessionVerificationStatus = makeSigninUtils(
+      {}
+    ).getSessionVerificationStatus;
   });
 
   it('correctly reports verified sessions as verified', () => {

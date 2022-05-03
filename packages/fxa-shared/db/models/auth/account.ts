@@ -275,18 +275,30 @@ export class Account extends BaseAuthModel {
     }
   }
 
-  static async consumeUnblockCode(uid: string, code: string) {
+  static async consumeUnblockCode(
+    uid: string,
+    code: string,
+    clearCode?: boolean
+  ) {
+    // Default clearCode to true if not provided.
+    if (clearCode == null) {
+      clearCode = true;
+    }
+
     const id = uuidTransformer.to(uid);
     try {
       const { rows } = await Account.callProcedure(
         Proc.ConsumeUnblockCode,
         id,
-        BaseAuthModel.sha256(Buffer.concat([id, Buffer.from(code, 'utf8')]))
+        BaseAuthModel.sha256(Buffer.concat([id, Buffer.from(code, 'utf8')])),
+        clearCode
       );
-      if (rows.length < 1 || !(rows[0] as any).createdAt) {
-        throw notFound();
+
+      if (rows && rows[0] && rows[0].createdAt > 0) {
+        return rows[0];
       }
-      return rows[0];
+
+      throw notFound();
     } catch (e: any) {
       throw convertError(e);
     }

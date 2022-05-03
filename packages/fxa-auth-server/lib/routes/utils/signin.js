@@ -139,7 +139,8 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
           try {
             const code = await db.consumeUnblockCode(
               accountRecord.uid,
-              unblockCode
+              unblockCode,
+              false
             );
             if (Date.now() - code.createdAt > unblockCodeLifetime) {
               log.info('Account.login.unblockCode.expired', {
@@ -194,6 +195,14 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
           throw originalError;
         }
         throw e;
+      }
+    },
+
+    /** Clears an unblock code from db for associated account. */
+    async clearUnblockCode(request, accountRecord) {
+      const unblockCode = request.payload.unblockCode?.toUpperCase();
+      if (unblockCode && accountRecord && accountRecord.uid) {
+        await db.consumeUnblockCode(accountRecord.uid, unblockCode, true);
       }
     },
 
