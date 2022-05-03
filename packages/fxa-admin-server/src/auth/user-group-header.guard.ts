@@ -7,10 +7,11 @@ import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { USER_GROUP_HEADER, guard, AdminPanelFeature } from 'fxa-shared/guards';
 import { FEATURE_KEY } from './user-group-header.decorator';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 @Injectable()
 export class UserGroupGuard implements CanActivate {
-  constructor(private reflector?: Reflector) {}
+  constructor(private reflector?: Reflector, private log?: MozLoggerService) {}
 
   canActivate(context: ExecutionContext): boolean {
     // Reflect on the end point to determine if it has been tagged with admin panel feature.
@@ -34,6 +35,7 @@ export class UserGroupGuard implements CanActivate {
           ?.getContext()
           ?.req?.get(USER_GROUP_HEADER) || '';
     }
+    this.log?.info('userGroupHeader', { userGroupHeader });
 
     const group = guard.getBestGroup(userGroupHeader);
     return features.some((x) => guard.allow(x, group));
