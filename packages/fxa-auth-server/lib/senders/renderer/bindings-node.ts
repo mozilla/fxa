@@ -36,7 +36,11 @@ export class NodeRendererBindings extends RendererBindings {
           // (#10018) Ignore mj-includes since we don't test template styles
           // This is going to cause issues
           ignoreIncludes: typeof global.it === 'function',
-          minify: true,
+          minifyOptions: {
+            collapseWhitespace: true,
+            minifyCSS: true,
+            removeEmptyAttributes: true,
+          },
         },
         translations: {
           basePath: join(__dirname, '../../../public/locales'),
