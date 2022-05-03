@@ -55,6 +55,10 @@ const View = FormView.extend({
   onSignInError(account, password, error) {
     if (AuthErrors.is(error, 'INCORRECT_PASSWORD')) {
       // The user must go enter the correct password this time.
+      if(account.get('originalLoginEmail')) {
+        account.set('email', account.get('originalLoginEmail'))
+        account.unset('originalLoginEmail');
+      }
       this.navigate(this._getAuthPage(), {
         account: this.getAccount(),
         email: account.get('email'),
