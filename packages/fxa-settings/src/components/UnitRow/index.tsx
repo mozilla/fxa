@@ -162,7 +162,7 @@ export const UnitRow = ({
             <Link
               className={classNames(
                 'cta-neutral cta-base transition-standard rtl:ml-1',
-                isLevelWithRefreshButton && 'mr-9'
+                isLevelWithRefreshButton && 'mobileLandscape:mr-9'
               )}
               data-testid={formatDataTestId('unit-row-route')}
               to={`${route}${location.search}`}
