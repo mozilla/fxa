@@ -86,7 +86,7 @@
     "fxa-geodb": "workspace:*",
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
-    "google-auth-library": "^7.11.0",
+    "google-auth-library": "^8.0.2",
     "googleapis": "^100.0.0",
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",
