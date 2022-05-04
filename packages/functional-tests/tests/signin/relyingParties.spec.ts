@@ -68,7 +68,7 @@ test.describe('severity-3 #smoke', () => {
     await settings.goto();
     const services = await settings.connectedServices.services();
     const names = services.map((s) => s.name);
-    expect(names).toContainEqual('Add-ons');
+    expect(names?.some((x) => /^Add-ons/.test(x))).toBeTruthy();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293352
