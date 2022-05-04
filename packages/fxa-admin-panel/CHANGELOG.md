@@ -1,3 +1,37 @@
+## 1.231.4
+
+No changes.
+
+## 1.231.3
+
+No changes.
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+No changes.
+
+## 1.231.0
+
+### New features
+
+- admin-panel: Add subscriptions field + display in UI, CSS tweaks ([d42d6cbbc](https://github.com/mozilla/fxa/commit/d42d6cbbc))
+- fxa-admin-panel: get diagnosticCode from event and add to bounce obj ([24e4b400c](https://github.com/mozilla/fxa/commit/24e4b400c))
+
+### Bug fixes
+
+- admin-panel: revise style ([bc8464ec9](https://github.com/mozilla/fxa/commit/bc8464ec9))
+
+### Other changes
+
+- deps: bump @emotion/react from 11.7.1 to 11.9.0 ([023968ab6](https://github.com/mozilla/fxa/commit/023968ab6))
+- deps-dev: bump @testing-library/user-event from 13.5.0 to 14.1.1 ([44d997fc1](https://github.com/mozilla/fxa/commit/44d997fc1))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+- admin-panel: Add support for user group spoofing ([e54cbbda9](https://github.com/mozilla/fxa/commit/e54cbbda9))
+
 ## 1.230.5
 
 No changes.

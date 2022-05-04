@@ -1,3 +1,37 @@
+## 1.231.4
+
+No changes.
+
+## 1.231.3
+
+No changes.
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+No changes.
+
+## 1.231.0
+
+### New features
+
+- settings: Add MDN Plus icon+link. Fix FXA-4914 Fix #12571 ([effc91f89](https://github.com/mozilla/fxa/commit/effc91f89))
+- settings: Add Add-ons icon+link. Fix FXA-4913 Fix #12570 ([e99dbeb2c](https://github.com/mozilla/fxa/commit/e99dbeb2c))
+- settings: Add Relay icon+link. Fix FXA-4915 Fix #12572 ([62115d736](https://github.com/mozilla/fxa/commit/62115d736))
+
+### Bug fixes
+
+- fxa-settings: align password CTA Because: ([031ebf61e](https://github.com/mozilla/fxa/commit/031ebf61e))
+
+### Other changes
+
+- deps: bump @emotion/react from 11.7.1 to 11.9.0 ([023968ab6](https://github.com/mozilla/fxa/commit/023968ab6))
+- deps-dev: bump @testing-library/user-event from 13.5.0 to 14.1.1 ([44d997fc1](https://github.com/mozilla/fxa/commit/44d997fc1))
+- deps-dev: bump @testing-library/react-hooks from 7.0.2 to 8.0.0 ([ce680fdcf](https://github.com/mozilla/fxa/commit/ce680fdcf))
+
 ## 1.230.5
 
 No changes.

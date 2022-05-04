@@ -1,3 +1,63 @@
+## 1.231.4
+
+### Bug fixes
+
+- auth: fix collection prefix for iap ([e94385574](https://github.com/mozilla/fxa/commit/e94385574))
+
+## 1.231.3
+
+### Bug fixes
+
+- swagger: import for .ts files, require for .js files ([2dfd4b9fee](https://github.com/mozilla/fxa/commit/2dfd4b9fee))
+
+### Other changes
+
+- 1df877595c import for .ts files ([1df877595c](https://github.com/mozilla/fxa/commit/1df877595c))
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+### Bug fixes
+
+- swagger: SyntaxError: Cannot use import statement outside a module ([e6de4302f](https://github.com/mozilla/fxa/commit/e6de4302f))
+
+## 1.231.0
+
+### New features
+
+- fxa-admin-panel: get diagnosticCode from event and add to bounce obj ([24e4b400c](https://github.com/mozilla/fxa/commit/24e4b400c))
+- auth: set up App Store modules ([c4b55cc82](https://github.com/mozilla/fxa/commit/c4b55cc82))
+- scripts: use redlock to prevent >1 instance of paypal-processor ([8adcdc07a](https://github.com/mozilla/fxa/commit/8adcdc07a))
+- coupons: check coupons apply entire plan interval Because: ([70f47f3bd](https://github.com/mozilla/fxa/commit/70f47f3bd))
+- auth: ensure customer currency is set when needed ([dc1b639a0](https://github.com/mozilla/fxa/commit/dc1b639a0))
+
+### Bug fixes
+
+- auth: delete Stub Account When Subscription Fails Because: ([a91426a97](https://github.com/mozilla/fxa/commit/a91426a97))
+- auth: dont report error on deleted customers ([9eb6606e1](https://github.com/mozilla/fxa/commit/9eb6606e1))
+- auth: wait for auth to avoid unhandled exc ([3c873328b](https://github.com/mozilla/fxa/commit/3c873328b))
+
+### Other changes
+
+- 012cbde2a Implement Swagger for API documentation ([012cbde2a](https://github.com/mozilla/fxa/commit/012cbde2a))
+- Swagger API: Implement Swagger for API documentation" ([50107a9ff](https://github.com/mozilla/fxa/commit/50107a9ff))
+- 869947242 Implement Swagger for API documentation ([869947242](https://github.com/mozilla/fxa/commit/869947242))
+- deps: bump aws-sdk from 2.1116.0 to 2.1120.0 ([688c3bdc4](https://github.com/mozilla/fxa/commit/688c3bdc4))
+- deps: bump @googlemaps/google-maps-services-js ([cb6b18f85](https://github.com/mozilla/fxa/commit/cb6b18f85))
+- deps: bump luxon from 2.3.1 to 2.3.2 ([9f2956dc7](https://github.com/mozilla/fxa/commit/9f2956dc7))
+- deps-dev: bump sass from 1.49.7 to 1.50.1 ([e8f94f63f](https://github.com/mozilla/fxa/commit/e8f94f63f))
+- deps: bump grunt from 1.4.1 to 1.5.2 ([37611e619](https://github.com/mozilla/fxa/commit/37611e619))
+- deps: bump keyv from 4.1.1 to 4.2.2 ([e97f7d782](https://github.com/mozilla/fxa/commit/e97f7d782))
+- deps: bump stripe from 8.215.0 to 8.218.0 ([c2a45dee1](https://github.com/mozilla/fxa/commit/c2a45dee1))
+- deps: bump aws-sdk from 2.1115.0 to 2.1116.0 ([61c44a934](https://github.com/mozilla/fxa/commit/61c44a934))
+- deps: bump @googlemaps/google-maps-services-js ([f4dccc292](https://github.com/mozilla/fxa/commit/f4dccc292))
+- deps: bump aws-sdk from 2.1110.0 to 2.1115.0 ([e6d1b72d0](https://github.com/mozilla/fxa/commit/e6d1b72d0))
+- deps: bump p-retry from 4.6.1 to 5.1.0" ([a9f4f2ac2](https://github.com/mozilla/fxa/commit/a9f4f2ac2))
+- deps: bump superagent from 7.1.1 to 7.1.2 ([2e3443574](https://github.com/mozilla/fxa/commit/2e3443574))
+
 ## 1.230.5
 
 No changes.

@@ -1,3 +1,30 @@
+## 1.231.4
+
+No changes.
+
+## 1.231.3
+
+No changes.
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+No changes.
+
+## 1.231.0
+
+### Bug fixes
+
+- fxa-settings: align password CTA Because: ([031ebf61e](https://github.com/mozilla/fxa/commit/031ebf61e))
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 13.5.0 to 14.1.1 ([44d997fc1](https://github.com/mozilla/fxa/commit/44d997fc1))
+- deps-dev: bump sass from 1.49.7 to 1.50.1 ([e8f94f63f](https://github.com/mozilla/fxa/commit/e8f94f63f))
+
 ## 1.230.5
 
 No changes.

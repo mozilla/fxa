@@ -1,5 +1,31 @@
 # Change history
 
+## 1.231.4
+
+No changes.
+
+## 1.231.3
+
+No changes.
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+No changes.
+
+## 1.231.0
+
+### Bug fixes
+
+- fxa-payments-server: capture productId with PayPal payments Because: ([c39df9cda](https://github.com/mozilla/fxa/commit/c39df9cda))
+
+### Other changes
+
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+
 ## 1.230.5
 
 No changes.

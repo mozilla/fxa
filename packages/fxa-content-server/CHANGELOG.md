@@ -1,3 +1,30 @@
+## 1.231.4
+
+No changes.
+
+## 1.231.3
+
+No changes.
+
+## 1.231.2
+
+No changes.
+
+## 1.231.1
+
+No changes.
+
+## 1.231.0
+
+### Bug fixes
+
+- content-server: Fix issue on login with legacy accounts ([b301bc11a](https://github.com/mozilla/fxa/commit/b301bc11a))
+
+### Other changes
+
+- deps: bump grunt from 1.4.1 to 1.5.2 ([37611e619](https://github.com/mozilla/fxa/commit/37611e619))
+- deps: bump convict from 6.2.1 to 6.2.2 ([f8237797a](https://github.com/mozilla/fxa/commit/f8237797a))
+
 ## 1.230.5
 
 ### Bug fixes
