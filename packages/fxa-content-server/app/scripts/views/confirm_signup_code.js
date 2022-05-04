@@ -7,7 +7,6 @@ import AuthErrors from '../lib/auth-errors';
 import Cocktail from '../lib/cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
-import NewsletterSyncExperiment from './mixins/newsletter-sync-experiment-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
@@ -85,18 +84,11 @@ class ConfirmSignupCodeView extends FormView {
             event: 'newsletter.subscribed',
           });
         }
-
-        if (this.isInNewsletterSyncExperimentTreatment()) {
-          account.set('verified', true);
-          this.navigate('/post_verify/newsletters/add_newsletters', {
-            account,
-          });
-        } else {
-          return this.invokeBrokerMethod(
-            'afterSignUpConfirmationPoll',
-            account
-          );
-        }
+        
+        return this.invokeBrokerMethod(
+          'afterSignUpConfirmationPoll',
+          account
+        );
       })
       .catch((err) => {
         if (
@@ -116,7 +108,6 @@ class ConfirmSignupCodeView extends FormView {
 Cocktail.mixin(
   ConfirmSignupCodeView,
   FlowEventsMixin,
-  NewsletterSyncExperiment,
   ResendMixin(),
   ServiceMixin,
   SessionVerificationPollMixin,

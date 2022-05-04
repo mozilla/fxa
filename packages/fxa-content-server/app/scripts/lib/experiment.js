@@ -21,7 +21,6 @@ const STARTUP_EXPERIMENTS = {};
  */
 const MANUAL_EXPERIMENTS = {
   emailMxValidation: BaseExperiment,
-  newsletterSync: BaseExperiment,
   qrCodeCad: BaseExperiment,
   pushLogin: BaseExperiment,
   pocketMigration: BaseExperiment,

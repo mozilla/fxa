@@ -12,7 +12,6 @@ import Cocktail from 'cocktail';
 import EmailOptInMixin from '../../mixins/email-opt-in-mixin';
 import FormView from '../../form';
 import FlowEventsMixin from './../../mixins/flow-events-mixin';
-import NewsletterSyncExperimentMixin from '../../mixins/newsletter-sync-experiment-mixin';
 import Template from 'templates/post_verify/newsletters/add_newsletters.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
 
@@ -51,11 +50,6 @@ class AddNewsletters extends FormView {
     context.set({
       email,
       isSignedIn: this.user.isSignedInAccount(account),
-
-      // All users that are not in the trailhead experiment group will get the
-      // new copy text. This includes users who are not in the experiment at all
-      // and navigated directly to the page.
-      isTrailheadCopy: this.isInNewsletterSyncExperimentTrailheadCopy(account),
     });
   }
 
@@ -85,7 +79,6 @@ class AddNewsletters extends FormView {
 Cocktail.mixin(
   AddNewsletters,
   EmailOptInMixin,
-  NewsletterSyncExperimentMixin,
   FlowEventsMixin
 );
 

@@ -7,7 +7,6 @@
  */
 
 import Newsletters from '../../lib/newsletters';
-import { newsletterNewCopy } from '../../lib/newsletters';
 
 const MARKETING_EMAIL_CHECKBOX_SELECTOR = 'input.marketing-email-optin';
 
@@ -19,12 +18,6 @@ const NEWSLETTERS = [
   Newsletters.ONLINE_SAFETY,
   Newsletters.CONSUMER_BETA,
   Newsletters.HEALTHY_INTERNET,
-];
-
-const NEWSLETTERS_NEWCOPY = [
-  newsletterNewCopy.ONLINE_SAFETY,
-  newsletterNewCopy.CONSUMER_BETA,
-  newsletterNewCopy.HEALTHY_INTERNET,
 ];
 
 export default {
@@ -123,11 +116,6 @@ export default {
    * @returns {String[]}
    */
   _getNewsletters() {
-    if (this.getExperimentGroup) {
-      return this.getExperimentGroup('newsletterSync') === 'new-copy'
-        ? NEWSLETTERS_NEWCOPY
-        : NEWSLETTERS;
-    }
     return NEWSLETTERS;
   },
 };

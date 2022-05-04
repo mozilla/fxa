@@ -46,7 +46,6 @@ require('./spec/lib/experiments/grouping-rules/base');
 require('./spec/lib/experiments/grouping-rules/communication-prefs');
 require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
-require('./spec/lib/experiments/grouping-rules/newsletter-sync');
 require('./spec/lib/experiments/grouping-rules/push');
 require('./spec/lib/experiments/grouping-rules/sentry');
 require('./spec/lib/fxa-client');
