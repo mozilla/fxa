@@ -4707,6 +4707,27 @@ describe('StripeHelper', () => {
         });
       });
 
+      it('extracts expected details from an invoice of an upgrade', async () => {
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
+        const subscriptionItem = deepCopy(fixture.lines.data[0]);
+        const subscriptionPeriodEnd = 1593032000;
+        fixture.lines.data.push(subscriptionItem);
+        fixture.lines.data[0].type = 'invoiceitem';
+        fixture.lines.data[1].period.end = subscriptionPeriodEnd;
+
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, {
+          ...expected,
+          nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
+        });
+      });
+
       it('extracts expected details from an invoice with discount', async () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureDiscount
@@ -4815,6 +4836,18 @@ describe('StripeHelper', () => {
         }
         assert.isNotNull(thrownError);
         assert.equal(thrownError.name, 'TypeError');
+      });
+
+      it('throws an exception if invoice line items doesnt have type = "subscription"', async () => {
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
+        fixture.lines.data[0].type = 'invoiceitem';
+        try {
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+          assert.fail();
+        } catch (err) {
+          assert.isNotNull(err);
+          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+        }
       });
 
       it('throws an exception if an invoice has multiple discounts', async () => {
