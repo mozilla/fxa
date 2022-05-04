@@ -2,11 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore } from '@google-cloud/firestore';
+import {
+  MozillaSubscriptionTypes,
+  SubscriptionType,
+} from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 import { TypedCollectionReference } from 'typesafe-node-firestore';
 
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
+import { AppStoreSubscriptionPurchase } from './apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './google-play/subscription-purchase';
 import { IapConfig } from './types';
+
+// This function is only used in the Stripe Helper currently, but it
+// may be useful in other places in the future, so I put it here for now.
+export function getIapPurchaseType(
+  purchase: PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase
+): Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB> {
+  if (purchase.hasOwnProperty('purchaseToken')) {
+    return MozillaSubscriptionTypes.IAP_GOOGLE;
+  }
+  if (purchase.hasOwnProperty('originalTransactionId')) {
+    return MozillaSubscriptionTypes.IAP_APPLE;
+  }
+  throw new Error('Purchase is not recognized as either Google or Apple IAP.');
+}
 
 export class IAPConfig {
   private firestore: Firestore;

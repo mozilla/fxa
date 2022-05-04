@@ -74,7 +74,7 @@ export class PlayPubsubHandler {
       return {};
     }
 
-    await this.capabilityService.playUpdate(uid, updatedPurchase);
+    await this.capabilityService.iapUpdate(uid, updatedPurchase);
 
     return {};
   }

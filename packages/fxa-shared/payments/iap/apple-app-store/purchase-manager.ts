@@ -9,7 +9,7 @@ import { AppStoreHelper } from './app-store-helper';
 import {
   APPLE_APP_STORE_FORM_OF_PAYMENT,
   mergePurchaseWithFirestorePurchaseRecord,
-  SubscriptionPurchase,
+  AppStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { PurchaseQueryError, PurchaseUpdateError } from './types';
 
@@ -65,7 +65,7 @@ export class PurchaseManager {
 
       // Generate SubscriptionPurchase object from API response
       const now = Date.now();
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         subscriptionStatus,
         transactionInfo,
@@ -110,7 +110,9 @@ export class PurchaseManager {
       .doc(originalTransactionId)
       .get();
     if (purchaseRecordDoc.exists) {
-      return SubscriptionPurchase.fromFirestoreObject(purchaseRecordDoc.data());
+      return AppStoreSubscriptionPurchase.fromFirestoreObject(
+        purchaseRecordDoc.data()
+      );
     }
     return;
   }
@@ -123,8 +125,8 @@ export class PurchaseManager {
     userId: string,
     bundleId?: string,
     productId?: string
-  ): Promise<Array<SubscriptionPurchase>> {
-    const purchaseList = new Array<SubscriptionPurchase>();
+  ): Promise<Array<AppStoreSubscriptionPurchase>> {
+    const purchaseList = new Array<AppStoreSubscriptionPurchase>();
 
     try {
       // Create query to fetch possibly active subscriptions from Firestore
@@ -146,8 +148,8 @@ export class PurchaseManager {
 
       // Loop through these subscriptions and filter those that are indeed active
       for (const purchaseRecordSnapshot of queryResult.docs) {
-        let purchase: SubscriptionPurchase =
-          SubscriptionPurchase.fromFirestoreObject(
+        let purchase: AppStoreSubscriptionPurchase =
+          AppStoreSubscriptionPurchase.fromFirestoreObject(
             purchaseRecordSnapshot.data()
           );
 

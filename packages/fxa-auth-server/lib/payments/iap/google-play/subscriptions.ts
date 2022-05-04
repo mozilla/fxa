@@ -12,7 +12,7 @@ import { internalValidationError } from '../../../../lib/error';
 import { AppConfig } from '../../../types';
 import { StripeHelper } from '../../stripe';
 import { PlayBilling } from './play-billing';
-import { SubscriptionPurchase } from './subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 
 // TODO move this when we add support for Apple IAP subscriptions
 export interface SubscriptionsService<T> {
@@ -23,7 +23,7 @@ export interface SubscriptionsService<T> {
  * Extract an AbbrevPlayPurchase from a SubscriptionPurchase
  */
 export function abbrevPlayPurchaseFromSubscriptionPurchase(
-  purchase: SubscriptionPurchase
+  purchase: PlayStoreSubscriptionPurchase
 ): AbbrevPlayPurchase {
   return {
     auto_renewing: purchase.autoRenewing,

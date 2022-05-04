@@ -1,0 +1,16 @@
+{
+  "transactionId": "2000000000000000",
+  "originalTransactionId": "1000000000000000",
+  "webOrderLineItemId": "2000000000000000",
+  "bundleId": "org.mozilla.ios.Product",
+  "productId": "skydiving.with.foxkeh",
+  "subscriptionGroupIdentifier": "22222222",
+  "purchaseDate": 1649329745000,
+  "originalPurchaseDate": 1627306493000,
+  "expiresDate": 1649330045000,
+  "quantity": 1,
+  "type": "Auto-Renewable Subscription",
+  "inAppOwnershipType": "PURCHASED",
+  "signedDate": 1649792142801,
+  "environment": "Production"
+}

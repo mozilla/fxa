@@ -17,7 +17,7 @@ const {
   PurchaseUpdateError,
 } = require('../../../../../lib/payments/iap/apple-app-store/types');
 const {
-  SubscriptionPurchase,
+  AppStoreSubscriptionPurchase,
 } = require('../../../../../lib/payments/iap/apple-app-store/subscription-purchase');
 
 const sandbox = sinon.createSandbox();
@@ -51,7 +51,7 @@ const { PurchaseManager } = proxyquire(
       'fxa-shared/payments/iap/apple-app-store/purchase-manager',
       {
         './subscription-purchase': {
-          SubscriptionPurchase: mockSubscriptionPurchase,
+          AppStoreSubscriptionPurchase: mockSubscriptionPurchase,
           mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
         },
         'app-store-server-api': {
@@ -429,7 +429,7 @@ describe('PurchaseManager', () => {
     });
 
     it('returns the current subscriptions', async () => {
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
         mockApiResult,
         mockStatus,
         {},
@@ -465,7 +465,7 @@ describe('PurchaseManager', () => {
         ],
       };
       mockStatus = SubscriptionStatus.Expired;
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
         mockApiExpiredResult,
         mockStatus,
         {},
@@ -503,7 +503,7 @@ describe('PurchaseManager', () => {
         ],
       };
       mockStatus = SubscriptionStatus.Expired;
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
         mockApiExpiredResult,
         mockStatus,
         {},

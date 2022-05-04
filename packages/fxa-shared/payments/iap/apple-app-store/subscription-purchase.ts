@@ -42,7 +42,9 @@ export const SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES = [
 /* Convert a purchase object into a format that will be store in Firestore
  * Adds some shopkeeping metadata to the purchase object.
  */
-function purchaseToFirestoreObject(purchase: SubscriptionPurchase): any {
+function purchaseToFirestoreObject(
+  purchase: AppStoreSubscriptionPurchase
+): any {
   const fObj: any = {};
   Object.assign(fObj, purchase);
   fObj.formOfPayment = APPLE_APP_STORE_FORM_OF_PAYMENT;
@@ -76,7 +78,7 @@ export function mergePurchaseWithFirestorePurchaseRecord(
 /* Library's internal implementation of a SubscriptionPurchase object
  * It's used inside of the library, not to be exposed to library's consumers.
  */
-export class SubscriptionPurchase {
+export class AppStoreSubscriptionPurchase {
   // Response from App Store API server Subscription Status endpoint
   // https://developer.apple.com/documentation/appstoreserverapi/get_all_subscription_statuses
   // IMPORTANT: If adding a new required property, also add it to SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES
@@ -87,7 +89,7 @@ export class SubscriptionPurchase {
   private inAppOwnershipType!: OwnershipType;
   private originalPurchaseDate!: number;
   originalTransactionId!: string; // unique identifier for the subscription; analogous to a Stripe subscription id
-  private productId!: string; // unique identifier for the plan; analogous to the Stripe plan id
+  productId!: string; // unique identifier for the plan; analogous to the Stripe plan id
   private status!: SubscriptionStatus;
   private type!: TransactionType;
   private expirationIntent?: number;
@@ -112,8 +114,8 @@ export class SubscriptionPurchase {
     renewalInfo: JWSRenewalInfoDecodedPayload,
     originalTransactionId: string,
     verifiedAt: number
-  ): SubscriptionPurchase {
-    const purchase = new SubscriptionPurchase();
+  ): AppStoreSubscriptionPurchase {
+    const purchase = new AppStoreSubscriptionPurchase();
     purchase.autoRenewStatus = renewalInfo.autoRenewStatus;
     purchase.autoRenewProductId = renewalInfo.autoRenewProductId;
     purchase.bundleId = apiResponse.bundleId;
@@ -166,7 +168,7 @@ export class SubscriptionPurchase {
    * Firestore; see FIRESTORE_OBJECT_INTERNAL_KEYS.
    */
   static fromFirestoreObject(firestoreObject: any) {
-    const purchase = new SubscriptionPurchase();
+    const purchase = new AppStoreSubscriptionPurchase();
     purchase.mergeWithFirestorePurchaseRecord(firestoreObject);
     return purchase;
   }

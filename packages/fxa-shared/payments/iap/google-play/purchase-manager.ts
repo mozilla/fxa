@@ -20,7 +20,7 @@ import { CollectionReference } from '@google-cloud/firestore';
 import { androidpublisher_v3 } from 'googleapis';
 import {
   mergePurchaseWithFirestorePurchaseRecord,
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { NotificationType, PurchaseQueryError } from './types';
 
@@ -54,7 +54,7 @@ export class PurchaseManager {
     sku: string,
     purchaseToken: string,
     triggerNotificationType?: NotificationType
-  ): Promise<SubscriptionPurchase> {
+  ): Promise<PlayStoreSubscriptionPurchase> {
     // STEP 1. Query Play Developer API to verify the purchase token
     const apiResponse = await new Promise((resolve, reject) => {
       this.playDeveloperApiClient.purchases.subscriptions.get(
@@ -81,13 +81,14 @@ export class PurchaseManager {
 
       // Generate SubscriptionPurchase object from Firestore response
       const now = Date.now();
-      const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
-        apiResponse,
-        packageName,
-        purchaseToken,
-        sku,
-        now
-      );
+      const subscriptionPurchase =
+        PlayStoreSubscriptionPurchase.fromApiResponse(
+          apiResponse,
+          packageName,
+          purchaseToken,
+          sku,
+          now
+        );
 
       // Store notificationType to database if queryPurchase was triggered by a realtime developer notification
       if (triggerNotificationType !== undefined) {
@@ -195,13 +196,14 @@ export class PurchaseManager {
       if (apiResponse) {
         // STEP 2b. Parse the response from Google Play Developer API and store the purchase detail
         const now = Date.now();
-        const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
-          apiResponse,
-          packageName,
-          purchaseToken,
-          sku,
-          now
-        );
+        const subscriptionPurchase =
+          PlayStoreSubscriptionPurchase.fromApiResponse(
+            apiResponse,
+            packageName,
+            purchaseToken,
+            sku,
+            now
+          );
         subscriptionPurchase.replacedByAnotherPurchase = true; // Mark the purchase as already being replaced by other purchase.
         subscriptionPurchase.userId = REPLACED_PURCHASE_USERID_PLACEHOLDER;
         const firestoreObject = subscriptionPurchase.toFirestoreObject();

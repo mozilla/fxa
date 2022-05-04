@@ -12,13 +12,14 @@ const { mockLog } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
+const { AppleIAP } = require('../../../lib/payments/iap/apple-app-store');
 
 const subscriptionCreated =
   require('./fixtures/stripe/subscription_created.json').data.object;
 
 const { ProfileClient } = require('../../../lib/types');
 const {
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
 } = require('../../../lib/payments/iap/google-play/subscription-purchase');
 const proxyquire = require('proxyquire').noPreserveCache();
 
@@ -64,6 +65,7 @@ function deepCopy(object) {
 describe('CapabilityService', () => {
   let mockStripeHelper;
   let mockPlayBilling;
+  let mockAppleIAP;
   let capabilityService;
   let log;
   let mockSubscriptionPurchase;
@@ -74,6 +76,9 @@ describe('CapabilityService', () => {
     mockStripeHelper = {};
     mockPlayBilling = {
       userManager: {},
+      purchaseManager: {},
+    };
+    mockAppleIAP = {
       purchaseManager: {},
     };
     mockProfileClient = {
@@ -126,6 +131,7 @@ describe('CapabilityService', () => {
     Container.set(AuthLogger, log);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PlayBilling, mockPlayBilling);
+    Container.set(AppleIAP, mockAppleIAP);
     Container.set(ProfileClient, mockProfileClient);
     capabilityService = new CapabilityService();
   });
@@ -192,7 +198,7 @@ describe('CapabilityService', () => {
     });
   });
 
-  describe('playUpdate', () => {
+  describe('iapUpdate', () => {
     let subscriptionPurchase;
 
     beforeEach(() => {
@@ -205,20 +211,20 @@ describe('CapabilityService', () => {
         'prod_FUUNYnlDso7FeB',
       ]);
       capabilityService.processPriceIdDiff = sinon.fake.resolves();
-      subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+      subscriptionPurchase = PlayStoreSubscriptionPurchase.fromApiResponse(
         VALID_SUB_API_RESPONSE,
         'testPackage',
         'testToken',
         'testSku',
         Date.now()
       );
-      mockStripeHelper.purchasesToPriceIds = sinon.fake.resolves([
+      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.resolves([
         'prod_FUUNYnlDso7FeB',
       ]);
     });
 
-    it('handles a play purchase with new product', async () => {
-      await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
+    it('handles an IAP purchase with new product', async () => {
+      await capabilityService.iapUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
       assert.calledWith(capabilityService.subscribedPriceIds, UID);
       assert.calledWith(capabilityService.processPriceIdDiff, {
@@ -228,9 +234,9 @@ describe('CapabilityService', () => {
       });
     });
 
-    it('handles a play purchase with a removed product', async () => {
+    it('handles an IAP purchase with a removed product', async () => {
       capabilityService.subscribedPriceIds = sinon.fake.resolves([]);
-      await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
+      await capabilityService.iapUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
       assert.calledWith(capabilityService.subscribedPriceIds, UID);
       assert.calledWith(capabilityService.processPriceIdDiff, {
@@ -238,6 +244,136 @@ describe('CapabilityService', () => {
         priorPriceIds: ['prod_FUUNYnlDso7FeB'],
         currentPriceIds: [],
       });
+    });
+  });
+
+  describe('fetchSubscribedPricesFromPlay', () => {
+    let mockQueryResponse;
+    let mockSubscriptionPurchase;
+
+    beforeEach(() => {
+      mockSubscriptionPurchase = {
+        isEntitlementActive: () => true,
+      };
+      mockQueryResponse = [mockSubscriptionPurchase];
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+        .stub()
+        .resolves(mockQueryResponse);
+      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
+        'plan_GOOGLE',
+      ]);
+    });
+
+    afterEach(() => {
+      capabilityService.playBilling = mockPlayBilling;
+    });
+
+    it('returns [] if Google IAP is disabled', async () => {
+      capabilityService.playBilling = undefined;
+      const expected = [];
+      const actual = await capabilityService.fetchSubscribedPricesFromPlay(UID);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('returns a subscribed price if found', async () => {
+      const expected = ['plan_GOOGLE'];
+      const actual = await capabilityService.fetchSubscribedPricesFromPlay(UID);
+      assert.calledWith(
+        mockPlayBilling.userManager.queryCurrentSubscriptions,
+        UID
+      );
+      assert.calledWith(
+        mockStripeHelper.iapPurchasesToPriceIds,
+        mockQueryResponse
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('logs a query error and returns [] if the query fails', async () => {
+      const error = new Error('Bleh');
+      error.name = PurchaseQueryError.OTHER_ERROR;
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+        .stub()
+        .rejects(error);
+      const expected = [];
+      const actual = await capabilityService.fetchSubscribedPricesFromPlay(UID);
+      assert.deepEqual(actual, expected);
+      assert.calledOnceWithExactly(
+        log.error,
+        'Failed to query purchases from Google Play',
+        {
+          uid: UID,
+          err: error,
+        }
+      );
+    });
+  });
+
+  describe('fetchSubscribedPricesFromAppStore', () => {
+    let mockQueryResponse;
+    let mockSubscriptionPurchase;
+
+    beforeEach(() => {
+      mockSubscriptionPurchase = {
+        isEntitlementActive: () => true,
+      };
+      mockQueryResponse = [mockSubscriptionPurchase];
+      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = sinon
+        .stub()
+        .resolves(mockQueryResponse);
+      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
+        'plan_APPLE',
+      ]);
+    });
+
+    afterEach(() => {
+      capabilityService.appleIap = mockAppleIAP;
+    });
+
+    it('returns [] if Apple IAP is disabled', async () => {
+      capabilityService.appleIap = undefined;
+      const expected = [];
+      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
+        UID
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('returns a subscribed price if found', async () => {
+      const expected = ['plan_APPLE'];
+      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
+        UID
+      );
+      assert.calledWith(
+        mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases,
+        UID
+      );
+      assert.calledWith(
+        mockStripeHelper.iapPurchasesToPriceIds,
+        mockQueryResponse
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('logs a query error and returns [] if the query fails', async () => {
+      const error = new Error('Bleh');
+      error.name = PurchaseQueryError.OTHER_ERROR;
+      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = sinon
+        .stub()
+        .rejects(error);
+      const expected = [];
+      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
+        UID
+      );
+      assert.deepEqual(actual, expected);
+      assert.calledOnceWithExactly(
+        log.error,
+        'Failed to query purchases from Apple App Store',
+        {
+          uid: UID,
+          err: error,
+        }
+      );
     });
   });
 
@@ -298,7 +434,9 @@ describe('CapabilityService', () => {
           ],
         },
       }));
-      mockStripeHelper.purchasesToPriceIds = sinon.fake.returns(['plan_PLAY']);
+      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
+        'plan_PLAY',
+      ]);
       mockSubscriptionPurchase = {
         sku: 'play_1234',
         isEntitlementActive: sinon.fake.returns(true),

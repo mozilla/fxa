@@ -18,6 +18,19 @@ import {
 } from 'fxa-shared/db/models/auth';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import {
+  CHARGES_RESOURCE,
+  CUSTOMER_RESOURCE,
+  INVOICES_RESOURCE,
+  PAYMENT_METHOD_RESOURCE,
+  PLAN_RESOURCE,
+  PRODUCT_RESOURCE,
+  STRIPE_PLANS_CACHE_KEY,
+  STRIPE_PRICE_METADATA,
+  STRIPE_PRODUCTS_CACHE_KEY,
+  StripeHelper as StripeHelperBase,
+  SUBSCRIPTIONS_RESOURCE,
+} from 'fxa-shared/payments/stripe';
+import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getMinimumAmount,
   getSubscriptionUpdateEligibility,
@@ -33,6 +46,9 @@ import {
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
+import { getIapPurchaseType } from './iap/iap-config';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -52,24 +68,16 @@ import {
 import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
-import { SubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import {
-  StripeHelper as StripeHelperBase,
-  CHARGES_RESOURCE,
-  CUSTOMER_RESOURCE,
-  INVOICES_RESOURCE,
-  PAYMENT_METHOD_RESOURCE,
-  PLAN_RESOURCE,
-  PRODUCT_RESOURCE,
-  STRIPE_PLANS_CACHE_KEY,
-  STRIPE_PRICE_METADATA,
-  STRIPE_PRODUCTS_CACHE_KEY,
-  SUBSCRIPTIONS_RESOURCE,
-} from 'fxa-shared/payments/stripe';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
+
+// The values here are the Google Play Store or Apple App Store analogs to a Stripe Plan ID
+export const IAP_TYPE_TO_IAP_SUBSCRIPTION_PURCHASE_KEYS = {
+  [MozillaSubscriptionTypes.IAP_GOOGLE]: 'sku',
+  [MozillaSubscriptionTypes.IAP_APPLE]: 'productId',
+};
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
@@ -1590,17 +1598,26 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Fetch all price ids that correspond to a list of Play SubscriptionPurchases.
+   * Fetch all price ids that correspond to a list of Play Store or App Store
+   * SubscriptionPurchases.
+   *
+   * Confusingly, the App Store analog to a Stripe planId is the App Store productId.
    */
-  async purchasesToPriceIds(purchases: SubscriptionPurchase[]) {
+  async iapPurchasesToPriceIds(
+    purchases: (PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase)[]
+  ) {
     const prices = await this.allAbbrevPlans();
-    const purchasedSkus = purchases.map((purchase) =>
-      purchase.sku.toLowerCase()
+    const iapType = getIapPurchaseType(purchases[0]);
+    // @ts-ignore
+    const key = IAP_TYPE_TO_IAP_SUBSCRIPTION_PURCHASE_KEYS[iapType];
+    const purchasedIds = purchases.map((purchase) =>
+      // @ts-ignore Depending on iapType, purchase will definitely have the `key`
+      purchase[key].toLowerCase()
     );
     const purchasedPrices = [];
     for (const price of prices) {
-      const playSkus = this.priceToPlaySkus(price);
-      if (playSkus.some((sku) => purchasedSkus.includes(sku))) {
+      const purchaseIds = this.priceToIapIdentifiers(price, iapType);
+      if (purchaseIds.some((id) => purchasedIds.includes(id))) {
         purchasedPrices.push(price.plan_id);
       }
     }

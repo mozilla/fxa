@@ -7,6 +7,7 @@ import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
 import { Stripe } from 'stripe';
+
 import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
@@ -18,6 +19,8 @@ import {
   AbbrevPlan,
   AbbrevPlayPurchase,
   ConfiguredPlan,
+  MozillaSubscriptionTypes,
+  SubscriptionType,
 } from '../subscriptions/types';
 import { PaymentConfigManager } from './configuration/manager';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
@@ -57,6 +60,7 @@ export const VALID_RESOURCE_TYPES = Object.values(
 );
 
 export enum STRIPE_PRICE_METADATA {
+  APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
   PROMOTION_CODES = 'promotionCodes',
   PLAY_SKU_IDS = 'playSkuIds',
 }
@@ -234,12 +238,19 @@ export abstract class StripeHelper {
   }
 
   /**
-   * Return a list of skus for a given price.
+   * Return a list of Google Play Store skus or Apple App Store productIds for a given price,
+   * based on the iapType passed in.
    */
-  priceToPlaySkus(price: AbbrevPlan) {
-    const priceSkus =
-      price.plan_metadata?.[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] || '';
-    return priceSkus
+  priceToIapIdentifiers(
+    price: AbbrevPlan,
+    iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>
+  ) {
+    const key =
+      iapType === MozillaSubscriptionTypes.IAP_GOOGLE
+        ? STRIPE_PRICE_METADATA.PLAY_SKU_IDS
+        : STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS;
+    const priceIAPIds = price.plan_metadata?.[key] || '';
+    return priceIAPIds
       .trim()
       .split(',')
       .map((c) => c.trim().toLowerCase())
@@ -261,7 +272,10 @@ export abstract class StripeHelper {
     const plans = await this.allAbbrevPlans();
     const appendedAbbrevPlayPurchases = [];
     for (const plan of plans) {
-      const playSkus = this.priceToPlaySkus(plan);
+      const playSkus = this.priceToIapIdentifiers(
+        plan,
+        MozillaSubscriptionTypes.IAP_GOOGLE
+      );
       const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
         playSkus.includes(purchase.sku.toLowerCase())
       );

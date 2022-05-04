@@ -1,0 +1,10 @@
+{
+  "expirationIntent": 1,
+  "originalTransactionId": "1000000000000000",
+  "autoRenewProductId": "skydiving.with.foxkeh",
+  "productId": "skydiving.with.foxkeh",
+  "autoRenewStatus": 1,
+  "isInBillingRetryPeriod": false,
+  "signedDate": 1649792142801,
+  "environment": "Production"
+}

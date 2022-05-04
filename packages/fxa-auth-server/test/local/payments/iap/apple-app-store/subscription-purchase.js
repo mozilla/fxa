@@ -14,15 +14,22 @@ const {
 const {
   APPLE_APP_STORE_FORM_OF_PAYMENT,
   SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES,
-  SubscriptionPurchase,
+  AppStoreSubscriptionPurchase,
 } = require('../../../../../lib/payments/iap/apple-app-store/subscription-purchase');
+
+const appStoreApiResponse = require('../../fixtures/apple-app-store/api_response_subscription_status.json');
+const renewalInfo = require('../../fixtures/apple-app-store/decoded_renewal_info.json');
+const transactionInfo = require('../../fixtures/apple-app-store/decoded_transaction_info.json');
+
+function deepCopy(object) {
+  return JSON.parse(JSON.stringify(object));
+}
 
 describe('SubscriptionPurchase', () => {
   const autoRenewStatus = 1;
   const originalTransactionId = '1000000000000000';
-  const bundleId = 'org.mozilla.ios.Product';
-  const subscriptionGroupIdentifier = '22222222';
-  const productId = `${bundleId}.product.1_month_subscription`;
+  const bundleId = 'org.mozilla.ios.SkydivingWithFoxkeh';
+  const productId = 'skydiving.with.foxkeh';
   const status = SubscriptionStatus.Active;
   const type = 'Auto-Renewable Subscription';
   const expirationIntent = 1;
@@ -32,56 +39,17 @@ describe('SubscriptionPurchase', () => {
   const inAppOwnershipType = 'PURCHASED';
   const originalPurchaseDate = 1627306493000;
   const autoRenewProductId = productId;
-  const apiResponse = {
-    data: {
-      subscriptionGroupIdentifier,
-      lastTransactions: [
-        {
-          originalTransactionId,
-          status,
-          signedRenewalInfo: {},
-          signedTransactionInfo: {},
-        },
-      ],
-    },
-    environment,
-    appAppleId: '1234567890',
-    bundleId,
-  };
-  const transactionInfo = {
-    transactionId: '2000000000000000',
-    originalTransactionId,
-    webOrderLineItemId: '2000000000000000',
-    bundleId,
-    productId,
-    subscriptionGroupIdentifier,
-    purchaseDate: 1649329745000,
-    originalPurchaseDate,
-    expiresDate,
-    quantity: 1,
-    type,
-    inAppOwnershipType,
-    signedDate: 1649792142801,
-    environment,
-  };
-  const renewalInfo = {
-    expirationIntent,
-    originalTransactionId,
-    autoRenewProductId,
-    productId,
-    autoRenewStatus,
-    isInBillingRetryPeriod: isInBillingRetry,
-    signedDate: 1649792142801,
-    environment,
-  };
+  const apiResponse = deepCopy(appStoreApiResponse);
+  const decodedTransactionInfo = deepCopy(transactionInfo);
+  const decodedRenewalInfo = deepCopy(renewalInfo);
   const verifiedAt = Date.now();
   describe('fromApiResponse', () => {
     it('parses active subscription correctly', () => {
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        transactionInfo,
-        renewalInfo,
+        decodedTransactionInfo,
+        decodedRenewalInfo,
         originalTransactionId,
         verifiedAt
       );
@@ -121,11 +89,11 @@ describe('SubscriptionPurchase', () => {
     });
 
     it('parses trial subscription correctly', () => {
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        transactionInfo,
-        { ...renewalInfo, offerType: OfferType.Introductory },
+        decodedTransactionInfo,
+        { ...decodedRenewalInfo, offerType: OfferType.Introductory },
         originalTransactionId,
         verifiedAt
       );
@@ -133,11 +101,11 @@ describe('SubscriptionPurchase', () => {
     });
 
     it('parses test purchase correctly', () => {
-      const subscription = SubscriptionPurchase.fromApiResponse(
+      const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         { ...apiResponse, environment: Environment.Sandbox },
         status,
-        transactionInfo,
-        renewalInfo,
+        decodedTransactionInfo,
+        decodedRenewalInfo,
         originalTransactionId,
         verifiedAt
       );
@@ -149,11 +117,11 @@ describe('SubscriptionPurchase', () => {
     let subscription;
 
     beforeEach(() => {
-      subscription = SubscriptionPurchase.fromApiResponse(
+      subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        transactionInfo,
-        renewalInfo,
+        decodedTransactionInfo,
+        decodedRenewalInfo,
         originalTransactionId,
         verifiedAt
       );
@@ -167,7 +135,8 @@ describe('SubscriptionPurchase', () => {
     it('converts from firestore', () => {
       const firestoreObj = subscription.toFirestoreObject();
       firestoreObj.userId = 'testUser';
-      const result = SubscriptionPurchase.fromFirestoreObject(firestoreObj);
+      const result =
+        AppStoreSubscriptionPurchase.fromFirestoreObject(firestoreObj);
       // Internal keys are not defined on the subscription purchase.
       assert.isUndefined(result.formOfPayment);
       assert.strictEqual(result.userId, 'testUser');
@@ -178,13 +147,13 @@ describe('SubscriptionPurchase', () => {
       // not on the purchase already are copied over. The subscription does not
       // have a offerType key, so we will rely on the merge copying it over.
       const testRenewalInfo = {
-        ...renewalInfo,
+        ...decodedRenewalInfo,
         offerType: OfferType.Introductory,
       };
-      const testSubscription = SubscriptionPurchase.fromApiResponse(
+      const testSubscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        transactionInfo,
+        decodedTransactionInfo,
         testRenewalInfo, // decoded from apiResponse
         originalTransactionId,
         verifiedAt

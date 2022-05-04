@@ -23,7 +23,7 @@ import { AuthLogger } from '../../../types';
 import { PurchaseManager } from './purchase-manager';
 import {
   GOOGLE_PLAY_FORM_OF_PAYMENT,
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { PurchaseQueryError, SkuType } from './types';
 import { UserManager as UserManagerBase } from 'fxa-shared/payments/iap/google-play/user-manager';
@@ -51,8 +51,8 @@ export class UserManager extends UserManagerBase {
     userId: string,
     sku?: string,
     packageName?: string
-  ): Promise<Array<SubscriptionPurchase>> {
-    const purchaseList = new Array<SubscriptionPurchase>();
+  ): Promise<Array<PlayStoreSubscriptionPurchase>> {
+    const purchaseList = new Array<PlayStoreSubscriptionPurchase>();
 
     try {
       // Create query to fetch possibly active subscriptions from Firestore
@@ -76,8 +76,8 @@ export class UserManager extends UserManagerBase {
 
       // Loop through these subscriptions and filter those that are indeed active
       for (const purchaseRecordSnapshot of queryResult.docs) {
-        let purchase: SubscriptionPurchase =
-          SubscriptionPurchase.fromFirestoreObject(
+        let purchase: PlayStoreSubscriptionPurchase =
+          PlayStoreSubscriptionPurchase.fromFirestoreObject(
             purchaseRecordSnapshot.data()
           );
 

@@ -795,6 +795,12 @@ const conf = convict({
         },
         env: 'APP_STORE_CREDENTIALS',
       },
+      enabled: {
+        doc: 'Indicates whether the App Store API is enabled',
+        format: Boolean,
+        default: false,
+        env: 'SUBSCRIPTIONS_APP_STORE_API_ENABLED',
+      },
       sandbox: {
         doc: 'Apple App Store Sandbox mode',
         format: Boolean,

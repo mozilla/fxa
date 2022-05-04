@@ -56,7 +56,7 @@ describe('PlayPubsubHandler', () => {
       purchaseToken: 'test',
     };
     db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
-    mockCapabilityService.playUpdate = sinon.fake.resolves({});
+    mockCapabilityService.iapUpdate = sinon.fake.resolves({});
 
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, mockPlayBilling);
@@ -89,7 +89,7 @@ describe('PlayPubsubHandler', () => {
       assert.calledOnce(
         mockPlayBilling.purchaseManager.processDeveloperNotification
       );
-      assert.calledOnce(mockCapabilityService.playUpdate);
+      assert.calledOnce(mockCapabilityService.iapUpdate);
     });
 
     it('test notification', async () => {

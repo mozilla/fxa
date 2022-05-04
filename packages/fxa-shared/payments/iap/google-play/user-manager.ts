@@ -7,7 +7,7 @@ import { ILogger } from 'fxa-shared/log';
 import { PurchaseManager } from './purchase-manager';
 import {
   GOOGLE_PLAY_FORM_OF_PAYMENT,
-  SubscriptionPurchase,
+  PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { SkuType } from './types/purchases';
 
@@ -22,8 +22,8 @@ export class UserManager {
     userId: string,
     sku?: string,
     packageName?: string
-  ): Promise<Array<SubscriptionPurchase>> {
-    const purchaseList = new Array<SubscriptionPurchase>();
+  ): Promise<Array<PlayStoreSubscriptionPurchase>> {
+    const purchaseList = new Array<PlayStoreSubscriptionPurchase>();
 
     // Create query to fetch possibly active subscriptions from Firestore
     // Create query to fetch possibly active subscriptions from Firestore
@@ -46,8 +46,10 @@ export class UserManager {
 
     // Loop through these subscriptions and filter those that are indeed active
     for (const purchaseRecordSnapshot of queryResult.docs) {
-      let purchase: SubscriptionPurchase =
-        SubscriptionPurchase.fromFirestoreObject(purchaseRecordSnapshot.data());
+      let purchase: PlayStoreSubscriptionPurchase =
+        PlayStoreSubscriptionPurchase.fromFirestoreObject(
+          purchaseRecordSnapshot.data()
+        );
 
       if (
         !purchase.isEntitlementActive() &&
