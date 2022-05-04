@@ -20,6 +20,8 @@ const {
   closeCurrentWindow,
   createEmail,
   createUser,
+  fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
@@ -400,6 +402,50 @@ registerSuite('signin blocked', {
           .then(fillOutSignInUnblock(email, 2))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
+    },
+
+    'with primary email changed incorrect password': function () {
+      email = createEmail('{id}');
+      const secondaryEmail = createEmail('blocked{id}');
+
+      return (
+        this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+          .then(addAndVerifySecondaryEmail(secondaryEmail))
+          .then(testSuccessWasShown())
+          // set new primary email
+          .then(
+            click(
+              selectors.SETTINGS.SECONDARY_EMAIL.MAKE_PRIMARY,
+              selectors.EMAIL.SUCCESS
+            )
+          )
+
+          .then(
+            testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
+          )
+          .then(signOut())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+
+          // Try login with new primary email and invalid
+          .then(fillOutEmailFirstSignIn(secondaryEmail, 'invalid pw'))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNIN_UNBLOCK.VERIFICATION,
+              secondaryEmail
+            )
+          )
+
+          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+          .then(fillOutSignInUnblock(secondaryEmail, 3))
+
+          .then(visibleByQSA(selectors.SIGNIN_UNBLOCK.ERROR))
+          .then(testErrorTextInclude('incorrect password'))
       );
     },
   },
