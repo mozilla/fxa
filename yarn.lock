@@ -22483,7 +22483,7 @@ fsevents@~2.1.1:
     fxa-geodb: "workspace:*"
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^7.11.0
+    google-auth-library: ^8.0.2
     googleapis: ^100.0.0
     grunt: ^1.5.2
     grunt-cli: ^1.4.3
@@ -22851,7 +22851,7 @@ fsevents@~2.1.1:
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^7.11.0
+    google-auth-library: ^8.0.2
     graphql: ^15.6.1
     hot-shots: ^9.0.0
     jest: 27.5.1
@@ -23563,6 +23563,19 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"gaxios@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "gaxios@npm:5.0.0"
+  dependencies:
+    abort-controller: ^3.0.0
+    extend: ^3.0.2
+    https-proxy-agent: ^5.0.0
+    is-stream: ^2.0.0
+    node-fetch: ^2.6.7
+  checksum: d5f81e49db881a6d4fe78ba080a74b27c1be9128e806ff84c26dd6e44539a954551128d7c193d29a3a030510e504448810fa3c3c69af7f21d46572476f1fdef2
+  languageName: node
+  linkType: hard
+
 "gaze@npm:^1.0.0, gaze@npm:^1.1.0":
   version: 1.1.3
   resolution: "gaze@npm:1.1.3"
@@ -23579,6 +23592,16 @@ fsevents@~2.1.1:
     gaxios: ^3.0.0
     json-bigint: ^1.0.0
   checksum: 2bba9774c83d0fa9fea7a5c949fa4ec737073a28ded870d5bb19216d620b0a5aa4709d1e743688c9bb64f6dbae56f5109d1fe2dd5dad048af5d68472277d4d67
+  languageName: node
+  linkType: hard
+
+"gcp-metadata@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "gcp-metadata@npm:5.0.0"
+  dependencies:
+    gaxios: ^5.0.0
+    json-bigint: ^1.0.0
+  checksum: b75635e564a39ef0a6ebbff0daa97cea37382c3d6f0d7a6a0406e03a275de804a74e3f3d410d5313a6c9dd3496023e96bc81474917fa8369974398eb069d9645
   languageName: node
   linkType: hard
 
@@ -24201,23 +24224,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.11.0":
-  version: 7.11.0
-  resolution: "google-auth-library@npm:7.11.0"
-  dependencies:
-    arrify: ^2.0.0
-    base64-js: ^1.3.0
-    ecdsa-sig-formatter: ^1.0.11
-    fast-text-encoding: ^1.0.0
-    gaxios: ^4.0.0
-    gcp-metadata: ^4.2.0
-    gtoken: ^5.0.4
-    jws: ^4.0.0
-    lru-cache: ^6.0.0
-  checksum: fb1d0c39bbd19163d07f3d4958ab1af695b5fbc33caa1fcbb2acede43cf31c3cc449da949629ac6a212c55b1190a8c5b38e11015cdbdf1ec902d99d0e2ee4f07
-  languageName: node
-  linkType: hard
-
 "google-auth-library@npm:^7.14.0":
   version: 7.14.0
   resolution: "google-auth-library@npm:7.14.0"
@@ -24232,6 +24238,23 @@ fsevents@~2.1.1:
     jws: ^4.0.0
     lru-cache: ^6.0.0
   checksum: 0fe254bc985c7b3be5ae6708afae9cd8a92cb468d956458e8fb6ec76ce8900ee90dbf1c8aa51790039c388682db6a6b510b6bef48ae6e1cea6f5d893b163381c
+  languageName: node
+  linkType: hard
+
+"google-auth-library@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "google-auth-library@npm:8.0.2"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^5.0.0
+    gcp-metadata: ^5.0.0
+    gtoken: ^5.3.2
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: 696238dba187de6523e81c500e56deae7e899c0090ec488b71fde54c17f95dabe085108b3aab5073e05dab1eb4aafe6bb8df0d1d6c5bd9d6bd9c2fc4fc0613d7
   languageName: node
   linkType: hard
 
@@ -24266,6 +24289,17 @@ fsevents@~2.1.1:
   bin:
     gp12-pem: build/src/bin/gp12-pem.js
   checksum: b4698748bb14356ce19fdcfe5d58922704a1719f34063e0a2c2533624cd47a0d329bab17464b8f7f21ac1b221e1c5e24aaaa5fe53f5433d6ffa2bcb2d0baf1a2
+  languageName: node
+  linkType: hard
+
+"google-p12-pem@npm:^3.1.3":
+  version: 3.1.4
+  resolution: "google-p12-pem@npm:3.1.4"
+  dependencies:
+    node-forge: ^1.3.1
+  bin:
+    gp12-pem: build/src/bin/gp12-pem.js
+  checksum: 72ce13b9536c69f21584cb7477ed4c34674325639a5dac42e8d774b78d367cb196ae7d37a52bba868235205760df353ac678a5e1756a4f4ded82e16d29d6cbb1
   languageName: node
   linkType: hard
 
@@ -24803,6 +24837,17 @@ fsevents@~2.1.1:
     jws: ^4.0.0
     mime: ^2.2.0
   checksum: 725c98805b189f91f245d331c1d0b3c2deb88e96942e334a62ca70ef0120af5138663da2671b8b2e7543b9a2aa311522c5c3c7d6b0dad68761e04540c2c61363
+  languageName: node
+  linkType: hard
+
+"gtoken@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "gtoken@npm:5.3.2"
+  dependencies:
+    gaxios: ^4.0.0
+    google-p12-pem: ^3.1.3
+    jws: ^4.0.0
+  checksum: 1fd640e98afcb3d5c77026fd4ff0671dce724acad11169e5b63701a853e1f5a03f4c76fe6eb95500db80f8444753ce212701d396186ef006088d08be4174f2d7
   languageName: node
   linkType: hard
 
@@ -32714,6 +32759,13 @@ fsevents@~2.1.1:
   version: 0.7.6
   resolution: "node-forge@npm:0.7.6"
   checksum: 661d420847da736d82f3aad0e8ad2b5fceddc4bd5f4065b923c566e9fd68e568509677374f101c1f4321c541dcbef0864516a2a55ff03a9236d0895195dfa7aa
+  languageName: node
+  linkType: hard
+
+"node-forge@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "node-forge@npm:1.3.1"
+  checksum: 08fb072d3d670599c89a1704b3e9c649ff1b998256737f0e06fbd1a5bf41cae4457ccaee32d95052d80bbafd9ffe01284e078c8071f0267dc9744e51c5ed42a9
   languageName: node
   linkType: hard
 
