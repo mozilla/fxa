@@ -868,14 +868,17 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
       });
 
-      it('does not emit a notification for any other subscription state change', async () => {
+      it('emits a notification for any subscription state change', async () => {
         const updatedEvent = deepCopy(subscriptionUpdated);
         await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
         );
+        assert.calledWithExactly(mockCapabilityService.stripeUpdate, {
+          sub: updatedEvent.data.object,
+          uid: UID,
+        });
         assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
-        assert.notCalled(mockCapabilityService.stripeUpdate);
       });
 
       it('reports a sentry error with an eventId if sendSubscriptionUpdatedEmail fails', async () => {
