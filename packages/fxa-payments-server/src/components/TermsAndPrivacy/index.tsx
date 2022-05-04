@@ -11,6 +11,8 @@ import { Plan } from '../../store/types';
 import { AppContext } from '../../lib/AppContext';
 import { legalDocsRedirectUrl } from '../../lib/formats';
 
+import LinkExternal from 'fxa-react/components/LinkExternal';
+
 export type TermsAndPrivacyProps = {
   plan: Plan;
   showFXALinks?: boolean;
@@ -27,10 +29,14 @@ export const TermsAndPrivacy = ({
   // TODO: if a plan is not supplied, fall back to default details
   // This mainly happens in ProductUpdateForm where we're updating payment
   // details across *all* plans - are there better URLs to pick in that case?
-  const { termsOfServiceURL, termsOfServiceDownloadURL, privacyNoticeURL } =
-    plan
-      ? productDetailsFromPlan(plan, navigatorLanguages)
-      : DEFAULT_PRODUCT_DETAILS;
+  // This logic assumes that values exist on DEFAULT_PRODUCT_DETAILS and are not undefined
+  const {
+    termsOfServiceURL = DEFAULT_PRODUCT_DETAILS.termsOfServiceURL!,
+    termsOfServiceDownloadURL = DEFAULT_PRODUCT_DETAILS.termsOfServiceDownloadURL!,
+    privacyNoticeURL = DEFAULT_PRODUCT_DETAILS.privacyNoticeURL!,
+  } = plan
+    ? productDetailsFromPlan(plan, navigatorLanguages)
+    : DEFAULT_PRODUCT_DETAILS;
 
   const tosUrl = termsOfServiceDownloadURL
     ? legalDocsRedirectUrl(termsOfServiceDownloadURL)
@@ -39,36 +45,21 @@ export const TermsAndPrivacy = ({
   const productLegalBlurb = (
     <p>
       <Localized id="terms">
-        <a
-          href={termsOfServiceURL}
-          target="_blank"
-          data-testid="terms"
-          rel="noopener noreferrer"
-        >
+        <LinkExternal href={termsOfServiceURL} data-testid="terms">
           Terms of Service
-        </a>
+        </LinkExternal>
       </Localized>
       &nbsp;&nbsp;&nbsp;
       <Localized id="privacy">
-        <a
-          href={privacyNoticeURL}
-          target="_blank"
-          data-testid="privacy"
-          rel="noopener noreferrer"
-        >
+        <LinkExternal href={privacyNoticeURL} data-testid="privacy">
           Privacy Notice
-        </a>
+        </LinkExternal>
       </Localized>
       &nbsp;&nbsp;&nbsp;
       <Localized id="terms-download">
-        <a
-          href={tosUrl}
-          target="_blank"
-          data-testid="terms-download"
-          rel="noopener noreferrer"
-        >
+        <LinkExternal href={tosUrl} data-testid="terms-download">
           Download Terms
-        </a>
+        </LinkExternal>
       </Localized>
     </p>
   );
@@ -78,25 +69,21 @@ export const TermsAndPrivacy = ({
       <p className="legal-heading">Firefox Accounts</p>
       <p data-testid="fxa-legal-links">
         <Localized id="terms">
-          <a
+          <LinkExternal
             href={`${contentServerURL}/legal/terms`}
-            target="_blank"
-            rel="noopener noreferrer"
             data-testid="fxa-terms"
           >
             Terms of Service
-          </a>
+          </LinkExternal>
         </Localized>
         &nbsp;&nbsp;&nbsp;
         <Localized id="privacy">
-          <a
+          <LinkExternal
             href={`${contentServerURL}/legal/privacy`}
-            target="_blank"
-            rel="noopener noreferrer"
             data-testid="fxa-privacy"
           >
             Privacy Notice
-          </a>
+          </LinkExternal>
         </Localized>
       </p>
     </>
