@@ -1,3 +1,9 @@
+## 1.231.4
+
+### Bug fixes
+
+- auth: fix collection prefix for iap ([e94385574](https://github.com/mozilla/fxa/commit/e94385574))
+
 ## 1.231.3
 
 ### Bug fixes
