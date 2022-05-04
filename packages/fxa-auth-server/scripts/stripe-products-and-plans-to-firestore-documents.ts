@@ -15,6 +15,12 @@ const parseDryRun = (dryRun: boolean | string) => {
 };
 
 async function init() {
+  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    throw new Error(
+      'Did you forget to set GOOGLE_APPLICATION_CREDENTIALS for GCP API access?'
+    );
+  }
+
   program
     .version(pckg.version)
     .option(

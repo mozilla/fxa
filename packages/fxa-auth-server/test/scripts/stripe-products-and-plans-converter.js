@@ -6,6 +6,7 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 
 const { deleteCollection } = require('../local/payments/util');
 const { AuthFirestore, AuthLogger, AppConfig } = require('../../lib/types');
@@ -15,8 +16,42 @@ const plan = require('fxa-auth-server/test/local/payments/fixtures/stripe/plan2.
 const product = require('fxa-shared/test/fixtures/stripe/product1.json');
 const { mockLog, mockStripeHelper } = require('../mocks');
 const {
-  StripeProductsAndPlansConverter,
-} = require('../../scripts/stripe-products-and-plans-to-firestore-documents/stripe-products-and-plans-converter');
+  PLAN_EN_LANG_ERROR,
+} = require('../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser');
+const GOOGLE_ERROR_MESSAGE = 'Google Translate Error Overload';
+const googleTranslateShapedError = {
+  code: 403,
+  message: GOOGLE_ERROR_MESSAGE,
+  response: {
+    request: {
+      href: 'https://translation.googleapis.com/language/translate/v2/detect',
+    },
+  },
+};
+const langFromMetadataMock = {
+  getLanguageTagFromPlanMetadata: sinon.stub().callsFake((plan) => {
+    if (plan.nickname.includes('es-ES')) {
+      return 'es-ES';
+    }
+    if (plan.nickname.includes('fr')) {
+      return 'fr';
+    }
+    if (plan.nickname === 'localised en plan') {
+      throw new Error(PLAN_EN_LANG_ERROR);
+    }
+    if (plan.nickname === 'you cannot translate this') {
+      throw googleTranslateShapedError;
+    }
+    return 'en';
+  }),
+};
+const { StripeProductsAndPlansConverter } = proxyquire(
+  '../../scripts/stripe-products-and-plans-to-firestore-documents/stripe-products-and-plans-converter',
+  {
+    '../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser':
+      langFromMetadataMock,
+  }
+);
 const {
   PaymentConfigManager,
 } = require('../../lib/payments/configuration/manager');
@@ -260,38 +295,8 @@ describe('StripeProductsAndPlansConverter', () => {
     });
   });
 
-  describe('findLocaleStringFromStripePlan', () => {
-    it('returns a locale from the plan nickname if valid', () => {
-      const planWithLocalizedData = {
-        ...deepCopy(plan),
-        nickname: '123Done Pro Monthly es-ES',
-        metadata: {
-          'product:details:1': 'Producto nuevo',
-        },
-      };
-      const expected = 'es-ES';
-      const actual = converter.findLocaleStringFromStripePlan(
-        planWithLocalizedData
-      );
-      assert.equal(expected, actual);
-    });
-    it('returns null if no valid locale is found', () => {
-      const planWithLocalizedData = {
-        ...deepCopy(plan),
-        nickname: '123Done Pro Monthly',
-        metadata: {
-          'product:details:1': 'Producto nuevo',
-        },
-      };
-      const actual = converter.findLocaleStringFromStripePlan(
-        planWithLocalizedData
-      );
-      assert.isNull(actual);
-    });
-  });
-
   describe('stripePlanLocalesToProductConfigLocales', () => {
-    it('returns a ProductConfig.locales object if a locale is found', () => {
+    it('returns a ProductConfig.locales object if a locale is found', async () => {
       const planWithLocalizedData = {
         ...deepCopy(plan),
         nickname: '123Done Pro Monthly es-ES',
@@ -309,12 +314,12 @@ describe('StripeProductsAndPlansConverter', () => {
           support: {},
         },
       };
-      const actual = converter.stripePlanLocalesToProductConfigLocales(
+      const actual = await converter.stripePlanLocalesToProductConfigLocales(
         planWithLocalizedData
       );
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(actual, expected);
     });
-    it('returns {} if no locale is found', () => {
+    it('returns {} if no locale is found', async () => {
       const planWithLocalizedData = {
         ...deepCopy(plan),
         nickname: '123Done Pro Monthly',
@@ -324,7 +329,7 @@ describe('StripeProductsAndPlansConverter', () => {
         },
       };
       const expected = {};
-      const actual = converter.stripePlanLocalesToProductConfigLocales(
+      const actual = await converter.stripePlanLocalesToProductConfigLocales(
         planWithLocalizedData
       );
       assert.deepEqual(expected, actual);
@@ -424,6 +429,31 @@ describe('StripeProductsAndPlansConverter', () => {
     const planConfig2 = { ...deepCopy(planConfig1), stripePriceId: plan2.id };
     const plan3 = deepCopy({ ...deepCopy(plan1), id: 'plan_789' });
     const planConfig3 = { ...deepCopy(planConfig1), stripePriceId: plan3.id };
+    const plan4 = deepCopy({
+      ...plan1,
+      id: 'plan_infinity',
+      nickname: 'localised en plan',
+    });
+    const planConfig4 = {
+      ...deepCopy(planConfig1),
+      stripePriceId: plan4.id,
+      locales: {
+        en: {
+          support: {},
+          uiContent: {
+            upgradeCTA: 'hello <a href="http://example.org">world</a>',
+          },
+          urls: {
+            download: 'https://example.com/download',
+          },
+        },
+      },
+    };
+    const plan5 = deepCopy({
+      ...plan1,
+      id: 'plan_googol',
+      nickname: 'you cannot translate this',
+    });
     beforeEach(() => {
       const firestore = setupFirestore(mockConfig);
       Container.set(AuthFirestore, firestore);
@@ -449,6 +479,7 @@ describe('StripeProductsAndPlansConverter', () => {
       async function* planGenerator1() {
         yield plan1;
         yield plan2;
+        yield plan4;
       }
       async function* planGenerator2() {
         yield plan3;
@@ -504,8 +535,13 @@ describe('StripeProductsAndPlansConverter', () => {
         productConfigId: products[0].id,
       });
       assert.deepEqual(plans[2], {
-        ...planConfig3,
+        ...planConfig4,
         id: plans[2].id,
+        productConfigId: products[0].id,
+      });
+      assert.deepEqual(plans[3], {
+        ...planConfig3,
+        id: plans[3].id,
         productConfigId: products[1].id,
       });
     });
@@ -755,6 +791,29 @@ describe('StripeProductsAndPlansConverter', () => {
           stripeProductId: product1.id,
         }
       );
+    });
+    it('re-throws an error from Google Translation API', async () => {
+      async function* planGenerator() {
+        yield plan5;
+      }
+      async function* productGenerator() {
+        yield product1;
+      }
+      try {
+        converter.stripeHelper.stripe = {
+          products: { list: sandbox.stub().returns(productGenerator()) },
+          plans: {
+            list: sandbox.stub().returns(planGenerator()),
+          },
+        };
+        await converter.convert(args);
+        assert.fail('An error should have been thrown');
+      } catch (err) {
+        assert.equal(
+          err.message,
+          `Google Translation API error: ${GOOGLE_ERROR_MESSAGE}`
+        );
+      }
     });
   });
 });
