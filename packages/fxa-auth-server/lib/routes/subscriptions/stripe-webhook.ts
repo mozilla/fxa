@@ -388,9 +388,9 @@ export class StripeWebhookHandler extends StripeHandler {
   ) {
     const sub = event.data.object as Stripe.Subscription;
 
-    let uid, email;
+    let uid;
     try {
-      ({ uid, email } = await this.sendSubscriptionUpdatedEmail(event));
+      ({ uid } = await this.sendSubscriptionUpdatedEmail(event));
     } catch (err) {
       // It's unexpected that we don't know about the customer or an error happens.
       if (err.output && typeof err.output.payload === 'object') {
@@ -400,14 +400,8 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
-    // if the subscription changed from 'incomplete' to 'active' or 'trialing'
-    if (
-      ['active', 'trialing'].includes(sub.status) &&
-      (event.data?.previous_attributes as any)?.status === 'incomplete'
-    ) {
-      return this.capabilityService.stripeUpdate({ sub, uid });
-    }
-    return;
+    // Always send subscription changes to the capability service.
+    return this.capabilityService.stripeUpdate({ sub, uid });
   }
 
   /**
