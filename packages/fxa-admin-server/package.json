@@ -54,7 +54,7 @@
     "graphql-tools": "^8.0.0",
     "helmet": "^5.0.0",
     "hot-shots": "^9.0.0",
-    "knex": "^1.0.7",
+    "knex": "^2.0.0",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
