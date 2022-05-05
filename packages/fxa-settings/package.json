@@ -79,7 +79,7 @@
     "react-dom": "^16.13.1",
     "react-easy-crop": "^4.1.4",
     "react-hook-form": "^6.15.8",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^5.0.1",
     "react-webcam": "^7.0.0",
     "subscriptions-transport-ws": "^0.11.0",
     "typescript": "^4.5.2",
