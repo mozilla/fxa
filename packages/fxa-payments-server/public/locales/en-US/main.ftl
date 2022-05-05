@@ -468,7 +468,7 @@ new-user-card-title = Enter your card information
 new-user-submit = Subscribe Now
 
 manage-pocket-title = Looking for your { -brand-name-pocket } premium subscription?
-manage-pocket-body = To manage it, <a>click here</a>.
+manage-pocket-body-2 = To manage it, <linkExternal>click here</linkExternal>.
 
 payment-method-header = Choose your payment method
 # This message is used to indicate the second step in a multi step process.

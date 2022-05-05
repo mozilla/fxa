@@ -40,6 +40,7 @@ import {
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import SubscriptionIapItem from './SubscriptionIapItem/SubscriptionIapItem';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -397,30 +398,26 @@ export const Subscriptions = ({
                   </Localized>
                 </p>
                 <Localized
-                  id="manage-pocket-body"
+                  id="manage-pocket-body-2"
                   elems={{
-                    a: (
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    linkExternal: (
+                      <LinkExternal
                         href="https://getpocket.com/premium/manage"
                         data-testid="manage-pocket-link"
                       >
                         click here
-                      </a>
+                      </LinkExternal>
                     ),
                   }}
                 >
                   <p>
                     To manage it,{' '}
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <LinkExternal
                       href="https://getpocket.com/premium/manage"
                       data-testid="manage-pocket-link"
                     >
                       click here
-                    </a>
+                    </LinkExternal>
                     .
                   </p>
                 </Localized>

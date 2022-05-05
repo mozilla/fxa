@@ -4,6 +4,7 @@ import { Localized } from '@fluent/react';
 import * as PaymentProvider from '../../lib/PaymentProvider';
 
 import './index.scss';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 function getPrivacyLinkText(): string {
   return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>PayPal privacy policy</paypalPrivacyLink>';
@@ -30,13 +31,9 @@ const PaypalPaymentLegalBlurb = () => (
       id="payment-legal-link-paypal-2"
       elems={{
         paypalPrivacyLink: (
-          <a
-            href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <LinkExternal href="https://www.paypal.com/webapps/mpp/ua/privacy-full">
             PayPal privacy policy
-          </a>
+          </LinkExternal>
         ),
       }}
     >
@@ -55,13 +52,9 @@ const StripePaymentLegalBlurb = () => (
       id="payment-legal-link-stripe-3"
       elems={{
         stripePrivacyLink: (
-          <a
-            href="https://stripe.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <LinkExternal href="https://stripe.com/privacy">
             Stripe privacy policy
-          </a>
+          </LinkExternal>
         ),
       }}
     >
@@ -80,22 +73,14 @@ const DefaultPaymentLegalBlurb = () => (
       id="payment-legal-link-stripe-paypal"
       elems={{
         stripePrivacyLink: (
-          <a
-            href="https://stripe.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <LinkExternal href="https://stripe.com/privacy">
             Stripe privacy policy
-          </a>
+          </LinkExternal>
         ),
         paypalPrivacyLink: (
-          <a
-            href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <LinkExternal href="https://www.paypal.com/webapps/mpp/ua/privacy-full">
             PayPal privacy policy
-          </a>
+          </LinkExternal>
         ),
       }}
     >
