@@ -165,6 +165,8 @@ export const ConnectedServices = () => {
     disconnectClient(selectedClient);
   }, [selectedClient, clearDisconnectingState, l10n, disconnectClient]);
 
+  //just a comment
+
   const onSignOutClick = useCallback(
     (c: AttachedClient) => {
       setSelectedClient(c);
