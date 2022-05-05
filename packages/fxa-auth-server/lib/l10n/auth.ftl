@@ -23,9 +23,6 @@
 -google-play = Google Play
 
 ## Non-email strings
+
 session-verify-send-push-title = Logging in to { -product-firefox-accounts }?
 session-verify-send-push-body = Click here to verify it’s you
-
-## Email content
-## Emails do not contain buttons, only links. Emails have a rich HTML version and a plaintext
-## version. The strings are usually identical but sometimes they differ slightly.
