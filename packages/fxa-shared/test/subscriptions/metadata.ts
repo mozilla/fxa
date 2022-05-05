@@ -48,6 +48,49 @@ const requiredProductMetadata = {
   webIconURL: null,
 };
 
+const PLAN_WITH_METADATA = {
+  ...PLAN,
+  plan_name: 'The Plan',
+  product_metadata: {
+    productSet: 'foo',
+    productOrder: '2',
+    webIconURL: 'https://example.org/webicon.png',
+    webIconBackground: '#ffffff',
+    upgradeCTA: 'upgradeCTA',
+    'product:termsOfServiceURL': 'https://example.org/en-US/terms',
+    'product:privacyNoticeURL': 'https://example.org/en-US/privacy',
+    'product:termsOfServiceDownloadURL':
+      'https://example.org/en-US/terms/download',
+    'product:privacyNoticeDownloadURL':
+      'https://example.org/en-US/privacy/download',
+    'product:ignoreme': 'Unknown name here',
+    'product:subtitle': 'Great Full-device VPN',
+    'product:details:3': 'Baz Connects 5 devices with one subscription',
+    'product:details:1': 'Foo Device-level encryption',
+    'product:details:2': 'Bar Servers in 30+ countries',
+    'product:details:4': 'Quux Available for Windows, iOS and Android',
+    'product:successActionButtonLabel': 'Do something else',
+    'product:subtitle:xx-pirate': 'VPN fer yer full-device',
+    'product:foobar:9:xx-pirate': 'what even is this',
+    'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android",
+    'product:details:1:xx-pirate': 'Device-level encryption arr',
+    'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
+    'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
+    'product:termsOfServiceURL:xx-pirate':
+      'https://example.org/xx-pirate/terms',
+    'product:privacyNoticeURL:xx-pirate':
+      'https://example.org/xx-pirate/privacy',
+    'product:termsOfServiceDownloadURL:xx-pirate':
+      'https://example.org/xx-pirate/terms/download',
+    'product:privacyNoticeDownloadURL:xx-pirate':
+      'https://example.org/xx-pirate/privacy/download',
+    'product:successActionButtonLabel:xx-pirate': 'Yarr...',
+    'product:subtitle:xx-partial': 'Partial localization',
+    'product:termsOfServiceURL:xx-partial':
+      'https://example.org/xx-partial/terms',
+  },
+};
+
 describe('subscriptions/metadata', () => {
   describe('metadataFromPlan', () => {
     it('produces default null values', () => {
@@ -107,46 +150,7 @@ describe('subscriptions/metadata', () => {
   });
 
   describe('productDetailsFromPlan', () => {
-    const plan = {
-      ...PLAN,
-      product_metadata: {
-        productSet: 'foo',
-        productOrder: '2',
-        'product:ignoreme': 'Unknown name here',
-        'product:subtitle': 'Great Full-device VPN',
-        'product:details:3': 'Baz Connects 5 devices with one subscription',
-        'product:details:1': 'Foo Device-level encryption',
-        'product:details:2': 'Bar Servers in 30+ countries',
-        'product:details:4': 'Quux Available for Windows, iOS and Android',
-        'product:termsOfServiceURL': 'https://example.org/en-US/terms',
-        'product:privacyNoticeURL': 'https://example.org/en-US/privacy',
-        'product:termsOfServiceDownloadURL':
-          'https://example.org/en-US/terms/download',
-        'product:privacyNoticeDownloadURL':
-          'https://example.org/en-US/privacy/download',
-        'product:successActionButtonLabel': 'Do something else',
-        'product:subtitle:xx-pirate': 'VPN fer yer full-device',
-        'product:foobar:9:xx-pirate': 'what even is this',
-        'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android",
-        'product:details:1:xx-pirate': 'Device-level encryption arr',
-        'product:details:3:xx-pirate':
-          "Connects 5 devices wit' one subscription",
-        'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
-        'product:termsOfServiceURL:xx-pirate':
-          'https://example.org/xx-pirate/terms',
-        'product:privacyNoticeURL:xx-pirate':
-          'https://example.org/xx-pirate/privacy',
-        'product:termsOfServiceDownloadURL:xx-pirate':
-          'https://example.org/xx-pirate/terms/download',
-        'product:privacyNoticeDownloadURL:xx-pirate':
-          'https://example.org/xx-pirate/privacy/download',
-        'product:successActionButtonLabel:xx-pirate': 'Yarr...',
-        'product:subtitle:xx-partial': 'Partial localization',
-        'product:details:1:xx-partial': true,
-        'product:termsOfServiceURL:xx-partial':
-          'https://example.org/xx-partial/terms',
-      },
-    };
+    const plan = PLAN_WITH_METADATA;
 
     it('extracts base details when metadata does not supply product details', () => {
       expect(productDetailsFromPlan(PLAN)).to.deep.equal(

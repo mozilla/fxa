@@ -18,6 +18,7 @@ import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Profile } from '../../store/types';
+import AppContext, { defaultAppContext } from '../../lib/AppContext';
 
 const userProfile: Profile = {
   avatar: './avatar.svg',
@@ -49,7 +50,36 @@ const selectedPlan: Plan = {
   product_metadata: null,
 };
 
-afterEach(cleanup);
+const selectedPlanWithConfig = {
+  ...selectedPlan,
+  configuration: {
+    urls: {
+      webIcon: 'https://webicon',
+    },
+    uiContent: {
+      subtitle: 'VPN subtitle',
+    },
+    locales: {
+      'fy-NL': {
+        urls: {
+          webIcon: 'https://translatedicon',
+        },
+        uiContent: {
+          subtitle: 'OPN subtitle',
+        },
+      },
+    },
+  },
+};
+
+afterEach(() => {
+  updateConfig({
+    featureFlags: {
+      useFirestoreProductConfigs: false,
+    },
+  });
+  cleanup();
+});
 
 describe('PlanDetails', () => {
   it('renders as expected', () => {
@@ -70,13 +100,79 @@ describe('PlanDetails', () => {
     const productLogo = queryByTestId('product-logo');
     expect(productLogo).toHaveAttribute('alt', selectedPlan.product_name);
     expect(
-      queryByText(selectedPlan.plan_metadata['product:subtitle'])
+      queryByText(selectedPlan.plan_metadata!['product:subtitle'])
     ).toBeInTheDocument();
 
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
 
     expect(queryByTestId('list')).not.toBeTruthy();
+  });
+
+  it('renders as expected using firestore config', () => {
+    updateConfig({
+      featureFlags: {
+        useFirestoreProductConfigs: true,
+      },
+    });
+    const subject = () => {
+      return render(
+        <PlanDetails
+          {...{
+            profile: userProfile,
+            showExpandButton: true,
+            isMobile: false,
+            selectedPlan: selectedPlanWithConfig,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const productLogo = queryByTestId('product-logo');
+    expect(productLogo).toHaveAttribute(
+      'src',
+      selectedPlanWithConfig.configuration.urls.webIcon
+    );
+    expect(
+      queryByText(selectedPlanWithConfig.configuration.uiContent.subtitle)
+    ).toBeInTheDocument();
+  });
+
+  it('renders as expected using firestore config locale', () => {
+    updateConfig({
+      featureFlags: {
+        useFirestoreProductConfigs: true,
+      },
+    });
+    const subject = () => {
+      return render(
+        <AppContext.Provider
+          value={{ ...defaultAppContext, navigatorLanguages: ['fy-NL'] }}
+        >
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: true,
+              isMobile: false,
+              selectedPlan: selectedPlanWithConfig,
+            }}
+          />
+        </AppContext.Provider>
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const productLogo = queryByTestId('product-logo');
+    expect(productLogo).toHaveAttribute(
+      'src',
+      selectedPlanWithConfig.configuration.locales['fy-NL'].urls.webIcon
+    );
+    expect(
+      queryByText(
+        selectedPlanWithConfig.configuration.locales['fy-NL'].uiContent.subtitle
+      )
+    ).toBeInTheDocument();
   });
 
   it('hides expand button when showExpandButton is false', () => {
@@ -122,7 +218,7 @@ describe('PlanDetails', () => {
     expect(queryByTestId('list')).toBeVisible();
 
     for (let idx = 1; idx <= 3; idx++) {
-      const item = selectedPlan.plan_metadata[`product:details:${idx}`];
+      const item = selectedPlan.plan_metadata![`product:details:${idx}`];
       expect(queryByText(item)).toBeInTheDocument();
     }
 

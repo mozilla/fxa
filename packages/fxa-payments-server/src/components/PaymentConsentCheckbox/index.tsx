@@ -5,7 +5,7 @@ import {
   getDefaultPaymentConfirmText,
   getLocalizedCurrency,
 } from '../../lib/formats';
-import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 import AppContext from '../../lib/AppContext';
 import { Localized } from '@fluent/react';
 
@@ -18,11 +18,12 @@ export const PaymentConsentCheckbox = ({
   plan,
   onClick,
 }: PaymentConsentCheckboxProps) => {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { navigatorLanguages, config } = useContext(AppContext);
 
-  const { termsOfServiceURL, privacyNoticeURL } = productDetailsFromPlan(
+  const { termsOfService, privacyNotice } = urlsFromProductConfig(
     plan,
-    navigatorLanguages
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
   );
 
   return (
@@ -34,8 +35,8 @@ export const PaymentConsentCheckbox = ({
       }}
       elems={{
         strong: <strong></strong>,
-        termsOfServiceLink: <a href={termsOfServiceURL}>Terms of Service</a>,
-        privacyNoticeLink: <a href={privacyNoticeURL}>Privacy Notice</a>,
+        termsOfServiceLink: <a href={termsOfService}>Terms of Service</a>,
+        privacyNoticeLink: <a href={privacyNotice}>Privacy Notice</a>,
       }}
     >
       <Checkbox name="confirm" data-testid="confirm" onClick={onClick} required>

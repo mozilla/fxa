@@ -7,7 +7,7 @@ import {
   SubscriptionStripeErrorType,
   SubscriptionUpdateEligibility,
 } from './types';
-import { metadataFromPlan } from './metadata';
+import { productUpgradeFromProductConfig } from './configuration/helpers';
 
 const isCapabilityKey = (value: string, key: string) =>
   key.startsWith('capabilities');
@@ -231,10 +231,21 @@ export function singlePlan(
  */
 export const getSubscriptionUpdateEligibility: (
   x: Plan,
-  y: Plan
-) => SubscriptionUpdateEligibility = (currentPlan: Plan, newPlan: Plan) => {
-  const currentPlanMetaData = metadataFromPlan(currentPlan);
-  const newPlanMetaData = metadataFromPlan(newPlan);
+  y: Plan,
+  useFirestoreProductConfigs?: boolean
+) => SubscriptionUpdateEligibility = (
+  currentPlan: Plan,
+  newPlan: Plan,
+  useFirestoreProductConfigs: boolean = false
+) => {
+  const currentPlanMetaData = productUpgradeFromProductConfig(
+    currentPlan,
+    useFirestoreProductConfigs
+  );
+  const newPlanMetaData = productUpgradeFromProductConfig(
+    newPlan,
+    useFirestoreProductConfigs
+  );
   const currentOrder =
     !!currentPlanMetaData.productOrder &&
     parseInt(currentPlanMetaData.productOrder);

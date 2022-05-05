@@ -21,6 +21,8 @@ export interface Plan {
   product_id: string;
   product_metadata: RawMetadata | null;
   product_name: string;
+  // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+  configuration?: PlanConfigurationDtoT | null;
 }
 
 export type ConfiguredPlan = Stripe.Plan & {

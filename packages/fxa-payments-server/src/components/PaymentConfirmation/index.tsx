@@ -12,7 +12,7 @@ import emailSentIcon from './images/email-sent.svg';
 import checkmarkIcon from './images/checkmark.svg';
 
 import './index.scss';
-import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
@@ -43,9 +43,10 @@ export const PaymentConfirmation = ({
 
   const { payment_provider, subscriptions } = customer;
 
-  const buttonLabel = productDetailsFromPlan(
+  const buttonLabel = uiContentFromProductConfig(
     selectedPlan,
-    navigatorLanguages
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
   ).successActionButtonLabel;
 
   const invoiceNumber = (subscriptions[0] as WebSubscription).latest_invoice;

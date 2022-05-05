@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Plan, Customer, Profile } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 
 import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';
@@ -30,13 +30,19 @@ export const SubscriptionSuccess = ({
   coupon,
 }: SubscriptionSuccessProps) => {
   const { product_id } = plan;
-  const { downloadURL } = metadataFromPlan(plan);
   const {
-    config: { productRedirectURLs },
+    config: { productRedirectURLs, featureFlags },
+    navigatorLanguages,
   } = useContext(AppContext);
 
+  const { download } = urlsFromProductConfig(
+    plan,
+    navigatorLanguages,
+    featureFlags.useFirestoreProductConfigs
+  );
+
   const productUrl =
-    downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;
+    download || productRedirectURLs[product_id] || defaultProductRedirectURL;
 
   return (
     <>

@@ -24,6 +24,8 @@ import {
 import { defaultState } from 'fxa-payments-server/src/store/state';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
+import { updateConfig } from '../../../lib/config';
+import AppContext, { defaultAppContext } from '../../../lib/AppContext';
 jest.mock('../../../lib/amplitude');
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
@@ -96,6 +98,14 @@ describe('CancelSubscriptionPanel', () => {
     }
 
     describe('upgrade CTA', () => {
+      afterEach(() => {
+        updateConfig({
+          featureFlags: {
+            useFirestoreProductConfigs: false,
+          },
+        });
+      });
+
       it('should not be displayed when upgradeCTA is not in the plan', () => {
         const plan = findMockPlan('plan_daily');
         render(<CancelSubscriptionPanel {...baseProps} plan={plan} />);
@@ -116,6 +126,68 @@ describe('CancelSubscriptionPanel', () => {
         expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
         expect(
           queryByText(upgradeablePlan.plan_metadata.upgradeCTA)
+        ).toBeInTheDocument();
+      });
+
+      it('should be displayed when upgradeCTA is in the plan configuration', () => {
+        updateConfig({
+          featureFlags: {
+            useFirestoreProductConfigs: true,
+          },
+        });
+        const plan = findMockPlan('plan_daily');
+        const upgradeablePlan = {
+          ...plan,
+          configuration: {
+            uiContent: {
+              upgradeCTA: 'Upgrade to config store premium plus plan!',
+            },
+          },
+        };
+        render(
+          <CancelSubscriptionPanel {...baseProps} plan={upgradeablePlan} />
+        );
+        expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
+        expect(
+          queryByText(upgradeablePlan.configuration.uiContent.upgradeCTA)
+        ).toBeInTheDocument();
+      });
+
+      it('should be displayed when upgradeCTA is in the plan configuration locale', () => {
+        updateConfig({
+          featureFlags: {
+            useFirestoreProductConfigs: true,
+          },
+        });
+        const plan = findMockPlan('plan_daily');
+        const upgradeablePlan = {
+          ...plan,
+          configuration: {
+            uiContent: {
+              upgradeCTA: 'Upgrade to config store premium plus plan!',
+            },
+            locales: {
+              fr: {
+                uiContent: {
+                  upgradeCTA:
+                    'Upgrade to french config store premium plus plan!',
+                },
+              },
+            },
+          },
+        };
+        render(
+          <AppContext.Provider
+            value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
+          >
+            <CancelSubscriptionPanel {...baseProps} plan={upgradeablePlan} />
+          </AppContext.Provider>
+        );
+        expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
+        expect(
+          queryByText(
+            upgradeablePlan.configuration.locales.fr.uiContent.upgradeCTA
+          )
         ).toBeInTheDocument();
       });
     });

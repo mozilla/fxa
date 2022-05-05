@@ -1,17 +1,13 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 
-import {
-  productDetailsFromPlan,
-  DEFAULT_PRODUCT_DETAILS,
-} from 'fxa-shared/subscriptions/metadata';
-
 import { Plan } from '../../store/types';
 
 import { AppContext } from '../../lib/AppContext';
 import { legalDocsRedirectUrl } from '../../lib/formats';
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 
 export type TermsAndPrivacyProps = {
   plan: Plan;
@@ -24,34 +20,32 @@ export const TermsAndPrivacy = ({
   showFXALinks = false,
   contentServerURL,
 }: TermsAndPrivacyProps) => {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { navigatorLanguages, config } = useContext(AppContext);
 
   // TODO: if a plan is not supplied, fall back to default details
   // This mainly happens in ProductUpdateForm where we're updating payment
   // details across *all* plans - are there better URLs to pick in that case?
-  // This logic assumes that values exist on DEFAULT_PRODUCT_DETAILS and are not undefined
-  const {
-    termsOfServiceURL = DEFAULT_PRODUCT_DETAILS.termsOfServiceURL!,
-    termsOfServiceDownloadURL = DEFAULT_PRODUCT_DETAILS.termsOfServiceDownloadURL!,
-    privacyNoticeURL = DEFAULT_PRODUCT_DETAILS.privacyNoticeURL!,
-  } = plan
-    ? productDetailsFromPlan(plan, navigatorLanguages)
-    : DEFAULT_PRODUCT_DETAILS;
+  const { termsOfService, termsOfServiceDownload, privacyNotice } =
+    urlsFromProductConfig(
+      plan,
+      navigatorLanguages,
+      config.featureFlags.useFirestoreProductConfigs
+    );
 
-  const tosUrl = termsOfServiceDownloadURL
-    ? legalDocsRedirectUrl(termsOfServiceDownloadURL)
-    : termsOfServiceDownloadURL;
+  const tosUrl = termsOfServiceDownload
+    ? legalDocsRedirectUrl(termsOfServiceDownload)
+    : termsOfServiceDownload;
 
   const productLegalBlurb = (
     <p>
       <Localized id="terms">
-        <LinkExternal href={termsOfServiceURL} data-testid="terms">
+        <LinkExternal href={termsOfService} data-testid="terms">
           Terms of Service
         </LinkExternal>
       </Localized>
       &nbsp;&nbsp;&nbsp;
       <Localized id="privacy">
-        <LinkExternal href={privacyNoticeURL} data-testid="privacy">
+        <LinkExternal href={privacyNotice} data-testid="privacy">
           Privacy Notice
         </LinkExternal>
       </Localized>

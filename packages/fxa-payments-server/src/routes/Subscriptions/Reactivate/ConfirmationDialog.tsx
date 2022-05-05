@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import {
   getLocalizedDate,
@@ -9,10 +9,11 @@ import {
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import { useHandleConfirmationDialog } from '../../../lib/hooks';
+import AppContext from '../../../lib/AppContext';
 
 const ConfirmationDialogErrorContent = () => (
   <>
@@ -133,7 +134,12 @@ const ConfirmationDialog = ({
   customerSubscription: WebSubscription;
   periodEndDate: number;
 }) => {
-  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
+  const { navigatorLanguages, config } = useContext(AppContext);
+  const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
+    plan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
   const { last4 } = customer;
 
   const { loading, error, amount } = useHandleConfirmationDialog(
@@ -156,7 +162,7 @@ const ConfirmationDialog = ({
               productName={plan.product_name}
               amount={amount}
               last4={last4}
-              webIconURL={webIconURL}
+              webIconURL={webIcon}
               webIconBackground={webIconBackground}
             />
           )}
