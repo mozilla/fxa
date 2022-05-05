@@ -13,6 +13,7 @@ import {
   SERVER_CONFIG_PLACEHOLDER,
 } from '../../../constants';
 import { guard } from 'fxa-shared/guards';
+import log from '../logging';
 
 /** Client Config Defaults provided by env */
 const defaultConfig: IClientConfig = {
@@ -27,6 +28,8 @@ const defaultConfig: IClientConfig = {
     },
   },
 };
+
+const logger = log('server.client-config');
 
 /** Utility class providing functionality for dealing with generation of client side configuration. */
 export class ClientConfig {
@@ -57,7 +60,6 @@ export class ClientConfig {
 
     return result;
   }
-
   /** Provides a customized config object that takes state of http headers into account. */
   private static update(
     baseConfig: IClientConfig,
@@ -75,8 +77,12 @@ export class ClientConfig {
     const userGroupHeader = headers[USER_GROUP_HEADER];
     if (userGroupHeader != null) {
       clone.user.group = guard.getBestGroup(userGroupHeader);
+      logger.info('userGroupHeader', {
+        'userGroupHeader.notnull': userGroupHeader,
+      });
     }
-
+    logger.info('userGroupHeader', { userGroupHeader: userGroupHeader });
+    logger.info('userGroupHeader', { header: JSON.stringify(headers) });
     return clone;
   }
 }
