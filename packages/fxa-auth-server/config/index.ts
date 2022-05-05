@@ -150,12 +150,30 @@ const conf = convict({
       format: String,
       doc: 'Apple auth client secret',
     },
+    keyId: {
+      default: '',
+      env: 'APPLE_AUTH_KEY_ID',
+      format: String,
+      doc: 'Apple auth key id',
+    },
     redirectUri: {
       default:
         'https://localhost.dev:3030/post_verify/third_party_auth/callback',
       env: 'APPLE_AUTH_REDIRECT_URI',
       format: String,
       doc: 'Apple auth redirect uri',
+    },
+    privateKey: {
+      default: '',
+      env: 'APPLE_AUTH_PRIVATE_KEY',
+      format: String,
+      doc: 'Apple auth private key',
+    },
+    teamId: {
+      default: '',
+      env: 'APPLE_AUTH_TEAM_ID',
+      format: String,
+      doc: 'Apple auth team id',
     },
     tokenEndpoint: {
       default: 'https://appleid.apple.com/auth/token',

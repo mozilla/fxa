@@ -7,14 +7,13 @@ import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import * as uuid from 'uuid';
 import * as random from '../crypto/random';
+import * as jose from 'jose';
 import validators from './validators';
 import Joi from 'joi';
-import jwtDecode from 'jwt-decode';
 import {
   Provider,
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
-
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -22,6 +21,8 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const error = require('../error');
 
 const MS_ONE_HOUR = 1000 * 60 * 60;
+
+const appleAud = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
@@ -42,6 +43,28 @@ export class LinkedAccountHandler {
         config.googleAuthConfig.clientId
       );
     }
+  }
+
+  // As generated tokens expire after 6 months (180 days) per Apple documentation,
+  // generate JWT for client secret on each request instead
+  async generateAppleClientSecret(
+    clientId: string,
+    keyId: string,
+    privateKey: string,
+    teamId: string
+  ) {
+    const ecPrivateKey = await jose.importPKCS8(privateKey, 'ES256');
+
+    const jwt = await new jose.SignJWT({})
+      .setProtectedHeader({ alg: 'ES256', kid: keyId })
+      .setIssuedAt()
+      .setIssuer(teamId)
+      .setAudience(appleAud)
+      .setExpirationTime('1m')
+      .setSubject(clientId)
+      .sign(ecPrivateKey);
+
+    return jwt;
   }
 
   async loginOrCreateAccount(request: AuthRequest) {
@@ -98,7 +121,20 @@ export class LinkedAccountHandler {
         break;
       }
       case 'apple': {
-        const { clientId, clientSecret } = this.config.appleAuthConfig;
+        const { clientId, keyId, privateKey, teamId } =
+          this.config.appleAuthConfig;
+
+        if (!clientId || !keyId || !privateKey || !teamId) {
+          throw error.thirdPartyAccountError();
+        }
+
+        let rawIdToken;
+        const clientSecret = await this.generateAppleClientSecret(
+          clientId,
+          keyId,
+          privateKey,
+          teamId
+        );
         const code = requestPayload.code;
         if (code) {
           const data = {
@@ -113,7 +149,8 @@ export class LinkedAccountHandler {
               this.config.appleAuthConfig.tokenEndpoint,
               new URLSearchParams(data).toString()
             );
-            idToken = jwtDecode(res.data['id_token']);
+            rawIdToken = res.data['id_token'];
+            idToken = jose.decodeJwt(rawIdToken);
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();

@@ -232,9 +232,15 @@ describe('/linked_account', () => {
 
     describe('apple auth', () => {
       const mockAppleUser = {
-        sub: '1234567890',
+        sub: 'OooOoo',
         email: 'bloop@mozilla.com',
       };
+
+      const privateKey = `-----BEGIN PRIVATE KEY-----
+      MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgiyvo0X+VQ0yIrOaN
+      nlrnUclopnvuuMfoc8HHly3505OhRANCAAQWUcdZ8uTSAsFuwtNy4KtsKqgeqYxg
+      l6kwL5D4N3pEGYGIDjV69Sw0zAt43480WqJv7HCL0mQnyqFmSrxj8jMa
+      -----END PRIVATE KEY-----`;
 
       beforeEach(async () => {
         mockLog = mocks.mockLog();
@@ -244,21 +250,28 @@ describe('/linked_account', () => {
           uid: UID,
         });
         const mockConfig = {
-          appleAuthConfig: { clientId: 'OooOoo' },
+          appleAuthConfig: {
+            clientId: 'OooOoo',
+            keyId: 'ABC123DEFG',
+            privateKey,
+            teamId: 'My cool team yo',
+          },
         };
         mockMailer = mocks.mockMailer();
         mockRequest = mocks.mockRequest({
           log: mockLog,
           payload: {
             provider: 'apple',
-            code: '123',
+            code: 'ABC123DEFG',
           },
         });
 
         const mockAppleAuthResponse = {
           data: {
             id_token:
-              'eyJhbGciOiJSUzI1NiIsImN0eSI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjogMTYwMzM3NjAxMSwgImVtYWlsIjogImJsb29wQG1vemlsbGEuY29tIn0=',
+              'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQzEyM0RFRkcifQ.eyJpc3MiOiJERUYxMjNHSElKIiwic3ViIjoiT29vT29vIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTcyMzU4MDg2LCJhdWQiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiZW1haWwiOiJibG9vcEBtb3ppbGxhLmNvbSIsInRlYW1JZCI6Ik15IGNvb2wgdGVhbSB5byJ9.owz0xkgzDr9rLwXhd3TWV2QSRfH2YSnLt7LkS_TS42oGq_cbp1pyqhBtOBNTyvpZT6YKlxAxdmDkAr9x_KI7-A',
+            email: 'bloop@mozilla.com',
+            user: 'OooOoo',
           },
         };
         axiosMock = {
@@ -312,10 +325,10 @@ describe('/linked_account', () => {
         const result = await runTest(route, mockRequest);
 
         assert.isTrue(axiosMock.post.calledOnce);
-        assert.equal(
-          axiosMock.post.args[0][1],
-          'code=oauth+code&client_id=OooOoo&client_secret=undefined&grant_type=authorization_code'
-        );
+        const urlSearchParams = new URLSearchParams(axiosMock.post.args[0][1]);
+        const params = Object.fromEntries(urlSearchParams.entries());
+
+        assert.isDefined(params.client_secret);
 
         assert.isTrue(
           mockDB.getLinkedAccount.calledOnceWith(
@@ -381,7 +394,7 @@ describe('/linked_account', () => {
         assert.ok(result.sessionToken);
       });
 
-      it('should return session with valid google id token', async () => {
+      it('should return session with valid apple id token', async () => {
         mockDB.getLinkedAccount = sinon.spy(() =>
           Promise.resolve({
             id: mockAppleUser.sub,
