@@ -145,6 +145,7 @@ type Query {
 type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
+  enableAccount(uid: String!): Boolean!
   recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!

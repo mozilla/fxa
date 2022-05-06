@@ -13,6 +13,8 @@ const EVENT_NAMES = {
   'account.login': 2,
   'account.reset': 3,
   'emails.clearBounces': 4,
+  'account.enable': 5,
+  'account.disable': 6,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

@@ -150,6 +150,7 @@ export interface IQuery {
 export interface IMutation {
     unverifyEmail(email: string): boolean | Promise<boolean>;
     disableAccount(uid: string): boolean | Promise<boolean>;
+    enableAccount(uid: string): boolean | Promise<boolean>;
     recordAdminSecurityEvent(name: string, uid: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;

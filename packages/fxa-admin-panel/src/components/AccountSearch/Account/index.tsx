@@ -51,6 +51,12 @@ export const DISABLE_ACCOUNT = gql`
   }
 `;
 
+export const ENABLE_ACCOUNT = gql`
+  mutation enableAccount($uid: String!) {
+    enableAccount(uid: $uid)
+  }
+`;
+
 export const UNLINK_ACCOUNT = gql`
   mutation unlinkAccount($uid: String!) {
     unlinkAccount(uid: $uid)
@@ -187,11 +193,32 @@ export const DangerZone = ({
     },
   });
 
+  const [enableAccount] = useMutation(ENABLE_ACCOUNT, {
+    onCompleted: () => {
+      window.alert('The account has been enabled.');
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error enabling account');
+    },
+  });
+
+  const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
+
   const handleDisable = () => {
-    if (!window.confirm('Are you sure? This cannot be undone.')) {
+    if (!window.confirm('Are you sure?')) {
       return;
     }
     disableAccount({ variables: { uid } });
+    recordAdminSecurityEvent({ variables: { uid, name: 'account.disable' } });
+  };
+
+  const handleEnable = () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    enableAccount({ variables: { uid } });
+    recordAdminSecurityEvent({ variables: { uid, name: 'account.enable' } });
   };
 
   // define loading messages
@@ -206,6 +233,7 @@ export const DangerZone = ({
         features={[
           AdminPanelFeature.UnverifyEmail,
           AdminPanelFeature.DisableAccount,
+          AdminPanelFeature.EnableAccount,
         ]}
       >
         <h3 className="mt-0 my-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
@@ -217,10 +245,11 @@ export const DangerZone = ({
         </p>
       </Guard>
       <Guard features={[AdminPanelFeature.UnverifyEmail]}>
-        <h2 className="text-lg">Email Verification</h2>
-        <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
-          Reset email verification. User needs to re-verify on next login.
-          <br />
+        <h2 className="text-lg account-header">Email Verification</h2>
+        <div className="border-l-2 border-red-600 mb-4 pl-4">
+          <p className="text-base leading-6">
+            Reset email verification. User needs to re-verify on next login.
+          </p>
           <button
             className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
             type="button"
@@ -229,14 +258,15 @@ export const DangerZone = ({
             Unverify Email
           </button>
           <br />
-          {unverifyMessage}
-        </p>
+          <p className="text-base">{unverifyMessage}</p>
+        </div>
       </Guard>
       <Guard features={[AdminPanelFeature.DisableAccount]}>
-        <h2 className="text-lg">Disable Login</h2>
-        <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
-          Stops this account from logging in.
-          <br />
+        <h2 className="text-lg account-header">Disable Login</h2>
+        <div className="border-l-2 border-red-600 mb-4 pl-4">
+          <p className="text-base leading-6 ">
+            Stops this account from logging in.
+          </p>
           {disabledAt ? (
             <div>
               Disabled at: {dateFormat(new Date(disabledAt), DATE_FORMAT)}
@@ -250,8 +280,25 @@ export const DangerZone = ({
               Disable
             </button>
           )}
-        </p>
+        </div>
       </Guard>
+      {disabledAt && (
+        <Guard features={[AdminPanelFeature.EnableAccount]}>
+          <h2 className="text-lg account-header">Enable Login</h2>
+          <div className="border-l-2 border-red-600 mb-4 pl-4">
+            <p className="text-base leading-6">
+              Allows this account to log in.
+            </p>
+            <button
+              className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+              type="button"
+              onClick={handleEnable}
+            >
+              Enable
+            </button>
+          </div>
+        </Guard>
+      )}
     </>
   );
 };
@@ -567,9 +614,7 @@ const EmailBounce = ({
         </li>
         <li className="account-li">
           diagnostic code:{' '}
-          <span>
-            {diagnosticCode?.length ? diagnosticCode : 'none'}
-          </span>
+          <span>{diagnosticCode?.length ? diagnosticCode : 'none'}</span>
         </li>
       </ul>
     </li>
