@@ -91,7 +91,7 @@
     "googleapis": "^100.0.0",
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",
-    "hapi-swagger": "10.3.0",
+    "hapi-swagger": "14.4.0",
     "hkdf": "0.0.2",
     "hot-shots": "^9.0.0",
     "i18n-iso-countries": "^7.4.0",
