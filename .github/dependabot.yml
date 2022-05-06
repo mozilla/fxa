@@ -14,3 +14,13 @@ updates:
       - dependency-name: "@types/*"
       - dependency-name: "web-push"
       - dependency-name: "jest-watch-typeahead" # To be removed after react-scripts update
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: 
+      interval: daily
+    open-pull-requests-limit: 6
+    reviewers: 
+     - "@mozilla/fxa-devs"
+    labels: 
+     - "maintenance"
+     - "dependencies"
