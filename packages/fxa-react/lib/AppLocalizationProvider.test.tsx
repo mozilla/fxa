@@ -18,12 +18,10 @@ describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-US', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
   function waitUntilTranslated() {
-    return waitUntil(
-      () => {
-        // @ts-ignore
-        return AppLocalizationProvider.prototype.render.callCount === 2
-      }
-    );
+    return waitUntil(() => {
+      // @ts-ignore
+      return AppLocalizationProvider.prototype.render.callCount === 2;
+    });
   }
 
   beforeAll(() => {
@@ -44,7 +42,7 @@ describe('<AppLocalizationProvider/>', () => {
 
   afterEach(() => {
     // @ts-ignore
-    AppLocalizationProvider.prototype.render.restore()
+    AppLocalizationProvider.prototype.render.restore();
     cleanup();
   });
 
@@ -82,7 +80,7 @@ describe('<AppLocalizationProvider/>', () => {
     await waitUntilTranslated();
 
     // Ensure we fall back to en-US if our locale is missing that string.
-    expect(getByTestId('result')).toHaveTextContent('HolaGoodbye');
+    expect(getByTestId('result')).toHaveTextContent('Holauntranslated');
   });
 
   it('translate to de', async () => {
@@ -102,7 +100,7 @@ describe('<AppLocalizationProvider/>', () => {
 
     // Ensure we fall back to en-US strings if we don't have translations for
     // any of the userLocales.
-    expect(getByTestId('result')).toHaveTextContent('HelloGoodbye');
+    expect(getByTestId('result')).toHaveTextContent('untranslated');
   });
 
   it('fallback to text content', async () => {
@@ -129,10 +127,7 @@ describe('<AppLocalizationProvider/>', () => {
     const { getByTestId } = render(
       <AppLocalizationProvider bundles={bundles} userLocales={['en-NZ']}>
         <main data-testid="result">
-          <Localized
-            id="hello"
-            vars={{ amount: '$US123.00' }}
-          >
+          <Localized id="hello" vars={{ amount: '$US123.00' }}>
             <div>untranslated</div>
           </Localized>
         </main>

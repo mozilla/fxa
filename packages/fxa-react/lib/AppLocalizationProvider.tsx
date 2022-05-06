@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
-import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
+import { parseAcceptLanguage } from 'fxa-shared/l10n/parseAcceptLanguage';
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
@@ -96,13 +95,7 @@ export default class AppLocalizationProvider extends Component<Props, State> {
   async componentDidMount() {
     const { baseDir, userLocales, bundles } = this.state;
 
-    const currentLocales = negotiateLanguages(
-      [...userLocales],
-      [...EN_GB_LOCALES, ...availableLocales],
-      {
-        defaultLocale: 'en-US',
-      }
-    );
+    const currentLocales = parseAcceptLanguage(userLocales.join(', '));
 
     const bundleGenerator = await createFluentBundleGenerator(
       baseDir,
