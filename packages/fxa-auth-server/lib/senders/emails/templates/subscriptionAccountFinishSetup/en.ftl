@@ -1,5 +1,3 @@
-# COMMENT ABOUT After the colon,
-payment-details = Payment details:
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionAccountFinishSetup-subject = Welcome to { $productName }: Please set your password.
