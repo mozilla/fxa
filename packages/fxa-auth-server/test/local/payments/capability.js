@@ -13,6 +13,9 @@ const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
 const { AppleIAP } = require('../../../lib/payments/iap/apple-app-store');
+const {
+  PaymentConfigManager,
+} = require('../../../lib/payments/configuration/manager');
 
 const subscriptionCreated =
   require('./fixtures/stripe/subscription_created.json').data.object;
@@ -70,6 +73,8 @@ describe('CapabilityService', () => {
   let log;
   let mockSubscriptionPurchase;
   let mockProfileClient;
+  let mockPaymentConfigManager;
+  let mockConfigPlans;
 
   beforeEach(async () => {
     mockAuthEvents.on = sinon.fake.returns({});
@@ -83,6 +88,18 @@ describe('CapabilityService', () => {
     };
     mockProfileClient = {
       deleteCache: sinon.fake.resolves({}),
+    };
+    mockConfigPlans = [
+      {
+        stripePriceId: 'plan_123456',
+        capabilities: {
+          c1: ['capAlpha'],
+        },
+      },
+    ];
+    mockPaymentConfigManager = {
+      allPlans: sinon.fake.resolves(mockConfigPlans),
+      getMergedConfig: (price) => price,
     };
     mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
       {
@@ -133,6 +150,7 @@ describe('CapabilityService', () => {
     Container.set(PlayBilling, mockPlayBilling);
     Container.set(AppleIAP, mockAppleIAP);
     Container.set(ProfileClient, mockProfileClient);
+    Container.set(PaymentConfigManager, mockPaymentConfigManager);
     capabilityService = new CapabilityService();
   });
 
@@ -471,7 +489,7 @@ describe('CapabilityService', () => {
       );
       assert.deepEqual(allCapabilities, {
         '*': ['capAll'],
-        c1: ['cap4', 'cap5', 'capZZ'],
+        c1: ['cap4', 'cap5', 'capZZ', 'capAlpha'],
         c2: ['cap5', 'cap6', 'capC', 'capD'],
         c3: ['capD', 'capE'],
       });
@@ -484,7 +502,7 @@ describe('CapabilityService', () => {
     it('only reveals capabilities relevant to the client', async () => {
       const expected = {
         c0: ['capAll'],
-        c1: ['capAll', 'cap4', 'cap5', 'capZZ'],
+        c1: ['capAll', 'cap4', 'cap5', 'capZZ', 'capAlpha'],
         c2: ['capAll', 'cap5', 'cap6', 'capC', 'capD'],
         c3: ['capAll', 'capD', 'capE', 'capP'],
         null: [
@@ -497,6 +515,7 @@ describe('CapabilityService', () => {
           'capE',
           'capP',
           'capZZ',
+          'capAlpha',
         ],
       };
       for (const clientId in expected) {
@@ -528,9 +547,20 @@ describe('CapabilityService', () => {
           },
         },
       ]);
+      mockConfigPlans[0].capabilities = {
+        '*': ['capAlpha'],
+      };
 
       for (const clientId of ['c0', 'c1', 'c2', 'c3', 'null']) {
-        const expected = ['cap1', 'cap2', 'cap3', 'capA', 'capB', 'capC'];
+        const expected = [
+          'cap1',
+          'cap2',
+          'cap3',
+          'capA',
+          'capB',
+          'capC',
+          'capAlpha',
+        ];
         await assertExpectedCapabilities(clientId, expected);
       }
     });

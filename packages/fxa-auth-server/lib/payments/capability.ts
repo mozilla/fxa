@@ -17,6 +17,7 @@ import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
+import { PaymentConfigManager } from './configuration/manager';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -41,6 +42,7 @@ export class CapabilityService {
   private playBilling?: PlayBilling;
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
+  private paymentConfigManager?: PaymentConfigManager;
 
   constructor() {
     // TODO: the mock stripeHelper here fixes this specific instance when
@@ -60,6 +62,10 @@ export class CapabilityService {
     if (Container.has(AppleIAP)) {
       this.appleIap = Container.get(AppleIAP);
     }
+    if (Container.has(PaymentConfigManager)) {
+      this.paymentConfigManager = Container.get(PaymentConfigManager);
+    }
+
     this.log = Container.get(AuthLogger);
 
     // Register the event handlers for capability changes.
@@ -432,6 +438,10 @@ export class CapabilityService {
     const allCapabilities: Record<string, Set<string>> = {};
     // Run through all plans and collect capabilities for subscribed products
     const prices = await this.stripeHelper.allAbbrevPlans();
+    const configuredPlans = this.paymentConfigManager
+      ? await this.paymentConfigManager.allPlans()
+      : [];
+
     for (const price of prices) {
       if (!subscribedPrices.includes(price.plan_id)) {
         continue;
@@ -454,6 +464,23 @@ export class CapabilityService {
             (allCapabilities[clientId] ??= new Set()).add(capability);
           }
         }
+      }
+    }
+
+    for (const plan of configuredPlans) {
+      if (!subscribedPrices.includes(plan.stripePriceId)) {
+        continue;
+      }
+      const mergedConfig = this.paymentConfigManager!.getMergedConfig(plan);
+
+      // Add the capabilities for this price
+      for (const [clientId, capabilities] of Object.entries(
+        mergedConfig.capabilities || {}
+      )) {
+        allCapabilities[clientId] = new Set([
+          ...(allCapabilities[clientId] ?? []),
+          ...capabilities,
+        ]);
       }
     }
 
