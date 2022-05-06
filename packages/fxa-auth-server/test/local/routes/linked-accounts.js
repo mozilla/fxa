@@ -178,7 +178,27 @@ describe('/linked_account', () => {
             GOOGLE_PROVIDER
           )
         );
-        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.isTrue(
+          mockDB.createSessionToken.calledOnceWith(
+            sinon.match({
+              uid: 'fxauid',
+              email: mockGoogleUser.email,
+              mustVerify: false,
+              uaBrowser: 'Firefox',
+              uaBrowserVersion: '57.0',
+              uaOS: 'Mac OS X',
+              uaOSVersion: '10.13',
+              uaDeviceType: null,
+              uaFormFactor: null,
+            })
+          )
+        );
+        assert.isTrue(
+          mockDB.createSessionToken.calledOnceWith(
+            sinon.match.has('tokenVerificationCodeExpiresAt')
+          )
+        );
+
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
       });
