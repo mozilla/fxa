@@ -228,6 +228,12 @@ export class LinkedAccountHandler {
       verifierSetAt: accountRecord.verifierSetAt,
       mustVerify: false,
       tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
+      uaBrowser: request.app.ua.browser,
+      uaBrowserVersion: request.app.ua.browserVersion,
+      uaOS: request.app.ua.os,
+      uaOSVersion: request.app.ua.osVersion,
+      uaDeviceType: request.app.ua.deviceType,
+      uaFormFactor: request.app.ua.formFactor,
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
