@@ -1,5 +1,6 @@
 {
   "extends": ["plugin:fxa/recommended"],
+  "ignorePatterns": ["**/123done/static/components/*.js", "**/dist/**"],
   "plugins": ["fxa"],
   "parserOptions": {
     "ecmaVersion": "2020"
