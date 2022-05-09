@@ -22386,7 +22386,7 @@ fsevents@~2.1.1:
     supertest: ^6.2.2
     ts-jest: ^27.1.4
     ts-morph: ^13.0.3
-    tsconfig-paths: ^3.13.0
+    tsconfig-paths: ^4.0.0
     tslib: ^2.3.1
     typescript: ^4.5.2
     yargs: ^17.0.1
@@ -22886,7 +22886,7 @@ fsevents@~2.1.1:
     supertest: ^6.2.2
     ts-jest: ^27.1.4
     ts-loader: ^8.3.0
-    tsconfig-paths: ^3.13.0
+    tsconfig-paths: ^4.0.0
     typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.5.2
@@ -23424,7 +23424,7 @@ fsevents@~2.1.1:
     superagent: ^7.1.2
     ts-jest: ^27.1.4
     ts-loader: ^8.3.0
-    tsconfig-paths: ^3.13.0
+    tsconfig-paths: ^4.0.0
     typesafe-joi: ^2.1.0
     typescript: ^4.5.2
     underscore: ^1.13.1
@@ -29370,7 +29370,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"json5@npm:2.2.1":
+"json5@npm:2.2.1, json5@npm:^2.2.1":
   version: 2.2.1
   resolution: "json5@npm:2.2.1"
   bin:
@@ -42690,15 +42690,14 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tsconfig-paths@npm:^3.13.0":
-  version: 3.13.0
-  resolution: "tsconfig-paths@npm:3.13.0"
+"tsconfig-paths@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "tsconfig-paths@npm:4.0.0"
   dependencies:
-    "@types/json5": ^0.0.29
-    json5: ^1.0.1
-    minimist: ^1.2.0
+    json5: ^2.2.1
+    minimist: ^1.2.6
     strip-bom: ^3.0.0
-  checksum: 64f0de3c882c016cdfe34d5261087fcf0c75048c4206ee32540e36df9f99d82d2caa5872135d3b6704324f5fd7d9032131caf316c1da83c2ac465d5dfb2aafd4
+  checksum: a8cf746ffe438513a71c70c1bcdee8da7d62ab2af286efbe2728ff55c4d4c92c2aea80a0822982ded6d0a13c7686c24632934d7c0f4f564be9e1b2cdc3d65eea
   languageName: node
   linkType: hard
 
