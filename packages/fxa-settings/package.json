@@ -10,7 +10,7 @@
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-postcss && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",
     "lint:eslint": "eslint .",
-    "lint": "npm-run-all --parallel lint:eslint lint:sass",
+    "lint": "npm-run-all --parallel lint:eslint",
     "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "start": "npm run build-postcss && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3000/settings/static/js/bundle.js",
     "stop": "pm2 stop pm2.config.js",

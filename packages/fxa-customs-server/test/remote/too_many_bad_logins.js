@@ -162,6 +162,7 @@ test('too many failed logins from the same email', async (t) => {
   await Promise.delay(1000);
 
   // Attempt to login again, not rate limited
+  // eslint-disable-next-line no-unused-vars
   [req, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP0,

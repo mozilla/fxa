@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "lint": "eslint *",
+    "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "watch": "tsc -w",
     "start": "pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:8290/__heartbeat__",

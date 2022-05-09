@@ -1,1 +1,3 @@
+packages/**/dist/**
+packages/123done/static/components/*.js
 packages/fxa-auth-server/bin/ejs.js

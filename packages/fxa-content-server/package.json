@@ -6,7 +6,7 @@
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
     "postinstall": "cp server/config/local.json-dist server/config/local.json && ../../_scripts/clone-l10n.sh fxa-content-server",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "lint": "eslint app server tests --cache",
+    "lint": "eslint .",
     "start": "node scripts/check-local-config && grunt l10n-create-json l10n-generate-tos-pp:app && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3030/bundle/app.bundle.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",

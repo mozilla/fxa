@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "yarn nest build",
-    "lint": "eslint *",
+    "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
