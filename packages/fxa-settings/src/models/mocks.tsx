@@ -24,6 +24,7 @@ export const MOCK_ACCOUNT: AccountData = {
   },
   accountCreated: 123456789,
   passwordCreated: 123456789,
+  hasPassword: true,
   recoveryKey: true,
   metricsEnabled: true,
   attachedClients: [],

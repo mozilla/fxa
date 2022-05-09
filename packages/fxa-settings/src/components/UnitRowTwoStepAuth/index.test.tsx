@@ -10,6 +10,7 @@ import { Account, AppContext } from '../../models';
 
 jest.mock('../../models/AlertBarInfo');
 const account = {
+  hasPassword: true,
   totp: { exists: true, verified: true },
   disableTwoStepAuth: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
@@ -50,6 +51,7 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders when Two-step authentication is not enabled', () => {
     const account = {
+      hasPassword: true,
       totp: { exists: false, verified: false },
     } as unknown as Account;
     renderWithRouter(
@@ -70,6 +72,7 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('can be refreshed', async () => {
     const account = {
+      hasPassword: true,
       totp: { exists: false, verified: false },
       refresh: jest.fn(),
     } as unknown as Account;
@@ -110,5 +113,29 @@ describe('UnitRowTwoStepAuth', () => {
     });
 
     expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+  });
+
+  it('renders disabled state when account has no password', async () => {
+    const account = {
+      hasPassword: false,
+      totp: { exists: false, verified: false },
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
+    );
+
+    expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
+      'Disabled'
+    );
+    expect(
+      screen
+        .getByTestId('two-step-unit-row-route')
+        .attributes.getNamedItem('title')?.value
+    ).toEqual(
+      'Set a password to use Sync and certain account security features.'
+    );
   });
 });

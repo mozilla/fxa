@@ -54,6 +54,12 @@ export const UnitRowRecoveryKey = () => {
           ? l10n.getString('rk-action-remove', null, 'Remove')
           : l10n.getString('rk-action-create', null, 'Create')
       }
+      disabled={!account.hasPassword}
+      disabledReason={l10n.getString(
+        'rk-no-pwd-action-disabled-reason',
+        null,
+        'Set a password to use Sync and certain account security features.'
+      )}
       alertBarRevealed
       headerContent={
         <ButtonIconReload
@@ -68,7 +74,7 @@ export const UnitRowRecoveryKey = () => {
           title={l10n.getString('rk-refresh-key')}
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
-          disabled={account.loading}
+          disabled={account.loading || !account.hasPassword}
           onClick={() => account.refresh('recovery')}
         />
       }

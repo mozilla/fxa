@@ -81,6 +81,8 @@ type UnitRowProps = {
   hideCtaText?: boolean;
   prefixDataTestId?: string;
   isLevelWithRefreshButton?: boolean;
+  disabled?: boolean;
+  disabledReason?: string;
 };
 
 export const UnitRow = ({
@@ -105,6 +107,8 @@ export const UnitRow = ({
   hideCtaText,
   prefixDataTestId = '',
   isLevelWithRefreshButton = false,
+  disabled = false,
+  disabledReason = '',
 }: UnitRowProps & RouteComponentProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
@@ -124,6 +128,10 @@ export const UnitRow = ({
     secondaryCtaText ||
     l10n.getString('row-defaults-action-disable', null, 'Disable');
   ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
+
+  if (disabled) {
+    ctaText = l10n.getString('row-defaults-action-disable', null, 'Disable');
+  }
 
   const location = useLocation();
   const multiButton = !!(route || secondaryCtaRoute);
@@ -158,46 +166,67 @@ export const UnitRow = ({
 
       <div className="unit-row-actions">
         <div className="flex items-center">
-          {!hideCtaText && route && (
-            <Link
+          {disabled ? (
+            <button
               className={classNames(
                 'cta-neutral cta-base transition-standard rtl:ml-1',
                 isLevelWithRefreshButton && 'mobileLandscape:mr-9'
               )}
               data-testid={formatDataTestId('unit-row-route')}
-              to={`${route}${location.search}`}
+              title={disabledReason}
+              disabled={disabled}
             >
-              {ctaText}
-            </Link>
-          )}
+              {' '}
+              Disabled{' '}
+            </button>
+          ) : (
+            <>
+              {!hideCtaText && route && (
+                <Link
+                  className={classNames(
+                    'cta-neutral cta-base transition-standard rtl:ml-1',
+                    isLevelWithRefreshButton && 'mobileLandscape:mr-9'
+                  )}
+                  data-testid={formatDataTestId('unit-row-route')}
+                  to={`${route}${location.search}`}
+                >
+                  {ctaText}
+                </Link>
+              )}
 
-          {revealModal && (
-            <ModalButton
-              {...{ revealModal, ctaText, alertBarRevealed, prefixDataTestId }}
-            />
-          )}
+              {revealModal && (
+                <ModalButton
+                  {...{
+                    revealModal,
+                    ctaText,
+                    alertBarRevealed,
+                    prefixDataTestId,
+                  }}
+                />
+              )}
 
-          {secondaryCtaRoute && (
-            <Link
-              className="cta-neutral cta-base transition-standard ltr:mr-1 rtl:ml-1"
-              data-testid={formatDataTestId('unit-row-route')}
-              to={`${secondaryCtaRoute}${location.search}`}
-            >
-              {secondaryCtaText}
-            </Link>
-          )}
+              {secondaryCtaRoute && (
+                <Link
+                  className="cta-neutral cta-base transition-standard ltr:mr-1 rtl:ml-1"
+                  data-testid={formatDataTestId('unit-row-route')}
+                  to={`${secondaryCtaRoute}${location.search}`}
+                >
+                  {secondaryCtaText}
+                </Link>
+              )}
 
-          {revealSecondaryModal && (
-            <ModalButton
-              leftSpaced={multiButton}
-              revealModal={revealSecondaryModal}
-              ctaText={secondaryCtaText}
-              className={secondaryButtonClassName}
-              alertBarRevealed={alertBarRevealed}
-              prefixDataTestId={secondaryButtonTestId}
-            />
+              {revealSecondaryModal && (
+                <ModalButton
+                  leftSpaced={multiButton}
+                  revealModal={revealSecondaryModal}
+                  ctaText={secondaryCtaText}
+                  className={secondaryButtonClassName}
+                  alertBarRevealed={alertBarRevealed}
+                  prefixDataTestId={secondaryButtonTestId}
+                />
+              )}
+            </>
           )}
-
           {actionContent}
         </div>
       </div>

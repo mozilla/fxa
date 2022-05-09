@@ -4,10 +4,15 @@
 
 import React, { ReactNode } from 'react';
 import { render, act } from '@testing-library/react';
+import { History } from '@reach/router';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import { Account, AppContext, useInitialState } from '../../models';
-import { mockAppContext, renderWithRouter } from '../../models/mocks';
+import {
+  mockAppContext,
+  MOCK_ACCOUNT,
+  renderWithRouter,
+} from '../../models/mocks';
 import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { HomePath } from '../../constants';
@@ -51,7 +56,7 @@ describe('metrics', () => {
   });
 
   it('Initializes metrics flow data when present', async () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({loading: true});
+    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
     const DEVICE_ID = 'yoyo';
     const BEGIN_TIME = 123456;
     const FLOW_ID = 'abc123';
@@ -93,9 +98,10 @@ describe('performance metrics', () => {
   });
 
   it('observeNavigationTiming is called when metrics collection is enabled', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({loading: true});
+    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
     const account = {
       metricsEnabled: true,
+      hasPassword: true,
     } as unknown as Account;
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
@@ -106,9 +112,10 @@ describe('performance metrics', () => {
   });
 
   it('observeNavigationTiming is not called when metrics collection is disabled', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({loading: true});
+    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
     const account = {
       metricsEnabled: false,
+      hasPassword: true,
     } as unknown as Account;
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
@@ -132,18 +139,24 @@ describe('App component', () => {
     expect(getByLabelText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders `LoadingSpinner` component when the error message includes "Invalid token"',() => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ error: { message: "Invalid token" }});
+  it('renders `LoadingSpinner` component when the error message includes "Invalid token"', () => {
+    (useInitialState as jest.Mock).mockReturnValueOnce({
+      error: { message: 'Invalid token' },
+    });
     const { getByLabelText } = renderWithRouter(<App {...appProps} />);
 
     expect(getByLabelText('Loading...')).toBeInTheDocument();
   });
 
   it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ error: { message: "Error" }});
+    (useInitialState as jest.Mock).mockReturnValueOnce({
+      error: { message: 'Error' },
+    });
     const { getByRole } = renderWithRouter(<App {...appProps} />);
 
-    expect(getByRole('heading', { level: 2 })).toHaveTextContent('General application error');
+    expect(getByRole('heading', { level: 2 })).toHaveTextContent(
+      'General application error'
+    );
   });
 
   (useInitialState as jest.Mock).mockReturnValue({ loading: false });
@@ -242,7 +255,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(<App {...appProps} />, { route: HomePath });
 
-    await navigate(HomePath + '/two_step_authentication/replace_codes' );
+    await navigate(HomePath + '/two_step_authentication/replace_codes');
 
     expect(getByTestId('2fa-recovery-codes')).toBeInTheDocument();
   });
@@ -278,5 +291,44 @@ describe('App component', () => {
     await navigate(HomePath + '/avatar/change');
 
     expect(history.location.pathname).toBe('/settings/avatar');
+  });
+
+  describe('prevents access to certain routes when account has no password', () => {
+    let history: History;
+
+    beforeEach(async () => {
+      const account = {
+        ...MOCK_ACCOUNT,
+        hasPassword: false,
+      } as unknown as Account;
+
+      const config = {
+        metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
+      } as Config;
+
+      ({ history } = await renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, config })}>
+          <App {...appProps} />
+        </AppContext.Provider>,
+        { route: HomePath }
+      ));
+    });
+
+    it('redirects PageRecoveryKeyAdd', async () => {
+      await history.navigate(HomePath + '/account_recovery');
+      expect(history.location.pathname).toBe('/settings');
+    });
+
+    it('redirects PageTwoStepAuthentication', async () => {
+      await history.navigate(HomePath + '/two_step_authentication');
+      expect(history.location.pathname).toBe('/settings');
+    });
+
+    it('redirects Page2faReplaceRecoveryCodes', async () => {
+      await history.navigate(
+        HomePath + '/two_step_authentication/replace_codes'
+      );
+      expect(history.location.pathname).toBe('/settings');
+    });
   });
 });
