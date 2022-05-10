@@ -218,7 +218,7 @@ export const UnitRowSecondaryEmail = () => {
                 elems={{
                   button: (
                     <button
-                      className="link-blue mx-1"
+                      className="link-blue"
                       data-testid="secondary-email-resend-code-button"
                       onClick={() => {
                         resendEmailCode(email);
