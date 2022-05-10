@@ -60,7 +60,7 @@ describe('Permissions', () => {
     ).toEqual(enabledFeature?.name);
     expect(
       getByTestId(`permissions-row-${enabledFeature?.id}-val`).textContent
-    ).toEqual('✓');
+    ).toEqual('✅');
   });
 
   it('has disabled feature', () => {
@@ -74,6 +74,6 @@ describe('Permissions', () => {
     ).toEqual(disabledFeature?.name);
     expect(
       getByTestId(`permissions-row-${disabledFeature?.id}-val`).textContent
-    ).toEqual('x');
+    ).toEqual('❌');
   });
 });
