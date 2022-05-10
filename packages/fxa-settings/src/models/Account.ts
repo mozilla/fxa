@@ -53,6 +53,7 @@ export interface AccountData {
   };
   accountCreated: number;
   passwordCreated: number;
+  hasPassword: boolean;
   recoveryKey: boolean;
   metricsEnabled: boolean;
   primaryEmail: Email;
@@ -271,6 +272,18 @@ export class Account implements AccountData {
 
   get passwordCreated() {
     return this.data.passwordCreated;
+  }
+
+  get hasPassword() {
+    // This might be requested before account data is ready,
+    // so default to disabled until we can get a proper read
+    try {
+      return (
+        this.data?.passwordCreated != null && this.data.passwordCreated > 0
+      );
+    } catch {
+      return false;
+    }
   }
 
   get recoveryKey() {

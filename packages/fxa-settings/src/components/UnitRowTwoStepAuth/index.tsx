@@ -93,13 +93,19 @@ export const UnitRowTwoStepAuth = () => {
           />
         </Localized>
       }
+      disabled={!account.hasPassword}
+      disabledReason={l10n.getString(
+        'security-set-password',
+        null,
+        'Set a password to use Firefox Sync and certain account security features.'
+      )}
       actionContent={
         <Localized id="tfa-row-button-refresh" attrs={{ title: true }}>
           <ButtonIconReload
             title="Refresh two-step authentication"
             classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
             testId="two-step-refresh"
-            disabled={account.loading}
+            disabled={account.loading || !account.hasPassword}
             onClick={() => account.refresh('totp')}
           />
         </Localized>

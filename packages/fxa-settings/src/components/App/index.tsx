@@ -32,7 +32,7 @@ type AppProps = {
 
 export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   const config = useConfig();
-  const { metricsEnabled } = useAccount();
+  const { metricsEnabled, hasPassword } = useAccount();
 
   useEffect(() => {
     if (config.metrics.navTiming.enabled && metricsEnabled) {
@@ -76,11 +76,31 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
             <PageDisplayName path="/display_name" />
             <PageAvatar path="/avatar" />
             <PageChangePassword path="/change_password" />
-            <PageRecoveryKeyAdd path="/account_recovery" />
+            {hasPassword ? (
+              <PageRecoveryKeyAdd path="/account_recovery" />
+            ) : (
+              <Redirect from="/account_recovery" to="/settings" noThrow />
+            )}
             <PageSecondaryEmailAdd path="/emails" />
             <PageSecondaryEmailVerify path="/emails/verify" />
-            <PageTwoStepAuthentication path="/two_step_authentication" />
-            <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+            {hasPassword ? (
+              <PageTwoStepAuthentication path="/two_step_authentication" />
+            ) : (
+              <Redirect
+                from="/two_step_authentication"
+                to="/settings"
+                noThrow
+              />
+            )}
+            {hasPassword ? (
+              <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+            ) : (
+              <Redirect
+                from="/two_step_authentication/replace_codes"
+                to="/settings"
+                noThrow
+              />
+            )}
             <PageDeleteAccount path="/delete_account" />
             <Redirect
               from="/clients"

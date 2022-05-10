@@ -16,6 +16,7 @@ import { Account, AppContext } from '../../models';
 import * as Metrics from '../../lib/metrics';
 
 const account = {
+  hasPassword: true,
   recoveryKey: true,
   deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
@@ -40,6 +41,7 @@ describe('UnitRowRecoveryKey', () => {
 
   it('renders when recovery key is not set', () => {
     const account = {
+      hasPassword: true,
       recoveryKey: false,
     } as unknown as Account;
     renderWithRouter(
@@ -58,8 +60,34 @@ describe('UnitRowRecoveryKey', () => {
     ).toContain('Create');
   });
 
+  it('renders disabled state when account has no password', () => {
+    const account = {
+      hasPassword: false,
+      recoveryKey: false,
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <UnitRowRecoveryKey />
+      </AppContext.Provider>
+    );
+
+    expect(
+      screen.getByTestId('recovery-key-unit-row-route').textContent
+    ).toContain('Create');
+
+    expect(
+      screen
+        .getByTestId('recovery-key-unit-row-route')
+        .attributes.getNamedItem('title')?.value
+    ).toEqual(
+      'Set a password to use Firefox Sync and certain account security features.'
+    );
+  });
+
   it('can be refreshed', async () => {
     const account = {
+      hasPassword: true,
       recoveryKey: false,
       refresh: jest.fn(),
     } as unknown as Account;
@@ -98,6 +126,7 @@ describe('UnitRowRecoveryKey', () => {
 
     const removeRecoveryKey = async (process = false) => {
       const account = {
+        hasPassword: true,
         recoveryKey: true,
       } as unknown as Account;
 
