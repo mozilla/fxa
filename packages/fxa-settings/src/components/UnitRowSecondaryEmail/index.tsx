@@ -218,7 +218,7 @@ export const UnitRowSecondaryEmail = () => {
                 elems={{
                   button: (
                     <button
-                      className="link-blue mx-1"
+                      className="link-blue"
                       data-testid="secondary-email-resend-code-button"
                       onClick={() => {
                         resendEmailCode(email);
@@ -228,7 +228,7 @@ export const UnitRowSecondaryEmail = () => {
                 }}
               >
                 <p className="text-xs mt-3 text-grey-400">
-                  Verification needed.
+                  Verification needed.{' '}
                   <button
                     className="link-blue"
                     data-testid="secondary-email-resend-code-button"
@@ -237,7 +237,7 @@ export const UnitRowSecondaryEmail = () => {
                     }}
                   >
                     Resend verification code
-                  </button>
+                  </button>{' '}
                   if it's not in your inbox or spam folder.
                 </p>
               </Localized>
