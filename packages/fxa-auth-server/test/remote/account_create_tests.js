@@ -10,6 +10,13 @@ const crypto = require('crypto');
 const Client = require('../client')();
 const config = require('../../config').getProperties();
 const mocks = require('../mocks');
+const { default: Container } = require('typedi');
+const {
+  PlaySubscriptions,
+} = require('../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 describe('remote account create', function () {
   this.timeout(30000);
@@ -28,6 +35,9 @@ describe('remote account create', function () {
     const mockStripeHelper = {};
     mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(false);
     mockStripeHelper.removeCustomer = async () => Promise.resolve();
+
+    Container.set(PlaySubscriptions, {});
+    Container.set(AppStoreSubscriptions, {});
 
     server = await TestServer.start(config, false, {
       authServerMockDependencies: {

@@ -380,7 +380,7 @@ export class CapabilityService {
     }
   }
 
-  private async fetchSubscribedPricesFromAppStore(
+  public async fetchSubscribedPricesFromAppStore(
     uid: string
   ): Promise<string[]> {
     if (!this.appleIap) {

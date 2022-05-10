@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  AppleSubscription,
-  GooglePlaySubscription,
   IapSubscription,
   MozillaSubscription,
   MozillaSubscriptionTypes,
   WebSubscription,
 } from './types';
+
+import {
+  AppStoreSubscription,
+  PlayStoreSubscription,
+} from '../dto/auth/payments/iap-subscription';
 
 export const isWebSubscription = (
   s: MozillaSubscription
@@ -23,10 +26,10 @@ export const isIapSubscription = (
 
 export const isGooglePlaySubscription = (
   s: MozillaSubscription
-): s is GooglePlaySubscription =>
+): s is PlayStoreSubscription =>
   s._subscription_type === MozillaSubscriptionTypes.IAP_GOOGLE;
 
 export const isAppleSubscription = (
   s: MozillaSubscription
-): s is AppleSubscription =>
+): s is AppStoreSubscription =>
   s._subscription_type === MozillaSubscriptionTypes.IAP_APPLE;

@@ -34,7 +34,7 @@ import PaymentUpdateForm, {
 import {
   isIapSubscription,
   isWebSubscription,
-} from 'fxa-shared/subscriptions/subscriptions';
+} from 'fxa-shared/subscriptions/type-guards';
 import {
   MozillaSubscription,
   WebSubscription,

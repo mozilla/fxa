@@ -1,4 +1,9 @@
 import { Stripe } from 'stripe';
+
+import {
+  AppStoreSubscription,
+  PlayStoreSubscription,
+} from '../dto/auth/payments/iap-subscription';
 import { PlanConfigurationDtoT } from '../dto/auth/payments/plan-configuration';
 
 export type PlanInterval = Stripe.Plan['interval'];
@@ -130,25 +135,7 @@ export type WebSubscription = Pick<
     promotion_end: number | null;
   };
 
-export interface AbbrevPlayPurchase {
-  auto_renewing: boolean;
-  cancel_reason?: number;
-  expiry_time_millis: number;
-  package_name: string;
-  sku: string;
-}
-export interface GooglePlaySubscription extends AbbrevPlayPurchase {
-  _subscription_type: SubscriptionTypes[1];
-  product_id: Stripe.Product['id'];
-  product_name: Stripe.Product['name'];
-  price_id: Stripe.Plan['id'];
-}
-export type AppleSubscription = {
-  _subscription_type: SubscriptionTypes[2];
-  product_id: Stripe.Product['id'];
-  product_name: Stripe.Product['name'];
-};
-export type IapSubscription = GooglePlaySubscription | AppleSubscription;
+export type IapSubscription = PlayStoreSubscription | AppStoreSubscription;
 export type MozillaSubscription = WebSubscription | IapSubscription;
 
 export const PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT = 'missing_agreement';

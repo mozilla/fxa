@@ -7,6 +7,13 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
+const { default: Container } = require('typedi');
+const {
+  PlaySubscriptions,
+} = require('../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 function fail() {
   throw new Error();
@@ -19,6 +26,9 @@ describe('remote token expiry', function () {
     config = require('../../config').getProperties();
     config.tokenLifetimes.passwordChangeToken = 1;
     config.tokenLifetimes.sessionTokenWithoutDevice = 1;
+
+    Container.set(PlaySubscriptions, {});
+    Container.set(AppStoreSubscriptions, {});
 
     return TestServer.start(config).then((s) => {
       server = s;

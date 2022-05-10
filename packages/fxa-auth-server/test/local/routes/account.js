@@ -3722,14 +3722,43 @@ describe('/account', () => {
   });
 
   describe('Google Play subscriptions', () => {
-    const mockIapSubscription = {
-      auto_renewing: true,
-      expiry_time_millis: Date.now(),
-      package_name: 'org.mozilla.cooking.with.foxkeh',
-      sku: 'org.mozilla.foxkeh.yearly',
+    const mockPlayStoreSubscriptionPurchase = {
+      kind: 'androidpublisher#subscriptionPurchase',
+      startTimeMillis: `${Date.now() - 10000}`,
+      expiryTimeMillis: `${Date.now() + 10000}`,
+      autoRenewing: true,
+      priceCurrencyCode: 'JPY',
+      priceAmountMicros: '99000000',
+      countryCode: 'JP',
+      developerPayload: '',
+      paymentState: 1,
+      orderId: 'GPA.3313-5503-3858-32549',
+      packageName: 'testPackage',
+      purchaseToken: 'testToken',
+      sku: 'sku',
+      verifiedAt: Date.now(),
+      isEntitlementActive: sinon.fake.returns(true),
+    };
+
+    const mockExtraStripeInfo = {
+      price_id: 'price_lol',
+      product_id: 'prod_lol',
+      product_name: 'LOL Product',
+    };
+
+    const mockAppendedPlayStoreSubscriptionPurchase = {
+      ...mockPlayStoreSubscriptionPurchase,
+      ...mockExtraStripeInfo,
       _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-      product_id: 'iap_prod_lol',
-      product_name: 'LOL daily',
+    };
+
+    const mockFormattedPlayStoreSubscription = {
+      auto_renewing: mockPlayStoreSubscriptionPurchase.autoRenewing,
+      expiry_time_millis: mockPlayStoreSubscriptionPurchase.expiryTimeMillis,
+      package_name: mockPlayStoreSubscriptionPurchase.packageName,
+      sku: mockPlayStoreSubscriptionPurchase.sku,
+      ...mockExtraStripeInfo,
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
     };
 
     let subscriptionsEnabled, playSubscriptionsEnabled;
@@ -3753,7 +3782,7 @@ describe('/account', () => {
       mockPlaySubscriptions = mocks.mockPlaySubscriptions(['getSubscriptions']);
       Container.set(PlaySubscriptions, mockPlaySubscriptions);
       mockPlaySubscriptions.getSubscriptions = sinon.spy(async (uid) => [
-        mockIapSubscription,
+        mockAppendedPlayStoreSubscriptionPurchase,
       ]);
     });
 
@@ -3770,7 +3799,7 @@ describe('/account', () => {
             uid
           );
           assert.deepEqual(result, {
-            subscriptions: [mockIapSubscription],
+            subscriptions: [mockFormattedPlayStoreSubscription],
           });
         }
       );
@@ -3798,7 +3827,7 @@ describe('/account', () => {
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
           assert.deepEqual(result, {
             subscriptions: [
-              ...[mockIapSubscription],
+              ...[mockFormattedPlayStoreSubscription],
               ...mockWebSubscriptionsResponse,
             ],
           });

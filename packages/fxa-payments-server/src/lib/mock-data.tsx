@@ -1,5 +1,6 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { AppStoreSubscription } from 'fxa-shared/dto/auth/payments/iap-subscription';
 import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
@@ -239,8 +240,12 @@ export const IAP_GOOGLE_SUBSCRIPTION = {
   price_id: 'plan_123',
 };
 
-export const IAP_APPLE_SUBSCRIPTION = {
+export const IAP_APPLE_SUBSCRIPTION: AppStoreSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+  app_store_product_id: 'wow',
+  auto_renewing: true,
+  bundle_id: 'hmm',
+  price_id: 'price_123',
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
 };

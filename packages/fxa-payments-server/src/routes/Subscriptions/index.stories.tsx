@@ -15,7 +15,11 @@ import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { FetchState, Profile } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
-import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
+import {
+  CUSTOMER,
+  FILTERED_SETUP_INTENT,
+  IAP_APPLE_SUBSCRIPTION,
+} from '../../lib/mock-data';
 import {
   IapSubscription,
   MozillaSubscriptionTypes,
@@ -71,8 +75,7 @@ function setupVariantStories(
           ...subscribedIapProps,
           customerSubscriptions: [
             {
-              ...subscribedProps.customerSubscriptions![0],
-              _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+              ...IAP_APPLE_SUBSCRIPTION,
             },
           ],
         }}

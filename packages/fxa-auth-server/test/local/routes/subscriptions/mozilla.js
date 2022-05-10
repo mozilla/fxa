@@ -12,11 +12,30 @@ const chai = require('chai');
 const assert = { ...sinon.assert, ...chai.assert };
 const uuid = require('uuid');
 const sandbox = sinon.createSandbox();
+const proxyquire = require('proxyquire');
 const { getRoute } = require('../../../routes_helpers');
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const TEST_EMAIL = 'testo@example.gg';
 const ACCOUNT_LOCALE = 'en-US';
+const {
+  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
+} = require('../../../../lib/payments/iap/iap-formatter');
+
+// We want to track the call count of these methods without
+// stubbing them (i.e. we want to use their real implementation),
+// so we use spies.
+const iapFormatterSpy = {
+  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
+};
+const { mozillaSubscriptionRoutes } = proxyquire(
+  '../../../../lib/routes/subscriptions/mozilla',
+  {
+    '../../payments/iap/iap-formatter': iapFormatterSpy,
+  }
+);
 
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 const VALID_REQUEST = {
@@ -51,19 +70,70 @@ const mockFormattedWebSubscription = {
   status: 'active',
   subscription_id: 'sub_12345',
 };
-const mockAbbrevPlayPurchase = {
-  auto_renewing: true,
-  expiry_time_millis: Date.now(),
-  package_name: 'org.mozilla.cooking.with.foxkeh',
-  sku: 'org.mozilla.foxkeh.yearly',
+
+const startTime = `${Date.now() - 10000}`;
+const endTime = `${Date.now() + 10000}`;
+
+const mockPlayStoreSubscriptionPurchase = {
+  kind: 'androidpublisher#subscriptionPurchase',
+  startTimeMillis: startTime,
+  expiryTimeMillis: endTime,
+  autoRenewing: true,
+  priceCurrencyCode: 'JPY',
+  priceAmountMicros: '99000000',
+  countryCode: 'JP',
+  developerPayload: '',
+  paymentState: 1,
+  orderId: 'GPA.3313-5503-3858-32549',
+  packageName: 'testPackage',
+  purchaseToken: 'testToken',
+  sku: 'sku',
+  verifiedAt: Date.now(),
+  isEntitlementActive: sinon.fake.returns(true),
 };
-const iap_product_id = 'iap_prod_lol';
-const iap_product_name = 'LOL Daily';
+
+const mockAppendedPlayStoreSubscriptionPurchase = {
+  ...mockPlayStoreSubscriptionPurchase,
+  price_id: 'price_lol',
+  product_id: 'prod_lol',
+  product_name: 'LOL Product',
+  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+};
+
 const mockGooglePlaySubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  product_id: iap_product_id,
-  product_name: iap_product_name,
-  ...mockAbbrevPlayPurchase,
+  price_id: mockAppendedPlayStoreSubscriptionPurchase.price_id,
+  product_id: mockAppendedPlayStoreSubscriptionPurchase.product_id,
+  product_name: mockAppendedPlayStoreSubscriptionPurchase.product_name,
+  auto_renewing: mockPlayStoreSubscriptionPurchase.autoRenewing,
+  expiry_time_millis: mockPlayStoreSubscriptionPurchase.expiryTimeMillis,
+  package_name: mockPlayStoreSubscriptionPurchase.packageName,
+  sku: mockPlayStoreSubscriptionPurchase.sku,
+};
+
+const mockAppStoreSubscriptionPurchase = {
+  autoRenewStatus: 1,
+  productId: 'wow',
+  bundleId: 'hmm',
+  isEntitlementActive: sinon.fake.returns(true),
+};
+
+const mockAppendedAppStoreSubscriptionPurchase = {
+  ...mockAppStoreSubscriptionPurchase,
+  price_id: 'price_123',
+  product_id: 'prod_123',
+  product_name: 'Cooking with Foxkeh',
+  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+};
+
+const mockAppStoreSubscription = {
+  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+  app_store_product_id: 'wow',
+  auto_renewing: true,
+  bundle_id: 'hmm',
+  price_id: 'price_123',
+  product_id: 'prod_123',
+  product_name: 'Cooking with Foxkeh',
 };
 const mocks = require('../../../mocks');
 const log = mocks.mockLog();
@@ -74,14 +144,17 @@ const db = mocks.mockDB({
 });
 const customs = mocks.mockCustoms();
 let stripeHelper;
-const {
-  mozillaSubscriptionRoutes,
-} = require('../../../../lib/routes/subscriptions/mozilla');
 
 async function runTest(routePath, routeDependencies = {}) {
   const playSubscriptions = {
-    getAbbrevPlayPurchases: sandbox.stub().resolves([mockAbbrevPlayPurchase]),
-    getSubscriptions: sandbox.stub().resolves([mockGooglePlaySubscription]),
+    getSubscriptions: sandbox
+      .stub()
+      .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
+  };
+  const appStoreSubscriptions = {
+    getSubscriptions: sandbox
+      .stub()
+      .resolves([mockAppendedAppStoreSubscriptionPurchase]),
   };
   const routes = mozillaSubscriptionRoutes({
     log,
@@ -89,6 +162,7 @@ async function runTest(routePath, routeDependencies = {}) {
     customs,
     stripeHelper,
     playSubscriptions,
+    appStoreSubscriptions,
     ...routeDependencies,
   });
   const route = getRoute(routes, routePath, 'GET');
@@ -102,26 +176,27 @@ describe('mozilla-subscriptions', () => {
       getBillingDetailsAndSubscriptions: sandbox
         .stub()
         .resolves(mockSubsAndBillingDetails),
-      addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([
-        {
-          ...mockAbbrevPlayPurchase,
-          product_id: iap_product_id,
-          product_name: iap_product_name,
-        },
-      ]),
       fetchCustomer: sandbox.stub().resolves(mockCustomer),
       formatSubscriptionsForSupport: sandbox
         .stub()
         .resolves([mockFormattedWebSubscription]),
     };
+    sandbox.spy(
+      iapFormatterSpy,
+      'appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO'
+    );
+    sandbox.spy(
+      iapFormatterSpy,
+      'playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO'
+    );
   });
 
   afterEach(() => {
-    sandbox.reset();
+    sandbox.restore();
   });
 
   describe('GET /customer/billing-and-subscriptions', () => {
-    it('gets customer billing details and Stripe and Google Play subscriptions', async () => {
+    it('gets customer billing details and Stripe, Google Play, and App Store subscriptions', async () => {
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
       );
@@ -130,22 +205,34 @@ describe('mozilla-subscriptions', () => {
         subscriptions: [
           ...mockSubsAndBillingDetails.subscriptions,
           mockGooglePlaySubscription,
+          mockAppStoreSubscription,
         ],
       });
+      assert.equal(
+        iapFormatterSpy.playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO
+          .callCount,
+        1
+      );
+      assert.equal(
+        iapFormatterSpy.appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO
+          .callCount,
+        1
+      );
     });
 
     it('gets customer billing details and only Stripe subscriptions', async () => {
       const playSubscriptions = {
-        getAbbrevPlayPurchases: sandbox.stub().resolves([]),
         getSubscriptions: sandbox.stub().resolves([]),
       };
-      stripeHelper.addProductInfoToAbbrevPlayPurchases = sandbox
-        .stub()
-        .resolves([]);
+      const appStoreSubscriptions = {
+        getSubscriptions: sandbox.stub().resolves([]),
+      };
+      stripeHelper.addPriceInfoToIapPurchases = sandbox.stub().resolves([]);
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
         {
           playSubscriptions,
+          appStoreSubscriptions,
         }
       );
       assert.deepEqual(resp, {
@@ -157,40 +244,57 @@ describe('mozilla-subscriptions', () => {
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([
-          {
-            ...mockAbbrevPlayPurchase,
-            product_id: iap_product_id,
-            product_name: iap_product_name,
-          },
-        ]),
+        addPriceInfoToIapPurchases: sandbox
+          .stub()
+          .resolves([mockGooglePlaySubscription]),
+      };
+      const appStoreSubscriptions = {
+        getSubscriptions: sandbox.stub().resolves([]),
       };
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
         {
           stripeHelper,
+          appStoreSubscriptions,
         }
       );
       assert.deepEqual(resp, {
-        subscriptions: [
-          {
-            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-            product_id: iap_product_id,
-            product_name: iap_product_name,
-            ...mockAbbrevPlayPurchase,
-          },
-        ],
+        subscriptions: [mockGooglePlaySubscription],
+      });
+    });
+
+    it('gets customer billing details and only App Store subscriptions', async () => {
+      const stripeHelper = {
+        getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
+        addPriceInfoToIapPurchases: sandbox
+          .stub()
+          .resolves([mockAppStoreSubscription]),
+      };
+      const playSubscriptions = {
+        getSubscriptions: sandbox.stub().resolves([]),
+      };
+      const resp = await runTest(
+        '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
+        {
+          stripeHelper,
+          playSubscriptions,
+        }
+      );
+      assert.deepEqual(resp, {
+        subscriptions: [mockAppStoreSubscription],
       });
     });
 
     it('throws an error when there are no subscriptions', async () => {
       const playSubscriptions = {
-        getAbbrevPlayPurchases: sandbox.stub().resolves([]),
+        getSubscriptions: sandbox.stub().resolves([]),
+      };
+      const appStoreSubscriptions = {
         getSubscriptions: sandbox.stub().resolves([]),
       };
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([]),
+        addPriceInfoToIapPurchases: sandbox.stub().resolves([]),
       };
       try {
         await runTest(
@@ -198,6 +302,7 @@ describe('mozilla-subscriptions', () => {
           {
             playSubscriptions,
             stripeHelper,
+            appStoreSubscriptions,
           }
         );
         assert.fail('an error should have been thrown');
