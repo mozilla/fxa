@@ -56,9 +56,9 @@ export const UnitRowRecoveryKey = () => {
       }
       disabled={!account.hasPassword}
       disabledReason={l10n.getString(
-        'rk-no-pwd-action-disabled-reason',
+        'security-set-password',
         null,
-        'Set a password to use Sync and certain account security features.'
+        'Set a password to use Firefox Sync and certain account security features.'
       )}
       alertBarRevealed
       headerContent={

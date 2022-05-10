@@ -128,14 +128,14 @@ describe('UnitRowTwoStepAuth', () => {
     );
 
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
-      'Disabled'
+      'Add'
     );
     expect(
       screen
         .getByTestId('two-step-unit-row-route')
         .attributes.getNamedItem('title')?.value
     ).toEqual(
-      'Set a password to use Sync and certain account security features.'
+      'Set a password to use Firefox Sync and certain account security features.'
     );
   });
 });

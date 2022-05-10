@@ -129,10 +129,6 @@ export const UnitRow = ({
     l10n.getString('row-defaults-action-disable', null, 'Disable');
   ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
 
-  if (disabled) {
-    ctaText = l10n.getString('row-defaults-action-disable', null, 'Disable');
-  }
-
   const location = useLocation();
   const multiButton = !!(route || secondaryCtaRoute);
 
@@ -176,8 +172,7 @@ export const UnitRow = ({
               title={disabledReason}
               disabled={disabled}
             >
-              {' '}
-              Disabled{' '}
+              {!hideCtaText && ctaText}
             </button>
           ) : (
             <>

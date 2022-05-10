@@ -74,14 +74,14 @@ describe('UnitRowRecoveryKey', () => {
 
     expect(
       screen.getByTestId('recovery-key-unit-row-route').textContent
-    ).toContain('Disabled');
+    ).toContain('Create');
 
     expect(
       screen
         .getByTestId('recovery-key-unit-row-route')
         .attributes.getNamedItem('title')?.value
     ).toEqual(
-      'Set a password to use Sync and certain account security features.'
+      'Set a password to use Firefox Sync and certain account security features.'
     );
   });
 
