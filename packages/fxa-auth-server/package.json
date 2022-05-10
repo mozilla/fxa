@@ -191,7 +191,7 @@
     "load-grunt-tasks": "^5.1.0",
     "lodash.chunk": "4.2.0",
     "lodash.pick": "4.4.0",
-    "mailparser": "0.6.1",
+    "mailparser": "2.8.1",
     "mjml-browser": "^4.12.0",
     "mkdirp": "0.5.1",
     "mocha": "^9.1.2",
