@@ -94,7 +94,7 @@
     "@types/uuid": "^8.3.1",
     "accept-language-parser": "^1.5.0",
     "ajv": "^6.12.2",
-    "apollo-server": "^2.25.3",
+    "apollo-server": "^3.7.0",
     "app-store-server-api": "^0.3.0",
     "aws-sdk": "^2.1120.0",
     "buf": "^0.1.1",
