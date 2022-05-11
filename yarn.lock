@@ -9574,16 +9574,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-jwt@npm:0.0.42":
-  version: 0.0.42
-  resolution: "@types/express-jwt@npm:0.0.42"
-  dependencies:
-    "@types/express": "*"
-    "@types/express-unless": "*"
-  checksum: b69148367b40c74876e77438a7a2449d3478d222a6094bce008308cf87ea43dcce5d74ebaef5d28bb224b0f0dd695bcf25a634a69d3c186575458eb1a1a6e4f8
-  languageName: node
-  linkType: hard
-
 "@types/express-serve-static-core@npm:^4.17.18, @types/express-serve-static-core@npm:^4.17.21":
   version: 4.17.21
   resolution: "@types/express-serve-static-core@npm:4.17.21"
@@ -9595,16 +9585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-unless@npm:*":
-  version: 0.5.1
-  resolution: "@types/express-unless@npm:0.5.1"
-  dependencies:
-    "@types/express": "*"
-  checksum: 1118133e59553945b4502bc3eb96d09045432200617bd9f971e6c2b2b4eebe93f4d5b8d80e2fe1834c80802b483031813cfbcae65df23bc41db6ac86d10b0c41
-  languageName: node
-  linkType: hard
-
-"@types/express@npm:*, @types/express@npm:^4.17.12, @types/express@npm:~4.17.13":
+"@types/express@npm:*, @types/express@npm:^4.17.12, @types/express@npm:^4.17.13, @types/express@npm:~4.17.13":
   version: 4.17.13
   resolution: "@types/express@npm:4.17.13"
   dependencies:
@@ -18157,7 +18138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4.3.4":
+"debug@npm:4.3.4, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -22510,7 +22491,7 @@ fsevents@~2.1.1:
     jsdom: ^19.0.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
-    jwks-rsa: ^2.0.4
+    jwks-rsa: ^2.1.1
     jws: 4.0.0
     jwt-decode: ^3.1.2
     keypair: 1.0.4
@@ -22861,7 +22842,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     hot-shots: ^9.0.0
     jest: 27.5.1
-    jwks-rsa: ^2.0.5
+    jwks-rsa: ^2.1.1
     mozlog: ^3.0.2
     nock: ^13.2.2
     p-event: ^4.2.0
@@ -29700,16 +29681,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:^2.0.4, jwks-rsa@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "jwks-rsa@npm:2.0.5"
+"jwks-rsa@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "jwks-rsa@npm:2.1.1"
   dependencies:
-    "@types/express-jwt": 0.0.42
-    debug: ^4.3.2
+    "@types/express": ^4.17.13
+    debug: ^4.3.4
     jose: ^2.0.5
     limiter: ^1.1.5
     lru-memoizer: ^2.1.4
-  checksum: c96d66f16971952826d81299ef027144761b5982e622d17994f57ab76d677fbfd1b4660d8e1bf48a9a92bfb3ab949e35d60a3894cca93b69161daa196acd8942
+  checksum: d856e51596e148064e70f74d111392bab037f432ee258a927e399c0f04b6b2c4504ae7f2aef5101089e965c54fa17447d9287a5bd1e63a54f492e9ff74cf0ba9
   languageName: node
   linkType: hard
 
