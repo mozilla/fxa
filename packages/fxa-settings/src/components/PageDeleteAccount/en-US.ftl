@@ -6,7 +6,7 @@ delete-account-header =
 delete-account-step-1-2 = Step 1 of 2
 delete-account-step-2-2 = Step 2 of 2
 
-delete-account-confirm-title-3 = You’ve connected your { -product-firefox-account } to { -brand-mozilla } products that keep you secure and productive on the web.
+delete-account-confirm-title-2 = You’ve connected your { -product-firefox-account } to { -brand-mozilla } products that keep you secure and productive on the web.
 
 delete-account-acknowledge = Please acknowledge that by deleting your account:
 
