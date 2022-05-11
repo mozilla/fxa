@@ -1,5 +1,28 @@
 # Change history
 
+## 1.232.0
+
+### New features
+
+- auth: update capability service to query App Store purchases ([7da4966fe](https://github.com/mozilla/fxa/commit/7da4966fe))
+- fxa-admin-panel: 52d49c0cd feat(fxa-admin-panel) allow admin to enable login for account from admin panel ([52d49c0cd](https://github.com/mozilla/fxa/commit/52d49c0cd))
+- fxa-admin-panel: add new event name to db ([956896b7f](https://github.com/mozilla/fxa/commit/956896b7f))
+- auth: stripe metadata expansion validate url Because: ([f9ecca1f7](https://github.com/mozilla/fxa/commit/f9ecca1f7))
+
+### Bug fixes
+
+- auth: Invalid unblock code after swapping primary email ([04b1b44ea](https://github.com/mozilla/fxa/commit/04b1b44ea))
+
+### Other changes
+
+- deps: bump cldr-localenames-full from 40.0.0 to 41.0.0 ([1571ad991](https://github.com/mozilla/fxa/commit/1571ad991))
+- deps-dev: bump tsconfig-paths from 3.14.1 to 4.0.0 ([01eb0c0df](https://github.com/mozilla/fxa/commit/01eb0c0df))
+- deps: bump knex from 1.0.7 to 2.0.0 ([258a8258e](https://github.com/mozilla/fxa/commit/258a8258e))
+- d1fffc036 Addressing PR feedback ([d1fffc036](https://github.com/mozilla/fxa/commit/d1fffc036))
+- admin-server,auth-server: Refactor to support querying account subscriptions from admin-server ([9a0add918](https://github.com/mozilla/fxa/commit/9a0add918))
+- deps-dev: bump @nestjs/testing from 8.4.3 to 8.4.4 ([ec03fa877](https://github.com/mozilla/fxa/commit/ec03fa877))
+- admin-panel: Add guard to serverside ([6d3720096](https://github.com/mozilla/fxa/commit/6d3720096))
+
 ## 1.231.4
 
 No changes.

@@ -1,5 +1,21 @@
 # Change history
 
+## 1.232.0
+
+### New features
+
+- payments: replace <a> external link to <LinkExternal> component Because: ([3d0faa56a](https://github.com/mozilla/fxa/commit/3d0faa56a))
+
+### Bug fixes
+
+- payments: missing metrics props on success Because: ([3d7690a77](https://github.com/mozilla/fxa/commit/3d7690a77))
+
+### Other changes
+
+- deps: bump @stripe/stripe-js from 1.25.0 to 1.29.0 ([f71676c61](https://github.com/mozilla/fxa/commit/f71676c61))
+- deps: bump react-redux from 7.2.8 to 8.0.1 ([99d3ca9e5](https://github.com/mozilla/fxa/commit/99d3ca9e5))
+- f919c24b4 Fix group comments and apostrophes ([f919c24b4](https://github.com/mozilla/fxa/commit/f919c24b4))
+
 ## 1.231.4
 
 No changes.

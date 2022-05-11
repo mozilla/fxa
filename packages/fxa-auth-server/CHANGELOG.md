@@ -1,3 +1,33 @@
+## 1.232.0
+
+### New features
+
+- auth: update capability service to query App Store purchases ([7da4966fe](https://github.com/mozilla/fxa/commit/7da4966fe))
+- subscriptions: guess a language tag from plan metadata ([baf50fb9c](https://github.com/mozilla/fxa/commit/baf50fb9c))
+- auth: stripe metadata expansion validate url Because: ([f9ecca1f7](https://github.com/mozilla/fxa/commit/f9ecca1f7))
+
+### Bug fixes
+
+- auth: populate ua info in session token for linked account session ([c3efeb3fa](https://github.com/mozilla/fxa/commit/c3efeb3fa))
+- email: remove duplicate Fluent string payment-details ([95e2513dc](https://github.com/mozilla/fxa/commit/95e2513dc))
+- auth: Invalid unblock code after swapping primary email ([04b1b44ea](https://github.com/mozilla/fxa/commit/04b1b44ea))
+- auth: always broadcast stripe sub changes ([78a005f5c](https://github.com/mozilla/fxa/commit/78a005f5c))
+- subscriptions: on upgrade use correct invoice line Because: ([44c8823f8](https://github.com/mozilla/fxa/commit/44c8823f8))
+- mjml: Use `minifyOptions` instead of `minify` for mjml templates ([a55285db7](https://github.com/mozilla/fxa/commit/a55285db7))
+- auth: fix collection prefix for iap ([a67190552](https://github.com/mozilla/fxa/commit/a67190552))
+- swagger: import for .ts files, require for .js files ([15500ea8f](https://github.com/mozilla/fxa/commit/15500ea8f))
+- swagger: SyntaxError: Cannot use import statement outside a module ([5a9cbcd1b](https://github.com/mozilla/fxa/commit/5a9cbcd1b))
+
+### Other changes
+
+- deps: bump cldr-core from 40.0.0 to 41.0.0 ([5f3e3d312](https://github.com/mozilla/fxa/commit/5f3e3d312))
+- 32ef9df8d Remove extra characters from data-l10n-name ([32ef9df8d](https://github.com/mozilla/fxa/commit/32ef9df8d))
+- f919c24b4 Fix group comments and apostrophes ([f919c24b4](https://github.com/mozilla/fxa/commit/f919c24b4))
+- deps: bump google-auth-library from 7.14.1 to 8.0.2 ([15970de92](https://github.com/mozilla/fxa/commit/15970de92))
+- d1fffc036 Addressing PR feedback ([d1fffc036](https://github.com/mozilla/fxa/commit/d1fffc036))
+- admin-server,auth-server: Refactor to support querying account subscriptions from admin-server ([9a0add918](https://github.com/mozilla/fxa/commit/9a0add918))
+- 4dd44112b import for .ts files ([4dd44112b](https://github.com/mozilla/fxa/commit/4dd44112b))
+
 ## 1.231.4
 
 ### Bug fixes

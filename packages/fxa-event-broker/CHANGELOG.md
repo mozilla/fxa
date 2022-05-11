@@ -1,5 +1,14 @@
 # Change history
 
+## 1.232.0
+
+### Other changes
+
+- deps-dev: bump tsconfig-paths from 3.14.1 to 4.0.0 ([01eb0c0df](https://github.com/mozilla/fxa/commit/01eb0c0df))
+- deps: bump google-auth-library from 7.14.1 to 8.0.2 ([15970de92](https://github.com/mozilla/fxa/commit/15970de92))
+- deps-dev: bump eslint-plugin-import from 2.25.3 to 2.26.0 ([486ba7931](https://github.com/mozilla/fxa/commit/486ba7931))
+- deps-dev: bump @nestjs/testing from 8.4.3 to 8.4.4 ([ec03fa877](https://github.com/mozilla/fxa/commit/ec03fa877))
+
 ## 1.231.4
 
 No changes.

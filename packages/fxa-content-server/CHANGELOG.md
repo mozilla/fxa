@@ -1,3 +1,16 @@
+## 1.232.0
+
+### Bug fixes
+
+- auth: Invalid unblock code after swapping primary email ([04b1b44ea](https://github.com/mozilla/fxa/commit/04b1b44ea))
+- fxa-content-server: add spacing bn 3rd party auth buttons Because: ([02e1a3160](https://github.com/mozilla/fxa/commit/02e1a3160))
+
+### Other changes
+
+- deps-dev: bump @babel/cli from 7.17.6 to 7.17.10 ([a7691970c](https://github.com/mozilla/fxa/commit/a7691970c))
+- experiments: Remove newsletter experiment ([0e9b1122c](https://github.com/mozilla/fxa/commit/0e9b1122c))
+- deps: bump grunt-contrib-clean from 2.0.0 to 2.0.1 ([fae034998](https://github.com/mozilla/fxa/commit/fae034998))
+
 ## 1.231.4
 
 No changes.
