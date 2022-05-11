@@ -1,3 +1,21 @@
+## 1.232.0
+
+### Bug fixes
+
+- fxa-settings: update string id on updated string ([e3a7c1e25](https://github.com/mozilla/fxa/commit/e3a7c1e25))
+- fxa-settings: bf1b8c266 fix(fxa-settings) remove static list of feature from account deletion warning ([bf1b8c266](https://github.com/mozilla/fxa/commit/bf1b8c266))
+- fxa-settings: a22d0dcc0 fix(fxa-settings) update wording on 'unlink account' prompt warning ([a22d0dcc0](https://github.com/mozilla/fxa/commit/a22d0dcc0))
+- fxa-settings: limit button margin adjustment to mobile portrait ([39e604b57](https://github.com/mozilla/fxa/commit/39e604b57))
+- fxa-settings: 138cb34a2 fix(fxa-settings) fix label vertical centering in mobile ([138cb34a2](https://github.com/mozilla/fxa/commit/138cb34a2))
+
+### Other changes
+
+- fxa-settings: 8ecdf85d1 Revert "fix(fxa-settings) remove static list of feature from account deletion…" ([8ecdf85d1](https://github.com/mozilla/fxa/commit/8ecdf85d1))
+- fxa-settings: update string id on updated string" ([122f2c641](https://github.com/mozilla/fxa/commit/122f2c641))
+- settings: remove extra white-space before and after "Resend verification code" text Because: ([98a678bca](https://github.com/mozilla/fxa/commit/98a678bca))
+- 10b272048 PR Followup ([10b272048](https://github.com/mozilla/fxa/commit/10b272048))
+- settings: Disable 2FA and Recovery Code actions when account has no password ([6c911c6e8](https://github.com/mozilla/fxa/commit/6c911c6e8))
+
 ## 1.231.4
 
 No changes.

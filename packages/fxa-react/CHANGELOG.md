@@ -1,3 +1,9 @@
+## 1.232.0
+
+### Bug fixes
+
+- settings: Fixes en-GB strings showing up en-US strings should be displayed ([b9f106f69](https://github.com/mozilla/fxa/commit/b9f106f69))
+
 ## 1.231.4
 
 No changes.

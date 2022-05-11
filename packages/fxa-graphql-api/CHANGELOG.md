@@ -1,3 +1,9 @@
+## 1.232.0
+
+### Other changes
+
+- deps: bump knex from 1.0.7 to 2.0.0 ([258a8258e](https://github.com/mozilla/fxa/commit/258a8258e))
+
 ## 1.231.4
 
 No changes.

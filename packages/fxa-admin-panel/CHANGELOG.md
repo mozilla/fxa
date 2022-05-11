@@ -1,3 +1,19 @@
+## 1.232.0
+
+### New features
+
+- fxa-admin-panel: 52d49c0cd feat(fxa-admin-panel) allow admin to enable login for account from admin panel ([52d49c0cd](https://github.com/mozilla/fxa/commit/52d49c0cd))
+- fxa-admin-panel: add new event name to db ([956896b7f](https://github.com/mozilla/fxa/commit/956896b7f))
+
+### Bug fixes
+
+- fxa-admin-panel: 0ad1c7434 fix(fxa-admin-panel) temporarily add logging to debug on staging and update tests ([0ad1c7434](https://github.com/mozilla/fxa/commit/0ad1c7434))
+- admin-panel: trim whitespace from admin panel search bar Because: ([0b3da7a51](https://github.com/mozilla/fxa/commit/0b3da7a51))
+
+### Other changes
+
+- admin-panel: Add guard to serverside ([6d3720096](https://github.com/mozilla/fxa/commit/6d3720096))
+
 ## 1.231.4
 
 No changes.
