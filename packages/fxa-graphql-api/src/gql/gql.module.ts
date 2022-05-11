@@ -71,9 +71,9 @@ export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply((req: Request, res: Response, next: Function) => {
-        if (!req.is('application/json') && !req.is('multipart/form-data')) {
+        if (config.env !== 'development' && !req.is('application/json') && !req.is('multipart/form-data')) {
           return next(
-            new HttpException('Request content type is not supported.', 415)
+           new HttpException('Request content type is not supported.', 415),
           );
         }
         next();
