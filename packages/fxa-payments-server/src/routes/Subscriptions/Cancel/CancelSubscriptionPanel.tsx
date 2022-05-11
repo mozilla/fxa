@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { Localized } from '@fluent/react';
 import {
   getLocalizedDate,
@@ -15,10 +15,11 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Plan } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 import * as Amplitude from '../../../lib/amplitude';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import AppContext from '../../../lib/AppContext';
 
 export type CancelSubscriptionPanelProps = {
   plan: Plan;
@@ -41,6 +42,7 @@ const CancelSubscriptionPanel = ({
   subsequentInvoiceAmount,
   subsequentInvoiceDate,
 }: CancelSubscriptionPanelProps) => {
+  const { navigatorLanguages, config } = useContext(AppContext);
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
   const [
@@ -114,7 +116,11 @@ const CancelSubscriptionPanel = ({
   );
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBill = `Next billed on ${nextBillDate}`;
-  const { upgradeCTA } = metadataFromPlan(plan);
+  const { upgradeCTA } = uiContentFromProductConfig(
+    plan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
 
   return (
     <>

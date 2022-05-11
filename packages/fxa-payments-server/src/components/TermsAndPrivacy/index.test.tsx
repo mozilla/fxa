@@ -6,6 +6,7 @@ import { MOCK_PLANS } from '../../lib/test-utils';
 import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
+import { updateConfig } from '../../lib/config';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';
@@ -34,7 +35,34 @@ const planWithNoLegalLinks = {
   ...MOCK_PLANS[0],
 };
 
-afterEach(cleanup);
+const planWithConfiguration = {
+  ...MOCK_PLANS[0],
+  configuration: {
+    urls: {
+      termsOfService: `${enTermsOfServiceURL}/config`,
+      termsOfServiceDownload: `${enTermsOfServiceDownloadURL}/config`,
+      privacyNotice: `${enPrivacyNoticeURL}/config`,
+    },
+    locales: {
+      fr: {
+        urls: {
+          termsOfService: `${frTermsOfServiceURL}/config`,
+          termsOfServiceDownload: `${frTermsOfServiceDownloadURL}/config`,
+          privacyNotice: `${frPrivacyNoticeURL}/config`,
+        },
+      },
+    },
+  },
+};
+
+afterEach(() => {
+  updateConfig({
+    featureFlags: {
+      useFirestoreProductConfigs: false,
+    },
+  });
+  cleanup();
+});
 
 it('renders as expected with a plan with no legal doc links metadata', () => {
   const { queryByTestId } = render(
@@ -96,4 +124,42 @@ it('renders as expected with fr locale', () => {
   const privacyLink = queryByTestId('privacy');
   expect(privacyLink).toBeInTheDocument();
   expect(privacyLink).toHaveAttribute('href', frPrivacyNoticeURL);
+});
+
+it('renders as expected with firestore config and default locale', () => {
+  updateConfig({
+    featureFlags: {
+      useFirestoreProductConfigs: true,
+    },
+  });
+  const { queryByTestId } = render(
+    <TermsAndPrivacy plan={planWithConfiguration} />
+  );
+  const termsLink = queryByTestId('terms');
+  expect(termsLink).toBeInTheDocument();
+  expect(termsLink).toHaveAttribute('href', `${enTermsOfServiceURL}/config`);
+  const privacyLink = queryByTestId('privacy');
+  expect(privacyLink).toBeInTheDocument();
+  expect(privacyLink).toHaveAttribute('href', `${enPrivacyNoticeURL}/config`);
+});
+
+it('renders as expected with firestore config and fr locale', () => {
+  updateConfig({
+    featureFlags: {
+      useFirestoreProductConfigs: true,
+    },
+  });
+  const { queryByTestId } = render(
+    <AppContext.Provider
+      value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
+    >
+      <TermsAndPrivacy plan={planWithConfiguration} />
+    </AppContext.Provider>
+  );
+  const termsLink = queryByTestId('terms');
+  expect(termsLink).toBeInTheDocument();
+  expect(termsLink).toHaveAttribute('href', `${frTermsOfServiceURL}/config`);
+  const privacyLink = queryByTestId('privacy');
+  expect(privacyLink).toBeInTheDocument();
+  expect(privacyLink).toHaveAttribute('href', `${frPrivacyNoticeURL}/config`);
 });

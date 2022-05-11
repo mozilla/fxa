@@ -17,7 +17,9 @@ afterEach(cleanup);
 function assertRedirectForProduct(
   product_id: string,
   product_name: string,
-  expectedUrl: string
+  expectedUrl: string,
+  useFirestoreProductConfigs: boolean = false,
+  planConfiguration?: any
 ) {
   const config = {
     ...defaultConfig,
@@ -25,10 +27,23 @@ function assertRedirectForProduct(
     productRedirectURLs: {
       '123doneProProduct': 'http://localhost:8080',
     },
+    featureFlags: {
+      useFirestoreProductConfigs,
+    },
   };
   const navigateToUrl = jest.fn();
-  const appContextValue = { ...defaultAppContext, navigateToUrl, config };
-  const selectedPlan = { ...MOCK_PLANS[0], product_id, product_name };
+  const appContextValue = {
+    ...defaultAppContext,
+    navigateToUrl,
+    config,
+    navigatorLanguages: ['fr'],
+  };
+  const selectedPlan = {
+    ...MOCK_PLANS[0],
+    product_id,
+    product_name,
+    configuration: planConfiguration,
+  };
   const { getByTestId } = render(
     <AppContext.Provider value={appContextValue}>
       <SubscriptionSuccess
@@ -47,6 +62,14 @@ function assertRedirectForProduct(
 }
 
 describe('SubscriptionSuccess', () => {
+  it('performs a redirect to the default URL fo', () => {
+    assertRedirectForProduct(
+      'beepBoop',
+      'bazquux',
+      `https://mozilla.org/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+    );
+  });
+
   it('performs a redirect to the expected URL for local product', () => {
     assertRedirectForProduct(
       '123doneProProduct',
@@ -55,11 +78,50 @@ describe('SubscriptionSuccess', () => {
     );
   });
 
-  it('performs a redirect to the default URL for unknown product', () => {
+  it('performs a redirect to the download URL from product config', () => {
+    const configuration = {
+      uiContent: {
+        subtitle: 'VPN Subtitle',
+      },
+      urls: {
+        download: 'https://download.default.locale',
+      },
+    };
     assertRedirectForProduct(
       'beepBoop',
       'bazquux',
-      `https://mozilla.org/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+      `https://download.default.locale/?email=${encodeURIComponent(
+        MOCK_PROFILE.email
+      )}`,
+      true,
+      configuration
+    );
+  });
+
+  it('performs a redirect to the download URL from product config for locale fr', () => {
+    const configuration = {
+      uiContent: {
+        subtitle: 'VPN Subtitle',
+      },
+      urls: {
+        download: 'https://download.default.locale',
+      },
+      locales: {
+        fr: {
+          urls: {
+            download: 'https://download.default.locale/fr/',
+          },
+        },
+      },
+    };
+    assertRedirectForProduct(
+      'beepBoop',
+      'bazquux',
+      `https://download.default.locale/fr/?email=${encodeURIComponent(
+        MOCK_PROFILE.email
+      )}`,
+      true,
+      configuration
     );
   });
 

@@ -7,9 +7,9 @@ import {
   getLocalizedDate,
 } from '../../lib/formats';
 import {
-  metadataFromPlan,
-  productDetailsFromPlan,
-} from 'fxa-shared/subscriptions/metadata';
+  uiContentFromProductConfig,
+  webIconConfigFromProductConfig,
+} from 'fxa-shared/subscriptions/configuration/helpers';
 import { AppContext } from '../../lib/AppContext';
 
 // this is a fallback incase webIconURL is undefined,
@@ -39,14 +39,19 @@ export const PlanDetails = ({
   coupon,
   children,
 }: PlanDetailsProps) => {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { navigatorLanguages, config } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const { product_name, amount, currency, interval, interval_count } =
     selectedPlan;
-  const { webIconURL, webIconBackground } = metadataFromPlan(selectedPlan);
-  const productDetails = productDetailsFromPlan(
+  const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
     selectedPlan,
-    navigatorLanguages
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
+  const productDetails = uiContentFromProductConfig(
+    selectedPlan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
   );
   const role = isMobile ? undefined : 'complementary';
   const setWebIconBackground = webIconBackground
@@ -83,7 +88,7 @@ export const PlanDetails = ({
                 style={{ ...setWebIconBackground }}
               >
                 <img
-                  src={webIconURL || ffLogo}
+                  src={webIcon || ffLogo}
                   alt={product_name}
                   data-testid="product-logo"
                 />

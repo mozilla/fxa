@@ -23,6 +23,7 @@ describe('product configuration util functions', () => {
     termsOfServiceDownload: 'product',
     privacyNotice: 'product',
     privacyNoticeDownload: 'product',
+    download: 'download',
   };
   const planUrls = {
     download: 'plan',

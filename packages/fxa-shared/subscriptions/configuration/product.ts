@@ -38,6 +38,23 @@ const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
       'urls'
     );
 
+// This type defines the required fields of urls, set by function buildProductConfigSchema.
+// Any change to required fields in urls, should be updated here as well.
+export type ProductConfigUrlConfig = Partial<UrlConfig> & {
+  download: string;
+  privacyNotice: string;
+  termsOfService: string;
+  termsOfServiceDownload: string;
+  webIcon: string;
+};
+
+// This type picks the keys of ProductConfig that can also be found in locales.
+// Any change to ProductConfig.locales types should be updated here as well.
+export type ProductConfigLocalesConfig = Pick<
+  ProductConfig,
+  'uiContent' | 'urls' | 'support'
+>;
+
 export class ProductConfig implements BaseConfig {
   // Firestore document id
   id!: string;
@@ -54,7 +71,7 @@ export class ProductConfig implements BaseConfig {
   styles!: StyleConfig;
   support!: SupportConfig;
   uiContent!: UiContentConfig;
-  urls!: UrlConfig;
+  urls!: ProductConfigUrlConfig;
   promotionCodes?: string[];
 
   // Extended by ProductConfig

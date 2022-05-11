@@ -14,6 +14,7 @@ import {
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { updateConfig } from '../../lib/config';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -24,6 +25,7 @@ const userProfile = {
   locale: 'en-US',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
+  metricsEnabled: false,
 };
 
 const userProfileNoDisplayName = {
@@ -43,6 +45,8 @@ const selectedPlan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: {},
+  product_metadata: {},
 };
 
 const selectedPlanWithMetadata = {
@@ -50,6 +54,27 @@ const selectedPlanWithMetadata = {
   plan_metadata: {
     'product:successActionButtonLabel': 'Do something else',
     'product:successActionButtonLabel:xx-pirate': 'Yarr...',
+  },
+};
+
+const selectedPlanWithConfiguration = {
+  ...selectedPlan,
+  configuration: {
+    uiContent: {
+      successActionButtonLabel: 'Do something else, with configuration',
+    },
+    locales: {
+      'fy-NL': {
+        uiContent: {
+          successActionButtonLabel: 'Yarr...with configuration',
+        },
+      },
+    },
+    urls: {
+      termsOfService: 'https://test',
+      termsOfServiceDownload: 'https://test2',
+      privacyNotice: 'https://test3',
+    },
   },
 };
 
@@ -119,7 +144,14 @@ const coupon: CouponDetails = {
   maximallyRedeemed: false,
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  updateConfig({
+    featureFlags: {
+      useFirestoreProductConfigs: false,
+    },
+  });
+});
 
 describe('PaymentConfirmation', () => {
   it('renders as expected', () => {
@@ -224,6 +256,76 @@ describe('PaymentConfirmation', () => {
         selectedPlanWithMetadata.plan_metadata[
           'product:successActionButtonLabel:xx-pirate'
         ]
+      )
+    ).toBeInTheDocument();
+    expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with custom success button label text, from firestore config', () => {
+    updateConfig({
+      featureFlags: {
+        useFirestoreProductConfigs: true,
+      },
+    });
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{
+            profile: userProfile,
+            selectedPlan: selectedPlanWithConfiguration,
+            customer,
+            productUrl,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const footer = queryByTestId('footer');
+    expect(footer).toBeVisible();
+    expect(
+      queryByText(
+        selectedPlanWithConfiguration.configuration.uiContent
+          .successActionButtonLabel
+      )
+    ).toBeInTheDocument();
+    expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with custom success button label text, from firestore config, localized to fy-NL', () => {
+    updateConfig({
+      featureFlags: {
+        useFirestoreProductConfigs: true,
+      },
+    });
+    const subject = () => {
+      return render(
+        <AppContext.Provider
+          value={{ ...defaultAppContext, navigatorLanguages: ['fy-NL'] }}
+        >
+          <PaymentConfirmation
+            {...{
+              profile: userProfile,
+              selectedPlan: selectedPlanWithConfiguration,
+              customer,
+              productUrl,
+            }}
+          />
+        </AppContext.Provider>
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const footer = queryByTestId('footer');
+    expect(footer).toBeVisible();
+    expect(
+      queryByText(
+        selectedPlanWithConfiguration.configuration.locales['fy-NL'].uiContent
+          .successActionButtonLabel
       )
     ).toBeInTheDocument();
     expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Plan } from '../../../store/types';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Localized } from '@fluent/react';
+import AppContext from '../../../lib/AppContext';
 
 const SuccessDialog = ({
   plan,
@@ -12,8 +13,13 @@ const SuccessDialog = ({
   plan: Plan;
   onDismiss: () => void;
 }) => {
+  const { navigatorLanguages, config } = useContext(AppContext);
   const { product_name: productName } = plan;
-  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
+  const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
+    plan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
 
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
@@ -27,7 +33,7 @@ const SuccessDialog = ({
       <div className="dialog-icon" style={{ ...setWebIconBackground }}>
         <img
           alt={productName}
-          src={webIconURL || fpnImage}
+          src={webIcon || fpnImage}
           width="48"
           height="48"
         />

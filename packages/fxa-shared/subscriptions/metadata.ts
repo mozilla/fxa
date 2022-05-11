@@ -1,15 +1,14 @@
 import {
-  Plan,
-  RawMetadata,
-  PaypalPaymentError,
-  ProductMetadata,
-  ProductDetails,
-  ProductDetailsStringProperties,
-  ProductDetailsStringProperty,
-  ProductDetailsListProperties,
-  ProductDetailsListProperty,
   AbbrevPlan,
   MozillaSubscription,
+  Plan,
+  ProductDetails,
+  ProductDetailsListProperties,
+  ProductDetailsListProperty,
+  ProductDetailsStringProperties,
+  ProductDetailsStringProperty,
+  ProductMetadata,
+  RawMetadata,
 } from './types';
 
 const DEFAULT_LOCALE = 'en-US';

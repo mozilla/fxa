@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedCurrency, formatPlanPricing } from '../../../lib/formats';
 import {
-  metadataFromPlan,
-  productDetailsFromPlan,
-} from 'fxa-shared/subscriptions/metadata';
+  uiContentFromProductConfig,
+  webIconConfigFromProductConfig,
+} from 'fxa-shared/subscriptions/configuration/helpers';
 import { AppContext } from '../../../lib/AppContext';
 
 import ffLogo from '../../../images/firefox-logo.svg';
@@ -82,10 +82,18 @@ export const PlanDetailsCard = ({
   plan: Plan;
   className?: string;
 }) => {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { navigatorLanguages, config } = useContext(AppContext);
   const { product_name, amount, currency, interval, interval_count } = plan;
-  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
-  const productDetails = productDetailsFromPlan(plan, navigatorLanguages);
+  const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
+    plan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
+  const productDetails = uiContentFromProductConfig(
+    plan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
   const planPrice = formatPlanPricing(
     amount,
     currency,
@@ -108,7 +116,7 @@ export const PlanDetailsCard = ({
             style={{ ...setWebIconBackground }}
           >
             <img
-              src={webIconURL || ffLogo}
+              src={webIcon || ffLogo}
               alt={product_name}
               data-testid="product-logo"
             />

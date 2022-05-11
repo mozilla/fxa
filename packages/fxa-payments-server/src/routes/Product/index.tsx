@@ -77,7 +77,8 @@ const customerIsSubscribedToPlan = (
 const subscriptionUpdateEligibilityResult = (
   customerSubscriptions: WebSubscription[],
   selectedPlan: Plan,
-  plansById: PlansByIdType
+  plansById: PlansByIdType,
+  useFirestoreProductConfigs: boolean
 ):
   | {
       subscriptionUpdateEligibility: SubscriptionUpdateEligibility;
@@ -90,7 +91,8 @@ const subscriptionUpdateEligibilityResult = (
       const subscriptionPlanInfo = plansById[customerSubscription.plan_id];
       const subscriptionUpdateEligibility = getSubscriptionUpdateEligibility(
         subscriptionPlanInfo.plan,
-        selectedPlan
+        selectedPlan,
+        useFirestoreProductConfigs
       );
       if (
         subscriptionUpdateEligibility !== SubscriptionUpdateEligibility.INVALID
@@ -271,7 +273,8 @@ export const Product = ({
     const planUpdateEligibilityResult = subscriptionUpdateEligibilityResult(
       webSubscriptions,
       selectedPlan,
-      plansById
+      plansById,
+      config.featureFlags.useFirestoreProductConfigs
     );
 
     // Not an upgrade or a downgrade.

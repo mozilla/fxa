@@ -12,7 +12,7 @@ import { ProductConfig } from './product';
 export const mergeConfigs = (
   planConfig: PlanConfig,
   productConfig: ProductConfig
-): PlanConfig => ({
+): PlanConfig & ProductConfig => ({
   ...planConfig,
 
   capabilities: {
