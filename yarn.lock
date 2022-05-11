@@ -16269,12 +16269,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-localenames-full@npm:40.0.0":
-  version: 40.0.0
-  resolution: "cldr-localenames-full@npm:40.0.0"
+"cldr-localenames-full@npm:41.0.0":
+  version: 41.0.0
+  resolution: "cldr-localenames-full@npm:41.0.0"
   peerDependencies:
-    cldr-core: 40.0.0
-  checksum: 177ed110077415e48e4c6666c92bad3a56d8a78aa1e46f96ef8806cea032d376ec2cbc857092b25a3602afed03eba9b898852c9435a6e132c8cd485b5333fbbe
+    cldr-core: 41.0.0
+  checksum: e0fd8f86fec7dc7a42e5ca3d681871364d861c2838955098071abf18f7bd371844a9c6561ed09eed1d6f67bf9646f6f2d8e9d2431b6c43c8ba80d987c6648c1a
   languageName: node
   linkType: hard
 
@@ -23369,7 +23369,7 @@ fsevents@~2.1.1:
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
-    cldr-localenames-full: 40.0.0
+    cldr-localenames-full: 41.0.0
     cors: ^2.8.5
     db-migrations: "workspace:*"
     esbuild: ^0.14.2
