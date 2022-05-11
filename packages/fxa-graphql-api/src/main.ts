@@ -29,32 +29,34 @@ async function bootstrap() {
     app.use(helmet.hsts({ includeSubDomains: true, maxAge }));
   }
 
-  app.use(
-    helmet.frameguard({
-      action: 'deny',
-    })
-  );
-
-  app.use((req: Request, res: Response, next: any) => {
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    next();
-  });
-  app.use(helmet.noSniff());
-  const NONE = "'none'";
-  app.use(
-    helmet.contentSecurityPolicy({
-      directives: {
-        baseUri: [NONE],
-        defaultSrc: [NONE],
-        frameSrc: [NONE],
-        objectSrc: [NONE],
-      },
-    })
-  );
-
-  // We run behind a proxy when deployed, include the express middleware
-  // to extract the X-Forwarded-For header.
+  // Only apply security restrictions when in prod-like environment
+  // since this interferes with Graphql playground
   if (Config.getProperties().env !== 'development') {
+    app.use(
+     helmet.frameguard({
+       action: 'deny',
+     }),
+    );
+
+    app.use((req: Request, res: Response, next: any) => {
+      res.setHeader('X-XSS-Protection', '1; mode=block');
+      next();
+    });
+    app.use(helmet.noSniff());
+    const NONE = '\'none\'';
+    app.use(
+     helmet.contentSecurityPolicy({
+       directives: {
+         baseUri: [NONE],
+         defaultSrc: [NONE],
+         frameSrc: [NONE],
+         objectSrc: [NONE],
+       },
+     }),
+    );
+
+    // We run behind a proxy when deployed, include the express middleware
+    // to extract the X-Forwarded-For header.
     app.set('trust proxy', true);
   }
 

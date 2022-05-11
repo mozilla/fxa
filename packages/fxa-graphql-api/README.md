@@ -15,7 +15,7 @@ Add this as a property of a JSON object with an `authorization` key in the botto
 
 ```
 {
-  "authorization": "d4a62a0f58efb0e9c7d17b579434f2a56cad10503033874002ddd507a503cea5"
+  "authorization": "Bearer d4a62a0f58efb0e9c7d17b579434f2a56cad10503033874002ddd507a503cea5"
 }
 ```
 
