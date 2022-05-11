@@ -152,6 +152,7 @@ export class SubscriptionReminders {
           // Using invoice prefix instead of plan to accomodate `yarn write-emails`.
           invoiceTotalInCents: amount,
           invoiceTotalCurrency: currency,
+          productMetadata: formattedSubscription.productMetadata,
         }
       );
       await this.updateSentEmail(uid, emailParams);

@@ -2789,7 +2789,8 @@ module.exports = function (log, config, bounces) {
       privacyNoticeDownloadURL = this.privacyUrl,
     } = productDetailsFromPlan(
       {
-        product_metadata: message.productMetadata,
+        product_metadata:
+          message.productMetadata || message.subscription?.productMetadata,
       },
       determineLocale(message.acceptLanguage)
     );
