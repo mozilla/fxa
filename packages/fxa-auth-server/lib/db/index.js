@@ -768,6 +768,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return accountResetToken;
   };
 
+  DB.prototype.createPassword = async function (uid, authSalt, verifyHash, wrapWrapKb, verifierVersion) {
+    log.trace('DB.createPassword', { uid });
+    return Account.createPassword(uid, authSalt, verifyHash, wrapWrapKb, verifierVersion);
+  };
+
   DB.prototype.updateLocale = async function (uid, locale) {
     log.trace('DB.updateLocale', { uid, locale });
     return Account.updateLocale(uid, locale);

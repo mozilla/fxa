@@ -819,6 +819,23 @@ export default class AuthClient {
     }
   }
 
+  async createPassword(
+   sessionToken: string,
+   email: string,
+   newPassword: string
+  ): Promise<any> {
+    const newCredentials = await crypto.getCredentials(
+     email,
+     newPassword
+    );
+
+    const payload = {
+      authPW: newCredentials.authPW,
+    };
+
+    return this.sessionPost('/password/create', sessionToken, payload);
+  }
+
   async getRandomBytes() {
     return this.request('POST', '/get_random_bytes');
   }

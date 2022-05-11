@@ -45,6 +45,7 @@ import {
   VerifyEmailInput,
   VerifySessionInput,
   VerifyTotpInput,
+  CreatePassword,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -108,6 +109,22 @@ export class AccountResolver {
       info.returnType
     );
     return simplified.fields.hasOwnProperty('linkedAccounts');
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Creates a new password for a user and overrides encryption keys',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async createPassword(
+   @GqlSessionToken() token: string,
+   @Args('input', { type: () => CreatePassword })
+    input: CreatePassword
+  ): Promise<BasicPayload> {
+    await this.authAPI.createPassword(token, input.email, input.password);
+    return {
+      clientMutationId: input.clientMutationId,
+    };
   }
 
   @Mutation((returns) => CreateTotpPayload, {

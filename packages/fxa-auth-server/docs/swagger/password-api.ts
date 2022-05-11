@@ -129,6 +129,18 @@ const PASSWORD_FORGOT_STATUS_GET = {
   ],
 };
 
+const PASSWORD_CREATE_POST = {
+  ...TAGS_PASSWORD,
+  description: '🔒 sessionToken',
+  notes: [
+    dedent`
+      🔒 HAWK-authenticated with session token
+
+      Creates a new password for the user associated with the session token. Creating a new password will generate new encryption key.
+    `,
+  ],
+};
+
 const API_DOCS = {
   PASSWORD_CHANGE_FINISH_POST,
   PASSWORD_CHANGE_START_POST,
@@ -136,6 +148,7 @@ const API_DOCS = {
   PASSWORD_FORGOT_SEND_CODE_POST,
   PASSWORD_FORGOT_STATUS_GET,
   PASSWORD_FORGOT_VERIFY_CODE_POST,
+  PASSWORD_CREATE_POST,
 };
 
 export default API_DOCS;

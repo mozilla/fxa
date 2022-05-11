@@ -12,6 +12,7 @@ const error = require('../error');
 const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
+const errors = require('../error');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 
 const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
@@ -70,7 +71,7 @@ module.exports = function (
               const password = new Password(
                 oldAuthPW,
                 emailRecord.authSalt,
-                emailRecord.verifierVersion
+                emailRecord.verifierVersion,
               );
               return signinUtils
                 .checkPassword(emailRecord, password, request.app.clientAddress)
@@ -78,13 +79,13 @@ module.exports = function (
                   if (!match) {
                     throw error.incorrectPassword(
                       emailRecord.email,
-                      form.email
+                      form.email,
                     );
                   }
                   const password = new Password(
                     oldAuthPW,
                     emailRecord.authSalt,
-                    emailRecord.verifierVersion
+                    emailRecord.verifierVersion,
                   );
                   return password.unwrap(emailRecord.wrapWrapKb);
                 })
@@ -118,7 +119,7 @@ module.exports = function (
                 });
               }
               throw err;
-            }
+            },
           )
           .then((tokens) => {
             return {
@@ -157,7 +158,7 @@ module.exports = function (
             .label('Password.changeFinish_payload'),
         },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
         const authPW = request.payload.authPW;
@@ -229,7 +230,7 @@ module.exports = function (
             // get informed about the change via WebChannel message.
             if (originatingDeviceId) {
               devicesToNotify = devicesToNotify.filter(
-                (d) => d.id !== originatingDeviceId
+                (d) => d.id !== originatingDeviceId,
               );
             }
           });
@@ -277,7 +278,7 @@ module.exports = function (
             // Notify the devices that the account has changed.
             push.notifyPasswordChanged(
               passwordChangeToken.uid,
-              devicesToNotify
+              devicesToNotify,
             );
           }
 
@@ -291,7 +292,7 @@ module.exports = function (
                 generation: account.verifierSetAt,
               });
               return oauth.removePublicAndCanGrantTokens(
-                passwordChangeToken.uid
+                passwordChangeToken.uid,
               );
             })
             .then(() => {
@@ -327,7 +328,7 @@ module.exports = function (
                     'Password.changeFinish.sendPasswordChangedNotification.error',
                     {
                       error: e,
-                    }
+                    },
                   );
                 });
             });
@@ -382,7 +383,7 @@ module.exports = function (
           ) {
             return db.verifyTokensWithMethod(
               sessionToken.id,
-              previousSessionToken.verificationMethodValue
+              previousSessionToken.verificationMethodValue,
             );
           }
         }
@@ -467,7 +468,7 @@ module.exports = function (
             .label('Password.forgotSend_response'),
         },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Password.forgotSend', request);
         const email = request.payload.email;
         const service = request.payload.service || request.query.service;
@@ -544,7 +545,7 @@ module.exports = function (
             });
           })
           .then(() =>
-            request.emitMetricsEvent('password.forgot.send_code.completed')
+            request.emitMetricsEvent('password.forgot.send_code.completed'),
           )
           .then(() => ({
             passwordForgotToken: passwordForgotToken.data,
@@ -597,7 +598,7 @@ module.exports = function (
             .label('Password.forgotResend_response'),
         },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Password.forgotResend', request);
         const passwordForgotToken = request.auth.credentials;
         const service = request.payload.service || request.query.service;
@@ -611,7 +612,7 @@ module.exports = function (
           customs.check(
             request,
             passwordForgotToken.email,
-            'passwordForgotResendCode'
+            'passwordForgotResendCode',
           ),
         ])
           .then(() => {
@@ -650,7 +651,7 @@ module.exports = function (
           })
           .then(() => {
             return request.emitMetricsEvent(
-              'password.forgot.resend_code.completed'
+              'password.forgot.resend_code.completed',
             );
           })
           .then(() => {
@@ -694,7 +695,7 @@ module.exports = function (
             .label('Password.forgotVerify_response'),
         },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Password.forgotVerify', request);
         const passwordForgotToken = request.auth.credentials;
         const code = request.payload.code;
@@ -711,7 +712,7 @@ module.exports = function (
           customs.check(
             request,
             passwordForgotToken.email,
-            'passwordForgotVerifyCode'
+            'passwordForgotVerifyCode',
           ),
         ])
           .then(() => {
@@ -734,7 +735,7 @@ module.exports = function (
             return Promise.all([
               request.propagateMetricsContext(
                 passwordForgotToken,
-                accountResetToken
+                accountResetToken,
               ),
               db.accountEmails(passwordForgotToken.uid),
             ]);
@@ -757,11 +758,66 @@ module.exports = function (
             });
           })
           .then(() =>
-            request.emitMetricsEvent('password.forgot.verify_code.completed')
+            request.emitMetricsEvent('password.forgot.verify_code.completed'),
           )
           .then(() => ({
             accountResetToken: accountResetToken.data,
           }));
+      },
+    },
+    {
+      method: 'POST',
+      path: '/password/create',
+      options: {
+        ...PASSWORD_DOCS.PASSWORD_CREATE_POST,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA
+            .object({
+              authPW: isA.string(),
+            }),
+        },
+      },
+      handler: async function(request) {
+        log.begin('Password.create', request);
+        const sessionToken = request.auth.credentials;
+        const { uid } = sessionToken;
+
+        const { authPW } = request.payload;
+        
+        const account = await db.account(uid);
+        // We don't allow users that have a password set already to create a new password
+        // because this process would destroy their original encryption keys and might
+        // leave the account in an invalid state.
+        if (account.verifierSetAt > 0) {
+          throw error.cannotCreatePassword();
+        }
+        
+        // Users that have enabled 2FA must be in a 2FA verified session to create a password.
+        const hasTotpToken = await otpUtils.hasTotpToken(account);
+        if (hasTotpToken &&
+          (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)
+      ) {
+          throw error.unverifiedSession();
+        }
+        
+        const authSalt = await random.hex(32);
+        const password = new Password(
+          authPW,
+          authSalt,
+          config.verifierVersion,
+        );
+        const verifyHash = await password.verifyHash();
+
+        // Accounts that don't have a password set, also do not have encryption keys therefore
+        // we generate one for them.
+        const wrapWrapKb = await random.hex(32);
+        
+        await db.createPassword(uid, authSalt, verifyHash, wrapWrapKb, verifierVersion);
+
+        return {};
       },
     },
     {
@@ -781,7 +837,7 @@ module.exports = function (
             .label('Password.forgotStatus_response'),
         },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Password.forgotStatus', request);
         const passwordForgotToken = request.auth.credentials;
         return {

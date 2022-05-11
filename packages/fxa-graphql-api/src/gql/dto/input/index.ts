@@ -14,3 +14,4 @@ export { SendSessionVerificationInput } from './send-session-verification';
 export { VerifySessionInput } from './verify-session';
 export { DeleteRecoveryKeyInput } from './delete-recovery-key';
 export { DestroySessionInput } from './destroy-session';
+export { CreatePassword } from './create-password';

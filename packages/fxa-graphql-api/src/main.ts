@@ -42,6 +42,7 @@ async function bootstrap() {
       res.setHeader('X-XSS-Protection', '1; mode=block');
       next();
     });
+    
     app.use(helmet.noSniff());
     const NONE = '\'none\'';
     app.use(
