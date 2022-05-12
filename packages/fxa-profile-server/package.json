@@ -15,7 +15,7 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
-    "@hapi/boom": "~9.1.4",
+    "@hapi/boom": "~10.0.0",
     "@hapi/catbox-memory": "~5.0.1",
     "@hapi/catbox-redis": "~6.0.2",
     "@hapi/hapi": "^20.2.1",
