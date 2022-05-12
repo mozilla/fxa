@@ -100,11 +100,7 @@
 
         &.logo-relay {
           background-image: image-url('graphic-logo-relay.svg');
-          background-position-x: -5px;
-
-          html[dir='rtl'] & {
-            background-position-x: 5px;
-          }
+          background-position-x: -15px;
         }
 
         &.logo-monitor {
