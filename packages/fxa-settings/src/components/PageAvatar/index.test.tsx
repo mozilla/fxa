@@ -55,6 +55,8 @@ it('PageAddAvatar | render add, take buttons on initial load', async () => {
       <PageAvatar />
     </AppContext.Provider>
   );
+
+  screen.getByText('Save');
   expect(screen.getByTestId('add-photo-btn')).toBeInTheDocument();
   expect(screen.getByTestId('take-photo-btn')).toBeInTheDocument();
 });
@@ -78,7 +80,11 @@ it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () =>
   const onSave = jest.fn();
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <ConfirmBtns onSave={onSave} saveEnabled={true} />
+      <ConfirmBtns
+        onSave={onSave}
+        saveEnabled={true}
+        localizedSaveText="Save"
+      />
     </AppContext.Provider>
   );
 
@@ -96,7 +102,11 @@ it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled"
   const onSave = jest.fn();
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <ConfirmBtns onSave={onSave} saveEnabled={false} />
+      <ConfirmBtns
+        onSave={onSave}
+        saveEnabled={false}
+        localizedSaveText="Save"
+      />
     </AppContext.Provider>
   );
 

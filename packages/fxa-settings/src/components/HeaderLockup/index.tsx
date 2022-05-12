@@ -17,21 +17,18 @@ import Nav from '../Nav';
 export const HeaderLockup = () => {
   const [navRevealedState, setNavState] = useState(false);
   const { l10n } = useLocalization();
+  const localizedHelpText = l10n.getString('header-help', null, 'Help');
+  const localizedMenuText = navRevealedState
+    ? l10n.getString('header-menu-open', null, 'Close menu')
+    : l10n.getString('header-menu-closed', null, 'Site navigation menu');
+
   const left = (
     <>
       <button
         className="desktop:hidden ltr:mr-6 rtl:ml-6 w-8 h-6 self-center"
         data-testid="header-menu"
-        aria-label={
-          navRevealedState
-            ? l10n.getString('header-menu-open')
-            : l10n.getString('header-menu-closed')
-        }
-        title={
-          navRevealedState
-            ? l10n.getString('header-menu-open')
-            : l10n.getString('header-menu-closed')
-        }
+        aria-label={localizedMenuText}
+        title={localizedMenuText}
         aria-haspopup={true}
         aria-expanded={navRevealedState}
         onClick={() => setNavState(!navRevealedState)}
@@ -65,12 +62,12 @@ export const HeaderLockup = () => {
       <div className="rounded border-transparent hover:bg-grey-200 p-1">
         <LinkExternal
           href="https://support.mozilla.org"
-          title={l10n.getString('header-help')}
+          title={localizedHelpText}
           data-testid="header-sumo-link"
         >
           <Help
-            aria-label={l10n.getString('header-help')}
-            title={l10n.getString('header-help')}
+            aria-label={localizedHelpText}
+            title={localizedHelpText}
             role="img"
             className="w-5"
             data-testid="header-help"

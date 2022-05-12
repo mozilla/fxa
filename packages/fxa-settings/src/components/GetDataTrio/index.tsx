@@ -32,7 +32,11 @@ const recoveryCodesPrintTemplate = (
 
 export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
   const { l10n } = useLocalization();
-  const pageTitle = l10n.getString('get-data-trio-title');
+  const pageTitle = l10n.getString(
+    'get-data-trio-title',
+    null,
+    'Recovery Codes'
+  );
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
     printWindow.document.write(recoveryCodesPrintTemplate(value, pageTitle));

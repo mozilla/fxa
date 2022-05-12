@@ -43,7 +43,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const [errorText, setErrorText] = useState<string>();
   const [confirmed, setConfirmed] = useState<boolean>(false);
   const [subtitleText, setSubtitleText] = useState<string>(
-    l10n.getString('delete-account-step-1-2')
+    l10n.getString('delete-account-step-1-2', null, 'Step 1 of 2')
   );
   const [checkedBoxes, setCheckedBoxes] = useState<string[]>([]);
   const allBoxesChecked = checkboxLabels.every((element) =>
@@ -56,7 +56,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const account = useAccount();
 
   const advanceStep = () => {
-    setSubtitleText(l10n.getString('delete-account-step-2-2'));
+    setSubtitleText(
+      l10n.getString('delete-account-step-2-2', null, 'Step 2 of 2')
+    );
     setConfirmed(true);
 
     logViewEvent('flow.settings.account-delete', 'terms-checked.success');
