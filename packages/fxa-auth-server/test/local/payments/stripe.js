@@ -1253,7 +1253,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -1267,7 +1267,10 @@ describe('StripeHelper', () => {
           code: 'promo1',
         }
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.findAbbrevPlanById,
+        'planId'
+      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.promotionCodes.list,
         {
@@ -1287,7 +1290,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -1301,7 +1304,7 @@ describe('StripeHelper', () => {
           code: 'promo1',
         }
       );
-      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.promotionCodes.list,
         {
@@ -1316,7 +1319,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {},
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
@@ -1328,7 +1331,10 @@ describe('StripeHelper', () => {
           code: 'promo1',
         }
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.findAbbrevPlanById,
+        'planId'
+      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.promotionCodes.list,
         {
@@ -1346,7 +1352,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -1360,7 +1366,7 @@ describe('StripeHelper', () => {
           code: 'promo1',
         }
       );
-      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.promotionCodes.list,
         {
@@ -1389,7 +1395,7 @@ describe('StripeHelper', () => {
     let sentryScope;
 
     const setDefaultFindPlanById = () =>
-      sandbox.stub(stripeHelper, 'findPlanById').resolves(planTemplate);
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves(planTemplate);
 
     beforeEach(() => {
       sentryScope = { setContext: sandbox.stub() };
@@ -1422,7 +1428,7 @@ describe('StripeHelper', () => {
         ...couponTemplate,
         duration_in_months: 12,
       };
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         ...planTemplate,
         interval: 'year',
         interval_count: 1,
@@ -1442,7 +1448,7 @@ describe('StripeHelper', () => {
       const coupon = couponTemplate;
       const priceIntervalOverride = 'year';
 
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         ...planTemplate,
         interval: priceIntervalOverride,
       });
@@ -1487,7 +1493,7 @@ describe('StripeHelper', () => {
       const expected = false;
       const coupon = couponTemplate;
       const priceIntervalCountOverride = 6;
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         ...planTemplate,
         interval_count: priceIntervalCountOverride,
       });
@@ -1517,7 +1523,7 @@ describe('StripeHelper', () => {
     it('invalid plan interval', async () => {
       const expected = false;
       const coupon = couponTemplate;
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         ...planTemplate,
         interval: 'week',
       });
@@ -1901,7 +1907,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -1919,7 +1925,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
         .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
         },
@@ -2121,7 +2127,7 @@ describe('StripeHelper', () => {
     };
     it('finds a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -2135,9 +2141,28 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, true);
     });
 
+    it('finds a promo code in a Firestore config', async () => {
+      const promotionCode = 'promo1';
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: '',
+        },
+      });
+      sandbox.stub(stripeHelper, 'maybeGetPlanConfig').resolves({
+        promotionCodes: ['promo1'],
+      });
+
+      const actual = await stripeHelper.checkPromotionCodeForPlan(
+        promotionCode,
+        'planId',
+        couponTemplate
+      );
+      assert.deepEqual(actual, true);
+    });
+
     it('does not find a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
-      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
         },
@@ -2962,6 +2987,72 @@ describe('StripeHelper', () => {
           )
       );
     });
+
+    it('filters out invalid plans', async () => {
+      const first = { ...plan1, product: { ...plan1.product, metadata: {} } };
+      const second = {
+        ...plan2,
+        id: 'veryfake',
+        product: { ...plan2.product, id: 'veryfake' },
+      };
+      const third = {
+        ...plan3,
+        id: 'missing',
+        metadata: {},
+        product: { ...plan3.product, metadata: {} },
+      };
+      listStripePlans.restore();
+      sandbox
+        .stub(stripeHelper.stripe.plans, 'list')
+        .returns([first, second, third]);
+      sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+      const actual = await stripeHelper.allAbbrevPlans();
+      assert(stripeHelper.allConfiguredPlans.calledOnce);
+      assert(stripeHelper.allPlans.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+
+      assert.deepEqual(
+        actual,
+        [first]
+          .map((p) => ({
+            amount: p.amount,
+            currency: p.currency,
+            interval_count: p.interval_count,
+            interval: p.interval,
+            plan_id: p.id,
+            plan_metadata: p.metadata,
+            plan_name: p.nickname || '',
+            product_id: p.product.id,
+            product_metadata: p.product.metadata,
+            product_name: p.product.name,
+            configuration: {
+              locales: {},
+              productSet: undefined,
+              stripePriceId: p.id,
+              styles: {},
+              support: {},
+              uiContent: {},
+              urls: {},
+            },
+          }))
+          .concat(
+            [second].map((p) => ({
+              amount: p.amount,
+              currency: p.currency,
+              interval_count: p.interval_count,
+              interval: p.interval,
+              plan_id: p.id,
+              plan_metadata: p.metadata,
+              plan_name: p.nickname || '',
+              product_id: p.product.id,
+              product_metadata: p.product.metadata,
+              product_name: p.product.name,
+              configuration: null,
+            }))
+          )
+      );
+    });
   });
 
   describe('fetchProductById', () => {
@@ -2993,102 +3084,108 @@ describe('StripeHelper', () => {
   });
 
   describe('fetchAllPlans', () => {
-    it('only returns valid plans', async () => {
-      const validProductMetadata = plan1.product.metadata;
+    describe('without Firestore configs', () => {
+      beforeEach(() => {
+        stripeHelper.config.subscriptions.productConfigsFirestore.enabled = false;
+      });
 
-      const planMissingProduct = {
-        id: 'plan_noprod',
-        object: 'plan',
-        product: null,
-      };
+      it('only returns valid plans', async () => {
+        const validProductMetadata = plan1.product.metadata;
 
-      const planUnloadedProduct = {
-        id: 'plan_stringprod',
-        object: 'plan',
-        product: 'prod_123',
-      };
+        const planMissingProduct = {
+          id: 'plan_noprod',
+          object: 'plan',
+          product: null,
+        };
 
-      const planDeletedProduct = {
-        id: 'plan_deletedprod',
-        object: 'plan',
-        product: { deleted: true },
-      };
+        const planUnloadedProduct = {
+          id: 'plan_stringprod',
+          object: 'plan',
+          product: 'prod_123',
+        };
 
-      const planInvalidProductMetadata = {
-        id: 'plan_invalidproductmetadata',
-        object: 'plan',
-        product: {
-          metadata: Object.assign({}, validProductMetadata, {
-            // Include some invalid whitespace that will be trimmed.
-            'product:privacyNoticeDownloadURL': 'https://example.com',
-          }),
-        },
-      };
+        const planDeletedProduct = {
+          id: 'plan_deletedprod',
+          object: 'plan',
+          product: { deleted: true },
+        };
 
-      const goodPlan = deepCopy(plan1);
-      goodPlan.product = deepCopy(product1);
-      goodPlan.product.metadata['product:privacyNoticeURL'] =
-        'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
-      goodPlan.metadata['product:privacyNoticeURL'] =
-        'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
-      const dupeGoodPlan = deepCopy(goodPlan);
+        const planInvalidProductMetadata = {
+          id: 'plan_invalidproductmetadata',
+          object: 'plan',
+          product: {
+            metadata: Object.assign({}, validProductMetadata, {
+              // Include some invalid whitespace that will be trimmed.
+              'product:privacyNoticeDownloadURL': 'https://example.com',
+            }),
+          },
+        };
 
-      const planList = [
-        planMissingProduct,
-        planUnloadedProduct,
-        planDeletedProduct,
-        planInvalidProductMetadata,
-        goodPlan,
-      ];
+        const goodPlan = deepCopy(plan1);
+        goodPlan.product = deepCopy(product1);
+        goodPlan.product.metadata['product:privacyNoticeURL'] =
+          'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+        goodPlan.metadata['product:privacyNoticeURL'] =
+          'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+        const dupeGoodPlan = deepCopy(goodPlan);
 
-      listStripePlans.restore();
-      sandbox.stub(stripeHelper.stripe.plans, 'list').returns(planList);
+        const planList = [
+          planMissingProduct,
+          planUnloadedProduct,
+          planDeletedProduct,
+          planInvalidProductMetadata,
+          goodPlan,
+        ];
 
-      const actual = await stripeHelper.fetchAllPlans();
+        listStripePlans.restore();
+        sandbox.stub(stripeHelper.stripe.plans, 'list').returns(planList);
 
-      /** Assert that only the "good" plan was returned */
-      assert.deepEqual(actual, [goodPlan]);
+        const actual = await stripeHelper.fetchAllPlans();
 
-      // Assert that the product metadata was trimmed
-      assert.equal(
-        actual[0].product.metadata['product:privacyNoticeURL'],
-        dupeGoodPlan.product.metadata['product:privacyNoticeURL'].trim()
-      );
-      // Assert that the plan metadata was trimmed
-      assert.equal(
-        actual[0].metadata['product:privacyNoticeURL'],
-        dupeGoodPlan.metadata['product:privacyNoticeURL'].trim()
-      );
+        /** Assert that only the "good" plan was returned */
+        assert.deepEqual(actual, [goodPlan]);
 
-      /** Verify the error cases were handled properly */
-      assert.equal(stripeHelper.log.error.callCount, 4);
+        // Assert that the product metadata was trimmed
+        assert.equal(
+          actual[0].product.metadata['product:privacyNoticeURL'],
+          dupeGoodPlan.product.metadata['product:privacyNoticeURL'].trim()
+        );
+        // Assert that the plan metadata was trimmed
+        assert.equal(
+          actual[0].metadata['product:privacyNoticeURL'],
+          dupeGoodPlan.metadata['product:privacyNoticeURL'].trim()
+        );
 
-      /** Plan.product is null */
-      assert.equal(
-        `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
-        stripeHelper.log.error.getCall(0).args[0]
-      );
+        /** Verify the error cases were handled properly */
+        assert.equal(stripeHelper.log.error.callCount, 4);
 
-      /** Plan.product is string */
-      assert.equal(
-        `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
-        stripeHelper.log.error.getCall(1).args[0]
-      );
+        /** Plan.product is null */
+        assert.equal(
+          `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
+          stripeHelper.log.error.getCall(0).args[0]
+        );
 
-      /** Plan.product is DeletedProduct */
-      assert.equal(
-        `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
-        stripeHelper.log.error.getCall(2).args[0]
-      );
+        /** Plan.product is string */
+        assert.equal(
+          `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
+          stripeHelper.log.error.getCall(1).args[0]
+        );
 
-      /** Plan.product has invalid metadata */
-      assert.isTrue(
-        stripeHelper.log.error
-          .getCall(3)
-          .args[0].includes(
-            `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
-          )
-      );
+        /** Plan.product is DeletedProduct */
+        assert.equal(
+          `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
+          stripeHelper.log.error.getCall(2).args[0]
+        );
+
+        /** Plan.product has invalid metadata */
+        assert.isTrue(
+          stripeHelper.log.error
+            .getCall(3)
+            .args[0].includes(
+              `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
+            )
+        );
+      });
     });
   });
 
@@ -3778,10 +3875,10 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('findPlanById', () => {
+  describe('findAbbrevPlanById', () => {
     it('finds a valid plan', async () => {
       const planId = 'plan_G93lTs8hfK7NNG';
-      const result = await stripeHelper.findPlanById(planId);
+      const result = await stripeHelper.findAbbrevPlanById(planId);
       assert(stripeHelper.stripe.plans.list.calledOnce);
       assert(result.plan_id, planId);
     });
@@ -3790,7 +3887,7 @@ describe('StripeHelper', () => {
       const planId = 'plan_9';
       let thrown;
       try {
-        await stripeHelper.findPlanById(planId);
+        await stripeHelper.findAbbrevPlanById(planId);
       } catch (err) {
         thrown = err;
       }
@@ -4603,6 +4700,14 @@ describe('StripeHelper', () => {
         },
       };
 
+      const planConfig = {
+        urls: {
+          emailIcon: 'http://firestore.example.gg/email.ico',
+          download: 'http://firestore.example.gg/download',
+          successActionButton: 'http://firestore.example.gg/download',
+        },
+      };
+
       const expected = {
         uid,
         email,
@@ -4621,6 +4726,7 @@ describe('StripeHelper', () => {
         productId,
         productName,
         planId,
+        planConfig: {},
         planName,
         planEmailIconURL,
         planSuccessActionButtonURL: successActionButtonURL,
@@ -4925,6 +5031,22 @@ describe('StripeHelper', () => {
         assert.equal(actual.discountType, 'once');
         assert.isNull(actual.discountDuration);
       });
+
+      it('uses and includes Firestore based configs when available', async () => {
+        sandbox.stub(stripeHelper, 'maybeGetPlanConfig').resolves(planConfig);
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        const expectedWithPlanConfig = {
+          ...expected,
+          planConfig,
+
+          planEmailIconURL: planConfig.urls.emailIcon,
+          planSuccessActionButtonURL: planConfig.urls.successActionButton,
+        };
+        sinon.assert.calledOnce(stripeHelper.maybeGetPlanConfig);
+        assert.deepEqual(result, expectedWithPlanConfig);
+      });
     });
 
     describe('extractSourceDetailsForEmail', () => {
@@ -4938,6 +5060,7 @@ describe('StripeHelper', () => {
             productId,
             productName,
             planId,
+            planConfig: {},
             planName,
             planEmailIconURL,
             planSuccessActionButtonURL: successActionButtonURL,
@@ -5023,6 +5146,7 @@ describe('StripeHelper', () => {
       productIconURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.emailIconURL,
       planIdNew: planId,
+      planConfig: {},
       paymentAmountNewCurrency:
         eventCustomerSubscriptionUpdated.data.object.plan.currency,
       paymentAmountNewInCents:
@@ -5133,7 +5257,6 @@ describe('StripeHelper', () => {
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
-          mockCustomer,
           event.data.object.plan.metadata.productOrder,
           event.data.previous_attributes.plan
         );
@@ -5153,9 +5276,29 @@ describe('StripeHelper', () => {
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
-          mockCustomer,
           event.data.object.plan.metadata.productOrder,
           event.data.previous_attributes.plan
+        );
+      });
+
+      it('includes the Firestore based plan config when available', async () => {
+        const mockPlanConfig = { firestore: 'yes' };
+        sandbox
+          .stub(stripeHelper, 'maybeGetPlanConfig')
+          .resolves(mockPlanConfig);
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = true;
+        event.data.previous_attributes = { cancel_at_period_end: false };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        assert.equal(result, mockCancellationDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateCancellationDetailsForEmail',
+          event.data.object,
+          { ...expectedBaseUpdateDetails, planConfig: mockPlanConfig },
+          mockInvoice
         );
       });
     });
@@ -5228,7 +5371,6 @@ describe('StripeHelper', () => {
             event.data.object,
             baseDetails,
             mockInvoice,
-            mockCustomer,
             event.data.object.plan.metadata.productOrder,
             event.data.previous_attributes.plan
           );
@@ -5331,7 +5473,6 @@ describe('StripeHelper', () => {
             event.data.object,
             baseDetails,
             mockInvoice,
-            mockCustomer,
             event.data.object.plan.metadata.productOrder,
             event.data.previous_attributes.plan
           );
@@ -5351,6 +5492,7 @@ describe('StripeHelper', () => {
         uid,
         productId,
         planId,
+        planConfig: {},
         planEmailIconURL: productIconURLNew,
         productName,
         invoiceTotalInCents: mockInvoice.total,
@@ -5583,6 +5725,7 @@ describe('StripeHelper', () => {
           uid,
           productId,
           planId,
+          planConfig: {},
           planEmailIconURL: productIconURLNew,
           productName,
           invoiceDate: new Date(mockInvoice.created * 1000),
@@ -6526,6 +6669,35 @@ describe('StripeHelper', () => {
         );
         assert.isEmpty(result);
       });
+    });
+  });
+
+  describe('maybeGetPlanConfig', () => {
+    it('returns an empty object when config manager is not available', async () => {
+      stripeHelper.paymentConfigManager = undefined;
+      const actual = await stripeHelper.maybeGetPlanConfig('testo');
+      assert.deepEqual(actual, {});
+    });
+
+    it('returns an empty object when a config doc is not found', async () => {
+      stripeHelper.paymentConfigManager = {
+        getMergedPlanConfiguration: sandbox.stub().resolves(undefined),
+      };
+      const actual = await stripeHelper.maybeGetPlanConfig('testo');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.paymentConfigManager.getMergedPlanConfiguration,
+        'testo'
+      );
+      assert.deepEqual(actual, {});
+    });
+
+    it('returns the config from the config manager', async () => {
+      const planConfig = { fizz: 'wibble' };
+      stripeHelper.paymentConfigManager = {
+        getMergedPlanConfiguration: sandbox.stub().resolves(planConfig),
+      };
+      const actual = await stripeHelper.maybeGetPlanConfig('testo');
+      assert.deepEqual(actual, planConfig);
     });
   });
 });

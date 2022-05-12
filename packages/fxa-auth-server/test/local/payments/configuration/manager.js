@@ -4,13 +4,15 @@
 
 'use strict';
 
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
 const { cloneDeep } = require('lodash');
 const retry = require('async-retry');
 const { deleteCollection } = require('../util');
+const {
+  mergeConfigs,
+} = require('fxa-shared/subscriptions/configuration/utils');
 
 const sandbox = sinon.createSandbox();
 
@@ -19,21 +21,9 @@ const {
   AuthLogger,
   AppConfig,
 } = require('../../../../lib/types');
-const mergeConfigsStub = sandbox.stub();
-
-const { PaymentConfigManager } = proxyquire(
-  '../../../../lib/payments/configuration/manager',
-  {
-    'fxa-shared/payments/configuration/manager': proxyquire(
-      'fxa-shared/payments/configuration/manager',
-      {
-        '../../subscriptions/configuration/utils': {
-          mergeConfigs: mergeConfigsStub,
-        },
-      }
-    ),
-  }
-);
+const {
+  PaymentConfigManager,
+} = require('../../../../lib/payments/configuration/manager');
 const { setupFirestore } = require('../../../../lib/firestore-db');
 const { randomUUID } = require('crypto');
 const errors = require('../../../../lib/error');
@@ -100,8 +90,10 @@ describe('PaymentConfigManager', () => {
   let paymentConfigManager;
   let testProductId;
   let testPlanId;
+  let testPlanConfig;
   let productConfigDbRef;
   let planConfigDbRef;
+  let mergedConfig;
 
   beforeEach(async () => {
     testProductId = randomUUID();
@@ -114,11 +106,14 @@ describe('PaymentConfigManager', () => {
     productConfigDbRef = paymentConfigManager.productConfigDbRef;
     planConfigDbRef = paymentConfigManager.planConfigDbRef;
     await productConfigDbRef.doc(testProductId).set(productConfig);
-    await planConfigDbRef.doc(testPlanId).set({
+    testPlanConfig = {
       ...planConfig,
+      id: testPlanId,
       productId: 'test-product',
       productConfigId: testProductId,
-    });
+    };
+    await planConfigDbRef.doc(testPlanId).set(testPlanConfig);
+    mergedConfig = mergeConfigs(testPlanConfig, productConfig);
   });
 
   afterEach(async () => {
@@ -361,13 +356,8 @@ describe('PaymentConfigManager', () => {
   describe('getMergedConfig', () => {
     it('returns a merged config', async () => {
       const planConfig = (await paymentConfigManager.allPlans())[0];
-      const productConfig = (await paymentConfigManager.allProducts())[0];
-      paymentConfigManager.getMergedConfig(planConfig);
-      sinon.assert.calledOnceWithExactly(
-        mergeConfigsStub,
-        planConfig,
-        productConfig
-      );
+      const actual = paymentConfigManager.getMergedConfig(planConfig);
+      assert.deepEqual(actual, mergedConfig);
     });
 
     it('throws an error when the product config is not found', async () => {
@@ -381,6 +371,22 @@ describe('PaymentConfigManager', () => {
         assert.equal(err.jse_cause.message, 'ProductConfig does not exist');
         assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
+    });
+  });
+
+  describe('getMergedPlanConfiguration', () => {
+    it('returns undefined when the plan is not found', async () => {
+      const actual = await paymentConfigManager.getMergedPlanConfiguration(
+        '404'
+      );
+      assert.isUndefined(actual);
+    });
+
+    it('returns a merge config from getMergedConfig', async () => {
+      const actual = await paymentConfigManager.getMergedPlanConfiguration(
+        testPlanConfig.stripePriceId
+      );
+      assert.deepEqual(actual, mergedConfig);
     });
   });
 });

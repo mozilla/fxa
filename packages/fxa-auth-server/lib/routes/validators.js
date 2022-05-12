@@ -535,7 +535,7 @@ module.exports.subscriptionProductMetadataValidator = {
   },
 };
 
-module.exports.subscriptionsPlanValidator = isA.object({
+module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
   plan_id: module.exports.subscriptionsPlanId.required(),
   plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
   product_id: module.exports.subscriptionsProductId.required(),
@@ -552,6 +552,23 @@ module.exports.subscriptionsPlanValidator = isA.object({
     .keys(planConfigJoiKeys)
     .optional()
     .allow(null),
+});
+
+module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
+  plan_id: module.exports.subscriptionsPlanId.required(),
+  plan_metadata: isA.object().optional(),
+  product_id: module.exports.subscriptionsProductId.required(),
+  product_name: isA.string().required(),
+  plan_name: isA.string().allow('').optional(),
+  product_metadata: isA.object().optional(),
+  interval: isA.string().required(),
+  interval_count: isA.number().required(),
+  amount: isA.number().required(),
+  currency: isA.string().required(),
+  configuration: minimalConfigSchema
+    .keys(productConfigJoiKeys)
+    .keys(planConfigJoiKeys)
+    .required(),
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({

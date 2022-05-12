@@ -15,6 +15,7 @@ import {
 import { IapExtraStripeInfo } from '../dto/auth/payments/iap-subscription';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
 import { ILogger } from '../log';
+import { MergedPlanConfig } from '../subscriptions/configuration/plan';
 import { mapPlanConfigsByPriceId } from '../subscriptions/configuration/utils';
 import {
   AbbrevPlan,
@@ -352,10 +353,16 @@ export abstract class StripeHelper {
       item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
       item.metadata = mapValues(item.metadata, (v) => v.trim());
 
-      if (await this.validatePlan(item)) {
+      // We should return all the plans when relying on Firestore docs for
+      // their configuration
+      if (
+        this.config.subscriptions.productConfigsFirestore.enabled ||
+        (await this.validatePlan(item))
+      ) {
         plans.push(item);
       }
     }
+
     return plans;
   }
 
@@ -366,27 +373,31 @@ export abstract class StripeHelper {
     // without any changes or re-deploy necessary on the auth-server
 
     const allPlans = await this.allPlans();
+    const planConfigs = await this.allMergedPlanConfigs();
 
+    return allPlans.map((p) => {
+      (p as ConfiguredPlan).configuration = planConfigs[p.id]
+        ? formatPlanConfigDto(planConfigs[p.id])
+        : null;
+      return p as ConfiguredPlan;
+    });
+  }
+
+  async allMergedPlanConfigs() {
     // TODO remove when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
     if (!this.paymentConfigManager) {
-      return allPlans;
+      return {};
     }
 
     const planConfigs = mapPlanConfigsByPriceId(
       await this.paymentConfigManager.allPlans()
     );
 
-    return allPlans.map((p) => {
-      (p as ConfiguredPlan).configuration = null;
-      const planConfig = planConfigs[p.id];
-      if (planConfig) {
-        const mergedConfig =
-          // TODO remove the ! when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-          this.paymentConfigManager!.getMergedConfig(planConfig);
-        (p as ConfiguredPlan).configuration = formatPlanConfigDto(mergedConfig);
-      }
-      return p as ConfiguredPlan;
+    Object.entries(planConfigs).forEach(([k, pConfig]) => {
+      planConfigs[k] = this.paymentConfigManager!.getMergedConfig(pConfig);
     });
+
+    return planConfigs as { [key: string]: MergedPlanConfig };
   }
 
   /**
@@ -404,7 +415,16 @@ export abstract class StripeHelper {
 
   async allAbbrevPlans(): Promise<AbbrevPlan[]> {
     const plans = await this.allConfiguredPlans();
-    return plans.map((p) => ({
+    const validPlans = [];
+
+    for (const p of plans) {
+      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does not have a `configuration`
+      if (p.configuration || (await this.validatePlan(p))) {
+        validPlans.push(p);
+      }
+    }
+
+    return validPlans.map((p) => ({
       amount: p.amount,
       currency: p.currency,
       interval_count: p.interval_count,
@@ -415,8 +435,8 @@ export abstract class StripeHelper {
       product_id: (p.product as Stripe.Product).id,
       product_metadata: (p.product as Stripe.Product).metadata,
       product_name: (p.product as Stripe.Product).name,
-      // TODO simple copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does have a `configuration`
+      // TODO simply copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+      // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does not have a `configuration`
       configuration: p.configuration ?? null,
     }));
   }
@@ -560,10 +580,17 @@ export function determineIapIdentifiers(
     throw new Error('Invalid iapType');
   }
 
-  const ids = plan.plan_metadata?.[key] || '';
-  return ids
-    .trim()
-    .split(',')
-    .map((c) => c.trim().toLowerCase())
-    .filter((c) => !!c);
+  const priceConfigIAPIds = plan.configuration?.[key] || [];
+  const priceMetadataIAPIds = plan.plan_metadata?.[key] || '';
+  return [
+    ...new Set(
+      priceConfigIAPIds.concat(
+        priceMetadataIAPIds
+          .trim()
+          .split(',')
+          .map((c) => c.trim().toLowerCase())
+          .filter((c) => !!c)
+      )
+    ),
+  ];
 }

@@ -29,6 +29,7 @@ export type PaymentConfigManagerConfig = {
   };
   subscriptions: {
     productConfigsFirestore: {
+      enabled: boolean;
       schemaValidation: ProductConfigSchemaValidation;
     };
   };

@@ -50,6 +50,7 @@ describe('SubscriptionReminders', () => {
   let mockStripeHelper;
   let reminder;
   let mockConfig;
+  let realDateNow;
 
   beforeEach(() => {
     mockConfig = {
@@ -70,9 +71,11 @@ describe('SubscriptionReminders', () => {
       {},
       mockStripeHelper
     );
+    realDateNow = Date.now.bind(global.Date);
   });
 
   afterEach(() => {
+    Date.now = realDateNow;
     Container.reset();
     sandbox.reset();
   });
@@ -261,14 +264,26 @@ describe('SubscriptionReminders', () => {
       };
       reminder.db.account = sandbox.fake.resolves(account);
       mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      const planConfig = {
+        wibble: 'quux',
+      };
       const formattedSubscription = {
         id: 'subscriptionId',
         productMetadata: {
           privacyUrl: 'http://privacy',
           termsOfServiceUrl: 'http://tos',
         },
+        planConfig,
       };
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(formattedSubscription);
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
+        formattedSubscription
+      );
       mockStripeHelper.findPlanById = sandbox.fake.resolves({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
@@ -278,7 +293,6 @@ describe('SubscriptionReminders', () => {
       reminder.mailer.sendSubscriptionRenewalReminderEmail =
         sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
-      const realDateNow = Date.now.bind(global.Date);
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -294,7 +308,7 @@ describe('SubscriptionReminders', () => {
         subscription
       );
       sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.findPlanById,
+        mockStripeHelper.findAbbrevPlanById,
         longPlan1.id
       );
       sinon.assert.calledOnceWithExactly(
@@ -323,6 +337,7 @@ describe('SubscriptionReminders', () => {
           invoiceTotalInCents: 499,
           invoiceTotalCurrency: 'usd',
           productMetadata: formattedSubscription.productMetadata,
+          planConfig,
         }
       );
       sinon.assert.calledOnceWithExactly(
@@ -330,7 +345,6 @@ describe('SubscriptionReminders', () => {
         subscription.customer.metadata.userid,
         { subscriptionId: subscription.id }
       );
-      Date.now = realDateNow;
     });
 
     it('returns false if an error is caught when trying to send a reminder email', async () => {
@@ -345,7 +359,7 @@ describe('SubscriptionReminders', () => {
       reminder.db.account = sandbox.fake.resolves({});
       reminder.updateSentEmail = sandbox.fake.resolves({});
       mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
-      mockStripeHelper.findPlanById = sandbox.fake.resolves({
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
@@ -371,7 +385,7 @@ describe('SubscriptionReminders', () => {
         subscription
       );
       sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.findPlanById,
+        mockStripeHelper.findAbbrevPlanById,
         longPlan1.id
       );
       sinon.assert.calledOnceWithExactly(

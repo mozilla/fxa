@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PlanConfig } from '../../../subscriptions/configuration/plan';
+import {
+  MergedPlanConfig,
+  PlanConfig,
+} from '../../../subscriptions/configuration/plan';
 import { ProductConfig } from '../../../subscriptions/configuration/product';
 
 export const planConfigurationDtoOmitKeys = [
@@ -19,7 +22,7 @@ export type PlanConfigurationDtoT = Omit<
 >;
 
 export const formatPlanConfigDto: (
-  x: PlanConfig & ProductConfig
+  x: MergedPlanConfig
 ) => PlanConfigurationDtoT = (planConfig) =>
   // @ts-ignore
   Object.keys(planConfig).reduce((acc, k) => {

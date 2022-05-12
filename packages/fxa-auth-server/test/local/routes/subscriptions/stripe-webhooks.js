@@ -92,6 +92,7 @@ describe('StripeWebhookHandler', () => {
         paypalNvpSigCredentials: {
           enabled: true,
         },
+        productConfigsFirestore: { enabled: false },
       },
     };
 
@@ -688,6 +689,34 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
           []
+        );
+      });
+
+      it('update all plans when Firestore product config feature flag is set to true', async () => {
+        config.subscriptions.productConfigsFirestore.enabled = true;
+        const updatedEvent = deepCopy(eventProductUpdated);
+        const invalidPlan = {
+          ...validPlan.data.object,
+          metadata: {},
+          product: updatedEvent.data.object,
+        };
+        const allPlans = [...validPlanList, invalidPlan];
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+          allPlans
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          allPlans
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          allPlans
+        );
+        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
+          {},
+          updatedEvent
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          allPlans
         );
       });
     });

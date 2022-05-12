@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Plan } from '../../../store/types';
-import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Localized } from '@fluent/react';

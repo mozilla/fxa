@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import joi from 'joi';
 
+export const ALL_RPS_CAPABILITIES_KEY = '*';
+
 export type CapabilityConfig = {
   [key: string]: string[];
 };

@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
 import {
@@ -30,6 +31,7 @@ import {
   StripeHelper as StripeHelperBase,
   SUBSCRIPTIONS_RESOURCE,
 } from 'fxa-shared/payments/stripe';
+import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getMinimumAmount,
@@ -46,9 +48,6 @@ import {
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
-import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
-import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
-import { getIapPurchaseType } from './iap/iap-config';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -68,6 +67,9 @@ import {
 import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
+import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
+import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
@@ -111,6 +113,7 @@ export type FormattedSubscriptionForEmail = {
   planName: string | null;
   planEmailIconURL: string;
   planSuccessActionButtonURL: string;
+  planConfig: Partial<PlanConfig>;
   productMetadata: Stripe.Metadata;
 };
 
@@ -817,7 +820,7 @@ export class StripeHelper extends StripeHelperBase {
     // coupons being applied for part of the plan interval.
     if (couponDuration === 'repeating') {
       const { interval: priceInterval, interval_count: priceIntervalCount } =
-        await this.findPlanById(priceId);
+        await this.findAbbrevPlanById(priceId);
 
       // Currently we only support coupons for year and month plan intervals.
       if (['month', 'year'].includes(priceInterval) && couponDurationInMonths) {
@@ -965,7 +968,7 @@ export class StripeHelper extends StripeHelperBase {
     code: string,
     priceId: string
   ): Promise<boolean> {
-    const price = await this.findPlanById(priceId);
+    const price = await this.findAbbrevPlanById(priceId);
     const validPromotionCodes: string[] = [];
     if (
       price.plan_metadata &&
@@ -987,6 +990,16 @@ export class StripeHelper extends StripeHelperBase {
           .map((c) => c.trim())
       );
     }
+
+    // promotion codes are possibily staying in Stripe metadata instead of
+    // moving into Firestore configuration docs, but we can just check all three
+    // places...
+    // the abbrev plans do not have the promotion codes in them since they
+    // are for the front end
+    const planConfigs: Partial<PlanConfig> = await this.maybeGetPlanConfig(
+      price.plan_id
+    );
+    validPromotionCodes.push(...(planConfigs.promotionCodes || []));
 
     return validPromotionCodes.includes(code);
   }
@@ -1718,7 +1731,7 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Find a plan by id or error if it's not a valid planId.
    */
-  async findPlanById(planId: string): Promise<AbbrevPlan> {
+  async findAbbrevPlanById(planId: string): Promise<AbbrevPlan> {
     const plans = await this.allAbbrevPlans();
     const selectedPlan = plans.find((p) => p.plan_id === planId);
     if (!selectedPlan) {
@@ -1746,6 +1759,35 @@ export class StripeHelper extends StripeHelperBase {
 
     if (!newPlan || !currentPlan) {
       throw error.unknownSubscriptionPlan();
+    }
+
+    // getSubscriptionUpdateEligibility is used in both the front and back end,
+    // and it was updated to take a third arugment to branch between Stripe
+    // metadata and Firestore configs.  But on the server side, we'd like to
+    // have a graceful fallback, so we cheat a little by copying the upgrade
+    // config values from the Firestore configs into the metadata if they exist.
+    // TODO remove when getSubscriptionUpdateEligibility's updated to use only
+    // Firestore based configs
+    if (
+      currentPlan.configuration?.productSet &&
+      currentPlan.configuration?.productOrder
+    ) {
+      currentPlan.plan_metadata ??= {};
+      currentPlan.plan_metadata['productSet'] =
+        currentPlan.configuration.productSet;
+      currentPlan.plan_metadata[
+        'productOrder'
+      ] = `${currentPlan.configuration.productOrder}`;
+    }
+    if (
+      newPlan.configuration?.productSet &&
+      newPlan.configuration?.productOrder
+    ) {
+      newPlan.plan_metadata ??= {};
+      newPlan.plan_metadata['productSet'] = newPlan.configuration.productSet;
+      newPlan.plan_metadata[
+        'productOrder'
+      ] = `${newPlan.configuration.productOrder}`;
     }
 
     const planUpdateEligibility = getSubscriptionUpdateEligibility(
@@ -2216,7 +2258,7 @@ export class StripeHelper extends StripeHelperBase {
       let plan_changed = null;
 
       if (sub.metadata.previous_plan_id !== undefined) {
-        const previousPlan = await this.findPlanById(
+        const previousPlan = await this.findAbbrevPlanById(
           sub.metadata.previous_plan_id
         );
         previous_product = previousPlan.product_name;
@@ -2365,8 +2407,18 @@ export class StripeHelper extends StripeHelperBase {
 
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-    const { emailIconURL: planEmailIconURL = '', successActionButtonURL } =
-      productMetadata;
+
+    // Use Firestore product configs if that exist
+    const planConfig: Partial<PlanConfig> = await this.maybeGetPlanConfig(
+      planId
+    );
+
+    const { emailIconURL: planEmailIconURL = '', successActionButtonURL } = {
+      emailIconURL: planConfig.urls?.emailIcon || productMetadata.emailIconURL,
+      successActionButtonURL:
+        planConfig.urls?.successActionButton ||
+        productMetadata.successActionButtonURL,
+    };
 
     const planSuccessActionButtonURL = successActionButtonURL || '';
 
@@ -2396,6 +2448,7 @@ export class StripeHelper extends StripeHelperBase {
       planName,
       planEmailIconURL,
       planSuccessActionButtonURL,
+      planConfig,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
       discountType,
@@ -2418,6 +2471,7 @@ export class StripeHelper extends StripeHelperBase {
     }
     const plan = await this.expandResource(subPlan, PLAN_RESOURCE);
     const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+    const planConfig = await this.maybeGetPlanConfig(plan.id);
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
@@ -2433,6 +2487,7 @@ export class StripeHelper extends StripeHelperBase {
       planName,
       planEmailIconURL,
       planSuccessActionButtonURL,
+      planConfig,
       productMetadata,
     };
   }
@@ -2601,6 +2656,7 @@ export class StripeHelper extends StripeHelperBase {
       productOrder: productOrderNew,
       emailIconURL: productIconURLNew = '',
     } = productNewMetadata;
+    const planConfig = await this.maybeGetPlanConfig(planIdNew);
 
     const baseDetails = {
       uid,
@@ -2616,6 +2672,7 @@ export class StripeHelper extends StripeHelperBase {
       productPaymentCycleNew,
       closeDate: event.created,
       productMetadata: productNewMetadata,
+      planConfig,
     };
 
     if (!invoice) {
@@ -2642,7 +2699,6 @@ export class StripeHelper extends StripeHelperBase {
         subscription,
         baseDetails,
         invoice,
-        customer,
         productOrderNew,
         planOld
       );
@@ -2671,6 +2727,7 @@ export class StripeHelper extends StripeHelperBase {
       productNameNew: productName,
       productIconURLNew: planEmailIconURL,
       productMetadata,
+      planConfig,
     } = baseDetails;
 
     const {
@@ -2692,6 +2749,7 @@ export class StripeHelper extends StripeHelperBase {
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
       productMetadata,
+      planConfig,
     };
   }
 
@@ -2714,6 +2772,7 @@ export class StripeHelper extends StripeHelperBase {
       productId,
       productNameNew: productName,
       productIconURLNew: planEmailIconURL,
+      planConfig,
     } = baseDetails;
 
     const { lastFour, cardType } =
@@ -2743,6 +2802,7 @@ export class StripeHelper extends StripeHelperBase {
       nextInvoiceDate: nextInvoiceDate
         ? new Date(nextInvoiceDate * 1000)
         : null,
+      planConfig,
     };
   }
 
@@ -2810,7 +2870,6 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    customer: Stripe.Customer,
     productOrderNew: string,
     planOld: Stripe.Plan
   ) {
@@ -3039,7 +3098,7 @@ export class StripeHelper extends StripeHelperBase {
     };
 
     // The "plan" argument might not have any product info on it.
-    const planWithProductId = await this.findPlanById(plan.id);
+    const planWithProductId = await this.findAbbrevPlanById(plan.id);
 
     // Next, look for product details in cache
     const products = await this.allAbbrevProducts();
@@ -3070,6 +3129,18 @@ export class StripeHelper extends StripeHelperBase {
       ...abbrevProduct.product_metadata,
       ...plan.metadata,
     };
+  }
+
+  /**
+   * TODO This function exists to help the transition from product/plan
+   * metadata to Firestore doc based configs.  Once the Firestore based configs
+   * have been proven stable in prod, we remove this level of indirection.
+   */
+  async maybeGetPlanConfig(planId: string) {
+    return this.paymentConfigManager
+      ? (await this.paymentConfigManager.getMergedPlanConfiguration(planId)) ||
+          {}
+      : {};
   }
 }
 

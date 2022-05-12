@@ -12,7 +12,7 @@ import emailSentIcon from './images/email-sent.svg';
 import checkmarkIcon from './images/checkmark.svg';
 
 import './index.scss';
-import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';

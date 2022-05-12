@@ -15,7 +15,7 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
-const { AuthLogger } = require('../../lib/types');
+const { AuthLogger, ProfileClient } = require('../../lib/types');
 const {
   PlaySubscriptions,
 } = require('../../lib/payments/iap/google-play/subscriptions');
@@ -50,6 +50,7 @@ describe('remote subscriptions:', function () {
     const mockStripeHelper = {};
     const mockPlaySubscriptions = {};
     const mockAppStoreSubscriptions = {};
+    const mockProfileClient = {};
 
     before(async () => {
       config.subscriptions.enabled = true;
@@ -60,6 +61,7 @@ describe('remote subscriptions:', function () {
         pwd: 'pwd',
         signature: 'sig',
       };
+      config.subscriptions.productConfigsFirestore = { enabled: true };
       mockStripeHelper.allAbbrevPlans = async () => [
         {
           plan_id: PLAN_ID,
@@ -93,10 +95,13 @@ describe('remote subscriptions:', function () {
         },
       ];
       mockStripeHelper.fetchCustomer = async (uid, email) => ({});
+      mockStripeHelper.allMergedPlanConfigs = async () => [];
+      mockProfileClient.deleteCache = () => {};
       Container.set(StripeHelper, mockStripeHelper);
       Container.set(PlaySubscriptions, mockPlaySubscriptions);
       Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
       Container.set(AuthLogger, {});
+      Container.set(ProfileClient, mockProfileClient);
       Container.remove(CapabilityService);
       Container.set(CapabilityService, new CapabilityService());
 

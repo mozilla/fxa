@@ -31,6 +31,7 @@ describe('remote account create', function () {
       paymentsServer: {
         url: 'http://fakeurl.com',
       },
+      productConfigsFirestore: { enabled: true },
     };
     const mockStripeHelper = {};
     mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(false);

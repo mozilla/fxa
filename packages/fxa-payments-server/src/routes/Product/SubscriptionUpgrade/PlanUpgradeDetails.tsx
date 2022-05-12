@@ -4,7 +4,7 @@ import { getLocalizedCurrency, formatPlanPricing } from '../../../lib/formats';
 import {
   uiContentFromProductConfig,
   webIconConfigFromProductConfig,
-} from 'fxa-shared/subscriptions/configuration/helpers';
+} from 'fxa-shared/subscriptions/configuration/utils';
 import { AppContext } from '../../../lib/AppContext';
 
 import ffLogo from '../../../images/firefox-logo.svg';

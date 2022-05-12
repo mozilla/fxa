@@ -143,6 +143,8 @@ export const productDetailsFromPlan = (
 /**
  * Parse out the 'support:app:' metadata into a dictionary keyed by the product
  * id.  This is used for the app/service select on the support form.
+ *
+ * TODO update to handle Firestore product config feature flag in FXA-3956
  */
 export const getProductSupportApps =
   (subscriptions: MozillaSubscription[]) => (plans: AbbrevPlan[]) => {

@@ -9,7 +9,7 @@ import {
 import {
   uiContentFromProductConfig,
   webIconConfigFromProductConfig,
-} from 'fxa-shared/subscriptions/configuration/helpers';
+} from 'fxa-shared/subscriptions/configuration/utils';
 import { AppContext } from '../../lib/AppContext';
 
 // this is a fallback incase webIconURL is undefined,

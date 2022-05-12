@@ -684,6 +684,13 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
+    // We'll keep validating the metadata, but if the Firestore config docs
+    // feature flag is on, we add the plan to the list regardless of the
+    // validation result.
+    //
+    // TODO remove metadata validation once we've successfully moved to
+    // Firestore based product configs
+
     const { error } = await subscriptionProductMetadataValidator.validateAsync({
       ...product.metadata,
       ...plan.metadata,
@@ -696,8 +703,11 @@ export class StripeWebhookHandler extends StripeHandler {
         plan,
       });
       reportValidationError(msg, error as any);
-      this.stripeHelper.updateAllPlans(updatedList);
-      return;
+
+      if (!this.config.subscriptions.productConfigsFirestore.enabled) {
+        this.stripeHelper.updateAllPlans(updatedList);
+        return;
+      }
     }
 
     // The original plans list has the product expanded so we attach the
@@ -758,7 +768,18 @@ export class StripeWebhookHandler extends StripeHandler {
             product,
           });
           reportValidationError(msg, error as any);
-        } else {
+        }
+
+        // We'll keep validating the metadata, but if the Firestore config docs
+        // feature flag is on, we add the plan to the list regardless of the
+        // validation result.
+        //
+        // TODO remove metadata validation once we've successfully moved to
+        // Firestore based product configs
+        if (
+          this.config.subscriptions.productConfigsFirestore.enabled ||
+          !error
+        ) {
           updatedPlans.push({
             ...plan,
             product,

@@ -7,7 +7,7 @@ import {
   SubscriptionStripeErrorType,
   SubscriptionUpdateEligibility,
 } from './types';
-import { productUpgradeFromProductConfig } from './configuration/helpers';
+import { productUpgradeFromProductConfig } from './configuration/utils';
 
 const isCapabilityKey = (value: string, key: string) =>
   key.startsWith('capabilities');
@@ -238,24 +238,24 @@ export const getSubscriptionUpdateEligibility: (
   newPlan: Plan,
   useFirestoreProductConfigs: boolean = false
 ) => {
-  const currentPlanMetaData = productUpgradeFromProductConfig(
+  const currentPlanConfig = productUpgradeFromProductConfig(
     currentPlan,
     useFirestoreProductConfigs
   );
-  const newPlanMetaData = productUpgradeFromProductConfig(
+  const newPlanConfig = productUpgradeFromProductConfig(
     newPlan,
     useFirestoreProductConfigs
   );
   const currentOrder =
-    !!currentPlanMetaData.productOrder &&
-    parseInt(currentPlanMetaData.productOrder);
+    !!currentPlanConfig.productOrder &&
+    parseInt(currentPlanConfig.productOrder);
   const newOrder =
-    !!newPlanMetaData.productOrder && parseInt(newPlanMetaData.productOrder);
+    !!newPlanConfig.productOrder && parseInt(newPlanConfig.productOrder);
 
   if (
     currentPlan.plan_id === newPlan.plan_id ||
-    !currentPlanMetaData.productSet ||
-    currentPlanMetaData.productSet !== newPlanMetaData.productSet ||
+    !currentPlanConfig.productSet ||
+    currentPlanConfig.productSet !== newPlanConfig.productSet ||
     !currentOrder ||
     Number.isNaN(currentOrder) ||
     !newOrder ||

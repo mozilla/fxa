@@ -43,6 +43,9 @@ const {
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
+const {
+  ALL_RPS_CAPABILITIES_KEY,
+} = require('fxa-shared/subscriptions/configuration/base');
 
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
 const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
@@ -421,6 +424,7 @@ describe('DirectStripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        productConfigsFirestore: { enabled: false },
       },
     };
 
@@ -541,6 +545,48 @@ describe('DirectStripeRoutes', () => {
 
       const actual = await directStripeRoutesInstance.getClients();
       assert.deepEqual(actual, expected, 'Clients were not returned correctly');
+    });
+
+    it('adds the capabilities from the Firestore config document when available', async () => {
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
+      const mockPlanConfigs = {
+        firefox_pro_basic_999: {
+          capabilities: {
+            [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
+            client2: ['wibble', 'quux'],
+          },
+        },
+      };
+      directStripeRoutesInstance.stripeHelper.allMergedPlanConfigs.resolves(
+        mockPlanConfigs
+      );
+      const expected = [
+        {
+          clientId: 'client1',
+          capabilities: [
+            'exampleCap0',
+            'goodnewseveryone',
+            'exampleCap1',
+            'exampleCap3',
+          ],
+        },
+        {
+          clientId: 'client2',
+          capabilities: [
+            'exampleCap0',
+            'goodnewseveryone',
+            'exampleCap2',
+            'exampleCap4',
+            'wibble',
+            'quux',
+            'exampleCap5',
+            'exampleCap6',
+            'exampleCap7',
+          ],
+        },
+      ];
+      const actual = await directStripeRoutesInstance.getClients();
+      assert.deepEqual(actual, expected);
     });
   });
 
@@ -740,7 +786,7 @@ describe('DirectStripeRoutes', () => {
     beforeEach(() => {
       plan = deepCopy(PLANS[2]);
       plan.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
       sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
       paymentMethod = deepCopy(paymentMethodFixture);
       directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
@@ -893,7 +939,7 @@ describe('DirectStripeRoutes', () => {
 
     it('errors if the planCurrency does not match the paymentMethod country', async () => {
       plan.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
@@ -1738,7 +1784,7 @@ describe('DirectStripeRoutes', () => {
 
       plan = deepCopy(PLANS[0]);
       plan.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
       VALID_REQUEST.payload = { planId: plan.planId };
     });
 
@@ -1761,7 +1807,7 @@ describe('DirectStripeRoutes', () => {
 
     it("throws an error when the new plan currency doesn't match the customer's currency.", async () => {
       plan.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
 
       try {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);

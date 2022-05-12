@@ -126,6 +126,13 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
     return match?.id ?? null;
   }
 
+  public async getMergedPlanConfiguration(planId: string) {
+    const plans = await this.allPlans();
+    const planConfig = plans.find((p) => p.stripePriceId === planId);
+
+    return planConfig ? this.getMergedConfig(planConfig) : undefined;
+  }
+
   /**
    * Get a complete, merged config for a plan, with the product's config merged
    * with the plan's.
