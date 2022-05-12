@@ -208,7 +208,7 @@
     "rimraf": "^3.0.2",
     "sass": "^1.50.1",
     "simplesmtp": "0.3.35",
-    "sinon": "^9.0.3",
+    "sinon": "^14.0.0",
     "through": "2.3.8",
     "type-fest": "^2.12.2",
     "typesafe-node-firestore": "^1.4.0",

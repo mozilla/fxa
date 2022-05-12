@@ -34,7 +34,7 @@
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
     "react-transition-group": "^4.4.2",
-    "sinon": "^9.2.3",
+    "sinon": "^14.0.0",
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {
