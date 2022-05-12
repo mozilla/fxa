@@ -27,8 +27,8 @@ describe('Security', () => {
       </AppContext.Provider>
     );
 
-    expect(await screen.findByText('rk-header')).toBeTruthy;
-    expect(await screen.findByText('tfa-row-header')).toBeTruthy;
+    expect(await screen.findByText('Recovery key')).toBeTruthy;
+    expect(await screen.findByText('Two-step authentication')).toBeTruthy;
 
     const result = await screen.findAllByText('Not Set');
     expect(result).toHaveLength(2);

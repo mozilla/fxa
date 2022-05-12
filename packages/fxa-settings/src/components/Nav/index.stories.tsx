@@ -8,17 +8,30 @@ import { mockSession } from '../../models/mocks';
 import { getDefault } from '../../lib/config';
 import { Nav } from '.';
 import { AppContext } from 'fxa-settings/src/models';
+import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 const account = {
   primaryEmail: {
     email: 'johndope@example.com',
   },
   subscriptions: [{ created: 1, productName: 'x' }],
+  linkedAccounts: [],
 } as any;
+const accountWithLinkedAccounts = Object.assign({}, account, {
+  linkedAccounts: MOCK_LINKED_ACCOUNTS,
+});
+
 storiesOf('Components/Nav', module)
   .add('basic', () => <Nav />)
   .add('with link to Subscriptions', () => (
     <AppContext.Provider value={{ account, session: mockSession() }}>
+      <Nav />
+    </AppContext.Provider>
+  ))
+  .add('with linked accounts', () => (
+    <AppContext.Provider
+      value={{ account: accountWithLinkedAccounts, session: mockSession() }}
+    >
       <Nav />
     </AppContext.Provider>
   ))

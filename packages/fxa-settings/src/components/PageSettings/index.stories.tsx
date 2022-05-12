@@ -11,6 +11,7 @@ import { isMobileDevice } from '../../lib/utilities';
 import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { AppContext } from 'fxa-settings/src/models';
+import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
@@ -26,6 +27,7 @@ storiesOf('Pages/Settings', module)
           recoveryKey: false,
           totp: { exists: false, verified: false },
           attachedClients: SERVICES_NON_MOBILE,
+          linkedAccounts: MOCK_LINKED_ACCOUNTS,
         } as any,
       })}
     >
@@ -42,6 +44,7 @@ storiesOf('Pages/Settings', module)
           displayName: null,
           totp: { exists: true, verified: false },
           attachedClients: SERVICES_NON_MOBILE,
+          linkedAccounts: MOCK_LINKED_ACCOUNTS,
         } as any,
       })}
     >
@@ -62,6 +65,7 @@ storiesOf('Pages/Settings', module)
             mockEmail('johndope2@gmail.com', false),
           ],
           attachedClients: SERVICES_NON_MOBILE,
+          linkedAccounts: MOCK_LINKED_ACCOUNTS,
         } as any,
       })}
     >

@@ -38,7 +38,7 @@ export const UnitRowRecoveryKey = () => {
 
   return (
     <UnitRow
-      header={l10n.getString('rk-header')}
+      header={l10n.getString('rk-header', null, 'Recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}

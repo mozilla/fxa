@@ -113,7 +113,7 @@ export const Nav = () => {
         )}
 
         {marketingCommPrefLink && (
-          <li>
+          <li className="mb-5">
             <LinkExternal
               className="font-bold"
               data-testid="nav-link-newsletters"
@@ -121,7 +121,7 @@ export const Nav = () => {
             >
               <Localized id="nav-email-comm">Email Communications</Localized>
               <OpenExternal
-                className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
+                className="inline-block w-3 h-3 ml-1"
                 aria-hidden="true"
               />
             </LinkExternal>

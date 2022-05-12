@@ -14,7 +14,11 @@ storiesOf('Components/Security', module)
   .add('default', () => (
     <AppContext.Provider
       value={mockAppContext({
-        account: { recoveryKey: false, totp: { exists: false } } as any,
+        account: {
+          recoveryKey: false,
+          passwordCreated: Date.now(),
+          totp: { exists: false },
+        } as any,
       })}
     >
       <Security />
@@ -25,6 +29,7 @@ storiesOf('Components/Security', module)
       value={mockAppContext({
         account: {
           recoveryKey: true,
+          passwordCreated: Date.now(),
           totp: { verified: true, exists: true },
         } as any,
       })}
