@@ -19,7 +19,11 @@ export const Footer = () => {
         data-testid="link-mozilla"
       >
         <MozLogo
-          aria-label={l10n.getString('app-footer-mozilla-logo-label')}
+          aria-label={l10n.getString(
+            'app-footer-mozilla-logo-label',
+            null,
+            'Mozilla logo'
+          )}
           role="img"
           className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
         />

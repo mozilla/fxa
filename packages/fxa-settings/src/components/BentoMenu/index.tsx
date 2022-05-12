@@ -33,7 +33,7 @@ export const BentoMenu = () => {
       <button
         onClick={toggleRevealed}
         data-testid="drop-down-bento-menu-toggle"
-        title={l10n.getString('bento-menu-title')}
+        title={l10n.getString('bento-menu-title', null, 'Firefox Bento Menu')}
         aria-expanded={isRevealed}
         aria-controls={dropDownId}
         className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 transition-standard desktop:mx-8"

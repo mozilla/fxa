@@ -31,14 +31,26 @@ export const UnitRowRecoveryKey = () => {
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
-      alertBar.error(l10n.getString('rk-remove-error'));
+      alertBar.error(
+        l10n.getString(
+          'rk-remove-error',
+          null,
+          'Your account recovery key could not be removed.'
+        )
+      );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
     }
   }, [account, hideModal, alertBar, l10n]);
 
+  const localizedRefreshRkText = l10n.getString(
+    'rk-refresh-key',
+    null,
+    'Refresh recovery key'
+  );
+
   return (
     <UnitRow
-      header={l10n.getString('rk-header')}
+      header={l10n.getString('rk-header', null, 'Recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
@@ -63,7 +75,7 @@ export const UnitRowRecoveryKey = () => {
       alertBarRevealed
       headerContent={
         <ButtonIconReload
-          title={l10n.getString('rk-refresh-key')}
+          title={localizedRefreshRkText}
           classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
           disabled={account.loading}
           onClick={() => account.refresh('recovery')}
@@ -71,7 +83,7 @@ export const UnitRowRecoveryKey = () => {
       }
       actionContent={
         <ButtonIconReload
-          title={l10n.getString('rk-refresh-key')}
+          title={localizedRefreshRkText}
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
           disabled={account.loading || !account.hasPassword}

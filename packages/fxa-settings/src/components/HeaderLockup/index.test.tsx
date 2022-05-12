@@ -12,18 +12,24 @@ import HeaderLockup from '.';
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
     render(<HeaderLockup />);
+    const headerHelp = screen.getByTestId('header-help');
+    const headerMenu = screen.getByTestId('header-menu');
 
     expect(screen.getByTestId('header-sumo-link')).toHaveAttribute(
       'href',
       'https://support.mozilla.org'
     );
-    expect(screen.getByTestId('header-help')).toBeInTheDocument();
+    expect(headerHelp).toBeInTheDocument();
+    expect(headerHelp).toHaveAttribute('title', 'Help');
+
     expect(
       screen.getByTestId('drop-down-bento-menu-toggle')
     ).toBeInTheDocument();
     expect(screen.getByTestId('avatar-nondefault')).toBeInTheDocument();
 
-    expect(screen.getByTestId('header-menu')).toBeInTheDocument();
+    expect(headerMenu).toBeInTheDocument();
+    expect(headerMenu).toHaveAttribute('title', 'Site navigation menu');
+
     expect(screen.getByTestId('back-to-top')).toHaveAttribute(
       'title',
       'Back to top'
