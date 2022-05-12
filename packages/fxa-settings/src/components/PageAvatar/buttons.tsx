@@ -37,7 +37,13 @@ export const RemovePhotoBtn = () => {
       await account.deleteAvatar();
       navigate(HomePath, { replace: true });
     } catch (err) {
-      alertBar.error(l10n.getString('avatar-page-delete-error-2'));
+      alertBar.error(
+        l10n.getString(
+          'avatar-page-delete-error-2',
+          null,
+          'There was a problem deleting your profile picture.'
+        )
+      );
     }
   }, [account, navigate, alertBar, l10n]);
 
@@ -128,13 +134,13 @@ export const AddPhotoBtn = ({
 type ConfirmBtnsProps = {
   onSave: VoidFunction;
   saveEnabled: boolean;
-  saveStringId?: string;
+  localizedSaveText: string;
 };
 
 export const ConfirmBtns = ({
   onSave,
   saveEnabled,
-  saveStringId = 'avatar-page-save-button',
+  localizedSaveText,
 }: ConfirmBtnsProps) => {
   const navigate = useNavigate();
 
@@ -149,14 +155,14 @@ export const ConfirmBtns = ({
           Cancel
         </button>
       </Localized>
-      <Localized id={saveStringId}>
-        <button
-          className="cta-primary mx-2 px-10 w-full max-w-32"
-          onClick={onSave}
-          disabled={!saveEnabled}
-          data-testid="save-button"
-        ></button>
-      </Localized>
+      <button
+        className="cta-primary mx-2 px-10 w-full max-w-32"
+        onClick={onSave}
+        disabled={!saveEnabled}
+        data-testid="save-button"
+      >
+        {localizedSaveText}
+      </button>
     </div>
   );
 };

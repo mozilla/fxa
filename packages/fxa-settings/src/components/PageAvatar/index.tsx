@@ -46,13 +46,29 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const { avatar } = useAccount();
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
-  const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
+
+  const [localizedSaveText, setLocalizedSaveText] = useState(
+    l10n.getString('avatar-page-save-button', null, 'Save')
+  );
+
   const onFileError = useCallback(() => {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
+    alertBar.error(
+      l10n.getString(
+        'avatar-page-file-upload-error-2',
+        null,
+        'There was a problem uploading your profile picture.'
+      )
+    );
   }, [alertBar, l10n]);
 
   const onMediaError = useCallback(() => {
-    alertBar.error(l10n.getString('avatar-page-camera-error'));
+    alertBar.error(
+      l10n.getString(
+        'avatar-page-camera-error',
+        null,
+        'Could not initialize camera'
+      )
+    );
   }, [alertBar, l10n]);
 
   const uploadAvatar = useCallback(
@@ -162,10 +178,18 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     setSaveEnabled(false);
     const img = croppedImgSrc || (await saveCroppedImage());
     if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
-      alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
+      alertBar.error(
+        l10n.getString(
+          'avatar-page-image-too-large-error',
+          null,
+          'The image file size is too large to be uploaded.'
+        )
+      );
       resetAllState();
     } else if (img) {
-      setSaveStringId('avatar-page-saving-button');
+      setLocalizedSaveText(
+        l10n.getString('avatar-page-saving-button', null, 'Saving…')
+      );
       uploadAvatar(img);
     }
   }, [
@@ -174,7 +198,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     l10n,
     saveCroppedImage,
     setSaveEnabled,
-    setSaveStringId,
+    setLocalizedSaveText,
     uploadAvatar,
     resetAllState,
   ]);
@@ -184,7 +208,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     <ConfirmBtns
       onSave={save}
       saveEnabled={!capturing && saveEnabled}
-      saveStringId={saveStringId}
+      {...{ localizedSaveText }}
     />
   );
 

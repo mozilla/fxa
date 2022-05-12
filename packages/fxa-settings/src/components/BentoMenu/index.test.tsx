@@ -11,13 +11,15 @@ describe('BentoMenu', () => {
     render(<BentoMenu />);
 
     const toggleButton = screen.getByTestId('drop-down-bento-menu-toggle');
-    const dropDownId = 'drop-down-bento-menu';
-    const dropDown = screen.queryByTestId(dropDownId);
+    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
-    expect(toggleButton).toHaveAttribute('title', 'bento-menu-title');
-    expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
+    expect(toggleButton).toHaveAttribute('title', 'Firefox Bento Menu');
+    expect(toggleButton).toHaveAttribute(
+      'aria-controls',
+      'drop-down-bento-menu'
+    );
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
@@ -25,7 +27,7 @@ describe('BentoMenu', () => {
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('closes on esc keypress', () => {
@@ -35,7 +37,7 @@ describe('BentoMenu', () => {
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
     expect(dropDown).toBeInTheDocument;
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('closes on click outside', () => {
@@ -51,6 +53,6 @@ describe('BentoMenu', () => {
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
     expect(dropDown).toBeInTheDocument;
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 });
