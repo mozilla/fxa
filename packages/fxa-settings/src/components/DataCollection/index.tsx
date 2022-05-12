@@ -54,7 +54,7 @@ export const DataCollection = () => {
 
   return (
     <section className="mt-11" data-testid="settings-data-collection">
-      <h2 className="font-header font-bold relative ltr:ml-4 rtl:mr-4 mb-4">
+      <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
       </h2>
