@@ -375,6 +375,52 @@ describe('/account/attached_clients', () => {
       os: null,
     });
   });
+
+  it('filters out idle devices', async () => {
+    const now = Date.now();
+    const FIVE_DAYS_AGO = now - (1000 * 60 * 60 * 24 * 5);
+    const ONE_DAY_AGO = now - (1000 * 60 * 60 * 24);
+    
+    request.query.filterIdleDevicesTimestamp = ONE_DAY_AGO; // Filter for devices active in the last day
+    const DEVICES = [
+      {
+        id: newId(),
+        sessionTokenId: newId(),
+        lastAccessTime: now,
+        createdAt: now,
+      },
+      {
+        id: newId(),
+        sessionTokenId: newId(),
+        lastAccessTime: FIVE_DAYS_AGO,
+        createdAt: FIVE_DAYS_AGO,
+      },
+    ];
+    const SESSIONS = [
+      {
+        id: DEVICES[0].sessionTokenId,
+        createdAt: now,
+        lastAccessTime: now,
+        location: { country: 'Germany' },
+      }
+    ];
+    const OAUTH_CLIENTS = [];
+
+    request.app.devices = (async () => {
+      return DEVICES;
+    })();
+    mockAuthorizedClients.list = sinon.spy(async () => {
+      return OAUTH_CLIENTS;
+    });
+    db.sessions = sinon.spy(async () => {
+      return SESSIONS;
+    });
+
+    request.auth.credentials.id = SESSIONS[0].id;
+    const result = await route(request);
+
+    assert.equal(result.length, 1);
+  });
 });
 
 describe('/account/attached_client/destroy', () => {

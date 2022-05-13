@@ -114,7 +114,7 @@ export interface IConnectedServicesDbStore {
 }
 
 /**
- * Wrapper around around database operations pertaining to connected services.
+ * Wrapper around database operations pertaining to connected services.
  */
 export class ConnectedServicesDb {
   constructor(
