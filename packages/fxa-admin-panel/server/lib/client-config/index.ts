@@ -12,12 +12,15 @@ import {
   USER_GROUP_HEADER,
   SERVER_CONFIG_PLACEHOLDER,
 } from '../../../constants';
-import { guard } from 'fxa-shared/guards';
+import { AdminPanelGuard } from 'fxa-shared/guards';
 import log from '../logging';
+
+const guard = new AdminPanelGuard(config.get('guard.env'));
 
 /** Client Config Defaults provided by env */
 const defaultConfig: IClientConfig = {
   env: config.get('env'),
+  guard,
   user: {
     group: guard.getBestGroup(config.get('user.group')),
     email: config.get('user.email'),

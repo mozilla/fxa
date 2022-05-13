@@ -5,9 +5,16 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { USER_GROUP_HEADER, guard, AdminPanelFeature } from 'fxa-shared/guards';
+import {
+  USER_GROUP_HEADER,
+  AdminPanelFeature,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 import { FEATURE_KEY } from './user-group-header.decorator';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import config from '../config';
+
+const guard = new AdminPanelGuard(config.get('guard.env'));
 
 @Injectable()
 export class UserGroupGuard implements CanActivate {
@@ -38,6 +45,7 @@ export class UserGroupGuard implements CanActivate {
     this.log?.info('userGroupHeader', { userGroupHeader });
 
     const group = guard.getBestGroup(userGroupHeader);
-    return features.some((x) => guard.allow(x, group));
+    const allowed = features.some((x) => guard.allow(x, group));
+    return allowed;
   }
 }

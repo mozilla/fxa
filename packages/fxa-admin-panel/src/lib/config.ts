@@ -1,6 +1,11 @@
 // This configuration is a subset of the configuration declared in server/config/index.ts
 
-import { AdminPanelGroup, guard, PermissionLevel } from 'fxa-shared/guards';
+import {
+  AdminPanelGuard,
+  unknownGroup,
+  USER_EMAIL_HEADER,
+  USER_GROUP_HEADER,
+} from 'fxa-shared/guards';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../constants';
 import { IClientConfig } from '../../interfaces';
 
@@ -9,14 +14,19 @@ export const config: IClientConfig = defaultConfig();
 export function defaultUser() {
   return {
     email: 'hello@mozilla.com',
-    group: guard.getGroup(AdminPanelGroup.None),
+    group: unknownGroup,
   };
+}
+
+export function defaultGuard() {
+  return new AdminPanelGuard();
 }
 
 export function defaultConfig(): IClientConfig {
   return {
     env: 'development',
     user: defaultUser(),
+    guard: defaultGuard(),
     servers: {
       admin: {
         url: '',
@@ -34,11 +44,11 @@ export function getExtraHeaders(config: IClientConfig) {
 
   if (process.env.NODE_ENV === 'development') {
     if (config.user.email) {
-      headers['oidc-claim-id-token-email'] = config.user.email;
+      headers[USER_EMAIL_HEADER] = config.user.email;
     }
 
     if (config.user.group) {
-      headers['REMOTE-GROUP'] = config.user.group.header;
+      headers[USER_GROUP_HEADER] = config.user.group.header;
     }
   }
   return headers;
