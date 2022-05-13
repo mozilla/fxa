@@ -19,7 +19,7 @@ describe('Footer', () => {
     expect(linkMozilla.firstElementChild).toHaveAttribute('role', 'img');
     expect(linkMozilla.firstElementChild).toHaveAttribute(
       'aria-label',
-      'app-footer-mozilla-logo-label'
+      'Mozilla logo'
     );
     expect(screen.getByTestId('link-privacy')).toHaveAttribute(
       'href',

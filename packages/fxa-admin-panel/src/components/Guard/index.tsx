@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { useUserContext } from '../../hooks/UserContext';
-import { AdminPanelFeature, guard } from 'fxa-shared/guards';
+import { AdminPanelFeature } from 'fxa-shared/guards';
+import { useGuardContext } from '../../hooks/GuardContext';
 
 export type GuardProps = {
   features: AdminPanelFeature[];
@@ -12,6 +13,8 @@ export type GuardProps = {
 
 export const Guard: React.FC<GuardProps> = ({ features, children }) => {
   const { user } = useUserContext();
+  const { guard } = useGuardContext();
+
   return features.some((x) => guard.allow(x, user.group)) ? (
     <>{children}</>
   ) : (

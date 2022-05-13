@@ -54,7 +54,7 @@ describe('DropDownAvatarMenu', () => {
     const dropDownId = 'drop-down-avatar-menu';
     const dropDown = screen.queryByTestId(dropDownId);
 
-    expect(toggleButton).toHaveAttribute('title', 'drop-down-menu-title');
+    expect(toggleButton).toHaveAttribute('title', 'Firefox account menu');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
     expect(dropDown).not.toBeInTheDocument;

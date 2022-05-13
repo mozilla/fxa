@@ -6,19 +6,28 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
 import { Guard } from './index';
-import { AdminPanelFeature, AdminPanelGroup, guard } from 'fxa-shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelFeature,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
+
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
+    group: mockGroup,
   },
 });
 
 jest.mock('../../hooks/UserContext.ts', () => ({
   useUserContext: () => {
     const ctx = {
+      guard: mockGuard,
       user: mockConfig.user,
       setUser: () => {},
     };

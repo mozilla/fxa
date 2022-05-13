@@ -78,7 +78,7 @@ export const UnitRowTwoStepAuth = () => {
 
   return (
     <UnitRow
-      header={l10n.getString('tfa-row-header')}
+      header={l10n.getString('tfa-row-header', null, 'Two-step authentication')}
       headerId="two-step-authentication"
       prefixDataTestId="two-step"
       route={route}

@@ -16,9 +16,8 @@ export const DropDownAvatarMenu = () => {
   const session = useSession();
   const [isRevealed, setRevealed] = useState(false);
   const toggleRevealed = () => setRevealed(!isRevealed);
-  const avatarMenuInsideRef = useClickOutsideEffect<HTMLDivElement>(
-    setRevealed
-  );
+  const avatarMenuInsideRef =
+    useClickOutsideEffect<HTMLDivElement>(setRevealed);
   useEscKeydownEffect(setRevealed);
   const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
@@ -31,7 +30,13 @@ export const DropDownAvatarMenu = () => {
         logViewEvent(settingsViewName, 'signout.success');
         window.location.assign(`${window.location.origin}/signin`);
       } catch (e) {
-        alertBar.error(l10n.getString('drop-down-menu-sign-out-error'));
+        alertBar.error(
+          l10n.getString(
+            'drop-down-menu-sign-out-error',
+            null,
+            'Sorry, there was a problem signing you out.'
+          )
+        );
       }
     }
   };
@@ -43,7 +48,11 @@ export const DropDownAvatarMenu = () => {
           type="button"
           onClick={toggleRevealed}
           data-testid="drop-down-avatar-menu-toggle"
-          title={l10n.getString('drop-down-menu-title')}
+          title={l10n.getString(
+            'drop-down-menu-title',
+            null,
+            'Firefox account menu'
+          )}
           aria-expanded={isRevealed}
           aria-controls={dropDownId}
           className="rounded-full border-2 border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"

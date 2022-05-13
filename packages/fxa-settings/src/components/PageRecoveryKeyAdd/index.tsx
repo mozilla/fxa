@@ -34,7 +34,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const [errorText, setErrorText] = useState<string>();
   const { l10n } = useLocalization();
   const [subtitleText, setSubtitleText] = useState<string>(
-    l10n.getString('recovery-key-step-1')
+    l10n.getString('recovery-key-step-1', null, 'Step 1 of 2')
   );
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>();
   const navigate = useNavigate();
@@ -61,7 +61,9 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
             .match(/.{4}/g)!
             .join(' ')
         );
-        setSubtitleText(l10n.getString('recovery-key-step-2'));
+        setSubtitleText(
+          l10n.getString('recovery-key-step-2', null, 'Step 2 of 2')
+        );
         logViewEvent(
           'flow.settings.account-recovery',
           'confirm-password.success'
