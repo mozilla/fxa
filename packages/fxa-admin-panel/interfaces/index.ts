@@ -4,7 +4,7 @@
 
 import { IncomingHttpHeaders } from 'http';
 import { USER_EMAIL_HEADER, USER_GROUP_HEADER } from '../constants';
-import { IGroup } from 'fxa-shared/guards';
+import { AdminPanelGuard, IGroup } from 'fxa-shared/guards';
 
 export interface IUserInfo {
   group: IGroup;
@@ -17,6 +17,7 @@ export interface IServerInfo {
 
 export interface IClientConfig {
   env: string;
+  guard: AdminPanelGuard;
   user: IUserInfo;
   servers: {
     admin: IServerInfo;

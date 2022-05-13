@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { guard, IFeatureFlag } from 'fxa-shared/guards';
+import { IFeatureFlag } from 'fxa-shared/guards';
 import { useUserContext } from '../../hooks/UserContext';
+import { useGuardContext } from '../../hooks/GuardContext';
 
 const styleClasses = {
   label: 'px-4 py-2',
@@ -69,6 +70,8 @@ export const PermissionsTable = ({
 
 export const Permissions = () => {
   const { user } = useUserContext();
+  const { guard } = useGuardContext();
+
   const featureFlags: IFeatureFlag[] = guard.getFeatureFlags(user.group);
 
   return (

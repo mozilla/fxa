@@ -5,7 +5,13 @@
 import { ClientConfig } from '.';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../../constants';
 import { JSDOM } from 'jsdom';
-import { AdminPanelGroup, PermissionLevel } from 'fxa-shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  PermissionLevel,
+  USER_EMAIL_HEADER,
+  USER_GROUP_HEADER,
+} from 'fxa-shared/guards';
 import { IUserInfo } from '../../../interfaces';
 
 describe('ClientConfig', () => {
@@ -15,8 +21,8 @@ describe('ClientConfig', () => {
       user,
     });
     const injectedHtml = ClientConfig.injectIntoHtml(html, {
-      'REMOTE-GROUP': remoteHeader,
-      'oidc-claim-id-token-email': user.email,
+      [USER_GROUP_HEADER]: remoteHeader,
+      [USER_EMAIL_HEADER]: user.email,
     });
 
     const injectedVal = JSDOM.fragment(injectedHtml)
@@ -42,6 +48,7 @@ describe('ClientConfig', () => {
         name: 'Admin',
         header: 'vpn_fxa_admin_panel_prod',
         level: PermissionLevel.Admin,
+        env: AdminPanelEnv.Prod,
       },
     });
   });
@@ -53,6 +60,7 @@ describe('ClientConfig', () => {
         name: 'Support',
         header: 'vpn_fxa_supportagent_prod',
         level: PermissionLevel.Support,
+        env: AdminPanelEnv.Prod,
       },
     });
   });
@@ -66,5 +74,32 @@ describe('ClientConfig', () => {
         level: PermissionLevel.None,
       },
     });
+  });
+
+  it('handles noisy remote groups header', () => {
+    configCheck('test,test2,vpn_fxa_supportagent_prod,test3', {
+      email: 'hello@mozilla.com',
+      group: {
+        name: 'Support',
+        header: AdminPanelGroup.SupportAgentProd,
+        level: PermissionLevel.Support,
+        env: AdminPanelEnv.Prod,
+      },
+    });
+  });
+
+  it('handles multiple remote group headers', () => {
+    configCheck(
+      'test,vpn_default,vpn_fxa_admin_panel_prod,vpn_fxa_admin_panel_stage,test',
+      {
+        email: 'hello@mozilla.com',
+        group: {
+          name: 'Admin',
+          header: AdminPanelGroup.AdminProd,
+          level: PermissionLevel.Admin,
+          env: AdminPanelEnv.Prod,
+        },
+      }
+    );
   });
 });
