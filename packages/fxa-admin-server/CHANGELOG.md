@@ -1,3 +1,9 @@
+## 1.232.1
+
+### Bug fixes
+
+- admin-panel: Fix remote group resolution ([8b580cc7d](https://github.com/mozilla/fxa/commit/8b580cc7d))
+
 ## 1.232.0
 
 ### New features
