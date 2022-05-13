@@ -5,6 +5,7 @@
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, AccountProps } from './index';
+import { BounceSubType, BounceType } from 'fxa-admin-server/src/graphql';
 import {
   AdminPanelEnv,
   AdminPanelGroup,
@@ -48,7 +49,16 @@ let accountResponse: AccountProps = {
   ],
   createdAt: 1589467100316,
   disabledAt: null,
-  emailBounces: [],
+  emailBounces: [
+    {
+      bounceSubType: BounceSubType.NoEmail,
+      bounceType: BounceType.Permanent,
+      createdAt: 556061927,
+      diagnosticCode: "",
+      email: "bloop@mozilla.com",
+      templateName: "subscriptionsPaymentProviderCancelled"
+    },
+  ],
   onCleared() {},
   query: 'hey@happy.com',
   totp: [
@@ -207,6 +217,15 @@ it('displays the unverified account', async () => {
     </MockedProvider>
   );
   expect(getByTestId('verified-status')).toHaveTextContent('not verified');
+});
+
+it('displays the bounce type description', async () => {
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  )
+  expect(getByTestId('bounce-description')).toBeInTheDocument();
 });
 
 it('displays the totp status', async () => {

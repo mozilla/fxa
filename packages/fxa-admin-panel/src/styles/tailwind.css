@@ -19,18 +19,18 @@
   @apply font-medium text-violet-900;
 }
 
+.account-label {
+  @apply align-top w-48;
+}
+
 .account-border-info {
   @apply border-l-2 border-grey-500 mb-8 pl-4;
 }
 
-.account-enabled-verified {
+.account-li .account-enabled-verified {
   @apply font-semibold text-green-900;
 }
 
-.account-disabled-unverified {
+.account-li .account-disabled-unverified {
   @apply font-semibold text-red-600;
-}
-
-.account-border-info {
-  @apply border-l-2 border-grey-500 mb-8 pl-4;
 }

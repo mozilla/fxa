@@ -41,6 +41,7 @@ type EmailBounce {
 
 enum BounceType {
   unmapped
+  Undetermined
   Permanent
   Transient
   Complaint
@@ -51,6 +52,7 @@ enum BounceSubType {
   Undetermined
   General
   NoEmail
+  OnAccountSuppressionList
   Suppressed
   MailboxFull
   MessageTooLarge
