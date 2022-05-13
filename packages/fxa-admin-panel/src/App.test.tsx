@@ -6,10 +6,16 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import App from './App';
 import { mockConfigBuilder } from './lib/config';
-import { AdminPanelGroup, guard } from 'fxa-shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 
 it('renders without imploding', () => {
+  const guard = new AdminPanelGuard(AdminPanelEnv.Prod);
   const config = mockConfigBuilder({
+    guard,
     user: {
       email: 'hello@mozilla.com',
       group: guard.getGroup(AdminPanelGroup.SupportAgentProd),

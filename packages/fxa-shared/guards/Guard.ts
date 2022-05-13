@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AdminPanelEnv } from './AdminPanelGuard';
+
 /* The maximum value that should be allowed for a permission level. */
 export const MaxPermissionLevel = 100;
 
@@ -33,10 +35,27 @@ export interface IGroup {
 
   /** Groups assigned permission level */
   level: number;
+
+  /** Target environment */
+  env?: AdminPanelEnv;
 }
 
 export type Permissions = Record<string, IFeature>;
 export type Groups = Record<string, IGroup>;
+
+/**
+ * Default configuration settings
+ */
+export const GuardConfig = {
+  guard: {
+    env: {
+      default: 'prod',
+      doc: 'Expected environment guard is operating in.',
+      env: 'GUARD_ENV',
+      format: String,
+    },
+  },
+};
 
 /** Guards access to various features */
 export abstract class Guard<TFeatures extends string, TGroup extends string> {
@@ -45,7 +64,7 @@ export abstract class Guard<TFeatures extends string, TGroup extends string> {
     protected readonly groups: Groups
   ) {}
 
-  /** Given a remote group header, finds the group with the higest permissions. */
+  /** Given a remote group header, finds the group with the highest permissions. */
   getBestGroup(remoteGroupHeader: string) {
     const list = this.getBestGroups(remoteGroupHeader);
     if (list.length > 0) {
@@ -59,8 +78,13 @@ export abstract class Guard<TFeatures extends string, TGroup extends string> {
     return Object.keys(this.groups)
       .filter((x) => list.indexOf(x) >= 0)
       .map((x) => this.groups[x])
-      .sort((a, b) => a.level - b.level);
+      .sort(
+        (a, b) =>
+          this.envToNum(a.env) + a.level - (this.envToNum(b.env) + b.level)
+      );
   }
+
+  protected abstract envToNum(env?: string): number;
 
   /** Looks up group by name */
   getGroup(group: TGroup) {
@@ -93,13 +117,14 @@ export abstract class Guard<TFeatures extends string, TGroup extends string> {
     return featureFlags;
   }
 
-  /** Determimes if feature is allowed for group */
+  /** Determines if feature is allowed for group */
   allow(f: TFeatures | IFeature, g: TGroup | IGroup) {
     const resolvedFeature =
       typeof f === 'string' ? this.getFeature(f) : (f as IFeature);
     const resolvedGroup =
       typeof g === 'string' ? this.getGroup(g) : (g as IGroup);
-    const result = resolvedGroup.level <= resolvedFeature.level;
+    const result =
+      resolvedGroup && resolvedGroup.level <= resolvedFeature.level;
     return result;
   }
 }

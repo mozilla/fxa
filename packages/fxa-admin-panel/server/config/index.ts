@@ -5,6 +5,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
+import { GuardConfig } from 'fxa-shared/guards';
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -179,6 +180,7 @@ const conf = convict({
       format: String,
     },
   },
+  ...GuardConfig,
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

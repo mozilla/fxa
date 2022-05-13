@@ -26,7 +26,12 @@ it('renders each field as expected', () => {
 
   screen.getByText(subscription.productName);
   screen.getByText(subscription.status);
-  expect(screen.getAllByText('1970-01-19 @', { exact: false })).toHaveLength(4);
+
+  // The date is rendered based on user local time. So depending on the user's clock
+  // the date could land on the 18th or the 19th.
+  expect(screen.getAllByText(/1970-01-1[89] @/, { exact: false })).toHaveLength(
+    4
+  );
   screen.getByText('No');
 
   screen.getByText(subscription.subscriptionId);

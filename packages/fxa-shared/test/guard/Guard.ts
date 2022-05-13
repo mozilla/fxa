@@ -8,6 +8,9 @@ import { expect } from 'chai';
 describe('support agents', () => {
   describe('Guard', () => {
     class TestGuard extends Guard<string, string> {
+      protected envToNum(env?: string): number {
+        return 0;
+      }
       constructor(permissions: Permissions, groups: Groups) {
         super(permissions, groups);
       }

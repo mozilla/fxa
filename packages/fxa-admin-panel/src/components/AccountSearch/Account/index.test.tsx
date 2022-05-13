@@ -5,20 +5,28 @@
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, AccountProps } from './index';
-import { AdminPanelGroup, guard } from 'fxa-shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
+
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
+    group: mockGroup,
   },
 });
 
 jest.mock('../../../hooks/UserContext.ts', () => ({
   useUserContext: () => {
     const ctx = {
+      guard: mockGuard,
       user: mockConfig.user,
       setUser: () => {},
     };

@@ -6,19 +6,27 @@ import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
 import { Permissions } from './index';
-import { AdminPanelGroup, guard } from 'fxa-shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
+
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
 
 export const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',
-    group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
+    group: mockGroup,
   },
 });
 
 jest.mock('../../hooks/UserContext.ts', () => ({
   useUserContext: () => {
     const ctx = {
+      guard: mockGuard,
       user: mockConfig.user,
       setUser: () => {},
     };
@@ -50,7 +58,7 @@ describe('Permissions', () => {
   });
 
   it('has enabled feature', () => {
-    const enabledFeature = guard
+    const enabledFeature = mockGuard
       .getFeatureFlags(mockConfig.user.group)
       .find((x) => x.enabled);
 
@@ -64,7 +72,7 @@ describe('Permissions', () => {
   });
 
   it('has disabled feature', () => {
-    const disabledFeature = guard
+    const disabledFeature = mockGuard
       .getFeatureFlags(mockConfig.user.group)
       .find((x) => !x.enabled);
 

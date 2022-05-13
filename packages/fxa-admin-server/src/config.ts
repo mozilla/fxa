@@ -4,6 +4,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
+import { GuardConfig, USER_EMAIL_HEADER } from 'fxa-shared/guards';
 import path from 'path';
 
 convict.addFormats(require('convict-format-with-moment'));
@@ -11,7 +12,7 @@ convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
   authHeader: {
-    default: 'oidc-claim-id-token-email',
+    default: USER_EMAIL_HEADER,
     doc: 'Authentication header that should be logged for the user',
     env: 'AUTH_HEADER',
     format: String,
@@ -159,6 +160,7 @@ const conf = convict({
     default: 'changeme',
     env: 'IP_HMAC_KEY',
   },
+  ...GuardConfig,
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
