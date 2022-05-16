@@ -57,7 +57,7 @@ describe('DropDownAvatarMenu', () => {
     expect(toggleButton).toHaveAttribute('title', 'Firefox account menu');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
@@ -68,7 +68,7 @@ describe('DropDownAvatarMenu', () => {
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('renders as expected with avatar url and displayName set', () => {
@@ -94,7 +94,7 @@ describe('DropDownAvatarMenu', () => {
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
     expect(dropDown).toBeInTheDocument;
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('closes on click outside', () => {
@@ -112,7 +112,7 @@ describe('DropDownAvatarMenu', () => {
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
     expect(dropDown).toBeInTheDocument;
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   describe('destroySession', () => {
