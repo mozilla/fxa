@@ -78,7 +78,7 @@
     "fxa-react": "workspace:*",
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
-    "grunt": "^1.5.2",
+    "grunt": "^1.5.3",
     "grunt-babel": "8.0.0",
     "grunt-cdn": "0.6.5",
     "grunt-contrib-clean": "^2.0.1",
