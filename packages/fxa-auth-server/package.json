@@ -60,7 +60,7 @@
     "@googlemaps/google-maps-services-js": "^3.3.13",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hawk": "^8.0.0",
-    "@hapi/hoek": "^9.2.0",
+    "@hapi/hoek": "^10.0.0",
     "@hapi/joi": "^15.1.1",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
