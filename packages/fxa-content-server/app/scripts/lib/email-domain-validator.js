@@ -30,7 +30,7 @@
 import $ from 'jquery';
 import AuthErrors from './auth-errors';
 import Tooltip from '../views/tooltip';
-import TopEmailDomains from './top-email-domains';
+import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import xhr from './xhr';
 const t = (msg) => msg;
 

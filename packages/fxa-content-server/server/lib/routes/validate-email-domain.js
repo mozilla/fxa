@@ -10,52 +10,17 @@
 'use strict';
 
 const joi = require('joi');
-const dns = require('dns');
 const VError = require('verror');
-const resolver = new dns.promises.Resolver();
+const emailValidator = require('fxa-shared/email/validateEmail');
+const emailValidatorErrors = require('fxa-shared/email/emailValidatorErrors');
+const tryResolveMx = emailValidator.tryResolveMx;
+const tryResolveIpv4 = emailValidator.tryResolveIpv4;
+const WrappedErrorCodes = emailValidatorErrors.WrappedErrorCodes;
+
 const results = ['MX', 'A', 'none', 'skip'].reduce((accumulator, val) => {
   accumulator[val] = val;
   return accumulator;
 }, {});
-
-const NotFoundErrorCodes = [dns.NODATA, dns.NOTFOUND];
-const WrappedErrorCodes = [
-  dns.FORMERR,
-  dns.SERVFAIL,
-  dns.NOTIMP,
-  dns.REFUSED,
-  dns.BADQUERY,
-  dns.BADNAME,
-  dns.BADFAMILY,
-  dns.BADRESP,
-  dns.CONNREFUSED,
-  dns.TIMEOUT,
-  dns.EOF,
-  dns.FILE,
-  dns.NOMEM,
-  dns.DESTRUCTION,
-  dns.BADSTR,
-  dns.BADFLAGS,
-  dns.NONAME,
-  dns.BADHINTS,
-  dns.NOTINITIALIZED,
-  dns.LOADIPHLPAPI,
-  dns.ADDRGETNETWORKPARAMS,
-  dns.CANCELLED,
-];
-
-const tryResolveWith = (resolveFunc) => async (domain) => {
-  try {
-    const records = await resolveFunc(domain);
-    // We don't do anything with the records
-    return records && records.length;
-  } catch (err) {
-    if (NotFoundErrorCodes.includes(err.code)) {
-      return false;
-    }
-    throw err;
-  }
-};
 
 module.exports = function (config) {
   return {
@@ -73,10 +38,10 @@ module.exports = function (config) {
         return res.json({ result: results.skip });
       }
       try {
-        if (await tryResolveWith(resolver.resolveMx.bind(resolver))(domain)) {
+        if (await tryResolveMx(domain)) {
           return res.json({ result: results.MX });
         }
-        if (await tryResolveWith(resolver.resolve4.bind(resolver))(domain)) {
+        if (await tryResolveIpv4(domain)) {
           return res.json({ result: results.A });
         }
         return res.json({ result: results.none });

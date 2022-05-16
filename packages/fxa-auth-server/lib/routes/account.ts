@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import isA from '@hapi/joi';
+import isA, { optional } from '@hapi/joi';
 import crypto from 'crypto';
 import {
   deleteAllPayPalBAs,
@@ -31,6 +31,9 @@ import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { deleteAccountIfUnverified } from './utils/account';
+import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { tryResolveMx, tryResolveIpv4 } from 'fxa-shared/email/validateEmail';
+import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
 
 import ACCOUNT_DOCS from '../../docs/swagger/account-api';
 import MISC_DOCS from '../../docs/swagger/misc-api';
@@ -406,6 +409,34 @@ export class AccountHandler {
     return response;
   }
 
+  private async checkEmailDomainValidity(email: string): Promise<boolean> {
+    let invalidDomain = false;
+    const domain = email.split('@')[1];
+    if (!TopEmailDomains.has(domain)) {
+      let mxCheck = false,
+        ipv4Check = false;
+
+      try {
+        mxCheck = await tryResolveMx(domain);
+        ipv4Check = await tryResolveIpv4(domain);
+      } catch (error) {
+        if (WrappedErrorCodes.includes(error.code)) {
+          this.log.error(`DNS query error: ${error.code}`, error);
+        } else {
+          this.log.error('checkEmailDomainValidity', error);
+        }
+
+        // if there are any errors we ignore this domain check
+        mxCheck = true;
+        ipv4Check = true;
+      }
+
+      invalidDomain = !mxCheck && !ipv4Check;
+    }
+
+    return invalidDomain;
+  }
+
   async accountCreate(request: AuthRequest) {
     this.log.begin('Account.create', request);
     const form = request.payload as any;
@@ -497,6 +528,11 @@ export class AccountHandler {
 
     if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
       throw error.disabledClientId(clientId);
+    }
+
+    const invalidDomain = await this.checkEmailDomainValidity(email);
+    if (invalidDomain) {
+      throw error.accountCreationRejected();
     }
 
     const client = await getClientById(clientId);
@@ -1027,17 +1063,36 @@ export class AccountHandler {
 
   async accountStatusCheck(request: AuthRequest) {
     const email = (request.payload as any).email;
+    const checkDomain = !!(request.payload as any).checkDomain;
+    let invalidDomain = false;
+
+    if (checkDomain) {
+      invalidDomain = await this.checkEmailDomainValidity(email);
+    }
 
     await this.customs.check(request, email, 'accountStatusCheck');
 
+    const result: { exists: boolean; invalidDomain?: boolean } = {
+      exists: false,
+      invalidDomain: undefined,
+    };
+
     try {
       const exist = await this.db.accountExists(email);
-      return {
-        exists: exist,
-      };
+      result.exists = exist;
+
+      if (checkDomain) {
+        result.invalidDomain = invalidDomain;
+      }
+
+      return result;
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-        return { exists: false };
+        result.exists = false;
+        if (checkDomain) {
+          result.invalidDomain = invalidDomain;
+        }
+        return result;
       }
       throw err;
     }
@@ -1702,6 +1757,7 @@ export const accountRoutes = (
           payload: isA
             .object({
               email: validators.email().required(),
+              checkDomain: isA.optional(),
             })
             .label('AccountStatusCheck_payload'),
         },
@@ -1709,6 +1765,7 @@ export const accountRoutes = (
           schema: isA
             .object({
               exists: isA.boolean().required(),
+              invalidDomain: isA.boolean().optional(),
             })
             .label('AccountStausCheck_response'),
         },

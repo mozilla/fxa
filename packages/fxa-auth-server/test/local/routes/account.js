@@ -1324,6 +1324,146 @@ describe('/account/stub', () => {
       assert.equal(err.output.statusCode, 503);
     }
   });
+
+  it('rejects creating an account with an invalid email domain', async () => {
+    const { route, mockRequest } = setup();
+    mockRequest.payload.email = 'test@bad.domain';
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.ACCOUNT_CREATION_REJECTED);
+    }
+  });
+});
+
+describe('/account/status', () => {
+  function setup(extraConfig) {
+    const config = {
+      securityHistory: {
+        enabled: true,
+      },
+      ...extraConfig,
+    };
+    const mockLog = log('ERROR', 'test');
+    mockLog.activityEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.flowEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.error = sinon.spy();
+    mockLog.notifier.send = sinon.spy();
+
+    const mockMetricsContext = mocks.mockMetricsContext();
+    const email = Math.random() + '_stub@mozilla.com';
+    const mockRequest = mocks.mockRequest({
+      locale: 'en-GB',
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      payload: {
+        email,
+        checkDomain: true,
+      },
+      uaBrowser: 'Firefox Mobile',
+      uaBrowserVersion: '9',
+      uaOS: 'iOS',
+      uaOSVersion: '11',
+      uaDeviceType: 'tablet',
+      uaFormFactor: 'iPad',
+    });
+    const clientAddress = mockRequest.app.clientAddress;
+    const emailCode = hexString(16);
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const mockDB = mocks.mockDB(
+      {
+        email,
+        emailCode,
+        emailVerified: false,
+        locale: 'en',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: 52,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.10',
+        uid,
+        wrapWrapKb: 'wibble',
+      },
+      {
+        emailRecord: new error.unknownAccount(),
+      }
+    );
+    mockDB.accountExists = (arg) => {
+      return false;
+    };
+
+    const mockMailer = mocks.mockMailer();
+    const mockPush = mocks.mockPush();
+    const verificationReminders = mocks.mockVerificationReminders();
+    const subscriptionAccountReminders = mocks.mockVerificationReminders();
+    const accountRoutes = makeRoutes({
+      config,
+      db: mockDB,
+      log: mockLog,
+      mailer: mockMailer,
+      Password: function () {
+        return {
+          unwrap: function () {
+            return Promise.resolve('wibble');
+          },
+          verifyHash: function () {
+            return Promise.resolve('wibble');
+          },
+        };
+      },
+      push: mockPush,
+      verificationReminders,
+      subscriptionAccountReminders,
+    });
+    const route = getRoute(accountRoutes, '/account/status', 'POST');
+
+    return {
+      config,
+      clientAddress,
+      email,
+      emailCode,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      uid,
+      verificationReminders,
+      subscriptionAccountReminders,
+    };
+  }
+
+  it('returns valid for a valid email domain', async () => {
+    const { route, mockRequest } = setup();
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.invalidDomain, false);
+    });
+  });
+
+  it('returns invalid for an invalid email domain', async () => {
+    const { route, mockRequest } = setup();
+    mockRequest.payload.email = 'test@bad.domain';
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.invalidDomain, true);
+    });
+  });
+
+  it('does not check domain if not requested to do so', async () => {
+    const { route, mockRequest } = setup();
+    mockRequest.payload.checkDomain = false;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.invalidDomain, undefined);
+    });
+  });
 });
 
 describe('/account/finish_setup', () => {

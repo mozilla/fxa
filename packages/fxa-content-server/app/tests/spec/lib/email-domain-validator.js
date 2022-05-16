@@ -9,7 +9,7 @@ import checkEmailDomain from 'lib/email-domain-validator';
 import p from 'lib/promise';
 import sinon from 'sinon';
 import Tooltip from 'views/tooltip';
-import TopEmailDomains from 'lib/top-email-domains';
+import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import xhr from 'lib/xhr';
 
 // This is from the email-domain-validator module
