@@ -1,3 +1,9 @@
+## 1.232.1
+
+### Bug fixes
+
+- settings: Add default text to several l10n.getString calls ([f70944118](https://github.com/mozilla/fxa/commit/f70944118))
+
 ## 1.232.0
 
 ### Bug fixes
