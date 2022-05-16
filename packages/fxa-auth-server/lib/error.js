@@ -119,7 +119,7 @@ const ERRNO = {
   DISABLED_CLIENT_ID: 204,
 
   THIRD_PARTY_ACCOUNT_ERROR: 205,
-
+  CANNOT_CREATE_PASSWORD: 206,
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -365,6 +365,17 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
     },
     {
       email: dbEmail,
+    }
+  );
+};
+
+AppError.cannotCreatePassword = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.CANNOT_CREATE_PASSWORD,
+      message: 'Can not create password, password already set.',
     }
   );
 };

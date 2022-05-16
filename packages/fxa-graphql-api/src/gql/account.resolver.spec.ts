@@ -416,5 +416,20 @@ describe('AccountResolver', () => {
         });
       });
     });
+
+    describe('createPassword', () => {
+      it('succeeds', async () => {
+        authClient.createPassword = jest.fn().mockResolvedValue(true);
+        const result = await resolver.createPassword('token', {
+          email: 'howdy@yo.com',
+          password: 'passwordzxcv',
+          clientMutationId: 'testid'
+        });
+        expect(authClient.createPassword).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+        });
+      });
+    });
   });
 });

@@ -46,6 +46,7 @@ const DB_METHOD_NAMES = [
   'createEmailBounce',
   'createEmail',
   'createKeyFetchToken',
+  'createPassword',
   'createPasswordForgotToken',
   'createRecoveryCodes',
   'createRecoveryKey',

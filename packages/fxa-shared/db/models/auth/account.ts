@@ -398,6 +398,21 @@ export class Account extends BaseAuthModel {
     return count > 0;
   }
 
+  static async createPassword(uid: string, authSalt: string, verifyHash: string, wrapWrapKb: string, verifierVersion: string) {
+    const now = Date.now();
+    await Account.query()
+     .update({
+       authSalt: uuidTransformer.to(authSalt),
+       verifyHash: uuidTransformer.to(verifyHash),
+       wrapWrapKb: uuidTransformer.to(wrapWrapKb),
+       verifierSetAt: now,
+       keysChangedAt: now,
+       profileChangedAt: now,
+       verifierVersion
+     })
+     .where('uid', uuidTransformer.to(uid));
+  }
+
   static async findByPrimaryEmail(email: string) {
     let account: Account | null = null;
     const { rows } = await Account.callProcedure(Proc.AccountRecord, email);
