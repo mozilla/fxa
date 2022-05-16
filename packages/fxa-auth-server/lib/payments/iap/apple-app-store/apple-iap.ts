@@ -14,6 +14,7 @@ export class AppleIAP {
   private prefix: string;
 
   public purchaseManager: PurchaseManager;
+
   constructor() {
     this.log = Container.get(AuthLogger);
     const appStoreHelper = new AppStoreHelper();

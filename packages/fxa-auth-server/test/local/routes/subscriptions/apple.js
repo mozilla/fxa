@@ -11,19 +11,21 @@ const uuid = require('uuid');
 
 const mocks = require('../../../mocks');
 const {
-  GoogleIapHandler,
-} = require('../../../../lib/routes/subscriptions/google');
+  AppleIapHandler,
+} = require('../../../../lib/routes/subscriptions/apple');
 const {
   PurchaseUpdateError,
-} = require('../../../../lib/payments/iap/google-play/types/errors');
+} = require('../../../../lib/payments/iap/apple-app-store/types/errors');
 const error = require('../../../../lib/error');
 const { AuthLogger } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
+const {
+  AppleIAP,
+} = require('../../../../lib/payments/iap/apple-app-store/apple-iap');
 const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
-const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
+const MOCK_SCOPES = [OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -37,21 +39,21 @@ const VALID_REQUEST = {
   },
 };
 
-describe('GoogleIapHandler', () => {
+describe('AppleIapHandler', () => {
   let iapConfig;
-  let playBilling;
+  let appleIap;
   let log;
-  let googleIapHandler;
+  let appleIapHandler;
   let mockCapabilityService;
   let db;
 
   beforeEach(() => {
     log = mocks.mockLog();
-    playBilling = {};
+    appleIap = {};
     Container.set(AuthLogger, log);
     iapConfig = {};
     Container.set(IAPConfig, iapConfig);
-    Container.set(PlayBilling, playBilling);
+    Container.set(AppleIAP, appleIap);
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,
@@ -61,7 +63,7 @@ describe('GoogleIapHandler', () => {
     mockCapabilityService = {};
     mockCapabilityService.iapUpdate = sinon.fake.resolves({});
     Container.set(CapabilityService, mockCapabilityService);
-    googleIapHandler = new GoogleIapHandler(db);
+    appleIapHandler = new AppleIapHandler(db);
   });
 
   afterEach(() => {
@@ -69,65 +71,56 @@ describe('GoogleIapHandler', () => {
     sinon.restore();
   });
 
-  describe('plans', () => {
-    it('returns the plans', async () => {
-      iapConfig.plans = sinon.fake.resolves({ test: 'plan' });
-      const result = await googleIapHandler.plans({
-        params: { appName: 'test' },
-      });
-      assert.calledOnce(iapConfig.plans);
-      assert.deepEqual(result, { test: 'plan' });
-    });
-  });
-
-  describe('registerToken', () => {
+  describe('registerOriginalTransactionId', () => {
     const request = {
       ...VALID_REQUEST,
       params: { appName: 'test' },
-      payload: { sku: 'testSku', token: 'testToken' },
+      payload: { originalTransactionId: 'testTransactionId' },
     };
 
     it('returns valid with new products', async () => {
-      playBilling.purchaseManager = {
+      appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
-      const result = await googleIapHandler.registerToken(request);
-      assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-      assert.calledOnce(iapConfig.packageName);
+      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      const result = await appleIapHandler.registerOriginalTransactionId(
+        request
+      );
+      assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
+      assert.calledOnce(iapConfig.getBundleId);
       assert.calledOnce(mockCapabilityService.iapUpdate);
-      assert.deepEqual(result, { tokenValid: true });
+      assert.deepEqual(result, { transactionIdValid: true });
     });
 
     it('throws on invalid package', async () => {
-      playBilling.purchaseManager = {
+      appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
-      iapConfig.packageName = sinon.fake.resolves(undefined);
+      iapConfig.getBundleId = sinon.fake.resolves(undefined);
       try {
-        await googleIapHandler.registerToken(request);
+        await appleIapHandler.registerOriginalTransactionId(request);
         assert.fail('Expected failure');
       } catch (err) {
-        assert.calledOnce(iapConfig.packageName);
+        assert.calledOnce(iapConfig.getBundleId);
         assert.strictEqual(err.errno, error.ERRNO.IAP_UNKNOWN_APPNAME);
       }
     });
 
-    it('throws on invalid token', async () => {
+    it('throws on invalid transaction id', async () => {
       const libraryError = new Error('Purchase is not registerable');
-      libraryError.name = PurchaseUpdateError.INVALID_TOKEN;
+      libraryError.name = PurchaseUpdateError.INVALID_ORIGINAL_TRANSACTION_ID;
 
-      playBilling.purchaseManager = {
+      appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(libraryError),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
       try {
-        await googleIapHandler.registerToken(request);
+        await appleIapHandler.registerOriginalTransactionId(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.IAP_INVALID_TOKEN);
-        assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(iapConfig.packageName);
+        assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
+        assert.calledOnce(iapConfig.getBundleId);
       }
     });
 
@@ -135,32 +128,32 @@ describe('GoogleIapHandler', () => {
       const libraryError = new Error('Purchase is not registerable');
       libraryError.name = PurchaseUpdateError.CONFLICT;
 
-      playBilling.purchaseManager = {
+      appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(libraryError),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
       try {
-        await googleIapHandler.registerToken(request);
+        await appleIapHandler.registerOriginalTransactionId(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.IAP_INTERNAL_OTHER);
-        assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(iapConfig.packageName);
+        assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
+        assert.calledOnce(iapConfig.getBundleId);
       }
     });
 
     it('throws on unknown errors', async () => {
-      playBilling.purchaseManager = {
+      appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.rejects(new Error('Unknown error')),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
       try {
-        await googleIapHandler.registerToken(request);
+        await appleIapHandler.registerOriginalTransactionId(request);
         assert.fail('Expected failure');
       } catch (err) {
         assert.strictEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-        assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-        assert.calledOnce(iapConfig.packageName);
+        assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
+        assert.calledOnce(iapConfig.getBundleId);
       }
     });
   });
