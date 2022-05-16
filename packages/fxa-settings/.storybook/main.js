@@ -4,5 +4,9 @@
 
 module.exports = {
   stories: ['./design-guide/main.stories.tsx', '../src/**/*.stories.tsx'],
-  addons: ['@storybook/addon-actions', '@storybook/addon-links'],
+  addons: [
+    '@storybook/addon-actions',
+    '@storybook/addon-links',
+    'storybook-addon-rtl',
+  ],
 };
