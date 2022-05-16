@@ -22442,7 +22442,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^8.0.2
     googleapis: ^100.0.0
-    grunt: ^1.5.2
+    grunt: ^1.5.3
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-copy: 1.0.0
@@ -22605,7 +22605,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     got: 11.8.3
-    grunt: ^1.5.2
+    grunt: ^1.5.3
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
@@ -22724,7 +22724,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    grunt: ^1.5.2
+    grunt: ^1.5.3
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
@@ -24765,9 +24765,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "grunt@npm:1.5.2"
+"grunt@npm:^1.5.3":
+  version: 1.5.3
+  resolution: "grunt@npm:1.5.3"
   dependencies:
     dateformat: ~3.0.3
     eventemitter2: ~0.4.13
@@ -24786,7 +24786,7 @@ fsevents@~2.1.1:
     rimraf: ~3.0.2
   bin:
     grunt: bin/grunt
-  checksum: 2cc69715f9ce9de0562457d224a8dd0a2aa2e870d7bd59c7f472a380c53e51fad1f83c0d771175f84a38d3a61f271924d18391cef35b883890e290da3f848091
+  checksum: 3cf1dfed5b3641d59e315f4062921aa902c0e2aaefb2f2b18b7439c5b9cce12551f689b0390290cb2f55e276e75622e61469374c044382c3abb9dc1776a12dc1
   languageName: node
   linkType: hard
 
