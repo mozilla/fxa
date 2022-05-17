@@ -11,6 +11,15 @@ fi
 
 mkdir -p artifacts
 
+echo "building shared fxa projects..."
+if ! yarn workspaces foreach --verbose --include fxa-auth-client --include fxa-react --include fxa-shared run build > artifacts/build-shared.log;
+then
+  echo -e "\n###########################################################\n"
+  echo "# fxa couldn't build shared projects. see ./artifacts/build-shared.log for details"
+  echo -e "\n###########################################################\n"
+  exit 1
+fi
+
 echo "${COMMAND} fxa services..."
 if yarn workspaces foreach --topological-dev --verbose --exclude fxa-dev-launcher --exclude fxa run "$COMMAND" > artifacts/start.log;
 then
