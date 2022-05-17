@@ -3877,21 +3877,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/boom@npm:^10.0.0, @hapi/boom@npm:~10.0.0":
+  version: 10.0.0
+  resolution: "@hapi/boom@npm:10.0.0"
+  dependencies:
+    "@hapi/hoek": 10.x.x
+  checksum: ea2b234fa1c76667b73a541f51e83251233a6f1db2a3f6ade9beb5174ce0ed2b55eea4d8a2a9fd0329bba31e1969c41bdb3af9218bef3abac58a30ea28e3d43e
+  languageName: node
+  linkType: hard
+
 "@hapi/boom@npm:^7.1.1":
   version: 7.4.11
   resolution: "@hapi/boom@npm:7.4.11"
   dependencies:
     "@hapi/hoek": 8.x.x
   checksum: ef166e1a764a9574b084d258a315d83fd61070b3ba0f5c16a2a5d716fe3f3fc068ce3c600bcb8bf62c0bad0ab01ba505b81ff93e806091d17e17571bcb76c6d3
-  languageName: node
-  linkType: hard
-
-"@hapi/boom@npm:~10.0.0":
-  version: 10.0.0
-  resolution: "@hapi/boom@npm:10.0.0"
-  dependencies:
-    "@hapi/hoek": 10.x.x
-  checksum: ea2b234fa1c76667b73a541f51e83251233a6f1db2a3f6ade9beb5174ce0ed2b55eea4d8a2a9fd0329bba31e1969c41bdb3af9218bef3abac58a30ea28e3d43e
   languageName: node
   linkType: hard
 
@@ -3929,13 +3929,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/catbox-memory@npm:^5.0.0, @hapi/catbox-memory@npm:~5.0.1":
+"@hapi/catbox-memory@npm:^5.0.0":
   version: 5.0.1
   resolution: "@hapi/catbox-memory@npm:5.0.1"
   dependencies:
     "@hapi/boom": 9.x.x
     "@hapi/hoek": 9.x.x
   checksum: 135c204d4605481000f31bab5ca59a5a9d18719246bf5715642a315440cb033db564fb1f86e9fda38906c77b8c37c7d761b0d59224e57c3ae470e326d5fca486
+  languageName: node
+  linkType: hard
+
+"@hapi/catbox-memory@npm:~6.0.0":
+  version: 6.0.0
+  resolution: "@hapi/catbox-memory@npm:6.0.0"
+  dependencies:
+    "@hapi/boom": ^10.0.0
+    "@hapi/hoek": ^10.0.0
+  checksum: 2e1a4fd8810c168ae3081cddb3e00f99cc81c01d416bdd03dfb485a21310f57806c15546e9600ba785cf92cc0bd89e9c253b767637716966bc085067e2ec63d2
   languageName: node
   linkType: hard
 
@@ -23108,7 +23118,7 @@ fsevents@~2.1.1:
   resolution: "fxa-profile-server@workspace:packages/fxa-profile-server"
   dependencies:
     "@hapi/boom": ~10.0.0
-    "@hapi/catbox-memory": ~5.0.1
+    "@hapi/catbox-memory": ~6.0.0
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 6.0.5
