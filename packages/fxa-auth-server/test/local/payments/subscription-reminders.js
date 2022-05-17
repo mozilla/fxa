@@ -254,7 +254,11 @@ describe('SubscriptionReminders', () => {
         },
       };
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      const account = { emails: [], email: 'testo@test.test', locale: 'NZ' };
+      const account = {
+        emails: [],
+        email: 'testo@test.test',
+        locale: 'NZ',
+      };
       reminder.db.account = sandbox.fake.resolves(account);
       mockLog.info = sandbox.fake.returns({});
       mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
@@ -264,8 +268,15 @@ describe('SubscriptionReminders', () => {
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
+      const formattedSubscription = {
+        id: 'subscriptionId',
+        productMetadata: {
+          privacyUrl: 'http://privacy',
+          termsOfServiceUrl: 'http://tos',
+        },
+      };
       reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves({});
+        sandbox.fake.resolves(formattedSubscription);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       const realDateNow = Date.now.bind(global.Date);
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
@@ -305,12 +316,13 @@ describe('SubscriptionReminders', () => {
           acceptLanguage: account.locale,
           uid: 'uid',
           email: 'testo@test.test',
-          subscription: {},
+          subscription: formattedSubscription,
           reminderLength: 14,
           planIntervalCount: 1,
           planInterval: 'month',
           invoiceTotalInCents: 499,
           invoiceTotalCurrency: 'usd',
+          productMetadata: formattedSubscription.productMetadata,
         }
       );
       sinon.assert.calledOnceWithExactly(
