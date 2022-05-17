@@ -13,9 +13,12 @@ import {
   AttachedClient as AttachedClientType,
   Location,
   LinkedAccount as LinkedAccountType,
+  BounceType,
+  BounceSubType,
 } from 'fxa-admin-server/src/graphql';
 
 import { AdminPanelFeature } from 'fxa-shared/guards';
+import BOUNCE_DESCRIPTIONS from './bounce-descriptions';
 import Guard from '../../Guard';
 import Subscription from '../Subscription';
 
@@ -585,6 +588,76 @@ export const Account = ({
   );
 };
 
+const getEmailBounceDescription = (bounceType: string, bounceSubType: string) => {
+  let description;
+  switch(bounceType) {
+    case BounceType.Undetermined: {
+      if (bounceSubType === BounceSubType.Undetermined) {
+        description = BOUNCE_DESCRIPTIONS.undetermined;
+      } else {
+        description = ['N/A'];
+      }
+      break;
+    }
+
+    case BounceType.Permanent: {
+      if (bounceSubType === BounceSubType.General) {
+        description = BOUNCE_DESCRIPTIONS.permanentGeneral;
+      } else if (bounceSubType === BounceSubType.NoEmail) {
+        description = BOUNCE_DESCRIPTIONS.permanentNoEmail;
+      } else if (bounceSubType === BounceSubType.Suppressed) {
+        description = BOUNCE_DESCRIPTIONS.permanentSuppressed;
+      } else if (bounceSubType === BounceSubType.OnAccountSuppressionList) {
+        description = BOUNCE_DESCRIPTIONS.permanentOnAccountSuppressionList;
+      } else {
+        description = ['N/A'];
+      }
+      break;
+    }
+
+    case BounceType.Transient: {
+      if (bounceSubType === BounceSubType.General) {
+        description = BOUNCE_DESCRIPTIONS.transientGeneral;
+      } else if (bounceSubType === BounceSubType.MailboxFull) {
+        description = BOUNCE_DESCRIPTIONS.transientMailboxFull;
+      } else if (bounceSubType === BounceSubType.MessageTooLarge) {
+        description = BOUNCE_DESCRIPTIONS.transientMessageTooLarge;
+      } else if (bounceSubType === BounceSubType.ContentRejected) {
+        description = BOUNCE_DESCRIPTIONS.transientContentRejected
+      } else if (bounceSubType === BounceSubType.AttachmentRejected) {
+        description = BOUNCE_DESCRIPTIONS.transientAttachmentRejected;
+      } else {
+        description = ['N/A'];
+      }
+      break;
+    }
+
+    case BounceType.Complaint: {
+      if (bounceSubType === BounceSubType.Abuse) {
+        description = BOUNCE_DESCRIPTIONS.complaintAbuse;
+      } else if (bounceSubType === BounceSubType.AuthFailure) {
+        description = BOUNCE_DESCRIPTIONS.complaintAuthFailure;
+      } else if (bounceSubType === BounceSubType.Fraud) {
+        description = BOUNCE_DESCRIPTIONS.complaintFraud;
+      } else if (bounceSubType === BounceSubType.NotSpam) {
+        description = BOUNCE_DESCRIPTIONS.complaintNotSpam;
+      } else if (bounceSubType === BounceSubType.Other) {
+        description = BOUNCE_DESCRIPTIONS.complaintOther;
+      } else if (bounceSubType === BounceSubType.Virus) {
+        description = BOUNCE_DESCRIPTIONS.complaintVirus;
+      } else {
+        description = ['N/A'];
+      }
+      break;
+    }
+
+    default: {
+      description = ['N/A'];
+    }
+  }
+  return description.map((paragraph, index) => <p key={index}>{paragraph}</p>);
+}
+
 const EmailBounce = ({
   email,
   templateName,
@@ -594,30 +667,49 @@ const EmailBounce = ({
   diagnosticCode,
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
+  const bounceDescription = getEmailBounceDescription(bounceType, bounceSubType);
   return (
-    <li data-testid="bounce-group" className="account-li">
-      <ul className="account-border-info">
-        <li className="account-li">
-          email: <span>{email}</span>
-        </li>
-        <li className="account-li">
-          template: <span>{templateName}</span>
-        </li>
-        <li className="account-li">
-          created at: <span>{createdAt}</span> ({date})
-        </li>
-        <li className="account-li">
-          bounce type: <span>{bounceType}</span>
-        </li>
-        <li className="account-li">
-          bounce subtype: <span>{bounceSubType}</span>
-        </li>
-        <li className="account-li">
-          diagnostic code:{' '}
-          <span>{diagnosticCode?.length ? diagnosticCode : 'none'}</span>
-        </li>
-      </ul>
-    </li>
+    <div className="account-li account-border-info">
+      <table className="pt-1" aria-label="simple table">
+        <tbody>
+          <ResultTableRow
+            label="email"
+            value={email}
+            testId={'bounce-email'}
+          />
+          <ResultTableRow
+            label="template"
+            value={templateName}
+            testId={'bounce-template'}
+          />
+          <ResultTableRow
+            label="created at"
+            value={`${createdAt} (${date})`}
+            testId={'bounce-createdAt'}
+          />
+          <ResultTableRow
+            label="bounce type"
+            value={bounceType}
+            testId={'bounce-type'}
+          />
+          <ResultTableRow
+            label="bounce subtype"
+            value={bounceSubType}
+            testId={'bounce-subtype'}
+          />
+          <ResultTableRow
+            label="bounce description"
+            value={bounceDescription}
+            testId={'bounce-description'}
+          />
+          <ResultTableRow
+            label="diagnostic code"
+            value={diagnosticCode?.length ? diagnosticCode : 'none'}
+            testId={'bounce-diagnostic-code'}
+          />
+        </tbody>
+      </table>
+    </div>
   );
 };
 
@@ -723,69 +815,71 @@ const AttachedClients = ({
 }: AttachedClientType) => {
   const testId = (id: string) => `attached-clients-${id}`;
   return (
-    <li className="account-li">
-      <ul className="account-border-info">
-        <ResultListItem
-          label="Client"
-          value={format.client(name, clientId)}
-          testId={testId('client')}
-        />
-        <ResultListItem
-          label="Device Type"
-          value={format.deviceType(deviceType, sessionTokenId, deviceId)}
-          testId={testId('device-type')}
-        />
-        <ResultListItem
-          label="User Agent"
-          value={userAgent}
-          testId={testId('user-agent')}
-        />
-        <ResultListItem
-          label="Operating System"
-          value={os}
-          testId={testId('os')}
-        />
-        <ResultListItem
-          label="Created At"
-          value={format.time(createdTime, createdTimeFormatted)}
-          testId={testId('created-at')}
-        />
-        <ResultListItem
-          label="Last Used"
-          value={format.time(lastAccessTime, lastAccessTimeFormatted)}
-          testId={testId('last-accessed-at')}
-        />
-        <ResultListItem
-          label="Location"
-          value={format.location(location)}
-          testId={testId('location')}
-        />
-        <ResultListItem
-          label="Client ID"
-          value={clientId || 'N/A'}
-          testId={testId('client-id')}
-        />
-        <ResultListItem
-          label="Device ID"
-          value={deviceId || 'N/A'}
-          testId={testId('device-id')}
-        />
-        <ResultListItem
-          label="Session Token ID"
-          value={sessionTokenId || 'N/A'}
-          testId={testId('session-token-id')}
-        />
-        <ResultListItem
-          label="Refresh Token ID"
-          value={refreshTokenId || 'N/A'}
-          testId={testId('refresh-token-id')}
-        />
-      </ul>
-    </li>
+    <div className="account-li account-border-info">
+      <table className="pt-1" aria-label="simple table">
+        <tbody>
+          <ResultTableRow
+            label="Client"
+            value={format.client(name, clientId)}
+            testId={testId('client')}
+          />
+          <ResultTableRow
+            label="Device Type"
+            value={format.deviceType(deviceType, sessionTokenId, deviceId)}
+            testId={testId('device-type')}
+          />
+          <ResultTableRow
+            label="User Agent"
+            value={userAgent}
+            testId={testId('user-agent')}
+          />
+          <ResultTableRow
+            label="Operating System"
+            value={os}
+            testId={testId('os')}
+          />
+          <ResultTableRow
+            label="Created At"
+            value={format.time(createdTime, createdTimeFormatted)}
+            testId={testId('created-at')}
+          />
+          <ResultTableRow
+            label="Last Used"
+            value={format.time(lastAccessTime, lastAccessTimeFormatted)}
+            testId={testId('last-accessed-at')}
+          />
+          <ResultTableRow
+            label="Location"
+            value={format.location(location)}
+            testId={testId('location')}
+          />
+          <ResultTableRow
+            label="Client ID"
+            value={clientId || 'N/A'}
+            testId={testId('client-id')}
+          />
+          <ResultTableRow
+            label="Device ID"
+            value={deviceId || 'N/A'}
+            testId={testId('device-id')}
+          />
+          <ResultTableRow
+            label="Session Token ID"
+            value={sessionTokenId || 'N/A'}
+            testId={testId('session-token-id')}
+          />
+          <ResultTableRow
+            label="Refresh Token ID"
+            value={refreshTokenId || 'N/A'}
+            testId={testId('refresh-token-id')}
+          />
+        </tbody>
+      </table>
+    </div>
   );
 };
 
-const ResultListItem = ({
+const ResultTableRow = ({
   label,
   value,
   testId,
@@ -795,10 +889,10 @@ const ResultListItem = ({
   testId: string;
 }) => {
   return (
-    <li className="account-li">
-      {label}:{' '}
-      <span data-testid={testId}>{value ? value : <i>Unknown</i>}</span>
-    </li>
+    <tr>
+      <td className="account-label"><span>{label}</span></td>
+      <td data-testid={testId}>{value ? value : <i>Unknown</i>}</td>
+    </tr>
   );
 };
 

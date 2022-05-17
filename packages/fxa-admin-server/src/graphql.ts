@@ -9,6 +9,7 @@
 /* eslint-disable */
 export enum BounceType {
     unmapped = "unmapped",
+    Undetermined = "Undetermined",
     Permanent = "Permanent",
     Transient = "Transient",
     Complaint = "Complaint"
@@ -19,6 +20,7 @@ export enum BounceSubType {
     Undetermined = "Undetermined",
     General = "General",
     NoEmail = "NoEmail",
+    OnAccountSuppressionList = "OnAccountSuppressionList",
     Suppressed = "Suppressed",
     MailboxFull = "MailboxFull",
     MessageTooLarge = "MessageTooLarge",
