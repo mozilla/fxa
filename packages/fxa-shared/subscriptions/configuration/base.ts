@@ -13,7 +13,7 @@ const capabilitySchema = joi
   .min(1);
 
 export const UrlConfigKeys = [
-  'download',
+  'successActionButton',
   'webIcon',
   'emailIcon',
   'termsOfService',
@@ -30,7 +30,7 @@ export type UrlConfig = {
 };
 
 const urlsSchema = joi.object({
-  download: joi.string().uri(),
+  successActionButton: joi.string().uri(),
   webIcon: joi.string().uri(),
   emailIcon: joi.string().uri(),
   termsOfService: joi.string().uri(),

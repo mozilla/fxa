@@ -22,6 +22,7 @@ const NULL_METADATA = {
   webIconBackground: null,
   upgradeCTA: null,
   downloadURL: null,
+  successActionButtonURL: null,
   'product:termsOfServiceURL': '',
   'product:termsOfServiceDownloadURL': '',
   'product:privacyNoticeURL': '',
@@ -45,6 +46,7 @@ const requiredProductMetadata = {
   'product:termsOfServiceDownloadURL': '',
   'product:privacyNoticeURL': '',
   downloadURL: null,
+  successActionButtonURL: null,
   webIconURL: null,
 };
 

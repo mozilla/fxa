@@ -42,7 +42,8 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   webIconURL: null,
   webIconBackground: null,
   upgradeCTA: null,
-  downloadURL: null,
+  downloadURL: null, // TODO - Legacy value. Remove once all Stripe Products have been updated.
+  successActionButtonURL: null,
   'product:termsOfServiceDownloadURL': '',
   'product:termsOfServiceURL': '',
   'product:privacyNoticeURL': '',

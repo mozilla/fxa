@@ -457,7 +457,8 @@ module.exports.subscriptionProductMetadataBaseValidator = isA
   .object({
     webIconURL: isA.string().uri().required(),
     upgradeCTA: isA.string().optional(),
-    downloadURL: isA.string().uri().required(),
+    downloadURL: isA.string().uri(), // TODO - Legacy value. Remove once all Stripe Products have been updated.
+    successActionButtonURL: isA.string().uri(), // TODO - Mark as required, once downloadURL is removed
     appStoreLink: isA.string().uri().optional(),
     playStoreLink: isA.string().uri().optional(),
     productSet: isA.string().optional(),
@@ -477,6 +478,7 @@ module.exports.subscriptionProductMetadataBaseValidator = isA
   .pattern(capabilitiesClientIdPattern, isA.string(), {
     fallthrough: true,
   })
+  .or('downloadURL', 'successActionButtonURL') // TODO - Remove once downloadURL is removed.
   .unknown(true);
 
 module.exports.subscriptionProductMetadataValidator = {

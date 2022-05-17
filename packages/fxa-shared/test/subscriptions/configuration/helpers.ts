@@ -68,7 +68,7 @@ const PLAN_WITH_METADATA: Plan = {
 };
 
 const CONFIGURATION_URLS = {
-  download: 'https://download',
+  successActionButton: 'https://download',
   privacyNotice: 'https://privacynotice',
   termsOfService: 'httsp://termsofservice',
   termsOfServiceDownload: 'https://termsofservicedownload',
@@ -90,7 +90,7 @@ const LOCALE_CONFIGURATION_NONE = {
 
 const LOCALE_CONFIGURATION_FR = {
   urls: {
-    download: 'https://download/fr',
+    successActionButton: 'https://download/fr',
     privacyNotice: 'https://privacynotice/fr',
     termsOfService: 'httsp://termsofservice/fr',
     termsOfServiceDownload: 'https://termsofservicedownload/fr',
@@ -107,7 +107,7 @@ const LOCALE_CONFIGURATION_FR = {
 
 const LOCALE_CONFIGURATION_ENUS = {
   urls: {
-    download: 'https://download/enUS',
+    successActionButton: 'https://download/enUS',
     privacyNotice: 'https://privacynotice/enUS',
     termsOfService: 'httsp://termsofservice/enUS',
     termsOfServiceDownload: 'https://termsofservicedownload/enUS',
@@ -210,7 +210,7 @@ describe('subscriptions/configuration/helpers', () => {
         privacyNotice: 'https://example.org/en-US/privacy',
         termsOfServiceDownload: 'https://example.org/en-US/terms/download',
         privacyNoticeDownload: 'https://example.org/en-US/privacy/download',
-        download: undefined,
+        successActionButton: undefined,
         cancellationSurvey: undefined,
       });
     });

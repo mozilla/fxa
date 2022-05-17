@@ -110,7 +110,7 @@ export type FormattedSubscriptionForEmail = {
   planId: string;
   planName: string | null;
   planEmailIconURL: string;
-  planDownloadURL: string;
+  planSuccessActionButtonURL: string;
   productMetadata: Stripe.Metadata;
 };
 
@@ -2354,8 +2354,12 @@ export class StripeHelper extends StripeHelperBase {
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
       emailIconURL: planEmailIconURL = '',
-      downloadURL: planDownloadURL = '',
+      downloadURL,
+      successActionButtonURL,
     } = productMetadata;
+
+    const planSuccessActionButtonURL =
+      successActionButtonURL || downloadURL || '';
 
     const { lastFour, cardType } = this.extractCardDetails({
       charge,
@@ -2382,7 +2386,7 @@ export class StripeHelper extends StripeHelperBase {
       planId,
       planName,
       planEmailIconURL,
-      planDownloadURL,
+      planSuccessActionButtonURL,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
       discountType,
@@ -2410,15 +2414,20 @@ export class StripeHelper extends StripeHelperBase {
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
       emailIconURL: planEmailIconURL = '',
-      downloadURL: planDownloadURL = '',
+      downloadURL,
+      successActionButtonURL,
     } = productMetadata;
+
+    const planSuccessActionButtonURL =
+      successActionButtonURL || downloadURL || '';
+
     return {
       productId,
       productName,
       planId,
       planName,
       planEmailIconURL,
-      planDownloadURL,
+      planSuccessActionButtonURL,
       productMetadata,
     };
   }
@@ -2586,7 +2595,6 @@ export class StripeHelper extends StripeHelperBase {
     const {
       productOrder: productOrderNew,
       emailIconURL: productIconURLNew = '',
-      downloadURL: productDownloadURLNew = '',
     } = productNewMetadata;
 
     const baseDetails = {
@@ -2597,7 +2605,6 @@ export class StripeHelper extends StripeHelperBase {
       productIdNew,
       productNameNew,
       productIconURLNew,
-      productDownloadURLNew,
       planIdNew,
       paymentAmountNewInCents,
       paymentAmountNewCurrency,
@@ -2824,7 +2831,6 @@ export class StripeHelper extends StripeHelperBase {
     const {
       productOrder: productOrderOld,
       emailIconURL: productIconURLOld = '',
-      downloadURL: productDownloadURLOld = '',
     } = this.mergeMetadata(planOld, abbrevProductOld);
 
     const updateType =
@@ -2838,7 +2844,6 @@ export class StripeHelper extends StripeHelperBase {
       productIdOld,
       productNameOld,
       productIconURLOld,
-      productDownloadURLOld,
       productPaymentCycleOld:
         planOld.interval ?? baseDetails.productPaymentCycleNew,
       paymentAmountOldInCents,

@@ -112,7 +112,7 @@ function sendMail(mailer, messageToSend) {
     planId: 'plan-example',
     productName: 'Firefox Fortress',
     planEmailIconURL: 'http://placekitten.com/512/512',
-    planDownloadURL: 'http://getfirefox.com/',
+    planSuccessActionButtonURL: 'http://getfirefox.com/',
     planInterval: 'week',
     planIntervalCount: 4,
     playStoreLink: 'https://example.com/play-store',
@@ -159,7 +159,7 @@ function sendMail(mailer, messageToSend) {
     productMetadata,
     providerName: 'Google',
     subscription: {
-      planDownloadURL: 'http://getfirefox.com/',
+      planSuccessActionButtonURL: 'http://getfirefox.com/',
       planEmailIconURL: 'http://placekitten.com/512/512',
       planId: 'plan-example',
       productId: '0123456789abcdef',
@@ -168,7 +168,7 @@ function sendMail(mailer, messageToSend) {
     },
     subscriptions: [
       {
-        planDownloadURL: 'http://getfirefox.com/',
+        planSuccessActionButtonURL: 'http://getfirefox.com/',
         planEmailIconURL: 'http://placekitten.com/512/512',
         planId: 'plan-example',
         productId: '0123456789abcdef',

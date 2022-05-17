@@ -4439,7 +4439,8 @@ describe('StripeHelper', () => {
     const productId = 'prod_00000000000000';
     const productName = 'Example Product';
     const planEmailIconURL = 'http://example.com/icon';
-    const planDownloadURL = 'http://example.com/download';
+    const downloadURL = 'http://example.com/download';
+    const successActionButtonURL = 'http://example.com/success';
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
     const privacyNoticeURL =
@@ -4455,7 +4456,7 @@ describe('StripeHelper', () => {
       product: productId,
       metadata: {
         emailIconURL: planEmailIconURL,
-        downloadURL: planDownloadURL,
+        successActionButtonURL: successActionButtonURL,
       },
     };
 
@@ -4625,9 +4626,9 @@ describe('StripeHelper', () => {
         planId,
         planName,
         planEmailIconURL,
-        planDownloadURL,
+        planSuccessActionButtonURL: successActionButtonURL,
         productMetadata: {
-          downloadURL: planDownloadURL,
+          successActionButtonURL: successActionButtonURL,
           emailIconURL: planEmailIconURL,
           'product:privacyNoticeURL': privacyNoticeURL,
           'product:termsOfServiceURL': termsOfServiceURL,
@@ -4734,6 +4735,32 @@ describe('StripeHelper', () => {
         assert.deepEqual(result, {
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
+        });
+      });
+
+      it('planSuccessActionButton URL, falls back to using downloadURL if successActionButtonURL is not available', async () => {
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
+        fixture.lines.data[0].plan = {
+          id: planId,
+          nickname: planName,
+          metadata: {
+            ...mockPlan.metadata,
+            successActionButtonURL: undefined,
+            downloadURL,
+          },
+          product: mockProduct,
+        };
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.deepEqual(result, {
+          ...expected,
+          planSuccessActionButtonURL: downloadURL,
+          productMetadata: {
+            ...expected.productMetadata,
+            successActionButtonURL: undefined,
+            downloadURL,
+          },
         });
       });
 
@@ -4942,9 +4969,9 @@ describe('StripeHelper', () => {
             planId,
             planName,
             planEmailIconURL,
-            planDownloadURL,
+            planSuccessActionButtonURL: successActionButtonURL,
             productMetadata: {
-              downloadURL: planDownloadURL,
+              successActionButtonURL,
               emailIconURL: planEmailIconURL,
               'product:privacyNoticeURL': privacyNoticeURL,
               'product:termsOfServiceURL': termsOfServiceURL,
@@ -5024,8 +5051,6 @@ describe('StripeHelper', () => {
       productNameNew: productName,
       productIconURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.emailIconURL,
-      productDownloadURLNew:
-        eventCustomerSubscriptionUpdated.data.object.plan.metadata.downloadURL,
       planIdNew: planId,
       paymentAmountNewCurrency:
         eventCustomerSubscriptionUpdated.data.object.plan.currency,
@@ -5182,7 +5207,6 @@ describe('StripeHelper', () => {
           productIdNew,
           productNameNew,
           productIconURLNew,
-          productDownloadURLNew,
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,
@@ -5255,7 +5279,6 @@ describe('StripeHelper', () => {
           productIdOld,
           productNameOld,
           productIconURLOld,
-          productDownloadURLOld,
           productPaymentCycleOld: event.data.previous_attributes.plan.interval,
           paymentAmountOldCurrency:
             event.data.previous_attributes.plan.currency,
@@ -5291,7 +5314,6 @@ describe('StripeHelper', () => {
           productIdNew,
           productNameNew,
           productIconURLNew,
-          productDownloadURLNew,
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,

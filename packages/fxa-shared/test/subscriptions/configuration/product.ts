@@ -20,7 +20,7 @@ const firestoreObject = {
   support: {},
   uiContent: {},
   urls: {
-    download: 'https://download.com',
+    successActionButton: 'https://download.com',
     privacyNotice: 'https://privacy.com',
     termsOfService: 'https://terms.com',
     termsOfServiceDownload: 'https://terms-download.com',
@@ -74,7 +74,7 @@ describe('ProductConfig', () => {
 
   it('validates with error on an invalid productConfig', async () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
-    delete obj.urls.download;
+    delete obj.urls.successActionButton;
     const result = await ProductConfig.validate(obj, validSchemaValidation);
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
