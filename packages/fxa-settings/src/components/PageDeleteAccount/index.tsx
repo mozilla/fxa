@@ -20,12 +20,12 @@ type FormData = {
   password: string;
 };
 
-const checkboxLabels = [
-  'delete-account-chk-box-1-v2',
-  'delete-account-chk-box-2',
-  'delete-account-chk-box-3',
-  'delete-account-chk-box-4',
-];
+const checkboxLabels: Record<string, string> = {
+  'delete-account-chk-box-1-v2': 'Any paid subscriptions you have will be canceled (Except Pocket)',
+  'delete-account-chk-box-2': 'You may lose saved information and features within Mozilla products',
+  'delete-account-chk-box-3': 'Reactivating with this email may not restore your saved information',
+  'delete-account-chk-box-4': 'Any extensions and themes that you published to addons.mozilla.org will be deleted',
+};
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
   usePageViewEvent('settings.delete-account');
@@ -46,7 +46,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
     l10n.getString('delete-account-step-1-2', null, 'Step 1 of 2')
   );
   const [checkedBoxes, setCheckedBoxes] = useState<string[]>([]);
-  const allBoxesChecked = checkboxLabels.every((element) =>
+  const allBoxesChecked = Object.keys(checkboxLabels).every((element) =>
     checkedBoxes.includes(element)
   );
   const navigate = useNavigate();
@@ -143,12 +143,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
             </Localized>
             <form>
               <ul className="mt-4 text-xs">
-                {checkboxLabels.map((label, i) => (
+                {Object.keys(checkboxLabels).map((label, i) => (
                   <li className="py-2" key={i}>
                     <Localized id={label} attrs={{ label: true }}>
                       <Checkbox
                         data-testid="required-confirm"
-                        label={label}
+                        label={l10n.getString(label, null, checkboxLabels[label])}
                         onChange={handleConfirmChange(label)}
                       />
                     </Localized>
