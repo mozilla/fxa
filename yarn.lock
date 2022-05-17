@@ -22276,7 +22276,7 @@ fsevents@~2.1.1:
     react-router-dom: ^6.2.2
     react-scripts: ^4.0.3
     serve-static: ^1.14.2
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     tailwindcss: ^1.9.1
     tailwindcss-textshadow: ^2.1.3
     ts-jest: ^27.1.4
@@ -22335,7 +22335,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^7.2.0
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     ts-jest: ^27.1.4
     ts-morph: ^13.0.3
     tsconfig-paths: ^4.0.0
@@ -22836,7 +22836,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^7.2.0
     sqs-consumer: ^5.6.0
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     ts-jest: ^27.1.4
     ts-loader: ^8.3.0
     tsconfig-paths: ^4.0.0
@@ -22938,7 +22938,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^7.2.0
     superagent: ^7.1.2
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     ts-jest: ^27.1.4
     tslib: ^2.3.1
     typescript: ^4.5.2
@@ -23091,7 +23091,7 @@ fsevents@~2.1.1:
     serve-static: ^1.14.2
     sinon: ^9.0.3
     style-loader: ^1.3.0
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     tailwindcss: 1.9.1
     ts-jest: ^27.1.4
     type-to-reducer: ^1.2.0
@@ -23429,7 +23429,7 @@ fsevents@~2.1.1:
     rxjs: ^7.2.0
     semver: ^7.3.5
     superagent: ^7.1.2
-    supertest: ^6.2.2
+    supertest: ^6.2.3
     ts-jest: ^27.1.4
     tslib: ^2.3.1
     typesafe-joi: ^2.1.0
@@ -41221,25 +41221,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"superagent@npm:^7.1.0":
-  version: 7.1.1
-  resolution: "superagent@npm:7.1.1"
-  dependencies:
-    component-emitter: ^1.3.0
-    cookiejar: ^2.1.3
-    debug: ^4.3.3
-    fast-safe-stringify: ^2.1.1
-    form-data: ^4.0.0
-    formidable: ^2.0.1
-    methods: ^1.1.2
-    mime: ^2.5.0
-    qs: ^6.10.1
-    readable-stream: ^3.6.0
-    semver: ^7.3.5
-  checksum: 8710b84cf538f0b3e467b2e9be5ac41a169fe49656769301e01128fc5532900f5e447b9fb740cad2171a36b13b6939cd0f495e7ab4e805043b5cb13fe3051766
-  languageName: node
-  linkType: hard
-
 "superagent@npm:^7.1.2":
   version: 7.1.2
   resolution: "superagent@npm:7.1.2"
@@ -41259,13 +41240,32 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"supertest@npm:^6.2.2":
-  version: 6.2.2
-  resolution: "supertest@npm:6.2.2"
+"superagent@npm:^7.1.3":
+  version: 7.1.3
+  resolution: "superagent@npm:7.1.3"
+  dependencies:
+    component-emitter: ^1.3.0
+    cookiejar: ^2.1.3
+    debug: ^4.3.4
+    fast-safe-stringify: ^2.1.1
+    form-data: ^4.0.0
+    formidable: ^2.0.1
+    methods: ^1.1.2
+    mime: ^2.5.0
+    qs: ^6.10.3
+    readable-stream: ^3.6.0
+    semver: ^7.3.7
+  checksum: 436045d555d35c282de7bcba85102b1421470bdc80781c9a0b7ab7c639675b4eca026a71301974935f3de0d33782a0392274e24f3915335b81a78a04b48eeee5
+  languageName: node
+  linkType: hard
+
+"supertest@npm:^6.2.3":
+  version: 6.2.3
+  resolution: "supertest@npm:6.2.3"
   dependencies:
     methods: ^1.1.2
-    superagent: ^7.1.0
-  checksum: 3c1956d57e32db1dfc17b4e4eb3eb3c80a29f9ed1b5209e0425b796df0eda7fce8a5c6485a6e666c6d3019c44e238c0494d6851c18e11a2c8bec01ff32dc06e3
+    superagent: ^7.1.3
+  checksum: c1bed86c31723a4bc461153a58176fd80d675deb7d23ab7bd170213040673b35c38e3cbeab9a4eb8a325cf736176c08c6f6522e42f0293314f183e192a6681fa
   languageName: node
   linkType: hard
 
