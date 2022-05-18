@@ -6,7 +6,7 @@
     "build-postcss": "postcss src/styles/tailwind.scss -o src/styles/tailwind.out.scss",
     "postinstall": "../../_scripts/clone-l10n.sh fxa-payments-server",
     "lint": "npm-run-all --parallel lint:eslint",
-    "lint:eslint": "eslint .",
+    "lint:eslint": "eslint . .storybook",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "tsc --build ../fxa-react && npm run build-postcss && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3031/__lbheartbeat__",
     "stop": "pm2 stop pm2.config.js",

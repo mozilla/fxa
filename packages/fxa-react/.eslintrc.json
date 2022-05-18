@@ -1,0 +1,12 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "env": {
+    "browser": true,
+    "jest": true
+  },
+  "ignorePatterns": ["dist/**"],
+  "parserOptions": {
+    "sourceType": "module"
+  }
+}
