@@ -1,3 +1,9 @@
+## 1.232.2
+
+### Bug fixes
+
+- strings: Add default string for delete account checkbox ([7e45ffcf94](https://github.com/mozilla/fxa/commit/7e45ffcf94))
+
 ## 1.232.1
 
 ### Bug fixes

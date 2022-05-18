@@ -1,5 +1,15 @@
 # Change history
 
+## 1.232.2
+
+### Bug fixes
+
+- payments: rename url variables Because: ([739cf06988](https://github.com/mozilla/fxa/commit/739cf06988))
+
+### Other changes
+
+- payments: Missing markup in payment-confirm string ([b85e51f890](https://github.com/mozilla/fxa/commit/b85e51f890))
+
 ## 1.232.1
 
 No changes.
