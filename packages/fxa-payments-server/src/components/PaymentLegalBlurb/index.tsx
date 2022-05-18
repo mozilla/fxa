@@ -6,18 +6,6 @@ import * as PaymentProvider from '../../lib/PaymentProvider';
 import './index.scss';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
-function getPrivacyLinkText(): string {
-  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>PayPal privacy policy</paypalPrivacyLink>';
-}
-
-function getPaypalPrivacyLinkText(): string {
-  return '<paypalPrivacyLink>PayPal privacy policy</paypalPrivacyLink>';
-}
-
-function getStripePrivacyLinkText(): string {
-  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>';
-}
-
 const PaypalPaymentLegalBlurb = () => (
   <div
     className="payment-legal-blurb"
@@ -37,7 +25,11 @@ const PaypalPaymentLegalBlurb = () => (
         ),
       }}
     >
-      <p>{getPaypalPrivacyLinkText()}</p>
+      <p>
+        <LinkExternal href="https://www.paypal.com/webapps/mpp/ua/privacy-full">
+          PayPal privacy policy
+        </LinkExternal>
+      </p>
     </Localized>
   </div>
 );
@@ -58,7 +50,11 @@ const StripePaymentLegalBlurb = () => (
         ),
       }}
     >
-      <p>{getStripePrivacyLinkText()}</p>
+      <p>
+        <LinkExternal href="https://stripe.com/privacy">
+          Stripe privacy policy
+        </LinkExternal>
+      </p>
     </Localized>
   </div>
 );
@@ -84,7 +80,15 @@ const DefaultPaymentLegalBlurb = () => (
         ),
       }}
     >
-      <p>{getPrivacyLinkText()}</p>
+      <p>
+        <LinkExternal href="https://stripe.com/privacy">
+          Stripe privacy policy
+        </LinkExternal>{' '}
+        &nbsp;{' '}
+        <LinkExternal href="https://www.paypal.com/webapps/mpp/ua/privacy-full">
+          PayPal privacy policy
+        </LinkExternal>
+      </p>
     </Localized>
   </div>
 );
