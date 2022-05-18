@@ -38,7 +38,7 @@ export const PermissionRow = ({ flag }: { flag: IFeatureFlag }) => {
       {...{
         testId,
         label: flag.name,
-        val: flag.enabled ? '✓' : 'x',
+        val: flag.enabled ? '✅' : '❌',
       }}
     ></LabelValRow>
   );
