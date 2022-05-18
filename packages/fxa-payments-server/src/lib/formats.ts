@@ -151,22 +151,6 @@ export function formatPlanPricing(
   }
 }
 
-export function getDefaultPaymentConfirmText(
-  amount: number | null,
-  currency: string,
-  interval: PlanInterval,
-  intervalCount: number
-): string {
-  const planPricing = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    intervalCount
-  );
-
-  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to <termsOfServiceLink>Terms of Service</termsOfServiceLink> and <privacyNoticeLink>Privacy Notice</privacyNoticeLink>, until I cancel my subscription.`;
-}
-
 export const legalDocsRedirectUrl = (docUrl: string): string =>
   `/legal-docs?url=${encodeURI(docUrl)}`;
 

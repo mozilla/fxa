@@ -94,7 +94,7 @@ describe('components/PaymentMethodHeader', () => {
         MOCK_PLANS.find((p) => p.plan_id === 'plan_daily') || MOCK_PLANS[0];
       const props = { plan, onClick: () => {} };
       const expectedMsg =
-        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to <termsOfServiceLink>Terms of Service</termsOfServiceLink> and <privacyNoticeLink>Privacy Notice</privacyNoticeLink>, until I cancel my subscription.';
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method $5.00 daily, according to Terms of Service and Privacy Notice, until I cancel my subscription.';
 
       const { findByTestId } = render(<PaymentMethodHeader {...props} />);
 
