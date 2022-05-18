@@ -10,8 +10,8 @@ RUN set -x \
         app
 RUN apt-get update && apt-get install -y \
     git-core \
-    python-setuptools \
-    python-dev \
+    python3-setuptools \
+    python3-dev \
     build-essential \
     zip \
     && rm -rf /var/lib/apt/lists/*
