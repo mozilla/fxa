@@ -18,6 +18,7 @@ import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';
 import { ReactComponent as MDNPlusIcon } from './mdnplus.svg';
+import { ReactComponent as PontoonIcon } from './pontoon.svg';
 import { Localized } from '@fluent/react';
 
 export function Service({
@@ -70,6 +71,10 @@ export function Service({
     case 'MDN Plus':
       serviceLink = 'https://developer.mozilla.org/';
       Icon = <MDNPlusIcon data-testid="mdnplus-icon" />;
+      break;
+    case 'Pontoon':
+      serviceLink = 'https://pontoon.mozilla.org/';
+      Icon = <PontoonIcon data-testid="pontoon-icon" />;
       break;
     default:
       if (name.toLowerCase().includes('ipad')) {
