@@ -6,7 +6,9 @@ import { act, fireEvent, screen } from '@testing-library/react';
 
 export const typeByTestIdFn = (testId: string) => async (x: string) => {
   await act(async () => {
-    fireEvent.input(screen.getByTestId(testId), {
+    const input = screen.getByTestId(testId);
+    input.focus();
+    fireEvent.input(input, {
       target: { value: x },
     });
   });

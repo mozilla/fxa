@@ -45,13 +45,13 @@ export const FlowContainer = ({
             className="absolute top-1/2 ltr:left-1/2 rtl:right-1/2 transform -translate-y-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 rtl:-scale-x-1 fill-current"
           />
         </button>
-        <div>
-          <h1 className="font-header">{title}</h1>
-          <h2 className="text-xs text-grey-400 font-semibold uppercase">
-            {subtitle}
-          </h2>
-        </div>
+        <h1 className="font-header">{title}</h1>
       </div>
+      {subtitle && (
+        <h2 className="text-xs text-grey-400 font-semibold uppercase">
+          {subtitle}
+        </h2>
+      )}
       <div className="w-full">{children}</div>
     </div>
   );

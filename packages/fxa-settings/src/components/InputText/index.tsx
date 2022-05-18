@@ -22,6 +22,7 @@ export type InputTextProps = {
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onFocusCb?: () => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
   name?: string;
   prefixDataTestId?: string;
@@ -37,6 +38,7 @@ export const InputText = ({
   label,
   placeholder,
   onChange,
+  onFocusCb,
   errorText,
   className = '',
   inputRef,
@@ -52,7 +54,10 @@ export const InputText = ({
 
   const onFocus = useCallback(() => {
     setFocussed(true);
-  }, []);
+    if (onFocusCb) {
+      onFocusCb();
+    }
+  }, [onFocusCb]);
 
   const checkHasContent = (event: ChangeEvent<HTMLInputElement>) =>
     setHasContent(event.target.value.length > 0);

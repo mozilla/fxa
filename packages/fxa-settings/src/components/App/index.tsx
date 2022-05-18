@@ -12,6 +12,7 @@ import { Redirect, Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from '../PageSettings';
 import PageChangePassword from '../PageChangePassword';
+import PageCreatePassword from '../PageCreatePassword';
 import PageRecoveryKeyAdd from '../PageRecoveryKeyAdd';
 import PageSecondaryEmailAdd from '../PageSecondaryEmailAdd';
 import PageSecondaryEmailVerify from '../PageSecondaryEmailVerify';
@@ -75,32 +76,41 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
             <PageSettings path="/" />
             <PageDisplayName path="/display_name" />
             <PageAvatar path="/avatar" />
-            <PageChangePassword path="/change_password" />
             {hasPassword ? (
-              <PageRecoveryKeyAdd path="/account_recovery" />
+              <>
+                <PageChangePassword path="/change_password" />
+                <Redirect
+                  from="/create_password"
+                  to="/settings/change_password"
+                  noThrow
+                />
+                <PageRecoveryKeyAdd path="/account_recovery" />
+                <PageTwoStepAuthentication path="/two_step_authentication" />
+                <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+              </>
             ) : (
-              <Redirect from="/account_recovery" to="/settings" noThrow />
+              <>
+                <PageCreatePassword path="/create_password" />
+                <Redirect
+                  from="/change_password"
+                  to="/settings/create_password"
+                  noThrow
+                />
+                <Redirect from="/account_recovery" to="/settings" noThrow />
+                <Redirect
+                  from="/two_step_authentication"
+                  to="/settings"
+                  noThrow
+                />
+                <Redirect
+                  from="/two_step_authentication/replace_codes"
+                  to="/settings"
+                  noThrow
+                />
+              </>
             )}
             <PageSecondaryEmailAdd path="/emails" />
             <PageSecondaryEmailVerify path="/emails/verify" />
-            {hasPassword ? (
-              <PageTwoStepAuthentication path="/two_step_authentication" />
-            ) : (
-              <Redirect
-                from="/two_step_authentication"
-                to="/settings"
-                noThrow
-              />
-            )}
-            {hasPassword ? (
-              <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
-            ) : (
-              <Redirect
-                from="/two_step_authentication/replace_codes"
-                to="/settings"
-                noThrow
-              />
-            )}
             <PageDeleteAccount path="/delete_account" />
             <Redirect
               from="/clients"

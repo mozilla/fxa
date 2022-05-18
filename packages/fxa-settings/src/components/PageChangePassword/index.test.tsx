@@ -14,8 +14,12 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
-import { typeByTestIdFn } from '../../lib/test-utils';
 import { AppContext, Account } from '../../models';
+import {
+  inputCurrentPassword,
+  inputNewPassword,
+  inputVerifyPassword,
+} from '../FormPassword/index.test';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -36,7 +40,7 @@ const account = {
 } as unknown as Account;
 
 const render = async () => {
-  await renderWithRouter(
+  renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <PageChangePassword />
     </AppContext.Provider>
@@ -53,15 +57,10 @@ const changePassword = async () => {
   });
 };
 
-const inputCurrentPassword = typeByTestIdFn('current-password-input-field');
-const inputNewPassword = typeByTestIdFn('new-password-input-field');
-const inputVerifyPassword = typeByTestIdFn('verify-password-input-field');
-
 it('renders', async () => {
   await render();
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
-  expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
-  expect(screen.getByTestId('nav-link-common-passwords')).toBeInTheDocument();
+  screen.getByLabelText('Enter current password');
   expect(screen.getByTestId('nav-link-reset-password')).toBeInTheDocument();
 });
 
@@ -70,37 +69,11 @@ it('emits a metrics event on render', async () => {
   expect(usePageViewEvent).toHaveBeenCalledWith('settings.change-password');
 });
 
-it('emits an Amplitude event on success', async () => {
+it('emits a metrics event on success', async () => {
   await changePassword();
   expect(logViewEvent).toHaveBeenCalledWith(
     settingsViewName,
     'change-password.success'
-  );
-});
-
-it('redirects on success', async () => {
-  await changePassword();
-  expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
-    replace: true,
-  });
-});
-
-it('disables save until the form is valid', async () => {
-  await render();
-  expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await inputCurrentPassword('quuz');
-  expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await inputNewPassword('testotesto');
-  expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await inputVerifyPassword('testotesto');
-  expect(screen.getByTestId('save-password-button')).toBeEnabled();
-});
-
-it('shows validation feedback', async () => {
-  await render();
-  await inputNewPassword('password');
-  expect(screen.getByTestId('change-password-common')).toContainElement(
-    screen.getByTestId('icon-invalid')
   );
 });
 
@@ -110,11 +83,18 @@ it('shows an error when old and new password are the same', async () => {
   await inputNewPassword('testotesto');
   await inputVerifyPassword('testotesto');
   await act(async () => {
-    await fireEvent.click(screen.getByTestId('save-password-button'));
+    fireEvent.click(screen.getByTestId('save-password-button'));
   });
 
   expect(screen.getByTestId('tooltip')).toBeInTheDocument();
   expect(screen.getByTestId('tooltip')).toHaveTextContent(
     'new password must be different'
   );
+});
+
+it('redirects on success', async () => {
+  await changePassword();
+  expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+    replace: true,
+  });
 });

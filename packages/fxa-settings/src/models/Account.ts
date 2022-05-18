@@ -385,6 +385,25 @@ export class Account implements AccountData {
     });
   }
 
+  async createPassword(newPassword: string) {
+    const passwordCreated = await this.withLoadingStatus(
+      this.authClient.createPassword(
+        sessionToken()!,
+        this.primaryEmail.email,
+        newPassword
+      )
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        passwordCreated() {
+          return passwordCreated;
+        },
+      },
+    });
+  }
+
   async setDisplayName(displayName: string) {
     await this.withLoadingStatus(
       this.apolloClient.mutate({

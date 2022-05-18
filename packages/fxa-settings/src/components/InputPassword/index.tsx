@@ -17,6 +17,7 @@ export const InputPassword = ({
   placeholder,
   className,
   onChange,
+  onFocusCb,
   inputRef,
   errorText,
   name,
@@ -40,13 +41,14 @@ export const InputPassword = ({
 
   return (
     <InputText
-      type={visible ? `text` : 'password'}
+      type={visible ? 'text' : 'password'}
       {...{
         defaultValue,
         disabled,
         label,
         placeholder,
         onChange: onInputChange,
+        onFocusCb,
         className,
         inputRef,
         errorText,
