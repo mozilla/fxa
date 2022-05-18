@@ -10,7 +10,7 @@
     "build": "npm-run-all build:client build:server",
     "eject": "react-scripts eject",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "lint": "eslint .",
+    "lint": "eslint . .storybook",
     "restart": "tsc --build ../fxa-react && npm run build-postcss && pm2 restart pm2.config.js",
     "start": "tsc --build ../fxa-react && npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
@@ -19,12 +19,6 @@
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
     "test": "CI=true npm-run-all test:frontend test:server"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
