@@ -39,20 +39,16 @@ module.exports = (log, db, mailer, customs, config) => {
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-            })
-            .label('totp.create_payload'),
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              qrCodeUrl: isA.string().required(),
-              secret: isA.string().required(),
-              recoveryCodes: isA.array().items(isA.string()).required(),
-            })
-            .label('totp.create_response'),
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+            recoveryCodes: isA.array().items(isA.string()).required(),
+          }),
         },
       },
       handler: async function (request) {
@@ -202,12 +198,10 @@ module.exports = (log, db, mailer, customs, config) => {
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .object({
-              exists: isA.boolean(),
-              verified: isA.boolean(),
-            })
-            .label('totp.exists_response'),
+          schema: isA.object({
+            exists: isA.boolean(),
+            verified: isA.boolean(),
+          }),
         },
       },
       handler: async function (request) {
@@ -243,24 +237,20 @@ module.exports = (log, db, mailer, customs, config) => {
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              code: isA
-                .string()
-                .max(32)
-                .regex(validators.DIGITS)
-                .required()
-                .description(DESCRIPTION.codeTotp),
-              service: validators.service,
-            })
-            .label('session.verify.totp_payload'),
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required()
+              .description(DESCRIPTION.codeTotp),
+            service: validators.service,
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              success: isA.boolean().required(),
-            })
-            .label('session.verify.totp_response'),
+          schema: isA.object({
+            success: isA.boolean().required(),
+          }),
         },
       },
       handler: async function (request) {

@@ -24,15 +24,10 @@ module.exports = (log, db, mailer, config, customs) => {
       options: {
         ...UNBLOCK_CODES_DOCS.ACCOUNT_LOGIN_SEND_UNBLOCK_CODE_POST,
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-            })
-            .label('Account.SendUnblockCode_payload'),
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
         },
       },
       handler: async function (request) {
@@ -87,22 +82,20 @@ module.exports = (log, db, mailer, config, customs) => {
       options: {
         ...UNBLOCK_CODES_DOCS.ACCOUNT_LOGIN_REJECT_UNBLOCK_CODE_POST,
         validate: {
-          payload: isA
-            .object({
-              uid: isA
-                .string()
-                .max(32)
-                .regex(HEX_STRING)
-                .required()
-                .description(DESCRIPTION.uid),
-              unblockCode: isA
-                .string()
-                .regex(BASE_36)
-                .length(unblockCodeLen)
-                .required()
-                .description(DESCRIPTION.unblockCode),
-            })
-            .label('Account.RejectUnblockCode_payload'),
+          payload: isA.object({
+            uid: isA
+              .string()
+              .max(32)
+              .regex(HEX_STRING)
+              .required()
+              .description(DESCRIPTION.uid),
+            unblockCode: isA
+              .string()
+              .regex(BASE_36)
+              .length(unblockCodeLen)
+              .required()
+              .description(DESCRIPTION.unblockCode),
+          }),
         },
       },
       handler: async function (request) {

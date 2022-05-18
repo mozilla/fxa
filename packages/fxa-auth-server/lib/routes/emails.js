@@ -112,16 +112,14 @@ module.exports = (
           },
         },
         response: {
-          schema: isA
-            .object({
-              // There's code in the handler that checks for a valid email,
-              // no point adding overhead by doing it again here.
-              email: isA.string().required(),
-              verified: isA.boolean().required(),
-              sessionVerified: isA.boolean().optional(),
-              emailVerified: isA.boolean().optional(),
-            })
-            .label('Account.RecoveryEmailStatus_response'),
+          schema: isA.object({
+            // There's code in the handler that checks for a valid email,
+            // no point adding overhead by doing it again here.
+            email: isA.string().required(),
+            verified: isA.boolean().required(),
+            sessionVerified: isA.boolean().optional(),
+            emailVerified: isA.boolean().optional(),
+          }),
         },
       },
       handler: async function (request) {
@@ -218,27 +216,25 @@ module.exports = (
               .allow(['upgradeSession'])
               .optional(),
           }),
-          payload: isA
-            .object({
-              email: validators.email().optional(),
-              service: validators.service.description(DESCRIPTION.service),
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional(),
-              resume: isA
-                .string()
-                .max(2048)
-                .optional()
-                .description(DESCRIPTION.resume),
-              style: isA.string().allow(['trailhead']).optional(),
-              type: isA
-                .string()
-                .max(32)
-                .alphanum()
-                .allow(['upgradeSession'])
-                .optional(),
-            })
-            .label('Account.RecoveryEmailResend_payload'),
+          payload: isA.object({
+            email: validators.email().optional(),
+            service: validators.service.description(DESCRIPTION.service),
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA
+              .string()
+              .max(2048)
+              .optional()
+              .description(DESCRIPTION.resume),
+            style: isA.string().allow(['trailhead']).optional(),
+            type: isA
+              .string()
+              .max(32)
+              .alphanum()
+              .allow(['upgradeSession'])
+              .optional(),
+          }),
         },
       },
       handler: async function (request) {
@@ -374,28 +370,26 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_VERIFY_CODE_POST,
         validate: {
-          payload: isA
-            .object({
-              uid: isA.string().max(32).regex(HEX_STRING).required(),
-              code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-              service: validators.service.description(DESCRIPTION.service),
-              reminder: isA
-                .string()
-                .regex(REMINDER_PATTERN)
-                .optional()
-                .description(DESCRIPTION.reminder),
-              type: isA
-                .string()
-                .max(32)
-                .alphanum()
-                .optional()
-                .description(DESCRIPTION.type),
-              style: isA.string().allow(['trailhead']).optional(),
-              // The `marketingOptIn` is safe to remove after train-167+
-              marketingOptIn: isA.boolean().optional(),
-              newsletters: validators.newsletters,
-            })
-            .label('Account.RecoveryEmailVerify_payload'),
+          payload: isA.object({
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
+            service: validators.service.description(DESCRIPTION.service),
+            reminder: isA
+              .string()
+              .regex(REMINDER_PATTERN)
+              .optional()
+              .description(DESCRIPTION.reminder),
+            type: isA
+              .string()
+              .max(32)
+              .alphanum()
+              .optional()
+              .description(DESCRIPTION.type),
+            style: isA.string().allow(['trailhead']).optional(),
+            // The `marketingOptIn` is safe to remove after train-167+
+            marketingOptIn: isA.boolean().optional(),
+            newsletters: validators.newsletters,
+          }),
         },
       },
       handler: async function (request) {
@@ -519,18 +513,13 @@ module.exports = (
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object({
-                  verified: isA.boolean().required(),
-                  isPrimary: isA.boolean().required(),
-                  email: validators.email().required(),
-                })
-                .label('Account.RecoveryEmail')
-            )
-            .label('Account.RecoveryEmailEmails_response'),
+          schema: isA.array().items(
+            isA.object({
+              verified: isA.boolean().required(),
+              isPrimary: isA.boolean().required(),
+              email: validators.email().required(),
+            })
+          ),
         },
       },
       handler: async function (request) {
@@ -557,14 +546,12 @@ module.exports = (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.emailAdd),
-            })
-            .label('Account.RecoveryEmailCreate_payload'),
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailAdd),
+          }),
         },
         response: {},
       },
@@ -710,14 +697,12 @@ module.exports = (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.emailDelete),
-            })
-            .label('Account.RecoveryEmailDestroy_payload'),
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailDelete),
+          }),
         },
         response: {},
       },
@@ -774,14 +759,12 @@ module.exports = (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.emailNewPrimary),
-            })
-            .label('Account.RecoveryEmailSetPrimary_payload'),
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailNewPrimary),
+          }),
         },
         response: {},
       },
@@ -885,14 +868,12 @@ module.exports = (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .description(DESCRIPTION.emailSecondaryVerify)
-                .required(),
-            })
-            .label('Account.RecoveryEmailSecondaryResend_payload'),
+          payload: isA.object({
+            email: validators
+              .email()
+              .description(DESCRIPTION.emailSecondaryVerify)
+              .required(),
+          }),
         },
         response: {},
       },
@@ -972,20 +953,18 @@ module.exports = (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.emailSecondaryVerify),
-              code: isA
-                .string()
-                .max(32)
-                .regex(validators.DIGITS)
-                .description(DESCRIPTION.code)
-                .required(),
-            })
-            .label('Account.RecoveryEmailSecondaryVerify_payload'),
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailSecondaryVerify),
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .description(DESCRIPTION.code)
+              .required(),
+          }),
         },
       },
       handler: async function (request) {

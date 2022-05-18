@@ -105,7 +105,7 @@ module.exports = ({ log, oauthDB }) => {
             client_id: validators.clientId,
             assertion: validators.assertion.required(),
             scope: validators.scope.required(),
-          }).label('KeyData_payload'),
+          }),
         },
         response: {
           schema: Joi.object().pattern(/^/, [
@@ -133,7 +133,7 @@ module.exports = ({ log, oauthDB }) => {
             client_id: validators.clientId.required(),
             scope: validators.scope.required(),
             assertion: Joi.forbidden(),
-          }).label('Oauth.scopedKeyData_payload'),
+          }),
         },
         response: {
           schema: Joi.object().pattern(
@@ -142,7 +142,7 @@ module.exports = ({ log, oauthDB }) => {
               identifier: validators.scope.required(),
               keyRotationSecret: validators.hexString.length(64).required(),
               keyRotationTimestamp: Joi.number().required(),
-            }).label('Oauth.scopedKeyData_response')
+            })
           ),
         },
       },

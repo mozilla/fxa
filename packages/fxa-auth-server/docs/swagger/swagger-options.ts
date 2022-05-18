@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import dedent from 'dedent';
+import TAGS from './swagger-tags';
 
 export const swaggerOptions = {
   info: {
@@ -24,5 +25,55 @@ export const swaggerOptions = {
   },
   basePath: '/v1',
   schemes: ['https'],
+  tags: [
+    {
+      name: TAGS.ACCOUNT[1],
+    },
+    {
+      name: TAGS.DEVICES_AND_SESSIONS[1],
+    },
+    {
+      name: TAGS.EMAILS[1],
+    },
+    {
+      name: TAGS.MISCELLANEOUS[1],
+    },
+    {
+      name: TAGS.OAUTH[1],
+    },
+    {
+      name: TAGS.PASSWORD[1],
+    },
+    {
+      name: TAGS.RECOVERY_CODES[1],
+    },
+    {
+      name: TAGS.RECOVERY_KEY[1],
+    },
+    {
+      name: TAGS.SECURITY_EVENTS[1],
+    },
+    {
+      name: TAGS.SESSION[1],
+    },
+    {
+      name: TAGS.SIGN[1],
+    },
+    {
+      name: TAGS.SUBSCRIPTIONS[1],
+    },
+    {
+      name: TAGS.THIRD_PARTY_AUTH[1],
+    },
+    {
+      name: TAGS.TOTP[1],
+    },
+    {
+      name: TAGS.UNBLOCK_CODES[1],
+    },
+    {
+      name: TAGS.UTIL[1],
+    },
+  ],
   grouping: 'tags',
 };

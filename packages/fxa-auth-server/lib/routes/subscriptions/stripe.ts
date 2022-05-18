@@ -790,18 +790,12 @@ export const stripeRoutes = (
           strategy: 'subscriptionsSecret',
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object()
-                .keys({
-                  clientId: isA.string(),
-                  capabilities: isA.array().items(isA.string()),
-                })
-                .label('subscriptionClient')
-            )
-            .label('subscriptionsClient_response') as any,
+          schema: isA.array().items(
+            isA.object().keys({
+              clientId: isA.string(),
+              capabilities: isA.array().items(isA.string()),
+            })
+          ) as any,
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getClients(request),
@@ -814,7 +808,6 @@ export const stripeRoutes = (
         response: {
           schema: isA
             .array()
-            .label('OauthSubscriptionsPlans')
             .items(validators.subscriptionsPlanValidator) as any,
         },
       },
@@ -832,7 +825,6 @@ export const stripeRoutes = (
         response: {
           schema: isA
             .array()
-            .label('OauthSubscriptionsActive')
             .items(validators.activeSubscriptionValidator) as any,
         },
       },
@@ -918,9 +910,7 @@ export const stripeRoutes = (
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST,
         auth: false,
         response: {
-          schema: invoiceDTO.firstInvoicePreviewSchema.label(
-            'OauthSubscriptionsInvoicePreview_response'
-          ) as any,
+          schema: invoiceDTO.firstInvoicePreviewSchema as any,
         },
         validate: {
           payload: {
@@ -941,9 +931,7 @@ export const stripeRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: invoiceDTO.subsequentInvoicePreviewsSchema.label(
-            'OauthSubscriptionsInvoicePreviewSubsequent_response'
-          ) as any,
+          schema: invoiceDTO.subsequentInvoicePreviewsSchema as any,
         },
       },
       handler: (request: AuthRequest) =>
@@ -956,9 +944,7 @@ export const stripeRoutes = (
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_COUPON_POST,
         auth: false,
         response: {
-          schema: couponDTO.couponDetailsSchema.label(
-            'OauthSubscriptionsCoupon_response'
-          ) as any,
+          schema: couponDTO.couponDetailsSchema as any,
         },
         validate: {
           payload: {
@@ -1038,11 +1024,9 @@ export const stripeRoutes = (
       options: {
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PRODUCTNAME_GET,
         response: {
-          schema: isA
-            .object({
-              product_name: isA.string().required(),
-            })
-            .label('Product Name') as any,
+          schema: isA.object({
+            product_name: isA.string().required(),
+          }) as any,
         },
         validate: {
           query: {

@@ -11,10 +11,10 @@ const TAGS_SESSION = {
 
 const SESSION_DESTROY_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/destroy',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Destroys the current session and invalidates \`sessionToken\`, to be called when a user signs out. To sign back in, a call must be made to \`POST /account/login\` to obtain a new \`sessionToken\`.
     `,
@@ -35,10 +35,10 @@ const SESSION_DESTROY_POST = {
 
 const SESSION_REAUTH_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/reauth',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Re-authenticate an existing session token. This is equivalent to calling \`/account/login\`, but it re-uses an existing session token rather than generating a new one, allowing the caller to maintain session state such as verification and device registration.
     `,
@@ -65,10 +65,10 @@ const SESSION_REAUTH_POST = {
 
 const SESSION_STATUS_GET = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/status',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Returns a success response if the session token is valid.
     `,
@@ -77,10 +77,10 @@ const SESSION_STATUS_GET = {
 
 const SESSION_DUPLICATE_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/duplicate',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Create a new \`sessionToken\` that duplicates the current session. It will have the same verification status as the current session, but will have a distinct verification code.
     `,
@@ -89,17 +89,20 @@ const SESSION_DUPLICATE_POST = {
 
 const SESSION_VERIFY_CODE_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/verify_code',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const SESSION_RESEND_CODE_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/resend_code',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const SESSION_VERIFY_SEND_PUSH_POST = {
   ...TAGS_SESSION,
-  description: '🔒 sessionToken',
+  description: '/session/verify/send_push',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const API_DOCS = {

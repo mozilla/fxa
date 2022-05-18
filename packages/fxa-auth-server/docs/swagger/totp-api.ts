@@ -11,10 +11,10 @@ const TAGS_TOTP = {
 
 const TOTP_CREATE_POST = {
   ...TAGS_TOTP,
-  description: '🔒 sessionToken',
+  description: '/totp/create',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Create a new randomly generated TOTP token for a user if they do not currently have one.
     `,
@@ -23,10 +23,10 @@ const TOTP_CREATE_POST = {
 
 const TOTP_DESTROY_POST = {
   ...TAGS_TOTP,
-  description: '🔒 sessionToken',
+  description: '/totp/destroy',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Deletes the current TOTP token for the user.
     `,
@@ -35,10 +35,10 @@ const TOTP_DESTROY_POST = {
 
 const TOTP_EXISTS_GET = {
   ...TAGS_TOTP,
-  description: '🔒 sessionToken',
+  description: '/totp/exists',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Checks to see if the user has a TOTP token.
     `,
@@ -47,10 +47,10 @@ const TOTP_EXISTS_GET = {
 
 const SESSION_VERIFY_TOTP_POST = {
   ...TAGS_TOTP,
-  description: '🔒 sessionToken',
+  description: '/session/verifiy/totp',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Verifies the current session if the passed TOTP code is valid.
     `,

@@ -11,15 +11,16 @@ const TAGS_EMAILS = {
 
 const EMAILS_REMINDERS_CAD_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/emails/reminders/cad',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const RECOVERY_EMAIL_STATUS_GET = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/status',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Returns the 'verified' status for the account's recovery email address.
 
@@ -44,10 +45,10 @@ const RECOVERY_EMAIL_STATUS_GET = {
 
 const RECOVERY_EMAIL_RESEND_CODE_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/resend_code',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent via this endpoint. The new message will contain the same code as the original message. When this code is provided to \`/v1/recovery_email/verify_code\`, the email will be marked as 'verified'.
 
@@ -70,6 +71,7 @@ const RECOVERY_EMAIL_RESEND_CODE_POST = {
 
 const RECOVERY_EMAIL_VERIFY_CODE_POST = {
   ...TAGS_EMAILS,
+  description: '/recovery_email/verify_code',
   notes: [
     dedent`
       Verify tokens and/or recovery emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
@@ -93,10 +95,10 @@ const RECOVERY_EMAIL_VERIFY_CODE_POST = {
 
 const RECOVERY_EMAILS_GET = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_emails',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Returns an array of objects containing details of the email addresses associated with the logged-in user. Currently, the primary email address is always the one from the \`accounts\` table.
     `,
@@ -105,10 +107,10 @@ const RECOVERY_EMAILS_GET = {
 
 const RECOVERY_EMAIL_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
       Add a secondary email address to the logged-in account. The created address will be unverified and will not replace the primary email address.
     `,
   ],
@@ -132,10 +134,10 @@ const RECOVERY_EMAIL_POST = {
 
 const RECOVERY_EMAIL_DESTROY_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/destroy',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Delete an email address associated with the logged-in user.
     `,
@@ -156,10 +158,10 @@ const RECOVERY_EMAIL_DESTROY_POST = {
 
 const RECOVERY_EMAIL_SET_PRIMARY_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/set_primary',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       This endpoint changes a user's primary email address. This email address must belong to the user and be verified.
     `,
@@ -182,10 +184,10 @@ const RECOVERY_EMAIL_SET_PRIMARY_POST = {
 
 const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/secondary/resend_code',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       This endpoint resend the otp verification to verify the secondary email.
     `,
@@ -207,10 +209,10 @@ const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
 
 const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
   ...TAGS_EMAILS,
-  description: '🔒 sessionToken',
+  description: '/recovery_email/secondary/verify_code',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       This endpoint verifies a secondary email using a time based (otp) code.
     `,

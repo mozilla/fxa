@@ -17,10 +17,10 @@ module.exports = (log, db, config, customs, mailer) => {
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
 
   // Validate recovery codes
-  const recoveryCodesSchema = validators
-    .recoveryCodes(RECOVERY_CODE_COUNT, RECOVERY_CODE_SANE_MAX_LENGTH)
-    .label('replaceRecoveryCodes_response');
-
+  const recoveryCodesSchema = validators.recoveryCodes(
+    RECOVERY_CODE_COUNT,
+    RECOVERY_CODE_SANE_MAX_LENGTH
+  );
   return [
     {
       method: 'GET',
@@ -84,11 +84,9 @@ module.exports = (log, db, config, customs, mailer) => {
           payload: recoveryCodesSchema,
         },
         response: {
-          schema: isA
-            .object({
-              success: isA.boolean(),
-            })
-            .label('success'),
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
         },
       },
       async handler(request) {
@@ -138,23 +136,19 @@ module.exports = (log, db, config, customs, mailer) => {
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              // Validation here is done with BASE_36 superset to be backwards compatible...
-              // Ideally all recovery codes are Crockford Base32.
-              code: validators.recoveryCode(
-                RECOVERY_CODE_SANE_MAX_LENGTH,
-                validators.BASE_36
-              ),
-            })
-            .label('session.verify.recoveryCode_payload'),
+          payload: isA.object({
+            // Validation here is done with BASE_36 superset to be backwards compatible...
+            // Ideally all recovery codes are Crockford Base32.
+            code: validators.recoveryCode(
+              RECOVERY_CODE_SANE_MAX_LENGTH,
+              validators.BASE_36
+            ),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              remaining: isA.number(),
-            })
-            .label('session.verify.recoveryCode_response'),
+          schema: isA.object({
+            remaining: isA.number(),
+          }),
         },
       },
       async handler(request) {

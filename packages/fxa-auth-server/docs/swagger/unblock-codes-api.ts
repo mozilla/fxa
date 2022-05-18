@@ -10,6 +10,7 @@ const TAGS_UNBLOCK_CODES = {
 
 const ACCOUNT_LOGIN_SEND_UNBLOCK_CODE_POST = {
   ...TAGS_UNBLOCK_CODES,
+  description: '/account/login/send_unblock_code',
   notes: [
     'Send an unblock code via email to reset rate-limiting for an account.',
   ],
@@ -17,6 +18,7 @@ const ACCOUNT_LOGIN_SEND_UNBLOCK_CODE_POST = {
 
 const ACCOUNT_LOGIN_REJECT_UNBLOCK_CODE_POST = {
   ...TAGS_UNBLOCK_CODES,
+  description: '/account/login/reject_unblock_code',
   notes: [
     'Used to reject and report unblock codes that were not requested by the user.',
   ],

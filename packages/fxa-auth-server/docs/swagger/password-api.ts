@@ -11,6 +11,7 @@ const TAGS_PASSWORD = {
 
 const PASSWORD_CHANGE_START_POST = {
   ...TAGS_PASSWORD,
+  description: '/password/change/start',
   notes: [
     'Begin the "change password" process. Returns a single-use `passwordChangeToken`, to be sent to `POST /password/change/finish`. Also returns a single-use `keyFetchToken`.',
   ],
@@ -30,10 +31,10 @@ const PASSWORD_CHANGE_START_POST = {
 
 const PASSWORD_CHANGE_FINISH_POST = {
   ...TAGS_PASSWORD,
-  description: '🔒 passwordChangeToken',
+  description: '/password/change/finish',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with password change token
+      🔒 Authenticated with password change token
 
       Change the password and update \`wrapKb\`. Optionally returns \`sessionToken\` and \`keyFetchToken\`.
     `,
@@ -54,6 +55,7 @@ const PASSWORD_CHANGE_FINISH_POST = {
 
 const PASSWORD_FORGOT_SEND_CODE_POST = {
   ...TAGS_PASSWORD,
+  description: '/password/forgot/send_code',
   notes: [
     dedent`
       Requests a 'reset password' code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to \`POST /password/forgot/verify_code\`.
@@ -81,10 +83,10 @@ const PASSWORD_FORGOT_SEND_CODE_POST = {
 
 const PASSWORD_FORGOT_RESEND_CODE_POST = {
   ...TAGS_PASSWORD,
-  description: '🔒 passwordForgotToken',
+  description: '/password/forgot/resend_code',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with password forgot token
+      🔒 Authenticated with password forgot token
 
       Resends the email from \`POST /password/forgot/send_code\`, for use when the original email has been lost or accidentally deleted.
 
@@ -95,10 +97,10 @@ const PASSWORD_FORGOT_RESEND_CODE_POST = {
 
 const PASSWORD_FORGOT_VERIFY_CODE_POST = {
   ...TAGS_PASSWORD,
-  description: '🔒 passwordForgotToken',
+  description: '/password/forgot/verify_code',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with password forgot token
+      🔒 Authenticated with password forgot token
 
       The code returned by \`POST /v1/password/forgot/send_code\` should be submitted to this endpoint with the \`passwordForgotToken\`. For successful requests, the server will return \`accountResetToken\`, to be submitted in requests to \`POST /account/reset\` to reset the account password and \`wrapKb\`.
     `,
@@ -119,10 +121,10 @@ const PASSWORD_FORGOT_VERIFY_CODE_POST = {
 
 const PASSWORD_FORGOT_STATUS_GET = {
   ...TAGS_PASSWORD,
-  description: '🔒 passwordForgotToken',
+  description: '/password/forgot/status',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with password forgot token
+      🔒 Authenticated with password forgot token
 
       Returns the status of a \`passwordForgotToken\`. Success responses indicate the token has not yet been consumed. For consumed or expired tokens, an HTTP \`401\` response with \`errno: 110\` will be returned.
     `,
@@ -131,10 +133,10 @@ const PASSWORD_FORGOT_STATUS_GET = {
 
 const PASSWORD_CREATE_POST = {
   ...TAGS_PASSWORD,
-  description: '🔒 sessionToken',
+  description: '/password/create',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Creates a new password for the user associated with the session token. Creating a new password will generate new encryption key.
     `,

@@ -27,54 +27,41 @@ module.exports = (log, db, devices, clientUtils) => {
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .array()
-            .items(
-              isA
-                .object({
-                  clientId: isA
-                    .string()
-                    .regex(HEX_STRING)
-                    .allow(null)
-                    .required(),
-                  deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-                  sessionTokenId: isA
-                    .string()
-                    .regex(HEX_STRING)
-                    .allow(null)
-                    .required(),
-                  refreshTokenId: isA
-                    .string()
-                    .regex(HEX_STRING)
-                    .allow(null)
-                    .required(),
-                  isCurrentSession: isA.boolean().required(),
-                  deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-                  name: DEVICES_SCHEMA.nameResponse
-                    .allow('')
-                    .allow(null)
-                    .required(),
-                  createdTime: isA.number().min(0).required().allow(null),
-                  createdTimeFormatted: isA.string().optional().allow(''),
-                  lastAccessTime: isA.number().min(0).required().allow(null),
-                  lastAccessTimeFormatted: isA.string().optional().allow(''),
-                  approximateLastAccessTime: isA.number().min(0).optional(),
-                  approximateLastAccessTimeFormatted: isA
-                    .string()
-                    .optional()
-                    .allow(''),
-                  scope: isA
-                    .array()
-                    .items(validators.scope)
-                    .required()
-                    .allow(null),
-                  location: DEVICES_SCHEMA.location,
-                  userAgent: isA.string().max(255).required().allow(''),
-                  os: isA.string().max(255).allow('').allow(null),
-                })
-                .label('Account.attachedClient_model')
-            )
-            .label('Account.attachedClients_response'),
+          schema: isA.array().items(
+            isA.object({
+              clientId: isA.string().regex(HEX_STRING).allow(null).required(),
+              deviceId: DEVICES_SCHEMA.id.allow(null).required(),
+              sessionTokenId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .required(),
+              refreshTokenId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .required(),
+              isCurrentSession: isA.boolean().required(),
+              deviceType: DEVICES_SCHEMA.type.allow(null).required(),
+              name: DEVICES_SCHEMA.nameResponse
+                .allow('')
+                .allow(null)
+                .required(),
+              createdTime: isA.number().min(0).required().allow(null),
+              createdTimeFormatted: isA.string().optional().allow(''),
+              lastAccessTime: isA.number().min(0).required().allow(null),
+              lastAccessTimeFormatted: isA.string().optional().allow(''),
+              approximateLastAccessTime: isA.number().min(0).optional(),
+              approximateLastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              scope: isA.array().items(validators.scope).required().allow(null),
+              location: DEVICES_SCHEMA.location,
+              userAgent: isA.string().max(255).required().allow(''),
+              os: isA.string().max(255).allow('').allow(null),
+            })
+          ),
         },
       },
       handler: async function (request) {
@@ -127,8 +114,7 @@ module.exports = (log, db, devices, clientUtils) => {
               deviceId: DEVICES_SCHEMA.id.allow(null).optional(),
             })
             .or('clientId', 'sessionTokenId', 'refreshTokenId', 'deviceId')
-            .with('refreshTokenId', ['clientId'])
-            .label('Account.attachedClientDestroy_payload'),
+            .with('refreshTokenId', ['clientId']),
         },
         response: {
           schema: {},

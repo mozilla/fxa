@@ -13,7 +13,7 @@ const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required(),
   token_type_hint: Joi.string().equal(['access_token', 'refresh_token']),
-}).label('Introspect_payload');
+});
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
 
@@ -27,21 +27,19 @@ module.exports = ({ oauthDB }) => ({
       payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
     },
     response: {
-      schema: Joi.object()
-        .keys({
-          // https://tools.ietf.org/html/rfc7662#section-2.2
-          active: Joi.boolean().required(),
-          scope: validators.scope.optional(),
-          client_id: validators.clientId.optional(),
-          token_type: Joi.string().equal(['access_token', 'refresh_token']),
-          exp: Joi.number().optional(),
-          iat: Joi.number().optional(),
-          sub: Joi.string().optional(),
-          iss: Joi.string().optional(),
-          jti: Joi.string().optional(),
-          'fxa-lastUsedAt': Joi.number().optional(),
-        })
-        .label('Introspect_response'),
+      schema: Joi.object().keys({
+        // https://tools.ietf.org/html/rfc7662#section-2.2
+        active: Joi.boolean().required(),
+        scope: validators.scope.optional(),
+        client_id: validators.clientId.optional(),
+        token_type: Joi.string().equal(['access_token', 'refresh_token']),
+        exp: Joi.number().optional(),
+        iat: Joi.number().optional(),
+        sub: Joi.string().optional(),
+        iss: Joi.string().optional(),
+        jti: Joi.string().optional(),
+        'fxa-lastUsedAt': Joi.number().optional(),
+      }),
     },
     handler: async function introspectEndpoint(req) {
       const tokenTypeHint = req.payload.token_type_hint;

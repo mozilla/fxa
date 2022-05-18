@@ -17,7 +17,7 @@ module.exports = () => ({
         client_id: Joi.string().required(),
         id_token: Joi.string().required(),
         expiry_grace_period: Joi.number().default(0),
-      }).label('Oauth.idTokenVerify_payload'),
+      }),
     },
     response: {
       schema: Joi.object()
@@ -33,8 +33,7 @@ module.exports = () => ({
           iat: Joi.number().optional(),
           iss: Joi.string().optional(),
           sub: Joi.string().optional(),
-        })
-        .label('Oauth.idTokenVerify_response'),
+        }),
     },
   },
   handler: async function (request) {

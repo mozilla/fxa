@@ -25,7 +25,7 @@ module.exports = (log, db) => {
         validate: {
           payload: Joi.object({
             newsletters: validators.newsletters.required(),
-          }).label('Newsletters_payload'),
+          }),
         },
       },
       handler: async function (request) {

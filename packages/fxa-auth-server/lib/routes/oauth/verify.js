@@ -17,7 +17,7 @@ module.exports = ({ log }) => ({
     validate: {
       payload: Joi.object({
         token: validators.accessToken.required(),
-      }).label('Verify_payload'),
+      }),
     },
     response: {
       schema: Joi.object({
@@ -26,7 +26,7 @@ module.exports = ({ log }) => ({
         scope: Joi.array(),
         generation: Joi.number().min(0),
         profile_changed_at: Joi.number().min(0),
-      }).label('Verify_response'),
+      }),
     },
     handler: async function verify(req) {
       const info = await token.verify(req.payload.token);

@@ -11,10 +11,10 @@ const TAGS_RECOVERY_CODE = {
 
 const RECOVERYCODES_GET = {
   ...TAGS_RECOVERY_CODE,
-  description: '🔒 sessionToken',
+  description: '/recoveryCodes',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Return new recovery codes while removing old ones.
     `,
@@ -23,15 +23,15 @@ const RECOVERYCODES_GET = {
 
 const RECOVERY_CODES_PUT = {
   ...TAGS_RECOVERY_CODE,
-  description: '🔒 sessionToken',
-  tags: TAGS.RECOVERY_CODES,
+  description: '/recoveryCodes',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const SESSION_VERIFY_RECOVERYCODE_POST = {
-  description: '🔒 sessionToken',
+  description: '/session/verify/recoveryCode',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Verify a session using a recovery code.
     `,

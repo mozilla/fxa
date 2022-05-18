@@ -57,8 +57,7 @@ module.exports = function (
                 .optional()
                 .description(DESCRIPTION.customSessionToken),
             })
-            .allow(null)
-            .label('Session.destroy_payload'),
+            .allow(null),
         },
       },
       handler: async function (request) {
@@ -112,35 +111,31 @@ module.exports = function (
             service: validators.service,
             verificationMethod: validators.verificationMethod.optional(),
           }),
-          payload: isA
-            .object({
-              email: validators.email().required(),
-              authPW: validators.authPW,
-              service: validators.service,
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional(),
-              resume: isA.string().optional(),
-              reason: isA.string().max(16).optional(),
-              unblockCode: signinUtils.validators.UNBLOCK_CODE,
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              originalLoginEmail: validators.email().optional(),
-              verificationMethod: validators.verificationMethod.optional(),
-            })
-            .label('Session.reauth_payload'),
+          payload: isA.object({
+            email: validators.email().required(),
+            authPW: validators.authPW,
+            service: validators.service,
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA.string().optional(),
+            reason: isA.string().max(16).optional(),
+            unblockCode: signinUtils.validators.UNBLOCK_CODE,
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            originalLoginEmail: validators.email().optional(),
+            verificationMethod: validators.verificationMethod.optional(),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              uid: isA.string().regex(HEX_STRING).required(),
-              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-              verificationMethod: isA.string().optional(),
-              verificationReason: isA.string().optional(),
-              verified: isA.boolean().required(),
-              authAt: isA.number().integer(),
-              metricsEnabled: isA.boolean().required(),
-            })
-            .label('Session.reauth_response'),
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verificationMethod: isA.string().optional(),
+            verificationReason: isA.string().optional(),
+            verified: isA.boolean().required(),
+            authAt: isA.number().integer(),
+            metricsEnabled: isA.boolean().required(),
+          }),
         },
       },
       handler: async function (request) {
@@ -257,12 +252,10 @@ module.exports = function (
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .object({
-              state: isA.string().required(),
-              uid: isA.string().regex(HEX_STRING).required(),
-            })
-            .label('Session.status_response'),
+          schema: isA.object({
+            state: isA.string().required(),
+            uid: isA.string().regex(HEX_STRING).required(),
+          }),
         },
       },
       handler: async function (request) {
@@ -284,11 +277,9 @@ module.exports = function (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              reason: isA.string().max(16).optional(),
-            })
-            .label('Session.duplicate_payload'),
+          payload: isA.object({
+            reason: isA.string().max(16).optional(),
+          }),
         },
       },
       handler: async function (request) {
@@ -352,16 +343,14 @@ module.exports = function (
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              code: validators.DIGITS,
-              service: validators.service,
-              scopes: validators.scopes,
-              // The `marketingOptIn` is safe to remove after train-167+
-              marketingOptIn: isA.boolean().optional(),
-              newsletters: validators.newsletters,
-            })
-            .label('Session.verifyCode_payload'),
+          payload: isA.object({
+            code: validators.DIGITS,
+            service: validators.service,
+            scopes: validators.scopes,
+            // The `marketingOptIn` is safe to remove after train-167+
+            marketingOptIn: isA.boolean().optional(),
+            newsletters: validators.newsletters,
+          }),
         },
       },
       handler: async function (request) {

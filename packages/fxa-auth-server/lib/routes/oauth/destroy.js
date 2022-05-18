@@ -89,8 +89,7 @@ module.exports = ({ log, oauthDB }) => {
               refresh_token_id: validators.token,
             })
             .rename('token', 'access_token')
-            .xor('access_token', 'refresh_token', 'refresh_token_id')
-            .label('Destroy_payload'),
+            .xor('access_token', 'refresh_token', 'refresh_token_id'),
         },
         handler: destroyHandler,
       },
@@ -118,7 +117,7 @@ module.exports = ({ log, oauthDB }) => {
               .max(64)
               .optional()
               .description(DESCRIPTION.tokenTypeHint),
-          }).label('oauth.destroy_payload'),
+          }),
         },
         response: {},
       },
