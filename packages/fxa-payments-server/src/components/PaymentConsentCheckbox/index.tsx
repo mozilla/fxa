@@ -45,8 +45,8 @@ export const PaymentConsentCheckbox = ({
       <Checkbox name="confirm" data-testid="confirm" onClick={onClick} required>
         I authorize Mozilla, maker of Firefox products, to charge my payment
         method <strong>{planPricing}</strong>, according to{' '}
-        <a href={termsOfService}>Terms of Service</a> and{' '}
-        <a href={privacyNotice}>Privacy Notice</a>, until I cancel my
+        <a href={termsOfServiceURL}>Terms of Service</a> and{' '}
+        <a href={privacyNoticeURL}>Privacy Notice</a>, until I cancel my
         subscription.
       </Checkbox>
     </Localized>
