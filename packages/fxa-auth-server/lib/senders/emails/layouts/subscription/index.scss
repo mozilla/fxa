@@ -47,6 +47,12 @@
   padding: global.$s-5 global.$s-0 !important;
   height: 56px !important;
   display: block !important;
+
+  // overrides the 13px inline font-size default for MJML images
+  // see https://github.com/mozilla/fxa/pull/12956#discussion_r878556004
+  a, img {
+    font-size: global.$s-3 !important;
+  }
 }
 
 .mozilla-logo {
