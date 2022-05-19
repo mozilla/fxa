@@ -52,6 +52,6 @@ jobs:
         uses: slackapi/slack-github-action@v1.19.0
         with:
           channel-id: 'CLV3KMZ8B'
-          slack-message: "New assets have been uploaded to CDN: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          slack-message: "New assets have been uploaded to CDN: ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/actions/runs/${{ GITHUB_RUN_ID }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
