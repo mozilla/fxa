@@ -62,7 +62,7 @@ export const Security = () => {
             ) : (
               <Localized id="security-set-password">
                 <p className="text-sm mt-3">
-                  Set a password to use Firefox Sync and certain account
+                  Set a password to sync and use certain account
                   security features.
                 </p>
               </Localized>
