@@ -7,13 +7,14 @@ import zendesk from 'node-zendesk';
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger } from '../../types';
+import { appleIapRoutes } from './apple';
 import { googleIapRoutes } from './google';
+import { mozillaSubscriptionRoutes } from './mozilla';
 import { paypalRoutes } from './paypal';
 import { paypalNotificationRoutes } from './paypal-notifications';
 import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
-import { mozillaSubscriptionRoutes } from './mozilla';
 import { supportRoutes } from './support';
 import { handleAuth } from './utils';
 
@@ -95,6 +96,9 @@ const createRoutes = (
   if (config.subscriptions?.playApiServiceAccount?.enabled) {
     routes.push(...googleIapRoutes(db));
     routes.push(...playPubsubRoutes(db));
+  }
+  if (config.subscriptions?.appStore?.enabled) {
+    routes.push(...appleIapRoutes(db));
   }
 
   return routes;
