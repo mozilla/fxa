@@ -9,4 +9,4 @@ security-password =
 security-password-created-date = Created { $date }
 security-not-set = Not Set
 security-action-create = Create
-security-set-password = Set a password to use { -product-firefox-sync } and certain account security features.
+security-set-password = Set a password to sync and use certain account security features.

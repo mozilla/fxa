@@ -97,7 +97,7 @@ export const UnitRowTwoStepAuth = () => {
       disabledReason={l10n.getString(
         'security-set-password',
         null,
-        'Set a password to use Firefox Sync and certain account security features.'
+        'Set a password to sync and use certain account security features.'
       )}
       actionContent={
         <Localized id="tfa-row-button-refresh" attrs={{ title: true }}>
