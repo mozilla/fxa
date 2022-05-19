@@ -36,9 +36,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = () => {
     alertBar.success(
       l10n.getString(
-        'tfa-replace-code-success-alert',
+        'tfa-replace-code-success-alert-2',
         null,
-        'Account recovery codes updated.'
+        'Account recovery codes updated'
       )
     );
     navigate(HomePath + '#two-step-authentication', { replace: true });
@@ -54,9 +54,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error',
+          'tfa-replace-code-error-2',
           null,
-          'There was a problem replacing your recovery codes.'
+          'There was a problem replacing your recovery codes'
         )
       );
     }
@@ -80,9 +80,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error',
+          'tfa-replace-code-error-2',
           null,
-          'There was a problem creating your recovery codes.'
+          'There was a problem creating your recovery codes'
         )
       );
     }

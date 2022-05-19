@@ -10,4 +10,4 @@ recovery-key-page-title =
   .title = Recovery key
 recovery-key-step-1 = Step 1 of 2
 recovery-key-step-2 = Step 2 of 2
-recovery-key-success-alert = Recovery key created.
+recovery-key-success-alert-2 = Recovery key created

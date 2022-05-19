@@ -74,7 +74,7 @@ it('navigates back to settings home and shows a success message on a successful 
   await submitDisplayName('John Hope');
   expect(window.location.pathname).toBe(HomePath);
   expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
-  expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated.');
+  expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated');
 });
 
 it('displays a general error in the alert bar', async () => {

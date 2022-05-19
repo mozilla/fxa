@@ -39,9 +39,9 @@ export const RemovePhotoBtn = () => {
     } catch (err) {
       alertBar.error(
         l10n.getString(
-          'avatar-page-delete-error-2',
+          'avatar-page-delete-error-3',
           null,
-          'There was a problem deleting your profile picture.'
+          'There was a problem deleting your profile picture'
         )
       );
     }

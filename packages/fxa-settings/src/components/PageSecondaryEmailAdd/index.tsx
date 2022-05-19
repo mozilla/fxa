@@ -45,9 +45,9 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'add-secondary-email-error',
+              'add-secondary-email-error-2',
               null,
-              'There was a problem creating this email.'
+              'There was a problem creating this email'
             )
           );
         }

@@ -11,9 +11,9 @@ import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../models';
 
-const validateDisplayName = (currentDisplayName: string) => (
-  newDisplayName: string
-) => newDisplayName !== currentDisplayName && newDisplayName.length <= 256;
+const validateDisplayName =
+  (currentDisplayName: string) => (newDisplayName: string) =>
+    newDisplayName !== currentDisplayName && newDisplayName.length <= 256;
 
 export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
@@ -23,9 +23,9 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       l10n.getString(
-        'display-name-success-alert',
+        'display-name-success-alert-2',
         null,
-        'Display name updated.'
+        'Display name updated'
       )
     );
     navigate(HomePath + '#display-name', { replace: true });
@@ -53,9 +53,9 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'display-name-update-error',
+              'display-name-update-error-2',
               null,
-              'There was a problem updating your display name.'
+              'There was a problem updating your display name'
             )
           );
         }

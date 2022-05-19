@@ -100,9 +100,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'tfa-cannot-verify-code',
+              'tfa-cannot-verify-code-2',
               null,
-              'There was a problem verifying your recovery code.'
+              'There was a problem verifying your recovery code'
             )
           );
         }

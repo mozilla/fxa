@@ -54,9 +54,9 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const onFileError = useCallback(() => {
     alertBar.error(
       l10n.getString(
-        'avatar-page-file-upload-error-2',
+        'avatar-page-file-upload-error-3',
         null,
-        'There was a problem uploading your profile picture.'
+        'There was a problem uploading your profile picture'
       )
     );
   }, [alertBar, l10n]);
@@ -180,9 +180,9 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
       alertBar.error(
         l10n.getString(
-          'avatar-page-image-too-large-error',
+          'avatar-page-image-too-large-error-2',
           null,
-          'The image file size is too large to be uploaded.'
+          'The image file size is too large to be uploaded'
         )
       );
       resetAllState();

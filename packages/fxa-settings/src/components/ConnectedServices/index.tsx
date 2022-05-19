@@ -129,9 +129,9 @@ export const ConnectedServices = () => {
           const name = client.name;
           alertBar.success(
             l10n.getString(
-              'cs-logged-out',
+              'cs-logged-out-2',
               { service: name },
-              `Logged out of ${name}.`
+              `Logged out of ${name}`
             )
           );
           clearDisconnectingState();

@@ -53,7 +53,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
-      l10n.getString('pw-change-success-alert', null, 'Password updated.')
+      l10n.getString('pw-change-success-alert-2', null, 'Password updated')
     );
     navigate(HomePath + '#password', { replace: true });
   }, [alertBar, l10n, navigate]);

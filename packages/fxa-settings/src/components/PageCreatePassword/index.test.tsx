@@ -139,7 +139,7 @@ describe('PageCreatePassword', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(alertBarInfo.error).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.error).toHaveBeenCalledWith(
-      'Sorry, there was a problem setting your password.'
+      'Sorry, there was a problem setting your password'
     );
   });
 
@@ -150,6 +150,6 @@ describe('PageCreatePassword', () => {
       replace: true,
     });
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
-    expect(alertBarInfo.success).toHaveBeenCalledWith('Password set.');
+    expect(alertBarInfo.success).toHaveBeenCalledWith('Password set');
   });
 });

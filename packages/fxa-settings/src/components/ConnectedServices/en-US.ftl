@@ -9,7 +9,7 @@ cs-cannot-disconnect = Client not found, unable to disconnect
 # Variables:
 #   $service (String) - the name of a device or service that uses Firefox Accounts
 #                       (for example: "Firefox Lockwise")
-cs-logged-out = Logged out of { $service }.
+cs-logged-out-2 = Logged out of { $service }
 
 cs-refresh-button =
   .title = Refresh connected services

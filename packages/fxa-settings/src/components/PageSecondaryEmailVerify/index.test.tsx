@@ -93,7 +93,7 @@ describe('PageSecondaryEmailVerify', () => {
     expect(history.location.pathname).toEqual('/settings#secondary-email');
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith(
-      'johndope@example.com successfully added.'
+      'johndope@example.com successfully added'
     );
   });
 });

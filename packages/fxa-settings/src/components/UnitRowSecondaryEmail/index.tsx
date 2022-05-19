@@ -37,9 +37,9 @@ export const UnitRowSecondaryEmail = () => {
       } catch (e) {
         alertBar.error(
           l10n.getString(
-            'se-cannot-resend-code',
+            'se-cannot-resend-code-2',
             null,
-            'Sorry, there was a problem re-sending the verification code.'
+            'Sorry, there was a problem re-sending the verification code'
           )
         );
       }
@@ -53,17 +53,17 @@ export const UnitRowSecondaryEmail = () => {
         await account.makeEmailPrimary(email);
         alertBar.success(
           l10n.getString(
-            'se-set-primary-successful',
+            'se-set-primary-successful-2',
             { email },
-            `${email} is now your primary email.`
+            `${email} is now your primary email`
           )
         );
       } catch (e) {
         alertBar.error(
           l10n.getString(
-            'se-set-primary-error',
+            'se-set-primary-error-2',
             null,
-            'Sorry, there was a problem changing your primary email.'
+            'Sorry, there was a problem changing your primary email'
           )
         );
       }
@@ -77,17 +77,17 @@ export const UnitRowSecondaryEmail = () => {
         await account.deleteSecondaryEmail(email);
         alertBar.success(
           l10n.getString(
-            'se-delete-email-successful',
+            'se-delete-email-successful-2',
             { email },
-            `${email} successfully deleted.`
+            `${email} successfully deleted`
           )
         );
       } catch (e) {
         alertBar.error(
           l10n.getString(
-            'se-delete-email-error',
+            'se-delete-email-error-2',
             null,
-            `Sorry, there was a problem deleting this email.`
+            `Sorry, there was a problem deleting this email`
           )
         );
       }
@@ -103,9 +103,9 @@ export const UnitRowSecondaryEmail = () => {
             setQueuedAction(undefined);
             alertBar.info(
               l10n.getString(
-                'se-verify-session',
+                'se-verify-session-2',
                 null,
-                "You'll need to verify your current session to perform this action."
+                "You'll need to verify your current session to perform this action"
               )
             );
           }}
@@ -113,9 +113,9 @@ export const UnitRowSecondaryEmail = () => {
             setQueuedAction(undefined);
             alertBar.error(
               l10n.getString(
-                'se-verify-session-error',
+                'se-verify-session-error-2',
                 null,
-                'Sorry, there was a problem verifying your session.'
+                'Sorry, there was a problem verifying your session'
               ),
               error
             );
