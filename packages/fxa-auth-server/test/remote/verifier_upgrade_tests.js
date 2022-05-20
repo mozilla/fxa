@@ -23,6 +23,14 @@ const DB = require('../../lib/db')(
   Token.PasswordChangeToken
 );
 
+const { default: Container } = require('typedi');
+const {
+  PlaySubscriptions,
+} = require('../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+
 let client, db, server;
 
 describe('remote verifier upgrade', function () {
@@ -31,6 +39,9 @@ describe('remote verifier upgrade', function () {
   before(async () => {
     config.verifierVersion = 0;
     config.securityHistory.ipProfiling.allowedRecency = 0;
+
+    Container.set(PlaySubscriptions, {});
+    Container.set(AppStoreSubscriptions, {});
 
     server = await TestServer.start(config);
     db = await DB.connect(config);

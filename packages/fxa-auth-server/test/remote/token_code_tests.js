@@ -9,6 +9,13 @@ const config = require('../../config').getProperties();
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const error = require('../../lib/error');
+const { default: Container } = require('typedi');
+const {
+  PlaySubscriptions,
+} = require('../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 describe('remote tokenCodes', function () {
   let server, client, email, code;
@@ -17,6 +24,9 @@ describe('remote tokenCodes', function () {
   this.timeout(10000);
 
   before(() => {
+    Container.set(PlaySubscriptions, {});
+    Container.set(AppStoreSubscriptions, {});
+
     return TestServer.start(config).then((s) => {
       server = s;
     });

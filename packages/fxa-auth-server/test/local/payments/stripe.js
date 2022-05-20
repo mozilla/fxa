@@ -6334,7 +6334,7 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('Google Play helpers', () => {
+  describe('IAP helpers', () => {
     let subPurchase;
     let productId;
     let priceId;
@@ -6460,38 +6460,61 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('addPriceInfoToAbbrevPlayPurchases', () => {
-      let mockAbbrevPlayPurchase;
+    describe('addPriceInfoToIapPurchases', () => {
+      let mockPlayPurchase;
+      let mockAppStorePurchase;
 
       beforeEach(() => {
-        mockAbbrevPlayPurchase = {
+        mockPlayPurchase = {
           auto_renewing: true,
           expiry_time_millis: Date.now(),
           package_name: 'org.mozilla.cooking.with.foxkeh',
           sku: 'testSku',
         };
+        mockAppStorePurchase = {
+          autoRenewStatus: 1,
+          productId: 'skydiving.with.foxkeh',
+          bundleId: 'hmm',
+        };
       });
 
-      it('adds matching product info to a subscription purchase', async () => {
+      it('adds matching product info to a Play Store subscription purchase', async () => {
         const expected = {
-          ...mockAbbrevPlayPurchase,
+          ...mockPlayPurchase,
           price_id: priceId,
           product_id: productId,
           product_name: productName,
         };
-        const result = await stripeHelper.addPriceInfoToAbbrevPlayPurchases([
-          mockAbbrevPlayPurchase,
-        ]);
+        const result = await stripeHelper.addPriceInfoToIapPurchases(
+          [mockPlayPurchase],
+          MozillaSubscriptionTypes.IAP_GOOGLE
+        );
         assert.deepEqual([expected], result);
       });
+
+      it('adds matching product info to an App Store subscription purchase', async () => {
+        const expected = {
+          ...mockAppStorePurchase,
+          price_id: priceId,
+          product_id: productId,
+          product_name: productName,
+        };
+        const result = await stripeHelper.addPriceInfoToIapPurchases(
+          [mockAppStorePurchase],
+          MozillaSubscriptionTypes.IAP_APPLE
+        );
+        assert.deepEqual([expected], result);
+      });
+
       it('returns an empty list if no matching product ids are found', async () => {
-        const mockAbbrevPlayPurchase1 = {
-          ...mockAbbrevPlayPurchase,
+        const mockPlayPurchase1 = {
+          ...mockPlayPurchase,
           sku: 'notMatchingSku',
         };
-        const result = await stripeHelper.addPriceInfoToAbbrevPlayPurchases([
-          mockAbbrevPlayPurchase1,
-        ]);
+        const result = await stripeHelper.addPriceInfoToIapPurchases(
+          [mockPlayPurchase1],
+          MozillaSubscriptionTypes.IAP_GOOGLE
+        );
         assert.isEmpty(result);
       });
     });

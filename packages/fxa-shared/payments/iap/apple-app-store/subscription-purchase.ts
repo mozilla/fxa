@@ -82,7 +82,7 @@ export class AppStoreSubscriptionPurchase {
   // Response from App Store API server Subscription Status endpoint
   // https://developer.apple.com/documentation/appstoreserverapi/get_all_subscription_statuses
   // IMPORTANT: If adding a new required property, also add it to SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES
-  private autoRenewStatus!: AutoRenewStatus;
+  autoRenewStatus!: AutoRenewStatus;
   private autoRenewProductId!: string;
   bundleId!: string; // unique identifier for the iOS app; analogous to a Stripe product id
   private environment!: Environment;
@@ -93,9 +93,9 @@ export class AppStoreSubscriptionPurchase {
   private status!: SubscriptionStatus;
   private type!: TransactionType;
   private expirationIntent?: number;
-  private expiresDate?: number;
+  expiresDate?: number;
   private gracePeriodExpiresDate?: number;
-  private isInBillingRetry?: boolean;
+  isInBillingRetry?: boolean;
   private isUpgraded?: boolean;
   private offerType?: OfferType;
   private offerIdentifier?: string;

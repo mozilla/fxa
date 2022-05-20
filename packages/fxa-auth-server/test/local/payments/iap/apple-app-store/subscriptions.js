@@ -5,67 +5,56 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
-const { PlayBilling } = require('../../../../../lib/payments/iap/google-play');
 const {
-  PlaySubscriptions,
-} = require('../../../../../lib/payments/iap/google-play/subscriptions');
+  AppleIAP,
+} = require('../../../../../lib/payments/iap/apple-app-store/apple-iap');
+const {
+  AppStoreSubscriptions,
+} = require('../../../../../lib/payments/iap/apple-app-store/subscriptions');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const { AppConfig } = require('../../../../../lib/types');
 const { StripeHelper } = require('../../../../../lib/payments/stripe');
 const { deepCopy } = require('../../util');
 
-describe('PlaySubscriptions', () => {
+describe('AppStoreSubscriptions', () => {
   const UID = 'uid8675309';
   const sandbox = sinon.createSandbox();
 
-  let playSubscriptions, mockPlayBilling, mockStripeHelper, mockConfig;
+  let appStoreSubscriptions, mockAppleIap, mockStripeHelper, mockConfig;
 
-  // No cancelReason = 1
-  const mockPlayStoreSubscriptionPurchase = {
-    kind: 'androidpublisher#subscriptionPurchase',
-    startTimeMillis: `${Date.now() - 10000}`,
-    expiryTimeMillis: `${Date.now() + 10000}`,
-    autoRenewing: true,
-    priceCurrencyCode: 'JPY',
-    priceAmountMicros: '99000000',
-    countryCode: 'JP',
-    developerPayload: '',
-    paymentState: 1,
-    orderId: 'GPA.3313-5503-3858-32549',
-    packageName: 'testPackage',
-    purchaseToken: 'testToken',
-    sku: 'sku',
-    verifiedAt: Date.now(),
+  const mockAppStoreSubscriptionPurchase = {
+    autoRenewStatus: 1,
+    productId: 'wow',
+    bundleId: 'hmm',
     isEntitlementActive: sinon.fake.returns(true),
   };
 
-  const mockAppendedPlayStoreSubscriptionPurchase = {
-    ...mockPlayStoreSubscriptionPurchase,
-    price_id: 'price_lol',
-    product_id: 'prod_lol',
-    product_name: 'LOL Product',
-    _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+  const mockAppendedAppStoreSubscriptionPurchase = {
+    ...mockAppStoreSubscriptionPurchase,
+    price_id: 'price_123',
+    product_id: 'prod_123',
+    product_name: 'Cooking with Foxkeh',
+    _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   };
 
   beforeEach(() => {
     mockConfig = { subscriptions: { enabled: true } };
-    mockPlayBilling = {
-      userManager: {
-        queryCurrentSubscriptions: sinon
+    mockAppleIap = {
+      purchaseManager: {
+        queryCurrentSubscriptionPurchases: sinon
           .stub()
-          .resolves([mockPlayStoreSubscriptionPurchase]),
+          .resolves([mockAppStoreSubscriptionPurchase]),
       },
-      purchaseManager: {},
     };
-    Container.set(PlayBilling, mockPlayBilling);
+    Container.set(AppleIAP, mockAppleIap);
     mockStripeHelper = {
       addPriceInfoToIapPurchases: sinon
         .stub()
-        .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
+        .resolves([mockAppendedAppStoreSubscriptionPurchase]),
     };
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(AppConfig, mockConfig);
-    playSubscriptions = new PlaySubscriptions();
+    appStoreSubscriptions = new AppStoreSubscriptions();
   });
 
   afterEach(() => {
@@ -77,7 +66,7 @@ describe('PlaySubscriptions', () => {
     it('throws if subscriptions are not enabled', async () => {
       mockConfig.subscriptions.enabled = false;
       try {
-        playSubscriptions = new PlaySubscriptions();
+        appStoreSubscriptions = new AppStoreSubscriptions();
         assert.fail('Should have thrown');
       } catch (error) {
         assert.equal(error.message, 'An internal validation check failed.');
@@ -86,7 +75,7 @@ describe('PlaySubscriptions', () => {
     it('throws if StripeHelper is undefined', async () => {
       Container.remove(StripeHelper);
       try {
-        playSubscriptions = new PlaySubscriptions();
+        appStoreSubscriptions = new AppStoreSubscriptions();
         assert.fail('Should have thrown');
       } catch (error) {
         assert.equal(error.message, 'An internal validation check failed.');
@@ -95,39 +84,38 @@ describe('PlaySubscriptions', () => {
   });
 
   describe('getSubscriptions', () => {
-    it('returns active Google Play subscription purchases', async () => {
-      const result = await playSubscriptions.getSubscriptions(UID);
+    it('returns active App Store subscription purchases', async () => {
+      const result = await appStoreSubscriptions.getSubscriptions(UID);
       assert.calledOnceWithExactly(
-        mockPlayBilling.userManager.queryCurrentSubscriptions,
+        mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases,
         UID
       );
       assert.calledOnceWithExactly(
         mockStripeHelper.addPriceInfoToIapPurchases,
-        [mockPlayStoreSubscriptionPurchase],
-        MozillaSubscriptionTypes.IAP_GOOGLE
+        [mockAppStoreSubscriptionPurchase],
+        MozillaSubscriptionTypes.IAP_APPLE
       );
-      const expected = [mockAppendedPlayStoreSubscriptionPurchase];
+      const expected = [mockAppendedAppStoreSubscriptionPurchase];
       assert.deepEqual(expected, result);
     });
-
-    it('returns [] if no active Play subscriptions are found', async () => {
-      const mockInactivePurchase = deepCopy(mockPlayStoreSubscriptionPurchase);
+    it('returns [] if no active App Store subscriptions are found', async () => {
+      const mockInactivePurchase = deepCopy(mockAppStoreSubscriptionPurchase);
       mockInactivePurchase.isEntitlementActive = sinon.fake.returns(false);
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+      mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases = sinon
         .stub()
         .resolves([mockInactivePurchase]);
       // In this case, we expect the length of the array returned by
       // addPriceInfoToIapPurchases to equal the length the array passed into it.
       mockStripeHelper.addPriceInfoToIapPurchases = sinon.stub().resolvesArg(0);
       const expected = [];
-      const result = await playSubscriptions.getSubscriptions(UID);
+      const result = await appStoreSubscriptions.getSubscriptions(UID);
       assert.deepEqual(result, expected);
     });
-    it('returns [] if PlayBilling is undefined', async () => {
-      Container.remove(PlayBilling);
-      playSubscriptions = new PlaySubscriptions();
+    it('returns [] if AppleIAP is undefined', async () => {
+      Container.remove(AppleIAP);
+      appStoreSubscriptions = new AppStoreSubscriptions();
       const expected = [];
-      const result = await playSubscriptions.getSubscriptions(UID);
+      const result = await appStoreSubscriptions.getSubscriptions(UID);
       assert.deepEqual(result, expected);
     });
   });

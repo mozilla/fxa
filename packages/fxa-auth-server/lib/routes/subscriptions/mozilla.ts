@@ -4,13 +4,19 @@
 import { ServerRoute } from '@hapi/hapi';
 import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
+
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
+import { AppStoreSubscriptions } from '../../../lib/payments/iap/apple-app-store/subscriptions';
 import { PlaySubscriptions } from '../../../lib/payments/iap/google-play/subscriptions';
 import error from '../../error';
+import {
+  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
+} from '../../payments/iap/iap-formatter';
 import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export const mozillaSubscriptionRoutes = ({
   log,
@@ -18,22 +24,28 @@ export const mozillaSubscriptionRoutes = ({
   customs,
   stripeHelper,
   playSubscriptions,
+  appStoreSubscriptions,
 }: {
   log: AuthLogger;
   db: any;
   customs: any;
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
+  appStoreSubscriptions?: AppStoreSubscriptions;
 }): ServerRoute[] => {
   if (!playSubscriptions) {
     playSubscriptions = Container.get(PlaySubscriptions);
+  }
+  if (!appStoreSubscriptions) {
+    appStoreSubscriptions = Container.get(AppStoreSubscriptions);
   }
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,
     db,
     customs,
     stripeHelper,
-    playSubscriptions
+    playSubscriptions,
+    appStoreSubscriptions
   );
   return [
     {
@@ -61,7 +73,8 @@ export class MozillaSubscriptionHandler {
     protected db: any,
     protected customs: any,
     protected stripeHelper: StripeHelper,
-    protected playSubscriptions: PlaySubscriptions
+    protected playSubscriptions: PlaySubscriptions,
+    protected appStoreSubscriptions: AppStoreSubscriptions
   ) {}
 
   async getBillingDetailsAndSubscriptions(request: AuthRequest) {
@@ -80,10 +93,13 @@ export class MozillaSubscriptionHandler {
       await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
     const iapGooglePlaySubscriptions =
       await this.playSubscriptions.getSubscriptions(uid);
+    const iapAppStoreSubscriptions =
+      await this.appStoreSubscriptions.getSubscriptions(uid);
 
     if (
       !stripeBillingDetailsAndSubscriptions &&
-      iapGooglePlaySubscriptions.length === 0
+      iapGooglePlaySubscriptions.length === 0 &&
+      iapAppStoreSubscriptions.length === 0
     ) {
       throw error.unknownCustomer(uid);
     }
@@ -97,7 +113,15 @@ export class MozillaSubscriptionHandler {
 
     return {
       ...response,
-      subscriptions: [...response.subscriptions, ...iapGooglePlaySubscriptions],
+      subscriptions: [
+        ...response.subscriptions,
+        ...iapGooglePlaySubscriptions.map(
+          playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO
+        ),
+        ...iapAppStoreSubscriptions.map(
+          appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO
+        ),
+      ],
     };
   }
 }

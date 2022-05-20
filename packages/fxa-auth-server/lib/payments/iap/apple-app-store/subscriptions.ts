@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
 
@@ -8,62 +9,63 @@ import { internalValidationError } from '../../../../lib/error';
 import { AppConfig } from '../../../types';
 import { StripeHelper } from '../../stripe';
 import { SubscriptionsService } from '../types';
-import { PlayBilling } from './play-billing';
-import { AppendedPlayStoreSubscriptionPurchase } from './types';
+import { AppleIAP } from './apple-iap';
 
-export class PlaySubscriptions
-  implements SubscriptionsService<AppendedPlayStoreSubscriptionPurchase>
+export class AppStoreSubscriptions
+  implements SubscriptionsService<AppendedAppStoreSubscriptionPurchase>
 {
-  private playBilling?: PlayBilling;
+  private appleIap?: AppleIAP;
   private stripeHelper?: StripeHelper;
 
   constructor() {
     const config = Container.get(AppConfig);
     if (!config.subscriptions.enabled) {
       throw internalValidationError(
-        'PlaySubscriptions',
+        'AppStoreSubscriptions',
         {},
         new Error(
-          'Trying to instantiate PlaySubscriptions while subscriptions are disabled.  Check your dependency graph.'
+          'Trying to instantiate AppStoreSubscriptions while subscriptions are disabled.  Check your dependency graph.'
         )
       );
     }
 
     if (!Container.has(StripeHelper)) {
       throw internalValidationError(
-        'PlaySubscriptions',
+        'AppStoreSubscriptions',
         {},
         new Error(
-          "Trying to instantiate PlaySubscriptions when there's no Stripe Helper.  Check your dependency graph."
+          "Trying to instantiate AppStoreSubscriptions when there's no Stripe Helper.  Check your dependency graph."
         )
       );
     }
 
     this.stripeHelper = Container.get(StripeHelper);
 
-    if (Container.has(PlayBilling)) {
-      this.playBilling = Container.get(PlayBilling);
+    if (Container.has(AppleIAP)) {
+      this.appleIap = Container.get(AppleIAP);
     }
   }
 
   /**
-   * Gets all active Google Play subscriptions for the given user id
+   * Gets all active App Store subscriptions for the given user id
    */
   async getSubscriptions(
     uid: string
-  ): Promise<AppendedPlayStoreSubscriptionPurchase[]> {
-    if (!this.playBilling) {
+  ): Promise<AppendedAppStoreSubscriptionPurchase[]> {
+    if (!this.appleIap) {
       return [];
     }
     const allPurchases =
-      await this.playBilling.userManager.queryCurrentSubscriptions(uid);
+      await this.appleIap.purchaseManager.queryCurrentSubscriptionPurchases(
+        uid
+      );
     const purchases = allPurchases.filter((purchase) =>
       purchase.isEntitlementActive()
     );
     // @ts-ignore
     return this.stripeHelper.addPriceInfoToIapPurchases(
       purchases,
-      MozillaSubscriptionTypes.IAP_GOOGLE
+      MozillaSubscriptionTypes.IAP_APPLE
     );
   }
 }

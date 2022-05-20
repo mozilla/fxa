@@ -45,19 +45,43 @@ const mockFormattedWebSubscription = {
   status: 'active',
   subscription_id: 'sub_12345',
 };
-const mockAbbrevPlayPurchase = {
-  auto_renewing: true,
-  expiry_time_millis: Date.now(),
-  package_name: 'org.mozilla.cooking.with.foxkeh',
-  sku: 'org.mozilla.foxkeh.yearly',
+const mockPlayStoreSubscriptionPurchase = {
+  kind: 'androidpublisher#subscriptionPurchase',
+  startTimeMillis: `${Date.now() - 10000}`,
+  expiryTimeMillis: `${Date.now() + 10000}`,
+  autoRenewing: true,
+  priceCurrencyCode: 'JPY',
+  priceAmountMicros: '99000000',
+  countryCode: 'JP',
+  developerPayload: '',
+  paymentState: 1,
+  orderId: 'GPA.3313-5503-3858-32549',
+  packageName: 'testPackage',
+  purchaseToken: 'testToken',
+  sku: 'sku',
+  verifiedAt: Date.now(),
+  isEntitlementActive: sinon.fake.returns(true),
 };
-const iap_product_id = 'iap_prod_lol';
-const iap_product_name = 'LOL Daily';
-const mockGooglePlaySubscription = {
+
+const mockExtraStripeInfo = {
+  price_id: 'price_lol',
+  product_id: 'prod_lol',
+  product_name: 'LOL Product',
+};
+
+const mockAppendedPlayStoreSubscriptionPurchase = {
+  ...mockPlayStoreSubscriptionPurchase,
+  ...mockExtraStripeInfo,
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  product_id: iap_product_id,
-  product_name: iap_product_name,
-  ...mockAbbrevPlayPurchase,
+};
+
+const mockFormattedPlayStoreSubscription = {
+  auto_renewing: mockPlayStoreSubscriptionPurchase.autoRenewing,
+  expiry_time_millis: mockPlayStoreSubscriptionPurchase.expiryTimeMillis,
+  package_name: mockPlayStoreSubscriptionPurchase.packageName,
+  sku: mockPlayStoreSubscriptionPurchase.sku,
+  ...mockExtraStripeInfo,
+  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
 };
 const log = mocks.mockLog();
 const db = mocks.mockDB({
@@ -70,13 +94,9 @@ let stripeHelper;
 describe('support-panel', () => {
   beforeEach(() => {
     stripeHelper = {
-      addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([
-        {
-          ...mockAbbrevPlayPurchase,
-          product_id: iap_product_id,
-          product_name: iap_product_name,
-        },
-      ]),
+      addPriceInfoToIapPurchases: sandbox
+        .stub()
+        .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
       fetchCustomer: sandbox.stub().resolves(mockCustomer),
       formatSubscriptionsForSupport: sandbox
         .stub()
@@ -101,7 +121,9 @@ describe('support-panel', () => {
 
     it('gets the expected subscriptions', async () => {
       const playSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([mockGooglePlaySubscription]),
+        getSubscriptions: sandbox
+          .stub()
+          .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
       };
       const routes = supportPanelRoutes({
         log,
@@ -121,12 +143,7 @@ describe('support-panel', () => {
       assert.deepEqual(resp, {
         [MozillaSubscriptionTypes.WEB]: [mockFormattedWebSubscription],
         [MozillaSubscriptionTypes.IAP_GOOGLE]: [
-          {
-            ...mockAbbrevPlayPurchase,
-            product_id: iap_product_id,
-            product_name: iap_product_name,
-            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-          },
+          mockFormattedPlayStoreSubscription,
         ],
       });
       assert.calledOnceWithExactly(stripeHelper.fetchCustomer, UID);

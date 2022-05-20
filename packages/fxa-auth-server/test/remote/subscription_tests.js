@@ -19,6 +19,9 @@ const { AuthLogger } = require('../../lib/types');
 const {
   PlaySubscriptions,
 } = require('../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient
@@ -46,6 +49,7 @@ describe('remote subscriptions:', function () {
     let client, server, tokens;
     const mockStripeHelper = {};
     const mockPlaySubscriptions = {};
+    const mockAppStoreSubscriptions = {};
 
     before(async () => {
       config.subscriptions.enabled = true;
@@ -91,6 +95,7 @@ describe('remote subscriptions:', function () {
       mockStripeHelper.fetchCustomer = async (uid, email) => ({});
       Container.set(StripeHelper, mockStripeHelper);
       Container.set(PlaySubscriptions, mockPlaySubscriptions);
+      Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
       Container.set(AuthLogger, {});
       Container.remove(CapabilityService);
       Container.set(CapabilityService, new CapabilityService());

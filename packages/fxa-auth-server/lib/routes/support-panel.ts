@@ -1,18 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
+
 import { ConfigType } from '../../config';
+import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO } from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
-
-import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 
 export const supportPanelRoutes = ({
   log,
@@ -73,9 +73,9 @@ export class SupportPanelHandler {
   async getSubscriptions(request: AuthRequest) {
     this.log.begin('supportPanelGetSubscriptions', request);
     const { uid } = request.query as Record<string, string>;
-    const iapPlaySubscriptions = await this.playSubscriptions.getSubscriptions(
-      uid
-    );
+    const iapPlaySubscriptions = (
+      await this.playSubscriptions.getSubscriptions(uid)
+    ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
     const customer = await this.stripeHelper.fetchCustomer(uid);
     const webSubscriptions = customer?.subscriptions;
     const formattedWebSubscriptions = webSubscriptions

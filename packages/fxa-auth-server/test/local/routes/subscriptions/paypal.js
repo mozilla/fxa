@@ -27,6 +27,12 @@ const buildRoutes = require('../../../../lib/routes/subscriptions');
 const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
+const {
+  PlaySubscriptions,
+} = require('../../../../lib/payments/iap/google-play/subscriptions');
+const {
+  AppStoreSubscriptions,
+} = require('../../../../lib/payments/iap/apple-app-store/subscriptions');
 const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -127,6 +133,8 @@ describe('subscriptions payPalRoutes', () => {
     profile = {};
     Container.set(CapabilityService, {});
     push = {};
+    Container.set(PlaySubscriptions, {});
+    Container.set(AppStoreSubscriptions, {});
   });
 
   afterEach(() => {

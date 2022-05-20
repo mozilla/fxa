@@ -1,21 +1,24 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import isA, { optional } from '@hapi/joi';
-import crypto from 'crypto';
+import isA from '@hapi/joi';
 import {
   deleteAllPayPalBAs,
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
+import { PlayStoreSubscription } from 'fxa-shared/dto/auth/payments/iap-subscription';
+import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
+import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import ScopeSet from 'fxa-shared/oauth/scopes';
-import {
-  GooglePlaySubscription,
-  WebSubscription,
-} from 'fxa-shared/subscriptions/types';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
 import { ConfigType } from '../../config';
+import ACCOUNT_DOCS from '../../docs/swagger/account-api';
+import MISC_DOCS from '../../docs/swagger/misc-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
@@ -24,20 +27,14 @@ import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
+import { playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO } from '../payments/iap/iap-formatter';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
+import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
-import { deleteAccountIfUnverified } from './utils/account';
-import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
-import { tryResolveMx, tryResolveIpv4 } from 'fxa-shared/email/validateEmail';
-import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
-
-import ACCOUNT_DOCS from '../../docs/swagger/account-api';
-import MISC_DOCS from '../../docs/swagger/misc-api';
-import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1506,7 +1503,7 @@ export class AccountHandler {
     const { uid } = request.auth.credentials;
 
     let webSubscriptions: Awaited<WebSubscription[]> = [];
-    let iapGooglePlaySubscriptions: Awaited<GooglePlaySubscription[]> = [];
+    let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
 
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
@@ -1521,9 +1518,9 @@ export class AccountHandler {
 
         if (this.config.subscriptions?.playApiServiceAccount?.enabled) {
           const playSubscriptions = Container.get(PlaySubscriptions);
-          iapGooglePlaySubscriptions = await playSubscriptions.getSubscriptions(
-            uid as string
-          );
+          iapGooglePlaySubscriptions = (
+            await playSubscriptions.getSubscriptions(uid as string)
+          ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
         }
       } catch (err) {
         if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
@@ -1923,7 +1920,8 @@ export const accountRoutes = (
                 .array()
                 .items(
                   validators.subscriptionsSubscriptionValidator,
-                  validators.subscriptionsGooglePlaySubscriptionValidator
+                  validators.subscriptionsGooglePlaySubscriptionValidator,
+                  validators.subscriptionsAppStoreSubscriptionValidator
                 ),
             })
             .label('Account.subscriptions'),

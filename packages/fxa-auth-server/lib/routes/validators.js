@@ -18,6 +18,10 @@ const {
 const {
   planConfigJoiKeys,
 } = require('fxa-shared/subscriptions/configuration/plan');
+const {
+  appStoreSubscriptionSchema,
+  playStoreSubscriptionSchema,
+} = require('fxa-shared/dto/auth/payments/iap-subscription');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -653,17 +657,11 @@ module.exports.subscriptionsStripeSubscriptionValidator = isA
   .label('Stripe_subscription')
   .unknown(true);
 
-module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
-  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  auto_renewing: isA.bool().required(),
-  cancel_reason: isA.number().optional(),
-  expiry_time_millis: isA.number().required(),
-  package_name: isA.string().required(),
-  product_id: isA.string().required(),
-  product_name: isA.string().required(),
-  price_id: isA.string().required(),
-  sku: isA.string().required(),
-});
+module.exports.subscriptionsGooglePlaySubscriptionValidator =
+  playStoreSubscriptionSchema;
+
+module.exports.subscriptionsAppStoreSubscriptionValidator =
+  appStoreSubscriptionSchema;
 
 module.exports.subscriptionsStripeCustomerValidator = isA
   .object({
@@ -705,7 +703,8 @@ module.exports.subscriptionsMozillaSubscriptionsValidator = isA
       .array()
       .items(
         module.exports.subscriptionsSubscriptionValidator,
-        module.exports.subscriptionsGooglePlaySubscriptionValidator
+        module.exports.subscriptionsGooglePlaySubscriptionValidator,
+        module.exports.subscriptionsAppStoreSubscriptionValidator
       )
       .required(),
   })

@@ -6,16 +6,16 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
+import { IapSubscription } from 'fxa-shared/subscriptions/types';
 import {
-  AppleSubscription,
-  GooglePlaySubscription,
-  IapSubscription,
-} from 'fxa-shared/subscriptions/types';
+  AppStoreSubscription,
+  PlayStoreSubscription,
+} from 'fxa-shared/dto/auth/payments/iap-subscription';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import {
   isAppleSubscription,
   isGooglePlaySubscription,
-} from 'fxa-shared/subscriptions/subscriptions';
+} from 'fxa-shared/subscriptions/type-guards';
 import {
   getIapSubscriptionManagementUrl,
   getLocalizedDateString,
@@ -43,7 +43,7 @@ export const SubscriptionIapItem = ({
 
 const GooglePlaySubscriptionIapItem = (
   productName: string,
-  customerSubscription: GooglePlaySubscription
+  customerSubscription: PlayStoreSubscription
 ) => {
   const { auto_renewing, expiry_time_millis } = customerSubscription;
 
@@ -99,7 +99,7 @@ const GooglePlaySubscriptionIapItem = (
 
 const AppleSubscriptionIapItem = (
   productName: string,
-  customerSubscription: AppleSubscription
+  customerSubscription: AppStoreSubscription
 ) => {
   return (
     <div className="settings-unit">

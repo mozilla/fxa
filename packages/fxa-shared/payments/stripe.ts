@@ -12,17 +12,19 @@ import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
 } from '../db/models/auth';
+import { IapExtraStripeInfo } from '../dto/auth/payments/iap-subscription';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
 import { ILogger } from '../log';
 import { mapPlanConfigsByPriceId } from '../subscriptions/configuration/utils';
 import {
   AbbrevPlan,
-  AbbrevPlayPurchase,
   ConfiguredPlan,
   MozillaSubscriptionTypes,
   SubscriptionType,
 } from '../subscriptions/types';
 import { PaymentConfigManager } from './configuration/manager';
+import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
 export const CHARGES_RESOURCE = 'charges';
@@ -63,6 +65,12 @@ export enum STRIPE_PRICE_METADATA {
   APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
   PROMOTION_CODES = 'promotionCodes',
   PLAY_SKU_IDS = 'playSkuIds',
+}
+
+// PlayStoreSubscriptionPurchase or AppStoreSubscriptionPurchase properties corresponding to the Stripe price id
+export enum STRIPE_PRICE_ID_TO_IAP_ANALOG {
+  PLAY_STORE = 'sku',
+  APP_STORE = 'productId',
 }
 
 export type StripeHelperConfig = {
@@ -258,37 +266,39 @@ export abstract class StripeHelper {
   }
 
   /**
-   * Append any matching price ids and names to their corresponding AbbrevPlayPurchase.
+   * Append any matching prices and related info to their corresponding IAP purchases.
    */
-  async addPriceInfoToAbbrevPlayPurchases(
-    purchases: AbbrevPlayPurchase[]
+  async addPriceInfoToIapPurchases(
+    purchases: PlayStoreSubscriptionPurchase[] | AppStoreSubscriptionPurchase[],
+    iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>
   ): Promise<
-    (AbbrevPlayPurchase & {
-      product_id: string;
-      product_name: string;
-      price_id: string;
-    })[]
+    | (
+        | (PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase) &
+            IapExtraStripeInfo
+      )[]
   > {
     const plans = await this.allAbbrevPlans();
-    const appendedAbbrevPlayPurchases = [];
+    const appendedPurchases = [];
     for (const plan of plans) {
-      const playSkus = this.priceToIapIdentifiers(
-        plan,
-        MozillaSubscriptionTypes.IAP_GOOGLE
+      const iapIdentifiers = this.priceToIapIdentifiers(plan, iapType);
+      const iapIdentifierKey =
+        iapType === MozillaSubscriptionTypes.IAP_GOOGLE
+          ? STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE
+          : STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE;
+      // @ts-ignore
+      const matchingPurchases = purchases.filter((purchase) =>
+        iapIdentifiers.includes(purchase[iapIdentifierKey].toLowerCase())
       );
-      const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
-        playSkus.includes(purchase.sku.toLowerCase())
-      );
-      for (const matchingAbbrevPlayPurchase of matchingAbbrevPlayPurchases) {
-        appendedAbbrevPlayPurchases.push({
-          ...matchingAbbrevPlayPurchase,
+      for (const matchingPurchase of matchingPurchases) {
+        appendedPurchases.push({
+          ...matchingPurchase,
           product_id: plan.product_id,
           product_name: plan.product_name,
           price_id: plan.plan_id,
         });
       }
     }
-    return appendedAbbrevPlayPurchases;
+    return appendedPurchases;
   }
 
   /**

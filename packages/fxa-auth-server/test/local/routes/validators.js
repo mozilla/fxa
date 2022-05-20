@@ -10,6 +10,7 @@ const validators = require('../../../lib/routes/validators');
 const plan1 = require('../payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const { deepCopy } = require('../payments/util');
 
 describe('lib/routes/validators:', () => {
   it('isValidEmailAddress returns true for valid email addresses', () => {
@@ -600,41 +601,80 @@ describe('lib/routes/validators:', () => {
   });
 
   describe('subscriptionsGooglePlaySubscriptionValidator', () => {
-    const mockAbbrevPlayPurchase = {
+    const mockGooglePlaySubscription = {
       auto_renewing: true,
       expiry_time_millis: Date.now(),
       package_name: 'org.mozilla.cooking.with.foxkeh',
       sku: 'org.mozilla.foxkeh.yearly',
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      product_id: 'xyz',
+      product_name: 'Awesome product',
+      price_id: 'abc',
     };
     it('accepts a valid Google Play subscription', () => {
       const res =
-        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
-          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-          product_id: 'xyz',
-          product_name: 'Awesome product',
-          price_id: 'abc',
-          ...mockAbbrevPlayPurchase,
-        });
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate(
+          mockGooglePlaySubscription
+        );
       assert.ok(!res.error);
     });
 
     it('rejects a Google Play subscription with the incorrect subscription type', () => {
+      const unknownSubscription = deepCopy(mockGooglePlaySubscription);
+      unknownSubscription._subscription_type = 'unknown';
       const res =
-        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
-          _subscription_type: 'unknown',
-          product_id: 'xyz',
-          price_id: 'abc',
-          ...mockAbbrevPlayPurchase,
-        });
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate(
+          unknownSubscription
+        );
       assert.ok(res.error);
     });
 
     it('rejects a Google Play subscription a missing product id', () => {
+      const noProdIdSubscription = deepCopy(mockGooglePlaySubscription);
+      delete noProdIdSubscription.product_id;
       const res =
-        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
-          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-          ...mockAbbrevPlayPurchase,
-        });
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate(
+          noProdIdSubscription
+        );
+      assert.ok(res.error);
+    });
+  });
+
+  describe('subscriptionsAppStoreSubscriptionValidator', () => {
+    const mockAppStoreSubscription = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+      app_store_product_id: 'wow',
+      auto_renewing: true,
+      bundle_id: 'hmm',
+      price_id: 'price_123',
+      product_id: 'prod_123',
+      product_name: 'Cooking with Foxkeh',
+    };
+    it('accepts a valid Google Play subscription', () => {
+      const res =
+        validators.subscriptionsAppStoreSubscriptionValidator.validate(
+          mockAppStoreSubscription
+        );
+      assert.ok(!res.error);
+    });
+
+    it('rejects a Google Play subscription with the incorrect subscription type', () => {
+      const unknownSubscription = deepCopy(mockAppStoreSubscription);
+      unknownSubscription._subscription_type = 'unknown';
+      const res =
+        validators.subscriptionsAppStoreSubscriptionValidator.validate(
+          unknownSubscription
+        );
+      assert.ok(res.error);
+    });
+
+    it('rejects a Google Play subscription a missing product id', () => {
+      const noProdIdSubscription = deepCopy(mockAppStoreSubscription);
+      delete noProdIdSubscription.product_id;
+      const res =
+        validators.subscriptionsAppStoreSubscriptionValidator.validate(
+          noProdIdSubscription
+        );
       assert.ok(res.error);
     });
   });

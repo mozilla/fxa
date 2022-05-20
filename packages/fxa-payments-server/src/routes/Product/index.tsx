@@ -29,7 +29,7 @@ import {
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
-import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
+import { isWebSubscription } from 'fxa-shared/subscriptions/type-guards';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
