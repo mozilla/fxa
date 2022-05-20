@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  AbbrevPlayPurchase,
-  MozillaSubscriptionTypes,
-} from 'fxa-shared/subscriptions/types';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 // Note that these `*.Response` interfaces are purely for access to known
 // response keys and not an attempt to validate the return payloads from
@@ -22,7 +19,11 @@ interface WebSubscription {
   subscription_id: string;
 }
 
-type PlaySubscription = Omit<AbbrevPlayPurchase, 'expiry_time_millis'> & {
+type PlaySubscription = {
+  auto_renewing: boolean;
+  cancel_reason?: number;
+  package_name: string;
+  sku: string;
   product_id: string;
   expiry: string;
 };
