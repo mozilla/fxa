@@ -14492,13 +14492,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big-integer@npm:^1.6.31":
-  version: 1.6.48
-  resolution: "big-integer@npm:1.6.48"
-  checksum: fc43ae12ebf2b2a58d6da92ef7069666d131fa993be4020cb1a11e384f6d8e7a69dced7f69d27b65a6aff2e6abb548fb823303bde138eab60b556100c17761f3
-  languageName: node
-  linkType: hard
-
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
@@ -22858,7 +22851,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    maxmind: 2.8.0
+    maxmind: 3.1.2
     mkdirp: 0.5.1
     mocha: ^9.1.2
     mozlog: ^3.0.2
@@ -30980,13 +30973,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"maxmind@npm:2.8.0":
-  version: 2.8.0
-  resolution: "maxmind@npm:2.8.0"
+"maxmind@npm:3.1.2":
+  version: 3.1.2
+  resolution: "maxmind@npm:3.1.2"
   dependencies:
-    big-integer: ^1.6.31
-    tiny-lru: ^1.6.1
-  checksum: a00a62cae4b0f0ef6df05323683218317618a80e2424beaaef9894c43f4ce42530c73ca5b7c52d6abaaa8c7052e218877319d3391853810d942a26621775d094
+    tiny-lru: 6.0.1
+  checksum: 3bd8c39fee014301379633eca084972f8d512494c95b6315dec0aebdfac4ad129a3abd6dc08809109bcf0c3a649c6ad966a6d3a0f9b4ce03bfa4d8184b6c193c
   languageName: node
   linkType: hard
 
@@ -42132,10 +42124,10 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tiny-lru@npm:^1.6.1":
-  version: 1.6.4
-  resolution: "tiny-lru@npm:1.6.4"
-  checksum: 73996e6ebef30b175005c8efe5d7302452dabb80d1a804a418105169cafdcda3374a949afee71930ce5a20502e5b1ecc457a6489a76bbb72abaa90927555f2df
+"tiny-lru@npm:6.0.1":
+  version: 6.0.1
+  resolution: "tiny-lru@npm:6.0.1"
+  checksum: 056c340fbef31d74bee3921fb20044497ff1efa34121d27bfbe46c83c7dd2b0aa5f28bd49df3ae790d802f49ff2dee762dd1dda9c9a986f4f9f8b81036dcf3f3
   languageName: node
   linkType: hard
 
