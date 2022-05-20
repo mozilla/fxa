@@ -1,5 +1,11 @@
 # Change history
 
+## 1.232.5
+
+### New features
+
+- l10n: remove sr-LATN support. Fix FXA-5126 ([92f6d1cc7d](https://github.com/mozilla/fxa/commit/92f6d1cc7d))
+
 ## 1.232.4
 
 No changes.
