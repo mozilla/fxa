@@ -12,8 +12,9 @@ describe('Connect another device Promo', () => {
   it('renders "fresh load" <ConnectAnotherDevicePromo/> with correct content', async () => {
     renderWithRouter(<ConnectAnotherDevicePromo />);
 
-    expect(await screen.findByText('Get Firefox on mobile or tablet'))
-      .toBeTruthy;
+    expect(
+      await screen.findByText('Get Firefox on mobile or tablet')
+    ).toBeTruthy();
     expect(await screen.findByTestId('download-link')).toHaveAttribute(
       'href',
       'https://www.mozilla.org/en-US/firefox/mobile/'

@@ -61,9 +61,9 @@ describe('FirestoreService', () => {
     'ignores a duplicate login',
     async () => {
       const result = await service.storeLogin(uid1, 'fx_send');
-      expect(result).toBeTruthy;
+      expect(result).toBeTruthy();
       const result2 = await service.storeLogin(uid1, 'fx_send');
-      expect(result2).toBeFalsy;
+      expect(result2).toBeFalsy();
     },
     TEST_TIMEOUT
   );
