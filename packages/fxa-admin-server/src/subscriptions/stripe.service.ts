@@ -135,6 +135,24 @@ export class StripeService extends StripeHelper {
     }
     return await this.stripe.invoices.retrieve(invoice);
   }
+
+  /**
+   * Starts a management session for the customer's subscriptions.
+   * @param customer - stripe customer
+   */
+  public async createManageSubscriptionLink(
+    customer: string | Stripe.Customer | Stripe.DeletedCustomer,
+    returnUrl: string
+  ) {
+    let customerId = typeof customer === 'string' ? customer : customer.id;
+
+    const resp = await this.stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl,
+    });
+
+    return resp.url;
+  }
 }
 export type SkuKey =
   | STRIPE_PRICE_METADATA.PLAY_SKU_IDS

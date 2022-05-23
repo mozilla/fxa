@@ -5,8 +5,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Subscription from '.';
+import { MozSubscription } from 'fxa-admin-server/src/graphql';
 
-const subscription = {
+const subscription: MozSubscription = {
   created: 1583259953,
   currentPeriodEnd: 1596758906,
   currentPeriodStart: 1594080506,
@@ -19,6 +20,7 @@ const subscription = {
   productId: 'il_1H24MIBVqmGyQTMa2hcoK0YW',
   status: 'succeeded',
   subscriptionId: 'sub_HbGu2EjvFQpuD2',
+  manageSubscriptionLink: 'https://billing.stripe.com/session/test_123',
 };
 
 it('renders each field as expected', () => {
@@ -40,4 +42,10 @@ it('renders each field as expected', () => {
 
   const invoiceLink = screen.getByText('Latest invoice');
   expect(invoiceLink).toHaveAttribute('href', subscription.latestInvoice);
+
+  const manageSubscriptionLink = screen.getByText('Manage Subscription');
+  expect(manageSubscriptionLink).toHaveAttribute(
+    'href',
+    subscription.manageSubscriptionLink
+  );
 });

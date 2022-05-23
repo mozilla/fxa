@@ -7,23 +7,7 @@ import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-pl
 import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
-
-/**
- * Structure of a generic mozilla subscription
- */
-export type MozSubscription = {
-  created: number;
-  currentPeriodEnd: number;
-  currentPeriodStart: number;
-  cancelAtPeriodEnd: boolean;
-  endedAt: number | null;
-  latestInvoice: string;
-  planId: string;
-  productName: string;
-  productId: string;
-  status: Stripe.Subscription.Status;
-  subscriptionId: string;
-};
+import { MozSubscription } from '../gql/model/moz-subscription.model';
 
 /**
  * Responsible for converting a Stripe.Subscription to a MozSubscription
@@ -32,7 +16,8 @@ export class StripeFormatter {
   static toMozSubscription(
     subscription: MozStripeSubscriptionDetails,
     plan?: MozPlanDetails,
-    invoice?: MozInvoiceDetails
+    invoice?: MozInvoiceDetails,
+    manageSubscriptionLink?: string
   ) {
     return {
       created: subscription.created,
@@ -41,6 +26,7 @@ export class StripeFormatter {
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       endedAt: subscription.ended_at,
       latestInvoice: invoice?.hosted_invoice_url || 'NA',
+      manageSubscriptionLink: manageSubscriptionLink || '',
       planId: plan?.plan_id || 'NA',
       productName: plan?.product_name || 'NA',
       productId: plan?.product_id || 'NA',

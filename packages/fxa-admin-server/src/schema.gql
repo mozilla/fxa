@@ -115,6 +115,7 @@ type MozSubscription {
   cancelAtPeriodEnd: Boolean!
   endedAt: Float
   latestInvoice: String!
+  manageSubscriptionLink: String!
   planId: String!
   productName: String!
   productId: String!

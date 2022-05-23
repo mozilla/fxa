@@ -15,6 +15,7 @@ const Subscription = ({
   cancelAtPeriodEnd,
   endedAt,
   latestInvoice,
+  manageSubscriptionLink,
   planId,
   productName,
   productId,
@@ -59,12 +60,23 @@ const Subscription = ({
         Plan ID: <span>{planId}</span>
       </li>
 
-      <li className="account-li mt-2">
-        <LinkExternal href={latestInvoice} className="underline">
-          Latest invoice
-          <IconExternalLink className="ml-2 w-4 inline-block icon-dark" />
-        </LinkExternal>
-      </li>
+      {!!latestInvoice && (
+        <li className="account-li mt-2">
+          <LinkExternal href={latestInvoice} className="underline">
+            Latest invoice
+            <IconExternalLink className="ml-2 w-4 inline-block icon-dark" />
+          </LinkExternal>
+        </li>
+      )}
+
+      {!!manageSubscriptionLink && (
+        <li className="account-li mt-2">
+          <LinkExternal href={manageSubscriptionLink} className="underline">
+            Manage Subscription
+            <IconExternalLink className="ml-2 w-4 inline-block icon-dark" />
+          </LinkExternal>
+        </li>
+      )}
     </ul>
   );
 };
