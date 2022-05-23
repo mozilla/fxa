@@ -110,7 +110,7 @@ export class AccountResolver {
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
       .innerJoin('emails', 'emails.uid', 'accounts.uid')
-      .where('emails.normalizedEmail', email)
+      .where('emails.normalizedEmail', email.toLocaleLowerCase())
       .first();
   }
 
@@ -120,7 +120,7 @@ export class AccountResolver {
     return this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
-      .where('email', 'like', `${search}%`)
+      .where('normalizedEmail', 'like', `${search.toLowerCase()}%`)
       .limit(10);
   }
 
@@ -130,7 +130,7 @@ export class AccountResolver {
   public async unverifyEmail(@Args('email') email: string) {
     const result = await this.db.emails
       .query()
-      .where('email', email)
+      .where('normalizedEmail', 'like', `${email.toLowerCase()}%`)
       .update({
         isVerified: false,
         verifiedAt: null as any, // same as null
