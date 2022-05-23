@@ -74,7 +74,6 @@ export class AppStoreHelper {
     return this.appStoreServerApiClients[bundleId];
   }
 
-  // keep
   async getSubscriptionStatuses(
     bundleId: string,
     originalTransactionId: string

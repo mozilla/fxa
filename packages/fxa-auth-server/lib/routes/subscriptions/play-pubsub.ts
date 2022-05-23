@@ -5,13 +5,12 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { Container } from 'typedi';
 
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/iap/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/iap/google-play/types';
-import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 export class PlayPubsubHandler {
   private log: AuthLogger;

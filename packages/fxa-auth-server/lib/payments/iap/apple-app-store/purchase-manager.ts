@@ -2,12 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference } from '@google-cloud/firestore';
+import {
+  decodeNotificationPayload,
+  DecodedNotificationPayload,
+  decodeTransaction,
+  NotificationSubtype,
+  NotificationType,
+} from 'app-store-server-api';
+import { PurchaseManager as PurchaseManagerBase } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
+import { PurchaseUpdateError } from 'fxa-shared/payments/iap/apple-app-store/types/errors';
 import Container from 'typedi';
 
 import { AuthLogger } from '../../../types';
 import { AppStoreHelper } from './app-store-helper';
-import { PurchaseManager as PurchaseManagerBase } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
-import { PurchaseUpdateError } from 'fxa-shared/payments/iap/apple-app-store/types/errors';
+import { AppStoreSubscriptionPurchase } from './subscription-purchase';
+
+export const NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES = [
+  NotificationType.ConsumptionRequest,
+];
 
 /**
  * This class wraps Firestore API calls for Apple IAP purchases. It
@@ -95,5 +107,62 @@ export class PurchaseManager extends PurchaseManagerBase {
       libraryError.name = PurchaseUpdateError.OTHER_ERROR;
       throw libraryError;
     }
+  }
+
+  async decodeNotificationPayload(payload: string): Promise<{
+    bundleId: string;
+    decodedPayload: DecodedNotificationPayload;
+    originalTransactionId: string;
+  }> {
+    const decodedPayload = await decodeNotificationPayload(payload);
+    const { bundleId, originalTransactionId } = await decodeTransaction(
+      decodedPayload.data.signedTransactionInfo
+    );
+    return {
+      bundleId,
+      decodedPayload,
+      originalTransactionId,
+    };
+  }
+
+  /**
+   * Update Firestore with the latest subscription status information from
+   * the App Store Server.
+   *
+   * See https://developer.apple.com/documentation/appstoreservernotifications/notificationtype
+   * and https://developer.apple.com/documentation/appstoreservernotifications/subtype
+   */
+  async processNotification(
+    bundleId: string,
+    originalTransactionId: string,
+    notification: DecodedNotificationPayload
+  ): Promise<AppStoreSubscriptionPurchase | null> {
+    // Type-guard to ensure the notification is for a subscription
+    if (
+      NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES.includes(
+        notification.notificationType
+      )
+    ) {
+      return null;
+    }
+
+    // We can safely ignore Subscribed - InitialBuy notifications, because
+    // with a new subscription, our iOS app will send the same original
+    // transaction ID to the server for verification.
+    if (
+      notification.notificationType === NotificationType.Subscribed &&
+      notification?.subtype === NotificationSubtype.InitialBuy
+    ) {
+      return null;
+    }
+
+    // For other types of notifications, we query the App Store Server API
+    // to update our purchase record cache in Firestore
+    return this.querySubscriptionPurchase(
+      bundleId,
+      originalTransactionId,
+      notification.notificationType,
+      notification?.subtype
+    );
   }
 }

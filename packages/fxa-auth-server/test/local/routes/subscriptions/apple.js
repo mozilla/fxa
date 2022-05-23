@@ -7,7 +7,6 @@
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
 
 const mocks = require('../../../mocks');
 const {
@@ -24,11 +23,11 @@ const {
 const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
+const {
+  CertificateValidationError,
+} = require('app-store-server-api/dist/cjs/Errors');
 
 const MOCK_SCOPES = [OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
-const ACCOUNT_LOCALE = 'en-US';
-const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const VALID_REQUEST = {
   auth: {
     credentials: {
@@ -45,7 +44,6 @@ describe('AppleIapHandler', () => {
   let log;
   let appleIapHandler;
   let mockCapabilityService;
-  let db;
 
   beforeEach(() => {
     log = mocks.mockLog();
@@ -54,16 +52,10 @@ describe('AppleIapHandler', () => {
     iapConfig = {};
     Container.set(IAPConfig, iapConfig);
     Container.set(AppleIAP, appleIap);
-    db = mocks.mockDB({
-      uid: UID,
-      email: TEST_EMAIL,
-      locale: ACCOUNT_LOCALE,
-    });
-    db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
     mockCapabilityService = {};
     mockCapabilityService.iapUpdate = sinon.fake.resolves({});
     Container.set(CapabilityService, mockCapabilityService);
-    appleIapHandler = new AppleIapHandler(db);
+    appleIapHandler = new AppleIapHandler();
   });
 
   afterEach(() => {
@@ -155,6 +147,82 @@ describe('AppleIapHandler', () => {
         assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
         assert.calledOnce(iapConfig.getBundleId);
       }
+    });
+  });
+  describe('processNotification', () => {
+    const mockBundleId = 'testPackage';
+    const mockOriginalTransactionId = '123';
+
+    let mockDecodedNotificationPayload;
+    let mockPurchase;
+    let mockRequest;
+    beforeEach(() => {
+      mockDecodedNotificationPayload = {};
+      mockPurchase = {
+        userId: 'test1234',
+      };
+      mockRequest = {
+        payload: {},
+      };
+      appleIap.purchaseManager = {
+        decodeNotificationPayload: sinon.fake.resolves({
+          bundleId: mockBundleId,
+          originalTransactionId: mockOriginalTransactionId,
+          decodedPayload: mockDecodedNotificationPayload,
+        }),
+        getSubscriptionPurchase: sinon.fake.resolves(mockPurchase),
+        processNotification: sinon.fake.resolves({}),
+      };
+    });
+
+    it('handles a notification that requires profile updating', async () => {
+      const result = await appleIapHandler.processNotification(mockRequest);
+      assert.deepEqual(result, {});
+      assert.calledOnce(appleIap.purchaseManager.decodeNotificationPayload);
+      assert.calledOnce(appleIap.purchaseManager.getSubscriptionPurchase);
+      assert.calledOnce(appleIap.purchaseManager.processNotification);
+      assert.calledOnce(mockCapabilityService.iapUpdate);
+    });
+
+    it('throws an unauthorized error on certificate validation failure', async () => {
+      appleIap.purchaseManager.decodeNotificationPayload = sinon.fake.rejects(
+        new CertificateValidationError()
+      );
+      try {
+        await appleIapHandler.processNotification(mockRequest);
+        assert.fail('Should have thrown.');
+      } catch (err) {
+        assert.equal(err.output.statusCode, 401);
+        assert.equal(err.message, 'Unauthorized for route');
+      }
+    });
+
+    it('rethrows any other type of error if decoding the notification fails', async () => {
+      appleIap.purchaseManager.decodeNotificationPayload = sinon.fake.rejects(
+        new Error('Yikes')
+      );
+      try {
+        await appleIapHandler.processNotification(mockRequest);
+        assert.fail('Should have thrown.');
+      } catch (err) {
+        assert.equal(err.message, 'Yikes');
+      }
+    });
+
+    it('Still processes the notification if the purchase is not found in Firestore', async () => {
+      appleIap.purchaseManager.getSubscriptionPurchase =
+        sinon.fake.resolves(null);
+      const result = await appleIapHandler.processNotification(mockRequest);
+      assert.deepEqual(result, {});
+      assert.calledOnce(appleIap.purchaseManager.processNotification);
+    });
+
+    it('Still processes the notification if there is no user id but does not broadcast', async () => {
+      mockPurchase.userId = null;
+      const result = await appleIapHandler.processNotification(mockRequest);
+      assert.deepEqual(result, {});
+      assert.calledOnce(appleIap.purchaseManager.processNotification);
+      assert.notCalled(mockCapabilityService.iapUpdate);
     });
   });
 });

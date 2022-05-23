@@ -2,17 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference } from '@google-cloud/firestore';
-import { TransactionType } from 'app-store-server-api';
-import { decodeRenewalInfo, decodeTransaction } from 'app-store-server-api';
+import {
+  decodeRenewalInfo,
+  decodeTransaction,
+  NotificationSubtype,
+  NotificationType,
+  TransactionType,
+} from 'app-store-server-api';
 import { Logger } from 'mozlog';
+
 import { AppStoreHelper } from './app-store-helper';
 import {
   APPLE_APP_STORE_FORM_OF_PAYMENT,
-  mergePurchaseWithFirestorePurchaseRecord,
   AppStoreSubscriptionPurchase,
+  mergePurchaseWithFirestorePurchaseRecord,
 } from './subscription-purchase';
-import { PurchaseQueryError, PurchaseUpdateError } from './types';
+import { PurchaseQueryError } from './types';
 
+/**
+ * Interface for the Apple IAP purchases collection in Firestore. Provides
+ * methods to query and update Firestore.
+ */
 export class PurchaseManager {
   constructor(
     protected purchasesDbRef: CollectionReference,
@@ -27,10 +37,15 @@ export class PurchaseManager {
    * then returns the merged information as a SubscriptionPurchase to its caller.
    * A brand new subscription will not yet have a defined userId;
    * that's handled by registerToUserAccount.
+   *
+   * triggerNotificationType is only necessary if the purchase query action is triggered
+   * by an App Store Server notification.
    */
   public async querySubscriptionPurchase(
     bundleId: string,
-    originalTransactionId: string
+    originalTransactionId: string,
+    triggerNotificationType?: NotificationType,
+    triggerNotificationSubtype?: NotificationSubtype
   ) {
     // STEP 1. Query App Store Server API to get the subscription status
     let apiResponse;
@@ -73,6 +88,16 @@ export class PurchaseManager {
         originalTransactionId,
         now
       );
+
+      // Store notificationType and notificationSubtype to database if this was
+      // triggered by a notification
+      if (triggerNotificationType !== undefined) {
+        subscriptionPurchase.latestNotificationType = triggerNotificationType;
+        // This may be `undefined`, but we assign regardless to clear any previous
+        // notification's subtype value.
+        subscriptionPurchase.latestNotificationSubtype =
+          triggerNotificationSubtype;
+      }
 
       // Convert subscriptionPurchase object to a format that to be stored in Firestore
       const firestoreObject = subscriptionPurchase.toFirestoreObject();
