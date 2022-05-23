@@ -37,7 +37,7 @@
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.2.1",
-    "@nestjs/platform-express": "^8.4.4",
+    "@nestjs/platform-express": "^8.4.5",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "apollo-datasource": "^3.3.1",
