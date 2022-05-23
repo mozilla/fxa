@@ -27,30 +27,28 @@ module.exports = (log, signer, db, domain, devices) => {
           query: isA.object({
             service: validators.service.optional(),
           }),
-          payload: isA
-            .object({
-              publicKey: isA
-                .object({
-                  algorithm: isA.string().valid('RS', 'DS').required(),
-                  n: isA.string(),
-                  e: isA.string(),
-                  y: isA.string(),
-                  p: isA.string(),
-                  q: isA.string(),
-                  g: isA.string(),
-                  version: isA.string(),
-                })
-                .required()
-                .description(DESCRIPTION.publicKey),
-              duration: isA
-                .number()
-                .integer()
-                .min(0)
-                .max(24 * HOUR)
-                .required()
-                .description(DESCRIPTION.duration),
-            })
-            .label('Sign.cert_payload'),
+          payload: isA.object({
+            publicKey: isA
+              .object({
+                algorithm: isA.string().valid('RS', 'DS').required(),
+                n: isA.string(),
+                e: isA.string(),
+                y: isA.string(),
+                p: isA.string(),
+                q: isA.string(),
+                g: isA.string(),
+                version: isA.string(),
+              })
+              .required()
+              .description(DESCRIPTION.publicKey),
+            duration: isA
+              .number()
+              .integer()
+              .min(0)
+              .max(24 * HOUR)
+              .required()
+              .description(DESCRIPTION.duration),
+          }),
         },
       },
       handler: async function certificateSign(request) {

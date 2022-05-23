@@ -265,7 +265,7 @@ module.exports = ({ log, oauthDB, config }) => {
               then: Joi.optional(),
               otherwise: Joi.forbidden(),
             }),
-          }).label('Authorization_payload'),
+          }),
         },
         response: {
           schema: Joi.object()
@@ -286,8 +286,7 @@ module.exports = ({ log, oauthDB, config }) => {
               'expires_in',
             ])
             .with('code', ['state', 'redirect'])
-            .without('code', ['access_token'])
-            .label('Authorization_response'),
+            .without('code', ['access_token']),
         },
         handler: function (req) {
           // Refuse to generate new codes or tokens for disabled clients.
@@ -348,16 +347,14 @@ module.exports = ({ log, oauthDB, config }) => {
               .description(DESCRIPTION.acrValues),
             assertion: Joi.forbidden(),
             resource: Joi.forbidden(),
-          })
-            .and('code_challenge', 'code_challenge_method')
-            .label('Oauth.authorization_payload'),
+          }).and('code_challenge', 'code_challenge_method'),
         },
         response: {
           schema: Joi.object({
             redirect: Joi.string(),
             code: Joi.string(),
             state: Joi.string().max(512),
-          }).label('Oauth.authorization_response'),
+          }),
         },
       },
       handler: async function (req) {

@@ -10,90 +10,115 @@ const TAGS_MISC = {
 
 const ACCOUNT_STUB_POST = {
   ...TAGS_MISC,
+  description: '/account/stub',
 };
 
 const ACCOUNT_FINISH_SETUP_POST = {
   ...TAGS_MISC,
+  description: '/account/finish_setup',
 };
 
 const ACCOUNT_GET = {
   ...TAGS_MISC,
-  description: '🔒 sessionToken',
+  description: '/account',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const ACCOUNT_LOCK_POST = {
   ...TAGS_MISC,
+  description: '/account/lock',
 };
 
 const ACCOUNT_SESSIONS_LOCATIONS_GET = {
   ...TAGS_MISC,
-  description: '🔒 supportPanelSecret',
+  description: '/account/sessions/locations',
+  notes: ['🔒 Authenticated with support panel secret'],
 };
 
 const NEWSLETTERS_POST = {
   ...TAGS_MISC,
-  description: '🔒 sessionToken, oauthToken',
+  description: '/newsletters',
+  notes: [
+    '🔒 Authenticated with OAuth bearer token or authenticated with session token',
+  ],
 };
 
 const SUPPORT_TICKET_POST = {
   ...TAGS_MISC,
-  description: '🔒 supportSecret, oauthToken',
+  description: '/support/ticket',
+  notes: [
+    '🔒 Authenticated with support secret or authenticated with OAuth bearer token',
+  ],
 };
 
 const WELLKNOWN_BROWSERID_GET = {
   ...TAGS_MISC,
+  description: '/.well-known/browserid',
 };
 
 const WELLKNOWN_PUBLIC_KEYS = {
   ...TAGS_MISC,
+  description: '/.well-known/public-keys',
 };
 
 const AUTHORIZATION_GET = {
   ...TAGS_MISC,
+  description: '/authorization',
 };
 
 const AUTHORIZATION_POST = {
   ...TAGS_MISC,
+  description: '/authorization',
 };
 
 const DESTROY_POST = {
   ...TAGS_MISC,
+  description: '/destroy',
 };
 
 const AUTHORIZED_CLIENTS_DESTROY_POST = {
   ...TAGS_MISC,
+  description: '/authorized-clients/destroy',
 };
 
 const AUTHORIZED_CLIENTS_POST = {
   ...TAGS_MISC,
+  description: '/authorized_clients',
 };
 
 const CLIENT_CLIENTID_GET = {
   ...TAGS_MISC,
+  description: '/oauth/client/{client_id}',
 };
 
 const OAUTH_ID_TOKEN_VERIFY_POST = {
   ...TAGS_MISC,
+  description: '/oauth/id-token-verify',
 };
 
 const INTROSPECT_POST = {
   ...TAGS_MISC,
+  description: '/introspect',
 };
 
 const JWKS_GET = {
   ...TAGS_MISC,
+  description: '/jwks',
 };
 
 const KEY_DATA_POST = {
   ...TAGS_MISC,
+  description: '/key-data',
 };
 
 const TOKEN_POST = {
   ...TAGS_MISC,
+  description: '/token',
 };
 
 const VERIFY_POST = {
   ...TAGS_MISC,
+  description: '/verify',
 };
 
 const API_DOCS = {

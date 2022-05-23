@@ -10,6 +10,7 @@ const TAGS_UTIL = {
 
 const GET_RANDOM_BYTES_POST = {
   ...TAGS_UTIL,
+  description: '/get_random_bytes',
   notes: [
     'Get 32 bytes of random data. This should be combined with locally-sourced entropy when creating salts, etc.',
   ],
@@ -17,10 +18,12 @@ const GET_RANDOM_BYTES_POST = {
 
 const VERIFY_EMAIL_GET = {
   ...TAGS_UTIL,
+  description: '/verify_email',
 };
 
 const COMPLETE_RESET_PASSWORD_GET = {
   ...TAGS_UTIL,
+  description: '/complete_reset_password',
 };
 
 const API_DOCS = {

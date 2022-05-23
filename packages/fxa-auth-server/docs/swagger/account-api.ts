@@ -11,6 +11,7 @@ const TAGS_ACCOUNT = {
 
 const ACCOUNT_CREATE_POST = {
   ...TAGS_ACCOUNT,
+  description: '/account/create',
   notes: [
     dedent`
       Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [**onepw**](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
@@ -37,6 +38,7 @@ const ACCOUNT_CREATE_POST = {
 
 const ACCOUNT_LOGIN_POST = {
   ...TAGS_ACCOUNT,
+  description: '/account/login',
   notes: [
     'Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.',
   ],
@@ -68,10 +70,10 @@ const ACCOUNT_LOGIN_POST = {
 
 const ACCOUNT_STATUS_GET = {
   ...TAGS_ACCOUNT,
-  description: '🔒🔓 sessionToken',
+  description: '/account/status',
   notes: [
     dedent`
-      🔒🔓 Optionally HAWK-authenticated with session token
+      🔒🔓 Optionally authenticated with session token
 
       Gets the status of an account.
     `,
@@ -92,6 +94,7 @@ const ACCOUNT_STATUS_GET = {
 
 const ACCOUNT_STATUS_POST = {
   ...TAGS_ACCOUNT,
+  description: '/account/status',
   notes: [
     'Gets the status of an account without exposing user data through query params. This endpoint is rate limited by [**fxa-customs-server**](https://github.com/mozilla/fxa/tree/main/packages/fxa-customs-server).',
   ],
@@ -99,10 +102,10 @@ const ACCOUNT_STATUS_POST = {
 
 const ACCOUNT_PROFILE_GET = {
   ...TAGS_ACCOUNT,
-  description: '🔒 sessionToken, oauthToken',
+  description: '/account/profile',
   notes: [
     dedent`
-      🔒 authenticated with OAuth bearer token or HAWK-authenticated with session token
+      🔒 Authenticated with OAuth bearer token or authenticated with session token
 
       Get the email and locale of a user.
 
@@ -118,10 +121,10 @@ const ACCOUNT_PROFILE_GET = {
 
 const ACCOUNT_KEYS_GET = {
   ...TAGS_ACCOUNT,
-  description: '🔒 keyFetchToken',
+  description: '/account/keys',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with key fetch token
+      🔒 Authenticated with key fetch token
 
       Get the base-16 bundle of encrypted \`kA|wrapKb\`. The return value must be decrypted with a key derived from \`keyFetchToken\`, then \`wrapKb\` must be further decrypted with a key derived from the user's password.
 
@@ -146,7 +149,7 @@ const ACCOUNT_KEYS_GET = {
 
 const ACCOUNT_UNLOCK_RESEND_CODE_POST = {
   ...TAGS_ACCOUNT,
-  description: 'deprecated',
+  description: '/account/unlock/resend_code',
   notes: ['This endpoint is deprecated.'],
   plugins: {
     'hapi-swagger': {
@@ -165,7 +168,7 @@ const ACCOUNT_UNLOCK_RESEND_CODE_POST = {
 
 const ACCOUNT_UNLOCK_VERIFY_CODE_POST = {
   ...TAGS_ACCOUNT,
-  description: 'deprecated',
+  description: '/account/unlock/verify_code',
   notes: ['This endpoint is deprecated.'],
   plugins: {
     'hapi-swagger': {
@@ -184,10 +187,10 @@ const ACCOUNT_UNLOCK_VERIFY_CODE_POST = {
 
 const ACCOUNT_RESET_POST = {
   ...TAGS_ACCOUNT,
-  description: '🔒 accountResetToken',
+  description: '/account/reset',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with account reset token
+      🔒 Authenticated with account reset token
 
       This sets the account password and resets \`wrapKb\` to a new random value.
 
@@ -212,10 +215,10 @@ const ACCOUNT_RESET_POST = {
 
 const ACCOUNT_DESTROY_POST = {
   ...TAGS_ACCOUNT,
-  description: '🔒🔓 sessionToken',
+  description: '/account/destroy',
   notes: [
     dedent`
-      🔒🔓 Optionally HAWK-authenticated with session token
+      🔒🔓 Optionally authenticated with session token
 
       Deletes an account. All stored data is erased. The client should seek user confirmation first. The client should erase data stored on any attached services before deleting the user's account data.
     `,

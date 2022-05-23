@@ -316,7 +316,7 @@ export const linkedAccountRoutes = (
             provider: validators.thirdPartyProvider,
             code: validators.thirdPartyOAuthCode,
             metricsContext: METRICS_CONTEXT_SCHEMA,
-          }).label('LinkedAccount.login_payload'),
+          }),
         },
       },
       handler: async (request: AuthRequest) =>
@@ -333,7 +333,7 @@ export const linkedAccountRoutes = (
         validate: {
           payload: Joi.object({
             provider: validators.thirdPartyProvider,
-          }).label('LinkedAccount.unlink_payload'),
+          }),
         },
       },
       handler: (request: AuthRequest) => handler.unlinkAccount(request),

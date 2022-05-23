@@ -11,10 +11,10 @@ const TAGS_DEVICES_AND_SESSIONS = {
 
 const ACCOUNT_ATTACHED_CLIENTS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken',
+  description: '/account/attached_clients',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token.
+      🔒 Authenticated with session token
 
       Returns an array listing all the clients connected to the authenticated user's account, including devices, OAuth clients, and web sessions.
 
@@ -32,10 +32,10 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
 
 const ACCOUNT_ATTACHED_CLIENT_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken',
+  description: '/account/attached_client/destroy',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token.
+      🔒 Authenticated with session token
 
       Destroy all tokens held by a connected client, disconnecting it from the user's account.
 
@@ -46,10 +46,10 @@ const ACCOUNT_ATTACHED_CLIENT_DESTROY_POST = {
 
 const ACCOUNT_DEVICE_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/device',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token
+      🔒 Authenticated with session token or OAuth refresh token
 
       Creates or updates the [**device registration**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) record associated with the auth token used for this request. At least one of \`name\`, \`type\`, \`pushCallback\` or the tuple \`{ pushCallback, pushPublicKey, pushAuthKey }\` must be present. Beware that if you provide \`pushCallback\` without the pair \`{ pushPublicKey, pushAuthKey }\`, both of those keys will be reset to the empty string.
 
@@ -76,10 +76,10 @@ const ACCOUNT_DEVICE_POST = {
 
 const ACCOUNT_DEVICE_COMMANDS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/device/commands',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token.
+      🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Fetches commands enqueued for the current device by prior calls to \`/account/devices/invoke_command\`. The device can page through the enqueued commands by using the \`index\` and \`limit\` parameters.
 
@@ -90,10 +90,10 @@ const ACCOUNT_DEVICE_COMMANDS_GET = {
 
 const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/devices/invoke_command',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token.
+      🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Enqueues a command to be invoked on a target device.
 
@@ -116,10 +116,10 @@ const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
 
 const ACCOUNT_DEVICES_NOTIFY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/devices/notify',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token.
+      🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Notifies a set of devices associated with the user's account of an event by sending a browser push notification. A typical use case would be to send a notification to another device after sending a tab with Sync, so it can sync too and display the tab in a timely manner.
     `,
@@ -146,10 +146,10 @@ const ACCOUNT_DEVICES_NOTIFY_POST = {
 
 const ACCOUNT_DEVICES_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/devices',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token.
+      🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
       Returns an array of registered device objects for the authenticated user.
     `,
@@ -158,12 +158,12 @@ const ACCOUNT_DEVICES_GET = {
 
 const ACCOUNT_SESSIONS_GET = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: 'deprecated (🔒 sessionToken)',
+  description: '/account/sessions',
   notes: [
     dedent`
       [**DEPRECATED**]: Please use [**/account/attached_clients**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#get-accountattached_clients) instead.
 
-      🔒 HAWK-authenticated with session token.
+      🔒 Authenticated with session token.
 
       Returns an array of session objects for the authenticated user.
     `,
@@ -177,10 +177,10 @@ const ACCOUNT_SESSIONS_GET = {
 
 const ACCOUNT_DEVICE_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
-  description: '🔒 sessionToken, refreshToken',
+  description: '/account/device/destroy',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token or authenticated with OAuth refresh token
+      🔒 Authenticated with session token or authenticated with OAuth refresh token
 
       Destroys a device record and the associated \`sessionToken\` for the authenticated user.
     `,

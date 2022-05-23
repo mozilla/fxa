@@ -10,11 +10,13 @@ const TAGS_THIRD_PARTY_AUTH = {
 
 const LINKED_ACCOUNT_LOGIN_POST = {
   ...TAGS_THIRD_PARTY_AUTH,
+  description: '/linked_account/login',
 };
 
 const LINKED_ACCOUNT_UNLINK_POST = {
-  description: '🔒 sessionToken',
   ...TAGS_THIRD_PARTY_AUTH,
+  description: '/linked_account/unlink',
+  notes: ['🔒 Authenticated with session token'],
 };
 
 const API_DOCS = {

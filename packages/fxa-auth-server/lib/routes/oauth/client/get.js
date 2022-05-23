@@ -27,7 +27,7 @@ module.exports = ({ log, oauthDB }) => ({
         trusted: Joi.boolean().required(),
         image_uri: Joi.any(),
         redirect_uri: Joi.string().required().allow(''),
-      }).label('Oauth.clientId_response'),
+      }),
     },
     handler: async function requestInfoEndpoint(req) {
       const params = req.params;

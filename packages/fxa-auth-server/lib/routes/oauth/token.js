@@ -364,24 +364,20 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
           // with FxA OAuth. Sometimes, they will send other parameters that
           // we don't use, such as `response_type`, or something else. Instead
           // of giving an error here, we can just ignore them.
-          payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }).label(
-            'Token_payload'
-          ),
+          payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
         },
         response: {
-          schema: Joi.object()
-            .keys({
-              access_token: validators.accessToken.required(),
-              refresh_token: validators.token,
-              id_token: validators.assertion,
-              session_token_id: validators.sessionTokenId.optional(),
-              scope: validators.scope.required(),
-              token_type: Joi.string().valid('bearer').required(),
-              expires_in: Joi.number().max(MAX_TTL_S).required(),
-              auth_at: Joi.number(),
-              keys_jwe: validators.jwe.optional(),
-            })
-            .label('Token_response'),
+          schema: Joi.object().keys({
+            access_token: validators.accessToken.required(),
+            refresh_token: validators.token,
+            id_token: validators.assertion,
+            session_token_id: validators.sessionTokenId.optional(),
+            scope: validators.scope.required(),
+            token_type: Joi.string().valid('bearer').required(),
+            expires_in: Joi.number().max(MAX_TTL_S).required(),
+            auth_at: Joi.number(),
+            keys_jwe: validators.jwe.optional(),
+          }),
         },
         handler: tokenHandler,
       },
@@ -427,9 +423,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               resource: validators.resourceUrl
                 .optional()
                 .description(DESCRIPTION.resource),
-            })
-              .xor('client_secret', 'code_verifier')
-              .label('Oauth.token_authorizationCode'),
+            }).xor('client_secret', 'code_verifier'),
             // refresh token
             Joi.object({
               grant_type: Joi.string().valid('refresh_token').required(),
@@ -442,7 +436,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               ttl: Joi.number().positive().optional(),
               ppid_seed: validators.ppidSeed.optional(),
               resource: validators.resourceUrl.optional(),
-            }).label('Oauth.token_refreshToken'),
+            }),
             // credentials
             Joi.object({
               grant_type: Joi.string()
@@ -458,7 +452,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               ttl: Joi.number().positive().optional(),
               resource: validators.resourceUrl.optional(),
               assertion: Joi.forbidden(),
-            }).label('Oauth.token_fxaCredentials')
+            })
           ),
         },
         response: {
@@ -485,7 +479,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
                 .description(DESCRIPTION.expiresIn),
               auth_at: Joi.number().required().description(DESCRIPTION.authAt),
               keys_jwe: validators.jwe.optional(),
-            }).label('Oauth.token_response'),
+            }),
             // refresh token
             Joi.object({
               access_token: validators.accessToken.required(),

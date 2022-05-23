@@ -11,10 +11,10 @@ const TAGS_OAUTH = {
 
 const OAUTH_AUTHORIZATION_POST = {
   ...TAGS_OAUTH,
-  description: '🔒 sessionToken',
+  description: '/oauth/authorization',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
 
@@ -25,6 +25,7 @@ const OAUTH_AUTHORIZATION_POST = {
 
 const OAUTH_DESTROY_POST = {
   ...TAGS_OAUTH,
+  description: '/oauth/destroy',
   notes: [
     dedent`
       Destroy an OAuth access token or refresh token.
@@ -54,10 +55,10 @@ const OAUTH_DESTROY_POST = {
 
 const ACCOUNT_SCOPED_KEY_DATA_POST = {
   ...TAGS_OAUTH,
-  description: '🔒 sessionToken',
+  description: '/account/scoped-key-data',
   notes: [
     dedent`
-      🔒 HAWK-authenticated with session token
+      🔒 Authenticated with session token
 
       Query for the information required to derive scoped encryption keys requested by the specified OAuth client.
     `,
@@ -66,10 +67,10 @@ const ACCOUNT_SCOPED_KEY_DATA_POST = {
 
 const OAUTH_TOKEN_POST = {
   ...TAGS_OAUTH,
-  description: '🔒🔓 sessionToken',
+  description: '/oauth/token',
   notes: [
     dedent`
-      🔒🔓 Optionally HAWK-authenticated with session token
+      🔒🔓 Optionally authenticated with session token
 
       Grant new OAuth tokens for use by a connected client, using one of the following grant types:
         - \`grant_type=authorization_code\`: A single-use code obtained via OAuth redirect flow.

@@ -19,7 +19,7 @@ module.exports = () => ({
         client_id: validators.clientId,
         refresh_token_id: validators.token.optional(),
         assertion: validators.assertion,
-      }).label('AuthorizedClients.destroy_payload'),
+      }),
     },
     handler: async function (req) {
       const claims = await verifyAssertion(req.payload.assertion);

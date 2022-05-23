@@ -24,17 +24,15 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           payload: 'required',
         },
         validate: {
-          payload: isA
-            .object({
-              recoveryKeyId: validators.recoveryKeyId.description(
-                DESCRIPTION.recoveryKeyId
-              ),
-              recoveryData: validators.recoveryData.description(
-                DESCRIPTION.recoveryData
-              ),
-              enabled: isA.boolean().default(true),
-            })
-            .label('createRecoveryKey_payload'),
+          payload: isA.object({
+            recoveryKeyId: validators.recoveryKeyId.description(
+              DESCRIPTION.recoveryKeyId
+            ),
+            recoveryData: validators.recoveryData.description(
+              DESCRIPTION.recoveryData
+            ),
+            enabled: isA.boolean().default(true),
+          }),
         },
       },
       handler: async function (request) {
@@ -175,11 +173,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           strategy: 'accountResetToken',
         },
         validate: {
-          params: isA
-            .object({
-              recoveryKeyId: validators.recoveryKeyId,
-            })
-            .label('getRecoveryKey_params'),
+          params: isA.object({
+            recoveryKeyId: validators.recoveryKeyId,
+          }),
         },
       },
       handler: async function (request) {
@@ -205,18 +201,14 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           strategy: 'sessionToken',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators.email().optional(),
-            })
-            .label('recoveryKeysExists_payload'),
+          payload: isA.object({
+            email: validators.email().optional(),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              exists: isA.boolean().required(),
-            })
-            .label('recoveryKeyExists_response'),
+          schema: isA.object({
+            exists: isA.boolean().required(),
+          }),
         },
       },
       async handler(request) {

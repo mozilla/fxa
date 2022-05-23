@@ -1576,43 +1576,36 @@ export const accountRoutes = (
             keys: isA.boolean().optional().description(DESCRIPTION.keys),
             service: validators.service.description(DESCRIPTION.service),
           }),
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              service: validators.service.description(DESCRIPTION.service),
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional()
-                .description(DESCRIPTION.redirectTo),
-              resume: isA
-                .string()
-                .max(2048)
-                .optional()
-                .description(DESCRIPTION.resume),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              style: isA.string().allow(['trailhead']).optional(),
-              verificationMethod: validators.verificationMethod.optional(),
-              // preVerified is not available in production mode.
-              ...(!(config as any).isProduction && {
-                preVerified: isA.boolean(),
-              }),
-            })
-            .label('Account.create_payload'),
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            authPW: validators.authPW.description(DESCRIPTION.authPW),
+            service: validators.service.description(DESCRIPTION.service),
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional()
+              .description(DESCRIPTION.redirectTo),
+            resume: isA
+              .string()
+              .max(2048)
+              .optional()
+              .description(DESCRIPTION.resume),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            style: isA.string().allow(['trailhead']).optional(),
+            verificationMethod: validators.verificationMethod.optional(),
+            // preVerified is not available in production mode.
+            ...(!(config as any).isProduction && {
+              preVerified: isA.boolean(),
+            }),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              uid: isA.string().regex(HEX_STRING).required(),
-              sessionToken: isA.string().regex(HEX_STRING).required(),
-              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-              authAt: isA.number().integer().description(DESCRIPTION.authAt),
-              verificationMethod: validators.verificationMethod.optional(),
-            })
-            .label('Account.create_response'),
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            authAt: isA.number().integer().description(DESCRIPTION.authAt),
+            verificationMethod: validators.verificationMethod.optional(),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountCreate(request),
@@ -1623,13 +1616,11 @@ export const accountRoutes = (
       options: {
         ...MISC_DOCS.ACCOUNT_STUB_POST,
         validate: {
-          payload: isA
-            .object({
-              email: validators.email().required(),
-              clientId: validators.clientId.required(),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-            })
-            .label('Account.stub_payload'),
+          payload: isA.object({
+            email: validators.email().required(),
+            clientId: validators.clientId.required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountStub(request),
@@ -1640,12 +1631,10 @@ export const accountRoutes = (
       options: {
         ...MISC_DOCS.ACCOUNT_FINISH_SETUP_POST,
         validate: {
-          payload: isA
-            .object({
-              token: validators.jwt,
-              authPW: validators.authPW,
-            })
-            .label('Account.finishSetup_payload'),
+          payload: isA.object({
+            token: validators.jwt,
+            authPW: validators.authPW,
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.finishSetup(request),
@@ -1674,56 +1663,49 @@ export const accountRoutes = (
               .optional()
               .description(DESCRIPTION.verificationMethod),
           }),
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              service: validators.service.description(DESCRIPTION.service),
-              redirectTo: validators
-                .redirectTo(config.smtp.redirectDomain)
-                .optional(),
-              resume: isA.string().optional().description(DESCRIPTION.resume),
-              reason: isA
-                .string()
-                .max(16)
-                .optional()
-                .description(DESCRIPTION.reason),
-              unblockCode: signinUtils.validators.UNBLOCK_CODE.description(
-                DESCRIPTION.unblockCode
-              ),
-              metricsContext: METRICS_CONTEXT_SCHEMA,
-              originalLoginEmail: validators
-                .email()
-                .optional()
-                .description(DESCRIPTION.originalLoginEmail),
-              verificationMethod: validators.verificationMethod
-                .optional()
-                .description(DESCRIPTION.verificationMethod),
-            })
-            .label('Account.login_payload'),
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            authPW: validators.authPW.description(DESCRIPTION.authPW),
+            service: validators.service.description(DESCRIPTION.service),
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA.string().optional().description(DESCRIPTION.resume),
+            reason: isA
+              .string()
+              .max(16)
+              .optional()
+              .description(DESCRIPTION.reason),
+            unblockCode: signinUtils.validators.UNBLOCK_CODE.description(
+              DESCRIPTION.unblockCode
+            ),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            originalLoginEmail: validators
+              .email()
+              .optional()
+              .description(DESCRIPTION.originalLoginEmail),
+            verificationMethod: validators.verificationMethod
+              .optional()
+              .description(DESCRIPTION.verificationMethod),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              uid: isA.string().regex(HEX_STRING).required(),
-              sessionToken: isA.string().regex(HEX_STRING).required(),
-              keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-              verificationMethod: isA
-                .string()
-                .optional()
-                .description(DESCRIPTION.verificationMethod),
-              verificationReason: isA
-                .string()
-                .optional()
-                .description(DESCRIPTION.verificationReason),
-              verified: isA.boolean().required(),
-              authAt: isA.number().integer().description(DESCRIPTION.authAt),
-              metricsEnabled: isA.boolean().required(),
-            })
-            .label('Account.login_response'),
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verificationMethod: isA
+              .string()
+              .optional()
+              .description(DESCRIPTION.verificationMethod),
+            verificationReason: isA
+              .string()
+              .optional()
+              .description(DESCRIPTION.verificationReason),
+            verified: isA.boolean().required(),
+            authAt: isA.number().integer().description(DESCRIPTION.authAt),
+            metricsEnabled: isA.boolean().required(),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.login(request),
@@ -1751,20 +1733,16 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_STATUS_POST,
         validate: {
-          payload: isA
-            .object({
-              email: validators.email().required(),
-              checkDomain: isA.optional(),
-            })
-            .label('AccountStatusCheck_payload'),
+          payload: isA.object({
+            email: validators.email().required(),
+            checkDomain: isA.optional(),
+          }),
         },
         response: {
-          schema: isA
-            .object({
-              exists: isA.boolean().required(),
-              invalidDomain: isA.boolean().optional(),
-            })
-            .label('AccountStausCheck_response'),
+          schema: isA.object({
+            exists: isA.boolean().required(),
+            invalidDomain: isA.boolean().optional(),
+          }),
         },
       },
       handler: (request: AuthRequest) =>
@@ -1779,20 +1757,18 @@ export const accountRoutes = (
           strategies: ['sessionToken', 'oauthToken'],
         },
         response: {
-          schema: isA
-            .object({
-              email: isA.string().optional(),
-              locale: isA.string().optional().allow(null),
-              authenticationMethods: isA
-                .array()
-                .items(isA.string().required())
-                .optional(),
-              authenticatorAssuranceLevel: isA.number().min(0),
-              subscriptionsByClientId: isA.object().unknown(true).optional(),
-              profileChangedAt: isA.number().min(0),
-              metricsEnabled: isA.boolean().optional(),
-            })
-            .label('Account.profile_response'),
+          schema: isA.object({
+            email: isA.string().optional(),
+            locale: isA.string().optional().allow(null),
+            authenticationMethods: isA
+              .array()
+              .items(isA.string().required())
+              .optional(),
+            authenticatorAssuranceLevel: isA.number().min(0),
+            subscriptionsByClientId: isA.object().unknown(true).optional(),
+            profileChangedAt: isA.number().min(0),
+            metricsEnabled: isA.boolean().optional(),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.profile(request),
@@ -1806,14 +1782,12 @@ export const accountRoutes = (
           strategy: 'keyFetchTokenWithVerificationStatus',
         },
         response: {
-          schema: isA
-            .object({
-              bundle: isA
-                .string()
-                .regex(HEX_STRING)
-                .description(DESCRIPTION.bundle),
-            })
-            .label('Account.keys_response'),
+          schema: isA.object({
+            bundle: isA
+              .string()
+              .regex(HEX_STRING)
+              .description(DESCRIPTION.bundle),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.keys(request),
@@ -1869,8 +1843,7 @@ export const accountRoutes = (
                 .optional()
                 .description(DESCRIPTION.sessionToken),
             })
-            .and('wrapKb', 'recoveryKeyId')
-            .label('Account.reset_payload'),
+            .and('wrapKb', 'recoveryKeyId'),
         },
       },
       handler: (request: AuthRequest) => accountHandler.reset(request),
@@ -1885,15 +1858,10 @@ export const accountRoutes = (
           strategy: 'sessionToken',
         },
         validate: {
-          payload: isA
-            .object({
-              email: validators
-                .email()
-                .required()
-                .description(DESCRIPTION.email),
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-            })
-            .label('Account.destroy_payload'),
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            authPW: validators.authPW.description(DESCRIPTION.authPW),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.destroy(request),
@@ -1907,24 +1875,21 @@ export const accountRoutes = (
           strategy: 'sessionToken',
         },
         response: {
-          schema: isA
-            .object({
-              // This endpoint is evolving, it's not just for subscriptions.
-              // Ultimately we want it to become a one-stop shop for all of
-              // the account data needed by the settings screen, so that we
-              // can drastically reduce how many requests are made to the
-              // backend. Discussion in:
-              //
-              // https://github.com/mozilla/fxa/issues/1808
-              subscriptions: isA
-                .array()
-                .items(
-                  validators.subscriptionsSubscriptionValidator,
-                  validators.subscriptionsGooglePlaySubscriptionValidator,
-                  validators.subscriptionsAppStoreSubscriptionValidator
-                ),
-            })
-            .label('Account.subscriptions'),
+          schema: isA.object({
+            // This endpoint is evolving, it's not just for subscriptions.
+            // Ultimately we want it to become a one-stop shop for all of
+            // the account data needed by the settings screen, so that we
+            // can drastically reduce how many requests are made to the
+            // backend. Discussion in:
+            //
+            // https://github.com/mozilla/fxa/issues/1808
+            subscriptions: isA
+              .array()
+              .items(
+                validators.subscriptionsSubscriptionValidator,
+                validators.subscriptionsGooglePlaySubscriptionValidator
+              ),
+          }),
         },
       },
       handler: (request: AuthRequest) => accountHandler.getAccount(request),
