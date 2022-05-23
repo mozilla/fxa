@@ -5,6 +5,8 @@ import {
   incDateByMonth,
 } from './coupon';
 
+const getTimeInSeconds = (date: Date) => Math.floor(date.getTime() / 1000);
+
 describe('lib/coupon', () => {
   describe('incDateByMonth', () => {
     const incrementMonth = 1;
@@ -15,6 +17,7 @@ describe('lib/coupon', () => {
       );
       const actual = incDateByMonth(incrementMonth);
       expect(actual).toEqual(expected);
+      expect(getTimeInSeconds(actual)).toEqual(getTimeInSeconds(expected));
     });
 
     it('should incremenet input date by specified amount', () => {
@@ -62,7 +65,7 @@ describe('lib/coupon', () => {
       const incrementValue = 2;
       const expected = incDateByMonth(incrementValue);
       const actual = incDateByInterval(incrementValue, 'month');
-      expect(actual).toEqual(expected);
+      expect(getTimeInSeconds(actual)).toEqual(getTimeInSeconds(expected));
     });
 
     it('should return the input date if incorrect interval is provided', () => {
