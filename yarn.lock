@@ -4328,7 +4328,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@isaacs/import-jsx@npm:*":
+"@isaacs/import-jsx@npm:^4.0.1":
   version: 4.0.1
   resolution: "@isaacs/import-jsx@npm:4.0.1"
   dependencies:
@@ -10529,6 +10529,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react@npm:^17":
+  version: 17.0.45
+  resolution: "@types/react@npm:17.0.45"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 3cc13a02824c13f6fa4807a83abd065ac1d9943359e76bd995cc7cd2b4148c1176ebd54a30a9f4eb8a0f141ff359d712876f256c4fee707e4290607ef8410b3e
+  languageName: node
+  linkType: hard
+
 "@types/redux-actions@npm:^2.6.0":
   version: 2.6.1
   resolution: "@types/redux-actions@npm:2.6.1"
@@ -12082,7 +12093,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-escapes@npm:^3.0.0, ansi-escapes@npm:^3.2.0":
+"ansi-escapes@npm:^3.0.0":
   version: 3.2.0
   resolution: "ansi-escapes@npm:3.2.0"
   checksum: 0f94695b677ea742f7f1eed961f7fd8d05670f744c6ad1f8f635362f6681dcfbc1575cb05b43abc7bb6d67e25a75fb8c7ea8f2a57330eb2c76b33f18cb2cef0a
@@ -13160,7 +13171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"auto-bind@npm:4.0.0, auto-bind@npm:^4.0.0":
+"auto-bind@npm:4.0.0":
   version: 4.0.0
   resolution: "auto-bind@npm:4.0.0"
   checksum: 00cad71cce5742faccb7dd65c1b55ebc4f45add4b0c9a1547b10b05bab22813230133b0c892c67ba3eb969a4524710c5e43cc45c72898ec84e56f3a596e7a04f
@@ -22751,7 +22762,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     restify-clients: ^3.1.0
     sinon: ^9.0.3
-    tap: ^16.0.1
+    tap: ^16.2.0
     walk: ^2.3.15
   languageName: unknown
   linkType: soft
@@ -26114,23 +26125,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"import-jsx@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "import-jsx@npm:4.0.0"
-  dependencies:
-    "@babel/core": ^7.5.5
-    "@babel/plugin-proposal-object-rest-spread": ^7.5.5
-    "@babel/plugin-transform-destructuring": ^7.5.0
-    "@babel/plugin-transform-react-jsx": ^7.3.0
-    caller-path: ^2.0.0
-    find-cache-dir: ^3.2.0
-    make-dir: ^3.0.2
-    resolve-from: ^3.0.0
-    rimraf: ^3.0.0
-  checksum: 0721088b933ade9775de70bb7c81ac4840bec5870968450059840dfbe9445a7c0570fe00ea1b46e2c1e51a8fcfabc78c38f7fac6721ce3616f3b997402197c57
-  languageName: node
-  linkType: hard
-
 "import-lazy@npm:^2.1.0":
   version: 2.1.0
   resolution: "import-lazy@npm:2.1.0"
@@ -26279,7 +26273,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ink@npm:*":
+"ink@npm:^3.2.0":
   version: 3.2.0
   resolution: "ink@npm:3.2.0"
   dependencies:
@@ -26313,38 +26307,6 @@ fsevents@~2.1.1:
     "@types/react":
       optional: true
   checksum: 35f1b733b94bf12cc0bf7acb4d3fcba9d961ede15cee9c64a7325606b74cee78e1009eaffbac127f4d7d28e758d8259dea8d0850bfacb991b8d93632f41d3fa2
-  languageName: node
-  linkType: hard
-
-"ink@npm:^2.6.0":
-  version: 2.7.1
-  resolution: "ink@npm:2.7.1"
-  dependencies:
-    ansi-escapes: ^4.2.1
-    arrify: ^2.0.1
-    auto-bind: ^4.0.0
-    chalk: ^3.0.0
-    cli-cursor: ^3.1.0
-    cli-truncate: ^2.1.0
-    is-ci: ^2.0.0
-    lodash.throttle: ^4.1.1
-    log-update: ^3.0.0
-    prop-types: ^15.6.2
-    react-reconciler: ^0.24.0
-    scheduler: ^0.18.0
-    signal-exit: ^3.0.2
-    slice-ansi: ^3.0.0
-    string-length: ^3.1.0
-    widest-line: ^3.1.0
-    wrap-ansi: ^6.2.0
-    yoga-layout-prebuilt: ^1.9.3
-  peerDependencies:
-    "@types/react": ">=16.8.0"
-    react: ">=16.8.0"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 1432368a3de42619e0d5e0785a1ba7a31a39423bc8d3ed771d650a9064f1758f5168aa8c06cd2a5f52ff66ba78500d8305145133b5b595b6fc893b992853c5ed
   languageName: node
   linkType: hard
 
@@ -29990,9 +29952,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"libtap@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "libtap@npm:1.3.0"
+"libtap@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "libtap@npm:1.4.0"
   dependencies:
     async-hook-domain: ^2.0.4
     bind-obj-methods: ^3.0.0
@@ -30007,7 +29969,7 @@ fsevents@~2.1.1:
     tap-yaml: ^1.0.0
     tcompare: ^5.0.6
     trivial-deferred: ^1.0.1
-  checksum: 42d609199bde805daa9178d158adf1722522352921d0a1bf082284ada2192dafd55f5f029696542fab391dd2d5f44a5c7eb73dd31f25569ca3efd5a9029e25b0
+  checksum: ef8416c3aa775f0bf1d2fcdd8732f41b708359bb8b72c58568cfb1913695538724aaa3f629582d9d05f25d7a221bd9b776d7ca4a30f8346cbe5ec9ce2711739c
   languageName: node
   linkType: hard
 
@@ -30486,13 +30448,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.throttle@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "lodash.throttle@npm:4.1.1"
-  checksum: 129c0a28cee48b348aef146f638ef8a8b197944d4e9ec26c1890c19d9bf5a5690fe11b655c77a4551268819b32d27f4206343e30c78961f60b561b8608c8c805
-  languageName: node
-  linkType: hard
-
 "lodash.topath@npm:^4.5.2":
   version: 4.5.2
   resolution: "lodash.topath@npm:4.5.2"
@@ -30567,17 +30522,6 @@ fsevents@~2.1.1:
   dependencies:
     chalk: ^2.0.1
   checksum: 4c95e3b65f0352dbe91dc4989c10baf7a44e2ef5b0db7e6721e1476268e2b6f7090c3aa880d4f833a05c5c3ff18f4ec5215a09bd0099986d64a8186cfeb48ac8
-  languageName: node
-  linkType: hard
-
-"log-update@npm:^3.0.0":
-  version: 3.4.0
-  resolution: "log-update@npm:3.4.0"
-  dependencies:
-    ansi-escapes: ^3.2.0
-    cli-cursor: ^2.1.0
-    wrap-ansi: ^5.0.0
-  checksum: 83e1e00c263716ce1241ebe7874d623b610566683eaac25a6d053707ba726bea8e09c6b1cd9bb6784ed8e892a79d064696afa8c73aa5dbee167e5a709f473c7c
   languageName: node
   linkType: hard
 
@@ -37336,20 +37280,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-reconciler@npm:^0.24.0":
-  version: 0.24.0
-  resolution: "react-reconciler@npm:0.24.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-    prop-types: ^15.6.2
-    scheduler: ^0.18.0
-  peerDependencies:
-    react: ^16.0.0
-  checksum: c9c74208325a940ca36e031b71499f6d8e62e96ee673d69e35cc9e6a661aa746a2b0750f2ffcd1bae0a29eaf3d127dc8197ab7e801e6a3a2ab7d45a71b464630
-  languageName: node
-  linkType: hard
-
 "react-reconciler@npm:^0.26.2":
   version: 0.26.2
   resolution: "react-reconciler@npm:0.26.2"
@@ -37664,16 +37594,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react@npm:*":
-  version: 17.0.2
-  resolution: "react@npm:17.0.2"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
-  languageName: node
-  linkType: hard
-
 "react@npm:16.14.0, react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.6":
   version: 16.14.0
   resolution: "react@npm:16.14.0"
@@ -37682,6 +37602,16 @@ fsevents@~2.1.1:
     object-assign: ^4.1.1
     prop-types: ^15.6.2
   checksum: 8484f3ecb13414526f2a7412190575fc134da785c02695eb92bb6028c930bfe1c238d7be2a125088fec663cc7cda0a3623373c46807cf2c281f49c34b79881ac
+  languageName: node
+  linkType: hard
+
+"react@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react@npm:17.0.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
   languageName: node
   linkType: hard
 
@@ -39219,16 +39149,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.18.0":
-  version: 0.18.0
-  resolution: "scheduler@npm:0.18.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: b6e0b9e0086b200b114f1ef7f9fcac966ad5d84cd3b1867174be0549d3ff713d1fd22d5574cb024b7d3eadf3307f2afc1cb5bfbf28b0d3bc34b200183800fcae
-  languageName: node
-  linkType: hard
-
 "scheduler@npm:^0.19.1":
   version: 0.19.1
   resolution: "scheduler@npm:0.19.1"
@@ -40738,16 +40658,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"string-length@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "string-length@npm:3.1.0"
-  dependencies:
-    astral-regex: ^1.0.0
-    strip-ansi: ^5.2.0
-  checksum: b09ccacc2f96ba3ade9f2b3163901e05f668a2b14bc353853165c1f3b19185421ac004e9957b62827083d163e049c41a1b15170e252eaf44fdd686553c372714
-  languageName: node
-  linkType: hard
-
 "string-length@npm:^4.0.1":
   version: 4.0.1
   resolution: "string-length@npm:4.0.1"
@@ -41595,19 +41505,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tap-parser@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "tap-parser@npm:10.0.1"
-  dependencies:
-    events-to-array: ^1.0.1
-    minipass: ^3.0.0
-    tap-yaml: ^1.0.0
-  bin:
-    tap-parser: bin/cmd.js
-  checksum: 834479bf9477e49df7fb4b179c200e32d6e39a9ba9a90c042bf5787c2b1e2a6d72261bdd30f384d2b2347af43fac948d5567778e010c9f83cbe431e004dca072
-  languageName: node
-  linkType: hard
-
 "tap-parser@npm:^11.0.0, tap-parser@npm:^11.0.1":
   version: 11.0.1
   resolution: "tap-parser@npm:11.0.1"
@@ -41630,27 +41527,27 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tap@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "tap@npm:16.0.1"
+"tap@npm:^16.2.0":
+  version: 16.2.0
+  resolution: "tap@npm:16.2.0"
   dependencies:
-    "@isaacs/import-jsx": "*"
-    "@types/react": "*"
+    "@isaacs/import-jsx": ^4.0.1
+    "@types/react": ^17
     chokidar: ^3.3.0
     findit: ^2.0.0
     foreground-child: ^2.0.0
     fs-exists-cached: ^1.0.0
     glob: ^7.1.6
-    ink: "*"
+    ink: ^3.2.0
     isexe: ^2.0.0
     istanbul-lib-processinfo: ^2.0.2
     jackspeak: ^1.4.1
-    libtap: ^1.3.0
+    libtap: ^1.4.0
     minipass: ^3.1.1
     mkdirp: ^1.0.4
     nyc: ^15.1.0
     opener: ^1.5.1
-    react: "*"
+    react: ^17.0.2
     rimraf: ^3.0.0
     signal-exit: ^3.0.6
     source-map-support: ^0.5.16
@@ -41658,7 +41555,7 @@ resolve@^2.0.0-next.3:
     tap-parser: ^11.0.1
     tap-yaml: ^1.0.0
     tcompare: ^5.0.7
-    treport: "*"
+    treport: ^3.0.3
     which: ^2.0.2
   peerDependencies:
     coveralls: ^3.1.1
@@ -41676,7 +41573,7 @@ resolve@^2.0.0-next.3:
       optional: true
   bin:
     tap: bin/run.js
-  checksum: 5fa346dbe1b8d810c533661c705b546437bcb3b98cb8961aa02d3d001f4cee6af45dde1f15ac273ff3e930161abcb15b3cfc4833f475532b901e5875f356b000
+  checksum: 9293ed9f8bec61c195eef76d81b5d4cd8c1f68cdd1b9a6b2b8e58d515ba746f64ccfe1e0328d00c280ce2de385329d5f587c1d8b2ce7aa5dad6236694a505365
   languageName: node
   linkType: hard
 
@@ -42406,21 +42303,20 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"treport@npm:*":
-  version: 2.0.2
-  resolution: "treport@npm:2.0.2"
+"treport@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "treport@npm:3.0.3"
   dependencies:
+    "@isaacs/import-jsx": ^4.0.1
     cardinal: ^2.1.1
     chalk: ^3.0.0
-    import-jsx: ^4.0.0
-    ink: ^2.6.0
+    ink: ^3.2.0
     ms: ^2.1.2
-    string-length: ^3.1.0
-    tap-parser: ^10.0.1
+    tap-parser: ^11.0.0
     unicode-length: ^2.0.2
   peerDependencies:
-    react: ^16.8.6
-  checksum: 8503993170dcb72fb908e51a9b8022bed3b707ffc4ab72f9782511ec1a56fbd1f5d270ccb95665ecf108bca874ad1cc510e0c2d8c147892759cf1ec050b7c632
+    react: ^17.0.2
+  checksum: af3f5025df4800e716d802867daaf23f3b3a5849a944516db426bc6facd54659b3240afa6c5788ee646d3218df50d310592540fcaf0bd265f2f66cbcf0260da0
   languageName: node
   linkType: hard
 
@@ -45011,7 +44907,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"wrap-ansi@npm:^5.0.0, wrap-ansi@npm:^5.1.0":
+"wrap-ansi@npm:^5.1.0":
   version: 5.1.0
   resolution: "wrap-ansi@npm:5.1.0"
   dependencies:
@@ -45550,7 +45446,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"yoga-layout-prebuilt@npm:^1.9.3, yoga-layout-prebuilt@npm:^1.9.6":
+"yoga-layout-prebuilt@npm:^1.9.6":
   version: 1.10.0
   resolution: "yoga-layout-prebuilt@npm:1.10.0"
   dependencies:
