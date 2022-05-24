@@ -272,22 +272,26 @@ export const ConnectedServices = () => {
               </Localized>
 
               <Localized
-                id="cs-disconnect-sync-content"
+                id="cs-disconnect-sync-content-2"
                 vars={{ device: selectedClient!.name }}
               >
                 <p
                   id="connected-devices-sign-out-description"
                   className="my-4 text-center"
                 >
-                  Your browsing data will remain on your device (
-                  <span className="break-word">{selectedClient!.name}</span>
-                  ), but it will no longer sync with your account.
+                  Your browsing data will remain on{' '}
+                  <span className="break-word">{selectedClient!.name}</span>,
+                  but it will no longer sync with your account.
                 </p>
               </Localized>
 
-              <Localized id="cs-disconnect-sync-reason">
+              <Localized
+                id="cs-disconnect-sync-reason-2"
+                vars={{ device: selectedClient!.name }}
+              >
                 <p className="my-4 text-center">
-                  What's the main reason for disconnecting this device?
+                  What's the main reason for disconnecting{' '}
+                  <span className="break-word">{selectedClient!.name}</span>?
                 </p>
               </Localized>
               <form
