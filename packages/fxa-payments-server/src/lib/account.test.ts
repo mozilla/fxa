@@ -8,6 +8,7 @@ import {
 } from './apiClient';
 import { FXA_SIGNUP_ERROR, handlePasswordlessSignUp } from './account';
 import sentry from './sentry';
+import { AuthServerErrno } from './errors';
 jest.mock('./apiClient', () => ({
   apiCreatePasswordlessAccount: jest
     .fn()
@@ -24,6 +25,7 @@ const accountParam = { email: 'me@example.com', clientId: 'tests' };
 beforeEach(() => {
   (apiCreatePasswordlessAccount as jest.Mock).mockClear();
   (updateAPIClientToken as jest.Mock).mockClear();
+  (sentry.captureException as jest.Mock).mockClear();
 });
 
 describe('lib/account', () => {
@@ -42,6 +44,17 @@ describe('lib/account', () => {
       );
       expect(updateAPIClientToken).not.toHaveBeenCalled();
       expect(sentry.captureException).toHaveBeenCalledWith(FXA_SIGNUP_ERROR);
+    });
+
+    it('throws an error, but no sentry exception, on account already exists', async () => {
+      (apiCreatePasswordlessAccount as jest.Mock)
+        .mockReset()
+        .mockRejectedValue({ body: { errno: AuthServerErrno.ACCOUNT_EXISTS } });
+      await expect(handlePasswordlessSignUp(accountParam)).rejects.toBe(
+        FXA_SIGNUP_ERROR
+      );
+      expect(updateAPIClientToken).not.toHaveBeenCalled();
+      expect(sentry.captureException).not.toHaveBeenCalled();
     });
   });
 });
