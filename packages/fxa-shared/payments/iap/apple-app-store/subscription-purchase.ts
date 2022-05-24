@@ -87,7 +87,7 @@ export class AppStoreSubscriptionPurchase {
   bundleId!: string; // unique identifier for the iOS app; analogous to a Stripe product id
   private environment!: Environment;
   private inAppOwnershipType!: OwnershipType;
-  private originalPurchaseDate!: number;
+  public originalPurchaseDate!: number;
   originalTransactionId!: string; // unique identifier for the subscription; analogous to a Stripe subscription id
   productId!: string; // unique identifier for the plan; analogous to the Stripe plan id
   private status!: SubscriptionStatus;
@@ -104,7 +104,7 @@ export class AppStoreSubscriptionPurchase {
 
   // Library-managed properties
   userId?: string; // hex string for FxA user id
-  private verifiedAt!: number; // timestamp of last purchase verification by App Store Server API
+  public verifiedAt!: number; // timestamp of last purchase verification by App Store Server API
 
   // Convert raw API response from App Store Server API to a SubscriptionPurchase object
   static fromApiResponse(
@@ -206,5 +206,9 @@ export class AppStoreSubscriptionPurchase {
 
   isFreeTrial(): boolean {
     return this.offerType === OfferType.Introductory;
+  }
+
+  isExpired(): boolean {
+    return this.status === SubscriptionStatus.Expired;
   }
 }

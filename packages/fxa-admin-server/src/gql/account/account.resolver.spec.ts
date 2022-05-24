@@ -4,42 +4,41 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Knex } from 'knex';
 import Chance from 'chance';
-
+import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
+import {
+  AttachedDevice,
+  mergeCachedSessionTokens,
+  SerializableAttachedClient,
+  SessionToken as SharedSessionToken,
+} from 'fxa-shared/connected-services';
 import {
   Account,
+  Email,
   EmailBounce,
   EmailType,
-  Email,
-  TotpToken,
+  LinkedAccount,
   RecoveryKey,
   SessionToken,
-  LinkedAccount,
+  TotpToken,
 } from 'fxa-shared/db/models/auth';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
   randomAccount,
+  randomDeviceToken,
   randomEmail,
   randomEmailBounce,
-  randomTotp,
+  randomLinkedAccount,
+  randomOauthClient,
   randomRecoveryKey,
   randomSessionToken,
-  randomDeviceToken,
-  randomOauthClient,
-  randomLinkedAccount,
+  randomTotp,
 } from 'fxa-shared/test/db/models/auth/helpers';
-import {
-  SerializableAttachedClient,
-  AttachedDevice,
-  mergeCachedSessionTokens,
-  SessionToken as SharedSessionToken,
-} from 'fxa-shared/connected-services';
+import { Knex } from 'knex';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
-import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
-import { boolean } from 'yargs';
 
 export const chance = new Chance();
 
@@ -133,12 +132,23 @@ describe('AccountResolver', () => {
       provide: 'METRICS',
       useFactory: () => undefined,
     };
+
+    const MockSubscription: Provider = {
+      provide: SubscriptionsService,
+      useValue: {
+        getSubscriptions: async function () {
+          return [];
+        },
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
         MockMozLogger,
         MockConfig,
         MockMetricsFactory,
+        MockSubscription,
         { provide: DatabaseService, useValue: db },
       ],
     }).compile();

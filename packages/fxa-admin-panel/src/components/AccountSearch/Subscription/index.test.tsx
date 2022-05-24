@@ -11,7 +11,7 @@ const subscription = {
   currentPeriodEnd: 1596758906,
   currentPeriodStart: 1594080506,
   cancelAtPeriodEnd: false,
-  endAt: 1596759006,
+  endedAt: 1596759006,
   latestInvoice:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_HbGuRujVERsyXZy0zArp7SLFRhY9i6S/pdf',
   planId: 'plan_GqM9N6qyhvxaVk',

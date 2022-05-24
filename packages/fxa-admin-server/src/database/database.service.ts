@@ -10,25 +10,25 @@ import {
   mergeCachedSessionTokens,
   mergeDevicesAndSessionTokens,
 } from 'fxa-shared/connected-services';
+import { monitorKnexConnectionPool } from 'fxa-shared/db';
 import {
   Account,
+  BaseAuthModel,
   Device,
   Email,
   EmailBounce,
+  LinkedAccount,
   RecoveryKey,
   SecurityEvent,
   SessionToken,
   TotpToken,
-  LinkedAccount,
 } from 'fxa-shared/db/models/auth';
 import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
-import { StatsD } from 'hot-shots';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { StatsD } from 'hot-shots';
 import { Knex, knex } from 'knex';
-
 import { AppConfig } from '../config';
-import { monitorKnexConnectionPool } from 'fxa-shared/db';
 
 function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
@@ -66,15 +66,18 @@ export class DatabaseService implements OnModuleDestroy {
     });
     monitorKnexConnectionPool(this.knex.client.pool, metrics);
 
-    this.account = Account.bindKnex(this.knex);
-    this.emails = Email.bindKnex(this.knex);
-    this.emailBounces = EmailBounce.bindKnex(this.knex);
-    this.securityEvents = SecurityEvent.bindKnex(this.knex);
-    this.totp = TotpToken.bindKnex(this.knex);
-    this.recoveryKeys = RecoveryKey.bindKnex(this.knex);
-    this.sessionTokens = SessionToken.bindKnex(this.knex);
-    this.device = Device.bindKnex(this.knex);
-    this.linkedAccounts = LinkedAccount.bindKnex(this.knex);
+    // Binds knex once, which effectively binds for all inherited types
+    BaseAuthModel.knex(this.knex);
+
+    this.account = Account;
+    this.emails = Email;
+    this.emailBounces = EmailBounce;
+    this.securityEvents = SecurityEvent;
+    this.totp = TotpToken;
+    this.recoveryKeys = RecoveryKey;
+    this.sessionTokens = SessionToken;
+    this.device = Device;
+    this.linkedAccounts = LinkedAccount;
 
     this.connectedServicesDb = new ConnectedServicesDb(
       new MysqlOAuthShared(dbConfig.fxa_oauth, undefined, logger, metrics),

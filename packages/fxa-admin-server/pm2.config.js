@@ -17,6 +17,7 @@ module.exports = {
       max_restarts: '1',
       min_uptime: '2m',
       env: {
+        CONFIG_FILES: 'src/config/secrets.json,src/config/local.json',
         PATH,
         NODE_ENV: 'development',
         TS_NODE_TRANSPILE_ONLY: 'true',
@@ -24,6 +25,7 @@ module.exports = {
         PORT: '8095',
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
+        FIRESTORE_EMULATOR_HOST: 'localhost:9090',
       },
       filter_env: ['npm_'],
       watch: ['src'],

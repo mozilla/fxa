@@ -118,7 +118,7 @@ export interface MozSubscription {
     currentPeriodEnd: number;
     currentPeriodStart: number;
     cancelAtPeriodEnd: boolean;
-    endAt: number;
+    endedAt?: Nullable<number>;
     latestInvoice: string;
     planId: string;
     productName: string;
