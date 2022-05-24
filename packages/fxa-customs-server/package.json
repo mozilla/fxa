@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@google-cloud/pubsub": "^2.18.4",
-    "@hapi/hapi": "^20.2.1",
+    "@hapi/hapi": "^20.2.2",
     "@hapi/hoek": "^10.0.0",
     "@sentry/node": "^6.19.1",
     "bl": "5.0.0",
