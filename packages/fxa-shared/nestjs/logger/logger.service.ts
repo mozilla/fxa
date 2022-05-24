@@ -52,4 +52,7 @@ export class MozLoggerService {
   trace(type: string, fields: Record<string, any>): void {
     this.mozlog.trace(type, fields);
   }
+  warning(type: string, fields: Record<string, any>): void {
+    this.mozlog.warn(type, fields);
+  }
 }

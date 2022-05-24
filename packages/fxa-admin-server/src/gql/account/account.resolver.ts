@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -18,19 +19,19 @@ import {
 } from 'fxa-shared/connected-services';
 import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
 import { Account } from 'fxa-shared/db/models/auth';
+import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-
-import { Features } from '../../auth/user-group-header.decorator';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { Features } from '../../auth/user-group-header.decorator';
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
-import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
-import { AdminPanelFeature } from 'fxa-shared/guards';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -77,6 +78,7 @@ export class AccountResolver {
   constructor(
     private log: MozLoggerService,
     private db: DatabaseService,
+    private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>
   ) {}
 
@@ -246,24 +248,8 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.AccountSearch)
   @ResolveField()
-  public subscriptions(@Root() account: Account) {
-    // TODO: FXA-4237 / #11094, get real subscription data
-    return [
-      {
-        created: 1583259953,
-        currentPeriodEnd: 1596758906,
-        currentPeriodStart: 1594080506,
-        cancelAtPeriodEnd: false,
-        endAt: 1596758906,
-        latestInvoice:
-          'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_HbGuRujVERsyXZy0zArp7SLFRhY9i6S/pdf',
-        planId: 'plan_GqM9N6qyhvxaVk',
-        productName: 'Cooking with Foxkeh',
-        productId: 'il_1H24MIBVqmGyQTMa2hcoK0YW',
-        status: 'succeeded',
-        subscriptionId: 'sub_HbGu2EjvFQpuD2',
-      },
-    ];
+  public async subscriptions(@Root() account: Account) {
+    return await this.subscriptionsService.getSubscriptions(account.uid);
   }
 
   @ResolveField()

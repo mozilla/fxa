@@ -19,8 +19,8 @@ export class MozSubscription {
   @Field()
   public cancelAtPeriodEnd!: boolean;
 
-  @Field()
-  public endAt!: number;
+  @Field({ nullable: true })
+  public endedAt?: number;
 
   @Field()
   public latestInvoice!: string;

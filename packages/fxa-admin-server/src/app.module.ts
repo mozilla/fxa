@@ -3,25 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import {
   createContext,
   SentryPlugin,
 } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
-
+import { UserGroupGuard } from './auth/user-group-header.guard';
 import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule } from './gql/gql.module';
-import { APP_GUARD } from '@nestjs/core';
-import { UserGroupGuard } from './auth/user-group-header.guard';
+import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
 const version = getVersionInfo(__dirname);
 
@@ -32,6 +32,7 @@ const version = getVersionInfo(__dirname);
       isGlobal: true,
     }),
     DatabaseModule,
+    SubscriptionModule,
     GqlModule,
     GraphQLModule.forRootAsync({
       imports: [ConfigModule, SentryModule],

@@ -1,13 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import cacheManager, { Cacheable } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import mapValues from 'lodash/mapValues';
 import { Stripe } from 'stripe';
-
 import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
@@ -18,6 +18,7 @@ import { ILogger } from '../log';
 import { mapPlanConfigsByPriceId } from '../subscriptions/configuration/utils';
 import {
   AbbrevPlan,
+  AbbrevProduct,
   ConfiguredPlan,
   MozillaSubscriptionTypes,
   SubscriptionType,
@@ -178,6 +179,26 @@ export abstract class StripeHelper {
   }
 
   /**
+   * Formats all products from stripe into an abberviated format. (i.e. an improved subset of the object, with only pertinent data.)
+   * @returns
+   */
+  async allAbbrevProducts(): Promise<AbbrevProduct[]> {
+    const products = await this.allProducts();
+    return products.map(this.abbrevProductFromStripeProduct);
+  }
+
+  /**
+   * Extract an AbbrevProduct from Stripe Product
+   */
+  abbrevProductFromStripeProduct(product: Stripe.Product): AbbrevProduct {
+    return {
+      product_id: product.id,
+      product_name: product.name,
+      product_metadata: product.metadata,
+    };
+  }
+
+  /**
    * Fetch a customer for the record from Stripe based on user id.
    */
   async fetchCustomer(
@@ -253,16 +274,7 @@ export abstract class StripeHelper {
     price: AbbrevPlan,
     iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>
   ) {
-    const key =
-      iapType === MozillaSubscriptionTypes.IAP_GOOGLE
-        ? STRIPE_PRICE_METADATA.PLAY_SKU_IDS
-        : STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS;
-    const priceIAPIds = price.plan_metadata?.[key] || '';
-    return priceIAPIds
-      .trim()
-      .split(',')
-      .map((c) => c.trim().toLowerCase())
-      .filter((c) => !!c);
+    return determineIapIdentifiers(iapType, price);
   }
 
   /**
@@ -513,4 +525,33 @@ export abstract class StripeHelper {
         return this.stripe[resourceType].retrieve(resource);
     }
   }
+}
+
+/**
+ * Auxillary function that looks into plan metadata and extracts the correct set of product identifier given an iap type.
+ * @param iapType - desired aip type
+ * @param plan - a target plan
+ * @returns set of product identifiers
+ */
+export function determineIapIdentifiers(
+  iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>,
+  plan: AbbrevPlan
+) {
+  const key =
+    iapType === MozillaSubscriptionTypes.IAP_GOOGLE
+      ? STRIPE_PRICE_METADATA.PLAY_SKU_IDS
+      : iapType === MozillaSubscriptionTypes.IAP_APPLE
+      ? STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS
+      : null;
+
+  if (!key) {
+    throw new Error('Invalid iapType');
+  }
+
+  const ids = plan.plan_metadata?.[key] || '';
+  return ids
+    .trim()
+    .split(',')
+    .map((c) => c.trim().toLowerCase())
+    .filter((c) => !!c);
 }

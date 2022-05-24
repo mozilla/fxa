@@ -72,7 +72,7 @@ const ACCOUNT_SCHEMA = `
     currentPeriodEnd
     currentPeriodStart
     cancelAtPeriodEnd
-    endAt
+    endedAt
     latestInvoice
     planId
     productName

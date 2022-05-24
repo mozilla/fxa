@@ -487,28 +487,27 @@ export const Account = ({
         </Guard>
 
         {/* Temporary check for fake hard-coded value until we fetch actual subscriptions in FXA-4237 */}
-        {subscriptions &&
-          subscriptions[0].productName !== 'Cooking with Foxkeh' && (
-            <>
-              <li className="account-li">
-                <h3 className="account-header">Subscriptions</h3>
+        {subscriptions && (
+          <>
+            <li className="account-li">
+              <h3 className="account-header">Subscriptions</h3>
+            </li>
+            {subscriptions && subscriptions.length > 0 ? (
+              <>
+                {subscriptions.map((subscription) => (
+                  <Subscription
+                    key={subscription.subscriptionId}
+                    {...subscription}
+                  />
+                ))}
+              </>
+            ) : (
+              <li className="account-li account-border-info">
+                This account doesn't have any subscriptions.
               </li>
-              {subscriptions && subscriptions.length > 0 ? (
-                <>
-                  {subscriptions.map((subscription) => (
-                    <Subscription
-                      key={subscription.subscriptionId}
-                      {...subscription}
-                    />
-                  ))}
-                </>
-              ) : (
-                <li className="account-li account-border-info">
-                  This account doesn't have any subscriptions.
-                </li>
-              )}
-            </>
-          )}
+            )}
+          </>
+        )}
       </ul>
 
       <hr className="border-grey-50 mb-4" />
@@ -588,9 +587,12 @@ export const Account = ({
   );
 };
 
-const getEmailBounceDescription = (bounceType: string, bounceSubType: string) => {
+const getEmailBounceDescription = (
+  bounceType: string,
+  bounceSubType: string
+) => {
   let description;
-  switch(bounceType) {
+  switch (bounceType) {
     case BounceType.Undetermined: {
       if (bounceSubType === BounceSubType.Undetermined) {
         description = BOUNCE_DESCRIPTIONS.undetermined;
@@ -623,7 +625,7 @@ const getEmailBounceDescription = (bounceType: string, bounceSubType: string) =>
       } else if (bounceSubType === BounceSubType.MessageTooLarge) {
         description = BOUNCE_DESCRIPTIONS.transientMessageTooLarge;
       } else if (bounceSubType === BounceSubType.ContentRejected) {
-        description = BOUNCE_DESCRIPTIONS.transientContentRejected
+        description = BOUNCE_DESCRIPTIONS.transientContentRejected;
       } else if (bounceSubType === BounceSubType.AttachmentRejected) {
         description = BOUNCE_DESCRIPTIONS.transientAttachmentRejected;
       } else {
@@ -656,7 +658,7 @@ const getEmailBounceDescription = (bounceType: string, bounceSubType: string) =>
     }
   }
   return description.map((paragraph, index) => <p key={index}>{paragraph}</p>);
-}
+};
 
 const EmailBounce = ({
   email,
@@ -667,16 +669,15 @@ const EmailBounce = ({
   diagnosticCode,
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
-  const bounceDescription = getEmailBounceDescription(bounceType, bounceSubType);
+  const bounceDescription = getEmailBounceDescription(
+    bounceType,
+    bounceSubType
+  );
   return (
     <div className="account-li account-border-info">
       <table className="pt-1" aria-label="simple table">
         <tbody>
-          <ResultTableRow
-            label="email"
-            value={email}
-            testId={'bounce-email'}
-          />
+          <ResultTableRow label="email" value={email} testId={'bounce-email'} />
           <ResultTableRow
             label="template"
             value={templateName}
@@ -890,7 +891,9 @@ const ResultTableRow = ({
 }) => {
   return (
     <tr>
-      <td className="account-label"><span>{label}</span></td>
+      <td className="account-label">
+        <span>{label}</span>
+      </td>
       <td data-testid={testId}>{value ? value : <i>Unknown</i>}</td>
     </tr>
   );

@@ -113,7 +113,7 @@ type MozSubscription {
   currentPeriodEnd: Float!
   currentPeriodStart: Float!
   cancelAtPeriodEnd: Boolean!
-  endAt: Float!
+  endedAt: Float
   latestInvoice: String!
   planId: String!
   productName: String!

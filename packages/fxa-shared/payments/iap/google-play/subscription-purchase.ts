@@ -73,7 +73,7 @@ export class PlayStoreSubscriptionPurchase implements Purchase {
   countryCode!: string;
   paymentState?: PaymentState;
   cancelReason!: number;
-  userCancellationTimeMillis!: number;
+  userCancellationTimeMillis?: number;
   orderId!: string;
   linkedPurchaseToken!: string;
   purchaseType?: PurchaseType;

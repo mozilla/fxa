@@ -13,7 +13,7 @@ const Subscription = ({
   currentPeriodEnd,
   currentPeriodStart,
   cancelAtPeriodEnd,
-  endAt,
+  endedAt,
   latestInvoice,
   planId,
   productName,
@@ -32,9 +32,11 @@ const Subscription = ({
       <li className="account-li">
         Created at: <span>{dateFormat(new Date(created), DATE_FORMAT)}</span>
       </li>
-      <li className="account-li">
-        Ends at: <span>{dateFormat(new Date(endAt), DATE_FORMAT)}</span>
-      </li>
+      {endedAt != null && (
+        <li className="account-li">
+          Ended at: <span>{dateFormat(new Date(endedAt), DATE_FORMAT)}</span>
+        </li>
+      )}
       <li className="account-li">
         Current period start:{' '}
         <span>{dateFormat(new Date(currentPeriodStart), DATE_FORMAT)}</span>

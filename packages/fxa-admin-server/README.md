@@ -50,6 +50,69 @@ Use the `--hasDiagnosticCode` flag to create a bounce with a diagnostic code (ot
 
 Example: `yarn email-bounce --email test@example.com --count 3`
 
+## Subscription Service
+
+The subscription service binds account records to info about their current set of subscriptions. Subscription data is held in two datastores. Firestore acts as a backing document store and is responsible for holding documents containing subscription information. If the subscription data cannot be located in Firestore, then the underlying API implementation will be queried and the subscription data will be pulled directly from the source.
+
+It can be difficult to test the subscription in its full form. Stripe integration is not difficult, but workflows for apple app store purchases and google play purchases are difficult to test manually. As a side effect of this, feature flags have been added to disable these calls during local development.
+
+## Feature Flags
+
+Feature flags can be found in `./src/config/index.ts`, under the `featureFlags` section. Feature flags should be named in an obvious way, and are useful for local testing, soft launches, and as a short circuit if a feature starts misbehaving.
+
+## Configuration
+
+All configuration settings can be found in `./src/config/indext.ts`. Furthermore, overrides can be applied by adding json files to this folder containing partial overrides. For example, to create local settings, add the following to `./src/config/local.json`
+
+```
+{
+  featureFlags: {
+    subscriptions: {
+      playStore: false
+    }
+  }
+}
+```
+
+## Secrets
+
+With the addition of subscriptions, secrets are now required to fully exercise the subscription service code. Adding secrets is not difficult though. Simply add a `./src/config/secrets.json` file and provide the required config settings. It is generally best to ask a fellow developer to get help with these values, as setting this up yourself can be time consuming.
+
+In the event you can’t provide a secrets file, but still want to do some development work, consider using feature flags to disable subscription features accordingly.
+
+Here is an example secrets.json that would support stripe, and google play, and apple app store.
+
+```
+{
+  "subscriptions": {
+     "stripeApiKey": "sk-test_123",
+     "stripeWebhookSecret": "wh-sec_123",
+     "paypalNvpSigCredentials": {
+       "enabled": true,
+       "sandbox": true,
+       "user": "sb-123.business.example.com",
+       "pwd": "pwd123",
+       "signature": "sig--123"
+     },
+     "playApiServiceAccount": {
+       "enabled": true,
+       "keyFilename": "/Users/me/my-secrets/firestore.json",
+       "projectId": "test-123"
+     }
+   },
+   "googleAuthConfig": {
+     "clientSecret": "secret-google-123"
+   },
+   "appleAuthConfig": {
+     "clientSecret": "secret-apple-123"
+   }
+}
+```
+
+_(And of course real values would need to be provided…)_
+
+**(Note: There is no watch on .json files, so run a yarn build after changing them.)**
+
 ## Testing
 
 This package uses [Jest](https://mochajs.org/) to test its code. By default `yarn test` will test all files ending in `.spec.ts`.
