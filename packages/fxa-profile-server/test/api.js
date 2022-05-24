@@ -1330,6 +1330,19 @@ describe('api', function () {
   describe('/display_name', function () {
     var tok = token();
 
+    const EXPECTED_TOKEN = 'thisisnotthedefault';
+
+    let origSecretBearerToken = null;
+
+    before(function () {
+      origSecretBearerToken = config.get('secretBearerToken');
+      config.set('secretBearerToken', EXPECTED_TOKEN);
+    });
+
+    after(function () {
+      config.set('secretBearerToken', origSecretBearerToken);
+    });
+
     describe('GET', function () {
       it('should return a displayName', function () {
         mock.token({
@@ -1408,6 +1421,28 @@ describe('api', function () {
             },
             headers: {
               authorization: 'Bearer ' + tok,
+            },
+          })
+          .then(function (res) {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            return db.getDisplayName(USERID);
+          })
+          .then(function (res) {
+            assert.equal(res.displayName, NAME);
+          });
+      });
+
+      it('should post a new display name via secretBearerToken', function () {
+        var NAME = 'Spock';
+        return Server.api
+          .post({
+            url: '/_display_name/' + USERID,
+            payload: {
+              name: NAME,
+            },
+            headers: {
+              authorization: 'Bearer ' + EXPECTED_TOKEN,
             },
           })
           .then(function (res) {
