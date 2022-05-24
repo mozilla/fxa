@@ -6,12 +6,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import { MozSubscription } from '../gql/model/moz-subscription.model';
 import { AppStoreService } from './appstore.service';
 import { PlayStoreService } from './playstore.service';
 import { iapPurchaseToPlan, StripeService } from './stripe.service';
 import {
   AppStoreFormatter,
-  MozSubscription,
   PlayStoreFormatter,
   StripeFormatter,
 } from './subscriptions.formatters';
@@ -34,6 +34,11 @@ export class SubscriptionsService {
   /** Indicates stripe should be queried for subscriptions. */
   protected get isStripeEnabled() {
     return this.configService.get('featureFlags.subscriptions.stripe');
+  }
+
+  /** A return URL that stripe can redirect to after a user completes a workflow. */
+  protected get returnUrl() {
+    return this.configService.get('returnUrl');
   }
 
   /**
@@ -103,7 +108,19 @@ export class SubscriptionsService {
       if (typeof invoice === 'string') {
         invoice = await this.stripeService.lookupLatestInvoice(invoice);
       }
-      yield StripeFormatter.toMozSubscription(subscription, plan, invoice);
+
+      const manageSubscriptionLink =
+        await this.stripeService.createManageSubscriptionLink(
+          subscription.customer,
+          this.returnUrl
+        );
+
+      yield StripeFormatter.toMozSubscription(
+        subscription,
+        plan,
+        invoice,
+        manageSubscriptionLink
+      );
     }
   }
 

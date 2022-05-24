@@ -26,6 +26,9 @@ export class MozSubscription {
   public latestInvoice!: string;
 
   @Field()
+  public manageSubscriptionLink?: string;
+
+  @Field()
   public planId!: string;
 
   @Field()

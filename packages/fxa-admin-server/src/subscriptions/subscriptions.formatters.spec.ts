@@ -31,7 +31,8 @@ describe('MozSubscriptionFormatters', () => {
         },
         {
           hosted_invoice_url: 'www.foo.bar',
-        }
+        },
+        'http://foo.bar'
       );
       expect(formatted).toEqual({
         created: created,
@@ -45,6 +46,7 @@ describe('MozSubscriptionFormatters', () => {
         productId: 'prod-123',
         status: 'active',
         subscriptionId: '123', // Not sure
+        manageSubscriptionLink: 'http://foo.bar',
       });
     });
   });

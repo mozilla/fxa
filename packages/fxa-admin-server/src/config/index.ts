@@ -12,6 +12,12 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
+  returnUrl: {
+    default: 'https://fxa-admin-panel.prod.mozaws.net/account-search',
+    doc: 'A url that a user can be redirected back to after completing a remote work flow.',
+    env: 'ADMIN_PANEL_RETURN_URL',
+    format: String,
+  },
   authHeader: {
     default: USER_EMAIL_HEADER,
     doc: 'Authentication header that should be logged for the user',

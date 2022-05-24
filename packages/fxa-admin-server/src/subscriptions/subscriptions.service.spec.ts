@@ -24,6 +24,7 @@ describe('Subscription Service', () => {
   const mockFetchCustomers = jest.fn();
   const mockLookupLatestInvoice = jest.fn();
   const mockAllAbbrevPlans = jest.fn();
+  const mockCreateManageSubscriptionLink = jest.fn();
   const MockStripeService: Provider = {
     provide: StripeService,
     useFactory: () => {
@@ -33,6 +34,7 @@ describe('Subscription Service', () => {
         fetchCustomer: mockFetchCustomers,
         lookupLatestInvoice: mockLookupLatestInvoice,
         allAbbrevPlans: mockAllAbbrevPlans,
+        createManageSubscriptionLink: mockCreateManageSubscriptionLink,
       };
     },
   };
@@ -69,10 +71,13 @@ describe('Subscription Service', () => {
   const productId = 'product-123';
   const productName = 'product 123';
   const subscriptionId = 'subscription-123';
+  const manageSubscriptionLink = 'http://foo.bar/manage-session/123';
+  const returnUrl = 'http://foo.bar/account-search';
   const latestInvoice = 'invoice-123';
   const currentPeriodStart = created;
   const currentPeriodEnd = addDays(created, 30);
   const cancelAtPeriodEnd = addDays(created, 90);
+  const customerId = 'customer-123';
   const status = 'active';
   const orderId = 'order-123';
   const bundleId = 'bundle-123';
@@ -99,12 +104,14 @@ describe('Subscription Service', () => {
     mockConfigOverrides['featureFlags.subscriptions.appStore'] = true;
     mockConfigOverrides['featureFlags.subscriptions.playStore'] = true;
     mockConfigOverrides['featureFlags.subscriptions.stripe'] = true;
+    mockConfigOverrides['returnUrl'] = returnUrl;
 
     mockAllAbbrevPlans.mockClear();
     mockFetchCustomers.mockClear();
     mockLookupLatestInvoice.mockClear();
     mockAppStoreGetSubscriptions.mockClear();
     mockPlayStoreGetSubscriptions.mockClear();
+    mockCreateManageSubscriptionLink.mockClear();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -154,6 +161,7 @@ describe('Subscription Service', () => {
       subscriptions: {
         data: [
           {
+            customer: customerId,
             created,
             cancel_at_period_end: cancelAtPeriodEnd,
             current_period_end: currentPeriodEnd,
@@ -180,6 +188,9 @@ describe('Subscription Service', () => {
       async (_uid: string) => []
     );
     mockAllAbbrevPlans.mockImplementation(async () => [plan]);
+    mockCreateManageSubscriptionLink.mockImplementation(
+      async () => manageSubscriptionLink
+    );
 
     // Act
     const subscriptions = await service.getSubscriptions(uid);
@@ -198,10 +209,15 @@ describe('Subscription Service', () => {
         productName,
         status,
         subscriptionId,
+        manageSubscriptionLink,
       },
     ]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
     expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
+    expect(mockCreateManageSubscriptionLink).toBeCalledWith(
+      customerId,
+      returnUrl
+    );
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
@@ -341,6 +357,7 @@ describe('Subscription Service', () => {
       expect(subscriptions).toEqual([]);
       expect(mockAllAbbrevPlans).toBeCalledTimes(0);
       expect(mockFetchCustomers).toBeCalledTimes(0);
+      expect(mockCreateManageSubscriptionLink).toBeCalledTimes(0);
       expect(mockAppStoreGetSubscriptions).toBeCalledTimes(0);
       expect(mockPlayStoreGetSubscriptions).toBeCalledTimes(0);
     });
