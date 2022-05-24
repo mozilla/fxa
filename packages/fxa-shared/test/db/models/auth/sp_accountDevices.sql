@@ -1,8 +1,9 @@
-CREATE PROCEDURE `accountDevices_16` (
-  IN `uidArg` BINARY(16)
+CREATE PROCEDURE `accountDevices_17` (
+  IN `uidArg` BINARY(16),
+  IN `limitArg` INT
 )
 BEGIN
-  SELECT
+  SELECT 
     d.uid,
     d.id,
     s.tokenId AS sessionTokenId, -- Ensure we only return valid sessionToken ids
@@ -37,5 +38,6 @@ BEGIN
   -- no longer exists in the sessionTokens table.
   AND (s.tokenId IS NOT NULL OR d.refreshTokenId IS NOT NULL)
   -- For easy flattening, ensure rows are ordered by device id.
-  ORDER BY 1, 2;
+  ORDER BY 1, 2
+  LIMIT limitArg;
 END;

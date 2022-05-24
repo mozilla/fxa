@@ -9,7 +9,7 @@ import { Knex } from 'knex';
 export enum Proc {
   AccountRecord = 'accountRecord_9',
   AccountResetToken = 'accountResetToken_1',
-  AccountDevices = 'accountDevices_16',
+  AccountDevices = 'accountDevices_17',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',
   ConsumeSigninCode = 'consumeSigninCode_4',
   ConsumeUnblockCode = 'consumeUnblockCode_4',
@@ -53,7 +53,7 @@ export enum Proc {
   ResetAccount = 'resetAccount_16',
   ResetAccountTokens = 'resetAccountTokens_1',
   SessionWithDevice = 'sessionWithDevice_19',
-  Sessions = 'sessions_11',
+  Sessions = 'sessions_12',
   SetPrimaryEmail = 'setPrimaryEmail_6',
   TotpToken = 'totpToken_2',
   UpdateDevice = 'updateDevice_6',

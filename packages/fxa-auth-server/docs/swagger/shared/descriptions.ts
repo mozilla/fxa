@@ -40,6 +40,7 @@ const DESCRIPTIONS = {
   excluded:
     'Array of device ids to exclude from the notification. Ignored unless `to:"all"` is specified.',
   expiresIn: 'The number of seconds until the access token will expire.',
+  filterIdleDevicesTimestamp: 'Filter device list to only show devices active since UTC timestamp.',
   grantType: dedent`
     The type of grant flow being used. If not specified, it will default to fxa-credentials unless a code parameter is provided, in which case it will default to authorization_code. The value of this parameter determines which other parameters will be expected in the request body, as follows:
     - When \`grant_type=authorization_code\`:

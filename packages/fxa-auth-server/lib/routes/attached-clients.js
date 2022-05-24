@@ -15,6 +15,7 @@ const DEVICES_AND_SESSIONS_DOC =
   require('../../docs/swagger/devices-and-sessions-api').default;
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
+const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 
 module.exports = (log, db, devices, clientUtils) => {
   return [
@@ -25,6 +26,11 @@ module.exports = (log, db, devices, clientUtils) => {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENTS_GET,
         auth: {
           strategy: 'sessionToken',
+        },
+        validate: {
+          query: isA.object({
+            filterIdleDevicesTimestamp: isA.number().description(DESCRIPTIONS.filterIdleDevicesTimestamp).optional()
+          }),
         },
         response: {
           schema: isA.array().items(
@@ -80,7 +86,21 @@ module.exports = (log, db, devices, clientUtils) => {
             clientUtils.formatLocation(...args);
           },
           deviceList: async () => {
-            return await request.app.devices;
+            let devices = await request.app.devices;
+            
+            // To help reduce duplicate devices and help improve send tab 
+            // performance a client can request to filter device last access 
+            // time by a specified number of days. For reference, Sync currently
+            // considers devices that have been accessed in the last 21 days to 
+            // be active.
+            const idleDeviceTimestamp = request.query.filterIdleDevicesTimestamp;
+            if (idleDeviceTimestamp) {
+              devices = devices.filter((device) => {
+                return device.lastAccessTime > idleDeviceTimestamp;
+              });
+            }
+            
+            return devices;
           },
           oauthClients: async () => {
             return await authorizedClients.list(request.auth.credentials.uid);

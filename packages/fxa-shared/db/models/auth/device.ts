@@ -209,10 +209,11 @@ export class Device extends BaseAuthModel {
     ).map((row) => this.fromDatabaseJson(row));
   }
 
-  static async findByUid(uid: string) {
+  static async findByUid(uid: string, limit = 500) {
     const { rows } = await this.callProcedure(
       Proc.AccountDevices,
-      uuidTransformer.to(uid)
+      uuidTransformer.to(uid),
+      limit
     );
     return this.fromRows(rows);
   }

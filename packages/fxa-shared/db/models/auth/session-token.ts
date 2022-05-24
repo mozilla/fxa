@@ -261,10 +261,11 @@ export class SessionToken extends BaseToken {
     return notExpired(token) ? token : null;
   }
 
-  static async findByUid(uid: string): Promise<SessionToken[]> {
+  static async findByUid(uid: string, limit= 500): Promise<SessionToken[]> {
     const { rows } = await this.callProcedure(
       Proc.Sessions,
-      uuidTransformer.to(uid)
+      uuidTransformer.to(uid),
+      limit,
     );
     if (!rows.length) {
       return [];

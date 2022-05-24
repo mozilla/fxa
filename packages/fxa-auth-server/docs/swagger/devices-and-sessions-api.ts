@@ -26,6 +26,8 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
       - \`deviceId\`: The id of the client's device record, if it has registered one.
 
       These identifiers can be passed to [**/account/attached_client/destroy**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#post-accountattached_clientdestroy) in order to disconnect the client.
+      
+      This endpoint returns a maximum 500 last used devices and sessions.
     `,
   ],
 };
