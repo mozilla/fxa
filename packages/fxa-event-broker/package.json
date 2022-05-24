@@ -67,7 +67,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "sqs-consumer": "^5.6.0",
+    "sqs-consumer": "^5.7.0",
     "typesafe-joi": "^2.1.0",
     "uuid": "^8.3.2"
   },
