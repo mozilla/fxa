@@ -10532,10 +10532,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/retry@npm:*, @types/retry@npm:0.12.1":
+"@types/retry@npm:*":
   version: 0.12.1
   resolution: "@types/retry@npm:0.12.1"
   checksum: 5f46b2556053655f78262bb33040dc58417c900457cc63ff37d6c35349814471453ef511af0cec76a540c601296cd2b22f64bab1ab649c0dacc0223765ba876c
+  languageName: node
+  linkType: hard
+
+"@types/retry@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@types/retry@npm:0.12.0"
+  checksum: 61a072c7639f6e8126588bf1eb1ce8835f2cb9c2aba795c4491cf6310e013267b0c8488039857c261c387e9728c1b43205099223f160bb6a76b4374f741b5603
   languageName: node
   linkType: hard
 
@@ -22483,7 +22490,7 @@ fsevents@~2.1.1:
     npm-run-all: ^4.1.5
     nyc: ^15.1.0
     otplib: ^11.0.1
-    p-retry: ^5.1.1
+    p-retry: ^4.2.0
     pem-jwk: ^2.0.0
     pm2: ^5.1.2
     poolee: ^1.0.1
@@ -33951,13 +33958,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"p-retry@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "p-retry@npm:5.1.1"
+"p-retry@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "p-retry@npm:4.2.0"
   dependencies:
-    "@types/retry": 0.12.1
-    retry: ^0.13.1
-  checksum: 59502d9f2cafbb8e9813be457342dc8c448f132c0a808690881423a66c019ccbfc580c1a8ba25eb868eeccb92363fa7ffa1cc633c35774bc73f54be086753350
+    "@types/retry": ^0.12.0
+    retry: ^0.12.0
+  checksum: 489b7afb7aff0a84e39c1d97268069c6044ff5705493ef4a2f763671a291281ec8b7a252c84bc359797e49a4beb16d8b3177f2c45b2b5bf4300eaff1926eda9d
   languageName: node
   linkType: hard
 
@@ -38688,7 +38695,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"retry@npm:0.13.1, retry@npm:^0.13.1":
+"retry@npm:0.13.1":
   version: 0.13.1
   resolution: "retry@npm:0.13.1"
   checksum: 47c4d5be674f7c13eee4cfe927345023972197dbbdfba5d3af7e461d13b44de1bfd663bfc80d2f601f8ef3fc8164c16dd99655a221921954a65d044a2fc1233b
