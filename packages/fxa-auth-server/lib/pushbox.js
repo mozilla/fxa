@@ -16,7 +16,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const error = require('./error');
 const createBackendServiceAPI = require('./backendService');
 const validators = require('./routes/validators');

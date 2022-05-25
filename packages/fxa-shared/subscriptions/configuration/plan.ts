@@ -30,8 +30,12 @@ export const planConfigJoiKeys = {
     .optional(),
 };
 
-const buildPlanConfigSchema = (schema: joi.ObjectSchema) =>
-  schema.fork(['active'], (schema) => schema.required());
+export const planConfigSchema = baseConfigSchema
+  .keys(planConfigJoiKeys)
+  .requiredKeys('active');
+
+const buildPlanConfigSchema = (baseSchema: joi.ObjectSchema) =>
+  baseSchema.keys(planConfigJoiKeys).requiredKeys('active');
 
 export class PlanConfig implements BaseConfig {
   // Firestore document id
@@ -66,14 +70,14 @@ export class PlanConfig implements BaseConfig {
     schemaValidation: ProductConfigSchemaValidation
   ) {
     const extendedBaseSchema = extendBaseConfigSchema(
-      baseConfigSchema.keys(planConfigJoiKeys),
+      baseConfigSchema,
       schemaValidation.cdnUrlRegex
     );
 
     const planConfigSchema = buildPlanConfigSchema(extendedBaseSchema);
 
     try {
-      const value = await planConfigSchema.validateAsync(planConfig, {
+      const value = await joi.validate(planConfig, planConfigSchema, {
         abortEarly: false,
       });
       return { value };

@@ -5,6 +5,7 @@
 'use strict';
 
 const inherits = require('util').inherits;
+const messages = require('@hapi/joi/lib/language').errors;
 const OauthError = require('./oauth/error');
 const verror = require('verror');
 
@@ -269,7 +270,7 @@ AppError.translate = function (request, response) {
   } else if (payload.validation) {
     if (
       payload.message &&
-      payload.message.includes('is required')
+      payload.message.indexOf(messages.any.required) >= 0
     ) {
       error = AppError.missingRequestParameter(payload.validation.keys[0]);
     } else {

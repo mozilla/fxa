@@ -288,7 +288,10 @@ describe('PaymentConfigManager', () => {
         await paymentConfigManager.storePlanConfig(newPlan, randomUUID());
         assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.jse_cause.message, '"active" is required');
+        assert.equal(
+          err.jse_cause.message,
+          'child "active" fails because ["active" is required]'
+        );
         assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
     });

@@ -5,7 +5,7 @@
 const exec = require('child_process').exec;
 const path = require('path');
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const version = require('../../package.json').version;
 let commitHash, source;
@@ -21,11 +21,11 @@ try {
 
 module.exports = {
   response: {
-    schema: Joi.object({
+    schema: {
       version: Joi.string().required(),
       commit: Joi.string().required(),
       source: Joi.string().required(),
-    }),
+    },
   },
   handler: async function index(req, h) {
     function sendReply() {

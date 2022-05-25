@@ -7,7 +7,7 @@
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
@@ -213,7 +213,7 @@ module.exports = (
               .string()
               .max(32)
               .alphanum()
-              .allow('upgradeSession')
+              .allow(['upgradeSession'])
               .optional(),
           }),
           payload: isA.object({
@@ -227,12 +227,12 @@ module.exports = (
               .max(2048)
               .optional()
               .description(DESCRIPTION.resume),
-            style: isA.string().allow('trailhead').optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             type: isA
               .string()
               .max(32)
               .alphanum()
-              .allow('upgradeSession')
+              .allow(['upgradeSession'])
               .optional(),
           }),
         },
@@ -385,7 +385,7 @@ module.exports = (
               .alphanum()
               .optional()
               .description(DESCRIPTION.type),
-            style: isA.string().allow('trailhead').optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             // The `marketingOptIn` is safe to remove after train-167+
             marketingOptIn: isA.boolean().optional(),
             newsletters: validators.newsletters,

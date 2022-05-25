@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
 const validators = require('./routes/validators');
 const error = require('./error');

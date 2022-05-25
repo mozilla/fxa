@@ -22,8 +22,9 @@ export const productConfigJoiKeys = {
 };
 
 const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
-  baseSchema.fork(
-    [
+  baseSchema
+    .keys(productConfigJoiKeys)
+    .requiredKeys(
       'capabilities',
       'locales',
       'styles',
@@ -34,10 +35,8 @@ const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
       'urls.termsOfService',
       'urls.termsOfServiceDownload',
       'urls.webIcon',
-      'urls',
-    ],
-    (schema) => schema.required()
-  );
+      'urls'
+    );
 
 // This type defines the required fields of urls, set by function buildProductConfigSchema.
 // Any change to required fields in urls, should be updated here as well.
@@ -84,14 +83,14 @@ export class ProductConfig implements BaseConfig {
     schemaValidation: ProductConfigSchemaValidation
   ) {
     const extendedBaseSchema = extendBaseConfigSchema(
-      baseConfigSchema.keys(productConfigJoiKeys),
+      baseConfigSchema,
       schemaValidation.cdnUrlRegex
     );
 
     const productConfigSchema = buildProductConfigSchema(extendedBaseSchema);
 
     try {
-      const value = await productConfigSchema.validateAsync(productConfig, {
+      const value = await joi.validate(productConfig, productConfigSchema, {
         abortEarly: false,
       });
       return { value };

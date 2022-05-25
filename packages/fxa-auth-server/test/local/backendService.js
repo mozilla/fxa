@@ -5,7 +5,7 @@
 'use strict';
 
 const nock = require('nock');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const { assert } = require('chai');
 const { mockLog } = require('../mocks');
 const sinon = require('sinon');

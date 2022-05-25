@@ -6,9 +6,10 @@
 
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
+const joi = require('@hapi/joi');
 const HapiSwagger = require('hapi-swagger');
-const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
+const Inert = require('inert');
+const Vision = require('vision');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -170,7 +171,7 @@ async function create(log, error, config, routes, db, statsd) {
   }
 
   const server = new Hapi.Server(serverOptions);
-  server.validator(require('joi'));
+  server.validator(require('@hapi/joi'));
 
   server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request);
@@ -186,7 +187,9 @@ async function create(log, error, config, routes, db, statsd) {
       return xff
         .filter(Boolean)
         .map((address) => address.trim())
-        .filter((address) => !IP_ADDRESS.required().validate(address).error);
+        .filter(
+          (address) => !joi.validate(address, IP_ADDRESS.required()).error
+        );
     });
 
     defineLazyGetter(request.app, 'clientAddress', () => {

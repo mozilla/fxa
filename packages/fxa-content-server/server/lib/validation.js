@@ -29,7 +29,6 @@ const PATTERNS = {
   SERVICE: /^([a-zA-Z0-9\-]{1,16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/,
-  UTM: /^[\w\/.%-]+$/,
 };
 
 const TYPES = {
@@ -38,7 +37,7 @@ const TYPES = {
   BOOLEAN: joi.boolean(),
   DIMENSION: joi.number().integer().min(0),
   DOMAIN: joi.string().max(32).regex(PATTERNS.DOMAIN),
-  EXPERIMENT: joi.string().valid(...EXPERIMENT_NAMES),
+  EXPERIMENT: joi.string().valid(EXPERIMENT_NAMES),
   FLOW_ID: joi.string().hex().length(64),
   HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),
@@ -67,7 +66,7 @@ const TYPES = {
     .string()
     .max(128)
     // eslint-disable-next-line no-useless-escape
-    .regex(PATTERNS.UTM), // values here can be 'firefox/sync'
+    .regex(/^[\w\/.%-]+$/), // values here can be 'firefox/sync'
 };
 
 // the crazy long allow comes from the firstrun page.

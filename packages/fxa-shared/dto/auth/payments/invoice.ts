@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from 'joi';
+import joi from 'typesafe-joi';
 
 export interface InvoiceLineItem {
   amount: number;
@@ -64,29 +64,9 @@ export const firstInvoicePreviewSchema = joi.object({
   }),
 });
 
-type line_item = {
-  amount: number;
-  currency: string;
-  id: string;
-  name: string;
-};
-
-export type firstInvoicePreviewSchema = {
-  line_items: Array<line_item>;
-  subtotal: number;
-  total: number;
-  tax?: {
-    amount: number;
-    inclusive: boolean;
-    name: string;
-    percentage: number;
-  };
-  discount?: {
-    amount: number;
-    amount_off: number | null;
-    percent_off: number | null;
-  };
-};
+export type firstInvoicePreviewSchema = joi.Literal<
+  typeof firstInvoicePreviewSchema
+>;
 
 /**
  * Defines an interface for the subsequent invoice preview response
@@ -106,10 +86,6 @@ export const subsequentInvoicePreviewsSchema = joi.array().items(
   })
 );
 
-type subsequentInvoicePreview = {
-  subscriptionId: string;
-  period_start: number;
-  total: number;
-};
-
-export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;
+export type subsequentInvoicePreviewsSchema = joi.Literal<
+  typeof subsequentInvoicePreviewsSchema
+>;

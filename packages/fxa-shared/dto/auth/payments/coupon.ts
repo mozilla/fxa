@@ -1,4 +1,4 @@
-import joi from 'joi';
+import joi from 'typesafe-joi';
 
 export interface CouponDetails {
   promotionCode: string;
@@ -20,12 +20,4 @@ export const couponDetailsSchema = joi.object({
   maximallyRedeemed: joi.boolean().required(),
 });
 
-export type couponDetailsSchema = {
-  promotionCode: string;
-  type: string;
-  durationInMonths: number | null;
-  valid: boolean;
-  discountAmount?: number;
-  expired: boolean;
-  maximallyRedeemed: boolean;
-};
+export type couponDetailsSchema = joi.Literal<typeof couponDetailsSchema>;

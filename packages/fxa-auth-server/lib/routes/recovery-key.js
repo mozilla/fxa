@@ -10,7 +10,7 @@ const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 const errors = require('../error');
 const validators = require('./validators');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 
 module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
   return [
