@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthLogger, AuthRequest } from '../types';
+import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
@@ -32,7 +32,8 @@ export class LinkedAccountHandler {
     private log: AuthLogger,
     private db: any,
     private config: ConfigType,
-    private mailer: any
+    private mailer: any,
+    private profile: ProfileClient,
   ) {
     const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
     this.tokenCodeLifetime =
@@ -166,6 +167,7 @@ export class LinkedAccountHandler {
 
     const userid = idToken.sub;
     const email = idToken.email;
+    const name = idToken.name;
 
     let accountRecord;
     let linkedAccountRecord = await this.db.getLinkedAccount(userid, provider);
@@ -175,6 +177,10 @@ export class LinkedAccountHandler {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
+
+        if (name) {
+          await this.profile.updateDisplayName(accountRecord.uid, name);
+        }
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
@@ -237,6 +243,10 @@ export class LinkedAccountHandler {
           locale: request.app.acceptLanguage,
         });
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
+
+        if (name) {
+          await this.profile.updateDisplayName(accountRecord.uid, name);
+        }
         // Currently, we treat accounts created from a linked account as a new
         // registration and emit the correspond event. Note that depending on
         // where might not be a top of funnel for this completion event.
@@ -300,9 +310,10 @@ export const linkedAccountRoutes = (
   log: AuthLogger,
   db: any,
   config: ConfigType,
-  mailer: any
+  mailer: any,
+  profile: ProfileClient,
 ) => {
-  const handler = new LinkedAccountHandler(log, db, config, mailer);
+  const handler = new LinkedAccountHandler(log, db, config, mailer, profile);
 
   return [
     {

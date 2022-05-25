@@ -67,6 +67,7 @@ export interface AuthRequest extends Request {
 
 export interface ProfileClient {
   deleteCache(uid: string): Promise<void>;
+  updateDisplayName(uid: string, name: string): Promise<void>;
 }
 
 // Container token types
