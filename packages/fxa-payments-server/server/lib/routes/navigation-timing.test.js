@@ -35,11 +35,11 @@ describe('navigation-timing route', () => {
   describe('request body validation', () => {
     test('should pass when given a validate request body', () => {
       const result = route.validate.body.validate(validRequestBody);
-      expect(result.error).toBeUndefined();
+      expect(result.error).toBeNull();
     });
     test('should fail when given an invalidate request body', () => {
       const result = route.validate.body.validate(invalidRequestBody);
-      expect(result.error).not.toBeUndefined();
+      expect(result.error).not.toBeNull();
     });
   });
   describe('handler', () => {

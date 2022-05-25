@@ -532,7 +532,6 @@ describe('StripeProductsAndPlansConverter', () => {
       Container.reset();
       sandbox.reset();
     });
-
     it('processes new products and plans', async () => {
       await converter.convert(args);
       products = await paymentConfigManager.allProducts();
@@ -568,7 +567,6 @@ describe('StripeProductsAndPlansConverter', () => {
         productConfigId: products[1].id,
       });
     });
-
     it('updates existing products and plans', async () => {
       // Put some configs into Firestore
       const productConfigDocId1 = await paymentConfigManager.storeProductConfig(
@@ -640,7 +638,6 @@ describe('StripeProductsAndPlansConverter', () => {
         productConfigId: products[0].id,
       });
     });
-
     it('processes only the product with productId when passed', async () => {
       await converter.convert({ ...args, productId: product1.id });
       sinon.assert.calledOnceWithExactly(
@@ -648,7 +645,6 @@ describe('StripeProductsAndPlansConverter', () => {
         { ids: [product1.id] }
       );
     });
-
     it('does not update Firestore if dryRun = true', async () => {
       paymentConfigManager.storeProductConfig = sandbox.stub();
       paymentConfigManager.storePlanConfig = sandbox.stub();
@@ -657,7 +653,6 @@ describe('StripeProductsAndPlansConverter', () => {
       sinon.assert.notCalled(paymentConfigManager.storeProductConfig);
       sinon.assert.notCalled(paymentConfigManager.storePlanConfig);
     });
-
     it('moves localized data from plans into the productConfig', async () => {
       const productWithRequiredKeys = {
         ...deepCopy(product1),
@@ -716,7 +711,6 @@ describe('StripeProductsAndPlansConverter', () => {
       };
       assert.deepEqual(products[0].locales, expected);
     });
-
     it('logs an error and keeps processing if a product fails', async () => {
       const productConfigId = 'test-product-id';
       const planConfigId = 'test-plan-id';
@@ -766,7 +760,6 @@ describe('StripeProductsAndPlansConverter', () => {
         }
       );
     });
-
     it('logs an error and keeps processing if a plan fails', async () => {
       const productConfigId = 'test-product-id';
       const planConfigId = 'test-plan-id';

@@ -93,7 +93,7 @@ exports.create = async function createServer() {
       },
     },
   });
-  server.validator(require('joi'));
+  server.validator(require('@hapi/joi'));
 
   // configure Sentry
   if (config.sentry && config.sentry.dsn) {

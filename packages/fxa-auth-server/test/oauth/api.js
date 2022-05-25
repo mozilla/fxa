@@ -889,9 +889,7 @@ describe('/v1', function () {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.access_token);
-          assert.isUndefined(
-            validators.jwt.validate(res.result.access_token).error
-          );
+          assert.isNull(validators.jwt.validate(res.result.access_token).error);
           const jwt = decodeJWT(res.result.access_token);
           assert.strictEqual(jwt.claims.sub, USERID);
           assert.deepEqual(jwt.claims.aud, [
@@ -2135,7 +2133,6 @@ describe('/v1', function () {
           payload: {
             client_id: clientId,
             grant_type: 'fxa-credentials',
-            scope: 'profile testme',
           },
         });
         assertInvalidRequestParam(res.result, 'assertion');
@@ -2189,7 +2186,6 @@ describe('/v1', function () {
             grant_type: 'fxa-credentials',
             ttl: 42,
             assertion: AN_ASSERTION,
-            scope: 'profile testme',
           },
         });
         assertSecurityHeaders(res);
@@ -2206,7 +2202,6 @@ describe('/v1', function () {
             grant_type: 'fxa-credentials',
             ttl: MAX_TTL_S * 100,
             assertion: AN_ASSERTION,
-            scope: 'profile testme',
           },
         });
         assertSecurityHeaders(res);
@@ -2239,7 +2234,6 @@ describe('/v1', function () {
             client_id: clientId,
             grant_type: 'fxa-credentials',
             assertion: AN_ASSERTION,
-            scope: 'profile testme',
           },
         });
         assertSecurityHeaders(res);
@@ -3727,7 +3721,7 @@ describe('/v1', function () {
       assert.equal(tokenResult.statusCode, 200);
       assertSecurityHeaders(tokenResult);
       assert.ok(tokenResult.result.access_token);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(tokenResult.result.access_token).error
       );
       assert.strictEqual(tokenResult.result.token_type, 'bearer');
@@ -3814,7 +3808,7 @@ describe('/v1', function () {
       assert.equal(refreshTokenResult.statusCode, 200);
       assertSecurityHeaders(refreshTokenResult);
       assert.ok(refreshTokenResult.result.access_token);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(refreshTokenResult.result.access_token).error
       );
       assert.strictEqual(refreshTokenResult.result.token_type, 'bearer');
@@ -3884,7 +3878,7 @@ describe('/v1', function () {
       );
 
       assert.equal(ppidTokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(ppidTokenResult.result.access_token).error
       );
 
@@ -3922,7 +3916,7 @@ describe('/v1', function () {
       });
 
       assert.equal(refreshTokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(refreshTokenResult.result.access_token).error
       );
 
@@ -3963,7 +3957,7 @@ describe('/v1', function () {
       });
 
       assert.equal(refreshTokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(refreshTokenResult.result.access_token).error
       );
 
@@ -3994,7 +3988,7 @@ describe('/v1', function () {
         }
       );
       assert.equal(tokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(tokenResult.result.access_token).error
       );
       const tokenJWT = decodeJWT(tokenResult.result.access_token);
@@ -4015,7 +4009,7 @@ describe('/v1', function () {
       });
 
       assert.equal(serverRotatedResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(serverRotatedResult.result.access_token).error
       );
 
@@ -4040,7 +4034,7 @@ describe('/v1', function () {
         }
       );
       assert.equal(accessTokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(accessTokenResult.result.access_token).error
       );
       const accessTokenJWT = decodeJWT(accessTokenResult.result.access_token);
@@ -4057,7 +4051,7 @@ describe('/v1', function () {
         },
       });
       assert.equal(refreshTokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(refreshTokenResult.result.access_token).error
       );
       const refreshTokenJWT = decodeJWT(refreshTokenResult.result.access_token);
@@ -4080,7 +4074,7 @@ describe('/v1', function () {
         }
       );
       assert.equal(tokenResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(tokenResult.result.access_token).error
       );
       const tokenJWT = decodeJWT(tokenResult.result.access_token);
@@ -4096,7 +4090,7 @@ describe('/v1', function () {
         },
       });
       assert.equal(clientRotatedResult.statusCode, 200);
-      assert.isUndefined(
+      assert.isNull(
         validators.jwt.validate(clientRotatedResult.result.access_token).error
       );
       const clientRotatedJWT = decodeJWT(

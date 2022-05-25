@@ -7,9 +7,10 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const crypto = require('crypto');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
+const isA = require('@hapi/joi');
 const mocks = require('../../mocks');
 const moment = require('moment'); // Ensure consistency with production code
 const proxyquire = require('proxyquire');
@@ -76,8 +77,7 @@ async function runTest(route, request, onSuccess, onError) {
   try {
     const response = await route.handler(request);
     if (route.options.response.schema) {
-      const validationSchema = route.options.response.schema;
-      await validationSchema.validateAsync(response);
+      await Joi.validate(response, route.options.response.schema);
     }
     if (onSuccess) {
       onSuccess(response);
@@ -808,8 +808,10 @@ describe('/account/device/commands', () => {
       '/account/device/commands'
     );
 
-    const validationSchema = route.options.validate.query;
-    mockRequest.query = validationSchema.validate(mockRequest.query).value;
+    mockRequest.query = isA.validate(
+      mockRequest.query,
+      route.options.validate.query
+    ).value;
     assert.ok(mockRequest.query);
     return runTest(route, mockRequest).then((response) => {
       assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called');
@@ -909,8 +911,10 @@ describe('/account/device/commands', () => {
       '/account/device/commands'
     );
 
-    const validationSchema = route.options.validate.query;
-    mockRequest.query = validationSchema.validate(mockRequest.query).value;
+    mockRequest.query = isA.validate(
+      mockRequest.query,
+      route.options.validate.query
+    ).value;
     assert.ok(mockRequest.query);
     return runTest(route, mockRequest).then((response) => {
       assert.callCount(mockLog.info, 2);
@@ -1624,12 +1628,12 @@ describe('/account/devices', () => {
         pushEndpointExpired: false,
       },
     ];
-    Joi.assert(res, route.options.response.schema);
+    isA.assert(res, route.options.response.schema);
   });
 
   it('should allow returning approximateLastAccessTime', () => {
     const route = getRoute(makeRoutes({}), '/account/devices');
-    Joi.assert(
+    isA.assert(
       [
         {
           id: crypto.randomBytes(16).toString('hex'),
@@ -1649,7 +1653,7 @@ describe('/account/devices', () => {
   it('should not allow returning approximateLastAccessTime < EARLIEST_SANE_TIMESTAMP', () => {
     const route = getRoute(makeRoutes({}), '/account/devices');
     assert.throws(() =>
-      Joi.assert(
+      isA.assert(
         [
           {
             id: crypto.randomBytes(16).toString('hex'),

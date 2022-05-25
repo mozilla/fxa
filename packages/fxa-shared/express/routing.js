@@ -6,7 +6,7 @@ module.exports = (app, logger) => {
   const cors = require('./cors');
   const {
     celebrate,
-    isCelebrateError: isValidationError,
+    isCelebrate: isValidationError,
     errors: validationErrorHandlerFactory,
   } = require('celebrate');
   const validationErrorHandler = validationErrorHandlerFactory();

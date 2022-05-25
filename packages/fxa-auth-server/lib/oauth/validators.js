@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const authServerValidators = require('../routes/validators');
 
@@ -37,22 +37,20 @@ exports.sessionToken = authServerValidators.sessionToken;
 
 const scopeString = Joi.string().max(256);
 exports.scope = Joi.extend({
-  type: 'scope',
+  name: 'scope',
   base: Joi.any(), // We're not returning a string, so don't base this on Joi.string().
-  messages: {
+  language: {
     base: 'needs to be a valid scope string',
   },
-  prepare(value, state, options) {
+  pre(value, state, options) {
     const err = scopeString.validate(value).err;
     if (err) {
       return err;
     }
     try {
-      return { value: ScopeSet.fromString(value || '') };
+      return ScopeSet.fromString(value || '');
     } catch (err) {
-      return {
-        errors: this.$_createError('scope.base', { v: value }, state, options),
-      };
+      return this.createError('scope.base', { v: value }, state, options);
     }
   },
 }).scope();
@@ -79,7 +77,7 @@ exports.jwt = Joi.string()
   // JWT format: 'header.payload.signature'
   .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
 
-exports.accessToken = Joi.alternatives().try(exports.token, exports.jwt);
+exports.accessToken = Joi.alternatives().try([exports.token, exports.jwt]);
 
 exports.ppidSeed = authServerValidators.ppidSeed.default(0);
 

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const createBackendServiceAPI = require('./backendService');
 const config = require('../config');
 const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
