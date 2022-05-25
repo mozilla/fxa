@@ -1,5 +1,11 @@
 # Change history
 
+## 1.233.0
+
+### Other changes
+
+- deps: bump maxmind from 2.8.0 to 2.12.0 ([be3d146505](https://github.com/mozilla/fxa/commit/be3d146505))
+
 ## 1.232.5
 
 No changes.

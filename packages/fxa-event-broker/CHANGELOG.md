@@ -1,5 +1,21 @@
 # Change history
 
+## 1.233.0
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- deps: bump @nestjs/core from 8.4.4 to 8.4.5 ([8d99b638e1](https://github.com/mozilla/fxa/commit/8d99b638e1))
+- deps: bump sqs-consumer from 5.6.0 to 5.7.0 ([3c5052312b](https://github.com/mozilla/fxa/commit/3c5052312b))
+- deps: bump @nestjs/platform-express from 8.4.4 to 8.4.5 ([6a6c0e8bba](https://github.com/mozilla/fxa/commit/6a6c0e8bba))
+- tests: Fix uncalled .toBeInTheDocument and .toBeTruthy references in tests ([f94f8210a9](https://github.com/mozilla/fxa/commit/f94f8210a9))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps: bump aws-sdk from 2.1120.0 to 2.1135.0 ([95bffbfbd7](https://github.com/mozilla/fxa/commit/95bffbfbd7))
+- deps: bump @nestjs/common from 8.4.4 to 8.4.5 ([a04bc51f0d](https://github.com/mozilla/fxa/commit/a04bc51f0d))
+- deps: bump @hapi/hoek from 9.3.0 to 10.0.0 ([23ec046a7b](https://github.com/mozilla/fxa/commit/23ec046a7b))
+- deps: bump jwks-rsa from 2.0.5 to 2.1.1 ([3372811252](https://github.com/mozilla/fxa/commit/3372811252))
+
 ## 1.232.5
 
 No changes.

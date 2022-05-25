@@ -1,5 +1,20 @@
 # Change history
 
+## 1.233.0
+
+### Bug fixes
+
+- support-panel: remove AbbrevPlayPurchase type ([e69a4fa20f](https://github.com/mozilla/fxa/commit/e69a4fa20f))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- deps: bump @nestjs/core from 8.4.4 to 8.4.5 ([8d99b638e1](https://github.com/mozilla/fxa/commit/8d99b638e1))
+- deps: bump @nestjs/platform-express from 8.4.4 to 8.4.5 ([6a6c0e8bba](https://github.com/mozilla/fxa/commit/6a6c0e8bba))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps: bump @nestjs/common from 8.4.4 to 8.4.5 ([a04bc51f0d](https://github.com/mozilla/fxa/commit/a04bc51f0d))
+
 ## 1.232.5
 
 No changes.

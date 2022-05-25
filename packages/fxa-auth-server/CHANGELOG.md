@@ -1,3 +1,42 @@
+## 1.233.0
+
+### New features
+
+- auth: create Apple notification handler ([8c2ec84e9b](https://github.com/mozilla/fxa/commit/8c2ec84e9b))
+- fxa-auth-server: 123a585850 feat(fxa-auth-server) set display name from 3rd party auth data ([123a585850](https://github.com/mozilla/fxa/commit/123a585850))
+- fxa-auth-server: 330e8fa93c feat(fxa-auth-server) set up new route ([330e8fa93c](https://github.com/mozilla/fxa/commit/330e8fa93c))
+- devices: Add query param to allow client to filter idle devices ([686f3cd039](https://github.com/mozilla/fxa/commit/686f3cd039))
+- auth: update /billing-and-subscriptions endpoint to include Apple IAP ([3c5928ebda](https://github.com/mozilla/fxa/commit/3c5928ebda))
+- auth: add app store registration endpoint ([088cea0822](https://github.com/mozilla/fxa/commit/088cea0822))
+- payments: rename downloadURL to successActionButtonURL ([e78475453b](https://github.com/mozilla/fxa/commit/e78475453b))
+- third-party auth: Add UI with /create_password route for passwordless accounts ([9192ae82fb](https://github.com/mozilla/fxa/commit/9192ae82fb))
+- payments: add Email Verification to Passwordless Flow Because: ([4ad86a4f9c](https://github.com/mozilla/fxa/commit/4ad86a4f9c))
+- password: Add graphql mutation to support creating a new password ([d693ce671e](https://github.com/mozilla/fxa/commit/d693ce671e))
+- auth: load capabilities from the payment config manager ([2001de33cf](https://github.com/mozilla/fxa/commit/2001de33cf))
+
+### Bug fixes
+
+- test: Fix broken reminders test ([4e26e11737](https://github.com/mozilla/fxa/commit/4e26e11737))
+- swagger: Revise API docs for redocusaurus support ([ac4647ecd1](https://github.com/mozilla/fxa/commit/ac4647ecd1))
+- apple: Generate JWT for client secret on each request ([3d3ea0acdb](https://github.com/mozilla/fxa/commit/3d3ea0acdb))
+- auth: pass Product/Plan Metadata to Email Sender Because: ([2cae023e1d](https://github.com/mozilla/fxa/commit/2cae023e1d))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- auth: add profile mock to tests Because: ([07da354180](https://github.com/mozilla/fxa/commit/07da354180))
+- fxa-auth-server: 208ba8f585 Revert "feat(fxa-auth-server) 3rd party authentication sets default profile display name" ([208ba8f585](https://github.com/mozilla/fxa/commit/208ba8f585))
+- auth: add space to alt text and underline Because: ([588226654f](https://github.com/mozilla/fxa/commit/588226654f))
+- deps-dev: bump sass from 1.50.1 to 1.52.1 ([392301dfb0](https://github.com/mozilla/fxa/commit/392301dfb0))
+- lint: Lint hidden .storybook/ directories ([0709d0ef79](https://github.com/mozilla/fxa/commit/0709d0ef79))
+- deps: bump aws-sdk from 2.1120.0 to 2.1135.0 ([95bffbfbd7](https://github.com/mozilla/fxa/commit/95bffbfbd7))
+- deps: bump grunt from 1.5.2 to 1.5.3 ([5c0afda1da](https://github.com/mozilla/fxa/commit/5c0afda1da))
+- deps: bump @hapi/hoek from 9.3.0 to 10.0.0 ([23ec046a7b](https://github.com/mozilla/fxa/commit/23ec046a7b))
+- deps: bump p-retry from 4.6.2 to 5.1.1 ([9b8a238890](https://github.com/mozilla/fxa/commit/9b8a238890))
+- deps-dev: bump nodemon from 2.0.15 to 2.0.16 ([c86e9b274b](https://github.com/mozilla/fxa/commit/c86e9b274b))
+- deps: bump jwks-rsa from 2.0.5 to 2.1.1 ([3372811252](https://github.com/mozilla/fxa/commit/3372811252))
+
 ## 1.232.5
 
 No changes.

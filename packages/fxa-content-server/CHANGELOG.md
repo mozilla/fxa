@@ -1,3 +1,18 @@
+## 1.233.0
+
+### New features
+
+- payments: rename downloadURL to successActionButtonURL ([e78475453b](https://github.com/mozilla/fxa/commit/e78475453b))
+- payments: add Email Verification to Passwordless Flow Because: ([4ad86a4f9c](https://github.com/mozilla/fxa/commit/4ad86a4f9c))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- deps: bump grunt from 1.5.2 to 1.5.3 ([5c0afda1da](https://github.com/mozilla/fxa/commit/5c0afda1da))
+- content: fix alignment of "Firefox Relay" icon on sign-in page Because: ([2eb4a3a685](https://github.com/mozilla/fxa/commit/2eb4a3a685))
+- deps: bump @sentry/browser from 6.19.4 to 6.19.7 ([f4f16f396f](https://github.com/mozilla/fxa/commit/f4f16f396f))
+
 ## 1.232.5
 
 No changes.

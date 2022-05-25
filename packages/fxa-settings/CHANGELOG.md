@@ -1,3 +1,28 @@
+## 1.233.0
+
+### New features
+
+- settings: Add Pontoon icon+link. Fix FXA-4917 Fix #12574 ([9c960d534b](https://github.com/mozilla/fxa/commit/9c960d534b))
+- third-party auth: Add UI with /create_password route for passwordless accounts ([9192ae82fb](https://github.com/mozilla/fxa/commit/9192ae82fb))
+
+### Bug fixes
+
+- ftl: Don't treat Firefox Sync as a feature name ([2716b30ed4](https://github.com/mozilla/fxa/commit/2716b30ed4))
+- strings: Add default string for delete account checkbox ([2b08fce98f](https://github.com/mozilla/fxa/commit/2b08fce98f))
+- settings: Add default text to several l10n.getString calls ([84a922daa7](https://github.com/mozilla/fxa/commit/84a922daa7))
+
+### Other changes
+
+- deps: bump react-easy-crop from 4.1.4 to 4.2.0 ([4592d6bbd3](https://github.com/mozilla/fxa/commit/4592d6bbd3))
+- tests: Fix uncalled .toBeInTheDocument and .toBeTruthy references in tests ([f94f8210a9](https://github.com/mozilla/fxa/commit/f94f8210a9))
+- lint: Fix linting in fxa-settings package ([b7b5019c12](https://github.com/mozilla/fxa/commit/b7b5019c12))
+- settings: remove extra white-space before and after "Resend verification code" text Because: ([bcfd3dbf4d](https://github.com/mozilla/fxa/commit/bcfd3dbf4d))
+- Replace apostrophe in uth-error-114 string ([0eb785fff0](https://github.com/mozilla/fxa/commit/0eb785fff0))
+- deps-dev: bump @testing-library/user-event from 14.1.1 to 14.2.0 ([8f0c475f1f](https://github.com/mozilla/fxa/commit/8f0c475f1f))
+- deps-dev: bump @testing-library/jest-dom from 5.16.2 to 5.16.4 ([06460e4924](https://github.com/mozilla/fxa/commit/06460e4924))
+- settings: fix alignment of headers on Settings page Because: ([03732b2a63](https://github.com/mozilla/fxa/commit/03732b2a63))
+- deps: bump @sentry/browser from 6.19.4 to 6.19.7 ([f4f16f396f](https://github.com/mozilla/fxa/commit/f4f16f396f))
+
 ## 1.232.5
 
 No changes.

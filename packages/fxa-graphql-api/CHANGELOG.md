@@ -1,3 +1,20 @@
+## 1.233.0
+
+### New features
+
+- password: Add graphql mutation to support creating a new password ([d693ce671e](https://github.com/mozilla/fxa/commit/d693ce671e))
+
+### Bug fixes
+
+- graphql: Fix graphql playground ([6544682358](https://github.com/mozilla/fxa/commit/6544682358))
+
+### Other changes
+
+- deps: bump @nestjs/core from 8.4.4 to 8.4.5 ([8d99b638e1](https://github.com/mozilla/fxa/commit/8d99b638e1))
+- deps: bump @nestjs/platform-express from 8.4.4 to 8.4.5 ([6a6c0e8bba](https://github.com/mozilla/fxa/commit/6a6c0e8bba))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps: bump @nestjs/common from 8.4.4 to 8.4.5 ([a04bc51f0d](https://github.com/mozilla/fxa/commit/a04bc51f0d))
+
 ## 1.232.5
 
 No changes.
