@@ -49,7 +49,12 @@ export const DialogMessage = ({
                 aria-label="Close modal"
                 onClick={onDismiss as () => void}
               >
-                <CloseIcon role="img" className="close-icon" />
+                <CloseIcon
+                  role="img"
+                  className="close-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
               </button>
             </Localized>
           )}

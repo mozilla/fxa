@@ -262,7 +262,12 @@ export const Subscriptions = ({
               aria-label="Close modal"
               onClick={hideSuccessAlert}
             >
-              <CloseIcon role="img" className="close-icon close-alert-bar" />
+              <CloseIcon
+                role="img"
+                className="close-icon close-alert-bar"
+                aria-hidden="true"
+                focusable="false"
+              />
             </span>
           </Localized>
         </AlertBar>
