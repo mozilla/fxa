@@ -261,13 +261,6 @@ describe('SubscriptionReminders', () => {
       };
       reminder.db.account = sandbox.fake.resolves(account);
       mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
-      mockStripeHelper.findPlanById = sandbox.fake.resolves({
-        amount: longPlan1.amount,
-        currency: longPlan1.currency,
-        interval_count: longPlan1.interval_count,
-        interval: longPlan1.interval,
-      });
       const formattedSubscription = {
         id: 'subscriptionId',
         productMetadata: {
@@ -275,8 +268,15 @@ describe('SubscriptionReminders', () => {
           termsOfServiceUrl: 'http://tos',
         },
       };
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(formattedSubscription);
+      mockStripeHelper.findPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
       reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(formattedSubscription);
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       const realDateNow = Date.now.bind(global.Date);
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
