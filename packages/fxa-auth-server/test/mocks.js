@@ -198,7 +198,7 @@ const SUBHUB_METHOD_NAMES = [
   'reactivateSubscription',
 ];
 
-const PROFILE_METHOD_NAMES = ['deleteCache'];
+const PROFILE_METHOD_NAMES = ['deleteCache', 'updateDisplayName'];
 
 module.exports = {
   MOCK_PUSH_KEY:

@@ -23,13 +23,14 @@ const makeRoutes = function (options = {}, requireMocks) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || mocks.mockMailer();
+  const profile = options.profile || mocks.mockProfile();
 
   const { linkedAccountRoutes } = proxyquire(
     '../../../lib/routes/linked-accounts',
     requireMocks || {}
   );
 
-  return linkedAccountRoutes(log, db, config, mailer);
+  return linkedAccountRoutes(log, db, config, mailer, profile);
 };
 
 function runTest(route, request, assertions) {
