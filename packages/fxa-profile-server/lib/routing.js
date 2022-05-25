@@ -84,6 +84,12 @@ module.exports = [
     path: v('/display_name'),
     config: require('./routes/display_name/post'),
   },
+    // This is an internal-only route that allows us to set profile name from the auth server
+    {
+      method: 'POST',
+      path: v('/_display_name/{uid}'),
+      config: require('./routes/display_name/post-from-auth-server'),
+    },
   {
     method: 'DELETE',
     path: v('/cache/{uid}'),
