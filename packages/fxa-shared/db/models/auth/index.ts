@@ -21,7 +21,7 @@ import { PayPalBillingAgreements } from './paypal-ba';
 import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
-import { Stripe } from 'stripe';
+import { RelyingParty } from './relying-party';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -251,4 +251,5 @@ export {
   SentEmail,
   SessionToken,
   TotpToken,
+  RelyingParty,
 };

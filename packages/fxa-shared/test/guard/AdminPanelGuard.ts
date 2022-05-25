@@ -29,9 +29,21 @@ describe('support agents', () => {
         )
       ).true;
       expect(
+        stageGuard.allow(
+          AdminPanelFeature.RelyingParties,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).true;
+      expect(
         prodGuard.allow(
           AdminPanelFeature.DisableAccount,
           AdminPanelGroup.AdminProd
+        )
+      ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.RelyingParties,
+          AdminPanelGroup.SupportAgentProd
         )
       ).true;
     });

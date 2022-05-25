@@ -30,6 +30,7 @@ export enum AdminPanelFeature {
   SiteStatus = 'SiteStatus',
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
+  RelyingParties = 'RelyingParties',
 }
 
 /** Enum of known user groups */
@@ -127,6 +128,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.UnlinkAccount]: {
     name: 'Unlink Account',
     level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.RelyingParties]: {
+    name: 'View Relying Parties',
+    level: PermissionLevel.Support,
   },
 };
 
