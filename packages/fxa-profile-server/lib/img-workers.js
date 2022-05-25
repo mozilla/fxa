@@ -10,9 +10,24 @@ const AppError = require('./error');
 const config = require('./config');
 const logger = require('./logging')('img_workers');
 const request = require('./request');
+const https = require('https');
 
 const WORKER_URL = config.get('worker.url');
 const ACCEPT_ENCODING_HEADER = 'identity';
+
+exports.download = function download(url) {
+  return new P(function(resolve, reject) {
+    try {
+      https.get(url, (stream) => {
+        resolve(stream);
+      })
+    } catch (err) {
+      logger.error('download.network.error', err);
+      reject(AppError.processingError(err));
+      return;
+    }
+  });
+};
 
 exports.upload = function upload(id, payload, headers) {
   return new P(function(resolve, reject) {

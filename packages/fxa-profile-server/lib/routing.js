@@ -69,6 +69,13 @@ module.exports = [
     path: v('/avatar/upload'),
     config: require('./routes/avatar/upload'),
   },
+      // This is an internal-only route that allows us to set profile avatar from the auth server
+
+  {
+    method: 'POST',
+    path: v('/_avatar/{uid}'),
+    config: require('./routes/avatar/upload-from-auth-server'),
+  },
   {
     method: 'DELETE',
     path: v('/avatar/{id?}'),

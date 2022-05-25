@@ -145,6 +145,7 @@ export class LinkedAccountHandler {
             );
             rawIdToken = res.data['id_token'];
             idToken = jose.decodeJwt(rawIdToken);
+
           } catch (err) {
             this.log.error('linked_account.code_exchange_error', err);
             throw error.thirdPartyAccountError();
@@ -161,6 +162,7 @@ export class LinkedAccountHandler {
     const userid = idToken.sub;
     const email = idToken.email;
     const name = idToken.name;
+    const avatarUrl = idToken.picture;
 
     let accountRecord;
     let linkedAccountRecord = await this.db.getLinkedAccount(userid, provider);
@@ -170,9 +172,11 @@ export class LinkedAccountHandler {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
-
         if (name) {
           await this.profile.updateDisplayName(accountRecord.uid, name);
+        }
+        if (avatarUrl) {
+          await this.profile.updateAvatarWithUrl(accountRecord.uid, avatarUrl);
         }
 
         const geoData = request.app.geo;
@@ -236,10 +240,14 @@ export class LinkedAccountHandler {
           locale: request.app.acceptLanguage,
         });
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
-
         if (name) {
           await this.profile.updateDisplayName(accountRecord.uid, name);
         }
+
+        if (avatarUrl) {
+          await this.profile.updateAvatarWithUrl(accountRecord.uid, avatarUrl);
+        }
+
         // Currently, we treat accounts created from a linked account as a new
         // registration and emit the correspond event. Note that depending on
         // where might not be a top of funnel for this completion event.
