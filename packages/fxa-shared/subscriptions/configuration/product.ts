@@ -29,7 +29,7 @@ const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
       'styles',
       'support',
       'uiContent',
-      'urls.download',
+      'urls.successActionButton',
       'urls.privacyNotice',
       'urls.termsOfService',
       'urls.termsOfServiceDownload',
@@ -42,7 +42,7 @@ const buildProductConfigSchema = (baseSchema: joi.ObjectSchema) =>
 // This type defines the required fields of urls, set by function buildProductConfigSchema.
 // Any change to required fields in urls, should be updated here as well.
 export type ProductConfigUrlConfig = Partial<UrlConfig> & {
-  download: string;
+  successActionButton: string;
   privacyNotice: string;
   termsOfService: string;
   termsOfServiceDownload: string;

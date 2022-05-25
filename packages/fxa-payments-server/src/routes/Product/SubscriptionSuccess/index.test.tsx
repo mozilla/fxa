@@ -84,7 +84,7 @@ describe('SubscriptionSuccess', () => {
         subtitle: 'VPN Subtitle',
       },
       urls: {
-        download: 'https://download.default.locale',
+        successActionButton: 'https://download.default.locale',
       },
     };
     assertRedirectForProduct(
@@ -104,12 +104,12 @@ describe('SubscriptionSuccess', () => {
         subtitle: 'VPN Subtitle',
       },
       urls: {
-        download: 'https://download.default.locale',
+        successActionButton: 'https://download.default.locale',
       },
       locales: {
         fr: {
           urls: {
-            download: 'https://download.default.locale/fr/',
+            successActionButton: 'https://download.default.locale/fr/',
           },
         },
       },

@@ -201,7 +201,29 @@ describe('StripeProductsAndPlansConverter', () => {
         },
       };
       const expected = {
-        download: 'http://127.0.0.1:8080/',
+        successActionButton: 'http://127.0.0.1:8080/',
+        webIcon: 'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
+        emailIcon:
+          'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
+        appStore: 'https://www.appstore.com',
+        privacyNotice: 'https://www.privacy.wow',
+      };
+      const result = converter.urlMetadataToUrlConfig(testProduct);
+      assert.deepEqual(expected, result);
+    });
+
+    it('transforms the data - without successActionButtonURL', () => {
+      const testProduct = {
+        ...deepCopy(product),
+        metadata: {
+          ...deepCopy(product.metadata),
+          successActionButtonURL: undefined,
+          appStoreLink: 'https://www.appstore.com',
+          'product:privacyNoticeURL': 'https://www.privacy.wow',
+        },
+      };
+      const expected = {
+        successActionButton: 'http://127.0.0.1:8080/legacy/download',
         webIcon: 'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
         emailIcon:
           'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
@@ -240,7 +262,7 @@ describe('StripeProductsAndPlansConverter', () => {
         support: {},
         uiContent: {},
         urls: {
-          download: 'http://127.0.0.1:8080/',
+          successActionButton: 'http://127.0.0.1:8080/',
           privacyNotice: 'http://127.0.0.1:8080/',
           termsOfService: 'http://127.0.0.1:8080/',
           termsOfServiceDownload: 'http://127.0.0.1:8080/',
@@ -282,7 +304,7 @@ describe('StripeProductsAndPlansConverter', () => {
           upgradeCTA: 'hello <a href="http://example.org">world</a>',
         },
         urls: {
-          download: 'https://example.com/download',
+          successActionButton: 'https://example.com/download',
         },
         productOrder: 2,
       };
@@ -387,7 +409,7 @@ describe('StripeProductsAndPlansConverter', () => {
       support: {},
       uiContent: {},
       urls: {
-        download: 'http://127.0.0.1:8080/',
+        successActionButton: 'http://127.0.0.1:8080/',
         privacyNotice: 'http://127.0.0.1:8080/',
         termsOfService: 'http://127.0.0.1:8080/',
         termsOfServiceDownload: 'http://127.0.0.1:8080/',
@@ -421,7 +443,7 @@ describe('StripeProductsAndPlansConverter', () => {
         upgradeCTA: 'hello <a href="http://example.org">world</a>',
       },
       urls: {
-        download: 'https://example.com/download',
+        successActionButton: 'https://example.com/download',
       },
       productOrder: 2,
     };
@@ -444,7 +466,7 @@ describe('StripeProductsAndPlansConverter', () => {
             upgradeCTA: 'hello <a href="http://example.org">world</a>',
           },
           urls: {
-            download: 'https://example.com/download',
+            successActionButton: 'https://example.com/download',
           },
         },
       },

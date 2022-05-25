@@ -23,10 +23,10 @@ describe('product configuration util functions', () => {
     termsOfServiceDownload: 'product',
     privacyNotice: 'product',
     privacyNoticeDownload: 'product',
-    download: 'download',
+    successActionButton: 'download',
   };
   const planUrls = {
-    download: 'plan',
+    successActionButton: 'plan',
     emailIcon: 'plan',
     termsOfService: 'plan',
     termsOfServiceDownload: 'plan',
@@ -98,7 +98,7 @@ describe('product configuration util functions', () => {
           webIcon: 'product',
           privacyNotice: 'product',
           privacyNoticeDownload: 'product',
-          download: 'plan',
+          successActionButton: 'plan',
           emailIcon: 'plan',
           termsOfService: 'plan',
           termsOfServiceDownload: 'plan',

@@ -70,7 +70,7 @@ const productConfig = {
   support: {},
   uiContent: {},
   urls: {
-    download: 'https://download.com',
+    successActionButton: 'https://download.com',
     privacyNotice: 'https://privacy.com',
     termsOfService: 'https://terms.com',
     termsOfServiceDownload: 'https://terms-download.com',

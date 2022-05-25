@@ -35,14 +35,16 @@ export const SubscriptionSuccess = ({
     navigatorLanguages,
   } = useContext(AppContext);
 
-  const { download } = urlsFromProductConfig(
+  const { successActionButton } = urlsFromProductConfig(
     plan,
     navigatorLanguages,
     featureFlags.useFirestoreProductConfigs
   );
 
   const productUrl =
-    download || productRedirectURLs[product_id] || defaultProductRedirectURL;
+    successActionButton ||
+    productRedirectURLs[product_id] ||
+    defaultProductRedirectURL;
 
   return (
     <>

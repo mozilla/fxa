@@ -96,7 +96,7 @@ const MESSAGE = {
   paymentProratedInCents: 523099.9,
   paymentProratedCurrency: 'usd',
   payment_provider: 'stripe',
-  planDownloadURL: 'http://getfirefox.com/',
+  planSuccessActionButtonURL: 'http://getfirefox.com/',
   planId: 'plan-example',
   planInterval: 'day',
   planIntervalCount: 2,
@@ -1159,7 +1159,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'https://www.mozilla.org/privacy/websites/' },
-      { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: MESSAGE.planSuccessActionButtonURL },
       { test: 'include', expected: MESSAGE.appStoreLink },
       { test: 'include', expected: MESSAGE.playStoreLink },
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy')) },
@@ -1177,7 +1177,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: MESSAGE.planSuccessActionButtonURL },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },

@@ -20,7 +20,7 @@ const firestoreObject = {
   },
   support: {},
   uiContent: {},
-  urls: { download: 'gopher://example.gg' },
+  urls: { successActionButton: 'gopher://example.gg' },
 };
 
 const localesObject = {

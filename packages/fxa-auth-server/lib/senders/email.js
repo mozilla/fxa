@@ -2650,7 +2650,7 @@ module.exports = function (log, config, bounces) {
       planId,
       productName,
       planEmailIconURL,
-      planDownloadURL,
+      planSuccessActionButtonURL,
       uid,
       appStoreLink,
       playStoreLink,
@@ -2661,7 +2661,7 @@ module.exports = function (log, config, bounces) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
     const links = this._generateLinks(
-      planDownloadURL,
+      planSuccessActionButtonURL,
       message,
       query,
       template,
