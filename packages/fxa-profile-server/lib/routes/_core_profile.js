@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const AppError = require('../error');
 const config = require('../config');
@@ -29,7 +29,7 @@ module.exports = {
     ],
   },
   response: {
-    schema: {
+    schema: Joi.object({
       email: Joi.string().optional(),
       locale: Joi.string().optional(),
       amrValues: Joi.array().items(Joi.string().required()).optional(),
@@ -38,7 +38,7 @@ module.exports = {
       subscriptionsByClientId: Joi.object().unknown(true).optional(),
       profileChangedAt: Joi.number().optional(),
       metricsEnabled: Joi.boolean().optional(),
-    },
+    }),
   },
   handler: async function _core_profile(req) {
     function makeReq() {

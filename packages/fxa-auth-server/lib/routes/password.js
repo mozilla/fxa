@@ -9,7 +9,7 @@ const HEX_STRING = validators.HEX_STRING;
 
 const butil = require('../crypto/butil');
 const error = require('../error');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
 const { emailsMatch } = require('fxa-shared').email.helpers;

@@ -47,7 +47,6 @@
     "@types/ioredis": "^4.26.4",
     "@types/ip": "^1",
     "@types/jest": "^26.0.23",
-    "@types/joi": "^14.3.4",
     "@types/lodash.omitby": "^4",
     "@types/lodash.pick": "^4",
     "@types/mocha": "^8.2.2",
@@ -98,7 +97,7 @@
     "app-store-server-api": "^0.3.0",
     "aws-sdk": "^2.1135.0",
     "buf": "^0.1.1",
-    "celebrate": "^10.0.1",
+    "celebrate": "^15.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cldr-localenames-full": "41.0.0",
@@ -110,7 +109,7 @@
     "hot-shots": "^9.0.0",
     "ioredis": "^4.28.2",
     "ip": "^1.1.5",
-    "joi": "^14.3.1",
+    "joi": "17.4.0",
     "js-md5": "^0.7.3",
     "knex": "^2.0.0",
     "lodash.omitby": "^4.6.0",
@@ -124,7 +123,6 @@
     "rxjs": "^7.2.0",
     "stripe": "^8.218.0",
     "superagent": "^7.1.2",
-    "typesafe-joi": "^2.1.0",
     "typesafe-node-firestore": "^1.4.0"
   },
   "jest": {

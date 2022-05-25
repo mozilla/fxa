@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
 const error = require('../error');
@@ -137,7 +137,7 @@ module.exports = (log, db, devices, clientUtils) => {
             .with('refreshTokenId', ['clientId']),
         },
         response: {
-          schema: {},
+          schema: isA.object({}),
         },
       },
       handler: async function (request) {
