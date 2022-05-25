@@ -9268,6 +9268,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/busboy@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "@types/busboy@npm:0.3.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: dd8cbd214c24966f3a91c37eca04bbcf6bdd027db352b823a8fb57a486703d8f5e59958a55c4f1e01db10c2d4535bda58dd92bf1fe56b3bd7b08ecb078bd6ec6
+  languageName: node
+  linkType: hard
+
 "@types/cacheable-request@npm:^6.0.1":
   version: 6.0.1
   resolution: "@types/cacheable-request@npm:6.0.1"
@@ -10192,6 +10201,13 @@ __metadata:
   version: 4.1.2
   resolution: "@types/npmlog@npm:4.1.2"
   checksum: 8ea4c0578839a8a4436bb8fb303efec3b3a81e99c87bada5afdde5f3604696a09077c9b7ff0e48c9c30365f7c716ad4f65329f5259072dc86a03bc58faf5afa9
+  languageName: node
+  linkType: hard
+
+"@types/object-path@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "@types/object-path@npm:0.11.1"
+  checksum: 007e819d1d9dc830491b60023b1502ef1e421416d9953d6fefcda7d06eb91548eef8ee30073a9cfb6a834ac977042f6e1a761cde2d6a7973b06ddca753be91e3
   languageName: node
   linkType: hard
 
@@ -22889,7 +22905,7 @@ fsevents@~2.1.1:
     graphql-parse-resolve-info: ^4.12.0
     graphql-query-complexity: 0.8.0
     graphql-tools: ^8.0.0
-    graphql-upload: ^13.0.0
+    graphql-upload: ^14.0.0
     helmet: ^5.0.0
     hot-shots: ^9.0.0
     ioredis: ^4.28.2
@@ -24425,17 +24441,27 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql-upload@npm:^13.0.0":
-  version: 13.0.0
-  resolution: "graphql-upload@npm:13.0.0"
+"graphql-upload@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "graphql-upload@npm:14.0.0"
   dependencies:
+    "@types/busboy": ^0.3.2
+    "@types/node": "*"
+    "@types/object-path": ^0.11.1
     busboy: ^0.3.1
     fs-capacitor: ^6.2.0
-    http-errors: ^1.8.1
+    http-errors: ^2.0.0
     object-path: ^0.11.8
   peerDependencies:
-    graphql: 0.13.1 - 16
-  checksum: 3b4b7dd717d5cfcd1d59f3656bcc7281dbe1aaa0d64b5404eb7333db913976154349dd65cf9774a9efc3a6478b1578335c83dd0696c041e3f63efff589d7d457
+    "@types/express": ^4.0.29
+    "@types/koa": ^2.11.4
+    graphql: ^16.3.0
+  peerDependenciesMeta:
+    "@types/express":
+      optional: true
+    "@types/koa":
+      optional: true
+  checksum: 66a7c383ef2c45c32970fdfcbe0538e88b8069272f5a11acad5c280599bf6d08f42e2eb57be2712f8b1c975cfc6abf1a56196836b306373d981f5ba9de899663
   languageName: node
   linkType: hard
 
@@ -25640,7 +25666,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-errors@npm:1.8.1, http-errors@npm:^1.7.3, http-errors@npm:^1.8.1, http-errors@npm:~1.8.0":
+"http-errors@npm:1.8.1, http-errors@npm:^1.7.3, http-errors@npm:~1.8.0":
   version: 1.8.1
   resolution: "http-errors@npm:1.8.1"
   dependencies:
@@ -25653,7 +25679,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-errors@npm:2.0.0":
+"http-errors@npm:2.0.0, http-errors@npm:^2.0.0":
   version: 2.0.0
   resolution: "http-errors@npm:2.0.0"
   dependencies:
