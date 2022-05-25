@@ -18,10 +18,9 @@ const UTM = joi
   // eslint-disable-next-line no-useless-escape
   .regex(/^[\w\/.%-]+$/); // values here can be 'firefox/sync'
 const UTM_CAMPAIGN = UTM.allow('page+referral+-+not+part+of+a+campaign');
-const BODY_SCHEMA = {
+const BODY_SCHEMA = joi.object({
   data: joi
-    .object()
-    .keys({
+    .object({
       flowBeginTime: OFFSET_TYPE.optional(),
       flowId: STRING_TYPE.hex().length(64).optional(),
       utm_campaign: UTM_CAMPAIGN.optional(),
@@ -41,7 +40,7 @@ const BODY_SCHEMA = {
       })
     )
     .required(),
-};
+});
 
 module.exports = {
   method: 'post',

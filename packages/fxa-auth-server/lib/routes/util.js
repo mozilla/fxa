@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('@hapi/joi');
+const isA = require('joi');
 const random = require('../crypto/random');
 const validators = require('./validators');
 const UTIL_DOCS = require('../../docs/swagger/util-api').default;

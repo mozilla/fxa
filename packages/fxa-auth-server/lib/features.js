@@ -5,7 +5,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const isA = require('@hapi/joi');
+const isA = require('joi');
 
 const SCHEMA = isA.array().items(isA.string()).optional();
 

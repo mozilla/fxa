@@ -11,16 +11,16 @@ const validation = require('../../server/lib/validation');
 
 const METRICS_DOCS_URL =
   'https://raw.githubusercontent.com/mozilla/ecosystem-platform/master/docs/relying-parties/reference/metrics-for-relying-parties.md';
-const UTM_REGEX = validation.TYPES.UTM._tests[1].arg.pattern;
+
 const REGEXES = new Map([
   ['entrypoint', validation.PATTERNS.ENTRYPOINT],
   ['entrypoint_experiment', validation.PATTERNS.ENTRYPOINT],
   ['entrypoint_variation', validation.PATTERNS.ENTRYPOINT],
-  ['utm_campaign', UTM_REGEX],
-  ['utm_content', UTM_REGEX],
-  ['utm_medium', UTM_REGEX],
-  ['utm_source', UTM_REGEX],
-  ['utm_term', UTM_REGEX],
+  ['utm_campaign', validation.PATTERNS.UTM],
+  ['utm_content', validation.PATTERNS.UTM],
+  ['utm_medium', validation.PATTERNS.UTM],
+  ['utm_source', validation.PATTERNS.UTM],
+  ['utm_term', validation.PATTERNS.UTM],
 ]);
 
 let docs;

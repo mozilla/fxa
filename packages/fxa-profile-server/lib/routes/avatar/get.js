@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const db = require('../../db');
 const hex = require('buf').to.hex;
@@ -28,11 +28,11 @@ module.exports = {
     scope: ['profile:avatar'],
   },
   response: {
-    schema: {
+    schema: Joi.object({
       id: Joi.string().regex(validate.hex).length(32),
       avatarDefault: Joi.boolean(),
       avatar: Joi.string().max(256),
-    },
+    }),
   },
   handler: async function avatar(req, h) {
     var uid = req.auth.credentials.user;

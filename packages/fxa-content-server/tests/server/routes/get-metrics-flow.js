@@ -564,6 +564,9 @@ async function testInvalidFlowQueryParam(paramName, paramValue) {
     assert.fail('request should have failed');
   } catch (err) {
     assert.equal(err.response.statusCode, 400);
-    assert.include(JSON.parse(err.response.body).validation.keys, paramName);
+    assert.include(
+      JSON.parse(err.response.body).validation.query.keys,
+      paramName
+    );
   }
 }
