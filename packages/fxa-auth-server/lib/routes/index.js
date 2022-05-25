@@ -172,7 +172,7 @@ module.exports = function (
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   const { linkedAccountRoutes } = require('./linked-accounts');
-  const linkedAccounts = linkedAccountRoutes(log, db, config, mailer, profile);
+  const linkedAccounts = linkedAccountRoutes(log, db, config, mailer);
 
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {

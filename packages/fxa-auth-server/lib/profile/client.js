@@ -13,8 +13,6 @@ const PATH_PREFIX = '/v1';
 // here other than that it didn't fail in error
 const DeleteCacheResponse = isA.any();
 
-const UpdateDisplayNameResponse = isA.any();
-
 module.exports = function (log, config, statsd) {
   const ProfileAPI = createBackendServiceAPI(
     log,
@@ -30,19 +28,6 @@ module.exports = function (log, config, statsd) {
           },
           response: DeleteCacheResponse,
         },
-      },
-      updateDisplayName: {
-        path: `${PATH_PREFIX}/_display_name/:uid`,
-        method: 'POST',
-        validate: {
-          params: {
-            uid: isA.string().required(),
-          },
-          payload: {
-            name: isA.string().required(),
-          },
-          response: UpdateDisplayNameResponse,
-        }
       },
     },
     statsd
@@ -61,14 +46,6 @@ module.exports = function (log, config, statsd) {
         return await api.deleteCache(uid);
       } catch (err) {
         log.error('profile.deleteCache.failed', { uid, err });
-        throw err;
-      }
-    },
-    async updateDisplayName(uid, name) {
-      try {
-        return await api.updateDisplayName(uid, { name: name });
-      } catch (err) {
-        log.error('profile.updateDisplayName.failed', { uid, name, err});
         throw err;
       }
     },
