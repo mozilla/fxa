@@ -8,7 +8,11 @@ const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
 const proxyquire = require('proxyquire').noPreserveCache();
-const { SubscriptionStatus } = require('app-store-server-api/dist/cjs');
+const {
+  NotificationType,
+  NotificationSubtype,
+  SubscriptionStatus,
+} = require('app-store-server-api/dist/cjs');
 
 const { mockLog } = require('../../../../mocks');
 const { AppConfig, AuthLogger } = require('../../../../../lib/types');
@@ -22,12 +26,23 @@ const {
 
 const sandbox = sinon.createSandbox();
 
-const mockSubscriptionPurchase = {};
-const mockMergePurchase = sinon.fake.returns({});
-const mockDecodeTransactionInfo = sandbox.fake.resolves({});
-const mockDecodeRenewalInfo = sandbox.fake.resolves({});
 const mockBundleId = 'testBundleId';
 const mockOriginalTransactionId = 'testOriginalTransactionId';
+const mockSubscriptionPurchase = {};
+const mockMergePurchase = sinon.fake.returns({});
+const mockDecodedNotificationPayload = {
+  data: {
+    signedTransactionInfo: {},
+  },
+};
+const mockDecodeNotificationPayload = sandbox.fake.resolves(
+  mockDecodedNotificationPayload
+);
+const mockDecodeTransactionInfo = sandbox.fake.resolves({
+  bundleId: mockBundleId,
+  originalTransactionId: mockOriginalTransactionId,
+});
+const mockDecodeRenewalInfo = sandbox.fake.resolves({});
 const mockApiResult = {
   bundleId: mockBundleId,
   data: [
@@ -44,24 +59,29 @@ const mockApiResult = {
   ],
 };
 
-const { PurchaseManager } = proxyquire(
-  '../../../../../lib/payments/iap/apple-app-store/purchase-manager',
-  {
-    'fxa-shared/payments/iap/apple-app-store/purchase-manager': proxyquire(
-      'fxa-shared/payments/iap/apple-app-store/purchase-manager',
-      {
-        './subscription-purchase': {
-          AppStoreSubscriptionPurchase: mockSubscriptionPurchase,
-          mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
-        },
-        'app-store-server-api': {
-          decodeRenewalInfo: mockDecodeRenewalInfo,
-          decodeTransaction: mockDecodeTransactionInfo,
-        },
-      }
-    ),
-  }
-);
+const { NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES, PurchaseManager } =
+  proxyquire(
+    '../../../../../lib/payments/iap/apple-app-store/purchase-manager',
+    {
+      'app-store-server-api': {
+        decodeNotificationPayload: mockDecodeNotificationPayload,
+        decodeTransaction: mockDecodeTransactionInfo,
+      },
+      'fxa-shared/payments/iap/apple-app-store/purchase-manager': proxyquire(
+        'fxa-shared/payments/iap/apple-app-store/purchase-manager',
+        {
+          './subscription-purchase': {
+            AppStoreSubscriptionPurchase: mockSubscriptionPurchase,
+            mergePurchaseWithFirestorePurchaseRecord: mockMergePurchase,
+          },
+          'app-store-server-api': {
+            decodeRenewalInfo: mockDecodeRenewalInfo,
+            decodeTransaction: mockDecodeTransactionInfo,
+          },
+        }
+      ),
+    }
+  );
 
 // For queryCurrentSubscriptionPurchases method only which is the analog to
 // Google Play's UserManager.queryCurrentSubscriptions originally.
@@ -204,6 +224,25 @@ describe('PurchaseManager', () => {
       );
       sinon.assert.calledOnce(mockMergePurchase);
       sinon.assert.calledOnce(mockPurchaseDoc.data);
+    });
+
+    it('adds notification type and subtype to the purchase if passed in', async () => {
+      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.exists = true;
+      const notificationType = 'foo';
+      const notificationSubtype = 'bar';
+      const mockSubscriptionWithNotificationProps = {
+        ...mockSubscription,
+        latestNotificationType: notificationType,
+        latestNotificationSubtype: notificationSubtype,
+      };
+      const result = await purchaseManager.querySubscriptionPurchase(
+        mockBundleId,
+        mockOriginalTransactionId,
+        notificationType,
+        notificationSubtype
+      );
+      assert.deepEqual(result, mockSubscriptionWithNotificationProps);
     });
 
     it('throws unexpected library error', async () => {
@@ -524,6 +563,81 @@ describe('PurchaseManager', () => {
       } catch (err) {
         assert.strictEqual(err.name, PurchaseQueryError.OTHER_ERROR);
       }
+    });
+  });
+
+  describe('decodeNotificationPayload', () => {
+    let mockPayload;
+    let purchaseManager;
+
+    beforeEach(() => {
+      mockPayload = {};
+      purchaseManager = new PurchaseManager(
+        mockPurchaseDbRef,
+        mockAppStoreHelper
+      );
+    });
+    it('decodes the notification payload', async () => {
+      const expected = {
+        bundleId: mockBundleId,
+        decodedPayload: mockDecodedNotificationPayload,
+        originalTransactionId: mockOriginalTransactionId,
+      };
+      const result = await purchaseManager.decodeNotificationPayload(
+        mockPayload
+      );
+      assert.deepEqual(result, expected);
+    });
+  });
+
+  describe('processNotification', () => {
+    let purchaseManager;
+    let mockSubscription;
+    let mockNotification;
+
+    beforeEach(() => {
+      mockNotification = {};
+      mockSubscription = {};
+
+      purchaseManager = new PurchaseManager(
+        mockPurchaseDbRef,
+        mockAppStoreHelper
+      );
+      purchaseManager.querySubscriptionPurchase =
+        sinon.fake.resolves(mockSubscription);
+    });
+
+    it('returns null for not applicable notifications', async () => {
+      mockNotification.notificationType =
+        NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES[0];
+      const result = await purchaseManager.processNotification(
+        mockBundleId,
+        mockOriginalTransactionId,
+        mockNotification
+      );
+      assert.isNull(result);
+    });
+
+    it('returns null for new subscriptions', async () => {
+      mockNotification.notificationType = NotificationType.Subscribed;
+      mockNotification.subtype = NotificationSubtype.InitialBuy;
+      const result = await purchaseManager.processNotification(
+        mockBundleId,
+        mockOriginalTransactionId,
+        mockNotification
+      );
+      assert.isNull(result);
+    });
+
+    it('returns a subscription for other valid subscription notifications', async () => {
+      mockNotification.notificationType = NotificationType.DidRenew;
+      const result = await purchaseManager.processNotification(
+        mockBundleId,
+        mockOriginalTransactionId,
+        mockNotification
+      );
+      assert.deepEqual(result, mockSubscription);
+      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
     });
   });
 });

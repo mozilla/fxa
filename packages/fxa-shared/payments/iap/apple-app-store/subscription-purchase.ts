@@ -7,6 +7,8 @@ import {
   JWSRenewalInfoDecodedPayload,
   JWSTransactionDecodedPayload,
   LastTransactionsItem,
+  NotificationSubtype,
+  NotificationType,
   OfferType,
   OwnershipType,
   StatusResponse,
@@ -97,6 +99,8 @@ export class AppStoreSubscriptionPurchase {
   private gracePeriodExpiresDate?: number;
   isInBillingRetry?: boolean;
   private isUpgraded?: boolean;
+  latestNotificationType?: NotificationType;
+  latestNotificationSubtype?: NotificationSubtype;
   private offerType?: OfferType;
   private offerIdentifier?: string;
   private revocationDate?: number;

@@ -10,6 +10,7 @@ const {
   OfferType,
   Environment,
 } = require('app-store-server-api/dist/cjs');
+const { deepCopy } = require('../../util');
 
 const {
   APPLE_APP_STORE_FORM_OF_PAYMENT,
@@ -20,10 +21,6 @@ const {
 const appStoreApiResponse = require('../../fixtures/apple-app-store/api_response_subscription_status.json');
 const renewalInfo = require('../../fixtures/apple-app-store/decoded_renewal_info.json');
 const transactionInfo = require('../../fixtures/apple-app-store/decoded_transaction_info.json');
-
-function deepCopy(object) {
-  return JSON.parse(JSON.stringify(object));
-}
 
 describe('SubscriptionPurchase', () => {
   const autoRenewStatus = 1;

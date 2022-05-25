@@ -27,6 +27,29 @@ const OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST = {
   ],
 };
 
+const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_TRANSACTION_POST = {
+  ...TAGS_SUBSCRIPTIONS,
+  description: '🔒 oauthToken',
+  notes: [
+    dedent`
+      🔒 authenticated with OAuth bearer token
+
+      Validate and store an App Store Original Transaction ID for the given user. Returns token validity.
+    `,
+  ],
+};
+
+const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_NOTIFICATION_POST = {
+  ...TAGS_SUBSCRIPTIONS,
+  notes: [
+    dedent`
+      🔒 payload validated against Apple certificates
+
+      Update stored purchase information with latest subscription status.
+    `,
+  ],
+};
+
 const OAUTH_SUBSCRIPTIONS_PLANS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/plans',
@@ -210,6 +233,8 @@ const API_DOCS = {
   OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_POST,
   OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_DELETE,
   OAUTH_SUBSCRIPTIONS_CUSTOMER_POST,
+  OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_NOTIFICATION_POST,
+  OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_TRANSACTION_POST,
   OAUTH_SUBSCRIPTIONS_IAP_PLANS_APPNAME_GET,
   OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST,
   OAUTH_SUBSCRIPTIONS_INVOICE_RETRY_POST,

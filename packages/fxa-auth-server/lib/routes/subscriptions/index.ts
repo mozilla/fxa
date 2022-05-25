@@ -98,7 +98,7 @@ const createRoutes = (
     routes.push(...playPubsubRoutes(db));
   }
   if (config.subscriptions?.appStore?.enabled) {
-    routes.push(...appleIapRoutes(db));
+    routes.push(...appleIapRoutes());
   }
 
   return routes;

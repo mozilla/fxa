@@ -6,6 +6,8 @@
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
  * a deep copy of the object can be created which uses the test object as a template
  *
+ * Note: Does not copy over methods. Use the rest operator for that.
+ *
  * @param {Object} object
  */
 function deepCopy(object) {

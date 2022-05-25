@@ -18,8 +18,6 @@ export type AuthServerEventMap = {
     request?: AuthRequest;
     eventCreatedAt?: number;
   };
-  'account:productAdded': { uid: string; productId: string };
-  'account:productRemoved': { uid: string; productId: string };
 };
 
 export const authEvents = new Emittery<AuthServerEventMap>();
