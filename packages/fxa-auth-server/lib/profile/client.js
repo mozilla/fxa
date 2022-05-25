@@ -12,8 +12,8 @@ const PATH_PREFIX = '/v1';
 // Very generic validator, because there's not really a useful response
 // here other than that it didn't fail in error
 const DeleteCacheResponse = isA.any();
-
 const UpdateDisplayNameResponse = isA.any();
+const UpdateAvatarWithUrlResponse = isA.any();
 
 module.exports = function (log, config, statsd) {
   const ProfileAPI = createBackendServiceAPI(
@@ -42,7 +42,20 @@ module.exports = function (log, config, statsd) {
             name: isA.string().required(),
           },
           response: UpdateDisplayNameResponse,
-        }
+        },
+      },
+      updateAvatarWithUrl: {
+        path: `${PATH_PREFIX}/_avatar/:uid`,
+        method: 'POST',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          payload: {
+            imageUrl: isA.string().required(),
+          },
+          response: UpdateAvatarWithUrlResponse,
+        },
       },
     },
     statsd
@@ -68,7 +81,20 @@ module.exports = function (log, config, statsd) {
       try {
         return await api.updateDisplayName(uid, { name: name });
       } catch (err) {
-        log.error('profile.updateDisplayName.failed', { uid, name, err});
+        log.error('profile.updateDisplayName.failed', { uid, name, err });
+        throw err;
+      }
+    },
+    async updateAvatarWithUrl(uid, imageUrl) {
+      log.info('entering profile.updateAvatarWithUrl', imageUrl)
+      try {
+        return await api.updateAvatarWithUrl(uid, { imageUrl });
+      } catch (err) {
+        log.error('profile.updateAvatarWithUrl.failed', {
+          uid,
+          imageUrl,
+          err,
+        });
         throw err;
       }
     },

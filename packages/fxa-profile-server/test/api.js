@@ -917,6 +917,18 @@ describe('api', function () {
     });
 
     describe('upload', function () {
+      const EXPECTED_TOKEN = 'thisisnotthedefault';
+
+    let origSecretBearerToken = null;
+
+    before(function () {
+      origSecretBearerToken = config.get('secretBearerToken');
+      config.set('secretBearerToken', EXPECTED_TOKEN);
+    });
+
+    after(function () {
+      config.set('secretBearerToken', origSecretBearerToken);
+    });
       it('should upload a new avatar', function () {
         this.slow(5000);
         this.timeout(10000);
@@ -953,6 +965,21 @@ describe('api', function () {
               assert.equal(res.statusCode, 200);
             });
           });
+      });
+
+      it('should upload an avatar from a url, using secretBearerToken', function () {
+        return Server.api
+        .post({
+          url: `/_avatar/${uid}`,
+          payload: { imageUrl: 'www.exampleImage.com' },
+          headers: {
+            authorization: 'Bearer ' + EXPECTED_TOKEN,
+          },
+        }).then(function (res) {
+          assert.equal(res.statusCode, 201);
+          assert(res.result.url);
+          assert(res.result.id);
+        })
       });
 
       it('should fail with an error if image cannot be identified', function () {
@@ -1434,7 +1461,7 @@ describe('api', function () {
       });
 
       it('should post a new display name via secretBearerToken', function () {
-        var NAME = 'Spock';
+        const NAME = 'Spock';
         return Server.api
           .post({
             url: '/_display_name/' + USERID,
