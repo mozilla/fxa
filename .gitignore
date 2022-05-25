@@ -76,7 +76,7 @@ packages/browserid-verifier/loadtest/venv
 packages/browserid-verifier/loadtest/*.pyc
 
 # fxa-admin-server
-packages/fxa-admin-server/src/config/*.json
+packages/fxa-admin-server/src/config/local.json
 
 # fxa-auth-server
 packages/fxa-auth-server/sandbox
