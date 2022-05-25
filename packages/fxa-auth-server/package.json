@@ -114,7 +114,7 @@
     "node-zendesk": "^2.1.1",
     "nodemailer": "^6.7.3",
     "otplib": "^11.0.1",
-    "p-retry": "^5.1.1",
+    "p-retry": "^4.2.0",
     "pem-jwk": "^2.0.0",
     "poolee": "^1.0.1",
     "punycode.js": "2.1.0",
