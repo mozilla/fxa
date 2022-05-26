@@ -48,8 +48,6 @@ const makeRoutes = function (options = {}, requireMocks) {
   };
   config.lastAccessTimeUpdates = {};
   config.signinConfirmation = config.signinConfirmation || {};
-  config.signinConfirmation.tokenVerificationCode =
-    config.signinConfirmation.tokenVerificationCode || {};
   config.signinUnblock = config.signinUnblock || {};
   config.secondaryEmail = config.secondaryEmail || {};
 
@@ -526,7 +524,6 @@ describe('deleteAccountIfUnverified', () => {
   const mockConfig = {};
   mockConfig.oauth = {};
   mockConfig.signinConfirmation = {};
-  mockConfig.signinConfirmation.tokenVerificationCode = {};
   mockConfig.signinConfirmation.skipForEmailAddresses = [];
   const emailRecord = {
     isPrimary: true,
@@ -1602,11 +1599,7 @@ describe('/account/login', () => {
     securityHistory: {
       ipProfiling: {},
     },
-    signinConfirmation: {
-      tokenVerificationCode: {
-        codeLength: 8,
-      },
-    },
+    signinConfirmation: {},
     signinUnblock: {
       codeLifetime: 1000,
     },

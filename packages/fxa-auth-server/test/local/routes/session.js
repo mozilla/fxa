@@ -641,38 +641,7 @@ describe('/session/reauth', () => {
       }
     );
   });
-
-  it('reflects the requested verificationMethod in the response body', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
-      return Promise.resolve(true);
-    });
-    request.auth.credentials.emailVerified = true;
-    request.auth.credentials.tokenVerified = false;
-    request.auth.credentials.tokenVerificationId = 'myCoolId';
-    request.auth.credentials.tokenVerificationCode = 'myAwesomerCode';
-    request.auth.credentials.tokenVerificationCodeExpiresAt =
-      Date.now() + 10000;
-    request.payload.verificationMethod = 'email-2fa';
-    return runTest(route, request).then((res) => {
-      assert.ok(res);
-      assert.equal(
-        res.verified,
-        false,
-        'result reports the session as unverified'
-      );
-      assert.equal(
-        res.verificationReason,
-        'login',
-        'result reports the verificationReason as "login"'
-      );
-      assert.equal(
-        res.verificationMethod,
-        'email-2fa',
-        'result reports the verificationReason as requested'
-      );
-    });
-  });
-
+  
   it('can refuse reauth for selected OAuth clients', async () => {
     const route = getRoute(
       makeRoutes({
@@ -860,7 +829,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        38,
+        36,
         'was called with correct number of options'
       );
       assert.equal(
@@ -907,16 +876,6 @@ describe('/session/duplicate', () => {
         'db.createSessionToken called with correct tokenVerificationId'
       );
       assert.equal(
-        sessionTokenOptions.tokenVerificationCode,
-        undefined,
-        'db.createSessionToken called with correct tokenVerificationCode'
-      );
-      assert.equal(
-        sessionTokenOptions.tokenVerificationCodeExpiresAt,
-        undefined,
-        'db.createSessionToken called with correct tokenVerificationCodeExpiresAt'
-      );
-      assert.equal(
         sessionTokenOptions.uaBrowser,
         'Chrome',
         'db.createSessionToken called with correct uaBrowser'
@@ -952,9 +911,6 @@ describe('/session/duplicate', () => {
   it('correctly generates new codes for unverified sessions', () => {
     request.auth.credentials.tokenVerified = false;
     request.auth.credentials.tokenVerificationId = 'myCoolId';
-    request.auth.credentials.tokenVerificationCode = 'myAwesomerCode';
-    request.auth.credentials.tokenVerificationCodeExpiresAt =
-      Date.now() + 10000;
     return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
@@ -996,7 +952,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        38,
+        36,
         'was called with correct number of options'
       );
       assert.equal(
@@ -1045,20 +1001,6 @@ describe('/session/duplicate', () => {
         sessionTokenOptions.tokenVerificationId,
         'myCoolId',
         'db.createSessionToken called with a new tokenVerificationId'
-      );
-      assert.ok(
-        sessionTokenOptions.tokenVerificationCode,
-        'db.createSessionToken called with a truthy tokenVerificationCode'
-      );
-      assert.notEqual(
-        sessionTokenOptions.tokenVerificationCode,
-        'myAwesomerCode',
-        'db.createSessionToken called with a new tokenVerificationCode'
-      );
-      assert.equal(
-        sessionTokenOptions.tokenVerificationCodeExpiresAt,
-        0,
-        'db.createSessionToken called with correct tokenVerificationCodeExpiresAt'
       );
       assert.equal(
         sessionTokenOptions.uaBrowser,

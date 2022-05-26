@@ -20,19 +20,4 @@ export class BaseToken extends BaseAuthModel {
       throw convertError(e);
     }
   }
-
-  static async verifyTokenCode(uid: string, code: string) {
-    try {
-      const { status } = await BaseToken.callProcedure(
-        Proc.VerifyTokenCode,
-        BaseAuthModel.sha256(code),
-        uuidTransformer.to(uid)
-      );
-      if (status.affectedRows < 1) {
-        throw notFound();
-      }
-    } catch (e) {
-      throw convertError(e);
-    }
-  }
 }

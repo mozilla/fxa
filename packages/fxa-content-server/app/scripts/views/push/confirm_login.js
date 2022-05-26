@@ -44,9 +44,6 @@ class ConfirmPushLoginView extends FormView {
   changePassword() {}
 
   submit() {
-    // TODO: Unfortunately, we need to use `/recovery_email/verify_code`
-    // endpoint to verify our tokenVerificationCode because that code
-    // is linked directly to a specific session.
     const account = this.getSignedInAccount();
     return account
       .verifySignUp(this.code)

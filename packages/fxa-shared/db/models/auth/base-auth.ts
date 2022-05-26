@@ -63,7 +63,6 @@ export enum Proc {
   UpsertAvailableCommands = 'upsertAvailableCommand_1',
   VerifyEmail = 'verifyEmail_9',
   VerifyToken = 'verifyToken_3',
-  VerifyTokenCode = 'verifyTokenCode_2',
   VerifyTokenWithMethod = 'verifyTokensWithMethod_3',
 }
 

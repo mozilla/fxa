@@ -43,11 +43,7 @@ module.exports = (log, Token, config) => {
       // Tokens are considered verified if no tokenVerificationId exists
       this.tokenVerificationId = details.tokenVerificationId || null;
       this.tokenVerified = this.tokenVerificationId ? false : true;
-
-      this.tokenVerificationCode = details.tokenVerificationCode || null;
-      this.tokenVerificationCodeExpiresAt =
-        details.tokenVerificationCodeExpiresAt || null;
-
+      
       this.verificationMethod = details.verificationMethod || null;
       this.verificationMethodValue = VERIFICATION_METHODS.get(
         this.verificationMethod
@@ -87,17 +83,6 @@ module.exports = (log, Token, config) => {
         newVerificationState.tokenVerificationId = await random.hex(
           this.tokenVerificationId.length / 2
         );
-      }
-
-      if (this.tokenVerificationCode) {
-        // Using expiresAt=0 here prevents the new token from being verified via email code.
-        // That's OK, because we don't send them a new email with the new verification code
-        // unless they explicitly ask us to resend it, and resend only handles email links
-        // rather than email codes.
-        newVerificationState.tokenVerificationCode = await random.hex(
-          this.tokenVerificationCode.length / 2
-        );
-        newVerificationState.tokenVerificationCodeExpiresAt = 0;
       }
 
       // Copy all other details from the original sessionToken.

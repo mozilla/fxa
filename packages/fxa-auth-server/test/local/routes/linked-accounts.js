@@ -17,8 +17,6 @@ const APPLE_PROVIDER = 'apple';
 const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
   config.signinConfirmation = config.signinConfirmation || {};
-  config.signinConfirmation.tokenVerificationCode =
-    config.signinConfirmation.tokenVerificationCode || {};
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
@@ -192,11 +190,6 @@ describe('/linked_account', () => {
               uaDeviceType: null,
               uaFormFactor: null,
             })
-          )
-        );
-        assert.isTrue(
-          mockDB.createSessionToken.calledOnceWith(
-            sinon.match.has('tokenVerificationCodeExpiresAt')
           )
         );
 

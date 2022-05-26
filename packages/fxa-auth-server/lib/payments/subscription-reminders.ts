@@ -149,7 +149,7 @@ export class SubscriptionReminders {
           reminderLength: this.reminderDuration.as('days'),
           planIntervalCount: interval_count,
           planInterval: interval,
-          // Using invoice prefix instead of plan to accomodate `yarn write-emails`.
+          // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
           invoiceTotalInCents: amount,
           invoiceTotalCurrency: currency,
           productMetadata: formattedSubscription.productMetadata,

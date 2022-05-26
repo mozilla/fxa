@@ -113,8 +113,6 @@ export class SessionToken extends BaseToken {
     uaFormFactor,
     tokenVerificationId,
     mustVerify,
-    tokenVerificationCode,
-    tokenVerificationCodeExpiresAt,
   }: Pick<
     SessionToken,
     | 'uid'
@@ -130,8 +128,6 @@ export class SessionToken extends BaseToken {
   > & {
     id: string;
     data: string;
-    tokenVerificationCode?: string;
-    tokenVerificationCodeExpiresAt: number;
   }) {
     return this.callProcedure(
       Proc.CreateSessionToken,
@@ -147,10 +143,8 @@ export class SessionToken extends BaseToken {
       uaFormFactor ?? null,
       uuidTransformer.to(tokenVerificationId),
       !!mustVerify,
-      tokenVerificationCode
-        ? BaseAuthModel.sha256(tokenVerificationCode)
-        : null,
-      tokenVerificationCodeExpiresAt ?? null
+      null, // we no longer set token verification code
+      null // we no longer set token verification code expiresAt
     );
   }
 
