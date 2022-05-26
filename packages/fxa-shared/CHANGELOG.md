@@ -1,5 +1,38 @@
 # Change history
 
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### New features
+
+- auth: create Apple notification handler ([8c2ec84e9b](https://github.com/mozilla/fxa/commit/8c2ec84e9b))
+- devices: Add query param to allow client to filter idle devices ([686f3cd039](https://github.com/mozilla/fxa/commit/686f3cd039))
+- auth: update /billing-and-subscriptions endpoint to include Apple IAP ([3c5928ebda](https://github.com/mozilla/fxa/commit/3c5928ebda))
+- l10n: remove sr-LATN support. Fix FXA-5126 ([5cdd851e92](https://github.com/mozilla/fxa/commit/5cdd851e92))
+- payments: rename downloadURL to successActionButtonURL ([e78475453b](https://github.com/mozilla/fxa/commit/e78475453b))
+- third-party auth: Add UI with /create_password route for passwordless accounts ([9192ae82fb](https://github.com/mozilla/fxa/commit/9192ae82fb))
+- payments: add Email Verification to Passwordless Flow Because: ([4ad86a4f9c](https://github.com/mozilla/fxa/commit/4ad86a4f9c))
+- password: Add graphql mutation to support creating a new password ([d693ce671e](https://github.com/mozilla/fxa/commit/d693ce671e))
+- payments: add new product configuration ([a6e58e6581](https://github.com/mozilla/fxa/commit/a6e58e6581))
+
+### Bug fixes
+
+- fxa-shared: add missing type declarations for AppendedAppStore/PlayStoreSubscriptionPurchase ([7f64804da3](https://github.com/mozilla/fxa/commit/7f64804da3))
+- admin-panel: Fix remote group resolution ([6339b0b966](https://github.com/mozilla/fxa/commit/6339b0b966))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- admin-panel: Add nestjs subscription service ([0db515ba4d](https://github.com/mozilla/fxa/commit/0db515ba4d))
+- deps: bump @nestjs/core from 8.4.4 to 8.4.5 ([8d99b638e1](https://github.com/mozilla/fxa/commit/8d99b638e1))
+- deps: bump aws-sdk from 2.1120.0 to 2.1135.0 ([95bffbfbd7](https://github.com/mozilla/fxa/commit/95bffbfbd7))
+- deps: bump @nestjs/common from 8.4.4 to 8.4.5 ([a04bc51f0d](https://github.com/mozilla/fxa/commit/a04bc51f0d))
+- deps: bump @sentry/browser from 6.19.4 to 6.19.7 ([f4f16f396f](https://github.com/mozilla/fxa/commit/f4f16f396f))
+
 ## 1.232.5
 
 ### New features

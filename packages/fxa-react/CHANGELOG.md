@@ -1,3 +1,20 @@
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### Bug fixes
+
+- settings: Add default text to several l10n.getString calls ([84a922daa7](https://github.com/mozilla/fxa/commit/84a922daa7))
+
+### Other changes
+
+- deps-dev: bump sass from 1.50.1 to 1.52.1 ([392301dfb0](https://github.com/mozilla/fxa/commit/392301dfb0))
+- lint: Lint hidden .storybook/ directories ([0709d0ef79](https://github.com/mozilla/fxa/commit/0709d0ef79))
+- deps-dev: bump @testing-library/user-event from 14.1.1 to 14.2.0 ([8f0c475f1f](https://github.com/mozilla/fxa/commit/8f0c475f1f))
+- deps-dev: bump @testing-library/jest-dom from 5.16.2 to 5.16.4 ([06460e4924](https://github.com/mozilla/fxa/commit/06460e4924))
+
 ## 1.232.5
 
 No changes.

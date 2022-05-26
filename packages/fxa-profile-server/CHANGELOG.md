@@ -1,3 +1,22 @@
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### New features
+
+- fxa-auth-server: 123a585850 feat(fxa-auth-server) set display name from 3rd party auth data ([123a585850](https://github.com/mozilla/fxa/commit/123a585850))
+- fxa-auth-server: 330e8fa93c feat(fxa-auth-server) set up new route ([330e8fa93c](https://github.com/mozilla/fxa/commit/330e8fa93c))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- fxa-auth-server: 208ba8f585 Revert "feat(fxa-auth-server) 3rd party authentication sets default profile display name" ([208ba8f585](https://github.com/mozilla/fxa/commit/208ba8f585))
+- deps: bump aws-sdk from 2.1120.0 to 2.1135.0 ([95bffbfbd7](https://github.com/mozilla/fxa/commit/95bffbfbd7))
+- deps: bump @hapi/boom from 9.1.4 to 10.0.0 ([dd619dad76](https://github.com/mozilla/fxa/commit/dd619dad76))
+
 ## 1.232.5
 
 No changes.

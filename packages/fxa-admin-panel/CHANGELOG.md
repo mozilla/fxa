@@ -1,3 +1,28 @@
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### New features
+
+- admin-panel: Add information pertaining to bounceType ([b465f92070](https://github.com/mozilla/fxa/commit/b465f92070))
+
+### Bug fixes
+
+- admin-panel: Fix remote group resolution ([6339b0b966](https://github.com/mozilla/fxa/commit/6339b0b966))
+- fxa-admin-panel: 39fa127b12 fix(fxa-admin-panel) use clearer icons to indicate permission status ([39fa127b12](https://github.com/mozilla/fxa/commit/39fa127b12))
+
+### Other changes
+
+- admin-panel: Provide link to manage customer subscription in stripe. ([f639bce573](https://github.com/mozilla/fxa/commit/f639bce573))
+- admin-panel: Add nestjs subscription service ([0db515ba4d](https://github.com/mozilla/fxa/commit/0db515ba4d))
+- lint: Tweak ESLint config for fxa-admin-panel ([7e214229c1](https://github.com/mozilla/fxa/commit/7e214229c1))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps-dev: bump @testing-library/user-event from 14.1.1 to 14.2.0 ([8f0c475f1f](https://github.com/mozilla/fxa/commit/8f0c475f1f))
+- deps-dev: bump @testing-library/jest-dom from 5.16.2 to 5.16.4 ([06460e4924](https://github.com/mozilla/fxa/commit/06460e4924))
+- deps: bump @sentry/browser from 6.19.4 to 6.19.7 ([f4f16f396f](https://github.com/mozilla/fxa/commit/f4f16f396f))
+
 ## 1.232.5
 
 No changes.

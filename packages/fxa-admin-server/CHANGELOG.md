@@ -1,3 +1,28 @@
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### New features
+
+- admin-panel: Add information pertaining to bounceType ([b465f92070](https://github.com/mozilla/fxa/commit/b465f92070))
+
+### Bug fixes
+
+- admin-server: Fix broken build command ([17e2f77904](https://github.com/mozilla/fxa/commit/17e2f77904))
+- admin-panel: Fix slow autocomplete in account search ([59051bacbc](https://github.com/mozilla/fxa/commit/59051bacbc))
+- admin-panel: Fix remote group resolution ([6339b0b966](https://github.com/mozilla/fxa/commit/6339b0b966))
+
+### Other changes
+
+- admin-panel: Provide link to manage customer subscription in stripe. ([f639bce573](https://github.com/mozilla/fxa/commit/f639bce573))
+- admin-panel: Add nestjs subscription service ([0db515ba4d](https://github.com/mozilla/fxa/commit/0db515ba4d))
+- deps: bump @nestjs/core from 8.4.4 to 8.4.5 ([8d99b638e1](https://github.com/mozilla/fxa/commit/8d99b638e1))
+- deps: bump @nestjs/platform-express from 8.4.4 to 8.4.5 ([6a6c0e8bba](https://github.com/mozilla/fxa/commit/6a6c0e8bba))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps: bump @nestjs/common from 8.4.4 to 8.4.5 ([a04bc51f0d](https://github.com/mozilla/fxa/commit/a04bc51f0d))
+
 ## 1.232.5
 
 No changes.

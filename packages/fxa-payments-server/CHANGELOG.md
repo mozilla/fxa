@@ -1,5 +1,35 @@
 # Change history
 
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### New features
+
+- auth: update /billing-and-subscriptions endpoint to include Apple IAP ([3c5928ebda](https://github.com/mozilla/fxa/commit/3c5928ebda))
+- payments: rename downloadURL to successActionButtonURL ([e78475453b](https://github.com/mozilla/fxa/commit/e78475453b))
+- payments: add Email Verification to Passwordless Flow Because: ([4ad86a4f9c](https://github.com/mozilla/fxa/commit/4ad86a4f9c))
+- payments: add new product configuration ([a6e58e6581](https://github.com/mozilla/fxa/commit/a6e58e6581))
+
+### Bug fixes
+
+- payments: fallback text in legal blurb Because: ([a013726d11](https://github.com/mozilla/fxa/commit/a013726d11))
+
+### Other changes
+
+- deps: Upgrade hapi/joi dependency" ([68a45c436f](https://github.com/mozilla/fxa/commit/68a45c436f))
+- 2a3c5bbef7 Upgrades joi, hapi-swagger and its plugins ([2a3c5bbef7](https://github.com/mozilla/fxa/commit/2a3c5bbef7))
+- payments: fix flaky test with date matching Because: ([659755508b](https://github.com/mozilla/fxa/commit/659755508b))
+- deps: bump nocache from 3.0.3 to 3.0.4 ([c6cc2fa8fd](https://github.com/mozilla/fxa/commit/c6cc2fa8fd))
+- lint: Lint hidden .storybook/ directories ([0709d0ef79](https://github.com/mozilla/fxa/commit/0709d0ef79))
+- payments: Missing markup in payment-confirm string ([f464fcfe0e](https://github.com/mozilla/fxa/commit/f464fcfe0e))
+- deps-dev: bump supertest from 6.2.2 to 6.2.3 ([bb529cfae3](https://github.com/mozilla/fxa/commit/bb529cfae3))
+- deps: bump redux from 4.1.2 to 4.2.0 ([2ca7459065](https://github.com/mozilla/fxa/commit/2ca7459065))
+- deps-dev: bump @testing-library/jest-dom from 5.16.2 to 5.16.4 ([06460e4924](https://github.com/mozilla/fxa/commit/06460e4924))
+- deps: bump @sentry/browser from 6.19.4 to 6.19.7 ([f4f16f396f](https://github.com/mozilla/fxa/commit/f4f16f396f))
+
 ## 1.232.5
 
 No changes.

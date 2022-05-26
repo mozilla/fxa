@@ -1,3 +1,15 @@
+## 1.233.1
+
+No changes.
+
+## 1.233.0
+
+### Other changes
+
+- deps-dev: bump tap from 16.0.1 to 16.2.0 ([aed87d3e46](https://github.com/mozilla/fxa/commit/aed87d3e46))
+- deps: bump grunt from 1.5.2 to 1.5.3 ([5c0afda1da](https://github.com/mozilla/fxa/commit/5c0afda1da))
+- deps: bump @hapi/hoek from 9.3.0 to 10.0.0 ([23ec046a7b](https://github.com/mozilla/fxa/commit/23ec046a7b))
+
 ## 1.232.5
 
 No changes.
