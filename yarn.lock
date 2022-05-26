@@ -22977,7 +22977,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.30.4
+    sharp: ^0.30.5
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -32403,12 +32403,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "node-addon-api@npm:4.3.0"
+"node-addon-api@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "node-addon-api@npm:5.0.0"
   dependencies:
     node-gyp: latest
-  checksum: 3de396e23cc209f539c704583e8e99c148850226f6e389a641b92e8967953713228109f919765abc1f4355e801e8f41842f96210b8d61c7dcc10a477002dcf00
+  checksum: 7c5e2043ac37f6108784d94ed73a44ae6d3e68eb968de60680922fc6bc3d17fa69448c0feb4e0c9d3f4c74a0324822e566a8340a56916d9d6f23cb3e85620334
   languageName: node
   linkType: hard
 
@@ -35806,9 +35806,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "prebuild-install@npm:7.0.1"
+"prebuild-install@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "prebuild-install@npm:7.1.0"
   dependencies:
     detect-libc: ^2.0.0
     expand-template: ^2.0.3
@@ -35825,7 +35825,7 @@ fsevents@~2.1.1:
     tunnel-agent: ^0.6.0
   bin:
     prebuild-install: bin.js
-  checksum: 117c8966f221242633bbf245755fb469dabc7085909f5e3db83359d6281a88dedbdada7e839315805a192c74b7cce3ed1a86c1382a8d950c1ea60a9d5d8e7bf0
+  checksum: 204f2d89c6d6179fa1039036514aa72f7d0b537e421ef72c40840286e318f41489f00f22c6acc725cce6e10d43825b69dcabeaadfc917db781c58cd56fc25f90
   languageName: node
   linkType: hard
 
@@ -39375,20 +39375,20 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.30.4":
-  version: 0.30.4
-  resolution: "sharp@npm:0.30.4"
+"sharp@npm:^0.30.5":
+  version: 0.30.5
+  resolution: "sharp@npm:0.30.5"
   dependencies:
     color: ^4.2.3
     detect-libc: ^2.0.1
-    node-addon-api: ^4.3.0
+    node-addon-api: ^5.0.0
     node-gyp: latest
-    prebuild-install: ^7.0.1
+    prebuild-install: ^7.1.0
     semver: ^7.3.7
     simple-get: ^4.0.1
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: 80070d8cad5fe20e7bbb2a1cfddda3f7d421f6af8302c05af8307c0b3b1972e6ed2690563e90b2897b4b499b32967d28a15e37f5d196a1f8867d630609052211
+  checksum: e2b6238770ae1498815c14b2711de9398176a8e1ea1131ef583edc4a1c421f55fd9fe52ffc996ea4a259bdfed2f5d68a076a6ddc85499c229025efbe8ccf0b56
   languageName: node
   linkType: hard
 
