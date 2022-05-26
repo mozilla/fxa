@@ -77,7 +77,7 @@
     "buffer-equal-constant-time": "1.0.1",
     "cldr-core": "^41.0.0",
     "commander": "2.18.0",
-    "convict": "^6.2.2",
+    "convict": "^6.2.3",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dedent": "^0.7.0",

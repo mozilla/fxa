@@ -46,7 +46,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "commander": "^6.0.0",
-    "convict": "^6.2.2",
+    "convict": "^6.2.3",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.17.2",
