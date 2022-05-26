@@ -25,7 +25,7 @@ export const supportPanelRoutes = ({
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
 }): ServerRoute[] => {
-  if (!config.subscriptions.enabled) {
+  if (!config.subscriptions.enabled || !stripeHelper) {
     return [];
   }
 
