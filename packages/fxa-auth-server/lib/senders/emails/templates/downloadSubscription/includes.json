@@ -4,7 +4,7 @@
     "message": "Welcome to <%- productName %>"
   },
   "action": {
-    "id": "downloadSubscription-link-action",
+    "id": "downloadSubscription-link-action-2",
     "message": "Download <%- productName %>"
   }
 }
