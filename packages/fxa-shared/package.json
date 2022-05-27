@@ -79,7 +79,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "@fluent/langneg": "^0.6.1",
+    "@fluent/langneg": "^0.6.2",
     "@nestjs/common": "^8.4.5",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.5",

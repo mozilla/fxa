@@ -3519,10 +3519,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/langneg@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@fluent/langneg@npm:0.6.1"
-  checksum: ff5783a4c8a2ed21a66bcaf2f534b3cf0bb88dfe9763bf3fedd715c7d88cf7299dd59d6f79a1431a32a95eb2ef20babf7f6466e1d81db52f54d56dd6cf4a7e38
+"@fluent/langneg@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "@fluent/langneg@npm:0.6.2"
+  checksum: fc6567d51541aac064180df8c8d34f2d8909a720e7d349b6b640139dcda880da47e277c85b122c20398897cd610b02bd544b015e6eb7dff1cfdf07ddc65ed968
   languageName: node
   linkType: hard
 
@@ -22211,7 +22211,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
-    "@fluent/langneg": ^0.6.1
+    "@fluent/langneg": ^0.6.2
     "@google-cloud/bigquery": ^5.12.0
     "@google-cloud/firestore": ^5.0.2
     "@google-cloud/translate": ^6.3.1
@@ -22817,7 +22817,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@babel/register": ^7.16.7
     "@fluent/bundle": ^0.17.1
-    "@fluent/langneg": ^0.6.1
+    "@fluent/langneg": ^0.6.2
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.19.7
@@ -22990,7 +22990,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.1
-    "@fluent/langneg": ^0.6.1
+    "@fluent/langneg": ^0.6.2
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
@@ -23131,7 +23131,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@fluent/langneg": ^0.6.1
+    "@fluent/langneg": ^0.6.2
     "@nestjs/common": ^8.4.5
     "@nestjs/config": ^2.0.0
     "@nestjs/core": ^8.4.5
