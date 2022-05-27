@@ -22911,7 +22911,7 @@ fsevents@~2.1.1:
     react: ^16.12.0
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
-    react-redux: ^8.0.1
+    react-redux: ^8.0.2
     react-router-dom: ^6.2.2
     react-scripts: ^4.0.3
     react-stripe-elements: ^6.1.2
@@ -37063,9 +37063,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-redux@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "react-redux@npm:8.0.1"
+"react-redux@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "react-redux@npm:8.0.2"
   dependencies:
     "@babel/runtime": ^7.12.1
     "@types/hoist-non-react-statics": ^3.3.1
@@ -37091,7 +37091,7 @@ fsevents@~2.1.1:
       optional: true
     redux:
       optional: true
-  checksum: d7c004b4bfb4e4cd9a5fc21fa30734cf2fc1c04b1483f0c0ea1446e00b7792e9d7ef16cf62d38254f68f6058bac34f759da6a204772a0982e029d2e83cc80512
+  checksum: 44c1739c45dad04ecc65a290897c73828ff0bf43f2b7618ed5ef6d4ceecedae38e76cecd189a5ecedf579c28ead05427bc000fb45ad30b9fcd5c2be27cd3ac73
   languageName: node
   linkType: hard
 
