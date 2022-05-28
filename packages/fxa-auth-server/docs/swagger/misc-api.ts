@@ -61,64 +61,9 @@ const WELLKNOWN_PUBLIC_KEYS = {
   description: '/.well-known/public-keys',
 };
 
-const AUTHORIZATION_GET = {
-  ...TAGS_MISC,
-  description: '/authorization',
-};
-
-const AUTHORIZATION_POST = {
-  ...TAGS_MISC,
-  description: '/authorization',
-};
-
-const DESTROY_POST = {
-  ...TAGS_MISC,
-  description: '/destroy',
-};
-
-const AUTHORIZED_CLIENTS_DESTROY_POST = {
-  ...TAGS_MISC,
-  description: '/authorized-clients/destroy',
-};
-
-const AUTHORIZED_CLIENTS_POST = {
-  ...TAGS_MISC,
-  description: '/authorized_clients',
-};
-
-const CLIENT_CLIENTID_GET = {
-  ...TAGS_MISC,
-  description: '/oauth/client/{client_id}',
-};
-
 const OAUTH_ID_TOKEN_VERIFY_POST = {
   ...TAGS_MISC,
   description: '/oauth/id-token-verify',
-};
-
-const INTROSPECT_POST = {
-  ...TAGS_MISC,
-  description: '/introspect',
-};
-
-const JWKS_GET = {
-  ...TAGS_MISC,
-  description: '/jwks',
-};
-
-const KEY_DATA_POST = {
-  ...TAGS_MISC,
-  description: '/key-data',
-};
-
-const TOKEN_POST = {
-  ...TAGS_MISC,
-  description: '/token',
-};
-
-const VERIFY_POST = {
-  ...TAGS_MISC,
-  description: '/verify',
 };
 
 const API_DOCS = {
@@ -127,20 +72,9 @@ const API_DOCS = {
   ACCOUNT_LOCK_POST,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
   ACCOUNT_STUB_POST,
-  AUTHORIZATION_GET,
-  AUTHORIZATION_POST,
-  AUTHORIZED_CLIENTS_DESTROY_POST,
-  AUTHORIZED_CLIENTS_POST,
-  CLIENT_CLIENTID_GET,
-  DESTROY_POST,
-  INTROSPECT_POST,
-  JWKS_GET,
-  KEY_DATA_POST,
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
   SUPPORT_TICKET_POST,
-  TOKEN_POST,
-  VERIFY_POST,
   WELLKNOWN_BROWSERID_GET,
   WELLKNOWN_PUBLIC_KEYS,
 };

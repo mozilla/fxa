@@ -10,8 +10,11 @@ const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');
 const { validateRequestedGrant } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
-const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const DESCRIPTION =
+  require('../../../docs/swagger/shared/descriptions').default;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const OAUTH_SERVER_DOCS =
+  require('../../../docs/swagger/oauth-server-api').default;
 
 /**
  * We don't yet support rotating individual scoped keys,
@@ -97,13 +100,15 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/key-data',
       config: {
-        ...MISC_DOCS.KEY_DATA_POST,
+        ...OAUTH_SERVER_DOCS.KEY_DATA_POST,
         cors: { origin: 'ignore' },
         validate: {
           payload: Joi.object({
-            client_id: validators.clientId,
-            assertion: validators.assertion.required(),
-            scope: validators.scope.required(),
+            client_id: validators.clientId.description(DESCRIPTION.clientId),
+            assertion: validators.assertion
+              .required()
+              .description(DESCRIPTION.assertion),
+            scope: validators.scope.required().description(DESCRIPTION.scope),
           }),
         },
         response: {

@@ -4,10 +4,12 @@
 
 const TAGS = {
   ACCOUNT: ['api', 'Account'],
+  AUTH_SERVER: ['api', 'Auth Server API Overview'],
   DEVICES_AND_SESSIONS: ['api', 'Devices and Sessions'],
   EMAILS: ['api', 'Emails'],
   MISCELLANEOUS: ['api', 'Miscellaneous'],
   OAUTH: ['api', 'Oauth'],
+  OAUTH_SERVER: ['api', 'OAuth Server API Overview'],
   PASSWORD: ['api', 'Password'],
   RECOVERY_CODES: ['api', 'Recovery codes'],
   RECOVERY_KEY: ['api', 'Recovery key'],

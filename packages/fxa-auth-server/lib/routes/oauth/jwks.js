@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { PUBLIC_KEYS } = require('../../oauth/keys');
-const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
+const OAUTH_SERVER_DOCS =
+  require('../../../docs/swagger/oauth-server-api').default;
 
 module.exports = () => ({
   method: 'GET',
   path: '/jwks',
   config: {
-    ...MISC_DOCS.JWKS_GET,
+    ...OAUTH_SERVER_DOCS.JWKS_GET,
     cors: { origin: 'ignore' },
     cache: {
       privacy: 'public',
