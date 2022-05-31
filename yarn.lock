@@ -4074,7 +4074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:^15.1.0, @hapi/joi@npm:^15.1.1":
+"@hapi/joi@npm:^15.1.0":
   version: 15.1.1
   resolution: "@hapi/joi@npm:15.1.1"
   dependencies:
@@ -9578,22 +9578,6 @@ __metadata:
     "@types/node": "*"
     joi: ^17.3.0
   checksum: 6a8c02367a946b66c5decccee98ae14dbbc68ab022f613eab31d055501da89f265755019f940d62da9072c5f8355d3a9f027635f8d354e9b7d572265885afb81
-  languageName: node
-  linkType: hard
-
-"@types/hapi__joi@npm:*":
-  version: 17.1.6
-  resolution: "@types/hapi__joi@npm:17.1.6"
-  checksum: 03d062e1f0122d177e9c45798c99a0bfd1559519443c1df982c4c8431ba0bb4079c4fea3b61aa7f9abc275872af2c28dacc12869f40e2c86fc17b54465d15898
-  languageName: node
-  linkType: hard
-
-"@types/hapi__joi@npm:^15.0.1":
-  version: 15.0.4
-  resolution: "@types/hapi__joi@npm:15.0.4"
-  dependencies:
-    "@types/hapi__joi": "*"
-  checksum: 711a3b63685b1b4b6d94f94348d306318e402fbec24e278e8529b725d5c6b9c817e4d01a5327f07a56e6b2d138e20171ea1cec8309328015118c34b92c91cb1b
   languageName: node
   linkType: hard
 
@@ -22602,7 +22586,6 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.18.4
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^10.0.0
-    "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.2.5
     "@nestjs/common": ^8.4.5
     "@nestjs/config": ^2.0.0
@@ -22668,7 +22651,6 @@ fsevents@~2.1.1:
     ts-jest: ^27.1.4
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.0.0
-    typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.5.2
     uuid: ^8.3.2
@@ -42601,19 +42583,6 @@ resolve@^2.0.0-next.3:
   version: 0.8.0
   resolution: "typedi@npm:0.8.0"
   checksum: f6fc275672945953aa3486582273a89bcf4e6c0808810a1f21332f4725d0493d1fb74fef8cdb7bc700ec8aa9c36db9a070d6a2f88c8639037185f0d78b988692
-  languageName: node
-  linkType: hard
-
-"typesafe-joi@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "typesafe-joi@npm:2.1.0"
-  dependencies:
-    "@types/hapi__joi": ^15.0.1
-    "@types/node": "*"
-  peerDependencies:
-    "@hapi/joi": ^15.0.1
-    typescript: ">=3.0.0"
-  checksum: ee2382e31d45315c21cbd7a99d611a7cb6aaf1a7709561c25e860c6387f92e1e0aefb262c0066f1d4360bf75e3ab1d2dc6ff29c60eb7b9f54c924ca870538f94
   languageName: node
   linkType: hard
 
