@@ -110,7 +110,7 @@ async function main() {
 
   if (pr) {
     const prNumber = /\d+$/.exec(pr)[0];
-    const skipModules = await modulesToSkip(org, repo, prNumber, branch);
+    const skipModules = [];
     if (skipModules.includes('all')) {
       return;
     }

@@ -217,9 +217,7 @@ export class StripeHelper extends StripeHelperBase {
       firestore_prefix
     );
 
-    if (config.subscriptions.productConfigsFirestore.enabled === true) {
-      this.paymentConfigManager = Container.get(PaymentConfigManager);
-    }
+    this.paymentConfigManager = Container.get(PaymentConfigManager);
     this.googleMapsService = Container.get(GoogleMapsService);
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.stripeTaxRatesCacheTtlSeconds =
