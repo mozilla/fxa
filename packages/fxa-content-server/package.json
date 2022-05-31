@@ -184,9 +184,5 @@
     "xmlhttprequest": "https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
     "yargs": "^17.0.1"
   },
-  "engines": {
-    "node": ">=10",
-    "npm": ">=6.4.1"
-  },
   "readmeFilename": "README.md"
 }
