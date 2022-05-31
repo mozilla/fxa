@@ -100,7 +100,7 @@ jobs:
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
-          AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
+          FIRESTORE_EMULATOR_HOST: localhost:9090
     parameters:
       package:
         type: string
