@@ -1,1 +1,3 @@
 * @mozilla/fxa-devs
+
+*.ftl @mozilla/fxa-l10n
