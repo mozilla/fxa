@@ -23,18 +23,15 @@ import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import { useCallbackOnce } from '../../lib/hooks';
 import AppContext from '../../lib/AppContext';
 
+import {
+  getFallbackTextByFluentId,
+  CouponErrorMessageType,
+} from '../../lib/errors';
 class CouponError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'CouponError';
   }
-}
-
-export enum CouponErrorMessageType {
-  Expired = 'coupon-error-expired',
-  LimitReached = 'coupon-error-limit-reached',
-  Invalid = 'coupon-error-invalid',
-  Generic = 'coupon-error-generic',
 }
 
 /*
@@ -242,7 +239,7 @@ export const CouponForm = ({
       {error && (
         <Localized id={error}>
           <div className="text-red-700 mt-4" data-testid="coupon-error">
-            {error}
+            {getFallbackTextByFluentId(error)}
           </div>
         </Localized>
       )}
