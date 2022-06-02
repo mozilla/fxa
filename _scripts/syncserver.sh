@@ -8,7 +8,7 @@ else
   HOST_ADDR='localhost'
 fi
 
-"${0%/*}/check-url.sh" "http://$HOST_ADDR:3030/.well-known/fxa-client-configuration"
+"${0%/*}/check-url.sh" "$HOST_ADDR:3030/.well-known/fxa-client-configuration"
 
 docker run --rm --name syncserver \
   -p 5000:5000 \
