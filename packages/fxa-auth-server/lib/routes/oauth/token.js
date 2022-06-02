@@ -50,8 +50,9 @@ const {
   clientAuthValidators,
 } = require('../../oauth/client');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const OAUTH_SERVER_DOCS =
+  require('../../../docs/swagger/oauth-server-api').default;
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 
@@ -78,7 +79,7 @@ const SCOPES_TO_EXCLUDE_FROM_REFRESH_TOKEN_GRANTS = ScopeSet.fromArray([
 ]);
 
 const PAYLOAD_SCHEMA = Joi.object({
-  client_id: clientAuthValidators.clientId,
+  client_id: clientAuthValidators.clientId.description(DESCRIPTION.clientId),
 
   // The client_secret can be specified in Authorization header or request body,
   // but not both.  In the code flow it is exclusive with `code_verifier`, and
@@ -95,19 +96,28 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_FXA_ASSERTION,
       then: Joi.optional(),
-    }),
+    })
+    .description(DESCRIPTION.clientSecret),
 
-  redirect_uri: validators.redirectUri.optional().when('grant_type', {
-    is: GRANT_AUTHORIZATION_CODE,
-    otherwise: Joi.forbidden(),
-  }),
+  redirect_uri: validators.redirectUri
+    .optional()
+    .when('grant_type', {
+      is: GRANT_AUTHORIZATION_CODE,
+      otherwise: Joi.forbidden(),
+    })
+    .description(DESCRIPTION.redirectUri),
 
   grant_type: Joi.string()
     .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN, GRANT_FXA_ASSERTION)
     .default(GRANT_AUTHORIZATION_CODE)
-    .optional(),
+    .optional()
+    .description(DESCRIPTION.grantTypeOauth),
 
-  ttl: Joi.number().positive().default(MAX_TTL_S).optional(),
+  ttl: Joi.number()
+    .positive()
+    .default(MAX_TTL_S)
+    .optional()
+    .description(DESCRIPTION.ttlOauth),
 
   scope: Joi.alternatives()
     .conditional('grant_type', {
@@ -118,7 +128,8 @@ const PAYLOAD_SCHEMA = Joi.object({
       is: GRANT_FXA_ASSERTION,
       then: validators.scope.required(),
       otherwise: Joi.forbidden(),
-    }),
+    })
+    .description(DESCRIPTION.scope),
 
   access_type: Joi.string()
     .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
@@ -127,7 +138,9 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_FXA_ASSERTION,
       otherwise: Joi.forbidden(),
-    }),
+    })
+    .description(DESCRIPTION.accessType),
+
   code: Joi.string()
     .length(config.get('oauthServer.unique.code') * 2)
     .regex(validators.HEX_STRING)
@@ -135,26 +148,35 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_AUTHORIZATION_CODE,
       otherwise: Joi.forbidden(),
-    }),
+    })
+    .description(DESCRIPTION.codeOauth),
 
-  code_verifier: validators.codeVerifier.when('code', {
-    is: Joi.string().required(),
-    otherwise: Joi.forbidden(),
-  }),
+  code_verifier: validators.codeVerifier
+    .when('code', {
+      is: Joi.string().required(),
+      otherwise: Joi.forbidden(),
+    })
+    .description(DESCRIPTION.codeVerifier),
 
-  refresh_token: validators.token.required().when('grant_type', {
-    is: GRANT_REFRESH_TOKEN,
-    otherwise: Joi.forbidden(),
-  }),
+  refresh_token: validators.token
+    .required()
+    .when('grant_type', {
+      is: GRANT_REFRESH_TOKEN,
+      otherwise: Joi.forbidden(),
+    })
+    .description(DESCRIPTION.refreshToken),
 
-  assertion: validators.assertion.required().when('grant_type', {
-    is: GRANT_FXA_ASSERTION,
-    otherwise: Joi.forbidden(),
-  }),
+  assertion: validators.assertion
+    .required()
+    .when('grant_type', {
+      is: GRANT_FXA_ASSERTION,
+      otherwise: Joi.forbidden(),
+    })
+    .description(DESCRIPTION.assertion),
 
-  ppid_seed: validators.ppidSeed.optional(),
+  ppid_seed: validators.ppidSeed.optional().description(DESCRIPTION.ppidSeed),
 
-  resource: validators.resourceUrl.optional(),
+  resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
 module.exports = ({ log, oauthDB, db, mailer, devices }) => {
@@ -356,7 +378,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       method: 'POST',
       path: '/token',
       config: {
-        ...MISC_DOCS.TOKEN_POST,
+        ...OAUTH_SERVER_DOCS.TOKEN_POST,
         cors: { origin: 'ignore' },
         validate: {
           headers: clientAuthValidators.headers,
@@ -368,15 +390,27 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
         },
         response: {
           schema: Joi.object().keys({
-            access_token: validators.accessToken.required(),
-            refresh_token: validators.token,
-            id_token: validators.assertion,
+            access_token: validators.accessToken
+              .required()
+              .description(DESCRIPTION.accessToken),
+            refresh_token: validators.token.description(
+              DESCRIPTION.refreshTokenOauth
+            ),
+            id_token: validators.assertion.description(DESCRIPTION.idToken),
             session_token_id: validators.sessionTokenId.optional(),
-            scope: validators.scope.required(),
-            token_type: Joi.string().valid('bearer').required(),
-            expires_in: Joi.number().max(MAX_TTL_S).required(),
-            auth_at: Joi.number(),
-            keys_jwe: validators.jwe.optional(),
+            scope: validators.scope.required().description(DESCRIPTION.scope),
+            token_type: Joi.string()
+              .valid('bearer')
+              .required()
+              .description(DESCRIPTION.tokenType),
+            expires_in: Joi.number()
+              .max(MAX_TTL_S)
+              .required()
+              .description(DESCRIPTION.expiresIn),
+            auth_at: Joi.number().description(DESCRIPTION.authAt),
+            keys_jwe: validators.jwe
+              .optional()
+              .description(DESCRIPTION.keysJweOauth),
           }),
         },
         handler: tokenHandler,

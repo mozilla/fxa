@@ -11,8 +11,9 @@ const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
-const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
+const OAUTH_SERVER_DOCS =
+  require('../../../docs/swagger/oauth-server-api').default;
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 
@@ -181,7 +182,7 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'GET',
       path: '/authorization',
       config: {
-        ...MISC_DOCS.AUTHORIZATION_GET,
+        ...OAUTH_SERVER_DOCS.AUTHORIZATION_GET,
         cors: { origin: 'ignore' },
         handler: async function redirectAuthorization(req, h) {
           // keys_jwk is barred from transiting the OAuth server
@@ -202,27 +203,36 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'POST',
       path: '/authorization',
       config: {
-        ...MISC_DOCS.AUTHORIZATION_POST,
+        ...OAUTH_SERVER_DOCS.AUTHORIZATION_POST,
         cors: { origin: 'ignore' },
         validate: {
           payload: Joi.object({
-            client_id: validators.clientId,
-            assertion: validators.assertion.required(),
+            client_id: validators.clientId.description(
+              DESCRIPTION.clientId + DESCRIPTION.clientIdRegistration
+            ),
+            assertion: validators.assertion
+              .required()
+              .description(DESCRIPTION.assertion),
             redirect_uri: Joi.string()
               .max(256)
               // uri validation ref: https://github.com/hapijs/joi/blob/master/API.md#stringurioptions
               .uri({
                 scheme: ALLOWED_SCHEMES,
-              }),
-            scope: validators.scope.required(),
+              })
+              .description(DESCRIPTION.redirectUri),
+            scope: validators.scope.required().description(DESCRIPTION.scope),
             response_type: Joi.string()
               .valid(RESPONSE_TYPE_CODE, RESPONSE_TYPE_TOKEN)
-              .default(RESPONSE_TYPE_CODE),
-            state: Joi.string().max(512).when('response_type', {
-              is: RESPONSE_TYPE_TOKEN,
-              then: Joi.optional(),
-              otherwise: Joi.required(),
-            }),
+              .default(RESPONSE_TYPE_CODE)
+              .description(DESCRIPTION.responseTypeOauth),
+            state: Joi.string()
+              .max(512)
+              .when('response_type', {
+                is: RESPONSE_TYPE_TOKEN,
+                then: Joi.optional(),
+                otherwise: Joi.required(),
+              })
+              .description(DESCRIPTION.state),
             ttl: Joi.number()
               .positive()
               .default(MAX_TTL_S)
@@ -230,11 +240,13 @@ module.exports = ({ log, oauthDB, config }) => {
                 is: RESPONSE_TYPE_TOKEN,
                 then: Joi.optional(),
                 otherwise: Joi.forbidden(),
-              }),
+              })
+              .description(DESCRIPTION.ttlOauth + DESCRIPTION.ttlOAuthPostAuth),
             access_type: Joi.string()
               .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
               .default(ACCESS_TYPE_ONLINE)
-              .optional(),
+              .optional()
+              .description(DESCRIPTION.accessType),
             code_challenge_method: Joi.string()
               .valid(PKCE_SHA256_CHALLENGE_METHOD)
               .when('response_type', {
@@ -245,39 +257,53 @@ module.exports = ({ log, oauthDB, config }) => {
               .when('code_challenge', {
                 is: Joi.string().required(),
                 then: Joi.required(),
-              }),
+              })
+              .description(DESCRIPTION.codeChallengeMethod),
             code_challenge: Joi.string()
               .length(PKCE_CODE_CHALLENGE_LENGTH)
               .when('response_type', {
                 is: RESPONSE_TYPE_CODE,
                 then: Joi.optional(),
                 otherwise: Joi.forbidden(),
-              }),
-            keys_jwe: validators.jwe.when('response_type', {
-              is: RESPONSE_TYPE_CODE,
-              then: Joi.optional(),
-              otherwise: Joi.forbidden(),
-            }),
-            acr_values: Joi.string().max(256).optional().allow(null),
+              })
+              .description(DESCRIPTION.codeChallenge),
+            keys_jwe: validators.jwe
+              .when('response_type', {
+                is: RESPONSE_TYPE_CODE,
+                then: Joi.optional(),
+                otherwise: Joi.forbidden(),
+              })
+              .description(DESCRIPTION.keysJwe),
+            acr_values: Joi.string()
+              .max(256)
+              .optional()
+              .allow(null)
+              .description(DESCRIPTION.acrValues),
 
-            resource: validators.resourceUrl.when('response_type', {
-              is: RESPONSE_TYPE_TOKEN,
-              then: Joi.optional(),
-              otherwise: Joi.forbidden(),
-            }),
+            resource: validators.resourceUrl
+              .when('response_type', {
+                is: RESPONSE_TYPE_TOKEN,
+                then: Joi.optional(),
+                otherwise: Joi.forbidden(),
+              })
+              .description(DESCRIPTION.resource + DESCRIPTION.resourceOauth),
           }),
         },
         response: {
           schema: Joi.object()
             .keys({
               redirect: Joi.string(),
-              code: Joi.string(),
-              state: Joi.string(),
-              access_token: validators.accessToken,
-              token_type: Joi.string().valid('bearer'),
-              scope: Joi.string().allow(''),
-              auth_at: Joi.number(),
-              expires_in: Joi.number(),
+              code: Joi.string().description(DESCRIPTION.codeOauth),
+              state: Joi.string().description(DESCRIPTION.state),
+              access_token: validators.accessToken.description(
+                DESCRIPTION.accessToken
+              ),
+              token_type: Joi.string()
+                .valid('bearer')
+                .description(DESCRIPTION.tokenType),
+              scope: Joi.string().allow('').description(DESCRIPTION.scope),
+              auth_at: Joi.number().description(DESCRIPTION.authAt),
+              expires_in: Joi.number().description(DESCRIPTION.expiresIn),
             })
             .with('access_token', [
               'token_type',

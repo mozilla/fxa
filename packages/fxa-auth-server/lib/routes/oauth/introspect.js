@@ -8,11 +8,15 @@ const validators = require('../../oauth/validators');
 const hex = require('buf').to.hex;
 const AppError = require('../../oauth/error');
 const { getTokenId } = require('../../oauth/token');
-const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
-
+const OAUTH_SERVER_DOCS =
+  require('../../../docs/swagger/oauth-server-api').default;
+const DESCRIPTION =
+  require('../../../docs/swagger/shared/descriptions').default;
 const PAYLOAD_SCHEMA = Joi.object({
-  token: Joi.string().required(),
-  token_type_hint: Joi.string().equal('access_token', 'refresh_token'),
+  token: Joi.string().required().description(DESCRIPTION.tokenOauth),
+  token_type_hint: Joi.string()
+    .equal('access_token', 'refresh_token')
+    .description(DESCRIPTION.tokenTypeHint),
 });
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
@@ -21,7 +25,7 @@ module.exports = ({ oauthDB }) => ({
   method: 'POST',
   path: '/introspect',
   config: {
-    ...MISC_DOCS.INTROSPECT_POST,
+    ...OAUTH_SERVER_DOCS.INTROSPECT_POST,
     cors: { origin: 'ignore' },
     validate: {
       payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
@@ -29,16 +33,22 @@ module.exports = ({ oauthDB }) => ({
     response: {
       schema: Joi.object().keys({
         // https://tools.ietf.org/html/rfc7662#section-2.2
-        active: Joi.boolean().required(),
-        scope: validators.scope.optional(),
-        client_id: validators.clientId.optional(),
-        token_type: Joi.string().equal('access_token', 'refresh_token'),
-        exp: Joi.number().optional(),
-        iat: Joi.number().optional(),
-        sub: Joi.string().optional(),
+        active: Joi.boolean().required().description(DESCRIPTION.active),
+        scope: validators.scope.optional().description(DESCRIPTION.scope),
+        client_id: validators.clientId
+          .optional()
+          .description(DESCRIPTION.clientId),
+        token_type: Joi.string()
+          .equal('access_token', 'refresh_token')
+          .description(DESCRIPTION.tokenTypeOauth),
+        exp: Joi.number().optional().description(DESCRIPTION.exp),
+        iat: Joi.number().optional().description(DESCRIPTION.iat),
+        sub: Joi.string().optional().description(DESCRIPTION.sub),
         iss: Joi.string().optional(),
-        jti: Joi.string().optional(),
-        'fxa-lastUsedAt': Joi.number().optional(),
+        jti: Joi.string().optional().description(DESCRIPTION.jti),
+        'fxa-lastUsedAt': Joi.number()
+          .optional()
+          .description(DESCRIPTION['fxa-lastUsedAt']),
       }),
     },
     handler: async function introspectEndpoint(req) {

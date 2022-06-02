@@ -6,19 +6,26 @@ const Joi = require('joi');
 const validators = require('../../../oauth/validators');
 const authorizedClients = require('../../../oauth/authorized_clients');
 const verifyAssertion = require('../../../oauth/assertion');
-const MISC_DOCS = require('../../../../docs/swagger/misc-api').default;
+const DESCRIPTION =
+  require('../../../../docs/swagger/shared/descriptions').default;
+const OAUTH_SERVER_DOCS =
+  require('../../../../docs/swagger/oauth-server-api').default;
 
 module.exports = () => ({
   method: 'POST',
   path: '/authorized-clients/destroy',
   config: {
-    ...MISC_DOCS.AUTHORIZED_CLIENTS_DESTROY_POST,
+    ...OAUTH_SERVER_DOCS.AUTHORIZED_CLIENTS_DESTROY_POST,
     cors: { origin: 'ignore' },
     validate: {
       payload: Joi.object({
-        client_id: validators.clientId,
-        refresh_token_id: validators.token.optional(),
-        assertion: validators.assertion,
+        client_id: validators.clientId.description(
+          DESCRIPTION.clientId + DESCRIPTION.clientIdToDelete
+        ),
+        refresh_token_id: validators.token
+          .optional()
+          .description(DESCRIPTION.refreshTokenId),
+        assertion: validators.assertion.description(DESCRIPTION.assertion),
       }),
     },
     handler: async function (req) {
