@@ -253,14 +253,11 @@ async function configureSentry(server, config, processName = 'key_server') {
       request.app.sentry.transaction.finish();
     });
 
-    // Sentry handler for hapi errors
-    server.events.on(
-      { name: 'request', channels: 'error' },
-      (request, event) => {
-        const err = (event && event.error) || null;
-        reportSentryError(err, request);
+    server.events.on('request', (request, event, tags) => {
+      if (event?.error && tags?.handler && tags?.error) {
+        reportSentryError(event.error, request);
       }
-    );
+    });
   }
 }
 
