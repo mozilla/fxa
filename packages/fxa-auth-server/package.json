@@ -96,7 +96,7 @@
     "hkdf": "0.0.2",
     "hot-shots": "^9.0.0",
     "i18n-iso-countries": "^7.4.0",
-    "ioredis": "^4.28.2",
+    "ioredis": "^5.0.6",
     "joi": "17.4.0",
     "jose": "^4.8.1",
     "jsdom": "^19.0.0",
