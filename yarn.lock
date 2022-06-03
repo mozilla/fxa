@@ -22470,7 +22470,7 @@ fsevents@~2.1.1:
     grunt-newer: 1.3.0
     hapi-auth-jwt2: ^10.2.0
     hapi-error: ^2.3.0
-    hapi-swagger: ^14.4.0
+    hapi-swagger: ^14.5.2
     hkdf: 0.0.2
     hot-shots: ^9.0.0
     i18n-iso-countries: ^7.4.0
@@ -24913,9 +24913,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hapi-swagger@npm:^14.4.0":
-  version: 14.5.1
-  resolution: "hapi-swagger@npm:14.5.1"
+"hapi-swagger@npm:^14.5.2":
+  version: 14.5.2
+  resolution: "hapi-swagger@npm:14.5.2"
   dependencies:
     "@hapi/boom": ^9.1.4
     "@hapi/hoek": ^9.3.0
@@ -24927,7 +24927,7 @@ fsevents@~2.1.1:
   peerDependencies:
     "@hapi/hapi": ^20.2.2
     joi: 17.x
-  checksum: 5a9968885d64f50cff138c5fdb718680a330f730e397a9919a01f489d36c86ed443bffb0d025bafd3b6a8af262dd094ad57384e07b3e134e633ea041a0b56f0e
+  checksum: 390f3fe99f2c649f89fd6f4a79dbc1a7696c0c6c9f900a5d0e04c062b3e4619dc1c496b8ad3ddc31715ffb95862a3d4e34af2b04e72a275f817a4970af1cde52
   languageName: node
   linkType: hard
 
