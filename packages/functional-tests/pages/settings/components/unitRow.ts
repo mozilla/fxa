@@ -107,8 +107,10 @@ export class TotpRow extends UnitRow {
 
 export class ConnectedServicesRow extends UnitRow {
   async services() {
-    await this.page.waitForSelector('#service');
-    const elements = await this.page.$$('#service');
+    await this.page.waitForSelector('[data-testid=settings-connected-service]');
+    const elements = await this.page.$$(
+      '[data-testid=settings-connected-service]'
+    );
     return Promise.all(
       elements.map((el) => ConnectedService.create(el, this.page))
     );

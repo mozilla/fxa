@@ -219,6 +219,7 @@ const SETTINGS = {
     MENU: '[data-testid=nav-link-connected-services]',
     REFRESH_BUTTON: '[data-testid=connected-services-refresh]',
     HEADER: '[data-testid=settings-connected-services]',
+    SERVICE: '[data-testid=settings-connected-service]',
     SIGN_OUT: '[data-testid=connected-service-sign-out]',
   },
   FOOTER: {
