@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import CouponForm, {
   checkPromotionCode,
@@ -13,7 +12,6 @@ import {
   COUPON_DETAILS_VALID,
   SELECTED_PLAN,
 } from '../../lib/mock-data';
-import waitForExpect from 'wait-for-expect';
 
 import {
   coupon_REJECTED,
@@ -122,7 +120,7 @@ describe('CouponForm', () => {
       fireEvent.change(getByTestId('coupon-input'), { target: { value: 'a' } });
       fireEvent.click(getByTestId('coupon-button'));
 
-      await waitForExpect(() => {
+      await waitFor(() => {
         expect(queryByTestId('coupon-error')).toBeInTheDocument();
         expect(mockSetCoupon).toBeCalledWith(undefined);
       });
@@ -136,7 +134,7 @@ describe('CouponForm', () => {
       });
       fireEvent.click(getByTestId('coupon-button'));
 
-      await waitForExpect(() => {
+      await waitFor(() => {
         expect(queryByTestId('coupon-error')).toBeInTheDocument();
         expect(mockSetCoupon).toBeCalledWith(undefined);
       });

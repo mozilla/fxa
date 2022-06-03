@@ -10359,15 +10359,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-document-title@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "@types/react-document-title@npm:2.0.5"
-  dependencies:
-    "@types/react": "*"
-  checksum: ca27760801465b804e5dc16c21e29d57133c7d8bc3d6f35780be0e9580a7219a6de5a6535b21b1c7b4f1c823f984600a83f8fe122b44f6a82ada5fe43c7a64f9
-  languageName: node
-  linkType: hard
-
 "@types/react-dom@npm:<18.0.0":
   version: 17.0.17
   resolution: "@types/react-dom@npm:17.0.17"
@@ -23015,7 +23006,6 @@ fsevents@~2.1.1:
     "@types/node": ^16.11.3
     "@types/postcss-import": ^12
     "@types/react": ^17.0.14
-    "@types/react-document-title": ^2.0.5
     "@types/react-dom": ^17.0.9
     "@types/react-redux": ^7.1.18
     "@types/react-stripe-elements": ^6.0.5
@@ -23082,7 +23072,6 @@ fsevents@~2.1.1:
     postcss-import: 12.0.1
     prettier: ^2.3.1
     react: ^16.12.0
-    react-document-title: ^2.0.3
     react-dom: ^16.12.0
     react-redux: ^8.0.2
     react-router-dom: ^6.2.2
@@ -36296,7 +36285,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.7.2, prop-types@npm:^15.0.0, prop-types@npm:^15.5.6, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
+"prop-types@npm:15.7.2, prop-types@npm:^15.0.0, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
   dependencies:
@@ -37042,16 +37031,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-document-title@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "react-document-title@npm:2.0.3"
-  dependencies:
-    prop-types: ^15.5.6
-    react-side-effect: ^1.0.2
-  checksum: fd3f5e0574a496805bd38a2db55b17a4a22edc1c539f3a6b2382369c3dab15a9085ea929e8fc86073f0f550ab61d1bec4838e254064c41254a7b8ece5853e6b1
-  languageName: node
-  linkType: hard
-
 "react-dom@npm:16.14.0, react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.6":
   version: 16.14.0
   resolution: "react-dom@npm:16.14.0"
@@ -37429,17 +37408,6 @@ fsevents@~2.1.1:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0
   checksum: f344c663c48720d19559b4198b1f63ad47a3f11bedc92ede053a6c0706b5209e6110086f3ccc6db04eda9f0d1a415845956ddfb6ce09a922167d4831fcba9314
-  languageName: node
-  linkType: hard
-
-"react-side-effect@npm:^1.0.2":
-  version: 1.2.0
-  resolution: "react-side-effect@npm:1.2.0"
-  dependencies:
-    shallowequal: ^1.0.1
-  peerDependencies:
-    react: ^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0
-  checksum: f84c99bc13999f632c7d341b2fe5e1a6cfbf1708ce10e80624535a5296a37359e8cb94c3cde5a3506dbe151fc712896132fae4f856e079fded638b0cb5a4a00e
   languageName: node
   linkType: hard
 
@@ -39560,7 +39528,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"shallowequal@npm:^1.0.1, shallowequal@npm:^1.1.0":
+"shallowequal@npm:^1.1.0":
   version: 1.1.0
   resolution: "shallowequal@npm:1.1.0"
   checksum: f4c1de0837f106d2dbbfd5d0720a5d059d1c66b42b580965c8f06bb1db684be8783538b684092648c981294bf817869f743a066538771dbecb293df78f765e00
