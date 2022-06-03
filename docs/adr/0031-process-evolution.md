@@ -82,7 +82,8 @@ We’ve maintained change logs in each package for many years and they are
 updated with each release. We release often enough that not all of the
 packages change between each release and we regularly update the changelogs
 just to say nothing has changed. This causes considerable churn in our
-deployment pipeline for no reason.
+deployment pipeline for no reason because we unnecessarily deploy packages with
+changelog and version updates with no actual code changes.
 
 We asked our stakeholders about the changelogs and the only people currently
 using them are QA. After [a
@@ -141,7 +142,7 @@ isn't a good fit here.
 #### Cons
 
 - We’d have to set up infrastructure somewhere else to push to production
-  making this less simple or effecient
+  making this less simple or efficient
 
 ### Option 3: Long running stage and production branches
 
@@ -169,3 +170,30 @@ We make new long-running stage and production branches (essentially [GitLab Flow
 #### Cons:
 
 -
+
+### Option 4: Continue cutting and merging release branches
+
+![An illustration of Option 4](images/0031-option4.png)
+
+As described in [our
+documentation](https://mozilla.github.io/ecosystem-platform/reference/team-processes/release-process)
+we currently branch our code when we're ready to tag and, at a minimum,
+generate changelogs and version numbers on the branch. For serious fixes that
+need to go out before `main`, there are [three documented ways](https://mozilla.github.io/ecosystem-platform/reference/team-processes/release-process#patch-releases)
+to get patches from wherever they've landed to the branch which can cause
+confusion between release owners and the people writing the patches.
+
+For every patch that lands we add another commit with changelogs and versions,
+and create a new tag. At some point after creating the tag but before the next
+tag the release owner will merge the train back into main.
+
+As far as I know this isn't a common practice so there aren't a lot of other
+resources we can use to compare the flows.
+
+#### Pros:
+
+- We don't have to change anything!
+
+#### Cons:
+
+- The current process is inconsistent and time consuming
