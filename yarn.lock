@@ -22745,7 +22745,7 @@ fsevents@~2.1.1:
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
-    ip: ^1.1.5
+    ip: ^1.1.8
     ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
     lodash.isequal: 4.5.0
@@ -23360,7 +23360,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     hot-shots: ^9.0.0
     ioredis: ^4.28.2
-    ip: ^1.1.5
+    ip: ^1.1.8
     jest: 27.5.1
     joi: 17.4.0
     js-md5: ^0.7.3
@@ -26595,6 +26595,13 @@ fsevents@~2.1.1:
   version: 1.1.5
   resolution: "ip@npm:1.1.5"
   checksum: 30133981f082a060a32644f6a7746e9ba7ac9e2bc07ecc8bbdda3ee8ca9bec1190724c390e45a1ee7695e7edfd2a8f7dda2c104ec5f7ac5068c00648504c7e5a
+  languageName: node
+  linkType: hard
+
+"ip@npm:^1.1.8":
+  version: 1.1.8
+  resolution: "ip@npm:1.1.8"
+  checksum: a2ade53eb339fb0cbe9e69a44caab10d6e3784662285eb5d2677117ee4facc33a64679051c35e0dfdb1a3983a51ce2f5d2cb36446d52e10d01881789b76e28fb
   languageName: node
   linkType: hard
 
