@@ -8,7 +8,7 @@
 
 We have a [documented process](https://mozilla.github.io/ecosystem-platform/reference/team-processes/development-process)
 today (see also the [release owner duties](https://mozilla.github.io/ecosystem-platform/reference/team-processes/release-process)),
-but it’s complex and can be error-prone. It was built before we have the tools
+but it’s complex and can be error-prone. The release process was built before we have the tools
 we have today and the priorities then were different. We’d like to revisit
 that release process by defining what properties we’d like to see in a process
 and then determining the best way to get there.
@@ -87,7 +87,7 @@ deployment pipeline for no reason.
 We asked our stakeholders about the changelogs and the only people currently
 using them are QA. After [a
 conversation](https://groups.google.com/a/mozilla.com/g/fxa-staff/c/OuKEsHs67fk)
-we found an alternative that would allow us to stop writing our change logs to
+we found using Github's release notes feature would allow us to stop writing our change logs to
 the repository and reduce our deployment churn.
 
 ### Do we need to maintain versions in each package.json?
@@ -147,7 +147,7 @@ isn't a good fit here.
 
 ![An illustration of Option 3](images/0031-option3.png)
 
-We make a new long-running production branch (essentially [GitLab Flow](https://docs.gitlab.com/ee/topics/gitlab_flow.html)). From that link:
+We make new long-running stage and production branches (essentially [GitLab Flow](https://docs.gitlab.com/ee/topics/gitlab_flow.html)). From that link:
 
 > After announcing a release branch, only add serious bug fixes to the branch. If
 > possible, first merge these bug fixes into main, and then cherry-pick them into
