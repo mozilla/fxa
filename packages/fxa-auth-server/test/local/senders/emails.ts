@@ -4,7 +4,8 @@
 
 const ROOT_DIR = '../../..';
 
-import { assert } from 'chai';
+// We import chai from this local file to get the configuration with truncation disabled.
+import chai from '../../chaiWithoutTruncation';
 import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
@@ -25,6 +26,7 @@ import {
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();
+const { assert } = chai;
 if (!config.smtp.prependVerificationSubdomain.enabled) {
   config.smtp.prependVerificationSubdomain.enabled = true;
 }
