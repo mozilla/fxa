@@ -5,8 +5,7 @@
 import React, { useState } from 'react';
 import Avatar from '../Avatar';
 import { useAccount, useAlertBar, useSession } from '../../models';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect } from '../../lib/hooks';
+import { useClickOutsideEffect, useEscKeydownEffect } from 'fxa-react/lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';

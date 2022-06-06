@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useEscKeydownEffect, useChangeFocusEffect } from '../../lib/hooks';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { useLocalization } from '@fluent/react';
 import { alertContent, alertType, alertVisible } from '../../models';
 import { useReactiveVar } from '@apollo/client';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useChangeFocusEffect, useClickOutsideEffect, useEscKeydownEffect } from 'fxa-react/lib/hooks';
 
 export const typeClasses = {
   success: 'text-grey-600 bg-green-500 success',

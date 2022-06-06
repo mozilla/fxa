@@ -178,3 +178,55 @@ export function useAwait<
 
   return [state, execute, reset];
 }
+
+// Focus on the element that triggered some action after the first
+// argument changes from `false` to `true` unless a `triggerException`
+// is also provided.
+export function useFocusOnTriggeringElementOnClose(
+  revealed: boolean | undefined,
+  triggerElement: React.RefObject<HTMLButtonElement>,
+  triggerException?: boolean
+) {
+  const prevRevealedRef = useRef(revealed);
+  const prevRevealed = prevRevealedRef.current;
+
+  useEffect(() => {
+    if (revealed !== undefined) {
+      prevRevealedRef.current = revealed;
+    }
+    if (
+      triggerElement.current &&
+      prevRevealed === true &&
+      revealed === false &&
+      !triggerException
+    ) {
+      triggerElement.current.focus();
+    }
+  }, [revealed, triggerElement, prevRevealed, triggerException]);
+}
+
+// Run a function on 'Escape' keydown.
+export function useEscKeydownEffect(onEscKeydown: Function) {
+  useEffect(() => {
+    const handler = ({ key }: KeyboardEvent) => {
+      if (key === 'Escape') {
+        onEscKeydown();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onEscKeydown]);
+}
+
+// Direct focus to this element on first render for tabbing or screenreaders.
+export function useChangeFocusEffect() {
+  const elToFocus = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (elToFocus.current) {
+      elToFocus.current.focus();
+    }
+  }, []);
+
+  return elToFocus;
+}

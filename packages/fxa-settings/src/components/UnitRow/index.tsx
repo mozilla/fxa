@@ -6,7 +6,7 @@ import React, { useRef } from 'react';
 import Avatar from '../Avatar';
 import { Account } from '../../models/Account';
 import classNames from 'classnames';
-import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
+import { useFocusOnTriggeringElementOnClose } from 'fxa-react/lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useLocalization } from '@fluent/react';
 

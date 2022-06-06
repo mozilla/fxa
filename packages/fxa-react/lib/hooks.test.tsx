@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useCallback } from 'react';
-import { render, fireEvent, RenderResult } from '@testing-library/react';
+import React, { useRef, useState, useCallback } from 'react';
+import { render, fireEvent, RenderResult, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import {
+  useChangeFocusEffect,
   useClickOutsideEffect,
   useBooleanState,
+  useEscKeydownEffect,
+  useFocusOnTriggeringElementOnClose,
   useAwait,
   PromiseState,
   PromiseStateResolved,
@@ -38,6 +41,23 @@ describe('useBooleanStateResult', () => {
   it('accepts an initial value', () => {
     const { getByTestId } = render(<Subject initialState={true} />);
     expect(getByTestId('result')).toHaveTextContent('true');
+  });
+});
+
+describe('useChangeFocusEffect', () => {
+  const Subject = () => {
+    const elToFocusRef = useChangeFocusEffect();
+    return (
+      <div>
+        <a href="#">some other focusable thing</a>
+        <div ref={elToFocusRef} tabIndex={0} data-testid="el-to-focus" />
+      </div>
+    );
+  };
+
+  it('changes focus as expected', () => {
+    render(<Subject />);
+    expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
   });
 });
 
@@ -72,6 +92,64 @@ describe('useClickOutsideEffect', () => {
     const inside = getByTestId('inside');
     fireEvent.click(inside);
     expect(onDismiss).not.toBeCalled();
+  });
+});
+
+describe('useEscKeydownEffect', () => {
+  const onEscKeydown = jest.fn();
+  const Subject = () => {
+    useEscKeydownEffect(onEscKeydown);
+    return <div>Hi mom</div>;
+  };
+  it('calls onEscKeydown on esc key press', () => {
+    render(<Subject />);
+    expect(onEscKeydown).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onEscKeydown).toHaveBeenCalled();
+  });
+});
+
+describe('useFocusOnTriggeringElementOnClose', () => {
+  const Subject = ({
+    revealed,
+    triggerException,
+  }: {
+    revealed?: boolean;
+    triggerException?: boolean | undefined;
+  }) => {
+    const triggerElement = useRef<HTMLButtonElement>(null);
+    useFocusOnTriggeringElementOnClose(
+      revealed,
+      triggerElement,
+      triggerException
+    );
+
+    return (
+      <button ref={triggerElement} data-testid="trigger-element">
+        Hi
+      </button>
+    );
+  };
+
+  it('changes focus as expected', () => {
+    const { rerender, getByTestId } = render(<Subject revealed />);
+    rerender(<Subject revealed={false} />);
+
+    expect(document.activeElement).toBe(getByTestId('trigger-element'));
+  });
+
+  it('does nothing if `revealed` is not passed in', () => {
+    const { rerender, getByTestId } = render(<Subject />);
+    rerender(<Subject />);
+
+    expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
+  });
+
+  it('does nothing if `triggerException` is truthy', () => {
+    const { rerender, getByTestId } = render(<Subject triggerException />);
+    rerender(<Subject />);
+
+    expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
   });
 });
 

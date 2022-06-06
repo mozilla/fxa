@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useClickOutsideEffect, useEscKeydownEffect } from 'fxa-react/lib/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { useEscKeydownEffect } from '../../lib/hooks';
 
 import firefoxIcon from 'fxa-react/images/ff-logo.svg';
 import monitorIcon from './monitor.svg';
