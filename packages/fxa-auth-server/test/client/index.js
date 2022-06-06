@@ -299,10 +299,6 @@ module.exports = (config) => {
     return this.api.recoveryEmailSecondaryResendCode(this.sessionToken, email);
   };
 
-  Client.prototype.verifyTokenCode = function (code, options) {
-    return this.api.verifyTokenCode(this.sessionToken, code, options);
-  };
-
   Client.prototype.emailStatus = function () {
     const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {

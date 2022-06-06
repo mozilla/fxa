@@ -96,7 +96,6 @@ const DB_METHOD_NAMES = [
   'updateTotpToken',
   'verifyEmail',
   'verifyTokens',
-  'verifyTokenCode',
   'verifyTokensWithMethod',
   'createAccountSubscription',
   'getAccountSubscription',
@@ -544,12 +543,6 @@ function mockDB(data, errors) {
       return Promise.resolve(res);
     }),
     verifyTokens: optionallyThrow(errors, 'verifyTokens'),
-    verifyTokenCode: sinon.spy(() => {
-      if (errors.verifyTokenCode) {
-        return Promise.reject(errors.verifyTokenCode);
-      }
-      return Promise.resolve({});
-    }),
     replaceRecoveryCodes: sinon.spy(() => {
       return Promise.resolve(['12312312', '12312312']);
     }),
