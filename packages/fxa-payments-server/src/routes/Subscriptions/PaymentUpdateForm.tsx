@@ -23,7 +23,7 @@ import errorIcon from '../../images/error.svg';
 import AlertBar from '../../components/AlertBar';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
-import { DialogMessage } from '../../components/DialogMessage';
+import { Modal } from 'fxa-react/components/Modal';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import PaymentProviderDetails from '../../components/PaymentProviderDetails';
 
@@ -227,7 +227,7 @@ export const PaymentUpdateForm = ({
         )}
 
         {!transactionInProgress && fixPaymentModalRevealed && (
-          <DialogMessage
+          <Modal
             data-testid="billing-info-modal"
             onDismiss={hideFixPaymentModal}
             className="billing-info-modal"
@@ -261,7 +261,7 @@ export const PaymentUpdateForm = ({
                 </div>
               </Suspense>
             )}
-          </DialogMessage>
+          </Modal>
         )}
 
         <header id="payment-information">

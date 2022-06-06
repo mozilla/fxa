@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Plan } from '../../../store/types';
 import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
-import DialogMessage from '../../../components/DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 import fpnImage from '../../../images/fpn';
 import { Localized } from '@fluent/react';
 import AppContext from '../../../lib/AppContext';
@@ -26,7 +26,7 @@ const SuccessDialog = ({
     : '';
 
   return (
-    <DialogMessage
+    <Modal
       onDismiss={onDismiss}
       data-testid="reactivate-subscription-success-dialog"
     >
@@ -53,7 +53,7 @@ const SuccessDialog = ({
       >
         <Localized id="reactivate-success-button">Close</Localized>
       </button>
-    </DialogMessage>
+    </Modal>
   );
 };
 

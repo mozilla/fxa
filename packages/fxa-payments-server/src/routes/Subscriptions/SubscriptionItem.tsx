@@ -9,7 +9,7 @@ import { Plan, Customer } from '../../store/types';
 import { SelectorReturns } from '../../store/selectors';
 import { SubscriptionsProps } from './index';
 
-import DialogMessage from '../../components/DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 import AppContext from '../../lib/AppContext';
 
 import CancelSubscriptionPanel from './Cancel/CancelSubscriptionPanel';
@@ -54,14 +54,14 @@ export const SubscriptionItem = ({
     // TODO: This really shouldn't happen, would mean the user has a
     // subscription to a plan that no longer exists in API results.
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <Modal className="dialog-error" onDismiss={locationReload}>
         <Localized id="product-plan-not-found">
           <h4 data-testid="error-subhub-missing-plan">Plan not found</h4>
         </Localized>
         <Localized id="sub-item-no-such-plan">
           <p>No such plan for this subscription.</p>
         </Localized>
-      </DialogMessage>
+      </Modal>
     );
   }
 
@@ -70,7 +70,7 @@ export const SubscriptionItem = ({
     !((total || total === 0) && period_start)
   ) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <Modal className="dialog-error" onDismiss={locationReload}>
         <Localized id="invoice-not-found">
           <h4 data-testid="error-subhub-missing-subsequent-invoice">
             Subsequent invoice not found
@@ -79,7 +79,7 @@ export const SubscriptionItem = ({
         <Localized id="sub-item-no-such-subsequent-invoice">
           <p>Subsequent invoice not found for this subscription.</p>
         </Localized>
-      </DialogMessage>
+      </Modal>
     );
   }
 

@@ -6,7 +6,7 @@ import {
   getLocalizedCurrency,
   getLocalizedCurrencyString,
 } from '../../../lib/formats';
-import DialogMessage from '../../../components/DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
 import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
@@ -127,7 +127,7 @@ const ConfirmationDialog = ({
   customerSubscription,
   periodEndDate,
 }: {
-  onDismiss: Function;
+  onDismiss: () => void;
   onConfirm: () => void;
   plan: Plan;
   customer: Customer;
@@ -148,7 +148,7 @@ const ConfirmationDialog = ({
   );
 
   return (
-    <DialogMessage onDismiss={onDismiss}>
+    <Modal onDismiss={onDismiss}>
       {!loading ? (
         <>
           {/* TO DO: display card type, IE 'to the Visa card ending...' */}
@@ -172,7 +172,7 @@ const ConfirmationDialog = ({
           <LoadingSpinner />
         </div>
       )}
-    </DialogMessage>
+    </Modal>
   );
 };
 

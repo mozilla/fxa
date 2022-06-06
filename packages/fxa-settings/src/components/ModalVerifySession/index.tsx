@@ -4,7 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Modal from '../Modal';
+import Modal from 'fxa-react/components/Modal';
 import InputText from '../InputText';
 import { ApolloError } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
@@ -78,7 +78,6 @@ export const ModalVerifySession = ({
       data-testid="modal-verify-session"
       descId="modal-verify-session-desc"
       headerId="modal-verify-session-header"
-      hasButtons={false}
       onDismiss={onDismiss}
     >
       <form

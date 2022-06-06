@@ -70,7 +70,6 @@ storiesOf('Components/Modal', module)
               onConfirm={hideModal as () => void}
               onDismiss={hideModal}
               hasButtons
-              hasCancelButton={false}
             >
               <h2 id="some-id">Header goes here.</h2>
               <p id="some-description">

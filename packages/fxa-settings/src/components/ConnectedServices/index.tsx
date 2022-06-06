@@ -8,7 +8,7 @@ import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { logViewEvent } from '../../lib/metrics';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { Modal } from '../Modal';
+import { Modal } from 'fxa-react/components/Modal';
 import { isMobileDevice } from '../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
@@ -258,6 +258,8 @@ export const ConnectedServices = () => {
                 null,
                 'Sign out'
               )}
+              hasButtons
+              hasCancelButton
               headerId="connected-services-sign-out-header"
               descId="connected-services-sign-out-description"
             >
@@ -379,6 +381,7 @@ export const ConnectedServices = () => {
             onDismiss={onCloseAdviceModal}
             onConfirm={onCloseAdviceModal}
             confirmBtnClassName="cta-primary"
+            hasButtons
             hasCancelButton={false}
             confirmText={l10n.getString(
               'cs-disconnect-advice-confirm',

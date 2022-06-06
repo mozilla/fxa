@@ -7,7 +7,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAccount, useAlertBar } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
-import Modal from '../Modal';
+import Modal from 'fxa-react/components/Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload } from '../ButtonIcon';
@@ -128,6 +128,8 @@ export const UnitRowRecoveryKey = () => {
                 'confirm-revoke.submit'
               );
             }}
+            hasButtons
+            hasCancelButton
             confirmBtnClassName="cta-caution"
             confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
             headerId="recovery-key-header"

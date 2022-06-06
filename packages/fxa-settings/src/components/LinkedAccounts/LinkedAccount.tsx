@@ -7,7 +7,7 @@ import React from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { ReactComponent as GoogleIcon } from './google.svg';
 import { ReactComponent as AppleIcon } from './apple.svg';
-import { Modal } from '../Modal';
+import { Modal } from 'fxa-react/components/Modal';
 import { useAccount } from '../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 
@@ -66,6 +66,8 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
         <Modal
           onDismiss={hideUnlinkModal}
           onConfirm={onConfirmUnlinkAccountClick}
+          hasButtons
+          hasCancelButton
           confirmBtnClassName="cta-primary"
           confirmText={l10n.getString(
             'la-unlink-account-button',

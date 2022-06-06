@@ -1,25 +1,28 @@
 import React from 'react';
 import { FetchState } from '../store/types';
 import { APIError } from '../lib/apiClient';
-import DialogMessage from './DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 
 const FetchErrorDialogMessage = ({
   title,
   testid = '',
   fetchState,
-  onDismiss = () => {},
+  onDismiss,
 }: {
   title: string;
   testid?: string;
   fetchState: FetchState<any, APIError>;
-  onDismiss?: Function;
+  onDismiss?: () => void;
 }) => (
-  <DialogMessage className="dialog-error" onDismiss={onDismiss}>
+  <Modal
+    className="dialog-error"
+    onDismiss={onDismiss as () => void}
+  >
     <h4 data-testid={testid}>{title}</h4>
-    {fetchState.error && fetchState.error.message && (
+    {fetchState.error?.message && (
       <p>{fetchState.error.message}</p>
     )}
-  </DialogMessage>
+  </Modal>
 );
 
 export default FetchErrorDialogMessage;

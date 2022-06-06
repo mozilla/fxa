@@ -12,7 +12,7 @@ import { useCallbackOnce } from '../../../lib/hooks';
 import { Form, SubmitButton } from '../../../components/fields';
 import { useValidatorState } from '../../../lib/validator';
 
-import DialogMessage from '../../../components/DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
@@ -98,7 +98,7 @@ export const SubscriptionUpgrade = ({
   return (
     <>
       {updateSubscriptionPlanStatus.error && (
-        <DialogMessage
+        <Modal
           className="dialog-error"
           onDismiss={resetUpdateSubscriptionPlan}
         >
@@ -106,7 +106,7 @@ export const SubscriptionUpgrade = ({
             <h4 data-testid="error-plan-update-failed">Plan change failed</h4>
           </Localized>
           <p>{updateSubscriptionPlanStatus.error.message}</p>
-        </DialogMessage>
+        </Modal>
       )}
       <Header {...{ profile }} />
       <div className="main-content">

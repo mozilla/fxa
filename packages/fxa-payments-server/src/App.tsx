@@ -17,11 +17,11 @@ import { getErrorMessage } from './lib/errors';
 import { Store } from './store';
 import { AppContext, AppContextType } from './lib/AppContext';
 
-import DialogMessage from './components/DialogMessage';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
+import Modal from 'fxa-react/components/Modal';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import selectors from './store/selectors';
 
@@ -180,14 +180,14 @@ export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
   // Most of these errors will probably be failure to load Stripe widgets.
   return (
     <SettingsLayout>
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <Modal className="dialog-error" onDismiss={locationReload}>
         <Localized id="general-error-heading">
           <h4 data-testid="error-loading-app">General application error</h4>
         </Localized>
         <Localized id={getErrorMessage({ code: 'api_connection_error' })}>
           <p>Something went wrong. Please try again later.</p>
         </Localized>
-      </DialogMessage>
+      </Modal>
     </SettingsLayout>
   );
 };

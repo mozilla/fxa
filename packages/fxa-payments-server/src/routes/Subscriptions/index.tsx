@@ -20,7 +20,7 @@ import SubscriptionItem from './SubscriptionItem';
 import ReactivateSubscriptionSuccessDialog from './Reactivate/SuccessDialog';
 
 import AlertBar from '../../components/AlertBar';
-import DialogMessage from '../../components/DialogMessage';
+import Modal from 'fxa-react/components/Modal';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
@@ -274,7 +274,7 @@ export const Subscriptions = ({
       )}
 
       {reactivateSubscriptionStatus.error && (
-        <DialogMessage
+        <Modal
           className="dialog-error"
           onDismiss={resetReactivateSubscription}
         >
@@ -284,7 +284,7 @@ export const Subscriptions = ({
             </h4>
           </Localized>
           <p>{reactivateSubscriptionStatus.error.message}</p>
-        </DialogMessage>
+        </Modal>
       )}
 
       {reactivateSubscriptionStatus.result && (
@@ -295,7 +295,7 @@ export const Subscriptions = ({
       )}
 
       {cancelSubscriptionStatus.error && (
-        <DialogMessage
+        <Modal
           className="dialog-error"
           onDismiss={resetCancelSubscription}
         >
@@ -305,7 +305,7 @@ export const Subscriptions = ({
             </h4>
           </Localized>
           <p>{cancelSubscriptionStatus.error.message}</p>
-        </DialogMessage>
+        </Modal>
       )}
 
       {profile.result && <ProfileBanner profile={profile.result} />}
@@ -482,7 +482,7 @@ const CancellationDialogMessage = ({
   const plan = planForId(customerSubscription!.plan_id, plans) as Plan;
 
   return (
-    <DialogMessage onDismiss={resetCancelSubscription}>
+    <Modal onDismiss={resetCancelSubscription}>
       <Localized id="sub-route-idx-cancel-msg-title">
         <h4 data-testid="cancellation-message-title">
           We're sorry to see you go
@@ -515,7 +515,7 @@ const CancellationDialogMessage = ({
           Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.
         </p>
       </Localized>
-    </DialogMessage>
+    </Modal>
   );
 };
 

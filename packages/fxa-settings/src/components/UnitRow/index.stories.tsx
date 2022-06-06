@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
 import { UnitRow } from '.';
-import { Modal } from '../Modal';
+import { Modal } from 'fxa-react/components/Modal';
 import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components/UnitRow', module)
@@ -52,7 +52,7 @@ storiesOf('Components/UnitRow', module)
           <p className="text-grey-400 text-xs mt-2">More content.</p>
 
           {modalRevealed && (
-            <Modal onDismiss={hideModal} headerId="some-id" descId="some-desc">
+            <Modal hasButtons hasCancelButton onDismiss={hideModal} headerId="some-id" descId="some-desc">
               <h2 id="some-id" className="font-bold text-xl text-center mb-2">
                 Modal header
               </h2>
@@ -81,7 +81,7 @@ storiesOf('Components/UnitRow', module)
         <p className="text-grey-400 text-xs mt-2">More content.</p>
 
         {secondaryModalRevealed && (
-          <Modal onDismiss={hideModal} headerId="some-id" descId="some-desc">
+          <Modal hasButtons hasCancelButton onDismiss={hideModal} headerId="some-id" descId="some-desc">
             <h2 id="some-id" className="font-bold text-xl text-center mb-2">
               Modal header
             </h2>

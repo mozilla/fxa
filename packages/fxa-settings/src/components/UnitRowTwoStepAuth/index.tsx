@@ -5,7 +5,7 @@
 import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import Modal from '../Modal';
+import Modal from 'fxa-react/components/Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useAccount, useAlertBar } from '../../models';
@@ -128,6 +128,8 @@ export const UnitRowTwoStepAuth = () => {
           <Modal
             onDismiss={hideModal}
             onConfirm={() => disableTwoStepAuth()}
+            hasButtons
+            hasCancelButton
             headerId="two-step-auth-disable-header"
             descId="two-step-auth-disable-description"
             confirmText={l10n.getString(
@@ -192,6 +194,8 @@ export const UnitRowTwoStepAuth = () => {
         >
           <Modal
             onDismiss={hideSecondaryModal}
+            hasButtons
+            hasCancelButton
             headerId="two-step-auth-change-codes-header"
             descId="two-step-auth-change-codes-description"
             confirmText={l10n.getString(
