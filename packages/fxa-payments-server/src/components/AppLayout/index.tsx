@@ -85,7 +85,7 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
           {breadcrumbs}
         </div>
 
-        <div id="fxa-settings">
+        <div id="fxa-settings" className="mb-12">
           <div id="fxa-settings-content" className="card">
             {children}
           </div>
