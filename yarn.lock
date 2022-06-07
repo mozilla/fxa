@@ -3175,21 +3175,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dannycoates/elliptic@npm:^6.4.2":
-  version: 6.4.2
-  resolution: "@dannycoates/elliptic@npm:6.4.2"
-  dependencies:
-    bn.js: ^4.4.0
-    brorand: ^1.0.1
-    hash.js: ^1.0.0
-    hmac-drbg: ^1.0.0
-    inherits: ^2.0.1
-    minimalistic-assert: ^1.0.0
-    minimalistic-crypto-utils: ^1.0.0
-  checksum: 55d5635fceb3560da05682acda5085ce8b5f4f633e669d0ce077229b70492aa6600d506eb4cb26ede7d6e171dceada3a4dc6340dbe70faeb5a411e5afe18cdf5
-  languageName: node
-  linkType: hard
-
 "@discoveryjs/json-ext@npm:^0.5.0, @discoveryjs/json-ext@npm:^0.5.3":
   version: 0.5.3
   resolution: "@discoveryjs/json-ext@npm:0.5.3"
@@ -6067,6 +6052,47 @@ __metadata:
   version: 0.7.1
   resolution: "@sinonjs/text-encoding@npm:0.7.1"
   checksum: 130de0bb568c5f8a611ec21d1a4e3f80ab0c5ec333010f49cfc1adc5cba6d8808699c8a587a46b0f0b016a1f4c1389bc96141e773e8460fcbb441875b2e91ba7
+  languageName: node
+  linkType: hard
+
+"@stablelib/binary@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@stablelib/binary@npm:1.0.1"
+  dependencies:
+    "@stablelib/int": ^1.0.1
+  checksum: dca9b98eb1f56a4002b5b9e7351fbc49f3d8616af87007c01e833bd763ac89214eb5f3b7e18673c91ce59d4a0e4856a2eb661ace33d39f17fb1ad267271fccd8
+  languageName: node
+  linkType: hard
+
+"@stablelib/hash@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@stablelib/hash@npm:1.0.1"
+  checksum: 3ff1f12d1a4082aaf4b6cdf40c2010aabe5c4209d3b40b97b5bbb0d9abc0ee94abdc545e57de0614afaea807ca0212ac870e247ec8f66cdce91ec39ce82948cf
+  languageName: node
+  linkType: hard
+
+"@stablelib/int@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@stablelib/int@npm:1.0.1"
+  checksum: 65bfbf50a382eea70c68e05366bf379cfceff8fbc076f1c267ef2f2411d7aed64fd140c415cb6c29f19a3910d3b8b7805d4b32ad5721a5007a8e744a808c7ae3
+  languageName: node
+  linkType: hard
+
+"@stablelib/sha3@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@stablelib/sha3@npm:1.0.1"
+  dependencies:
+    "@stablelib/binary": ^1.0.1
+    "@stablelib/hash": ^1.0.1
+    "@stablelib/wipe": ^1.0.1
+  checksum: 301a33a91d515ca135ce923bb3b775f4707241444bebad39614a5a0e5bf2bb3277979a625cf0c91417f75c97793ab4493a7e65cd092333959ff08463433fa2e3
+  languageName: node
+  linkType: hard
+
+"@stablelib/wipe@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@stablelib/wipe@npm:1.0.1"
+  checksum: 287802eb146810a46ba72af70b82022caf83a8aeebde23605f5ee0decf64fe2b97a60c856e43b6617b5801287c30cfa863cfb0469e7fcde6f02d143cf0c6cbf4
   languageName: node
   linkType: hard
 
@@ -12662,6 +12688,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"asmcrypto.js@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "asmcrypto.js@npm:2.3.2"
+  checksum: d61722be99d51c9a09093166412354845fb6ba278374b0cccfb33b18ad9edd26019ced171ae286b1d55c57edd8702fe87d2eec096f20fb2080ee52f8ba4b995e
+  languageName: node
+  linkType: hard
+
 "asn1.js@npm:1.0.3":
   version: 1.0.3
   resolution: "asn1.js@npm:1.0.3"
@@ -12708,7 +12741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1js@npm:^3.0.1, asn1js@npm:^3.0.4":
+"asn1js@npm:^3.0.1, asn1js@npm:^3.0.2, asn1js@npm:^3.0.4":
   version: 3.0.5
   resolution: "asn1js@npm:3.0.5"
   dependencies:
@@ -17041,6 +17074,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"core-js@npm:^3.22.5":
+  version: 3.22.8
+  resolution: "core-js@npm:3.22.8"
+  checksum: c79bcfea37920a5da880ad1fc8336355e833c83998bb28cd45cc59eef4d9824dd8d59ccd24d6b18ff88f284d53d9eef021ddbd2b5ab1c6305b01e98c1402e510
+  languageName: node
+  linkType: hard
+
 "core-util-is@npm:1.0.2, core-util-is@npm:~1.0.0":
   version: 1.0.2
   resolution: "core-util-is@npm:1.0.2"
@@ -18310,7 +18350,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"des.js@npm:^1.0.0":
+"des.js@npm:^1.0.0, des.js@npm:^1.0.1":
   version: 1.0.1
   resolution: "des.js@npm:1.0.1"
   dependencies:
@@ -19063,6 +19103,21 @@ __metadata:
   dependencies:
     batch-processor: 1.0.0
   checksum: 9a129e9291bbb60100c2b413d96194b5003ddbc5687604547e3011ccf1d79fef6eb5fd276f5eac8903aa361d1e91aad4b71fa42fdfed2f8e026beaa8d054fc8f
+  languageName: node
+  linkType: hard
+
+"elliptic@git+https://github.com/mahrud/elliptic.git":
+  version: 6.5.0
+  resolution: "elliptic@https://github.com/mahrud/elliptic.git#commit=75637c76678e83c31682fd967c2fa9ff4761b3fc"
+  dependencies:
+    bn.js: ^4.4.0
+    brorand: ^1.0.1
+    hash.js: ^1.0.0
+    hmac-drbg: ^1.0.0
+    inherits: ^2.0.1
+    minimalistic-assert: ^1.0.0
+    minimalistic-crypto-utils: ^1.0.0
+  checksum: e7729d11d79ec65b89ef5b1458e9f4c07d4a5395aaf786a1d6b1ab604370e7a100785f9a609f84e0c487cf113e877cb508298808839ac9f3b41de89818e64317
   languageName: node
   linkType: hard
 
@@ -22193,7 +22248,7 @@ fsevents@~2.1.1:
     mocha: ^9.1.2
     node-fetch: ^2.6.1
     typescript: ^4.5.2
-    webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
+    webcrypto-liner: 1.4.0
   languageName: unknown
   linkType: soft
 
@@ -22521,7 +22576,7 @@ fsevents@~2.1.1:
     upng-js: 2.1.0
     url-loader: 4.1.1
     verror: 1.10.1
-    webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
+    webcrypto-liner: 1.4.0
     webpack: ^4.41.2
     webpack-cli: ^4.9.2
     webpack-dev-middleware: ^5.0.0
@@ -42433,7 +42488,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.10.0, tslib@npm:^1.7.1, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
+"tslib@npm:^1.10.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
@@ -43786,16 +43841,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webcrypto-core@https://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a":
-  version: 0.1.19
-  resolution: "webcrypto-core@https://github.com/mozilla-fxa/webcrypto-core.git#commit=e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
-  dependencies:
-    tslib: ^1.7.1
-  checksum: f4517671da54620b5ac643749313c63b479427e8ffd59e4dc52b0c2b255555fec5d02b9aa4c55fe1d3d582a2bf3800313a20164ff9fbe2c284694994605660d7
-  languageName: node
-  linkType: hard
-
-"webcrypto-core@npm:^1.7.4":
+"webcrypto-core@npm:^1.7.4, webcrypto-core@npm:^1.7.5":
   version: 1.7.5
   resolution: "webcrypto-core@npm:1.7.5"
   dependencies:
@@ -43808,14 +43854,22 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webcrypto-liner@https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb":
-  version: 0.1.36
-  resolution: "webcrypto-liner@https://github.com/mozilla-fxa/webcrypto-liner.git#commit=6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
+"webcrypto-liner@npm:1.4.0":
+  version: 1.4.0
+  resolution: "webcrypto-liner@npm:1.4.0"
   dependencies:
-    "@dannycoates/elliptic": ^6.4.2
-    asmcrypto.js: ^0.22.0
-    webcrypto-core: "https://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
-  checksum: ca2b7ea2b8af2d8def878ecfa69b5fdf49ea3d848fb30f3db87fc1a763bdaeaa9de54715bebea4f05acac2a2967164b76420a42bf84e98984643ec2369151181
+    "@peculiar/asn1-schema": ^2.1.6
+    "@peculiar/json-schema": ^1.1.12
+    "@stablelib/sha3": ^1.0.1
+    asmcrypto.js: ^2.3.2
+    asn1js: ^3.0.2
+    core-js: ^3.22.5
+    des.js: ^1.0.1
+    elliptic: "git+https://github.com/mahrud/elliptic.git"
+    pvtsutils: ^1.3.2
+    tslib: ^2.4.0
+    webcrypto-core: ^1.7.5
+  checksum: ebb395e07abf63e58a6fe52a567f16b7d162b8cba078d3b13b29cae9b3c9e16c94557f4affbbb9fb6b60ac1954f10b0584b232a5d4fefd335dd1baf37a5fdb0d
   languageName: node
   linkType: hard
 
