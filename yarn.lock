@@ -23508,6 +23508,7 @@ fsevents@~2.1.1:
     "@types/rimraf": 3.0.0
     "@types/sinon": ^10
     async-wait-until: ^2.0.12
+    autoprefixer: ^9.8.6
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-preset-react-app: ^10.0.1

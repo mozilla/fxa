@@ -235,3 +235,33 @@ hr {
 .hidden {
   display: none !important;
 }
+
+.dialog-icon {
+  align-items: center;
+  background: #20123a;
+  border-radius: 8px;
+  display: flex;
+  height: 64px;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 16px;
+  width: 64px;
+}
+
+.reactivate-subscription-success {
+  font-weight: 600;
+}
+
+.settings-button {
+  background: $button-background-color-primary;
+  color: $button-text-color-primary;
+  margin-top: 30px;
+
+  &:hover:enabled {
+    background: $button-background-color-primary-hover;
+  }
+
+  &:active:enabled {
+    background: $button-background-color-primary-active;
+  }
+}

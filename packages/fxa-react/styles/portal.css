@@ -10,7 +10,7 @@
   z-index: 9999;
 }
 
-.portal#dialogs {
+.portal#modal {
   align-items: center;
   bottom: 0;
   display: flex;

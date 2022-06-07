@@ -1,0 +1,13 @@
+@import './ctas.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.transition-standard {
+  @apply transition duration-150;
+
+  &:active {
+    @apply transition duration-150;
+  }
+}

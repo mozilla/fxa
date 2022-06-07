@@ -10,8 +10,6 @@ import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Link, useLocation } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
 
-import './index.scss';
-
 type ModalProps = {
   children: ReactNode;
   className?: string;
