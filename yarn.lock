@@ -22516,7 +22516,7 @@ fsevents@~2.1.1:
     time-grunt: 2.0.0
     ts-loader: ^8.4.0
     typescript: ^4.5.2
-    ua-parser-js: "https://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
+    ua-parser-js: 1.0.2
     underscore: ^1.13.1
     upng-js: 2.1.0
     url-loader: 4.1.1
@@ -42675,10 +42675,10 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ua-parser-js@https://github.com/mozilla-fxa/ua-parser-js.git#fxa-version":
-  version: 0.7.10
-  resolution: "ua-parser-js@https://github.com/mozilla-fxa/ua-parser-js.git#commit=643d1698aef5bed095e1264ae258902bf346175c"
-  checksum: f80940e57ec9cc8e96927640dada19fa9e8d15827d64d04c58cbc1ac78fd7a876b23ae02e2f40eccc2736b4930a3c2c8a664c9bd9a33de56a79d5681390556ed
+"ua-parser-js@npm:1.0.2":
+  version: 1.0.2
+  resolution: "ua-parser-js@npm:1.0.2"
+  checksum: ff7f6d79a9c1a38aa85a0e751040fc7e17a0b621bda876838d14ebe55aca4e50e68da0350f181e58801c2d8a35e7db4e12473776e558910c4b7cabcec96aa3bf
   languageName: node
   linkType: hard
 
