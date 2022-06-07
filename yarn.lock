@@ -5311,9 +5311,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.4.5":
-  version: 8.4.5
-  resolution: "@nestjs/platform-express@npm:8.4.5"
+"@nestjs/platform-express@npm:^8.4.6":
+  version: 8.4.6
+  resolution: "@nestjs/platform-express@npm:8.4.6"
   dependencies:
     body-parser: 1.20.0
     cors: 2.8.5
@@ -5323,7 +5323,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: ac118645e96a965d8fb27907393bc666b67bb3f3194adc3b15bc70b8e904a1818c0f94e6ac22d9aee363f23e87acb8a5e13ff646cf62f1c377ee4f32bdc0abcc
+  checksum: 1006b2255947a30d91deab9327ec94d33d1097531bbc758b7ddf6390a45f1bd5cc5f5d8004b902fd81c4f2320fedb4f3518abf6d474898b0e9df6d4cbef61763
   languageName: node
   linkType: hard
 
@@ -22301,7 +22301,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.4.5
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.4.5
+    "@nestjs/platform-express": ^8.4.6
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@types/chance": ^1.1.2
@@ -22789,7 +22789,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.2.1
-    "@nestjs/platform-express": ^8.4.5
+    "@nestjs/platform-express": ^8.4.6
     "@nestjs/schedule": ^1.1.0
     "@nestjs/schematics": ^8.0.6
     "@nestjs/testing": ^8.4.6
@@ -22888,7 +22888,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.2.1
-    "@nestjs/platform-express": ^8.4.5
+    "@nestjs/platform-express": ^8.4.6
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@types/chance": ^1.1.2
@@ -23403,7 +23403,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^2.0.0
     "@nestjs/core": ^8.4.5
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.4.5
+    "@nestjs/platform-express": ^8.4.6
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@types/convict": ^5.2.2
