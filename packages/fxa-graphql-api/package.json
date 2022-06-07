@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "compile": "tsc --noEmit",
     "lint": "eslint *",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "watch": "tsc -w",
