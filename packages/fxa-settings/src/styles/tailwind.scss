@@ -2,19 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+// We can remove `stylelint-disable` when Settings is no longer using SCSS, #13478
+/* stylelint-disable */
 @import './2fa.scss';
-@import './animations.css';
+@import './animations';
+@import './fonts';
 @import './ctas.scss';
 @import './unit-row.scss';
 @import './drop-down-menu.scss';
 @import './cropper.scss';
 @import './slider.scss';
 @import './switch.scss';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind screens;
+/* stylelint-enable */
 
 body {
   @apply text-base font-body bg-grey-10 text-grey-600;

@@ -50,7 +50,7 @@ export const Modal = ({
     <Portal id="modal" {...{ headerId, descId }}>
       <div
         data-testid={testid}
-        className="flex flex-col justify-center fixed inset-0 z-50 w-full px-2 h-full bg-black bg-opacity-75"
+        className="flex flex-col justify-center fixed inset-0 z-50 w-full px-2 h-full bg-black/75"
       >
         <div
           data-testid="modal-content-container"

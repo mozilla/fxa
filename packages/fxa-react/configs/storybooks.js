@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { resolve } = require('path');
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 
 const allFxa = resolve(__dirname, '../../');
 const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
@@ -22,15 +21,12 @@ const customizeWebpackConfig = ({ config }) => ({
         plugin.constructor &&
         plugin.constructor.name === 'ModuleScopePlugin'
       ) {
-        return new ModuleScopePlugin(
-          [...plugin.appSrcs, ...importPaths],
-          plugin.allowedFiles
-        );
+        plugin.appSrcs.push(...importPaths);
       }
       return plugin;
     }),
     // Register a few more extensions to resolve
-    extensions: [...config.resolve.extensions, '.svg', '.scss', '.css'],
+    extensions: [...config.resolve.extensions, '.svg', '.scss', '.css', '.png'],
     // Add aliases to some packages shared across the project
     alias: { ...config.alias, ...additionalJSImports },
   },
@@ -54,6 +50,15 @@ const customizeWebpackConfig = ({ config }) => ({
               {
                 loader: require.resolve('file-loader'),
                 options: { name: 'static/media/[name].[hash:8].[ext]' },
+              },
+            ],
+          },
+          // Support images and fonts
+          {
+            test: /\.(png|woff|woff2)$/,
+            use: [
+              {
+                loader: require.resolve('file-loader'),
               },
             ],
           },

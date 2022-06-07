@@ -4,6 +4,6 @@
 
 const config = require('./configs/tailwind');
 
-config.purge.content = ['./components/**/*.tsx'];
+config.content = ['./components/**/*.tsx'];
 
 module.exports = config;

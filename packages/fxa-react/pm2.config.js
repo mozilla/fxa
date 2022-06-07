@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       name: 'react-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,
@@ -33,6 +33,7 @@ module.exports = {
         'tailwind.config.js',
         'configs/tailwind.js',
         'styles',
+        'components/**/*.tsx',
       ],
       ignore_watch: ['styles/tailwind.out.css'],
       time: true,

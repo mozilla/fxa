@@ -52,7 +52,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
           <Localized id="la-unlink-button">
             <button
-              className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+              className="cta-neutral cta-base disabled:cursor-wait whitespace-nowrap"
               data-testid="linked-account-unlink"
               onClick={onUnlinkAccountClick}
             >

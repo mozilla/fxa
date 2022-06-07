@@ -23,7 +23,7 @@ const descriptions = {
 
 const BreakpointExample = ({ size, screens }) => (
   <div
-    className={`shadow-md mb-4 rounded border border-black border-opacity-25 max-w-${size}`}
+    className={`shadow-md mb-4 rounded border border-black/25 max-w-${size}`}
   >
     <div
       className={`rounded-t bg-grey-100 text-grey-600 px-3 text-sm flex flex-col tablet:flex-row justify-between py-2 ${size}:bg-green-400`}
@@ -38,7 +38,7 @@ const BreakpointExample = ({ size, screens }) => (
       <code className="tablet:px-1 rounded-sm">
         <Copiable value={`${size}:bg-green-400`}>
           <span
-            className={`tablet:px-1 rounded-sm ${size}:bg-white ${size}:bg-opacity-75 ${size}:text-black`}
+            className={`tablet:px-1 rounded-sm ${size}:bg-white/75 ${size}:text-black`}
           >
             {size}:bg-green-400
           </span>
@@ -106,22 +106,22 @@ const Breakpoints = ({ config }) => {
 
       {/* NOTE: this section is not dynamic */}
       <div
-        className={`shadow-md mb-4 rounded border border-black border-opacity-25 p-3 w-full text-white bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700 overflow-scroll whitespace-no-wrap`}
+        className={`shadow-md mb-4 rounded border border-black/25 p-3 w-full text-white bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700 overflow-scroll whitespace-nowrap`}
       >
         <Copiable value="bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700">
-          <code className="px-2 py-1 rounded-sm bg-white bg-opacity-75 text-black mobileLandscape:bg-transparent mobileLandscape:text-white">
+          <code className="px-2 py-1 rounded-sm bg-white/75 text-black mobileLandscape:bg-transparent mobileLandscape:text-white">
             bg-yellow-700
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm mobileLandscape:bg-white mobileLandscape:text-black mobileLandscape:bg-opacity-75 tablet:bg-transparent tablet:text-white bg-opacity-75">
+          <code className="px-2 py-1 rounded-sm mobileLandscape:bg-white/75 mobileLandscape:text-black tablet:bg-transparent tablet:text-white">
             mobileLandscape:bg-green-800
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm tablet:bg-white tablet:text-black tablet:bg-opacity-75 desktop:bg-transparent desktop:text-white bg-opacity-75">
+          <code className="px-2 py-1 rounded-sm tablet:bg-white/75 tablet:text-black desktop:bg-transparent desktop:text-white">
             tablet:bg-violet-600
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm desktop:bg-white desktop:text-black desktop:bg-opacity-75 desktopXl:bg-transparent desktopXl:text-white">
+          <code className="px-2 py-1 rounded-sm desktop:bg-white/75 desktop:text-black desktopXl:bg-transparent desktopXl:text-white">
             desktop:bg-blue-800
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm desktopXl:bg-white desktopXl:text-black desktopXl:bg-opacity-75">
+          <code className="px-2 py-1 rounded-sm desktopXl:bg-white/75 desktopXl:text-black">
             desktopXl:bg-red-700
           </code>
         </Copiable>

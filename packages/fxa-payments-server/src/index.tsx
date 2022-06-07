@@ -1,17 +1,21 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { render } from 'react-dom';
 import { createAppStore } from './store';
-
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
-import './index.scss';
 import * as Amplitude from './lib/amplitude';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 import sentryMetrics from './lib/sentry';
 import { loadStripe } from '@stripe/stripe-js';
-
 import { actions } from './store/actions';
+
+import './styles/tailwind.out.css';
+import './index.scss';
 
 async function init() {
   readConfigFromMeta(headQuerySelector);

@@ -10,7 +10,7 @@ import App from './components/App';
 import config from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
-import './index.scss';
+import './styles/tailwind.out.css';
 
 try {
   const appContext = initializeAppContext();

@@ -3,12 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = {
-  stories: ['./design-guide/main.stories.tsx', '../src/**/*.stories.tsx'],
-  staticDirs: ['./design-guide'],
+  stories: ['../src/**/*.stories.tsx'],
+  staticDirs: ['../public'],
   addons: [
-    '@storybook/addon-actions',
-    '@storybook/addon-links',
-    'storybook-addon-rtl',
     {
       name: '@storybook/addon-postcss',
       options: {
