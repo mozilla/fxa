@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import joi from 'typesafe-joi';
+import joi from 'joi';
 
 // Event strings
 export const DELETE_EVENT = 'delete';
@@ -91,10 +91,48 @@ export const PROFILE_CHANGE_SCHEMA = joi
   .unknown(true)
   .required();
 
-export type deleteSchema = joi.Literal<typeof DELETE_SCHEMA>;
-export type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
-export type passwordSchema = joi.Literal<typeof PASSWORD_CHANGE_SCHEMA>;
-export type profileSchema = joi.Literal<typeof PROFILE_CHANGE_SCHEMA>;
-export type subscriptionUpdateSchema = joi.Literal<
-  typeof SUBSCRIPTION_UPDATE_SCHEMA
->;
+export type deleteSchema = {
+  event: typeof DELETE_EVENT;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+};
+
+export type loginSchema = {
+  clientId: string;
+  deviceCount: number;
+  email: string;
+  event: typeof LOGIN_EVENT;
+  service?: string;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+  userAgent?: string;
+};
+
+export type passwordSchema = {
+  event: typeof PASSWORD_CHANGE_EVENT | typeof PASSWORD_RESET_EVENT;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+};
+
+export type profileSchema = {
+  event: typeof PRIMARY_EMAIL_EVENT | typeof PROFILE_CHANGE_EVENT;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+  email?: string;
+};
+
+export type productCapability = string;
+
+export type subscriptionUpdateSchema = {
+  event: typeof SUBSCRIPTION_UPDATE_EVENT;
+  eventCreatedAt: number;
+  isActive: boolean;
+  productCapabilities: Array<productCapability>;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+};
