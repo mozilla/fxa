@@ -26,7 +26,7 @@ module.exports = {
     },
     {
       name: 'settings-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,

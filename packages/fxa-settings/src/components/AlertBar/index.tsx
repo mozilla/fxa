@@ -61,7 +61,7 @@ export const AlertBar = () => {
               data-testid="alert-bar-dismiss"
               className={`self-center rounded-r h-full px-1 ${
                 typeClasses[alertType()]
-              } hover:bg-black hover:bg-opacity-20 active:bg-opacity-30`}
+              } hover:bg-black/20 active:bg-black/30`}
               onClick={() => alertVisible(false)}
               title={l10n.getString(
                 'alert-bar-close-message',

@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@tailwind screens;
+.drop-down-menu {
+  @apply w-64 bg-white absolute shadow-md rounded-lg;
 
-@responsive {
-  .drop-down-menu {
-    @apply w-64 bg-white absolute shadow-md rounded-lg;
-  }
-  .drop-down-menu::before {
-    content: "";
+  &::before {
+    content: '';
     @apply caret-top absolute -top-3;
-  }
-  [dir="ltr"] .drop-down-menu::before {
-    @apply left-55;
-  }
-  [dir="rtl"] .drop-down-menu::before {
-    @apply right-55;
+
+    [dir='ltr'] & {
+      @apply left-55;
+    }
+
+    [dir='rtl'] & {
+      @apply right-55;
+    }
   }
 }

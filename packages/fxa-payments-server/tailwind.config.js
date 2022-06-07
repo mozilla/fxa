@@ -13,9 +13,13 @@ if (process.env.NODE_ENV === 'production') {
     resolve(__dirname, 'src', 'components')
   );
 
-  config.purge.content.push(...matches);
+  config.content.push(...matches);
 } else {
-  config.purge.content.push('../fxa-react/components/**/*.tsx');
+  config.content.push('../fxa-react/components/**/*.tsx');
 }
+
+// remove this once Payments is using Tailwind and we can enable '@tailwind base'
+config.corePlugins = {};
+config.corePlugins.preflight = false;
 
 module.exports = config;

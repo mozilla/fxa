@@ -11,7 +11,7 @@ export const Footer = () => {
   const { l10n } = useLocalization();
   return (
     <footer
-      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-no-wrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 text-grey-400"
+      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 text-grey-400"
       data-testid="footer"
     >
       <LinkExternal

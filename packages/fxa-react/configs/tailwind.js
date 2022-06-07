@@ -6,12 +6,8 @@ const plugin = require('tailwindcss/plugin');
 const tailwindcssDir = require('tailwindcss-dir');
 
 module.exports = {
-  purge: {
-    // The default here targets a standard CRA
-    // setup, but can be overridden as needed
-    content: ['./src/**/*.tsx', './public/index.html'],
-    whitelist: [],
-  },
+  // This targets a standard CRA setup, but can be overridden as needed
+  content: ['./src/**/*.tsx', './public/index.html'],
   theme: {
     extend: {
       padding: {
@@ -152,6 +148,7 @@ module.exports = {
     // slightly different. They can be viewed here:
     // https://bit.ly/fxa-settings-colors
     colors: {
+      current: 'currentColor',
       transparent: 'transparent',
       black: '#000',
       white: '#fff',
@@ -262,23 +259,6 @@ module.exports = {
         900: '#321C64',
       },
     },
-  },
-  variants: {
-    width: ['responsive', 'hover', 'focus'],
-    height: ['responsive', 'hover', 'focus'],
-    textColor: ['responsive', 'hover', 'focus', 'active', 'disabled'],
-    borderColor: ['responsive', 'hover', 'focus', 'active', 'disabled'],
-    backgroundColor: ['responsive', 'hover', 'focus', 'disabled'],
-    backgroundOpacity: ['hover', 'focus', 'active'],
-    placeholderColor: ['responsive', 'focus', 'disabled'],
-    cursor: ['responsive', 'disabled'],
-    textAlign: ['direction'],
-    textDecoration: ['responsive', 'hover', 'focus', 'active', 'group-hover'],
-    float: ['responsive', 'direction'],
-    margin: ['responsive', 'direction'],
-    padding: ['responsive', 'direction'],
-    inset: ['responsive', 'direction'],
-    scale: ['responsive', 'hover', 'focus', 'direction'],
   },
   plugins: [
     plugin(function ({ addUtilities }) {

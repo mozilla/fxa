@@ -13,9 +13,9 @@ if (process.env.NODE_ENV === 'production') {
     resolve(__dirname, 'src', 'components')
   );
 
-  config.purge.content.push(...matches);
+  config.content.push(...matches);
 } else {
-  config.purge.content.push('../fxa-react/components/**/*.tsx');
+  config.content.push('../fxa-react/components/**/*.tsx');
 }
 
 config.plugins.push(require('tailwindcss-textshadow'));

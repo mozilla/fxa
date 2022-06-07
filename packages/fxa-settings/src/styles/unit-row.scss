@@ -31,11 +31,11 @@
 
 @screen mobileLandscape {
   .unit-row {
-    @apply flex-no-wrap px-6;
+    @apply flex-nowrap px-6;
 
     &-header {
       @apply flex-none mb-0 mr-2;
-      width: 10rem
+      width: 10rem;
     }
 
     &-content {

@@ -12,6 +12,9 @@ const additionalJSImports = {
   'fxa-shared': resolve(__dirname, '../../fxa-shared'),
 };
 
+// Tip: Use `require.resolve('package-name')` instead of 'package-name' to reference
+// the dependencies in fxa-react, avoiding extra deps across packages
+
 const customizeWebpackConfig = ({ config }) => ({
   ...config,
   resolve: {
@@ -30,7 +33,7 @@ const customizeWebpackConfig = ({ config }) => ({
       return plugin;
     }),
     // Register a few more extensions to resolve
-    extensions: [...config.resolve.extensions, '.svg', '.scss', '.css'],
+    extensions: [...config.resolve.extensions, '.svg', '.scss', '.css', '.png'],
     // Add aliases to some packages shared across the project
     alias: { ...config.alias, ...additionalJSImports },
   },
@@ -54,6 +57,15 @@ const customizeWebpackConfig = ({ config }) => ({
               {
                 loader: require.resolve('file-loader'),
                 options: { name: 'static/media/[name].[hash:8].[ext]' },
+              },
+            ],
+          },
+          // Support images and fonts
+          {
+            test: /\.(png|woff|woff2)$/,
+            use: [
+              {
+                loader: require.resolve('file-loader'),
               },
             ],
           },

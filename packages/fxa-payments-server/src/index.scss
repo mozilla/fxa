@@ -1,23 +1,22 @@
-@import "~normalize.css";
-@import "~jquery-modal/jquery.modal";
-@import "./styles/tailwind.out.scss";
-@import "../../fxa-content-server/app/styles/variables";
-@import "../../fxa-content-server/app/styles/mixins";
-@import "../../fxa-content-server/app/styles/breakpoints";
-@import "../../fxa-content-server/app/styles/base";
-@import "../../fxa-content-server/app/styles/layout";
-@import "../../fxa-content-server/app/styles/modules/tooltip";
-@import "../../fxa-content-server/app/styles/modules/input-row";
-@import "../../fxa-content-server/app/styles/modules/button-row";
-@import "../../fxa-content-server/app/styles/modules/modal";
-@import "../../fxa-content-server/app/styles/modules/settings";
-@import "../../fxa-content-server/app/styles/modules/legal";
-@import "../../fxa-content-server/app/styles/modules/spinner";
-@import "../../fxa-content-server/app/styles/modules/avatar";
-@import "../../fxa-content-server/app/styles/modules/support";
-@import "../../fxa-content-server/app/styles/state";
-@import "./styles/mixins";
-@import "./styles/variables";
+@import '~normalize.css';
+@import '~jquery-modal/jquery.modal';
+@import '../../fxa-content-server/app/styles/variables';
+@import '../../fxa-content-server/app/styles/mixins';
+@import '../../fxa-content-server/app/styles/breakpoints';
+@import '../../fxa-content-server/app/styles/base';
+@import '../../fxa-content-server/app/styles/layout';
+@import '../../fxa-content-server/app/styles/modules/tooltip';
+@import '../../fxa-content-server/app/styles/modules/input-row';
+@import '../../fxa-content-server/app/styles/modules/button-row';
+@import '../../fxa-content-server/app/styles/modules/modal';
+@import '../../fxa-content-server/app/styles/modules/settings';
+@import '../../fxa-content-server/app/styles/modules/legal';
+@import '../../fxa-content-server/app/styles/modules/spinner';
+@import '../../fxa-content-server/app/styles/modules/avatar';
+@import '../../fxa-content-server/app/styles/modules/support';
+@import '../../fxa-content-server/app/styles/state';
+@import './styles/mixins';
+@import './styles/variables';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
 // its impact on layout & styles
@@ -66,14 +65,14 @@ h3.billing-title {
   margin-top: $header-height;
   min-height: calc(100vh - #{$header-height});
 
-  @include min-width("tablet") {
+  @include min-width('tablet') {
     grid-template-columns: minmax(359px, 500px) 327px;
     grid-column-gap: 32px;
     margin: $header-height-tablet 12px auto;
     min-height: calc(100vh - #{$header-height-tablet});
   }
 
-  @include min-width("desktop") {
+  @include min-width('desktop') {
     grid-template-columns: 600px 343px;
   }
 }
@@ -88,7 +87,7 @@ hr {
     margin: 0px;
   }
 
-  @include respond-to("small") {
+  @include respond-to('small') {
     margin: 0 -20px; // match padding of .main-content
   }
 }
@@ -102,7 +101,7 @@ hr {
     @include input-element();
     padding: 14px $input-left-right-padding 0;
 
-    @include respond-to("small") {
+    @include respond-to('small') {
       padding: 9px $input-left-right-padding * 0.75 0;
     }
 
@@ -110,7 +109,7 @@ hr {
       margin-bottom: 0;
     }
 
-    html[dir="rtl"] & {
+    html[dir='rtl'] & {
       direction: ltr;
       text-align: right;
     }
@@ -150,9 +149,9 @@ hr {
   }
 
   // HACK: stop the checkbox from changing width on focus
-  input[type="checkbox"]:focus,
-  input[type="checkbox"]:not(:checked):focus,
-  input[type="checkbox"]:checked:focus {
+  input[type='checkbox']:focus,
+  input[type='checkbox']:not(:checked):focus,
+  input[type='checkbox']:checked:focus {
     border: 1px solid transparent;
   }
 }
@@ -162,14 +161,14 @@ hr {
     display: flex;
     flex-direction: row;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       flex: 0 0 18px;
       margin-right: 16px;
       position: relative;
       top: 2px;
 
       &:checked {
-        background-image: url("images/check.svg");
+        background-image: url('images/check.svg');
       }
     }
 
@@ -185,7 +184,7 @@ hr {
   display: flex;
   flex-direction: row;
 
-  @include respond-to("simpleSmall") {
+  @include respond-to('simpleSmall') {
     flex-wrap: wrap;
   }
 
@@ -197,7 +196,7 @@ hr {
     &.input-row--xl {
       flex: 2 0;
 
-      @include respond-to("simpleSmall") {
+      @include respond-to('simpleSmall') {
         flex: unset;
         padding-right: 0;
         width: 100%;
@@ -220,7 +219,7 @@ hr {
   max-width: 640px;
   width: 100%;
 
-  @include respond-to("simpleSmall") {
+  @include respond-to('simpleSmall') {
     background-color: none;
     border-radius: 0;
     box-shadow: none;

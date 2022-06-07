@@ -52,7 +52,7 @@ module.exports = {
     },
     {
       name: 'admin-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,

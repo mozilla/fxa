@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       name: 'react-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,

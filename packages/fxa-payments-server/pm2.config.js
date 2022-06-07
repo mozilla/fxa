@@ -47,7 +47,7 @@ module.exports = {
     },
     {
       name: 'payments-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,
