@@ -7,9 +7,10 @@ import { DatabaseModule } from '../database/database.module';
 import { SubscriptionModule } from '../subscriptions/subscriptions.module';
 import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
+import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
 
 @Module({
   imports: [DatabaseModule, SubscriptionModule],
-  providers: [AccountResolver, EmailBounceResolver],
+  providers: [AccountResolver, EmailBounceResolver, RelyingPartyResolver],
 })
 export class GqlModule {}

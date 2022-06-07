@@ -57,6 +57,11 @@ const QUERY_LIST_ACCESS_TOKENS_BY_UID =
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.userId=?';
 
+const QUERY_LIST_ALL_CLIENTS =
+  'SELECT id, name, imageUri, redirectUri, canGrant, ' +
+  'publicClient, createdAt, trusted, allowedScopes ' +
+  'FROM clients';
+
 /**
  * Helper function for setting proper status code and error number on an error.
  * @param error
@@ -381,5 +386,9 @@ export class MysqlOAuthShared extends MysqlStoreShared {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
+  }
+
+  async getRelyingParties() {
+    return this._read(QUERY_LIST_ALL_CLIENTS, undefined);
   }
 }

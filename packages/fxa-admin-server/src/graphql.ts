@@ -144,10 +144,23 @@ export interface Account {
     linkedAccounts?: Nullable<LinkedAccount[]>;
 }
 
+export interface RelyingParty {
+    id: string;
+    name: string;
+    imageUri: string;
+    redirectUri: string;
+    canGrant: boolean;
+    publicClient: boolean;
+    createdAt: number;
+    trusted: boolean;
+    allowedScopes?: Nullable<string>;
+}
+
 export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
     accountByEmail(email: string): Nullable<Account> | Promise<Nullable<Account>>;
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
+    relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
 }
 
 export interface IMutation {

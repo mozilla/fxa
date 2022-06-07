@@ -50,6 +50,7 @@ export class DatabaseService implements OnModuleDestroy {
   public device: typeof Device;
   public linkedAccounts: typeof LinkedAccount;
 
+  protected mySqlOAuthShared: MysqlOAuthShared;
   protected connectedServicesDb: ConnectedServicesDb;
 
   constructor(
@@ -59,6 +60,12 @@ export class DatabaseService implements OnModuleDestroy {
   ) {
     const dbConfig = configService.get('database') as AppConfig['database'];
     const redisConfig = configService.get('redis') as AppConfig['redis'];
+    const mySqlOAuthShared = new MysqlOAuthShared(
+      dbConfig.fxa_oauth,
+      undefined,
+      logger,
+      metrics
+    );
 
     this.knex = knex({
       connection: { typeCast: typeCasting, ...dbConfig.fxa },
@@ -79,8 +86,9 @@ export class DatabaseService implements OnModuleDestroy {
     this.device = Device;
     this.linkedAccounts = LinkedAccount;
 
+    this.mySqlOAuthShared = mySqlOAuthShared;
     this.connectedServicesDb = new ConnectedServicesDb(
-      new MysqlOAuthShared(dbConfig.fxa_oauth, undefined, logger, metrics),
+      mySqlOAuthShared,
       new ConnectedServicesCache(
         new RedisShared(redisConfig.accessTokens, logger, metrics),
         new RedisShared(redisConfig.refreshTokens, logger, metrics),
@@ -112,6 +120,10 @@ export class DatabaseService implements OnModuleDestroy {
       this.connectedServicesDb.cache.getSessionTokens(uid),
     ]);
     return mergeDevicesAndSessionTokens(devices, sessionTokens, true);
+  }
+
+  public async relyingParties() {
+    return this.mySqlOAuthShared.getRelyingParties();
   }
 
   async onModuleDestroy() {

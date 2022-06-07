@@ -8,7 +8,7 @@ import iconExternalLink from '../../images/icon-external-link.svg';
 
 export const LinkAbout = () => (
   <LinkExternal
-    className="inline-flex align-self-center font-semibold text-white text-shadow-md hover:opacity-75 focus:opacity-75"
+    className="no-underline inline-flex align-self-center font-semibold text-white text-shadow-md hover:opacity-75 focus:opacity-75"
     href="https://github.com/mozilla/fxa/blob/main/packages/fxa-admin-panel/README.md"
   >
     <span className="pr-2">About</span>{' '}

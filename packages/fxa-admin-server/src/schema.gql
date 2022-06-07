@@ -139,10 +139,23 @@ type Account {
   linkedAccounts: [LinkedAccount!]
 }
 
+type RelyingParty {
+  id: ID!
+  name: String!
+  imageUri: String!
+  redirectUri: String!
+  canGrant: Boolean!
+  publicClient: Boolean!
+  createdAt: Float!
+  trusted: Boolean!
+  allowedScopes: String
+}
+
 type Query {
   accountByUid(uid: String!): Account
   accountByEmail(email: String!): Account
   getEmailsLike(search: String!): [Email!]
+  relyingParties: [RelyingParty!]!
 }
 
 type Mutation {

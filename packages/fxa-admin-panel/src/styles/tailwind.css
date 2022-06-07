@@ -6,6 +6,18 @@
   fill: #0c0c0d;
 }
 
+hr {
+  @apply border-grey-50 mb-4;
+}
+
+th {
+  @apply font-medium text-violet-900 pl-4 pr-8 text-left;
+}
+
+.result-grey {
+  @apply italic text-grey-500;
+}
+
 /* TODO: move this into AccountSearch/index.css. Can't seem to use @import here */
 .account-header {
   @apply mt-0 my-0 mb-1 text-lg;
