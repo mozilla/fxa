@@ -10,6 +10,7 @@
   "scripts": {
     "postinstall": "yarn build || true",
     "build": "tsc --build && yarn copy-assets",
+    "compile": "tsc --noEmit",
     "copy-assets": "cp -r ./db/luaScripts ./dist/db/luaScripts",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",

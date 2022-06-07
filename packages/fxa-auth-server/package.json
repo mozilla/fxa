@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "yarn emails-scss && tsc --build && cp -R config public lib scripts dist/fxa-auth-server",
+    "compile": "tsc --noEmit",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint . .storybook --ignore-pattern 'dist'",
