@@ -22525,7 +22525,7 @@ fsevents@~2.1.1:
     webpack: ^4.41.2
     webpack-cli: ^4.9.2
     webpack-dev-middleware: ^5.0.0
-    xmlhttprequest: "https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror"
+    xmlhttprequest: ^1.8.0
     yargs: ^17.0.1
   languageName: unknown
   linkType: soft
@@ -44929,10 +44929,10 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"xmlhttprequest@https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror":
-  version: 1.5.1
-  resolution: "xmlhttprequest@https://github.com/mozilla-fxa/node-XMLHttpRequest.git#commit=3f904613b860b4438e65a31b7b82f09a4d2d64dd"
-  checksum: 3d531894194e0b5bbd9373ebc02d278f0d5e60c35c0f5dbe4cc3d5cc74e1930b30ff2193d14c9756c42c89a2bf83a2380fbeac7fe438122284596564fec23876
+"xmlhttprequest@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "xmlhttprequest@npm:1.8.0"
+  checksum: c891cf0d7884b4f5cce835aa01f1965727cd352cbd2d7a2e0605bf11ec99ae2198364cca54656ec8b2581a5704dee6c2bf9911922a0ff2a71b613455d32e81b7
   languageName: node
   linkType: hard
 
