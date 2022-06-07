@@ -57,7 +57,7 @@ export type ProductConfigLocalesConfig = Pick<
 >;
 
 export class ProductConfig implements BaseConfig {
-  // Firestore document id
+  // Firestore document id - More
   id!: string;
 
   active!: boolean;
