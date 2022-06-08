@@ -32,9 +32,9 @@ export const DropDownAvatarMenu = () => {
       } catch (e) {
         alertBar.error(
           l10n.getString(
-            'drop-down-menu-sign-out-error',
+            'drop-down-menu-sign-out-error-2',
             null,
-            'Sorry, there was a problem signing you out.'
+            'Sorry, there was a problem signing you out'
           )
         );
       }

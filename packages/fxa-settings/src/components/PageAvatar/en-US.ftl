@@ -24,8 +24,8 @@ avatar-page-rotate-button =
 avatar-page-camera-error = Could not initialize camera
 avatar-page-new-avatar =
   .alt = new profile picture
-avatar-page-file-upload-error-2 = There was a problem uploading your profile picture.
-avatar-page-delete-error-2 = There was a problem deleting your profile picture.
-avatar-page-image-too-large-error = The image file size is too large to be uploaded.
+avatar-page-file-upload-error-3 = There was a problem uploading your profile picture
+avatar-page-delete-error-3 = There was a problem deleting your profile picture
+avatar-page-image-too-large-error-2 = The image file size is too large to be uploaded
 
 ##
