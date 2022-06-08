@@ -1,5 +1,24 @@
 # Change history
 
+## 1.234.0
+
+### Bug fixes
+
+- a11y: add a11y to modal close button svg Because: ([b1486b4b7d](https://github.com/mozilla/fxa/commit/b1486b4b7d))
+
+### Other changes
+
+- payments: clean Up Test Output Because: ([752f09c1e1](https://github.com/mozilla/fxa/commit/752f09c1e1))
+- deps: bump jquery-modal from 0.7.1 to 0.9.2 ([8df9ba3552](https://github.com/mozilla/fxa/commit/8df9ba3552))
+- payments: add bottom margin to subscriptions page Because: ([7c65c6ca9a](https://github.com/mozilla/fxa/commit/7c65c6ca9a))
+- deps: bump @stripe/react-stripe-js from 1.7.1 to 1.8.1 ([7d9d9cfe85](https://github.com/mozilla/fxa/commit/7d9d9cfe85))
+- deps-dev: bump @testing-library/react from 12.1.3 to 12.1.5 ([4373180aad](https://github.com/mozilla/fxa/commit/4373180aad))
+- deps: bump @stripe/stripe-js from 1.29.0 to 1.31.0 ([b6a0b1d4d6](https://github.com/mozilla/fxa/commit/b6a0b1d4d6))
+- deps: bump @fluent/langneg from 0.6.1 to 0.6.2 ([4735f63bf0](https://github.com/mozilla/fxa/commit/4735f63bf0))
+- deps: bump react-redux from 8.0.1 to 8.0.2 ([afab5faa05](https://github.com/mozilla/fxa/commit/afab5faa05))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+- dep: Upgrades joi, hapi-swagger and its plugins ([d970f293d3](https://github.com/mozilla/fxa/commit/d970f293d3))
+
 ## 1.233.1
 
 No changes.

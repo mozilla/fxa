@@ -1,3 +1,12 @@
+## 1.234.0
+
+### Other changes
+
+- deps: bump ip from 1.1.5 to 1.1.8 ([79da2a052f](https://github.com/mozilla/fxa/commit/79da2a052f))
+- deps: bump ip from 1.1.5 to 1.1.8" ([1439014f8e](https://github.com/mozilla/fxa/commit/1439014f8e))
+- deps: bump ip from 1.1.5 to 1.1.8 ([6047850269](https://github.com/mozilla/fxa/commit/6047850269))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+
 ## 1.233.1
 
 No changes.

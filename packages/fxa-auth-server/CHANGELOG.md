@@ -1,3 +1,29 @@
+## 1.234.0
+
+### New features
+
+- auth: only load support routes with stripeHelper active ([350ec08363](https://github.com/mozilla/fxa/commit/350ec08363))
+
+### Bug fixes
+
+- auth: Report actual error to Sentry ([4cd5240cd3](https://github.com/mozilla/fxa/commit/4cd5240cd3))
+- fluent: update missing id to fix fluent error Because: ([7539c3f064](https://github.com/mozilla/fxa/commit/7539c3f064))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-controls from 6.4.19 to 6.5.7 ([0b0b991341](https://github.com/mozilla/fxa/commit/0b0b991341))
+- fxa-auth-server: Disable error message truncation in tests Because: ([aca396adff](https://github.com/mozilla/fxa/commit/aca396adff))
+- deps: bump @googlemaps/google-maps-services-js ([b2d8615475](https://github.com/mozilla/fxa/commit/b2d8615475))
+- deps: bump keyv from 4.2.2 to 4.3.0 ([9ab27f5634](https://github.com/mozilla/fxa/commit/9ab27f5634))
+- deps: bump hapi-swagger from 14.5.1 to 14.5.2 ([1a63747c01](https://github.com/mozilla/fxa/commit/1a63747c01))
+- deps: bump stripe from 8.218.0 to 9.6.0 ([c3c36030ec](https://github.com/mozilla/fxa/commit/c3c36030ec))
+- Swagger: Add Firefox Accounts OAuth Server API documenation to Swagger docs ([faa7924acf](https://github.com/mozilla/fxa/commit/faa7924acf))
+- deps: bump @fluent/langneg from 0.6.1 to 0.6.2 ([4735f63bf0](https://github.com/mozilla/fxa/commit/4735f63bf0))
+- db: Stop writing `tokenVerificationCode` value to db ([e4a337a93d](https://github.com/mozilla/fxa/commit/e4a337a93d))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+- dep: Upgrades joi, hapi-swagger and its plugins ([d970f293d3](https://github.com/mozilla/fxa/commit/d970f293d3))
+- deps: bump p-retry from 4.6.2 to 5.1.1" ([30d91c2cf5](https://github.com/mozilla/fxa/commit/30d91c2cf5))
+
 ## 1.233.1
 
 ### Other changes

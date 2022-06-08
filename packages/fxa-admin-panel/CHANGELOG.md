@@ -1,3 +1,14 @@
+## 1.234.0
+
+### New features
+
+- admin: Create 'Relying Parties' page ## 1.233.1 display RPs from db ([c909a63846](https://github.com/mozilla/fxa/commit/c909a63846))
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 12.1.3 to 12.1.5 ([4373180aad](https://github.com/mozilla/fxa/commit/4373180aad))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+
 ## 1.233.1
 
 No changes.

@@ -1,3 +1,13 @@
+## 1.234.0
+
+### Other changes
+
+- strings: fix comment issue in fxa-settings ftl file Because: ([44857a7b26](https://github.com/mozilla/fxa/commit/44857a7b26))
+- storybook: fix missing styles in storybook and refactor ([6b92c6a11d](https://github.com/mozilla/fxa/commit/6b92c6a11d))
+- deps-dev: bump @testing-library/react from 12.1.3 to 12.1.5 ([4373180aad](https://github.com/mozilla/fxa/commit/4373180aad))
+- settings: update copy in "Disconnect from Sync" pop-up Because: ([0f853c12d2](https://github.com/mozilla/fxa/commit/0f853c12d2))
+- settings: remove period in one-line alerts Because: ([9e975cbe8f](https://github.com/mozilla/fxa/commit/9e975cbe8f))
+
 ## 1.233.1
 
 No changes.

@@ -1,3 +1,10 @@
+## 1.234.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.4.5 to 8.4.6 ([f7a421bbd3](https://github.com/mozilla/fxa/commit/f7a421bbd3))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+
 ## 1.233.1
 
 No changes.
