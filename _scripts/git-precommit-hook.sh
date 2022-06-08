@@ -27,7 +27,7 @@ IFS=$ORIGINAL_IFS
 INCLUDE_ARGS=`echo "$INCLUDE_ARGS" | xargs` # trim whitespace at beginning of string
 echo "compiling all modified and dependent backend TS packages..."
 # We don't need to write files to disk, so use --noEmit here instead of --build for speed.
-if ! `yarn workspaces foreach --verbose --topological-dev ${INCLUDE_ARGS} run compile > artifacts/compiling-affected-backend-packages.log`;
+if ! `yarn workspaces foreach --verbose --topological-dev --parallel ${INCLUDE_ARGS} run compile > artifacts/compiling-affected-backend-packages.log`;
 then
   echo -e "\n###########################################################\n"
   echo "# fxa couldn't build one or more packages. see artifacts/compiling-affected-backend-packages.log for details."
