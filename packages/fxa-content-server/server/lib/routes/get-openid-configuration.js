@@ -13,6 +13,7 @@ const jwksEndpoint = config.get('oauth_url') + '/v1/jwks';
 const revocationEndpoint = config.get('oauth_url') + '/v1/destroy';
 const tokenEndpoint = config.get('oauth_url') + '/v1/token';
 const userInfoEndpoint = config.get('profile_url') + '/v1/profile';
+const verifyEndpoint = config.get('oauth_url') + '/v1/verify';
 
 const openidConfig = {
   /*eslint-disable camelcase */
@@ -23,6 +24,7 @@ const openidConfig = {
   revocation_endpoint: revocationEndpoint,
   token_endpoint: tokenEndpoint,
   userinfo_endpoint: userInfoEndpoint,
+  verify_endpoint: verifyEndpoint,
 };
 
 const c = config.get('openid_configuration');
