@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 import {
@@ -70,116 +70,140 @@ const WrapNewUserEmailForm = ({
 
 describe('NewUserEmailForm test', () => {
   it('renders as expected', () => {
-    let subject;
-    act(() => {
-      subject = render(
+    const subject = () => {
+      return render(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
         />
       );
-    });
-    const form = subject.queryByTestId('new-user-email-form');
+    };
+
+    const { queryByTestId } = subject();
+    const form = queryByTestId('new-user-email-form');
     expect(form).toBeInTheDocument();
 
-    const signInCopy = subject.queryByTestId('sign-in-copy');
+    const signInCopy = queryByTestId('sign-in-copy');
     expect(signInCopy).toBeInTheDocument();
 
-    const firstEmail = subject.queryByTestId('new-user-email');
+    const firstEmail = queryByTestId('new-user-email');
     expect(firstEmail).toBeInTheDocument();
 
-    const secondEmail = subject.queryByTestId('new-user-confirm-email');
+    const secondEmail = queryByTestId('new-user-confirm-email');
     expect(secondEmail).toBeInTheDocument();
 
-    const subscribeCheckbox = subject.queryByTestId(
+    const subscribeCheckbox = queryByTestId(
       'new-user-subscribe-product-updates'
     );
     expect(subscribeCheckbox).toBeInTheDocument();
 
-    const assuranceCopy = subject.queryByTestId('assurance-copy');
+    const assuranceCopy = queryByTestId('assurance-copy');
     expect(assuranceCopy).toBeInTheDocument();
   });
 
   it('shows error when invalid email is input to first field', async () => {
-    let subject;
-    await act(async () => {
-      subject = render(
+    const subject = () => {
+      return render(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
         />
       );
-      const firstEmail = subject.getByTestId('new-user-email');
+    };
 
-      fireEvent.change(firstEmail, { target: { value: 'invalid-email' } });
-      fireEvent.blur(firstEmail);
+    const { getByTestId, queryByText } = subject();
+    const firstEmail = getByTestId('new-user-email');
+
+    fireEvent.change(firstEmail, { target: { value: 'invalid-email' } });
+    fireEvent.blur(firstEmail);
+
+    await waitFor(() => {
+      expect(queryByText('new-user-email-validate')).toBeVisible();
     });
-    expect(subject.queryByText('new-user-email-validate')).toBeVisible();
   });
 
   it('shows no error when valid email is input to first field', async () => {
-    let subject;
+    const subject = () => {
+      return render(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
+      );
+    };
 
-    subject = render(
-      <WrapNewUserEmailForm
-        accountExistsReturnValue={false}
-        invalidDomain={false}
-      />
-    );
-    const firstEmail = subject.getByTestId('new-user-email');
+    const { getByTestId, queryByText } = subject();
+    const firstEmail = getByTestId('new-user-email');
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.blur(firstEmail);
 
-    expect(subject.queryByText('new-user-email-validate')).toBeFalsy();
+    await waitFor(() => {
+      expect(queryByText('new-user-email-validate')).toBeFalsy();
+    });
   });
 
   it('shows no error when empty string is provided to second field', async () => {
-    let subject = render(
-      <WrapNewUserEmailForm
-        accountExistsReturnValue={false}
-        invalidDomain={false}
-      />
-    );
+    const subject = () => {
+      return render(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
+      );
+    };
 
-    const firstEmail = subject.getByTestId('new-user-email');
-    const secondEmail = subject.getByTestId('new-user-confirm-email');
+    const { getByTestId, queryByText } = subject();
+
+    const firstEmail = getByTestId('new-user-email');
+    const secondEmail = getByTestId('new-user-confirm-email');
 
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.change(secondEmail, { target: { value: '' } });
 
-    expect(subject.queryByText('new-user-email-validate-confirm')).toBeFalsy();
-    expect(secondEmail.classList.contains('invalid')).toBeFalsy();
+    await waitFor(() => {
+      expect(queryByText('new-user-email-validate-confirm')).toBeFalsy();
+      expect(secondEmail.classList.contains('invalid')).toBeFalsy();
+    });
   });
 
   it('shows error when emails do not match', async () => {
-    let subject = render(
-      <WrapNewUserEmailForm
-        accountExistsReturnValue={false}
-        invalidDomain={false}
-      />
-    );
-    const firstEmail = subject.getByTestId('new-user-email');
-    const secondEmail = subject.getByTestId('new-user-confirm-email');
+    const subject = () => {
+      return render(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
+      );
+    };
+
+    const { getByTestId, queryByText } = subject();
+
+    const firstEmail = getByTestId('new-user-email');
+    const secondEmail = getByTestId('new-user-confirm-email');
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.change(secondEmail, {
       target: { value: 'not.the.same@email.com' },
     });
     fireEvent.blur(secondEmail);
 
-    expect(
-      subject.queryByText('new-user-email-validate-confirm')
-    ).toBeVisible();
+    await waitFor(() => {
+      expect(queryByText('new-user-email-validate-confirm')).toBeVisible();
+    });
   });
 
   it('shows no error when emails match', async () => {
-    let subject = render(
-      <WrapNewUserEmailForm
-        accountExistsReturnValue={false}
-        invalidDomain={false}
-      />
-    );
-    const firstEmail = subject.getByTestId('new-user-email');
-    const secondEmail = subject.getByTestId('new-user-confirm-email');
+    const subject = () => {
+      return render(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+        />
+      );
+    };
+
+    const { getByTestId, queryByText } = subject();
+    const firstEmail = getByTestId('new-user-email');
+    const secondEmail = getByTestId('new-user-confirm-email');
 
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.change(secondEmail, {
@@ -187,7 +211,9 @@ describe('NewUserEmailForm test', () => {
     });
     fireEvent.blur(secondEmail);
 
-    expect(subject.queryByText('new-user-email-validate-confirm')).toBeFalsy();
+    await waitFor(() => {
+      expect(queryByText('new-user-email-validate-confirm')).toBeFalsy();
+    });
   });
 
   it('Notifies the user if they already have an account', async () => {

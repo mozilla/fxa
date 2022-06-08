@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useContext } from 'react';
+import React, { ReactNode, useContext, useEffect } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Localized } from '@fluent/react';
-import DocumentTitle from 'react-document-title';
-
+import Head from 'fxa-react/components/Head';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import sentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
@@ -101,54 +100,53 @@ export const App = ({
 
   return (
     <AppContext.Provider value={appContextValue}>
+      <Head />
       <AppLocalizationProvider
         userLocales={navigatorLanguages}
         bundles={['main']}
       >
         <Localized id="document" attrs={{ title: true }}>
-          <DocumentTitle title="Firefox Accounts">
-            <AppErrorBoundary>
-              <StripeProvider apiKey={config.stripe.apiKey}>
-                <ReduxProvider store={store}>
-                  <React.Suspense fallback={<RouteFallback />}>
-                    <Router>
-                      <Routes>
-                        {/* Note: every permutation of Route and nested Routes below should also be listed in INDEX_ROUTES in server/lib/server.js */}
-                        <Route
-                          path="/"
-                          element={<Navigate to="/subscriptions" />}
-                        />
-                        <Route
-                          path="/subscriptions"
-                          element={
-                            <SettingsLayout>
-                              <Subscriptions />
-                            </SettingsLayout>
-                          }
-                        />
-                        <Route
-                          path="/products/:productId"
-                          element={
-                            <SignInLayout>
-                              <Product />
-                            </SignInLayout>
-                          }
-                        />
-                        <Route
-                          path="/checkout/:productId"
-                          element={
-                            <SignInLayout>
-                              <Checkout />
-                            </SignInLayout>
-                          }
-                        />
-                      </Routes>
-                    </Router>
-                  </React.Suspense>
-                </ReduxProvider>
-              </StripeProvider>
-            </AppErrorBoundary>
-          </DocumentTitle>
+          <AppErrorBoundary>
+            <StripeProvider apiKey={config.stripe.apiKey}>
+              <ReduxProvider store={store}>
+                <React.Suspense fallback={<RouteFallback />}>
+                  <Router>
+                    <Routes>
+                      {/* Note: every permutation of Route and nested Routes below should also be listed in INDEX_ROUTES in server/lib/server.js */}
+                      <Route
+                        path="/"
+                        element={<Navigate to="/subscriptions" />}
+                      />
+                      <Route
+                        path="/subscriptions"
+                        element={
+                          <SettingsLayout>
+                            <Subscriptions />
+                          </SettingsLayout>
+                        }
+                      />
+                      <Route
+                        path="/products/:productId"
+                        element={
+                          <SignInLayout>
+                            <Product />
+                          </SignInLayout>
+                        }
+                      />
+                      <Route
+                        path="/checkout/:productId"
+                        element={
+                          <SignInLayout>
+                            <Checkout />
+                          </SignInLayout>
+                        }
+                      />
+                    </Routes>
+                  </Router>
+                </React.Suspense>
+              </ReduxProvider>
+            </StripeProvider>
+          </AppErrorBoundary>
         </Localized>
       </AppLocalizationProvider>
     </AppContext.Provider>

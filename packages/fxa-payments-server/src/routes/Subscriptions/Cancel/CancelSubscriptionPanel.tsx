@@ -50,6 +50,7 @@ const CancelSubscriptionPanel = ({
     setIsLocalCancellation,
     resetIsLocalCancellation,
   ] = useBooleanState();
+  const isMounted = useRef(false);
 
   const confirmCancellation = useCallback(async () => {
     setIsLocalCancellation();
@@ -63,7 +64,9 @@ const CancelSubscriptionPanel = ({
     } catch (err) {
       // no-op, error is displayed in the Subscriptions route parent
     }
-    resetIsLocalCancellation();
+    if (isMounted.current) {
+      resetIsLocalCancellation();
+    }
   }, [
     cancelSubscription,
     subscription_id,
@@ -78,10 +81,16 @@ const CancelSubscriptionPanel = ({
   const engaged = useRef(false);
 
   useEffect(() => {
+    isMounted.current = true;
+
     if (!viewed.current && cancelRevealed) {
       Amplitude.cancelSubscriptionMounted({ ...plan, promotionCode });
       viewed.current = true;
     }
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [cancelRevealed, viewed, plan, promotionCode]);
 
   const engage = useCallback(() => {

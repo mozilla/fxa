@@ -32,6 +32,13 @@ jest.mock('@fluent/react', () => ({
   Localized: ({ children }: { children: ReactNode }) => (
     <span data-testid="Localized">{children}</span>
   ),
+  useLocalization: jest.fn(() => {
+    return {
+      l10n: {
+        getString: jest.fn(),
+      },
+    };
+  }),
 }));
 
 jest.mock('./routes/Product', () => ({

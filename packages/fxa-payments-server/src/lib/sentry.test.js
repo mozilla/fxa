@@ -41,6 +41,9 @@ describe('lib/sentry', function () {
   });
 
   describe('beforeSend', function () {
+    jest.spyOn(console, 'info').mockImplementation(jest.fn());
+    jest.spyOn(console, 'error').mockImplementation(jest.fn());
+
     sentryMetrics.configure({
       release,
       sentry: {

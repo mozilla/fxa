@@ -278,6 +278,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(403, MOCK_CUSTOMER);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-profile');
   });
@@ -293,6 +296,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(403, MOCK_CUSTOMER);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-plans');
   });
@@ -308,6 +314,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(403, {});
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+      .reply(200, MOCK_SUBSEQUENT_INVOICES);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
   });
@@ -465,7 +474,7 @@ describe('routes/Subscriptions', () => {
 
     expect(cancelSubscriptionEngaged).toBeCalledTimes(1);
 
-    await act(() => {
+    act(() => {
       fireEvent.click(cancelButton);
     });
 
@@ -555,7 +564,7 @@ describe('routes/Subscriptions', () => {
 
     expect(cancelSubscriptionEngaged).toBeCalledTimes(2);
 
-    await act(() => {
+    act(() => {
       fireEvent.click(cancelButtons[0]);
     });
 
