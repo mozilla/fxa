@@ -38,7 +38,7 @@
   "devDependencies": {
     "@nestjs/testing": "^8.4.6",
     "@type-cacheable/core": "^10.1.0",
-    "@type-cacheable/ioredis-adapter": "^10.0.4",
+    "@type-cacheable/ioredis-adapter": "^11.0.1",
     "@types/accept-language-parser": "^1.5.3",
     "@types/chai": "^4.2.18",
     "@types/chance": "^1.1.2",
