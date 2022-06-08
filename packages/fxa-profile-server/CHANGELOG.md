@@ -1,3 +1,12 @@
+## 1.234.0
+
+### Other changes
+
+- deps: bump sharp from 0.30.5 to 0.30.6 ([a7ca7e1ec0](https://github.com/mozilla/fxa/commit/a7ca7e1ec0))
+- deps: bump sharp from 0.30.4 to 0.30.5 ([d3d0a2c099](https://github.com/mozilla/fxa/commit/d3d0a2c099))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+- dep: Upgrades joi, hapi-swagger and its plugins ([d970f293d3](https://github.com/mozilla/fxa/commit/d970f293d3))
+
 ## 1.233.1
 
 No changes.

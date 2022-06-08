@@ -1,3 +1,19 @@
+## 1.234.0
+
+### Other changes
+
+- deps: bump ua-parser-js from 0.7.10 to 1.0.2 ([28f0ed0710](https://github.com/mozilla/fxa/commit/28f0ed0710))
+- deps: bump jquery-modal from 0.7.1 to 0.9.2 ([8df9ba3552](https://github.com/mozilla/fxa/commit/8df9ba3552))
+- deps: bump xmlhttprequest from 1.5.1 to 1.8.0 ([82dea33456](https://github.com/mozilla/fxa/commit/82dea33456))
+- package: Remove mystery nvmrc ([90edb0b069](https://github.com/mozilla/fxa/commit/90edb0b069))
+- deps-dev: bump @testing-library/react from 12.1.3 to 12.1.5 ([4373180aad](https://github.com/mozilla/fxa/commit/4373180aad))
+- package: Remove node/npm engines from fxa-content-server/package.json ([03d9f30321](https://github.com/mozilla/fxa/commit/03d9f30321))
+- deps-dev: bump htmlparser2 from 7.2.0 to 8.0.1 ([553a2b3a6e](https://github.com/mozilla/fxa/commit/553a2b3a6e))
+- deps-dev: bump ts-loader from 8.3.0 to 8.4.0 ([d4a7e8e45e](https://github.com/mozilla/fxa/commit/d4a7e8e45e))
+- db: Stop writing `tokenVerificationCode` value to db ([e4a337a93d](https://github.com/mozilla/fxa/commit/e4a337a93d))
+- deps: bump convict from 6.2.2 to 6.2.3 ([0b915bbfa0](https://github.com/mozilla/fxa/commit/0b915bbfa0))
+- dep: Upgrades joi, hapi-swagger and its plugins ([d970f293d3](https://github.com/mozilla/fxa/commit/d970f293d3))
+
 ## 1.233.1
 
 No changes.
