@@ -16,7 +16,7 @@ echo "modified packages found"
 ORIGINAL_IFS=$IFS
 IFS=$'\n'
 # We don't need to worry about front-end packages that use TS, since they must build successfully for CI to pass.
-BACKEND_PACKAGES=( "fxa-auth-server" "fxa-event-broker" "fxa-graphql-api" "fxa-shared" "fxa-support-panel" "fxa-admin-server" )
+BACKEND_PACKAGES=( "fxa-admin-server" "fxa-auth-server" "fxa-event-broker" "fxa-graphql-api" "fxa-shared" "fxa-support-panel" )
 INCLUDE_ARGS=''
 for package_modified in $PACKAGES_MODIFIED; do
   if [[ " ${BACKEND_PACKAGES[@]} " =~ " ${package_modified} " ]]; then
@@ -30,8 +30,7 @@ echo "compiling all modified and dependent backend TS packages..."
 if ! `yarn workspaces foreach --verbose --topological-dev --parallel ${INCLUDE_ARGS} run compile > artifacts/compiling-affected-backend-packages.log`;
 then
   echo -e "\n###########################################################\n"
-  echo "# fxa couldn't build one or more packages. see artifacts/compiling-affected-backend-packages.log for details."
-  echo -e "\n# If you see any unrelated TS errors, you could have a stale build of another package that changed recently. Try restarting fxa via 'yarn start'. See #12912."
+  echo "# fxa couldn't compile one or more packages. see artifacts/compiling-affected-backend-packages.log for details."
   echo -e "\n###########################################################\n"
   exit 1
 fi
