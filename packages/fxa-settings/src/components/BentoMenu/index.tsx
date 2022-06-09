@@ -27,18 +27,24 @@ export const BentoMenu = () => {
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 ltr:pr-1 rtl:pl-1';
   const { l10n } = useLocalization();
+  const bentoMenuTitle = l10n.getString(
+    'bento-menu-title',
+    null,
+    'Firefox Bento Menu'
+  );
 
   return (
     <div className="relative self-center flex" ref={bentoMenuInsideRef}>
       <button
         onClick={toggleRevealed}
         data-testid="drop-down-bento-menu-toggle"
-        title={l10n.getString('bento-menu-title', null, 'Firefox Bento Menu')}
-        aria-expanded={isRevealed}
-        aria-controls={dropDownId}
+        title={bentoMenuTitle}
+        aria-label={bentoMenuTitle}
+        aria-expanded={!!isRevealed}
+        aria-haspopup="menu"
         className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 transition-standard desktop:mx-8"
       >
-        <BentoIcon className="cursor-pointer" />
+        <BentoIcon />
       </button>
 
       {isRevealed && (
@@ -47,10 +53,11 @@ export const BentoMenu = () => {
           data-testid={dropDownId}
           className={`w-full h-full fixed top-0 ltr:left-0 rtl:right-0 bg-white z-10
                       mobileLandscape:h-auto mobileLandscape:drop-down-menu mobileLandscape:top-10 mobileLandscape:ltr:-left-52 mobileLandscape:rtl:-right-52 desktop:ltr:-left-50 desktop:rtl:-right-50`}
+          role="menu"
         >
           <div className="flex flex-wrap">
             <div className="flex w-full pt-4 items-center flex-col tablet:w-auto tablet:relative">
-              <button type="button" onClick={closeFn} title="Close">
+              <button onClick={closeFn} title="Close">
                 <CloseIcon
                   width="16"
                   height="16"

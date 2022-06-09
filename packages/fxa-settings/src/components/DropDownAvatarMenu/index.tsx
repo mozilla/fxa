@@ -22,6 +22,11 @@ export const DropDownAvatarMenu = () => {
   const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
   const { l10n } = useLocalization();
+  const dropDownMenuTitle = l10n.getString(
+    'drop-down-menu-title',
+    null,
+    'Firefox account menu'
+  );
 
   const signOut = async () => {
     if (session.destroy) {
@@ -45,16 +50,12 @@ export const DropDownAvatarMenu = () => {
     <>
       <div className="relative" ref={avatarMenuInsideRef}>
         <button
-          type="button"
           onClick={toggleRevealed}
           data-testid="drop-down-avatar-menu-toggle"
-          title={l10n.getString(
-            'drop-down-menu-title',
-            null,
-            'Firefox account menu'
-          )}
-          aria-expanded={isRevealed}
-          aria-controls={dropDownId}
+          title={dropDownMenuTitle}
+          aria-label={dropDownMenuTitle}
+          aria-expanded={!!isRevealed}
+          aria-haspopup="menu"
           className="rounded-full border-2 border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
         >
           <Avatar className="w-10 rounded-full" />
@@ -64,6 +65,7 @@ export const DropDownAvatarMenu = () => {
             id={dropDownId}
             data-testid={dropDownId}
             className="drop-down-menu ltr:-left-52 rtl:-right-52"
+            role="menu"
           >
             <div className="flex flex-wrap">
               <div className="flex w-full p-4 items-center">
