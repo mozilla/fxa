@@ -537,6 +537,14 @@ module.exports = (
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
+        validate: {
+          query: isA.object({
+            filterIdleDevicesTimestamp: isA
+              .number()
+              .description(DESCRIPTION.filterIdleDevicesTimestamp)
+              .optional(),
+          }),
+        },
         response: {
           schema: isA.array().items(
             isA
@@ -596,7 +604,7 @@ module.exports = (
           }
         }
 
-        return deviceArray.map((device) => {
+        let responseDevices = deviceArray.map((device) => {
           const refreshToken = oauthRefreshTokensById.get(
             device.refreshTokenId
           ); // null for session-token based devices.
@@ -635,6 +643,18 @@ module.exports = (
 
           return formattedDevice;
         });
+        // To help reduce duplicate devices and help improve send tab
+        // performance a client can request to filter device last access
+        // time by a specified number of days. For reference, Sync currently
+        // considers devices that have been accessed in the last 21 days to
+        // be active.
+        const idleDeviceTimestamp = request.query.filterIdleDevicesTimestamp;
+        if (idleDeviceTimestamp) {
+          responseDevices = responseDevices.filter((device) => {
+            return device.lastAccessTime > idleDeviceTimestamp;
+          });
+        }
+        return responseDevices;
       },
     },
     {

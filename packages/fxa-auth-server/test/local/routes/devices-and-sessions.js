@@ -1737,6 +1737,64 @@ describe('/account/devices', () => {
       assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
     }
   });
+
+  it('filters out idle devices based on a query parameter', async () => {
+    const now = Date.now();
+    const FIVE_DAYS_AGO = now - 1000 * 60 * 60 * 24 * 5;
+    const ONE_DAY_AGO = now - 1000 * 60 * 60 * 24;
+    const credentials = {
+      uid: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString('hex'),
+    };
+
+    const mockRequest = mocks.mockRequest({
+      acceptLanguage: 'en;q=0.5, fr;q=0.51',
+      credentials,
+      devices: [
+        {
+          id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          name: 'current session',
+          type: 'mobile',
+          sessionTokenId: credentials.id,
+          lastAccessTime: now,
+        },
+        {
+          id: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          name: 'has no type',
+          sessionTokenId: crypto.randomBytes(16).toString('hex'),
+          lastAccessTime: FIVE_DAYS_AGO,
+        },
+      ],
+      payload: {},
+      query: {
+        filterIdleDevicesTimestamp: ONE_DAY_AGO,
+      },
+    });
+    const mockDB = mocks.mockDB();
+    const mockDevices = mocks.mockDevices();
+    const log = mocks.mockLog();
+    const accountRoutes = makeRoutes({
+      db: mockDB,
+      devices: mockDevices,
+      log,
+    });
+    const route = getRoute(accountRoutes, '/account/devices');
+
+    return runTest(route, mockRequest, (response) => {
+      assert.ok(Array.isArray(response), 'response is array');
+      assert.equal(
+        response.length,
+        1,
+        'response contains 1 item, the other was filtered'
+      );
+
+      assert.equal(response[0].name, 'current session');
+      assert.equal(response[0].type, 'mobile');
+      assert.equal(response[0].sessionToken, undefined);
+      assert.equal(response[0].isCurrentDevice, true);
+      assert.ok(response[0].lastAccessTime > ONE_DAY_AGO);
+    });
+  });
 });
 
 describe('/account/sessions', () => {
