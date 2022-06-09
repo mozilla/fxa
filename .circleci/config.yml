@@ -126,31 +126,36 @@ jobs:
     steps:
       - base-install
       - run:
-          name: Testing...
-          command: |
-            PACKAGES=(\
-            'fxa-shared' \
-            'fxa-react' \
-            'fxa-graphql-api' \
-            'fxa-payments-server' \
-            'fxa-admin-server' \
-            'fxa-admin-panel' \
-            'fxa-support-panel' \
-            'fxa-event-broker' \
-            'fxa-profile-server' \
-            '123done' \
-            'browserid-verifier' \
-            'fortress' \
-            'fxa-auth-client' \
-            'fxa-geodb' \
-            'fxa-customs-server' \
-            )
-            for p in "${PACKAGES[@]}"; do
-              ./.circleci/test-package.sh $p
-            done
+          name: Compiling back-end Typescript packages...
+          command: ./_scripts/compile-backend-ts-services.sh
+      # - run:
+      #     name: Testing...
+      #     command: |
+      #       PACKAGES=(\
+      #       'fxa-shared' \
+      #       'fxa-react' \
+      #       'fxa-graphql-api' \
+      #       'fxa-payments-server' \
+      #       'fxa-admin-server' \
+      #       'fxa-admin-panel' \
+      #       'fxa-support-panel' \
+      #       'fxa-event-broker' \
+      #       'fxa-profile-server' \
+      #       '123done' \
+      #       'browserid-verifier' \
+      #       'fortress' \
+      #       'fxa-auth-client' \
+      #       'fxa-geodb' \
+      #       'fxa-customs-server' \
+      #       )
+      #       for p in "${PACKAGES[@]}"; do
+      #         ./.circleci/test-package.sh $p
+      #       done
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      - store_artifacts:
+          path: artifacts
       - jira/notify
 
   test-settings-server:
@@ -290,68 +295,68 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
-      - test-settings-server:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-3:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-4:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-5:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - playwright-functional-tests:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+      # - test-settings-server:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-package:
+      #     name: test-auth-server
+      #     package: fxa-auth-server
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-0:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-1:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-2:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-3:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-4:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-5:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - playwright-functional-tests:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - build-and-deploy-storybooks:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
   deploy_branch:
     jobs:
       - deploy-packages:

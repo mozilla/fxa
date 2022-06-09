@@ -45,7 +45,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && _scripts/git-precommit-hook.sh",
+      "pre-commit": "lint-staged",
       "post-checkout": "_scripts/git-checkout-hook.sh",
       "post-merge": "_scripts/git-merge-hook.sh"
     }
