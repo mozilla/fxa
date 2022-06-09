@@ -45,7 +45,7 @@
   "postAddAccountRecovery": 6,
   "postRemoveAccountRecovery": 6,
   "cadReminderFirst": 2,
-  "cadReminderSecond": 2,
+  "cadReminderSecond": 3,
   "subscriptionAccountReminderFirst": 2,
   "subscriptionAccountReminderSecond": 2
 }

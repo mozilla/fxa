@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="cadReminderSecond-title">Last reminder to sync devices!</span>
+      <span data-l10n-id="cadReminderSecond-title-2">Don’t forget to sync!</span>
     </mj-text>
     <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
@@ -14,7 +14,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="cadReminderSecond-description">Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.</span>
+      <span data-l10n-id="cadReminderSecond-description-sync">Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="cadReminderSecond-description-plus">Plus, your data is always encrypted. Only you and devices you approve can see it.</span>
     </mj-text>
   </mj-column>
 </mj-section>
