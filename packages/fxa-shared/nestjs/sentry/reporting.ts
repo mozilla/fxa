@@ -7,14 +7,23 @@ import * as Sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import { Request } from 'express';
 
-// Matches uid, session, oauth and other common tokens which we would
-// prefer not to include in Sentry reports.
-const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
-// RFC 5322 generalized email regex, ~ 99.99% accurate.
-const EMAILREGEX =
-  /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi;
-const FILTERED = '[Filtered]';
-const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
+import { CommonPiiActions } from '../../sentry/pii-filter-actions';
+import { SentryPiiFilter, SqsMessageFilter } from '../../sentry/pii-filters';
+const piiFilter = new SentryPiiFilter([
+  CommonPiiActions.breadthFilter,
+  CommonPiiActions.depthFilter,
+  CommonPiiActions.piiKeys,
+  CommonPiiActions.emailValues,
+  CommonPiiActions.tokenValues,
+  CommonPiiActions.ipV4Values,
+  CommonPiiActions.ipV6Values,
+  CommonPiiActions.urlUsernamePassword,
+]);
+
+const sqsMessageFilter = new SqsMessageFilter([
+  CommonPiiActions.emailValues,
+  CommonPiiActions.tokenValues,
+]);
 
 export interface ExtraContext {
   name: string;
@@ -26,84 +35,24 @@ export interface ExtraContext {
  *
  * @param obj Object to filter values on
  */
-export function filterObject<T>(obj: T): T {
-  if (Array.isArray(obj)) {
-    if (obj.length === 2 && typeof obj[1] === 'string') {
-      // Assume a key/value pair.
-      return [
-        obj[0],
-        obj[1].replace(TOKENREGEX, FILTERED).replace(EMAILREGEX, FILTERED),
-      ] as unknown as T;
-    }
-    if (Array.isArray(obj[0])) {
-      // Assume an array of array of key/values and filter each one.
-      return obj.map(filterObject) as unknown as T;
-    }
-  } else if (typeof obj === 'object' && obj) {
-    for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === 'string') {
-        // Typescript can't quite infer that this is the value that was
-        // at that index, so a cast is needed.
-        (obj as any)[key] = value
-          .replace(TOKENREGEX, FILTERED)
-          .replace(EMAILREGEX, FILTERED);
-      }
-    }
-  }
-  return obj;
+export function filterObject(obj: Record<string, any>) {
+  return piiFilter.filter(obj);
 }
 
 /**
- * Filter a sentry event for PII in addition to the default filters.
+ * Filter potential PII from a sentry event.
  *
- * Current replacements:
- *   - A 32-char hex string that typically is a FxA user-id.
- *
- * Data Removed:
- *   - Request body.
- *
- * @param event
+ * - Limits depth data beyond 5 levels
+ * - Filters out pii keys, See CommonPiiActions.piiKeys for more details
+ * - Filters out strings that look like emails addresses
+ * - Filters out strings that look like tokens value (32 char length alphanumeric values)
+ * - Filters out strings that look like ip addresses (v4/v6)
+ * - Filters out urls with user name / password data
+ * @param event A sentry event
+ * @returns a sanitized sentry event
  */
-export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
-  if (event.message) {
-    event.message = event.message.replace(TOKENREGEX, FILTERED);
-  }
-  if (event.breadcrumbs) {
-    for (const bc of event.breadcrumbs) {
-      if (bc.message) {
-        bc.message = bc.message.replace(TOKENREGEX, FILTERED);
-      }
-      if (bc.data) {
-        bc.data = filterObject(bc.data);
-      }
-    }
-  }
-  if (event.request) {
-    if (event.request.url) {
-      event.request.url = event.request.url.replace(TOKENREGEX, FILTERED);
-    }
-    if (event.request.query_string) {
-      if (typeof event.request.query_string === 'string') {
-        event.request.query_string = event.request.query_string.replace(
-          TOKENREGEX,
-          URIENCODEDFILTERED
-        );
-      } else {
-        event.request.query_string = filterObject(event.request.query_string);
-      }
-    }
-    if (event.request.headers) {
-      (event as any).request.headers = filterObject(event.request.headers);
-    }
-    if (event.request.data) {
-      // Remove request data entirely
-      delete event.request.data;
-    }
-  }
-  if (event.tags && event.tags.url) {
-    event.tags.url = (event.tags.url as string).replace(TOKENREGEX, FILTERED);
-  }
-  return event;
+export function filterSentryEvent(event: Sentry.Event, _hint: unknown) {
+  return piiFilter.filter(event);
 }
 
 /**
@@ -115,12 +64,7 @@ export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
 export function captureSqsError(err: Error, message?: SQS.Message): void {
   Sentry.withScope((scope) => {
     if (message?.Body) {
-      if (typeof message.Body === 'string') {
-        message.Body = message.Body.replace(TOKENREGEX, FILTERED).replace(
-          EMAILREGEX,
-          FILTERED
-        );
-      }
+      message = sqsMessageFilter.filter(message);
       scope.setContext('SQS Message', message as Record<string, unknown>);
     }
     Sentry.captureException(err);
