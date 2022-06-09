@@ -126,6 +126,9 @@ jobs:
     steps:
       - base-install
       - run:
+          name: Compiling back-end Typescript services...
+          command: ./_scripts/compile-backend-ts-services.sh
+      - run:
           name: Testing...
           command: |
             PACKAGES=(\
@@ -151,6 +154,8 @@ jobs:
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      - store_artifacts:
+          path: artifacts
       - jira/notify
 
   test-settings-server:
