@@ -12,21 +12,20 @@ var suite = {
   tests: {},
 };
 
-suite.tests[
-  '#options /.well-known/openid-configuration - CORS enabled'
-] = function () {
-  const dfd = this.async(intern._config.asyncTimeout);
+suite.tests['#options /.well-known/openid-configuration - CORS enabled'] =
+  function () {
+    const dfd = this.async(intern._config.asyncTimeout);
 
-  got(serverUrl + '/.well-known/openid-configuration', { method: 'options' })
-    .then(function (res) {
-      assert.equal(res.statusCode, 204);
-      assert.equal(res.headers['access-control-allow-origin'], '*');
-      assert.equal(res.headers['access-control-allow-methods'], 'GET');
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+    got(serverUrl + '/.well-known/openid-configuration', { method: 'options' })
+      .then(function (res) {
+        assert.equal(res.statusCode, 204);
+        assert.equal(res.headers['access-control-allow-origin'], '*');
+        assert.equal(res.headers['access-control-allow-methods'], 'GET');
+      })
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
-  return dfd;
-};
+    return dfd;
+  };
 
 suite.tests[
   '#get /.well-known/openid-configuration - returns a JSON doc with expected values'
@@ -43,7 +42,7 @@ suite.tests[
       assert.equal(res.headers['access-control-allow-origin'], '*');
 
       var result = JSON.parse(res.body);
-      assert.equal(Object.keys(result).length, 13);
+      assert.equal(Object.keys(result).length, 14);
       assert.containsAllKeys(result, [
         'authorization_endpoint',
         'introspection_endpoint',
@@ -52,6 +51,7 @@ suite.tests[
         'revocation_endpoint',
         'token_endpoint',
         'userinfo_endpoint',
+        'verify_endpoint',
       ]);
       assert.deepEqual(result.claims_supported, openIdConfig.claims_supported);
       assert.deepEqual(
