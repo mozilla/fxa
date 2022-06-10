@@ -415,7 +415,7 @@ var FormView = BaseView.extend({
       maybeFocus();
     } else {
       // tooltipId is used to bind the invalid element
-      // with the tooltip using `aria-described-by`
+      // with the tooltip using `aria-describedby`
       const tooltipId = `error-tooltip-${err.errno}`;
 
       var tooltip = new Tooltip({
@@ -450,12 +450,12 @@ var FormView = BaseView.extend({
    * Mark an element as invalid
    *
    * @param {Element} $el to mark invalid
-   * @param {String} [describedById] if set, sets 'aria-described-by' attribute on `$el`
+   * @param {String} [describedById] if set, sets 'aria-describedby' attribute on `$el`
    */
   markElementInvalid($el, describedById) {
     $el.addClass('invalid').attr('aria-invalid', 'true');
     if (describedById) {
-      $el.attr('aria-described-by', describedById);
+      $el.attr('aria-describedby', describedById);
     }
   },
 
@@ -468,7 +468,7 @@ var FormView = BaseView.extend({
     $el
       .removeClass('invalid')
       .attr('aria-invalid', null)
-      .attr('aria-described-by', null);
+      .attr('aria-describedby', null);
   },
 
   /**

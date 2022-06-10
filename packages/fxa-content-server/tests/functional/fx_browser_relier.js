@@ -47,7 +47,7 @@ registerSuite('Firefox Desktop non-sync', {
       return (
         this.remote
           .then(
-            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SYNC_DESCRIPTION, {
               query: {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
@@ -76,7 +76,7 @@ registerSuite('Firefox Desktop non-sync', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SYNC_DESCRIPTION, {
             query: {
               forceUA: uaStrings['desktop_firefox_71'],
             },
@@ -114,7 +114,7 @@ registerSuite('Firefox Desktop non-sync', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SYNC_DESCRIPTION, {
             query: {
               forceUA: uaStrings['desktop_firefox_71'],
             },
@@ -162,7 +162,7 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
       return (
         this.remote
           .then(
-            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SYNC_DESCRIPTION, {
               query: {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
@@ -209,7 +209,7 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
     'signup with no service - sync': function () {
       return this.remote
         .then(
-          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SYNC_DESCRIPTION, {
             query: {
               forceUA: uaStrings['desktop_firefox_71'],
             },

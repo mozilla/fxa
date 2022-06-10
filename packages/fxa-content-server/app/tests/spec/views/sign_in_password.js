@@ -83,8 +83,24 @@ describe('views/sign_in_password', () => {
   });
 
   describe('render', () => {
-    it('renders as expected, initializes flow events', () => {
-      assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
+    it('renders as expected on sign-in screen', () => {
+      sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => false);
+
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Sign in');
+        assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
+        assert.lengthOf(view.$('input[type=email]'), 1);
+        assert.equal(view.$('input[type=email]').val(), EMAIL);
+        assert.lengthOf(view.$('.tos-pp'), 1);
+      });
+    });
+
+    it('renders as expected when password is required, initializes flow events', () => {
+      assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
+      assert.include(
+        view.$(Selectors.SUB_HEADER_ENTER_PW).text(),
+        'for your Firefox account'
+      );
       assert.lengthOf(view.$('input[type=email]'), 1);
       assert.equal(view.$('input[type=email]').val(), EMAIL);
       assert.lengthOf(view.$('input[type=password]'), 1);

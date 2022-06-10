@@ -32,6 +32,7 @@ export default {
       service,
       serviceName: subscriptionProductName || serviceName,
       serviceLogo,
+      isSync: this.relier.isSync(),
     });
   },
 

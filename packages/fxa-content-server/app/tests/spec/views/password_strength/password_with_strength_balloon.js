@@ -81,7 +81,7 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     return view.createBalloon().then(() => {
       assert.isTrue(view.updateStyles.calledOnce);
       assert.equal(
-        view.$el.attr('aria-described-by'),
+        view.$el.attr('aria-describedby'),
         'password-strength-balloon'
       );
     });

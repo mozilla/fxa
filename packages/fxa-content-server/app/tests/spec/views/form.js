@@ -433,23 +433,23 @@ describe('views/form', function () {
     });
   });
 
-  it('markElementInvalid adds the invalid class, aria-invalid attribute, and aria-described-by', () => {
+  it('markElementInvalid adds the invalid class, aria-invalid attribute, and aria-describedby', () => {
     const $invalidEl = view.$('#focusMe');
     view.markElementInvalid($invalidEl, '#otherElement');
 
     assert.isTrue($invalidEl.hasClass('invalid'));
     assert.equal($invalidEl.attr('aria-invalid'), 'true');
-    assert.equal($invalidEl.attr('aria-described-by'), '#otherElement');
+    assert.equal($invalidEl.attr('aria-describedby'), '#otherElement');
   });
 
-  it('markElementValid removes the invalid class, aria-invalid attribute, and aria-described-by', () => {
+  it('markElementValid removes the invalid class, aria-invalid attribute, and aria-describedby', () => {
     const $invalidEl = view.$('#focusMe');
     view.markElementInvalid($invalidEl, '#otherElement');
     view.markElementValid($invalidEl);
 
     assert.isFalse($invalidEl.hasClass('invalid'));
     assert.isUndefined($invalidEl.attr('aria-invalid'));
-    assert.isUndefined($invalidEl.attr('aria-described-by'));
+    assert.isUndefined($invalidEl.attr('aria-describedby'));
   });
 
   describe('getFormElements', () => {

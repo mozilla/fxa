@@ -99,12 +99,13 @@ describe('views/sign_up_password', () => {
 
   describe('render', () => {
     it('renders as expected, initializes flow events', () => {
-      assert.include(view.$('.service').text(), 'Firefox Sync');
+      assert.include(view.$(Selectors.HEADER).text(), 'Set your password');
       assert.lengthOf(view.$(Selectors.EMAIL), 1);
       assert.equal(view.$(Selectors.EMAIL).val(), EMAIL);
       assert.lengthOf(view.$(Selectors.PASSWORD), 1);
       assert.lengthOf(view.$(Selectors.VPASSWORD), 1);
       assert.lengthOf(view.$(Selectors.AGE), 1);
+      assert.lengthOf(view.$(Selectors.AGE_EXPLAINER), 1);
       assert.lengthOf(view.$(Selectors.TOS), 1);
       assert.lengthOf(view.$(Selectors.PRIVACY_POLICY), 1);
       assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 1);

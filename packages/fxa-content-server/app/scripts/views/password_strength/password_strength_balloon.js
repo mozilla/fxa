@@ -17,6 +17,7 @@ import Cocktail from 'cocktail';
 import OneVisibleOfTypeMixin from '../mixins/one-visible-of-type-mixin';
 import Template from '../../templates/partial/password-strength-balloon.mustache';
 import XSS from '../../lib/xss';
+import ExternalLinksMixin from '../mixins/external-links-mixin';
 
 const DELAY_BEFORE_HIDE_BALLOON_EL_MS = 500;
 
@@ -93,6 +94,7 @@ class PasswordStrengthBalloonView extends BaseView {
 
 Cocktail.mixin(
   PasswordStrengthBalloonView,
+  ExternalLinksMixin,
   OneVisibleOfTypeMixin({
     hideMethod: 'hide',
     showMethod: 'show',

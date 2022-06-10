@@ -84,8 +84,8 @@ export const FormPassword = ({
 
   return (
     <form {...{ onSubmit }}>
-      <Localized id="pw-change-stay-safe">
-        <h2>Stay safe — don’t reuse passwords. Your password:</h2>
+      <Localized id="pw-requirements">
+        <h2>Password requirements</h2>
       </Localized>
       <ul
         className="text-grey-400 text-xs m-3 list-inside"
@@ -96,48 +96,22 @@ export const FormPassword = ({
             isSet={formState.dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.length}
           />
-          <Localized id="pw-change-least-8-chars">
-            Must be at least 8 characters
-          </Localized>
+          <Localized id="pw-8-chars">At least 8 characters</Localized>
         </li>
         <li data-testid="change-password-email">
           <ValidationIcon
             isSet={formState.dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.notEmail}
           />
-          <Localized id="pw-change-not-contain-email">
-            Must not be your email address
-          </Localized>
+          <Localized id="pw-not-email">Not your email address</Localized>
         </li>
         <li data-testid="change-password-common">
           <ValidationIcon
             isSet={formState.dirtyFields.newPassword}
             hasError={errors.newPassword?.types?.uncommon}
           />
-          <Localized
-            id="pw-change-common-passwords"
-            elems={{
-              linkExternal: (
-                <LinkExternal
-                  className="link-blue"
-                  data-testid="nav-link-common-passwords"
-                  href="https://support.mozilla.org/en-US/kb/password-strength"
-                >
-                  {' '}
-                </LinkExternal>
-              ),
-            }}
-          >
-            <span>
-              Must not match this{' '}
-              <LinkExternal
-                className="link-blue"
-                data-testid="nav-link-common-passwords"
-                href="https://support.mozilla.org/en-US/kb/password-strength"
-              >
-                list of common passwords
-              </LinkExternal>
-            </span>
+          <Localized id="pw-commonly-used">
+            Not a commonly used password
           </Localized>
         </li>
         <li data-testid="change-password-match">
@@ -150,6 +124,33 @@ export const FormPassword = ({
           </Localized>
         </li>
       </ul>
+
+      <Localized
+        id="pw-tips"
+        elems={{
+          linkExternal: (
+            <LinkExternal
+              className="link-blue"
+              data-testid="nav-link-common-passwords"
+              href="https://support.mozilla.org/kb/password-strength"
+            >
+              {' '}
+            </LinkExternal>
+          ),
+        }}
+      >
+        <p>
+          Stay safe — don’t reuse passwords. See more tips to{' '}
+          <LinkExternal
+            className="link-blue"
+            data-testid="nav-link-common-passwords"
+            href="https://support.mozilla.org/kb/password-strength"
+          >
+            create strong passwords
+          </LinkExternal>
+          .
+        </p>
+      </Localized>
 
       <div className="my-6">
         {setCurrentPasswordErrorText && (

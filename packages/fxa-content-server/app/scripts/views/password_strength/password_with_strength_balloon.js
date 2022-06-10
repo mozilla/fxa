@@ -80,14 +80,13 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   },
 
   createBalloon() {
-    const passwordHelperBalloon = (this.passwordHelperBalloon = new PasswordStrengthBalloonView(
-      {
+    const passwordHelperBalloon = (this.passwordHelperBalloon =
+      new PasswordStrengthBalloonView({
         el: this.balloonEl,
         lang: this.lang,
         model: this.model,
         translator: this.translator,
-      }
-    ));
+      }));
 
     this.trackChildView(passwordHelperBalloon);
     // update our own styles whenever the balloon does to avoid any jank.
@@ -96,7 +95,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     return passwordHelperBalloon.render().then(() => {
       // update our own styles whenever the balloon does to avoid any jank. This only
       // updates after the first render
-      this.$el.attr('aria-described-by', 'password-strength-balloon');
+      this.$el.attr('aria-describedby', 'password-strength-balloon');
 
       // The password field was pre-filled, update
       // the model with it.

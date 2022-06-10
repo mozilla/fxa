@@ -7,6 +7,20 @@
     margin-bottom: 12px;
   }
 
+  &-age p {
+    color: $grey-50;
+    font-size: $font-size-body-10;
+    margin-top: 12px;
+
+    html[dir='ltr'] & {
+      text-align: left;
+    }
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
   input {
     padding: 0 $input-left-right-padding;
     transition: border-color $short-transition, box-shadow $short-transition;

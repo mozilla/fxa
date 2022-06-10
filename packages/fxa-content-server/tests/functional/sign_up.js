@@ -317,7 +317,7 @@ registerSuite('signup here', {
         )
         .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
 
-        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(testElementExists(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
         .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
         .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
         .then(testUrlInclude(SYNC_SERVICE))
