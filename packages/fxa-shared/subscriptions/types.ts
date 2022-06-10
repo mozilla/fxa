@@ -15,20 +15,20 @@ export interface RawMetadata {
 // A mapping of OAuth client ids to their corresponding capabilities.
 export type ClientIdCapabilityMap = Record<string, string[]>;
 
-export interface Plan {
-  amount: number | null;
-  currency: string;
-  interval_count: number;
-  interval: PlanInterval;
-  plan_id: string;
-  plan_metadata: RawMetadata | null;
-  plan_name?: string;
-  product_id: string;
-  product_metadata: RawMetadata | null;
-  product_name: string;
-  // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
-  configuration?: PlanConfigurationDtoT | null;
-}
+// export interface Plan {
+//   amount: number | null;
+//   currency: string;
+//   interval_count: number;
+//   interval: PlanInterval;
+//   plan_id: string;
+//   plan_metadata: RawMetadata | null;
+//   plan_name?: string;
+//   product_id: string;
+//   product_metadata: RawMetadata | null;
+//   product_name: string;
+//   // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
+//   configuration?: PlanConfigurationDtoT | null;
+// }
 
 export type ConfiguredPlan = Stripe.Plan & {
   configuration: PlanConfigurationDtoT | null;
