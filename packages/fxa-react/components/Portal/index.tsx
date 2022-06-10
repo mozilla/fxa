@@ -6,18 +6,17 @@ type PortalProps = {
   children: React.ReactNode;
 };
 
-const TOP_LEVEL_NONMODAL_DIVS_SELECTOR = 'body > div:not(#modal)';
+const TOP_LEVEL_NONMODAL_DIVS_SELECTOR = 'body > div:not(.portal)';
 
 const setA11yOnAdjacentElementsAndBody = (els: NodeListOf<HTMLElement>) => {
-  document.body.classList.add('overflow-hidden');
   els.forEach((el) => {
     el.setAttribute('aria-hidden', 'true');
+    el.classList.add('overflow-hidden');
     el.classList.add('pointer-events-none');
   });
 };
 
 const resetA11yOnAdjacentElementsAndBody = (els: NodeListOf<HTMLElement>) => {
-  document.body.classList.remove('overflow-hidden');
   els.forEach((el) => {
     el.removeAttribute('aria-hidden');
     el.classList.remove('pointer-events-none');
@@ -42,20 +41,23 @@ const Portal = ({
     }
   }
 
+  setA11yOnAdjacentElementsAndBody(
+    document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
+  );
+
   useEffect(() => {
     return () => {
       let el = document.getElementById(id);
       if (el && el.children.length === 1) {
         // Reset any non-portal properties here
-        if (id === 'modal') {
-          // When unloaded, we do not remove the portal element in order to allow
-          // a series of portal dependent components to be rendered.
-          resetA11yOnAdjacentElementsAndBody(
-            document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
-          );
-        } else {
+        if (id !== 'modal') {
           el.remove();
         }
+        // When unloaded, we do not remove the portal element in order to allow
+        // a series of portal dependent components to be rendered.
+        resetA11yOnAdjacentElementsAndBody(
+          document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
+        );
       }
     };
   }, [id]);

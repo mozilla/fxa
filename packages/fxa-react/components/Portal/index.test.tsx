@@ -62,12 +62,14 @@ it('applies a11y improvements when id is set to "modal"', () => {
   const adjacentToRoot = screen.getByTestId('adjacent-to-root');
   const modal = body.querySelector('#modal');
 
-  expect(body.classList).toContain('overflow-hidden');
+  expect(body.classList).not.toContain('overflow-hidden');
 
   expect(root).toHaveAttribute('aria-hidden', 'true');
   expect(adjacentToRoot).toHaveAttribute('aria-hidden', 'true');
 
   expect(root.classList).toContain('pointer-events-none');
+  expect(root.classList).toContain('overflow-hidden');
+  expect(adjacentToRoot.classList).toContain('overflow-hidden');
   expect(adjacentToRoot.classList).toContain('pointer-events-none');
 
   expect(modal).not.toHaveAttribute('aria-hidden', 'true');
