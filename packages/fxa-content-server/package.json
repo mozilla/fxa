@@ -100,7 +100,7 @@
     "i18n-abide": "0.0.26",
     "joi": "17.4.0",
     "jquery": "3.6.0",
-    "jquery-modal": "0.9.2",
+    "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "jquery-simulate": "1.0.2",
     "jquery-ui": "1.13.1",
     "jquery-ui-touch-punch-amd": "1.0.1",
