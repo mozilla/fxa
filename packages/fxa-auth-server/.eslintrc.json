@@ -5,7 +5,7 @@
   "extends": ["plugin:fxa/server"],
   "plugins": ["fxa"],
   "parserOptions": {
-    "ecmaVersion": "2020",
+    "ecmaVersion": 2020,
     "sourceType": "module"
   },
   "ignorePatterns": [
