@@ -1,3 +1,9 @@
+## 1.234.1
+
+### Other changes
+
+- deps: bump jquery-modal from 0.7.1 to 0.9.2" ([14d71f9a8e](https://github.com/mozilla/fxa/commit/14d71f9a8e))
+
 ## 1.234.0
 
 ### Other changes
