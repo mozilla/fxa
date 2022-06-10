@@ -36,6 +36,8 @@ const makeSession = (isError: boolean = false) => {
 };
 
 describe('DropDownAvatarMenu', () => {
+  const dropDownId = 'drop-down-avatar-menu';
+
   it('renders and toggles as expected with default values', () => {
     const account = {
       avatar: { url: null, id: null },
@@ -51,24 +53,22 @@ describe('DropDownAvatarMenu', () => {
     );
 
     const toggleButton = screen.getByTestId('drop-down-avatar-menu-toggle');
-    const dropDownId = 'drop-down-avatar-menu';
-    const dropDown = screen.queryByTestId(dropDownId);
 
     expect(toggleButton).toHaveAttribute('title', 'Firefox account menu');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
     expect(screen.getByTestId('drop-down-name-or-email').textContent).toContain(
       'johndope@example.com'
     );
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
   it('renders as expected with avatar url and displayName set', () => {
@@ -89,12 +89,11 @@ describe('DropDownAvatarMenu', () => {
         <DropDownAvatarMenu />
       </AppContext.Provider>
     );
-    const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
   it('closes on click outside', () => {
@@ -107,12 +106,11 @@ describe('DropDownAvatarMenu', () => {
         </div>
       </AppContext.Provider>
     );
-    const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
   describe('destroySession', () => {
