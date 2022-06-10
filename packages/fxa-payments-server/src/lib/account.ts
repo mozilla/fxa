@@ -6,7 +6,7 @@ import {
   apiCreatePasswordlessAccount,
   updateAPIClientToken,
 } from './apiClient';
-import { GeneralError } from './errors';
+import { AuthServerErrno, GeneralError } from './errors';
 import sentry from './sentry';
 export const FXA_SIGNUP_ERROR: GeneralError = {
   code: 'fxa_account_signup_error',
@@ -26,7 +26,9 @@ export async function handlePasswordlessSignUp({
     });
     updateAPIClientToken(accessToken);
   } catch (e) {
-    sentry.captureException(e);
+    if (e.body?.errno !== AuthServerErrno.ACCOUNT_EXISTS) {
+      sentry.captureException(e);
+    }
     throw FXA_SIGNUP_ERROR;
   }
 }
