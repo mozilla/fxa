@@ -10,7 +10,8 @@
   },
   "ignorePatterns": [
     "dist",
-    "fxa-*"
+    "fxa-*",
+    "vendor"
   ],
   "root": true
 }
