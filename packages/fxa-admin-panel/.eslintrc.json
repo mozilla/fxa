@@ -4,7 +4,8 @@
     "react-app/jest"
   ],
   "ignorePatterns": [
-    "build"
+    "build",
+    "storybook-static"
   ],
   "root": true
 }
