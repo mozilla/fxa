@@ -162,7 +162,6 @@ hr {
     display: flex;
     flex-direction: row;
 
-    /* stylelint-disable no-descending-specificity */
     input[type="checkbox"] {
       flex: 0 0 18px;
       margin-right: 16px;
@@ -173,7 +172,6 @@ hr {
         background-image: url("images/check.svg");
       }
     }
-    /* stylelint-enable no-descending-specificity */
 
     .label-text {
       display: block;
