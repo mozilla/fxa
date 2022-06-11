@@ -312,9 +312,15 @@ export const Subscriptions = ({
 
       <div className="child-views" data-testid="subscription-management-loaded">
         <div className="settings-child-view support">
-          <div className="settings-unit">
+          <section
+            className="settings-unit"
+            aria-labelledby="subscriptions-support"
+          >
             <div className="settings-unit-stub">
-              <header className="settings-unit-summary">
+              <header
+                id="subscriptions-support"
+                className="settings-unit-summary"
+              >
                 <Localized id="settings-subscriptions-title">
                   <h2>Subscriptions</h2>
                 </Localized>
@@ -329,7 +335,7 @@ export const Subscriptions = ({
                 </Localized>
               </button>
             </div>
-          </div>
+          </section>
 
           {customer.result && showPaymentUpdateForm && (
             <PaymentUpdateForm
@@ -391,13 +397,13 @@ export const Subscriptions = ({
                 ))
             )}
 
-          <div className="settings-unit">
+          <section className="settings-unit" aria-labelledby="pocket-external">
             <div className="subscription pocket-external">
               <div>
                 <PocketIcon className="pocket-icon" />
               </div>
               <div>
-                <p data-testid="manage-pocket-title">
+                <p id="pocket-external" data-testid="manage-pocket-title">
                   <Localized id="manage-pocket-title">
                     <b>Looking for your Pocket Premium subscription?</b>
                   </Localized>
@@ -428,7 +434,7 @@ export const Subscriptions = ({
                 </Localized>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

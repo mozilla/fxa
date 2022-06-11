@@ -53,18 +53,22 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const { config } = useContext(AppContext);
   const homeURL = `${config.servers.content.url}/settings`;
   let breadcrumbs = (
-    <ol className="breadcrumbs" data-testid="breadcrumbs">
-      <li>
-        <Localized id="settings-home">
-          <a href={homeURL}>Account Home</a>
-        </Localized>
-      </li>
-      <li>
-        <Localized id="settings-subscriptions-title">
-          <a href="/subscriptions">Subscriptions</a>
-        </Localized>
-      </li>
-    </ol>
+    <nav aria-label="breadcrumbs" data-testid="breadcrumbs">
+      <ol className="breadcrumbs">
+        <li>
+          <Localized id="settings-home">
+            <a href={homeURL}>Account Home</a>
+          </Localized>
+        </li>
+        <li>
+          <Localized id="settings-subscriptions-title">
+            <a href="/subscriptions" aria-current="location">
+              Subscriptions
+            </a>
+          </Localized>
+        </li>
+      </ol>
+    </nav>
   );
 
   return (
