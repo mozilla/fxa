@@ -11,6 +11,7 @@ subplat-privacy-plaintext = "Privacy notice:"
 <%- subscriptionPrivacyUrl %>
 <% } %>
 
+<% if (!locals.isFinishSetup) { %>
 <% if (locals.isCancellationEmail) { %>
 subplat-reactivate-plaintext = "Reactivate subscription:"
 <%- reactivateSubscriptionUrl %>
@@ -21,6 +22,7 @@ subplat-cancel-plaintext = "Cancel subscription:"
 
 subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>
+<% } %>
 <% } else { %>
 subplat-privacy-policy-plaintext = "Mozilla Privacy Policy:"
 <%- privacyUrl %>

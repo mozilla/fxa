@@ -17,6 +17,7 @@ const createStory = subplatStoryWithProps(
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     link: 'http://localhost:3030/post_verify/finish_account_setup/set_password',
     subscriptionSupportUrl: 'http://localhost:3030/support',
+    isFinishSetup: true,
   }
 );
 
