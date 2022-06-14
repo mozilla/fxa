@@ -32,6 +32,7 @@ const {
   RecoveryKey,
   TotpToken,
   SecurityEvent,
+  PruneTokens,
 } = require('fxa-shared/db/models/auth');
 const { base32 } = require('../crypto/random');
 
@@ -53,8 +54,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   } = Token;
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE =
     config.tokenLifetimes.sessionTokenWithoutDevice;
-  const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
-    config.tokenPruning;
+  const {
+    enabled: TOKEN_PRUNING_ENABLED,
+    pruneEvery: PRUNE_EVERY,
+    maxAge: TOKEN_PRUNING_MAX_AGE,
+    codesMaxAge: CODE_PRUNING_MAX_AGE,
+  } = config.tokenPruning;
 
   function DB(options) {
     this.redis =
@@ -63,6 +68,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         { ...config.redis, ...config.redis.sessionTokens },
         log
       );
+
+    if (TOKEN_PRUNING_ENABLED) {
+      this.pruneTokens = new PruneTokens(PRUNE_EVERY, resolveMetrics(), log);
+    }
   }
 
   DB.connect = async function (config, redis) {
@@ -539,6 +548,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       tokenCount: sessionTokens.length,
     });
 
+    // Runs a prune operation on the DB in a fire and forget fashion. This operation
+    // is rate limited. Excessive calls are ignored.
+    if (TOKEN_PRUNING_ENABLED && this.pruneTokens) {
+      this.pruneTokens.prune(TOKEN_PRUNING_MAX_AGE, CODE_PRUNING_MAX_AGE);
+    }
+
     if (
       !this.redis ||
       !TOKEN_PRUNING_ENABLED ||
@@ -768,9 +783,21 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return accountResetToken;
   };
 
-  DB.prototype.createPassword = async function (uid, authSalt, verifyHash, wrapWrapKb, verifierVersion) {
+  DB.prototype.createPassword = async function (
+    uid,
+    authSalt,
+    verifyHash,
+    wrapWrapKb,
+    verifierVersion
+  ) {
     log.trace('DB.createPassword', { uid });
-    return Account.createPassword(uid, authSalt, verifyHash, wrapWrapKb, verifierVersion);
+    return Account.createPassword(
+      uid,
+      authSalt,
+      verifyHash,
+      wrapWrapKb,
+      verifierVersion
+    );
   };
 
   DB.prototype.updateLocale = async function (uid, locale) {

@@ -21,7 +21,7 @@ import { PayPalBillingAgreements } from './paypal-ba';
 import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
-import { Stripe } from 'stripe';
+import { PruneTokens } from './prune-token';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -245,6 +245,7 @@ export {
   PasswordChangeToken,
   PasswordForgotToken,
   PayPalBillingAgreements,
+  PruneTokens,
   LinkedAccount,
   RecoveryKey,
   SecurityEvent,

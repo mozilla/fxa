@@ -20,4 +20,4 @@ CREATE TABLE `accounts` (
   `metricsOptOutAt` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE KEY `normalizedEmail` (`normalizedEmail`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

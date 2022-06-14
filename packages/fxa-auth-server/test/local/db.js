@@ -232,6 +232,7 @@ describe('redis enabled, token-pruning enabled:', () => {
   const tokenPruning = {
     enabled: true,
     maxAge: 1000 * 60 * 60 * 24 * 72,
+    codeMaxAge: 1000 * 60 * 60 * 24 * 72,
   };
 
   let pool, redis, log, tokens, db;
@@ -306,6 +307,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       tokens,
       {}
     );
+
     return DB.connect({}).then((result) => (db = result));
   });
 
@@ -390,6 +392,19 @@ describe('redis enabled, token-pruning enabled:', () => {
         assert.equal(redis.pruneSessionTokens.callCount, 1);
         assert.equal(redis.pruneSessionTokens.args[0].length, 2);
         assert.equal(redis.pruneSessionTokens.args[0][0], 'foo');
+      });
+  });
+
+  it('should call pruneTokens.prune in db.pruneSessionTokens', () => {
+    sinon.spy(db.pruneTokens, 'prune');
+    const createdAt = Date.now() - tokenPruning.maxAge - 1;
+    return db
+      .pruneSessionTokens('foo', [
+        { id: 'bar', createdAt },
+        { id: 'baz', createdAt },
+      ])
+      .then(() => {
+        assert.equal(db.pruneTokens.prune.callCount, 1);
       });
   });
 
