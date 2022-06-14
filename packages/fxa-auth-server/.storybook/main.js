@@ -11,5 +11,6 @@ module.exports = {
     '@storybook/addon-docs',
     '@storybook/addon-controls',
     '@storybook/addon-toolbars',
+    '@storybook/addon-a11y',
   ],
 };

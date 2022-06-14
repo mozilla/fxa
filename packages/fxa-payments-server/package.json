@@ -49,6 +49,7 @@
     "@fluent/langneg": "^0.6.2",
     "@fluent/react": "^0.13.1",
     "@rescripts/cli": "~0.0.16",
+    "@storybook/addon-a11y": "6.3.12",
     "@storybook/addon-actions": "^6.4.12",
     "@storybook/addon-links": "^6.3.13",
     "@storybook/addons": "^6.3.12",

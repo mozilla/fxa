@@ -85,6 +85,7 @@
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
     "@sentry/tracing": "^6.19.1",
+    "@storybook/addon-a11y": "6.3.12",
     "@storybook/addon-actions": "^6.4.12",
     "@storybook/addon-links": "^6.3.13",
     "@storybook/addons": "^6.3.12",

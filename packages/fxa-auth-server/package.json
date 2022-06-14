@@ -134,6 +134,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
+    "@storybook/addon-a11y": "6.4.13",
     "@storybook/addon-controls": "^6.5.7",
     "@storybook/addon-docs": "^6.5.8",
     "@storybook/addon-toolbars": "^6.3.12",

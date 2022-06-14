@@ -6129,6 +6129,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/addon-a11y@npm:6.3.12":
+  version: 6.3.12
+  resolution: "@storybook/addon-a11y@npm:6.3.12"
+  dependencies:
+    "@storybook/addons": 6.3.12
+    "@storybook/api": 6.3.12
+    "@storybook/channels": 6.3.12
+    "@storybook/client-api": 6.3.12
+    "@storybook/client-logger": 6.3.12
+    "@storybook/components": 6.3.12
+    "@storybook/core-events": 6.3.12
+    "@storybook/theming": 6.3.12
+    axe-core: ^4.2.0
+    core-js: ^3.8.2
+    global: ^4.4.0
+    lodash: ^4.17.20
+    react-sizeme: ^3.0.1
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: be39ed93f3b965ab4c4b52f2b64b84a2b728790712090846ec03081e36e5e6e7adc35388cb4ee49f2d33ebbd6587aa1bdb18dba2a499c08fd8d8c4cc84896978
+  languageName: node
+  linkType: hard
+
+"@storybook/addon-a11y@npm:6.4.13":
+  version: 6.4.13
+  resolution: "@storybook/addon-a11y@npm:6.4.13"
+  dependencies:
+    "@storybook/addons": 6.4.13
+    "@storybook/api": 6.4.13
+    "@storybook/channels": 6.4.13
+    "@storybook/client-logger": 6.4.13
+    "@storybook/components": 6.4.13
+    "@storybook/core-events": 6.4.13
+    "@storybook/csf": 0.0.2--canary.87bc651.0
+    "@storybook/theming": 6.4.13
+    axe-core: ^4.2.0
+    core-js: ^3.8.2
+    global: ^4.4.0
+    lodash: ^4.17.21
+    react-sizeme: ^3.0.1
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: f353e0f2e6eead2e9bf8ed69557fe5c0f1104250b2a5c7117c9ff4a5713b7765f9eb05a74a00416f160c90baa27bb02dee80a1fa035a153e913bd1e87ee0f0c8
+  languageName: node
+  linkType: hard
+
 "@storybook/addon-actions@npm:*":
   version: 6.3.12
   resolution: "@storybook/addon-actions@npm:6.3.12"
@@ -12950,6 +13014,13 @@ __metadata:
   version: 4.2.0
   resolution: "axe-core@npm:4.2.0"
   checksum: 6ec6f3c2f8d613687e783a59758dbf75bf509cb133c4599ac99c6cbffb0e6a6d1e65dbd6db0b9790921443c9cd031fbd33508515438f6695339912482a27be93
+  languageName: node
+  linkType: hard
+
+"axe-core@npm:^4.2.0":
+  version: 4.4.2
+  resolution: "axe-core@npm:4.4.2"
+  checksum: 93fbb36c5ac8ab5e67e49678a6f7be0dc799a9f560edd95cca1f0a8183def8c50205972366b9941a3ea2b20224a1fe230e6d87ef38cb6db70472ed1b694febd1
   languageName: node
   linkType: hard
 
@@ -21940,6 +22011,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^6.19.7
     "@sentry/node": ^6.19.2
     "@sentry/tracing": ^6.19.2
+    "@storybook/addon-a11y": 6.3.12
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
@@ -22116,6 +22188,7 @@ fsevents@~2.1.1:
     "@hapi/vision": ^6.1.0
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
+    "@storybook/addon-a11y": 6.4.13
     "@storybook/addon-controls": ^6.5.7
     "@storybook/addon-docs": ^6.5.8
     "@storybook/addon-toolbars": ^6.3.12
@@ -22715,6 +22788,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@sentry/tracing": ^6.19.1
+    "@storybook/addon-a11y": 6.3.12
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
@@ -22881,6 +22955,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.17.1
     "@fluent/langneg": ^0.6.2
     "@fluent/react": ^0.13.1
+    "@storybook/addon-a11y": 6.3.12
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
@@ -22949,6 +23024,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
     "@sentry/tracing": ^6.19.1
+    "@storybook/addon-a11y": 6.3.12
     "@storybook/addon-actions": ^6.4.12
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
