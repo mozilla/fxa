@@ -37,6 +37,10 @@ const { PaymentConfigManager } = proxyquire(
 const { setupFirestore } = require('../../../../lib/firestore-db');
 const { randomUUID } = require('crypto');
 const errors = require('../../../../lib/error');
+const {
+  ProductConfig,
+} = require('fxa-shared/subscriptions/configuration/product');
+const { PlanConfig } = require('fxa-shared/subscriptions/configuration/plan');
 
 const mockConfig = {
   authFirestore: {
@@ -235,6 +239,66 @@ describe('PaymentConfigManager', () => {
         'random-nonmatching-id'
       );
       assert.isNull(actual);
+    });
+  });
+
+  describe('validateProductConfig', () => {
+    it('validate a product config', async () => {
+      const newProduct = cloneDeep(productConfig);
+      const spy = sandbox.spy(ProductConfig, 'validate');
+
+      await paymentConfigManager.validateProductConfig(newProduct);
+
+      assert(spy.calledOnce);
+    });
+
+    it('throw error on invalid product config', async () => {
+      const newProduct = cloneDeep(productConfig);
+      delete newProduct.urls;
+
+      try {
+        await paymentConfigManager.validateProductConfig(newProduct);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
+      }
+    });
+  });
+
+  describe('validatePlanConfig', () => {
+    it('validate a plan config', async () => {
+      const newPlan = cloneDeep(planConfig);
+      const product = (await paymentConfigManager.allProducts())[0];
+      const spy = sandbox.spy(PlanConfig, 'validate');
+
+      await paymentConfigManager.validatePlanConfig(newPlan, product.id);
+
+      assert(spy.calledOnce);
+    });
+
+    it('throw error on invalid plan config', async () => {
+      const newPlan = cloneDeep(planConfig);
+      delete newPlan.active;
+
+      try {
+        await paymentConfigManager.validatePlanConfig(newPlan, randomUUID());
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
+      }
+    });
+
+    it('throw error if the plan has an invalid product id', async () => {
+      const newPlan = cloneDeep(planConfig);
+      const product = (await paymentConfigManager.allProducts())[0];
+      delete newPlan.active;
+
+      try {
+        await paymentConfigManager.validatePlanConfig(newPlan, product.id);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, errors.ERRNO.INTERNAL_VALIDATION_ERROR);
+      }
     });
   });
 

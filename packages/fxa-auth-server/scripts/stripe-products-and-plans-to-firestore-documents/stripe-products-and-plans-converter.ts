@@ -26,14 +26,41 @@ import {
   PLAN_EN_LANG_ERROR,
   getLanguageTagFromPlanMetadata,
 } from './plan-language-tags-guesser';
+import { promises as fsPromises, constants } from 'fs';
+import path from 'path';
 
 const DEFAULT_LOCALE = 'en';
+
+export enum OutputTarget {
+  Local = 'local',
+  Firestore = 'firestore',
+}
 
 function isGoogleTranslationApiError(err: any) {
   return (
     err.code >= 400 &&
     err.response?.request?.href?.includes('translation.googleapis')
   );
+}
+
+async function createDir(dirPath: string) {
+  try {
+    // Check if the folder exists.
+    // https://nodejs.dev/learn/working-with-folders-in-nodejs#check-if-a-folder-exists
+    await fsPromises.access(dirPath, constants.W_OK);
+  } catch (err) {
+    // If folder doesn't exist, access throws error. So create folder.
+    await fsPromises.mkdir(dirPath, { recursive: true });
+  }
+}
+
+/**
+ * Helper method to get path for current working directory
+ */
+function createPathForWorkingDirectory(directory: string) {
+  return (name: string) => {
+    return path.join(directory, `${name}.json`);
+  };
 }
 
 /**
@@ -349,6 +376,59 @@ export class StripeProductsAndPlansConverter {
   }
 
   /**
+   * Validate the ProductConfig object, and if its valid write the object to JSON.
+   */
+  async writeToFileProductConfig(
+    productConfig: ProductConfig,
+    existingProductConfigId: string | null,
+    productConfigPath: string,
+    withLog: boolean = true
+  ) {
+    await this.paymentConfigManager.validateProductConfig(productConfig);
+    await fsPromises.writeFile(
+      productConfigPath,
+      JSON.stringify({
+        ...productConfig,
+        id: existingProductConfigId,
+      })
+    );
+    if (withLog) {
+      this.log.debug(
+        'StripeProductsAndPlansConverter.writeToFileProductSuccess',
+        {
+          productConfigPath,
+        }
+      );
+    }
+  }
+
+  /**
+   * Validate the PlanConfig object, and if its valid write the object to JSON.
+   */
+  async writeToFilePlanConfig(
+    planConfig: PlanConfig,
+    productConfigId: string,
+    existingPlanConfigId: string | null,
+    planConfigPath: string
+  ) {
+    await this.paymentConfigManager.validatePlanConfig(
+      planConfig,
+      productConfigId
+    );
+    await fsPromises.writeFile(
+      planConfigPath,
+      JSON.stringify({
+        ...planConfig,
+        id: existingPlanConfigId,
+        productConfigId,
+      })
+    );
+    this.log.debug('StripeProductsAndPlansConverter.writeToFilePlanSuccess', {
+      planConfigPath,
+    });
+  }
+
+  /**
    * Iterates through all Stripe Plans for all Stripe Products to convert each
    * plan to a PlanConfig object and each product to a ProductConfig object,
    * moving localized metadata from the plan to the ProductConfig.
@@ -366,18 +446,27 @@ export class StripeProductsAndPlansConverter {
   async convert({
     productId,
     isDryRun,
+    target,
+    targetDir,
   }: {
     productId: string;
     isDryRun: boolean;
+    target: OutputTarget;
+    targetDir: string;
   }): Promise<void> {
     this.log.debug('StripeProductsAndPlansConverter.convertBegin', {
       productId,
       isDryRun,
+      target,
+      targetDir: target === 'local' ? targetDir : undefined,
     });
     const params = productId ? { ids: [productId] } : {};
     for await (const product of this.stripeHelper.stripe.products.list(
       params
     )) {
+      const currentDirectory = path.join(targetDir, product.id);
+      const getFilePath = createPathForWorkingDirectory(currentDirectory);
+
       try {
         const productConfig = this.stripeProductToProductConfig(product);
         // We need a productConfigId to store a planConfig. For a new
@@ -389,10 +478,22 @@ export class StripeProductsAndPlansConverter {
         if (isDryRun) {
           // We'll log the full productConfig with `locales` updated further down
         } else {
-          productConfigId = await this.paymentConfigManager.storeProductConfig(
-            productConfig,
-            productConfigId
-          );
+          if (target === OutputTarget.Firestore) {
+            productConfigId =
+              await this.paymentConfigManager.storeProductConfig(
+                productConfig,
+                productConfigId
+              );
+          } else if (target === OutputTarget.Local) {
+            // Create the folder here.
+            await createDir(currentDirectory);
+            await this.writeToFileProductConfig(
+              productConfig,
+              productConfigId,
+              getFilePath(product.id),
+              false
+            );
+          }
         }
         for await (const plan of this.stripeHelper.stripe.plans.list({
           product: product.id,
@@ -441,19 +542,28 @@ export class StripeProductsAndPlansConverter {
                 }
               );
             } else {
-              const planConfigId =
-                await this.paymentConfigManager.storePlanConfig(
+              if (target === OutputTarget.Firestore) {
+                const planConfigId =
+                  await this.paymentConfigManager.storePlanConfig(
+                    planConfig,
+                    productConfigId as string,
+                    existingPlanConfigId
+                  );
+                this.log.debug(
+                  'StripeProductsAndPlansConverter.convertPlanSuccess',
+                  {
+                    planConfigId,
+                    stripePlanId: plan.id,
+                  }
+                );
+              } else if (target === OutputTarget.Local) {
+                await this.writeToFilePlanConfig(
                   planConfig,
                   productConfigId as string,
-                  existingPlanConfigId
+                  existingPlanConfigId,
+                  getFilePath(plan.id)
                 );
-              this.log.debug(
-                'StripeProductsAndPlansConverter.convertPlanSuccess',
-                {
-                  planConfigId,
-                  stripePlanId: plan.id,
-                }
-              );
+              }
             }
           } catch (error) {
             this.log.error('StripeProductsAndPlansConverter.convertPlanError', {
@@ -472,18 +582,26 @@ export class StripeProductsAndPlansConverter {
             }
           );
         } else {
-          // Whether just added above or not, the productConfig exists now, so update it.
-          await this.paymentConfigManager.storeProductConfig(
-            productConfig,
-            productConfigId
-          );
-          this.log.debug(
-            'StripeProductsAndPlansConverter.convertProductSuccess',
-            {
+          if (target === OutputTarget.Firestore) {
+            // Whether just added above or not, the productConfig exists now, so update it.
+            await this.paymentConfigManager.storeProductConfig(
+              productConfig,
+              productConfigId
+            );
+            this.log.debug(
+              'StripeProductsAndPlansConverter.convertProductSuccess',
+              {
+                productConfigId,
+                stripeProductId: product.id,
+              }
+            );
+          } else if (target === OutputTarget.Local) {
+            await this.writeToFileProductConfig(
+              productConfig,
               productConfigId,
-              stripeProductId: product.id,
-            }
-          );
+              getFilePath(product.id)
+            );
+          }
         }
       } catch (error) {
         if (isGoogleTranslationApiError(error)) {

@@ -227,9 +227,7 @@ function deepCopy(object) {
 }
 
 const mockConfigCollection = (configDocs) => ({
-  select: () => ({
-    get: () => ({ docs: configDocs.map((c) => ({ id: c.id, data: () => c })) }),
-  }),
+  get: () => ({ docs: configDocs.map((c) => ({ id: c.id, data: () => c })) }),
   onSnapshot: () => {},
 });
 

@@ -16,7 +16,6 @@ describe('lib/coupon', () => {
         date.setMonth(date.getMonth() + incrementMonth)
       );
       const actual = incDateByMonth(incrementMonth);
-      expect(actual).toEqual(expected);
       expect(getTimeInSeconds(actual)).toEqual(getTimeInSeconds(expected));
     });
 
