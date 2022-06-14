@@ -59,6 +59,14 @@
   margin: 0 auto 20px auto;
 }
 
+.graphic-confirm-pairing {
+  background-image: image-url('confirm-pairing.svg');
+
+  @include respond-to('small') {
+    height: 100px;
+  }
+}
+
 .graphic-laptop-mobile {
   background-image: image-url('graphic_laptop_mobile.svg');
   height: 138px;
