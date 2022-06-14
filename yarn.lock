@@ -11388,6 +11388,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abab@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "abab@npm:2.0.6"
+  checksum: 6ffc1af4ff315066c62600123990d87551ceb0aafa01e6539da77b0f5987ac7019466780bf480f1787576d4385e3690c81ccc37cfda12819bf510b8ab47e5a3e
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -22104,7 +22111,7 @@ fsevents@~2.1.1:
     "@types/mocha": ^8
     "@types/node": ^16.11.3
     "@types/node-fetch": ^2.5.7
-    abab: ^2.0.5
+    abab: ^2.0.6
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.14.2
