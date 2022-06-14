@@ -581,6 +581,26 @@ describe('PayPalHelper', () => {
     });
   });
 
+  describe('updateStripeNameFromBA', () => {
+    it('updates the name on the stripe customer', async () => {
+      mockStripeHelper.updateCustomerBillingAddress = sinon.fake.resolves({});
+      paypalHelper.agreementDetails = sinon.fake.resolves({
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      const result = await paypalHelper.updateStripeNameFromBA(
+        mockCustomer,
+        'mock-agreement-id'
+      );
+      assert.deepEqual(result, {});
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.updateCustomerBillingAddress,
+        { customerId: mockCustomer.id, name: 'Test User' }
+      );
+      sinon.assert.calledOnce(paypalHelper.metrics.increment);
+    });
+  });
+
   describe('processZeroInvoice', () => {
     it('finalize invoice that with no amount set to zero', async () => {
       mockStripeHelper.finalizeInvoice = sinon.fake.resolves({});

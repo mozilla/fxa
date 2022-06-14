@@ -171,9 +171,7 @@ export class StripeWebhookHandler extends StripeHandler {
           await this.handleCustomerUpdatedEvent(request, event);
           break;
         case 'invoice.created':
-          if (this.paypalHelper) {
-            await this.handleInvoiceCreatedEvent(request, event);
-          }
+          await this.handleInvoiceCreatedEvent(request, event);
           break;
         case 'invoice.paid':
           await this.handleInvoicePaidEvent(request, event);
@@ -490,12 +488,40 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const invoice = event.data.object as Stripe.Invoice;
-    if (
-      !(await this.stripeHelper.invoicePayableWithPaypal(invoice)) ||
-      invoice.status !== 'draft'
-    ) {
+    const paypalInvoice = await this.stripeHelper.invoicePayableWithPaypal(
+      invoice
+    );
+
+    if (!paypalInvoice || invoice.status !== 'draft') {
       return;
     }
+
+    // Fetch the customer to determine if we need to set their name.
+    // This is needed because the original PayPal implementation did not copy
+    // the name to the Stripe customer object. This is a workaround for that
+    // issue, with a metric to track the impact and indicate when this can be
+    // removed.
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+    if (
+      paypalInvoice &&
+      customer &&
+      customer.deleted !== true &&
+      !customer.name
+    ) {
+      const billingAgreementId =
+        this.stripeHelper.getCustomerPaypalAgreement(customer);
+      // The customer needs to be updated for their name.
+      if (billingAgreementId) {
+        await this.paypalHelper.updateStripeNameFromBA(
+          customer,
+          billingAgreementId
+        );
+      }
+    }
+
     return this.stripeHelper.finalizeInvoice(invoice);
   }
 

@@ -35,10 +35,12 @@ type PaypalHelperOptions = {
 };
 
 type AgreementDetails = {
-  status: 'active' | 'cancelled';
   city: string;
   countryCode: string;
+  firstName: string;
+  lastName: string;
   state: string;
+  status: 'active' | 'cancelled';
   street: string;
   street2: string;
   zip: string;
@@ -294,11 +296,13 @@ export class PayPalHelper {
   ): Promise<AgreementDetails> {
     const response = await this.client.baUpdate(options);
     return {
-      status:
-        response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
       city: response.CITY,
       countryCode: response.COUNTRYCODE,
+      firstName: response.FIRSTNAME,
+      lastName: response.LASTNAME,
       state: response.STATE,
+      status:
+        response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
       street: response.STREET,
       street2: response.STREET2,
       zip: response.ZIP,
@@ -390,6 +394,21 @@ export class PayPalHelper {
       billingAgreementId
     );
     return true;
+  }
+
+  public async updateStripeNameFromBA(
+    customer: Stripe.Customer,
+    billingAgreementId: string
+  ): Promise<Stripe.Customer> {
+    this.metrics.increment('paypal.updateStripeNameFromBA');
+    const agreementDetails = await this.agreementDetails({
+      billingAgreementId,
+    });
+    const name = `${agreementDetails.firstName} ${agreementDetails.lastName}`;
+    return this.stripeHelper.updateCustomerBillingAddress({
+      customerId: customer.id,
+      name,
+    });
   }
 
   /**

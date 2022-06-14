@@ -442,9 +442,9 @@ export class PayPalHandler extends StripeWebhookHandler {
           locationDetails.state = stateNames[country][state];
         }
       }
-      this.stripeHelper.updateCustomerBillingAddress(
-        accountCustomer.stripeCustomerId,
-        {
+      this.stripeHelper.updateCustomerBillingAddress({
+        customerId: accountCustomer.stripeCustomerId,
+        options: {
           city: agreementDetails.city,
           country: agreementDetails.countryCode,
           line1: agreementDetails.street,
@@ -452,8 +452,9 @@ export class PayPalHandler extends StripeWebhookHandler {
           postalCode: agreementDetails.zip,
           state: agreementDetails.state,
           ...locationDetails,
-        }
-      );
+        },
+        name: `${agreementDetails.firstName} ${agreementDetails.lastName}`,
+      });
     }
 
     // Verify sourceCountry and plan currency are a valid combination.

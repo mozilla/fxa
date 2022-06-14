@@ -1090,6 +1090,12 @@ describe('StripeWebhookHandler', () => {
           true
         );
         StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+          'test-ba'
+        );
+        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.resolves(
+          {}
+        );
         const result =
           await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
             {},
@@ -1103,6 +1109,15 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
           invoiceCreatedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA,
+          {},
+          'test-ba'
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
+          {}
         );
       });
     });

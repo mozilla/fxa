@@ -205,6 +205,8 @@ describe('subscriptions payPalRoutes', () => {
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
       payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
       payPalHelper.agreementDetails = sinon.fake.resolves({
+        firstName: 'Test',
+        lastName: 'User',
         countryCode: 'CA',
       });
       stripeHelper.customerTaxId = sinon.fake.returns(undefined);
@@ -410,14 +412,17 @@ describe('subscriptions payPalRoutes', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.updateCustomerBillingAddress,
-          accountCustomer.stripeCustomerId,
           {
-            city: undefined,
-            country: 'CA',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: 'ON',
+            customerId: accountCustomer.stripeCustomerId,
+            options: {
+              city: undefined,
+              country: 'CA',
+              line1: undefined,
+              line2: undefined,
+              postalCode: undefined,
+              state: 'ON',
+            },
+            name: 'Test User',
           }
         );
       });
@@ -461,14 +466,17 @@ describe('subscriptions payPalRoutes', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.updateCustomerBillingAddress,
-          accountCustomer.stripeCustomerId,
           {
-            city: undefined,
-            country: 'CA',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: undefined,
+            customerId: accountCustomer.stripeCustomerId,
+            options: {
+              city: undefined,
+              country: 'CA',
+              line1: undefined,
+              line2: undefined,
+              postalCode: undefined,
+              state: undefined,
+            },
+            name: 'Test User',
           }
         );
       });
@@ -495,14 +503,17 @@ describe('subscriptions payPalRoutes', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.updateCustomerBillingAddress,
-          accountCustomer.stripeCustomerId,
           {
-            city: undefined,
-            country: 'CA',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: undefined,
+            customerId: accountCustomer.stripeCustomerId,
+            options: {
+              city: undefined,
+              country: 'CA',
+              line1: undefined,
+              line2: undefined,
+              postalCode: undefined,
+              state: undefined,
+            },
+            name: 'Test User',
           }
         );
       });
@@ -529,6 +540,8 @@ describe('subscriptions payPalRoutes', () => {
 
       it('should throw an error if planCurrency does not match billingAgreement country', async () => {
         payPalHelper.agreementDetails = sinon.fake.resolves({
+          firstName: 'Test',
+          lastName: 'User',
           countryCode: 'AS',
         });
         try {
@@ -549,14 +562,17 @@ describe('subscriptions payPalRoutes', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.updateCustomerBillingAddress,
-          accountCustomer.stripeCustomerId,
           {
-            city: undefined,
-            country: 'AS',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: undefined,
+            customerId: accountCustomer.stripeCustomerId,
+            options: {
+              city: undefined,
+              country: 'AS',
+              line1: undefined,
+              line2: undefined,
+              postalCode: undefined,
+              state: undefined,
+            },
+            name: 'Test User',
           }
         );
       });
@@ -582,14 +598,17 @@ describe('subscriptions payPalRoutes', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.updateCustomerBillingAddress,
-          accountCustomer.stripeCustomerId,
           {
-            city: undefined,
-            country: 'CA',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: undefined,
+            customerId: accountCustomer.stripeCustomerId,
+            options: {
+              city: undefined,
+              country: 'CA',
+              line1: undefined,
+              line2: undefined,
+              postalCode: undefined,
+              state: undefined,
+            },
+            name: 'Test User',
           }
         );
       });
@@ -781,6 +800,8 @@ describe('subscriptions payPalRoutes', () => {
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
       payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
       payPalHelper.agreementDetails = sinon.fake.resolves({
+        firstName: 'Test',
+        lastName: 'User',
         countryCode: 'CA',
       });
       stripeHelper.updateCustomerPaypalAgreement =
@@ -811,14 +832,17 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(payPalHelper.processInvoice);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.updateCustomerBillingAddress,
-        accountCustomer.stripeCustomerId,
         {
-          city: undefined,
-          country: 'CA',
-          line1: undefined,
-          line2: undefined,
-          postalCode: undefined,
-          state: 'ON',
+          customerId: accountCustomer.stripeCustomerId,
+          options: {
+            city: undefined,
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: 'ON',
+          },
+          name: 'Test User',
         }
       );
     });

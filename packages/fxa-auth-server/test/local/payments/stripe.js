@@ -2458,17 +2458,17 @@ describe('StripeHelper', () => {
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
-      const result = await stripeHelper.updateCustomerBillingAddress(
-        customer1.id,
-        {
+      const result = await stripeHelper.updateCustomerBillingAddress({
+        customerId: customer1.id,
+        options: {
           city: 'city',
           country: 'US',
           line1: 'street address',
           line2: undefined,
           postalCode: '12345',
           state: 'CA',
-        }
-      );
+        },
+      });
       assert.deepEqual(result, { metadata: {} });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.customers.update,
@@ -6291,8 +6291,7 @@ describe('StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.updateCustomerBillingAddress,
-        customer1.id,
-        expectedAddressArg
+        { customerId: customer1.id, options: expectedAddressArg }
       );
     });
 
@@ -6339,8 +6338,7 @@ describe('StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.updateCustomerBillingAddress,
-        customer1.id,
-        expectedAddressArg
+        { customerId: customer1.id, options: expectedAddressArg }
       );
       sinon.assert.calledOnce(Sentry.withScope);
       sinon.assert.calledOnceWithExactly(

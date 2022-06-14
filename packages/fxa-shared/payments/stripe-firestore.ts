@@ -163,7 +163,10 @@ export class StripeFirestore {
     }
 
     if (typeof invoice.subscription !== 'string') {
-      throw new Error(`Invoice ${invoice.id} has no subscription id.`);
+      // We can only insert invoices with a subscription for caching, but we
+      // shouldn't throw errors just because we can't cache non-subscription invoices.
+      // TODO: Cache non-subscription invoices.
+      return invoice;
     }
 
     return customerSnap.docs[0].ref
