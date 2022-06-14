@@ -22074,7 +22074,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     express: ^4.17.2
     fxa-shared: "workspace:*"
-    googleapis: ^100.0.0
+    googleapis: ^102.0.0
     graphql: ^15.6.1
     graphql-tools: ^8.0.0
     helmet: ^5.0.0
@@ -22206,7 +22206,7 @@ fsevents@~2.1.1:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-auth-library: ^8.0.2
-    googleapis: ^100.0.0
+    googleapis: ^102.0.0
     grunt: ^1.5.3
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
@@ -23929,7 +23929,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.0.2, google-auth-library@npm:^7.6.1":
+"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.6.1":
   version: 7.10.2
   resolution: "google-auth-library@npm:7.10.2"
   dependencies:
@@ -24025,27 +24025,27 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"googleapis-common@npm:^5.0.2":
-  version: 5.0.3
-  resolution: "googleapis-common@npm:5.0.3"
+"googleapis-common@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "googleapis-common@npm:6.0.0"
   dependencies:
     extend: ^3.0.2
     gaxios: ^4.0.0
-    google-auth-library: ^7.0.2
+    google-auth-library: ^8.0.2
     qs: ^6.7.0
     url-template: ^2.0.8
     uuid: ^8.0.0
-  checksum: f8c20da197cded93a0250cabf5de01100acf80b24373fc645166fcaf4d5069040305e6cb5df4de78eb9adc68f25b7a578987f2e64212cf7329de24cfe33dde55
+  checksum: a6c697ac0c829f7bdfcfe32f5fb16fbf7b864cc173257c09eff6e4893f3bd56064904f7b6843d4c8ff074b128609c6cc2ac7490aaf9ed70cab417dc2fb54236b
   languageName: node
   linkType: hard
 
-"googleapis@npm:^100.0.0":
-  version: 100.0.0
-  resolution: "googleapis@npm:100.0.0"
+"googleapis@npm:^102.0.0":
+  version: 102.0.0
+  resolution: "googleapis@npm:102.0.0"
   dependencies:
-    google-auth-library: ^7.0.2
-    googleapis-common: ^5.0.2
-  checksum: a9d3fc0ef4a59cd15623b7b5afc1add63ea015a17ec7e2edbbb42f9335df0f5ddf37b9f3a93096465ac65772a285878e9fe0e270894ce4a1b3a575c70c5c86c4
+    google-auth-library: ^8.0.2
+    googleapis-common: ^6.0.0
+  checksum: 599cb57d00f623ea968aaa8e75f421d29545b3b2e0a29b454165839db25379a793a338c71e1235c8f4e8f9f4f01c4b33b6e98bbd46e05e720631ac77a09d64b4
   languageName: node
   linkType: hard
 
