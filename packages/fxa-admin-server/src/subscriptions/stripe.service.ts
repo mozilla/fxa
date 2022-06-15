@@ -82,6 +82,7 @@ export class StripeFirestoreService extends StripeFirestore {
 
 @Injectable()
 export class StripeService extends StripeHelper {
+  protected readonly isTestingApi: boolean;
   public override readonly stripe: Stripe;
   protected override readonly stripeFirestore: StripeFirestore;
   protected override readonly paymentConfigManager?:
@@ -104,6 +105,7 @@ export class StripeService extends StripeHelper {
     };
     super(config, metrics, logger);
 
+    this.isTestingApi = /sk_test/.test(config.subscriptions.stripeApiKey);
     this.stripe = stripe;
     this.stripeFirestore = stripeFirestore;
     this.paymentConfigManager = paymentConfigManager;
@@ -137,21 +139,16 @@ export class StripeService extends StripeHelper {
   }
 
   /**
-   * Starts a management session for the customer's subscriptions.
+   * Links to customer's stripe dashboard
    * @param customer - stripe customer
+   * @returns link to stripe dashboard
    */
   public async createManageSubscriptionLink(
-    customer: string | Stripe.Customer | Stripe.DeletedCustomer,
-    returnUrl: string
+    customer: string | Stripe.Customer | Stripe.DeletedCustomer
   ) {
     let customerId = typeof customer === 'string' ? customer : customer.id;
-
-    const resp = await this.stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    });
-
-    return resp.url;
+    let test = this.isTestingApi ? 'test/' : '';
+    return `https://dashboard.stripe.com/${test}customers/${customerId}`;
   }
 }
 export type SkuKey =

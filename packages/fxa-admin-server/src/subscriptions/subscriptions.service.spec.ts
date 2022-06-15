@@ -71,8 +71,8 @@ describe('Subscription Service', () => {
   const productId = 'product-123';
   const productName = 'product 123';
   const subscriptionId = 'subscription-123';
-  const manageSubscriptionLink = 'http://foo.bar/manage-session/123';
-  const returnUrl = 'http://foo.bar/account-search';
+  const manageSubscriptionLink =
+    'https://dashboard.stripe.com/test/customers/customer-123';
   const latestInvoice = 'invoice-123';
   const currentPeriodStart = created;
   const currentPeriodEnd = addDays(created, 30);
@@ -104,7 +104,6 @@ describe('Subscription Service', () => {
     mockConfigOverrides['featureFlags.subscriptions.appStore'] = true;
     mockConfigOverrides['featureFlags.subscriptions.playStore'] = true;
     mockConfigOverrides['featureFlags.subscriptions.stripe'] = true;
-    mockConfigOverrides['returnUrl'] = returnUrl;
 
     mockAllAbbrevPlans.mockClear();
     mockFetchCustomers.mockClear();
@@ -214,10 +213,7 @@ describe('Subscription Service', () => {
     ]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
     expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
-    expect(mockCreateManageSubscriptionLink).toBeCalledWith(
-      customerId,
-      returnUrl
-    );
+    expect(mockCreateManageSubscriptionLink).toBeCalledWith(customerId);
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
