@@ -6,6 +6,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "compile": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "../../_scripts/check-url.sh localhost:9000/__heartbeat__ && pm2 start pm2.config.js",
     "start:prod": "node dist/main",

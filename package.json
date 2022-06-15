@@ -6,7 +6,6 @@
   "scripts": {
     "preinstall": "_scripts/check-package-manager.sh",
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
-    "audit": "echo 'audit is currently unavailable'",
     "start": "nps --prefix=start",
     "stop": "nps --prefix=stop",
     "restart": "nps --prefix=restart",
@@ -47,7 +46,6 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "_scripts/audit.sh",
       "post-checkout": "_scripts/git-checkout-hook.sh",
       "post-merge": "_scripts/git-merge-hook.sh"
     }
