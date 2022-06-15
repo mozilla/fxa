@@ -4,21 +4,18 @@
 
 @tailwind screens;
 
-/* stylelint-disable */
 @responsive {
-    .drop-down-menu {
-      @apply w-64 bg-white absolute shadow-md rounded-lg;
-    }
-    .drop-down-menu::before {
-      content: '';
-      @apply caret-top absolute -top-3;
-    }
-    [dir=ltr] .drop-down-menu::before {
-      @apply left-55;
-    }
-    [dir=rtl] .drop-down-menu::before {
-      @apply right-55;
-    }
-
+  .drop-down-menu {
+    @apply w-64 bg-white absolute shadow-md rounded-lg;
   }
-  /* stylelint-enable */
+  .drop-down-menu::before {
+    content: "";
+    @apply caret-top absolute -top-3;
+  }
+  [dir="ltr"] .drop-down-menu::before {
+    @apply left-55;
+  }
+  [dir="rtl"] .drop-down-menu::before {
+    @apply right-55;
+  }
+}

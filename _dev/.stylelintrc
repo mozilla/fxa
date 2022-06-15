@@ -1,12 +1,12 @@
 {
   "ignoreFiles": [
-    "../packages/fxa-content-server/**"
+    "../packages/**/tailwind.out.scss"
   ],
   "extends": "stylelint-config-prettier",
   "rules": {
     "declaration-empty-line-before": "never",
     "selector-max-id": [
-      0,
+      2,
       {
         "message": "Using ID selectors is discouraged",
         "severity": "warning"
@@ -16,16 +16,21 @@
       true,
       {
         "ignoreAtRules": [
-          "tailwind",
+          "at-root",
+          "each",
+          "else",
+          "error",
+          "extend",
           "function",
           "if",
-          "each",
           "include",
+          "layer",
           "mixin",
-          "use",
-          "extend",
+          "responsive",
+          "return",
           "screen",
-          "layer"
+          "tailwind",
+          "use"
         ]
       }
     ]

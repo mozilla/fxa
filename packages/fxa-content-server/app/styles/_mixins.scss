@@ -125,7 +125,6 @@
 
 @mixin message-box($background-color, $text-color) {
   @include body10();
-
   background: $background-color;
   border-radius: 4px;
   color: $text-color;

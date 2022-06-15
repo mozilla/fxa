@@ -26,7 +26,6 @@
 
 .success {
   @include message-box($success-background-color, $success-text-color);
-
   display: none;
   margin-bottom: 10px;
 }
