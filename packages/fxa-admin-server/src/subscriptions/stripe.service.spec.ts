@@ -15,7 +15,6 @@ import {
   MockMetricsFactory,
   MockStripeFactory,
 } from '../mocks';
-import { FirestoreFactory } from './firestore.service';
 import {
   iapPurchaseToPlan,
   StripePaymentConfigManagerService,
@@ -98,18 +97,12 @@ describe('Stripe Service', () => {
   let service: StripeService;
 
   const mockLookupLatestInvoice = jest.fn();
-  const mockCreateManageSubscriptionLink = jest.fn();
   const MockStripeFactory: Provider = {
     provide: 'STRIPE',
     useFactory: () => {
       return {
         invoices: {
           retrieve: mockLookupLatestInvoice,
-        },
-        billingPortal: {
-          sessions: {
-            create: mockCreateManageSubscriptionLink,
-          },
         },
         on: jest.fn(),
       };
@@ -128,7 +121,6 @@ describe('Stripe Service', () => {
 
   beforeEach(async () => {
     mockLookupLatestInvoice.mockClear();
-    mockCreateManageSubscriptionLink.mockClear();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         StripeService,
@@ -189,21 +181,11 @@ describe('Stripe Service', () => {
 
   it('creates manage subscription link', async () => {
     const customerId = 'customer-123';
-    const returnUrl = 'http://fxa-admin-panel/account-search';
-    const manageSessionUrl = 'http://www.foo.bar/manage-session';
-    mockCreateManageSubscriptionLink.mockImplementation(async () => ({
-      url: manageSessionUrl,
-    }));
+    const manageSessionUrl =
+      'https://dashboard.stripe.com/customers/customer-123';
 
-    const result1 = await service.createManageSubscriptionLink(
-      customerId,
-      returnUrl
-    );
+    const result1 = await service.createManageSubscriptionLink(customerId);
 
-    expect(mockCreateManageSubscriptionLink).toBeCalledWith({
-      customer: customerId,
-      return_url: returnUrl,
-    });
     expect(result1).toEqual(manageSessionUrl);
   });
 

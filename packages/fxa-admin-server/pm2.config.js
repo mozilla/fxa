@@ -17,7 +17,7 @@ module.exports = {
       max_restarts: '1',
       min_uptime: '2m',
       env: {
-        CONFIG_FILES: 'src/config/secrets.json',
+        CONFIG_FILES: 'secrets.json',
         PATH,
         NODE_ENV: 'development',
         TS_NODE_TRANSPILE_ONLY: 'true',
