@@ -36,11 +36,6 @@ export class SubscriptionsService {
     return this.configService.get('featureFlags.subscriptions.stripe');
   }
 
-  /** A return URL that stripe can redirect to after a user completes a workflow. */
-  protected get returnUrl() {
-    return this.configService.get('returnUrl');
-  }
-
   /**
    * Create new SubscriptionService instance
    * @param logger - logging module
@@ -111,8 +106,7 @@ export class SubscriptionsService {
 
       const manageSubscriptionLink =
         await this.stripeService.createManageSubscriptionLink(
-          subscription.customer,
-          this.returnUrl
+          subscription.customer
         );
 
       yield StripeFormatter.toMozSubscription(
