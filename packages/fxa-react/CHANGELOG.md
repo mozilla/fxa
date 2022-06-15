@@ -1,3 +1,14 @@
+## 1.234.1
+
+No changes.
+
+## 1.234.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 12.1.3 to 12.1.5 ([4373180aad](https://github.com/mozilla/fxa/commit/4373180aad))
+- deps: bump @fluent/langneg from 0.6.1 to 0.6.2 ([4735f63bf0](https://github.com/mozilla/fxa/commit/4735f63bf0))
+
 ## 1.233.1
 
 No changes.

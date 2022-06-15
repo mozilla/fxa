@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.233.1",
+  "version": "1.234.1",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "compile": "tsc --noEmit",
     "lint": "eslint *",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "watch": "tsc -w",
@@ -32,11 +33,11 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.4.5",
-    "@nestjs/config": "^2.0.0",
+    "@nestjs/common": "^8.4.7",
+    "@nestjs/config": "^2.1.0",
     "@nestjs/core": "^8.4.5",
     "@nestjs/mapped-types": "^1.0.1",
-    "@nestjs/platform-express": "^8.4.5",
+    "@nestjs/platform-express": "^8.4.6",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "class-transformer": "^0.5.1",
@@ -74,7 +75,7 @@
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
     "supertest": "^6.2.3",
-    "ts-jest": "^27.1.4",
+    "ts-jest": "^28.0.4",
     "typescript": "^4.5.2"
   },
   "jest": {

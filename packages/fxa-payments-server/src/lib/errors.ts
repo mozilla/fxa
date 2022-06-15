@@ -8,6 +8,7 @@ export type GeneralError = {
 
 // ref: fxa-auth-server/lib/error.js
 const AuthServerErrno = {
+  ACCOUNT_EXISTS: 101,
   UNKNOWN_SUBSCRIPTION_CUSTOMER: 176,
   UNKNOWN_SUBSCRIPTION: 177,
   UNKNOWN_SUBSCRIPTION_PLAN: 178,

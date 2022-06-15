@@ -1,6 +1,6 @@
 {
   "name": "fxa-settings",
-  "version": "1.233.1",
+  "version": "1.234.1",
   "homepage": "https://accounts.firefox.com/settings",
   "private": true,
   "scripts": {
@@ -71,7 +71,7 @@
     "react": "^16.13.1",
     "react-async-hook": "^4.0.0",
     "react-dom": "^16.13.1",
-    "react-easy-crop": "^4.2.0",
+    "react-easy-crop": "^4.3.0",
     "react-hook-form": "^6.15.8",
     "react-scripts": "^4.0.3",
     "react-webcam": "^7.0.0",
@@ -122,7 +122,7 @@
     "pm2": "^5.1.2",
     "postcss-cli": "^7.1.1",
     "react-test-renderer": "^17.0.2",
-    "storybook-addon-rtl": "^0.4.2",
+    "storybook-addon-rtl": "^0.4.3",
     "style-loader": "^1.3.0",
     "tailwindcss": "^1.9.1",
     "webpack": "^4.43.0",

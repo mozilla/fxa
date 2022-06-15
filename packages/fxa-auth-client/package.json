@@ -17,7 +17,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.0",
-    "abab": "^2.0.5",
+    "abab": "^2.0.6",
     "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.1"
   },

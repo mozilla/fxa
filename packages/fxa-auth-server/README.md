@@ -111,6 +111,8 @@ This package uses [Mocha](https://mochajs.org/) to test its code. By default `np
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
+We also use [Chai](https://www.chaijs.com/) for making assertions in tests. As of version 4.3.6, Chai truncates error messages by default. To disable truncation for tests in a given file, import chai from the local file `/test/chaiWithoutTruncation.js` as demonstrated in `test/local/senders/emails.ts`. If you want more truncation than you get by default (but you do want to put some kind of limit on how much the error message prints out) you can change the `truncateThreshold` value in `chaiWithoutTruncation.js` to be the desired number of characters. Setting it to `0` (as we have) disables truncation entirely.
+
 ### Testing with non-local databases
 
 Executing tests using remote databases (MySQL, Redis, Memcached) is possible by specifying (and exporting) the following environment variables:

@@ -967,7 +967,6 @@ describe('sendSigninNotifications', () => {
     beforeEach(() => {
       sessionToken.tokenVerified = false;
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
-      sessionToken.tokenVerificationCode = 'tokenVerifyShortCode';
       sessionToken.mustVerify = true;
     });
 

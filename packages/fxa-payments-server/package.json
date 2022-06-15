@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.233.1",
+  "version": "1.234.1",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.scss -o src/styles/tailwind.out.scss",
@@ -65,7 +65,6 @@
     "@types/node": "^16.11.3",
     "@types/postcss-import": "^12",
     "@types/react": "^17.0.14",
-    "@types/react-document-title": "^2.0.5",
     "@types/react-dom": "^17.0.9",
     "@types/react-redux": "^7.1.18",
     "@types/react-stripe-elements": "^6.0.5",
@@ -111,7 +110,7 @@
     "style-loader": "^1.3.0",
     "supertest": "^6.2.3",
     "tailwindcss": "1.9.1",
-    "ts-jest": "^27.1.4",
+    "ts-jest": "^28.0.4",
     "typescript": "^4.5.2",
     "wait-for-expect": "^3.0.2",
     "webpack": "^4.43.0"
@@ -121,7 +120,7 @@
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@sentry/tracing": "^6.19.1",
-    "@stripe/react-stripe-js": "^1.7.1",
+    "@stripe/react-stripe-js": "^1.8.1",
     "@stripe/stripe-js": "^1.31.0",
     "accept-language-parser": "^1.5.0",
     "celebrate": "^15.0.1",
@@ -151,7 +150,6 @@
     "on-headers": "^1.0.2",
     "photon-colors": "1.0.3",
     "react": "^16.12.0",
-    "react-document-title": "^2.0.3",
     "react-dom": "^16.12.0",
     "react-redux": "^8.0.2",
     "react-router-dom": "^6.2.2",

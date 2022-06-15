@@ -7,4 +7,4 @@ drop-down-menu-title = { -product-firefox-account } menu
 drop-down-menu-signed-in-as = <signin>Signed in as</signin><user>{ $user }</user>
 drop-down-menu-sign-out = Sign out
 
-drop-down-menu-sign-out-error = Sorry, there was a problem signing you out.
+drop-down-menu-sign-out-error-2 = Sorry, there was a problem signing you out

@@ -1,5 +1,31 @@
 # Change history
 
+## 1.234.1
+
+No changes.
+
+## 1.234.0
+
+### New features
+
+- admin: Create 'Relying Parties' page ## 1.233.1 display RPs from db ([c909a63846](https://github.com/mozilla/fxa/commit/c909a63846))
+
+### Refactorings
+
+- l10n: sync locales with percentage complete. Fix #13148 ([7ab6d7fba6](https://github.com/mozilla/fxa/commit/7ab6d7fba6))
+
+### Other changes
+
+- deps: bump ip from 1.1.5 to 1.1.8 ([79da2a052f](https://github.com/mozilla/fxa/commit/79da2a052f))
+- deps: bump ip from 1.1.5 to 1.1.8" ([1439014f8e](https://github.com/mozilla/fxa/commit/1439014f8e))
+- deps: bump ip from 1.1.5 to 1.1.8 ([6047850269](https://github.com/mozilla/fxa/commit/6047850269))
+- deps: bump stripe from 8.218.0 to 9.6.0 ([c3c36030ec](https://github.com/mozilla/fxa/commit/c3c36030ec))
+- deps-dev: bump @nestjs/testing from 8.4.4 to 8.4.6 ([141d96f1dd](https://github.com/mozilla/fxa/commit/141d96f1dd))
+- deps-dev: bump ts-loader from 8.3.0 to 8.4.0 ([d4a7e8e45e](https://github.com/mozilla/fxa/commit/d4a7e8e45e))
+- deps: bump @fluent/langneg from 0.6.1 to 0.6.2 ([4735f63bf0](https://github.com/mozilla/fxa/commit/4735f63bf0))
+- db: Stop writing `tokenVerificationCode` value to db ([e4a337a93d](https://github.com/mozilla/fxa/commit/e4a337a93d))
+- dep: Upgrades joi, hapi-swagger and its plugins ([d970f293d3](https://github.com/mozilla/fxa/commit/d970f293d3))
+
 ## 1.233.1
 
 No changes.

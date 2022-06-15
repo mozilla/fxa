@@ -43,7 +43,7 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
 
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
-      l10n.getString('pw-create-success-alert', null, 'Password set.')
+      l10n.getString('pw-create-success-alert-2', null, 'Password set')
     );
     navigate(HomePath + '#password', { replace: true });
   }, [alertBar, l10n, navigate]);
@@ -59,9 +59,9 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
         logViewEvent(settingsViewName, 'create-password.fail');
         alertBar.error(
           l10n.getString(
-            'pw-create-error',
+            'pw-create-error-2',
             null,
-            'Sorry, there was a problem setting your password.'
+            'Sorry, there was a problem setting your password'
           )
         );
       }

@@ -49,9 +49,7 @@ export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
 
   private paypalHelper?: PayPalHelper;
-  private TokenCode: () => Promise<string>;
   private otpUtils: any;
-  private tokenCodeLifetime: number;
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
@@ -71,11 +69,6 @@ export class AccountHandler {
     private oauth: any,
     private stripeHelper: StripeHelper
   ) {
-    const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
-    this.tokenCodeLifetime =
-      (tokenCodeConfig?.codeLifetime as unknown as number) ?? MS_ONE_HOUR;
-    const tokenCodeLength = tokenCodeConfig?.codeLength || 8;
-    this.TokenCode = random.base10(tokenCodeLength);
     this.otpUtils = require('./utils/otp')(log, config, db);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
       .skipForEmailAddresses as string[];
@@ -98,8 +91,7 @@ export class AccountHandler {
   private async generateRandomValues() {
     const hex16 = await random.hex(16);
     const hex32 = await random.hex(32);
-    const tokenCode = await this.TokenCode();
-    return { hex16, hex32, tokenCode };
+    return { hex16, hex32 };
   }
 
   private async createPassword(authPW: any, authSalt: any) {
@@ -211,10 +203,9 @@ export class AccountHandler {
   private async createSessionToken(options: {
     account: any;
     request: AuthRequest;
-    tokenVerificationCode: any;
     tokenVerificationId: any;
   }) {
-    const { request, account, tokenVerificationId, tokenVerificationCode } =
+    const { request, account, tokenVerificationId } =
       options;
     const {
       browser: uaBrowser,
@@ -232,8 +223,6 @@ export class AccountHandler {
       emailVerified: account.emailVerified,
       verifierSetAt: account.verifierSetAt,
       mustVerify: requestHelper.wantsKeys(request),
-      tokenVerificationCode: tokenVerificationCode,
-      tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
       tokenVerificationId: tokenVerificationId,
       uaBrowser,
       uaBrowserVersion,
@@ -460,8 +449,7 @@ export class AccountHandler {
     );
 
     const {
-      hex16: emailCode,
-      tokenCode: tokenVerificationCode,
+      hex16: emailCode,      
       hex32: authSalt,
     } = await this.generateRandomValues();
 
@@ -484,7 +472,6 @@ export class AccountHandler {
     const sessionToken = await this.createSessionToken({
       account,
       request,
-      tokenVerificationCode,
       tokenVerificationId,
     });
 
@@ -624,7 +611,6 @@ export class AccountHandler {
         account,
         request,
         // this route counts as verification
-        tokenVerificationCode: undefined,
         tokenVerificationId: undefined,
       });
 
@@ -816,8 +802,8 @@ export class AccountHandler {
         verificationMethod = verificationMethod || 'email-otp';
       }
 
-      const [tokenVerificationId, tokenVerificationCode] = needsVerificationId
-        ? [await random.hex(16), await this.TokenCode()]
+      const [tokenVerificationId] = needsVerificationId
+        ? [await random.hex(16)]
         : [];
       const {
         browser: uaBrowser,
@@ -836,8 +822,6 @@ export class AccountHandler {
         verifierSetAt: accountRecord.verifierSetAt,
         mustVerify: mustVerifySession,
         tokenVerificationId: tokenVerificationId,
-        tokenVerificationCode: tokenVerificationCode,
-        tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
         uaBrowser,
         uaBrowserVersion,
         uaOS,

@@ -13,6 +13,7 @@ describe('lib/logger', function () {
 
   describe('constructor', function () {
     it('should create logger', function () {
+      jest.spyOn(console, 'info').mockImplementation(jest.fn());
       sinon.spy(window.console, 'info');
 
       var information = 'Hello Firefox!';
@@ -28,6 +29,7 @@ describe('lib/logger', function () {
 
   describe('info', function () {
     beforeEach(function () {
+      jest.spyOn(console, 'info').mockImplementation(jest.fn());
       logger = new Logger(window);
       sinon.spy(window.console, 'info');
     });
@@ -60,6 +62,7 @@ describe('lib/logger', function () {
 
   describe('trace', function () {
     beforeEach(function () {
+      jest.spyOn(console, 'trace').mockImplementation(jest.fn());
       logger = new Logger(window);
       sinon.spy(window.console, 'trace');
     });
@@ -91,6 +94,7 @@ describe('lib/logger', function () {
 
   describe('warn', function () {
     beforeEach(function () {
+      jest.spyOn(console, 'warn').mockImplementation(jest.fn());
       logger = new Logger(window);
       sinon.spy(window.console, 'warn');
     });
@@ -123,6 +127,7 @@ describe('lib/logger', function () {
 
   describe('error', function () {
     beforeEach(function () {
+      jest.spyOn(console, 'error').mockImplementation(jest.fn());
       logger = new Logger(window);
       sinon.spy(window.console, 'error');
     });

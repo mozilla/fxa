@@ -761,20 +761,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     await RawSessionToken.verify(tokenId, verificationMethod);
   };
 
-  DB.prototype.verifyTokenCode = async function (code, accountData) {
-    log.trace('DB.verifyTokenCode', { code });
-    try {
-      await BaseToken.verifyTokenCode(accountData.uid, code);
-    } catch (err) {
-      if (isExpiredTokenVerificationCodeError(err)) {
-        throw error.expiredTokenVerficationCode();
-      } else if (isNotFoundError(err)) {
-        throw error.invalidTokenVerficationCode();
-      }
-      throw err;
-    }
-  };
-
   DB.prototype.forgotPasswordVerified = async function (passwordForgotToken) {
     const { id, uid } = passwordForgotToken;
     log.trace('DB.forgotPasswordVerified', { uid });
@@ -1113,8 +1099,4 @@ function isEmailAlreadyExistsError(err) {
 
 function isEmailDeletePrimaryError(err) {
   return err.statusCode === 400 && err.errno === 136;
-}
-
-function isExpiredTokenVerificationCodeError(err) {
-  return err.statusCode === 400 && err.errno === 137;
 }

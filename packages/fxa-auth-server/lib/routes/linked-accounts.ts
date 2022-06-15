@@ -20,13 +20,10 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 const error = require('../error');
 
-const MS_ONE_HOUR = 1000 * 60 * 60;
-
 const appleAud = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
-  private tokenCodeLifetime: number;
 
   constructor(
     private log: AuthLogger,
@@ -35,10 +32,6 @@ export class LinkedAccountHandler {
     private mailer: any,
     private profile: ProfileClient,
   ) {
-    const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
-    this.tokenCodeLifetime =
-      (tokenCodeConfig?.codeLifetime as unknown as number) ?? MS_ONE_HOUR;
-
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
         config.googleAuthConfig.clientId
@@ -274,7 +267,6 @@ export class LinkedAccountHandler {
       emailVerified: accountRecord.primaryEmail.isVerified,
       verifierSetAt: accountRecord.verifierSetAt,
       mustVerify: false,
-      tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
       uaBrowser: request.app.ua.browser,
       uaBrowserVersion: request.app.ua.browserVersion,
       uaOS: request.app.ua.os,

@@ -16,6 +16,8 @@ Each has its own named script in [package.json](./package.json) or you can use `
 
 ### Running the tests
 
+If this is your first time running the tests, run `npx playwright install --with-deps` to install the browsers. Then:
+
 - `yarn test` will run the tests against your localhost using the default configuration.
 - `yarn playwright test` will let you set any of the [cli options](https://playwright.dev/docs/test-cli#reference)
 - You can also add cli options after any of the npm scripts

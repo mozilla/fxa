@@ -34,9 +34,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     (email: string) => {
       alertBar.success(
         l10n.getString(
-          'verify-secondary-email-success-alert',
+          'verify-secondary-email-success-alert-2',
           { email },
-          `${email} successfully added.`
+          `${email} successfully added`
         )
       );
       navigate(HomePath + '#secondary-email', { replace: true });
@@ -68,9 +68,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'verify-secondary-email-error',
+              'verify-secondary-email-error-2',
               null,
-              'There was a problem sending the verification code.'
+              'There was a problem sending the verification code'
             )
           );
         }

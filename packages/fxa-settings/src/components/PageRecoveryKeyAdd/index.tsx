@@ -43,9 +43,9 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = () => {
     alertBar.success(
       l10n.getString(
-        'recovery-key-success-alert',
+        'recovery-key-success-alert-2',
         null,
-        'Recovery key created.'
+        'Recovery key created'
       )
     );
     navigate(HomePath + '#recovery-key', { replace: true });

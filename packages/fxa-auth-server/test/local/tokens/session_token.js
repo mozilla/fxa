@@ -113,15 +113,10 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   });
 
   it('copy token state works', async () => {
-    TOKEN.tokenVerificationCode = 'foo';
     TOKEN.tokenVerificationId = 'bar';
     const token = await SessionToken.create(TOKEN);
     const newState = await token.copyTokenState();
     assert.notEqual(token.tokenVerificationId, newState.tokenVerificationId);
-    assert.notEqual(
-      token.tokenVerificationCode,
-      newState.tokenVerificationCode
-    );
     assert.equal(token.data, newState.data);
     assert.equal(token.id, newState.id);
     assert.equal(token.uid, newState.uid);

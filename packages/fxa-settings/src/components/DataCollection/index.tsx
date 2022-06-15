@@ -42,9 +42,9 @@ export const DataCollection = () => {
     } catch (err) {
       alertBar.error(
         l10n.getString(
-          'dc-opt-in-out-error',
+          'dc-opt-in-out-error-2',
           null,
-          'Sorry, there was a problem changing your data collection preference.'
+          'Sorry, there was a problem changing your data collection preference'
         )
       );
     } finally {

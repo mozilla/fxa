@@ -9,7 +9,7 @@ cs-cannot-disconnect = Client not found, unable to disconnect
 # Variables:
 #   $service (String) - the name of a device or service that uses Firefox Accounts
 #                       (for example: "Firefox Lockwise")
-cs-logged-out = Logged out of { $service }.
+cs-logged-out-2 = Logged out of { $service }
 
 cs-refresh-button =
   .title = Refresh connected services
@@ -18,11 +18,13 @@ cs-refresh-button =
 cs-missing-device-help = Missing or duplicate items?
 
 cs-disconnect-sync-heading = Disconnect from Sync
-# This string is used in a modal dialog when the user starts the disconnect from
-# Sync process.
-# Variables:
-#   $device (String) - the name of a device using Firefox Accounts
-#                      (for example: "Firefox Nightly on Google Pixel 4a")
+
+## This string is used in a modal dialog when the user starts the disconnect from
+## Sync process.
+## Variables:
+##   $device (String) - the name of a device using Firefox Accounts
+##                      (for example: "Firefox Nightly on Google Pixel 4a")
+
 cs-disconnect-sync-content-2 = Your browsing data will remain on { $device },
   but it will no longer sync with your account.
 cs-disconnect-sync-reason-2 = What’s the main reason for disconnecting { $device }?

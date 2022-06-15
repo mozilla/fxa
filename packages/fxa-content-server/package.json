@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.233.1",
+  "version": "1.234.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
@@ -132,7 +132,7 @@
     "thread-loader": "^3.0.4",
     "time-grunt": "2.0.0",
     "typescript": "^4.5.2",
-    "ua-parser-js": "https://github.com/mozilla-fxa/ua-parser-js.git#fxa-version",
+    "ua-parser-js": "1.0.2",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
     "webcrypto-liner": "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb",
@@ -181,7 +181,7 @@
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
     "webpack-dev-middleware": "^5.0.0",
-    "xmlhttprequest": "https://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
+    "xmlhttprequest": "^1.8.0",
     "yargs": "^17.0.1"
   },
   "readmeFilename": "README.md"

@@ -26,16 +26,16 @@ export const UnitRowRecoveryKey = () => {
       await account.deleteRecoveryKey();
       hideModal();
       alertBar.success(
-        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
+        l10n.getString('rk-key-removed-2', null, 'Account recovery key removed')
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
       alertBar.error(
         l10n.getString(
-          'rk-remove-error',
+          'rk-remove-error-2',
           null,
-          'Your account recovery key could not be removed.'
+          'Your account recovery key could not be removed'
         )
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
@@ -111,9 +111,9 @@ export const UnitRowRecoveryKey = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'rk-cannot-verify-session-2',
+                'rk-cannot-verify-session-3',
                 null,
-                'Sorry, there was a problem verifying your session.'
+                'Sorry, there was a problem verifying your session'
               ),
               error
             );

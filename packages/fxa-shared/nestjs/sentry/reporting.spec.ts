@@ -7,6 +7,10 @@ import { filterObject } from './reporting';
 
 const FILTERED = '[Filtered]';
 
+function getUid() {
+  return uuid.v4().replace(/-/g, '');
+}
+
 describe('filterObject', () => {
   it('should be defined', () => {
     expect(filterObject).toBeDefined();
@@ -14,46 +18,58 @@ describe('filterObject', () => {
 
   // Test Sentry QueryParams filtering types
   it('should filter array of key/value arrays', () => {
-    const input = [
-      ['foo', uuid.v4().replace(/-/g, '')],
-      ['baz', uuid.v4().replace(/-/g, '')],
-      ['bar', 'fred'],
-    ];
-    const expected = [
-      ['foo', FILTERED],
-      ['baz', FILTERED],
-      ['bar', 'fred'],
-    ];
+    const input = {
+      extra: [
+        ['foo', getUid()],
+        ['baz', getUid()],
+        ['bar', 'fred'],
+      ],
+    };
+    const expected = {
+      extra: [
+        ['foo', FILTERED],
+        ['baz', FILTERED],
+        ['bar', 'fred'],
+      ],
+    };
     const output = filterObject(input);
     expect(output).toEqual(expected);
   });
 
   it('should filter an object of key/value pairs', () => {
     const input = {
-      foo: uuid.v4().replace(/-/g, ''),
-      baz: uuid.v4().replace(/-/g, ''),
-      bar: 'fred',
+      extra: {
+        foo: getUid(),
+        baz: getUid(),
+        bar: 'fred',
+      },
     };
     const expected = {
-      foo: FILTERED,
-      baz: FILTERED,
-      bar: 'fred',
+      extra: {
+        foo: FILTERED,
+        baz: FILTERED,
+        bar: 'fred',
+      },
     };
     const output = filterObject(input);
     expect(output).toEqual(expected);
   });
 
   it('should skip nested arrays that are not valid key/value arrays', () => {
-    const input = [
-      ['foo', uuid.v4().replace(/-/g, '')],
-      ['bar', 'fred'],
-      ['fizz', 'buzz', 'parrot'],
-    ];
-    const expected = [
-      ['foo', FILTERED],
-      ['bar', 'fred'],
-      ['fizz', 'buzz', 'parrot'],
-    ];
+    const input = {
+      extra: [
+        ['foo', getUid()],
+        ['bar', 'fred'],
+        ['fizz', 'buzz', 'parrot'],
+      ],
+    };
+    const expected = {
+      extra: [
+        ['foo', FILTERED],
+        ['bar', 'fred'],
+        ['fizz', 'buzz', 'parrot'],
+      ],
+    };
     const output = filterObject(input);
     expect(output).toEqual(expected);
   });

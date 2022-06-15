@@ -33,18 +33,18 @@ export const UnitRowTwoStepAuth = () => {
       hideModal();
       alertBar.success(
         l10n.getString(
-          'tfa-row-disabled',
+          'tfa-row-disabled-2',
           null,
-          'Two-step authentication disabled.'
+          'Two-step authentication disabled'
         )
       );
     } catch (e) {
       hideModal();
       alertBar.error(
         l10n.getString(
-          'tfa-row-cannot-disable',
+          'tfa-row-cannot-disable-2',
           null,
-          'Two-step authentication could not be disabled.'
+          'Two-step authentication could not be disabled'
         )
       );
     }
@@ -182,9 +182,9 @@ export const UnitRowTwoStepAuth = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'tfa-row-cannot-verify-session-2',
+                'tfa-row-cannot-verify-session-3',
                 null,
-                'Sorry, there was a problem verifying your session.'
+                'Sorry, there was a problem verifying your session'
               ),
               error
             );

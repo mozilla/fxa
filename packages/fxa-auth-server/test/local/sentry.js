@@ -68,10 +68,14 @@ describe('Sentry', () => {
       setExtra: sinon.fake(),
     };
     sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-    await server.events.emit({ name: 'request', channel: 'error' }, [
-      {},
-      { error: err },
-    ]);
+    await server.events.emit(
+      {
+        name: 'request',
+        channel: 'error',
+        tags: { handler: true, error: true },
+      },
+      [{}, { error: err }]
+    );
 
     sinon.assert.calledTwice(scopeSpy.setContext);
     sinon.assert.calledWith(scopeSpy.setContext, 'payload', {
@@ -115,10 +119,14 @@ describe('Sentry', () => {
     };
     sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
     const fullError = new verror.WError(endError, 'Something bad happened');
-    await server.events.emit({ name: 'request', channel: 'error' }, [
-      {},
-      { error: fullError },
-    ]);
+    await server.events.emit(
+      {
+        name: 'request',
+        channel: 'error',
+        tags: { handler: true, error: true },
+      },
+      [{}, { error: fullError }]
+    );
 
     sinon.assert.calledOnceWithExactly(scopeSpy.setContext, 'cause', {
       errorMessage: 'An internal server error has occurred',
@@ -156,44 +164,98 @@ describe('Sentry', () => {
     });
 
     it('ignores WError by error number', async () => {
-      await server.events.emit({ name: 'request', channel: 'error' }, [
-        {},
+      await server.events.emit(
         {
-          error: new verror.WError(
-            error.emailBouncedHard(),
-            'Something bad happened'
-          ),
+          name: 'request',
+          channel: 'error',
+          tags: { handler: true, error: true },
         },
-      ]);
+        [
+          {},
+          {
+            error: new verror.WError(
+              error.emailBouncedHard(),
+              'Something bad happened'
+            ),
+          },
+        ]
+      );
       sinon.assert.notCalled(sentryCaptureSpy);
     });
 
     it('ignores error by error number', async () => {
-      await server.events.emit({ name: 'request', channel: 'error' }, [
-        {},
-        { error: error.emailBouncedHard() },
-      ]);
+      await server.events.emit(
+        {
+          name: 'request',
+          channel: 'error',
+          tags: { handler: true, error: true },
+        },
+        [{}, { error: error.emailBouncedHard() }]
+      );
+      sinon.assert.notCalled(sentryCaptureSpy);
+    });
+
+    it('ignores event without error tag', async () => {
+      await server.events.emit(
+        {
+          name: 'request',
+          channel: 'error',
+          tags: { handler: true, error: false },
+        },
+        [{}, { error: error.emailBouncedHard() }]
+      );
+      sinon.assert.notCalled(sentryCaptureSpy);
+    });
+
+    it('ignores event without handler tag', async () => {
+      await server.events.emit(
+        {
+          name: 'request',
+          channel: 'error',
+          tags: { handler: false, error: true },
+        },
+        [{}, { error: error.emailBouncedHard() }]
+      );
+      sinon.assert.notCalled(sentryCaptureSpy);
+    });
+
+    it('ignores event without tags', async () => {
+      await server.events.emit(
+        { name: 'request', channel: 'error', tags: undefined },
+        [{}, { error: error.emailBouncedHard() }]
+      );
       sinon.assert.notCalled(sentryCaptureSpy);
     });
 
     it('does not ignore valid error', async () => {
-      await server.events.emit({ name: 'request', channel: 'error' }, [
-        {},
+      await server.events.emit(
         {
-          error: new verror.WError(
-            error.unknownRefreshToken(),
-            'Something bad happened'
-          ),
+          name: 'request',
+          channel: 'error',
+          tags: { handler: true, error: true },
         },
-      ]);
+        [
+          {},
+          {
+            error: new verror.WError(
+              error.unknownRefreshToken(),
+              'Something bad happened'
+            ),
+          },
+        ]
+      );
       sinon.assert.calledOnce(sentryCaptureSpy);
     });
 
     it('does not ingore valid error', async () => {
-      await server.events.emit({ name: 'request', channel: 'error' }, [
-        {},
-        { error: error.unknownRefreshToken() },
-      ]);
+      await server.events.emit(
+        {
+          name: 'request',
+          channel: 'error',
+          tags: { handler: true, error: true },
+        },
+        [{}, { error: error.unknownRefreshToken() }]
+      );
       sinon.assert.calledOnce(sentryCaptureSpy);
     });
   });
