@@ -113,6 +113,8 @@ type BAUpdateData = {
   BILLINGAGREEMENTSTATUS: string;
   EMAIL: string;
   PAYERSTATUS: string;
+  FIRSTNAME: string;
+  LASTNAME: string;
 };
 
 type BillToAddressData = {

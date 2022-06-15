@@ -1185,21 +1185,30 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Update the customer object to add customer's address.
    */
-  async updateCustomerBillingAddress(
-    customer_id: string,
-    options: BillingAddressOptions
-  ): Promise<Stripe.Customer> {
-    const address = {
-      city: options.city,
-      country: options.country,
-      line1: options.line1,
-      line2: options.line2,
-      postal_code: options.postalCode,
-      state: options.state,
-    };
-    const customer = await this.stripe.customers.update(customer_id, {
-      address,
-    });
+  async updateCustomerBillingAddress({
+    customerId,
+    options,
+    name,
+  }: {
+    customerId: string;
+    options?: BillingAddressOptions;
+    name?: string;
+  }): Promise<Stripe.Customer> {
+    const updates: Stripe.CustomerUpdateParams = {};
+    if (options) {
+      updates.address = {
+        city: options.city,
+        country: options.country,
+        line1: options.line1,
+        line2: options.line2,
+        postal_code: options.postalCode,
+        state: options.state,
+      };
+    }
+    if (name) {
+      updates.name = name;
+    }
+    const customer = await this.stripe.customers.update(customerId, updates);
     await this.stripeFirestore.insertCustomerRecordWithBackfill(
       customer.metadata.userid,
       customer
@@ -1229,13 +1238,16 @@ export class StripeHelper extends StripeHelperBase {
         country
       );
 
-      await this.updateCustomerBillingAddress(customerId, {
-        line1: '',
-        line2: '',
-        city: '',
-        state,
-        country,
-        postalCode,
+      await this.updateCustomerBillingAddress({
+        customerId: customerId,
+        options: {
+          line1: '',
+          line2: '',
+          city: '',
+          state,
+          country,
+          postalCode,
+        },
       });
       return true;
     } catch (err: unknown) {
