@@ -16,6 +16,9 @@ const DEFAULT_SUPPORTED_LANGUAGES =
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
+convict.addFormats(
+  require('fxa-shared/configuration/convict-format-allow-list').format
+);
 
 const conf = (module.exports = convict({
   allowed_iframe_contexts: {
@@ -541,6 +544,23 @@ const conf = (module.exports = convict({
     doc: 'Redirect port for HTTPS',
     env: 'REDIRECT_PORT',
     format: 'port',
+  },
+  redirect_check: {
+    allow_list: {
+      default:
+        '*.mozilla.org,*.mozilla.com,*.mozaws.net,*.firefox.com,firefox.com,localhost'.split(
+          ','
+        ),
+      doc: `A comma separated list of hostname rules to let through on redirects. Rules support wildcards.
+
+        - A postfix wildcard is not allowed, e.g. 'foo.*' is invalid.
+        - Empty fragments are not allowed. This means things like 'foo. .bar', '..', '.' are all invalid.
+        - Partial matching is allowed. So 'foo.b*.bar' would match 'foo.baz.bar'.
+        - Note that for partial matching each segment is evaluated in isolation. This means that 'foo.b*.bar' would not allow 'foo.b.az.bar'.
+      `,
+      env: 'REDIRECT_CHECK_ALLOW_LIST',
+      format: 'allowlist',
+    },
   },
   route_log_format: {
     default: 'default_fxa',

@@ -29,6 +29,7 @@ module.exports = function (config) {
     'marketing_email.preferences_url'
   );
   const MX_RECORD_VALIDATION = config.get('mxRecordValidation');
+  const REDIRECT_CHECK_ALLOW_LIST = config.get('redirect_check.allow_list');
   const SENTRY_CLIENT_DSN = config.get('sentry.dsn');
   const SENTRY_CLIENT_ENV = config.get('sentry.env');
   const SENTRY_SAMPLE_RATE = config.get('sentry.sampleRate');
@@ -73,6 +74,7 @@ module.exports = function (config) {
     pairingClients: PAIRING_CLIENTS,
     profileUrl: PROFILE_SERVER_URL,
     release: RELEASE,
+    redirectAllowlist: REDIRECT_CHECK_ALLOW_LIST,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
     sentry: {

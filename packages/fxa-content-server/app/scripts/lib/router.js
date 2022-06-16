@@ -43,6 +43,7 @@ import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
+import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
@@ -232,8 +233,16 @@ const Router = Backbone.Router.extend({
       // Our GQL client sets the `redirect_to` param if a user attempts
       // to navigate directly to a section in settings
       const searchParams = new URLSearchParams(this.window.location.search);
-      const endpoint = searchParams.get('redirect_to') || `/settings`;
-      
+
+      let endpoint = searchParams.get('redirect_to');
+      if (!endpoint) {
+        endpoint = `/settings`;
+      } else if (
+        !this.isValidRedirect(endpoint, this.config.redirectAllowlist)
+      ) {
+        throw new Error('Invalid redirect!');
+      }
+
       const settingsLink = `${endpoint}${Url.objToSearchString({
         deviceId,
         flowBeginTime,
@@ -381,6 +390,17 @@ const Router = Backbone.Router.extend({
     }
 
     return Backbone.Router.prototype.navigate.call(this, url, options);
+  },
+
+  /**
+   * Checks to see if a url contains a host that we can redirect to. Supports relative paths as well
+   * absolute urls.
+   * @param {string} redirectLocation - location to redirect to
+   * @param {string[]} allowlist - list of allowed hosts
+   * @param {RegExp[]} A list of regular expressions to validate against
+   */
+  isValidRedirect(redirectLocation, allowlist) {
+    return isAllowed(redirectLocation, window.location, allowlist);
   },
 
   /**
