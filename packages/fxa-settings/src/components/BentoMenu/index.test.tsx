@@ -3,41 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import BentoMenu from '.';
 
 describe('BentoMenu', () => {
+  const dropDownId = 'drop-down-bento-menu';
+
   it('renders and toggles as expected with default values', () => {
     render(<BentoMenu />);
 
     const toggleButton = screen.getByTestId('drop-down-bento-menu-toggle');
-    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
     expect(toggleButton).toHaveAttribute('title', 'Firefox Bento Menu');
-    expect(toggleButton).toHaveAttribute(
-      'aria-controls',
-      'drop-down-bento-menu'
-    );
+    expect(toggleButton).toHaveAttribute('aria-label', 'Firefox Bento Menu');
+    expect(toggleButton).toHaveAttribute('aria-haspopup', 'menu');
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
   it('closes on esc keypress', () => {
     render(<BentoMenu />);
-    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
   it('closes on click outside', () => {
@@ -48,11 +46,10 @@ describe('BentoMenu', () => {
         </div>
       </div>
     );
-    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 });
