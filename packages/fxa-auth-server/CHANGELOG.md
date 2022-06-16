@@ -1,3 +1,9 @@
+## 1.234.2
+
+### Bug fixes
+
+- auth: Ignore errors with http status code below 500 ([e9c92aa8cd](https://github.com/mozilla/fxa/commit/e9c92aa8cd))
+
 ## 1.234.1
 
 No changes.
