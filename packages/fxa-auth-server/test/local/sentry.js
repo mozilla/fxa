@@ -22,8 +22,23 @@ const sandbox = sinon.createSandbox();
 
 describe('Sentry', () => {
   let server;
+  let sentryCaptureSpy;
+  let scopeContextSpy;
+  let scopeSpy;
 
   beforeEach(() => {
+    // Sentry fakes and spies
+    sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
+    scopeContextSpy = sandbox.fake();
+    scopeSpy = {
+      addEventProcessor: sandbox.fake(),
+      setContext: scopeContextSpy,
+      setExtra: sandbox.fake(),
+    };
+    config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
+    sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+
+    // Mock server
     server = new Hapi.Server({});
   });
 
@@ -31,8 +46,31 @@ describe('Sentry', () => {
     sandbox.restore();
   });
 
+  async function emitError(error) {
+    await server.events.emit(
+      {
+        name: 'request',
+        channel: 'error',
+        tags: { handler: true, error: true },
+      },
+      [{}, { error }]
+    );
+  }
+
+  const _testError = (code, errno, innerError) => {
+    const extra = innerError ? [{}, undefined, innerError] : [];
+    return new error(
+      {
+        code,
+        error: 'TEST',
+        errno,
+        message: 'TEST',
+      },
+      ...extra
+    );
+  };
+
   it('can be set up when sentry is enabled', async () => {
-    config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
     let throws = false;
     try {
       await configureSentry(server, config);
@@ -53,21 +91,12 @@ describe('Sentry', () => {
   });
 
   it('adds payload details to an internal validation error', async () => {
-    config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
     await configureSentry(server, config);
     const err = error.internalValidationError(
       'internalError',
       { extra: 'data' },
       'Missing data'
     );
-    const sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
-    const scopeContextSpy = sinon.fake();
-    const scopeSpy = {
-      addEventProcessor: sinon.fake(),
-      setContext: scopeContextSpy,
-      setExtra: sinon.fake(),
-    };
-    sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
     await server.events.emit(
       {
         name: 'request',
@@ -77,8 +106,8 @@ describe('Sentry', () => {
       [{}, { error: err }]
     );
 
-    sinon.assert.calledTwice(scopeSpy.setContext);
-    sinon.assert.calledWith(scopeSpy.setContext, 'payload', {
+    sandbox.assert.calledTwice(scopeSpy.setContext);
+    sandbox.assert.calledWith(scopeSpy.setContext, 'payload', {
       code: 500,
       errno: 998,
       error: 'Internal Server Error',
@@ -86,14 +115,13 @@ describe('Sentry', () => {
       message: 'An internal validation check failed.',
       op: 'internalError',
     });
-    sinon.assert.calledWith(scopeSpy.setContext, 'payload.data', {
+    sandbox.assert.calledWith(scopeSpy.setContext, 'payload.data', {
       extra: 'data',
     });
-    sinon.assert.calledOnceWithExactly(sentryCaptureSpy, err);
+    sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, err);
   });
 
   it('adds EndpointError details to a reported error', async () => {
-    config.sentry.dsn = 'https://deadbeef:deadbeef@localhost/123';
     await configureSentry(server, config);
     const endError = new EndpointError(
       'An internal server error has occurred',
@@ -110,14 +138,6 @@ describe('Sentry', () => {
       message: 'Underlying error',
       statusCode: 500,
     };
-    const sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
-    const scopeContextSpy = sinon.fake();
-    const scopeSpy = {
-      addEventProcessor: sinon.fake(),
-      setContext: scopeContextSpy,
-      setExtra: sinon.fake(),
-    };
-    sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
     const fullError = new verror.WError(endError, 'Something bad happened');
     await server.events.emit(
       {
@@ -128,14 +148,14 @@ describe('Sentry', () => {
       [{}, { error: fullError }]
     );
 
-    sinon.assert.calledOnceWithExactly(scopeSpy.setContext, 'cause', {
+    sandbox.assert.calledOnceWithExactly(scopeSpy.setContext, 'cause', {
       errorMessage: 'An internal server error has occurred',
       errorName: 'EndpointError',
       method: 'PUT',
       path: '/account/',
       reason: 'connect refused',
     });
-    sinon.assert.calledOnceWithExactly(sentryCaptureSpy, fullError);
+    sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, fullError);
     const ctx = scopeContextSpy.args[0][1];
     assert.equal(ctx.method, endError.attempt.method);
     assert.equal(ctx.path, endError.attempt.path);
@@ -144,119 +164,152 @@ describe('Sentry', () => {
   });
 
   describe('ignores errors', () => {
-    let sentryCaptureSpy;
-
     beforeEach(async () => {
-      config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
-      sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
-      const scopeSpy = {
-        addEventProcessor: sinon.fake(),
-        setContext: sinon.fake(),
-        setExtra: sinon.fake(),
-      };
-      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-
       await configureSentry(server, config);
     });
 
-    afterEach(() => {
-      sandbox.reset();
+    describe('by error code', () => {
+      // ACCOUNT_CREATION_REJECTED should not be ignored
+      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+
+      // But, anything below 500 should be ignored
+      const errorCode = 400;
+
+      it('ignores standard error', async () => {
+        await emitError(_testError(errorCode, errno));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores standard error with inner error', async () => {
+        await emitError(_testError(errorCode, errno, new Error('BOOM')));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores WError', async () => {
+        await emitError(new verror.WError(_testError(errorCode, errno)));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores WError inner error', async () => {
+        await emitError(
+          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
+        );
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
     });
 
-    it('ignores WError by error number', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: true, error: true },
-        },
-        [
-          {},
+    describe('by error number', () => {
+      // Anything 500 above should not be ignored.
+      const errorCode = 500;
+
+      // But, BOUNCE_HARD should be ignored
+      const errno = error.ERRNO.BOUNCE_HARD;
+
+      it('ignores standard error', async () => {
+        await emitError(_testError(errorCode, errno));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores standard error with inner error', async () => {
+        await emitError(_testError(errorCode, errno, new Error('BOOM')));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores WError', async () => {
+        await emitError(new verror.WError(_testError(errorCode, errno)));
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores WError inner error', async () => {
+        await emitError(
+          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
+        );
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+    });
+
+    describe('by event state', () => {
+      // ACCOUNT_CREATION_REJECTED should not be ignored
+      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+
+      // And, anything above 500 should be reported
+      const errorCode = 500;
+
+      it('ignores event without error tag', async () => {
+        await server.events.emit(
           {
-            error: new verror.WError(
-              error.emailBouncedHard(),
-              'Something bad happened'
-            ),
+            name: 'request',
+            channel: 'error',
+            tags: { handler: true, error: false },
           },
-        ]
-      );
-      sinon.assert.notCalled(sentryCaptureSpy);
-    });
+          [{}, { error: _testError(errorCode, errno) }]
+        );
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
 
-    it('ignores error by error number', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: true, error: true },
-        },
-        [{}, { error: error.emailBouncedHard() }]
-      );
-      sinon.assert.notCalled(sentryCaptureSpy);
-    });
-
-    it('ignores event without error tag', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: true, error: false },
-        },
-        [{}, { error: error.emailBouncedHard() }]
-      );
-      sinon.assert.notCalled(sentryCaptureSpy);
-    });
-
-    it('ignores event without handler tag', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: false, error: true },
-        },
-        [{}, { error: error.emailBouncedHard() }]
-      );
-      sinon.assert.notCalled(sentryCaptureSpy);
-    });
-
-    it('ignores event without tags', async () => {
-      await server.events.emit(
-        { name: 'request', channel: 'error', tags: undefined },
-        [{}, { error: error.emailBouncedHard() }]
-      );
-      sinon.assert.notCalled(sentryCaptureSpy);
-    });
-
-    it('does not ignore valid error', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: true, error: true },
-        },
-        [
-          {},
+      it('ignores event without handler tag', async () => {
+        await server.events.emit(
           {
-            error: new verror.WError(
-              error.unknownRefreshToken(),
-              'Something bad happened'
-            ),
+            name: 'request',
+            channel: 'error',
+            tags: { handler: false, error: true },
           },
-        ]
-      );
-      sinon.assert.calledOnce(sentryCaptureSpy);
+          [{}, { error: _testError(errorCode, errno) }]
+        );
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+
+      it('ignores event without tags', async () => {
+        await server.events.emit(
+          { name: 'request', channel: 'error', tags: undefined },
+          [{}, { error: _testError(errorCode, errno) }]
+        );
+        sandbox.assert.notCalled(sentryCaptureSpy);
+      });
+    });
+  });
+
+  describe('reports errors', () => {
+    // ACCOUNT_CREATION_REJECTED should not be ignored
+    const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+
+    // And, anything above 500 should be reported
+    const errorCode = 500;
+
+    beforeEach(async () => {
+      await configureSentry(server, config);
     });
 
-    it('does not ingore valid error', async () => {
-      await server.events.emit(
-        {
-          name: 'request',
-          channel: 'error',
-          tags: { handler: true, error: true },
-        },
-        [{}, { error: error.unknownRefreshToken() }]
+    it('reports valid WError', async () => {
+      await emitError(
+        new verror.WError(
+          _testError(errorCode, errno),
+          'Something bad happened'
+        )
       );
-      sinon.assert.calledOnce(sentryCaptureSpy);
+      sandbox.assert.calledOnce(sentryCaptureSpy);
+    });
+
+    it('reports valid WError with inner error', async () => {
+      await emitError(
+        new verror.WError(
+          _testError(errorCode, errno, new Error('BOOM')),
+          'Something bad happened'
+        )
+      );
+      sandbox.assert.calledOnce(sentryCaptureSpy);
+    });
+
+    it('reports valid error with error', async () => {
+      await emitError(_testError(errorCode, errno, new Error('BOOM')));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      sandbox.assert.calledOnce(sentryCaptureSpy);
+    });
+
+    it('reports valid error with inner error', async () => {
+      await emitError(_testError(errorCode, errno, new Error('BOOM')));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      sandbox.assert.calledOnce(sentryCaptureSpy);
     });
   });
 
