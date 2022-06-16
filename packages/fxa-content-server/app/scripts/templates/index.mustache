@@ -1,18 +1,28 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-enter-email-header">
-      {{#t}}Enter your email{{/t}}
-      <span class="service">
+    {{#isSync}}
+      <h1 id="fxa-enter-email-header">
+        Sign in to your Firefox account
+      </h1>
+      <p class="sync-description">
+        {{#t}}Sync your passwords, tabs, and bookmarks everywhere you use Firefox.{{/t}}
+      </p>
+      {{/isSync}}
+      {{^isSync}}
+        <h1 id="fxa-enter-email-header">
+          {{#t}}Enter your email{{/t}}
+          <span class="service">
             {{#serviceLogo}}
-                <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
-                {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
+              <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
+              {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
             {{/serviceLogo}}
-          {{^serviceLogo}}
+            {{^serviceLogo}}
               <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
               {{#t}}Continue to %(serviceName)s{{/t}}
-          {{/serviceLogo}}
-      </span>
-    </h1>
+            {{/serviceLogo}}
+          </span>
+        </h1>
+      {{/isSync}}
   </header>
 
   <section>
@@ -35,7 +45,9 @@
     {{/isInThirdPartyAuthExperiment}}
 
     {{^isInThirdPartyAuthExperiment}}
-      {{{ unsafeFirefoxFamilyHTML }}}
+      <p class="firefox-family-services">
+        {{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+      </p>
     {{/isInThirdPartyAuthExperiment}}
   </section>
 </div>

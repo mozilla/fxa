@@ -16,8 +16,10 @@ import SentryMetrics from 'lib/sentry';
 import User from 'models/user';
 import View from 'views/confirm_signup_code';
 import WindowMock from '../../mocks/window';
+import { CONFIRM_SIGNUP_CODE } from '../../../../tests/functional/lib/selectors';
 
 const { createRandomString } = helpers;
+const Selectors = CONFIRM_SIGNUP_CODE;
 
 const CODE = createRandomString(Constants.SIGNUP_CODE_LENGTH, 10);
 
@@ -84,17 +86,23 @@ describe('views/confirm_signup_code', () => {
 
   describe('render', () => {
     it('renders the view', () => {
-      assert.lengthOf(
-        view.$('#fxa-confirm-signup-code-header'),
-        1,
+      assert.include(
+        view.$(Selectors.HEADER).text(),
+        'Enter verification code',
         'has header'
       );
-      assert.lengthOf(view.$('.otp-code'), 1, 'has input');
       assert.include(
-        view.$('.verification-email-message').text(),
-        'a@a.com',
-        'has email'
+        view.$(Selectors.SUB_HEADER).text(),
+        'for your Firefox account',
+        'has subheader'
       );
+      assert.include(
+        view.$(Selectors.EMAIL_FIELD).text(),
+        'Enter the code that was sent to a@a.com within 5 minutes.'
+      );
+      assert.include(view.$(Selectors.LINKS).text(), 'Code expired?');
+      assert.include(view.$(Selectors.LINKS).text(), 'Email new code.');
+      assert.lengthOf(view.$('.otp-code'), 1, 'has input');
       assert.lengthOf(view.$('.step-3'), 0, 'no progress indicator');
     });
 

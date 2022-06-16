@@ -327,8 +327,10 @@ module.exports = {
   },
   CONFIRM_SIGNUP_CODE: {
     HEADER: '#fxa-confirm-signup-code-header',
+    SUB_HEADER: '#fxa-confirm-signup-code-header .description',
     EMAIL_FIELD: '.verification-email-message',
     INPUT: '.otp-code',
+    LINKS: '.links',
     LINK_BACK: '#back',
     LINK_RESEND: '#resend',
   },
@@ -386,6 +388,7 @@ module.exports = {
   ENTER_EMAIL: {
     EMAIL: 'input[type=email]',
     ERROR: '.error',
+    SYNC_DESCRIPTION: '.sync-description',
     FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
     HEADER: '#fxa-enter-email-header',
     LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
@@ -694,6 +697,7 @@ module.exports = {
     PASSWORD: 'input[type=password]',
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SUB_HEADER: '#fxa-signin-password-header .service',
+    SUB_HEADER_ENTER_PW: '#fxa-signin-password-header .description',
     SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',
     SUBMIT_USE_SIGNED_IN: '.use-logged-in',
@@ -758,6 +762,7 @@ module.exports = {
   },
   SIGNUP_PASSWORD: {
     AGE: '#age',
+    AGE_EXPLAINER: '.input-row-age p',
     CHOOSE_WHAT_TO_SYNC_HEADER: '#fxa-choose-what-to-sync-header',
     EMAIL: 'input[type=email]',
     ERROR: '.error',

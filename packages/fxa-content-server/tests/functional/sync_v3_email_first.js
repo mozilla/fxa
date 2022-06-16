@@ -89,7 +89,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
     'enter a firefox.com address': function () {
       return this.remote
         .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
 
         .then(type(selectors.ENTER_EMAIL.EMAIL, 'testuser@firefox.com'))
         .then(click(selectors.ENTER_EMAIL.SUBMIT))
@@ -106,7 +106,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       return (
         this.remote
           .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
             click(
@@ -181,7 +181,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             },
           })
         )
-        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
 
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(
@@ -203,7 +203,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
 
-        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.ERROR))
 

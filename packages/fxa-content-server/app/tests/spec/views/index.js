@@ -81,9 +81,12 @@ describe('views/index', () => {
       sinon.spy(view, 'replaceCurrentPage');
     });
 
-    it('renders the firefox-family services', () => {
+    it('renders the firefox-family services copy', () => {
       return view.render().then(() => {
-        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+        assert.include(
+          view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
+          'A Firefox account also unlocks access to more privacy-protecting products from Mozilla.'
+        );
       });
     });
 
@@ -173,14 +176,45 @@ describe('views/index', () => {
       });
 
       describe('relier.action === email', () => {
-        it('uses email first flow', () => {
+        it('renders service name when not sync', () => {
+          relier.set({
+            action: 'email',
+            service: 'monitor',
+            serviceName: 'Firefox Monitor',
+          });
+
+          return renderTestEnterEmailDisplayed(view, 'Firefox Monitor');
+        });
+
+        it('does not render service name when service is sync', () => {
           relier.set({
             action: 'email',
             service: 'sync',
             serviceName: 'Firefox Sync',
           });
+          sinon.stub(relier, 'isSync').callsFake(() => true);
 
-          return renderTestEnterEmailDisplayed(view, 'Firefox Sync');
+          return renderTestEnterEmailDisplayed(view, '');
+        });
+
+        it('renders expected text when service is sync', () => {
+          relier.set({
+            action: 'email',
+            service: 'sync',
+            serviceName: 'Firefox Sync',
+          });
+          sinon.stub(relier, 'isSync').callsFake(() => true);
+
+          return view.render().then(() => {
+            assert.include(
+              view.$(Selectors.HEADER).text(),
+              'Sign in to your Firefox account'
+            );
+            assert.include(
+              view.$(Selectors.SYNC_DESCRIPTION).text(),
+              'Sync your passwords, tabs, and bookmarks everywhere you use Firefox.'
+            );
+          });
         });
       });
 

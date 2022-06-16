@@ -3,13 +3,12 @@
 pw-change-header =
   .title = Change password
 
-pw-change-stay-safe = Stay safe — don’t reuse passwords. Your password:
-pw-change-least-8-chars = Must be at least 8 characters
-pw-change-not-contain-email = Must not be your email address
+pw-8-chars = At least 8 characters
+pw-not-email = Not your email address
 pw-change-must-match = New password matches confirmation
+pw-commonly-used = Not a commonly used password
 # linkExternal is a link to a mozilla.org support article on password strength
-pw-change-common-passwords = Must not match this <linkExternal>list of common
-  passwords</linkExternal>
+pw-tips = Stay safe — don’t reuse passwords. See more tips to <linkExternal>create strong passwords</linkExternal>.
 pw-change-cancel-button = Cancel
 pw-change-save-button = Save
 pw-change-forgot-password-link = Forgot password?

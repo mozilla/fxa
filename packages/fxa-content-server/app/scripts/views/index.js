@@ -13,7 +13,6 @@ import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
-import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import ThirdPartyAuth from '../templates/partial/third-party-auth.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
@@ -34,7 +33,6 @@ class IndexView extends FormView {
   template = Template;
 
   partialTemplates = {
-    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
     unsafeThirdPartyAuthHTML: ThirdPartyAuth,
   };
 

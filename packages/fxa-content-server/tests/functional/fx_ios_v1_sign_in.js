@@ -90,7 +90,7 @@ registerSuite('FxiOS v1 signin', {
           )
           .execute(listenForFxaCommands)
 
-          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SYNC_DESCRIPTION))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
             click(
