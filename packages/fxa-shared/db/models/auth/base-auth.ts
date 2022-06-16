@@ -48,6 +48,7 @@ export enum Proc {
   PasswordChangeToken = 'passwordChangeToken_3',
   PasswordForgotToken = 'passwordForgotToken_2',
   PurgeAvailableCommands = 'purgeAvailableCommands_1',
+  Prune = 'prune_8',
   RecoveryCodes = 'recoveryCodes_1',
   RecoveryKey = 'getRecoveryKey_4',
   ResetAccount = 'resetAccount_16',
@@ -66,8 +67,11 @@ export enum Proc {
   VerifyTokenWithMethod = 'verifyTokensWithMethod_3',
 }
 
-function callString(name: Proc, argCount: number) {
-  const qs = new Array(argCount).fill('?').join(',');
+function callString(name: Proc, argCount: number, outputs?: string[]) {
+  const qs = new Array(argCount)
+    .fill('?')
+    .concat(outputs || [])
+    .join(',');
   return `Call ${name}(${qs})`;
 }
 
@@ -104,6 +108,23 @@ export abstract class BaseAuthModel extends BaseModel {
       return { status: result.pop(), rows: result.shift() };
     }
     return { status: result, rows: [] };
+  }
+
+  static async callProcedureWithOutputs(
+    name: Proc,
+    args: any[],
+    outputs: string[]
+  ) {
+    let [txn, ...rest] = args;
+    const knex = this.knex() as Knex;
+    const query =
+      txn && typeof txn.commit === 'function'
+        ? knex
+            .raw(callString(name, rest.length, outputs), rest)
+            .transacting(txn)
+        : knex.raw(callString(name, args.length, outputs), args);
+    await query;
+    return await knex.select(knex.raw(outputs.join(','))).first();
   }
 
   static sha256(hex: string | Buffer) {

@@ -572,16 +572,28 @@ const conf = convict({
   },
   tokenPruning: {
     enabled: {
-      doc: 'Turn on Redis token pruning',
+      doc: 'Turn on pruning for tokens',
       format: Boolean,
       default: true,
       env: 'TOKEN_PRUNING_ENABLED',
     },
+    pruneEvery: {
+      doc: 'Interval at which tokens and sign in codes are pruned',
+      format: 'duration',
+      default: '1 days',
+      env: 'PRUNE_EVERY',
+    },
     maxAge: {
-      doc: 'Age at which to prune expired tokens from Redis',
+      doc: 'Age at which to prune. (Set to 0 to disable token pruning)',
       format: 'duration',
       default: '1 month',
       env: 'TOKEN_PRUNING_MAX_AGE',
+    },
+    codesMaxAge: {
+      doc: 'Age at which to prune sign in and unblock codes. (Set to 0 to disable code pruning.)',
+      format: 'duration',
+      default: '1 month',
+      env: 'CODES_PRUNING_MAX_AGE',
     },
   },
   verifierVersion: {

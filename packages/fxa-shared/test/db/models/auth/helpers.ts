@@ -30,6 +30,10 @@ export type BounceIsh = Pick<
 
 export const chance = new Chance();
 
+export function randomGuid() {
+  return chance.guid({ version: 4 }).replace(/-/g, '');
+}
+
 export function randomAccount() {
   const email = chance.email();
   return {
@@ -40,7 +44,7 @@ export function randomAccount() {
     emailVerified: true,
     kA: '00',
     normalizedEmail: email,
-    uid: chance.guid({ version: 4 }).replace(/-/g, ''),
+    uid: randomGuid(),
     verifierSetAt: chance.timestamp(),
     verifierVersion: 0,
     verifyHash: '00',
@@ -167,17 +171,24 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
 
   await runSql([
     './accounts.sql',
+    './account-reset-tokens.sql',
     './devices.sql',
     './emails.sql',
     './account-customers.sql',
     './paypal-ba.sql',
     './email-types.sql',
     './email-bounces.sql',
+    './metadata.sql',
+    './password-change-tokens.sql',
+    './password-forgot-tokens.sql',
     './totp.sql',
     './recovery-keys.sql',
     './session-tokens.sql',
+    './signin-codes.sql',
     './linked-accounts.sql',
     './deviceCommandIdentifiers.sql',
+    './unblock-codes.sql',
+    './unverified-tokens.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql([
@@ -185,6 +196,7 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './sent-emails.sql',
     './deviceCommands.sql',
     './sp_accountDevices.sql',
+    './sp_prune.sql',
   ]);
 
   /*/ Debugging Assistance
