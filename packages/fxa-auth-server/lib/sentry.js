@@ -268,13 +268,31 @@ async function configureSentry(server, config, processName = 'key_server') {
  *                use the underlying jse_cause error if possible.
  */
 function ignoreErrors(error) {
-  if (!error) return;
+  if (!error) {
+    return;
+  }
 
-  // If the jse error exists target that.
-  error = error.jse_cause || error;
+  // Prefer jse_cause, but fallback to top level error if needed
+  const statusCode =
+    determineStatusCode(error.jse_cause) || determineStatusCode(error);
 
-  // Ingore specific error numbers
-  return IGNORED_ERROR_NUMBERS.includes(error.errno);
+  const errno = error.jse_cause?.errno || error.errno;
+
+  // Ignore non 500 status codes and specific error numbers
+  return statusCode < 500 || IGNORED_ERROR_NUMBERS.includes(errno);
+}
+
+/**
+ * Given an error tries to determine the HTTP status code associated with the error.
+ * @param {*} error
+ * @returns
+ */
+function determineStatusCode(error) {
+  if (!error) {
+    return;
+  }
+
+  return error.statusCode || error.output?.statusCode || error.code;
 }
 
 module.exports = {
