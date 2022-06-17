@@ -45,6 +45,14 @@
   }
 }
 
+.graphic-connect-another-device-qr-code {
+  background-image: image-url('qr_code_firefox_mobile.svg');
+
+  @include respond-to('small') {
+    height: 100px;
+  }
+}
+
 .graphic-connect-another-device-hearts {
   background-image: image-url('account-verified-hearts.svg');
   height: 138px;

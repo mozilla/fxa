@@ -1,21 +1,19 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="pair-header">{{#t}}Connect another device{{/t}}</h1>
+    <h2 id="pair-header">{{#t}}Get Firefox on your phone or tablet{{/t}}</h2>
   </header>
 
   <section>
     <div class="error"></div>
 
-    <div class="graphic {{ graphicId }}" role="img" aria-label="{{#t}}Scan to connect another device{{/t}}"></div>
-    <p>{{#t}}Open the code scanner on your Firefox app and show code when ready.{{/t}}</p>
+    <div class="graphic graphic-connect-another-device-qr-code" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
+    <p>{{#t}}Hold your phone's camera over the code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a href="https://www.mozilla.org/firefox/mobile/get-app/" class="download-firefox-mobile">download link.</a>{{/unsafeTranslate}}</p>
 
     <form novalidate>
       <div class="button-row">
-        <button id="start-pairing" type="submit">{{#t}}Show code{{/t}}</button>
+        <button id="start-pairing" type="submit">{{#t}}I'm ready to sync devices{{/t}}</button>
       </div>
     </form>
-
-    <div class="marketing-area"></div>
-
+    <p>{{#t}}Sync devices to access your tabs, passwords, and bookmarks everywhere you use Firefox.{{/t}}</p>
   </section>
 </div>

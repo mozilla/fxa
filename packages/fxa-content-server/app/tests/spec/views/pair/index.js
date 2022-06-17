@@ -128,7 +128,7 @@ describe('views/pair/index', () => {
         );
         assert.ok(
           view.$el.find('#pair-header').text(),
-          'Connect another device'
+          'Get Firefox on your phone or tablet'
         );
         assert.ok(view.$el.find('#start-pairing').length);
         assert.ok(view.$el.find('.graphic').length);
@@ -163,14 +163,6 @@ describe('views/pair/index', () => {
 
       return view.render().then(() => {
         assert.isTrue(view.navigateAway.calledOnce);
-      });
-    });
-
-    it('shows marketing snippet', () => {
-      return view.render().then(() => {
-        assert.lengthOf(view.$('.marketing-area'), 1);
-        assert.lengthOf(view.$('a.marketing-link-ios'), 1);
-        assert.lengthOf(view.$('a.marketing-link-android'), 1);
       });
     });
   });

@@ -87,7 +87,7 @@ export default {
 
     return false;
   },
-  
+
   /**
    * Replace the current page with the new CAD via QR screen.
    *
