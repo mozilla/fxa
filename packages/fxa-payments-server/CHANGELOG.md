@@ -1,5 +1,9 @@
 # Change history
 
+## 1.234.2
+
+No changes.
+
 ## 1.234.1
 
 ### Other changes

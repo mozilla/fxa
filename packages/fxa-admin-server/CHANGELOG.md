@@ -1,3 +1,9 @@
+## 1.234.2
+
+### Bug fixes
+
+- admin-panel: Fix link to 'Manage Subscriptions' ([940c81c184](https://github.com/mozilla/fxa/commit/940c81c184))
+
 ## 1.234.1
 
 No changes.
