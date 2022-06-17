@@ -261,9 +261,6 @@ div.logo {
   display: block;
 }
 
-.todo {
-}
-
 .todo h3 {
   margin: 0;
 }
@@ -319,9 +316,6 @@ ul#donelist {
 
 .todo input {
   padding: 12px 20px;
-}
-
-.todo input {
 }
 
 #donelistwrapper {
@@ -404,7 +398,7 @@ ul#donelist {
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
   only screen and (min--moz-device-pixel-ratio: 2),
   only screen and (-moz-min-device-pixel-ratio: 2),
-  only screen and (-o-min-device-pixel-ratio: 2/1),
+  only screen and (-o-min-device-pixel-ratio: 2 / 1),
   only screen and (min-device-pixel-ratio: 2),
   only screen and (min-resolution: 192dpi),
   only screen and (min-resolution: 2dppx) {

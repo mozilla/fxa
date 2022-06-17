@@ -41,6 +41,7 @@ noscript {
 }
 
 .browsehappy {
+  display: block;
   top: 25%;
 }
 
@@ -285,10 +286,6 @@ section p {
 }
 
 .email {
-  display: block;
-}
-
-.browsehappy {
   display: block;
 }
 
