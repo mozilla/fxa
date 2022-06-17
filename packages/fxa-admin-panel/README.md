@@ -61,6 +61,8 @@ This project uses [Storybook](https://storybook.js.org/) to show each screen wit
 
 In local development, `yarn storybook` will start a Storybook server at <http://localhost:6009> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
 
+_Note: This is still a work in progress and no stories exist yet._
+
 ## License
 
 MPL-2.0
