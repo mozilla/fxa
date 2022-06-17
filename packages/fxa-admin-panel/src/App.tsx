@@ -9,8 +9,6 @@ import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/AccountSearch';
 import Permissions from './components/Permissions';
-import AdminLogs from './components/AdminLogs';
-import SiteStatus from './components/SiteStatus';
 import { IClientConfig, IUserInfo } from '../interfaces';
 import { AdminPanelFeature, AdminPanelGuard } from 'fxa-shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
@@ -24,12 +22,6 @@ const App = ({ config }: { config: IClientConfig }) => {
         <UserContext.Provider value={{ user, setUser }}>
           <AppLayout>
             <Routes>
-              {guard.allow(AdminPanelFeature.AccountLogs, user.group) && (
-                <Route path="/admin-logs" element={<AdminLogs />} />
-              )}
-              {guard.allow(AdminPanelFeature.SiteStatus, user.group) && (
-                <Route path="/site-status" element={<SiteStatus />} />
-              )}
               {guard.allow(AdminPanelFeature.AccountSearch, user.group) && (
                 <>
                   <Route path="/account-search" element={<AccountSearch />} />

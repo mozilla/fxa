@@ -38,36 +38,6 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
-        <Guard features={[AdminPanelFeature.SiteStatus]}>
-          <li>
-            <NavLink
-              to="/site-status"
-              className={({ isActive }) => getNavLinkClassName(isActive)}
-            >
-              <img
-                className="inline-flex mr-2 w-4"
-                src={statusIcon}
-                alt="status icon"
-              />
-              Site Status
-            </NavLink>
-          </li>
-        </Guard>
-        <Guard features={[AdminPanelFeature.AccountLogs]}>
-          <li>
-            <NavLink
-              to="/admin-logs"
-              className={({ isActive }) => getNavLinkClassName(isActive)}
-            >
-              <img
-                className="inline-flex mr-2 w-4"
-                src={logsIcon}
-                alt="logs icon"
-              />
-              Admin Logs
-            </NavLink>
-          </li>
-        </Guard>
         <Guard features={[AdminPanelFeature.RelyingParties]}>
           <li>
             <NavLink
