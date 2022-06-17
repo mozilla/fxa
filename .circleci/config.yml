@@ -244,6 +244,9 @@ jobs:
     steps:
       - base-install
       - run:
+          name: Install playwright
+          command: npx playwright install --with-deps
+      - run:
           name: Running smoke tests
           command: yarn workspace functional-tests test-production
       - store_artifacts:
@@ -265,6 +268,9 @@ jobs:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat
       - base-install
+      - run:
+          name: Install playwright
+          command: npx playwright install --with-deps
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
