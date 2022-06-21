@@ -80,18 +80,20 @@
               &nbsp;&nbsp;&bull;&nbsp;&nbsp;
 
               <a href="<%- subscriptionPrivacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-notice">Privacy notice</a>
-              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
             <% } %>
 
-            <% if (locals.isCancellationEmail) { %>
-              <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
+            <% if (!locals.isFinishSetup) { %>
               &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-            <% } else { %>
-              <a href="<%- cancelSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-cancel">Cancel subscription</a>
-              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-            <% } %>
+              <% if (locals.isCancellationEmail) { %>
+                <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
+                &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+              <% } else { %>
+                <a href="<%- cancelSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-cancel">Cancel subscription</a>
+                &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+              <% } %>
 
-            <a href="<%- updateBillingUrl %>" class="footer-link" data-l10n-id="subplat-update-billing">Update billing information</a>
+              <a href="<%- updateBillingUrl %>" class="footer-link" data-l10n-id="subplat-update-billing">Update billing information</a>
+            <% } %>
           </mj-text>
         <% } else { %>
           <mj-text css-class="footer-text">
