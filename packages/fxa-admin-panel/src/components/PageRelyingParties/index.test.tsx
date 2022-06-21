@@ -63,8 +63,7 @@ it('renders as expected with zero relying parties', async () => {
       <PageRelyingParties />
     </MockedProvider>
   );
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  screen.getByText('No relying parties were found', { exact: false });
+  await screen.findByText('No relying parties were found', { exact: false });
 });
 
 it('renders as expected with a relying party containing all fields', async () => {
@@ -76,7 +75,7 @@ it('renders as expected with a relying party containing all fields', async () =>
       <PageRelyingParties />
     </MockedProvider>
   );
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await screen.findByText(MOCK_RP_ALL_FIELDS.id);
   screen.getByText(MOCK_RP_ALL_FIELDS.id);
   screen.getByText(MOCK_RP_ALL_FIELDS.name);
   screen.getByText(MOCK_RP_ALL_FIELDS.redirectUri);
@@ -94,8 +93,7 @@ it('renders as expected with a relying party containing falsy fields', async () 
       <PageRelyingParties />
     </MockedProvider>
   );
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  expect(screen.getAllByText('No')).toHaveLength(3);
+  expect(await screen.findAllByText('No')).toHaveLength(3);
   screen.getByText('(empty string)');
   screen.getByText('NULL');
 });
