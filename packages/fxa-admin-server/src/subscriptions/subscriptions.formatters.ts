@@ -20,11 +20,15 @@ export class StripeFormatter {
     manageSubscriptionLink?: string
   ) {
     return {
-      created: subscription.created,
-      currentPeriodEnd: subscription.current_period_end,
-      currentPeriodStart: subscription.current_period_start,
+      // The stripe API returns timestamps in UTC seconds instead of milliseconds. The conversion
+      // can be done here to normalize the response so that it is consistent with other APIs.
+      created: subscription.created * 1e3,
+      currentPeriodEnd: subscription.current_period_end * 1e3,
+      currentPeriodStart: subscription.current_period_start * 1e3,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      endedAt: subscription.ended_at,
+      endedAt: !!subscription.ended_at
+        ? subscription.ended_at * 1e3
+        : subscription.ended_at,
       latestInvoice: invoice?.hosted_invoice_url || 'NA',
       manageSubscriptionLink: manageSubscriptionLink || '',
       planId: plan?.plan_id || 'NA',

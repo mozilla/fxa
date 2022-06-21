@@ -16,9 +16,10 @@ describe('MozSubscriptionFormatters', () => {
     it('formats', () => {
       const formatted = StripeFormatter.toMozSubscription(
         {
-          created: created,
-          current_period_end: addDays(created, 30),
-          current_period_start: addDays(created, 1),
+          // Note: Stripe has timestamps in seconds not milliseconds.
+          created: created / 1e3,
+          current_period_end: addDays(created, 30) / 1e3,
+          current_period_start: addDays(created, 1) / 1e3,
           cancel_at_period_end: true,
           ended_at: null,
           status: 'active',
