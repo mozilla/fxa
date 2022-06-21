@@ -82,7 +82,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
-    "@sentry/browser": "^6.19.7",
+    "@sentry/browser": "^7.2.0",
     "@sentry/integrations": "^6.19.1",
     "@sentry/tracing": "^6.19.1",
     "@storybook/addon-actions": "^6.4.12",
