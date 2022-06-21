@@ -162,12 +162,14 @@ if (proxyUrl) {
     { encoding: 'utf-8' }
   );
 
-  ['/', '/account-search'].forEach((route) => {
-    // FIXME: should set ETag, Not-Modified:
-    app.get(route, (req, res) => {
-      res.send(ClientConfig.injectIntoHtml(STATIC_INDEX_HTML, req.headers));
-    });
-  });
+  ['/', '/account-search', '/relying-parties', '/permissions'].forEach(
+    (route) => {
+      // FIXME: should set ETag, Not-Modified:
+      app.get(route, (req, res) => {
+        res.send(ClientConfig.injectIntoHtml(STATIC_INDEX_HTML, req.headers));
+      });
+    }
+  );
 
   logger.info('static.directory', { directory: STATIC_DIRECTORY });
   app.use(
