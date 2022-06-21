@@ -240,7 +240,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, productName: undefined})}],
 
   ['cadReminderSecondEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
+    ['subject', { test: 'equal', expected: 'Don’t miss out! Let’s finish your sync setup' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-second', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderSecond') }],
@@ -248,8 +248,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderSecond }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Last reminder to sync devices!' },
-      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: 'Don’t forget to sync!' },
+      { test: 'include', expected: 'Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.' },
+      { test: 'include', expected: 'Plus, your data is always encrypted. Only you and devices you approve can see it.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-second', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
@@ -259,8 +260,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Last reminder to sync devices!' },
-      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: 'Don’t forget to sync!' },
+      { test: 'include', expected: 'Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.' },
+      { test: 'include', expected: 'Plus, your data is always encrypted. Only you and devices you approve can see it.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-second', 'privacy')}` },
       { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },

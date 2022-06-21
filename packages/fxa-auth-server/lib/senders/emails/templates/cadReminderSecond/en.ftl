@@ -1,4 +1,5 @@
-cadReminderSecond-subject = Final Reminder: Complete Sync Setup
+cadReminderSecond-subject-2 = Don’t miss out! Let’s finish your sync setup
 cadReminderSecond-action = Sync another device
-cadReminderSecond-title = Last reminder to sync devices!
-cadReminderSecond-description = Syncing another device with { -brand-firefox } privately keeps your bookmarks, passwords and other { -brand-firefox } data the same everywhere you use { -brand-firefox }.
+cadReminderSecond-title-2 = Don’t forget to sync!
+cadReminderSecond-description-sync = Sync your bookmarks, passwords, open tabs and more — everywhere you use { -brand-firefox }.
+cadReminderSecond-description-plus = Plus, your data is always encrypted. Only you and devices you approve can see it.

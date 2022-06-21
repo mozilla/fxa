@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "cadReminderSecond-subject",
-    "message": "Final Reminder: Complete Sync Setup"
+    "id": "cadReminderSecond-subject-2",
+    "message": "Don’t miss out! Let’s finish your sync setup"
   },
   "action": {
     "id": "cadReminderSecond-action",
