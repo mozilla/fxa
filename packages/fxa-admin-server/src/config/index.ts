@@ -523,7 +523,7 @@ const conf = convict({
   },
 });
 
-const configDir = path.join(__dirname, 'config');
+const configDir = __dirname;
 const envConfig = path.join(configDir, `${conf.get('env')}.json`);
 const configFiles =
   process.env.CONFIG_FILES?.split(',')

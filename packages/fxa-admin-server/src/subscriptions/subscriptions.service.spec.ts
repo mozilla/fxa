@@ -76,7 +76,7 @@ describe('Subscription Service', () => {
   const latestInvoice = 'invoice-123';
   const currentPeriodStart = created;
   const currentPeriodEnd = addDays(created, 30);
-  const cancelAtPeriodEnd = addDays(created, 90);
+  const cancelAtPeriodEnd = true;
   const customerId = 'customer-123';
   const status = 'active';
   const orderId = 'order-123';
@@ -161,10 +161,11 @@ describe('Subscription Service', () => {
         data: [
           {
             customer: customerId,
-            created,
+            // The stripe API returns timestamps in seconds... converting seconds to millis.
+            created: created / 1e3,
             cancel_at_period_end: cancelAtPeriodEnd,
-            current_period_end: currentPeriodEnd,
-            current_period_start: currentPeriodStart,
+            current_period_end: currentPeriodEnd / 1e3,
+            current_period_start: currentPeriodStart / 1e3,
             ended_at: endedAt,
             id: subscriptionId,
             latest_invoice: latestInvoice,

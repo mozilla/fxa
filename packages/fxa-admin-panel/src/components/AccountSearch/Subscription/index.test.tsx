@@ -8,11 +8,11 @@ import Subscription from '.';
 import { MozSubscription } from 'fxa-admin-server/src/graphql';
 
 const subscription: MozSubscription = {
-  created: 1583259953,
-  currentPeriodEnd: 1596758906,
-  currentPeriodStart: 1594080506,
+  created: 1583259953 * 1e3,
+  currentPeriodEnd: 1583259953 * 1e3 + 60 * 60,
+  currentPeriodStart: 1583259953 * 1e3,
   cancelAtPeriodEnd: false,
-  endedAt: 1596759006,
+  endedAt: 1583259953 * 1e3 + 60 * 60,
   latestInvoice:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_HbGuRujVERsyXZy0zArp7SLFRhY9i6S/pdf',
   planId: 'plan_GqM9N6qyhvxaVk',
@@ -30,8 +30,8 @@ it('renders each field as expected', () => {
   screen.getByText(subscription.status);
 
   // The date is rendered based on user local time. So depending on the user's clock
-  // the date could land on the 18th or the 19th.
-  expect(screen.getAllByText(/1970-01-1[89] @/, { exact: false })).toHaveLength(
+  // the date could land on the 6th or 7th.
+  expect(screen.getAllByText(/2020-03-0[34] @/, { exact: false })).toHaveLength(
     4
   );
   screen.getByText('No');
