@@ -161,7 +161,6 @@ export const getIapSubscriptionManagementUrl = (s: IapSubscription) => {
         s.sku
       )}&package=${encodeURIComponent(s.package_name)}`;
     case MozillaSubscriptionTypes.IAP_APPLE:
-      // TODO Need actual link
-      return 'https://apple.com';
+      return 'https://apps.apple.com/account/subscriptions';
   }
 };
