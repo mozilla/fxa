@@ -7,7 +7,7 @@ cd "$DIR/../../../"
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 
-npx playwright install --with-deps
+#npx playwright install --with-deps
 
 node ./packages/db-migrations/bin/patcher.mjs
 
