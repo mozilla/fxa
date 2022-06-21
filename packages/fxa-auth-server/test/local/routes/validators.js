@@ -819,6 +819,7 @@ describe('lib/routes/validators:', () => {
       expiry_time_millis: 1591650790000,
       package_name: 'club.foxkeh',
       sku: 'LOL.daily',
+      price_id: 'price_testo',
       product_id: 'prod_testo',
       product_name: 'LOL Daily',
     };
@@ -849,6 +850,18 @@ describe('lib/routes/validators:', () => {
           assert.ok(res.error);
         });
       }
+
+      it('accepts a valid web subscription with unknown properties for the support-panel', () => {
+        const webSubWithExtraProp = {
+          ...webSub,
+          otherId: 1234,
+        };
+        const res =
+          validators.subscriptionsWebSubscriptionSupportValidator.validate(
+            webSubWithExtraProp
+          );
+        assert.ok(!res.error);
+      });
     });
 
     describe('subscriptionsPlaySubscriptionSupportValidator', () => {
@@ -870,6 +883,18 @@ describe('lib/routes/validators:', () => {
           assert.ok(res.error);
         });
       }
+
+      it('accepts a valid play subscription with unknown properties for the support-panel', () => {
+        const playSubWithExtraProp = {
+          ...playSub,
+          otherId: 1234,
+        };
+        const res =
+          validators.subscriptionsPlaySubscriptionSupportValidator.validate(
+            playSubWithExtraProp
+          );
+        assert.ok(!res.error);
+      });
     });
 
     describe('subscriptionsSubscriptionSupportValidator', () => {

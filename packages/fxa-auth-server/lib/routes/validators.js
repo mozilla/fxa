@@ -389,27 +389,32 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
 });
 
 // This is support-panel's perspective on a subscription
-module.exports.subscriptionsWebSubscriptionSupportValidator = isA.object({
-  created: isA.number().required(),
-  current_period_end: isA.number().required(),
-  current_period_start: isA.number().required(),
-  plan_changed: isA.alternatives(isA.number(), isA.any().allow(null)),
-  previous_product: isA.alternatives(isA.string(), isA.any().allow(null)),
-  product_name: isA.string().required(),
-  status: isA.string().required(),
-  subscription_id: module.exports.subscriptionsSubscriptionId.required(),
-});
+module.exports.subscriptionsWebSubscriptionSupportValidator = isA
+  .object({
+    created: isA.number().required(),
+    current_period_end: isA.number().required(),
+    current_period_start: isA.number().required(),
+    plan_changed: isA.alternatives(isA.number(), isA.any().allow(null)),
+    previous_product: isA.alternatives(isA.string(), isA.any().allow(null)),
+    product_name: isA.string().required(),
+    status: isA.string().required(),
+    subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+  })
+  .unknown(true);
 
-module.exports.subscriptionsPlaySubscriptionSupportValidator = isA.object({
-  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  auto_renewing: isA.bool().required(),
-  cancel_reason: isA.number().optional(),
-  expiry_time_millis: isA.number().required(),
-  package_name: isA.string().optional(),
-  sku: isA.string().optional(),
-  product_id: isA.string().optional(),
-  product_name: isA.string().required(),
-});
+module.exports.subscriptionsPlaySubscriptionSupportValidator = isA
+  .object({
+    _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+    auto_renewing: isA.bool().required(),
+    cancel_reason: isA.number().optional(),
+    expiry_time_millis: isA.number().required(),
+    package_name: isA.string().optional(),
+    price_id: isA.string().optional(),
+    product_id: isA.string().optional(),
+    product_name: isA.string().required(),
+    sku: isA.string().optional(),
+  })
+  .unknown(true);
 
 module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
   [MozillaSubscriptionTypes.WEB]: isA
