@@ -74,8 +74,10 @@
     "eslint-plugin-jest": "^24.5.2",
     "eslint-plugin-react": "^7.26.1",
     "json": "^11.0.0",
-    "stylelint": "^13.13.1",
-    "stylelint-config-prettier": "^8.0.2"
+    "postcss": "^8.4.14",
+    "stylelint": "^14.9.1",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-recommended-scss": "^6.0.0"
   },
   "workspaces": [
     "packages/*"

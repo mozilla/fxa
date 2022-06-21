@@ -15,7 +15,7 @@
     height: $firefox-standalone-logo-size-large;
     margin-top: -$firefox-standalone-logo-size-large;
     opacity: 1 !important; // !important overrides the !important in _branding.scss
-    top: $firefox-standalone-logo-size-large/2;
+    top: $firefox-standalone-logo-size-large / 2;
   }
 
   @include respond-to('small') {
