@@ -17,6 +17,8 @@ import SubscriptionIapItem, {
 } from './SubscriptionIapItem';
 import { PickPartial } from '../../../lib/types';
 
+const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
+
 const appleSubscription: IapSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   product_id: SELECTED_PLAN.product_id,
@@ -92,6 +94,54 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     expect(iapDetailsEle).toBeInTheDocument();
     expect(iapDetailsEle).toHaveTextContent('Apple');
     const manageButton = queryByTestId('manage-iap-subscription-button');
-    expect(manageButton).toBeNull();
+    expect(manageButton).toBeInTheDocument();
+  });
+
+  it('renders an App store subscription with no expiration data', async () => {
+    const subscription = deepCopy(appleSubscription);
+
+    const { findByTestId } = render(
+      <Subject customerSubscription={subscription as AppleSubscription} />
+    );
+    const subscriptionItemEle = await findByTestId('subscription-item');
+    expect(subscriptionItemEle).toBeInTheDocument();
+    const iapDetailsEle = await findByTestId('iap-details');
+    expect(iapDetailsEle).toBeInTheDocument();
+    expect(iapDetailsEle).not.toHaveTextContent('Expires');
+    expect(iapDetailsEle).not.toHaveTextContent('Next');
+  });
+
+  it('renders an App store subscription with expiration data and auto renew', async () => {
+    const subscription = deepCopy(appleSubscription);
+    subscription.expiry_time_millis = 1656759852811;
+    subscription.auto_renewing = true;
+
+    const { findByTestId } = render(
+      <Subject customerSubscription={subscription as AppleSubscription} />
+    );
+    const subscriptionItemEle = await findByTestId('subscription-item');
+    expect(subscriptionItemEle).toBeInTheDocument();
+    const iapDetailsEle = await findByTestId('iap-details');
+    expect(iapDetailsEle).toBeInTheDocument();
+    expect(iapDetailsEle).not.toHaveTextContent('Expires');
+    expect(iapDetailsEle).toHaveTextContent('Next');
+    expect(iapDetailsEle).toHaveTextContent('07/02/2022');
+  });
+
+  it('renders an App store subscription with expiration data and no auto renew', async () => {
+    const subscription = deepCopy(appleSubscription);
+    subscription.expiry_time_millis = 1656759852811;
+    subscription.auto_renewing = false;
+
+    const { findByTestId } = render(
+      <Subject customerSubscription={subscription as AppleSubscription} />
+    );
+    const subscriptionItemEle = await findByTestId('subscription-item');
+    expect(subscriptionItemEle).toBeInTheDocument();
+    const iapDetailsEle = await findByTestId('iap-details');
+    expect(iapDetailsEle).toBeInTheDocument();
+    expect(iapDetailsEle).toHaveTextContent('Expires');
+    expect(iapDetailsEle).not.toHaveTextContent('Next');
+    expect(iapDetailsEle).toHaveTextContent('07/02/2022');
   });
 });

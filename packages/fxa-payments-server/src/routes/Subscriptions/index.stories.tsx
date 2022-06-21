@@ -15,11 +15,7 @@ import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { FetchState, Profile } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
-import {
-  CUSTOMER,
-  FILTERED_SETUP_INTENT,
-  IAP_APPLE_SUBSCRIPTION,
-} from '../../lib/mock-data';
+import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 import {
   IapSubscription,
   MozillaSubscriptionTypes,
@@ -69,15 +65,24 @@ function setupVariantStories(
         }}
       />
     ))
-    .add('subscribed with Apple IAP', () => (
+    .add('subscribed with Apple IAP - Auto Rewew w/ Expiration', () => (
       <SubscriptionsRoute
         routeProps={{
-          ...subscribedIapProps,
-          customerSubscriptions: [
-            {
-              ...IAP_APPLE_SUBSCRIPTION,
-            },
-          ],
+          ...subscribedIapPropsAppleExpiry,
+        }}
+      />
+    ))
+    .add('subscribed with Apple IAP - No Auto Renew w/ Expiration', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedIapPropsAppleNoRenew,
+        }}
+      />
+    ))
+    .add('subscribed with Apple IAP - No expiration', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedIapPropsAppleNoExpiry,
         }}
       />
     ))
@@ -409,6 +414,44 @@ const subscribedIapProps = {
   ] as IapSubscription[],
 };
 
+const subscribedIapPropsAppleBase = {
+  ...subscribedProps.customerSubscriptions![0],
+  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+  app_store_product_id: 'wow',
+  bundle_id: 'hmm',
+};
+
+const subscribedIapPropsAppleExpiry = {
+  ...subscribedProps,
+  customerSubscriptions: [
+    {
+      ...subscribedIapPropsAppleBase,
+      auto_renewing: true,
+      expiry_time_millis: 1656759852811,
+    },
+  ] as IapSubscription[],
+};
+
+const subscribedIapPropsAppleNoRenew = {
+  ...subscribedProps,
+  customerSubscriptions: [
+    {
+      ...subscribedIapPropsAppleBase,
+      auto_renewing: false,
+      expiry_time_millis: Date.now(),
+    },
+  ] as IapSubscription[],
+};
+
+const subscribedIapPropsAppleNoExpiry = {
+  ...subscribedProps,
+  customerSubscriptions: [
+    {
+      ...subscribedIapPropsAppleBase,
+      auto_renewing: true,
+    },
+  ] as IapSubscription[],
+};
 // TODO: Move to some shared lib?
 const wait = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay));

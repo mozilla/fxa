@@ -101,17 +101,56 @@ const AppleSubscriptionIapItem = (
   productName: string,
   customerSubscription: AppStoreSubscription
 ) => {
+  const { auto_renewing, expiry_time_millis } = customerSubscription;
+
+  let nextBill, expiresOn, nextBillDate;
+  // TODO - Remove expiry_time_millis check pending https://developer.apple.com/forums/thread/705730
+  if (expiry_time_millis) {
+    nextBillDate = getLocalizedDateString(expiry_time_millis / 1000, true);
+    nextBill = `Next billed on ${nextBillDate}`;
+    expiresOn = `Expires on ${nextBillDate}`;
+  }
+
+  const appStoreLink = getIapSubscriptionManagementUrl(customerSubscription);
+
   return (
     <div className="settings-unit">
       <div className="subscription" data-testid="subscription-item">
         <header>
           <h2>{productName}</h2>
         </header>
-        <div>
+        <div className={'with-settings-button'}>
           <div className="iap-details" data-testid="iap-details">
             <Localized id={'sub-iap-item-apple-purchase'}>
               <div className="iap-type">Apple: In-App purchase</div>
             </Localized>
+            {!!expiry_time_millis &&
+              (auto_renewing ? (
+                <Localized
+                  id="sub-next-bill"
+                  vars={{ date: nextBillDate as string }}
+                >
+                  <div>{nextBill}</div>
+                </Localized>
+              ) : (
+                <Localized
+                  id="sub-expires-on"
+                  vars={{ date: nextBillDate as string }}
+                >
+                  <div>{expiresOn}</div>
+                </Localized>
+              ))}
+          </div>
+          <div className="action">
+            <LinkExternal
+              data-testid="manage-iap-subscription-button"
+              className="settings-button"
+              href={appStoreLink}
+            >
+              <Localized id="sub-iap-item-manage-button">
+                <span data-testid="manage-iap-button">Manage</span>
+              </Localized>
+            </LinkExternal>
           </div>
         </div>
       </div>
