@@ -19,7 +19,6 @@ export enum PermissionLevel {
 
 /** Enum of known features */
 export enum AdminPanelFeature {
-  AccountLogs = 'AccountLogs',
   AccountSearch = 'AccountSearch',
   AccountHistory = 'AccountHistory',
   ConnectedServices = 'ConnectedServices',
@@ -27,7 +26,6 @@ export enum AdminPanelFeature {
   ClearEmailBounces = 'ClearEmailBounces',
   DisableAccount = 'DisableAccount',
   EnableAccount = 'EnableAccount',
-  SiteStatus = 'SiteStatus',
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
   RelyingParties = 'RelyingParties',
@@ -93,10 +91,6 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'Account History',
     level: PermissionLevel.Support,
   },
-  [AdminPanelFeature.AccountLogs]: {
-    name: 'View Account Logs',
-    level: PermissionLevel.Support,
-  },
   [AdminPanelFeature.ConnectedServices]: {
     name: 'View Active Sessions',
     level: PermissionLevel.Support,
@@ -116,10 +110,6 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.EnableAccount]: {
     name: 'Enable Account',
     level: PermissionLevel.Admin,
-  },
-  [AdminPanelFeature.SiteStatus]: {
-    name: 'Site Status',
-    level: PermissionLevel.Support,
   },
   [AdminPanelFeature.UnverifyEmail]: {
     name: 'Unverify Email Address',
