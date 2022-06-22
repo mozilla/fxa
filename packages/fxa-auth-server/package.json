@@ -100,7 +100,7 @@
     "ioredis": "^4.28.2",
     "joi": "17.4.0",
     "jose": "^4.8.1",
-    "jsdom": "^19.0.0",
+    "jsdom": "^20.0.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.1.4",
     "jwt-decode": "^3.1.2",
