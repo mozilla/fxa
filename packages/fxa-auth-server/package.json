@@ -66,7 +66,7 @@
     "@hapi/vision": "^6.1.0",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
-    "@type-cacheable/core": "^10.1.0",
+    "@type-cacheable/core": "^10.1.2",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
