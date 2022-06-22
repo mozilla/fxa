@@ -76,6 +76,16 @@ export const MOCKDATA = {
         product_name: 'LOL Daily',
       },
     ],
+    [MozillaSubscriptionTypes.IAP_APPLE]: [
+      {
+        app_store_product_id: 'wow',
+        auto_renewing: false,
+        bundle_id: 'hmm',
+        expiry_time_millis: 1591650790000,
+        product_id: 'prod_123',
+        product_name: 'Cooking with Foxkeh',
+      },
+    ],
   },
   totp: {
     enabled: true,
@@ -117,6 +127,17 @@ export const formattedSubscriptions = {
       sku: 'LOL.daily',
       product_id: 'prod_testo',
       product_name: 'LOL Daily',
+    },
+  ],
+  [MozillaSubscriptionTypes.IAP_APPLE]: [
+    {
+      app_store_product_id: 'wow',
+      auto_renewing: false,
+      bundle_id: 'hmm',
+      expiry_time_millis: 1591650790000,
+      expiry: String(new Date(1591650790 * MS_IN_SEC)),
+      product_id: 'prod_123',
+      product_name: 'Cooking with Foxkeh',
     },
   ],
 };
@@ -192,6 +213,7 @@ describe('RemoteLookupService', () => {
       expect(await service.subscriptions('test', 'email')).toStrictEqual({
         [MozillaSubscriptionTypes.WEB]: [],
         [MozillaSubscriptionTypes.IAP_GOOGLE]: [],
+        [MozillaSubscriptionTypes.IAP_APPLE]: [],
       });
     });
 

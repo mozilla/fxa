@@ -70,6 +70,12 @@ export class RemoteLookupService {
           ...s,
           expiry: String(new Date(parseInt(s.expiry_time_millis))),
         })),
+        [MozillaSubscriptionTypes.IAP_APPLE]: subscriptions[
+          MozillaSubscriptionTypes.IAP_APPLE
+        ].map((s: any) => ({
+          ...s,
+          expiry: String(new Date(parseInt(s.expiry_time_millis))),
+        })),
       };
     } catch (err) {
       // A lack of subscriptions results in a errno 998 for invalid user
@@ -77,6 +83,7 @@ export class RemoteLookupService {
         return {
           [MozillaSubscriptionTypes.WEB]: [],
           [MozillaSubscriptionTypes.IAP_GOOGLE]: [],
+          [MozillaSubscriptionTypes.IAP_APPLE]: [],
         };
       } else {
         throw err;

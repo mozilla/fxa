@@ -26,6 +26,9 @@ const {
   PlaySubscriptions,
 } = require('../../../lib/payments/iap/google-play/subscriptions');
 const {
+  AppStoreSubscriptions,
+} = require('../../../lib/payments/iap/apple-app-store/subscriptions');
+const {
   deleteAccountIfUnverified,
 } = require('../../../lib/routes/utils/account');
 
@@ -3575,11 +3578,13 @@ describe('/account', () => {
     mockCustomer,
     mockWebSubscriptionsResponse,
     mockStripeHelper,
-    mockPlaySubscriptions;
+    mockPlaySubscriptions,
+    mockAppStoreSubscriptions;
 
   function buildRoute(
     subscriptionsEnabled = true,
-    playSubscriptionsEnabled = false
+    playSubscriptionsEnabled = false,
+    appStoreSubscriptionsEnabled = false
   ) {
     const accountRoutes = makeRoutes({
       config: {
@@ -3587,6 +3592,9 @@ describe('/account', () => {
           enabled: subscriptionsEnabled,
           playApiServiceAccount: {
             enabled: playSubscriptionsEnabled,
+          },
+          appStore: {
+            enabled: appStoreSubscriptionsEnabled,
           },
         },
       },
@@ -3866,6 +3874,156 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 0);
+          assert.deepEqual(result, {
+            subscriptions: mockWebSubscriptionsResponse,
+          });
+        }
+      );
+    });
+  });
+
+  describe('Apple App Store subscriptions', () => {
+    const mockAppStoreSubscriptionPurchase = {
+      productId: 'wow',
+      autoRenewing: false,
+      bundleId: 'hmm',
+      isEntitlementActive: sinon.fake.returns(true),
+    };
+
+    const mockExtraStripeInfo = {
+      price_id: 'price_lol',
+      product_id: 'prod_lol',
+      product_name: 'LOL Product',
+    };
+
+    const mockAppendedAppStoreSubscriptionPurchase = {
+      ...mockAppStoreSubscriptionPurchase,
+      ...mockExtraStripeInfo,
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+    };
+
+    const mockFormattedAppStoreSubscription = {
+      app_store_product_id: mockAppStoreSubscriptionPurchase.productId,
+      auto_renewing: mockAppStoreSubscriptionPurchase.autoRenewing,
+      bundle_id: mockAppStoreSubscriptionPurchase.bundleId,
+      ...mockExtraStripeInfo,
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+    };
+
+    let subscriptionsEnabled, appStoreSubscriptionsEnabled;
+
+    beforeEach(() => {
+      subscriptionsEnabled = true;
+      appStoreSubscriptionsEnabled = true;
+      mockCustomer = undefined;
+      mockWebSubscriptionsResponse = [];
+      mockStripeHelper = mocks.mockStripeHelper([
+        'fetchCustomer',
+        'subscriptionsToResponse',
+      ]);
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+      Container.set(CapabilityService, sinon.fake);
+      mockAppStoreSubscriptions = mocks.mockAppStoreSubscriptions([
+        'getSubscriptions',
+      ]);
+      Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
+      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(async (uid) => [
+        mockAppendedAppStoreSubscriptionPurchase,
+      ]);
+    });
+
+    it('should return formatted Apple App Store subscriptions when App Store subscriptions are enabled', () => {
+      return runTest(
+        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
+          sinon.assert.calledOnceWithExactly(
+            mockAppStoreSubscriptions.getSubscriptions,
+            uid
+          );
+          assert.deepEqual(result, {
+            subscriptions: [mockFormattedAppStoreSubscription],
+          });
+        }
+      );
+    });
+
+    it('should return formatted Apple App Store and web subscriptions when App Store subscriptions are enabled', () => {
+      mockCustomer = {
+        id: 1234,
+        subscriptions: ['fake'],
+      };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+
+      return runTest(
+        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
+          assert.deepEqual(result, {
+            subscriptions: [
+              ...[mockFormattedAppStoreSubscription],
+              ...mockWebSubscriptionsResponse,
+            ],
+          });
+        }
+      );
+    });
+
+    it('should return an empty list when subscriptions are enabled and no active Apple App Store or web subscriptions are found', () => {
+      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(async (uid) => []);
+
+      return runTest(
+        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
+          assert.deepEqual(result, {
+            subscriptions: [],
+          });
+        }
+      );
+    });
+
+    it('should not return any App Store subscriptions when App Store subscriptions are disabled', () => {
+      appStoreSubscriptionsEnabled = false;
+      mockCustomer = {
+        id: 1234,
+        subscriptions: ['fake'],
+      };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+
+      return runTest(
+        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 0);
           assert.deepEqual(result, {
             subscriptions: mockWebSubscriptionsResponse,
           });

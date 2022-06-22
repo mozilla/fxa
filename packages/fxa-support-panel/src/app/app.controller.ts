@@ -62,6 +62,7 @@ export class AppController {
       ),
       webSubscriptions: subscriptions[MozillaSubscriptionTypes.WEB],
       playSubscriptions: subscriptions[MozillaSubscriptionTypes.IAP_GOOGLE],
+      appSubscriptions: subscriptions[MozillaSubscriptionTypes.IAP_APPLE],
       twoFactorAuth: !!totp,
       uid,
     };

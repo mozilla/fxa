@@ -107,7 +107,26 @@
     </table>
     <br/>
     {{/playSubscriptions}}
-    {{/subscriptionStatus}}
 
+    {{#appSubscriptions}}
+    <h4>App Store Subscriptions</h4>
+    <table>
+
+      <tr>
+        <th>Subscription:</th>
+        <td>{{ product_name }}</td>
+      </tr>
+      <tr>
+        <th>Auto Renewing:</th>
+        <td>{{ auto_renewing }}</td>
+      </tr>
+      <tr>
+        <th>Next Payment:</th>
+        <td>{{ expiry }}</td>
+      </tr>
+    </table>
+    <br/>
+    {{/appSubscriptions}}
+    {{/subscriptionStatus}}
   </body>
 </html>

@@ -6,7 +6,10 @@ import {
   deleteAllPayPalBAs,
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
-import { PlayStoreSubscription } from 'fxa-shared/dto/auth/payments/iap-subscription';
+import {
+  PlayStoreSubscription,
+  AppStoreSubscription,
+} from 'fxa-shared/dto/auth/payments/iap-subscription';
 import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
 import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
@@ -27,7 +30,11 @@ import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
-import { playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO } from '../payments/iap/iap-formatter';
+import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
+import {
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
+  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+} from '../payments/iap/iap-formatter';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
@@ -205,8 +212,7 @@ export class AccountHandler {
     request: AuthRequest;
     tokenVerificationId: any;
   }) {
-    const { request, account, tokenVerificationId } =
-      options;
+    const { request, account, tokenVerificationId } = options;
     const {
       browser: uaBrowser,
       browserVersion: uaBrowserVersion,
@@ -448,10 +454,8 @@ export class AccountHandler {
       email
     );
 
-    const {
-      hex16: emailCode,      
-      hex32: authSalt,
-    } = await this.generateRandomValues();
+    const { hex16: emailCode, hex32: authSalt } =
+      await this.generateRandomValues();
 
     // Verified sessions should only be created for preverified accounts.
     const tokenVerificationId = preVerified ? undefined : emailCode;
@@ -1488,6 +1492,7 @@ export class AccountHandler {
 
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
+    let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
 
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
@@ -1506,6 +1511,13 @@ export class AccountHandler {
             await playSubscriptions.getSubscriptions(uid as string)
           ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
         }
+
+        if (this.config.subscriptions?.appStore?.enabled) {
+          const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
+          iapAppStoreSubscriptions = (
+            await appStoreSubscriptions.getSubscriptions(uid as string)
+          ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
+        }
       } catch (err) {
         if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
           throw err;
@@ -1514,7 +1526,11 @@ export class AccountHandler {
     }
 
     return {
-      subscriptions: [...iapGooglePlaySubscriptions, ...webSubscriptions],
+      subscriptions: [
+        ...iapGooglePlaySubscriptions,
+        ...iapAppStoreSubscriptions,
+        ...webSubscriptions,
+      ],
     };
   }
 }
@@ -1871,7 +1887,8 @@ export const accountRoutes = (
               .array()
               .items(
                 validators.subscriptionsSubscriptionValidator,
-                validators.subscriptionsGooglePlaySubscriptionValidator
+                validators.subscriptionsGooglePlaySubscriptionValidator,
+                validators.subscriptionsAppStoreSubscriptionValidator
               ),
           }),
         },

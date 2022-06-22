@@ -88,6 +88,8 @@ describe('AppController', () => {
         webSubscriptions: formattedSubscriptions[MozillaSubscriptionTypes.WEB],
         playSubscriptions:
           formattedSubscriptions[MozillaSubscriptionTypes.IAP_GOOGLE],
+        appSubscriptions:
+          formattedSubscriptions[MozillaSubscriptionTypes.IAP_APPLE],
         twoFactorAuth: true,
         uid: 'testuid',
       });

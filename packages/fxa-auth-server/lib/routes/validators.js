@@ -416,6 +416,20 @@ module.exports.subscriptionsPlaySubscriptionSupportValidator = isA
   })
   .unknown(true);
 
+module.exports.subscriptionsAppStoreSubscriptionSupportValidator = isA
+  .object({
+    _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+    app_store_product_id: isA.string().required(),
+    auto_renewing: isA.bool().required(),
+    bundle_id: isA.string().required(),
+    expiry_time_millis: isA.number().optional(),
+    is_in_billing_retry_period: isA.boolean().optional(),
+    price_id: isA.string().optional(),
+    product_id: isA.string().optional(),
+    product_name: isA.string().required(),
+  })
+  .unknown(true);
+
 module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
   [MozillaSubscriptionTypes.WEB]: isA
     .array()
@@ -423,6 +437,9 @@ module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
   [MozillaSubscriptionTypes.IAP_GOOGLE]: isA
     .array()
     .items(module.exports.subscriptionsPlaySubscriptionSupportValidator),
+  [MozillaSubscriptionTypes.IAP_APPLE]: isA
+    .array()
+    .items(module.exports.subscriptionsAppStoreSubscriptionSupportValidator),
 });
 
 module.exports.subscriptionsSubscriptionListValidator = isA.object({
