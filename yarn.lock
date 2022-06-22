@@ -22088,7 +22088,7 @@ fsevents@~2.1.1:
     pm2: ^5.1.2
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
-    react: ^16.13.0
+    react: ^18.2.0
     react-dom: ^16.13.0
     react-router-dom: ^6.2.2
     react-scripts: ^4.0.3
@@ -22493,7 +22493,7 @@ fsevents@~2.1.1:
     postcss-loader: 4.2.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
-    react: ^16.8.6
+    react: ^18.2.0
     react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
@@ -22891,7 +22891,7 @@ fsevents@~2.1.1:
     postcss-cli: 7.1.1
     postcss-import: 12.0.1
     prettier: ^2.3.1
-    react: ^16.12.0
+    react: ^18.2.0
     react-dom: ^16.12.0
     react-redux: ^8.0.2
     react-router-dom: ^6.2.2
@@ -23012,7 +23012,7 @@ fsevents@~2.1.1:
     pm2: ^5.1.2
     postcss-cli: ^7.1.1
     prettier: ^2.3.1
-    react: ^16.13.1
+    react: ^18.2.0
     react-dom: ^16.13.1
     react-helmet: ^6.1.0
     react-transition-group: ^4.4.2
@@ -23090,7 +23090,7 @@ fsevents@~2.1.1:
     pm2: ^5.1.2
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
-    react: ^16.13.1
+    react: ^18.2.0
     react-async-hook: ^4.0.0
     react-dom: ^16.13.1
     react-easy-crop: ^4.3.0
@@ -37454,7 +37454,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react@npm:16.14.0, react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.6":
+"react@npm:16.14.0":
   version: 16.14.0
   resolution: "react@npm:16.14.0"
   dependencies:
@@ -37472,6 +37472,15 @@ fsevents@~2.1.1:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
   checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
+  languageName: node
+  linkType: hard
+
+"react@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react@npm:18.2.0"
+  dependencies:
+    loose-envify: ^1.1.0
+  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
   languageName: node
   linkType: hard
 
