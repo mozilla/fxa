@@ -1,3 +1,17 @@
+## 1.235.0
+
+### Bug fixes
+
+- admin-panel: Fix warnings about wrapping components rendered in 'act' ([f342373b9](https://github.com/mozilla/fxa/commit/f342373b9))
+- admin-panel: Key subscription date fields were rendered incorrectly ([5bda7eb74](https://github.com/mozilla/fxa/commit/5bda7eb74))
+- admin-panel: Fix 404 errors that would happen on direct navigation to a page. ([9547e1e0e](https://github.com/mozilla/fxa/commit/9547e1e0e))
+
+### Other changes
+
+- admin-panel: Remove Site Status and Admin Logs sections ([62ebcfd5b](https://github.com/mozilla/fxa/commit/62ebcfd5b))
+- deps-dev: bump ts-jest from 28.0.4 to 28.0.5 ([3cd156167](https://github.com/mozilla/fxa/commit/3cd156167))
+- deps-dev: bump ts-jest from 27.1.4 to 28.0.4 ([2d85bc088](https://github.com/mozilla/fxa/commit/2d85bc088))
+
 ## 1.234.2
 
 No changes.

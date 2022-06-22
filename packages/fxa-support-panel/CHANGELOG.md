@@ -1,5 +1,15 @@
 # Change history
 
+## 1.235.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 28.0.4 to 28.0.5 ([3cd156167](https://github.com/mozilla/fxa/commit/3cd156167))
+- all: run TS compiler as part of test-many job ([ddba42afd](https://github.com/mozilla/fxa/commit/ddba42afd))
+- deps: bump @nestjs/common from 8.4.5 to 8.4.7 ([606541d8a](https://github.com/mozilla/fxa/commit/606541d8a))
+- deps-dev: bump ts-jest from 27.1.4 to 28.0.4 ([2d85bc088](https://github.com/mozilla/fxa/commit/2d85bc088))
+- deps: bump @nestjs/config from 2.0.0 to 2.1.0 ([c8ce6c69a](https://github.com/mozilla/fxa/commit/c8ce6c69a))
+
 ## 1.234.2
 
 No changes.

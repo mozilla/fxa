@@ -1,3 +1,32 @@
+## 1.235.0
+
+### New features
+
+- auth: copy paypal name into stripe record ([3d6863455](https://github.com/mozilla/fxa/commit/3d6863455))
+
+### Bug fixes
+
+- auth: make unknown properties valid for support-panel route ([b999832bb](https://github.com/mozilla/fxa/commit/b999832bb))
+- auth: Ignore errors with http status code below 500 ([a7a896d60](https://github.com/mozilla/fxa/commit/a7a896d60))
+- auth: Reinstate token pruning ([f3ce91e3d](https://github.com/mozilla/fxa/commit/f3ce91e3d))
+- email: Revise footer to add conditional for account finish setup ([1b1001ea2](https://github.com/mozilla/fxa/commit/1b1001ea2))
+
+### Refactorings
+
+- email: Revise cadReminderSecond email ([14c8a3654](https://github.com/mozilla/fxa/commit/14c8a3654))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-controls from 6.5.7 to 6.5.9 ([11e13f431](https://github.com/mozilla/fxa/commit/11e13f431))
+- deps: bump emittery from 0.10.2 to 0.11.0 ([c3590aa9a](https://github.com/mozilla/fxa/commit/c3590aa9a))
+- deps: bump @google-cloud/bigquery from 5.12.0 to 6.0.0 ([498f5c643](https://github.com/mozilla/fxa/commit/498f5c643))
+- all: run TS compiler as part of test-many job ([ddba42afd](https://github.com/mozilla/fxa/commit/ddba42afd))
+- deps: bump jwks-rsa from 2.1.1 to 2.1.4 ([3c45439d9](https://github.com/mozilla/fxa/commit/3c45439d9))
+- deps: bump googleapis from 100.0.0 to 102.0.0 ([f7fca03da](https://github.com/mozilla/fxa/commit/f7fca03da))
+- deps-dev: bump @storybook/addon-docs from 6.4.19 to 6.5.8 ([572794876](https://github.com/mozilla/fxa/commit/572794876))
+- deps: bump stripe from 9.7.0 to 9.8.0 ([565840734](https://github.com/mozilla/fxa/commit/565840734))
+- deps: bump stripe from 9.6.0 to 9.7.0 ([2aba5966a](https://github.com/mozilla/fxa/commit/2aba5966a))
+
 ## 1.234.2
 
 ### Bug fixes
