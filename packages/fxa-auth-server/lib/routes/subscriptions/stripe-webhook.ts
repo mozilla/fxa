@@ -385,7 +385,6 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const sub = event.data.object as Stripe.Subscription;
-
     let uid;
     try {
       ({ uid } = await this.sendSubscriptionUpdatedEmail(event));
@@ -394,7 +393,11 @@ export class StripeWebhookHandler extends StripeHandler {
       if (err.output && typeof err.output.payload === 'object') {
         err.output.payload = { ...err.output.payload, eventId: event.id };
       }
-      reportSentryError(err, request);
+      // If the customer has been deleted, then there's insufficient information to
+      // send the email. We can't do anything about it, so we'll ignore the error.
+      if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
+        reportSentryError(err, request);
+      }
       return;
     }
 
@@ -463,7 +466,7 @@ export class StripeWebhookHandler extends StripeHandler {
    */
   async handleCustomerUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
     const customer = event.data.object as Stripe.Customer;
-    const uid = customer.metadata.userid;
+    const uid = customer.metadata?.userid;
     if (!uid || customer.deleted) {
       // There's nothing to do if this event is for a customer being deleted.
       return;
