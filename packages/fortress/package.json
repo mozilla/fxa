@@ -37,7 +37,7 @@
     "stylelint-config-prettier": "^8.0.2"
   },
   "scripts": {
-    "lint": "npm-run-all --parallel lint:eslint lint:style",
+    "lint": "npm-run-all --parallel lint:eslint",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "lint:style": "stylelint --config ../../_dev/.stylelintrc static/*.css",
