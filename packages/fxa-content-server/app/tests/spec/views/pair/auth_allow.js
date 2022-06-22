@@ -92,7 +92,8 @@ describe('views/pair/auth_allow', () => {
   }
 
   describe('render', () => {
-    it('renders, can submit and cancel', () => {
+    const HEADER_TEXT = 'Did you just sign in to Firefox?';
+    it('renders, can submit and navigate to change password', () => {
       sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
       sinon.spy(view, 'replaceCurrentPage');
       return view.render().then(() => {
@@ -101,8 +102,9 @@ describe('views/pair/auth_allow', () => {
           view.$el
             .find('#fxa-pair-auth-allow-header')
             .text()
-            .includes(MOCK_EMAIL)
+            .includes(HEADER_TEXT)
         );
+        assert.isTrue(view.$el.find('header p').text().includes(MOCK_EMAIL));
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
           view.$el.find('.location').text().trim(),
@@ -119,11 +121,7 @@ describe('views/pair/auth_allow', () => {
         assert.isFalse(
           view.invokeBrokerMethod.calledOnceWith('afterPairAuthDecline')
         );
-        $('#container').find('#cancel').click();
-        assert.isTrue(
-          view.invokeBrokerMethod.secondCall.calledWith('afterPairAuthDecline')
-        );
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
+        assert.lengthOf(view.$('#change-password'), 1);
       });
     });
 
@@ -175,7 +173,7 @@ describe('views/pair/auth_allow', () => {
           view.$el
             .find('#fxa-pair-auth-allow-header')
             .text()
-            .includes(MOCK_EMAIL)
+            .includes(HEADER_TEXT)
         );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
