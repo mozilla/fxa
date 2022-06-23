@@ -51,15 +51,22 @@ export const SubscriptionItem = ({
   const labelId = 'subscription-' + plan?.product_id;
 
   if (!plan) {
+    const ariaLabelledBy = "error-product-plan-not-found-header";
+    const ariaDescribedBy = "error-product-plan-not-found-description";
     // TODO: This really shouldn't happen, would mean the user has a
     // subscription to a plan that no longer exists in API results.
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <DialogMessage
+        className="dialog-error"
+        onDismiss={locationReload}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+      >
         <Localized id="product-plan-not-found">
-          <h4 data-testid="error-subhub-missing-plan">Plan not found</h4>
+          <h4 id={ariaLabelledBy} data-testid="error-subhub-missing-plan">Plan not found</h4>
         </Localized>
         <Localized id="sub-item-no-such-plan">
-          <p>No such plan for this subscription.</p>
+          <p id={ariaDescribedBy}>No such plan for this subscription.</p>
         </Localized>
       </DialogMessage>
     );
@@ -69,15 +76,22 @@ export const SubscriptionItem = ({
     customerSubscription.cancel_at_period_end === false &&
     !((total || total === 0) && period_start)
   ) {
+    const ariaLabelledBy = "invoice-not-found-header";
+    const ariaDescribedBy = "invoice-not-found-description";
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <DialogMessage
+        className="dialog-error"
+        onDismiss={locationReload}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+      >
         <Localized id="invoice-not-found">
-          <h4 data-testid="error-subhub-missing-subsequent-invoice">
+          <h4 id={ariaLabelledBy} data-testid="error-subhub-missing-subsequent-invoice">
             Subsequent invoice not found
           </h4>
         </Localized>
         <Localized id="sub-item-no-such-subsequent-invoice">
-          <p>Subsequent invoice not found for this subscription.</p>
+          <p id={ariaDescribedBy}>Subsequent invoice not found for this subscription.</p>
         </Localized>
       </DialogMessage>
     );

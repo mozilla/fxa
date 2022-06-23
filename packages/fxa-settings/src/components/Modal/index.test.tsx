@@ -9,8 +9,11 @@ import { renderWithRouter } from '../../models/mocks';
 
 it('renders as expected', () => {
   const onDismiss = jest.fn();
+  const ariaLabelledBy="modal-header";
+  const ariaDescribedBy="modal-description";
+
   renderWithRouter(
-    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
+    <Modal headerId={ariaLabelledBy} descId={ariaDescribedBy} {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
@@ -19,18 +22,26 @@ it('renders as expected', () => {
     'title',
     'Close'
   );
+  expect(screen.getByTestId('modal-information')).toHaveAttribute('aria-labelledby', ariaLabelledBy);
+  expect(screen.getByTestId('modal-information')).toHaveAttribute('aria-describedby', ariaDescribedBy);
+  expect(screen.getByTestId('modal-information')).toHaveAttribute('role', "dialog")
 });
 
 it('renders confirm button as a link if route is passed', () => {
+  const ariaLabelledBy="modal-with-confirm-header";
+  const ariaDescribedBy="modal-with-confirm-description";
   const route = '/some/route';
   const onDismiss = jest.fn();
-  const { container } = renderWithRouter(
+  renderWithRouter(
     <Modal
-      headerId="some-header"
-      descId="some-description"
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
       {...{ route, onDismiss }}
     >
-      <div data-testid="children">Hi mom</div>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
 
@@ -40,14 +51,19 @@ it('renders confirm button as a link if route is passed', () => {
 });
 
 it('does not render the cancel button if hasCancelButton is set to false', () => {
+  const ariaLabelledBy="no-cancel-modal-header"
+  const ariaDescribedBy="no-cancel-modal-description"
   const onDismiss = jest.fn();
   renderWithRouter(
     <Modal
-      headerId="some-header"
-      descId="some-description"
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
       {...{ hasCancelButton: false, onDismiss }}
     >
-      <div data-testid="children">Hi mom</div>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
   expect(document.activeElement).toBe(screen.getByTestId('modal-tab-fence'));
@@ -56,15 +72,20 @@ it('does not render the cancel button if hasCancelButton is set to false', () =>
 });
 
 it('accepts an alternate className', () => {
+  const ariaLabelledBy="barquux-modal-header";
+  const ariaDescribedBy="barquux-modal-description";
   const onDismiss = jest.fn();
   renderWithRouter(
     <Modal
-      headerId="some-header"
-      descId="some-description"
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
       {...{ onDismiss }}
       className="barquux"
     >
-      <div data-testid="children">Hi mom</div>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
   expect(screen.queryByTestId('modal-content-container')).toHaveClass(
@@ -73,10 +94,15 @@ it('accepts an alternate className', () => {
 });
 
 it('calls onDismiss on click outside', () => {
+  const ariaLabelledBy="some-modal-header";
+  const ariaDescribedBy="some-modal-description";
   const onDismiss = jest.fn();
   const { container } = renderWithRouter(
-    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
-      <div data-testid="children">Hi mom</div>
+    <Modal headerId={ariaLabelledBy} descId={ariaDescribedBy} {...{ onDismiss }}>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
   fireEvent.click(screen.getByTestId('modal-content-container'));
@@ -86,10 +112,15 @@ it('calls onDismiss on click outside', () => {
 });
 
 it('calls onDismiss on esc key press', () => {
+  const ariaLabelledBy="use-esc-modal-header";
+  const ariaDescribedBy="use-esc-modal-description";
   const onDismiss = jest.fn();
   renderWithRouter(
-    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
-      <div data-testid="children">Hi mom</div>
+    <Modal headerId={ariaLabelledBy} descId={ariaDescribedBy} {...{ onDismiss }}>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
   fireEvent.keyDown(window, { key: 'Escape' });
@@ -97,10 +128,15 @@ it('calls onDismiss on esc key press', () => {
 });
 
 it('shifts focus to the tab fence when opened', () => {
+  const ariaLabelledBy="tab-focus-modal-header";
+  const ariaDescribedBy="tab-focus-modal-description";
   const onDismiss = jest.fn();
   renderWithRouter(
-    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
-      <div data-testid="children">Hi mom</div>
+    <Modal headerId={ariaLabelledBy} descId={ariaDescribedBy} {...{ onDismiss }}>
+      <div data-testid="children">
+        <h4 id={ariaLabelledBy}>Message for mom</h4>
+        <p id={ariaDescribedBy}>Hi mom</p>
+      </div>
     </Modal>
   );
   expect(document.activeElement).toBe(screen.getByTestId('modal-tab-fence'));

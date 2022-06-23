@@ -47,7 +47,7 @@ export const Modal = ({
   useEscKeydownEffect(onDismiss);
 
   return (
-    <Portal id="modal" {...{ headerId, descId }}>
+    <Portal id="modal">
       <div
         data-testid={testid}
         className="flex flex-col justify-center fixed inset-0 z-50 w-full px-2 h-full bg-black bg-opacity-75"
@@ -76,8 +76,15 @@ export const Modal = ({
             </button>
           </div>
 
-          <div className="px-6 tablet:px-10 pb-10">
-            <div>{children}</div>
+          <div
+            aria-describedby={descId}
+            aria-labelledby={headerId}
+            className="px-6 tablet:px-10 pb-10"
+            data-testid="modal-information"
+            role="dialog"
+          >
+            {children}
+
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
                 {hasCancelButton && (

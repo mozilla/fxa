@@ -68,16 +68,18 @@ import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
+const ariaLabelledBy = "newsletter-error-alert-bar-header";
 
 const NewsletterErrorAlertBar = () => {
   return (
-    <AlertBar className="alert newsletter-error">
-      <Localized id="newsletter-signup-error">
-        <span data-testid="newsletter-signup-error-message">
-          You're not signed up for product update emails. You can try again in
-          your account settings.
-        </span>
-      </Localized>
+    <AlertBar
+      className="alert newsletter-error"
+      dataTestId="newsletter-signup-error-message"
+      headerId={ariaLabelledBy}
+      localizedId="newsletter-signup-error"
+    >
+      You’re not signed up for product update emails. You can try again in
+      your account settings.
     </AlertBar>
   );
 };
