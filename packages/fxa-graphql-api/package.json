@@ -89,6 +89,8 @@
     "@types/superagent": "4.1.11",
     "@types/supertest": "^2.0.11",
     "@types/yargs": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
     "audit-filter": "^0.5.0",
     "chance": "^1.1.8",
     "esbuild": "^0.14.2",

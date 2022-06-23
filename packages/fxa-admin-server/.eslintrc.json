@@ -1,8 +1,6 @@
 {
-  "extends": [
-    "react-app",
-    "react-app/jest"
-  ],
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
   "ignorePatterns": [
     "dist"
   ],

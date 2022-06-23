@@ -1,10 +1,28 @@
 {
-  "extends": [
-    "react-app",
-    "react-app/jest"
-  ],
-  "ignorePatterns": [
-    "dist"
-  ],
-  "root": true
+  "env": { "es6": true, "node": true },
+  "extends": ["eslint:recommended"],
+  "rules": {},
+  "root": true,
+  "ignorePatterns": ["dist"],
+  "overrides": [
+    {
+      "files": ["**/*.ts?(x)"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module",
+        "warnOnUnsupportedTypeScriptVersion": true
+      },
+      "plugins": ["@typescript-eslint"],
+      "extends": ["plugin:@typescript-eslint/recommended"],
+      "rules": {}
+    },
+    {
+      "files": ["**/*.{spec,test}.*", "*.e2e-spec.*"],
+      "env": { "jest/globals": true },
+      "plugins": ["jest"],
+      "extends": ["plugin:jest/recommended"],
+      "rules": {}
+    }
+  ]
 }
