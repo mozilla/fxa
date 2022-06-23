@@ -42,7 +42,6 @@ export interface PlanMetadata {
 export interface ProductMetadata {
   appStoreLink?: string;
   capabilities?: string;
-  downloadURL: string | null; // TODO - Legacy value. Remove once all Stripe Products have been updated.
   successActionButtonURL: string | null;
   emailIconURL?: string | null;
   playStoreLink?: string;

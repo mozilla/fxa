@@ -12,7 +12,7 @@ export const legalResourceDomainPattern =
 export const subscriptionProductMetadataBaseValidator = Joi.object({
   webIconURL: Joi.string().uri().required(),
   upgradeCTA: Joi.string().optional(),
-  downloadURL: Joi.string().uri().required(),
+  successActionButtonURL: Joi.string().uri().required(),
   appStoreLink: Joi.string().uri().optional(),
   playStoreLink: Joi.string().uri().optional(),
   productSet: Joi.string().optional(),

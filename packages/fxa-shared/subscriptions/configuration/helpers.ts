@@ -90,9 +90,7 @@ export const urlsFromProductConfig = (
       cancellationSurvey: planMetadataConfig.cancellationSurveyURL,
       successActionButton:
         plan.product_metadata?.successActionButtonURL ||
-        plan.plan_metadata?.successActionButtonURL ||
-        plan.product_metadata?.downloadURL ||
-        plan.plan_metadata?.downloadURL,
+        plan.plan_metadata?.successActionButtonURL,
     };
   }
 };

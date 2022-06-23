@@ -47,7 +47,7 @@
               "interval_count": 1,
               "livemode": false,
               "metadata": {
-                "downloadURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
+                "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
                 "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
               },
               "nickname": "daily",
@@ -72,7 +72,7 @@
               "interval_count": 1,
               "livemode": false,
               "metadata": {
-                "downloadURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
+                "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
                 "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
               },
               "nickname": "daily",
@@ -113,7 +113,7 @@
         "interval_count": 1,
         "livemode": false,
         "metadata": {
-          "downloadURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
+          "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
           "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
         },
         "nickname": "daily",

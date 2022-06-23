@@ -329,7 +329,7 @@ describe('Sentry', () => {
         error = {
           details: [
             {
-              message: '"downloadURL" is required',
+              message: '"successActionButtonURL" is required',
               type: 'any.required',
             },
             {

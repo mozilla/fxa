@@ -53,7 +53,7 @@
               "metadata": {
                 "productOrder": 0,
                 "emailIconURL": "http://example.com/icon-new",
-                "downloadURL": "http://example.com/download-new"
+                "successActionButtonURL": "http://example.com/download-new"
               },
               "nickname": "123Done Pro Monthly",
               "product": "prod_123donepro",
@@ -95,7 +95,7 @@
         "metadata": {
           "productOrder": 0,
           "emailIconURL": "http://example.com/icon-new",
-          "downloadURL": "http://example.com/download-new"
+          "successActionButtonURL": "http://example.com/download-new"
         },
         "nickname": "123Done Pro Monthly",
         "product": "prod_123donepro",
@@ -123,7 +123,7 @@
         "metadata": {
           "productOrder": 1,
           "emailIconURL": "http://example.com/icon-old",
-          "downloadURL": "http://example.com/download-old"
+          "successActionButtonURL": "http://example.com/download-old"
         },
         "trial_period_days": null
       }

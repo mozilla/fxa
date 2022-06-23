@@ -12,7 +12,7 @@
   "metadata": {
     "webIconURL": "https://example.com/static/icon.svg",
     "upgradeCTA": "hello <a href=\"http://example.org\">world</a>",
-    "downloadURL": "https://example.com/download",
+    "successActionButtonURL": "https://example.com/download",
     "appStoreLink": "https://example.com/appStoreRedirect",
     "playStoreLink": "https://example.com/playStoreRedirect",
     "product:privacyNoticeURL": "https://accounts-static.cdn.mozilla.net/legal/privacy",

@@ -223,7 +223,6 @@ describe('StripeProductsAndPlansConverter', () => {
         },
       };
       const expected = {
-        successActionButton: 'http://127.0.0.1:8080/legacy/download',
         webIcon: 'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
         emailIcon:
           'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
@@ -290,7 +289,7 @@ describe('StripeProductsAndPlansConverter', () => {
           'capabilities:aFakeClientId12345': 'more, comma, separated,  values',
           upgradeCTA: 'hello <a href="http://example.org">world</a>',
           productOrder: '2',
-          downloadURL: 'https://example.com/download',
+          successActionButtonURL: 'https://example.com/download',
         },
         id: 'plan_123',
       });
@@ -429,7 +428,7 @@ describe('StripeProductsAndPlansConverter', () => {
         'capabilities:aFakeClientId12345': 'more, comma, separated,  values',
         upgradeCTA: 'hello <a href="http://example.org">world</a>',
         productOrder: '2',
-        downloadURL: 'https://example.com/download',
+        successActionButtonURL: 'https://example.com/download',
       },
       id: 'plan_123',
     });

@@ -151,7 +151,7 @@ describe('Stripe Service', () => {
     const result = validateStripePlan({
       metadata: {
         webIconURL: `${baseUrl}/icon`,
-        downloadURL: `${baseUrl}/dl`,
+        successActionButtonURL: `${baseUrl}/dl`,
         appStoreLink: `${baseUrl}/appstore`,
         playStoreLink: `${baseUrl}/appstore`,
         productSet: 'product-123',

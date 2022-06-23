@@ -4439,7 +4439,6 @@ describe('StripeHelper', () => {
     const productId = 'prod_00000000000000';
     const productName = 'Example Product';
     const planEmailIconURL = 'http://example.com/icon';
-    const downloadURL = 'http://example.com/download';
     const successActionButtonURL = 'http://example.com/success';
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
@@ -4735,32 +4734,6 @@ describe('StripeHelper', () => {
         assert.deepEqual(result, {
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
-        });
-      });
-
-      it('planSuccessActionButton URL, falls back to using downloadURL if successActionButtonURL is not available', async () => {
-        const fixture = deepCopy(invoicePaidSubscriptionCreate);
-        fixture.lines.data[0].plan = {
-          id: planId,
-          nickname: planName,
-          metadata: {
-            ...mockPlan.metadata,
-            successActionButtonURL: undefined,
-            downloadURL,
-          },
-          product: mockProduct,
-        };
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
-        assert.deepEqual(result, {
-          ...expected,
-          planSuccessActionButtonURL: downloadURL,
-          productMetadata: {
-            ...expected.productMetadata,
-            successActionButtonURL: undefined,
-            downloadURL,
-          },
         });
       });
 
@@ -5063,9 +5036,9 @@ describe('StripeHelper', () => {
         emailIconURL:
           eventCustomerSubscriptionUpdated.data.object.plan.metadata
             .emailIconURL,
-        downloadURL:
+        successActionButtonURL:
           eventCustomerSubscriptionUpdated.data.object.plan.metadata
-            .downloadURL,
+            .successActionButtonURL,
         'product:termsOfServiceURL': termsOfServiceURL,
         'product:privacyNoticeURL': privacyNoticeURL,
         productOrder: 0,
@@ -5210,7 +5183,7 @@ describe('StripeHelper', () => {
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,
-            downloadURL: productDownloadURLNew,
+            successActionButtonURL: productDownloadURLNew,
           },
         };
 
@@ -5221,7 +5194,7 @@ describe('StripeHelper', () => {
             product_metadata: {
               ...mockProduct.metadata,
               emailIconUrl: productIconURLOld,
-              downloadURL: productDownloadURLOld,
+              successActionButtonURL: productDownloadURLOld,
             },
           },
           {
@@ -5230,7 +5203,7 @@ describe('StripeHelper', () => {
             product_metadata: {
               ...mockProduct.metadata,
               emailIconUrl: productIconURLNew,
-              downloadURL: productDownloadURLNew,
+              successActionButtonURL: productDownloadURLNew,
             },
           }
         );
@@ -5317,7 +5290,7 @@ describe('StripeHelper', () => {
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,
-            downloadURL: productDownloadURLNew,
+            successActionButtonURL: productDownloadURLNew,
           },
         };
 
@@ -5328,7 +5301,7 @@ describe('StripeHelper', () => {
             product_metadata: {
               ...mockProduct.metadata,
               emailIconUrl: productIconURLOld,
-              downloadURL: productDownloadURLOld,
+              successActionButtonURL: productDownloadURLOld,
             },
           },
           {
@@ -5337,7 +5310,7 @@ describe('StripeHelper', () => {
             product_metadata: {
               ...mockProduct.metadata,
               emailIconUrl: productIconURLNew,
-              downloadURL: productDownloadURLNew,
+              successActionButtonURL: productDownloadURLNew,
             },
           }
         );

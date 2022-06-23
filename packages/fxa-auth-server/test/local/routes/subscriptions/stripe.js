@@ -80,7 +80,7 @@ const PLANS = [
     plan_metadata: {},
     product_metadata: {
       emailIconURL: 'http://example.com/image.jpg',
-      downloadURL: 'http://getfirefox.com',
+      successActionButtonURL: 'http://getfirefox.com',
       capabilities: 'exampleCap0',
       'capabilities:client1': 'exampleCap1',
       promotionCodes: 'earlybirds',
@@ -152,7 +152,7 @@ describe('sanitizePlans', () => {
         plan_metadata: {},
         product_metadata: {
           emailIconURL: 'http://example.com/image.jpg',
-          downloadURL: 'http://getfirefox.com',
+          successActionButtonURL: 'http://getfirefox.com',
         },
       },
       {

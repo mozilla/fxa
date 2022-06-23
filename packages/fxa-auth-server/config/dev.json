@@ -59,7 +59,7 @@
             "upgradeCTA": "Interested in an upgrade? <a href=\"http://localhost:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
             "webIconURL": "http://placekitten.com/512/512?image=6",
             "emailIconURL": "http://placekitten.com/512/512?image=0",
-            "downloadURL": "http://localhost:8080/"
+            "successActionButtonURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -71,7 +71,7 @@
           "product_name": "123done Pro+",
           "product_metadata": {
             "capabilities:dcdb5ae7add825d2": "123donePro",
-            "downloadURL": "http://localhost:8080/",
+            "successActionButtonURL": "http://localhost:8080/",
             "productSet": "123done_product",
             "productOrder": "2"
           },
@@ -87,7 +87,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=7",
             "emailIconURL": "http://placekitten.com/512/512?image=1",
-            "downloadURL": "http://localhost:8080/"
+            "successActionButtonURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -102,7 +102,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=8",
             "emailIconURL": "http://placekitten.com/512/512?image=2",
-            "downloadURL": "http://localhost:8080/"
+            "successActionButtonURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -116,7 +116,7 @@
             "capabilities": "fortress",
             "webIconURL": "http://placekitten.com/512/512?image=9",
             "emailIconURL": "http://placekitten.com/512/512?image=3",
-            "downloadURL": "http://localhost:9292/"
+            "successActionButtonURL": "http://localhost:9292/"
           },
           "interval": "month",
           "amount": 50,
@@ -130,7 +130,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=10",
             "emailIconURL": "http://placekitten.com/512/512?image=4",
-            "downloadURL": "http://localhost:8080/"
+            "successActionButtonURL": "http://localhost:8080/"
           },
           "interval": "week",
           "amount": 5,
@@ -145,7 +145,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=11",
             "emailIconURL": "http://placekitten.com/512/512?image=5",
-            "downloadURL": "http://localhost:8080/"
+            "successActionButtonURL": "http://localhost:8080/"
           },
           "interval": "week",
           "amount": 5,
