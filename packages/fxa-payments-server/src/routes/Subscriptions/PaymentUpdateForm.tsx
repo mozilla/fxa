@@ -206,7 +206,7 @@ export const PaymentUpdateForm = ({
     .format('MMMM YYYY');
 
   return (
-    <div className="settings-unit">
+    <section className="settings-unit" aria-labelledby="payment-information">
       <div className="payment-update" data-testid="payment-update">
         {stripeSubmitInProgress && (
           <AlertBar className="alert alertPending">
@@ -264,7 +264,7 @@ export const PaymentUpdateForm = ({
           </DialogMessage>
         )}
 
-        <header>
+        <header id="payment-information">
           <h2 className="billing-title">
             <Localized id="sub-update-payment-title">
               <span className="title">Payment information</span>
@@ -311,7 +311,7 @@ export const PaymentUpdateForm = ({
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

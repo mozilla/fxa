@@ -44,6 +44,11 @@ export const SubscriptionItem = ({
   const paymentProvider: PaymentProvider | undefined =
     customer?.payment_provider;
   const promotionCode = customerSubscription.promotion_code;
+  // labelId is used as the landmark identifier for each product section
+  // if no plan exists, this would result in "subscription-undefined"
+  // however, the existence of plan is checked in the following line,
+  // preventing any mislabelled landmarks from ever getting used
+  const labelId = 'subscription-' + plan?.product_id;
 
   if (!plan) {
     // TODO: This really shouldn't happen, would mean the user has a
@@ -79,9 +84,9 @@ export const SubscriptionItem = ({
   }
 
   return (
-    <div className="settings-unit">
+    <section className="settings-unit" aria-labelledby={labelId}>
       <div className="subscription" data-testid="subscription-item">
-        <header>
+        <header id={labelId}>
           <h2>{plan.product_name}</h2>
         </header>
 
@@ -113,7 +118,7 @@ export const SubscriptionItem = ({
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
