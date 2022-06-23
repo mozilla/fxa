@@ -62,7 +62,7 @@
     "graphql-tools": "^8.0.0",
     "graphql-upload": "^13.0.0",
     "helmet": "^5.0.0",
-    "hot-shots": "^9.0.0",
+    "hot-shots": "^9.1.0",
     "ioredis": "^4.28.2",
     "knex": "^2.0.0",
     "mozlog": "^3.0.2",
