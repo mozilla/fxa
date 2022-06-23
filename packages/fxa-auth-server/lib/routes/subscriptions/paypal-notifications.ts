@@ -179,11 +179,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
         }
       }
       if (!IPN_EXCLUDED.includes(payload.txn_type)) {
-        reportSentryError(
-          new Error('Unhandled Ipn message: ' + payload.txn_type),
-          request
-        );
-        this.log.debug('Unhandled Ipn message', { payload });
+        this.log.info('Unhandled Ipn message', { payload });
       }
     } catch (err) {
       reportSentryError(err, request);

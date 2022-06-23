@@ -163,7 +163,7 @@ describe('PayPalNotificationHandler', () => {
       assert.deepEqual(result, false);
       sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
       sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
-      sinon.assert.calledWithExactly(log.debug, 'Unhandled Ipn message', {
+      sinon.assert.calledWithExactly(log.info, 'Unhandled Ipn message', {
         payload: ipnMessage,
       });
     });
