@@ -22157,7 +22157,7 @@ fsevents@~2.1.1:
     express: ^4.17.2
     fxa-shared: "workspace:*"
     googleapis: ^102.0.0
-    graphql: ^15.6.1
+    graphql: ^16.5.0
     graphql-tools: ^8.0.0
     helmet: ^5.0.0
     hot-shots: ^9.1.0
@@ -24320,6 +24320,13 @@ fsevents@~2.1.1:
   version: 15.6.1
   resolution: "graphql@npm:15.6.1"
   checksum: 4c6dcf385f7a87a5103fcb7640394244ae8d1d4ede521085192a1cf1e60115c4f6285d783961575d908709f7ee3e4cdd16b3f7c54eb37499c0420c6301e98968
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.5.0":
+  version: 16.5.0
+  resolution: "graphql@npm:16.5.0"
+  checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
   languageName: node
   linkType: hard
 
