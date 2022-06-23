@@ -1,0 +1,9 @@
+{
+  "plugins": ["fxa"],
+  "rules": {
+    "handle-callback-err": "off",
+    "no-console": "off",
+    "fxa/async-crypto-random": "off",
+    "fxa/no-new-buffer": "error"
+  }
+}

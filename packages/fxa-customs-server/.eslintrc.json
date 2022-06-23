@@ -6,6 +6,7 @@
       "globalReturn": true
     }
   },
+  "root": true,
   "rules": {
     "strict": "off",
     "handle-callback-err": "off"

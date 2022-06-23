@@ -3,9 +3,10 @@
     "react-app",
     "react-app/jest"
   ],
+  "root": true,
   "ignorePatterns": [
     "build",
-    "fxa-content-sever-l10n"
-  ],
-  "root": true
+    "storybook-static",
+    "fxa-content-server-l10n"
+  ]
 }

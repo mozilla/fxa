@@ -3,8 +3,8 @@
     "react-app",
     "react-app/jest"
   ],
+  "root": true,
   "ignorePatterns": [
-    "build"
-  ],
-  "root": true
+    "dist"
+  ]
 }

@@ -6,5 +6,9 @@
   },
   "parserOptions": {
     "sourceType": "module"
-  }
+  },
+  "root": true,
+  "ignorePatterns": [
+    "dist"
+  ]
 }

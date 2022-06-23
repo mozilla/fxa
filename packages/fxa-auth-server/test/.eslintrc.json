@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "fxa"
+  ],
+  "extends": "../.eslintrc.json",
+  "env": {
+    "mocha": "true"
+  },
+  "rules": {
+    "fxa/async-crypto-random": "off",
+    "fxa/no-new-buffer": "error"
+  }
+}

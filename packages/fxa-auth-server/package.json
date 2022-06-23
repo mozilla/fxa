@@ -13,7 +13,7 @@
     "compile": "tsc --noEmit",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "lint": "eslint . .storybook --ignore-pattern 'dist'",
+    "lint": "eslint . .storybook",
     "postinstall": "grunt merge-ftl && ../../_scripts/clone-l10n.sh fxa-auth-server",
     "start": "yarn emails-scss && scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",

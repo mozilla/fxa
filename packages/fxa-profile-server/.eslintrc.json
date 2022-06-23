@@ -4,8 +4,9 @@
   "env": {
     "mocha": true
   },
+  "root": true,
   "rules": {
-    "fxa/async-crypto-random": 0,
-    "fxa/no-new-buffer": 2
+    "fxa/async-crypto-random": "off",
+    "fxa/no-new-buffer": "error"
   }
 }

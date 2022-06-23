@@ -21,12 +21,6 @@
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "NODE_ENV=production npm run build-postcss && build-storybook && cp -r public/locales public/images storybook-static/"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/fxa.git"

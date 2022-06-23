@@ -4,7 +4,7 @@
     "react-app/jest"
   ],
   "ignorePatterns": [
-    "build"
+    "dist"
   ],
   "root": true
 }

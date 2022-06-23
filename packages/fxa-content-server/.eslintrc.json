@@ -11,5 +11,12 @@
     "strict": "off",
     "no-useless-escape": "off",
     "handle-callback-err": "off"
-  }
+  },
+  "ignorePatterns": [
+    ".tmp",
+    "app/scripts/vendor",
+    "fxa-content-server-l10n",
+    "dist"
+  ],
+  "root": true
 }

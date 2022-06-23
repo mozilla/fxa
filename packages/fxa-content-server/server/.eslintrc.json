@@ -1,0 +1,8 @@
+{
+  "extends": "../.eslintrc.json",
+  "rules": {
+    "id-blacklist": "off",
+    "no-var": "error",
+    "strict": "off"
+  }
+}

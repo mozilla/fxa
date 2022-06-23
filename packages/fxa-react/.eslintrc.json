@@ -6,6 +6,7 @@
     "jest": true
   },
   "ignorePatterns": ["dist/**"],
+  "root": true,
   "parserOptions": {
     "sourceType": "module"
   }
