@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import cp from 'child_process';
-import findUp from 'find-up';
+import { findUpSync } from 'find-up';
 
 function readJson(filepath: string): Record<string, any> | undefined {
   try {
@@ -15,7 +15,7 @@ function readJson(filepath: string): Record<string, any> | undefined {
 }
 
 function getValue(cwd: string, name: string, command: string): string {
-  const versionFile = findUp.sync('version.json', { cwd });
+  const versionFile = findUpSync('version.json', { cwd });
   if (versionFile) {
     const value = readJson(versionFile);
     if (value?.version?.[name]) {
@@ -57,7 +57,7 @@ export function getVersionInfo(cwd: string): Version {
   const commit = getValue(cwd, 'hash', 'git rev-parse HEAD');
   const source = getValue(cwd, 'source', 'git config --get remote.origin.url');
 
-  const packageFile = findUp.sync('package.json', { cwd });
+  const packageFile = findUpSync('package.json', { cwd });
   const packageInfo = packageFile ? readJson(packageFile) : undefined;
 
   return {
