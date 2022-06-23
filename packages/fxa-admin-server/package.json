@@ -54,7 +54,7 @@
     "express": "^4.17.2",
     "fxa-shared": "workspace:*",
     "googleapis": "^102.0.0",
-    "graphql": "^15.6.1",
+    "graphql": "^16.5.0",
     "graphql-tools": "^8.0.0",
     "helmet": "^5.0.0",
     "hot-shots": "^9.1.0",
