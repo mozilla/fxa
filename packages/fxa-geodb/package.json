@@ -29,7 +29,7 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-geodb",
   "dependencies": {
     "bluebird": "^3.7.2",
-    "cron": "1.8.2",
+    "cron": "2.0.0",
     "maxmind": "2.12.0",
     "mkdirp": "0.5.1",
     "mozlog": "^3.0.2",

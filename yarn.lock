@@ -22681,7 +22681,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     chai: ^4.3.6
-    cron: 1.8.2
+    cron: 2.0.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
