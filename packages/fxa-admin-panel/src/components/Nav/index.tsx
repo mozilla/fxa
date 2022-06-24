@@ -6,7 +6,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
-import statusIcon from '../../images/icon-site-status.svg';
 import logsIcon from '../../images/icon-logs.svg';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../Guard';
