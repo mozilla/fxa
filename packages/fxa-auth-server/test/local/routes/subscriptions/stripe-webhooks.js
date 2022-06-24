@@ -904,6 +904,23 @@ describe('StripeWebhookHandler', () => {
           fakeAppErrorWithEventId
         );
       });
+
+      it('ignores errors from email sending if the customer was deleted', async () => {
+        const updatedEvent = deepCopy(subscriptionUpdated);
+        const fakeAppError = {
+          output: { payload: {} },
+          errno: error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER,
+        };
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        sendSubscriptionUpdatedEmailStub.rejects(fakeAppError);
+        await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
+          {},
+          updatedEvent
+        );
+        assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
+        assert.notCalled(sentryModule.reportSentryError);
+      });
     });
 
     describe('handleSubscriptionDeletedEvent', () => {
