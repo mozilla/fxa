@@ -13,7 +13,7 @@ import Stripe from 'stripe';
 import { ConfigType } from '../../../config';
 import error from '../../error';
 import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal/client';
-import { StripeHelper, STRIPE_CUSTOMER_METADATA } from '../../payments/stripe';
+import { StripeHelper, SUBSCRIPTIONS_RESOURCE } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 import { PayPalHandler } from './paypal';
@@ -21,6 +21,51 @@ import { PayPalHandler } from './paypal';
 const IPN_EXCLUDED = ['mp_signup'];
 
 export class PayPalNotificationHandler extends PayPalHandler {
+  /**
+   * Handle a successful payment notification from PayPal
+   * Perform some validation on and update the Stripe invoice accordingly.
+   */
+  private async handleSuccessfulPayment(
+    invoice: Stripe.Invoice,
+    message: IpnMerchPmtType
+  ) {
+    const paypalTransactionId =
+      this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+    if (!paypalTransactionId) {
+      await this.stripeHelper.updateInvoiceWithPaypalTransactionId(
+        invoice,
+        message.txn_id
+      );
+    } else if (paypalTransactionId !== message.txn_id) {
+      this.log.error('handleSuccessfulPayment', {
+        message: 'Invoice paypalTransactionId does not match Paypal IPN txn_id',
+        invoiceId: invoice.id,
+        paypalIPNTxnId: message.txn_id,
+      });
+      throw error.internalValidationError('handleSuccessfulPayment', {
+        message: 'Invoice paypalTransactionId does not match Paypal IPN txn_id',
+        invoiceId: invoice.id,
+        paypalIPNTxnId: message.txn_id,
+      });
+    }
+
+    if (invoice.subscription) {
+      const subscription =
+        typeof invoice.subscription !== 'string'
+          ? invoice.subscription
+          : await this.stripeHelper.expandResource<Stripe.Subscription>(
+              invoice.subscription,
+              SUBSCRIPTIONS_RESOURCE
+            );
+
+      if (subscription?.status === 'canceled') {
+        return this.paypalHelper.issueRefund(invoice, message.txn_id);
+      }
+    }
+
+    return this.stripeHelper.payInvoiceOutOfBand(invoice);
+  }
+
   /**
    * Handle merchant payment notification from PayPal
    * and update Stripe invoice according to the payment_status
@@ -55,7 +100,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
     switch (message.payment_status) {
       case 'Completed':
       case 'Processed':
-        return this.stripeHelper.payInvoiceOutOfBand(invoice);
+        return this.handleSuccessfulPayment(invoice, message);
       case 'Pending':
       case 'In-Progress':
         return;
@@ -205,9 +250,11 @@ export class PayPalNotificationHandler extends PayPalHandler {
       if (isIpnMerchPmt(payload)) {
         this.log.debug('Handling Ipn message', { payload });
         if (payload.txn_type === 'merch_pmt') {
-          return this.handleMerchPayment(payload);
+          // Added await, before returning, so that errors thrown by
+          // the functions are caught and handled by this try/catch.
+          return await this.handleMerchPayment(payload);
         } else {
-          return this.handleMpCancel(payload);
+          return await this.handleMpCancel(payload);
         }
       }
       if (!IPN_EXCLUDED.includes(payload.txn_type)) {
