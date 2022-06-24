@@ -1,5 +1,32 @@
 # Change history
 
+## 1.235.1
+
+No changes.
+
+## 1.235.0
+
+### New features
+
+- auth: copy paypal name into stripe record ([3d6863455](https://github.com/mozilla/fxa/commit/3d6863455))
+
+### Bug fixes
+
+- content: Allow list valid redirect_to values ([c9345518c](https://github.com/mozilla/fxa/commit/c9345518c))
+- auth: Reinstate token pruning ([f3ce91e3d](https://github.com/mozilla/fxa/commit/f3ce91e3d))
+
+### Other changes
+
+- admin-panel: Remove Site Status and Admin Logs sections ([62ebcfd5b](https://github.com/mozilla/fxa/commit/62ebcfd5b))
+- deps-dev: bump ts-jest from 28.0.4 to 28.0.5 ([3cd156167](https://github.com/mozilla/fxa/commit/3cd156167))
+- all: run TS compiler as part of test-many job ([ddba42afd](https://github.com/mozilla/fxa/commit/ddba42afd))
+- deps: bump @nestjs/common from 8.4.5 to 8.4.7 ([606541d8a](https://github.com/mozilla/fxa/commit/606541d8a))
+- deps: bump stripe from 9.7.0 to 9.8.0 ([565840734](https://github.com/mozilla/fxa/commit/565840734))
+- shared: Improve PII filtering ([613e8a633](https://github.com/mozilla/fxa/commit/613e8a633))
+- deps: bump stripe from 9.6.0 to 9.7.0 ([2aba5966a](https://github.com/mozilla/fxa/commit/2aba5966a))
+- deps-dev: bump ts-jest from 27.1.4 to 28.0.4 ([2d85bc088](https://github.com/mozilla/fxa/commit/2d85bc088))
+- deps: bump @nestjs/config from 2.0.0 to 2.1.0 ([c8ce6c69a](https://github.com/mozilla/fxa/commit/c8ce6c69a))
+
 ## 1.234.2
 
 No changes.

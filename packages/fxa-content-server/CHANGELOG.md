@@ -1,3 +1,27 @@
+## 1.235.1
+
+No changes.
+
+## 1.235.0
+
+### Bug fixes
+
+- lint: Fix stylelint errors ([9c628bad4](https://github.com/mozilla/fxa/commit/9c628bad4))
+- content: Allow list missing mozgcp.net ([8692283b0](https://github.com/mozilla/fxa/commit/8692283b0))
+- fxa-content-server: 187aac7f8 fix(fxa-content-server) update image and copy for pairing screen ([187aac7f8](https://github.com/mozilla/fxa/commit/187aac7f8))
+- content: Allow list valid redirect_to values ([c9345518c](https://github.com/mozilla/fxa/commit/c9345518c))
+- lint: Tweak some stylelint configs and fix content-server issues ([c14c1f708](https://github.com/mozilla/fxa/commit/c14c1f708))
+- content: Add verify endpoint to well-known list ([d9f4d7f4c](https://github.com/mozilla/fxa/commit/d9f4d7f4c))
+
+### Refactorings
+
+- content-server: update copy and add asset on "/pair" page ([ebc6e588c](https://github.com/mozilla/fxa/commit/ebc6e588c))
+- login/signup: Various sign-up/sign-in UX/copy tweaks ([b30d89bdc](https://github.com/mozilla/fxa/commit/b30d89bdc))
+
+### Other changes
+
+- deps: bump jquery-modal from 0.7.1 to 0.9.2" ([3ae02b5fc](https://github.com/mozilla/fxa/commit/3ae02b5fc))
+
 ## 1.234.2
 
 No changes.

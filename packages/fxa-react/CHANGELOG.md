@@ -1,3 +1,14 @@
+## 1.235.1
+
+No changes.
+
+## 1.235.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 28.0.4 to 28.0.5 ([3cd156167](https://github.com/mozilla/fxa/commit/3cd156167))
+- deps-dev: bump ts-jest from 27.1.4 to 28.0.4 ([2d85bc088](https://github.com/mozilla/fxa/commit/2d85bc088))
+
 ## 1.234.2
 
 No changes.

@@ -1,5 +1,26 @@
 # Change history
 
+## 1.235.1
+
+No changes.
+
+## 1.235.0
+
+### New features
+
+- payments: add Apple App Store Subscriptions to Subscription Manage Page Because: ([a563a1fe6](https://github.com/mozilla/fxa/commit/a563a1fe6))
+
+### Bug fixes
+
+- payments: do not report account exist error Because: ([3bf348405](https://github.com/mozilla/fxa/commit/3bf348405))
+
+### Other changes
+
+- deps-dev: bump ts-jest from 28.0.4 to 28.0.5 ([3cd156167](https://github.com/mozilla/fxa/commit/3cd156167))
+- lint: A few more Stylelint tweaks ([aa715ddb4](https://github.com/mozilla/fxa/commit/aa715ddb4))
+- deps: bump jquery-modal from 0.7.1 to 0.9.2" ([3ae02b5fc](https://github.com/mozilla/fxa/commit/3ae02b5fc))
+- deps-dev: bump ts-jest from 27.1.4 to 28.0.4 ([2d85bc088](https://github.com/mozilla/fxa/commit/2d85bc088))
+
 ## 1.234.2
 
 No changes.

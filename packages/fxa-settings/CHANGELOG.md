@@ -1,3 +1,25 @@
+## 1.235.1
+
+No changes.
+
+## 1.235.0
+
+### Bug fixes
+
+- lint: Fix stylelint errors ([9c628bad4](https://github.com/mozilla/fxa/commit/9c628bad4))
+- a11y: updates a11y on dropdown bento menu Because: ([f13574612](https://github.com/mozilla/fxa/commit/f13574612))
+- settings: fixes incorrect test references Because: ([16a0bfa8d](https://github.com/mozilla/fxa/commit/16a0bfa8d))
+
+### Refactorings
+
+- login/signup: Various sign-up/sign-in UX/copy tweaks ([b30d89bdc](https://github.com/mozilla/fxa/commit/b30d89bdc))
+
+### Other changes
+
+- deps: bump react-easy-crop from 4.2.0 to 4.3.0 ([670f48387](https://github.com/mozilla/fxa/commit/670f48387))
+- deps-dev: bump storybook-addon-rtl from 0.4.2 to 0.4.3 ([005731db1](https://github.com/mozilla/fxa/commit/005731db1))
+- lint: A few more Stylelint tweaks ([aa715ddb4](https://github.com/mozilla/fxa/commit/aa715ddb4))
+
 ## 1.234.2
 
 No changes.
