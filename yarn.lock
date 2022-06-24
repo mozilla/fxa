@@ -22031,10 +22031,6 @@ fsevents@~2.1.1:
     "@rescripts/cli": 0.0.16
     "@sentry/node": ^6.19.2
     "@sentry/tracing": ^6.19.2
-    "@storybook/addon-actions": ^6.4.12
-    "@storybook/addon-links": ^6.3.13
-    "@storybook/addons": ^6.3.12
-    "@storybook/react": ^6.3.12
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@types/chance": ^1.1.2
