@@ -20473,15 +20473,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expose-loader@npm:1.0.3":
-  version: 1.0.3
-  resolution: "expose-loader@npm:1.0.3"
-  dependencies:
-    loader-utils: ^2.0.0
-    schema-utils: ^3.0.0
+"expose-loader@npm:4.0.0":
+  version: 4.0.0
+  resolution: "expose-loader@npm:4.0.0"
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: 652eb86135c7fc8e1fc25b7bc5e2d7d984c8b46262305aa09444381b68c25a79cb4775b70a449983b838e4dd6e207a61841625aad801bc6706e6b07ea829d9b0
+    webpack: ^5.0.0
+  checksum: a674397dfb93e961aade42e09c78e28c63314f5050231e3b5ecc48a0a2d8aebc70327d3bbde5a9e4e0c28a3e02d18d2f8c0de844025f696d00964707611224c1
   languageName: node
   linkType: hard
 
@@ -22432,7 +22429,7 @@ fsevents@~2.1.1:
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
-    expose-loader: 1.0.3
+    expose-loader: 4.0.0
     express: ^4.17.2
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.3
