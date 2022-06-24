@@ -61,7 +61,7 @@
     "cookie-parser": "1.4.6",
     "css-loader": "1.0.0",
     "duration-js": "4.0.0",
-    "expose-loader": "1.0.3",
+    "expose-loader": "4.0.0",
     "express": "^4.17.2",
     "extract-loader": "5.1.0",
     "fast-text-encoding": "^1.0.3",
