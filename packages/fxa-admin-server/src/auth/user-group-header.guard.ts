@@ -9,12 +9,13 @@ import {
   USER_GROUP_HEADER,
   AdminPanelFeature,
   AdminPanelGuard,
+  AdminPanelEnv,
 } from 'fxa-shared/guards';
 import { FEATURE_KEY } from './user-group-header.decorator';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import config from '../config';
 
-const guard = new AdminPanelGuard(config.get('guard.env'));
+const guard = new AdminPanelGuard(config.get('guard.env') as AdminPanelEnv);
 
 @Injectable()
 export class UserGroupGuard implements CanActivate {
