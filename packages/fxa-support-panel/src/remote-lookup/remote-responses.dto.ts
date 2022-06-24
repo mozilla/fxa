@@ -28,9 +28,19 @@ type PlaySubscription = {
   expiry: string;
 };
 
+type AppStoreSubscription = {
+  app_store_product_id: string;
+  auto_renewing: boolean;
+  bundle_id: string;
+  is_in_billing_retry_period: boolean;
+  product_id: string;
+  expiry: string;
+};
+
 export type SubscriptionResponse = {
   [MozillaSubscriptionTypes.WEB]: WebSubscription[];
   [MozillaSubscriptionTypes.IAP_GOOGLE]: PlaySubscription[];
+  [MozillaSubscriptionTypes.IAP_APPLE]: AppStoreSubscription[];
 };
 
 interface SigninLocation {

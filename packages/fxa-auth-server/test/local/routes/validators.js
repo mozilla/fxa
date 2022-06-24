@@ -650,7 +650,7 @@ describe('lib/routes/validators:', () => {
       product_id: 'prod_123',
       product_name: 'Cooking with Foxkeh',
     };
-    it('accepts a valid Google Play subscription', () => {
+    it('accepts a valid App Store subscription', () => {
       const res =
         validators.subscriptionsAppStoreSubscriptionValidator.validate(
           mockAppStoreSubscription
@@ -658,7 +658,7 @@ describe('lib/routes/validators:', () => {
       assert.ok(!res.error);
     });
 
-    it('rejects a Google Play subscription with the incorrect subscription type', () => {
+    it('rejects an App Store subscription with the incorrect subscription type', () => {
       const unknownSubscription = deepCopy(mockAppStoreSubscription);
       unknownSubscription._subscription_type = 'unknown';
       const res =
@@ -668,7 +668,7 @@ describe('lib/routes/validators:', () => {
       assert.ok(res.error);
     });
 
-    it('rejects a Google Play subscription a missing product id', () => {
+    it('rejects an App Store subscription a missing product id', () => {
       const noProdIdSubscription = deepCopy(mockAppStoreSubscription);
       delete noProdIdSubscription.product_id;
       const res =
@@ -762,11 +762,21 @@ describe('lib/routes/validators:', () => {
       package_name: 'org.mozilla.cooking.with.foxkeh',
       sku: 'org.mozilla.foxkeh.yearly',
     };
+    const appSub = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+      app_store_product_id: 'wow',
+      auto_renewing: true,
+      bundle_id: 'hmm',
+      expiry_time_millis: 1591650790000,
+      price_id: 'price_123',
+      product_id: 'prod_123',
+      product_name: 'Cooking with Foxkeh',
+    };
 
-    it('accepts a list with Stripe and Google Play subscriptions', () => {
+    it('accepts a list with Stripe, Google Play and App Store subscriptions', () => {
       const res =
         validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [stripeSub, playSub],
+          subscriptions: [stripeSub, playSub, appSub],
         });
       assert.ok(!res.error);
     });
@@ -783,6 +793,14 @@ describe('lib/routes/validators:', () => {
       const res =
         validators.subscriptionsMozillaSubscriptionsValidator.validate({
           subscriptions: [playSub, playSub],
+        });
+      assert.ok(!res.error);
+    });
+
+    it('accepts a list with only App Store subscriptions', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [appSub, appSub],
         });
       assert.ok(!res.error);
     });
@@ -822,6 +840,16 @@ describe('lib/routes/validators:', () => {
       price_id: 'price_testo',
       product_id: 'prod_testo',
       product_name: 'LOL Daily',
+    };
+    const appSub = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+      app_store_product_id: 'wow',
+      auto_renewing: true,
+      bundle_id: 'hmm',
+      expiry_time_millis: 1591650790000,
+      price_id: 'price_123',
+      product_id: 'prod_123',
+      product_name: 'Cooking with Foxkeh',
     };
 
     describe('subscriptionsWebSubscriptionSupportValidator', () => {
@@ -897,11 +925,50 @@ describe('lib/routes/validators:', () => {
       });
     });
 
+    describe('subscriptionsAppStoreSubscriptionSupportValidator', () => {
+      const required = [
+        'app_store_product_id',
+        'auto_renewing',
+        'bundle_id',
+        'product_name',
+      ];
+
+      it('accepts a valid App Store subscription for the support-panel', () => {
+        const res =
+          validators.subscriptionsAppStoreSubscriptionSupportValidator.validate(
+            appSub
+          );
+        assert.ok(!res.error);
+      });
+
+      for (const x of required) {
+        it(`rejects when the required property ${x} is not present`, () => {
+          const s = { ...appSub, [x]: undefined };
+          const res =
+            validators.subscriptionsWebSubscriptionSupportValidator.validate(s);
+          assert.ok(res.error);
+        });
+      }
+
+      it('accepts a valid App Store subscription with unknown properties for the support-panel', () => {
+        const appSubWithExtraProp = {
+          ...appSub,
+          otherId: 1234,
+        };
+        const res =
+          validators.subscriptionsAppStoreSubscriptionSupportValidator.validate(
+            appSubWithExtraProp
+          );
+        assert.ok(!res.error);
+      });
+    });
+
     describe('subscriptionsSubscriptionSupportValidator', () => {
       it('accepts a valid response object', () => {
         const subs = {
           [MozillaSubscriptionTypes.WEB]: [webSub],
           [MozillaSubscriptionTypes.IAP_GOOGLE]: [playSub],
+          [MozillaSubscriptionTypes.IAP_APPLE]: [appSub],
         };
         const res =
           validators.subscriptionsSubscriptionSupportValidator.validate(subs);
@@ -912,6 +979,7 @@ describe('lib/routes/validators:', () => {
         const subs = {
           [MozillaSubscriptionTypes.WEB]: [],
           [MozillaSubscriptionTypes.IAP_GOOGLE]: [],
+          [MozillaSubscriptionTypes.IAP_APPLE]: [],
         };
         const res =
           validators.subscriptionsSubscriptionSupportValidator.validate(subs);

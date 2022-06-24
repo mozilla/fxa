@@ -63,6 +63,13 @@ const mockPlayStoreSubscriptionPurchase = {
   isEntitlementActive: sinon.fake.returns(true),
 };
 
+const mockAppStoreSubscriptionPurchase = {
+  productId: 'wow',
+  autoRenewing: false,
+  bundleId: 'hmm',
+  isEntitlementActive: sinon.fake.returns(true),
+};
+
 const mockExtraStripeInfo = {
   price_id: 'price_lol',
   product_id: 'prod_lol',
@@ -75,6 +82,12 @@ const mockAppendedPlayStoreSubscriptionPurchase = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
 };
 
+const mockAppendedAppStoreSubscriptionPurchase = {
+  ...mockAppStoreSubscriptionPurchase,
+  ...mockExtraStripeInfo,
+  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+};
+
 const mockFormattedPlayStoreSubscription = {
   auto_renewing: mockPlayStoreSubscriptionPurchase.autoRenewing,
   expiry_time_millis: mockPlayStoreSubscriptionPurchase.expiryTimeMillis,
@@ -83,6 +96,15 @@ const mockFormattedPlayStoreSubscription = {
   ...mockExtraStripeInfo,
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
 };
+
+const mockFormattedAppStoreSubscription = {
+  app_store_product_id: mockAppStoreSubscriptionPurchase.productId,
+  auto_renewing: mockAppStoreSubscriptionPurchase.autoRenewing,
+  bundle_id: mockAppStoreSubscriptionPurchase.bundleId,
+  ...mockExtraStripeInfo,
+  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+};
+
 const log = mocks.mockLog();
 const db = mocks.mockDB({
   uid: UID,
@@ -96,7 +118,10 @@ describe('support-panel', () => {
     stripeHelper = {
       addPriceInfoToIapPurchases: sandbox
         .stub()
-        .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
+        .resolves([
+          mockAppendedPlayStoreSubscriptionPurchase,
+          mockAppendedAppStoreSubscriptionPurchase,
+        ]),
       fetchCustomer: sandbox.stub().resolves(mockCustomer),
       formatSubscriptionsForSupport: sandbox
         .stub()
@@ -125,12 +150,18 @@ describe('support-panel', () => {
           .stub()
           .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
       };
+      const appStoreSubscriptions = {
+        getSubscriptions: sandbox
+          .stub()
+          .resolves([mockAppendedAppStoreSubscriptionPurchase]),
+      };
       const routes = supportPanelRoutes({
         log,
         db,
         config: mockConfig,
         stripeHelper,
         playSubscriptions,
+        appStoreSubscriptions,
       });
       const route = getRoute(
         routes,
@@ -144,6 +175,9 @@ describe('support-panel', () => {
         [MozillaSubscriptionTypes.WEB]: [mockFormattedWebSubscription],
         [MozillaSubscriptionTypes.IAP_GOOGLE]: [
           mockFormattedPlayStoreSubscription,
+        ],
+        [MozillaSubscriptionTypes.IAP_APPLE]: [
+          mockFormattedAppStoreSubscription,
         ],
       });
       assert.calledOnceWithExactly(stripeHelper.fetchCustomer, UID);

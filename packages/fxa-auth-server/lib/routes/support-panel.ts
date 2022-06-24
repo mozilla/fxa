@@ -9,7 +9,11 @@ import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import SUBSCRIPTIONS_DOCS from '../../docs/swagger/subscriptions-api';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
-import { playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO } from '../payments/iap/iap-formatter';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
+import {
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
+  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+} from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
@@ -19,11 +23,13 @@ export const supportPanelRoutes = ({
   config,
   stripeHelper,
   playSubscriptions,
+  appStoreSubscriptions,
 }: {
   log: AuthLogger;
   config: ConfigType;
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
+  appStoreSubscriptions?: AppStoreSubscriptions;
 }): ServerRoute[] => {
   if (!config.subscriptions.enabled || !stripeHelper) {
     return [];
@@ -33,10 +39,15 @@ export const supportPanelRoutes = ({
     playSubscriptions = Container.get(PlaySubscriptions);
   }
 
+  if (!appStoreSubscriptions) {
+    appStoreSubscriptions = Container.get(AppStoreSubscriptions);
+  }
+
   const supportPanelHandler = new SupportPanelHandler(
     log,
     stripeHelper,
-    playSubscriptions
+    playSubscriptions,
+    appStoreSubscriptions
   );
   return [
     {
@@ -67,7 +78,8 @@ export class SupportPanelHandler {
   constructor(
     protected log: AuthLogger,
     protected stripeHelper: StripeHelper,
-    protected playSubscriptions: PlaySubscriptions
+    protected playSubscriptions: PlaySubscriptions,
+    protected appStoreSubscriptions: AppStoreSubscriptions
   ) {}
 
   async getSubscriptions(request: AuthRequest) {
@@ -76,6 +88,9 @@ export class SupportPanelHandler {
     const iapPlaySubscriptions = (
       await this.playSubscriptions.getSubscriptions(uid)
     ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
+    const iapAppStoreSubscriptions = (
+      await this.appStoreSubscriptions.getSubscriptions(uid)
+    ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
     const customer = await this.stripeHelper.fetchCustomer(uid);
     const webSubscriptions = customer?.subscriptions;
     const formattedWebSubscriptions = webSubscriptions
@@ -85,6 +100,7 @@ export class SupportPanelHandler {
     return {
       [MozillaSubscriptionTypes.WEB]: formattedWebSubscriptions,
       [MozillaSubscriptionTypes.IAP_GOOGLE]: iapPlaySubscriptions,
+      [MozillaSubscriptionTypes.IAP_APPLE]: iapAppStoreSubscriptions,
     };
   }
 }
