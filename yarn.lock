@@ -9225,6 +9225,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/convict@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "@types/convict@npm:6.1.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 0150048098eec1ff0df5d04e77fd44ff0fa8e732cc5d5e43a2fe603b2d3f05c9f1e369977a109844b8b449b096818c017737b166ccb52b569161642d884e17d2
+  languageName: node
+  linkType: hard
+
 "@types/cookiejar@npm:*":
   version: 2.1.1
   resolution: "@types/cookiejar@npm:2.1.1"
@@ -22145,7 +22154,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/platform-express": ^8.4.6
     "@types/chance": ^1.1.2
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.1.1
     "@types/node": ^16.11.3
     "@types/pem-jwk": ^2
     "@types/supertest": ^2.0.11
