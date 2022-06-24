@@ -93,10 +93,10 @@ export class PurchaseManager {
       // triggered by a notification
       if (triggerNotificationType !== undefined) {
         subscriptionPurchase.latestNotificationType = triggerNotificationType;
-        // This may be `undefined`, but we assign regardless to clear any previous
-        // notification's subtype value.
-        subscriptionPurchase.latestNotificationSubtype =
-          triggerNotificationSubtype;
+        if (triggerNotificationSubtype !== undefined) {
+          subscriptionPurchase.latestNotificationSubtype =
+            triggerNotificationSubtype;
+        }
       }
 
       // Convert subscriptionPurchase object to a format that to be stored in Firestore

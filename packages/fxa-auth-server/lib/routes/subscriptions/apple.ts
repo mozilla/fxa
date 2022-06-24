@@ -37,7 +37,7 @@ export class AppleIapHandler {
     try {
       ({ bundleId, originalTransactionId, decodedPayload } =
         await this.appStore.purchaseManager.decodeNotificationPayload(
-          request.payload as any
+          (request.payload as any).signedPayload
         ));
     } catch (err) {
       // app-store-server-api compiles CertificateValidationError to a function,
@@ -157,7 +157,15 @@ export const appleIapRoutes = (): ServerRoute[] => {
       options: {
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_NOTIFICATION_POST,
         validate: {
-          payload: isA.string().required() as any,
+          // https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2
+          payload: isA
+            .object({
+              signedPayload: isA.string().required(),
+            })
+            .required() as any,
+        },
+        payload: {
+          maxBytes: 37000, // twice the expected size
         },
       },
       handler: (request: AuthRequest) =>

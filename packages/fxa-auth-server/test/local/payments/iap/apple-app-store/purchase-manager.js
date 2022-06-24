@@ -245,6 +245,24 @@ describe('PurchaseManager', () => {
       assert.deepEqual(result, mockSubscriptionWithNotificationProps);
     });
 
+    it('adds only notificationType to the purchase if notificationSubtype is undefined when passed in', async () => {
+      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.exists = true;
+      const notificationType = 'foo';
+      const notificationSubtype = undefined;
+      const mockSubscriptionWithNotificationProp = {
+        ...mockSubscription,
+        latestNotificationType: notificationType,
+      };
+      const result = await purchaseManager.querySubscriptionPurchase(
+        mockBundleId,
+        mockOriginalTransactionId,
+        notificationType,
+        notificationSubtype
+      );
+      assert.deepEqual(result, mockSubscriptionWithNotificationProp);
+    });
+
     it('throws unexpected library error', async () => {
       mockPurchaseDoc.ref.set = sinon.fake.rejects(new Error('test'));
       try {
