@@ -57,7 +57,9 @@ export default {
       return this.completeSignIn();
     }
 
-    this.logViewEvent('thirdPartyAuth');
+    if (this.isInThirdPartyAuthExperiment()) {
+      this.logViewEvent('thirdPartyAuth');
+    }
   },
 
   clearStoredParams() {
@@ -188,6 +190,8 @@ export default {
         this.clearStoredParams();
 
         this.logFlowEvent(`${provider}.signin-complete`);
+        
+        this.metrics.flush();
 
         return this.signIn(updatedAccount);
       })

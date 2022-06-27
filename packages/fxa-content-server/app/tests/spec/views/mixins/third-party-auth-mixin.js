@@ -9,6 +9,8 @@ import Relier from 'models/reliers/base';
 import sinon from 'sinon';
 import ThirdPartyAuthMixin from 'views/mixins/third-party-auth-mixin';
 import Notifier from 'lib/channels/notifier';
+import Metrics from 'lib/metrics';
+import SentryMetrics from 'lib/sentry';
 import WindowMock from '../../../mocks/window';
 import Storage from 'lib/storage';
 import User from 'models/user';
@@ -34,6 +36,8 @@ describe('views/mixins/third-party-auth-mixin', function () {
   let notifier;
   let mockForm;
   let mockInput;
+  let metrics;
+  let sentryMetrics;
 
   beforeEach(async () => {
     relier = new Relier();
@@ -63,15 +67,18 @@ describe('views/mixins/third-party-auth-mixin', function () {
     });
     notifier = new Notifier();
     user = new User();
-
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({ notifier, sentryMetrics });
     view = new View({
       config,
       relier,
       notifier,
+      metrics,
       window: windowMock,
       user,
     });
     sinon.spy(notifier, 'trigger');
+    sinon.stub(view, 'isInThirdPartyAuthExperiment').callsFake(() => true);
     await view.render();
   });
 
