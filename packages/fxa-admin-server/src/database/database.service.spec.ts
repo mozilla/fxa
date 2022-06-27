@@ -4,9 +4,10 @@
 import { Logger, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Path } from 'convict';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
-import config from '../config';
+import config, { AppConfig } from '../config';
 import { DatabaseService } from './database.service';
 
 describe('DatabaseService', () => {
@@ -17,10 +18,9 @@ describe('DatabaseService', () => {
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
-        get: jest.fn().mockImplementation((key: string) => {
-          const val = config.get(key);
-
-          switch (key) {
+        get: jest.fn().mockImplementation((key: Path<AppConfig>) => {
+          const val: any = config.get(key);
+          switch (key.toString()) {
             case 'database':
               val.fxa = {
                 ...val.fxa_oauth,

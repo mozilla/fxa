@@ -4,14 +4,15 @@
 
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Path } from 'convict';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import config from './config';
+import config, { AppConfig } from './config';
 
 export const mockConfigOverrides: any = {};
 export const MockConfig: Provider = {
   provide: ConfigService,
   useValue: {
-    get: jest.fn().mockImplementation((key: string) => {
+    get: jest.fn().mockImplementation((key: Path<AppConfig>) => {
       if (mockConfigOverrides[key] !== undefined) {
         return mockConfigOverrides[key];
       }
