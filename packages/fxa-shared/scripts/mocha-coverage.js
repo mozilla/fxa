@@ -12,7 +12,7 @@ const spawn = require('child_process').spawn;
 const MOCHA_BIN = path.join(
   path.dirname(require.resolve('mocha')),
   'bin',
-  'mocha'
+  'mocha.js'
 );
 const NYC_BIN = path.join(
   path.dirname(require.resolve('nyc')),
