@@ -8533,16 +8533,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/react-stripe-js@npm:^1.8.1":
-  version: 1.8.1
-  resolution: "@stripe/react-stripe-js@npm:1.8.1"
+"@stripe/react-stripe-js@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "@stripe/react-stripe-js@npm:1.9.0"
   dependencies:
     prop-types: ^15.7.2
   peerDependencies:
-    "@stripe/stripe-js": ^1.26.0
+    "@stripe/stripe-js": ^1.32.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 0a7a5743a4efcffe6f6067d3b097fe1b77de26ab790ea3ad26ea9b06ec2b3abda1f66e5433ae47e9fab1d6c43bce5e3f7b08bd5c4882616109aad9334ada4085
+  checksum: aeb68be6c57487040eef47f149b3d086a4ae7c7a8c1dcac5a96943c3ff032709d652fd1a048562f281c82355d6766a3344842f2b6f2c29bb58b25c3081fcfe99
   languageName: node
   linkType: hard
 
@@ -22943,7 +22943,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
-    "@stripe/react-stripe-js": ^1.8.1
+    "@stripe/react-stripe-js": ^1.9.0
     "@stripe/stripe-js": ^1.31.0
     "@svgr/webpack": ^5.4.0
     "@tailwindcss/postcss7-compat": ^2.2.17
