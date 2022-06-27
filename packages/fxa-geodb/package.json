@@ -31,7 +31,6 @@
     "bluebird": "^3.7.2",
     "cron": "2.0.0",
     "maxmind": "^4.3.6",
-    "mkdirp": "0.5.1",
     "mozlog": "^3.0.2",
     "request": "^2.88.2"
   },
