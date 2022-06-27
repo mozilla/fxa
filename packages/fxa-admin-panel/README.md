@@ -9,7 +9,6 @@ Outside of local development, this application is protected by SSO, a VPN connec
 - `yarn start|stop|restart` to start, stop, and restart the server as a PM2 process
 - `yarn build` to create a production build
 - `yarn test` to run unit tests
-- `yarn storybook` to run Storybook
 
 ## Getting Started
 
@@ -54,12 +53,6 @@ yarn test:server -t "simple server routes"
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
-
-## Storybook
-
-This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
-
-In local development, `yarn storybook` will start a Storybook server at <http://localhost:6009> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
 
 ## License
 
