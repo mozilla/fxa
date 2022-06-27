@@ -6,6 +6,7 @@ var DEFAULTS = require('./defaults');
 var ERRORS = require('./errors');
 var maxmind = require('maxmind');
 var Location = require('./location');
+const fs = require('fs');
 
 module.exports = function (options) {
   'use strict';
@@ -13,7 +14,9 @@ module.exports = function (options) {
   options = options || {};
   var dbPath = options.dbPath || DEFAULTS.DB_PATH;
 
-  const dbLookup = maxmind.openSync(dbPath);
+  const buffer = fs.readFileSync(dbPath);
+
+  const dbLookup = new maxmind.Reader(buffer);
 
   return (ip, options = {}) => {
     const userLocale = options.userLocale || DEFAULTS.USER_LOCALE;
