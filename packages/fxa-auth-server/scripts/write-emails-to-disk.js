@@ -24,7 +24,6 @@ const config = require('../config').getProperties();
 const createSenders = require('../lib/senders');
 const fs = require('fs');
 const log = require('../lib/log')({});
-const mkdirp = require('mkdirp');
 const path = require('path');
 
 const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
@@ -208,7 +207,7 @@ function getMessageTypesToWrite(mailer) {
 }
 
 function ensureTargetDirectoryExists() {
-  mkdirp.sync(OUTPUT_DIRECTORY);
+  fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 }
 
 module.exports.OUTPUT_DIRECTORY = OUTPUT_DIRECTORY;
