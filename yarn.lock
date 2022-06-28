@@ -337,7 +337,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/code-frame@npm:^7.15.8, @babel/code-frame@npm:^7.16.7":
+"@babel/code-frame@npm:^7.16.7":
   version: 7.16.7
   resolution: "@babel/code-frame@npm:7.16.7"
   dependencies:
@@ -9290,16 +9290,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsd/typescript@npm:^4.7.4":
-  version: 4.7.4
-  resolution: "@tsd/typescript@npm:4.7.4"
-  bin:
-    tsc: typescript/bin/tsc
-    tsserver: typescript/bin/tsserver
-  checksum: 1a84773cb4bb01898fb0b6011ec5c2fb3e3c91585ea009bbf9d525b46d40f1827417dfc5f7b1efdf534b111a5947b063ae04490d147bda37b038e1a7d264672d
-  languageName: node
-  linkType: hard
-
 "@type-cacheable/core@npm:^10.1.2":
   version: 10.1.2
   resolution: "@type-cacheable/core@npm:10.1.2"
@@ -17648,27 +17638,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"create-jest-runner@npm:^0.11.1":
-  version: 0.11.1
-  resolution: "create-jest-runner@npm:0.11.1"
-  dependencies:
-    chalk: ^4.1.0
-    jest-worker: ^28.0.2
-    throat: ^6.0.1
-  peerDependencies:
-    "@jest/test-result": ^28.0.0
-    jest-runner: ^28.0.0
-  peerDependenciesMeta:
-    "@jest/test-result":
-      optional: true
-    jest-runner:
-      optional: true
-  bin:
-    create-jest-runner: generator/index.js
-  checksum: 6fc69d9fe3cd852155f73fbb423e834ba88e33d9f2f6f5bf76fbddc18ed54f73d3e037e83fe0c3f0a279b34f6b83555cd7a43557e20f58aa001c08fe5b3ccb0d
-  languageName: node
-  linkType: hard
-
 "create-react-context@npm:0.3.0":
   version: 0.3.0
   resolution: "create-react-context@npm:0.3.0"
@@ -22719,7 +22688,6 @@ fsevents@~2.1.1:
     "@nestjs/platform-express": ^8.4.6
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
-    "@tsd/typescript": ^4.7.4
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/graphql": ^14.5.0
@@ -22749,7 +22717,6 @@ fsevents@~2.1.1:
     helmet: ^5.0.0
     hot-shots: ^9.1.0
     jest: ^28.1.1
-    jest-runner-tsd: ^3.1.0
     knex: ^2.0.0
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -29084,20 +29051,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-runner-tsd@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "jest-runner-tsd@npm:3.1.0"
-  dependencies:
-    "@babel/code-frame": ^7.15.8
-    chalk: ^4.1.2
-    create-jest-runner: ^0.11.1
-    tsd-lite: ^0.5.4
-  peerDependencies:
-    "@tsd/typescript": ^3.8.3 || ^4.0.7
-  checksum: c080b642cadac452c2a1da3e27abafe809a223f1f60c4929115a06d368e89417210599ae73b65bad514ae7b869c52dd6fefc71216f6e088e41cd86239cf17273
-  languageName: node
-  linkType: hard
-
 "jest-runner@npm:^26.6.0, jest-runner@npm:^26.6.3":
   version: 26.6.3
   resolution: "jest-runner@npm:26.6.3"
@@ -29622,7 +29575,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-worker@npm:^28.0.2, jest-worker@npm:^28.1.1":
+"jest-worker@npm:^28.1.1":
   version: 28.1.1
   resolution: "jest-worker@npm:28.1.1"
   dependencies:
@@ -43953,15 +43906,6 @@ resolve@^2.0.0-next.3:
     minimist: ^1.2.6
     strip-bom: ^3.0.0
   checksum: a8cf746ffe438513a71c70c1bcdee8da7d62ab2af286efbe2728ff55c4d4c92c2aea80a0822982ded6d0a13c7686c24632934d7c0f4f564be9e1b2cdc3d65eea
-  languageName: node
-  linkType: hard
-
-"tsd-lite@npm:^0.5.4":
-  version: 0.5.4
-  resolution: "tsd-lite@npm:0.5.4"
-  peerDependencies:
-    "@tsd/typescript": ^3.8.3 || ^4.0.7
-  checksum: d1777bd7292c9b56d4bcaab5bd73d64106a84067e76e1e836d7f5b89b84b9d123d35a13f9805d77480b237de68a14003eabdf45ad0d4db1b7c217a70d3dbbb59
   languageName: node
   linkType: hard
 
