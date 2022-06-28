@@ -1252,6 +1252,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
+      { test: 'notInclude', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-finish-setup', 'cancel-subscription', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId', 'uid')) },
+      { test: 'notInclude', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-finish-setup', 'update-billing', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId', 'uid'))},
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
