@@ -16,7 +16,7 @@
     {
       "label": "Run Current Test",
       "type": "shell",
-      "command": "./node_modules/mocha/bin/mocha",
+      "command": "./node_modules/mocha/bin/mocha.js",
       "options": {
         "env": {
           "FIRESTORE_EMULATOR_HOST": "localhost:8006",

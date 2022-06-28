@@ -16,7 +16,7 @@
     {
       "label": "Run Current Test",
       "type": "shell",
-      "command": "./node_modules/mocha/bin/mocha",
+      "command": "./node_modules/mocha/bin/mocha.js",
       "args": ["-r", "esbuild-register", "${relativeFile}"],
       "group": "test",
       "presentation": {

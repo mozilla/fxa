@@ -14765,7 +14765,7 @@ __metadata:
     express: ^4.17.2
     fxa-shared: "workspace:*"
     intel: 1.2.0
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     optimist: 0.6.1
@@ -17926,7 +17926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.3.2, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:~4.3.1":
+"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:~4.3.1":
   version: 4.3.2
   resolution: "debug@npm:4.3.2"
   dependencies:
@@ -22303,7 +22303,7 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     fast-text-encoding: ^1.0.3
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     node-fetch: ^2.6.1
     typescript: ^4.5.2
     webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
@@ -22428,7 +22428,7 @@ fsevents@~2.1.1:
     memcached: ^2.2.2
     mjml: ^4.12.0
     mjml-browser: ^4.12.0
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     mocha-junit-reporter: ^2.0.2
     moment: ^2.29.2
     moment-timezone: ^0.5.34
@@ -22596,7 +22596,7 @@ fsevents@~2.1.1:
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
     mkdirp: 0.5.1
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     mustache: 4.2.0
@@ -22797,7 +22797,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     maxmind: 2.12.0
     mkdirp: 0.5.1
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     mozlog: ^3.0.2
     nyc: ^15.1.0
     prettier: ^2.3.1
@@ -23297,7 +23297,7 @@ fsevents@~2.1.1:
     knex: ^2.0.0
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
-    mocha: ^9.1.2
+    mocha: ^10.0.0
     moment: ^2.29.2
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -23836,20 +23836,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob@npm:7.1.7, glob@npm:~7.1.1, glob@npm:~7.1.6, glob@npm:~7.1.7":
-  version: 7.1.7
-  resolution: "glob@npm:7.1.7"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^3.0.4
-    once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: b61f48973bbdcf5159997b0874a2165db572b368b931135832599875919c237fc05c12984e38fe828e69aa8a921eb0e8a4997266211c517c9cfaae8a93988bb8
-  languageName: node
-  linkType: hard
-
 "glob@npm:7.2.0, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0":
   version: 7.2.0
   resolution: "glob@npm:7.2.0"
@@ -23887,6 +23873,20 @@ fsevents@~2.1.1:
     once: ^1.3.0
     path-is-absolute: ^1.0.0
   checksum: c4946c3d015ac81f704d185f2b3a55eb670100693c2cf7bc833d0efd970ec727d860d4839a5178e46a7e594b34a34661bae2f4c3405727c9fd189f84954ca3c0
+  languageName: node
+  linkType: hard
+
+"glob@npm:~7.1.1, glob@npm:~7.1.6, glob@npm:~7.1.7":
+  version: 7.1.7
+  resolution: "glob@npm:7.1.7"
+  dependencies:
+    fs.realpath: ^1.0.0
+    inflight: ^1.0.4
+    inherits: 2
+    minimatch: ^3.0.4
+    once: ^1.3.0
+    path-is-absolute: ^1.0.0
+  checksum: b61f48973bbdcf5159997b0874a2165db572b368b931135832599875919c237fc05c12984e38fe828e69aa8a921eb0e8a4997266211c517c9cfaae8a93988bb8
   languageName: node
   linkType: hard
 
@@ -32131,41 +32131,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha@npm:^9.1.2":
-  version: 9.1.2
-  resolution: "mocha@npm:9.1.2"
-  dependencies:
-    "@ungap/promise-all-settled": 1.1.2
-    ansi-colors: 4.1.1
-    browser-stdout: 1.3.1
-    chokidar: 3.5.2
-    debug: 4.3.2
-    diff: 5.0.0
-    escape-string-regexp: 4.0.0
-    find-up: 5.0.0
-    glob: 7.1.7
-    growl: 1.10.5
-    he: 1.2.0
-    js-yaml: 4.1.0
-    log-symbols: 4.1.0
-    minimatch: 3.0.4
-    ms: 2.1.3
-    nanoid: 3.1.25
-    serialize-javascript: 6.0.0
-    strip-json-comments: 3.1.1
-    supports-color: 8.1.1
-    which: 2.0.2
-    workerpool: 6.1.5
-    yargs: 16.2.0
-    yargs-parser: 20.2.4
-    yargs-unparser: 2.0.0
-  bin:
-    _mocha: bin/_mocha
-    mocha: bin/mocha
-  checksum: 6e8ecd836db41d0c529592f8437ddcfed10a992f064ba56a6790e3539b0de8435be38b8d7d8f76a74260c942db72fc3594784fc755cbe3ed59edc5e454142c3b
-  languageName: node
-  linkType: hard
-
 "modern-normalize@npm:^1.1.0":
   version: 1.1.0
   resolution: "modern-normalize@npm:1.1.0"
@@ -32432,21 +32397,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nanoid@npm:3.1.25, nanoid@npm:^3.1.22":
-  version: 3.1.25
-  resolution: "nanoid@npm:3.1.25"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: e2353828c7d8fde65265e9c981380102e2021f292038a93fd27288bad390339833286e8cbc7531abe1cb2c6b317e55f38b895dcb775151637bb487388558e0ff
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:3.3.3":
   version: 3.3.3
   resolution: "nanoid@npm:3.3.3"
   bin:
     nanoid: bin/nanoid.cjs
   checksum: ada019402a07464a694553c61d2dca8a4353645a7d92f2830f0d487fedff403678a0bee5323a46522752b2eab95a0bc3da98b6cccaa7c0c55cd9975130e6d6f0
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^3.1.22":
+  version: 3.1.25
+  resolution: "nanoid@npm:3.1.25"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: e2353828c7d8fde65265e9c981380102e2021f292038a93fd27288bad390339833286e8cbc7531abe1cb2c6b317e55f38b895dcb775151637bb487388558e0ff
   languageName: node
   linkType: hard
 
@@ -44943,7 +44908,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"which@npm:2.0.2, which@npm:^2.0.1, which@npm:^2.0.2, which@npm:~2.0.2":
+"which@npm:^2.0.1, which@npm:^2.0.2, which@npm:~2.0.2":
   version: 2.0.2
   resolution: "which@npm:2.0.2"
   dependencies:
@@ -45234,13 +45199,6 @@ resolve@^2.0.0-next.3:
   dependencies:
     microevent.ts: ~0.1.1
   checksum: 8f8607506172f44c05490f3ccf13e5c1f430eeb9b6116a405919c186b8b17add13bbb22467a0dbcd18ec7fcb080709a15738182e0003c5fbe2144721ea00f357
-  languageName: node
-  linkType: hard
-
-"workerpool@npm:6.1.5":
-  version: 6.1.5
-  resolution: "workerpool@npm:6.1.5"
-  checksum: 5defea1fd3e36b4f83c2bb184cade4a71e27030d46ee5efe704e90e19baf3a5c7146fddef010cbd0b7df3edbfca1e9e851bd35d8da8c99ec6d8bbfe121d8c0b0
   languageName: node
   linkType: hard
 
