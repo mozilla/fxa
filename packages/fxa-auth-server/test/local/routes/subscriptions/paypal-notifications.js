@@ -22,6 +22,7 @@ const sandbox = sinon.createSandbox();
 const dbStub = {
   getPayPalBAByBAId: sandbox.stub(),
   Account: {},
+  updatePayPalBA: sandbox.stub(),
 };
 
 const { PayPalNotificationHandler } = proxyquire(
@@ -363,6 +364,56 @@ describe('PayPalNotificationHandler', () => {
     });
   });
 
+  describe('removeBillingAgreement', () => {
+    const ipnBillingAgreement = {
+      billingAgreementId: 'ipn_ba_id_123',
+    };
+    const account = {
+      uid: 'account_id_123',
+    };
+    const customer = {
+      id: 'customer_id_123',
+    };
+    it('should removeCustomerPaypalAgreement when IPN and Customer BA ID match', async () => {
+      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves();
+      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+        ipnBillingAgreement.billingAgreementId
+      );
+
+      const result = await handler.removeBillingAgreement(
+        customer,
+        ipnBillingAgreement,
+        account
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.removeCustomerPaypalAgreement,
+        account.uid,
+        customer.id,
+        ipnBillingAgreement.billingAgreementId
+      );
+    });
+
+    it('should only update the database BA if the IPN and Customer BA ID dont match', async () => {
+      dbStub.updatePayPalBA.resolves();
+      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+
+      const result = await handler.removeBillingAgreement(
+        customer,
+        ipnBillingAgreement,
+        account
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithMatch(
+        dbStub.updatePayPalBA,
+        account.uid,
+        ipnBillingAgreement.billingAgreementId
+      );
+    });
+  });
+
   describe('handleMpCancel', () => {
     const billingAgreement = {
       billingAgreementId: 'abc',
@@ -381,13 +432,14 @@ describe('PayPalNotificationHandler', () => {
     };
 
     it('receives IPN message with successful billing agreement cancelled and email sent', async () => {
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(account);
-      stripeHelper.fetchCustomer = sinon.fake.resolves({
+      const fetchCustomer = {
         ...customer,
         subscriptions,
-      });
-      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      };
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(account);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(fetchCustomer);
+      handler.removeBillingAgreement = sinon.stub().resolves();
       stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
 
       const result = await handler.handleMpCancel(
@@ -410,15 +462,15 @@ describe('PayPalNotificationHandler', () => {
         ['subscriptions']
       );
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.removeCustomerPaypalAgreement,
-        account.uid,
-        customer.id,
-        billingAgreement.billingAgreementId
+        handler.removeBillingAgreement,
+        fetchCustomer,
+        billingAgreement,
+        account
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.getPaymentProvider, {
-        ...customer,
-        subscriptions,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        fetchCustomer
+      );
     });
 
     it('receives IPN message with billing agreement not found', async () => {
@@ -502,13 +554,14 @@ describe('PayPalNotificationHandler', () => {
     });
 
     it('receives IPN message for inactive subscription and email not sent', async () => {
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(account);
-      stripeHelper.fetchCustomer = sinon.fake.resolves({
+      const fetchCustomer = {
         ...customer,
         subscriptions: undefined,
-      });
-      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      };
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(account);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(fetchCustomer);
+      handler.removeBillingAgreement = sinon.stub().resolves();
       stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
 
       const result = await handler.handleMpCancel(
@@ -531,15 +584,15 @@ describe('PayPalNotificationHandler', () => {
         ['subscriptions']
       );
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.removeCustomerPaypalAgreement,
-        account.uid,
-        customer.id,
-        billingAgreement.billingAgreementId
+        handler.removeBillingAgreement,
+        fetchCustomer,
+        billingAgreement,
+        account
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.getPaymentProvider, {
-        ...customer,
-        subscriptions: undefined,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        fetchCustomer
+      );
     });
 
     it('sends an email', async () => {
@@ -552,7 +605,7 @@ describe('PayPalNotificationHandler', () => {
       dbStub.getPayPalBAByBAId.resolves(billingAgreement);
       dbStub.Account.findByUid = sandbox.stub().resolves(mockAcct);
       stripeHelper.fetchCustomer = sinon.fake.resolves(mockCustomer);
-      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      handler.removeBillingAgreement = sinon.stub().resolves();
       stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');
       stripeHelper.formatSubscriptionsForEmails =
         sinon.fake.resolves(mockFormattedSubs);
