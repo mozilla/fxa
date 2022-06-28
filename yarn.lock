@@ -22430,7 +22430,6 @@ fsevents@~2.1.1:
     memcached: ^2.2.2
     mjml: ^4.12.0
     mjml-browser: ^4.12.0
-    mkdirp: 0.5.1
     mocha: ^9.1.2
     mocha-junit-reporter: ^2.0.2
     moment: ^2.29.2

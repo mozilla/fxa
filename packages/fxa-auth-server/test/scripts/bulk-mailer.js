@@ -10,7 +10,6 @@ const { promisify } = require('util');
 const { assert } = require('chai');
 const cp = require('child_process');
 const fs = require('fs');
-const mkdirp = require('mkdirp');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const path = require('path');
 const rimraf = require('rimraf');
@@ -83,7 +82,7 @@ describe('scripts/bulk-mailer', function () {
 
   before(() => {
     rimraf.sync(OUTPUT_DIRECTORY);
-    mkdirp.sync(OUTPUT_DIRECTORY);
+    fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 
     return TestServer.start(config)
       .then((s) => {
