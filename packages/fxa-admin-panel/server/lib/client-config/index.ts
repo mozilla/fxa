@@ -12,10 +12,10 @@ import {
   USER_GROUP_HEADER,
   SERVER_CONFIG_PLACEHOLDER,
 } from '../../../constants';
-import { AdminPanelGuard } from 'fxa-shared/guards';
+import { AdminPanelEnv, AdminPanelGuard } from 'fxa-shared/guards';
 import log from '../logging';
 
-const guard = new AdminPanelGuard(config.get('guard.env'));
+const guard = new AdminPanelGuard(config.get('guard.env') as AdminPanelEnv);
 
 /** Client Config Defaults provided by env */
 const defaultConfig: IClientConfig = {
