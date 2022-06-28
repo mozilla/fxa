@@ -1728,6 +1728,7 @@ module.exports = function (log, config, bounces) {
           message.acceptLanguage,
           invoiceDate
         ),
+        isFinishSetup: true,
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
