@@ -17860,10 +17860,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dateformat@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "dateformat@npm:4.3.1"
-  checksum: dcf368ac98bcba67cf20edc26bb5459ba65059861977cc02d6942876f8f1c7c0508afc4f4ef2e05bd571a9a695ff47acc38932a03ca7831691a73b3d6e8a8e0e
+"dateformat@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "dateformat@npm:5.0.3"
+  checksum: 4d2f5b0b04c32c234af93bbf5fe9b41b5b1a9b4d5962cfb0ebb2e28e8425a912674512f61be5270a870604c5d5a4d6f0b57f1fa98fd29089723dc8a96fc13cd9
   languageName: node
   linkType: hard
 
@@ -22203,7 +22203,7 @@ fsevents@~2.1.1:
     convict: ^6.2.3
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    dateformat: ^4.3.1
+    dateformat: ^5.0.3
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-jest: ^24.5.2
