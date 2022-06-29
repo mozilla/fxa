@@ -6171,7 +6171,9 @@ describe('StripeHelper', () => {
 
   describe('extractBillingDetails', () => {
     const paymentProvider = { payment_provider: 'stripe' };
+    const sourceId = eventCustomerSourceExpiring.data.object.id;
     const card = {
+      id: sourceId,
       brand: 'visa',
       exp_month: 8,
       exp_year: 2022,
@@ -6187,14 +6189,17 @@ describe('StripeHelper', () => {
       },
     };
     const source = { name: 'Testo McTestson', object: 'card', ...card };
+    const mockPaymentMethod = {
+      card,
+    };
 
     beforeEach(() => {
       sandbox.stub(stripeHelper, 'getPaymentProvider').returns('stripe');
     });
 
-    it('returns the correct payment provider', () => {
+    it('returns the correct payment provider', async () => {
       const customer = { id: 'cus_xyz', invoice_settings: {} };
-      const actual = stripeHelper.extractBillingDetails(customer);
+      const actual = await stripeHelper.extractBillingDetails(customer);
 
       assert.deepEqual(actual, paymentProvider);
       sinon.assert.calledOnceWithExactly(
@@ -6203,13 +6208,13 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('returns the card details from the default payment method', () => {
+    it('returns the card details from the default payment method', async () => {
       const customer = {
         id: 'cus_xyz',
         invoice_settings,
       };
 
-      const actual = stripeHelper.extractBillingDetails(customer);
+      const actual = await stripeHelper.extractBillingDetails(customer);
 
       assert.deepEqual(actual, {
         ...paymentProvider,
@@ -6230,25 +6235,55 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('returns the card details from the payment source', () => {
+    it('returns the card details from default source (not a string type)', async () => {
       const customer = {
         id: 'cus_xyz',
+        default_source: {
+          ...card,
+          name: 'Testo McTestson',
+        },
         invoice_settings: {
-          default_payment_method: {},
+          default_payment_method: null,
         },
         sources: { data: [source] },
       };
 
-      const actual = stripeHelper.extractBillingDetails(customer);
-
+      const actual = await stripeHelper.extractBillingDetails(customer);
       assert.deepEqual(actual, {
         ...paymentProvider,
-        billing_name: customer.sources.data[0].name,
-        payment_type: customer.sources.data[0].funding,
-        last4: customer.sources.data[0].last4,
-        exp_month: customer.sources.data[0].exp_month,
-        exp_year: customer.sources.data[0].exp_year,
-        brand: customer.sources.data[0].brand,
+        billing_name: customer.default_source.name,
+        payment_type: customer.default_source.funding,
+        last4: customer.default_source.last4,
+        exp_month: customer.default_source.exp_month,
+        exp_year: customer.default_source.exp_year,
+        brand: customer.default_source.brand,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
+    });
+
+    it('returns the card details from default source (string type)', async () => {
+      sandbox.stub(stripeHelper, 'expandResource').resolves(mockPaymentMethod);
+      const customer = {
+        id: 'cus_xyz',
+        default_source: card.id,
+        invoice_settings: {
+          default_payment_method: null,
+        },
+        sources: { data: [source] },
+      };
+
+      const actual = await stripeHelper.extractBillingDetails(customer);
+      assert.deepEqual(actual, {
+        ...paymentProvider,
+        billing_name: mockPaymentMethod.card.name,
+        payment_type: mockPaymentMethod.card.funding,
+        last4: mockPaymentMethod.card.last4,
+        exp_month: mockPaymentMethod.card.exp_month,
+        exp_year: mockPaymentMethod.card.exp_year,
+        brand: mockPaymentMethod.card.brand,
       });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.getPaymentProvider,

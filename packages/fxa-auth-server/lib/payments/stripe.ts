@@ -2014,13 +2014,13 @@ export class StripeHelper extends StripeHelperBase {
       customer
     ) as PaymentBillingDetails;
 
-    if (billingDetails.payment_provider === 'paypal') {
+    if ((await billingDetails).payment_provider === 'paypal') {
       billingDetails.billing_agreement_id =
         this.getCustomerPaypalAgreement(customer);
     }
 
     if (
-      billingDetails.payment_provider === 'paypal' &&
+      (await billingDetails).payment_provider === 'paypal' &&
       this.hasSubscriptionRequiringPaymentMethod(customer)
     ) {
       if (!this.getCustomerPaypalAgreement(customer)) {
@@ -2058,7 +2058,7 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Extracts billing details if a customer has a source on file.
    */
-  extractBillingDetails(customer: Stripe.Customer) {
+  async extractBillingDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
     const paymentProvider = this.getPaymentProvider(customer);
 
@@ -2080,19 +2080,34 @@ export class StripeHelper extends StripeHelperBase {
         };
       }
     }
-    if (customer.sources && customer.sources.data.length > 0) {
-      // Currently assume a single source, and we can only access these attributes
-      // on cards.
-      const src = customer.sources.data[0];
-      if (src.object === 'card') {
+    if (customer.default_source) {
+      if (typeof customer.default_source !== 'string') {
+        const { brand, exp_month, exp_year, funding, last4, name } =
+          customer.default_source as Stripe.Card;
         return {
-          billing_name: src.name,
+          billing_name: name,
           payment_provider: paymentProvider,
-          payment_type: src.funding,
-          last4: src.last4,
-          exp_month: src.exp_month,
-          exp_year: src.exp_year,
-          brand: src.brand,
+          payment_type: funding,
+          last4,
+          exp_month,
+          exp_year,
+          brand,
+        };
+      } else {
+        const pm = await this.expandResource<Stripe.PaymentMethod>(
+          customer.default_source,
+          PAYMENT_METHOD_RESOURCE
+        );
+        console.log('code pm', pm);
+        const { brand, exp_month, exp_year, funding, last4 } = pm.card!;
+        return {
+          billing_name: customer.name,
+          payment_provider: paymentProvider,
+          payment_type: funding,
+          last4,
+          exp_month,
+          exp_year,
+          brand,
         };
       }
     }
