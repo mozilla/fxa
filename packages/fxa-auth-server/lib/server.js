@@ -21,6 +21,9 @@ const { configureSentry } = require('./sentry');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('fxa-shared/l10n/determineLocale');
+const {
+  reportValidationError,
+} = require('fxa-shared/sentry/report-validation-error');
 
 function trimLocale(header) {
   if (!header) {
@@ -38,6 +41,15 @@ function trimLocale(header) {
     str += `,${parts[i]}`;
   }
   return str.trim();
+}
+
+function logValidationError(response, log) {
+  if (response?.__proto__.name !== 'ValidationError') {
+    return;
+  }
+
+  log.error('server.ValidationError', response);
+  reportValidationError(response.stack, response);
 }
 
 function logEndpointErrors(response, log) {
@@ -155,6 +167,9 @@ async function create(log, error, config, routes, db, statsd) {
           throw err;
         },
       },
+      ...(config.env !== 'prod' && {
+        response: { options: { abortEarly: false } },
+      }),
     },
     load: {
       sampleInterval: 1000,
@@ -315,6 +330,9 @@ async function create(log, error, config, routes, db, statsd) {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
+      if (config.env !== 'prod') {
+        logValidationError(response, log);
+      }
       response = error.translate(request, response);
       if (config.env !== 'prod') {
         response.backtrace(request.app.traced);
@@ -515,5 +533,6 @@ module.exports = {
   // Functions below exported for testing
   _configureSentry: configureSentry,
   _logEndpointErrors: logEndpointErrors,
+  _logValidationError: logValidationError,
   _trimLocale: trimLocale,
 };

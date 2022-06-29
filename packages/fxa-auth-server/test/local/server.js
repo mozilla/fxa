@@ -12,8 +12,16 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const hawk = require('@hapi/hawk');
 const knownIpLocation = require('../known-ip-location');
 const mocks = require('../mocks');
-const server = require(`${ROOT_DIR}/lib/server`);
+const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+
+const sandbox = sinon.createSandbox();
+const mockReportValidationError = sandbox.stub();
+const server = proxyquire(`${ROOT_DIR}/lib/server`, {
+  'fxa-shared/sentry/report-validation-error': {
+    reportValidationError: mockReportValidationError,
+  },
+});
 
 describe('lib/server', () => {
   describe('trimLocale', () => {
@@ -63,6 +71,57 @@ describe('lib/server', () => {
         },
       };
       assert.equal(server._logEndpointErrors(response, mockLog));
+    });
+  });
+
+  describe('logValidationError', () => {
+    const msg = 'Invalid response payload';
+    let response = {
+      __proto__: {
+        name: 'ValidationError',
+      },
+      message: msg,
+      stack: 'ValidationError: "[0].plan_id" is required',
+    };
+
+    afterEach(() => {
+      sandbox.reset();
+    });
+
+    it('logs a validation error', () => {
+      const mockLog = {
+        error: (op, err) => {
+          assert.equal(op, 'server.ValidationError');
+          assert.equal(err.message, msg);
+        },
+      };
+      server._logValidationError(response, mockLog);
+    });
+
+    it('reports a validation error to Sentry', () => {
+      const mockLog = {
+        error: () => {},
+      };
+      server._logValidationError(response, mockLog);
+      sinon.assert.calledOnceWithExactly(
+        mockReportValidationError,
+        response.stack,
+        response
+      );
+    });
+
+    it('does not log or report other types of errors', () => {
+      response = {
+        __proto__: {
+          name: 'OtherError',
+        },
+      };
+      const mockLog = {
+        error: sinon.stub(),
+      };
+      server._logValidationError(response, mockLog);
+      sinon.assert.notCalled(mockLog.error);
+      sinon.assert.notCalled(mockReportValidationError);
     });
   });
 
