@@ -5,12 +5,12 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="subscriptionsPaymentExpired-title">Your credit card is about to expire</span>
+      <span data-l10n-id="subscriptionsPaymentExpired-title-1">Your credit card is expired or about to expire</span>
     </mj-text>
 
     <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionsPaymentExpired-content">
-        The credit card you’re using to make payments for the following subscriptions is about to expire.
+      <span data-l10n-id="subscriptionsPaymentExpired-content-1">
+        The credit card you’re using to make payments for the following subscriptions is expired or about to expire.
       </span>
     </mj-text>
 

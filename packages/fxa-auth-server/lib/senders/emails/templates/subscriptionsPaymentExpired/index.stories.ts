@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionsPaymentExpired',
-  'Sent whenever a user has multiple subscriptions and their card will expire at the end of the month.',
+  'Sent whenever a user has multiple subscriptions and their card has expired or will expire at the end of the month.',
   {
     subscriptions: [
       {

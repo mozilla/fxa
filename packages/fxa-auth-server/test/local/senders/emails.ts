@@ -1624,7 +1624,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
+    ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expired or expiring soon` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentExpired') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentExpired' }],
@@ -1634,12 +1634,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
-      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'include', expected: `for ${MESSAGE.productName} is expired or about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Credit card for ${MESSAGE.productName} expiring soon` },
-      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'include', expected: `Credit card for ${MESSAGE.productName} expired or expiring soon` },
+      { test: 'include', expected: `for ${MESSAGE.productName} is expired or about to expire.` },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -1648,7 +1648,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expiring soon' }],
+    ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expired or expiring soon' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentExpired' }],
@@ -1658,12 +1658,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
-      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'include', expected: 'using to make payments for the following subscriptions is expired or about to expire.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Credit card for your subscriptions is expiring soon' },
-      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'include', expected: 'Credit card for your subscriptions is expired or expiring soon' },
+      { test: 'include', expected: 'using to make payments for the following subscriptions is expired or about to expire.' },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
