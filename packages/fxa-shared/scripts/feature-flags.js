@@ -6,7 +6,8 @@
 
 'use strict';
 
-const ajv = require('ajv')();
+const Ajv = require('ajv');
+const ajv = new Ajv();
 const Redis = require('ioredis');
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',

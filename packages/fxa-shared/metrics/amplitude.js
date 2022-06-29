@@ -4,7 +4,8 @@
 
 'use strict';
 
-const ajv = require('ajv')();
+const Ajv = require('ajv');
+const ajv = new Ajv();
 const amplitudeSchema = require('./amplitude-event.1.schema.json');
 const validateAmplitudeEvent = ajv.compile(amplitudeSchema);
 
