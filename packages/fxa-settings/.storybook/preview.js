@@ -4,7 +4,7 @@
 
 import '../src/styles/tailwind.out';
 import '../src/styles/fonts';
-import './design-guide/design-guide';
+import './design-guide/design-guide.css';
 import { initializeRTL } from 'storybook-addon-rtl';
 
 initializeRTL();
