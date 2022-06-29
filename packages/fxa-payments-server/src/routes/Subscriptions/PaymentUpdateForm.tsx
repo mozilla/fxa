@@ -200,7 +200,7 @@ export const PaymentUpdateForm = ({
   const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
 
   // https://github.com/iamkun/dayjs/issues/639
-  const expirationDate = dayjs()
+  const expirationDate = exp_month && exp_year && dayjs()
     .set('month', Number(exp_month) - 1)
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
