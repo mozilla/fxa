@@ -1,3 +1,9 @@
+## 1.235.2
+
+### Bug fixes
+
+- bug: Fix change password not redirecting on pairing allow page ([7dd8584c84](https://github.com/mozilla/fxa/commit/7dd8584c84))
+
 ## 1.235.1
 
 No changes.

@@ -30,7 +30,7 @@ const MOCK_ACCOUNT_PROFILE = {
   email: MOCK_EMAIL,
 };
 
-describe('views/pair/auth_allow', () => {
+describe ('views/pair/auth_allow', () => {
   let account;
   let broker;
   let config;
@@ -93,7 +93,7 @@ describe('views/pair/auth_allow', () => {
 
   describe('render', () => {
     const HEADER_TEXT = 'Did you just sign in to Firefox?';
-    it('renders, can submit and navigate to change password', () => {
+    it('renders and can submit', () => {
       sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
       sinon.spy(view, 'replaceCurrentPage');
       return view.render().then(() => {
@@ -125,6 +125,16 @@ describe('views/pair/auth_allow', () => {
       });
     });
 
+    it('can change password', async () => {
+      sinon.spy(view, 'navigateAway');
+      
+      await view.render();
+      
+      view.$('#change-password').click();
+      
+      assert.isTrue(view.navigateAway.calledOnceWith('/settings/change_password'));
+    });
+    
     it('handles errors', (done) => {
       sinon.spy(view, 'displayError');
       view.initialize();
