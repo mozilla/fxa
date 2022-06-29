@@ -2094,12 +2094,12 @@ export class StripeHelper extends StripeHelperBase {
           brand,
         };
       } else {
-        const pm = await this.expandResource<Stripe.PaymentMethod>(
+        const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
           customer.default_source,
           PAYMENT_METHOD_RESOURCE
         );
-        console.log('code pm', pm);
-        const { brand, exp_month, exp_year, funding, last4 } = pm.card!;
+        const { brand, exp_month, exp_year, funding, last4 } =
+          paymentMethod.card!;
         return {
           billing_name: customer.name,
           payment_provider: paymentProvider,

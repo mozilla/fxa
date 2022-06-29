@@ -6176,7 +6176,7 @@ describe('StripeHelper', () => {
       id: sourceId,
       brand: 'visa',
       exp_month: 8,
-      exp_year: 2022,
+      exp_year: new Date().getFullYear(),
       funding: 'credit',
       last4: '4242',
     };
