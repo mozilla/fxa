@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { resolve } = require('path');
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 
 const allFxa = resolve(__dirname, '../../');
 const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
@@ -11,9 +10,6 @@ const additionalJSImports = {
   'fxa-react': resolve(__dirname, '../'),
   'fxa-shared': resolve(__dirname, '../../fxa-shared'),
 };
-
-// Tip: Use `require.resolve('package-name')` instead of 'package-name' to reference
-// the dependencies in fxa-react, avoiding extra deps across packages
 
 const customizeWebpackConfig = ({ config }) => ({
   ...config,
@@ -25,10 +21,7 @@ const customizeWebpackConfig = ({ config }) => ({
         plugin.constructor &&
         plugin.constructor.name === 'ModuleScopePlugin'
       ) {
-        return new ModuleScopePlugin(
-          [...plugin.appSrcs, ...importPaths],
-          plugin.allowedFiles
-        );
+        plugin.appSrcs.push(...importPaths);
       }
       return plugin;
     }),
