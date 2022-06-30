@@ -77,7 +77,7 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.5",
+    "@nestjs/cli": "^8.2.8",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/get-stream": "3.0.2",
