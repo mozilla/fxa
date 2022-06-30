@@ -36,7 +36,7 @@
   }
 
   &:disabled {
-    @apply bg-blue-500 border-transparent bg-opacity-40 text-opacity-50 cursor-not-allowed;
+    @apply bg-blue-500/40 border-transparent text-white/50 cursor-not-allowed;
   }
 }
 
@@ -48,11 +48,11 @@
   }
 
   &:focus {
-    @apply border-transparent outline-black-dotted;
+    @apply border-transparent outline-dotted outline-black;
   }
 
   &:disabled {
-    @apply bg-red-500 border-transparent bg-opacity-40 text-opacity-50 cursor-not-allowed;
+    @apply bg-red-500/40 border-transparent text-white/50 cursor-not-allowed;
   }
 }
 

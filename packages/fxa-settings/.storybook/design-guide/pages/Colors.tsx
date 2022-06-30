@@ -18,7 +18,7 @@ const Swatch = ({
   }
 
   return (
-    <div className="inline-block w-20 mr-2 shadow-md rounded border border-black border-opacity-25 bg-white">
+    <div className="inline-block w-20 mr-2 shadow-md rounded border border-black/25 bg-white">
       <div className="p-2">
         {shade && (
           <Copiable value={copyValue}>
@@ -30,9 +30,9 @@ const Swatch = ({
         </Copiable>
       </div>
       <span
-        className="block rounded-b w-full h-6 border-t border-black border-opacity-25"
+        className="block rounded-b w-full h-6 border-t border-black/25"
         style={{ backgroundColor: hex }}
-      ></span>
+      />
     </div>
   );
 };
@@ -62,7 +62,7 @@ const Colors = ({ config }) => {
         color) with the name of the color and optionally the shade. Some
         examples:
       </p>
-      <div className="leading-6 flex flex-wrap shadow-md border border-black border-opacity-25 rounded max-w-2xl p-3 pt-1 mb-8 bg-white">
+      <div className="leading-6 flex flex-wrap shadow-md border border-black/25 rounded max-w-2xl p-3 pt-1 mb-8 bg-white">
         <Copiable value="bg-blue-100">
           <code className="mt-2 inline-block rounded-sm px-1 bg-blue-100 text-sm mr-2">
             bg-blue-100

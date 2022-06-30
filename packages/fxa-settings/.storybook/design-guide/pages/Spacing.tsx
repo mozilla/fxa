@@ -59,7 +59,7 @@ const Spacing = ({ config }) => {
         available sizing values. Additionally, modifiers can be used to target
         specific axes. Some examples:
       </p>
-      <ul className="shadow-md border border-black border-opacity-25 rounded max-w-2xl p-3 mb-8 bg-white">
+      <ul className="shadow-md border border-black/25 rounded max-w-2xl p-3 mb-8 bg-white">
         <li className="pb-3 mb-3 border-b border-grey-100">
           <Snippet>y</Snippet> will target only vertical axes (top and bottom,
           e.g.{' '}
@@ -127,7 +127,7 @@ const Spacing = ({ config }) => {
                   <td className="flex-1 mb-2">
                     <code>{size}</code>
 
-                    <div className="spacing-more-content hidden absolute top-0 left-0 rounded w-full bg-grey-50 overflow-scroll whitespace-no-wrap flex items-center justify-center py-1">
+                    <div className="spacing-more-content hidden absolute top-0 left-0 rounded w-full bg-grey-50 overflow-scroll whitespace-nowrap flex items-center justify-center py-1">
                       <span className="font-bold mr-2">size: {size}</span>
                       {data.available.includes('p') && (
                         <span className="mx-2">

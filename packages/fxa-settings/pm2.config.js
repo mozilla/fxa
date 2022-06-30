@@ -26,7 +26,7 @@ module.exports = {
     },
     {
       name: 'settings-css',
-      script: 'yarn build-postcss',
+      script: 'yarn build-css',
       cwd: __dirname,
       env: {
         PATH,
@@ -40,6 +40,7 @@ module.exports = {
         'tailwind.config.js',
         'src/styles',
         'src/components/**/*.scss',
+        'src/**/*.tsx',
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
       ignore_watch: ['src/styles/tailwind.out.*'],

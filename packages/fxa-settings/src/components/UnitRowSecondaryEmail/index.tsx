@@ -252,7 +252,7 @@ export const UnitRowSecondaryEmail = () => {
                 <Localized id="se-make-primary">
                   <button
                     disabled={account.loading}
-                    className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+                    className="cta-neutral cta-base disabled:cursor-wait whitespace-nowrap"
                     onClick={() => {
                       queueEmailAction(() => makeEmailPrimary(email));
                     }}
