@@ -84,6 +84,27 @@ describe('StripeFirestore', () => {
       assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
     });
 
+    it('passes ignoreErrors through to fetchAndInsertCustomer', async () => {
+      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
+        newFirestoreStripeError(
+          'Not found',
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        )
+      );
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves(customer);
+      const result = await stripeFirestore.retrieveAndFetchCustomer(
+        customer.id,
+        true
+      );
+      assert.deepEqual(result, customer);
+      assert.calledOnce(stripeFirestore.retrieveCustomer);
+      assert.calledOnceWithExactly(
+        stripeFirestore.fetchAndInsertCustomer,
+        customer.id,
+        true
+      );
+    });
+
     it('errors otherwise', async () => {
       stripeFirestore.retrieveCustomer = sinon.fake.rejects(
         newFirestoreStripeError(
@@ -135,6 +156,34 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, subscription);
       assert.calledOnce(stripeFirestore.retrieveSubscription);
       assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnceWithExactly(
+        stripe.subscriptions.retrieve,
+        subscription.id
+      );
+    });
+
+    it('passes ignoreErrors through to fetchAndInsertCustomer', async () => {
+      stripeFirestore.retrieveSubscription = sinon.fake.rejects(
+        newFirestoreStripeError(
+          'Not found',
+          FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
+        )
+      );
+      stripe.subscriptions = {
+        retrieve: sinon.fake.resolves(subscription),
+      };
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      const result = await stripeFirestore.retrieveAndFetchSubscription(
+        subscription.id,
+        true
+      );
+      assert.deepEqual(result, subscription);
+      assert.calledOnce(stripeFirestore.retrieveSubscription);
+      assert.calledOnceWithExactly(
+        stripeFirestore.fetchAndInsertCustomer,
+        subscription.customer,
+        true
+      );
       assert.calledOnceWithExactly(
         stripe.subscriptions.retrieve,
         subscription.id
@@ -200,6 +249,38 @@ describe('StripeFirestore', () => {
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_DELETED);
       }
+    });
+
+    it('allows customer deleted when ignoreErrors is true', async () => {
+      const deletedCustomer = { ...customer, deleted: true };
+      stripe.customers = {
+        retrieve: sinon.fake.resolves(deletedCustomer),
+      };
+      const result = await stripeFirestore.fetchAndInsertCustomer(
+        customer.id,
+        true
+      );
+      assert.deepEqual(result, deletedCustomer);
+      assert.calledOnce(stripe.customers.retrieve);
+      assert.calledOnceWithExactly(stripe.subscriptions.list, {
+        customer: customer.id,
+      });
+    });
+
+    it('allows customer with no uid when ignoreErrors is true', async () => {
+      const noMetadataCustomer = { ...customer, metadata: {} };
+      stripe.customers = {
+        retrieve: sinon.fake.resolves(noMetadataCustomer),
+      };
+      const result = await stripeFirestore.fetchAndInsertCustomer(
+        customer.id,
+        true
+      );
+      assert.deepEqual(result, noMetadataCustomer);
+      assert.calledOnce(stripe.customers.retrieve);
+      assert.calledOnceWithExactly(stripe.subscriptions.list, {
+        customer: customer.id,
+      });
     });
 
     it('errors on missing uid', async () => {
@@ -368,6 +449,14 @@ describe('StripeFirestore', () => {
         assert.calledOnce(customerCollectionDbRef.where);
       }
     });
+
+    it('ignores customer not found when ignoreErrors is true', async () => {
+      customerCollectionDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves({ empty: true }),
+      });
+      const result = await stripeFirestore.insertInvoiceRecord(invoice, true);
+      assert.deepEqual(result, invoice);
+    });
   });
 
   describe('insertPaymentMethodRecord', () => {
@@ -393,6 +482,17 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, {});
       assert.calledOnce(customerCollectionDbRef.where);
       assert.calledOnce(customerSnap.docs[0].ref.collection);
+    });
+
+    it('ignores customer not found when ignoreErrors is true', async () => {
+      customerCollectionDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves({ empty: true }),
+      });
+      const result = await stripeFirestore.insertPaymentMethodRecord(
+        deepCopy(paymentMethod),
+        true
+      );
+      assert.deepEqual(result, paymentMethod);
     });
 
     it('errors on customer not found', async () => {

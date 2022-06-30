@@ -449,8 +449,14 @@ export abstract class StripeHelper {
     switch (resourceType) {
       case CUSTOMER_RESOURCE:
         const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
-          resource
+          resource,
+          true
         );
+        if (customer?.deleted) {
+          // There are no subscriptions for deleted customers on the customer object.
+          // @ts-ignore
+          return customer;
+        }
         const subscriptions =
           await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
         (customer as any).subscriptions = {
@@ -461,7 +467,10 @@ export abstract class StripeHelper {
         return customer;
       case SUBSCRIPTIONS_RESOURCE:
         // @ts-ignore
-        return this.stripeFirestore.retrieveAndFetchSubscription(resource);
+        return this.stripeFirestore.retrieveAndFetchSubscription(
+          resource,
+          true
+        );
       case INVOICES_RESOURCE:
         try {
           // TODO we could remove the getInvoiceWithDiscount method if we add logic
@@ -476,9 +485,10 @@ export abstract class StripeHelper {
               expand: ['discounts'],
             });
             await this.stripeFirestore.retrieveAndFetchCustomer(
-              invoice.customer as string
+              invoice.customer as string,
+              true
             );
-            await this.stripeFirestore.insertInvoiceRecord(invoice);
+            await this.stripeFirestore.insertInvoiceRecord(invoice, true);
             // @ts-ignore
             return invoice;
           }
@@ -501,10 +511,12 @@ export abstract class StripeHelper {
             // cannot store it in Firestore.
             if (paymentMethod.customer) {
               await this.stripeFirestore.retrieveAndFetchCustomer(
-                paymentMethod.customer as string
+                paymentMethod.customer as string,
+                true
               );
               await this.stripeFirestore.insertPaymentMethodRecord(
-                paymentMethod
+                paymentMethod,
+                true
               );
             }
             // @ts-ignore

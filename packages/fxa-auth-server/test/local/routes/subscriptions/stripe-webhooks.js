@@ -438,7 +438,7 @@ describe('StripeWebhookHandler', () => {
           assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
         });
 
-        it('does not call sentry or expand resourche for event payment_method.detached', async () => {
+        it('does not call sentry or expand resource for event payment_method.detached', async () => {
           const event = deepCopy(subscriptionCreated);
           event.type = 'payment_method.detached';
           StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
@@ -1152,6 +1152,30 @@ describe('StripeWebhookHandler', () => {
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('returns with customer.deleted', async () => {
+        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
+        const customer = deepCopy(customerFixture);
+        customer.deleted = true;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        const result =
+          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
+            {},
+            paymentMethodUpdatedEvent
+          );
+        assert.isUndefined(result);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          paymentMethodUpdatedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateCustomerPaymentMethodTaxRates
         );
       });
 
