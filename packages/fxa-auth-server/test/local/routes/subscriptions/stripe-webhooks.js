@@ -549,6 +549,7 @@ describe('StripeWebhookHandler', () => {
           {
             data: { object: customerFixture },
             type: 'customer.updated',
+            request: {},
           }
         );
         assert.calledOnce(sentryModule.reportSentryError);
@@ -566,6 +567,25 @@ describe('StripeWebhookHandler', () => {
           {
             data: { object: customer },
             type: 'customer.updated',
+          }
+        );
+        assert.notCalled(sentryModule.reportSentryError);
+      });
+
+      it('does not report error with no customer if the account does not exist but it was an api call', async () => {
+        const authDbModule = require('fxa-shared/db/models/auth');
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        const customer = deepCopy(customerFixture);
+        await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
+          {},
+          {
+            data: { object: customer },
+            type: 'customer.updated',
+            request: {
+              id: 'someid',
+            },
           }
         );
         assert.notCalled(sentryModule.reportSentryError);
