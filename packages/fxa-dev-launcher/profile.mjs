@@ -113,7 +113,8 @@ const fxaProfile = {
   "app.update.silent": false,
   "app.update.staging.enabled": false,
   // allow webchannel url, strips slash from content-server origin.
-  "webchannel.allowObject.urlWhitelist": fxaEnv.content.slice(0, -1)
+  "webchannel.allowObject.urlWhitelist": fxaEnv.content.slice(0, -1),
+  "browser.tabs.firefox-view": true,
 };
 
 // Configuration for local sync development

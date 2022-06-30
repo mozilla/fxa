@@ -162,6 +162,7 @@ registerSuite('pairing', {
 
           .then(switchToWindow(1))
           .then(testElementExists(selectors.PAIRING.COMPLETE))
+
           .getCurrentUrl()
           .then(function (redirectResult) {
             assert.ok(

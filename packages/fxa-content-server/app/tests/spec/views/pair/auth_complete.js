@@ -85,15 +85,8 @@ describe('views/pair/auth_complete', () => {
           view.$el.find('#pair-auth-complete-header').text(),
           'Device connected'
         );
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-        assert.equal(
-          view.$el.find('.location').text().trim(),
-          'Toronto, Ontario, Canada (estimated)'
-        );
-        assert.equal(
-          view.$el.find('.ip-address').text(),
-          'IP address: 1.1.1.1'
-        );
+        assert.include(view.$el.find('#device-os').text(), 'Firefox on Windows');
+
         assert.ok(
           view.$el.find('.graphic-connect-another-device-hearts').length
         );
