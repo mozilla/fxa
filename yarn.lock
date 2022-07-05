@@ -23456,7 +23456,6 @@ fsevents@~2.1.1:
     insist: 1.0.1
     joi: 17.4.0
     lodash: ^4.17.21
-    mkdirp: 0.5.1
     mocha: ^10.0.0
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
