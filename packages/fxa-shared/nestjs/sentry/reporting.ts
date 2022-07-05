@@ -4,6 +4,7 @@
 import { ExecutionContext } from '@nestjs/common';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import { SQS } from 'aws-sdk';
 import { Request } from 'express';
 
@@ -91,7 +92,7 @@ export function reportRequestException(
     scope.addEventProcessor((event: Sentry.Event) => {
       if (request) {
         const sentryEvent = Sentry.Handlers.parseRequest(event, request);
-        sentryEvent.level = Sentry.Severity.Error;
+        sentryEvent.level = 'error' as SeverityLevel;
         return sentryEvent;
       }
       return null;

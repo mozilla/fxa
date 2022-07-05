@@ -4,6 +4,7 @@
 import 'jsdom-global/register';
 import { assert } from 'chai';
 import * as Sentry from '@sentry/browser';
+import { SeverityLevel } from '@sentry/types';
 import sentryMetrics, { _Sentry } from '../../lib/sentry';
 import { SentryConfigOpts } from '../../sentry';
 const sinon = require('sinon');
@@ -71,7 +72,7 @@ describe('lib/sentry', () => {
       );
       assert.equal(
         resultData.level,
-        Sentry.Severity.Info,
+        'info' as SeverityLevel,
         'correct known error level'
       );
     });

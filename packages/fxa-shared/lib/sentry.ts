@@ -4,6 +4,7 @@
 
 import * as Sentry from '@sentry/browser';
 import { BrowserTracing } from '@sentry/tracing';
+import { SeverityLevel } from '@sentry/types';
 import Logger from './logger';
 import { buildSentryConfig, SentryConfigOpts, tagFxaName } from '../sentry';
 import { options } from 'superagent';
@@ -49,7 +50,7 @@ function beforeSend(data: Sentry.Event): Sentry.Event {
       if (data.tags.errno) {
         data.fingerprint = ['errno' + (data.tags.errno as number)];
         // if it is a known error change the error level to info.
-        data.level = Sentry.Severity.Info;
+        data.level = 'info' as SeverityLevel;
       }
     }
 

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import { ValidationError } from 'joi';
 
 /**
@@ -51,6 +52,6 @@ export function reportValidationError(
 
   Sentry.withScope((scope) => {
     scope.setContext('validationError', details);
-    Sentry.captureMessage(message, Sentry.Severity.Error);
+    Sentry.captureMessage(message, 'error' as SeverityLevel);
   });
 }
