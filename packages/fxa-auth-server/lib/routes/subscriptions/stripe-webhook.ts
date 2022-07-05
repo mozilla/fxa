@@ -475,7 +475,7 @@ export class StripeWebhookHandler extends StripeHandler {
     // If the request has a request id, it means that our API triggered this so
     // we can safely ignore the account not existing as this is typically due to
     // us deleting the account in FxA.
-    if (!account && !event.request.id) {
+    if (!account && !event.request?.id) {
       reportSentryError(
         new Error(`Cannot load account for customerId: ${customer.id}`),
         request
