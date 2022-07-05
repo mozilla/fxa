@@ -121,7 +121,7 @@
     "normalize.css": "8.0.1",
     "on-headers": "1.0.2",
     "photon-colors": "1.0.3",
-    "postcss-cli": "10.0.0",
+    "postcss-cli": "7.1.1",
     "postcss-loader": "4.2.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
