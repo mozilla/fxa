@@ -17,6 +17,12 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
     },
+    useStripeAutomaticTax: {
+      default: false,
+      doc: 'Feature flag on whether Stripe automatic tax is enabled',
+      env: 'SUBSCRIPTIONS_STRIPE_TAX_ENABLED',
+      format: Boolean,
+    },
   },
   amplitude: {
     enabled: {

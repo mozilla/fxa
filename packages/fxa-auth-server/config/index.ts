@@ -900,6 +900,14 @@ const conf = convict({
       format: String,
       doc: 'Stripe API key for direct Stripe integration',
     },
+    stripeAutomaticTax: {
+      enabled: {
+        default: false,
+        doc: 'Whether to enable automatic tax for Stripe',
+        env: 'SUBSCRIPTIONS_STRIPE_AUTOMATIC_TAX',
+        format: Boolean,
+      },
+    },
     stripeWebhookPayloadLimit: {
       default: 1048576,
       env: 'STRIPE_WEBHOOK_PAYLOAD_LIMIT',
