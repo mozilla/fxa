@@ -4,14 +4,14 @@
 
 /* eslint-disable indent */
 const assert = require('assert');
+const fs = require('fs');
 const url = require('url');
 
-const mkdirp = require('mkdirp');
 const _nock = require('nock');
 const through = require('through');
 
 const config = require('../../lib/config');
-mkdirp.sync(config.get('img.uploads.dest.public'));
+fs.mkdirSync(config.get('img.uploads.dest.public'), { recursive: true });
 // eslint-disable-next-line space-unary-ops
 const local = new (require('../../lib/img/local'))();
 const inject = require('./inject');

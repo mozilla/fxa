@@ -5,11 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const cp = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
-const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
-
 process.env.NODE_ENV = 'development';
 
 var childServer = cp.fork(path.join(__dirname, '..', 'bin', 'server.js'));
@@ -18,7 +17,7 @@ childServer.on('exit', process.exit);
 var childWorker = cp.fork(path.join(__dirname, '..', 'bin', 'worker.js'));
 childWorker.on('exit', process.exit);
 
-mkdirp.sync(path.join(__dirname, '..', 'var', 'public'));
+fs.mkdirSync(path.join(__dirname, '..', 'var', 'public'), { recursive: true });
 var childStatic = cp.fork(path.join(__dirname, '..', 'bin', '_static.js'));
 childStatic.on('exit', process.exit);
 
