@@ -418,11 +418,11 @@ describe('lib/routes/validators:', () => {
       res = validateKeyValuePairAndReturn('upgradeCTA', true);
       assert.ok(res.error, 'upgradeCTA');
 
-      res = validateKeyValuePairAndReturn('downloadURL', true);
-      assert.ok(res.error, 'downloadUrl');
+      res = validateKeyValuePairAndReturn('successActionButtonURL', true);
+      assert.ok(res.error, 'successActionButtonURL');
 
-      res = validateKeyValuePairAndReturn('downloadURL', 'nota.url');
-      assert.ok(res.error, 'downloadUrl invalid url');
+      res = validateKeyValuePairAndReturn('successActionButtonURL', 'nota.url');
+      assert.ok(res.error, 'successActionButtonURL invalid url');
 
       res = validateKeyValuePairAndReturn('appStoreLink', true);
       assert.ok(res.error, 'appStoreLink');
@@ -471,7 +471,7 @@ describe('lib/routes/validators:', () => {
     });
 
     it('rejects if missing required props', () => {
-      let res = deletePropAndValidate('downloadURL');
+      let res = deletePropAndValidate('successActionButtonURL');
       assert.ok(res.error);
 
       res = deletePropAndValidate('product:privacyNoticeURL');

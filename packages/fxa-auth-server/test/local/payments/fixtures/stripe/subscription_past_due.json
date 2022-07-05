@@ -45,7 +45,7 @@
           "interval_count": 1,
           "livemode": false,
           "metadata": {
-            "downloadURL": ""
+            "successActionButtonURL": ""
           },
           "nickname": "guardian_monthly",
           "product": "prod_FiJ42WCzZNRSbS",
@@ -85,7 +85,7 @@
     "interval_count": 1,
     "livemode": false,
     "metadata": {
-      "downloadURL": ""
+      "successActionButtonURL": ""
     },
     "nickname": "guardian_monthly",
     "product": "prod_FiJ42WCzZNRSbS",

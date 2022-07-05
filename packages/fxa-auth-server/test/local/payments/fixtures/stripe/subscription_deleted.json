@@ -47,7 +47,7 @@
               "interval_count": 1,
               "livemode": false,
               "metadata": {
-                "downloadURL": "https://stage.guardian.nonprod.cloudops.mozgcp.net/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download"
+                "successActionButtonURL": "https://stage.guardian.nonprod.cloudops.mozgcp.net/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download"
               },
               "nickname": "guardian_monthly",
               "product": "prod_FiJ42WCzZNRSbS",
@@ -87,7 +87,7 @@
         "interval_count": 1,
         "livemode": false,
         "metadata": {
-          "downloadURL": "https://stage.guardian.nonprod.cloudops.mozgcp.net/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download"
+          "successActionButtonURL": "https://stage.guardian.nonprod.cloudops.mozgcp.net/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download"
         },
         "nickname": "guardian_monthly",
         "product": "prod_FiJ42WCzZNRSbS",

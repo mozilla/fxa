@@ -67,8 +67,7 @@ class SetPassword extends FormView {
       const plan = plans.find((p) => p.product_id === productId);
       const url = new URL(
         plan && plan.product_metadata
-          ? plan.product_metadata.successActionButtonURL ||
-            plan.product_metadata.downloadURL
+          ? plan.product_metadata.successActionButtonURL
           : 'https://mozilla.org'
       );
       url.searchParams.set('email', account.get('email'));

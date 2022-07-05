@@ -216,15 +216,6 @@ export class StripeProductsAndPlansConverter {
       }
     }
 
-    // Support legacy downloadURL, which was renamed to successActionButtonURL
-    // TODO - Remove once all Prod Products have been updated.
-    if (
-      !urlConfig['successActionButton'] &&
-      stripeObject.metadata['downloadURL']
-    ) {
-      urlConfig['successActionButton'] = stripeObject.metadata['downloadURL'];
-    }
-
     return urlConfig;
   }
 

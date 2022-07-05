@@ -2379,14 +2379,10 @@ export class StripeHelper extends StripeHelperBase {
 
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-    const {
-      emailIconURL: planEmailIconURL = '',
-      downloadURL,
-      successActionButtonURL,
-    } = productMetadata;
+    const { emailIconURL: planEmailIconURL = '', successActionButtonURL } =
+      productMetadata;
 
-    const planSuccessActionButtonURL =
-      successActionButtonURL || downloadURL || '';
+    const planSuccessActionButtonURL = successActionButtonURL || '';
 
     const { lastFour, cardType } = this.extractCardDetails({
       charge,
@@ -2439,14 +2435,10 @@ export class StripeHelper extends StripeHelperBase {
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-    const {
-      emailIconURL: planEmailIconURL = '',
-      downloadURL,
-      successActionButtonURL,
-    } = productMetadata;
+    const { emailIconURL: planEmailIconURL = '', successActionButtonURL } =
+      productMetadata;
 
-    const planSuccessActionButtonURL =
-      successActionButtonURL || downloadURL || '';
+    const planSuccessActionButtonURL = successActionButtonURL || '';
 
     return {
       productId,
