@@ -22602,7 +22602,6 @@ fsevents@~2.1.1:
     fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
-    graphql: ^15.6.1
     helmet: ^5.0.0
     jest: 27.5.1
     jest-watch-typeahead: 0.6.5
