@@ -182,6 +182,7 @@ async function run() {
             acceptLanguage: account.locale,
             code: account.emailCode,
             email: account.email,
+            accountVerified: account.verifierSetAt > 0,
             token: token,
             flowBeginTime,
             flowId,

@@ -241,7 +241,10 @@ describe('lib/senders/index', () => {
             return email.sendPostAddLinkedAccountEmail(EMAILS, acct, {});
           })
           .then(() => {
-            assert.equal(email._ungatedMailer.postAddLinkedAccountEmail.callCount, 1);
+            assert.equal(
+              email._ungatedMailer.postAddLinkedAccountEmail.callCount,
+              1
+            );
 
             const args =
               email._ungatedMailer.postAddLinkedAccountEmail.getCall(0).args;
@@ -459,6 +462,42 @@ describe('lib/senders/index', () => {
           metricsEnabled: true,
           uid: UID,
         });
+      });
+    });
+
+    describe('subscriptionAccountReminder Emails', () => {
+      it('should send an email if the account is unverified', async () => {
+        const mailer = await createSender(config);
+        await mailer.sendSubscriptionAccountReminderFirstEmail(EMAILS, acct, {
+          email: 'test@test.com',
+          uid: '123',
+          productId: 'abc',
+          productName: 'testProduct',
+          token: 'token',
+          flowId: '456',
+          lowBeginTime: 123,
+          deviceId: 'xyz',
+          accountVerified: false,
+        });
+
+        assert.equal(mailer._ungatedMailer.mailer.sendMail.callCount, 1);
+      });
+
+      it('should not send an email if the account is verified', async () => {
+        const mailer = await createSender(config);
+        await mailer.sendSubscriptionAccountReminderFirstEmail(EMAILS, acct, {
+          email: 'test@test.com',
+          uid: '123',
+          productId: 'abc',
+          productName: 'testProduct',
+          token: 'token',
+          flowId: '456',
+          lowBeginTime: 123,
+          deviceId: 'xyz',
+          accountVerified: true,
+        });
+
+        assert.equal(mailer._ungatedMailer.mailer.sendMail.callCount, 0);
       });
     });
   });

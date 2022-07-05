@@ -578,12 +578,13 @@ export class AccountHandler {
     this.log.begin('Account.finishSetup', request);
     const form = request.payload as any;
     const authPW = form.authPW;
+    let uid;
     try {
       const payload = (await jwt.verify(form.token, {
         typ: 'fin+JWT',
         ignoreExpiration: true,
       })) as any;
-      const uid = payload.uid;
+      uid = payload.uid;
       form.uid = payload.uid;
       const account = await this.db.account(uid);
       // Only proceed if the account is in the stub state.
@@ -628,6 +629,16 @@ export class AccountHandler {
       this.log.error('Account.finish_setup.error', {
         err,
       });
+
+      // if it errored out after verifiying the account
+      // remove the uid from the list of accounts to send reminders to.
+      if (!!uid) {
+        const account = await this.db.account(uid);
+        if (account.verifierSetAt > 0) {
+          await this.subscriptionAccountReminders.delete(uid);
+        }
+      }
+
       throw err;
     }
   }

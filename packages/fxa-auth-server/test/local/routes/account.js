@@ -1595,6 +1595,20 @@ describe('/account/finish_setup', () => {
       assert.equal(err.errno, 110);
     }
   });
+
+  it('removes the reminder if it errors after account is verified', async () => {
+    const { route, mockRequest, subscriptionAccountReminders } = setup({
+      verifierSetAt: Date.now(),
+    });
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, 110);
+      assert.calledOnce(subscriptionAccountReminders.delete);
+    }
+  });
 });
 
 describe('/account/login', () => {
