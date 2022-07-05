@@ -123,8 +123,8 @@ export type BillingAddressOptions = {
   state: string;
 };
 
-export type PaymentBillingDetails = ReturnType<
-  StripeHelper['extractBillingDetails']
+export type PaymentBillingDetails = Awaited<
+  ReturnType<StripeHelper['extractBillingDetails']>
 > & {
   paypal_payment_error?: PaypalPaymentError;
   billing_agreement_id?: string;
