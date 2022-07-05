@@ -101,6 +101,16 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     expect(screen.queryByTestId('paymentForm')).not.toBeInTheDocument();
   });
 
+  it('renders valid expiration date', async () => {
+    render(<Subject />);
+    expect(screen.queryByTestId('card-expiration-date')).toHaveTextContent('Expires February 2099');
+  });
+
+  it('does not render expiration date if date is invalid', async () => {
+    render(<Subject customer={{...CUSTOMER, exp_month: undefined}} />);
+    expect(screen.queryByTestId('card-expiration-date')).not.toBeInTheDocument();
+  });
+
   it('reveals the payment update form on clicking Change button', async () => {
     render(<Subject />);
     expect(screen.queryByTestId('payment-update')).toBeInTheDocument();
