@@ -3023,21 +3023,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/register@npm:^7.16.7":
-  version: 7.16.7
-  resolution: "@babel/register@npm:7.16.7"
-  dependencies:
-    clone-deep: ^4.0.1
-    find-cache-dir: ^2.0.0
-    make-dir: ^2.1.0
-    pirates: ^4.0.0
-    source-map-support: ^0.5.16
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 28685b4f23c5ab79560e8f0331a707bd2c6b89114ed06882a14325d0ad7eee4030bcc4a7496526d87ed7ecc001cffffc2cc4c06ba2cd16870ed7196e346cf45f
-  languageName: node
-  linkType: hard
-
 "@babel/runtime-corejs3@npm:^7.10.2":
   version: 7.10.3
   resolution: "@babel/runtime-corejs3@npm:7.10.3"
@@ -10525,13 +10510,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/redux-actions@npm:^2.6.0":
-  version: 2.6.1
-  resolution: "@types/redux-actions@npm:2.6.1"
-  checksum: a67c9a64970717d30430906ee0acfbb10f910c64542aa6be2a680d6eee28960d196b0bae2f9ba40d5ed2ac89be77f8baae5a333c5a7f0067284a13a3cd6d3efa
-  languageName: node
-  linkType: hard
-
 "@types/request@npm:2.48.5":
   version: 2.48.5
   resolution: "@types/request@npm:2.48.5"
@@ -15807,13 +15785,6 @@ __metadata:
   version: 1.0.30001287
   resolution: "caniuse-lite@npm:1.0.30001287"
   checksum: b53c26a3a267a2920394e4aa5d1f60a76f891943914068066700e5497dda512f096d8a77dfefda17306a9df06e16ce9c6b5179f8856cc0efbcd8873d13b2fbea
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001294":
-  version: 1.0.30001294
-  resolution: "caniuse-lite@npm:1.0.30001294"
-  checksum: 4e22649ef83781afbe6c81d6112ceac23c3ba29f91597ca1c14d323d5bfb646571edeb17436e76a29b07c8e9d75468655a2098a3e13dcc1438db47ff46fbb3ad
   languageName: node
   linkType: hard
 
@@ -21446,7 +21417,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fetch-mock@npm:^9.10.7, fetch-mock@npm:^9.11.0":
+"fetch-mock@npm:^9.11.0":
   version: 9.11.0
   resolution: "fetch-mock@npm:9.11.0"
   dependencies:
@@ -23319,13 +23290,11 @@ fsevents@~2.1.1:
   resolution: "fxa-payments-server@workspace:packages/fxa-payments-server"
   dependencies:
     "@babel/core": ^7.15.0
-    "@babel/register": ^7.16.7
     "@fluent/bundle": ^0.17.1
     "@fluent/langneg": ^0.6.2
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.19.7
-    "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@sentry/tracing": ^6.19.1
     "@storybook/addon-actions": ^6.5.9
@@ -23349,7 +23318,6 @@ fsevents@~2.1.1:
     "@types/react-redux": ^7.1.18
     "@types/react-stripe-elements": ^6.0.5
     "@types/react-transition-group": ^4.4.2
-    "@types/redux-actions": ^2.6.0
     "@types/sinon": 10.0.1
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
@@ -23360,21 +23328,15 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     accept-language-parser: ^1.5.0
-    async-wait-until: ^2.0.12
     audit-filter: ^0.5.0
     autoprefixer: ^10.4.7
     babel-eslint: ^10.1.0
-    babel-loader: ^8.2.2
     browserslist: ^4.7.2
-    caniuse-lite: ^1.0.30001294
-    celebrate: ^15.0.1
     classnames: ^2.3.1
     convict: ^6.2.3
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
-    esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -23382,7 +23344,6 @@ fsevents@~2.1.1:
     eslint-plugin-react: ^7.26.1
     express: ^4.17.2
     express-http-proxy: ^1.6.3
-    fetch-mock: ^9.10.7
     fxa-auth-server: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-react: "workspace:*"
@@ -23392,7 +23353,6 @@ fsevents@~2.1.1:
     helmet: ^5.0.0
     hot-shots: ^9.1.0
     intl: 1.2.5
-    intl-pluralrules: ^1.3.1
     jest: 27.5.1
     joi: 17.4.0
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -23401,10 +23361,8 @@ fsevents@~2.1.1:
     nocache: ^3.0.4
     nock: ^13.2.2
     node-fetch: ^2.6.1
-    node-sass: ^7.0.1
     normalize.css: 8.0.1
     npm-run-all: ^4.1.5
-    nyc: ^15.1.0
     on-headers: ^1.0.2
     photon-colors: 1.0.3
     pm2: ^5.1.2
@@ -23420,17 +23378,14 @@ fsevents@~2.1.1:
     react-test-renderer: ^17.0.2
     react-transition-group: ^4.4.2
     redux: ^4.2.0
-    redux-actions: ^2.6.5
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
     redux-thunk: ^2.4.1
     serve-static: ^1.14.2
     sinon: ^9.0.3
-    style-loader: ^1.3.0
     supertest: ^6.2.3
     tailwindcss: ^3.0.24
     ts-jest: ^28.0.5
-    type-to-reducer: ^1.2.0
     typedi: ^0.8.0
     typescript: ^4.5.2
     uuid: ^8.3.2
@@ -26882,13 +26837,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"intl-pluralrules@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "intl-pluralrules@npm:1.3.1"
-  checksum: b22c2373b6b658e5a361d9d1e9a3d4478862a79a9723b910d29745ff6b5b78d8e1e10c47f344bd3835219b77d2f6cfd58388c1bab3b5daf4df72555e02342b40
-  languageName: node
-  linkType: hard
-
 "intl@npm:1.2.5":
   version: 1.2.5
   resolution: "intl@npm:1.2.5"
@@ -29954,13 +29902,6 @@ fsevents@~2.1.1:
   version: 3.1.0
   resolution: "junk@npm:3.1.0"
   checksum: 6c4d68e8f8bc25b546baed802cd0e7be6a971e92f1e885c92cbfe98946d5690b961a32f8e7909e77765d3204c3e556d13c17f73e31697ffae1db07a58b9e68c0
-  languageName: node
-  linkType: hard
-
-"just-curry-it@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "just-curry-it@npm:3.1.0"
-  checksum: f06582728d223a5f73daaa3189ab2a225eff4db7324371508ac876aec5cb849cdb4883a97df7de610d16d9f83cbd0c839652186e66fb88ea834117b1c993fd69
   languageName: node
   linkType: hard
 
@@ -38532,26 +38473,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"reduce-reducers@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "reduce-reducers@npm:0.4.3"
-  checksum: 6e33cafc4e7c67e8973fbde543839c3efd982a712a4fb15f6cdf45072a9fa2c17aef1f9a44330665a2c351ac7ebbb8a47afcec2932ee486c72cfd04ed1e2ad0c
-  languageName: node
-  linkType: hard
-
-"redux-actions@npm:^2.6.5":
-  version: 2.6.5
-  resolution: "redux-actions@npm:2.6.5"
-  dependencies:
-    invariant: ^2.2.4
-    just-curry-it: ^3.1.0
-    loose-envify: ^1.4.0
-    reduce-reducers: ^0.4.3
-    to-camel-case: ^1.0.0
-  checksum: 677a727d0be42aa1cbdb4c8d6296b4167c0c4ce4f28d36453764edba3c4dc5f82064290ce494209fa56eeb245262b4cdc58e7e6a50fe2f17e1d94d79c387e9e3
-  languageName: node
-  linkType: hard
-
 "redux-devtools-extension@npm:^2.13.9":
   version: 2.13.9
   resolution: "redux-devtools-extension@npm:2.13.9"
@@ -43135,15 +43056,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"to-camel-case@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "to-camel-case@npm:1.0.0"
-  dependencies:
-    to-space-case: ^1.0.0
-  checksum: 2f74cfcffa58e8ddede7e01a03eda2cc3f0ab50efdad1d0f1092d55b4e499be43846d1f9087c458fa9efde4958e407738197d65858272c56c915b649b9ca1e62
-  languageName: node
-  linkType: hard
-
 "to-data-view@npm:^1.1.0":
   version: 1.1.0
   resolution: "to-data-view@npm:1.1.0"
@@ -43162,13 +43074,6 @@ resolve@^2.0.0-next.3:
   version: 2.0.0
   resolution: "to-fast-properties@npm:2.0.0"
   checksum: be2de62fe58ead94e3e592680052683b1ec986c72d589e7b21e5697f8744cdbf48c266fa72f6c15932894c10187b5f54573a3bcf7da0bfd964d5caf23d436168
-  languageName: node
-  linkType: hard
-
-"to-no-case@npm:^1.0.0":
-  version: 1.0.2
-  resolution: "to-no-case@npm:1.0.2"
-  checksum: 1d85326eeb89f9f3a805bf5b395bcabb8556e882350164c1faa10846076732f4cec02ac95b016e7d6bb2f55e448ce5dd227c7699ec43e387c705a5b2b1ee2963
   languageName: node
   linkType: hard
 
@@ -43216,15 +43121,6 @@ resolve@^2.0.0-next.3:
     regex-not: ^1.0.2
     safe-regex: ^1.1.0
   checksum: 4ed4a619059b64e204aad84e4e5f3ea82d97410988bcece7cf6cbfdbf193d11bff48cf53842d88b8bb00b1bfc0d048f61f20f0709e6f393fd8fe0122662d9db4
-  languageName: node
-  linkType: hard
-
-"to-space-case@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "to-space-case@npm:1.0.0"
-  dependencies:
-    to-no-case: ^1.0.0
-  checksum: 157cebe3e98e7cb465fe1978cf26450cc8ea8e637a01039854fac7ed60ad074e5e18b32333cc5f30df81b81ca374d63df768cd4c1fa0fe672605f965376227f4
   languageName: node
   linkType: hard
 
@@ -43826,13 +43722,6 @@ resolve@^2.0.0-next.3:
     media-typer: 0.3.0
     mime-types: ~2.1.24
   checksum: 2c8e47675d55f8b4e404bcf529abdf5036c537a04c2b20177bcf78c9e3c1da69da3942b1346e6edb09e823228c0ee656ef0e033765ec39a70d496ef601a0c657
-  languageName: node
-  linkType: hard
-
-"type-to-reducer@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "type-to-reducer@npm:1.2.0"
-  checksum: ac99e2282f0dd1278cee533b735e5d03a2e420504679f2e5ba3b7fa6806b684e0bf71ae5fc8978f2692e9fdcd60cc7193dc12bd231752aa4445ae4feda45c1e2
   languageName: node
   linkType: hard
 
