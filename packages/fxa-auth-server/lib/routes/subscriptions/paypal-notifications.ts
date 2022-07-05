@@ -2,12 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import { Account, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  getPayPalBAByBAId,
+  PayPalBillingAgreements,
+  updatePayPalBA,
+} from 'fxa-shared/db/models/auth';
+import Stripe from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
 import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal/client';
-import { StripeHelper } from '../../payments/stripe';
+import { StripeHelper, STRIPE_CUSTOMER_METADATA } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 import { PayPalHandler } from './paypal';
@@ -81,9 +87,38 @@ export class PayPalNotificationHandler extends PayPalHandler {
   }
 
   /**
+   * Remove the Paypal Billing Agreement
+   * If the Billing Agreement ID from the IPN request does not match the
+   * ID on the Stripe customer, then only update the database.
+   */
+  private async removeBillingAgreement(
+    customer: Stripe.Customer,
+    billingAgreement: PayPalBillingAgreements,
+    account: Account
+  ) {
+    if (
+      billingAgreement.billingAgreementId ===
+      this.stripeHelper.getCustomerPaypalAgreement(customer)
+    ) {
+      await this.stripeHelper.removeCustomerPaypalAgreement(
+        account.uid,
+        customer.id,
+        billingAgreement.billingAgreementId
+      );
+    } else {
+      await updatePayPalBA(
+        account.uid,
+        billingAgreement.billingAgreementId,
+        'Cancelled',
+        Date.now()
+      );
+    }
+  }
+
+  /**
    * Handle merchant payment cancelled notification from PayPal
    * and update PayPalBillingAgreements to "Cancelled" status
-   * and removes the billing agreement from Stripe Customer
+   * and optionally removes the billing agreement from Stripe Customer
    *
    * @param message
    */
@@ -121,11 +156,8 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
       return;
     }
-    this.stripeHelper.removeCustomerPaypalAgreement(
-      account.uid,
-      customer.id,
-      billingAgreement.billingAgreementId
-    );
+
+    await this.removeBillingAgreement(customer, billingAgreement, account);
 
     const nextPeriodValidSubscription = customer.subscriptions?.data.find(
       (sub) =>
