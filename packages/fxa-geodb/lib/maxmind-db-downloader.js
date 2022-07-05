@@ -7,7 +7,6 @@ var path = require('path');
 var CronJob = require('cron').CronJob;
 var DEFAULTS = require('./defaults');
 var fs = require('fs');
-var mkdirp = require('mkdirp');
 var mozlog = require('mozlog');
 var Promise = require('bluebird');
 var request = require('request');
@@ -38,9 +37,16 @@ var MaxmindDbDownloader = function () {
     targetDirName = targetDirName || DEFAULTS.TARGET_DIR_NAME;
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db directory
-    var createdTargetDirPath = mkdirp.sync(targetDirPath);
+    var createdTargetDirPath = fs.mkdirSync(targetDirPath, { recursive: true });
     logHelper('info', 'Download directory is ' + createdTargetDirPath);
-    return createdTargetDirPath;
+    
+    // if `fs` successfully created the directory it will only return the first
+    // directory, we need to return the entire path.
+    if (!createdTargetDirPath) {
+      return null;
+    }
+    
+    return targetDirPath;
   };
 
   this.setupDownloadList = function (sourceFilePath, targetDirPath) {
