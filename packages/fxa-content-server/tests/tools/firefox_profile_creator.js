@@ -114,6 +114,8 @@ if (profile) {
   // show the js console in devtools
   myProfile.setPreference('devtools.toolbox.selectedTool', 'webconsole');
   myProfile.setPreference('devtools.webconsole.persistlog', true);
+  
+  myProfile.setPreference('browser.tabs.firefox-view', true);
 
   myProfile.updatePreferences();
 

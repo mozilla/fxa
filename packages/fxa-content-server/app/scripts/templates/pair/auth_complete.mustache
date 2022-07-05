@@ -8,12 +8,21 @@
 
     <div class="graphic {{ graphicId }}" role="img" aria-label="{{#t}}Successfully connected{{/t}}"></div>
 
-    <h2>{{#t}}You are now syncing with:{{/t}}</h2>
+    <h2 id="device-os">
+      {{#unsafeTranslate}}
+        You are now syncing with: <span>%(deviceFamily)s on %(deviceOS)s</span>
+      {{/unsafeTranslate}}
+    </h2>
 
-    {{{ unsafeDeviceBeingPairedHTML }}}
-
+    <p>{{#t}}Now you can access your open tabs, passwords, and bookmarks on all your devices.{{/t}}</p>
+    
     <div class="button-row">
-      <a href="/settings#connected-services" class="button primary-button">{{#t}}Manage devices{{/t}}</a>
+      {{#hasFirefoxViewSupport}}
+        <a id="open-firefox-view" class="button primary-button">{{#t}}Open Firefox View{{/t}}</a>
+      {{/hasFirefoxViewSupport}}
+      {{^hasFirefoxViewSupport}}
+        <a href="/settings#connected-services" class="button primary-button">{{#t}}Manage devices{{/t}}</a>
+      {{/hasFirefoxViewSupport}}
     </div>
   </section>
 </div>

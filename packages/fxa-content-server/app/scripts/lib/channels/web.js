@@ -38,6 +38,7 @@ const COMMANDS = {
   PAIR_PREFERENCES: 'fxaccounts:pair_preferences',
   PAIR_REQUEST_SUPPLICANT_METADATA: 'fxaccounts:pair_supplicant_metadata',
   PROFILE_CHANGE: 'profile:change',
+  FIREFOX_VIEW: 'fxaccounts:firefox_view',
   /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
     */
