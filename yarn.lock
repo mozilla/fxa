@@ -6141,7 +6141,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:^6.19.1, @sentry/tracing@npm:^6.19.2":
+"@sentry/tracing@npm:^6.19.1":
   version: 6.19.2
   resolution: "@sentry/tracing@npm:6.19.2"
   dependencies:
@@ -6151,6 +6151,18 @@ __metadata:
     "@sentry/utils": 6.19.2
     tslib: ^1.9.3
   checksum: 07bdc2658118d5ad8b0c921d6b15362731cac6383f82396784ba8fdecfabc9a9712456d5c5c90a24dc57fa6ecb8cb366cc5dc426482f2a2a243ee04c1c61c2ba
+  languageName: node
+  linkType: hard
+
+"@sentry/tracing@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "@sentry/tracing@npm:7.3.1"
+  dependencies:
+    "@sentry/hub": 7.3.1
+    "@sentry/types": 7.3.1
+    "@sentry/utils": 7.3.1
+    tslib: ^1.9.3
+  checksum: 5d01f502a59340e5e35c2aca5ff18d6bec4cc5c774c6b6915733f3d2899d6b868be9a8fc24baff5f708b3eac68c5e2ddf9109d592389c52b429155d0ca394a81
   languageName: node
   linkType: hard
 
@@ -22554,7 +22566,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@rescripts/cli": 0.0.16
     "@sentry/node": ^7.3.1
-    "@sentry/tracing": ^6.19.2
+    "@sentry/tracing": ^7.3.1
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@types/chance": ^1.1.2
