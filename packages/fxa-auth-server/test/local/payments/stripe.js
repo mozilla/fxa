@@ -5959,7 +5959,7 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
       sandbox
         .stub(stripeHelper, 'extractBillingDetails')
-        .returns(billingDetails);
+        .resolves(billingDetails);
       sandbox
         .stub(stripeHelper, 'getCustomerPaypalAgreement')
         .returns(billingAgreementId);
@@ -5996,7 +5996,7 @@ describe('StripeHelper', () => {
       stripeHelper.extractBillingDetails.restore();
       sandbox
         .stub(stripeHelper, 'extractBillingDetails')
-        .returns(billingDetails);
+        .resolves(billingDetails);
 
       const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
         'uid'
@@ -6067,7 +6067,7 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, {
         customerId: customer.id,
         subscriptions: [],
-        billing_agreement_id: null,
+        billing_agreement_id: billingAgreementId,
         paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
         ...billingDetails,
       });
@@ -6080,6 +6080,10 @@ describe('StripeHelper', () => {
     it('excludes funding source error state with open invoices but no payment attempts', async () => {
       const openInvoice = { status: 'open' };
       getLatestInvoicesForActiveSubscriptionsStub.resolves([openInvoice]);
+      stripeHelper.hasOpenInvoiceWithPaymentAttempts.restore();
+      sandbox
+        .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
+        .returns(false);
       const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
         'uid'
       );
@@ -6087,7 +6091,7 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, {
         customerId: customer.id,
         subscriptions: [],
-        billing_agreement_id: null,
+        billing_agreement_id: billingAgreementId,
         ...billingDetails,
       });
       sinon.assert.calledOnceWithExactly(
@@ -6105,6 +6109,10 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper, 'subscriptionsToResponse')
         .resolves(subscriptions);
+      stripeHelper.hasSubscriptionRequiringPaymentMethod.restore();
+      sandbox
+        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .returns(false);
 
       const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
         'uid'
@@ -6212,36 +6220,7 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('returns the card details from default source (not a string type)', async () => {
-      const customer = {
-        id: 'cus_xyz',
-        default_source: {
-          ...card,
-          name: 'Testo McTestson',
-        },
-        invoice_settings: {
-          default_payment_method: null,
-        },
-        sources: { data: [source] },
-      };
-
-      const actual = await stripeHelper.extractBillingDetails(customer);
-      assert.deepEqual(actual, {
-        ...paymentProvider,
-        billing_name: customer.default_source.name,
-        payment_type: customer.default_source.funding,
-        last4: customer.default_source.last4,
-        exp_month: customer.default_source.exp_month,
-        exp_year: customer.default_source.exp_year,
-        brand: customer.default_source.brand,
-      });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
-        customer
-      );
-    });
-
-    it('returns the card details from default source (string type)', async () => {
+    it('returns the card details from default source', async () => {
       sandbox.stub(stripeHelper, 'expandResource').resolves(mockPaymentMethod);
       const customer = {
         id: 'cus_xyz',

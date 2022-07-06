@@ -2010,28 +2010,7 @@ export class StripeHelper extends StripeHelperBase {
       return null;
     }
 
-    const billingDetails = this.extractBillingDetails(
-      customer
-    ) as PaymentBillingDetails;
-
-    if ((await billingDetails).payment_provider === 'paypal') {
-      billingDetails.billing_agreement_id =
-        this.getCustomerPaypalAgreement(customer);
-    }
-
-    if (
-      (await billingDetails).payment_provider === 'paypal' &&
-      this.hasSubscriptionRequiringPaymentMethod(customer)
-    ) {
-      if (!this.getCustomerPaypalAgreement(customer)) {
-        billingDetails.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (await this.hasOpenInvoiceWithPaymentAttempts(customer)) {
-        billingDetails.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
-      }
-    }
-
+    const billingDetails = await this.extractBillingDetails(customer);
     const detailsAndSubs: {
       customerId: string;
       subscriptions: WebSubscription[];
@@ -2040,6 +2019,24 @@ export class StripeHelper extends StripeHelperBase {
       subscriptions: [],
       ...billingDetails,
     };
+
+    if (detailsAndSubs.payment_provider === 'paypal') {
+      detailsAndSubs.billing_agreement_id =
+        this.getCustomerPaypalAgreement(customer);
+    }
+
+    if (
+      detailsAndSubs.payment_provider === 'paypal' &&
+      this.hasSubscriptionRequiringPaymentMethod(customer)
+    ) {
+      if (!this.getCustomerPaypalAgreement(customer)) {
+        detailsAndSubs.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
+      } else if (await this.hasOpenInvoiceWithPaymentAttempts(customer)) {
+        detailsAndSubs.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+      }
+    }
 
     if (customer.subscriptions) {
       const activeSubscriptions = customer.subscriptions.data.filter((sub) =>
@@ -2081,35 +2078,24 @@ export class StripeHelper extends StripeHelperBase {
       }
     }
     if (customer.default_source) {
-      if (typeof customer.default_source !== 'string') {
-        const { brand, exp_month, exp_year, funding, last4, name } =
-          customer.default_source as Stripe.Card;
-        return {
-          billing_name: name,
-          payment_provider: paymentProvider,
-          payment_type: funding,
-          last4,
-          exp_month,
-          exp_year,
-          brand,
-        };
-      } else {
-        const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
-          customer.default_source,
-          PAYMENT_METHOD_RESOURCE
-        );
-        const { brand, exp_month, exp_year, funding, last4 } =
-          paymentMethod.card!;
-        return {
-          billing_name: customer.name,
-          payment_provider: paymentProvider,
-          payment_type: funding,
-          last4,
-          exp_month,
-          exp_year,
-          brand,
-        };
-      }
+      const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
+        // CustomerSource doesn't quite overlap with PaymentMethod, but in our
+        // situation, the missing type isn't one we let our customers use.
+        // @ts-ignore
+        customer.default_source,
+        PAYMENT_METHOD_RESOURCE
+      );
+      const { brand, exp_month, exp_year, funding, last4 } =
+        paymentMethod.card!;
+      return {
+        billing_name: customer.name,
+        payment_provider: paymentProvider,
+        payment_type: funding,
+        last4,
+        exp_month,
+        exp_year,
+        brand,
+      };
     }
 
     return {
