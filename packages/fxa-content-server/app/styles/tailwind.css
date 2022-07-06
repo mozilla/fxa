@@ -1,4 +1,0 @@
-/* If or when content-server is using Tailwind exclusively, we should enable @base. */
-/* @tailwind base; */
-@tailwind components;
-@tailwind utilities;
