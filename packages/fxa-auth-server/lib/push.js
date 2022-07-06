@@ -468,7 +468,11 @@ module.exports = function (log, db, config, statsd) {
               log.warn(LOG_OP_DEVICE_UPDATE_FAILED, { uid, deviceId, err });
             }
           } else {
-            log.error(LOG_OP_PUSH_UNEXPECTED_ERROR, { err });
+            log.error(LOG_OP_PUSH_UNEXPECTED_ERROR, {
+              err,
+              statusCode: err.statusCode,
+              body: err.body,
+            });
             sendErrors[deviceId] = this.reportPushFailure(err, metricsTags);
           }
         }
