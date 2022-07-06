@@ -658,6 +658,7 @@ module.exports = function (log, config, bounces) {
         flowId,
         flowBeginTime,
         deviceId,
+        accountVerified,
       } = message;
 
       log.trace(`mailer.${template}`, { email, uid });
@@ -682,22 +683,24 @@ module.exports = function (log, config, bounces) {
         'X-Link': links.link,
       };
 
-      return this.send({
-        ...message,
-        headers,
-        layout: 'subscription',
-        template,
-        templateValues: {
-          email,
-          ...links,
-          oneClickLink: links.oneClickLink,
-          privacyUrl: links.privacyUrl,
-          termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          reminderShortForm: true,
-        },
-      });
+      if (!accountVerified) {
+        return this.send({
+          ...message,
+          headers,
+          layout: 'subscription',
+          template,
+          templateValues: {
+            email,
+            ...links,
+            oneClickLink: links.oneClickLink,
+            privacyUrl: links.privacyUrl,
+            termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
+            supportUrl: links.supportUrl,
+            supportLinkAttributes: links.supportLinkAttributes,
+            reminderShortForm: true,
+          },
+        });
+      }
     };
   });
 
