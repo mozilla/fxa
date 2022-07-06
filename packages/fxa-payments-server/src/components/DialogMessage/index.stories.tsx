@@ -16,9 +16,13 @@ storiesOf('components/DialogMessage', module)
       <DialogToggle>
         {({ dialogShown, hideDialog }) =>
           dialogShown && (
-            <DialogMessage onDismiss={hideDialog}>
-              <h4>This is a basic dialog</h4>
-              <p>Content goes in here.</p>
+            <DialogMessage
+              onDismiss={hideDialog}
+              headerId="basic-header"
+              descId="basic-description"
+            >
+              <h4 id="basic-header">This is a basic dialog</h4>
+              <p id="basic-description">Content goes in here.</p>
             </DialogMessage>
           )
         }
@@ -30,9 +34,14 @@ storiesOf('components/DialogMessage', module)
       <DialogToggle>
         {({ dialogShown, hideDialog }) =>
           dialogShown && (
-            <DialogMessage className="dialog-error" onDismiss={hideDialog}>
-              <h4>This is an error dialog</h4>
-              <p>Content goes in here.</p>
+            <DialogMessage
+              className="dialog-error"
+              onDismiss={hideDialog}
+              headerId="error-header"
+              descId="error-description"
+            >
+              <h4 id="error-header">This is an error dialog</h4>
+              <p id="error-description">Content goes in here.</p>
             </DialogMessage>
           )
         }
@@ -41,9 +50,12 @@ storiesOf('components/DialogMessage', module)
   ))
   .add('without onDismiss', () => (
     <MockPage>
-      <DialogMessage>
-        <h4>This is a basic dialog</h4>
-        <p>Content goes in here.</p>
+      <DialogMessage
+        headerId="basic-no-dismiss-header"
+        descId="basic-no-dismiss-description"
+      >
+        <h4 id="basic-no-dismiss-header">This is a basic dialog</h4>
+        <p id="basic-no-dismiss-description">Content goes in here.</p>
       </DialogMessage>
     </MockPage>
   ));

@@ -21,6 +21,9 @@ const SuccessDialog = ({
     config.featureFlags.useFirestoreProductConfigs
   );
 
+  const ariaLabelledBy = "reactivate-subscription-success-header";
+  const ariaDescribedBy = "reactivate-subscription-success-description";
+
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
     : '';
@@ -29,8 +32,10 @@ const SuccessDialog = ({
     <DialogMessage
       onDismiss={onDismiss}
       data-testid="reactivate-subscription-success-dialog"
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
     >
-      <div className="dialog-icon" style={{ ...setWebIconBackground }}>
+      <div id={ariaLabelledBy} className="dialog-icon" style={{ ...setWebIconBackground }}>
         <img
           alt={productName}
           src={webIcon || fpnImage}
@@ -39,6 +44,7 @@ const SuccessDialog = ({
         />
       </div>
       <p
+        id={ariaDescribedBy}
         data-testid="reactivate-subscription-success"
         className="reactivate-subscription-success"
       >

@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom';
 
 type PortalProps = {
   id: string;
-  headerId?: string;
-  descId?: string;
   children: React.ReactNode;
 };
 
@@ -28,8 +26,6 @@ const resetA11yOnAdjacentElementsAndBody = (els: NodeListOf<HTMLElement>) => {
 
 const Portal = ({
   id,
-  headerId = '',
-  descId = '',
   children,
 }: PortalProps): React.ReactPortal | null => {
   let el = document.getElementById(id);
@@ -39,13 +35,7 @@ const Portal = ({
     el.setAttribute('id', id);
     document.body.appendChild(el);
 
-    if (id !== 'alert-bar-portal') {
-      el.setAttribute('role', 'dialog');
-    }
-
     if (id === 'modal') {
-      el.setAttribute('aria-labelledby', headerId);
-      el.setAttribute('aria-describedby', descId);
       setA11yOnAdjacentElementsAndBody(
         document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
       );

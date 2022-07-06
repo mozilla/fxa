@@ -14,10 +14,6 @@ it('renders children in a new element outside original DOM parent', () => {
   expect(screen.getByTestId('portal-parent')).not.toContainElement(childrenEl);
   const containerParent = container.parentNode as ParentNode;
   expect(containerParent.querySelector('#foo')).toContainElement(childrenEl);
-  expect(containerParent.querySelector('#foo')).toHaveAttribute(
-    'role',
-    'dialog'
-  );
 });
 
 it('renders multiple instances with the same ID to the same DOM parent', () => {
@@ -55,8 +51,9 @@ it('applies a11y improvements when id is set to "modal"', () => {
   const descId = 'some-desc-id';
 
   render(
-    <Portal id="modal" {...{ headerId, descId }}>
-      <div>Hi mom</div>
+    <Portal id="modal">
+      <div id={headerId}>Message for mom</div>
+      <p id={descId}>Hi mom</p>
     </Portal>
   );
 
@@ -74,6 +71,4 @@ it('applies a11y improvements when id is set to "modal"', () => {
   expect(adjacentToRoot.classList).toContain('pointer-events-none');
 
   expect(modal).not.toHaveAttribute('aria-hidden', 'true');
-  expect(modal).toHaveAttribute('aria-labelledby', headerId);
-  expect(modal).toHaveAttribute('aria-describedby', descId);
 });

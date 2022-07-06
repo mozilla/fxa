@@ -16,6 +16,8 @@ type DialogMessageProps = {
   className?: string;
   onDismiss?: Function;
   children: ReactNode;
+  headerId: string;
+  descId: string;
   'data-testid'?: string;
 };
 
@@ -26,6 +28,8 @@ export const DialogMessage = ({
   className = '',
   onDismiss,
   children,
+  headerId,
+  descId,
   'data-testid': testid = 'dialog-message-container',
 }: DialogMessageProps) => {
   const dialogInsideRef = useClickOutsideEffect<HTMLDivElement>(
@@ -58,7 +62,15 @@ export const DialogMessage = ({
               </button>
             </Localized>
           )}
-          <div className="message">{children}</div>
+          <div
+            aria-labelledby={headerId}
+            aria-describedby={descId}
+            className="message"
+            data-testid="dialog-message-information"
+            role="dialog"
+          >
+            {children}
+          </div>
         </div>
       </div>
     </Portal>

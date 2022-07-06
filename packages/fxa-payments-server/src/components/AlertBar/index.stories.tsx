@@ -3,5 +3,12 @@ import { storiesOf } from '@storybook/react';
 import { AlertBar } from './index';
 
 storiesOf('components/AlertBar', module).add('basic', () => (
-  <AlertBar className="alert">This is an alert.</AlertBar>
+  <AlertBar
+    className="alert"
+    dataTestId="alert-bar"
+    headerId="alert-bar-header"
+    localizedId="alert-bar"
+  >
+    This is an alert.
+  </AlertBar>
 ));

@@ -15,21 +15,29 @@ import LoadingSpinner from '../../../components/LoadingSpinner';
 import { useHandleConfirmationDialog } from '../../../lib/hooks';
 import AppContext from '../../../lib/AppContext';
 
-const ConfirmationDialogErrorContent = () => (
+const ConfirmationDialogErrorContent = ({
+  headerId,
+  descId
+}: {
+  headerId: string;
+  descId: string;
+}) => (
   <>
     <Localized id="general-error-heading">
-      <h4 data-testid="reactivate-confirm-error-loading">
+      <h4 id={headerId} data-testid="reactivate-confirm-error-loading">
         General application error
       </h4>
     </Localized>
     <Localized id="basic-error-message">
-      <p>Something went wrong. Please try again later.</p>
+      <p id={descId}>Something went wrong. Please try again later.</p>
     </Localized>
   </>
 );
 
 const ConfirmationDialogContent = ({
   onConfirm,
+  headerId,
+  descId,
   periodEndDate,
   currency,
   productName,
@@ -39,6 +47,8 @@ const ConfirmationDialogContent = ({
   webIconURL,
 }: {
   onConfirm: () => void;
+  headerId: string;
+  descId: string;
   periodEndDate: number;
   currency: string;
   productName: string;
@@ -67,7 +77,7 @@ const ConfirmationDialogContent = ({
           name: productName,
         }}
       >
-        <h4>Want to keep using {productName}?</h4>
+        <h4 id={headerId}>Want to keep using {productName}?</h4>
       </Localized>
       {last4 && (
         <Localized
@@ -79,9 +89,9 @@ const ConfirmationDialogContent = ({
             endDate: getLocalizedDate(periodEndDate),
           }}
         >
-          <p>
+          <p id={descId}>
             Your access to {productName} will continue, and your billing cycle
-            and payment will stay the same. Your next charge will be
+            and payment will stay the same. Your next charge will be{' '}
             {getLocalizedCurrencyString(amount, currency)} to the card ending in{' '}
             {last4} on {getLocalizedDateString(periodEndDate)}.
           </p>
@@ -147,16 +157,34 @@ const ConfirmationDialog = ({
     plan
   );
 
+  const ariaLabelledByError = "error-content-header";
+  const ariaDescribedByError = "error-content-description";
+
+  const ariaLabelledByConfirmation = "confirmation-content-header";
+  const ariaDescribedByConfirmation = "confirmation-content-description";
+
+  const ariaLabelledBy = !loading && error ? ariaLabelledByError : ariaLabelledByConfirmation;
+  const ariaDescribedBy = !loading && !error ? ariaDescribedByError : ariaDescribedByConfirmation;
+
   return (
-    <DialogMessage onDismiss={onDismiss}>
+    <DialogMessage
+      onDismiss={onDismiss}
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
+    >
       {!loading ? (
         <>
           {/* TO DO: display card type, IE 'to the Visa card ending...' */}
           {error ? (
-            <ConfirmationDialogErrorContent />
+            <ConfirmationDialogErrorContent
+              headerId={ariaLabelledBy}
+              descId={ariaDescribedBy}
+            />
           ) : (
             <ConfirmationDialogContent
               onConfirm={onConfirm}
+              headerId={ariaLabelledBy}
+              descId={ariaDescribedBy}
               periodEndDate={periodEndDate}
               currency={plan.currency}
               productName={plan.product_name}

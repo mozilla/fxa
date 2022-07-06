@@ -23,7 +23,6 @@ import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { ReactComponent as PocketIcon } from '../../images/pocket-icon.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
@@ -233,6 +232,12 @@ export const Subscriptions = ({
   const planId =
     activeWebSubscription && (activeWebSubscription as WebSubscription).plan_id;
 
+  const ariaLabelledByReactivateSubscription = "error-subscription-reactivation-failed-header";
+  const ariaDescribedByReactivateSubscription = "error-subscription-reactivation-failed-description";
+
+  const ariaLabelledByCancellationStatus = "error-cancellation-failed-header";
+  const ariaDescribedByCancellationStatus = "error-cancellation-failed-description";
+
   return (
     <div className="subscription-management" onClick={onAnyClick}>
       {customerSubscriptions && cancelSubscriptionStatus.result !== null && (
@@ -248,28 +253,15 @@ export const Subscriptions = ({
       )}
 
       {showPaymentSuccessAlert && (
-        <AlertBar className="alert alertSuccess alertCenter">
-          <Localized id="sub-billing-update-success">
-            <span data-testid="success-billing-update" className="checked">
-              Your billing information has been updated successfully
-            </span>
-          </Localized>
-
-          <Localized id="close-aria">
-            <span
-              data-testid="clear-success-alert"
-              className="close"
-              aria-label="Close modal"
-              onClick={hideSuccessAlert}
-            >
-              <CloseIcon
-                role="img"
-                className="close-icon close-alert-bar"
-                aria-hidden="true"
-                focusable="false"
-              />
-            </span>
-          </Localized>
+        <AlertBar
+          checked
+          className="alert alertSuccess alertCenter"
+          dataTestId="success-billing-update"
+          headerId="success-billing-update-header"
+          localizedId="sub-billing-update-success"
+          onClick={hideSuccessAlert}
+        >
+          Your billing information has been updated successfully
         </AlertBar>
       )}
 
@@ -277,13 +269,17 @@ export const Subscriptions = ({
         <DialogMessage
           className="dialog-error"
           onDismiss={resetReactivateSubscription}
+          headerId={ariaLabelledByReactivateSubscription}
+          descId={ariaDescribedByReactivateSubscription}
         >
           <Localized id="sub-route-idx-reactivating">
-            <h4 data-testid="error-reactivation">
+            <h4 id={ariaLabelledByReactivateSubscription} data-testid="error-reactivation">
               Reactivating subscription failed
             </h4>
           </Localized>
-          <p>{reactivateSubscriptionStatus.error.message}</p>
+          <p id={ariaDescribedByReactivateSubscription}>
+            {reactivateSubscriptionStatus.error.message}
+          </p>
         </DialogMessage>
       )}
 
@@ -298,13 +294,17 @@ export const Subscriptions = ({
         <DialogMessage
           className="dialog-error"
           onDismiss={resetCancelSubscription}
+          headerId={ariaLabelledByCancellationStatus}
+          descId={ariaDescribedByCancellationStatus}
         >
           <Localized id="sub-route-idx-cancel-failed">
-            <h4 data-testid="error-cancellation">
+            <h4 id={ariaLabelledByCancellationStatus} data-testid="error-cancellation">
               Cancelling subscription failed
             </h4>
           </Localized>
-          <p>{cancelSubscriptionStatus.error.message}</p>
+          <p id={ariaDescribedByCancellationStatus}>
+            {cancelSubscriptionStatus.error.message}
+          </p>
         </DialogMessage>
       )}
 
@@ -479,12 +479,18 @@ const CancellationDialogMessage = ({
     subscriptionId,
     customerSubscriptions
   );
+  const ariaLabelledBy = "subscription-cancellation-header";
+  const ariaDescribedBy = "subscription-cancellation-description";
   const plan = planForId(customerSubscription!.plan_id, plans) as Plan;
 
   return (
-    <DialogMessage onDismiss={resetCancelSubscription}>
+    <DialogMessage
+      onDismiss={resetCancelSubscription}
+      headerId={ariaLabelledBy}
+      descId={ariaDescribedBy}
+    >
       <Localized id="sub-route-idx-cancel-msg-title">
-        <h4 data-testid="cancellation-message-title">
+        <h4 id={ariaLabelledBy} data-testid="cancellation-message-title">
           We're sorry to see you go
         </h4>
       </Localized>
@@ -495,7 +501,7 @@ const CancellationDialogMessage = ({
           date: getLocalizedDate(customerSubscription!.current_period_end),
         }}
       >
-        <p>
+        <p id={ariaDescribedBy}>
           Your {plan.product_name} subscription has been cancelled.
           <br />
           You will still have access to {plan.product_name} until{' '}

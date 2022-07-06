@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useContext, useEffect } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
@@ -176,16 +176,23 @@ export class AppErrorBoundary extends React.Component {
 
 export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
   const { locationReload } = useContext(AppContext);
+  const ariaLabelledBy = "general-application-error-header";
+  const ariaDescribedBy = "general-application-error-description";
   // TODO: Not displaying the actual error message to the user, just logging it.
   // Most of these errors will probably be failure to load Stripe widgets.
   return (
     <SettingsLayout>
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <DialogMessage
+        className="dialog-error"
+        onDismiss={locationReload}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+      >
         <Localized id="general-error-heading">
-          <h4 data-testid="error-loading-app">General application error</h4>
+          <h4 id={ariaLabelledBy} data-testid="error-loading-app">General application error</h4>
         </Localized>
         <Localized id={getErrorMessage({ code: 'api_connection_error' })}>
-          <p>Something went wrong. Please try again later.</p>
+          <p id={ariaDescribedBy}> Something went wrong. Please try again later.</p>
         </Localized>
       </DialogMessage>
     </SettingsLayout>

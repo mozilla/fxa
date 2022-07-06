@@ -105,29 +105,40 @@ export const PaymentUpdateForm = ({
     />
   );
 
+  const alertPendingAriaLabelledBy = "alert-pending-header";
+
+  const alertErrorAriaLabelledBy = "alert-error-header";
+
+  const ariaLabelledBy = "error-invalid-billing-info-header";
+  const ariaDescribedBy = "error-invalid-billing-info-description";
+
   const billingAgreementErrorAlertBarContent = () => (
-    <Localized
-      id="sub-route-missing-billing-agreement-payment-alert"
-      elems={{ div: actionButton }}
+    <AlertBar
+      actionButton={actionButton}
+      className="alert alertError"
+      dataTestId="invalid-payment-error"
+      elems
+      headerId={alertErrorAriaLabelledBy}
+      localizedId="sub-route-missing-billing-agreement-payment-alert"
     >
-      <span>
         Invalid payment information; there is an error with your account.{' '}
         {actionButton}
-      </span>
-    </Localized>
+    </AlertBar>
   );
 
   const fundingSourceErrorAlertBarContent = () => (
-    <Localized
-      id="sub-route-funding-source-payment-alert"
-      elems={{ div: actionButton }}
+    <AlertBar
+      actionButton={actionButton}
+      className="alert alertError"
+      dataTestId="invalid-payment-error-pending"
+      elems
+      headerId={alertErrorAriaLabelledBy}
+      localizedId="sub-route-funding-source-payment-alert"
     >
-      <span>
-        Invalid payment information; there is an error with your account. This
-        alert may take some time to clear after you successfully update your
-        information. {actionButton}
-      </span>
-    </Localized>
+      Invalid payment information; there is an error with your account. This
+      alert may take some time to clear after you successfully update your
+      information. {actionButton}
+    </AlertBar>
   );
 
   const getPaypalErrorAlertBarContent = () => {
@@ -209,17 +220,18 @@ export const PaymentUpdateForm = ({
     <section className="settings-unit" aria-labelledby="payment-information">
       <div className="payment-update" data-testid="payment-update">
         {stripeSubmitInProgress && (
-          <AlertBar className="alert alertPending">
-            <Localized id="sub-route-idx-updating">
-              <span>Updating billing information...</span>
-            </Localized>
+          <AlertBar
+            className="alert alertPending"
+            dataTestId="alert-pending"
+            headerId={alertPendingAriaLabelledBy}
+            localizedId="sub-route-idx-updating"
+          >
+            Updating billing information…
           </AlertBar>
         )}
 
         {!transactionInProgress && paypal_payment_error && (
-          <AlertBar className="alert alertError">
-            {getPaypalErrorAlertBarContent()}
-          </AlertBar>
+          getPaypalErrorAlertBarContent()
         )}
 
         {transactionInProgress && (
@@ -231,13 +243,15 @@ export const PaymentUpdateForm = ({
             data-testid="billing-info-modal"
             onDismiss={hideFixPaymentModal}
             className="billing-info-modal"
+            headerId={ariaLabelledBy}
+            descId={ariaDescribedBy}
           >
             <img id="error-icon" src={errorIcon} alt="error icon" />
             <Localized id="sub-route-payment-modal-heading">
-              <h2>Invalid billing information</h2>
+              <h2 id={ariaLabelledBy}>Invalid billing information</h2>
             </Localized>
             <Localized id="sub-route-payment-modal-message">
-              <p>
+              <p id={ariaDescribedBy}>
                 There seems to be an error with your PayPal account, we need you
                 to take the necessary steps to resolve this payment issue.
               </p>
