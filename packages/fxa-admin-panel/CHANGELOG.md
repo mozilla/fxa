@@ -1,3 +1,14 @@
+## 1.236.0
+
+### Other changes
+
+- deps: Upgrade tailwindcss (v1.9 to v3), autoprefixer, ## 1.235.2 all SB deps, replace postcss deps, remove other deps ([d866a06d76](https://github.com/mozilla/fxa/commit/d866a06d76))
+- fxa-admin-panel: Upgrade @sentry/tracing from ^6.19.2 to ^7.3.1 ([ad82ed8ccc](https://github.com/mozilla/fxa/commit/ad82ed8ccc))
+- admin-panel: Remove graphql package ([b0e1a670c5](https://github.com/mozilla/fxa/commit/b0e1a670c5))
+- admin-panel: Upgrade @sentry/node from ^6.19.2 to ^7.2.0 ([9c7ff58f58](https://github.com/mozilla/fxa/commit/9c7ff58f58))
+- admin-panel: Upgrade @types/convict from ^5.2.2 to ^6.1.1 ([73284d9f27](https://github.com/mozilla/fxa/commit/73284d9f27))
+- admin-panel: Remove unused dependencies ([40cc469f26](https://github.com/mozilla/fxa/commit/40cc469f26))
+
 ## 1.235.2
 
 No changes.

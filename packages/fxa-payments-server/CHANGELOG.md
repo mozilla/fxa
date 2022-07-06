@@ -1,5 +1,25 @@
 # Change history
 
+## 1.236.0
+
+### New features
+
+- scripts: update script to output to json Because: ([b87cafb2dd](https://github.com/mozilla/fxa/commit/b87cafb2dd))
+- subscriptions: add feature flag for Stripe Tax Because: ([5c7744eb6d](https://github.com/mozilla/fxa/commit/5c7744eb6d))
+
+### Bug fixes
+
+- a11y: ARIA nodes should have an accessible name ([1a0b3561c6](https://github.com/mozilla/fxa/commit/1a0b3561c6))
+- a11y: add missing landmarks to Subscriptions page Because: ([1f6aa9347a](https://github.com/mozilla/fxa/commit/1f6aa9347a))
+
+### Other changes
+
+- payments: remove unused dependencies Because: ([cee6e8be4b](https://github.com/mozilla/fxa/commit/cee6e8be4b))
+- deps: Upgrade tailwindcss (v1.9 to v3), autoprefixer, ## 1.235.2 all SB deps, replace postcss deps, remove other deps ([d866a06d76](https://github.com/mozilla/fxa/commit/d866a06d76))
+- 8c56a68202 Revise expirationDate ([8c56a68202](https://github.com/mozilla/fxa/commit/8c56a68202))
+- deps: bump @stripe/react-stripe-js from 1.8.1 to 1.9.0 ([b180650ab5](https://github.com/mozilla/fxa/commit/b180650ab5))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+
 ## 1.235.2
 
 No changes.

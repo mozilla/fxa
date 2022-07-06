@@ -1,3 +1,24 @@
+## 1.236.0
+
+### New features
+
+- pair: Add button to open Firefox View after completing pairing ([043c3a7974](https://github.com/mozilla/fxa/commit/043c3a7974))
+- css: Add Tailwind to content-server ([09cb96eee2](https://github.com/mozilla/fxa/commit/09cb96eee2))
+
+### Bug fixes
+
+- metrics: Flush metrics before completing sign-in ([1c0e049708](https://github.com/mozilla/fxa/commit/1c0e049708))
+
+### Other changes
+
+- css: Add Tailwind to content-server" ([91b730e97c](https://github.com/mozilla/fxa/commit/91b730e97c))
+- deps: bump postcss-cli from 7.1.1 to 10.0.0" ([444e648be0](https://github.com/mozilla/fxa/commit/444e648be0))
+- deps: bump postcss-cli from 7.1.1 to 10.0.0 ([ae25aba3ed](https://github.com/mozilla/fxa/commit/ae25aba3ed))
+- deps: Upgrade tailwindcss (v1.9 to v3), autoprefixer, ## 1.235.2 all SB deps, replace postcss deps, remove other deps ([d866a06d76](https://github.com/mozilla/fxa/commit/d866a06d76))
+- payments: remove downloadURL from code and Stripe metadata Because: ([bca41f28e0](https://github.com/mozilla/fxa/commit/bca41f28e0))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+
 ## 1.235.2
 
 ### Bug fixes

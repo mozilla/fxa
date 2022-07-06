@@ -1,5 +1,15 @@
 # Change history
 
+## 1.236.0
+
+### Other changes
+
+- deps: update sinon and eslint in fxa-geodb ([234ce37f03](https://github.com/mozilla/fxa/commit/234ce37f03))
+- deps: Removes mkdrip dep in favor of fs impl ([e4d38edd38](https://github.com/mozilla/fxa/commit/e4d38edd38))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: Updates maxmind dep ([d63f5136eb](https://github.com/mozilla/fxa/commit/d63f5136eb))
+- deps: bump cron from 1.8.2 to 2.0.0 ([f832203e4f](https://github.com/mozilla/fxa/commit/f832203e4f))
+
 ## 1.235.2
 
 No changes.

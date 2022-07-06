@@ -1,3 +1,17 @@
+## 1.236.0
+
+### Bug fixes
+
+- a11y: ARIA nodes should have an accessible name ([1a0b3561c6](https://github.com/mozilla/fxa/commit/1a0b3561c6))
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 14.2.0 to 14.2.1" ([8bde216aea](https://github.com/mozilla/fxa/commit/8bde216aea))
+- deps-dev: bump @testing-library/user-event from 14.2.0 to 14.2.1 ([c5dbf7f970](https://github.com/mozilla/fxa/commit/c5dbf7f970))
+- deps: Upgrade tailwindcss (v1.9 to v3), autoprefixer, ## 1.235.2 all SB deps, replace postcss deps, remove other deps ([d866a06d76](https://github.com/mozilla/fxa/commit/d866a06d76))
+- deps: bump react-easy-crop from 4.3.0 to 4.4.0 ([3e54ef4779](https://github.com/mozilla/fxa/commit/3e54ef4779))
+- deps: bump @emotion/react from 11.9.0 to 11.9.3 ([1c46412966](https://github.com/mozilla/fxa/commit/1c46412966))
+
 ## 1.235.2
 
 No changes.

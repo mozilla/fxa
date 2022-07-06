@@ -1,3 +1,13 @@
+## 1.236.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.2.5 to 8.2.8 ([45cd393fce](https://github.com/mozilla/fxa/commit/45cd393fce))
+- deps: bump knex from 2.0.0 to 2.1.0 ([f90d92e42d](https://github.com/mozilla/fxa/commit/f90d92e42d))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: bump apollo-server from 2.25.3 to 2.25.4 ([3731701bbe](https://github.com/mozilla/fxa/commit/3731701bbe))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+
 ## 1.235.2
 
 No changes.

@@ -1,3 +1,23 @@
+## 1.236.0
+
+### New features
+
+- scripts: update script to output to json Because: ([b87cafb2dd](https://github.com/mozilla/fxa/commit/b87cafb2dd))
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.2.5 to 8.2.8 ([45cd393fce](https://github.com/mozilla/fxa/commit/45cd393fce))
+- deps: bump knex from 2.0.0 to 2.1.0 ([f90d92e42d](https://github.com/mozilla/fxa/commit/f90d92e42d))
+- payments: remove downloadURL from code and Stripe metadata Because: ([bca41f28e0](https://github.com/mozilla/fxa/commit/bca41f28e0))
+- deps: bump stripe from 9.8.0 to 9.10.0 ([8763e4a50b](https://github.com/mozilla/fxa/commit/8763e4a50b))
+- admin-server: Update googleapis from 102.0.0 to 104.0.0" ([a5d5affb6a](https://github.com/mozilla/fxa/commit/a5d5affb6a))
+- admin-server: Update ts-morph from 13.0.3 to 15.1.0 ([0e0105cea2](https://github.com/mozilla/fxa/commit/0e0105cea2))
+- admin-server: Update @types/convict from 5.2.2 to 6.1.1 ([903696087c](https://github.com/mozilla/fxa/commit/903696087c))
+- admin-server: Update googleapis from 102.0.0 to 104.0.0 ([9fb9ab457c](https://github.com/mozilla/fxa/commit/9fb9ab457c))
+- admin-server: Update eslint from 7.32.0 to 8.18.0 ([0453d093b0](https://github.com/mozilla/fxa/commit/0453d093b0))
+- admin-server: Remove unused dependencies ([069a987cc2](https://github.com/mozilla/fxa/commit/069a987cc2))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+
 ## 1.235.2
 
 No changes.

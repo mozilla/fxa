@@ -1,3 +1,47 @@
+## 1.236.0
+
+### New features
+
+- scripts: update script to output to json Because: ([b87cafb2dd](https://github.com/mozilla/fxa/commit/b87cafb2dd))
+- auth: restore expandResource prior behavior ([9592d596a8](https://github.com/mozilla/fxa/commit/9592d596a8))
+- auth: ignore missing account for api calls ([078e1c1b7b](https://github.com/mozilla/fxa/commit/078e1c1b7b))
+- subscriptions: add feature flag for Stripe Tax Because: ([5c7744eb6d](https://github.com/mozilla/fxa/commit/5c7744eb6d))
+- Because: ([300a96ea2e](https://github.com/mozilla/fxa/commit/300a96ea2e))
+- auth: log unhandled paypal ipn Because: ([3c55e5a457](https://github.com/mozilla/fxa/commit/3c55e5a457))
+- support-panel: add App Store subscriptions to support-panel Because: ([d8d9a9f576](https://github.com/mozilla/fxa/commit/d8d9a9f576))
+
+### Bug fixes
+
+- auth: patch source lookup method ([69a0916d80](https://github.com/mozilla/fxa/commit/69a0916d80))
+- auth: update existing type ([0a63727662](https://github.com/mozilla/fxa/commit/0a63727662))
+- auth: user Sent Unnecessary Finish Setting Up Account Reminder Email Because: ([097baedb9e](https://github.com/mozilla/fxa/commit/097baedb9e))
+- auth: surface response validation errors in Sentry and logs ([4af2f9a86c](https://github.com/mozilla/fxa/commit/4af2f9a86c))
+- deps: Fix error - Object is possibly null ([543df6d5a8](https://github.com/mozilla/fxa/commit/543df6d5a8))
+- auth: handleMpCancel remove on BA id match Because: ([2f4c922d56](https://github.com/mozilla/fxa/commit/2f4c922d56))
+- auth: update subscriptionPaymentExpired Email Template Copy Because: ([f838d10bac](https://github.com/mozilla/fxa/commit/f838d10bac))
+- auth-server: Fix "Expires Invalid Date" for cc info on Subscription Management ([85ce639a18](https://github.com/mozilla/fxa/commit/85ce639a18))
+- email: Revise subscriptionAccountFinishSetupEmail ([052fcf2b43](https://github.com/mozilla/fxa/commit/052fcf2b43))
+
+### Other changes
+
+- deps: Update ajv ([14e782b3b2](https://github.com/mozilla/fxa/commit/14e782b3b2))
+- deps: Update ajv ([40c5e0ba28](https://github.com/mozilla/fxa/commit/40c5e0ba28))
+- deps: bump i18n-iso-countries from 7.4.0 to 7.5.0" ([439c969c81](https://github.com/mozilla/fxa/commit/439c969c81))
+- deps-dev: bump sass from 1.52.1 to 1.53.0" ([7c740e61c4](https://github.com/mozilla/fxa/commit/7c740e61c4))
+- deps-dev: bump sass from 1.52.1 to 1.53.0 ([5ed06f09ea](https://github.com/mozilla/fxa/commit/5ed06f09ea))
+- deps: bump i18n-iso-countries from 7.4.0 to 7.5.0 ([24b47fc3f2](https://github.com/mozilla/fxa/commit/24b47fc3f2))
+- 48c33f4e95 Revisions based on feedback ([48c33f4e95](https://github.com/mozilla/fxa/commit/48c33f4e95))
+- deps-dev: bump @storybook/addon-docs from 6.5.8 to 6.5.9 ([769ef19000](https://github.com/mozilla/fxa/commit/769ef19000))
+- payments: remove downloadURL from code and Stripe metadata Because: ([bca41f28e0](https://github.com/mozilla/fxa/commit/bca41f28e0))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: bump keyv from 4.3.0 to 4.3.2 ([b1c93b99a2](https://github.com/mozilla/fxa/commit/b1c93b99a2))
+- deps: bump stripe from 9.8.0 to 9.10.0 ([8763e4a50b](https://github.com/mozilla/fxa/commit/8763e4a50b))
+- fxa-profile-server: 4d19d3c210 chore(fxa-profile-server) remove mkdirp ([4d19d3c210](https://github.com/mozilla/fxa/commit/4d19d3c210))
+- deps: bump app-store-server-api from 0.3.1 to 0.5.0 ([a6afcae20d](https://github.com/mozilla/fxa/commit/a6afcae20d))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+- deps: bump @type-cacheable/core from 10.1.0 to 10.1.2 ([a135c596e9](https://github.com/mozilla/fxa/commit/a135c596e9))
+- deps: bump jsdom from 19.0.0 to 20.0.0 ([93a3d15445](https://github.com/mozilla/fxa/commit/93a3d15445))
+
 ## 1.235.2
 
 No changes.

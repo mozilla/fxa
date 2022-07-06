@@ -1,5 +1,25 @@
 # Change history
 
+## 1.236.0
+
+### New features
+
+- scripts: update script to output to json Because: ([b87cafb2dd](https://github.com/mozilla/fxa/commit/b87cafb2dd))
+- auth: restore expandResource prior behavior ([9592d596a8](https://github.com/mozilla/fxa/commit/9592d596a8))
+
+### Other changes
+
+- deps: Update ajv ([40c5e0ba28](https://github.com/mozilla/fxa/commit/40c5e0ba28))
+- deps: bump knex from 2.0.0 to 2.1.0 ([f90d92e42d](https://github.com/mozilla/fxa/commit/f90d92e42d))
+- payments: remove downloadURL from code and Stripe metadata Because: ([bca41f28e0](https://github.com/mozilla/fxa/commit/bca41f28e0))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: bump apollo-server from 2.25.3 to 2.25.4 ([3731701bbe](https://github.com/mozilla/fxa/commit/3731701bbe))
+- deps: bump stripe from 9.8.0 to 9.10.0 ([8763e4a50b](https://github.com/mozilla/fxa/commit/8763e4a50b))
+- deps: bump app-store-server-api from 0.3.1 to 0.5.0 ([a6afcae20d](https://github.com/mozilla/fxa/commit/a6afcae20d))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+- deps: bump @type-cacheable/core from 10.1.0 to 10.1.2 ([a135c596e9](https://github.com/mozilla/fxa/commit/a135c596e9))
+- deps: bump jsdom from 19.0.0 to 20.0.0 ([93a3d15445](https://github.com/mozilla/fxa/commit/93a3d15445))
+
 ## 1.235.2
 
 No changes.

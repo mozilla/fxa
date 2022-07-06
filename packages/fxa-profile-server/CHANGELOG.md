@@ -1,3 +1,13 @@
+## 1.236.0
+
+### Other changes
+
+- deps: replace mkdirp with fs.mkdirSync ([d704a84f69](https://github.com/mozilla/fxa/commit/d704a84f69))
+- deps: upgrade sinon on profile server ([ff2bba2fd8](https://github.com/mozilla/fxa/commit/ff2bba2fd8))
+- fxa-profile-server: upgrade commander ([11b5740574](https://github.com/mozilla/fxa/commit/11b5740574))
+- fxa-profile-server: upgrade eslint ([d6f639f833](https://github.com/mozilla/fxa/commit/d6f639f833))
+- fxa-profile-server: upgrade mocha ([4f1e3a5d77](https://github.com/mozilla/fxa/commit/4f1e3a5d77))
+
 ## 1.235.2
 
 No changes.
