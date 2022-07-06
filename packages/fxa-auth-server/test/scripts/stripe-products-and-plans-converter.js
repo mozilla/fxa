@@ -7,6 +7,7 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+const fs = require('fs');
 
 const { deleteCollection } = require('../local/payments/util');
 const { AuthFirestore, AuthLogger, AppConfig } = require('../../lib/types');
@@ -357,6 +358,162 @@ describe('StripeProductsAndPlansConverter', () => {
     });
   });
 
+  describe('writeToFileProductConfig', () => {
+    let paymentConfigManager;
+    let converter;
+
+    const mockConfig = {
+      authFirestore: {
+        prefix: 'mock-fxa-',
+      },
+      subscriptions: {
+        playApiServiceAccount: {
+          credentials: {
+            clientEmail: 'mock-client-email',
+          },
+          keyFile: 'mock-private-keyfile',
+        },
+        productConfigsFirestore: {
+          schemaValidation: {
+            cdnUrlRegex: '^http',
+          },
+        },
+      },
+    };
+
+    beforeEach(() => {
+      const firestore = setupFirestore(mockConfig);
+      Container.set(AuthFirestore, firestore);
+      Container.set(AuthLogger, {});
+      Container.set(AppConfig, mockConfig);
+      paymentConfigManager = new PaymentConfigManager();
+      Container.set(PaymentConfigManager, paymentConfigManager);
+      converter = new StripeProductsAndPlansConverter({
+        log: mockLog,
+        stripeHelper: mockStripeHelper,
+        supportedLanguages: mockSupportedLanguages,
+      });
+    });
+
+    afterEach(() => {
+      Container.reset();
+      sandbox.restore();
+    });
+
+    it('Should write the file', async () => {
+      const productConfig = deepCopy(product);
+      const productConfigId = 'docid_prod_123';
+      const testPath = 'home/dir/prod_123';
+      const expectedJSON = JSON.stringify({
+        ...productConfig,
+        id: productConfigId,
+      });
+
+      paymentConfigManager.validateProductConfig = sandbox.stub().resolves();
+      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+
+      await converter.writeToFileProductConfig(
+        productConfig,
+        productConfigId,
+        testPath
+      );
+
+      sinon.assert.calledOnce(paymentConfigManager.validateProductConfig);
+      sinon.assert.calledWithExactly(spyWriteFile, testPath, expectedJSON);
+    });
+
+    it('Throws an error when validation fails', async () => {
+      paymentConfigManager.validateProductConfig = sandbox.stub().rejects();
+      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+      try {
+        await converter.writeToFileProductConfig();
+        sinon.assert.fail('An exception is expected to be thrown');
+      } catch (err) {
+        sinon.assert.calledOnce(paymentConfigManager.validateProductConfig);
+        sinon.assert.notCalled(spyWriteFile);
+      }
+    });
+  });
+
+  describe('writeToFilePlanConfig', () => {
+    let paymentConfigManager;
+    let converter;
+
+    const mockConfig = {
+      authFirestore: {
+        prefix: 'mock-fxa-',
+      },
+      subscriptions: {
+        playApiServiceAccount: {
+          credentials: {
+            clientEmail: 'mock-client-email',
+          },
+          keyFile: 'mock-private-keyfile',
+        },
+        productConfigsFirestore: {
+          schemaValidation: {
+            cdnUrlRegex: '^http',
+          },
+        },
+      },
+    };
+
+    beforeEach(() => {
+      const firestore = setupFirestore(mockConfig);
+      Container.set(AuthFirestore, firestore);
+      Container.set(AuthLogger, {});
+      Container.set(AppConfig, mockConfig);
+      paymentConfigManager = new PaymentConfigManager();
+      Container.set(PaymentConfigManager, paymentConfigManager);
+      converter = new StripeProductsAndPlansConverter({
+        log: mockLog,
+        stripeHelper: mockStripeHelper,
+        supportedLanguages: mockSupportedLanguages,
+      });
+    });
+
+    afterEach(() => {
+      Container.reset();
+      sandbox.restore();
+    });
+
+    it('Should write the file', async () => {
+      const planConfig = deepCopy(plan);
+      const existingPlanConfigId = 'docid_plan_123';
+      const testPath = 'home/dir/plan_123';
+      const expectedJSON = JSON.stringify({
+        ...planConfig,
+        id: existingPlanConfigId,
+      });
+
+      paymentConfigManager.validatePlanConfig = sandbox.stub().resolves();
+      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+
+      await converter.writeToFilePlanConfig(
+        planConfig,
+        planConfig.stripeProductId,
+        existingPlanConfigId,
+        testPath
+      );
+
+      sinon.assert.calledOnce(paymentConfigManager.validatePlanConfig);
+      sinon.assert.calledWithExactly(spyWriteFile, testPath, expectedJSON);
+    });
+
+    it('Throws an error when validation fails', async () => {
+      paymentConfigManager.validatePlanConfig = sandbox.stub().rejects();
+      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+
+      try {
+        await converter.writeToFilePlanConfig();
+        sinon.assert.fail('An exception is expected to be thrown');
+      } catch (err) {
+        sinon.assert.calledOnce(paymentConfigManager.validatePlanConfig);
+        sinon.assert.notCalled(spyWriteFile);
+      }
+    });
+  });
+
   describe('convert', async () => {
     let converter;
     let paymentConfigManager;
@@ -492,6 +649,8 @@ describe('StripeProductsAndPlansConverter', () => {
       args = {
         productId: '',
         isDryRun: false,
+        target: 'firestore',
+        targetDir: 'home/dir',
       };
       async function* productGenerator() {
         yield product1;
@@ -648,13 +807,36 @@ describe('StripeProductsAndPlansConverter', () => {
       );
     });
 
+    it('processes successfully and writes to file', async () => {
+      const stubFsAccess = sandbox.stub(fs.promises, 'access').resolves();
+      paymentConfigManager.storeProductConfig = sandbox.stub();
+      paymentConfigManager.storePlanConfig = sandbox.stub();
+      converter.writeToFileProductConfig = sandbox.stub().resolves();
+      converter.writeToFilePlanConfig = sandbox.stub().resolves();
+
+      const argsLocal = { ...args, target: 'local' };
+      await converter.convert(argsLocal);
+
+      sinon.assert.called(stubFsAccess);
+      sinon.assert.called(converter.writeToFileProductConfig);
+      sinon.assert.called(converter.writeToFilePlanConfig);
+      sinon.assert.notCalled(paymentConfigManager.storeProductConfig);
+      sinon.assert.notCalled(paymentConfigManager.storePlanConfig);
+
+      sandbox.restore();
+    });
+
     it('does not update Firestore if dryRun = true', async () => {
       paymentConfigManager.storeProductConfig = sandbox.stub();
       paymentConfigManager.storePlanConfig = sandbox.stub();
+      converter.writeToFileProductConfig = sandbox.stub();
+      converter.writeToFilePlanConfig = sandbox.stub();
       const argsDryRun = { ...args, isDryRun: true };
       await converter.convert(argsDryRun);
       sinon.assert.notCalled(paymentConfigManager.storeProductConfig);
       sinon.assert.notCalled(paymentConfigManager.storePlanConfig);
+      sinon.assert.notCalled(converter.writeToFileProductConfig);
+      sinon.assert.notCalled(converter.writeToFilePlanConfig);
     });
 
     it('moves localized data from plans into the productConfig', async () => {

@@ -46,10 +46,8 @@ describe('PaymentConfigManagerService', () => {
   beforeEach(async () => {
     mockFirestoreCollection.mockReturnValue({
       onSnapshot: jest.fn(),
-      select: () => ({
-        get: async () => ({
-          docs: [],
-        }),
+      get: async () => ({
+        docs: [],
       }),
     });
 

@@ -24,17 +24,9 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
   }
 
   /**
-   * Store an object as a ProductConfig.
-   *
-   * This will validate the object is a ProductConfig before storing it, and
-   * update the ProductConfig if a productConfigId is provided.
-   *
-   * Returns the productConfigId of the stored object.
+   * Validate the ProductConfig object
    */
-  public async storeProductConfig(
-    productConfig: any,
-    productConfigId?: string | null
-  ) {
+  public async validateProductConfig(productConfig: any) {
     const { error } = await ProductConfig.validate(
       productConfig,
       this.config.subscriptions.productConfigsFirestore.schemaValidation
@@ -46,6 +38,46 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
         error
       );
     }
+  }
+
+  /**
+   * Validate the PlanConfig object and that the Product Config already exists
+   */
+  public async validatePlanConfig(planConfig: any, productConfigId: string) {
+    const { error } = await PlanConfig.validate(
+      planConfig,
+      this.config.subscriptions.productConfigsFirestore.schemaValidation
+    );
+    if (error) {
+      throw errors.internalValidationError(
+        'storePlanConfig',
+        planConfig,
+        error
+      );
+    }
+
+    if (!this.products[productConfigId]) {
+      throw errors.internalValidationError(
+        'storePlanConfig',
+        planConfig,
+        new Error('ProductConfig does not exist')
+      );
+    }
+  }
+
+  /**
+   * Store an object as a ProductConfig.
+   *
+   * This will validate the object is a ProductConfig before storing it, and
+   * update the ProductConfig if a productConfigId is provided.
+   *
+   * Returns the productConfigId of the stored object.
+   */
+  public async storeProductConfig(
+    productConfig: any,
+    productConfigId?: string | null
+  ) {
+    await this.validateProductConfig(productConfig);
     const productId = productConfigId ?? randomUUID();
     await this.productConfigDbRef.doc(productId).set(productConfig);
     const productSnapshot = await this.productConfigDbRef.doc(productId).get();
@@ -66,24 +98,7 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
     productConfigId: string,
     planConfigId?: string | null
   ) {
-    const { error } = await PlanConfig.validate(
-      planConfig,
-      this.config.subscriptions.productConfigsFirestore.schemaValidation
-    );
-    if (error) {
-      throw errors.internalValidationError(
-        'storePlanConfig',
-        planConfig,
-        error
-      );
-    }
-    if (!this.products[productConfigId]) {
-      throw errors.internalValidationError(
-        'storePlanConfig',
-        planConfig,
-        new Error('ProductConfig does not exist')
-      );
-    }
+    await this.validatePlanConfig(planConfig, productConfigId);
     const planId = planConfigId ?? randomUUID();
     (planConfig as PlanConfig).productConfigId = productConfigId;
     await this.planConfigDbRef.doc(planId).set(planConfig);
@@ -107,6 +122,7 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
     const match =
       products.find((product) => product.stripeProductId === stripeId) ||
       plans.find((plan) => plan.stripePriceId === stripeId);
+
     return match?.id ?? null;
   }
 

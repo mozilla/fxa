@@ -26,12 +26,12 @@ export class PaymentConfigManagerError {
 export type PaymentConfigManagerConfig = {
   authFirestore: {
     prefix: string;
-  },
+  };
   subscriptions: {
     productConfigsFirestore: {
-      schemaValidation:ProductConfigSchemaValidation
-    }
-  }
+      schemaValidation: ProductConfigSchemaValidation;
+    };
+  };
 };
 
 /**
@@ -74,8 +74,8 @@ export abstract class PaymentConfigManager {
    */
   public async load() {
     const [productResults, planResults] = await Promise.all([
-      this.productConfigDbRef.select().get(),
-      this.planConfigDbRef.select().get(),
+      this.productConfigDbRef.get(),
+      this.planConfigDbRef.get(),
     ]);
     productResults.docs.forEach((doc) => {
       this.products[doc.id] = ProductConfig.fromFirestoreObject(
@@ -86,6 +86,7 @@ export abstract class PaymentConfigManager {
     planResults.docs.forEach((doc) => {
       this.plans[doc.id] = PlanConfig.fromFirestoreObject(doc.data(), doc.id);
     });
+
     this.hasLoaded = true;
   }
 
