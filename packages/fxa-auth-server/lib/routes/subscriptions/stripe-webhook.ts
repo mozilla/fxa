@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { Account } from 'fxa-shared/db/models/auth';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import isA from 'joi';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import {
   formatMetadataValidationErrorMessage,
   reportSentryError,
@@ -31,7 +32,6 @@ import {
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 // ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
 // will fetch the latest of for the webhook event, _instead of_ using the
@@ -82,6 +82,147 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
+   * Process an event to Firestore so that we have the latest copy in cache. This
+   * updates the event object in place to have the latest data.
+   */
+  private async processEventToFirestore(event: Stripe.Event) {
+    // This must run before expansion below to ensure the types that Firestore
+    // can store are updated first to prevent multiple fetches from Stripe.
+    const firestoreHandled =
+      await this.stripeHelper.processWebhookEventToFirestore(event);
+
+    // Ensure the object is the latest version.
+    const stripeObject = event.data.object as Record<string, any>;
+    const resourceType =
+      ALLOWED_EXPAND_RESOURCE_TYPES[stripeObject.object as string];
+    if (resourceType) {
+      if (!BYPASS_LATEST_FETCH_EVENTS.includes(event.type)) {
+        // Replace the object with the latest version if we support this object.
+        event.data.object = await this.stripeHelper.expandResource(
+          stripeObject.id,
+          resourceType as typeof VALID_RESOURCE_TYPES[number]
+        );
+      }
+    } else if (stripeObject.object === 'card' && stripeObject.customer) {
+      // Cards are not expandable using `expandResource` and are handled separately.
+      event.data.object = await this.stripeHelper.getCard(
+        stripeObject.customer,
+        stripeObject.id
+      );
+    } else if (
+      !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
+    ) {
+      // We shouldn't be handling events that we can't fetch the latest version
+      // of with expandResource. If we have a handler below for this type, then
+      // we should have it included as a resource type to expand above.
+      Sentry.withScope((scope) => {
+        scope.setContext('stripeEvent', {
+          event: {
+            id: event.id,
+            type: event.type,
+            objectType: (event.data.object as any).object,
+          },
+        });
+        Sentry.captureMessage(
+          'Event being handled that is not using latest object from Stripe.',
+          Sentry.Severity.Info
+        );
+      });
+    }
+    return firestoreHandled;
+  }
+
+  /**
+   * Dispatch an event to the appropriate handler.
+   */
+  private async dispatchEventToHandler(
+    request: AuthRequest,
+    event: Stripe.Event,
+    firestoreHandled: boolean
+  ) {
+    switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
+      case 'credit_note.created':
+        if (this.paypalHelper) {
+          await this.handleCreditNoteEvent(request, event);
+        }
+        break;
+      case 'coupon.created':
+      case 'coupon.updated':
+        await this.handleCouponEvent(request, event);
+        break;
+      case 'customer.created':
+        // We don't need to setup the local customer if it happened via API
+        // because we already set this up during creation.
+        if (event.request?.id) {
+          break;
+        }
+        await this.handleCustomerCreatedEvent(request, event);
+        break;
+      case 'customer.subscription.created':
+        await this.handleSubscriptionCreatedEvent(request, event);
+        break;
+      case 'customer.subscription.updated':
+        await this.handleSubscriptionUpdatedEvent(request, event);
+        break;
+      case 'customer.subscription.deleted':
+        await this.handleSubscriptionDeletedEvent(request, event);
+        break;
+      case 'customer.source.expiring':
+        await this.handleCustomerSourceExpiringEvent(request, event);
+        break;
+      case 'customer.updated':
+        await this.handleCustomerUpdatedEvent(request, event);
+        break;
+      case 'invoice.created':
+        await this.handleInvoiceCreatedEvent(request, event);
+        break;
+      case 'invoice.paid':
+        await this.handleInvoicePaidEvent(request, event);
+        break;
+      case 'invoice.payment_failed':
+        await this.handleInvoicePaymentFailedEvent(request, event);
+        break;
+      case 'invoice.upcoming':
+        await this.handleInvoiceUpcomingEvent(request, event);
+        break;
+      case 'payment_method.automatically_updated':
+      case 'payment_method.updated':
+      case 'payment_method.attached':
+        await this.handlePaymentMethodUpdated(request, event);
+        break;
+      case 'product.created':
+      case 'product.updated':
+      case 'product.deleted':
+        await this.handleProductWebhookEvent(request, event);
+        break;
+      case 'plan.created':
+      case 'plan.updated':
+        await this.handlePlanCreatedOrUpdatedEvent(request, event);
+        break;
+      case 'plan.deleted':
+        await this.handlePlanDeletedEvent(request, event);
+        break;
+      case 'tax_rate.created':
+      case 'tax_rate.updated':
+        await this.handleTaxRateCreatedOrUpdatedEvent(request, event);
+        break;
+      default:
+        if (!firestoreHandled) {
+          Sentry.withScope((scope) => {
+            scope.setContext('stripeEvent', {
+              event: { id: event.id, type: event.type },
+            });
+            Sentry.captureMessage(
+              'Unhandled Stripe event received.',
+              Sentry.Severity.Info
+            );
+          });
+        }
+        break;
+    }
+  }
+
+  /**
    * Handle webhook events from Stripe by pre-processing the incoming
    * event and dispatching to the appropriate sub-handler. Log an info
    * message for events we don't yet handle.
@@ -92,131 +233,8 @@ export class StripeWebhookHandler extends StripeHandler {
         request.payload,
         request.headers['stripe-signature']
       );
-
-      // This must run before expansion below to ensure the types that Firestore
-      // can store are updated first to prevent multiple fetches from Stripe.
-      const firestoreHandled =
-        await this.stripeHelper.processWebhookEventToFirestore(event);
-
-      // Ensure the object is the latest version.
-      const stripeObject = event.data.object as Record<string, any>;
-      const resourceType =
-        ALLOWED_EXPAND_RESOURCE_TYPES[stripeObject.object as string];
-      if (resourceType) {
-        if (!BYPASS_LATEST_FETCH_EVENTS.includes(event.type)) {
-          // Replace the object with the latest version if we support this object.
-          event.data.object = await this.stripeHelper.expandResource(
-            stripeObject.id,
-            resourceType as typeof VALID_RESOURCE_TYPES[number]
-          );
-        }
-      } else if (stripeObject.object === 'card' && stripeObject.customer) {
-        // Cards are not expandable using `expandResource` and are handled separately.
-        event.data.object = await this.stripeHelper.getCard(
-          stripeObject.customer,
-          stripeObject.id
-        );
-      } else if (
-        !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
-      ) {
-        // We shouldn't be handling events that we can't fetch the latest version
-        // of with expandResource. If we have a handler below for this type, then
-        // we should have it included as a resource type to expand above.
-        Sentry.withScope((scope) => {
-          scope.setContext('stripeEvent', {
-            event: {
-              id: event.id,
-              type: event.type,
-              objectType: (event.data.object as any).object,
-            },
-          });
-          Sentry.captureMessage(
-            'Event being handled that is not using latest object from Stripe.',
-            Sentry.Severity.Info
-          );
-        });
-      }
-
-      switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
-        case 'credit_note.created':
-          if (this.paypalHelper) {
-            await this.handleCreditNoteEvent(request, event);
-          }
-          break;
-        case 'coupon.created':
-        case 'coupon.updated':
-          await this.handleCouponEvent(request, event);
-          break;
-        case 'customer.created':
-          // We don't need to setup the local customer if it happened via API
-          // because we already set this up during creation.
-          if (event.request?.id) {
-            break;
-          }
-          await this.handleCustomerCreatedEvent(request, event);
-          break;
-        case 'customer.subscription.created':
-          await this.handleSubscriptionCreatedEvent(request, event);
-          break;
-        case 'customer.subscription.updated':
-          await this.handleSubscriptionUpdatedEvent(request, event);
-          break;
-        case 'customer.subscription.deleted':
-          await this.handleSubscriptionDeletedEvent(request, event);
-          break;
-        case 'customer.source.expiring':
-          await this.handleCustomerSourceExpiringEvent(request, event);
-          break;
-        case 'customer.updated':
-          await this.handleCustomerUpdatedEvent(request, event);
-          break;
-        case 'invoice.created':
-          await this.handleInvoiceCreatedEvent(request, event);
-          break;
-        case 'invoice.paid':
-          await this.handleInvoicePaidEvent(request, event);
-          break;
-        case 'invoice.payment_failed':
-          await this.handleInvoicePaymentFailedEvent(request, event);
-          break;
-        case 'invoice.upcoming':
-          await this.handleInvoiceUpcomingEvent(request, event);
-          break;
-        case 'payment_method.automatically_updated':
-        case 'payment_method.updated':
-        case 'payment_method.attached':
-          await this.handlePaymentMethodUpdated(request, event);
-          break;
-        case 'product.created':
-        case 'product.updated':
-        case 'product.deleted':
-          await this.handleProductWebhookEvent(request, event);
-          break;
-        case 'plan.created':
-        case 'plan.updated':
-          await this.handlePlanCreatedOrUpdatedEvent(request, event);
-          break;
-        case 'plan.deleted':
-          await this.handlePlanDeletedEvent(request, event);
-          break;
-        case 'tax_rate.created':
-        case 'tax_rate.updated':
-          await this.handleTaxRateCreatedOrUpdatedEvent(request, event);
-          break;
-        default:
-          if (!firestoreHandled) {
-            Sentry.withScope((scope) => {
-              scope.setContext('stripeEvent', {
-                event: { id: event.id, type: event.type },
-              });
-              Sentry.captureMessage(
-                'Unhandled Stripe event received.',
-                Sentry.Severity.Info
-              );
-            });
-          }
-          break;
-      }
+      const firestoreHandled = await this.processEventToFirestore(event);
+      await this.dispatchEventToHandler(request, event, firestoreHandled);
     } catch (error) {
       if (!IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno)) {
         // Error is not ignorable, so re-throw.
@@ -248,6 +266,10 @@ export class StripeWebhookHandler extends StripeHandler {
       paymentMethod.customer,
       CUSTOMER_RESOURCE
     );
+    if (customer.deleted) {
+      // If the customer was deleted, ignore it.
+      return;
+    }
     await this.stripeHelper.updateCustomerPaymentMethodTaxRates(
       customer,
       paymentMethod

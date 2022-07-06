@@ -5623,7 +5623,8 @@ describe('StripeHelper', () => {
       assert.hasAllKeys(result, customer);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        customer.id
+        customer.id,
+        true
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
@@ -5645,7 +5646,8 @@ describe('StripeHelper', () => {
       assert.deepEqual(result.subscriptions.data, []);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        customer.id
+        customer.id,
+        true
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
@@ -5664,7 +5666,8 @@ describe('StripeHelper', () => {
       assert.deepEqual(result, subscription1);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
-        subscription1.id
+        subscription1.id,
+        true
       );
     });
 
@@ -5711,7 +5714,8 @@ describe('StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        invoicePaidSubscriptionCreate.customer
+        invoicePaidSubscriptionCreate.customer,
+        true
       );
     });
   });

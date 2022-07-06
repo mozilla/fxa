@@ -60,13 +60,16 @@ export class StripeFirestore {
   /**
    * Retrieve a customer from Stripe and insert it if it doesn't exist.
    */
-  async retrieveAndFetchCustomer(customerId: string) {
+  async retrieveAndFetchCustomer(
+    customerId: string,
+    ignoreErrors: boolean = false
+  ) {
     try {
       const customer = await this.retrieveCustomer({ customerId });
       return customer;
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        return this.fetchAndInsertCustomer(customerId);
+        return this.fetchAndInsertCustomer(customerId, ignoreErrors);
       }
       throw err;
     }
@@ -76,7 +79,10 @@ export class StripeFirestore {
    * Retrieve a subscription from Stripe and populate the Firestore record for
    * the customer and subscription if it doesn't exist.
    */
-  async retrieveAndFetchSubscription(subscriptionId: string) {
+  async retrieveAndFetchSubscription(
+    subscriptionId: string,
+    ignoreErrors: boolean = false
+  ) {
     try {
       const subscription = await this.retrieveSubscription(subscriptionId);
       return subscription;
@@ -85,7 +91,10 @@ export class StripeFirestore {
         const subscription = await this.stripe.subscriptions.retrieve(
           subscriptionId
         );
-        await this.fetchAndInsertCustomer(subscription.customer as string);
+        await this.fetchAndInsertCustomer(
+          subscription.customer as string,
+          ignoreErrors
+        );
         return subscription;
       }
       throw err;
@@ -98,7 +107,10 @@ export class StripeFirestore {
    * This method is used for populating the customer if missing from Stripe and also
    * loads the customers subscriptions into Firestore.
    */
-  async fetchAndInsertCustomer(customerId: string) {
+  async fetchAndInsertCustomer(
+    customerId: string,
+    ignoreErrors: boolean = false
+  ) {
     const [customer, subscriptions] = await Promise.all([
       this.stripe.customers.retrieve(customerId),
       this.stripe.subscriptions
@@ -108,6 +120,9 @@ export class StripeFirestore {
         .autoPagingToArray({ limit: 100 }),
     ]);
     if (customer.deleted) {
+      if (ignoreErrors) {
+        return customer;
+      }
       throw newFirestoreStripeError(
         `Customer ${customerId} was deleted`,
         FirestoreStripeError.STRIPE_CUSTOMER_DELETED
@@ -116,6 +131,9 @@ export class StripeFirestore {
 
     const uid = customer.metadata.userid;
     if (!uid) {
+      if (ignoreErrors) {
+        return customer;
+      }
       throw newFirestoreStripeError(
         `Customer ${customerId} has no uid`,
         FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID
@@ -151,11 +169,17 @@ export class StripeFirestore {
   /**
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
-  async insertInvoiceRecord(invoice: Partial<Stripe.Invoice>) {
+  async insertInvoiceRecord(
+    invoice: Partial<Stripe.Invoice>,
+    ignoreErrors: boolean = false
+  ) {
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', invoice.customer as string)
       .get();
     if (customerSnap.empty) {
+      if (ignoreErrors) {
+        return invoice;
+      }
       throw newFirestoreStripeError(
         `Customer ${invoice.customer} was not found`,
         FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
@@ -181,12 +205,16 @@ export class StripeFirestore {
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
   async insertPaymentMethodRecord(
-    paymentMethod: Partial<Stripe.PaymentMethod>
+    paymentMethod: Partial<Stripe.PaymentMethod>,
+    ignoreErrors: boolean = false
   ) {
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', paymentMethod.customer as string)
       .get();
     if (customerSnap.empty) {
+      if (ignoreErrors) {
+        return paymentMethod;
+      }
       throw newFirestoreStripeError(
         `Customer ${paymentMethod.customer} was not found`,
         FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
