@@ -8,6 +8,7 @@ rm -rf .nyc_output
 
 if [ -z "$NODE_ENV" ]; then export NODE_ENV=dev; fi;
 if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
+if [ -z "$FIRESTORE_EMULATOR_HOST" ]; then export FIRESTORE_EMULATOR_HOST="localhost:9090"; fi;
 
 
 DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit"

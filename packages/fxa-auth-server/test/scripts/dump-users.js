@@ -61,6 +61,7 @@ const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 const execOptions = {
   cwd,
   env: {
+    ...process.env,
     NODE_ENV: 'dev',
     LOG_LEVEL: 'error',
     AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',

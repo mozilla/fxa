@@ -18,6 +18,7 @@ const cwd = path.resolve(__dirname, ROOT_DIR);
 const execOptions = {
   cwd,
   env: {
+    ...process.env,
     NODE_ENV: 'dev',
     LOG_LEVEL: 'error',
     AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',
