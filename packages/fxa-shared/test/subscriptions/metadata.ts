@@ -13,6 +13,7 @@ import {
   productDetailsFromPlan,
   getProductSupportApps,
 } from '../../subscriptions/metadata';
+import { PlanConfigurationDtoT } from '../../dto/auth/payments/plan-configuration';
 
 const NULL_METADATA = {
   productSet: null,
@@ -279,6 +280,31 @@ describe('subscriptions/metadata', () => {
         configuration: null,
       },
     ];
+    const planConfiguration: PlanConfigurationDtoT[] = [
+      {
+        stripePriceId: 'price_1KGUhNBVqmGyQTMai6nMkbsq',
+        urls: {
+          webIcon:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+          termsOfService:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+          privacyNoticeDownload:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+          successActionButton: 'https://foxkeh.com/buttons/',
+          termsOfServiceDownload:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+          privacyNotice:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+          cancellationSurvey:
+            'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
+        },
+        uiContent: { details: ['Testing Foxkeh', 'Product Detail line 2'] },
+        styles: {},
+        locales: {},
+        support: {},
+        productSet: 'foxkeh',
+      },
+    ];
 
     it('returns an empty dictionary when there are no matching products', () => {
       const actual = getProductSupportApps(subscriptions)(plans);
@@ -299,7 +325,7 @@ describe('subscriptions/metadata', () => {
       expect(actual).to.deep.equal({});
     });
 
-    it('returns a dictionary keyed by product ids', () => {
+    it('returns, from product metadata, a dictionary keyed by product ids', () => {
       const matchingPlanNoMetadata = [
         {
           ...plans[0],
@@ -310,6 +336,37 @@ describe('subscriptions/metadata', () => {
         matchingPlanNoMetadata
       );
       expect(actual).to.deep.equal({ prod_GjeBkx6iQFoVgg: ['Pop!_OS'] });
+    });
+
+    it('returns an empty dictionary when theres no firestore product config', () => {
+      const matchingPlanNoMetadata = [
+        {
+          ...plans[0],
+          product_id: 'prod_GjeBkx6iQFoVgg',
+          configuration: planConfiguration[0],
+        },
+      ];
+      const actual = getProductSupportApps(subscriptions)(
+        matchingPlanNoMetadata
+      );
+      expect(actual).to.deep.equal({});
+    });
+
+    it('returns, from firestore product config, a dictionary keyed by product ids', () => {
+      const matchingPlanNoMetadata = [
+        {
+          ...plans[0],
+          product_id: 'prod_GjeBkx6iQFoVgg',
+          configuration: {
+            ...planConfiguration[0],
+            support: { app: ['Bam!_OS'] },
+          },
+        },
+      ];
+      const actual = getProductSupportApps(subscriptions)(
+        matchingPlanNoMetadata
+      );
+      expect(actual).to.deep.equal({ prod_GjeBkx6iQFoVgg: ['Bam!_OS'] });
     });
   });
 });

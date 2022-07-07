@@ -144,7 +144,7 @@ export const productDetailsFromPlan = (
  * Parse out the 'support:app:' metadata into a dictionary keyed by the product
  * id.  This is used for the app/service select on the support form.
  *
- * TODO update to handle Firestore product config feature flag in FXA-3956
+ * TODO - Remove metadata logic once Firestore product config is used.
  */
 export const getProductSupportApps =
   (subscriptions: MozillaSubscription[]) => (plans: AbbrevPlan[]) => {
@@ -152,20 +152,28 @@ export const getProductSupportApps =
     return plans.reduce((acc: { [keys: string]: string[] }, p) => {
       if (
         !acc[p.product_id] &&
-        subscriptions.some((s) => p.product_id === s.product_id) &&
-        Object.keys(p.product_metadata).some((k) =>
-          k.startsWith(metadataPrefix)
-        )
+        subscriptions.some((s) => p.product_id === s.product_id)
       ) {
-        acc[p.product_id] = Object.entries(p.product_metadata).reduce(
-          (apps: string[], [k, v]) => {
-            if (k.startsWith(metadataPrefix)) {
-              apps.push(v);
-            }
-            return apps;
-          },
-          []
-        );
+        // Only if p.configuration, the Firestore product config, is not
+        // provided at all, should we read the data from product_metadata.
+        if (p.configuration?.support?.app) {
+          acc[p.product_id] = p.configuration?.support?.app;
+        } else if (
+          !p.configuration &&
+          Object.keys(p.product_metadata).some((k) =>
+            k.startsWith(metadataPrefix)
+          )
+        ) {
+          acc[p.product_id] = Object.entries(p.product_metadata).reduce(
+            (apps: string[], [k, v]) => {
+              if (k.startsWith(metadataPrefix)) {
+                apps.push(v);
+              }
+              return apps;
+            },
+            []
+          );
+        }
       }
       return acc;
     }, {});
