@@ -18,6 +18,7 @@ import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-pu
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
 import { PaymentConfigManager } from './configuration/manager';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -343,7 +344,7 @@ export class CapabilityService {
       );
     } else {
       capabilitiesToReveal = new Set([
-        ...(allCapabilities['*'] || []),
+        ...(allCapabilities[ALL_RPS_CAPABILITIES_KEY] || []),
         ...(allCapabilities[clientId] || []),
       ]);
     }
@@ -459,7 +460,9 @@ export class CapabilityService {
             (metadata as any)[key]
           );
           const clientId =
-            key === 'capabilities' ? '*' : key.split(':')[1].trim();
+            key === 'capabilities'
+              ? ALL_RPS_CAPABILITIES_KEY
+              : key.split(':')[1].trim();
           for (const capability of capabilities) {
             (allCapabilities[clientId] ??= new Set()).add(capability);
           }

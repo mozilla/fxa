@@ -7,7 +7,7 @@ import { AppContext } from '../../lib/AppContext';
 import { legalDocsRedirectUrl } from '../../lib/formats';
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 
 export type TermsAndPrivacyProps = {
   plan: Plan;

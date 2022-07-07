@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Checkbox } from '../fields';
 import { Plan } from '../../store/types';
 import { formatPlanPricing, getLocalizedCurrency } from '../../lib/formats';
-import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import AppContext from '../../lib/AppContext';
 import { Localized } from '@fluent/react';
 

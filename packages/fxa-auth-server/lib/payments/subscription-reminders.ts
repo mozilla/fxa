@@ -137,7 +137,7 @@ export class SubscriptionReminders {
       const formattedSubscription =
         await this.stripeHelper.formatSubscriptionForEmail(subscription);
       const { amount, currency, interval_count, interval } =
-        await this.stripeHelper.findPlanById(planId);
+        await this.stripeHelper.findAbbrevPlanById(planId);
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
         account,
@@ -153,6 +153,7 @@ export class SubscriptionReminders {
           invoiceTotalInCents: amount,
           invoiceTotalCurrency: currency,
           productMetadata: formattedSubscription.productMetadata,
+          planConfig: formattedSubscription.planConfig,
         }
       );
       await this.updateSentEmail(uid, emailParams);

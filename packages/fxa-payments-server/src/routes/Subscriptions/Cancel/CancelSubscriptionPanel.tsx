@@ -15,7 +15,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Plan } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
-import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import * as Amplitude from '../../../lib/amplitude';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';

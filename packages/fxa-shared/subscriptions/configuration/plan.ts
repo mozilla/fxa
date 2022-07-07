@@ -15,6 +15,7 @@ import {
   UiContentConfig,
   UrlConfig,
 } from './base';
+import { ProductConfig } from './product';
 
 export const planConfigJoiKeys = {
   productConfigId: joi.string().allow(null).allow(''),
@@ -92,3 +93,5 @@ export class PlanConfig implements BaseConfig {
     return planConfig;
   }
 }
+
+export type MergedPlanConfig = PlanConfig & ProductConfig;

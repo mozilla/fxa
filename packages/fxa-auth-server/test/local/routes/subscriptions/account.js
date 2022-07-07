@@ -52,7 +52,7 @@ describe('routes/subscriptions/account', () => {
 
     beforeEach(() => {
       stripeHelper = {
-        findPlanById: sinon.stub().resolves(plan),
+        findAbbrevPlanById: sinon.stub().resolves(plan),
         extractInvoiceDetailsForEmail: sinon.stub().resolves(invoiceDetails),
       };
       mailer = { sendSubscriptionAccountFinishSetupEmail: sinon.stub() };
@@ -60,7 +60,7 @@ describe('routes/subscriptions/account', () => {
 
     it('does not send an email when the account is not a stub', async () => {
       await sendFinishSetupEmailForStubAccount({ email, uid, account: null });
-      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
 
@@ -72,7 +72,7 @@ describe('routes/subscriptions/account', () => {
         stripeHelper,
         mailer,
       });
-      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
 

@@ -488,8 +488,8 @@ describe('lib/routes/validators:', () => {
     });
   });
 
-  describe('subscriptionsPlanValidator', () => {
-    const { subscriptionsPlanValidator: subject } = validators;
+  describe('subscriptionsPlanWithMetaDataValidator', () => {
+    const { subscriptionsPlanWithMetaDataValidator: subject } = validators;
 
     const basePlan = {
       plan_id: 'plan_8675309',
@@ -524,6 +524,42 @@ describe('lib/routes/validators:', () => {
         product_metadata: Object.assign({}, validProductMetadata, {
           webIconURL: true,
         }),
+      };
+      const res = subject.validate(plan);
+      assert.ok(res.error);
+    });
+  });
+
+  describe('subscriptionsPlanWithProductConfigValidator', () => {
+    const { subscriptionsPlanWithProductConfigValidator: subject } = validators;
+
+    const basePlanWithConfig = {
+      plan_id: 'plan_8675309',
+      plan_name: '',
+      product_id: 'prod_8675309',
+      product_name: 'example product',
+      interval: 'month',
+      interval_count: 1,
+      amount: '867',
+      currency: 'usd',
+      configuration: {
+        urls: {
+          emailIcon: 'http://firestore.example.gg/email.ico',
+          successActionButton: 'http://firestore.example.gg/download',
+        },
+      },
+    };
+
+    it('accepts missing plan and product metadata', () => {
+      const plan = { ...basePlanWithConfig };
+      const res = subject.validate(plan);
+      assert.ok(!res.error);
+    });
+
+    it('rejects missing product configuration', () => {
+      const plan = {
+        ...basePlanWithConfig,
+        configuration: undefined,
       };
       const res = subject.validate(plan);
       assert.ok(res.error);

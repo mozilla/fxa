@@ -132,6 +132,26 @@ const MESSAGE = {
   discountDuration: null,
 };
 
+const MESSAGE_WITH_PLAN_CONFIG = {
+  ...MESSAGE,
+  planConfig: {
+    urls: {
+      termsOfServiceDownload: 'https://subplat.example.com/tos',
+      privacyNoticeDownload: 'https://subplat.example.com/privacy',
+      cancellationSurvey: 'https://subplat.example.com/survey',
+    },
+    locales: {
+      fr: {
+        urls: {
+          termsOfServiceDownload: 'https://subplat.example.co.fr/tos',
+          privacyNoticeDownload: 'https://subplat.example.co.fr/privacy',
+          cancellationSurvey: 'https://subplat.example.co.fr/survey',
+        },
+      },
+    },
+  },
+};
+
 const MESSAGE_FORMATTED = {
   // Note: Intl.NumberFormat rounds 1/10 cent up
   invoiceTotal: '€10,000.00',
@@ -2085,6 +2105,106 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {updateTemplateValues: values => ({...values, device: MOCK_DEVICE_OS_VERSION })}],
 ];
 
+const TESTS_WITH_PLAN_CONFIG: [string, any, Record<string, any>?][] = [
+  [
+    'downloadSubscriptionEmail',
+    new Map<string, Test | any>([
+      [
+        'html',
+        [
+          {
+            test: 'include',
+            expected: encodeURIComponent(
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload
+            ),
+          },
+          {
+            test: 'include',
+            expected: encodeURIComponent(
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload
+            ),
+          },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected: encodeURIComponent(
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload
+            ),
+          },
+          {
+            test: 'include',
+            expected: encodeURIComponent(
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload
+            ),
+          },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionCancellationEmail',
+    new Map<string, Test | any>([
+      [
+        'html',
+        [
+          {
+            test: 'include',
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.cancellationSurvey,
+          },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.cancellationSurvey,
+          },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionCancellationEmail',
+    new Map<string, Test | any>([
+      [
+        'html',
+        [
+          {
+            test: 'include',
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.locales.fr.urls
+                .cancellationSurvey,
+          },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.locales.fr.urls
+                .cancellationSurvey,
+          },
+        ],
+      ],
+    ]),
+    {
+      updateTemplateValues: (values) => ({
+        ...values,
+        acceptLanguage: 'fr',
+      }),
+    },
+  ],
+];
+
 const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
 
 PAYPAL_MESSAGE.payment_provider = 'paypal';
@@ -2473,6 +2593,46 @@ describe('lib/senders/emails:', () => {
       await mailer[type](tmplVals);
     });
   }
+
+  describe('use urls from plan config', () => {
+    beforeEach(async () => {
+      mailer = await setup(
+        mockLog,
+        {
+          ...config,
+          subscriptions: {
+            ...config.subscriptions,
+            productConfigsFirestore: { enabled: true },
+          },
+        },
+        {
+          './oauth_client_info': () => ({
+            async fetch() {
+              return { name: 'Mock Relier' };
+            },
+          }),
+        }
+      );
+      localize = mailer.localize;
+      sendMail = {
+        mailer: mailer.mailer.sendMail,
+      };
+    });
+    for (const [type, test, opts = {}] of TESTS_WITH_PLAN_CONFIG) {
+      it(`subscription emails using the correct loalized urls`, async () => {
+        mailer.mailer.sendMail = stubSendMail((message) => {
+          test.forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        });
+        const { updateTemplateValues }: any = opts;
+        const tmplVals = updateTemplateValues
+          ? updateTemplateValues(MESSAGE_WITH_PLAN_CONFIG)
+          : MESSAGE_WITH_PLAN_CONFIG;
+        await mailer[type](tmplVals);
+      });
+    }
+  });
 
   describe('payment info is correctly rendered when payment_provider === "paypal"', () => {
     for (const [

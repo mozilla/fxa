@@ -9,7 +9,7 @@ import {
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
-import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/helpers';
+import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import { useHandleConfirmationDialog } from '../../../lib/hooks';

@@ -197,7 +197,8 @@ export class PayPalHandler extends StripeWebhookHandler {
     } = request.payload as Record<string, string>;
     const promotionCode: Stripe.PromotionCode | undefined =
       await this.extractPromotionCode(promotionCodeFromRequest, priceId);
-    const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
+    const currency = (await this.stripeHelper.findAbbrevPlanById(priceId))
+      .currency;
     const { agreementId, agreementDetails } =
       await this.createAndVerifyBillingAgreement({
         uid,
@@ -272,7 +273,8 @@ export class PayPalHandler extends StripeWebhookHandler {
       ? await this.stripeHelper.taxRateByCountryCode(customer.address?.country)
       : undefined;
 
-    const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
+    const currency = (await this.stripeHelper.findAbbrevPlanById(priceId))
+      .currency;
     if (!this.stripeHelper.customerTaxId(customer)) {
       await this.stripeHelper.addTaxIdToCustomer(customer, currency);
     }
