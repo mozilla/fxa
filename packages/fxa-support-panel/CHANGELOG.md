@@ -1,5 +1,17 @@
 # Change history
 
+## 1.236.0
+
+### New features
+
+- support-panel: add App Store subscriptions to support-panel Because: ([d8d9a9f576](https://github.com/mozilla/fxa/commit/d8d9a9f576))
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.2.5 to 8.2.8 ([45cd393fce](https://github.com/mozilla/fxa/commit/45cd393fce))
+- multiple: update mocha wherever used ([620a8d2d17](https://github.com/mozilla/fxa/commit/620a8d2d17))
+- deps: bump hot-shots from 9.0.0 to 9.1.0 ([41e6b33f84](https://github.com/mozilla/fxa/commit/41e6b33f84))
+
 ## 1.235.2
 
 No changes.

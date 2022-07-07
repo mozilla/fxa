@@ -1,6 +1,6 @@
 {
   "name": "fxa-settings",
-  "version": "1.235.2",
+  "version": "1.236.0",
   "homepage": "https://accounts.firefox.com/settings",
   "private": true,
   "scripts": {
