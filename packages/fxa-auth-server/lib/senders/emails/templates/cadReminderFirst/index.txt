@@ -1,7 +1,10 @@
-cadReminderFirst-title = "Here’s your reminder to sync devices."
+cadReminderFirst-title-1 = "It takes two to sync"
 
-cadReminderFirst-description = "It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox."
+cadReminderFirst-description-1 = "Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!"
 
+cadReminderFirst-description-2 = "It only takes a sec to sync."
+
+cadReminderFirst-action-plaintext = "Sync another device:"
 <%- link %>
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>

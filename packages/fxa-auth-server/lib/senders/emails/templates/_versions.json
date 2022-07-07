@@ -44,7 +44,7 @@
   "passwordResetAccountRecovery": 6,
   "postAddAccountRecovery": 6,
   "postRemoveAccountRecovery": 6,
-  "cadReminderFirst": 2,
+  "cadReminderFirst": 3,
   "cadReminderSecond": 3,
   "subscriptionAccountReminderFirst": 2,
   "subscriptionAccountReminderSecond": 2

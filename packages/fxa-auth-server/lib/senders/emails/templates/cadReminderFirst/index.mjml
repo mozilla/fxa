@@ -5,16 +5,17 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="cadReminderFirst-title">Here’s your reminder to sync devices.</span>
+      <span data-l10n-id="cadReminderFirst-title-1">It takes two to sync</span>
     </mj-text>
-    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
-  </mj-column>
-</mj-section>
 
-<mj-section>
-  <mj-column>
+    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
+
     <mj-text css-class="text-body">
-      <span data-l10n-id="cadReminderFirst-description">It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.</span>
+      <span data-l10n-id="cadReminderFirst-description-1">Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="cadReminderFirst-description-2">It only takes a sec to sync.</span>
     </mj-text>
   </mj-column>
 </mj-section>
