@@ -23,7 +23,7 @@ class PairAuthCompleteView extends FormView {
     super.initialize(options);
     this._notificationChannel = this.createWebchannel();
   }
-  
+
   createWebchannel() {
     const channel = new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
     channel.initialize({
@@ -32,7 +32,7 @@ class PairAuthCompleteView extends FormView {
 
     return channel;
   }
-  
+
   beforeRender() {
     return this.invokeBrokerMethod('afterPairAuthComplete');
   }
@@ -41,11 +41,11 @@ class PairAuthCompleteView extends FormView {
     const deviceContext = assign({}, this.broker.get('remoteMetaData'));
     const graphicId = this.getGraphicsId();
 
-    context.set({ 
+    context.set({
       graphicId,
       deviceFamily: deviceContext.family,
       deviceOS: deviceContext.OS,
-      hasFirefoxViewSupport: this._hasFirefoxViewSupport()
+      hasFirefoxViewSupport: this._hasFirefoxViewSupport(),
     });
   }
 
@@ -53,7 +53,7 @@ class PairAuthCompleteView extends FormView {
     const channel = this._notificationChannel;
     return channel.send(channel.COMMANDS.FIREFOX_VIEW, {
       // TODO: What is the correct entrypoint value?
-      entryPoint: "preferences"
+      entryPoint: 'preferences',
     });
   }
 
@@ -63,14 +63,14 @@ class PairAuthCompleteView extends FormView {
 
     // Currently, only supported in FF Nightly
     // For local testing, override this to true
-    return uap.isFirefoxDesktop() && browserVersion >= 104;
+    return uap.isFirefoxDesktop() && browserVersion >= 106;
   }
 }
 
 Cocktail.mixin(
   PairAuthCompleteView,
   DeviceBeingPairedMixin(),
-  PairingGraphicsMixin,
+  PairingGraphicsMixin
 );
 
 export default PairAuthCompleteView;
