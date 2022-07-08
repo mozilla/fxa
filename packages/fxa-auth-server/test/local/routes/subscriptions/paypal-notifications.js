@@ -32,6 +32,8 @@ const { PayPalNotificationHandler } = proxyquire(
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
+import { SUBSCRIPTIONS_RESOURCE } from '../../../../lib/payments/stripe';
+
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -197,6 +199,145 @@ describe('PayPalNotificationHandler', () => {
     });
   });
 
+  describe('handleSuccessfulPayment', () => {
+    const ipnTransactionId = 'ipn_id_123';
+    const validMessage = {
+      txn_id: ipnTransactionId,
+    };
+    const validInvoice = {
+      metadata: {
+        paypalTransactionId: ipnTransactionId,
+      },
+      subscription: {
+        status: 'active',
+      },
+    };
+    const paidInvoice = { status: 'paid' };
+    const refundReturn = undefined;
+
+    beforeEach(() => {
+      stripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns(ipnTransactionId);
+      stripeHelper.payInvoiceOutOfBand = sinon.fake.resolves(paidInvoice);
+      paypalHelper.issueRefund = sinon.fake.resolves(refundReturn);
+    });
+
+    it('should update invoice to paid', async () => {
+      const invoice = validInvoice;
+      const message = validMessage;
+
+      const result = await handler.handleSuccessfulPayment(invoice, message);
+
+      assert.deepEqual(result, paidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.payInvoiceOutOfBand,
+        invoice
+      );
+      sinon.assert.notCalled(paypalHelper.issueRefund);
+    });
+
+    it('should update Invoice with paypalTransactionId if not already there', async () => {
+      const invoice = {
+        subscription: {
+          status: 'active',
+        },
+      };
+      const message = validMessage;
+      stripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns(undefined);
+      stripeHelper.updateInvoiceWithPaypalTransactionId =
+        sinon.fake.resolves(validInvoice);
+
+      const result = await handler.handleSuccessfulPayment(invoice, message);
+
+      assert.deepEqual(result, paidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateInvoiceWithPaypalTransactionId,
+        invoice,
+        ipnTransactionId
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.payInvoiceOutOfBand,
+        invoice
+      );
+      sinon.assert.notCalled(paypalHelper.issueRefund);
+    });
+
+    it('should throw an error when paypalTransactionId and IPN txn_id dont match', async () => {
+      const invoice = validInvoice;
+      const message = {
+        txn_id: 'notcorrect',
+      };
+
+      try {
+        await handler.handleSuccessfulPayment(invoice, message);
+        assert.fail('Error should throw error with transactionId not matching');
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('handleSuccessfulPayment', {
+            message:
+              'Invoice paypalTransactionId does not match Paypal IPN txn_id',
+            invoiceId: invoice.id,
+            paypalIPNTxnId: message.txn_id,
+          })
+        );
+        sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
+        sinon.assert.notCalled(paypalHelper.issueRefund);
+      }
+    });
+
+    it('should not expand subscription and refund the invoice if the subscription has status canceled', async () => {
+      const invoice = {
+        metadata: {
+          paypalTransactionId: ipnTransactionId,
+        },
+        subscription: {
+          status: 'canceled',
+        },
+      };
+      const message = validMessage;
+      stripeHelper.expandResource = sinon.spy();
+
+      const result = await handler.handleSuccessfulPayment(invoice, message);
+
+      assert.deepEqual(result, refundReturn);
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        validMessage.txn_id
+      );
+      sinon.assert.notCalled(stripeHelper.expandResource);
+      sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
+    });
+
+    it('should expand subscription and refund the invoice if the subscription has status canceled', async () => {
+      const invoice = {
+        metadata: {
+          paypalTransactionId: ipnTransactionId,
+        },
+        subscription: 'sub_id',
+      };
+      const message = validMessage;
+      stripeHelper.expandResource = sinon.fake.resolves({ status: 'canceled' });
+
+      const result = await handler.handleSuccessfulPayment(invoice, message);
+
+      assert.deepEqual(result, refundReturn);
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        validMessage.txn_id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.expandResource,
+        invoice.subscription,
+        SUBSCRIPTIONS_RESOURCE
+      );
+      sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
+    });
+  });
+
   describe('handleMerchPayment', () => {
     const message = {
       txn_type: 'merch_pmt',
@@ -206,7 +347,8 @@ describe('PayPalNotificationHandler', () => {
       const invoice = { status: 'open' };
       const paidInvoice = { status: 'paid' };
       stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      stripeHelper.payInvoiceOutOfBand = sinon.fake.resolves(paidInvoice);
+      handler.handleSuccessfulPayment = sinon.fake.resolves(paidInvoice);
+
       const result = await handler.handleMerchPayment(
         completedMerchantPaymentNotification
       );
@@ -216,8 +358,9 @@ describe('PayPalNotificationHandler', () => {
         completedMerchantPaymentNotification.invoice
       );
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.payInvoiceOutOfBand,
-        invoice
+        handler.handleSuccessfulPayment,
+        invoice,
+        completedMerchantPaymentNotification
       );
     });
 
