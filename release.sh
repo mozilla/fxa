@@ -33,15 +33,9 @@ IFS=$'\n'
 #   6. If current branch is train branch, pull from origin.
 #   7. Otherwise checkout existing train branch or create fresh one from main.
 #   8. For each of the "main" packages...
-#      8.1. List commits since the last tag.
-#      8.2. For each commit...
-#           8.2.1. Add the commit message to a summary string.
-#      8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
 #      8.4. If package.json exists, update the version string in package.json.
 #      8.5. If package-lock.json exists, update the version string in package-lock.json.
 #      8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
-#      8.7. If Cargo.toml exists, update the version string in Cargo.toml.
-#      8.8. If Cargo.lock exists, update the version string in Cargo.lock.
 #   9. Update the AUTHORS file
 #   10. Commit changes.
 #   11. Create a tag.
@@ -146,136 +140,6 @@ fi
 
 # 8. For each of the "main" packages...
 bump() {
-  # 8.1. List commits since the last tag.
-  LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"  | sed 's/\\\\/\\\\\\\\/g' | sed 's/"/\\\\"/g'`
-
-  # 8.2. For each commit...
-  for COMMIT in $LOCAL_COMMITS; do
-    HASH=`echo "$COMMIT" | cut -d ' ' -f 1`
-    MESSAGE=`echo "$COMMIT" | cut -d ':' -f 2- | awk '{$1=$1};1'`
-    TYPE=`echo "$COMMIT" | cut -d ' ' -f 2 | awk '{$1=$1};1' | cut -d ':' -f 1 | cut -d '(' -f 1 | awk '{$1=$1};1'`
-    AREA=`echo "$COMMIT" | cut -d '(' -f 2 | cut -d ')' -f 1 | awk '{$1=$1};1'`
-    COMMIT_LINK="[$HASH]($FXA_REPO/commit/$HASH)"
-
-    if [ "$AREA" = "$COMMIT" ]; then
-      AREA=""
-    fi
-
-    if [ "$AREA" != "" ]; then
-      AREA="$AREA: "
-    fi
-
-    # 8.2.1. Add the commit message to a summary string.
-    case "$TYPE" in
-      "")
-        # Ignore blank lines
-        ;;
-      "Merge")
-        # Ignore merge commits
-        ;;
-      "Release")
-        # Ignore release commits
-        ;;
-      "feat")
-        if [ "$FEAT_SUMMARY" = "" ]; then
-          FEAT_SUMMARY="### New features\n"
-        fi
-        FEAT_SUMMARY="$FEAT_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-      "fix")
-        if [ "$FIX_SUMMARY" = "" ]; then
-          FIX_SUMMARY="### Bug fixes\n"
-        fi
-        FIX_SUMMARY="$FIX_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-      "perf")
-        if [ "$PERF_SUMMARY" = "" ]; then
-          PERF_SUMMARY="### Performance improvements\n"
-        fi
-        PERF_SUMMARY="$PERF_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-      "refactor")
-        if [ "$REFACTOR_SUMMARY" = "" ]; then
-          REFACTOR_SUMMARY="### Refactorings\n"
-        fi
-        REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-      "revert")
-        if [ "$REVERT_SUMMARY" = "" ]; then
-          REVERT_SUMMARY="### Reverted changes\n"
-        fi
-        REVERT_SUMMARY="$REVERT_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-      *)
-        if [ "$OTHER_SUMMARY" = "" ]; then
-          OTHER_SUMMARY="### Other changes\n"
-        fi
-        OTHER_SUMMARY="$OTHER_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
-        ;;
-    esac
-  done
-
-  if [ "$FEAT_SUMMARY" != "" ]; then
-    FEAT_SUMMARY="$FEAT_SUMMARY\n\n"
-  fi
-
-  if [ "$FIX_SUMMARY" != "" ]; then
-    FIX_SUMMARY="$FIX_SUMMARY\n\n"
-  fi
-
-  if [ "$PERF_SUMMARY" != "" ]; then
-    PERF_SUMMARY="$PERF_SUMMARY\n\n"
-  fi
-
-  if [ "$REFACTOR_SUMMARY" != "" ]; then
-    REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n\n"
-  fi
-
-  if [ "$REVERT_SUMMARY" != "" ]; then
-    REVERT_SUMMARY="$REVERT_SUMMARY\n\n"
-  fi
-
-  if [ "$OTHER_SUMMARY" != "" ]; then
-    OTHER_SUMMARY="$OTHER_SUMMARY\n\n"
-  fi
-
-  SUMMARY="$FEAT_SUMMARY$FIX_SUMMARY$PERF_SUMMARY$REFACTOR_SUMMARY$OTHER_SUMMARY"
-  if [ "$SUMMARY" = "" ]; then
-    SUMMARY="No changes.\n\n"
-    NO_CHANGES=1
-  else
-    NO_CHANGES=0
-  fi
-
-  # 8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
-  if [ -f "$1/CHANGELOG.md" ]; then
-    # If the file is empty, we seed it with the last version so awk can pick up
-    # on it.  This is cheesy, but the newlines embedded in the variables limit
-    # our options here.
-    if [ ! -s "$1/CHANGELOG.md" ]; then
-      echo "## $LAST_VERSION" > "$1/CHANGELOG.md"
-    fi
-    awk "{ gsub(/^## $LAST_VERSION/, \"## $NEW_VERSION\n\n$SUMMARY## $LAST_VERSION\") }; { print }" "$1/CHANGELOG.md" > "$1/CHANGELOG.md.release.bak"
-    mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
-
-    if [ "$NO_CHANGES" = "0" ]; then
-      if [ "$PERTINENT_CHANGELOGS" = "" ]; then
-        PERTINENT_CHANGELOGS="$1"
-      else
-        PERTINENT_CHANGELOGS="$PERTINENT_CHANGELOGS
-$1"
-      fi
-    fi
-  fi
-
-  # Clear summaries before the next iteration
-  FEAT_SUMMARY=""
-  FIX_SUMMARY=""
-  PERF_SUMMARY=""
-  REFACTOR_SUMMARY=""
-  REVERT_SUMMARY=""
-  OTHER_SUMMARY=""
-
   # 8.4. If package.json exists, update the version string in package.json.
   if [ -f "$1/package.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package.json"
@@ -292,18 +156,6 @@ $1"
   if [ -f "$1/npm-shrinkwrap.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/npm-shrinkwrap.json"
     rm "$1/npm-shrinkwrap.json.release.bak"
-  fi
-
-  # 8.7. If Cargo.toml exists, update the version string in Cargo.toml.
-  if [ -f "$1/Cargo.toml" ]; then
-    sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/Cargo.toml"
-    rm "$1/Cargo.toml.release.bak"
-  fi
-
-  # 8.8. If Cargo.lock exists, update the version string in Cargo.lock.
-  if [ -f "$1/Cargo.lock" ]; then
-    sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/Cargo.lock"
-    rm "$1/Cargo.lock.release.bak"
   fi
 }
 
@@ -404,11 +256,7 @@ echo
 echo "* https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
 echo
 
-if [ "$PERTINENT_CHANGELOGS" != "" ]; then
-  echo "### Pertinent changelogs"
-  echo
-  for PACKAGE in $PERTINENT_CHANGELOGS; do
-    echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
-  done
-  echo
-fi
+echo "### Changelog"
+echo
+echo "* https://github.com/mozilla/fxa/releases"
+echo
