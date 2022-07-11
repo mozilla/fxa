@@ -15,10 +15,10 @@
     </h2>
 
     <p>{{#t}}Now you can access your open tabs, passwords, and bookmarks on all your devices.{{/t}}</p>
-    
+
     <div class="button-row">
       {{#hasFirefoxViewSupport}}
-        <a id="open-firefox-view" class="button primary-button">{{#t}}Open Firefox View{{/t}}</a>
+        <a id="open-firefox-view" class="button primary-button">{{#t}}See tabs from synced devices{{/t}}</a>
       {{/hasFirefoxViewSupport}}
       {{^hasFirefoxViewSupport}}
         <a href="/settings#connected-services" class="button primary-button">{{#t}}Manage devices{{/t}}</a>
@@ -26,4 +26,3 @@
     </div>
   </section>
 </div>
-
