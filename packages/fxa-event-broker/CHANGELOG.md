@@ -1,8 +1,13 @@
 # Change history
 
+## Deprecation notice
+
+Changes are now documented at https://github.com/mozilla/fxa/releases
+
 ## 1.236.1
 
 No changes.
+
 
 ## 1.236.0
 
