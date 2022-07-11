@@ -2,6 +2,13 @@
 
 Changes are now documented at https://github.com/mozilla/fxa/releases
 
+## 1.236.1
+
+### New features
+
+- pair: Show Fx View when version >= 106 Because: ([7f1bccf601](https://github.com/mozilla/fxa/commit/7f1bccf601))
+
+
 ## 1.236.0
 
 ### New features
