@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.236.1",
+  "version": "1.236.2",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
