@@ -3073,7 +3073,12 @@ export class StripeHelper extends StripeHelperBase {
         }
       }
     } catch (err) {
-      if (err.name === FirestoreStripeError.STRIPE_CUSTOMER_DELETED) {
+      if (
+        [
+          FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        ].includes(err.name)
+      ) {
         // We cannot back-fill Firestore with records for deleted customers
         // as they're missing necessary metadata for us to know which user
         // the customer belongs to.

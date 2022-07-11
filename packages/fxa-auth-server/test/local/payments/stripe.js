@@ -6059,7 +6059,7 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('ignores the deleted customer error when handling a payment method update event', async () => {
+    it('ignores the deleted stripe customer error when handling a payment method update event', async () => {
       const event = deepCopy(eventPaymentMethodAttached);
       event.type = 'payment_method.card_automatically_updated';
       stripeHelper.stripe.paymentMethods.retrieve = sandbox
@@ -6071,6 +6071,27 @@ describe('StripeHelper', () => {
           newFirestoreStripeError(
             'Customer deleted.',
             FirestoreStripeError.STRIPE_CUSTOMER_DELETED
+          )
+        );
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertPaymentMethodRecordWithBackfill,
+        event.data.object
+      );
+    });
+
+    it('ignores the firestore record not found error when handling a payment method update event', async () => {
+      const event = deepCopy(eventPaymentMethodAttached);
+      event.type = 'payment_method.card_automatically_updated';
+      stripeHelper.stripe.paymentMethods.retrieve = sandbox
+        .stub()
+        .resolves(event.data.object);
+      stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+        .stub()
+        .throws(
+          newFirestoreStripeError(
+            'Customer deleted.',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
           )
         );
       await stripeHelper.processWebhookEventToFirestore(event);
