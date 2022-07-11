@@ -165,6 +165,22 @@ describe('views/pair/index', () => {
         assert.isTrue(view.navigateAway.calledOnce);
       });
     });
+
+    it('shows qr code', () => {
+      sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
+      return view.render().then(() => {
+        const qrCode = view.$el.find('.graphic-connect-another-device-qr-code');
+        assert.equal(qrCode.length, 1);
+      });
+    });
+
+    it('does not show qr code', () => {
+      sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
+      return view.render().then(() => {
+        const qrCode = view.$el.find('.graphic-connect-another-device-qr-code');
+        assert.equal(qrCode.length, 0);
+      });
+    });
   });
 
   describe('submit', () => {

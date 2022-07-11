@@ -41,4 +41,16 @@ describe('views/mixins/pairing-graphics-mixin', function () {
       );
     });
   });
+
+  describe('showDownloadFirefoxQrCode', () => {
+    it('returns true if entry point is app menu', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'fxa_app_menu');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns false if entry point is not app menu', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => undefined);
+      assert.equal(view.showDownloadFirefoxQrCode(), false);
+    });
+  });
 });
