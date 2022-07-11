@@ -29,7 +29,10 @@ module.exports = (log, db, devices, clientUtils) => {
         },
         validate: {
           query: isA.object({
-            filterIdleDevicesTimestamp: isA.number().description(DESCRIPTIONS.filterIdleDevicesTimestamp).optional()
+            filterIdleDevicesTimestamp: isA
+              .number()
+              .description(DESCRIPTIONS.filterIdleDevicesTimestamp)
+              .optional(),
           }),
         },
         response: {
@@ -87,19 +90,20 @@ module.exports = (log, db, devices, clientUtils) => {
           },
           deviceList: async () => {
             let devices = await request.app.devices;
-            
-            // To help reduce duplicate devices and help improve send tab 
-            // performance a client can request to filter device last access 
+
+            // To help reduce duplicate devices
+            // a client can request to filter device last access
             // time by a specified number of days. For reference, Sync currently
-            // considers devices that have been accessed in the last 21 days to 
+            // considers devices that have been accessed in the last 21 days to
             // be active.
-            const idleDeviceTimestamp = request.query.filterIdleDevicesTimestamp;
+            const idleDeviceTimestamp =
+              request.query.filterIdleDevicesTimestamp;
             if (idleDeviceTimestamp) {
               devices = devices.filter((device) => {
                 return device.lastAccessTime > idleDeviceTimestamp;
               });
             }
-            
+
             return devices;
           },
           oauthClients: async () => {
