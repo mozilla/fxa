@@ -81,6 +81,13 @@ describe('views/mixins/service-mixin', () => {
       view.setInitialContext(context);
       assert.equal(context.get('serviceName'), subscriptionProductName);
     });
+
+    it('sets isSync', () => {
+      relier.set('serviceName', Constants.RELIER_SYNC_SERVICE_NAME);
+      const context = new Backbone.Model({});
+      view.setInitialContext(context);
+      assert.equal(context.get('isSync'), true);
+    });
   });
 
   describe('render', () => {

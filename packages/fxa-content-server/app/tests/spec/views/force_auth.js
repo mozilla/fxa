@@ -186,16 +186,38 @@ describe('/views/force_auth', function () {
     });
 
     describe('with service=sync', function () {
-      it('has the service title', function () {
+      it('shows expected text', function () {
         relier.set({
-          serviceName: 'Firefox Sync',
+          uid: TestHelpers.createUid(),
+        });
+        sinon.stub(relier, 'isSync').callsFake(() => true);
+
+        return view.render().then(() => {
+          assert.include(
+            view.$(Selectors.HEADER).text(),
+            'Enter your password'
+          );
+
+          assert.include(
+            view.$(Selectors.SUB_HEADER_SYNC).text(),
+            'for your Firefox account'
+          );
+        });
+      });
+    });
+
+    describe('with non-sync Service', function () {
+      it('shows expected text', function () {
+        relier.set({
+          serviceName: 'Monitor',
           uid: TestHelpers.createUid(),
         });
 
         return view.render().then(() => {
-          assert.equal(
+          assert.include(view.$(Selectors.HEADER).text(), 'Sign in');
+          assert.include(
             view.$(Selectors.SUB_HEADER).text(),
-            'Continue to Firefox Sync'
+            'Continue to Monitor'
           );
         });
       });
