@@ -91,7 +91,6 @@ export function Service({
   return (
     <div
       className="my-1"
-      id="service"
       data-testid="settings-connected-service"
       data-name={name}
     >

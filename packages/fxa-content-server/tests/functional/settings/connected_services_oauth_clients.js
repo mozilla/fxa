@@ -10,6 +10,7 @@ const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
 const { createEmail } = FunctionalHelpers;
+const connectedServices = selectors.SETTINGS.CONNECTED_SERVICES;
 
 describe('connected services: oauth clients', () => {
   let email;
@@ -61,14 +62,8 @@ describe('connected services: oauth clients', () => {
     await testElementExists(selectors['123DONE'].AUTHENTICATED);
 
     // client is listed
-    await openPage(
-      config.fxaSettingsV2Root,
-      selectors.SETTINGS.CONNECTED_SERVICES.HEADER
-    );
-    await testElementTextInclude(
-      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
-      '123Done'
-    );
+    await openPage(config.fxaSettingsV2Root, connectedServices.HEADER);
+    await testElementTextInclude(connectedServices.HEADER, '123Done');
 
     await openTab(config.fxaUntrustedOauthApp);
     await switchToWindow(1);
@@ -80,24 +75,23 @@ describe('connected services: oauth clients', () => {
     await click(selectors.OAUTH_PERMISSIONS.SUBMIT);
     await testElementExists(selectors['123DONE'].AUTHENTICATED);
     await closeCurrentWindow();
+
     // refresh the list
-    await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
-    await testElementTextInclude(
-      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
-      '321Done'
-    );
+    await click(connectedServices.REFRESH_BUTTON);
+    await testElementTextInclude(connectedServices.HEADER, '321Done');
 
     // disconnect
     await click(
-      // the current lack of unique ids make the positional selector here necessary
-      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(3) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
+      `${connectedServices.SERVICE}[data-name^="123"] ${connectedServices.SIGN_OUT}`
     );
     await pollUntilGoneByQSA(
-      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
+      `${connectedServices.SERVICE}[data-name^="123"] ${connectedServices.SIGN_OUT}`
     );
-    await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
+
+    // refresh to confirm app and its tokens are gone
+    await click(connectedServices.REFRESH_BUTTON);
     await noSuchElement(
-      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
+      `${connectedServices.SERVICE}[data-name^="123"] ${connectedServices.SIGN_OUT}`
     );
   });
 
@@ -110,10 +104,7 @@ describe('connected services: oauth clients', () => {
     await testElementExists(selectors['123DONE'].AUTHENTICATED);
     const oldUrl = `${config.fxaSettingsV2Root}/clients`;
     // page is redirected and client list is shown
-    await openPage(oldUrl, selectors.SETTINGS.CONNECTED_SERVICES.HEADER);
-    await testElementTextInclude(
-      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
-      '123Done'
-    );
+    await openPage(oldUrl, connectedServices.HEADER);
+    await testElementTextInclude(connectedServices.HEADER, '123Done');
   });
 });
