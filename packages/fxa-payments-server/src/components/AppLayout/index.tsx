@@ -53,7 +53,7 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const { config } = useContext(AppContext);
   const homeURL = `${config.servers.content.url}/settings`;
   let breadcrumbs = (
-    <nav aria-label="breadcrumbs" data-testid="breadcrumbs">
+    <nav aria-label="breadcrumbs" data-testid="breadcrumbs" className="w-full">
       <ol className="breadcrumbs">
         <li>
           <Localized id="settings-home">
