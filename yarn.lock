@@ -22733,7 +22733,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^9.1.0
     i18n-iso-countries: ^7.4.0
-    ioredis: ^4.28.2
+    ioredis: ^5.2.0
     joi: 17.4.0
     jose: ^4.8.1
     jsdom: ^20.0.0
@@ -23185,7 +23185,7 @@ fsevents@~2.1.1:
     graphql-upload: ^13.0.0
     helmet: ^5.0.0
     hot-shots: ^9.1.0
-    ioredis: ^4.28.2
+    ioredis: ^5.2.0
     jest: 27.5.1
     knex: ^2.1.0
     mozlog: ^3.0.2
@@ -23596,7 +23596,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.6.1
     hot-shots: ^9.1.0
-    ioredis: ^4.28.2
+    ioredis: ^5.2.0
     ip: ^1.1.8
     jest: 27.5.1
     joi: 17.4.0
@@ -26782,25 +26782,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^4.28.2":
-  version: 4.28.2
-  resolution: "ioredis@npm:4.28.2"
-  dependencies:
-    cluster-key-slot: ^1.1.0
-    debug: ^4.3.1
-    denque: ^1.1.0
-    lodash.defaults: ^4.2.0
-    lodash.flatten: ^4.4.0
-    lodash.isarguments: ^3.1.0
-    p-map: ^2.1.0
-    redis-commands: 1.7.0
-    redis-errors: ^1.2.0
-    redis-parser: ^3.0.0
-    standard-as-callback: ^2.1.0
-  checksum: 4d9e5a4707cc918d2c2e161ea430aa06e68d5a513a680e8a315cf2cdea0b65b410a2e7279a04bab6db66aa781af4244acce3df67f560fed198f1f2f1d2c1d609
-  languageName: node
-  linkType: hard
-
 "ioredis@npm:^5.0.6":
   version: 5.0.6
   resolution: "ioredis@npm:5.0.6"
@@ -26815,6 +26796,23 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: 24ae1fecec197e9e5d3e73e81e12134ace56a76b5e972a01cb9fa7f3853940f5a679bbd9f4aea2fd9848be9e035d996229cdadf5c5f997f21cf2a322edf1406e
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "ioredis@npm:5.2.0"
+  dependencies:
+    "@ioredis/commands": ^1.1.1
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.4
+    denque: ^2.0.1
+    lodash.defaults: ^4.2.0
+    lodash.isarguments: ^3.1.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 37189fcd4bd834d66aabb28a754d97da9147a6162c16bd971647750dbb81cbe7d93f4c07a623efdc0fdcb61bca243678b864229ddbcc2b8692755d7be40a2227
   languageName: node
   linkType: hard
 
