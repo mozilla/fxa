@@ -360,6 +360,13 @@ describe('lib/routes/validators:', () => {
       assert.ok(res.error);
       assert.equal(res.value, 'https://mozilla.com%2Eevil.com');
     });
+
+    it('rejects if over 2048 characters', () => {
+      const res = v.validate(
+        `https://example.com/${new Array(2048).fill('a').join('')}`
+      );
+      assert.ok(res.error);
+    });
   });
 
   describe('subscriptionPlanMetadataValidator', () => {
