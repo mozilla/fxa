@@ -6,10 +6,7 @@ IFS=$'\n'
 # Please use this script in conjunction with the release documentation:
 # https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/release-process
 #
-# This script will automatically update the changelogs and bump the version
-# strings for each of the "main" FxA packages in this tree. It assumes some
-# uniformity in the format of the tags and changelogs, so tagging should
-# always be done with this script lest that uniformity is broken.
+# Tagging should always be done with this script lest uniformity is broken.
 #
 # Note that this script DOES NOT PUSH TO ANY REMOTES. It is expected that a
 # human will verify the results before doing that step and opening any pull
@@ -32,10 +29,6 @@ IFS=$'\n'
 #   5. Generate the bumped version string.
 #   6. If current branch is train branch, pull from origin.
 #   7. Otherwise checkout existing train branch or create fresh one from main.
-#   8. For each of the "main" packages...
-#      8.4. If package.json exists, update the version string in package.json.
-#      8.5. If package-lock.json exists, update the version string in package-lock.json.
-#      8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
 #   9. Update the AUTHORS file
 #   10. Commit changes.
 #   11. Create a tag.
@@ -95,7 +88,6 @@ TRAIN=`echo "$LAST_TAG" | cut -d '.' -f 2`
 PATCH=`echo "$LAST_TAG" | cut -d '.' -f 3 | cut -d '-' -f 1`
 
 LAST_VERSION="$MAJOR.$TRAIN.$PATCH"
-SED_FRIENDLY_LAST_VERSION="$MAJOR\\.$TRAIN\\.$PATCH"
 
 # 5. Generate the bumped version string.
 case "$BUILD_TYPE" in
@@ -137,46 +129,6 @@ else
     git pull origin "$TRAIN_BRANCH" > /dev/null 2>&1 || true
   fi
 fi
-
-# 8. For each of the "main" packages...
-bump() {
-  # 8.4. If package.json exists, update the version string in package.json.
-  if [ -f "$1/package.json" ]; then
-    sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package.json"
-    rm "$1/package.json.release.bak"
-  fi
-
-  # 8.5. If package-lock.json exists, update the version string in package-lock.json.
-  if [ -f "$1/package-lock.json" ]; then
-    sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package-lock.json"
-    rm "$1/package-lock.json.release.bak"
-  fi
-
-  # 8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
-  if [ -f "$1/npm-shrinkwrap.json" ]; then
-    sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/npm-shrinkwrap.json"
-    rm "$1/npm-shrinkwrap.json.release.bak"
-  fi
-}
-
-TARGETS="packages/fxa-auth-server
-packages/fxa-admin-server
-packages/fxa-admin-panel
-packages/fxa-content-server
-packages/fxa-customs-server
-packages/fxa-event-broker
-packages/fxa-geodb
-packages/fxa-graphql-api
-packages/fxa-payments-server
-packages/fxa-profile-server
-packages/fxa-react
-packages/fxa-settings
-packages/fxa-shared
-packages/fxa-support-panel"
-
-for TARGET in $TARGETS; do
-  bump "$TARGET"
-done
 
 # 9. Update the AUTHORS file
 npm run authors > /dev/null
