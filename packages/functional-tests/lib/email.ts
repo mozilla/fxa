@@ -28,6 +28,7 @@ export enum EmailType {
   subscriptionFirstInvoice,
   subscriptionFirstInvoiceDiscount,
   downloadSubscription,
+  fraudulentAccountDeletion,
   lowRecoveryCodes,
   newDeviceLogin,
   passwordChanged,
