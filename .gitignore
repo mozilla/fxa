@@ -99,7 +99,7 @@ packages/fxa-auth-server/vendor
 packages/fxa-content-server/pids
 packages/fxa-content-server/results
 packages/fxa-content-server/lib-cov
-packages/fxa-content-server/app/styles/*.css
+packages/fxa-content-server/app/styles/main.css
 packages/fxa-content-server/app/scripts/processed
 packages/fxa-content-server/server/config/local.json
 packages/fxa-content-server/app/i18n

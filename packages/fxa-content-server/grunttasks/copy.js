@@ -80,7 +80,7 @@ module.exports = function (grunt) {
       dest: '<%= yeoman.tmp %>/styles/',
       dot: true,
       expand: true,
-      src: '{,*/}*.css',
+      src: ['main.css', 'tailwind.out.css'],
     },
     tos_pp: {
       //eslint-disable-line camelcase

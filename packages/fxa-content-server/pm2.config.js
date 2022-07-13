@@ -26,5 +26,22 @@ module.exports = {
       min_uptime: '2m',
       time: true,
     },
+    {
+      name: 'content-css',
+      script: 'yarn build-css',
+      cwd: __dirname,
+      env: {
+        PATH,
+      },
+      filter_env: ['npm_'],
+      autorestart: false,
+      watch: [
+        'postcss.config.js',
+        'tailwind.config.js',
+        'app/scripts/templates/**/*.mustache',
+        require.resolve('fxa-react/configs/tailwind.js'),
+      ],
+      time: true,
+    },
   ],
 };
