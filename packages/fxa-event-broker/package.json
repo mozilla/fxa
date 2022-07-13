@@ -1,6 +1,5 @@
 {
   "name": "fxa-event-broker",
-  "version": "1.236.3",
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
