@@ -2,9 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* To ensure these imports are properly processed the tailwindcss-cli used in the
+ * build-css script, needs to have the --postcss parameter provided so that it reads
+ * the config from postcss.config.js */
+/* Once `@tailwind base` can be enabled for Payments, change this import to tailwind.css */
+@import '../../../fxa-react/styles/index.css';
+
 /* '@tailwind base' should be enabled once Payments is completely converted to Tailwind.
  * We must also modify payments' tailwind config file and remove the .preflight edit */
 /* @tailwind base; */
+
 @tailwind components;
 @tailwind utilities;
 
