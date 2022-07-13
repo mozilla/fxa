@@ -1,8 +1,21 @@
 <%- body %>
 
+<% if (!locals.wasDeleted) { %>
 subplat-automated-email = "This is an automated email; if you received it in error, no action is required."
+<% } %>
 
-<% if (!locals.reminderShortForm) { %>
+<% if (locals.productName) { %>
+subplat-explainer-specific = "You’re receiving this email because <%- email %> has a Firefox account and you signed up for <%- productName %>."
+<% } else if (locals.reminderShortForm) { %>
+subplat-explainer-reminder-form = "You’re receiving this email because <%- email %> has a Firefox account."
+<% } else if (locals.wasDeleted) { %>
+subplat-explainer-was-deleted = "You’re receiving this email because <%- email %> was registered for a Firefox account."
+<% } else { %>
+subplat-explainer-multiple = "You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products."
+<% } %>
+
+<% if (!locals.reminderShortForm && !locals.wasDeleted) { %>
+subplat-manage-account-plaintext = "Manage your Firefox account settings by visiting your account: <%- accountSettingsUrl %>"
 <% if (locals.productName || locals.subscriptions?.length > 0) { %>
 subplat-terms-policy-plaintext = "Terms and cancellation policy:"
 <%- subscriptionTermsUrl %>
@@ -11,7 +24,7 @@ subplat-privacy-plaintext = "Privacy notice:"
 <%- subscriptionPrivacyUrl %>
 <% } %>
 
-<% if (!locals.isFinishSetup) { %>
+<% if (!locals.isFinishSetup && !locals.wasDeleted) { %>
 <% if (locals.isCancellationEmail) { %>
 subplat-reactivate-plaintext = "Reactivate subscription:"
 <%- reactivateSubscriptionUrl %>

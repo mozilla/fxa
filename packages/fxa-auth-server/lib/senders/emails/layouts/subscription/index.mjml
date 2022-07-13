@@ -60,6 +60,10 @@
             <span data-l10n-id="subplat-explainer-reminder-form" data-l10n-args="<%= JSON.stringify({ email }) %>">
               You’re receiving this email because <%- email %> has a Firefox account.
             </span>
+          <% } else if (locals.wasDeleted) { %>
+            <span data-l10n-id="subplat-explainer-was-deleted" data-l10n-args="<%= JSON.stringify({ email }) %>">
+              You’re receiving this email because <%- email %> was registered for a Firefox account.
+            </span>
           <% } else { %>
             <span data-l10n-id="subplat-explainer-multiple" data-l10n-args="<%= JSON.stringify({ email }) %>">
               You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products.
@@ -67,7 +71,7 @@
           <% } %>
         </mj-text>
 
-        <% if (!locals.reminderShortForm) { %>
+        <% if (!locals.reminderShortForm && !locals.wasDeleted) { %>
           <mj-text css-class="footer-text-bottom-margin">
             <span data-l10n-id="subplat-manage-account">
               Manage your Firefox account settings by visiting your <a href="<%- accountSettingsUrl %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.

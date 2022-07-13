@@ -52,3 +52,10 @@ export const LayoutWithProductCancellation = createStory(
   },
   'Cancellation email'
 );
+
+export const LayoutWithWasDeleted = createStory(
+  {
+    wasDeleted: true,
+  },
+  'Fraudulent account deletion'
+);
