@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "cadReminderFirst-subject",
-    "message": "Your Friendly Reminder: How To Complete Your Sync Setup"
+    "id": "cadReminderFirst-subject-1",
+    "message": "Reminder! Let’s sync Firefox"
   },
   "action": {
     "id": "cadReminderFirst-action",

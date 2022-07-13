@@ -222,7 +222,7 @@ const COMMON_METRICS_OPT_OUT_TESTS: { test: string; expected: string }[] = [
 // prettier-ignore
 const TESTS: [string, any, Record<string, any>?][] = [
   ['cadReminderFirstEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
+    ['subject', { test: 'equal', expected: 'Reminder! Let’s sync Firefox' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
@@ -230,8 +230,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
     ])],
     ['html', [
-      { test: 'include', expected: "Here’s your reminder to sync devices." },
-      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: 'It takes two to sync' },
+      { test: 'include', expected: 'Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!' },
+      { test: 'include', expected: 'It only takes a sec to sync.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
@@ -247,8 +248,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
-      { test: 'include', expected: "Here’s your reminder to sync devices." },
-      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: 'It takes two to sync' },
+      { test: 'include', expected: 'Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!' },
+      { test: 'include', expected: 'It only takes a sec to sync.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
       { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },
