@@ -361,9 +361,9 @@ describe('lib/routes/validators:', () => {
       assert.equal(res.value, 'https://mozilla.com%2Eevil.com');
     });
 
-    it('rejects if over 768 characters', () => {
+    it('rejects if over 2048 characters', () => {
       const res = v.validate(
-        `https://example.com/path${new Array(768).fill('a').join('')}`
+        `https://example.com/${new Array(2048).fill('a').join('')}`
       );
       assert.ok(res.error);
     });
