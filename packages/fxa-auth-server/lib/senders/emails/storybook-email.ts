@@ -37,6 +37,7 @@ const subplatCommonArgs = {
   accountSettingsUrl: 'http://localhost:3030/settings',
   cancellationSurveyUrl:
     'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
+  mozillaSupportUrl: 'https://support.mozilla.org',
 };
 
 const storybookEmail = ({
