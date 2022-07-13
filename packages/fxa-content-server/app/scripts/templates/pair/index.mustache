@@ -6,8 +6,13 @@
   <section>
     <div class="error"></div>
 
-    <div class="graphic graphic-connect-another-device-qr-code" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
-    <p>{{#t}}Hold your phone's camera over the code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a href="https://www.mozilla.org/firefox/mobile/get-app/" class="download-firefox-mobile">download link.</a>{{/unsafeTranslate}}</p>
+    {{#showQrCode}}
+      <div class="graphic graphic-connect-another-device-qr-code" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
+      <p>{{#t}}Hold your phone's camera over the code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a href="https://www.mozilla.org/firefox/mobile/get-app/" class="download-firefox-mobile">download link.</a>{{/unsafeTranslate}}</p>
+    {{/showQrCode}}
+    {{^showQrCode}}
+      <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
+    {{/showQrCode}}
 
     <form novalidate>
       <div class="button-row">

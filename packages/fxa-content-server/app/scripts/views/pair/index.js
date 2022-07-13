@@ -45,10 +45,13 @@ class PairIndexView extends FormView {
   }
 
   setInitialContext(context) {
+    // Check the entrypoint. If we aren't in a entrypoint=fxa_app_menu context, then don't show QR code.
     const graphicId = this.getGraphicsId();
+    const showQrCode = this.showDownloadFirefoxQrCode();
 
     context.set({
       graphicId,
+      showQrCode,
     });
   }
 }
