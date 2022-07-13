@@ -189,7 +189,7 @@ module.exports.isValidEmailAddress = function (value) {
 module.exports.redirectTo = function redirectTo(base) {
   const validator = isA
     .string()
-    .max(768)
+    .max(2048)
     .custom((value) => {
       let hostnameRegex = '';
       if (base) {
