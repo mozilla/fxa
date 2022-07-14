@@ -162,7 +162,9 @@ describe('AppleIapHandler', () => {
         userId: 'test1234',
       };
       mockRequest = {
-        payload: {},
+        payload: {
+          signedPayload: 'base64 encoded string',
+        },
       };
       appleIap.purchaseManager = {
         decodeNotificationPayload: sinon.fake.resolves({
@@ -178,7 +180,10 @@ describe('AppleIapHandler', () => {
     it('handles a notification that requires profile updating', async () => {
       const result = await appleIapHandler.processNotification(mockRequest);
       assert.deepEqual(result, {});
-      assert.calledOnce(appleIap.purchaseManager.decodeNotificationPayload);
+      assert.calledOnceWithExactly(
+        appleIap.purchaseManager.decodeNotificationPayload,
+        mockRequest.payload.signedPayload
+      );
       assert.calledOnce(appleIap.purchaseManager.getSubscriptionPurchase);
       assert.calledOnce(appleIap.purchaseManager.processNotification);
       assert.calledOnce(mockCapabilityService.iapUpdate);
