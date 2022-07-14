@@ -20,7 +20,7 @@
     "@hapi/catbox-redis": "~6.0.2",
     "@hapi/hapi": "^20.2.1",
     "@hapi/inert": "6.0.5",
-    "@sentry/node": "^6.19.1",
+    "@sentry/node": "^7.6.0",
     "aws-sdk": "^2.1135.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",

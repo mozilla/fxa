@@ -90,7 +90,7 @@
     "@nestjs/mapped-types": "^1.0.1",
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
-    "@sentry/node": "^6.19.1",
+    "@sentry/node": "^7.6.0",
     "@sentry/tracing": "^6.19.1",
     "@types/js-md5": "^0.4.2",
     "@types/uuid": "^8.3.1",
