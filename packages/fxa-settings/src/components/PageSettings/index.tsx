@@ -40,7 +40,7 @@ export const PageSettings = (_: RouteComponentProps) => {
           <Localized id="delete-account-link">
             <Link
               data-testid="settings-delete-account"
-              className="cta-caution cta-base text-sm transition-standard mt-12"
+              className="cta-caution text-sm transition-standard mt-12 py-2 px-5 mobileLandscape:py-1"
               to={DeleteAccountPath}
             >
               Delete account

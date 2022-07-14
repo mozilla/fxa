@@ -138,7 +138,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button
-                  className="cta-primary mx-2 px-10"
+                  className="cta-primary mx-2 px-10 py-2"
                   onClick={alertSuccessAndGoHome}
                   data-testid="close-button"
                 >
@@ -184,7 +184,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <Localized id="recovery-key-cancel-button">
                 <button
                   type="button"
-                  className="cta-neutral mx-2 flex-1"
+                  className="cta-neutral cta-base-p mx-2 flex-1"
                   data-testid="cancel-button"
                   onClick={goHome}
                 >
@@ -194,7 +194,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <Localized id="recovery-key-continue-button">
                 <button
                   type="submit"
-                  className="cta-primary mx-2 flex-1"
+                  className="cta-primary cta-base-p mx-2 flex-1"
                   data-testid="continue-button"
                   disabled={disabled}
                 >

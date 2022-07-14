@@ -140,7 +140,7 @@ export const ModalVerifySession = ({
           <Localized id="msv-cancel-button">
             <button
               type="button"
-              className="cta-neutral mx-2 flex-1"
+              className="cta-neutral cta-base-p mx-2 flex-1"
               data-testid="modal-verify-session-cancel"
               onClick={(event) => onDismiss()}
             >
@@ -150,7 +150,7 @@ export const ModalVerifySession = ({
           <Localized id="msv-submit-button">
             <button
               type="submit"
-              className="cta-primary mx-2 flex-1"
+              className="cta-primary cta-base-p mx-2 flex-1"
               data-testid="modal-verify-session-submit"
               disabled={buttonDisabled}
             >

@@ -128,7 +128,7 @@ export const UnitRowRecoveryKey = () => {
                 'confirm-revoke.submit'
               );
             }}
-            confirmBtnClassName="cta-caution"
+            confirmBtnClassName="cta-caution cta-base-p"
             confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"

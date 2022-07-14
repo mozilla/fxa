@@ -89,7 +89,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
               <button
                 type="button"
                 data-testid="cancel-display-name"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
               >
                 Cancel
@@ -99,7 +99,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
               <button
                 type="submit"
                 data-testid="submit-display-name"
-                className="cta-primary mx-2 flex-1"
+                className="cta-primary cta-base-p mx-2 flex-1"
                 disabled={
                   !formState.isDirty || !formState.isValid || account.loading
                 }

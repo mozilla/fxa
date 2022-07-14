@@ -282,7 +282,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <Localized id="tfa-button-cancel">
               <button
                 type="button"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
               >
                 Cancel
@@ -323,7 +323,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <Localized id="tfa-button-cancel">
               <button
                 type="button"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
               >
                 Cancel
@@ -373,7 +373,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <Localized id="tfa-button-cancel">
               <button
                 type="button"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
               >
                 Cancel

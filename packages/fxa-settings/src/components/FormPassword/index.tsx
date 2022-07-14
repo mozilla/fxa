@@ -227,7 +227,7 @@ export const FormPassword = ({
         <Localized id="pw-change-cancel-button">
           <button
             type="button"
-            className="cta-neutral mx-2 flex-1"
+            className="cta-neutral cta-base-p mx-2 flex-1"
             onClick={goHome}
             data-testid="cancel-password-button"
           >
@@ -238,7 +238,7 @@ export const FormPassword = ({
           <button
             data-testid="save-password-button"
             type="submit"
-            className="cta-primary mx-2 flex-1"
+            className="cta-primary cta-base-p mx-2 flex-1"
             disabled={!formState.isDirty || !formState.isValid || loading}
           >
             Save

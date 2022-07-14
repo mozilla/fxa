@@ -52,7 +52,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
           <Localized id="la-unlink-button">
             <button
-              className="cta-neutral cta-base disabled:cursor-wait whitespace-nowrap"
+              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"
               data-testid="linked-account-unlink"
               onClick={onUnlinkAccountClick}
             >
@@ -66,7 +66,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
         <Modal
           onDismiss={hideUnlinkModal}
           onConfirm={onConfirmUnlinkAccountClick}
-          confirmBtnClassName="cta-primary"
+          confirmBtnClassName="cta-primary cta-base-p"
           confirmText={l10n.getString(
             'la-unlink-account-button',
             null,

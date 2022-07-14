@@ -252,7 +252,7 @@ export const ConnectedServices = () => {
             <Modal
               onDismiss={hideConfirmDisconnectModal}
               onConfirm={onConfirmDisconnect}
-              confirmBtnClassName="cta-primary"
+              confirmBtnClassName="cta-primary cta-base-p"
               confirmText={l10n.getString(
                 'cs-sign-out-button',
                 null,
@@ -378,7 +378,7 @@ export const ConnectedServices = () => {
           <Modal
             onDismiss={onCloseAdviceModal}
             onConfirm={onCloseAdviceModal}
-            confirmBtnClassName="cta-primary"
+            confirmBtnClassName="cta-primary cta-base-p"
             hasCancelButton={false}
             confirmText={l10n.getString(
               'cs-disconnect-advice-confirm',
