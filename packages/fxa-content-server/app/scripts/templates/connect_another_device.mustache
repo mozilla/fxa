@@ -2,7 +2,11 @@
   <header class="hidden" id="fxa-connect-another-device-header"><h1>{{#t}}Connect another device{{/t}}</h1></header>
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <div class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</div>
+      <h2 id="fxa-connected-heading" class="mb-10"><img
+      src="/images/circle-check.svg"
+      alt="a check symbol within a circle, indicating a successful result"
+      class="align-middle mr-3"
+      />{{#t}}Firefox account connected{{/t}}</h2>
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
@@ -41,11 +45,14 @@
       {{/isFirefoxAndroid}}
       {{#isFirefoxDesktop}}
         <p id="install-mobile-firefox-desktop">
-          {{#isSignIn}}
-            {{#t}}Still adding devices?{{/t}}
-          {{/isSignIn}}
-          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
+          {{#isSignedIn}}
+            <div class="button-row">
+              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="button primary-button">{{#t}}Sync Firefox across devices{{/t}}</a>
+            </div>
+          {{/isSignedIn}}
         </p>
+        <div class="pair-everywhere-cta text-grey-500 text-xs font-normal leading-[18px]">{{#t}}Sign in everywhere you use Firefox.{{/t}}</div>
+        <div class="pair-everywhere-cta text-grey-500 text-xs font-normal leading-[18px]">{{#t}}We’re on Android and iOS, too!{{/t}}</div>
       {{/isFirefoxDesktop}}
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
@@ -75,11 +82,11 @@
         </p>
       {{/isOther}}
 
+      {{^isFirefoxDesktop}}
         <div class="marketing-area"></div>
+      {{/isFirefoxDesktop}}
+
     {{/canSignIn}}
-    <div class="links">
-      <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is more than one device required?{{/t}}</a>
-    </div>
     <aside class="child-view"></aside>
   </section>
 

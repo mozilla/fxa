@@ -143,6 +143,7 @@ class ConnectAnotherDeviceView extends FormView {
     const isSignIn = this.isSignIn();
     const isSignUp = this.isSignUp();
     const showSuccessMessage = this._showSuccessMessage();
+    const pairingUrl = '/pair?entrypoint=fxa_app_menu';
 
     context.set({
       canSignIn,
@@ -158,6 +159,7 @@ class ConnectAnotherDeviceView extends FormView {
       isSignedIn,
       isSignIn,
       isSignUp,
+      pairingUrl,
       showSuccessMessage,
     });
   }

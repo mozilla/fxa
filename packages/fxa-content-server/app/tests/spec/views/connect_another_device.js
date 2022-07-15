@@ -24,6 +24,8 @@ describe('views/connect_another_device', () => {
   let view;
   let windowMock;
 
+  const FXA_CONNECTED_SELECTOR = '#fxa-connected-heading';
+
   beforeEach(() => {
     account = new Account();
 
@@ -72,16 +74,22 @@ describe('views/connect_another_device', () => {
         });
       });
 
-      it('shows the marketing area, logs appropriately', () => {
+      it('shows the pairing link, logs appropriately', () => {
         assert.isTrue(view._isSignedIn.called);
-        assert.lengthOf(view.$('.marketing-area'), 1);
+        assert.lengthOf(view.$('#sync-firefox-devices'), 1);
+        assert.isTrue(
+          view
+            .$('#sync-firefox-devices')
+            .prop('href')
+            .endsWith('/pair?entrypoint=fxa_app_menu')
+        );
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');
       });
 
       it('shows the success message', () => {
-        assert.lengthOf(view.$('.success'), 1);
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
       });
     });
 
@@ -140,7 +148,7 @@ describe('views/connect_another_device', () => {
       });
 
       it('shows the success message', () => {
-        assert.lengthOf(view.$('.success'), 1);
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
       });
     });
 
@@ -289,7 +297,7 @@ describe('views/connect_another_device', () => {
         });
       });
 
-      it('shows FxDesktop text, marketing area to Fx Desktop users', () => {
+      it('shows FxDesktop text, pairing CTA', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
@@ -305,8 +313,7 @@ describe('views/connect_another_device', () => {
         return view.render().then(() => {
           view.afterVisible();
 
-          assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
-          assert.lengthOf(view.$('.marketing-area'), 1);
+          assert.lengthOf(view.$('.pair-everywhere-cta'), 2);
           testIsFlowEventLogged('install_from.fx_desktop');
         });
       });
@@ -348,7 +355,7 @@ describe('views/connect_another_device', () => {
       });
 
       it('does not show the success message', () => {
-        assert.lengthOf(view.$('.success'), 0);
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 0);
       });
     });
 
@@ -366,7 +373,7 @@ describe('views/connect_another_device', () => {
       });
 
       it('shows the success message', () => {
-        assert.lengthOf(view.$('.success'), 1);
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
       });
     });
 
@@ -385,14 +392,14 @@ describe('views/connect_another_device', () => {
 
       it('shows the marketing area, logs appropriately', () => {
         assert.isTrue(view._isSignedIn.called);
-        assert.lengthOf(view.$('.marketing-area'), 1);
+        assert.lengthOf(view.$('.pair-everywhere-cta'), 2);
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');
       });
 
       it('shows the success message', () => {
-        assert.lengthOf(view.$('.success'), 1);
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
       });
     });
   });
@@ -500,16 +507,6 @@ describe('views/connect_another_device', () => {
 
       it('notifies of click', () => {
         testIsFlowEventLogged('link.signin');
-      });
-    });
-
-    describe('click on `why`', () => {
-      beforeEach(() => {
-        view.$('a[href="/connect_another_device/why"]').click();
-      });
-
-      it('notifies of click', () => {
-        testIsFlowEventLogged('link.why');
       });
     });
   });

@@ -19,7 +19,6 @@ module.exports = function () {
     'confirm_signin',
     'confirm_signup_code',
     'connect_another_device',
-    'connect_another_device/why',
     'cookies_disabled',
     'force_auth',
     'inline_totp_setup',

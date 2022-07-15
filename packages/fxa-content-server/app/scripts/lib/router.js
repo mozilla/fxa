@@ -42,7 +42,6 @@ import Url from './url';
 import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
-import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
@@ -109,10 +108,6 @@ const Router = Backbone.Router.extend({
     }),
     'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
-    'connect_another_device/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      ConnectAnotherDeviceView
-    ),
     'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
     'force_auth(/)': createViewHandler(ForceAuthView),
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),

@@ -229,7 +229,7 @@ registerSuite('TOTP', {
 
             .then(testIsBrowserNotified('fxaccounts:login'))
 
-            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
+            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.CONNECTED))
         );
       },
 
@@ -258,7 +258,7 @@ registerSuite('TOTP', {
 
           .then(testIsBrowserNotified('fxaccounts:login'))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.CONNECTED));
       },
 
     'can reset password, prompt for TOTP and login - verify different browser':

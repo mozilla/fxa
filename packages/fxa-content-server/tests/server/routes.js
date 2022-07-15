@@ -40,7 +40,6 @@ var routes = {
   '/confirm_reset_password': { statusCode: 200 },
   '/confirm_signin': { statusCode: 200 },
   '/connect_another_device': { statusCode: 200 },
-  '/connect_another_device/why': { statusCode: 200 },
   '/cookies_disabled': { statusCode: 200 },
   '/force_auth': { statusCode: 200 },
   '/inline_totp_setup': { statusCode: 200 },
@@ -78,7 +77,7 @@ var routes = {
   '/signup_verified': { statusCode: 200 },
   '/subscriptions': { statusCode: 200 },
   '/subscriptions/products/123doneProProduct': { statusCode: 200 },
-    '/support': { statusCode: 200 },
+  '/support': { statusCode: 200 },
   // the following have a version prefix
   '/v1/complete_reset_password': { statusCode: 200 },
   '/v1/reset_password': { statusCode: 200 },

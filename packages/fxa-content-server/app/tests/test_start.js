@@ -251,7 +251,6 @@ require('./spec/views/subscriptions_product_redirect');
 require('./spec/views/support');
 require('./spec/views/tooltip');
 require('./spec/views/tos');
-require('./spec/views/why_connect_another_device');
 
 const runTests = function () {
   /**
