@@ -25,7 +25,7 @@ describe('views/pair/failure', () => {
   describe('render', () => {
     it('renders', () => {
       return view.render().then(() => {
-        assert.ok(view.$el.find('.graphic-pair-failure').length);
+        assert.ok(view.$el.find('.bg-image-pair-fail').length);
       });
     });
   });

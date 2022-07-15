@@ -17,7 +17,7 @@ const t = (msg) => msg;
 
 const ResetPasswordView = FormView.extend({
   events: {
-    'click .remember-password': preventDefaultThen('_rememberPassword'),
+    'click #remember-password': preventDefaultThen('_rememberPassword'),
   },
 
   initialize(options) {

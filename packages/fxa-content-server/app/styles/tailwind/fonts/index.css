@@ -1,0 +1,37 @@
+/* font path is relative to the tailwind.out file */
+/* REACT NOTE: this file can likely be shared in `fxa-react` */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('tailwind/fonts/Inter-Regular.woff2?v=3.13') format('woff2'),
+    url('tailwind/fonts/Inter-Regular.woff?v=3.13') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('tailwind/fonts/Inter-Bold.woff2?v=3.13') format('woff2'),
+    url('tailwind/fonts/Inter-Bold.woff?v=3.13') format('woff');
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('tailwind/fonts/Metropolis-Regular.woff2?v=10.0.0') format('woff2'),
+    url('tailwind/fonts/Metropolis-Regular.woff?v=10.0.0') format('woff');
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('tailwind/fonts/Metropolis-Bold.woff2?v=10.0.0') format('woff2'),
+    url('tailwind/fonts/Metropolis-Bold.woff?v=10.0.0') format('woff');
+}

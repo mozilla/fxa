@@ -1,6 +1,6 @@
-<div id="main-content" class="card pair-auth">
-  <header>
-    <h1 id="fxa-pair-auth-allow-header">
+<div class="card">
+  <header class="mb-4">
+    <h1 id="fxa-pair-auth-allow-header" class="card-header">
       {{#t}}Did you just sign in to Firefox?{{/t}}
     </h1>
     <p>{{#unsafeTranslate}} %(email)s {{/unsafeTranslate}}</p>
@@ -9,15 +9,15 @@
   <section>
     <div class="error"></div>
     <div class="success"></div>
-    <div class="graphic graphic-confirm-pairing" role="img" aria-label="{{#t}}location balloon{{/t}}"></div>
+    <div class="bg-image-location-balloon" role="img" aria-label="{{#t}}location balloon{{/t}}"></div>
 
     <form novalidate>
       {{{ unsafeDeviceBeingPairedHTML }}}
 
-      <div class="button-row">
-        <button type="submit" id="auth-approve-btn">{{#t}}Yes, approve device{{/t}}</button>
+      <div class="flex">
+        <button type="submit" class="cta-primary cta-xl my-5" id="auth-approve-btn">{{#t}}Yes, approve device{{/t}}</button>
       </div>
-      <p>{{#unsafeTranslate}}If this wasn’t you, <a id="change-password">change your password</a> {{/unsafeTranslate}}</p>
+      <p class="text-grey-500 text-xs">{{#unsafeTranslate}}If this wasn’t you, <a id="change-password" class="link-blue">change your password</a> {{/unsafeTranslate}}</p>
     </form>
   </section>
   </div>

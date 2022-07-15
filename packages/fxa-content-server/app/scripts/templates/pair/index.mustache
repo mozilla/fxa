@@ -1,24 +1,24 @@
-<div id="main-content" class="card">
+<div class="card">
   <header>
-    <h2 id="pair-header">{{#t}}Get Firefox on your phone or tablet{{/t}}</h2>
+    <h2 id="pair-header" class="card-header">{{#t}}Get Firefox on your phone or tablet{{/t}}</h2>
   </header>
 
   <section>
     <div class="error"></div>
 
     {{#showQrCode}}
-      <div class="graphic graphic-connect-another-device-qr-code" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
-      <p>{{#t}}Hold your phone's camera over the code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a href="https://www.mozilla.org/firefox/mobile/get-app/" class="download-firefox-mobile">download link.</a>{{/unsafeTranslate}}</p>
+      <div class="bg-image-cad-qr-code" role="img" aria-label="{{#t}}QR code{{/t}}"></div>
+      <p class="my-5">{{#t}}Hold your phone’s camera over the code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a href="https://www.mozilla.org/firefox/mobile/get-app/" target="_blank" class="link-blue">download link.</a>{{/unsafeTranslate}}</p>
     {{/showQrCode}}
     {{^showQrCode}}
-      <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Get Firefox on your phone or tablet{{/t}}"></div>
+      <div class="{{graphicId}} mt-5" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
     {{/showQrCode}}
 
     <form novalidate>
-      <div class="button-row">
-        <button id="start-pairing" type="submit">{{#t}}I'm ready to sync devices{{/t}}</button>
+      <div class="flex">
+        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}I’m ready to sync devices{{/t}}</button>
       </div>
     </form>
-    <p>{{#t}}Sync devices to access your tabs, passwords, and bookmarks everywhere you use Firefox.{{/t}}</p>
+    <p class="mt-5 text-grey-500 text-xs">{{#t}}Sync devices to access your tabs, passwords, and bookmarks everywhere you use Firefox.{{/t}}</p>
   </section>
 </div>

@@ -35,128 +35,15 @@
   position: relative;
   width: $avatar-size;
 
-  .avatar-camera & {
-    margin-bottom: 20px;
+  &.spinner-completed {
+    border: 2px solid $avatar-border-color;
+    box-shadow: $card-box-low;
   }
 
-  &.card-view {
-    align-self: center;
-
-    @include respond-to('big') {
-      height: 120px;
-      width: 120px;
-
-      img {
-        display: block;
-        height: 120px;
-        width: 120px;
-      }
-    }
-
-    @include respond-to('small') {
-      height: 84px;
-      width: 84px;
-
-      img {
-        display: block;
-        height: 84px;
-        width: 84px;
-      }
-    }
+  .default {
+    background-image: image-url('default-profile.svg');
+    background-size: cover;
   }
-
-  &.avatar-view {
-    background-size: 120px auto;
-    display: block;
-    height: 120px;
-    margin: 0 auto 16px auto;
-    width: 120px;
-
-    img,
-    .change-avatar {
-      display: block;
-      height: 120px;
-      width: 120px;
-    }
-
-    small {
-      bottom: 0;
-      position: absolute;
-    }
-  }
-
-  &.avatar-settings-view {
-    border: 2px solid transparent;
-    display: block;
-    flex-shrink: 0;
-    margin: 0;
-
-    &:not(.nohover):hover {
-      box-shadow: 0 0 0 1px $color-blue;
-    }
-
-    &:not(.nohover):active {
-      box-shadow: 0 0 0 1px $color-orange;
-    }
-
-    &.spinner-completed {
-      border: 2px solid $avatar-border-color;
-      box-shadow: $card-box-low;
-    }
-
-    .change-avatar:focus {
-      box-shadow: none;
-    }
-
-    @include respond-to('big') {
-      height: 64px;
-      width: 64px;
-    }
-
-    @include respond-to('small') {
-      height: 50px;
-      width: 50px;
-    }
-
-    span {
-      display: inline-block;
-    }
-
-    img,
-    span,
-    .change-avatar {
-      @include respond-to('big') {
-        height: 60px;
-        width: 60px;
-      }
-
-      @include respond-to('small') {
-        height: 46px;
-        width: 46px;
-      }
-    }
-  }
-
-  img {
-    display: block;
-    height: $avatar-size;
-    width: $avatar-size;
-
-    &.hidden {
-      display: none;
-    }
-
-    &.default {
-      background-image: image-url('default-profile.svg');
-      background-size: cover;
-    }
-  }
-}
-
-.with-default {
-  background: image-url('default-profile.svg') center;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
 }
 
 #done {

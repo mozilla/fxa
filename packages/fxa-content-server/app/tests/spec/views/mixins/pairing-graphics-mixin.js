@@ -20,25 +20,22 @@ describe('views/mixins/pairing-graphics-mixin', function () {
   });
 
   describe('getGraphicsId', () => {
-    it('returns `graphic-connect-another-device` if SvgTransformOrigin not supported', () => {
+    it('returns `bg-image-cad` if SvgTransformOrigin not supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           supportsSvgTransformOrigin: () => false,
         };
       });
-      assert.equal(view.getGraphicsId(), 'graphic-connect-another-device');
+      assert.equal(view.getGraphicsId(), 'bg-image-cad');
     });
 
-    it('returns `graphic-connect-another-device-hearts` if SvgTransformOrigin supported', () => {
+    it('returns `bg-image-cad-hearts` if SvgTransformOrigin supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           supportsSvgTransformOrigin: () => true,
         };
       });
-      assert.equal(
-        view.getGraphicsId(),
-        'graphic-connect-another-device-hearts'
-      );
+      assert.equal(view.getGraphicsId(), 'bg-image-cad-hearts');
     });
   });
 

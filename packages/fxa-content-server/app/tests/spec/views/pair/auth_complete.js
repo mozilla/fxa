@@ -85,11 +85,12 @@ describe('views/pair/auth_complete', () => {
           view.$el.find('#pair-auth-complete-header').text(),
           'Device connected'
         );
-        assert.include(view.$el.find('#device-os').text(), 'Firefox on Windows');
-
-        assert.ok(
-          view.$el.find('.graphic-connect-another-device-hearts').length
+        assert.include(
+          view.$el.find('#device-os').text(),
+          'Firefox on Windows'
         );
+
+        assert.ok(view.$el.find('.bg-image-cad-hearts').length);
       });
     });
   });

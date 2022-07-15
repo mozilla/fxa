@@ -1,27 +1,27 @@
-<div id="main-content" class="card pair-auth pair-auth-complete">
-  <header>
-    <h1 id="pair-auth-complete-header">{{#t}}Device connected{{/t}}</h1>
+<div class="card">
+  <header class="mb-9">
+    <h1 id="pair-auth-complete-header" class="card-header">{{#t}}Device connected{{/t}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
 
-    <div class="graphic {{ graphicId }}" role="img" aria-label="{{#t}}Successfully connected{{/t}}"></div>
+    <div class="{{ graphicId }}" role="img" aria-label="{{#t}}Successfully connected{{/t}}"></div>
 
-    <h2 id="device-os">
+    <h2 id="device-os" class="text-base">
       {{#unsafeTranslate}}
         You are now syncing with: <span>%(deviceFamily)s on %(deviceOS)s</span>
       {{/unsafeTranslate}}
     </h2>
 
-    <p>{{#t}}Now you can access your open tabs, passwords, and bookmarks on all your devices.{{/t}}</p>
+    <p class="my-5">{{#t}}Now you can access your open tabs, passwords, and bookmarks on all your devices.{{/t}}</p>
 
-    <div class="button-row">
+    <div class="flex">
       {{#hasFirefoxViewSupport}}
-        <a id="open-firefox-view" class="button primary-button">{{#t}}See tabs from synced devices{{/t}}</a>
+        <a id="open-firefox-view" class="cta-primary cta-xl">{{#t}}See tabs from synced devices{{/t}}</a>
       {{/hasFirefoxViewSupport}}
       {{^hasFirefoxViewSupport}}
-        <a href="/settings#connected-services" class="button primary-button">{{#t}}Manage devices{{/t}}</a>
+        <a href="/settings#connected-services" class="cta-primary cta-xl">{{#t}}Manage devices{{/t}}</a>
       {{/hasFirefoxViewSupport}}
     </div>
   </section>
