@@ -19,6 +19,7 @@ test.describe('severity-1', () => {
     credentials,
     pages: { page, login, settings, secondaryEmail },
   }) => {
+    test.slow();
     await settings.goto();
     await settings.secondaryEmail.clickAdd();
     const newEmail = `blocked${Math.floor(

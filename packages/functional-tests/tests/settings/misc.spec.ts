@@ -26,6 +26,7 @@ test.describe('severity-1 #smoke', () => {
     credentials,
     pages: { settings, deleteAccount, page },
   }) => {
+    test.slow(); 
     await settings.goto();
     await settings.clickDeleteAccount();
     await deleteAccount.checkAllBoxes();
