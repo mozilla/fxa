@@ -135,5 +135,16 @@ describe('PlayPubsubHandler', () => {
       );
       assert.notCalled(db.account);
     });
+
+    it('replaced purchase', async () => {
+      mockPurchase.userId = 'invalid';
+      mockPurchase.replacedByAnotherPurchase = true;
+      const result = await playPubsubHandlerInstance.rtdn(mockRequest);
+      assert.deepEqual(result, {});
+      assert.notCalled(
+        mockPlayBilling.purchaseManager.processDeveloperNotification
+      );
+      assert.notCalled(db.account);
+    });
   });
 });

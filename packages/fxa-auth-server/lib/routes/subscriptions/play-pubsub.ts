@@ -58,8 +58,8 @@ export class PlayPubsubHandler {
       return {};
     }
 
-    if (!purchase.userId) {
-      // Purchase is not associated with a user, nothing else can be done.
+    if (!purchase.userId || purchase.replacedByAnotherPurchase) {
+      // Purchase is not associated with a user or was replaced, nothing else can be done.
       return {};
     }
     const uid = purchase.userId;
