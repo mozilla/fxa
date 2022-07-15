@@ -4,10 +4,12 @@
   "parserOptions": {
     "ecmaFeatures": {
       "globalReturn": true
-    }
+    },
+    "sourceType": "module"
   },
   "rules": {
     "strict": "off",
-    "handle-callback-err": "off"
+    "handle-callback-err": "off",
+    "camelcase": "off"
   }
 }
