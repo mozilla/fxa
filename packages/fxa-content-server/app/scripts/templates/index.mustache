@@ -2,7 +2,7 @@
   <header>
     {{#isSync}}
       <h1 id="fxa-enter-email-header">
-        Sign in to your Firefox account
+        {{#t}}Continue to Firefox accounts{{/t}}
       </h1>
       <p class="sync-description">
         {{#t}}Sync your passwords, tabs, and bookmarks everywhere you use Firefox.{{/t}}
@@ -36,7 +36,9 @@
       </div>
 
       <div class="button-row">
-        <button id="submit-btn" type="submit">{{#t}}Continue{{/t}}</button>
+        <button id="submit-btn" type="submit">
+          {{#t}}Sign up or sign in{{/t}}
+        </button>
       </div>
     </form>
 

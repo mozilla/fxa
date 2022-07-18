@@ -208,7 +208,7 @@ describe('views/index', () => {
           return view.render().then(() => {
             assert.include(
               view.$(Selectors.HEADER).text(),
-              'Sign in to your Firefox account'
+              'Continue to Firefox accounts'
             );
             assert.include(
               view.$(Selectors.SYNC_DESCRIPTION).text(),
