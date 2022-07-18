@@ -416,6 +416,7 @@ module.exports = {
     LINK_RESET_PASSWORD: '.reset-password',
     PASSWORD: 'input[type=password]',
     SUB_HEADER: '#fxa-force-auth-header .service',
+    SUB_HEADER_SYNC: '#fxa-force-auth-header .description',
   },
   INLINE_TOTP: {
     HEADER: '#fxa-inline-totp-setup',

@@ -163,6 +163,10 @@ var OAuthRelier = Relier.extend({
     return true;
   },
 
+  isSync() {
+    return this.get('serviceName') === Constants.RELIER_SYNC_SERVICE_NAME;
+  },
+
   _isVerificationFlow() {
     return !!this.getSearchParam('code');
   },

@@ -38,9 +38,8 @@ describe('models/reliers/oauth', () => {
   var SCOPE = 'profile:email profile:uid';
   var SCOPE_OLDSYNC = 'https://identity.mozilla.com/apps/oldsync';
   var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
-  var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(
-    ' '
-  );
+  var SCOPE_PROFILE_EXPANDED =
+    Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
   var PERMISSIONS = ['profile:email', 'profile:uid'];
   var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
   var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
@@ -656,6 +655,16 @@ describe('models/reliers/oauth', () => {
       it('returns `false`', () => {
         assert.isFalse(relier.isTrusted());
       });
+    });
+  });
+
+  describe('isSync', () => {
+    it('returns `true` when serviceName matches sync', () => {
+      relier.set('serviceName', Constants.RELIER_SYNC_SERVICE_NAME);
+      assert.isTrue(relier.isSync());
+    });
+    it('returns `false` when serviceName does not match sync', () => {
+      assert.isFalse(relier.isSync());
     });
   });
 
