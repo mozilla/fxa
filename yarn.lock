@@ -22977,7 +22977,7 @@ fsevents@~2.1.1:
     jquery: 3.6.0
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: 1.0.2
-    jquery-ui: 1.13.1
+    jquery-ui: 1.13.2
     jquery-ui-touch-punch-amd: 1.0.1
     js-md5: 0.6.0
     jsqr: 1.4.0
@@ -29197,12 +29197,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jquery-ui@npm:1.13.1":
-  version: 1.13.1
-  resolution: "jquery-ui@npm:1.13.1"
+"jquery-ui@npm:1.13.2":
+  version: 1.13.2
+  resolution: "jquery-ui@npm:1.13.2"
   dependencies:
     jquery: ">=1.8.0 <4.0.0"
-  checksum: 5eba4be23cad9a173b222a1a28c5126416209b3923ec5f0f83d85aaab385d567a23f3a399889b0f83dedfe13fafa55d32dc4deb9a13aa138cbca9a1b863fe4a1
+  checksum: 0d04a4b86e703d6ff71bcc37335f99be137b03fa24fa22f00f61f5aac132e7143b7d6dd9973ad4f72366e102826e417bc3d88c1640f7dd824961a7131bd3966a
   languageName: node
   linkType: hard
 
