@@ -92,7 +92,7 @@
     "google-auth-library": "^8.0.2",
     "googleapis": "^102.0.0",
     "hapi-auth-jwt2": "^10.2.0",
-    "hapi-error": "^2.3.0",
+    "hapi-error": "^3.0.0",
     "hapi-swagger": "^14.5.2",
     "hkdf": "0.0.2",
     "hot-shots": "^9.1.0",
