@@ -4162,7 +4162,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hoek@npm:9.x.x, @hapi/hoek@npm:^9.0.0, @hapi/hoek@npm:^9.0.2, @hapi/hoek@npm:^9.0.4":
+"@hapi/hoek@npm:9.x.x, @hapi/hoek@npm:^9.0.0, @hapi/hoek@npm:^9.0.4":
   version: 9.2.0
   resolution: "@hapi/hoek@npm:9.2.0"
   checksum: 57103bb5074d24ffd876f559bac6b312f2f58fe0f21dbfb0b8941032cba4fd37d92249db366516e1f68e2033834b87001c1558f523b48130b21f823f1e35b91a
@@ -22792,7 +22792,7 @@ fsevents@~2.1.1:
     grunt-eslint: ^23.0.0
     grunt-newer: 1.3.0
     hapi-auth-jwt2: ^10.2.0
-    hapi-error: ^2.3.0
+    hapi-error: ^3.0.0
     hapi-swagger: ^14.5.2
     hkdf: 0.0.2
     hot-shots: ^9.1.0
@@ -25227,12 +25227,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hapi-error@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "hapi-error@npm:2.3.0"
+"hapi-error@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "hapi-error@npm:3.0.0"
   dependencies:
-    "@hapi/hoek": ^9.0.2
-  checksum: 5eeade2b6e3b00c0392d83a8cebab4498097a74ab1f16099e686ddc990749994dbe4dfac4b068af44dab2db16107291d4543e252073178aad22e3b2bcb719b51
+    "@hapi/hoek": ^10.0.0
+  checksum: 5ab407d0bd40c054d38e5b093f990878983e3a309fc86d364ac27f8c9ebd028f38fe5a1f7e77306973cdbee75539e54574fc86d37186b5e235187a17b4ec00c0
   languageName: node
   linkType: hard
 
