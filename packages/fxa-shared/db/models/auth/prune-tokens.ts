@@ -26,7 +26,7 @@ export class PruneTokens extends BaseAuthModel {
   private _timeoutId: any | undefined;
 
   /**
-   * Creates a token prune
+   * Creates a token pruner
    * @param pruneInterval - A set interval at which to attempt prune operations
    * @param metrics - A statsd instance
    * @param log - A logger
@@ -85,6 +85,8 @@ export class PruneTokens extends BaseAuthModel {
         ]
       );
       this.metrics?.increment('PruneTokens.Complete', { ...result });
+
+      return result;
     } catch (err) {
       this.metrics?.increment('PruneTokens.Error');
       this.log?.error('TokenPruner', err);

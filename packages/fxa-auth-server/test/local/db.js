@@ -395,19 +395,6 @@ describe('redis enabled, token-pruning enabled:', () => {
       });
   });
 
-  it('should call pruneTokens.prune in db.pruneSessionTokens', () => {
-    sinon.spy(db.pruneTokens, 'prune');
-    const createdAt = Date.now() - tokenPruning.maxAge - 1;
-    return db
-      .pruneSessionTokens('foo', [
-        { id: 'bar', createdAt },
-        { id: 'baz', createdAt },
-      ])
-      .then(() => {
-        assert.equal(db.pruneTokens.prune.callCount, 1);
-      });
-  });
-
   it('should not call redis.pruneSessionTokens for unexpired tokens in db.pruneSessionTokens', () => {
     const createdAt = Date.now() - tokenPruning.maxAge + 1000;
     return db
