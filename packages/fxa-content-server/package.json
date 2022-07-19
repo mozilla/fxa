@@ -65,7 +65,7 @@
     "expose-loader": "1.0.3",
     "express": "^4.17.2",
     "extract-loader": "5.1.0",
-    "fast-text-encoding": "^1.0.3",
+    "fast-text-encoding": "^1.0.4",
     "file-loader": "^6.1.0",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
