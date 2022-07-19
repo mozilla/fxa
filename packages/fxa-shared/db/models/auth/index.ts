@@ -21,8 +21,10 @@ import { PayPalBillingAgreements } from './paypal-ba';
 import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
-import { PruneTokens } from './prune-token';
+import { PruneTokens } from './prune-tokens';
 import { RelyingParty } from './relying-party';
+import { SignInCodes } from './sign-in-codes';
+import { UnblockCodes } from './unblock-codes';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -254,4 +256,6 @@ export {
   SessionToken,
   TotpToken,
   RelyingParty,
+  SignInCodes,
+  UnblockCodes,
 };

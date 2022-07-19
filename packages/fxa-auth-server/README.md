@@ -253,6 +253,24 @@ manage this config.
   node -r esbuild-register scripts/email-config check foo@example.com
   ```
 
+### Token Pruning
+
+We need to be able to periodically remove old tokens and codes. This can be accomplished via the token pruning script in the scripts directory.
+
+For example to clear out tokens and codes older than 10 days execute the following:
+
+```
+./scripts/prune-tokens.sh —-maxTokenAge='10 days' --maxCodeAge='10 days'
+```
+
+For more info about the script usage execute the following:
+
+```
+./scripts/prune-tokens.sh --help
+```
+
+_Note: In the wild, this script will be run periodically by our SRE team as part of database maintenance._
+
 ## Troubleshooting
 
 Firefox Accounts authorization is a complicated flow. You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance. Add a stanza like:
