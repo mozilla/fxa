@@ -24,10 +24,7 @@ const resetA11yOnAdjacentElementsAndBody = (els: NodeListOf<HTMLElement>) => {
   });
 };
 
-const Portal = ({
-  id,
-  children,
-}: PortalProps): React.ReactPortal | null => {
+const Portal = ({ id, children }: PortalProps): React.ReactPortal | null => {
   let el = document.getElementById(id);
   if (!el) {
     el = document.createElement('div');

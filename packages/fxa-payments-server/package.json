@@ -3,7 +3,7 @@
   "version": "1.236.3",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
-    "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
+    "build-css": "tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
     "postinstall": "../../_scripts/clone-l10n.sh fxa-payments-server",
     "lint": "npm-run-all --parallel lint:eslint",
     "lint:eslint": "eslint . .storybook",
