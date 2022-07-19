@@ -48,7 +48,7 @@ export const ModalButton = ({
       className={classNames(
         'cta-base transition-standard',
         leftSpaced && 'ml-2',
-        className || 'cta-neutral'
+        className || 'cta-neutral cta-base-p'
       )}
       data-testid={formatDataTestId('unit-row-modal')}
       ref={modalTriggerElement}
@@ -165,7 +165,7 @@ export const UnitRow = ({
           {disabled ? (
             <button
               className={classNames(
-                'cta-neutral cta-base transition-standard rtl:ml-1',
+                'cta-neutral cta-base cta-base-p transition-standard rtl:ml-1',
                 isLevelWithRefreshButton && 'mobileLandscape:mr-9'
               )}
               data-testid={formatDataTestId('unit-row-route')}
@@ -179,7 +179,7 @@ export const UnitRow = ({
               {!hideCtaText && route && (
                 <Link
                   className={classNames(
-                    'cta-neutral cta-base transition-standard rtl:ml-1',
+                    'cta-neutral cta-base cta-base-p transition-standard rtl:ml-1',
                     isLevelWithRefreshButton && 'mobileLandscape:mr-9'
                   )}
                   data-testid={formatDataTestId('unit-row-route')}
@@ -202,7 +202,7 @@ export const UnitRow = ({
 
               {secondaryCtaRoute && (
                 <Link
-                  className="cta-neutral cta-base transition-standard ltr:mr-1 rtl:ml-1"
+                  className="cta-neutral cta-base cta-base-p transition-standard ltr:mr-1 rtl:ml-1"
                   data-testid={formatDataTestId('unit-row-route')}
                   to={`${secondaryCtaRoute}${location.search}`}
                 >

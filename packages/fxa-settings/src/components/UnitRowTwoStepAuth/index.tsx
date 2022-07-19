@@ -60,7 +60,7 @@ export const UnitRowTwoStepAuth = () => {
             null,
             'Disable'
           ),
-          secondaryButtonClassName: 'cta-caution',
+          secondaryButtonClassName: 'cta-caution cta-base-p',
           secondaryButtonTestId: 'two-step-disable-button',
           // The naming of this is a bit confusing, since they are swapped in this
           // case, we should come up with a better name here. Filed FXA-2539
@@ -135,7 +135,7 @@ export const UnitRowTwoStepAuth = () => {
               null,
               'Disable'
             )}
-            confirmBtnClassName="cta-caution"
+            confirmBtnClassName="cta-caution cta-base-p"
           >
             <Localized id="tfa-row-disable-modal-heading">
               <h2
@@ -199,7 +199,7 @@ export const UnitRowTwoStepAuth = () => {
               null,
               'Change'
             )}
-            confirmBtnClassName="cta-primary"
+            confirmBtnClassName="cta-primary cta-base-p"
             route={replaceCodesRoute}
           >
             <Localized id="tfa-row-change-modal-heading">

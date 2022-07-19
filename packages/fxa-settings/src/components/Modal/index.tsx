@@ -37,7 +37,7 @@ export const Modal = ({
   descId,
   route,
   confirmText = 'Confirm',
-  confirmBtnClassName = 'cta-primary',
+  confirmBtnClassName = 'cta-primary cta-base-p',
   'data-testid': testid = 'modal',
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
@@ -90,7 +90,7 @@ export const Modal = ({
                 {hasCancelButton && (
                   <Localized id="modal-cancel-button">
                     <button
-                      className="cta-neutral mx-2 flex-1"
+                      className="cta-neutral mx-2 flex-1 cta-base-p"
                       data-testid="modal-cancel"
                       onClick={(event) => onDismiss()}
                     >

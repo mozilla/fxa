@@ -151,7 +151,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
             <Localized id="tfa-button-cancel">
               <button
                 type="button"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
               >
                 Cancel
@@ -160,7 +160,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
             <Localized id="recovery-key-continue-button">
               <button
                 type="submit"
-                className="cta-neutral mx-2 px-10"
+                className="cta-neutral mx-2 px-10 py-2"
                 data-testid="ack-recovery-code"
                 onClick={() => {
                   activateStep(2);
@@ -257,7 +257,7 @@ const RecoveryCodeCheck = ({
           <Localized id="tfa-button-cancel">
             <button
               type="button"
-              className="cta-neutral mx-2 flex-1"
+              className="cta-neutral cta-base-p mx-2 flex-1"
               onClick={goHome}
             >
               Cancel
@@ -268,7 +268,7 @@ const RecoveryCodeCheck = ({
           <button
             type="submit"
             data-testid="submit-recovery-code"
-            className="cta-primary mx-2 flex-1"
+            className="cta-primary cta-base-p mx-2 flex-1"
             disabled={
               !recoveryCodeForm.formState.isDirty ||
               !recoveryCodeForm.formState.isValid

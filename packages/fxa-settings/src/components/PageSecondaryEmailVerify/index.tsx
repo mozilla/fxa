@@ -137,7 +137,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             <Localized id="verify-secondary-email-cancel-button">
               <button
                 type="button"
-                className="cta-neutral mx-2 flex-1"
+                className="cta-neutral cta-base-p mx-2 flex-1"
                 data-testid="secondary-email-verify-cancel"
                 onClick={goHome}
               >
@@ -147,7 +147,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             <Localized id="verify-secondary-email-verify-button">
               <button
                 type="submit"
-                className="cta-primary mx-2 flex-1"
+                className="cta-primary cta-base-p mx-2 flex-1"
                 data-testid="secondary-email-verify-submit"
                 disabled={buttonDisabled}
               >

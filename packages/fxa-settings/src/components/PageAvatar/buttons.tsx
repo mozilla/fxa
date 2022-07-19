@@ -145,10 +145,10 @@ export const ConfirmBtns = ({
   const navigate = useNavigate();
 
   return (
-    <div className="mt-4 flex items-center justify-center">
+    <div className="flex justify-center mx-auto max-w-64">
       <Localized id="avatar-page-cancel-button">
         <button
-          className="cta-neutral mx-2 px-10 w-full max-w-32"
+          className="cta-neutral cta-base-p mx-2 flex-1"
           onClick={() => navigate(HomePath, { replace: true })}
           data-testid="close-button"
         >
@@ -156,7 +156,7 @@ export const ConfirmBtns = ({
         </button>
       </Localized>
       <button
-        className="cta-primary mx-2 px-10 w-full max-w-32"
+        className="cta-primary cta-base-p mx-2 flex-1"
         onClick={onSave}
         disabled={!saveEnabled}
         data-testid="save-button"

@@ -264,12 +264,12 @@ Assuming this package uses `postcss-import`, all we need to do now is `@import .
 
 ```tsx
 // my-component.tsx
-<button className="cta-neutral">
+<button className="cta-neutra cta-base-p">
   Click here!
 </button>
 
 // my-other-component.tsx
-<a href="#" className="cta-neutral">
+<a href="#" className="cta-neutral cta-base-p">
   Click here!
 </a>
 ```

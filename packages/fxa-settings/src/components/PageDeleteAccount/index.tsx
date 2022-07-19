@@ -159,7 +159,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
             <div className="mt-4 flex items-center justify-center">
               <Localized id="delete-account-cancel-button">
                 <button
-                  className="cta-neutral mx-2 px-10"
+                  className="cta-neutral mx-2 px-10 py-2"
                   onClick={() =>
                     navigate(HomePath + '#delete-account', { replace: true })
                   }
@@ -170,7 +170,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               </Localized>
               <Localized id="delete-account-continue-button">
                 <button
-                  className="cta-primary mx-2 px-10"
+                  className="cta-primary mx-2 px-10 py-2"
                   disabled={!allBoxesChecked}
                   onClick={() => advanceStep()}
                   data-testid="continue-button"
@@ -210,7 +210,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <Localized id="delete-account-cancel-button">
                 <button
                   type="button"
-                  className="cta-neutral mx-2 px-4 tablet:px-10"
+                  className="cta-neutral py-2 mx-2 px-4 tablet:px-10"
                   data-testid="cancel-button"
                   onClick={goHome}
                 >
@@ -220,7 +220,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <Localized id="delete-account-delete-button-2">
                 <button
                   type="submit"
-                  className="cta-caution mx-2 px-4 tablet:px-10"
+                  className="cta-caution py-2 mx-2 px-4 tablet:px-10"
                   data-testid="delete-account-button"
                   disabled={disabled}
                 >
