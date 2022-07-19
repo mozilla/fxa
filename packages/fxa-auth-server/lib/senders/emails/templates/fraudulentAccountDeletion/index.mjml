@@ -1,0 +1,31 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+	# License, v. 2.0. If a copy of the MPL was not distributed with this
+	# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+	<mj-column>
+		<mj-text css-class="text-header">
+			<span data-l10n-id="fraudulentAccountDeletion-title">Your account was deleted</span>
+		</mj-text>
+
+		<mj-text css-class="text-body">
+			<span data-l10n-id="fraudulentAccountDeletion-content">
+				Recently, a Firefox account was created and a subscription was charged using this email address. As we do with all new accounts, we asked that you confirm your account by first validating this email address.
+			</span>
+		</mj-text>
+
+		<mj-text css-class="text-body">
+			<span data-l10n-id="fraudulentAccountDeletion-content-2">
+				At present, we see that the account was never confirmed. Since this step was not completed, we are not sure if this was an authorized subscription. As a result, the Firefox account registered to this email address was deleted and your subscription was canceled with all charges reimbursed.
+			</span>
+		</mj-text>
+
+		<mj-text css-class="text-body">
+			<span data-l10n-id="fraudulentAccountDeletion-contact">
+				If you have any questions, please contact <a class="link-blue" href="<%- mozillaSupportUrl %>" data-l10n-name="mozillaSupportUrl">our support team</a>.
+			</span>
+		</mj-text>
+	</mj-column>
+</mj-section>
+
+<%- include('/partials/automatedEmailNoActionSupport/index.mjml') %>

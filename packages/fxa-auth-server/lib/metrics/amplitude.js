@@ -44,6 +44,7 @@ const EMAIL_TYPES = {
   subscriptionFirstInvoice: 'subscription_first_invoice',
   subscriptionFirstInvoiceDiscount: 'subscription_first_invoice_discount',
   downloadSubscription: 'subscription_download',
+  fraudulentAccountDeletion: 'account_deletion',
   lowRecoveryCodes: '2fa',
   newDeviceLogin: 'login',
   passwordChanged: 'change_password',

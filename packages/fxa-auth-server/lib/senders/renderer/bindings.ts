@@ -46,7 +46,7 @@ export interface TemplateContext {
   acceptLanguage: string;
   template: string;
   layout?: string;
-  templateValues: TemplateValues;
+  templateValues?: TemplateValues;
 }
 
 export interface RendererContext extends TemplateContext, TemplateValues {

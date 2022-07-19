@@ -65,6 +65,7 @@ module.exports = function (log, config, bounces) {
     subscriptionFirstInvoice: 'subscription-first-invoice',
     subscriptionFirstInvoiceDiscount: 'subscription-first-invoice-discount',
     downloadSubscription: 'new-subscription',
+    fraudulentAccountDeletion: 'account-deletion',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
     passwordChangeRequired: 'password-change-required',
@@ -115,6 +116,7 @@ module.exports = function (log, config, bounces) {
     subscriptionFirstInvoice: 'subscriptions',
     subscriptionFirstInvoiceDiscount: 'subscriptions',
     downloadSubscription: 'subscriptions',
+    fraudulentAccountDeletion: 'manage-account',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
@@ -2691,6 +2693,38 @@ module.exports = function (log, config, bounces) {
         uid,
         email,
         icon: planEmailIconURL,
+      },
+    });
+  };
+
+  Mailer.prototype.fraudulentAccountDeletionEmail = async function (message) {
+    const { email, uid } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.fraudulentAccountDeletion', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { uid };
+    const template = 'fraudulentAccountDeletion';
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        wasDeleted: true,
       },
     });
   };

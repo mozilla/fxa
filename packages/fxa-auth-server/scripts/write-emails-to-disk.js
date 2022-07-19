@@ -115,6 +115,7 @@ function sendMail(mailer, messageToSend) {
       country: 'Spain',
     },
     locations: [],
+    mozillaSupportUrl: 'https://support.mozilla.org',
     numberRemaining: 2,
     productId: '0123456789abcdef',
     planId: 'plan-example',

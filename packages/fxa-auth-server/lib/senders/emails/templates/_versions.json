@@ -17,6 +17,7 @@
   "subscriptionFirstInvoice": 2,
   "subscriptionFirstInvoiceDiscount": 2,
   "downloadSubscription": 2,
+  "fraudulentAccountDeletion": 1,
   "lowRecoveryCodes": 6,
   "newDeviceLogin": 6,
   "passwordChanged": 5,

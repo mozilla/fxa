@@ -1,0 +1,1 @@
+automated-email-support-plaintext = "This is an automated email; if you received it in error, no action is required. For more information, please visit Mozilla Support: <%- mozillaSupportUrl %>."
