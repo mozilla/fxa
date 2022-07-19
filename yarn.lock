@@ -21361,6 +21361,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-text-encoding@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "fast-text-encoding@npm:1.0.4"
+  checksum: aa92d27451ad972ac8391b40f8680dc6722513b0b9c123bc6991fb789e46302a89d76a4e23a3071ca2071a63e5e116a0c75d790703a5568b22019350196e405d
+  languageName: node
+  linkType: hard
+
 "fastest-levenshtein@npm:^1.0.12":
   version: 1.0.12
   resolution: "fastest-levenshtein@npm:1.0.12"
@@ -22692,7 +22699,7 @@ fsevents@~2.1.1:
     asmcrypto.js: ^0.22.0
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
-    fast-text-encoding: ^1.0.3
+    fast-text-encoding: ^1.0.4
     mocha: ^10.0.0
     node-fetch: ^2.6.1
     typescript: ^4.5.2
@@ -22928,7 +22935,7 @@ fsevents@~2.1.1:
     expose-loader: 1.0.3
     express: ^4.17.2
     extract-loader: 5.1.0
-    fast-text-encoding: ^1.0.3
+    fast-text-encoding: ^1.0.4
     file-loader: ^6.1.0
     firefox-profile: 4.2.2
     fxa-auth-client: "workspace:*"
