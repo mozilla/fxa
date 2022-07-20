@@ -99,7 +99,11 @@ function routeTest(route, expectedStatusCode, requestOptions) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
-        return extractAndCheckUrls(res, testName);
+        return extractAndCheckUrls(
+          res,
+          testName,
+          requestOptions.headers['Accept-Language']
+        );
       })
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
