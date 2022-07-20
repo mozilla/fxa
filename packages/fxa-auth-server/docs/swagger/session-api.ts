@@ -25,7 +25,7 @@ const SESSION_DESTROY_POST = {
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 110\` - Invalid authentication token in request signature
+            - \`errno: 110\` - Invalid authentication token in request signature
           `,
         },
       },
@@ -49,13 +49,13 @@ const SESSION_REAUTH_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 102\` - Unknown account
-            \`errno: 103\` - Incorrect password
-            \`errno: 125\` - The request was blocked for security reasons
-            \`errno: 127\` - Invalid unblock code
-            \`errno: 142\` - Sign in with this email type is not currently supported
-            \`errno: 149\` - This email can not currently be used to login
-            \`errno: 160\` - This request requires two-step authentication enabled on your account
+            - \`errno: 102\` - Unknown account
+            - \`errno: 103\` - Incorrect password
+            - \`errno: 125\` - The request was blocked for security reasons
+            - \`errno: 127\` - Invalid unblock code
+            - \`errno: 142\` - Sign in with this email type is not currently supported
+            - \`errno: 149\` - This email can not currently be used to login
+            - \`errno: 160\` - This request requires two-step authentication enabled on your account
           `,
         },
       },

@@ -14,7 +14,7 @@ const ACCOUNT_CREATE_POST = {
   description: '/account/create',
   notes: [
     dedent`
-      Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [**onepw**](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
+      Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [onepw](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
 
       This endpoint may send a verification email to the user. Callers may optionally provide the \`service\` parameter to indicate which service they are acting on behalf of. This is an opaque alphanumeric token that will be embedded in the verification link as a query parameter.
 
@@ -27,8 +27,8 @@ const ACCOUNT_CREATE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 101\` - Account already exists
-            \`errno: 144\` - Email already exists
+            - \`errno: 101\` - Account already exists
+            - \`errno: 144\` - Email already exists
           `,
         },
       },
@@ -48,19 +48,19 @@ const ACCOUNT_LOGIN_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 102\` - Unknown account
-            \`errno: 103\` - Incorrect password
-            \`errno: 125\` - The request was blocked for security reasons
-            \`errno: 127\` - Invalid unblock code
-            \`errno: 142\` - Sign in with this email type is not currently supported
-            \`errno: 149\` - This email can not currently be used to login
-            \`errno: 160\` - This request requires two step authentication enabled on your account.
+            - \`errno: 102\` - Unknown account
+            - \`errno: 103\` - Incorrect password
+            - \`errno: 125\` - The request was blocked for security reasons
+            - \`errno: 127\` - Invalid unblock code
+            - \`errno: 142\` - Sign in with this email type is not currently supported
+            - \`errno: 149\` - This email can not currently be used to login
+            - \`errno: 160\` - This request requires two step authentication enabled on your account.
           `,
         },
         422: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 151\` - Failed to send email
+            - \`errno: 151\` - Failed to send email
           `,
         },
       },
@@ -84,7 +84,7 @@ const ACCOUNT_STATUS_GET = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 108\` - Missing parameter in request body
+            - \`errno: 108\` - Missing parameter in request body
           `,
         },
       },
@@ -96,7 +96,7 @@ const ACCOUNT_STATUS_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/status',
   notes: [
-    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited by [**fxa-customs-server**](https://github.com/mozilla/fxa/tree/main/packages/fxa-customs-server).',
+    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited by [fxa-customs-server](https://github.com/mozilla/fxa/tree/main/packages/fxa-customs-server).',
   ],
 };
 
@@ -139,7 +139,7 @@ const ACCOUNT_KEYS_GET = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 104\` - Unverified account
+            - \`errno: 104\` - Unverified account
           `,
         },
       },
@@ -158,7 +158,7 @@ const ACCOUNT_UNLOCK_RESEND_CODE_POST = {
         410: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 116\` - This endpoint is no longer supported
+            - \`errno: 116\` - This endpoint is no longer supported
           `,
         },
       },
@@ -177,7 +177,7 @@ const ACCOUNT_UNLOCK_VERIFY_CODE_POST = {
         410: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 116\` - This endpoint is no longer supported
+            - \`errno: 116\` - This endpoint is no longer supported
           `,
         },
       },
@@ -205,7 +205,7 @@ const ACCOUNT_RESET_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 108\` - Missing parameter in request body
+            - \`errno: 108\` - Missing parameter in request body
           `,
         },
       },
@@ -229,8 +229,8 @@ const ACCOUNT_DESTROY_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 103\` - Incorrect password
-            \`errno: 138\` - Unverified session
+            - \`errno: 103\` - Incorrect password
+            - \`errno: 138\` - Unverified session
           `,
         },
       },

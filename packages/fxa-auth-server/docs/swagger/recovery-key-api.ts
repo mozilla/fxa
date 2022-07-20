@@ -16,7 +16,7 @@ const RECOVERYKEY_POST = {
     dedent`
       🔒 Authenticated with session token
 
-      Creates a new recovery key for a user. Recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [**recovery keys**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md) docs.
+      Creates a new recovery key for a user. Recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [recovery keys](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md) docs.
     `,
   ],
 };

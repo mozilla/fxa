@@ -35,7 +35,7 @@ const RECOVERY_EMAIL_STATUS_GET = {
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 110\` - Invalid authentication token in request signature
+            - \`errno: 110\` - Invalid authentication token in request signature
           `,
         },
       },
@@ -61,7 +61,7 @@ const RECOVERY_EMAIL_RESEND_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 150\` - Can not resend email code to an email that does not belong to this account
+            - \`errno: 150\` - Can not resend email code to an email that does not belong to this account
           `,
         },
       },
@@ -85,7 +85,7 @@ const RECOVERY_EMAIL_VERIFY_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 105\` - Invalid verification code'
+            - \`errno: 105\` - Invalid verification code'
           `,
         },
       },
@@ -120,11 +120,11 @@ const RECOVERY_EMAIL_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 104\` - Unverified account
-            \`errno: 138\` - Unverified session
-            \`errno: 139\` - Can not add secondary email that is same as your primary
-            \`errno: 140\` - Email already exists
-            \`errno: 141\` - Email already exists
+            - \`errno: 104\` - Unverified account
+            - \`errno: 138\` - Unverified session
+            - \`errno: 139\` - Can not add secondary email that is same as your primary
+            - \`errno: 140\` - Email already exists
+            - \`errno: 141\` - Email already exists
           `,
         },
       },
@@ -148,7 +148,7 @@ const RECOVERY_EMAIL_DESTROY_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 138\` - Unverified session
+            - \`errno: 138\` - Unverified session
           `,
         },
       },
@@ -172,9 +172,9 @@ const RECOVERY_EMAIL_SET_PRIMARY_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 138\` - Unverified session
-            \`errno: 147\` - Can not change primary email to an unverified email
-            \`errno: 148\` - Can not change primary email to an email that does not belong to this account
+            - \`errno: 138\` - Unverified session
+            - \`errno: 147\` - Can not change primary email to an unverified email
+            - \`errno: 148\` - Can not change primary email to an email that does not belong to this account
           `,
         },
       },
@@ -198,8 +198,8 @@ const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 138\` - Unverified session
-            \`errno: 150\` - Can not resend code for email that does not belong to the account
+            - \`errno: 138\` - Unverified session
+            - \`errno: 150\` - Can not resend code for email that does not belong to the account
           `,
         },
       },
@@ -223,8 +223,8 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 138\` - Unverified session
-            \`errno: 105\` - Invalid verification code
+            - \`errno: 138\` - Unverified session
+            - \`errno: 105\` - Invalid verification code
           `,
         },
       },

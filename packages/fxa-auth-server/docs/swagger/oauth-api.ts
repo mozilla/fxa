@@ -36,16 +36,19 @@ const OAUTH_DESTROY_POST = {
   plugins: {
     'hapi-swagger': {
       responses: {
+        200: {
+          description: 'No information is returned in the response body.'
+        },
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 171\` - Incorrect client secret.
+            - \`errno: 171\` - Incorrect client secret.
           `,
         },
         500: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 162\` - Unknown client id.
+            - \`errno: 162\` - Unknown client id.
           `,
         },
       },
@@ -77,7 +80,7 @@ const OAUTH_TOKEN_POST = {
         - \`grant_type=refresh_token\`: A refresh token issued by a previous call to this endpoint.
         - \`grant_type=fxa-credentials\`: Directly grant tokens using an FxA sessionToken.
 
-      This is the "token endpoint" as defined in RFC6749, and behaves like the oauth-server /token endpoint except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken rather than with a BrowserID assertion.
+      This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken rather than with a BrowserID assertion.
     `,
   ],
   plugins: {
@@ -86,13 +89,13 @@ const OAUTH_TOKEN_POST = {
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 110\` - Invalid authentication token in request signature.
+            - \`errno: 110\` - Invalid authentication token in request signature.
           `,
         },
         500: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 998\` - An internal validation check failed.
+            - \`errno: 998\` - An internal validation check failed.
           `,
         },
       },

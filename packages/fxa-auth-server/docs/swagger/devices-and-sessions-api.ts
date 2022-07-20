@@ -25,8 +25,8 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
       - \`refreshTokenId\`: The id of the OAuth \`refreshToken\` held by that client, if any.
       - \`deviceId\`: The id of the client's device record, if it has registered one.
 
-      These identifiers can be passed to [**/account/attached_client/destroy**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#post-accountattached_clientdestroy) in order to disconnect the client.
-      
+      These identifiers can be passed to [/account/attached_client/destroy](#tag/Devices-and-Sessions/operation/getAccountAttached_clients) in order to disconnect the client.
+
       This endpoint returns a maximum 500 last used devices and sessions.
     `,
   ],
@@ -41,7 +41,7 @@ const ACCOUNT_ATTACHED_CLIENT_DESTROY_POST = {
 
       Destroy all tokens held by a connected client, disconnecting it from the user's account.
 
-      This endpoint is designed to be used in conjunction with [**/account/attached_clients**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#get-accountattached_clients). It accepts as the request body an object in the same format as returned by that endpoing, and will disconnect that client from the user's account.
+      This endpoint is designed to be used in conjunction with [/account/attached_clients](#tag/Devices-and-Sessions/operation/getAccountAttached_clients). It accepts as the request body an object in the same format as returned by that endpoing, and will disconnect that client from the user's account.
     `,
   ],
 };
@@ -53,7 +53,7 @@ const ACCOUNT_DEVICE_POST = {
     dedent`
       🔒 Authenticated with session token or OAuth refresh token
 
-      Creates or updates the [**device registration**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) record associated with the auth token used for this request. At least one of \`name\`, \`type\`, \`pushCallback\` or the tuple \`{ pushCallback, pushPublicKey, pushAuthKey }\` must be present. Beware that if you provide \`pushCallback\` without the pair \`{ pushPublicKey, pushAuthKey }\`, both of those keys will be reset to the empty string.
+      Creates or updates the [device registration](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) record associated with the auth token used for this request. At least one of \`name\`, \`type\`, \`pushCallback\` or the tuple \`{ pushCallback, pushPublicKey, pushAuthKey }\` must be present. Beware that if you provide \`pushCallback\` without the pair \`{ pushPublicKey, pushAuthKey }\`, both of those keys will be reset to the empty string.
 
       \`pushEndpointExpired\` will be reset to false on update if the tuple \`{ pushCallback, pushPublicKey, pushAuthKey }\` is specified.
 
@@ -64,12 +64,16 @@ const ACCOUNT_DEVICE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description:
-            'Failing requests may be caused by the following errors (this is not an exhaustive list): \n `errno: 107` - Invalid parameter in request body',
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 107\` - Invalid parameter in request body
+          `
         },
         503: {
-          description:
-            'Failing requests may be caused by the following errors (this is not an exhaustive list): \n `errno: 202` - Feature not enabled',
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 202\` - Feature not enabled
+          `
         },
       },
     },
@@ -83,9 +87,9 @@ const ACCOUNT_DEVICE_COMMANDS_GET = {
     dedent`
       🔒 Authenticated with session token or authenticated with OAuth refresh token.
 
-      Fetches commands enqueued for the current device by prior calls to \`/account/devices/invoke_command\`. The device can page through the enqueued commands by using the \`index\` and \`limit\` parameters.
+      Fetches commands enqueued for the current device by prior calls to [/account/devices/invoke_command](#tag/Devices-and-Sessions/operation/postAccountDevicesInvoke_command). The device can page through the enqueued commands by using the \`index\` and \`limit\` parameters.
 
-      For more details, see the [**device registration**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) docs.
+      For more details, see the [device registration](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) docs.
     `,
   ],
 };
@@ -99,7 +103,7 @@ const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
 
       Enqueues a command to be invoked on a target device.
 
-      For more details, see the [**device registration**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) docs.
+      For more details, see the [device registration](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/device_registration.md) docs.
     `,
   ],
   plugins: {
@@ -108,7 +112,7 @@ const ACCOUNT_DEVICES_INVOKE_COMMAND_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 157\` - Unavailable device command
+            - \`errno: 157\` - Unavailable device command
           `,
         },
       },
@@ -132,13 +136,13 @@ const ACCOUNT_DEVICES_NOTIFY_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 107\` - Invalid parameter in request body
+            - \`errno: 107\` - Invalid parameter in request body
           `,
         },
         503: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 202\` - Feature not enabled
+            - \`errno: 202\` - Feature not enabled
           `,
         },
       },
@@ -163,7 +167,7 @@ const ACCOUNT_SESSIONS_GET = {
   description: '/account/sessions',
   notes: [
     dedent`
-      [**DEPRECATED**]: Please use [**/account/attached_clients**](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#get-accountattached_clients) instead.
+      [**DEPRECATED**]: Please use [/account/attached_clients](#tag/Devices-and-Sessions/operation/getAccountAttached_clients) instead.
 
       🔒 Authenticated with session token.
 

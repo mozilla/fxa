@@ -19,8 +19,6 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     - The URL embeds a version identifier \`v1\`.
       Future revisions of this API may introduce new version numbers.
     - The base URI of the server may be configured on a per-client basis:
-      - For a list of development servers
-        see [Firefox Accounts deployments on MDN](https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_deployments).
       - The canonical URL for Mozilla's hosted Firefox Accounts server
         is \`https://api.accounts.firefox.com/v1\`.
 
@@ -43,13 +41,13 @@ export const AUTH_SERVER_API_DESCRIPTION = {
 
     For example:
 
-    > \`{\`<br/>
-    >   \`"code": 400,\`  // Matches the HTTP status code<br/>
-    >   \`"errno": 107,\` // Stable application-level error number<br/>
-    >   \`"error": "Bad Request",\` // String description of the error type<br/>
-    >   \`"message": "Invalid parameter in request body",\` // Specific error message<br/>
-    >   \`"info": "https://docs.dev.lcip.og/errors/1234"\`  // Link to more information<br/>
-    > \`}\`
+        {
+          "code": 400,  // Matches the HTTP status code
+          "errno": 107, // Stable application-level error number
+          "error": "Bad Request", // String description of the error type
+          "message": "Invalid parameter in request body", // Specific error message
+          "info": "https://docs.dev.lcip.og/errors/1234"  // Link to more information
+        }
 
     Responses for some errors may include additional parameters.
 
@@ -281,18 +279,18 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     should suspend making further requests
     for 30 seconds:
 
-    > \`HTTP/1.1 503 Service Unavailable\`<br/>
-    > \`Retry-After: 30\`<br/>
-    > \`Content-Type: application/json\`
-    >
-    > \`{\`<br/>
-    >     \`"code": 503,\`<br/>
-    >     \`"errno": 201,\`<br/>
-    >     \`"error": "Service Unavailable",\`<br/>
-    >     \`"message": "Service unavailable",\`<br/>
-    >     \`"info": "https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format",\`<br/>
-    >     \`"retryAfter": 30,\`<br/>
-    >     \`"retryAfterLocalized": "in a few seconds"\`<br/>
-    > \`}\`
+        HTTP/1.1 503 Service Unavailable
+        Retry-After: 30
+        Content-Type: application/json
+
+        {
+            "code": 503,
+            "errno": 201,
+            "error": "Service Unavailable",
+            "message": "Service unavailable",
+            "info": "https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format",
+            "retryAfter": 30,
+            "retryAfterLocalized": "in a few seconds"
+        }
   `,
 };
