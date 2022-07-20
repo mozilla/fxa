@@ -70,11 +70,11 @@ function checkHeaders(routes, route, res) {
  * each URL exists, responds with a 200, and in the case of JS, CSS
  * and fonts, that the correct CORS headers are set.
  */
-function extractAndCheckUrls(res, testName) {
+function extractAndCheckUrls(res, testName, acceptLanguage) {
   var href = url.parse(res.url);
   var origin = [href.protocol, '//', href.host].join('');
   return extractUrls(res.body).then((resources) =>
-    checkUrls(origin, resources, testName)
+    checkUrls(origin, resources, testName, acceptLanguage)
   );
 }
 
@@ -149,7 +149,7 @@ function isUrlIgnored(url) {
   return IGNORE_URL_REGEXPS.find((domainRegExp) => domainRegExp.test(url));
 }
 
-function checkUrls(origin, resources, testName = '') {
+function checkUrls(origin, resources, testName = '', acceptLanguage = 'en') {
   return findCssSubResources(origin, resources).then((cssSubResources) => {
     resources = resources.concat(cssSubResources);
 
@@ -158,13 +158,13 @@ function checkUrls(origin, resources, testName = '') {
         return checkedUrlPromises[resource.url];
       }
 
-      var requestOptions = {};
+      var requestOptions = {
+        headers: {
+          'accept-language': acceptLanguage,
+        },
+      };
       if (doesURLRequireCORS(resource.url)) {
-        requestOptions = {
-          headers: {
-            Origin: origin,
-          },
-        };
+        requestOptions.headers.Origin = origin;
       }
 
       var promise = makeRequest(resource.url, requestOptions).then(function (
@@ -173,7 +173,6 @@ function checkUrls(origin, resources, testName = '') {
         if (isUrlIgnored(resource.url)) {
           return;
         }
-
         assert.equal(res.statusCode, 200, `${testName}: ${resource.url}`);
 
         // If prod-like, Check all CSS and JS (except experiments.bundle.js)
