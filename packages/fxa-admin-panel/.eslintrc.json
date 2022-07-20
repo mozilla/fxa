@@ -2,5 +2,10 @@
   "extends": [
     "react-app",
     "react-app/jest"
-  ]
+  ],
+  "ignorePatterns": [
+    "build",
+    "storybook-static"
+  ],
+  "root": true
 }
