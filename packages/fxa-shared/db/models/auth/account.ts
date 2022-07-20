@@ -442,6 +442,21 @@ export class Account extends BaseAuthModel {
     return account;
   }
 
+  static async listAllUnverified(options?: AccountOptions) {
+    const allAccounts = await Account.query()
+      .select(...selectFields)
+      .where('verifierSetAt', 0);
+
+    if (options?.include?.includes('emails')) {
+      for (let account of allAccounts) {
+        account.emails = await Email.findByUid(account.uid);
+        account.primaryEmail = account.emails.find((email) => email.isPrimary);
+      }
+    }
+
+    return allAccounts;
+  }
+
   static async findByUid(uid: string, options?: AccountOptions) {
     const account = await Account.query()
       .select(...selectFields)
