@@ -1,0 +1,8 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "ignorePatterns": [
+    "dist"
+  ],
+  "root": true
+}
