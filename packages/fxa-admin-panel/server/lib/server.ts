@@ -34,15 +34,6 @@ const cspRulesReportOnly = cspReportOnly(config);
 
 logger.info('version', { version: version });
 
-const CLIENT_CONFIG = {
-  env: config.get('env'),
-  servers: {
-    admin: {
-      url: config.get('servers.admin.url'),
-    },
-  },
-};
-
 // Initialize Sentry
 const sentryConfig = config.get('sentry');
 if (sentryConfig.dsn) {
