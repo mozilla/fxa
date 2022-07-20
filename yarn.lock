@@ -3997,7 +3997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/boom@npm:~10.0.0":
+"@hapi/boom@npm:^10.0.0, @hapi/boom@npm:~10.0.0":
   version: 10.0.0
   resolution: "@hapi/boom@npm:10.0.0"
   dependencies:
@@ -4013,6 +4013,16 @@ __metadata:
     "@hapi/boom": 9.x.x
     "@hapi/hoek": 9.x.x
   checksum: 36cb6bacc508ba6bfa1426345316d6e6b8ffade79c347ccbd3ba4d8f9657342c12ac1e28f35380dec22242305b84ccaf385ce80255bcb084bfb9aa83bced513f
+  languageName: node
+  linkType: hard
+
+"@hapi/bounce@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@hapi/bounce@npm:3.0.0"
+  dependencies:
+    "@hapi/boom": ^10.0.0
+    "@hapi/hoek": ^10.0.0
+  checksum: a50957324f2d08ea3fa229ae30ad69e3f2caedfe773750209ee76a71a97edf35f1f5fd96b3229226e2d38f2b1f718fd2a896121b1d7a5f2e32bc20d24bbbb855
   languageName: node
   linkType: hard
 
@@ -4364,6 +4374,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/topo@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@hapi/topo@npm:6.0.0"
+  dependencies:
+    "@hapi/hoek": ^10.0.0
+  checksum: 6e85904a7b3e15d407a82363b16196fc8c6e7b906d447f91b2ae2f72ad6d32571e8b1ed9fe8153ed971f512e771177f648568f176ebb3429955ef5d8aa26eaec
+  languageName: node
+  linkType: hard
+
 "@hapi/validate@npm:1.x.x, @hapi/validate@npm:^1.1.1":
   version: 1.1.3
   resolution: "@hapi/validate@npm:1.1.3"
@@ -4371,6 +4390,16 @@ __metadata:
     "@hapi/hoek": ^9.0.0
     "@hapi/topo": ^5.0.0
   checksum: dd6f8d6e33ac55d430448bc83c33572a593702ae856186610161a9488a611110ac4f793339043ea44a6f79bebe689bc7f86122df2f817725255159a0c1cb62ec
+  languageName: node
+  linkType: hard
+
+"@hapi/validate@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@hapi/validate@npm:2.0.0"
+  dependencies:
+    "@hapi/hoek": ^10.0.0
+    "@hapi/topo": ^6.0.0
+  checksum: fda3ddd2ecadea2d1ed9e5da11b12fdb654a75e631b312dc410a53aeb4fd8a8238a5bcc7f6e6109623b3b729db31a9480ae3782b4bce7d48694b25b008863b42
   languageName: node
   linkType: hard
 
@@ -4383,15 +4412,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/vision@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "@hapi/vision@npm:6.1.0"
+"@hapi/vision@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@hapi/vision@npm:7.0.0"
   dependencies:
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/validate": 1.x.x
-  checksum: 3e38ea9a0b29849c98ce9ba92b200c6912f60d47768140cb371f05593b4bf34ad4544d3e48e38b57831b22e47f8778cf5877f8a5e7d895566b1d2b8cc82a1535
+    "@hapi/boom": ^10.0.0
+    "@hapi/bounce": ^3.0.0
+    "@hapi/hoek": ^10.0.0
+    "@hapi/validate": ^2.0.0
+  checksum: 8ff8326f4bab3c27715bb49d04b39961fbb24b2ef71c917b958f1161ba17af78cb3d3241a795b7a4b1c099f7855cf035af89b7eb9f36d8aa1f9ed767149a8be2
   languageName: node
   linkType: hard
 
@@ -22723,7 +22752,7 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^10.0.0
     "@hapi/inert": ^6.0.5
-    "@hapi/vision": ^6.1.0
+    "@hapi/vision": ^7.0.0
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@storybook/addon-controls": ^6.5.9
