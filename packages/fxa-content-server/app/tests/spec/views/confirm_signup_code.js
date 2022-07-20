@@ -88,7 +88,7 @@ describe('views/confirm_signup_code', () => {
     it('renders the view', () => {
       assert.include(
         view.$(Selectors.HEADER).text(),
-        'Enter verification code',
+        'Enter confirmation code',
         'has header'
       );
       assert.include(

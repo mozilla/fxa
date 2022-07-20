@@ -1,16 +1,16 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-signin-code-header">{{#t}}Authorize this sign-in{{/t}}</h1>
+    <h1 id="fxa-signin-code-header">{{#unsafeTranslate}}Enter confirmation code<span class="description">for your Firefox account</span>{{/unsafeTranslate}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
     <div class="success"></div>
 
-    <div class="graphic graphic-mail">{{#t}}Authorize this sign-in{{/t}}</div>
+    <div class="graphic graphic-mail">{{#t}}Enter confirmation{{/t}}</div>
 
     <p class="verification-email-message">
-    {{#t}}Check your email for the code sent to %(email)s.{{/t}}
+    {{#t}}Enter the code that was sent to %(email)s within 5 minutes{{/t}}
     </p>
 
     <form novalidate>
@@ -20,14 +20,13 @@
       </div>
 
       <div class="button-row">
-        <button type="submit" class="use-logged-in">{{#t}}Continue{{/t}}</button>
+        <button type="submit" class="use-logged-in">{{#t}}Confirm{{/t}}</button>
       </div>
 
     </form>
 
     <div class="links">
-        <a id="resend" class="left delayed-fadein" href="#">{{#t}}Need another code? Resend{{/t}}</a>
-        <a href="{{{ escapedSupportLink }}}" id="support-link" class="delayed-fadein right" target="_blank">{{#t}}Why is this happening?{{/t}}</a>
+      <span class="delayed-fadein faint">{{#t}}Code expired?{{/t}}</span><a id="resend" class="left delayed-fadein" href="#">{{#t}}Email new code{{/t}}</a>
     </div>
   </section>
 </div>
