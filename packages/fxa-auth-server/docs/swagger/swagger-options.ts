@@ -55,4 +55,6 @@ export const swaggerOptions = {
     },
   ],
   grouping: 'tags',
+  documentationPage: false,
+  swaggerUI: false,
 };

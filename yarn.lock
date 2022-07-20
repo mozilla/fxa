@@ -4175,7 +4175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/inert@npm:6.0.5, @hapi/inert@npm:^6.0.5":
+"@hapi/inert@npm:6.0.5":
   version: 6.0.5
   resolution: "@hapi/inert@npm:6.0.5"
   dependencies:
@@ -4379,18 +4379,6 @@ __metadata:
   dependencies:
     "@hapi/hoek": 9.x.x
   checksum: ddee101b4d4b01153d2eb51cd180c889297805f5117b7061088a2f1de29b71684c956fa1ff3c1575572992bfd485a60dee9376b03ffdbd0adbd861222a31f30a
-  languageName: node
-  linkType: hard
-
-"@hapi/vision@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "@hapi/vision@npm:6.1.0"
-  dependencies:
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/validate": 1.x.x
-  checksum: 3e38ea9a0b29849c98ce9ba92b200c6912f60d47768140cb371f05593b4bf34ad4544d3e48e38b57831b22e47f8778cf5877f8a5e7d895566b1d2b8cc82a1535
   languageName: node
   linkType: hard
 
@@ -22828,8 +22816,6 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^10.0.0
-    "@hapi/inert": ^6.0.5
-    "@hapi/vision": ^6.1.0
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@storybook/addon-controls": ^6.5.9
