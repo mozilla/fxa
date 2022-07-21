@@ -16773,10 +16773,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:2.0.16, colorette@npm:^2.0.14":
-  version: 2.0.16
-  resolution: "colorette@npm:2.0.16"
-  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
+"colorette@npm:2.0.19":
+  version: 2.0.19
+  resolution: "colorette@npm:2.0.19"
+  checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
   languageName: node
   linkType: hard
 
@@ -16784,6 +16784,13 @@ __metadata:
   version: 1.2.2
   resolution: "colorette@npm:1.2.2"
   checksum: 69fec14ddaedd0f5b00e4bae40dc4bc61f7050ebdc82983a595d6fd64e650b9dc3c033fff378775683138e992e0ddd8717ac7c7cec4d089679dcfbe3cd921b04
+  languageName: node
+  linkType: hard
+
+"colorette@npm:^2.0.14":
+  version: 2.0.16
+  resolution: "colorette@npm:2.0.16"
+  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
   languageName: node
   linkType: hard
 
@@ -22724,7 +22731,7 @@ fsevents@~2.1.1:
     helmet: ^5.0.0
     hot-shots: ^9.1.0
     jest: 27.5.1
-    knex: ^2.1.0
+    knex: ^2.2.0
     pem-jwk: ^2.0.0
     pm2: ^5.1.2
     reflect-metadata: ^0.1.13
@@ -23320,7 +23327,7 @@ fsevents@~2.1.1:
     hot-shots: ^9.1.0
     ioredis: ^4.28.2
     jest: 27.5.1
-    knex: ^2.1.0
+    knex: ^2.2.0
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.2.2
@@ -23736,7 +23743,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 20.0.0
     jsdom-global: 3.0.2
-    knex: ^2.1.0
+    knex: ^2.2.0
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^10.0.0
@@ -30126,11 +30133,11 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "knex@npm:2.1.0"
+"knex@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "knex@npm:2.2.0"
   dependencies:
-    colorette: 2.0.16
+    colorette: 2.0.19
     commander: ^9.1.0
     debug: 4.3.4
     escalade: ^3.1.1
@@ -30161,7 +30168,7 @@ fsevents@~2.1.1:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 60ff38de9135cba3ec3daef37e2b7f4fe07a03636da3c2eaed0072a1dbc96a1dca6698ad8645c0c3501b3a8cb6d3da29409cdcb7513c21083041cfecc2ae3e2e
+  checksum: 596289b0e64f42646b6d298b2a33a9ae686ed3c1f894f6019b8a87f5d159b33ac566b9504ed5362c65a5e90ed60f092dcdef0fc4303473a23f2aba05673179aa
   languageName: node
   linkType: hard
 
