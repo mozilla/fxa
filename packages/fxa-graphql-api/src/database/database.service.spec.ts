@@ -8,12 +8,15 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Profile } from 'fxa-shared/db/models/profile';
-import { StatsD } from 'hot-shots';
+import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 
-describe('DatabaseService', () => {
+describe.only('DatabaseService', () => {
   let service: DatabaseService;
   let logger: any;
+
+  beforeAll(async () => {
+    await testDatabaseSetup();
+  });
 
   beforeEach(async () => {
     const dbConfig = {
