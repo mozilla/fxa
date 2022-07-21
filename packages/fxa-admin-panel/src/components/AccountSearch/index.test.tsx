@@ -44,6 +44,7 @@ function exampleAccountResponse(email: string): MockedResponse {
           ],
           createdAt: chance.timestamp(),
           disabledAt: null,
+          lockedAt: null,
           emailBounces: [exampleBounce(email), exampleBounce(email)],
           totp: [
             {
@@ -110,6 +111,7 @@ function exampleNoResultsAccountResponse(email: string): MockedResponse {
           ],
           createdAt: chance.timestamp(),
           disabledAt: null,
+          lockedAt: null,
           emailBounces: [],
           totp: [],
           recoveryKeys: [],

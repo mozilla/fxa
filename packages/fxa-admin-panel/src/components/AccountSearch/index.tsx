@@ -12,6 +12,7 @@ const ACCOUNT_SCHEMA = `
   uid
   createdAt
   disabledAt
+  lockedAt
   emails {
     email
     isVerified

@@ -311,6 +311,7 @@ export const Account = ({
   emails,
   createdAt,
   disabledAt,
+  lockedAt,
   emailBounces,
   totp,
   recoveryKeys,
@@ -321,7 +322,9 @@ export const Account = ({
   securityEvents,
   linkedAccounts,
 }: AccountProps) => {
-  const date = dateFormat(new Date(createdAt), DATE_FORMAT);
+  const createdAtDate = dateFormat(new Date(createdAt), DATE_FORMAT);
+  const disabledAtDate = dateFormat(new Date(disabledAt || 0), DATE_FORMAT);
+  const lockedAtDate = dateFormat(new Date(lockedAt || 0), DATE_FORMAT);
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
   return (
@@ -337,27 +340,66 @@ export const Account = ({
               {primaryEmail.email}
             </span>
           </h3>
-          <span
-            data-testid="verified-status"
-            className={
-              primaryEmail.isVerified
-                ? 'account-enabled-verified'
-                : 'account-disabled-unverified'
-            }
-          >
-            {primaryEmail.isVerified ? 'verified' : 'not verified'}
-          </span>
         </li>
         <li className="account-li">
-          <div data-testid="uid-label">
-            uid: <span>{uid}</span>
-          </div>
-          <div className="text-right">
-            created at: <span data-testid="createdat-label">{createdAt}</span>
-            <br />
-            {date}
-            <br />
-          </div>
+          <h3 className="account-header">Account Details</h3>
+        </li>
+        <li className="account-li account-border-info">
+          <ul>
+            <table className="pt-1" aria-label="account details">
+              <tbody>
+                <ResultTableRow label="uid" value={uid} testId="account-uid" />
+                <ResultTableRow
+                  label="Status"
+                  testId="account-verified-status"
+                  value={
+                    <span
+                      className={
+                        primaryEmail.isVerified
+                          ? 'account-enabled-verified'
+                          : 'account-disabled-unverified'
+                      }
+                    >
+                      {primaryEmail.isVerified ? 'verified' : 'not verified'}
+                    </span>
+                  }
+                />
+                <ResultTableRow
+                  label="Created At"
+                  value={
+                    <>
+                      {createdAtDate} ({createdAt})
+                    </>
+                  }
+                  testId="account-created-at"
+                />
+                {lockedAt != null && (
+                  <ResultTableRow
+                    label="Locked At"
+                    className="bg-yellow-100"
+                    value={
+                      <>
+                        {lockedAtDate} ({lockedAt})
+                      </>
+                    }
+                    testId="account-locked-at"
+                  />
+                )}
+                {disabledAt != null && (
+                  <ResultTableRow
+                    label="Disabled At"
+                    className="bg-yellow-100"
+                    value={
+                      <>
+                        {disabledAtDate} ({disabledAt})
+                      </>
+                    }
+                    testId="account-disabled-at"
+                  />
+                )}
+              </tbody>
+            </table>
+          </ul>
         </li>
 
         <li className="account-li">
@@ -539,7 +581,7 @@ export const Account = ({
             </table>
           </>
         ) : (
-          <div data-testid="acccount-security-events">
+          <div data-testid="account-security-events">
             No account history to display.
           </div>
         )}
@@ -884,13 +926,15 @@ const ResultTableRow = ({
   label,
   value,
   testId,
+  className,
 }: {
   label: string;
   value: any;
   testId: string;
+  className?: string;
 }) => {
   return (
-    <tr>
+    <tr className={className || ''}>
       <td className="account-label">
         <span>{label}</span>
       </td>
