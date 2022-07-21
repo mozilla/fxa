@@ -120,7 +120,7 @@ export interface MozSubscription {
     cancelAtPeriodEnd: boolean;
     endedAt?: Nullable<number>;
     latestInvoice: string;
-    manageSubscriptionLink: string;
+    manageSubscriptionLink?: Nullable<string>;
     planId: string;
     productName: string;
     productId: string;

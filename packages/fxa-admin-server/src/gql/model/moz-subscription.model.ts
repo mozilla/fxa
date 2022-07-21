@@ -25,7 +25,7 @@ export class MozSubscription {
   @Field()
   public latestInvoice!: string;
 
-  @Field()
+  @Field({ nullable: true })
   public manageSubscriptionLink?: string;
 
   @Field()
