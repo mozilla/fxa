@@ -42,7 +42,7 @@
     "@babel/preset-typescript": "^7.16.7",
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
-    "@sentry/node": "^6.19.1",
+    "@sentry/node": "^7.7.0",
     "@sentry/tracing": "^6.19.1",
     "asmcrypto.js": "^0.22.0",
     "autoprefixer": "^10.4.7",
