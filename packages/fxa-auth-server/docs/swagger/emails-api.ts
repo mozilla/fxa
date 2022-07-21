@@ -85,7 +85,7 @@ const RECOVERY_EMAIL_VERIFY_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 105\` - Invalid verification code'
+            - \`errno: 105\` - Invalid verification code
           `,
         },
       },
@@ -199,7 +199,7 @@ const RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST = {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 138\` - Unverified session
-            - \`errno: 150\` - Can not resend code for email that does not belong to the account
+            - \`errno: 150\` - Can not resend email code to an email that does not belong to this account
           `,
         },
       },

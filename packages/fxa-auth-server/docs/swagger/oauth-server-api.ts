@@ -18,13 +18,16 @@ const OAUTH_SERVER_API_DESCRIPTION = {
       ## Errors
       Invalid requests will return 4XX responses. Internal failures will return 5XX. Both will include JSON responses describing the error.
 
-      **Example error:** \n
-            {
-              "code": 400, // matches the HTTP status code
-              "errno": 101, // stable application-level error number
-              "error": "Bad Request", // string description of error type
-              "message": "Unknown client"
-            }
+      **Example error:**
+
+      \`\`\`js
+          {
+            "code": 400, // matches the HTTP status code
+            "errno": 101, // stable application-level error number
+            "error": "Bad Request", // string description of error type
+            "message": "Unknown client"
+          }
+      \`\`\`
 
       The currently-defined error responses are:
 
@@ -104,10 +107,13 @@ const AUTHORIZATION_POST = {
           description: dedent`
             A valid request will return a 200 response, with JSON containing the \`redirect\` to follow.
             <br />
-            **Example:** \n
-                { \n
-                  "redirect": "https://example.domain/path?foo=bar&code=4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c&state=1234" \n
+            **Example:**
+
+            \`\`\`js
+                {
+                  "redirect": "https://example.domain/path?foo=bar&code=4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c&state=1234"
                 }
+            \`\`\`
 
             **Implicit Grant** \\n If requesting an implicit grant (token), the response will match the [/v1/token][token] response.
           `,
@@ -194,32 +200,34 @@ const AUTHORIZED_CLIENTS_POST = {
 
             For clients that only use access tokens, all active access tokens are combined into a single entry in the list, and the \`refresh_token_id\` field will not be present.
 
-            **Example:** \n
-                [ \n
-                  { \n
-                    "client_id": "5901bd09376fadaa", \n
-                    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28", \n
-                    "name": "Example Sync Client", \n
-                    "created_time": 1528334748000, \n
-                    "last_access_time": 1528334748000, \n
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"] \n
-                  }, \n
-                  { \n
-                    "client_id": "5901bd09376fadaa", \n
-                    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9", \n
-                    "name": "Example Sync Client", \n
-                    "created_time": 1528334748000, \n
-                    "last_access_time": 1528334834000, \n
-                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"] \n
-                  }, \n
-                  { \n
-                    "client_id": "23d10a14f474ca41", \n
-                    "name": "Example Website", \n
-                    "created_time": 1328334748000, \n
-                    "last_access_time": 1476677854037, \n
-                    "scope": ["profile:email", "profile:uid"] \n
-                  } \n
+            **Example:**
+            \`\`\` js
+                [
+                  {
+                    "client_id": "5901bd09376fadaa",
+                    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
+                    "name": "Example Sync Client",
+                    "created_time": 1528334748000,
+                    "last_access_time": 1528334748000,
+                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+                  },
+                  {
+                    "client_id": "5901bd09376fadaa",
+                    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9",
+                    "name": "Example Sync Client",
+                    "created_time": 1528334748000,
+                    "last_access_time": 1528334834000,
+                    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+                  },
+                  {
+                    "client_id": "23d10a14f474ca41",
+                    "name": "Example Website",
+                    "created_time": 1328334748000,
+                    "last_access_time": 1476677854037,
+                    "scope": ["profile:email", "profile:uid"]
+                  }
                 ]
+            \`\`\`
           `
         }
       },
@@ -247,13 +255,15 @@ const CLIENT_CLIENTID_GET = {
           description: dedent`
             A valid 200 response will be a JSON blob.
             <br />
-            **Example:** \n
-                { \n
-                  "name": "Where's My Fox", \n
-                  "image_uri": "https://mozilla.org/firefox.png", \n
-                  "redirect_uri": "https://wheres.my.firefox.com/oauth", \n
-                  "trusted": true \n
+            **Example:**
+            \`\`\` js
+                {
+                  "name": "Where's My Fox",
+                  "image_uri": "https://mozilla.org/firefox.png",
+                  "redirect_uri": "https://wheres.my.firefox.com/oauth",
+                  "trusted": true
                 }
+            \`\`\`
           `,
         }
       },
@@ -285,17 +295,19 @@ const INTROSPECT_POST = {
           description: dedent`
             A valid request will return a JSON response.
             <br />
-            **Example** \n
-                { \n
-                  "active": true, \n
-                  "scope": "profile https://identity.mozilla.com/account/subscriptions", \n
-                  "client_id": "59cceb6f8c32317c", \n
-                  "token_type": "access_token", \n
-                  "iat": 1566535888243, \n
-                  "sub": "913fe9395bb946b48c1521d7beb2cb24", \n
-                  "jti": "5ae05d8fe413a749e0f4eb3c495a1c526fb52c85ca5fde516df5dd77d41f7b5b", \n
-                  "exp": 1566537688243 \n
+            **Example:**
+            \`\`\` js
+                {
+                  "active": true,
+                  "scope": "profile https://identity.mozilla.com/account/subscriptions",
+                  "client_id": "59cceb6f8c32317c",
+                  "token_type": "access_token",
+                  "iat": 1566535888243,
+                  "sub": "913fe9395bb946b48c1521d7beb2cb24",
+                  "jti": "5ae05d8fe413a749e0f4eb3c495a1c526fb52c85ca5fde516df5dd77d41f7b5b",
+                  "exp": 1566537688243
                 }
+            \`\`\`
           `,
         },
       },
@@ -323,17 +335,19 @@ const JWKS_GET = {
           description: dedent`
             A valid response will return JSON of the \`keys\`.
             <br />
-            **Example:** \n
-                { \n
-                  "keys": [ \n
-                    "alg": "RS256", \n
-                    "use": "sig", \n
-                    "kty": "RSA", \n
-                    "kid": "2015.12.02-1", \n
-                    "n":"xaQHsKpu1KSK-YEMoLzZS7Xxciy3esGrhrrqW_JBrq3IRmeGLaqlE80zcpIVnStyp9tbet2niYTemt8ug591YWO5Y-S0EgQyFTxnGjzNOvAL6Cd2iGie9QeSehfFLNyRPdQiadYw07fw-h5gweMpVJs8nTgS-Bcorlw9JQM6Il1cUpbP0Lt-F_5qrzlaOiTEAAb4JGOusVh0n-MZfKt7w0mikauMH5KfhflwQDn4YTzRkWJzlldXr1Cs0ZkYzOwS4Hcoku7vd6lqCUO0GgZvkuvCFqdVKzpa4CGboNdfIjcGVF4f1CTQaQ0ao51cwLzq1pgi5aWYhVH7lJcm6O_BQw", \n
-                    "e":"AQAC" \n
-                  ] \n
+            **Example:**
+            \`\`\` js
+                {
+                  "keys": [
+                    "alg": "RS256",
+                    "use": "sig",
+                    "kty": "RSA",
+                    "kid": "2015.12.02-1",
+                    "n":"xaQHsKpu1KSK-YEMoLzZS7Xxciy3esGrhrrqW_JBrq3IRmeGLaqlE80zcpIVnStyp9tbet2niYTemt8ug591YWO5Y-S0EgQyFTxnGjzNOvAL6Cd2iGie9QeSehfFLNyRPdQiadYw07fw-h5gweMpVJs8nTgS-Bcorlw9JQM6Il1cUpbP0Lt-F_5qrzlaOiTEAAb4JGOusVh0n-MZfKt7w0mikauMH5KfhflwQDn4YTzRkWJzlldXr1Cs0ZkYzOwS4Hcoku7vd6lqCUO0GgZvkuvCFqdVKzpa4CGboNdfIjcGVF4f1CTQaQ0ao51cwLzq1pgi5aWYhVH7lJcm6O_BQw",
+                    "e":"AQAC"
+                  ]
                 }
+            \`\`\`
           `,
         },
       },
@@ -359,14 +373,16 @@ const KEY_DATA_POST = {
           description: dedent`
             A valid response will return JSON the scoped key information for every scope that has scoped keys.
             <br />
-            **Example** \n
-                { \n
-                  "https://identity.mozilla.com/apps/sample-scope-can-scope-key": { \n
-                    "identifier": "https://identity.mozilla.com/apps/sample-scope-can-scope-key", \n
-                    "keyRotationSecret": "0000000000000000000000000000000000000000000000000000000000000000", \n
-                    "keyRotationTimestamp": 1506970363512 \n
-                  } \n
+            **Example:**
+            \`\`\` js
+                {
+                  "https://identity.mozilla.com/apps/sample-scope-can-scope-key": {
+                    "identifier": "https://identity.mozilla.com/apps/sample-scope-can-scope-key",
+                    "keyRotationSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "keyRotationTimestamp": 1506970363512
+                  }
                 }
+            \`\`\`
           `
         }
       },
@@ -404,15 +420,17 @@ const TOKEN_POST = {
           description: dedent`
             A valid request will return a JSON response.
             <br />
-            **Example:** \n
-                {\n
-                  "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0", \n
-                  "scope": "profile:email profile:avatar", \n
-                  "token_type": "bearer", \n
-                  "expires_in": 3600, \n
-                  "refresh_token": "58d59cc97c3ca183b3a87a65eec6f93d5be051415b53afbf8491cc4c45dbb0c6", \n
-                  "auth_at": 1422336613 \n
+            **Example:**
+            \`\`\` js
+                {
+                  "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
+                  "scope": "profile:email profile:avatar",
+                  "token_type": "bearer",
+                  "expires_in": 3600,
+                  "refresh_token": "58d59cc97c3ca183b3a87a65eec6f93d5be051415b53afbf8491cc4c45dbb0c6",
+                  "auth_at": 1422336613
                 }
+            \`\`\`
           `
         }
       },
@@ -442,12 +460,14 @@ const VERIFY_POST = {
 
             - Note: \`email\` of the respective user has been **REMOVED**.
 
-            **Example:** \n
-                { \n
-                  "user": "5901bd09376fadaa076afacef5251b6a", \n
-                  "client_id": "45defeda038a1c92", \n
-                  "scope": ["profile:email", "profile:avatar"], \n
+            **Example:**
+            \`\`\` js
+                {
+                  "user": "5901bd09376fadaa076afacef5251b6a",
+                  "client_id": "45defeda038a1c92",
+                  "scope": ["profile:email", "profile:avatar"],
                 }
+            \`\`\`
           `
         },
       },

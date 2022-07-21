@@ -41,6 +41,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
 
     For example:
 
+    \`\`\`js
         {
           "code": 400,  // Matches the HTTP status code
           "errno": 107, // Stable application-level error number
@@ -48,6 +49,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
           "message": "Invalid parameter in request body", // Specific error message
           "info": "https://docs.dev.lcip.og/errors/1234"  // Link to more information
         }
+    \`\`\`
 
     Responses for some errors may include additional parameters.
 
@@ -279,6 +281,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     should suspend making further requests
     for 30 seconds:
 
+    \`\`\`js
         HTTP/1.1 503 Service Unavailable
         Retry-After: 30
         Content-Type: application/json
@@ -292,5 +295,6 @@ export const AUTH_SERVER_API_DESCRIPTION = {
             "retryAfter": 30,
             "retryAfterLocalized": "in a few seconds"
         }
+  \`\`\`
   `,
 };

@@ -14,7 +14,7 @@ const ACCOUNT_CREATE_POST = {
   description: '/account/create',
   notes: [
     dedent`
-      Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [onepw](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
+      Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [onepw](https://mozilla.github.io/ecosystem-platform/explanation/onepw-protocol#client-side-key-stretching) wiki page.
 
       This endpoint may send a verification email to the user. Callers may optionally provide the \`service\` parameter to indicate which service they are acting on behalf of. This is an opaque alphanumeric token that will be embedded in the verification link as a query parameter.
 
@@ -54,7 +54,7 @@ const ACCOUNT_LOGIN_POST = {
             - \`errno: 127\` - Invalid unblock code
             - \`errno: 142\` - Sign in with this email type is not currently supported
             - \`errno: 149\` - This email can not currently be used to login
-            - \`errno: 160\` - This request requires two step authentication enabled on your account.
+            - \`errno: 160\` - This request requires two step authentication enabled on your account
           `,
         },
         422: {

@@ -42,7 +42,7 @@ const OAUTH_DESTROY_POST = {
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 171\` - Incorrect client secret.
+            - \`errno: 171\` - Incorrect client secret
           `,
         },
         500: {
@@ -89,13 +89,13 @@ const OAUTH_TOKEN_POST = {
         401: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 110\` - Invalid authentication token in request signature.
+            - \`errno: 110\` - Invalid authentication token in request signature
           `,
         },
         500: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 998\` - An internal validation check failed.
+            - \`errno: 998\` - An internal validation check failed
           `,
         },
       },
