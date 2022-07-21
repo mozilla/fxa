@@ -64,7 +64,7 @@ export class PruneTokens extends BaseAuthModel {
       this._state = 'open';
     }, this.pruneInterval).unref();
 
-    this.metrics?.increment('PruneTokens.Start');
+    this.metrics?.increment('prune-tokens.start');
 
     // Make pruning request. Since this is often run as a 'fire and forget' call, the
     // error will be handled and logged here.
@@ -84,12 +84,32 @@ export class PruneTokens extends BaseAuthModel {
           '@sessionTokensDeleted',
         ]
       );
-      this.metrics?.increment('PruneTokens.Complete', { ...result });
+
+      const incrementResultMetric = (key: string) => {
+        if (!result?.[key]) {
+          return;
+        }
+
+        // drop @, and switch from camel case to kebab case
+        const name = key
+          .substring(1)
+          .replace(/([a-zA-Z])(?=[A-Z])/g, '$1-')
+          .toLowerCase();
+
+        this.metrics?.increment(`prune-tokens.complete.${name}`, result[key]);
+      };
+
+      incrementResultMetric('@unblockCodesDeleted');
+      incrementResultMetric('@signInCodesDeleted');
+      incrementResultMetric('@accountResetTokensDeleted');
+      incrementResultMetric('@passwordForgotTokensDeleted');
+      incrementResultMetric('@passwordChangeTokensDeleted');
+      incrementResultMetric('@sessionTokensDeleted');
 
       return result;
     } catch (err) {
-      this.metrics?.increment('PruneTokens.Error');
-      this.log?.error('TokenPruner', err);
+      this.metrics?.increment('prune-tokens.error');
+      this.log?.error('prune-tokens', err);
     } finally {
       // Set the state pending. Subsequent calls are still ignored until the prune interval has
       // actually expired.
