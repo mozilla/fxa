@@ -5,6 +5,7 @@
 **/coverage
 **/docs
 !packages/fxa-auth-server/docs/swagger
+!packages/fxa-customs-server/docs/swagger
 **/node_modules
 #**/test
 **/tests
