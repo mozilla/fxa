@@ -48,7 +48,7 @@
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.17.2",
     "fxa-shared": "workspace:*",
-    "googleapis": "^102.0.0",
+    "googleapis": "^105.0.0",
     "graphql": "^15.6.1",
     "helmet": "^5.0.0",
     "hot-shots": "^9.1.0",
