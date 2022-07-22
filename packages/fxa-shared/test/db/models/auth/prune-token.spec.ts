@@ -141,17 +141,13 @@ describe('PruneTokens', () => {
       setTimeout(resolve, pruneInterval + maxJitter)
     );
 
-    expect(statsd.increment.calledWith('PruneTokens.Start')).to.be.true;
-    expect(statsd.increment.calledWith('PruneTokens.Error')).to.be.false;
+    expect(statsd.increment.calledWith('prune-tokens.start')).to.be.true;
+    expect(statsd.increment.calledWith('prune-tokens.error')).to.be.false;
     expect(
-      statsd.increment.calledWith('PruneTokens.Complete', {
-        '@unblockCodesDeleted': 0,
-        '@signInCodesDeleted': 0,
-        '@accountResetTokensDeleted': 0,
-        '@passwordForgotTokensDeleted': 0,
-        '@passwordChangeTokensDeleted': 0,
-        '@sessionTokensDeleted': 1,
-      })
+      statsd.increment.calledWith(
+        'prune-tokens.complete.session-tokens-deleted',
+        1
+      )
     ).to.be.true;
   });
 
@@ -190,7 +186,7 @@ describe('PruneTokens', () => {
 
     await pruneTokens.prune(1, 1);
 
-    expect(statsd.increment.calledWith('PruneTokens.Error')).to.be.true;
-    expect(log.error.calledWith('TokenPruner')).to.be.true;
+    expect(statsd.increment.calledWith('prune-tokens.error')).to.be.true;
+    expect(log.error.calledWith('prune-tokens')).to.be.true;
   });
 });
