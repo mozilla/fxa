@@ -22734,7 +22734,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^8.18.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.2
     fxa-shared: "workspace:*"
     googleapis: ^102.0.0
@@ -22888,7 +22887,7 @@ fsevents@~2.1.1:
     jws: 4.0.0
     jwt-decode: ^3.1.2
     keypair: 1.0.4
-    keyv: 4.3.2
+    keyv: 4.3.3
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -30060,13 +30059,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.3.2":
-  version: 4.3.2
-  resolution: "keyv@npm:4.3.2"
+"keyv@npm:4.3.3":
+  version: 4.3.3
+  resolution: "keyv@npm:4.3.3"
   dependencies:
     compress-brotli: ^1.3.8
     json-buffer: 3.0.1
-  checksum: 237952f5faa2ed08da36677d7a3faae48b7e3c305264698cbf4480443f293a2f0c6c63c1d05f5cd4a842ee864dbb395745e6636fecd07489565776a22de7b8d6
+  checksum: bcc946eeec3407fb3b42d831ce985357162113c5f07a8c45c12ede39704ba2d99be4c3dded76d2d2d2a2366627e42440bdde24393216164156928399949c12a1
   languageName: node
   linkType: hard
 
