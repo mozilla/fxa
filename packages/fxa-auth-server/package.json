@@ -105,7 +105,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.1.4",
     "jwt-decode": "^3.1.2",
-    "keyv": "4.3.2",
+    "keyv": "4.3.3",
     "lodash": "^4.17.21",
     "luxon": "^2.3.2",
     "memcached": "^2.2.2",
