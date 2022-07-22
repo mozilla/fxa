@@ -62,14 +62,14 @@ describe('FieldGroup', () => {
 
 describe('Field', () => {
   it('renders a label when available', () => {
-    const { container } = render(
+    const { queryByTestId } = render(
       <TestForm>
         <Field fieldType="input" name="foo" label="This is a label">
           <p>Hi mom</p>
         </Field>
       </TestForm>
     );
-    const label = container.querySelector('label .label-text');
+    const label = queryByTestId('input-label-text');
     expect(label).not.toBeNull();
     expect(label?.textContent).toEqual('This is a label');
   });

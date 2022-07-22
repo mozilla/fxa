@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
 import { NewUserEmailForm } from './index';
+import { Meta } from '@storybook/react';
+
+export default {
+  title: 'components/NewUserEmailForm',
+  component: NewUserEmailForm,
+} as Meta;
 
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
@@ -14,7 +19,7 @@ const WrapNewUserEmailForm = ({
   const [, setInvalidEmailDomain] = useState(false);
   const [, setEmailsMatch] = useState(false);
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="flex">
       <NewUserEmailForm
         signInURL={
           'https://localhost:3031/subscriptions/products/productId?plan=planId&signin=yes'
@@ -37,22 +42,32 @@ const WrapNewUserEmailForm = ({
   );
 };
 
-storiesOf('components/NewUserEmailForm', module)
-  .add('default', () => (
+const storyWithContext = (
+  accountExistsReturnValue: boolean,
+  invalidDomain: boolean,
+  storyName?: string
+) => {
+  const story = () => (
     <WrapNewUserEmailForm
-      accountExistsReturnValue={false}
-      invalidDomain={false}
+      accountExistsReturnValue={accountExistsReturnValue}
+      invalidDomain={invalidDomain}
     />
-  ))
-  .add('existing account', () => (
-    <WrapNewUserEmailForm
-      accountExistsReturnValue={true}
-      invalidDomain={false}
-    />
-  ))
-  .add('invalid email domain', () => (
-    <WrapNewUserEmailForm
-      accountExistsReturnValue={false}
-      invalidDomain={true}
-    />
-  ));
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const Default = storyWithContext(false, false, 'default');
+
+export const ExistingAccount = storyWithContext(
+  true,
+  false,
+  'existing account'
+);
+
+export const InvalidEmailDomain = storyWithContext(
+  false,
+  true,
+  'invalid email domain'
+);

@@ -78,22 +78,30 @@ export const NewUserEmailForm = ({
     <Form
       data-testid="new-user-email-form"
       validator={validator}
-      className="new-user-email-form"
+      className="new-user-email-form relative"
       {...{ onChange }}
     >
       <Localized
         id="new-user-sign-in-link"
         elems={{
           a: (
-            <a onClick={onClickSignInButton} href={signInURL}>
+            <a
+              className="underline text-grey-400 hover:text-grey-400"
+              onClick={onClickSignInButton}
+              href={signInURL}
+            >
               Sign in
             </a>
           ),
         }}
       >
-        <p className="sign-in-copy" data-testid="sign-in-copy">
+        <p
+          className="sign-in-copy font-normal -mt-2 ml-6 text-grey-400"
+          data-testid="sign-in-copy"
+        >
           Already have a Firefox account?{' '}
           <a
+            className="underline text-grey-400 hover:text-grey-400"
             data-testid="sign-in-link"
             onClick={onClickSignInButton}
             href={signInURL}
@@ -158,7 +166,10 @@ export const NewUserEmailForm = ({
         </Checkbox>
       </Localized>
 
-      <div className="assurance-copy" data-testid="assurance-copy">
+      <div
+        className="flex justify-center items-center"
+        data-testid="assurance-copy"
+      >
         <img src={shieldIcon} alt="shield" />
         <Localized id="new-user-subscribe-product-assurance">
           <p>
