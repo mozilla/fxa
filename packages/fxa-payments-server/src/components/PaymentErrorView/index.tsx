@@ -28,7 +28,7 @@ const retryButtonFn = (onRetry: PaymentErrorViewProps['actionFn']) =>
     <Localized id="payment-error-retry-button">
       <button
         data-testid="retry-link"
-        className="button retry-link primary-button"
+        className="button primary-button mb-10"
         onClick={() => onRetry()}
       >
         Try again
@@ -41,7 +41,7 @@ const manageSubButtonFn = (onClick: VoidFunction) => {
     <Localized id="payment-error-manage-subscription-button">
       <button
         data-testid="manage-subscription-link"
-        className="button primary-button"
+        className="button primary-button mb-10"
         onClick={onClick}
       >
         Manage my subscription
@@ -85,17 +85,20 @@ export const PaymentErrorView = ({
     <>
       {title}
       <section
-        className={`container card payment-error ${className}`}
+        className={`payment-error row-start-3 row-end-4 mt-6 mx-4 tablet:mt-0 ${className}`}
         data-testid="payment-error"
       >
-        <div className="wrapper">
-          <img id="error-icon" src={errorIcon} alt="error icon" />
+        <div className="wrapper mb-16">
+          <img className="mt-16 mb-10 mx-auto" src={errorIcon} alt="" />
           <div>
             <Localized
               id={getErrorMessage(error)}
               vars={{ productName, ...contentProps }}
             >
-              <p data-testid="error-payment-submission">
+              <p
+                className="py-0 px-7 desktop:px-24"
+                data-testid="error-payment-submission"
+              >
                 {getErrorMessage(error)}
               </p>
             </Localized>
