@@ -39,6 +39,7 @@ const ACCOUNT_COLUMNS = [
   'emailVerified',
   'createdAt',
   'disabledAt',
+  'lockedAt',
 ];
 const EMAIL_COLUMNS = [
   'createdAt',
