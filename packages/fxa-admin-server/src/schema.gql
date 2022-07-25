@@ -129,6 +129,7 @@ type Account {
   emailVerified: Boolean!
   createdAt: Float!
   disabledAt: Float
+  lockedAt: Float
   emails: [Email!]
   emailBounces: [EmailBounce!]
   totp: [Totp!]

@@ -134,6 +134,7 @@ export interface Account {
     emailVerified: boolean;
     createdAt: number;
     disabledAt?: Nullable<number>;
+    lockedAt?: Nullable<number>;
     emails?: Nullable<Email[]>;
     emailBounces?: Nullable<EmailBounce[]>;
     totp?: Nullable<Totp[]>;
