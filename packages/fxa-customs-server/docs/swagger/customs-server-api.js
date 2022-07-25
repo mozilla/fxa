@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const dedent = require('dedent');
-const Joi = require('joi');
-const DESCRIPTIONS = require('./descriptions');
 
 const TAGS_CUSTOMS_SERVER = {
   tags: ['api'],
@@ -18,6 +16,9 @@ const BLOCKEMAIL_POST = {
       *Not currently used by anyone.*
 
       Used by internal services to temporarily ban requests associated with a given email address. These bans last for \`config.limits.blockIntervalSeconds\` (default: 24 hours).
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`email\`: the email address associated with the account to ban
     `,
   ],
   plugins: {
@@ -43,11 +44,6 @@ const BLOCKEMAIL_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      email: Joi.string().description(DESCRIPTIONS.blockEmail),
-    }),
-  },
 };
 
 const BLOCKIP_POST = {
@@ -58,6 +54,9 @@ const BLOCKIP_POST = {
       *Not currently used by anyone.*
 
       Used by internal services to temporarily ban requests associated with a given IP address. These bans last for \`config.limits.blockIntervalSeconds\` (default: 24 hours).
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`ip\`: the IP address to ban
     `,
   ],
   plugins: {
@@ -83,18 +82,23 @@ const BLOCKIP_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      ip: Joi.string().description('the IP address to ban'),
-    }),
-  },
 };
 
 const CHECK_POST = {
   ...TAGS_CUSTOMS_SERVER,
   description: '/check',
   notes: [
-    'Called by the auth server before performing an action on its end to check whether or not the action should be blocked. The endpoint is capable of rate-limiting and blocking requests that involve a variety of [actions](https://github.com/mozilla/fxa/blob/main/packages/fxa-customs-server/lib/actions.js).',
+    dedent`
+      Called by the auth server before performing an action on its end to check whether or not the action should be blocked. The endpoint is capable of rate-limiting and blocking requests that involve a variety of [actions](https://github.com/mozilla/fxa/blob/main/packages/fxa-customs-server/lib/actions.js).
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`email\`: the email address associated with the account
+      - \`ip\`: the IP address where the request originates
+      - \`action\`: the name of the action under consideration
+      - \`headers\`: the forwarded headers of the original request
+      - \`payload\`: the payload of the original request
+      - \`phoneNumber\`: optional phone number of request
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -102,10 +106,14 @@ const CHECK_POST = {
         200: {
           description: dedent`
             Successful requests will produce a "200 OK" response with the blocking advice in the JSON body:
-            {
-              "block": true,
-              "retryAfter": 86396
-            }
+
+            \`\`\` js
+                {
+                  "block": true,
+                  "retryAfter": 86396
+                }
+            \`\`\`
+
             - \`block\` indicates whether or not the action should be blocked and \`retyAfter\` tells the client how long it should wait (in seconds) before attempting this action again.
           `,
         },
@@ -125,25 +133,20 @@ const CHECK_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      email: Joi.string().description(DESCRIPTIONS.email),
-      ip: Joi.string().description(DESCRIPTIONS.ip),
-      action: Joi.string().description(DESCRIPTIONS.action),
-      headers: Joi.object().optional().description(DESCRIPTIONS.headers),
-      payload: Joi.object().optional().description(DESCRIPTIONS.payload),
-      phoneNumber: Joi.string()
-        .optional()
-        .description(DESCRIPTIONS.phoneNumber),
-    }),
-  },
 };
 
 const CHECK_AUTHENTICATED_POST = {
   ...TAGS_CUSTOMS_SERVER,
   description: '/checkAuthenticated',
   notes: [
-    'Called by the auth server before performing an authenticated action to check whether or not the action should be blocked.',
+    dedent`
+      Called by the auth server before performing an authenticated action to check whether or not the action should be blocked.
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`action\`: the name of the action under consideration
+      - \`ip\`: the IP address where the request originates
+      - \`uid\`: account identifier
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -151,10 +154,14 @@ const CHECK_AUTHENTICATED_POST = {
         200: {
           description: dedent`
             Successful requests will produce a "200 OK" response with the blocking advice in the JSON body:
-            {
-              "block": true,
-              "retryAfter": 86396
-            }
+
+            \`\`\` js
+                {
+                  "block": true,
+                  "retryAfter": 86396
+                }
+            \`\`\`
+
             - \`block\` indicates whether or not the action should be blocked and \`retyAfter\` tells the client how long it should wait (in seconds) before attempting this action again.
           `,
         },
@@ -174,20 +181,20 @@ const CHECK_AUTHENTICATED_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      action: Joi.string().description(DESCRIPTIONS.action),
-      ip: Joi.string().description(DESCRIPTIONS.ip),
-      uid: Joi.string().description(DESCRIPTIONS.uid),
-    }),
-  },
 };
 
 const CHECKIPONLY_POST = {
   ...TAGS_CUSTOMS_SERVER,
   description: '/checkIpOnly',
   notes: [
-    'Like [/check](#operation/postCheck), called by the auth server before performing an action on its end to check whether or not the action should be blocked based only on the request IP.',
+    dedent`
+      Like [/check](#operation/postCheck), called by the auth server before performing an action on its end to check whether or not the action should be blocked based only on the request IP.
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`email\`: (optional) the email address associated with the account
+      - \`ip\`: the IP address where the request originates
+      - \`action\`: the name of the action under consideration
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -195,10 +202,14 @@ const CHECKIPONLY_POST = {
         200: {
           description: dedent`
             Successful requests will produce a "200 OK" response with the blocking advice in the JSON body:
-            {
-              "block": true,
-              "retryAfter": 86396
-            }
+
+            \`\`\` js
+                {
+                  "block": true,
+                  "retryAfter": 86396
+                }
+            \`\`\`
+
             - \`block\` indicates whether or not the action should be blocked and \`retyAfter\` tells the client how long it should wait (in seconds) before attempting this action again.
           `,
         },
@@ -218,13 +229,6 @@ const CHECKIPONLY_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      email: Joi.string().optional().description(DESCRIPTIONS.email),
-      ip: Joi.string().required().description(DESCRIPTIONS.ip),
-      action: Joi.string().required().description(DESCRIPTIONS.action),
-    }),
-  },
 };
 
 const FAILEDLOGINATTEMPT_POST = {
@@ -235,6 +239,11 @@ const FAILEDLOGINATTEMPT_POST = {
       Called by the auth server to signal to the customs server that a failed login attempt has occured.
 
       This information is stored by the customs server to enforce some of its policies.
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`email\`: the email address associated with the account
+      - \`ip\`: the IP address where the request originates
+      - \`action\`: (optional) the name of the action under consideration
     `,
   ],
   plugins: {
@@ -263,13 +272,6 @@ const FAILEDLOGINATTEMPT_POST = {
       ],
     },
   },
-  validate: {
-    payload: Joi.object({
-      email: Joi.string().description(DESCRIPTIONS.email),
-      ip: Joi.string().description(DESCRIPTIONS.ip),
-      action: Joi.string().optional().description(DESCRIPTIONS.action),
-    }),
-  },
 };
 
 const PASSWORDRESET_POST = {
@@ -280,6 +282,9 @@ const PASSWORDRESET_POST = {
       Called by the auth server to signal to the customs server that the password on the account has been successfully reset.
 
       The customs server uses this information to update its state (expiring bad logins for example).
+
+      REQUEST BODY SCHEMA: \`application/json\`
+      - \`email\`: the email address associated with the account
     `,
   ],
   plugins: {
@@ -304,11 +309,6 @@ const PASSWORDRESET_POST = {
         },
       ],
     },
-  },
-  validate: {
-    payload: Joi.object({
-      email: Joi.string().description(DESCRIPTIONS.email),
-    }),
   },
 };
 
