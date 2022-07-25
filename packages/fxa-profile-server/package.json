@@ -44,7 +44,6 @@
     "audit-filter": "^0.5.0",
     "commander": "9.3.0",
     "eslint": "^8.18.0",
-    "eslint-plugin-fxa": "^2.0.2",
     "insist": "1.0.1",
     "mocha": "^10.0.0",
     "mocha-text-cov": "0.1.1",
