@@ -461,6 +461,26 @@ export const Account = ({
           </li>
         )}
 
+        <>
+          <li className="account-li">
+            <h3 className="account-header">Subscriptions</h3>
+          </li>
+          {subscriptions && subscriptions.length > 0 ? (
+            <>
+              {subscriptions.map((subscription) => (
+                <Subscription
+                  key={subscription.subscriptionId}
+                  {...subscription}
+                />
+              ))}
+            </>
+          ) : (
+            <li className="account-li account-border-info">
+              This account doesn't have any subscriptions.
+            </li>
+          )}
+        </>
+
         <Guard features={[AdminPanelFeature.ConnectedServices]}>
           <li className="account-li">
             <h3 className="account-header">Connected Services</h3>
@@ -485,29 +505,6 @@ export const Account = ({
             </li>
           )}
         </Guard>
-
-        {/* Temporary check for fake hard-coded value until we fetch actual subscriptions in FXA-4237 */}
-        {subscriptions && (
-          <>
-            <li className="account-li">
-              <h3 className="account-header">Subscriptions</h3>
-            </li>
-            {subscriptions && subscriptions.length > 0 ? (
-              <>
-                {subscriptions.map((subscription) => (
-                  <Subscription
-                    key={subscription.subscriptionId}
-                    {...subscription}
-                  />
-                ))}
-              </>
-            ) : (
-              <li className="account-li account-border-info">
-                This account doesn't have any subscriptions.
-              </li>
-            )}
-          </>
-        )}
       </ul>
 
       <hr className="border-grey-50 mb-4" />
