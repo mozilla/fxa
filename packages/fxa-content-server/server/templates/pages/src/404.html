@@ -15,21 +15,24 @@
     <!-- build:css(.tmp) /styles/main.css -->
     <link rel="stylesheet" href="/styles/main.css" />
     <!-- endbuild -->
+    <!-- build:css(.tmp) /styles/tailwind.out.css -->
+    <link rel="stylesheet" href="/styles/tailwind.out.css" />
+    <!-- endbuild -->
   </head>
   <body class="static" data-static-resource-host="{{{staticResourceUrl}}}">
     <div id="stage">
-      <div id="main-content" class="card">
-        <header>
-          <h1 id="fxa-404-header">{{#t}}Page not found{{/t}}</h1>
+      <div class="card">
+        <header class="mb-4">
+          <h1 id="fxa-404-header" class="card-header"">{{#t}}Page not found{{/t}}</h1>
         </header>
 
-        <p class="fxa-404-p" >
+        <p class="fxa-404-p">
           {{#t}}The page you requested is not found. We've been notified and
           will fix any links that may be broken.{{/t}}
         </p>
 
-        <div class="button-row">
-          <a href="/signup" class="button primary-button" id="fxa-404-home"
+        <div class="flex">
+          <a href="/signup" class="cta-primary cta-xl" id="fxa-404-home"
             >{{#t}}Home{{/t}}</a
           >
         </div>
