@@ -139,48 +139,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apidevtools/json-schema-ref-parser@npm:^9.0.6":
-  version: 9.0.9
-  resolution: "@apidevtools/json-schema-ref-parser@npm:9.0.9"
-  dependencies:
-    "@jsdevtools/ono": ^7.1.3
-    "@types/json-schema": ^7.0.6
-    call-me-maybe: ^1.0.1
-    js-yaml: ^4.1.0
-  checksum: b21f6bdd37d2942c3967ee77569bc74fadd1b922f688daf5ef85057789a2c3a7f4afc473aa2f3a93ec950dabb6ef365f8bd9cf51e4e062a1ee1e59b989f8f9b4
-  languageName: node
-  linkType: hard
-
-"@apidevtools/openapi-schemas@npm:^2.0.4":
-  version: 2.1.0
-  resolution: "@apidevtools/openapi-schemas@npm:2.1.0"
-  checksum: 4a8f64935b9049ef21e41fa4b188f39f6bc3f5291cebd451701db1115451ccb246a739e46cc5ce9ecdec781671431db40db7851acdac84a990a45756e0f32de3
-  languageName: node
-  linkType: hard
-
-"@apidevtools/swagger-methods@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "@apidevtools/swagger-methods@npm:3.0.2"
-  checksum: d06b1ac5c1956613c4c6be695612ef860cd4e962b93a509ca551735a328a856cae1e33399cac1dcbf8333ba22b231746f3586074769ef0e172cf549ec9e7eaae
-  languageName: node
-  linkType: hard
-
-"@apidevtools/swagger-parser@npm:10.0.3":
-  version: 10.0.3
-  resolution: "@apidevtools/swagger-parser@npm:10.0.3"
-  dependencies:
-    "@apidevtools/json-schema-ref-parser": ^9.0.6
-    "@apidevtools/openapi-schemas": ^2.0.4
-    "@apidevtools/swagger-methods": ^3.0.2
-    "@jsdevtools/ono": ^7.1.3
-    call-me-maybe: ^1.0.1
-    z-schema: ^5.0.1
-  peerDependencies:
-    openapi-types: ">=7"
-  checksum: 580a86d4c2a667e825dae80d2ed115c282e6210e3cb0ffc39b3bf5fc5b4fcb576cce3fc3d0519b6c4de8fa617ab0dbee1adeac134d0c1364e0a0f7d394b28796
-  languageName: node
-  linkType: hard
-
 "@apollo/client@npm:^3.4.5":
   version: 3.4.5
   resolution: "@apollo/client@npm:3.4.5"
@@ -5067,13 +5025,6 @@ __metadata:
     "@jridgewell/resolve-uri": ^3.0.3
     "@jridgewell/sourcemap-codec": ^1.4.10
   checksum: e38254e830472248ca10a6ed1ae75af5e8514f0680245a5e7b53bc3c030fd8691d4d3115d80595b45d3badead68269769ed47ecbbdd67db1343a11f05700e75a
-  languageName: node
-  linkType: hard
-
-"@jsdevtools/ono@npm:^7.1.3":
-  version: 7.1.3
-  resolution: "@jsdevtools/ono@npm:7.1.3"
-  checksum: 2297fcd472ba810bffe8519d2249171132844c7174f3a16634f9260761c8c78bc0428a4190b5b6d72d45673c13918ab9844d706c3ed4ef8f62ab11a2627a08ad
   languageName: node
   linkType: hard
 
@@ -10001,13 +9952,6 @@ __metadata:
   version: 7.0.9
   resolution: "@types/json-schema@npm:7.0.9"
   checksum: 259d0e25f11a21ba5c708f7ea47196bd396e379fddb79c76f9f4f62c945879dc21657904914313ec2754e443c5018ea8372362f323f30e0792897fdb2098a705
-  languageName: node
-  linkType: hard
-
-"@types/json-schema@npm:^7.0.6":
-  version: 7.0.11
-  resolution: "@types/json-schema@npm:7.0.11"
-  checksum: 527bddfe62db9012fccd7627794bd4c71beb77601861055d87e3ee464f2217c85fca7a4b56ae677478367bbd248dbde13553312b7d4dbc702a2f2bbf60c4018d
   languageName: node
   linkType: hard
 
@@ -23134,10 +23078,9 @@ fsevents@~2.1.1:
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
-    hapi-swagger: ^14.5.5
+    hapi-swagger: ^14.5.2
     ip: ^1.1.8
     ip-reputation-js-client: ^6.0.4
-    joi: ^17.6.0
     load-grunt-tasks: ^5.1.0
     lodash.isequal: 4.5.0
     lodash.merge: 4.6.2
@@ -25318,24 +25261,6 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.2.2
     joi: 17.x
   checksum: 390f3fe99f2c649f89fd6f4a79dbc1a7696c0c6c9f900a5d0e04c062b3e4619dc1c496b8ad3ddc31715ffb95862a3d4e34af2b04e72a275f817a4970af1cde52
-  languageName: node
-  linkType: hard
-
-"hapi-swagger@npm:^14.5.5":
-  version: 14.5.5
-  resolution: "hapi-swagger@npm:14.5.5"
-  dependencies:
-    "@hapi/boom": ^9.1.4
-    "@hapi/hoek": ^9.3.0
-    handlebars: ^4.7.7
-    http-status: ^1.5.2
-    json-schema-ref-parser: ^6.1.0
-    swagger-parser: ^10.0.3
-    swagger-ui-dist: ^4.11.1
-  peerDependencies:
-    "@hapi/hapi": ^20.2.2
-    joi: 17.x
-  checksum: 61192237354ec755bf5b85b1f80205beb3d817ba1459c225c4b9eadb47c19633758e15f6ea508f39d387fbecd894d595b94bfb16a22a7e2d53308ce08050deee
   languageName: node
   linkType: hard
 
@@ -29225,7 +29150,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:^17.3.0, joi@npm:^17.6.0":
+"joi@npm:^17.3.0":
   version: 17.6.0
   resolution: "joi@npm:17.6.0"
   dependencies:
@@ -42178,15 +42103,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"swagger-parser@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "swagger-parser@npm:10.0.3"
-  dependencies:
-    "@apidevtools/swagger-parser": 10.0.3
-  checksum: bd99d94543b9bdc6bf062ea211f70d4fa004e6e8ce97ee47a388a046f3cc2839e7349970e8a0b11136b55a674e1cc7b0bbdfbe4fb40adf0c68bc70736eedb8b7
-  languageName: node
-  linkType: hard
-
 "swagger-schema-official@npm:2.0.0-bab6bed":
   version: 2.0.0-bab6bed
   resolution: "swagger-schema-official@npm:2.0.0-bab6bed"
@@ -46362,23 +46278,6 @@ resolve@^2.0.0-next.3:
   bin:
     z-schema: ./bin/z-schema
   checksum: 7ce44ca3c548421b9041a08bacbe47657532c8d0e54250672b1e65b287339cfd3ba38a3405176e1965e3efa88c9fb00bfbf52558f2e36c2af6415372cdf3289b
-  languageName: node
-  linkType: hard
-
-"z-schema@npm:^5.0.1":
-  version: 5.0.3
-  resolution: "z-schema@npm:5.0.3"
-  dependencies:
-    commander: ^2.20.3
-    lodash.get: ^4.4.2
-    lodash.isequal: ^4.5.0
-    validator: ^13.7.0
-  dependenciesMeta:
-    commander:
-      optional: true
-  bin:
-    z-schema: bin/z-schema
-  checksum: eb6c2c3c2878c4c333fd3755703616c8f846158da0154f60f81f188c3c4ce7ad5b8ff5ce570d6372d4803fb5c8c9d97b4e54becdd5a832b1a31240d149b87191
   languageName: node
   linkType: hard
 
