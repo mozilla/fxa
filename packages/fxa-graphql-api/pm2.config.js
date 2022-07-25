@@ -22,7 +22,7 @@ module.exports = {
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
         PORT: '8290', // TODO: this needs to get added to src/config.ts
-        CUSTOMS_SERVER_URL: 'none',
+        CUSTOMS_SERVER_URL: 'http://localhost:7000',
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_GRAPHQL_API,
       },

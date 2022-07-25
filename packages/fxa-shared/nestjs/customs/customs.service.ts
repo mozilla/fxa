@@ -50,6 +50,7 @@ export class CustomsService {
       .send(options)
       .ok((res) => res.status < 600);
     if (result.status < 200 || result.status >= 300) {
+      console.log({ result });
       throw new Error('Customs server failed to respond as expected.');
     }
     const response = result.body as CheckResponse;

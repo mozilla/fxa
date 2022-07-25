@@ -90,6 +90,24 @@ const BLOCKIP_POST = {
   },
 };
 
+const handleError = function (request, h, err) {
+  console.log('REINO --- MADE it to error handler');
+
+  if (err.isJoi && Array.isArray(err.details) && err.details.length > 0) {
+    const invalidItem = err.details[0];
+    return h
+      .response(
+        `Data Validation Error. Schema violation. <${
+          invalidItem.path
+        }> \nDetails: ${JSON.stringify(err.details)}`
+      )
+      .code(400)
+      .takeover();
+  }
+
+  return h.response(err).takeover();
+};
+
 const CHECK_POST = {
   ...TAGS_CUSTOMS_SERVER,
   description: '/check',
@@ -136,6 +154,7 @@ const CHECK_POST = {
         .optional()
         .description(DESCRIPTIONS.phoneNumber),
     }),
+    failAction: handleError,
   },
 };
 
