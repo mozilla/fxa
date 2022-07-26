@@ -24,7 +24,7 @@ import {
   validateStripePlan,
 } from './stripe.service';
 
-describe.skip('Stripe Factory', () => {
+describe('Stripe Factory', () => {
   let service: Stripe;
 
   beforeEach(async () => {
@@ -40,7 +40,7 @@ describe.skip('Stripe Factory', () => {
   });
 });
 
-describe.skip('PaymentConfigManagerService', () => {
+describe('PaymentConfigManagerService', () => {
   let service: StripePaymentConfigManagerService;
 
   beforeEach(async () => {
@@ -70,7 +70,7 @@ describe.skip('PaymentConfigManagerService', () => {
   });
 });
 
-describe.skip('StripeFirestoreService', () => {
+describe('StripeFirestoreService', () => {
   let service: StripeFirestoreService;
 
   beforeEach(async () => {
@@ -91,7 +91,7 @@ describe.skip('StripeFirestoreService', () => {
   });
 });
 
-describe.skip('Stripe Service', () => {
+describe('Stripe Service', () => {
   let service: StripeService;
 
   const mockLookupLatestInvoice = jest.fn();
@@ -187,7 +187,7 @@ describe.skip('Stripe Service', () => {
     expect(result1).toEqual(manageSessionUrl);
   });
 
-  describe.skip('iap mappings', () => {
+  describe('iap mappings', () => {
     const plan: AbbrevPlan = {
       amount: 1.0,
       configuration: null,

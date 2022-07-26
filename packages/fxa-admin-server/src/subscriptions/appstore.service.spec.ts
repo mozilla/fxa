@@ -12,7 +12,7 @@ import {
 } from './appstore.service';
 import { FirestoreFactory } from './firestore.service';
 
-describe.skip('AppStoreHelperService', () => {
+describe('AppStoreHelperService', () => {
   let service: AppStoreHelperService;
 
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe.skip('AppStoreHelperService', () => {
   });
 });
 
-describe.skip('PurchaseManagerService', () => {
+describe('PurchaseManagerService', () => {
   let service: AppStorePurchaseManagerService;
 
   beforeEach(async () => {
@@ -52,7 +52,7 @@ describe.skip('PurchaseManagerService', () => {
   });
 });
 
-describe.skip('App Store Service', () => {
+describe('App Store Service', () => {
   let service: AppStoreService;
 
   const mockQueryCurrentSubscriptionPurchases = jest.fn();
