@@ -11,8 +11,8 @@ import {
 } from './subscriptions.formatters';
 import { addDays, created } from './test.util';
 
-describe('MozSubscriptionFormatters', () => {
-  describe('Stripe Formatter', () => {
+describe.skip('MozSubscriptionFormatters', () => {
+  describe.skip('Stripe Formatter', () => {
     it('formats', () => {
       const formatted = StripeFormatter.toMozSubscription(
         {
@@ -52,7 +52,7 @@ describe('MozSubscriptionFormatters', () => {
     });
   });
 
-  describe('App Store Formatter', () => {
+  describe.skip('App Store Formatter', () => {
     it('formats', () => {
       const formatted = AppStoreFormatter.toMozSubscription(
         {
@@ -151,7 +151,7 @@ describe('MozSubscriptionFormatters', () => {
     });
   });
 
-  describe('Play Store Formatter', () => {
+  describe.skip('Play Store Formatter', () => {
     it('formats', () => {
       const formatted = PlayStoreFormatter.toMozSubscription(
         {
