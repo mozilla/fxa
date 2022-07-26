@@ -32,7 +32,7 @@ const MOCK_RP = {
   id: MOCK_RP_ID,
 } as RelyingParty;
 
-describe.skip('RelyingPartyResolver', () => {
+describe('RelyingPartyResolver', () => {
   let resolver: RelyingPartyResolver;
   let logger: any;
   const db = {

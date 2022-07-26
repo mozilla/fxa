@@ -54,7 +54,7 @@ const OAUTH_CLIENT_1 = randomOauthClient(Date.now() - 60 * 1e3);
 
 const USER_2 = randomAccount();
 
-describe.skip('AccountResolver', () => {
+describe('AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
   let knex: Knex;

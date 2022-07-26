@@ -10,7 +10,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import config, { AppConfig } from '../config';
 import { DatabaseService } from './database.service';
 
-describe('DatabaseService', () => {
+describe.skip('DatabaseService', () => {
   let service: DatabaseService;
   let logger: any;
 

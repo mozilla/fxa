@@ -21,7 +21,7 @@ const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 
-describe.skip('EmailBounceResolver', () => {
+describe('EmailBounceResolver', () => {
   let resolver: EmailBounceResolver;
   let logger: any;
   let knex: Knex;
