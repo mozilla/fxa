@@ -22678,7 +22678,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^8.18.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.2
     fxa-shared: "workspace:*"
     googleapis: ^105.0.0
@@ -22968,7 +22967,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
-    got: 11.8.3
+    got: 11.8.5
     grunt: ^1.5.3
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
@@ -24676,9 +24675,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"got@npm:11.8.3":
-  version: 11.8.3
-  resolution: "got@npm:11.8.3"
+"got@npm:11.8.5":
+  version: 11.8.5
+  resolution: "got@npm:11.8.5"
   dependencies:
     "@sindresorhus/is": ^4.0.0
     "@szmarczak/http-timer": ^4.0.5
@@ -24691,7 +24690,7 @@ fsevents@~2.1.1:
     lowercase-keys: ^2.0.0
     p-cancelable: ^2.0.0
     responselike: ^2.0.0
-  checksum: 3b6db107d9765470b18e4cb22f7c7400381be7425b9be5823f0168d6c21b5d6b28b023c0b3ee208f73f6638c3ce251948ca9b54a1e8f936d3691139ac202d01b
+  checksum: 2de8a1bbda4e9b6b2b72b2d2100bc055a59adc1740529e631f61feb44a8b9a1f9f8590941ed9da9df0090b6d6d0ed8ffee94cd9ac086ec3409b392b33440f7d2
   languageName: node
   linkType: hard
 
