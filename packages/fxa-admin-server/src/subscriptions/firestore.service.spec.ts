@@ -6,7 +6,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MockConfig, MockFirestoreFactory } from '../mocks';
 
-describe('Firestore Service', () => {
+describe.skip('Firestore Service', () => {
   let service: Firestore;
 
   beforeEach(async () => {
