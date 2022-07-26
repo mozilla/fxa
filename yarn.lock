@@ -5664,15 +5664,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.23.4":
-  version: 1.23.4
-  resolution: "@playwright/test@npm:1.23.4"
+"@playwright/test@npm:^1.24.0":
+  version: 1.24.0
+  resolution: "@playwright/test@npm:1.24.0"
   dependencies:
     "@types/node": "*"
-    playwright-core: 1.23.4
+    playwright-core: 1.24.0
   bin:
     playwright: cli.js
-  checksum: 7004308fde2c3ff1062b50115f9db9eb74d3e0c6cdee42d723a3a4ccbf811c3cf2be934c75d706c464c17a8839ae9237c2abbf90ec46bd3ddec8d34c24dc9c4b
+  checksum: 0e63b47627704f86d84a46059f3b0429b1c03abbdf25271fdd3cadc8cfd07d5202a60e5c66093006d01b63eac34474b3c013c0dba4e6102064a0418ddd28b7cc
   languageName: node
   linkType: hard
 
@@ -22563,7 +22563,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "functional-tests@workspace:packages/functional-tests"
   dependencies:
-    "@playwright/test": ^1.23.4
+    "@playwright/test": ^1.24.0
     "@types/upng-js": ^2
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
@@ -22678,7 +22678,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^8.18.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.2
     fxa-shared: "workspace:*"
     googleapis: ^105.0.0
@@ -35156,12 +35155,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.23.4":
-  version: 1.23.4
-  resolution: "playwright-core@npm:1.23.4"
+"playwright-core@npm:1.24.0":
+  version: 1.24.0
+  resolution: "playwright-core@npm:1.24.0"
   bin:
     playwright: cli.js
-  checksum: 347a40f2fbcc9ee896c5cf8d8211ffa7a200e22f154e879d9e829ee6bd365acc1c69c8b11a64a96a9d2fae9c85e859c995680be1a15b5e74c367ffa53425c9c9
+  checksum: 3744ec66e09b007f066efa9deb75f71627e302561ddb9ab42dbcd7140dad18079690dd97030423df7f6a1c03a8c20f3aac7c2a4bf28810bafd58d51e695d8aa7
   languageName: node
   linkType: hard
 
