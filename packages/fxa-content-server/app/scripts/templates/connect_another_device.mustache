@@ -2,12 +2,7 @@
   <header class="hidden" id="fxa-connect-another-device-header"><h1>{{#t}}Connect another device{{/t}}</h1></header>
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <h2 id="fxa-connected-heading" class="mb-10"><img
-      src="/images/circle-check.svg"
-      role="presentation"
-      alt=""
-      class="align-middle mr-3"
-      />{{#t}}Firefox account connected{{/t}}</h2>
+      <h2 id="fxa-connected-heading" class="mb-10 py-1.5 pl-10 bg-no-repeat bg-center bg-[center_left_40px]">{{#t}}Firefox account connected{{/t}}</h2>
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
