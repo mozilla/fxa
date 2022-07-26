@@ -1,10 +1,15 @@
 import React from 'react';
 import { PaypalButton, PaypalButtonProps } from './index';
 
-import { storiesOf } from '@storybook/react';
 import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, PLAN } from '../../lib/mock-data';
 import { PickPartial } from '../../lib/types';
+import { Meta } from '@storybook/react';
+
+export default {
+  title: 'Routes/Product/PaypalButton',
+  component: PaypalButton,
+} as Meta;
 
 const defaultApiClientOverrides = {
   apiCreateCustomer: async () => CUSTOMER,
@@ -53,6 +58,22 @@ const Subject = ({
   );
 };
 
-storiesOf('routes/Product/PaypalButton', module)
-  .add('default', () => <Subject />)
-  .add('disabled', () => <Subject disabled={true} />);
+const storyWithContext = (
+  storyName?: string,
+  disabled?: boolean,
+) => {
+  const story = () => (
+    <Subject disabled={disabled} />
+  );
+  if (storyName) story.storyName = storyName;
+  return story;
+}
+
+export const Default = storyWithContext(
+  'default'
+)
+
+export const Disabled = storyWithContext(
+  'disabled',
+  true
+)

@@ -167,7 +167,7 @@ describe('routes/Product/SubscriptionCreate', () => {
     });
 
     expect(queryByTestId('paypal-button-container')?.className).toEqual(
-      'disabled-overlay'
+      "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
     );
 
     const checkbox = await findByTestId('confirm');
