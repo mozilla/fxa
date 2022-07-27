@@ -12,11 +12,18 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const encrypt = require('fxa-shared/auth/encrypt');
 const db = require('../../../lib/oauth/db');
 
+const config = require('../../../config');
+
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
 }
 
 describe('db', function () {
+  before(async () => {
+    // some other tests are not cleaning up their authorization codes
+    await db.pruneAuthorizationCodes(1);
+  });
+
   describe('utf-8', function () {
     function makeTest(clientId, clientName) {
       return function () {
@@ -574,14 +581,45 @@ describe('db', function () {
     });
   });
 
-  describe('getLock', function () {
-    it('should return an acquired status', function () {
-      const lockName = randomString(10);
-      return db.getLock(lockName, 3).then(function (result) {
-        assert.ok(result);
-        assert.ok('acquired' in result);
-        assert.ok(result.acquired === 1);
-      });
+  describe('pruneAuthorizationCodes', () => {
+    const clientId = buf(randomString(8));
+    const userId = buf(randomString(16));
+    const scope = ScopeSet.fromArray(['no_scope']).toString();
+    const QUERY_CODE_INSERT =
+      'INSERT INTO codes (code, clientId, userId, scope, createdAt) VALUES (?, ?, ?, ?, DATE_SUB(NOW(), INTERVAL ? SECOND ))';
+
+    const insertAuthzCode = async (ageInMs) => {
+      await db.mysql._query(QUERY_CODE_INSERT, [
+        randomString(16),
+        clientId,
+        userId,
+        scope,
+        ageInMs / 1000,
+      ]);
+    };
+
+    it('prunes codes older than the given ttl', async () => {
+      const ttl = 598989;
+      const pruneCodesCount = 3;
+      for (let i = 0; i < pruneCodesCount; i++) {
+        await insertAuthzCode(ttl + 1000);
+      }
+      const validCodesCount = 2;
+      for (let i = 0; i < validCodesCount; i++) {
+        await insertAuthzCode(1);
+      }
+      const res = await db.pruneAuthorizationCodes(ttl);
+      assert.equal(res.pruned, pruneCodesCount);
+    });
+
+    it('prunes codes older than the default ttl', async () => {
+      const ttl = config.get('oauthServer.expiration.code');
+      const codesCount = 7;
+      for (let i = 0; i < codesCount; i++) {
+        await insertAuthzCode(ttl + 1000);
+      }
+      const res = await db.pruneAuthorizationCodes();
+      assert.equal(res.pruned, codesCount);
     });
   });
 
