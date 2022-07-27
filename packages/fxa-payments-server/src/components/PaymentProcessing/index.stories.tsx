@@ -7,17 +7,11 @@ export default {
   component: PaymentProcessing,
 } as Meta;
 
-const storyWithContext = (
-  storyName?: string,
-) => {
-  const story = () => (
-    <PaymentProcessing provider="paypal" />
-  )
+const storyWithContext = (storyName?: string) => {
+  const story = () => <PaymentProcessing provider="paypal" />;
 
   if (storyName) story.storyName = storyName;
   return story;
-}
+};
 
-export const Default = storyWithContext(
-  'default'
-);
+export const Default = storyWithContext('default');

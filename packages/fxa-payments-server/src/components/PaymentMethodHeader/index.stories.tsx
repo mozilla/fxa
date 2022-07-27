@@ -24,7 +24,7 @@ export default {
 const storyWithContext = (
   plan: Plan,
   storyName?: string,
-  type?: PaymentMethodHeaderType,
+  type?: PaymentMethodHeaderType
 ) => {
   const story = () => (
     <MockApp>
@@ -34,15 +34,12 @@ const storyWithContext = (
 
   if (storyName) story.storyName = storyName;
   return story;
-}
+};
 
-export const basic = storyWithContext(
-  selectedPlan,
-  'default'
-);
+export const basic = storyWithContext(selectedPlan, 'default');
 
 export const withPrefix = storyWithContext(
   selectedPlan,
   'with prefix',
-  PaymentMethodHeaderType.SecondStep,
+  PaymentMethodHeaderType.SecondStep
 );
