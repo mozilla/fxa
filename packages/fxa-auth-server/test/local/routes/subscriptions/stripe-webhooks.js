@@ -1500,25 +1500,100 @@ describe('StripeWebhookHandler', () => {
 
     describe('handleInvoicePaidEvent', () => {
       it('sends email and emits a notification when an invoice payment succeeds', async () => {
-        const PaidEvent = deepCopy(eventInvoicePaid);
+        const paidEvent = deepCopy(eventInvoicePaid);
+        const customer = deepCopy(customerFixture);
         const sendSubscriptionInvoiceEmailStub = sandbox
           .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .resolves(true);
-        const mockSubscription = {
-          id: 'test1',
-          plan: { product: 'test2' },
-        };
+        const account = { email: customerFixture.email };
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
         StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
-          mockSubscription
+          customer
         );
         await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
-          PaidEvent
+          paidEvent
         );
         assert.calledWith(
           sendSubscriptionInvoiceEmailStub,
-          PaidEvent.data.object
+          paidEvent.data.object
         );
+      });
+
+      it('reports a sentry error for a deleted customer', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        const customer = deepCopy(customerFixture);
+        customer.deleted = true;
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        const sendSubscriptionInvoiceEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .resolves(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        assert.notCalled(sendSubscriptionInvoiceEmailStub);
+        assert.calledOnce(sentryModule.reportSentryError);
+        const thrownErr = sentryModule.reportSentryError.getCalls()[0].args[0];
+        assert.deepInclude(thrownErr, {
+          customerId: paidEvent.data.object.customer,
+          invoiceId: paidEvent.data.object.id,
+        });
+      });
+
+      it('reports a sentry error for a customer missing a userid', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        const customer = deepCopy(customerFixture);
+        customer.metadata = {};
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        const sendSubscriptionInvoiceEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .resolves(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        assert.notCalled(sendSubscriptionInvoiceEmailStub);
+        assert.calledOnce(sentryModule.reportSentryError);
+        const thrownErr = sentryModule.reportSentryError.getCalls()[0].args[0];
+        assert.deepInclude(thrownErr, {
+          customerId: paidEvent.data.object.customer,
+          invoiceId: paidEvent.data.object.id,
+        });
+      });
+
+      it('reports a sentry error for a customer missing a firefox account', async () => {
+        const paidEvent = deepCopy(eventInvoicePaid);
+        const customer = deepCopy(customerFixture);
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        const sendSubscriptionInvoiceEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .resolves(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
+          {},
+          paidEvent
+        );
+        assert.notCalled(sendSubscriptionInvoiceEmailStub);
+        assert.calledOnce(sentryModule.reportSentryError);
+        const thrownErr = sentryModule.reportSentryError.getCalls()[0].args[0];
+        assert.deepInclude(thrownErr, {
+          customerId: paidEvent.data.object.customer,
+          invoiceId: paidEvent.data.object.id,
+          userId: customer.metadata.userid,
+        });
       });
     });
 

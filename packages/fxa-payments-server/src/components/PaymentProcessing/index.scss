@@ -8,15 +8,4 @@
 
 .payment-processing {
   @include checkout-view();
-  display: flex;
-  flex-direction: column;
-
-  .footer {
-    margin-top: auto;
-  }
-
-  #loading-spinner {
-    margin: 60px auto;
-    position: relative;
-  }
 }
