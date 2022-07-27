@@ -20,7 +20,7 @@
 
   {{#isLinkExpired}}
   <header>
-    <h1 id="fxa-verification-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>
+    <h1 id="fxa-verification-link-expired-header">{{#t}}Confirmation link expired{{/t}}</h1>
   </header>
 
   <section>
@@ -28,12 +28,12 @@
     <div class="success"></div>
 
     <p>
-      {{#t}}The link you clicked to verify your email is expired.{{/t}}
+      {{#t}}The link you clicked to confirm your email is expired.{{/t}}
     </p>
 
     {{#canResend}}
     <div class="links">
-      <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new verification link{{/t}}</a>
+      <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new confirmation link{{/t}}</a>
     </div>
     {{/canResend}}
   </section>
@@ -41,7 +41,7 @@
 
   {{#isLinkDamaged}}
   <header>
-    <h1 id="fxa-verification-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>
+    <h1 id="fxa-verification-link-damaged-header">{{#t}}Confirmation link damaged{{/t}}</h1>
   </header>
 
   <section>
@@ -53,7 +53,7 @@
 
   {{#error}}
   <header>
-    <h1 id="fxa-verification-error-header">{{#t}}Verification error{{/t}}</h1>
+    <h1 id="fxa-verification-error-header">{{#t}}Confirmation error{{/t}}</h1>
   </header>
 
   <section>

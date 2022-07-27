@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postVerify-subject",
-    "message": "Account verified. Next, sync another device to finish setup"
+    "id": "postVerify-subject-2",
+    "message": "Account confirmed. Next, sync another device to finish setup"
   },
   "action": {
     "id": "postVerify-action",

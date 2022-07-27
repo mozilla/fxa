@@ -76,7 +76,7 @@ describe('secondary email', () => {
     );
     await testElementTextInclude(
       selectors.SETTINGS.SECONDARY_EMAIL.HEADER_VALUE,
-      'unverified'
+      'unconfirmed'
     );
     await testElementExists(selectors.SETTINGS.SECONDARY_EMAIL.DELETE_BUTTON);
     await testElementExists(selectors.SETTINGS.SECONDARY_EMAIL.REFRESH_BUTTON);

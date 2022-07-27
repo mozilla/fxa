@@ -11,7 +11,7 @@ rk-cannot-remove-key = Your account recovery key could not be removed.
 rk-refresh-key = Refresh recovery key
 rk-content-explain = Restore your information when you forget your password.
 rk-content-reset-data = Why does resetting my password reset my data?
-rk-cannot-verify-session-3 = Sorry, there was a problem verifying your session
+rk-cannot-verify-session-4 = Sorry, there was a problem confirming your session
 rk-remove-modal-heading = Remove recovery key?
 rk-remove-modal-content = In the event you reset your password, you won’t be
   able to use your recovery key to access your data. You can’t undo this action.

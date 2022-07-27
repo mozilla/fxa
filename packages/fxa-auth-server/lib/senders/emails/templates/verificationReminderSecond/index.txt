@@ -1,6 +1,6 @@
 verificationReminderSecond-title = "Still there?"
 
-verificationReminderSecond-description = "Almost a week ago you created a Firefox account but never verified it. We’re worried about you."
+verificationReminderSecond-description-2 = "Almost a week ago you created a Firefox account but never confirmed it. We’re worried about you."
 
 verificationReminderSecond-sub-description = "Confirm this email address to activate your account and let us know you’re okay."
 

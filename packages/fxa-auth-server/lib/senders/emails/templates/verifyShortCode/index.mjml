@@ -15,7 +15,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-prompt">If yes, use this verification code in your registration form:</span>
+      <span data-l10n-id="verifyShortCode-prompt-2">If yes, use this confirmation code in your registration form:</span>
     </mj-text>
 
     <mj-text css-class="code-large"><%- code %></mj-text>

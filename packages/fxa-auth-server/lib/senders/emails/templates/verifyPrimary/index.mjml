@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyPrimary-title">Verify primary email</span>
+      <span data-l10n-id="verifyPrimary-title-2">Confirm primary email</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -23,15 +23,15 @@
 
 <%- include('/partials/userInfo/index.mjml') %>
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "verifyPrimary-action",
-  buttonText: "Verify email"
+  buttonL10nId: "verifyPrimary-action-2",
+  buttonText: "Confirm email"
 }) %>
 
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body-top-margin">
-      <span data-l10n-id="verifyPrimary-post-verify">
-        Once verified, account changes like adding a secondary email will become
+      <span data-l10n-id="verifyPrimary-post-verify-2">
+        Once confirmed, account changes like adding a secondary email will become
         possible from this device.
       </span>
     </mj-text>

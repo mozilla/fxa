@@ -29,7 +29,7 @@ const TEMPLATE_INFO = {
     ),
     buttonText: t('Continue to %(serviceName)s '),
     headerId: 'fxa-secondary-email-complete-header',
-    headerTitle: t('Secondary email verified'),
+    headerTitle: t('Secondary email confirmed'),
   },
 };
 

@@ -200,7 +200,7 @@ it('displays the account', async () => {
   );
 
   expect(getByTestId('account-section')).toBeInTheDocument();
-  expect(getByTestId('account-verified-status')).toHaveTextContent('verified');
+  expect(getByTestId('account-verified-status')).toHaveTextContent('confirmed');
   expect(getByTestId('email-label')).toHaveTextContent(
     accountResponse.emails![0].email
   );
@@ -250,7 +250,7 @@ it('displays the unverified account', async () => {
     </MockedProvider>
   );
   expect(getByTestId('account-verified-status')).toHaveTextContent(
-    'not verified'
+    'not confirmed'
   );
 });
 
@@ -344,5 +344,5 @@ it('displays secondary emails', async () => {
   expect(getByTestId('secondary-email')).toHaveTextContent(
     'ohdeceiver@gmail.com'
   );
-  expect(getByTestId('secondary-verified')).toHaveTextContent('not verified');
+  expect(getByTestId('secondary-verified')).toHaveTextContent('not confirmed');
 });

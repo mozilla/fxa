@@ -13,7 +13,7 @@ const translationQuirks = {
   // 'content-language' header of 'en-US'
   'content-language': [],
 
-  'Verify your Firefox Account': [
+  'Confirm your Firefox Account': [
     'en',
     'en-GB',
     'ar',
@@ -24,7 +24,7 @@ const translationQuirks = {
     'lt',
   ],
 
-  'Firefox Account Verified': [
+  'Firefox Account Confirmed': [
     'en',
     'en-GB',
     'ar',
@@ -46,7 +46,7 @@ const translationQuirks = {
     'lt',
   ],
 
-  'Re-verify your Firefox Account': [
+  'Re-confirm your Firefox Account': [
     'en',
     'en-GB',
     'ar',

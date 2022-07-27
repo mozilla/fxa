@@ -423,7 +423,7 @@ describe('remote account signin verification', function () {
           assert.equal(err.code, 400, 'Correct error code');
           assert.equal(
             err.message,
-            'Unverified session',
+            'Unconfirmed session',
             'Correct error message'
           );
         }
@@ -626,7 +626,7 @@ describe('remote account signin verification', function () {
         assert.equal(err.code, 400, 'Correct error code');
         assert.equal(
           err.message,
-          'Unverified account',
+          'Unconfirmed account',
           'Correct error message'
         );
       })
@@ -697,7 +697,7 @@ describe('remote account signin verification', function () {
           assert.equal(err.code, 400, 'Correct error code');
           assert.equal(
             err.message,
-            'Unverified account',
+            'Unconfirmed account',
             'Correct error message'
           );
         }

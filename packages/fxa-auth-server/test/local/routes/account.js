@@ -3428,7 +3428,7 @@ describe('/account/keys', () => {
           );
           assert.equal(
             response.message,
-            'Unverified account',
+            'Unconfirmed account',
             'correct error message'
           );
         }

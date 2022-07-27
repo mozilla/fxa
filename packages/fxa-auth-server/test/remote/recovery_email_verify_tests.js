@@ -44,7 +44,7 @@ describe('remote recovery email verify', function () {
         (err) => {
           assert.equal(
             err.message.toString(),
-            'Invalid verification code',
+            'Invalid confirmation code',
             'bad attempt'
           );
         }

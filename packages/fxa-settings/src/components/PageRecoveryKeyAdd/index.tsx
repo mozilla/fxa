@@ -13,6 +13,7 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import {
   AuthUiErrors,
   AuthUiErrorNos,
+  composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
@@ -73,13 +74,13 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
 
         if (e.errno === AuthUiErrors.THROTTLED.errno) {
           localizedError = l10n.getString(
-            `auth-error-${e.errno}`,
+            composeAuthUiErrorTranslationId(e),
             { retryAfter: e.retryAfterLocalized },
             AuthUiErrorNos[e.errno].message
           );
         } else {
           localizedError = l10n.getString(
-            `auth-error-${e.errno}`,
+            composeAuthUiErrorTranslationId(e),
             null,
             e.message
           );

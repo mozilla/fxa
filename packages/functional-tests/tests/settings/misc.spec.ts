@@ -26,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
     credentials,
     pages: { settings, deleteAccount, page },
   }) => {
-    test.slow(); 
+    test.slow();
     await settings.goto();
     await settings.clickDeleteAccount();
     await deleteAccount.checkAllBoxes();
@@ -76,7 +76,7 @@ test.describe('severity-2 #smoke', () => {
     await secondaryEmail.submit();
     // skip verification
     await settings.goto();
-    expect(await settings.secondaryEmail.statusText()).toMatch('UNVERIFIED');
+    expect(await settings.secondaryEmail.statusText()).toMatch('UNCONFIRMED');
     await settings.secondaryEmail.clickDelete();
     await settings.waitForAlertBar();
     expect(await settings.alertBarText()).toMatch('successfully deleted');

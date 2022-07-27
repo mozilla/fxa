@@ -37,9 +37,9 @@ export const UnitRowSecondaryEmail = () => {
       } catch (e) {
         alertBar.error(
           l10n.getString(
-            'se-cannot-resend-code-2',
+            'se-cannot-resend-code-3',
             null,
-            'Sorry, there was a problem re-sending the verification code'
+            'Sorry, there was a problem re-sending the confirmation code'
           )
         );
       }
@@ -103,9 +103,9 @@ export const UnitRowSecondaryEmail = () => {
             setQueuedAction(undefined);
             alertBar.info(
               l10n.getString(
-                'se-verify-session-2',
+                'se-verify-session-3',
                 null,
-                "You'll need to verify your current session to perform this action"
+                "You'll need to confirm your current session to perform this action"
               )
             );
           }}
@@ -113,9 +113,9 @@ export const UnitRowSecondaryEmail = () => {
             setQueuedAction(undefined);
             alertBar.error(
               l10n.getString(
-                'se-verify-session-error-2',
+                'se-verify-session-error-3',
                 null,
-                'Sorry, there was a problem verifying your session'
+                'Sorry, there was a problem confirming your session'
               ),
               error
             );
@@ -202,19 +202,19 @@ export const UnitRowSecondaryEmail = () => {
                 </span>
               </span>
               {!verified && (
-                <Localized id="se-unverified">
+                <Localized id="se-unverified-2">
                   <span
                     data-testid="secondary-email-unverified-text"
                     className="uppercase block text-orange-600 font-bold text-xs"
                   >
-                    unverified
+                    unconfirmed
                   </span>
                 </Localized>
               )}
             </p>
             {!verified && (
               <Localized
-                id="se-resend-code"
+                id="se-resend-code-2"
                 elems={{
                   button: (
                     <button
@@ -228,7 +228,7 @@ export const UnitRowSecondaryEmail = () => {
                 }}
               >
                 <p className="text-xs mt-3 text-grey-400">
-                  Verification needed.{' '}
+                  Confirmation needed.{' '}
                   <button
                     className="link-blue"
                     data-testid="secondary-email-resend-code-button"
@@ -236,7 +236,7 @@ export const UnitRowSecondaryEmail = () => {
                       resendEmailCode(email);
                     }}
                   >
-                    Resend verification code
+                    Resend confirmation code
                   </button>{' '}
                   if it's not in your inbox or spam folder.
                 </p>

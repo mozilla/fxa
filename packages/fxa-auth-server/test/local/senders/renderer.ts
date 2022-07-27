@@ -120,21 +120,15 @@ describe('Renderer', () => {
     });
 
     it('localizes and then renders if "<%" is present', async () => {
-      const rendererContextMods = {
-        ...rendererContext,
-        templateValues: {
-          code: '123abc',
-        },
-      };
       const result = await renderer.localizeAndRender(
         undefined,
         {
-          id: 'verifyShortCode-subject',
-          message: 'Verification code: <%- code %>',
+          id: 'verifyShortCode-title',
+          message: 'Is this you signing up?',
         },
-        rendererContextMods
+        rendererContext
       );
-      assert.equal(result, 'Codice di verifica: 123abc');
+      assert.equal(result, 'Hai effettuato tu questo accesso?');
     });
   });
 });
