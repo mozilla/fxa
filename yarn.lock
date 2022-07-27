@@ -22678,6 +22678,7 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^8.18.0
+    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.2
     fxa-shared: "workspace:*"
     googleapis: ^102.0.0

@@ -462,6 +462,7 @@ module.exports = {
     PAIR_FAILURE: '#fxa-pair-failure-header',
     START_PAIRING: '#start-pairing',
     SUPP_SUBMIT: '#supp-approve-btn',
+    CONNECT_ANOTHER_QR_CODE: '.graphic-connect-another-device-qr-code',
   },
   PAYMENTS: {
     HEADER: '.accepted-cards',
