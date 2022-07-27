@@ -496,7 +496,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verifyShortCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Confirmation code: ${MESSAGE.code}` }],
+    ['subject', { test: 'equal', expected: 'Confirm your account' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
       ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
@@ -504,8 +504,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
-      { test: 'include', expected: `Confirmation code: ${MESSAGE.code}` },
-      { test: 'include', expected: 'Is this you signing up?' },
+      { test: 'include', expected: 'Confirm your account' },
+      { test: 'include', expected: 'Open the internet with Firefox' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
@@ -513,19 +513,19 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
-      { test: 'include', expected: 'If yes, use this confirmation code in your registration form:' },
+      { test: 'include', expected: 'Use this confirmation code:' },
       { test: 'include', expected: MESSAGE.code },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Is this you signing up?' },
+      { test: 'include', expected: 'Open the internet with Firefox' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
-      { test: 'include', expected: `If yes, use this confirmation code in your registration form:\n${MESSAGE.code}` },
+      { test: 'include', expected: `Use this confirmation code:\n${MESSAGE.code}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
