@@ -20,6 +20,7 @@ const GOOD_CLIENT_ID = '3c49430b43dfba77';
 const GOOD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${GOOD_CLIENT_ID}&redirect_uri=${REDIRECT_HOST}oauth%2Fsuccess%2F3c49430b43dfba77&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 const BAD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${BAD_CLIENT_ID}&redirect_uri=${BAD_OAUTH_REDIRECT}&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
+const DESKTOP_SIGNUP_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&entrypoint=fxa_app_menu&service=sync`;
 
 const PASSWORD = 'PASSWORD123123';
 let email;
@@ -257,6 +258,27 @@ registerSuite('pairing', {
             'Invalid pairing client'
           )
         );
+    },
+
+    'it shows qr code after sign in from fx desktop pre': function () {
+      email = createEmail();
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(DESKTOP_SIGNUP_URL))
+        .then(() =>
+          this.remote.findAllByCssSelector(
+            selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+          )
+        )
+        .then((r) => r[0]?.click())
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(() => this.remote.sleep(100))
+        .then(() => this.remote.acceptAlert())
+        .catch(() => {})
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.PAIRING.HEADER))
+        .then(testElementExists(selectors.PAIRING.CONNECT_ANOTHER_QR_CODE));
     },
   },
 });
