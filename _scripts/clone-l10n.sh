@@ -77,7 +77,7 @@ else
     FXA_L10N_REPO="${FXA_L10N_REPO:-https://github.com/mozilla/fxa-content-server-l10n.git}"
 
     # branch name
-    FXA_L10N_BRANCH="${FXA_L10N_BRANCH:-master}"
+    FXA_L10N_BRANCH="${FXA_L10N_BRANCH:-main}"
 
     # number of commits to truncate the history for specific commit checkout
     FXA_L10N_DEPTH="${FXA_L10N_DEPTH:-1000}"

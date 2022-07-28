@@ -6,13 +6,13 @@ import { parseAcceptLanguage } from './parseAcceptLanguage';
 /**
  * Given a set of supported languages and an accept-language http header value, this resolves language that fits best.
  * @param acceptLanguage - The accept-language http header value
- * @param supportedLanguages - optional set of supported langauges. Defaults to master list held in ./supportedLanguages.json
+ * @param supportedLanguages - optional set of supported languages. Defaults to main list held in ./supportedLanguages.json
  * @returns The best fitting locale
  */
 export function determineLocale(
   acceptLanguage: string,
   supportedLanguages?: string[]
 ) {
-  // Returns languages in order of precendence, so we can just grab the first one.
+  // Returns languages in order of precedence, so we can just grab the first one.
   return parseAcceptLanguage(acceptLanguage, supportedLanguages)[0];
 }
