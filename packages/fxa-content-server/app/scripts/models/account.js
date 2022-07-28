@@ -1486,6 +1486,10 @@ const Account = Backbone.Model.extend(
         .then((result) => {
           if (result.success) {
             this.set('totpVerified', true);
+
+            // Make sure verified is also set. If this is not set, the user
+            // maybe redirected to the signin page unintentionally.
+            this.set('verified', true);
           }
           return result;
         });
