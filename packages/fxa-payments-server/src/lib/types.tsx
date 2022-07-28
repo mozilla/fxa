@@ -1,5 +1,6 @@
 export interface QueryParams {
   plan?: string;
+  coupon?: string;
   device_id?: string;
   flow_id?: string;
   flow_begin_time?: number;
