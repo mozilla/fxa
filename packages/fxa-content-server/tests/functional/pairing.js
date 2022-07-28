@@ -32,6 +32,7 @@ const {
   closeCurrentWindow,
   createEmail,
   confirmTotpCode,
+  enableTotp,
   generateTotpCode,
   openPage,
   openTab,
@@ -262,23 +263,62 @@ registerSuite('pairing', {
 
     'it shows qr code after sign in from fx desktop pre': function () {
       email = createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(DESKTOP_SIGNUP_URL))
-        .then(() =>
-          this.remote.findAllByCssSelector(
-            selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+      let secret = '';
+
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(openPage(DESKTOP_SIGNUP_URL))
+          .then(() =>
+            this.remote.findAllByCssSelector(
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+            )
           )
-        )
-        .then((r) => r[0]?.click())
-        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
-        .then(() => this.remote.sleep(100))
-        .then(() => this.remote.acceptAlert())
-        .catch(() => {})
-        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.PAIRING.HEADER))
-        .then(testElementExists(selectors.PAIRING.CONNECT_ANOTHER_QR_CODE));
+          .then((r) => r[0]?.click())
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(() => this.remote.sleep(100))
+          .then(() => this.remote.acceptAlert())
+          .catch(() => {})
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(
+            click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.PAIRING.HEADER)
+          )
+          .then(testElementExists(selectors.PAIRING.CONNECT_ANOTHER_QR_CODE))
+
+          // also check that this works with 2FA enabled.
+          .then(enableTotp())
+          .then((_secret) => {
+            secret = _secret;
+          })
+          .then(openPage(DESKTOP_SIGNUP_URL))
+          .then(() =>
+            this.remote.findAllByCssSelector(
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+            )
+          )
+          .then((r) => r[0]?.click())
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(() => this.remote.sleep(100))
+          .then(() => this.remote.acceptAlert())
+          .catch(() => {})
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors.TOTP_SIGNIN.HEADER
+            )
+          )
+          // Correctly submits the totp code and navigates to oauth page
+          .then(() => {
+            return this.remote.then(
+              type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret))
+            );
+          })
+          .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+          .then(testElementExists(selectors.PAIRING.CONNECT_ANOTHER_QR_CODE))
+      );
     },
   },
 });
