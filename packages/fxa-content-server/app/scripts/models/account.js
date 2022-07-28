@@ -789,11 +789,14 @@ const Account = Backbone.Model.extend(
         options.newsletters = newsletters;
       }
 
-      return this._fxaClient.sessionVerifyCode(
-        this.get('sessionToken'),
-        code,
-        options
-      );
+      return this._fxaClient
+        .sessionVerifyCode(this.get('sessionToken'), code, options)
+        .then(() => {
+          // If the promise resolves without error, then the code was correct and the
+          // verified flag can be set to true. If verified is not set, the user will
+          // likely be directed to the signin.
+          this.set('verified', true);
+        });
     },
 
     /**
@@ -1483,6 +1486,10 @@ const Account = Backbone.Model.extend(
         .then((result) => {
           if (result.success) {
             this.set('totpVerified', true);
+
+            // Make sure verified is also set. If this is not set, the user
+            // maybe redirected to the signin page unintentionally.
+            this.set('verified', true);
           }
           return result;
         });

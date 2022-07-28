@@ -54,12 +54,20 @@ export default {
         );
       }
 
-      const type = this.model.get('type');
-      this.navigate('connect_another_device', {
-        account,
-        showSuccessMessage: true,
-        type,
-      });
+      // If we can pair, just jump straight to this screen. Otherwise
+      // fall back to previous generic CAD screen.
+      if (this.isEligibleForPairing()) {
+        this.navigate('pair', {
+          account,
+        });
+      } else {
+        const type = this.model.get('type');
+        this.navigate('connect_another_device', {
+          account,
+          showSuccessMessage: true,
+          type,
+        });
+      }
     });
   },
 
@@ -105,5 +113,5 @@ export default {
    */
   replaceCurrentPageWithPairScreen() {
     this.navigate('/pair', {});
-  }
+  },
 };
