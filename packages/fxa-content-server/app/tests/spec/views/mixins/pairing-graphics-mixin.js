@@ -48,6 +48,21 @@ describe('views/mixins/pairing-graphics-mixin', function () {
       assert.equal(view.showDownloadFirefoxQrCode(), true);
     });
 
+    it('returns true if entry point is preferences', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'preferences');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns true if entry point is synced-tabs', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'synced-tabs');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns true if entry point is side-bar', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'tabs-sidebar');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
     it('returns false if entry point is not app menu', () => {
       sinon.stub(view, 'getSearchParam').callsFake(() => undefined);
       assert.equal(view.showDownloadFirefoxQrCode(), false);

@@ -37,8 +37,12 @@ export default {
    * a QR code that can be used download firefox on a mobile device.
    */
   showDownloadFirefoxQrCode() {
+    const entryPoint = this.getSearchParam('entrypoint');
     return (
-      this.getSearchParam('entrypoint') === Constants.FIREFOX_MENU_ENTRYPOINT
+      entryPoint === Constants.FIREFOX_MENU_ENTRYPOINT ||
+      entryPoint === Constants.FIREFOX_PREFERENCES_ENTRYPOINT ||
+      entryPoint === Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
+      entryPoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT
     );
   },
 };
