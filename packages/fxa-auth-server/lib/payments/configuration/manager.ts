@@ -43,7 +43,11 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
   /**
    * Validate the PlanConfig object and that the Product Config already exists
    */
-  public async validatePlanConfig(planConfig: any, productConfigId: string) {
+  public async validatePlanConfig(
+    planConfig: any,
+    productConfigId: string,
+    skip: boolean = false
+  ) {
     const { error } = await PlanConfig.validate(
       planConfig,
       this.config.subscriptions.productConfigsFirestore.schemaValidation
@@ -56,7 +60,7 @@ export class PaymentConfigManager extends PaymentConfigManagerBase {
       );
     }
 
-    if (!this.products[productConfigId]) {
+    if (!skip && !this.products[productConfigId]) {
       throw errors.internalValidationError(
         'storePlanConfig',
         planConfig,
