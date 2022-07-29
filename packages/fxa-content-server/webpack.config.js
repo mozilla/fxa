@@ -208,9 +208,6 @@ const webpackConfig = {
             loader: 'css-loader',
           },
           {
-            loader: 'postcss-loader',
-          },
-          {
             loader: 'sass-loader',
           },
         ],

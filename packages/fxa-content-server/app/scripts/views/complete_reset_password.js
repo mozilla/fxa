@@ -25,7 +25,7 @@ const View = FormView.extend({
   className: 'complete-reset-password',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .remember-password': preventDefaultThen('_navigateToSignin'),
+    'click #remember-password': preventDefaultThen('_navigateToSignin'),
   }),
 
   _navigateToSignin() {
@@ -54,9 +54,8 @@ const View = FormView.extend({
     // key view, then these properties must be set in order to recover the account
     // using the recovery key.
     if (model && model.get('recoveryKeyId')) {
-      this._accountRecoveryVerficationInfo = new AccountRecoveryVerificationInfo(
-        model.toJSON()
-      );
+      this._accountRecoveryVerficationInfo =
+        new AccountRecoveryVerificationInfo(model.toJSON());
     }
   },
 
@@ -168,8 +167,8 @@ const View = FormView.extend({
         // The account recovery verification info will be set from the
         // `confirm recovery key` view. If the are not set, then perform
         // a regular password reset.
-        const accountRecoveryVerificationInfo = this
-          ._accountRecoveryVerficationInfo;
+        const accountRecoveryVerificationInfo =
+          this._accountRecoveryVerficationInfo;
         if (accountRecoveryVerificationInfo) {
           return this.user.completeAccountPasswordResetWithRecoveryKey(
             account,
@@ -202,8 +201,8 @@ const View = FormView.extend({
         );
       })
       .then(() => {
-        const accountRecoveryVerificationInfo = this
-          ._accountRecoveryVerficationInfo;
+        const accountRecoveryVerificationInfo =
+          this._accountRecoveryVerficationInfo;
         if (!accountRecoveryVerificationInfo) {
           this.navigate('reset_password_verified');
         } else {

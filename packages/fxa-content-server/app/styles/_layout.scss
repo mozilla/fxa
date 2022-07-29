@@ -1,5 +1,6 @@
 // Two main widths
 // Apply styles to div injected by backbone, rather than to the stage itself.
+
 #main-content {
   position: relative;
   text-align: center;
@@ -37,6 +38,64 @@
     padding: $main-content-padding-top 20px 20px;
     position: relative;
     width: 94%;
+  }
+
+  // Below is all a * TEMP HACK * until all template files using #main-content are converted
+  // to TW. We should be able to remove all then. At that point we we can also set `a` to default
+  // to `link-blue` styles, remove that class set on `a`s, and set `link-grey` where needed
+  header {
+    margin-bottom: 15px;
+
+    h1,
+    h2,
+    h3 {
+      @include header-font();
+      line-height: 1em;
+      margin: 0;
+    }
+
+    h1 {
+      @include title30();
+      color: $header-color;
+      line-height: 26px;
+    }
+
+    h2 {
+      @include title20();
+      font-size: 17px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  section p {
+    margin: 0 auto 25px 0;
+  }
+
+  .email:not(.hidden) {
+    display: block;
+  }
+
+  a:not(.button) {
+    border-radius: 2px; // Give the focusring rounded corners
+    color: $link-color-default;
+    cursor: pointer; // Use the correct cursor for anchors without an href
+    text-decoration: none;
+
+    @include anchor-default-pseudo-classes();
+  }
+
+  // can remove once every page with error class uses TW
+  // at the time of writing we need this for pages that don't have TW available like the 404 page
+  .error {
+    @include message-box($error-background-color, $error-text-color);
+    display: none;
+    margin-bottom: 10px;
+
+    a {
+      color: $color-white;
+      text-decoration: underline;
+    }
   }
 }
 

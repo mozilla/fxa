@@ -1,34 +1,29 @@
-<div id="main-content" class="card">
-  <header class="hidden" id="fxa-connect-another-device-header"><h1>{{#t}}Connect another device{{/t}}</h1></header>
+<div class="card">
+  <header class="hidden" id="fxa-connect-another-device-header"><h1 class="card-header mb-8">{{#t}}Connect another device{{/t}}</h1></header>
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <h2 id="fxa-connected-heading" class="mb-10"><img
-      src="/images/circle-check.svg"
-      role="presentation"
-      alt=""
-      class="align-middle mr-3"
-      />{{#t}}Firefox account connected{{/t}}</h2>
+      <h2 id="fxa-connected-heading" class="card-header mb-8 ltr:before:content-circle-check rtl:after:content-circle-check rtl:after:relative"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}Firefox account connected{{/t}}</span></h2>
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
-        <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+        <div class="success visible" id="success-not-authenticated">{{#t}}Email verified{{/t}}</div>
       {{/isSignUp}}
       {{#isSignIn}}
-        <div class="success success-not-authenticated visible">{{#t}}Sign-in confirmed{{/t}}</div>
+        <div class="success visible" id="success-not-authenticated">{{#t}}Sign-in confirmed{{/t}}</div>
       {{/isSignIn}}
     {{/isSignedIn}}
   {{/showSuccessMessage}}
   <section>
-    <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
+    <div class="{{graphicId}}" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
 
     {{#canSignIn}}
-      <p>
+      <p class="mb-5">
         {{#t}}Sign in to this Firefox to complete set-up{{/t}}
       </p>
 
       <form novalidate>
-        <div class="button-row">
-          <a data-flow-event="link.signin" id="signin" class="button primary-button" href="{{{ escapedSignInUrl }}}">{{#t}}Sign in{{/t}}</a>
+        <div class="flex">
+          <a data-flow-event="link.signin" id="signin" class="cta-primary cta-xl" href="{{{ escapedSignInUrl }}}">{{#t}}Sign in{{/t}}</a>
         </div>
       </form>
     {{/canSignIn}}
@@ -47,13 +42,15 @@
       {{#isFirefoxDesktop}}
         <p id="install-mobile-firefox-desktop">
           {{#isSignedIn}}
-            <div class="button-row">
-              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="button primary-button">{{#t}}Sync Firefox across devices{{/t}}</a>
+            <div class="flex">
+              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl">{{#t}}Sync Firefox across devices{{/t}}</a>
             </div>
           {{/isSignedIn}}
         </p>
-        <div class="pair-everywhere-cta text-grey-500 text-xs font-normal leading-[18px]">{{#t}}Sign in everywhere you use Firefox.{{/t}}</div>
-        <div class="pair-everywhere-cta text-grey-500 text-xs font-normal leading-[18px]">{{#t}}We’re on Android and iOS, too!{{/t}}</div>
+        <div id="pair-everywhere" class="text-grey-500 text-xs font-normal mt-4">
+          <p>{{#t}}Sign in everywhere you use Firefox.{{/t}}</p>
+          <p>{{#t}}We’re on Android and iOS, too!{{/t}}</p>
+        </div>
       {{/isFirefoxDesktop}}
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->

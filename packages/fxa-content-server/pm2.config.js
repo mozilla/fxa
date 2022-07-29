@@ -39,6 +39,8 @@ module.exports = {
         'postcss.config.js',
         'tailwind.config.js',
         'app/scripts/templates/**/*.mustache',
+        'app/styles/tailwind.css',
+        'app/styles/tailwind/**/*.css',
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
       time: true,

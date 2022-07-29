@@ -23,7 +23,7 @@ const SignInPasswordView = FormView.extend({
   template: Template,
 
   events: assign({}, FormView.prototype.events, {
-    'click .use-different': preventDefaultThen('useDifferentAccount'),
+    'click #use-different': preventDefaultThen('useDifferentAccount'),
   }),
 
   useDifferentAccount() {

@@ -1,17 +1,17 @@
-<div id="main-content" class="card">
-  <header>
+<div class="card">
+  <header class="mb-4">
     {{#isSync}}
-      <h1 id="fxa-enter-email-header">
+      <h1 id="fxa-enter-email-header" class="card-header">
         {{#t}}Continue to Firefox accounts{{/t}}
       </h1>
-      <p class="sync-description">
+      <p class="mt-1 mb-9" id="subheader">
         {{#t}}Sync your passwords, tabs, and bookmarks everywhere you use Firefox.{{/t}}
       </p>
       {{/isSync}}
       {{^isSync}}
-        <h1 id="fxa-enter-email-header">
+        <h1 id="fxa-enter-email-header" class="card-header">
           {{#t}}Enter your email{{/t}}
-          <span class="service">
+          <span class="block text-sm font-body font-normal mt-1" id="subheader">
             {{#serviceLogo}}
               <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
               {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
@@ -32,11 +32,11 @@
 
     <form novalidate>
       <div class="input-row">
-          <input name="email" type="email" class="email tooltip-below" autofocus placeholder="{{#t}}Email{{/t}}"/>
+          <input name="email" type="email" class="email tooltip-below" autofocus placeholder="{{#t}}Enter your email{{/t}}"/>
       </div>
 
-      <div class="button-row">
-        <button id="submit-btn" type="submit">
+      <div class="flex">
+        <button id="submit-btn" type="submit" class="cta-primary cta-xl">
           {{#t}}Sign up or sign in{{/t}}
         </button>
       </div>
@@ -47,7 +47,7 @@
     {{/isInThirdPartyAuthExperiment}}
 
     {{^isInThirdPartyAuthExperiment}}
-      <p class="firefox-family-services">
+      <p class="text-xs text-grey-500 mb-0 mt-5" id="firefox-family-services">
         {{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
       </p>
     {{/isInThirdPartyAuthExperiment}}

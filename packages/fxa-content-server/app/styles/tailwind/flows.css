@@ -1,0 +1,29 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.card {
+  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-28 mobileLandscape:pt-20;
+
+  &::before {
+    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-5 mobileLandscape:-top-10;
+    content: '';
+    background-image: inline('../images/firefox-logo.svg');
+  }
+
+  &-header {
+    @apply font-header text-xl font-bold;
+  }
+
+  &-subheader {
+    @apply font-body font-normal text-sm block mt-1;
+  }
+}
+
+@screen mobileLandscape {
+  /* Design specifically requested a custom box-shadow. */
+  .card {
+    box-shadow: 0 16px 24px rgba(34, 0, 51, 0.04),
+      0 6px 32px rgba(7, 48, 114, 0.12), 0 8px 12px rgba(14, 13, 26, 0.12);
+  }
+}

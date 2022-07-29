@@ -68,53 +68,6 @@ a {
   @include anchor-default-pseudo-classes();
 }
 
-header {
-  margin-bottom: 15px;
-
-  h1,
-  h2,
-  h3 {
-    @include header-font();
-    line-height: 1em;
-    margin: 0;
-  }
-
-  h1 {
-    @include title30();
-    color: $header-color;
-    line-height: 26px;
-
-    .description,
-    .service,
-    .email {
-      display: block;
-      font-size: 15px;
-      line-height: 22px;
-      margin-top: 4px;
-    }
-
-    .email {
-      color: $faint-text-color;
-      // allow long email addresses to be
-      // split across lines
-      word-break: anywhere;
-    }
-  }
-
-  h2 {
-    @include title20();
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .sync-description {
-    padding: 0 24px;
-    line-height: 21px;
-    margin-bottom: 32px;
-  }
-}
-
 button,
 input {
   @include font();
@@ -265,28 +218,6 @@ input[type='checkbox'] {
       opacity: 0.4;
     }
   }
-}
-
-.prefillEmail {
-  @include title20();
-  color: $text-color;
-  font-size: 16px;
-  font-weight: 350;
-  margin: 0 0 5px 0;
-  word-wrap: anywhere;
-
-  ~ .use-different {
-    display: inline-block;
-    margin: 0 0 17px 0;
-  }
-}
-
-section p {
-  margin: 0 auto 25px 0;
-}
-
-.email {
-  display: block;
 }
 
 // Add the clearfix class to an element that contains

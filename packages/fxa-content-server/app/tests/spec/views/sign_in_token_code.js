@@ -88,7 +88,7 @@ describe('views/sign_in_token_code', () => {
   describe('render', () => {
     it('renders the view', () => {
       assert.lengthOf(view.$('#fxa-signin-code-header'), 1);
-      assert.include(view.$('.verification-email-message').text(), 'a@a.com');
+      assert.include(view.$('#verification-email-message').text(), 'a@a.com');
     });
 
     describe('without an account', () => {

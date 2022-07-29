@@ -19,7 +19,6 @@ const proto = FormView.prototype;
 
 class ConfirmSignupCodeView extends FormView {
   template = Template;
-  className = 'confirm-signup-code';
 
   afterVisible() {
     // the view is always rendered, but the confirmation may be
@@ -84,11 +83,8 @@ class ConfirmSignupCodeView extends FormView {
             event: 'newsletter.subscribed',
           });
         }
-        
-        return this.invokeBrokerMethod(
-          'afterSignUpConfirmationPoll',
-          account
-        );
+
+        return this.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
       })
       .catch((err) => {
         if (

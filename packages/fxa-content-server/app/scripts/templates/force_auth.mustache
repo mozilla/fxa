@@ -1,14 +1,14 @@
-<div id="main-content" class="card">
+<div class="card">
   <header>
-    <h1 id="fxa-force-auth-header">
+    <h1 id="fxa-force-auth-header" class="card-header">
       {{#isSync}}
         {{#unsafeTranslate}}
-          Enter your password <span class="description">for your Firefox account</span>
+          Enter your password <span class="card-subheader" id="subheader">for your Firefox account</span>
         {{/unsafeTranslate}}
       {{/isSync}}
       {{^isSync}}
         <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{#t}}Sign in{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{#t}}Sign in{{/t}} <span class="card-subheader" id="subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
       {{/isSync}}
     </h1>
   </header>
@@ -29,18 +29,18 @@
         <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" required pattern=".{8,}" required {{#email}}autofocus{{/email}} />
       </div>
 
-      <div class="button-row">
-        <button id="submit-btn" type="submit">{{{buttonSignInText}}}</button>
+      <div class="flex">
+        <button id="submit-btn" type="submit" class="cta-primary cta-xl">{{{buttonSignInText}}}</button>
       </div>
     </form>
 
-    <div class="tos-pp faint">
-      {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+    <div id="tos-pp" class="text-grey-500 my-5 text-xs">
+      {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
     </div>
 
-    <div class="links">
-      <a href="/" class="left use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a>
-      <a href="/reset_password" class="right reset-password" data-flow-event="forgot-password">{{#t}}Forgot password?{{/t}}</a>
+    <div class="flex justify-between">
+      <a href="/" id="use-different" class="link-blue" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a>
+      <a href="/reset_password" class="link-blue" data-flow-event="forgot-password" id="reset-password">{{#t}}Forgot password?{{/t}}</a>
     </div>
     {{/fatalError}}
   </section>

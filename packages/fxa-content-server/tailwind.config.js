@@ -6,6 +6,14 @@
 
 const config = require('fxa-react/configs/tailwind');
 
-config.content = ['./app/scripts/templates/**/*.mustache'];
+config.content = [
+  './app/scripts/templates/**/*.mustache',
+  './app/server/templates/pages/**/*.html',
+];
+
+config.theme.extend.content = {
+  ...config.theme.extend.content,
+  'circle-check': "inline('../images/circle-check.svg')",
+};
 
 module.exports = config;

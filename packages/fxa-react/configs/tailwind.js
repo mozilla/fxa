@@ -37,6 +37,7 @@ module.exports = {
       width: {
         7: '1.75rem',
         18: '4.5rem',
+        120: '30rem',
       },
       minWidth: {
         sm: '27rem',
@@ -54,6 +55,7 @@ module.exports = {
         32: '8rem',
         48: '12rem',
         64: '16rem',
+        100: '25rem',
       },
       inset: {
         '1/2': '50%',
@@ -87,6 +89,15 @@ module.exports = {
       },
       outline: {
         'black-dotted': '1px dotted #000',
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0.01' },
+          '100%': { opacity: '1' },
+        },
+      },
+      animation: {
+        'delayed-fade-in': 'fade-in 1s linear 5s forwards',
       },
     },
     screens: {

@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = {
-  plugins: {
-    autoprefixer: {},
-  },
-};
+.error {
+  @apply text-xs bg-red-700 font-bold p-3 my-3 hidden rounded text-white;
+
+  /* REACT NOTE: probably don't need this nesting, add class in JSX instead */
+  a {
+    @apply underline;
+  }
+}

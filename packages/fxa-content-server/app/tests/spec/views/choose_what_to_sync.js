@@ -252,7 +252,7 @@ describe('views/choose_what_to_sync', () => {
       return initView().then(() => {
         $('#container').html(view.el);
         //decline the first engine
-        $('.customize-sync').first().click();
+        $('[id^="sync-engine-"').first().click();
         const declined = view._getDeclinedEngineIds();
         assert.sameMembers(declined, ['tabs']);
       });
@@ -272,7 +272,7 @@ describe('views/choose_what_to_sync', () => {
     it('updates the account, logs metrics, calls onSubmitComplete', () => {
       return initView()
         .then(() => {
-          view.$('.customize-sync').first().removeAttr('checked');
+          view.$('[id^="sync-engine-"').first().removeAttr('checked');
 
           sinon.spy(notifier, 'trigger');
           return view.submit();

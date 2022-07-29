@@ -131,7 +131,7 @@ describe('views/pair/index', () => {
           'Get Firefox on your phone or tablet'
         );
         assert.ok(view.$el.find('#start-pairing').length);
-        assert.ok(view.$el.find('.graphic').length);
+        assert.ok(view.$el.find('.bg-image-cad-hearts').length);
       });
     });
 
@@ -169,7 +169,7 @@ describe('views/pair/index', () => {
     it('shows qr code', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
       return view.render().then(() => {
-        const qrCode = view.$el.find('.graphic-connect-another-device-qr-code');
+        const qrCode = view.$el.find('.bg-image-cad-qr-code');
         assert.equal(qrCode.length, 1);
       });
     });
@@ -177,7 +177,7 @@ describe('views/pair/index', () => {
     it('does not show qr code', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
       return view.render().then(() => {
-        const qrCode = view.$el.find('.graphic-connect-another-device-qr-code');
+        const qrCode = view.$el.find('.bg-image-cad-qr-code');
         assert.equal(qrCode.length, 0);
       });
     });

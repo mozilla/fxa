@@ -1,4 +1,22 @@
-/* If or when content-server is using Tailwind exclusively, we should enable @base. */
-/* @tailwind base; */
-@tailwind components;
-@tailwind utilities;
+/* When content-server is using Tailwind exclusively use "@tailwind" directives instead of
+ * imports. See: https://tailwindcss.com/docs/using-with-preprocessors */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import 'fxa-react/styles/index.css';
+@import './tailwind/fonts';
+
+/* REACT NOTE: when we refactor to React it's going to be nicer to create reusable
+ * components and ditch some of these custom component classes. */
+
+@import './tailwind/flows';
+@import './tailwind/state';
+@import './tailwind/ctas';
+@import './tailwind/inputs';
+@import './tailwind/images';
+
+body {
+  @apply min-h-screen mobileLandscape:pt-12 text-black flex flex-col justify-center;
+}

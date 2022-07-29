@@ -1,14 +1,14 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-cannot-create-account-header">{{#t}}Cannot create account{{/t}}</h1>
+<div class="card">
+  <header class="mb-4">
+    <h1 id="fxa-cannot-create-account-header" class="card-header">{{#t}}Cannot create account{{/t}}</h1>
   </header>
 
-  <section class="cannot-create-account-content">
+  <section>
     <p>
       {{#unsafeTranslate}}You must meet certain age requirements to create a Firefox&nbsp;account.{{/unsafeTranslate}}
     </p>
-    <p class="links">
-      <a class="ftc" href="https://www.ftc.gov/tips-advice/business-center/privacy-and-security/children%27s-privacy" {{#isSync}} target="_blank"{{/isSync}}>{{#t}}Learn more{{/t}}</a>
+    <p class="mt-9">
+      <a id="ftc" class="link-blue" href="https://www.ftc.gov/tips-advice/business-center/privacy-and-security/children%27s-privacy" {{#isSync}} target="_blank"{{/isSync}}>{{#t}}Learn more{{/t}}</a>
     </p>
 
   </section>

@@ -1,15 +1,15 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-signin-code-header">{{#unsafeTranslate}}Enter confirmation code<span class="description">for your Firefox account</span>{{/unsafeTranslate}}</h1>
+    <h1 id="fxa-signin-code-header" class="card-header">{{#unsafeTranslate}}Enter confirmation code<span class="card-subheader">for your Firefox account</span>{{/unsafeTranslate}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
     <div class="success"></div>
 
-    <div class="graphic graphic-mail">{{#t}}Enter confirmation{{/t}}</div>
+    <div class="bg-image-email"></div>
 
-    <p class="verification-email-message">
+    <p id="verification-email-message" class="mb-5">
     {{#t}}Enter the code that was sent to %(email)s within 5 minutes{{/t}}
     </p>
 
@@ -19,14 +19,14 @@
           <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
       </div>
 
-      <div class="button-row">
-        <button type="submit" class="use-logged-in">{{#t}}Confirm{{/t}}</button>
+      <div class="flex">
+        <button type="submit" id="use-logged-in" class="cta-primary cta-xl">{{#t}}Confirm{{/t}}</button>
       </div>
 
     </form>
-
-    <div class="links">
-      <span class="delayed-fadein faint">{{#t}}Code expired?{{/t}}</span><a id="resend" class="left delayed-fadein" href="#">{{#t}}Email new code{{/t}}</a>
+    <p class="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs">
+        {{#t}}Code expired?{{/t}}&nbsp;<a id="resend" class="link-blue" href="#">{{#t}}Email new code.{{/t}}</a>
+    </p>
     </div>
   </section>
 </div>

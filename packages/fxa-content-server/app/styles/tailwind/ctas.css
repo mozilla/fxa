@@ -1,0 +1,15 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Max-height is a likely temp "hack" for .spinner until it's converted to TW */
+/* font-color is also a hack until all buttons are TWified */
+.cta-xl {
+  @apply flex-1 font-bold text-base p-4 border-0 max-h-14;
+}
+
+/* Temp hack until .spinner is fully converted to TW */
+.cta-primary .spinner {
+  background-image: inline('../images/spinnerwhite.svg');
+  @apply -mt-[6px] mx-auto;
+}

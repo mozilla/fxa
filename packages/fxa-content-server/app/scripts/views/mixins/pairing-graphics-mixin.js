@@ -17,8 +17,8 @@ export default {
   dependsOn: [UserAgentMixin, UrlMixin],
 
   /**
-   * Returns graphicId 'graphic-connect-another-device-hearts' if the
-   * browser supports SVG Transform Origin, and 'graphic-connect-another-device'
+   * Returns graphicId 'bg-image-cad-hearts' if the
+   * browser supports SVG Transform Origin, and 'bg-image-cad'
    * if it does not.
    *
    * @returns {String}
@@ -27,9 +27,9 @@ export default {
   getGraphicsId() {
     const uap = this.getUserAgent();
     if (uap.supportsSvgTransformOrigin()) {
-      return 'graphic-connect-another-device-hearts';
+      return 'bg-image-cad-hearts';
     }
-    return 'graphic-connect-another-device';
+    return 'bg-image-cad';
   },
 
   /**
