@@ -139,7 +139,7 @@
     "@storybook/addon-controls": "^6.5.9",
     "@storybook/addon-docs": "^6.5.9",
     "@storybook/addon-toolbars": "^6.3.12",
-    "@storybook/html": "^6.3.13",
+    "@storybook/html": "^6.5.9",
     "@types/async-retry": "^1",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
