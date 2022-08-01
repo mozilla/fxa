@@ -1,6 +1,6 @@
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .AvatarCropper .MuiSlider-root {
   height: 2px;
@@ -36,11 +36,11 @@
 
 .AvatarCropper .MuiSlider-thumb {
   -webkit-appearance: none;
-  border: 1px solid #0060DF;
+  border: 1px solid #0060df;
   height: 24px;
   width: 24px;
   border-radius: 50%;
-  background: #0060DF;
+  background: #0060df;
   cursor: pointer;
   margin-top: -10px;
   position: absolute;
@@ -59,11 +59,12 @@
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  -webkit-transition: box-shadow 150ms cubic-bezier(0.4,0,0.2,1) 0ms;
-  transition: box-shadow 150ms cubic-bezier(0.4,0,0.2,1) 0ms;
+  -webkit-transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
 
-.AvatarCropper .MuiSlider-thumb.Mui-focusVisible, .MuiSlider-thumb:hover {
+.AvatarCropper .MuiSlider-thumb.Mui-focusVisible,
+.MuiSlider-thumb:hover {
   box-shadow: none !important;
 }
 

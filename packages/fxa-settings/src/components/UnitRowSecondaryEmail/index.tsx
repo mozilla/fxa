@@ -306,9 +306,12 @@ export const UnitRowSecondaryEmail = () => {
   return (
     <SecondaryEmailUtilities>
       <div className="unit-row">
-        <div className="unit-row-header">
+        <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:mr-2 mobileLandscape:w-40">
           <Localized id="se-heading">
-            <h3 data-testid="secondary-email-unit-row-header">
+            <h3
+              data-testid="secondary-email-unit-row-header"
+              className="scroll-mt-32"
+            >
               Secondary email
             </h3>
           </Localized>
@@ -352,7 +355,7 @@ const SecondaryEmailDefaultContent = () => (
         ),
       }}
     >
-      <p className="text-grey-400 text-xs my-2">
+      <p className="text-grey-400 text-xs mt-2">
         Note: a secondary email won't restore your information — you'll need a{' '}
         <a
           className="link-blue"

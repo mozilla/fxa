@@ -21,7 +21,7 @@ const Introduction = () => (
           the UX and Visual Design team a place to check how various styles
           translate to the web.{' '}
           <LinkExternal
-            href="https://github.com/mozilla/fxa/tree/master/packages/fxa-settings"
+            href="https://github.com/mozilla/fxa/tree/main/packages/fxa-settings"
             className="text-blue-500 underline"
           >
             See the FxA Settings README
@@ -31,17 +31,15 @@ const Introduction = () => (
         </p>
         <p className="mb-4">
           This guide is especially useful to have side-by-side with your code
-          editor and browser for quick copy-and-paste class references.
-        </p>
-        <p className="mb-4">
-          When working on user interfaces that must be styled with Tailwind
-          classes, engineers must search through the{' '}
-          <code>tailwind.out.css</code> file outputted from{' '}
-          <code>tailwind.config.js</code> to grep for available CSS classes.
-          While this guide doesn't <em>completely</em> mitigate the need to
-          reference these files, it does alleviate much of the burden around
-          finding the correct class name to use as well as some mental math
-          involved, particularly in the "spacing" section.
+          editor and browser for quick copy-and-paste class references and in
+          combination with the{' '}
+          <LinkExternal
+            className="text-blue-500 underline"
+            href="https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss"
+          >
+            VS Code extension Tailwind CSS IntelliSense
+          </LinkExternal>
+          .
         </p>
         <p className="mb-4">
           Tailwind styles are in units of <code>rem</code>, or "root ems", and
@@ -50,10 +48,10 @@ const Introduction = () => (
           this guide provides a quick reference for, as an example, an element
           requiring <code>40px</code> of padding — to calculate the{' '}
           <code>rem</code> value needed and then to find the class, an engineer
-          would need to calculate <code>40px / 16px</code>, then grep the{' '}
-          <code>tailwind.out.css</code> file for <code>2.5rem</code> to see the
-          needed class is <code>p-10</code>. Instead, they can check out the
-          "Spacing" page and similar conveniences are offered on other pages.
+          would need to calculate <code>40px / 16px</code>, then reference the
+          Tailwind docs for <code>2.5rem</code> to see the needed class is{' '}
+          <code>p-10</code>. Instead, they can check out the "Spacing" page and
+          similar conveniences are offered on other pages.
         </p>
         <p className="mb-4">
           If an additional feature in this guide would be useful while working

@@ -138,12 +138,16 @@ export const UnitRow = ({
 
   return (
     <div className="unit-row">
-      <div className="unit-row-header">
+      <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:mr-2 mobileLandscape:w-40">
         <span className="flex justify-between items-center">
-          <h3 data-testid={formatDataTestId('unit-row-header')} id={headerId}>
+          <h3
+            data-testid={formatDataTestId('unit-row-header')}
+            id={headerId}
+            className="scroll-mt-32"
+          >
             {header}
           </h3>
-          <span>{headerContent}</span>
+          {headerContent && <span>{headerContent}</span>}
         </span>
       </div>
       <div className="unit-row-content">

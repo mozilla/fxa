@@ -1,11 +1,12 @@
-/* When content-server is using Tailwind exclusively use "@tailwind" directives instead of
- * imports. See: https://tailwindcss.com/docs/using-with-preprocessors */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-@import 'fxa-react/styles/index.css';
+@import 'fxa-react/styles/index';
 @import './tailwind/fonts';
 
 /* REACT NOTE: when we refactor to React it's going to be nicer to create reusable
