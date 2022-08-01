@@ -37,6 +37,7 @@ import {
   randomTotp,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import { Knex } from 'knex';
+import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
 
@@ -145,6 +146,7 @@ describe('AccountResolver', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
+        EventLoggingService,
         MockMozLogger,
         MockConfig,
         MockMetricsFactory,
@@ -168,7 +170,7 @@ describe('AccountResolver', () => {
     const result = (await resolver.accountByUid(USER_1.uid, 'joe')) as Account;
     expect(result).toBeDefined();
     expect(result.email).toBe(USER_1.email);
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(2);
   });
 
   it('disables an account by uid', async () => {
@@ -180,7 +182,7 @@ describe('AccountResolver', () => {
     )) as Account;
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).not.toBeNull();
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(3);
   });
 
   it('enables an account by uid', async () => {
@@ -192,34 +194,36 @@ describe('AccountResolver', () => {
     )) as Account;
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).toBeNull();
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(2);
   });
 
   it('does not locate non-existent users by uid', async () => {
     const result = await resolver.accountByUid(USER_2.uid, 'joe');
     expect(result).toBeUndefined();
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(2);
   });
 
   it('locates the user by email', async () => {
     const result = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     expect(result).toBeDefined();
     expect(result.email).toBe(USER_1.email);
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(2);
   });
 
   it('does not locate non-existent users by email', async () => {
-    const result = await resolver.accountByEmail(USER_2.email, 'joe');
+    const result = await resolver.accountByEmail(USER_2.email, true, 'joe');
     expect(result).toBeUndefined();
-    expect(logger.info).toBeCalledTimes(1);
+    expect(logger.info).toBeCalledTimes(2);
   });
 
   it('loads emailBounces', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const { emailType: templateName } = await db.emailTypes
@@ -237,6 +241,7 @@ describe('AccountResolver', () => {
   it('loads emails', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const result = await resolver.emails(user);
@@ -247,6 +252,7 @@ describe('AccountResolver', () => {
   it('loads totp', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const result = await resolver.totp(user);
@@ -258,6 +264,7 @@ describe('AccountResolver', () => {
   it('loads recoveryKeys', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const result = await resolver.recoveryKeys(user);
@@ -269,6 +276,7 @@ describe('AccountResolver', () => {
   it('loads attached clients', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const result = await resolver.attachedClients(user);
@@ -293,6 +301,7 @@ describe('AccountResolver', () => {
   it('loads linkedAccounts', async () => {
     const user = (await resolver.accountByEmail(
       USER_1.email,
+      true,
       'joe'
     )) as Account;
     const result = await resolver.linkedAccounts(user);
