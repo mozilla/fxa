@@ -7,7 +7,7 @@ import Chance from 'chance';
 import { render, fireEvent, act, screen } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
-import { GET_ACCOUNT_BY_EMAIL, AccountSearch, GET_EMAILS_LIKE } from './index';
+import { GET_ACCOUNT_BY_EMAIL, AccountSearch } from './index';
 
 const chance = new Chance();
 let testEmail: string;
@@ -141,41 +141,9 @@ function exampleBounceMutationResponse(email: string): MockedResponse {
   };
 }
 
-const MinimalAccountResponse = (testEmail: string) => ({
-  data: {
-    accountByEmail: {
-      uid: '123',
-      createdAt: 1658534643990,
-      disabledAt: null,
-      lockedAt: null,
-      emails: [
-        {
-          email: testEmail,
-          isVerified: true,
-          isPrimary: true,
-          createdAt: 1658534643990,
-        },
-      ],
-      emailBounces: [],
-      securityEvents: [],
-      totp: [],
-      recoveryKeys: [],
-      linkedAccounts: [],
-      attachedClients: [],
-      subscriptions: [],
-    },
-  },
-});
-
-const nextTick = (t?: number) => new Promise((r) => setTimeout(r, t || 0));
-
 beforeEach(() => {
   jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 it('renders without imploding', () => {
@@ -183,114 +151,6 @@ it('renders without imploding', () => {
   const getByTestId = renderResult.getByTestId;
 
   expect(getByTestId('search-form')).toBeInTheDocument();
-});
-
-it('calls account search', async () => {
-  let calledAccountSearch = false;
-  const mocks = [
-    {
-      request: {
-        query: GET_ACCOUNT_BY_EMAIL,
-        variables: {
-          email: testEmail,
-          autoCompleted: false,
-        },
-      },
-      result: () => {
-        calledAccountSearch = true;
-        return MinimalAccountResponse(testEmail);
-      },
-    },
-  ];
-
-  const renderResult = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
-
-  await act(async () => {
-    fireEvent.change(renderResult.getByTestId('email-input'), {
-      target: { value: testEmail },
-    });
-    fireEvent.blur(renderResult.getByTestId('email-input'));
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(renderResult.getByTestId('search-button'));
-  });
-  await nextTick();
-
-  expect(renderResult.getByTestId('account-section')).toBeInTheDocument();
-  expect(calledAccountSearch).toBeTruthy();
-});
-
-it('auto completes', async () => {
-  let calledAccountSearch = false;
-  let calledGetEmailsLike = false;
-  const mocks = [
-    {
-      request: {
-        query: GET_EMAILS_LIKE,
-        variables: {
-          search: testEmail.substring(0, 6),
-        },
-      },
-      result: () => {
-        calledGetEmailsLike = true;
-        return {
-          data: {
-            getEmailsLike: [{ email: testEmail }],
-          },
-        };
-      },
-    },
-    {
-      request: {
-        query: GET_ACCOUNT_BY_EMAIL,
-        variables: {
-          email: testEmail,
-          autoCompleted: true,
-        },
-      },
-      result: () => {
-        calledAccountSearch = true;
-        return MinimalAccountResponse(testEmail);
-      },
-    },
-  ];
-
-  const renderResult = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
-
-  await act(async () => {
-    fireEvent.change(renderResult.getByTestId('email-input'), {
-      target: { value: testEmail.substring(0, 6) },
-    });
-    fireEvent.blur(renderResult.getByTestId('email-input'));
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(
-      renderResult.getByTestId('email-suggestions').getElementsByTagName('a')[0]
-    );
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(renderResult.getByTestId('search-button'));
-  });
-  await nextTick();
-
-  expect(calledGetEmailsLike).toBeTruthy();
-  expect(calledAccountSearch).toBeTruthy();
-  expect(renderResult.getByTestId('email-input')).toHaveValue(testEmail);
-  expect(renderResult.getByTestId('account-section')).toBeInTheDocument();
 });
 
 // FIXME: this test is flaky

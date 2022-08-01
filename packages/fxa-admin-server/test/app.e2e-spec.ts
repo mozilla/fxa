@@ -36,8 +36,7 @@ describe('AppController (e2e)', () => {
       .send({
         operationName: null,
         variables: {},
-        query:
-          '{accountByEmail(email:"test@test.com", autoCompleted:true){uid}}',
+        query: '{accountByEmail(email:"test@test.com"){uid}}',
       })
       .expect(200);
   });

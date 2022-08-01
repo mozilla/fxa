@@ -14,7 +14,6 @@ import {
   randomEmailBounce,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import { Knex } from 'knex';
-import { EventLoggingService } from '../../event-logging/event-logging.service';
 
 import { EmailBounceResolver } from './email-bounce.resolver';
 
@@ -63,7 +62,6 @@ describe('EmailBounceResolver', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EmailBounceResolver,
-        EventLoggingService,
         MockMozLogger,
         MockConfig,
         MockMetricsFactory,
@@ -85,6 +83,6 @@ describe('EmailBounceResolver', () => {
   it('should clear email bounces', async () => {
     const result = await resolver.clearEmailBounce(USER_1.email, 'test');
     expect(result).toBeTruthy();
-    expect(logger.info).toBeCalledTimes(2);
+    expect(logger.info).toBeCalledTimes(1);
   });
 });
