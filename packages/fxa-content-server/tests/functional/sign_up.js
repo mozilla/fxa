@@ -267,7 +267,6 @@ registerSuite('signup here', {
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(fillOutSignUpCode(email, 0))
-        .then(testElementExists(selectors.PAYMENTS.HEADER))
         .then(waitForUrl((url) => url.includes(productUrlPath)));
     },
 

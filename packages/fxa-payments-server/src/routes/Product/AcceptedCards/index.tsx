@@ -5,15 +5,13 @@ import mastercardLogo from '../../../images/mastercard.svg';
 import discoverLogo from '../../../images/discover.svg';
 import amexLogo from '../../../images/amex.svg';
 
-import './index.scss';
-
 export const AcceptedCards = () => {
   return (
-    <div className="accepted-cards">
-      <img src={visaLogo} alt="visa" />
-      <img src={mastercardLogo} alt="mastercard" />
-      <img src={discoverLogo} alt="discover" />
-      <img src={amexLogo} alt="american express" />
+    <div className="flex justify-center mb-10">
+      <img className="py-1 pl-0 pr-1" src={visaLogo} alt="visa" />
+      <img className="p-1" src={mastercardLogo} alt="mastercard" />
+      <img className="p-1" src={discoverLogo} alt="discover" />
+      <img className="p-1" src={amexLogo} alt="american express" />
     </div>
   );
 };
