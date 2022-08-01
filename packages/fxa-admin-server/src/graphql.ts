@@ -159,7 +159,7 @@ export interface RelyingParty {
 
 export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
-    accountByEmail(autoCompleted: boolean, email: string): Nullable<Account> | Promise<Nullable<Account>>;
+    accountByEmail(email: string): Nullable<Account> | Promise<Nullable<Account>>;
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
     relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
 }

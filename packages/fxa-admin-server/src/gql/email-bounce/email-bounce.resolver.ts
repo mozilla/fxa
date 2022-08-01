@@ -11,19 +11,11 @@ import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { DatabaseService } from '../../database/database.service';
 import { EmailBounce as EmailBounceType } from '../../gql/model/email-bounces.model';
 import { AdminPanelFeature } from 'fxa-shared/guards';
-import {
-  EventLoggingService,
-  EventNames,
-} from '../../event-logging/event-logging.service';
 
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => EmailBounceType)
 export class EmailBounceResolver {
-  constructor(
-    private log: MozLoggerService,
-    private db: DatabaseService,
-    private eventLogging: EventLoggingService
-  ) {}
+  constructor(private log: MozLoggerService, private db: DatabaseService) {}
 
   @Features(AdminPanelFeature.ClearEmailBounces)
   @Mutation((returns) => Boolean)
@@ -31,7 +23,6 @@ export class EmailBounceResolver {
     @Args('email') email: string,
     @CurrentUser() user: string
   ) {
-    this.eventLogging.onEvent(EventNames.ClearBounces);
     const result = await this.db.emailBounces
       .query()
       .delete()

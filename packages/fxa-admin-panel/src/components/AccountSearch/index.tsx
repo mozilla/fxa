@@ -84,8 +84,8 @@ const ACCOUNT_SCHEMA = `
   }
 `;
 export const GET_ACCOUNT_BY_EMAIL = gql`
-  query getAccountByEmail($email: String!, $autoCompleted: Boolean!) {
-    accountByEmail(email: $email, autoCompleted:$autoCompleted) {
+  query getAccountByEmail($email: String!) {
+    accountByEmail(email: $email) {
       ${ACCOUNT_SCHEMA}
     }
   }
@@ -117,11 +117,9 @@ export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);
   const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>('');
-  const [selectedSuggestion, setSelectedSuggestion] = useState<string>('');
-
   // define two queries to search by either email or uid.
-  const [getAccountByEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
-  const [getAccountByUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
+  const [getAccountbyUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
   // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<boolean>(false);
   const queryResults = isEmail && showResult ? emailResults : uidResults;
@@ -132,13 +130,10 @@ export const AccountSearch = () => {
     const trimmedSearchInput = searchInput.trim();
     event.preventDefault();
     const isUID = validateUID(trimmedSearchInput);
-
     // choose correct query if email or uid
     if (isUID) {
       // uid and non-empty
-      getAccountByUID({
-        variables: { uid: trimmedSearchInput, autoCompleted: false },
-      });
+      getAccountbyUID({ variables: { uid: trimmedSearchInput } });
       setIsEmail(false);
       setShowResult(true);
     } else if (
@@ -147,12 +142,7 @@ export const AccountSearch = () => {
       trimmedSearchInput !== ''
     ) {
       // assume email if not uid and non-empty; must at least have '@'
-      getAccountByEmail({
-        variables: {
-          email: trimmedSearchInput,
-          autoCompleted: selectedSuggestion === trimmedSearchInput,
-        },
-      });
+      getAccountbyEmail({ variables: { email: trimmedSearchInput } });
       setIsEmail(true);
       setShowResult(true);
     }
@@ -188,7 +178,6 @@ export const AccountSearch = () => {
 
   const suggestionSelected = (value: string) => {
     setSearchInput(value);
-    setSelectedSuggestion(value);
     setShowSuggestion(false);
   };
 
@@ -262,10 +251,7 @@ export const AccountSearch = () => {
             />
           </button>
           {showSuggestion && filteredList.length > 0 && (
-            <div
-              className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden"
-              data-testid="email-suggestions"
-            >
+            <div className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden">
               {renderSuggestions()}
             </div>
           )}
