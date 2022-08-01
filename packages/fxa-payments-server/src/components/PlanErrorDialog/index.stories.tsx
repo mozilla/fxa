@@ -3,10 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { PlanErrorDialog } from './index';
 import { PLANS } from '../../lib/mock-data';
 import { FetchState, Plan } from '../../store/types';
+import { Meta } from '@storybook/react';
+
+export default {
+  title: 'components/PlanErrorDialog',
+  component: PlanErrorDialog,
+} as Meta;
 
 const locationReload = () => {};
 const plans: FetchState<Plan[], any> = {
@@ -15,13 +20,21 @@ const plans: FetchState<Plan[], any> = {
   result: PLANS,
 };
 
-storiesOf('components/PlanErrorDialog', module)
-  .add('no plan for product', () => (
+const storyWithContext = (
+  plans: FetchState<Plan[], any>,
+  storyName?: string
+) => {
+  const story = () => (
     <PlanErrorDialog locationReload={locationReload} plans={plans} />
-  ))
-  .add('problem loading plans', () => (
-    <PlanErrorDialog
-      locationReload={locationReload}
-      plans={{ ...plans, result: null }}
-    />
-  ));
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const Default = storyWithContext(plans, 'no plan for product');
+
+export const ProblemLoadingPlans = storyWithContext(
+  { ...plans, result: null },
+  'problem loading plans'
+);

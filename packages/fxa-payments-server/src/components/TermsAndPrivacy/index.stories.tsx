@@ -1,27 +1,41 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { TermsAndPrivacy } from './index';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 import MockApp from '../../../.storybook/components/MockApp';
+import { Meta } from '@storybook/react';
 
-storiesOf('components/TermsAndPrivacy', module)
-  .add('default locale', () => (
-    <MockApp languages={[]}>
-      <TermsAndPrivacy plan={SELECTED_PLAN} />
+export default {
+  title: 'components/TermsAndPrivacy',
+  component: TermsAndPrivacy,
+} as Meta;
+
+const storyWithContext = (
+  languages?: readonly string[],
+  showFXALinks?: boolean,
+  storyName?: string
+) => {
+  const story = () => (
+    <MockApp languages={languages}>
+      <TermsAndPrivacy plan={SELECTED_PLAN} showFXALinks={showFXALinks} />
     </MockApp>
-  ))
-  .add('default locale with fxa links', () => (
-    <MockApp languages={[]}>
-      <TermsAndPrivacy plan={SELECTED_PLAN} showFXALinks={true} />
-    </MockApp>
-  ))
-  .add('with fr locale', () => (
-    <MockApp languages={['fr']}>
-      <TermsAndPrivacy plan={SELECTED_PLAN} />
-    </MockApp>
-  ))
-  .add('with fr locale and fxa links', () => (
-    <MockApp languages={['fr']}>
-      <TermsAndPrivacy plan={SELECTED_PLAN} showFXALinks={true} />
-    </MockApp>
-  ));
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const Default = storyWithContext([], false, 'default locale');
+
+export const DefaultLocaleWithFXALinks = storyWithContext(
+  [],
+  true,
+  'default locale with fxa links'
+);
+
+export const WithFRLocale = storyWithContext(['fr'], false, 'with fr locale');
+
+export const WithFRLocaleAndFXALinks = storyWithContext(
+  ['fr'],
+  true,
+  'with fr locale and fxa links'
+);

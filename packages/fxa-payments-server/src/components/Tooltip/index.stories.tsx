@@ -1,49 +1,14 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import ScreenInfo from '../../lib/screen-info';
 import { SignInLayout } from '../AppLayout';
 import { Tooltip } from './index';
+import { Meta } from '@storybook/react';
 
-function init() {
-  storiesOf('components/Tooltip', module)
-    .add('default', () => (
-      <MockPage>
-        <Field>default</Field>
-      </MockPage>
-    ))
-    .add('dismissible', () => (
-      <MockPage>
-        <FieldWithDismissible
-          message={
-            <>
-              Did you mean <a href="https://mozilla.org">mozilla.org</a>?
-            </>
-          }
-          extraClassNames="tooltip-error tooltip-suggest"
-          dismissible
-        >
-          dismissible = true
-        </FieldWithDismissible>
-      </MockPage>
-    ))
-    .add('showBelow', () => (
-      <MockPage>
-        <Field showBelow={false}>showBelow = false</Field>
-        <Field showBelow>showBelow default</Field>
-        <Field showBelow={true}>showBelow = true</Field>
-      </MockPage>
-    ))
-    .add('clientHeight', () => (
-      <MockPage>
-        <Field clientHeight={300}>clientHeight = 300</Field>
-        <Field showBelow={false} clientHeight={300}>
-          clientHeight = 300, showBelow = false
-        </Field>
-        <Field clientHeight={1000}>clientHeight = 1000</Field>
-      </MockPage>
-    ));
-}
+export default {
+  title: 'components/Tooltip',
+  component: Tooltip,
+} as Meta;
 
 type FieldProps = {
   children: string | React.ReactNode;
@@ -134,4 +99,99 @@ const MockPage = ({ children }: MockPageProps) => {
   );
 };
 
-init();
+const storyWithOneField = (dismissable: boolean, storyName?: string) => {
+  const story = () => (
+    <MockPage>
+      {dismissable ? (
+        <FieldWithDismissible
+          message={
+            <>
+              Did you mean <a href="https://mozilla.org">mozilla.org</a>?
+            </>
+          }
+          extraClassNames="tooltip-error tooltip-suggest"
+          dismissible
+        >
+          dismissible = true
+        </FieldWithDismissible>
+      ) : (
+        <Field>default</Field>
+      )}
+    </MockPage>
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+const storyWithMultipleFields = (
+  attributes: {
+    showBelow?: boolean;
+    clientHeight?: number;
+    fieldText?: string;
+  }[],
+  storyName?: string
+) => {
+  const story = () => (
+    <MockPage>
+      {attributes.map((attribute) => (
+        <Field
+          clientHeight={attribute.clientHeight}
+          showBelow={attribute.showBelow}
+        >
+          {attribute.fieldText}
+        </Field>
+      ))}
+    </MockPage>
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+// one field
+export const Default = storyWithOneField(false, 'default');
+export const Dismissible = storyWithOneField(true, 'dismissible');
+
+// multiple fields
+export const ShowBelow = storyWithMultipleFields(
+  [
+    {
+      showBelow: false,
+      clientHeight: undefined,
+      fieldText: 'showBelow = false',
+    },
+    {
+      showBelow: true,
+      clientHeight: undefined,
+      fieldText: 'showBelow default',
+    },
+    {
+      showBelow: true,
+      clientHeight: undefined,
+      fieldText: 'showBelow = true',
+    },
+  ],
+  'showBelow'
+);
+
+export const clientHeight = storyWithMultipleFields(
+  [
+    {
+      showBelow: true,
+      clientHeight: 300,
+      fieldText: 'clientHeight = 300',
+    },
+    {
+      showBelow: false,
+      clientHeight: 300,
+      fieldText: 'clientHeight = 300, showBelow = false',
+    },
+    {
+      showBelow: true,
+      clientHeight: 1000,
+      fieldText: 'clientHeight = 1000',
+    },
+  ],
+  'clientHeight'
+);
