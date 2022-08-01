@@ -67,12 +67,12 @@ export class ProductsAndPlansConfigFromJSON {
   /**
    * Get all JSON
    */
-  async readJSONFromDir(targetDir: string): Promise<string[]> {
+  async readJSONFromDir(sourceDirectory: string): Promise<string[]> {
     const allPaths: string[] = [];
-    const files = await fs.readdir(targetDir);
+    const files = await fs.readdir(sourceDirectory);
 
     for (const file of files) {
-      const filePath = path.join(targetDir, file);
+      const filePath = path.join(sourceDirectory, file);
       const fileStat = await fs.stat(filePath);
 
       if (fileStat.isFile()) {
@@ -86,6 +86,20 @@ export class ProductsAndPlansConfigFromJSON {
     }
 
     return allPaths;
+  }
+
+  async readJSONFromFile(sourceFile: string): Promise<string[]> {
+    const fileData = await fs.readFile(sourceFile, { encoding: 'utf-8' });
+    const entries = fileData.split('\n');
+    const final = entries.map((entry) => {
+      if (entry) {
+        const temp = JSON.parse(entry);
+        return temp[0];
+      } else {
+        return '';
+      }
+    });
+    return final;
   }
 
   async readJSON(filePath: string) {
@@ -149,18 +163,27 @@ export class ProductsAndPlansConfigFromJSON {
    */
   async convert({
     isDryRun,
-    targetDir,
+    sourceOption,
+    sourceDirectory,
+    sourceFile,
   }: {
     isDryRun: boolean;
-    targetDir: string;
+    sourceOption: string;
+    sourceDirectory: string;
+    sourceFile: string;
   }): Promise<void> {
     this.log.debug('StripeProductsAndPlansConverter.convertBegin', {
       isDryRun,
-      targetDir,
+      sourceOption,
+      sourceDirectory,
+      sourceFile,
     });
 
     try {
-      const jsonPaths = await this.readJSONFromDir(targetDir);
+      const jsonPaths =
+        sourceOption === 'directory'
+          ? await this.readJSONFromDir(sourceDirectory)
+          : await this.readJSONFromFile(sourceFile);
       if (jsonPaths.length) {
         await this.validateJSON(jsonPaths);
       } else {
