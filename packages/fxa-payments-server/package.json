@@ -137,7 +137,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-redux": "^8.0.2",
-    "react-router-dom": "^6.2.2",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "^4.0.3",
     "react-stripe-elements": "^6.1.2",
     "react-test-renderer": "^17.0.2",
