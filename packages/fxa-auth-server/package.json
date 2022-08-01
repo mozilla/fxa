@@ -127,7 +127,7 @@
     "safe-regex": "^2.1.1",
     "safe-url-assembler": "1.3.5",
     "sandboxed-regexp": "^0.3.0",
-    "stripe": "^9.10.0",
+    "stripe": "^9.16.0",
     "superagent": "^7.1.2",
     "typedi": "^0.8.0",
     "uuid": "^8.3.2",
