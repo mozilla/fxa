@@ -81,7 +81,45 @@ if (config.get('sentry.dsn')) {
   });
 }
 
+/**
+ * Attempts to capture an error and report it to sentry. If the error is a
+ * validation error special steps are taking to capture the reasons validation failed.
+ * @param {*} err
+ * @returns true if error was reported, false otherwise
+ */
+function tryCaptureValidationError(err) {
+  try {
+    const errorDetails =
+      err?.details instanceof Map && err?.details?.get('body');
+
+    if (errorDetails) {
+      const message = `${errorDetails}`;
+      const validationError = errorDetails.details.reduce((a, v) => {
+        return {
+          ...a,
+          [v?.path?.join('.')]: `reason: ${v.type} - ${v.message}`,
+        };
+      }, {});
+
+      Sentry.withScope((scope) => {
+        scope.setContext('validationError', { validationError });
+        Sentry.captureMessage(message, Sentry.Severity.Error);
+      });
+
+      return true;
+    } else {
+      Sentry.captureException(err);
+      return true;
+    }
+  } catch (err) {
+    logger.error(err);
+  }
+
+  return false;
+}
+
 module.exports = {
   _eventFilter: eventFilter, // exported for testing purposes
   sentryModule: Sentry,
+  tryCaptureValidationError,
 };

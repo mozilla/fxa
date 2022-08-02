@@ -99,40 +99,39 @@ suite.tests['it strips PII from the referrer and source fields'] = function () {
   );
 };
 
-suite.tests[
-  'works correctly if query params do not contain PII'
-] = function () {
-  const mockRequest = {
-    body: {
-      'csp-report': {
-        'blocked-uri': 'http://bing.com',
-        referrer: 'https://addons.mozilla.org/?notaffected=1',
-        'source-file': 'https://accounts.firefox.com/settings?notaffected=1',
+suite.tests['works correctly if query params do not contain PII'] =
+  function () {
+    const mockRequest = {
+      body: {
+        'csp-report': {
+          'blocked-uri': 'http://bing.com',
+          referrer: 'https://addons.mozilla.org/?notaffected=1',
+          'source-file': 'https://accounts.firefox.com/settings?notaffected=1',
+        },
       },
-    },
-    get: function () {},
+      get: function () {},
+    };
+
+    const mockLogger = {
+      info: sinon.spy(),
+    };
+    const postCsp = proxyquire(
+      path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
+      {
+        '../logging/log': () => mockLogger,
+      }
+    )({ op: 'server.csp' });
+
+    postCsp.process(mockRequest, mockResponse);
+
+    assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+    const entry = mockLogger.info.args[0][1];
+    assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
+    assert.equal(
+      entry.source,
+      'https://accounts.firefox.com/settings?notaffected=1'
+    );
   };
-
-  const mockLogger = {
-    info: sinon.spy(),
-  };
-  const postCsp = proxyquire(
-    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
-    {
-      '../logging/log': () => mockLogger,
-    }
-  )({ op: 'server.csp' });
-
-  postCsp.process(mockRequest, mockResponse);
-
-  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
-  const entry = mockLogger.info.args[0][1];
-  assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
-  assert.equal(
-    entry.source,
-    'https://accounts.firefox.com/settings?notaffected=1'
-  );
-};
 
 suite.tests['works correctly if no query params'] = function () {
   const mockRequest = {
@@ -168,7 +167,7 @@ suite.tests['#post csp - returns 400 if CSP report is invalid'] = {
   'csp-report not set': testInvalidCspReport({}),
   'disposition is too long': testInvalidCspValue(
     'disposition',
-    createRandomHexString(1025)
+    createRandomHexString(11 * 1025)
   ),
   'disposition not a string (1)': testInvalidCspValue('disposition', 1),
   'document-uri empty ()': testInvalidCspValue('document-uri', ''),
