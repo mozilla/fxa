@@ -12,7 +12,8 @@ executors:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: cimg/mysql:5.7
+      - image: cimg/mysql:8.0.28
+        command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -96,7 +97,8 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: cimg/mysql:5.7
+      - image: cimg/mysql:8.0.28
+        command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev
@@ -119,7 +121,8 @@ jobs:
     resource_class: medium+
     docker:
       - image: cimg/node:16.13
-      - image: cimg/mysql:5.7
+      - image: cimg/mysql:8.0.28
+        command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
@@ -260,7 +263,8 @@ jobs:
       - image: mcr.microsoft.com/playwright:v1.20.0-focal
       - image: redis
       - image: memcached
-      - image: cimg/mysql:5.7
+      - image: cimg/mysql:8.0.28
+        command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev

@@ -87,7 +87,12 @@ describe('db', function () {
     it('should use utf8', function () {
       return db.getEncodingInfo().then(function (info) {
         assert.equal(info['character_set_connection'], 'utf8mb4');
-        assert.equal(info['character_set_database'], 'utf8');
+
+        // When our databases are created by mysql-patcher, 'utf8' is specificed
+        // for the character set.  'utf8' is an alias for 'utf8mb3'.  See
+        // https://dev.mysql.com/doc/refman/8.0/en/charset-unicode-utf8.html
+        assert.equal(info['character_set_database'], 'utf8mb3');
+
         assert.equal(info['collation_connection'], 'utf8mb4_unicode_ci');
         assert.equal(info['collation_database'], 'utf8_unicode_ci');
       });
