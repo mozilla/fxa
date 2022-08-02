@@ -50,8 +50,8 @@ export const SubscriptionUpgrade = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: SubscriptionUpgradeProps) => {
-  const ariaLabelledBy = "error-plan-change-failed-header";
-  const ariaDescribedBy = "error-plan-change-failed-description";
+  const ariaLabelledBy = 'error-plan-change-failed-header';
+  const ariaDescribedBy = 'error-plan-change-failed-description';
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
@@ -107,11 +107,9 @@ export const SubscriptionUpgrade = ({
           descId={ariaDescribedBy}
         >
           <Localized id="sub-change-failed">
-            <h4
-            id={ariaLabelledBy}
-            data-testid="error-plan-update-failed"
-          >
-            Plan change failed</h4>
+            <h4 id={ariaLabelledBy} data-testid="error-plan-update-failed">
+              Plan change failed
+            </h4>
           </Localized>
           <p id={ariaDescribedBy}>
             {updateSubscriptionPlanStatus.error.message}
@@ -177,6 +175,7 @@ export const SubscriptionUpgrade = ({
             <div className="button-row">
               <SubmitButton
                 data-testid="submit"
+                className="button"
                 name="submit"
                 disabled={inProgress}
               >

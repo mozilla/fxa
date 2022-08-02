@@ -242,7 +242,7 @@ export const PaymentForm = ({
       <Localized id="payment-cancel-btn">
         <button
           data-testid="cancel"
-          className="settings-button cancel secondary-button"
+          className="button settings-button cancel secondary-button"
           onClick={onCancel}
         >
           Cancel
@@ -254,7 +254,7 @@ export const PaymentForm = ({
       >
         <SubmitButton
           data-testid="submit"
-          className="settings-button primary-button"
+          className="button settings-button primary-button"
           name="submit"
           disabled={inProgress}
         >
@@ -275,6 +275,7 @@ export const PaymentForm = ({
       <Localized id="payment-submit-btn">
         <SubmitButton
           data-testid="submit"
+          className="button"
           name="submit"
           disabled={!allowSubmit}
         >

@@ -83,7 +83,7 @@ const GooglePlaySubscriptionIapItem = (
           <div className="action">
             <LinkExternal
               data-testid="manage-iap-subscription-button"
-              className="settings-button"
+              className="button settings-button"
               href={appStoreLink}
             >
               <Localized id="sub-iap-item-manage-button">
@@ -144,7 +144,7 @@ const AppleSubscriptionIapItem = (
           <div className="action">
             <LinkExternal
               data-testid="manage-iap-subscription-button"
-              className="settings-button"
+              className="button settings-button"
               href={appStoreLink}
             >
               <Localized id="sub-iap-item-manage-button">

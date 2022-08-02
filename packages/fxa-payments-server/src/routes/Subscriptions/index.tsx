@@ -232,11 +232,14 @@ export const Subscriptions = ({
   const planId =
     activeWebSubscription && (activeWebSubscription as WebSubscription).plan_id;
 
-  const ariaLabelledByReactivateSubscription = "error-subscription-reactivation-failed-header";
-  const ariaDescribedByReactivateSubscription = "error-subscription-reactivation-failed-description";
+  const ariaLabelledByReactivateSubscription =
+    'error-subscription-reactivation-failed-header';
+  const ariaDescribedByReactivateSubscription =
+    'error-subscription-reactivation-failed-description';
 
-  const ariaLabelledByCancellationStatus = "error-cancellation-failed-header";
-  const ariaDescribedByCancellationStatus = "error-cancellation-failed-description";
+  const ariaLabelledByCancellationStatus = 'error-cancellation-failed-header';
+  const ariaDescribedByCancellationStatus =
+    'error-cancellation-failed-description';
 
   return (
     <div className="subscription-management" onClick={onAnyClick}>
@@ -273,7 +276,10 @@ export const Subscriptions = ({
           descId={ariaDescribedByReactivateSubscription}
         >
           <Localized id="sub-route-idx-reactivating">
-            <h4 id={ariaLabelledByReactivateSubscription} data-testid="error-reactivation">
+            <h4
+              id={ariaLabelledByReactivateSubscription}
+              data-testid="error-reactivation"
+            >
               Reactivating subscription failed
             </h4>
           </Localized>
@@ -298,7 +304,10 @@ export const Subscriptions = ({
           descId={ariaDescribedByCancellationStatus}
         >
           <Localized id="sub-route-idx-cancel-failed">
-            <h4 id={ariaLabelledByCancellationStatus} data-testid="error-cancellation">
+            <h4
+              id={ariaLabelledByCancellationStatus}
+              data-testid="error-cancellation"
+            >
               Cancelling subscription failed
             </h4>
           </Localized>
@@ -327,7 +336,7 @@ export const Subscriptions = ({
               </header>
               <button
                 data-testid="contact-support-button"
-                className="settings-button primary-button settings-unit-toggle"
+                className="button settings-button primary-button settings-unit-toggle"
                 onClick={onSupportClick}
               >
                 <Localized id="sub-route-idx-contact">
@@ -479,8 +488,8 @@ const CancellationDialogMessage = ({
     subscriptionId,
     customerSubscriptions
   );
-  const ariaLabelledBy = "subscription-cancellation-header";
-  const ariaDescribedBy = "subscription-cancellation-description";
+  const ariaLabelledBy = 'subscription-cancellation-header';
+  const ariaDescribedBy = 'subscription-cancellation-description';
   const plan = planForId(customerSubscription!.plan_id, plans) as Plan;
 
   return (
