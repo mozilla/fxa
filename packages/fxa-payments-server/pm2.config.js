@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const path = require('path');
 const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
@@ -61,6 +62,11 @@ module.exports = {
         'src/components/**/*.css',
         'src/**/*.tsx',
         require.resolve('fxa-react/configs/tailwind.js'),
+        path.normalize(
+          `${path.dirname(
+            require.resolve('fxa-react/configs/tailwind.js')
+          )}/../styles`
+        ),
       ],
       ignore_watch: ['src/styles/tailwind.out.*'],
       time: true,
