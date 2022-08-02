@@ -11,7 +11,7 @@ Services ecosystem.
 
 [Detailed design document](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol)
 
-[Detailed API spec](docs/api.md)
+[Detailed API spec](https://mozilla.github.io/ecosystem-platform/api)
 
 [Guidelines for Contributing](CONTRIBUTING.md)
 

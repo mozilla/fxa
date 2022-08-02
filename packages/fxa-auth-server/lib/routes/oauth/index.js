@@ -22,6 +22,8 @@ module.exports = (log, config, db, mailer, devices) => {
     'Retrieve metadata about the specified OAuth client, such as its display name and redirect URI.',
   ];
   clientGetAlias.config.tags = ['api', 'Oauth'];
+  // Prevents hapi-swagger from including /v1/client/{client_id}'s response example
+  clientGetAlias.config.plugins = {};
   routes.push(clientGetAlias);
 
   routes.forEach((r) => {

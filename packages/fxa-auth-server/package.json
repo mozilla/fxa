@@ -63,8 +63,6 @@
     "@hapi/hapi": "^20.2.1",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^10.0.0",
-    "@hapi/inert": "^6.0.5",
-    "@hapi/vision": "^6.1.0",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@type-cacheable/core": "^10.1.2",
