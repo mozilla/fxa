@@ -58,6 +58,15 @@
       @include title30();
       color: $header-color;
       line-height: 26px;
+
+      .service,
+      .email,
+      .description {
+        display: block;
+        font-size: 15px;
+        line-height: 22px;
+        margin-top: 4px;
+      }
     }
 
     h2 {

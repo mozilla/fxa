@@ -292,7 +292,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="submit"
                 data-testid="submit-totp"
-                className="cta-primary mx-2 flex-1"
+                className="cta-primary cta-base-p mx-2 flex-1"
                 disabled={
                   !totpForm.formState.isDirty || !totpForm.formState.isValid
                 }
@@ -333,7 +333,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 data-testid="ack-recovery-code"
                 type="submit"
-                className="cta-primary mx-2 flex-1"
+                className="cta-primary cta-base-p mx-2 flex-1"
                 onClick={onRecoveryCodesAcknowledged}
               >
                 Continue
@@ -383,7 +383,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="submit"
                 data-testid="submit-recovery-code"
-                className="cta-primary mx-2 flex-1"
+                className="cta-primary cta-base-p mx-2 flex-1"
                 disabled={
                   !recoveryCodeForm.formState.isDirty ||
                   !recoveryCodeForm.formState.isValid

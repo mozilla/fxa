@@ -44,6 +44,29 @@
     background-image: image-url('default-profile.svg');
     background-size: cover;
   }
+
+  // remove when Payments isn't using `avatar-settings-view`
+  &.avatar-settings-view {
+    border: 2px solid transparent;
+    display: block;
+    flex-shrink: 0;
+    margin: 0;
+
+    &.spinner-completed {
+      border: 2px solid $avatar-border-color;
+      box-shadow: $card-box-low;
+    }
+
+    @include respond-to('big') {
+      height: 64px;
+      width: 64px;
+    }
+
+    @include respond-to('small') {
+      height: 50px;
+      width: 50px;
+    }
+  }
 }
 
 #done {
