@@ -17,6 +17,7 @@ const { StatsD } = require('hot-shots');
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
+const QUERY_RELEASE_LOCK = 'SELECT RELEASE_LOCK(?)';
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
   '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri,' +
@@ -149,6 +150,8 @@ const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
 const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE token=? AND clientId=? AND userId=?';
+const PRUNE_AUTHZ_CODES =
+  'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
@@ -187,9 +190,16 @@ class MysqlStore extends MysqlOAuthShared {
     }
   }
 
-  getLock(lockName, timeout = 3) {
-    // returns `acquired: 1` on success
-    return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
+  async _withLock(cb, lockName, timeout = 3) {
+    const conn = await this._getConnection();
+
+    try {
+      this._queryWithConnection(conn, QUERY_GET_LOCK, [lockName, timeout]);
+      return await cb(conn);
+    } finally {
+      this._queryWithConnection(conn, QUERY_RELEASE_LOCK, [lockName]);
+      conn.release();
+    }
   }
 
   // createdAt is DEFAULT NOW() in the schema.sql
@@ -452,6 +462,23 @@ class MysqlStore extends MysqlOAuthShared {
     return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
   }
 
+  async _pruneAuthorizationCodes(ttl) {
+    const pruneAuthzCodes = async (conn) => {
+      const ttlInSeconds = ttl / 1000;
+      await this._queryWithConnection(conn, PRUNE_AUTHZ_CODES, [ttlInSeconds]);
+      const prunedCount = await this._queryWithConnection(
+        conn,
+        'SELECT ROW_COUNT() AS pruned'
+      );
+      return firstRow(prunedCount);
+    };
+
+    return await this._withLock(
+      pruneAuthzCodes,
+      'fxa-oauth.auth-codes.prune-lock'
+    );
+  }
+
   /**
    * Delete a specific refresh token, for some clientId and uid.
    * Also deletes *all* access tokens for the clientId and uid combination,
@@ -662,17 +689,21 @@ class MysqlStore extends MysqlOAuthShared {
   async _query(sql, params) {
     const conn = await this._getConnection();
     try {
-      return await new Promise(function (resolve, reject) {
-        conn.query(sql, params || [], function (err, results) {
-          if (err) {
-            return reject(err);
-          }
-          resolve(results);
-        });
-      });
+      return await this._queryWithConnection(conn, sql, params);
     } finally {
       conn.release();
     }
+  }
+
+  async _queryWithConnection(conn, sql, params) {
+    return await new Promise(function (resolve, reject) {
+      conn.query(sql, params || [], function (err, results) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results);
+      });
+    });
   }
 
   getProxyableFunctions() {
