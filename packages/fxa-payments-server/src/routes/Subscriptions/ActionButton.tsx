@@ -35,7 +35,7 @@ export const ActionButton = ({
   const stripeActionButton = () => (
     <button
       data-testid="reveal-payment-update-button"
-      className="settings-button"
+      className="button settings-button"
       onClick={onRevealUpdateClick}
     >
       <Localized id="pay-update-change-btn">
@@ -50,7 +50,7 @@ export const ActionButton = ({
     <Localized id="pay-update-change-btn">
       <LinkExternal
         data-testid="change-payment-update-button"
-        className="settings-button"
+        className="button settings-button"
         href={`${apiUrl}/myaccount/autopay/connect/${billing_agreement_id}`}
       >
         <span className="change-button" data-testid="change-button">
@@ -63,7 +63,7 @@ export const ActionButton = ({
   const paypalFundingSourceActionButton = () => (
     <LinkExternal
       data-testid="manage-payment-update-button"
-      className="settings-button error-button"
+      className="button settings-button error-button"
       href={`${apiUrl}/myaccount/autopay/connect/${billing_agreement_id}`}
     >
       <Localized id="pay-update-manage-btn">
@@ -77,7 +77,7 @@ export const ActionButton = ({
   const paypalMissingAgreementActionButton = () => (
     <button
       data-testid="reveal-payment-modal-button"
-      className="settings-button error-button"
+      className="button settings-button error-button"
       onClick={revealFixPaymentModal}
     >
       <Localized id="pay-update-manage-btn">

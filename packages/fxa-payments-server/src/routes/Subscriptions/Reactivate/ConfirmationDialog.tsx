@@ -17,7 +17,7 @@ import AppContext from '../../../lib/AppContext';
 
 const ConfirmationDialogErrorContent = ({
   headerId,
-  descId
+  descId,
 }: {
   headerId: string;
   descId: string;
@@ -116,7 +116,7 @@ const ConfirmationDialogContent = ({
       )}
       <div className="action">
         <button
-          className="settings-button"
+          className="button settings-button"
           onClick={onConfirm}
           data-testid="reactivate-subscription-confirm-button"
         >
@@ -157,14 +157,16 @@ const ConfirmationDialog = ({
     plan
   );
 
-  const ariaLabelledByError = "error-content-header";
-  const ariaDescribedByError = "error-content-description";
+  const ariaLabelledByError = 'error-content-header';
+  const ariaDescribedByError = 'error-content-description';
 
-  const ariaLabelledByConfirmation = "confirmation-content-header";
-  const ariaDescribedByConfirmation = "confirmation-content-description";
+  const ariaLabelledByConfirmation = 'confirmation-content-header';
+  const ariaDescribedByConfirmation = 'confirmation-content-description';
 
-  const ariaLabelledBy = !loading && error ? ariaLabelledByError : ariaLabelledByConfirmation;
-  const ariaDescribedBy = !loading && !error ? ariaDescribedByError : ariaDescribedByConfirmation;
+  const ariaLabelledBy =
+    !loading && error ? ariaLabelledByError : ariaLabelledByConfirmation;
+  const ariaDescribedBy =
+    !loading && !error ? ariaDescribedByError : ariaDescribedByConfirmation;
 
   return (
     <DialogMessage

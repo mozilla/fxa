@@ -195,7 +195,7 @@ export const CouponForm = ({
           </div>
           {readOnly ? null : (
             <button
-              className={`${readOnly ? 'hidden' : ''}`}
+              className={`button ${readOnly ? 'hidden' : ''}`}
               onClick={removeCoupon}
               disabled={subscriptionInProgress}
               data-testid="coupon-remove-button"
@@ -228,6 +228,7 @@ export const CouponForm = ({
 
           <button
             name="apply"
+            className="button"
             type="submit"
             data-testid="coupon-button"
             disabled={checkingCoupon || readOnly || subscriptionInProgress}

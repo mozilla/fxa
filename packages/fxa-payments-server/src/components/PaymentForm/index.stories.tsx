@@ -133,7 +133,9 @@ const Subject = ({
     <MockApp languages={[locale]}>
       <SignInLayout>
         <div className="product-payment">
-          <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
+          <button className="button" onClick={refreshSubmitNonce}>
+            Refresh submit nonce
+          </button>
           <p>Current nonce: {submitNonce}</p>
           <PaymentForm {...paymentFormProps} />
         </div>

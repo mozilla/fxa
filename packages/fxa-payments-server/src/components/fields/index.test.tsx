@@ -611,7 +611,7 @@ describe('SubmitButton', () => {
     const Subject = () => {
       return (
         <TestForm>
-          <SubmitButton data-testid="submit" name="submit">
+          <SubmitButton data-testid="submit" className="button" name="submit">
             Submit
           </SubmitButton>
           <Input name="foo" required />

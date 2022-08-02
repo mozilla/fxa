@@ -156,7 +156,7 @@ const CancelSubscriptionPanel = ({
               </div>
               <div className="action">
                 <button
-                  className="settings-button"
+                  className="button settings-button"
                   onClick={revealCancel}
                   data-testid="reveal-cancel-subscription-button"
                 >
@@ -218,7 +218,7 @@ const CancelSubscriptionPanel = ({
             <div className="button-row">
               <Localized id="sub-item-stay-sub">
                 <button
-                  className="settings-button primary-button"
+                  className="button settings-button primary-button"
                   data-testid="stay-subscribed-button"
                   onClick={engagedOnHideCancel}
                 >
@@ -227,7 +227,7 @@ const CancelSubscriptionPanel = ({
               </Localized>
               <button
                 data-testid="cancel-subscription-button"
-                className="settings-button secondary-button"
+                className="button settings-button secondary-button"
                 onClick={confirmCancellation}
                 disabled={
                   cancelSubscriptionStatus.loading || !confirmationChecked
