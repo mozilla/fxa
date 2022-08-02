@@ -20,6 +20,7 @@ import { UserGroupGuard } from './auth/user-group-header.guard';
 import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
+import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
@@ -32,6 +33,7 @@ const version = getVersionInfo(__dirname);
       isGlobal: true,
     }),
     DatabaseModule,
+    EventLoggingModule,
     SubscriptionModule,
     GqlModule,
     GraphQLModule.forRootAsync({
