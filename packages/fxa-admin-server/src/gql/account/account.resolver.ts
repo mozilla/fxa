@@ -28,6 +28,10 @@ import { Features } from '../../auth/user-group-header.decorator';
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
+import {
+  EventLoggingService,
+  EventNames,
+} from '../../event-logging/event-logging.service';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
@@ -80,7 +84,8 @@ export class AccountResolver {
     private log: MozLoggerService,
     private db: DatabaseService,
     private subscriptionsService: SubscriptionsService,
-    private configService: ConfigService<AppConfig>
+    private configService: ConfigService<AppConfig>,
+    private eventLogging: EventLoggingService
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -89,6 +94,7 @@ export class AccountResolver {
     @Args('uid', { nullable: false }) uid: string,
     @CurrentUser() user: string
   ) {
+    this.eventLogging.onAccountSearch('uid', false);
     let uidBuffer;
     try {
       uidBuffer = uuidTransformer.to(uid);
@@ -106,8 +112,10 @@ export class AccountResolver {
   @Query((returns) => AccountType, { nullable: true })
   public accountByEmail(
     @Args('email', { nullable: false }) email: string,
+    @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
     @CurrentUser() user: string
   ) {
+    this.eventLogging.onAccountSearch('email', autoCompleted);
     this.log.info('accountByEmail', { email, user });
     return this.db.account
       .query()
@@ -131,6 +139,7 @@ export class AccountResolver {
   @Features(AdminPanelFeature.UnverifyEmail)
   @Mutation((returns) => Boolean)
   public async unverifyEmail(@Args('email') email: string) {
+    this.eventLogging.onEvent(EventNames.UnverifyEmail);
     const result = await this.db.emails
       .query()
       .where('normalizedEmail', 'like', `${email.toLowerCase()}%`)
@@ -144,6 +153,7 @@ export class AccountResolver {
   @Features(AdminPanelFeature.DisableAccount)
   @Mutation((returns) => Boolean)
   public async disableAccount(@Args('uid') uid: string) {
+    this.eventLogging.onEvent(EventNames.DisableLogin);
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
