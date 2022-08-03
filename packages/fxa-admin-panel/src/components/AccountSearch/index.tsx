@@ -310,7 +310,6 @@ const AccountSearchResult = ({
       </p>
     );
   if (error) {
-    console.log('!!!', error);
     return (
       <p data-testid="error-message" className="mt-2">
         An error occurred.

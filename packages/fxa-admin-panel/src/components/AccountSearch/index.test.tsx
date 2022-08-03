@@ -219,7 +219,6 @@ class RecordAdminSecurityEvent {
 }
 class GetEmailsLike {
   static request(email: string) {
-    console.log('GetEmailsLikeMock request', email);
     return {
       query: GET_EMAILS_LIKE,
       variables: {
@@ -228,7 +227,6 @@ class GetEmailsLike {
     };
   }
   static result(email: string) {
-    console.log('GetEmailsLikeMock result', email);
     calledGetEmailsLike = true;
     return {
       data: {
@@ -237,7 +235,6 @@ class GetEmailsLike {
     };
   }
   static mock(email: string) {
-    console.log('GetEmailsLikeMock');
     return {
       request: this.request(email),
       result: this.result(email),
@@ -311,7 +308,7 @@ it('calls account search', async () => {
   expect(calledAccountSearch).toBeTruthy();
 });
 
-fit('auto completes', async () => {
+it('auto completes', async () => {
   renderView([
     GetEmailsLike.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, true, true),
@@ -320,6 +317,7 @@ fit('auto completes', async () => {
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail.substring(0, 6) },
   });
+
   await waitFor(() => screen.getByTestId('email-suggestions'));
 
   fireEvent.click(
@@ -336,7 +334,6 @@ fit('auto completes', async () => {
 it('displays the account email bounces, and can clear them', async () => {
   renderView([
     GetAccountsByEmail.mock(testEmail, false, false),
-    GetEmailsLike.mock(testEmail),
     RecordAdminSecurityEvent.mock(),
     ClearBouncesByEmail.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, false, true),
@@ -356,7 +353,7 @@ it('displays the account email bounces, and can clear them', async () => {
   await waitFor(() => screen.findAllByText(testEmail));
   expect(screen.queryAllByTestId('bounce-group').length).toEqual(0);
   expect(screen.getByTestId('no-bounces-message')).toBeInTheDocument();
-  expect(deleteBouncesMutationCalled).toBeTruthy();
+  expect(deleteBouncesMutationCalled).toBe(true);
 });
 
 it('displays the error state if there is an error', async () => {
