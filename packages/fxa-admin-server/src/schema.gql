@@ -154,7 +154,7 @@ type RelyingParty {
 
 type Query {
   accountByUid(uid: String!): Account
-  accountByEmail(email: String!): Account
+  accountByEmail(autoCompleted: Boolean!, email: String!): Account
   getEmailsLike(search: String!): [Email!]
   relyingParties: [RelyingParty!]!
 }
