@@ -714,7 +714,11 @@ const EmailBounce = ({
   );
   return (
     <div className="account-li account-border-info">
-      <table className="pt-1" aria-label="simple table">
+      <table
+        className="pt-1"
+        aria-label="simple table"
+        data-testid={'bounce-group'}
+      >
         <tbody>
           <ResultTableRow label="email" value={email} testId={'bounce-email'} />
           <ResultTableRow

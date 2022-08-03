@@ -4,33 +4,123 @@
 
 import React from 'react';
 import Chance from 'chance';
-import { render, fireEvent, act, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
+import {
+  CLEAR_BOUNCES_BY_EMAIL,
+  RECORD_ADMIN_SECURITY_EVENT,
+} from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, AccountSearch, GET_EMAILS_LIKE } from './index';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 
 const chance = new Chance();
+
 let testEmail: string;
 let deleteBouncesMutationCalled = false;
+let calledAccountSearch = false;
+let calledGetEmailsLike = false;
 
-function exampleBounce(email: string) {
+// Mock AdminPanelGuard
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+const mockGroup = mockGuard.getGroup(AdminPanelGroup.AdminProd);
+jest.mock('../../hooks/UserContext.ts', () => {
   return {
-    email,
-    createdAt: chance.timestamp(),
-    bounceType: 'Permanent',
-    bounceSubType: 'General',
+    useUserContext: () => {
+      const ctx = {
+        guard: mockGuard,
+        user: {
+          email: 'test@mozilla.com',
+          group: mockGroup,
+        },
+        setUser: () => {},
+      };
+      return ctx;
+    },
   };
-}
+});
 
-function exampleAccountResponse(email: string): MockedResponse {
-  return {
-    request: {
-      query: GET_ACCOUNT_BY_EMAIL,
+// Apollo mocks
+class ClearBouncesByEmail {
+  static request(email: string) {
+    return {
+      query: CLEAR_BOUNCES_BY_EMAIL,
       variables: {
         email,
       },
-    },
-    result: {
+    };
+  }
+  static result() {
+    deleteBouncesMutationCalled = true;
+    return {
+      data: {
+        clearEmailBounce: true,
+      },
+    };
+  }
+  static mock(email: string): MockedResponse {
+    return {
+      request: this.request(email),
+      result: this.result(),
+    };
+  }
+}
+class GetAccountsByEmail {
+  static request(email: string, autoCompleted: boolean) {
+    return {
+      query: GET_ACCOUNT_BY_EMAIL,
+      variables: {
+        email,
+        autoCompleted,
+      },
+    };
+  }
+  static result(email: string, minimal: boolean) {
+    calledAccountSearch = true;
+
+    // Minimal flag indicates a sparse response is okay
+    if (minimal) {
+      return {
+        data: {
+          accountByEmail: {
+            uid: '123',
+            createdAt: 1658534643990,
+            disabledAt: null,
+            lockedAt: null,
+            emails: [
+              {
+                email,
+                isVerified: true,
+                isPrimary: true,
+                createdAt: 1658534643990,
+              },
+            ],
+            emailBounces: [],
+            securityEvents: [],
+            totp: [],
+            recoveryKeys: [],
+            linkedAccounts: [],
+            attachedClients: [],
+            subscriptions: [],
+          },
+        },
+      };
+    }
+
+    // Otherwise provide richer result
+    const bounce = {
+      email,
+      createdAt: chance.timestamp(),
+      bounceType: 'Permanent',
+      bounceSubType: 'General',
+      diagnosticCode: 100,
+      templateName: 'xyz',
+    };
+
+    return {
       data: {
         accountByEmail: {
           uid: 'a1b2c3',
@@ -45,7 +135,7 @@ function exampleAccountResponse(email: string): MockedResponse {
           createdAt: chance.timestamp(),
           disabledAt: null,
           lockedAt: null,
-          emailBounces: [exampleBounce(email), exampleBounce(email)],
+          emailBounces: [bounce, { ...bounce, createdAt: chance.timestamp() }],
           totp: [
             {
               verified: true,
@@ -72,6 +162,7 @@ function exampleAccountResponse(email: string): MockedResponse {
               location: {
                 city: null,
                 country: null,
+                countryCode: null,
                 state: null,
                 stateCode: null,
               },
@@ -82,63 +173,85 @@ function exampleAccountResponse(email: string): MockedResponse {
               refreshTokenId: null,
             },
           ],
+          linkedAccounts: [],
           securityEvents: [],
+          subscriptions: [],
         },
       },
-    },
-  };
+    };
+  }
+  static mock(
+    email: string,
+    autoCompleted: boolean,
+    minimal: boolean,
+    error?: Error
+  ) {
+    return {
+      request: this.request(email, autoCompleted),
+      result: this.result(email, minimal),
+      error,
+    };
+  }
 }
-
-function exampleNoResultsAccountResponse(email: string): MockedResponse {
-  return {
-    request: {
-      query: GET_ACCOUNT_BY_EMAIL,
+class RecordAdminSecurityEvent {
+  static request() {
+    return {
+      query: RECORD_ADMIN_SECURITY_EVENT,
       variables: {
-        email,
+        uid: 'a1b2c3',
+        name: 'emails.clearBounces',
       },
-    },
-    result: {
+    };
+  }
+  static result() {
+    return {
       data: {
-        accountByEmail: {
-          uid: 'a1b2c3',
-          emails: [
-            {
-              email,
-              isPrimary: true,
-              isVerified: true,
-              createdAt: chance.timestamp(),
-            },
-          ],
-          createdAt: chance.timestamp(),
-          disabledAt: null,
-          lockedAt: null,
-          emailBounces: [],
-          totp: [],
-          recoveryKeys: [],
-          securityEvents: [],
-        },
+        recordAdminSecurityEvent: {},
       },
-    },
-  };
+    };
+  }
+  static mock() {
+    return {
+      request: this.request(),
+      result: this.result(),
+    };
+  }
+}
+class GetEmailsLike {
+  static request(email: string) {
+    console.log('GetEmailsLikeMock request', email);
+    return {
+      query: GET_EMAILS_LIKE,
+      variables: {
+        search: email.substring(0, 6),
+      },
+    };
+  }
+  static result(email: string) {
+    console.log('GetEmailsLikeMock result', email);
+    calledGetEmailsLike = true;
+    return {
+      data: {
+        getEmailsLike: [{ email }],
+      },
+    };
+  }
+  static mock(email: string) {
+    console.log('GetEmailsLikeMock');
+    return {
+      request: this.request(email),
+      result: this.result(email),
+    };
+  }
 }
 
-function exampleBounceMutationResponse(email: string): MockedResponse {
-  return {
-    request: {
-      query: CLEAR_BOUNCES_BY_EMAIL,
-      variables: {
-        email,
-      },
-    },
-    result: () => {
-      deleteBouncesMutationCalled = true;
-      return {
-        data: {
-          clearEmailBounce: true,
-        },
-      };
-    },
-  };
+// Helper function to render Account Search with mocks
+function renderView(mocks: any) {
+  render(
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <AccountSearch />
+    </MockedProvider>
+  );
 }
 
 const MinimalAccountResponse = (testEmail: string) => ({
@@ -172,6 +285,9 @@ const nextTick = (t?: number) => new Promise((r) => setTimeout(r, t || 0));
 beforeEach(() => {
   jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
+  deleteBouncesMutationCalled = false;
+  calledAccountSearch = false;
+  calledGetEmailsLike = false;
 });
 
 afterEach(() => {
@@ -179,189 +295,80 @@ afterEach(() => {
 });
 
 it('renders without imploding', () => {
-  const renderResult = render(<AccountSearch />);
-  const getByTestId = renderResult.getByTestId;
-
-  expect(getByTestId('search-form')).toBeInTheDocument();
+  render(<AccountSearch />);
+  expect(screen.getByTestId('search-form')).toBeInTheDocument();
 });
 
 it('calls account search', async () => {
-  let calledAccountSearch = false;
-  const mocks = [
-    {
-      request: {
-        query: GET_ACCOUNT_BY_EMAIL,
-        variables: {
-          email: testEmail,
-          autoCompleted: false,
-        },
-      },
-      result: () => {
-        calledAccountSearch = true;
-        return MinimalAccountResponse(testEmail);
-      },
-    },
-  ];
+  renderView([GetAccountsByEmail.mock(testEmail, false, true)]);
 
-  const renderResult = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
-
-  await act(async () => {
-    fireEvent.change(renderResult.getByTestId('email-input'), {
-      target: { value: testEmail },
-    });
-    fireEvent.blur(renderResult.getByTestId('email-input'));
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(renderResult.getByTestId('search-button'));
-  });
-  await nextTick();
-
-  expect(renderResult.getByTestId('account-section')).toBeInTheDocument();
-  expect(calledAccountSearch).toBeTruthy();
-});
-
-it('auto completes', async () => {
-  let calledAccountSearch = false;
-  let calledGetEmailsLike = false;
-  const mocks = [
-    {
-      request: {
-        query: GET_EMAILS_LIKE,
-        variables: {
-          search: testEmail.substring(0, 6),
-        },
-      },
-      result: () => {
-        calledGetEmailsLike = true;
-        return {
-          data: {
-            getEmailsLike: [{ email: testEmail }],
-          },
-        };
-      },
-    },
-    {
-      request: {
-        query: GET_ACCOUNT_BY_EMAIL,
-        variables: {
-          email: testEmail,
-          autoCompleted: true,
-        },
-      },
-      result: () => {
-        calledAccountSearch = true;
-        return MinimalAccountResponse(testEmail);
-      },
-    },
-  ];
-
-  const renderResult = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
-
-  await act(async () => {
-    fireEvent.change(renderResult.getByTestId('email-input'), {
-      target: { value: testEmail.substring(0, 6) },
-    });
-    fireEvent.blur(renderResult.getByTestId('email-input'));
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(
-      renderResult.getByTestId('email-suggestions').getElementsByTagName('a')[0]
-    );
-  });
-  await nextTick();
-
-  await act(async () => {
-    fireEvent.click(renderResult.getByTestId('search-button'));
-  });
-  await nextTick();
-
-  expect(calledGetEmailsLike).toBeTruthy();
-  expect(calledAccountSearch).toBeTruthy();
-  expect(renderResult.getByTestId('email-input')).toHaveValue(testEmail);
-  expect(renderResult.getByTestId('account-section')).toBeInTheDocument();
-});
-
-// FIXME: this test is flaky
-it.skip('displays the account email bounces, and can clear them', async () => {
-  const hasResultsAccountResponse = exampleAccountResponse(testEmail);
-  const bounceMutationResponse = exampleBounceMutationResponse(testEmail);
-  const noResultsAccountResponse = exampleNoResultsAccountResponse(testEmail);
-
-  const renderResult = render(
-    <MockedProvider
-      mocks={[
-        hasResultsAccountResponse,
-        bounceMutationResponse,
-        noResultsAccountResponse,
-      ]}
-      addTypename={false}
-    >
-      <AccountSearch />
-    </MockedProvider>
-  );
-  let getByTestId = renderResult.getByTestId;
-  let queryAllByTestId = renderResult.queryAllByTestId;
-
-  await act(async () => {
-    fireEvent.change(getByTestId('email-input'), {
-      target: { value: testEmail },
-    });
-    fireEvent.blur(getByTestId('email-input'));
-
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    fireEvent.click(getByTestId('search-button'));
-  });
-
-  expect(getByTestId('account-section')).toBeInTheDocument();
-  expect(queryAllByTestId('bounce-group').length).toEqual(2);
-
-  fireEvent.click(getByTestId('clear-button'));
-  await screen.findAllByText(testEmail);
-
-  // account should still be visible
-  expect(getByTestId('account-section')).toBeInTheDocument();
-  // but there should be no bounces anymore
-  expect(queryAllByTestId('bounce-group').length).toEqual(0);
-  expect(getByTestId('no-bounces-message')).toBeInTheDocument();
-  expect(deleteBouncesMutationCalled).toBe(true);
-});
-
-// FIXME: this test is flaky
-it.skip('displays the error state if there is an error', async () => {
-  const erroredAccountResponse = Object.assign(
-    {},
-    exampleAccountResponse(testEmail)
-  );
-  erroredAccountResponse.error = new Error('zoiks');
-
-  const renderResult = render(
-    <MockedProvider mocks={[erroredAccountResponse]} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
-  let getByTestId = renderResult.getByTestId;
-
-  fireEvent.change(getByTestId('email-input'), {
+  fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
   });
-  fireEvent.blur(getByTestId('email-input'));
+  fireEvent.click(screen.getByTestId('search-button'));
 
-  await act(async () => {
-    fireEvent.click(getByTestId('search-button'));
+  await waitFor(() => screen.getByTestId('account-section'));
+  expect(calledAccountSearch).toBeTruthy();
+});
+
+fit('auto completes', async () => {
+  renderView([
+    GetEmailsLike.mock(testEmail),
+    GetAccountsByEmail.mock(testEmail, true, true),
+  ]);
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail.substring(0, 6) },
   });
+  await waitFor(() => screen.getByTestId('email-suggestions'));
 
-  expect(getByTestId('error-message')).toBeInTheDocument();
+  fireEvent.click(
+    screen.getByTestId('email-suggestions').getElementsByTagName('a')[0]
+  );
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await waitFor(() => screen.getByTestId('account-section'));
+  expect(calledGetEmailsLike).toBeTruthy();
+  expect(calledAccountSearch).toBeTruthy();
+  expect(screen.getByTestId('email-input')).toHaveValue(testEmail);
+});
+
+it('displays the account email bounces, and can clear them', async () => {
+  renderView([
+    GetAccountsByEmail.mock(testEmail, false, false),
+    GetEmailsLike.mock(testEmail),
+    RecordAdminSecurityEvent.mock(),
+    ClearBouncesByEmail.mock(testEmail),
+    GetAccountsByEmail.mock(testEmail, false, true),
+  ]);
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await waitFor(() => screen.getByTestId('account-section'));
+  expect(screen.queryAllByTestId('bounce-group').length).toEqual(2);
+
+  fireEvent.click(screen.getByTestId('clear-button'));
+
+  await waitFor(() => screen.getByTestId('account-section'));
+  await waitFor(() => screen.findAllByText(testEmail));
+  expect(screen.queryAllByTestId('bounce-group').length).toEqual(0);
+  expect(screen.getByTestId('no-bounces-message')).toBeInTheDocument();
+  expect(deleteBouncesMutationCalled).toBeTruthy();
+});
+
+it('displays the error state if there is an error', async () => {
+  renderView([
+    GetAccountsByEmail.mock(testEmail, false, true, new Error('zoiks')),
+  ]);
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await waitFor(() => screen.getByTestId('error-message'));
+  expect(calledAccountSearch).toBeTruthy();
 });

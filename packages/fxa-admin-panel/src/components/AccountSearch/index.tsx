@@ -309,12 +309,14 @@ const AccountSearchResult = ({
         Loading...
       </p>
     );
-  if (error)
+  if (error) {
+    console.log('!!!', error);
     return (
       <p data-testid="error-message" className="mt-2">
         An error occurred.
       </p>
     );
+  }
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
