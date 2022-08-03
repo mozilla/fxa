@@ -1,5 +1,6 @@
 // After all .button-rows are converted to TW, we can remove this entire file
-.button {
+.button,
+#main-content button {
   @include font();
   align-items: center;
   background: $button-background-color-default;
