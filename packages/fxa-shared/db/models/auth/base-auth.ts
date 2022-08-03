@@ -45,6 +45,7 @@ export enum Proc {
   ForgotPasswordVerified = 'forgotPasswordVerified_8',
   KeyFetchToken = 'keyFetchToken_1',
   KeyFetchTokenWithVerificationStatus = 'keyFetchTokenWithVerificationStatus_2',
+  LimitSessions = 'limitSessions_1',
   PasswordChangeToken = 'passwordChangeToken_3',
   PasswordForgotToken = 'passwordForgotToken_2',
   PurgeAvailableCommands = 'purgeAvailableCommands_1',
@@ -115,6 +116,25 @@ export abstract class BaseAuthModel extends BaseModel {
     args: any[],
     outputs: string[]
   ) {
+    const { query, knex } = this.callProcedureRaw(args, name, outputs);
+    await query;
+    return await knex.select(knex.raw(outputs.join(','))).first();
+  }
+
+  static async callProcedureWithOutputsAndQueryResults(
+    name: Proc,
+    args: any[],
+    outputs: string[]
+  ) {
+    const { query, knex } = this.callProcedureRaw(args, name, outputs);
+    const [result] = await query;
+    return {
+      outputs: await knex.select(knex.raw(outputs.join(','))).first(),
+      results: { status: result.pop(), rows: result },
+    };
+  }
+
+  private static callProcedureRaw(args: any[], name: Proc, outputs: string[]) {
     let [txn, ...rest] = args;
     const knex = this.knex() as Knex;
     const query =
@@ -123,8 +143,7 @@ export abstract class BaseAuthModel extends BaseModel {
             .raw(callString(name, rest.length, outputs), rest)
             .transacting(txn)
         : knex.raw(callString(name, args.length, outputs), args);
-    await query;
-    return await knex.select(knex.raw(outputs.join(','))).first();
+    return { query, knex };
   }
 
   static sha256(hex: string | Buffer) {

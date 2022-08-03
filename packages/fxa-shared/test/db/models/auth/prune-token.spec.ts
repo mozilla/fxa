@@ -53,7 +53,6 @@ describe('PruneTokens', () => {
 
   beforeEach(async () => {
     pruneTokens = new PruneTokens(
-      pruneInterval,
       statsd as unknown as StatsD,
       log as unknown as ILogger
     );
@@ -73,7 +72,6 @@ describe('PruneTokens', () => {
   });
 
   afterEach(() => {
-    pruneTokens.stop();
     sandbox.reset();
   });
 
@@ -135,6 +133,16 @@ describe('PruneTokens', () => {
     expect(sessionTokens.length).to.equal(1);
   });
 
+  it('Will limit sessions', async () => {
+    const result = await pruneTokens.limitSessions(0);
+
+    expect(result.outputs['@accountsOverLimit']).to.equal(1);
+    expect(result.outputs['@totalDeletions']).to.equal(1);
+    expect(result.results?.rows[1]?.[0]?.uid?.toString('hex')).to.equal(
+      '0123456789abcdef0000000000000000'
+    );
+  });
+
   it('Calls statsd', async () => {
     pruneTokens.prune(1, 1);
     await new Promise((resolve) =>
@@ -149,35 +157,6 @@ describe('PruneTokens', () => {
         1
       )
     ).to.be.true;
-  });
-
-  it('Ignores redundant prune requests', async () => {
-    // Let pruner run
-    pruneTokens.prune(1, 1);
-    pruneTokens.prune(1, 1);
-    pruneTokens.prune(1, 1);
-    await new Promise((resolve) =>
-      setTimeout(resolve, pruneInterval + maxJitter)
-    );
-
-    // Only the first prune should go through, and it should result in an increment
-    // on PruneTokens.Start and PruneTokens.Complete
-    sinon.assert.calledTwice(statsd.increment);
-  });
-
-  it('Stops pending prune', async () => {
-    pruneTokens.prune(1, 1);
-    const state1 = pruneTokens.state;
-    const destroyed1 = pruneTokens.currentTimeoutId?._destroyed;
-
-    pruneTokens.stop();
-    const state2 = pruneTokens.state;
-    const destroyed2 = pruneTokens.currentTimeoutId?._destroyed;
-
-    expect(destroyed1).to.be.false;
-    expect(destroyed2).to.be.true;
-    expect(state1).to.equal('active');
-    expect(state2).to.equal('open');
   });
 
   it('Handles error', async () => {

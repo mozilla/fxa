@@ -10,21 +10,6 @@ import { BaseAuthModel, Proc } from './base-auth';
  * Manages pruning of stale tokens.
  */
 export class PruneTokens extends BaseAuthModel {
-  /** Current state that the token pruner is in. */
-  public get state() {
-    return this._state;
-  }
-
-  /**
-   * Gets the timeout id for any pending prune operation.
-   */
-  public get currentTimeoutId() {
-    return this._timeoutId;
-  }
-
-  private _state: 'open' | 'pending' | 'active';
-  private _timeoutId: any | undefined;
-
   /**
    * Creates a token pruner
    * @param pruneInterval - A set interval at which to attempt prune operations
@@ -32,12 +17,10 @@ export class PruneTokens extends BaseAuthModel {
    * @param log - A logger
    */
   constructor(
-    public readonly pruneInterval: number,
     protected readonly metrics?: StatsD,
     protected readonly log?: ILogger
   ) {
     super();
-    this._state = 'open';
   }
 
   /**
@@ -49,32 +32,19 @@ export class PruneTokens extends BaseAuthModel {
    * @param maxCodeAge - Max age of code. To disable token pruning set to 0.
    */
   public async prune(maxTokenAge: number, maxCodeAge: number) {
-    // Avoid creating unneeded prune operations. If there is already a pending/active one simply exit.
-    if (this._state !== 'open') {
-      return;
-    }
+    const prefix = 'prune-tokens';
 
-    // Enter the prune operation
-    this._state = 'active';
-
-    // Set a timeout for when the next prune operation can be attempted again. Note,
-    // that the interval maybe quite large, so the call to unref() ensures the event
-    // loop isn't blocked in the event the process is trying to shutdown.
-    this._timeoutId = setTimeout(() => {
-      this._state = 'open';
-    }, this.pruneInterval).unref();
-
-    this.metrics?.increment('prune-tokens.start');
+    this.onStartMetric(prefix);
 
     // Make pruning request. Since this is often run as a 'fire and forget' call, the
     // error will be handled and logged here.
     try {
       // Note that the database will also check if the pruneInterval has been exceeded. This
-      // is by design, so that concurrent calls to prune coming from multiple instances won't
+      // is by design, so concurrent calls to prune coming from multiple instances won't
       // result in an onslaught of deletes.
       const result = await PruneTokens.callProcedureWithOutputs(
         Proc.Prune,
-        [Date.now(), maxTokenAge, maxCodeAge, this.pruneInterval],
+        [Date.now(), maxTokenAge, maxCodeAge, 0],
         [
           '@unblockCodesDeleted',
           '@signInCodesDeleted',
@@ -85,43 +55,70 @@ export class PruneTokens extends BaseAuthModel {
         ]
       );
 
-      const incrementResultMetric = (key: string) => {
-        if (!result?.[key]) {
-          return;
-        }
-
-        // drop @, and switch from camel case to kebab case
-        const name = key
-          .substring(1)
-          .replace(/([a-zA-Z])(?=[A-Z])/g, '$1-')
-          .toLowerCase();
-
-        this.metrics?.increment(`prune-tokens.complete.${name}`, result[key]);
-      };
-
-      incrementResultMetric('@unblockCodesDeleted');
-      incrementResultMetric('@signInCodesDeleted');
-      incrementResultMetric('@accountResetTokensDeleted');
-      incrementResultMetric('@passwordForgotTokensDeleted');
-      incrementResultMetric('@passwordChangeTokensDeleted');
-      incrementResultMetric('@sessionTokensDeleted');
+      this.onCompleteMetric(prefix, '@unblockCodesDeleted', result);
+      this.onCompleteMetric(prefix, '@signInCodesDeleted', result);
+      this.onCompleteMetric(prefix, '@accountResetTokensDeleted', result);
+      this.onCompleteMetric(prefix, '@passwordForgotTokensDeleted', result);
+      this.onCompleteMetric(prefix, '@passwordChangeTokensDeleted', result);
+      this.onCompleteMetric(prefix, '@sessionTokensDeleted', result);
 
       return result;
     } catch (err) {
-      this.metrics?.increment('prune-tokens.error');
-      this.log?.error('prune-tokens', err);
-    } finally {
-      // Set the state pending. Subsequent calls are still ignored until the prune interval has
-      // actually expired.
-      this._state = 'pending';
+      this.onErrorMetric(prefix);
+      this.log?.error(prefix, err);
     }
   }
 
   /**
-   * Stops pending prune
+   * Prunes sessions from accounts with high session counts. Pruning targets older sessions, and
+   * effects the sessionTokens, unverifiedTokens and devices tables.
+   * @param maxSessions - Max allowed number of sessions per account
    */
-  public stop() {
-    clearTimeout(this._timeoutId);
-    this._state = 'open';
+  async limitSessions(maxSessions: number) {
+    const prefix = 'limit-sessions';
+
+    this.onStartMetric(prefix);
+
+    try {
+      const result = await PruneTokens.callProcedureWithOutputsAndQueryResults(
+        Proc.LimitSessions,
+        [maxSessions.toString()],
+        ['@accountsOverLimit', '@totalDeletions']
+      );
+
+      this.onCompleteMetric(prefix, '@accountsOverLimit', result.outputs);
+      this.onCompleteMetric(prefix, '@totalDeletions', result.outputs);
+
+      return result;
+    } catch (err) {
+      this.onErrorMetric(prefix);
+      this.log?.error(prefix, err);
+    }
+    return {
+      outputs: null,
+      results: null,
+    };
+  }
+
+  private onStartMetric(prefix: string) {
+    this.metrics?.increment(`${prefix}.start`);
+  }
+
+  private onCompleteMetric(prefix: string, key: string, result: any) {
+    if (!result?.[key]) {
+      return;
+    }
+
+    // drop @, and switch from camel case to kebab case
+    const name = key
+      .substring(1)
+      .replace(/([a-zA-Z])(?=[A-Z])/g, '$1-')
+      .toLowerCase();
+
+    this.metrics?.increment(`${prefix}.complete.${name}`, result[key]);
+  }
+
+  private onErrorMetric(prefix: string) {
+    this.metrics?.increment(`${prefix}.error`);
   }
 }

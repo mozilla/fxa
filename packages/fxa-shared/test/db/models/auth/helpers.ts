@@ -197,6 +197,7 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './deviceCommands.sql',
     './sp_accountDevices.sql',
     './sp_prune.sql',
+    './sp_limitSessions.sql',
   ]);
 
   /*/ Debugging Assistance
