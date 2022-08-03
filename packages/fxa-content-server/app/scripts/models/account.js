@@ -174,7 +174,7 @@ const Account = Backbone.Model.extend(
       return this.createOAuthToken(this._oAuthClientId, {
         scope: CONTENT_SERVER_OAUTH_SCOPE,
         // set authorization TTL to 5 minutes.
-        // Docs: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#post-v1authorization
+        // Docs: https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postAuthorization
         // Issue: https://github.com/mozilla/fxa-content-server/issues/3982
         ttl: 300,
       }).then((accessToken) => {

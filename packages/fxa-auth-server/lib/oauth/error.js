@@ -9,8 +9,7 @@ const DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
   errno: 999,
-  info:
-    'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#errors',
+  info: 'https://mozilla.github.io/ecosystem-platform/api#section/Errors',
   message: 'Unspecified error',
 };
 

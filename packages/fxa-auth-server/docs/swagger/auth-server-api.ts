@@ -291,7 +291,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
             "errno": 201,
             "error": "Service Unavailable",
             "message": "Service unavailable",
-            "info": "https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format",
+            "info": "https://mozilla.github.io/ecosystem-platform/api#section/Response-format",
             "retryAfter": 30,
             "retryAfterLocalized": "in a few seconds"
         }

@@ -199,7 +199,7 @@ var OAuthRelier = Relier.extend({
 
   _setupSignInSignUpFlow() {
     // params listed in:
-    // https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md
+    // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
     this.importSearchParamsUsingSchema(
       SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA,
       OAuthErrors

@@ -249,9 +249,9 @@ UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on
 ## Additional Resources
 
 - [APIs attached to Firefox Accounts](https://developer.mozilla.org/docs/Mozilla/APIs_attached_to_Firefox_Accounts)
-- [Firefox Accounts Auth Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md)
+- [Firefox Accounts Auth Server API](https://mozilla.github.io/ecosystem-platform/api)
 - [Firefox Acocunts Auth Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server/)
-- [Firefox Accounts OAuth Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md)
+- [Firefox Accounts OAuth Server API](https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview)
 - [Firefox Accounts OAuth Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server/lib/oauth)
 - [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md)
 - [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-profile-server)
