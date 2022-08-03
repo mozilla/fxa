@@ -7,8 +7,6 @@
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const HapiSwagger = require('hapi-swagger');
-const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -448,8 +446,6 @@ async function create(log, error, config, routes, db, statsd) {
 
   // register all plugins and Swagger configuration
   await server.register([
-    Inert,
-    Vision,
     {
       plugin: HapiSwagger,
       options: swaggerOptions,

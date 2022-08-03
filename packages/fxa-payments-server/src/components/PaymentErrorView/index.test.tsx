@@ -32,8 +32,6 @@ describe('PaymentErrorView test with l10n', () => {
         plan={SELECTED_PLAN}
       />
     );
-    const spinner = queryByAltText('error icon');
-    expect(spinner).toBeInTheDocument();
 
     const mainBlock = queryByTestId('payment-error');
     expect(mainBlock).toBeInTheDocument();

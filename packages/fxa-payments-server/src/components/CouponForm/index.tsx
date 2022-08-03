@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
+  useContext,
 } from 'react';
 
 import {
@@ -20,6 +21,7 @@ import {
 } from '../../lib/amplitude';
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import { useCallbackOnce } from '../../lib/hooks';
+import AppContext from '../../lib/AppContext';
 
 class CouponError extends Error {
   constructor(message: string) {
@@ -107,8 +109,30 @@ export const CouponForm = ({
   );
   const [error, setError] = useState<CouponErrorMessageType | null>(null);
   const [checkingCoupon, setCheckingCoupon] = useState(false);
+  const { queryParams } = useContext(AppContext);
 
   const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
+
+  // check if coupon code was included in URL
+  // if true and valid, apply coupon code on page load
+  useEffect(() => {
+    (async () => {
+      if (queryParams.coupon) {
+        try {
+          setCheckingCoupon(true);
+          const coupon = await checkPromotionCode(planId, queryParams.coupon);
+          setHasCoupon(true);
+          setCoupon(coupon);
+          setPromotionCode(coupon.promotionCode);
+        } catch (err) {
+          setCoupon(undefined);
+        } finally {
+          setCheckingCoupon(false);
+        }
+      }
+    })();
+  }, [queryParams, planId, setCoupon]);
+
   useEffect(() => {
     onFormMounted();
   }, [onFormMounted, planId]);
@@ -171,7 +195,7 @@ export const CouponForm = ({
           </div>
           {readOnly ? null : (
             <button
-              className={`${readOnly ? 'hidden' : ''}`}
+              className={`button ${readOnly ? 'hidden' : ''}`}
               onClick={removeCoupon}
               disabled={subscriptionInProgress}
               data-testid="coupon-remove-button"
@@ -204,6 +228,7 @@ export const CouponForm = ({
 
           <button
             name="apply"
+            className="button"
             type="submit"
             data-testid="coupon-button"
             disabled={checkingCoupon || readOnly || subscriptionInProgress}

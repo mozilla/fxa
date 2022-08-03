@@ -178,7 +178,7 @@ const View = FormView.extend({
     'click a[href="/reset_password"]': cancelEventThen(
       '_navigateToForceResetPassword'
     ),
-    'click .use-different': preventDefaultThen('useDifferentAccount'),
+    'click #use-different': preventDefaultThen('useDifferentAccount'),
   },
 
   useDifferentAccount() {

@@ -29,7 +29,7 @@ describe('views/pair/unsupported', () => {
           view.$el.find('#pair-unsupported-header').text(),
           'Pair using an app'
         );
-        assert.ok(view.$el.find('.graphic-pair-failure').length);
+        assert.ok(view.$el.find('.bg-image-pair-fail').length);
       });
     });
   });

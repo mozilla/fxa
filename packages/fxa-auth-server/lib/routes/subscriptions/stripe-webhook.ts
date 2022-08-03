@@ -555,9 +555,51 @@ export class StripeWebhookHandler extends StripeHandler {
 
   /**
    * Handle `invoice.paid` Stripe wehbook events.
+   *
+   * This handler sends out our invoice emails to customers as well as verifying
+   * that we are not accepting payments for users that may have been deleted or
+   * have a Stripe customer account with subscription that has become unlinked
+   * from a FxA account. We have observed this can happen in some edge cases during
+   * checkout in the past, and want to capture sufficient information for Support
+   * to manually handle.
    */
   async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+    let invalidCustomer = false;
+    // Store as much relevant user data as we can lookup in case they were
+    // deleted or not linked to a FxA account.
+    const deletedData: Record<string, any> = {
+      customerId: invoice.customer,
+      invoiceId: invoice.id,
+    };
+    if (!customer || customer?.deleted) {
+      invalidCustomer = true;
+      deletedData.reason = 'customer_deleted';
+    } else {
+      const uid = customer.metadata?.userid;
+      if (!uid) {
+        invalidCustomer = true;
+        deletedData.reason = 'no_userid';
+      } else {
+        deletedData.userId = uid;
+        deletedData.reason = 'fxa_deleted';
+        const account = await Account.findByUid(uid);
+        invalidCustomer = !account;
+      }
+    }
+    if (invalidCustomer) {
+      const err = Object.assign(
+        new Error('Invoice paid on invalid customer.'),
+        deletedData
+      );
+      reportSentryError(err, request);
+      return;
+    }
+
     try {
       await this.sendSubscriptionInvoiceEmail(invoice);
     } catch (err) {

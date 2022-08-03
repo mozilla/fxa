@@ -108,50 +108,6 @@ describe('views/mixins/avatar-mixin', function () {
     });
   });
 
-  describe('displayAccountProfileImage with spinner in avatar settings view', () => {
-    let spinnerView;
-    const SpinnerAvatarSettingsView = SettingsView.extend({
-      template() {
-        return '<div class="avatar-wrapper avatar-settings-view"></div>';
-      },
-    });
-
-    beforeEach(() => {
-      spinnerView = new SpinnerAvatarSettingsView({
-        notifier,
-        user,
-      });
-      sinon
-        .stub(account, 'fetchCurrentProfileImage')
-        .returns(
-          Promise.resolve(
-            new ProfileImage({ id: 'foo', img: new Image(), url: 'url' })
-          )
-        );
-      sinon.stub(spinnerView, '_shouldShowDefaultProfileImage').returns(false);
-      return spinnerView.render();
-    });
-
-    it('adds `spinner-completed` class', () =>
-      spinnerView.displayAccountProfileImage(account).then(() => {
-        assert.equal(
-          spinnerView.$('.avatar-settings-view.spinner-completed').length,
-          1,
-          'expected .avatar-wrapper.avatar-settings-view to also have the .spinner-completed class'
-        );
-        assert.equal(
-          spinnerView.$('.change-avatar-inner').length,
-          1,
-          'expected .change-avatar-inner to exist and have a length equal to 1'
-        );
-        assert.equal(
-          spinnerView.$('.avatar-settings-view.spinner-completed').length,
-          1,
-          'expected .avatar-wrapper.avatar-settings-view to also have the .spinner-completed class'
-        );
-      }));
-  });
-
   describe('displayAccountProfileImage spinner functionality', () => {
     let spinnerView;
     const SpinnerView = SettingsView.extend({

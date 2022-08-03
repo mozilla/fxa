@@ -21,7 +21,7 @@ const PASSWORD_CHANGE_START_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 103\` - Incorrect password
+            - \`errno: 103\` - Incorrect password
           `,
         },
       },
@@ -45,7 +45,7 @@ const PASSWORD_CHANGE_FINISH_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 138\` - Unverified session
+            - \`errno: 138\` - Unverified session
           `,
         },
       },
@@ -73,8 +73,10 @@ const PASSWORD_FORGOT_SEND_CODE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description:
-            'Failing requests may be caused by the following errors (this is not an exhaustive list): \n `errno: 145` - Reset password with this email type is not currently supported',
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 145\` - Reset password with this email type is not currently supported
+          `
         },
       },
     },
@@ -111,7 +113,7 @@ const PASSWORD_FORGOT_VERIFY_CODE_POST = {
         400: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            \`errno: 105\` - Invalid verification code
+            - \`errno: 105\` - Invalid verification code
           `,
         },
       },

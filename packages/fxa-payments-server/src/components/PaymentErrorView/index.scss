@@ -8,35 +8,4 @@
 
 .payment-error {
   @include checkout-view();
-  // override grid-row rule from checkout-view FXA-3237
-  grid-row: 3/4;
-  margin-top: 0px;
-
-  .wrapper {
-    margin-bottom: 60px;
-
-    p {
-      line-height: 22px;
-
-      @include max-width('tablet') {
-        padding: 0 30px;
-      }
-
-      @include min-width('desktop') {
-        padding: 0 100px;
-      }
-    }
-  }
-
-  .button.primary-button {
-    margin-bottom: 40px;
-  }
-
-  #error-icon {
-    margin: 60px auto 40px;
-  }
-
-  @include max-width('tablet') {
-    margin-top: 10px;
-  }
 }

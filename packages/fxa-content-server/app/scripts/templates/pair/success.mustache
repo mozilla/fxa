@@ -1,15 +1,14 @@
-<div id="main-content" class="card pair-auth pair-auth-complete">
-  <header>
-    <h1 id="pair-auth-complete-header">{{#t}}Device connected{{/t}}</h1>
+<div class="card">
+  <header class="mb-9">
+    <h1 id="pair-auth-complete-header" class="card-header">{{#t}}Device connected{{/t}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
 
-    <div class="graphic {{ graphicId }}" role="img" aria-label="{{#t}}Device successfully paired{{/t}}"></div>
+    <div class="{{ graphicId }}" role="img" aria-label="{{#t}}Device successfully paired{{/t}}"></div>
 
     <p>{{#t}}Pairing was successful.{{/t}}</p>
 
   </section>
 </div>
-

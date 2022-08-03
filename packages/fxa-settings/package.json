@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "postinstall": "../../_scripts/clone-l10n.sh fxa-settings",
-    "build-css": "node-sass ./src/styles/tailwind.scss ./src/styles/tailwind.out.pre-transform.css && tailwindcss -i ./src/styles/tailwind.out.pre-transform.css -o ./src/styles/tailwind.out.css",
+    "build-css": "node-sass ./src/styles/tailwind.scss ./src/styles/tailwind.out.pre-transform.css && tailwindcss -i ./src/styles/tailwind.out.pre-transform.css -o ./src/styles/tailwind.out.css --postcss",
     "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 npm run build-css && build-storybook",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-css && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",
@@ -94,7 +94,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.0",
-    "@testing-library/user-event": "^14.2.0",
+    "@testing-library/user-event": "^14.3.0",
     "@types/babel__core": "7.1.14",
     "@types/classnames": "^2.3.1",
     "@types/jest": "^26.0.23",

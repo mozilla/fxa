@@ -49,14 +49,15 @@ let accountResponse: AccountProps = {
   ],
   createdAt: 1589467100316,
   disabledAt: null,
+  lockedAt: null,
   emailBounces: [
     {
       bounceSubType: BounceSubType.NoEmail,
       bounceType: BounceType.Permanent,
       createdAt: 556061927,
-      diagnosticCode: "",
-      email: "bloop@mozilla.com",
-      templateName: "subscriptionsPaymentProviderCancelled"
+      diagnosticCode: '',
+      email: 'bloop@mozilla.com',
+      templateName: 'subscriptionsPaymentProviderCancelled',
     },
   ],
   onCleared() {},
@@ -199,13 +200,45 @@ it('displays the account', async () => {
   );
 
   expect(getByTestId('account-section')).toBeInTheDocument();
-  expect(getByTestId('verified-status')).toHaveTextContent('verified');
+  expect(getByTestId('account-verified-status')).toHaveTextContent('verified');
   expect(getByTestId('email-label')).toHaveTextContent(
     accountResponse.emails![0].email
   );
-  expect(getByTestId('uid-label')).toHaveTextContent(accountResponse.uid);
-  expect(getByTestId('createdat-label')).toHaveTextContent(
+  expect(getByTestId('account-uid')).toHaveTextContent(accountResponse.uid);
+  expect(getByTestId('account-created-at')).toHaveTextContent(
     accountResponse.createdAt.toString()
+  );
+});
+
+it('displays when account is disabled', async () => {
+  const disabledAccount = {
+    ...accountResponse,
+    disabledAt: accountResponse.createdAt + 1000 * 60 * 60,
+  };
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...disabledAccount} />
+    </MockedProvider>
+  );
+
+  expect(getByTestId('account-disabled-at')).toHaveTextContent(
+    (disabledAccount.disabledAt || '').toString()
+  );
+});
+
+it('displays when account is locked', async () => {
+  const lockedAccount = {
+    ...accountResponse,
+    lockedAt: accountResponse.createdAt + 1000 * 60 * 60,
+  };
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...lockedAccount} />
+    </MockedProvider>
+  );
+
+  expect(getByTestId('account-locked-at')).toHaveTextContent(
+    (lockedAccount.lockedAt || '').toString()
   );
 });
 
@@ -216,7 +249,9 @@ it('displays the unverified account', async () => {
       <Account {...accountResponse} />
     </MockedProvider>
   );
-  expect(getByTestId('verified-status')).toHaveTextContent('not verified');
+  expect(getByTestId('account-verified-status')).toHaveTextContent(
+    'not verified'
+  );
 });
 
 it('displays the bounce type description', async () => {
@@ -224,7 +259,7 @@ it('displays the bounce type description', async () => {
     <MockedProvider>
       <Account {...accountResponse} />
     </MockedProvider>
-  )
+  );
   expect(getByTestId('bounce-description')).toBeInTheDocument();
 });
 

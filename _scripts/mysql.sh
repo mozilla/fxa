@@ -22,7 +22,7 @@ docker run --rm --name=mydb \
   -e MYSQL_ROOT_HOST=% \
   -e MYSQL_DATABASE=pushbox \
   -p 3306:3306 \
-  mysql/mysql-server:5.7 &
+  mysql/mysql-server:8.0.29 --default-authentication-plugin=mysql_native_password &
 
 cd "$DIR"
 ./check-mysql.sh

@@ -72,7 +72,7 @@ describe('views/reset_password', function () {
   });
 
   it('registers for the expected events', () => {
-    assert.isFunction(view.events['click .remember-password']);
+    assert.isFunction(view.events['click #remember-password']);
     assert.isFunction(view.events['click a']);
     assert.isFunction(view.events['click input']);
     assert.isFunction(view.events['input input']);
@@ -89,7 +89,7 @@ describe('views/reset_password', function () {
       view = createView();
 
       return view.render().then(() => {
-        assert.lengthOf(view.$('.remember-password'), 1);
+        assert.lengthOf(view.$('#remember-password'), 1);
       });
     });
 
@@ -330,8 +330,8 @@ describe('views/reset_password with model.forceEmail', () => {
     assert.equal($emailInputEl.val(), email);
     assert.isTrue($emailInputEl.hasClass('hidden'));
 
-    assert.equal(view.$('.prefillEmail').text(), email);
-    assert.lengthOf(view.$('.remember-password'), 1);
+    assert.equal(view.$('#prefillEmail').text(), email);
+    assert.lengthOf(view.$('#remember-password'), 1);
 
     assert.isFalse(view._resetPassword.called);
   });
@@ -372,7 +372,7 @@ describe('views/reset_password with `canGoBack: false`', () => {
   });
 
   it('does not show remember password button', () => {
-    assert.lengthOf(view.$('.remember-password'), 0);
+    assert.lengthOf(view.$('#remember-password'), 0);
   });
 });
 

@@ -9,10 +9,21 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import config, { AppConfig } from '../config';
 import { DatabaseService } from './database.service';
+import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
+import { Knex } from 'knex';
 
 describe('DatabaseService', () => {
   let service: DatabaseService;
   let logger: any;
+  let knex: Knex;
+
+  beforeAll(async () => {
+    knex = await testDatabaseSetup();
+  });
+
+  afterAll(async () => {
+    await knex.destroy();
+  });
 
   beforeEach(async () => {
     const MockConfig: Provider = {

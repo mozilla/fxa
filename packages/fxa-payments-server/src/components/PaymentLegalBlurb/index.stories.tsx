@@ -1,26 +1,39 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { MockApp } from '../../../.storybook/components/MockApp';
-import PaymentLegalBlub from './index';
+import PaymentLegalBlurb from './index';
 import * as PaymentProvider from '../../lib/PaymentProvider';
+import { Meta } from '@storybook/react';
 
-storiesOf('components/PaymentLegalBlurb', module)
-  .add('default', () => (
+export default {
+  title: 'components/PaymentLegalBlurb',
+  component: PaymentLegalBlurb,
+} as Meta;
+
+const storyWithContext = (
+  provider?: PaymentProvider.PaymentProvider,
+  storyName?: string
+) => {
+  const story = () => (
     <MockApp>
-      <PaymentLegalBlub {...{ provider: undefined }}></PaymentLegalBlub>
+      <PaymentLegalBlurb {...{ provider }} />
     </MockApp>
-  ))
-  .add('paypal', () => (
-    <MockApp>
-      <PaymentLegalBlub
-        {...{ provider: PaymentProvider.PaymentProviders.paypal }}
-      ></PaymentLegalBlub>
-    </MockApp>
-  ))
-  .add('stripe', () => (
-    <MockApp>
-      <PaymentLegalBlub
-        {...{ provider: PaymentProvider.PaymentProviders.stripe }}
-      ></PaymentLegalBlub>
-    </MockApp>
-  ));
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const Default = storyWithContext(
+  PaymentProvider.PaymentProviders.none,
+  'default'
+);
+
+export const Paypal = storyWithContext(
+  PaymentProvider.PaymentProviders.paypal,
+  'paypal'
+);
+
+export const Stripe = storyWithContext(
+  PaymentProvider.PaymentProviders.stripe,
+  'stripe'
+);

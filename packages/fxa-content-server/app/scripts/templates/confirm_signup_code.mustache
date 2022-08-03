@@ -1,8 +1,8 @@
-<div id="main-content" class="card confirm-signup">
-    <header>
-        <h1 id="fxa-confirm-signup-code-header">
+<div class="card">
+    <header class="mb-4">
+        <h1 id="fxa-confirm-signup-code-header" class="card-header">
             {{#t}}Enter confirmation code{{/t}}
-            <span class="description">
+            <span class="card-subheader" id="subheader">
                 {{#t}}for your Firefox account{{/t}}
             </span>
         </h1>
@@ -12,20 +12,20 @@
         <div class="error"></div>
         <div class="success"></div>
 
-        <div class="graphic graphic-mail"></div>
+        <div class="bg-image-email"></div>
 
-        <p class="verification-email-message">{{#unsafeTranslate}}Enter the code that was sent to %(escapedEmail)s within 5 minutes.{{/unsafeTranslate}}</p>
+        <p id="verification-email-message" class="mb-5">{{#unsafeTranslate}}Enter the code that was sent to %(escapedEmail)s within 5 minutes.{{/unsafeTranslate}}</p>
         <form novalidate>
             <div class="input-row">
                 <!-- Using `type="text" inputmode="numeric"` shows the numericpad on mobile and strips out whitespace on desktop. -->
                 <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
             </div>
-            <div class="button-row">
-                <button id="submit-btn" type="submit">{{#t}}Confirm{{/t}}</button>
+            <div class="flex">
+                <button id="submit-btn" type="submit" class="cta-primary cta-xl">{{#t}}Confirm{{/t}}</button>
             </div>
-            <div class="links">
-                <span class="delayed-fadein faint">{{#t}}Code expired?{{/t}}</span>&nbsp;<a id="resend" class="delayed-fadein" href="#">{{#t}}Email new code.{{/t}}</a>
-            </div>
+            <p id="links" class="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs">
+                {{#t}}Code expired?{{/t}}&nbsp;<a id="resend" class="link-blue" href="#">{{#t}}Email new code.{{/t}}</a>
+            </p>
         </form>
     </section>
 </div>

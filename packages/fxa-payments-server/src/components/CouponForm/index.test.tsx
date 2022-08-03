@@ -1,10 +1,17 @@
-import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import CouponForm, {
   checkPromotionCode,
   CouponErrorMessageType,
 } from './index';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import {
   COUPON_DETAILS_EXPIRED,
   COUPON_DETAILS_INVALID,
@@ -215,6 +222,89 @@ describe('CouponForm', () => {
       const { queryByTestId } = subject();
       const removeButton = queryByTestId('coupon-remove-button');
       expect(removeButton).toBeDisabled();
+    });
+
+    it('shows the coupon code if valid coupon code was passed in query string', async () => {
+      const coupon: CouponDetails = {
+        discountAmount: 200,
+        promotionCode: 'IDCLEV19',
+        type: '',
+        durationInMonths: 1,
+        valid: true,
+        expired: false,
+        maximallyRedeemed: false,
+      };
+
+      (apiRetrieveCouponDetails as jest.Mock)
+        .mockClear()
+        .mockResolvedValue(coupon);
+
+      const subject = () => {
+        return render(
+          <AppContext.Provider
+            value={{
+              ...defaultAppContext,
+              queryParams: { coupon: 'IDCLEV19' },
+            }}
+          >
+            <CouponForm
+              planId={SELECTED_PLAN.plan_id}
+              coupon={undefined}
+              setCoupon={() => {}}
+              readOnly={false}
+              subscriptionInProgress={false}
+            />
+          </AppContext.Provider>
+        );
+      };
+
+      const { queryByTestId } = subject();
+
+      // wait for coupon to be applied
+      await waitFor(() => {
+        expect(screen.getByText('IDCLEV19')).toBeInTheDocument();
+        expect(queryByTestId('coupon-form')).not.toBeInTheDocument();
+        expect(queryByTestId('coupon-hascoupon')).toBeInTheDocument();
+      });
+    });
+
+    it('renders without a coupon code if invalid coupon code was passed in query string', async () => {
+      (apiRetrieveCouponDetails as jest.Mock)
+        .mockClear()
+        .mockResolvedValue(COUPON_DETAILS_INVALID);
+
+      const subject = () => {
+        return render(
+          <AppContext.Provider
+            value={{
+              ...defaultAppContext,
+              queryParams: { coupon: 'THECAKEISALIE' },
+            }}
+          >
+            <CouponForm
+              planId={SELECTED_PLAN.plan_id}
+              coupon={undefined}
+              setCoupon={() => {}}
+              readOnly={false}
+              subscriptionInProgress={false}
+            />
+          </AppContext.Provider>
+        );
+      };
+
+      const { queryByTestId } = subject();
+
+      // wait for coupon to be checked
+      await waitFor(() => {
+        expect(screen.queryByText('THECAKEISALIE')).not.toBeInTheDocument();
+        const couponInputField = queryByTestId('coupon-input');
+        const couponButton = queryByTestId('coupon-button');
+        expect(couponInputField).toBeInTheDocument();
+        expect(couponInputField).not.toBeDisabled();
+        expect(couponButton).toBeInTheDocument();
+        expect(couponButton).not.toBeDisabled();
+        expect(couponMounted).toBeCalledTimes(1);
+      });
     });
   });
 

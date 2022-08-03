@@ -91,7 +91,7 @@ describe('views/sign_in_password', () => {
         assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
         assert.lengthOf(view.$('input[type=email]'), 1);
         assert.equal(view.$('input[type=email]').val(), EMAIL);
-        assert.lengthOf(view.$('.tos-pp'), 1);
+        assert.lengthOf(view.$('#tos-pp'), 1);
       });
     });
 
@@ -106,7 +106,7 @@ describe('views/sign_in_password', () => {
       assert.lengthOf(view.$('input[type=password]'), 1);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-      assert.lengthOf(view.$('.tos-pp'), 1);
+      assert.lengthOf(view.$('#tos-pp'), 1);
     });
   });
 

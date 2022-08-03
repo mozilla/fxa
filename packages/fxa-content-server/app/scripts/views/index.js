@@ -176,7 +176,9 @@ class IndexView extends FormView {
   _isEmailFirefoxDomain(email) {
     // "@firefox" or "@firefox.com" email addresses are not valid
     // at this time, therefore block the attempt.
-    return /@firefox(\.com)?$/.test(email);
+    // the added 'i' disallows uppercase letters
+    const firefoxMail = new RegExp('@firefox(\\.com)?$', 'i');
+    return firefoxMail.test(email);
   }
 
   _hasEmailBounced() {

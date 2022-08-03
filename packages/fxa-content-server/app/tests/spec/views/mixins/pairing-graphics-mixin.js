@@ -20,31 +20,43 @@ describe('views/mixins/pairing-graphics-mixin', function () {
   });
 
   describe('getGraphicsId', () => {
-    it('returns `graphic-connect-another-device` if SvgTransformOrigin not supported', () => {
+    it('returns `bg-image-cad` if SvgTransformOrigin not supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           supportsSvgTransformOrigin: () => false,
         };
       });
-      assert.equal(view.getGraphicsId(), 'graphic-connect-another-device');
+      assert.equal(view.getGraphicsId(), 'bg-image-cad');
     });
 
-    it('returns `graphic-connect-another-device-hearts` if SvgTransformOrigin supported', () => {
+    it('returns `bg-image-cad-hearts` if SvgTransformOrigin supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           supportsSvgTransformOrigin: () => true,
         };
       });
-      assert.equal(
-        view.getGraphicsId(),
-        'graphic-connect-another-device-hearts'
-      );
+      assert.equal(view.getGraphicsId(), 'bg-image-cad-hearts');
     });
   });
 
   describe('showDownloadFirefoxQrCode', () => {
     it('returns true if entry point is app menu', () => {
       sinon.stub(view, 'getSearchParam').callsFake(() => 'fxa_app_menu');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns true if entry point is preferences', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'preferences');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns true if entry point is synced-tabs', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'synced-tabs');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
+    it('returns true if entry point is side-bar', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'tabs-sidebar');
       assert.equal(view.showDownloadFirefoxQrCode(), true);
     });
 

@@ -47,7 +47,7 @@
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@types/sinon": "10.0.1",
-    "aws-sdk": "^2.1135.0",
+    "aws-sdk": "^2.1184.0",
     "axios": "^0.26.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.8",
-    "@nestjs/schematics": "^8.0.6",
+    "@nestjs/schematics": "^9.0.1",
     "@nestjs/testing": "^8.4.6",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",

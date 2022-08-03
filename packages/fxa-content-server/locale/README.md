@@ -62,7 +62,7 @@ Then run `merge_po.sh` from within fxa-content-server-l10n:
 ./scripts/merge_po.sh locale
 ```
 
-Commit the merged .po files to master and enjoy.
+Commit the merged .po files and enjoy.
 
 ## Updating translations
 

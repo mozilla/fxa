@@ -38,7 +38,7 @@ describe('views/cannot_create_account', function () {
 
     return view.render().then(function () {
       assert.ok(view.$('#fxa-cannot-create-account-header').length);
-      assert.equal(view.$('.ftc').attr('target'), '_blank');
+      assert.equal(view.$('#ftc').attr('target'), '_blank');
     });
   });
 
@@ -48,7 +48,7 @@ describe('views/cannot_create_account', function () {
     });
 
     return view.render().then(function () {
-      assert.equal(view.$('.ftc').attr('target'), null);
+      assert.equal(view.$('#ftc').attr('target'), null);
     });
   });
 });

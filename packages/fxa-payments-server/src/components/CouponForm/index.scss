@@ -42,20 +42,20 @@
     padding: 0 16px 16px 0;
   }
 
-  button {
+  .button {
     max-height: 40px;
     width: 110px;
     margin: 0 16px 16px 0;
   }
 
   @media (min-width: 521px) {
-    button {
+    .button {
       max-height: 48px;
     }
   }
 
   @media (orientation: landscape) and (max-width: 640px) {
-    button {
+    .button {
       max-height: 40px;
     }
   }

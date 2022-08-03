@@ -5,11 +5,9 @@ import mastercardLogo from '../../../images/mastercard.svg';
 import discoverLogo from '../../../images/discover.svg';
 import amexLogo from '../../../images/amex.svg';
 
-import './index.scss';
-
 export const AcceptedCards = () => {
   return (
-    <div className="accepted-cards">
+    <div className="flex justify-center mb-4 gap-2">
       <img src={visaLogo} alt="visa" />
       <img src={mastercardLogo} alt="mastercard" />
       <img src={discoverLogo} alt="discover" />

@@ -275,7 +275,7 @@ registerSuite('cached signin', {
             .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
             // ensure signin page is visible otherwise credentials might
-            // not be cleared by clicking .use-different
+            // not be cleared by clicking #use-different
             .then(
               openPage(
                 ENTER_EMAIL_URL,

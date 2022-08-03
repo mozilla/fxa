@@ -93,30 +93,34 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    ['fxa_discoverability_native', 'fxa_app_menu', 'preferences'].forEach(
-      (entrypoint) => {
-        describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
-          beforeEach(() => {
-            sinon.stub(view, '_isSignedIn').callsFake(() => true);
-            relier.set('entrypoint', entrypoint);
-            relier.set('context', 'fx_desktop_v3');
-            sinon.spy(view, 'navigate');
+    [
+      'fxa_discoverability_native',
+      'fxa_app_menu',
+      'preferences',
+      'synced-tabs',
+      'tabs-sidebar',
+    ].forEach((entrypoint) => {
+      describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
+        beforeEach(() => {
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
+          relier.set('entrypoint', entrypoint);
+          relier.set('context', 'fx_desktop_v3');
+          sinon.spy(view, 'navigate');
 
-            windowMock.navigator.userAgent =
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+          windowMock.navigator.userAgent =
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
-            return view.render().then(() => {
-              view.afterVisible();
-            });
-          });
-
-          it('shows pairing', () => {
-            assert.isTrue(view._isSignedIn.called);
-            assert.isTrue(view.navigate.calledWith('/pair'));
+          return view.render().then(() => {
+            view.afterVisible();
           });
         });
-      }
-    );
+
+        it('shows pairing', () => {
+          assert.isTrue(view._isSignedIn.called);
+          assert.isTrue(view.navigate.calledWith('/pair'));
+        });
+      });
+    });
 
     describe('with a fennec user that is signed in', () => {
       beforeEach(() => {
@@ -313,7 +317,7 @@ describe('views/connect_another_device', () => {
         return view.render().then(() => {
           view.afterVisible();
 
-          assert.lengthOf(view.$('.pair-everywhere-cta'), 2);
+          assert.lengthOf(view.$('#pair-everywhere'), 1);
           testIsFlowEventLogged('install_from.fx_desktop');
         });
       });
@@ -392,7 +396,7 @@ describe('views/connect_another_device', () => {
 
       it('shows the marketing area, logs appropriately', () => {
         assert.isTrue(view._isSignedIn.called);
-        assert.lengthOf(view.$('.pair-everywhere-cta'), 2);
+        assert.lengthOf(view.$('#pair-everywhere'), 1);
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');
@@ -531,25 +535,16 @@ describe('views/connect_another_device', () => {
 
     it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      assert.equal(
-        view.$el.find('.graphic-connect-another-device-hearts').length,
-        1
-      );
-      assert.equal(view.$el.find('.graphic-connect-another-device').length, 0);
+      assert.equal(view.$el.find('.bg-image-cad-hearts').length, 1);
+      assert.equal(view.$el.find('.bg-image-cad').length, 0);
     });
 
     it('shows non-animated hearts where supportsSvgTransformOrigin is not supported', () => {
       userAgentObj.supportsSvgTransformOrigin = () => false;
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
       return view.render().then(() => {
-        assert.equal(
-          view.$el.find('.graphic-connect-another-device-hearts').length,
-          0
-        );
-        assert.equal(
-          view.$el.find('.graphic-connect-another-device').length,
-          1
-        );
+        assert.equal(view.$el.find('.bg-image-cad-hearts').length, 0);
+        assert.equal(view.$el.find('.bg-image-cad').length, 1);
       });
     });
   });

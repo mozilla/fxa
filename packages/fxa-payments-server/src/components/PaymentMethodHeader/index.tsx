@@ -5,8 +5,6 @@ import useValidatorState from '../../lib/validator';
 import { Form } from '../fields';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
 
-import './index.scss';
-
 export enum PaymentMethodHeaderType {
   NoPrefix,
   SecondStep,
@@ -17,7 +15,7 @@ const returnPaymentMethodHeader = (type: PaymentMethodHeaderType) => {
     case PaymentMethodHeaderType.SecondStep:
       return (
         <Localized id="payment-method-header-second-step">
-          <h2 className="step-header" data-testid="header-prefix">
+          <h2 className="mt-10" data-testid="header-prefix">
             2. Choose your payment method
           </h2>
         </Localized>
@@ -26,7 +24,7 @@ const returnPaymentMethodHeader = (type: PaymentMethodHeaderType) => {
     default:
       return (
         <Localized id="payment-method-header">
-          <h2 className="step-header" data-testid="header">
+          <h2 className="mt-10" data-testid="header">
             Choose your payment method
           </h2>
         </Localized>

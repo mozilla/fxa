@@ -16,7 +16,7 @@ const CERTIFICATE_SIGN_POST = {
     dedent`
       🔒 Authenticated with session token
 
-      Sign a BrowserID public key. The server is given a public key and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see [**browserid-certifier**](https://github.com/mozilla/browserid-certifier) for details). The signed certificate includes a \`principal.email\` property to indicate the Firefox Account identifier (a UUID at the account server's primary domain) and is stamped with an expiry time based on the \`duration\` parameter.
+      Sign a BrowserID public key. The server is given a public key and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see [browserid-certifier](https://github.com/mozilla/browserid-certifier) for details). The signed certificate includes a \`principal.email\` property to indicate the Firefox Account identifier (a UUID at the account server's primary domain) and is stamped with an expiry time based on the \`duration\` parameter.
 
       This request will fail unless the primary email address for the account has been verified.
 
@@ -43,8 +43,12 @@ const CERTIFICATE_SIGN_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description:
-            'Failing requests may be caused by the following errors (this is not an exhaustive list): \n `errno: 104` - Unverified account \n `errno: 108` - Missing parameter in request body \n `errno: 138` - Unverified session',
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 104\` - Unverified account
+            - \`errno: 108\` - Missing parameter in request body
+            - \`errno: 138\` - Unverified session
+          `
         },
       },
     },

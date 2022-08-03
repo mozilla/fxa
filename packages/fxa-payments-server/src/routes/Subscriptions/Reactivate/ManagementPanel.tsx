@@ -77,7 +77,7 @@ const ReactivateSubscriptionPanel = ({
           </div>
           <div className="action">
             <button
-              className="settings-button"
+              className="button settings-button"
               onClick={revealReactivateConfirmation}
               data-testid="reactivate-subscription-button"
             >

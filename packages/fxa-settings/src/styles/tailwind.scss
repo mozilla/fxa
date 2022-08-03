@@ -9,10 +9,10 @@
 
 // We can remove `stylelint-disable` when Settings is no longer using SCSS, #13478
 /* stylelint-disable */
+@import 'fxa-react/styles/index.css';
 @import './2fa.scss';
 @import './animations';
 @import './fonts';
-@import './ctas.scss';
 @import './unit-row.scss';
 @import './drop-down-menu.scss';
 @import './cropper.scss';
@@ -24,35 +24,9 @@ body {
   @apply text-base font-body bg-grey-10 text-grey-600;
 }
 
-.link-blue {
-  @apply underline text-blue-500;
-
-  &:active {
-    @apply text-blue-800;
-  }
-}
-
 .nav-anchor {
   position: absolute;
   top: -5em;
-}
-
-.transition-standard {
-  @apply transition duration-150;
-
-  &:active {
-    @apply transition duration-150;
-  }
-}
-
-@media (hover: hover) {
-  .link-blue:hover {
-    @apply text-blue-600;
-  }
-
-  .transition-standard:hover {
-    @apply transition duration-150;
-  }
 }
 
 @layer utilities {

@@ -1,8 +1,8 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import { PaymentMethodHeader, PaymentMethodHeaderType } from './index';
 import { Plan } from '../../store/types';
+import { Meta } from '@storybook/react';
 
 const selectedPlan: Plan = {
   plan_id: 'planId',
@@ -16,20 +16,30 @@ const selectedPlan: Plan = {
   product_metadata: null,
 };
 
-storiesOf('components/PaymentMethodHeader', module)
-  .add('default', () => (
+export default {
+  title: 'Components/PaymentMethodHeader',
+  component: PaymentMethodHeader,
+} as Meta;
+
+const storyWithContext = (
+  plan: Plan,
+  storyName?: string,
+  type?: PaymentMethodHeaderType
+) => {
+  const story = () => (
     <MockApp>
-      <PaymentMethodHeader {...{ plan: selectedPlan, onClick: () => {} }} />
+      <PaymentMethodHeader {...{ plan, onClick: () => {}, type }} />
     </MockApp>
-  ))
-  .add('With prefix', () => (
-    <MockApp>
-      <PaymentMethodHeader
-        {...{
-          plan: selectedPlan,
-          onClick: () => {},
-          type: PaymentMethodHeaderType.SecondStep,
-        }}
-      />
-    </MockApp>
-  ));
+  );
+
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const basic = storyWithContext(selectedPlan, 'default');
+
+export const withPrefix = storyWithContext(
+  selectedPlan,
+  'with prefix',
+  PaymentMethodHeaderType.SecondStep
+);

@@ -15,7 +15,11 @@
 @tailwind components;
 @tailwind utilities;
 
-.terms a {
+.legal-blurb {
+  @apply clear-both text-xs leading-5 text-center;
+}
+
+.legal-blurb a {
   @apply font-normal underline;
 }
 

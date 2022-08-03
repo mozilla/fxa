@@ -19,6 +19,7 @@ import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';
 import { ReactComponent as MDNPlusIcon } from './mdnplus.svg';
 import { ReactComponent as PontoonIcon } from './pontoon.svg';
+import { ReactComponent as MailIcon } from './mail.svg';
 import { Localized } from '@fluent/react';
 
 export function Service({
@@ -71,6 +72,10 @@ export function Service({
     case 'MDN Plus':
       serviceLink = 'https://developer.mozilla.org/';
       Icon = <MDNPlusIcon data-testid="mdnplus-icon" />;
+      break;
+    case 'Mozilla email preferences':
+      serviceLink = 'https://basket.mozilla.org/fxa/';
+      Icon = <MailIcon data-testid="mail-icon" />;
       break;
     case 'Pontoon':
       serviceLink = 'https://pontoon.mozilla.org/';

@@ -1,18 +1,14 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
-
 import * as PaymentProvider from '../../lib/PaymentProvider';
-
-import './index.scss';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 const PaypalPaymentLegalBlurb = () => (
-  <div
-    className="payment-legal-blurb"
-    data-testid="payment-legal-blurb-component"
-  >
+  <div className="legal-blurb" data-testid="payment-legal-blurb-component">
     <Localized id="payment-legal-copy-paypal">
-      <p>Mozilla uses PayPal for secure payment processing.</p>
+      <p className="legal-heading">
+        Mozilla uses PayPal for secure payment processing.
+      </p>
     </Localized>
 
     <Localized
@@ -35,9 +31,11 @@ const PaypalPaymentLegalBlurb = () => (
 );
 
 const StripePaymentLegalBlurb = () => (
-  <div className="payment-legal-blurb">
+  <div className="legal-blurb">
     <Localized id="payment-legal-copy-stripe-2">
-      <p>Mozilla uses Stripe for secure payment processing.</p>
+      <p className="legal-heading">
+        Mozilla uses Stripe for secure payment processing.
+      </p>
     </Localized>
 
     <Localized
@@ -60,9 +58,11 @@ const StripePaymentLegalBlurb = () => (
 );
 
 const DefaultPaymentLegalBlurb = () => (
-  <div className="payment-legal-blurb">
+  <div className="legal-blurb">
     <Localized id="payment-legal-copy-stripe-and-paypal-2">
-      <p>Mozilla uses Stripe and PayPal for secure payment processing.</p>
+      <p className="legal-heading">
+        Mozilla uses Stripe and PayPal for secure payment processing.
+      </p>
     </Localized>
 
     <Localized

@@ -32,15 +32,6 @@
   }
 }
 
-.tos-pp {
-  font-size: 12px;
-  line-height: 18px;
-
-  & + .links {
-    margin-top: 20px;
-  }
-}
-
 .verification-email-message,
 .signed-in-email-message,
 .verification-recovery-code-message,
@@ -168,30 +159,6 @@
   }
 }
 
-.two-col-items {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  margin-top: 20px;
-  padding: 0 15px;
-
-  .choose-what-to-sync-row {
-    display: grid;
-    grid-template-columns: 28px auto;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    padding-right: 4px;
-  }
-
-  .fxa-checkbox__label {
-    color: $text-color;
-    top: -2px;
-  }
-
-  @include respond-to('small') {
-    column-width: 150px;
-  }
-}
-
 .pair-auth {
   h1 {
     > small {
@@ -255,12 +222,14 @@
       border-color: #1a1a1a;
     }
     .google-logo {
-      background: url('/images/third_party_auth/google_btn_normal.svg') 50% no-repeat;
+      background: url('/images/third_party_auth/google_btn_normal.svg') 50%
+        no-repeat;
       width: 40px;
       height: 40px;
     }
     .apple-logo {
-      background: url('/images/third_party_auth/apple_btn_normal.svg') 50% no-repeat;
+      background: url('/images/third_party_auth/apple_btn_normal.svg') 50%
+        no-repeat;
       width: 40px;
       height: 40px;
     }

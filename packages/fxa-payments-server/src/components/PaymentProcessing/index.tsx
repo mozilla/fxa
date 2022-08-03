@@ -21,17 +21,20 @@ export const PaymentProcessing = ({
     <>
       <SubscriptionTitle screenType="processing" className={className} />
       <section
-        className={`container card payment-processing ${className}`}
+        className={`container card payment-processing flex flex-col ${className}`}
         data-testid="payment-processing"
       >
-        <div className="wrapper">
+        <div className="flex flex-col text-center">
           <LoadingSpinner />
           <Localized id="payment-processing-message">
             <p>Please wait while we process your payment...</p>
           </Localized>
         </div>
 
-        <div className="footer" data-testid="footer">
+        <div
+          className="border-0 flex flex-col justify-center mt-auto pt-16"
+          data-testid="footer"
+        >
           <PaymentLegalBlurb provider={provider} />
         </div>
       </section>

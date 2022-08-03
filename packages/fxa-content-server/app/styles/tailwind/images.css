@@ -1,0 +1,43 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* REACT NOTE: Should be able to refactor avatar stuff and remove this class,
+ * .with-default and other classes are added in `avatar-mixin.js`.
+ * Also what about the .default class in _avatar.scss? */
+.with-default {
+  @apply bg-center bg-no-repeat bg-contain;
+  background-image: inline('../images/default-profile.svg');
+}
+
+/* REACT NOTE: inline these SVGs in the JSX. Also might consider taking the y-margins
+ * off and applying to surrounding elements instead for better extensibility */
+.bg-image-email {
+  @apply mt-8 mb-3 bg-center bg-no-repeat bg-contain h-40;
+  background-image: inline('../images/graphic_mail.svg');
+}
+
+.bg-image-cad-hearts {
+  @apply mb-8 bg-center bg-no-repeat bg-contain h-40;
+  background-image: inline('../images/account-verified-hearts.svg');
+}
+
+.bg-image-cad {
+  @apply mb-3 bg-center bg-no-repeat bg-contain h-36;
+  background-image: inline('../images/account-verified.svg');
+}
+
+.bg-image-cad-qr-code {
+  @apply mt-9 bg-center bg-no-repeat bg-contain h-48;
+  background-image: inline('../images/qr_code_firefox_mobile.svg');
+}
+
+.bg-image-location-balloon {
+  @apply mt-9 bg-center bg-no-repeat bg-contain h-36;
+  background-image: inline('../images/confirm-pairing.svg');
+}
+
+.bg-image-pair-fail {
+  @apply mt-9 mb-5 bg-center bg-no-repeat bg-contain h-36;
+  background-image: inline('../images/graphic_hearts_broken.svg');
+}

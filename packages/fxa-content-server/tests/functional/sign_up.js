@@ -54,7 +54,7 @@ function testAtConfirmScreen(email) {
     return this.parent
       .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       .then(
-        testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
+        testElementTextInclude(selectors.CONFIRM_SIGNUP_CODE.EMAIL_FIELD, email)
       );
   };
 }
@@ -267,7 +267,6 @@ registerSuite('signup here', {
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(fillOutSignUpCode(email, 0))
-        .then(testElementExists(selectors.PAYMENTS.HEADER))
         .then(waitForUrl((url) => url.includes(productUrlPath)));
     },
 

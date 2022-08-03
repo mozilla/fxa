@@ -220,6 +220,12 @@ class OauthDB extends ConnectedServicesDb {
   getPocketIds() {
     return POCKET_IDS;
   }
+
+  async pruneAuthorizationCodes(ttlInMs) {
+    return await this.mysql._pruneAuthorizationCodes(
+      ttlInMs || config.get('oauthServer.expiration.code')
+    );
+  }
 }
 
 // Helper functions

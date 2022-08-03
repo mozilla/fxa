@@ -243,13 +243,21 @@ function parseCssUrls(content, base) {
   ast.stylesheet.rules.forEach(function (rule) {
     if (rule.type === 'font-face' || rule.type === 'rule') {
       rule.declarations.forEach(function (declaration) {
-        extend(urls, findCssUrlMatches(declaration.value, base));
+        if (
+          declaration.value &&
+          // exclude inlined SVGs from the resource availability check
+          !declaration.value.includes('data:image/svg+xml')
+        ) {
+          extend(urls, findCssUrlMatches(declaration.value, base));
+        }
       });
     } else if (rule.type === 'media') {
       rule.rules.forEach(function (mediaRule) {
-        mediaRule.declarations.forEach(function (declaration) {
-          extend(urls, findCssUrlMatches(declaration.value, base));
-        });
+        if (mediaRule.declarations) {
+          mediaRule.declarations.forEach(function (declaration) {
+            extend(urls, findCssUrlMatches(declaration.value, base));
+          });
+        }
       });
     }
   });
