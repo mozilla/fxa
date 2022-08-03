@@ -95,9 +95,14 @@ module.exports = {
           '0%': { opacity: '0.01' },
           '100%': { opacity: '1' },
         },
+        rotate: {
+          '0%': { transform: 'rotate(0)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'delayed-fade-in': 'fade-in 1s linear 5s forwards',
+        spin: 'rotate .8s linear infinite',
       },
     },
     screens: {

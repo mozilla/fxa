@@ -40,7 +40,6 @@ module.exports = {
         'postcss.config.js',
         'tailwind.config.js',
         'src/styles',
-        'src/components/**/*.scss',
         'src/**/*.tsx',
         path.normalize(
           `${path.dirname(

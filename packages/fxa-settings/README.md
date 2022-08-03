@@ -205,13 +205,17 @@ When a user attempts to perform a guarded action in an unverified session state,
 
 #### Tailwind
 
-The `fxa-settings`, `fxa-react`, and `fxa-admin-panel` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. Other React packages, such as `fxa-payments-server` and `fxa-content-server` will be configured to use Tailwind at a later time. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
+The `fxa-settings`, `fxa-admin-panel`, `fxa-payments-server`, and `fxa-content-server` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
 
-Each package has its own `tailwind.[s]css` file. This file, any S/CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding the SCSS file should happen automatically on any change. If you're not sure what specific class name corresponds with the style you need or if you need to check that a specific style exists in our utility classes, search through `tailwind.out.[s]css` for these styles as needed. Note that if you run a build command to test a production build, you'll need to make an update to one of these files with `pm2` running or manually run `yarn build-postcss` to rebuild the dev version containing all available classes (see the "PurgeCSS" section for more details).
+Each package has its own `tailwind.css` file. This file, any CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding this `.out` file should happen automatically on any change.
+
+We should not be using SCSS except in packages that are work-in-progress conversions to CSS with PostCSS because it adds an additional build step we don't need, [see related Tailwind docs](https://tailwindcss.com/docs/using-with-preprocessors). New files should be created rarely (see the [component classes](#component-classes) section of this README) but with CSS when deemed necessary. We can nest elements and reference parent components with `tailwindcss/nesting` provided by Tailwind which uses `postcss-nested` under the hood, as well as `postcss-import` to import our CSS files, and `postcss-assets` when needed.
 
 **FxA has a design guide available** in Storybook to help alleviate much of the burden around finding the correct class name to use as well as some of the mental math involved explained below. Run `yarn storybook` in this package to pull it up and see the "Storybook" section for more information on Storybook.
 
-Not every spacing value from a design hand off may be absolutely precise due to small variations from web tool processing (such as Sketch conversion to InVision or Figma) - it's important to keep in mind that our CSS system for FxA styles increase in **units of `4px`**. If a design reflects 17px, it's generally safe to go with the closest value divisible by 4, 16px (which is equivalent to `1rem`), but it is up to the engineer to ask for clarification from visual design if this might be an intended one-off and to also potentially offer a strong recommendation to stay within our standard guidelines if a design strays from the `4px` increment standard for the sake of consistency across our products. If an exception needs to be made or if the [Tailwind default configuration](https://tailwindcss.com/docs/configuration) doesn't offer a needed value (for example, [default spacing](https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale) uses `-8` to output `2rem` measurements and `-10` to output `2.5rem`, but if we need `2.25rem`, it's completely acceptable to need `-9`), use the `extends` option in the configuration file to add the class that you need. This also applies with colors and font-sizes - don't arbitrarily add these values without ensuring current values won't work for what Design intends or without conveying to them that it's different than what we've used so far.
+Not every spacing value from a design hand off may be absolutely precise due to small variations from web tool processing (such as Sketch conversion to InVision or Figma) - it's important to keep in mind that our CSS system for FxA styles increase in **units of `4px`**. If a design reflects `17px`, it's generally safe to go with the closest value divisible by 4, `16px` (which is equivalent to `1rem`), but it is up to the engineer to ask for clarification from visual design if this might be an intended one-off and to also potentially offer a strong recommendation to stay within our standard guidelines if a design strays from the `4px` increment standard for the sake of consistency across our products. If an exception needs to be made or if the [Tailwind default configuration](https://tailwindcss.com/docs/configuration) doesn't offer a needed value (for example, [default spacing](https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale) uses `-8` to output `2rem` measurements and `-10` to output `2.5rem`, but if we need `2.25rem`, it's completely acceptable to need `-9`), use the `extends` option in the configuration file¹ to add the class that you need. This also applies with colors and font-sizes - don't arbitrarily add these values without ensuring current values won't work for what Design intends or without conveying to them that it's different than what we've used so far.
+
+¹Each package has its own Tailwind configuration file and layers on top of the base configuration file in `fxa-react`. If it makes sense to add config options to an individual package's config file over the global theme file, do so.
 
 We do overwrite some of the default values provided by Tailwind, such as colors and breakpoints. Refer to the shared Tailwind config file to see how values vary.
 
@@ -229,7 +233,9 @@ The Tailwind pattern becomes straightforward once you understand how size, scale
 
 When there is a pattern of commonly repeated utility combinations, it may make sense to extract this pattern into its own component or component utility class using Tailwind's `@apply`. A good rule of thumb for this is to consider if a pattern update would be expected to reflect in more than one component.
 
-For example:
+Do not create a new CSS file without first considering if you can add those Tailwind classes to a component instead. Tailwind has [docs for avoiding premature abstraction](https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction) that explain the maintainability disadvantages this can cause.
+
+An example that could make sense to abstract:
 
 ```tsx
 // my-component.tsx
@@ -243,33 +249,37 @@ For example:
 </a>
 ```
 
-This makes more sense as a new utility class instead of a component because sometimes we style a button and other times a link. Let's extract this instead into `ctas.scss` with a fitting name:
+This makes more sense as a new utility class instead of a component because sometimes we style a button and other times a link. Let's extract this instead into `ctas.css` with a fitting name:
 
-```scss
-// ctas.scss
+```css
+/* ctas.css */
 .cta-neutral {
   @apply block w-full py-2 text-center mt-6 bg-grey-10 border border-grey-200 transition duration-150 rounded;
-
-  &:hover {
-    @apply border-grey-200 bg-grey-100 text-grey-400 transition duration-150;
-  }
 
   &:active {
     @apply border-grey-400 bg-grey-100 text-grey-400 transition duration-150;
   }
+
+  /* Use this media query for hover states to target devices that have a hover
+   * capability (e.g., if the device has a mouse) */
+  @media (hover: hover) {
+    &:hover:not(:active) {
+      @apply border-grey-200 bg-grey-100 text-grey-400 transition duration-150;
+    }
+  }
 }
 ```
 
-Assuming this package uses `postcss-import`, all we need to do now is `@import ./ctas.scss` into our `tailwind.css` file and apply our new utility class:
+Assuming this package already uses `postcss-import`, all we need to do now is `@import ./ctas.css` into our `tailwind.css` file and apply our new utility class:
 
 ```tsx
 // my-component.tsx
-<button className="cta-neutra cta-base-p">
+<button className="cta-neutral">
   Click here!
 </button>
 
 // my-other-component.tsx
-<a href="#" className="cta-neutral cta-base-p">
+<a href="#" className="cta-neutral">
   Click here!
 </a>
 ```
@@ -310,13 +320,13 @@ Here is an example that shows the proper use of the above prefixed `ltr:` and `r
 Utility classes present a challenge when it comes to RTL support, because you cannot use `@apply` with pseudo-selector. As a workaround, you need to explicitly create
 the RTL/LTR definitions. You can still use the tailwind classes, as shown below:
 
-```scss
-// Before (LTR only):
+```css
+/* Before (LTR only): */
 .drop-down-menu::before {
   @apply caret-top absolute -top-3 left-55;
 }
 
-// After (LTR and RTL):
+/* After (LTR and RTL): */
 .drop-down-menu::before {
   content: '';
   @apply caret-top absolute -top-3;
@@ -329,9 +339,9 @@ the RTL/LTR definitions. You can still use the tailwind classes, as shown below:
 }
 ```
 
-Alternatively, you can utilize the SCSS parent selector (`&`) to generate the same code as above while keeping nesting inside the parent class like so:
+Alternatively, you can utilize the parent selector (`&`) to generate the same code as above while keeping nesting inside the parent class like so:
 
-```scss
+```css
 .drop-down-menu {
   &::before {
     content: '';
@@ -347,9 +357,11 @@ Alternatively, you can utilize the SCSS parent selector (`&`) to generate the sa
 }
 ```
 
-#### PurgeCSS
+#### Just-In-Time Mode
 
-When it comes to time to create a production build we use PostCSS and PurgeCSS to strip out unused styles. PurgeCSS will look through all of the TSX files, including those of externally imported components, and identify which class names to keep styles for. In order for this to work properly it's important to avoid dynamic class names:
+Tailwind uses a [just-in-time (JIT) compiler](https://tailwindcss.com/docs/just-in-time-mode) that generates styles on-demand.
+
+JIT will look at whatever is included in the package's `content` (usually TSX files in our case), including those of externally imported components, and identify which class names to keep styles for. In order for this to work properly it's important to avoid dynamic class names:
 
 ```tsx
 // Bad
@@ -365,14 +377,12 @@ const Button = ({ textColor, children }) => {
 <Button textColor="text-green-500">Hello, world</Button>;
 ```
 
-If you find a class name is getting stripped out erroneously in production builds, it can be [whitelisted](https://purgecss.com/whitelisting.html) in [tailwind.config.js](./tailwind.config.js) or in the stylesheet itself by placing `/* purgecss ignore */` directly above the selector. Please use sparingly.
-
 #### Custom styles
 
 In the event you need to write styles that Tailwind is not able to affectively cover you should try to keep the following guidelines in mind:
 
-- SCSS is available if it's absolutely necessary to add a custom style.
-- Because PostCSS syntax cannot be directly loaded into a React component (`import './index.scss'`), custom stylesheets must be `@import`ed directly into a `tailwind.[s]css` file or another file that is imported into this file. Add these custom stylesheets in the `styles/` directory.
+- CSS is available if it's absolutely necessary to add a custom style.
+- Because PostCSS syntax cannot be directly loaded into a React component (`import './index.css'`), custom stylesheets must be `@import`ed directly into a `tailwind.css` file or another file that is imported into this file. Add these custom stylesheets in the `styles/` directory.
 - Imported custom styles are not scoped per component and some line of thought should go into custom class names to avoid naming collisions. Generally, you should match the class name to the name of your component and it's recommended to use a `[component]-[descriptor]` style (e.g. using a shared UnitRow to display secondary emails could be `unit-row-secondary-emails`). Also, if possible, keep the selector one to two levels deep, never use `!important` to avoid specificity collisions, and don't use `&-` overzealously as it makes classes difficult to search for (one level deep is fine). These recommendations also generally apply to custom component utility classes.
 
 ### `fxa-react`

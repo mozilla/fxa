@@ -1,16 +1,9 @@
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .unit-row {
   @apply flex flex-wrap px-4 pt-7 pb-8;
-
-  &-header {
-    @apply font-header w-full mb-1;
-    h3 {
-      scroll-margin-top: 8rem;
-    }
-  }
 
   &-multi-row + &-multi-row {
     @apply mt-4;
@@ -32,11 +25,6 @@
 @screen mobileLandscape {
   .unit-row {
     @apply flex-nowrap px-6;
-
-    &-header {
-      @apply flex-none mb-0 mr-2;
-      width: 10rem;
-    }
 
     &-content {
       @apply flex-2;

@@ -1,0 +1,29 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'tailwindcss/variants';
+
+@import 'fxa-react/styles/index';
+@import './fonts';
+@import './unit-row';
+@import './drop-down-menu';
+@import './slider';
+@import './switch';
+
+body {
+  @apply text-base font-body bg-grey-10 text-grey-600;
+}
+
+.nav-anchor {
+  @apply absolute -top-20;
+}
+
+@layer utilities {
+  .break-word {
+    word-break: break-word;
+  }
+}

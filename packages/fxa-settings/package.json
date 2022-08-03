@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "postinstall": "../../_scripts/clone-l10n.sh fxa-settings",
-    "build-css": "node-sass ./src/styles/tailwind.scss ./src/styles/tailwind.out.pre-transform.css && tailwindcss -i ./src/styles/tailwind.out.pre-transform.css -o ./src/styles/tailwind.out.css --postcss",
+    "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
     "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 npm run build-css && build-storybook",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-css && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",
@@ -117,7 +117,6 @@
     "fxa-shared": "workspace:*",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
-    "node-sass": "^7.0.1",
     "npm-run-all": "^4.1.5",
     "pm2": "^5.1.2",
     "postcss": "^8.4.14",
