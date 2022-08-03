@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import Nav from '../Nav';
 import Security from '../Security';
@@ -13,17 +13,37 @@ import LinkedAccounts from '../LinkedAccounts';
 import * as Metrics from '../../lib/metrics';
 import { useAccount } from '../../models';
 import { DeleteAccountPath } from 'fxa-settings/src/constants';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
 import DataCollection from '../DataCollection';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
+  const { l10n } = useLocalization();
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
     uid,
   });
   Metrics.usePageViewEvent(Metrics.settingsViewName);
+
+  // Temp test to see how often we actually display fallback text
+  useEffect(() => {
+    Metrics.logViewEvent(Metrics.settingsViewName, 'test.fallback.start');
+    const ftlId = 'app-footer-mozilla-logo-label';
+    const text = l10n.getString(ftlId);
+
+    if (text && text !== ftlId) {
+      Metrics.logViewEvent(
+        Metrics.settingsViewName,
+        'test.fallback.text-not-needed'
+      );
+    } else {
+      Metrics.logViewEvent(
+        Metrics.settingsViewName,
+        'test.fallback.text-needed'
+      );
+    }
+  }, [l10n]);
 
   return (
     <div id="fxa-settings" className="flex">

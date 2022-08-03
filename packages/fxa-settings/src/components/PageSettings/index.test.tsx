@@ -8,6 +8,11 @@ import PageSettings from '.';
 import { renderWithRouter } from '../../models/mocks';
 import * as Metrics from '../../lib/metrics';
 
+import fetchMock from 'fetch-mock';
+import waitUntil from 'async-wait-until';
+import sinon from 'sinon';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+
 jest.spyOn(Metrics, 'setProperties');
 jest.spyOn(Metrics, 'usePageViewEvent');
 
@@ -22,4 +27,73 @@ it('renders without imploding', async () => {
     uid: 'abc123',
   });
   expect(Metrics.usePageViewEvent).toHaveBeenCalledWith('settings');
+});
+
+describe('Fluent fallback text test', () => {
+  function waitUntilTranslated() {
+    return waitUntil(() => {
+      // @ts-ignore
+      return AppLocalizationProvider.prototype.render.callCount === 2;
+    });
+  }
+
+  beforeEach(() => {
+    jest.spyOn(Metrics, 'logViewEvent');
+    sinon.spy(AppLocalizationProvider.prototype, 'render');
+  });
+  afterEach(() => {
+    jest.spyOn(Metrics, 'logViewEvent').mockClear();
+    // @ts-ignore
+    AppLocalizationProvider.prototype.render.restore();
+  });
+
+  it('makes expected metrics calls when ID is found', async () => {
+    fetchMock.get(
+      '/locales/en/hasTranslation.ftl',
+      'app-footer-mozilla-logo-label = Hello'
+    );
+    renderWithRouter(
+      <AppLocalizationProvider
+        bundles={['hasTranslation']}
+        userLocales={['en']}
+      >
+        <PageSettings />
+      </AppLocalizationProvider>
+    );
+    await waitUntilTranslated();
+
+    expect(Metrics.logViewEvent).toHaveBeenCalledWith(
+      Metrics.settingsViewName,
+      'test.fallback.start'
+    );
+    expect(Metrics.logViewEvent).toHaveBeenCalledWith(
+      Metrics.settingsViewName,
+      'test.fallback.text-not-needed'
+    );
+  });
+
+  it('makes expected metrics calls when ID is not found', async () => {
+    fetchMock.get(
+      '/locales/en/missingTranslation.ftl',
+      'something-else = Hello'
+    );
+
+    renderWithRouter(
+      <AppLocalizationProvider
+        bundles={['missingTranslation']}
+        userLocales={['en']}
+      >
+        <PageSettings />
+      </AppLocalizationProvider>
+    );
+    await waitUntilTranslated();
+    expect(Metrics.logViewEvent).toHaveBeenCalledWith(
+      Metrics.settingsViewName,
+      'test.fallback.start'
+    );
+    expect(Metrics.logViewEvent).toHaveBeenCalledWith(
+      Metrics.settingsViewName,
+      'test.fallback.text-needed'
+    );
+  });
 });
