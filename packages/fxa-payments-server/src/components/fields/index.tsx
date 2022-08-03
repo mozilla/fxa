@@ -93,7 +93,14 @@ export const Field = ({
   return (
     <div className={className} data-field-name={name}>
       <label>
-        {label && <span className="label-text">{label}</span>}
+        {label && (
+          <span
+            data-testid="input-label-text"
+            className="font-medium text-sm text-grey-400 block mb-2 text-left"
+          >
+            {label}
+          </span>
+        )}
         {tooltip && tooltipParentRef && validator.getError(name) && (
           <Tooltip parentRef={tooltipParentRef}>
             {validator.getError(name)}
