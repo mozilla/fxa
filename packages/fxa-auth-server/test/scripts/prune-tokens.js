@@ -25,7 +25,7 @@ const {
 const {
   PasswordForgotToken,
 } = require('fxa-shared/db/models/auth/password-forgot-token');
-const { AccountResetToken } = require('fxa-shared/db/models/auth');
+const { AccountResetToken, Device } = require('fxa-shared/db/models/auth');
 const { UnblockCodes } = require('fxa-shared/db/models/auth/unblock-codes');
 const { SignInCodes } = require('fxa-shared/db/models/auth/sign-in-codes');
 import { uuidTransformer } from 'fxa-shared/db/transformers';
@@ -70,13 +70,27 @@ describe('scripts/prune-tokens', () => {
     locale: 'en-US',
   };
 
-  const sessionToken = {
+  const sessionToken = () => ({
     id: toRandomBuff(32),
     data: toRandomBuff(32),
     tokenVerificationId: null,
     uid,
     createdAt,
-  };
+  });
+
+  const device = (uid, sessionTokenId) => ({
+    id: toRandomBuff(16),
+    uid,
+    sessionTokenId,
+    refreshTokenId: null,
+    name: null,
+    type: null,
+    createdAt: Date.now(),
+    pushCallback: null,
+    pushPublicKey: null,
+    pushAuthKey: null,
+    availableCommands: null,
+  });
 
   const passwordChangeToken = {
     id: toRandomBuff(32),
@@ -114,20 +128,24 @@ describe('scripts/prune-tokens', () => {
     createdAt,
   };
 
+  async function clearDb() {
+    await SessionToken.knexQuery().del();
+    await PasswordChangeToken.knexQuery().del();
+    await PasswordForgotToken.knexQuery().del();
+    await AccountResetToken.knexQuery().del();
+    await UnblockCodes.knexQuery().del();
+    await SignInCodes.knexQuery().del();
+  }
+
   before(async () => {
     db = await DB.connect(config);
-    await db.deleteAccount(account);
+    await clearDb();
     await Account.create(account);
-    await SessionToken.create(sessionToken);
-    await PasswordChangeToken.create(passwordChangeToken);
-    await PasswordForgotToken.create(passwordForgotToken);
-    await AccountResetToken.knexQuery().insert(accountResetToken);
-    await UnblockCodes.knexQuery().insert(unblockCode);
-    await SignInCodes.knexQuery().insert(signInCode);
   });
 
   after(async () => {
-    // await db.deleteAccount(account);
+    await db.deleteAccount(account);
+    await clearDb();
   });
 
   it('prints help', async () => {
@@ -141,20 +159,135 @@ describe('scripts/prune-tokens', () => {
     assert.isTrue(/Usage:/.test(stdout));
   });
 
-  it('prunes tokens', async () => {
-    // Note that logger output, directs to standard err.
+  it('prints warnings when args are missing', async () => {
     const { stderr } = await exec(
-      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts '--maxTokenAge=${maxAge}-days' '--maxCodeAge=${maxAge}-days' `,
+      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts `,
       {
         cwd,
         shell: '/bin/bash',
       }
     );
-    assert.isTrue(/"@passwordForgotTokensDeleted":1/.test(stderr));
-    assert.isTrue(/"@passwordChangeTokensDeleted":1/.test(stderr));
-    assert.isTrue(/"@accountResetTokensDeleted":1/.test(stderr));
-    assert.isTrue(/"@sessionTokensDeleted":1/.test(stderr));
-    assert.isTrue(/"@unblockCodesDeleted":1/.test(stderr));
-    assert.isTrue(/"@signInCodesDeleted":1/.test(stderr));
+    assert.isTrue(/skipping limit sessions operation./.test(stderr));
+    assert.isTrue(/skipping token pruning operation./.test(stderr));
+  });
+
+  describe('prune tokens', () => {
+    before(async () => {
+      await clearDb();
+
+      await SessionToken.create(sessionToken());
+      await PasswordChangeToken.create(passwordChangeToken);
+      await PasswordForgotToken.create(passwordForgotToken);
+      await AccountResetToken.knexQuery().insert(accountResetToken);
+      await UnblockCodes.knexQuery().insert(unblockCode);
+      await SignInCodes.knexQuery().insert(signInCode);
+    });
+
+    after(async () => {
+      await clearDb();
+    });
+
+    it('prunes tokens', async () => {
+      // Note that logger output, directs to standard err.
+      const { stderr } = await exec(
+        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts '--maxTokenAge=${maxAge}-days' '--maxCodeAge=${maxAge}-days' `,
+        {
+          cwd,
+          shell: '/bin/bash',
+        }
+      );
+      assert.isTrue(/"@passwordForgotTokensDeleted":1/.test(stderr));
+      assert.isTrue(/"@passwordChangeTokensDeleted":1/.test(stderr));
+      assert.isTrue(/"@accountResetTokensDeleted":1/.test(stderr));
+      assert.isTrue(/"@sessionTokensDeleted":1/.test(stderr));
+      assert.isTrue(/"@unblockCodesDeleted":1/.test(stderr));
+      assert.isTrue(/"@signInCodesDeleted":1/.test(stderr));
+    });
+  });
+
+  describe('limits sessions', async () => {
+    const size = 10;
+    let tokens = [];
+    let devices = [];
+
+    const sessionAt = (i) => SessionToken.findByTokenId(tokens.at(i).id);
+
+    const deviceAt = (i) =>
+      Device.findByPrimaryKey(devices.at(i).uid, devices.at(i).id);
+
+    const sessionCount = async () =>
+      (await SessionToken.knexQuery().count())[0]['count(*)'];
+
+    const deviceCount = async () =>
+      (await Device.knexQuery().count())[0]['count(*)'];
+
+    before(async () => {
+      await clearDb();
+      tokens = [];
+      devices = [];
+
+      // Make sure db state is clean
+      await SessionToken.knexQuery().del();
+      await Device.knexQuery().del();
+
+      // Add tokens
+      for (let i = 0; i < size; i++) {
+        const curToken = sessionToken();
+        const curDevice = device(account.uid, curToken.id);
+        curToken.createdAt = Date.now();
+
+        await SessionToken.create(curToken);
+        await Device.create(curDevice);
+        await new Promise((r) => setTimeout(r, 10));
+
+        tokens.push(curToken);
+        devices.push(curDevice);
+      }
+
+      // Check initial DB state is correct
+      assert.isNotNull(await sessionAt(0));
+      assert.isNotNull(await sessionAt(-1));
+      assert.isNotNull(await deviceAt(0));
+      assert.isNotNull(await deviceAt(-1));
+      assert.equal(await sessionCount(), size);
+      assert.equal(await deviceCount(), size);
+    });
+
+    after(async () => {
+      await clearDb();
+    });
+
+    it('limits', async () => {
+      // Note that logger output, directs to standard err.
+      const { stderr } = await exec(
+        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts '--maxSessions=${
+          size - 1
+        }' `,
+        {
+          cwd,
+          shell: '/bin/bash',
+        }
+      );
+
+      // Expected counts
+      assert.equal(await sessionCount(), size - 1);
+      assert.equal(await deviceCount(), size - 1);
+
+      // Expected program output. Note that there are two deletions,
+      // one for the sessionToken and one for the device.
+      assert.isTrue(/"@accountsOverLimit":1/.test(stderr));
+      assert.isTrue(/"@totalDeletions":2/.test(stderr));
+      assert.isTrue(/flushing redis cache/.test(stderr));
+
+      // Expect that last session & device were removed
+      assert.isNull(await sessionAt(-1));
+      assert.isNull(await deviceAt(-1));
+
+      // Expect that first set of sessions & devices are intact
+      for (let i = 0; i < size - 1; i++) {
+        assert.isNotNull(await sessionAt(i));
+        assert.isNotNull(await deviceAt(i));
+      }
+    });
   });
 });
