@@ -16,11 +16,32 @@ const NAV_ENTRY_TYPE = 'navigation';
 // export for testing
 export const sendFn = () => {
   if (!!navigator.sendBeacon) {
-    return (url: string, navTiming: PerformanceNavigationTiming) =>
-      navigator.sendBeacon(
+    return (url: string, navTiming: PerformanceNavigationTiming) => {
+      // Clamp timings to 0. Sometimes negative values are getting reported
+      // causing validation errors. The w3c spec indicates all timing values
+      // should be unsigned longs, so we will enforce this here.
+      navTiming = Object.assign({}, navTiming, {
+        domComplete: Math.max(0, navTiming.domComplete),
+        domContentLoadedEventEnd: Math.max(
+          0,
+          navTiming.domContentLoadedEventEnd
+        ),
+        domContentLoadedEventStart: Math.max(
+          0,
+          navTiming.domContentLoadedEventStart
+        ),
+        domInteractive: Math.max(0, navTiming.domInteractive),
+        loadEventEnd: Math.max(0, navTiming.loadEventEnd),
+        loadEventStart: Math.max(0, navTiming.loadEventStart),
+        unloadEventEnd: Math.max(0, navTiming.unloadEventEnd),
+        unloadEventStart: Math.max(0, navTiming.unloadEventStart),
+      });
+
+      return navigator.sendBeacon(
         url,
         new Blob([JSON.stringify(navTiming)], { type: 'application/json' })
       );
+    };
   }
 
   // noop if no avaiable API to send

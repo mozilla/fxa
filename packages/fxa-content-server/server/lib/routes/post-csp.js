@@ -14,8 +14,8 @@ const url = require('url');
 const validation = require('../validation');
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
-const STRING_TYPE = validation.TYPES.STRING;
-const URL_TYPE = validation.TYPES.URL;
+const STRING_TYPE = validation.TYPES.LONG_STRING;
+const URL_TYPE = validation.TYPES.LONG_URL;
 
 const BODY_SCHEMA = {
   'csp-report': joi

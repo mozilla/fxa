@@ -51,12 +51,17 @@ const TYPES = {
     .allow('none'),
   RESUME: joi.string().regex(PATTERNS.BASE64),
   SIGNIN_CODE: joi.string().regex(PATTERNS.BASE64_URL_SAFE).length(8),
-  STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
+  STRING: joi.string().max(1024), // 10k is arbitrary, seems like it should give CSP reports plenty of space.
+  LONG_STRING: joi.string().max(10 * 1024),
   SYNC_ENGINES: joi.array().items(joi.string().regex(PATTERNS.SYNC_ENGINE)),
   TIME: joi.number().integer().min(0),
   URL: joi
     .string()
     .max(2048)
+    .uri({ scheme: ['http', 'https'] }), // 2048 is also arbitrary, the same limit we use on the front end.
+  LONG_URL: joi
+    .string()
+    .max(64 * 1024) // 64k is the upper bounds of what is supported for URLs by browsers
     .uri({ scheme: ['http', 'https'] }), // 2048 is also arbitrary, the same limit we use on the front end.
   USER_PREFERENCES: joi.object().keys({
     'account-recovery': joi.boolean(),

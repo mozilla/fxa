@@ -62,6 +62,7 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
+const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 
@@ -228,7 +229,7 @@ function makeApp() {
         req.query,
         req.originalUrl
       );
-    sentry.sentryModule.captureException(err);
+    tryCaptureValidationError(err);
     routeHelpers.validationErrorHandler(err, req, res, next);
   });
 
