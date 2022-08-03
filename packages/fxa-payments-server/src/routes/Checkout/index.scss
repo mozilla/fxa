@@ -18,40 +18,28 @@
 }
 
 .subscription-title + .product-payment {
+  grid-row: 2/3;
   border-top: 0;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
     2px 2px 2px -2px rgba(12, 12, 13, 0.1);
 
   @include max-width('tablet') {
+    grid-row: 4/5;
     box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
     border-radius: 8px;
   }
 
   @media (orientation: landscape) and (max-width: 927px) and (max-height: 429px) {
+    grid-row: 4/5;
     box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
     border-radius: 8px;
   }
 
   @media (orientation: portrait) and (max-width: 429px) and (max-height: 927px) {
+    grid-row: 4/5;
     box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
     border-radius: 8px;
-  }
-}
-
-.subscription-title + .product-payment {
-  grid-row: 2/3;
-
-  @include max-width('tablet') {
-    grid-row: 4/5;
-  }
-
-  @media (orientation: landscape) and (max-width: 927px) and (max-height: 429px) {
-    grid-row: 4/5;
-  }
-
-  @media (orientation: portrait) and (max-width: 429px) and (max-height: 927px) {
-    grid-row: 4/5;
   }
 }
 
