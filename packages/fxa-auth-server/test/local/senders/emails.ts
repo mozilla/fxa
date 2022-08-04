@@ -414,7 +414,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verificationReminderFirstEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Reminder: Finish creating your account' }],
+    ['subject', { test: 'equal', expected: 'Remember to confirm your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirst') }],
@@ -423,18 +423,18 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Reminder: Finish creating your account' },
-      { test: 'include', expected: 'Welcome to the Firefox family' },
+      { test: 'include', expected: 'Remember to confirm your account' },
+      { test: 'include', expected: 'Welcome to Firefox' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-verification-reminder', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-verification-reminder', 'support')) },
       { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')) },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Welcome to the Firefox family' },
+      { test: 'include', expected: 'Welcome to Firefox' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'first-verification-reminder', 'support')}` },
-      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
+      { test: 'include', expected: `Confirm account:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

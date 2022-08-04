@@ -30,7 +30,7 @@
   "postVerifySecondary": 6,
   "recovery": 5,
   "unblockCode": 6,
-  "verificationReminderFirst": 9,
+  "verificationReminderFirst": 10,
   "verificationReminderSecond": 10,
   "verify": 6,
   "verifyPrimary": 8,
