@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .card {
-  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-28 mobileLandscape:pt-20;
+  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20;
 
   &::before {
-    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-5 mobileLandscape:-top-10;
+    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10;
     content: '';
     background-image: inline('../images/firefox-logo.svg');
   }
