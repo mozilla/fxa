@@ -15,6 +15,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* borders */
+/* after '@tailwind base' has been enabled for payments remove border-0 border-solid */
+.row-divider-grey-200 {
+  @apply border-b border-0 border-solid border-grey-200;
+}
+
+/* footer copy */
 .legal-blurb {
   @apply clear-both text-xs leading-5 text-center;
 }
