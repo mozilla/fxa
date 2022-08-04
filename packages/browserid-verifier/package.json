@@ -13,7 +13,7 @@
   "main": "lib/server.js",
   "dependencies": {
     "@sentry/integrations": "6.19.7",
-    "@sentry/node": "6.19.7",
+    "@sentry/node": "7.8.1",
     "@sentry/tracing": "6.19.7",
     "async": "3.2.4",
     "body-parser": "^1.19.1",
