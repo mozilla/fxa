@@ -28,6 +28,7 @@ import {
 } from './plan-language-tags-guesser';
 import { promises as fsPromises, constants } from 'fs';
 import path from 'path';
+import { string } from 'joi';
 
 const DEFAULT_LOCALE = 'en';
 
@@ -59,7 +60,7 @@ async function createDir(dirPath: string) {
  */
 function createPathForWorkingDirectory(directory: string) {
   return (name: string) => {
-    return path.join(directory, `${name}.json`);
+    return path.join(directory, `${name.toLowerCase().replace(' ', '_')}.json`);
   };
 }
 
@@ -255,7 +256,7 @@ export class StripeProductsAndPlansConverter {
     const productConfig: any = {};
 
     // BaseConfig
-    productConfig.active = true;
+    productConfig.active = product.active;
     productConfig.capabilities =
       this.capabilitiesMetadataToCapabilityConfig(product);
     // `locales` will be populated once we iterate through the Stripe Plans
@@ -315,7 +316,7 @@ export class StripeProductsAndPlansConverter {
     // Firestore cannot serialize class instances
     const planConfig: any = {};
 
-    planConfig.active = true;
+    planConfig.active = plan.active;
 
     if (!plan.metadata) {
       return planConfig;
@@ -378,10 +379,14 @@ export class StripeProductsAndPlansConverter {
     await this.paymentConfigManager.validateProductConfig(productConfig);
     await fsPromises.writeFile(
       productConfigPath,
-      JSON.stringify({
-        ...productConfig,
-        id: existingProductConfigId,
-      })
+      JSON.stringify(
+        {
+          ...productConfig,
+          id: existingProductConfigId,
+        },
+        null,
+        2
+      )
     );
     if (withLog) {
       this.log.debug(
@@ -408,11 +413,15 @@ export class StripeProductsAndPlansConverter {
     );
     await fsPromises.writeFile(
       planConfigPath,
-      JSON.stringify({
-        ...planConfig,
-        id: existingPlanConfigId,
-        productConfigId,
-      })
+      JSON.stringify(
+        {
+          ...planConfig,
+          id: existingPlanConfigId,
+          productConfigId,
+        },
+        null,
+        2
+      )
     );
     this.log.debug('StripeProductsAndPlansConverter.writeToFilePlanSuccess', {
       planConfigPath,
@@ -452,10 +461,14 @@ export class StripeProductsAndPlansConverter {
       targetDir: target === 'local' ? targetDir : undefined,
     });
     const params = productId ? { ids: [productId] } : {};
+
     for await (const product of this.stripeHelper.stripe.products.list(
       params
     )) {
-      const currentDirectory = path.join(targetDir, product.id);
+      const currentDirectory = path.join(
+        targetDir,
+        product.name.toLowerCase().replace(' ', '_')
+      );
       const getFilePath = createPathForWorkingDirectory(currentDirectory);
 
       try {
@@ -481,7 +494,7 @@ export class StripeProductsAndPlansConverter {
             await this.writeToFileProductConfig(
               productConfig,
               productConfigId,
-              getFilePath(product.id),
+              getFilePath(`prod_${product.name}`),
               false
             );
           }
@@ -552,7 +565,11 @@ export class StripeProductsAndPlansConverter {
                   planConfig,
                   productConfigId as string,
                   existingPlanConfigId,
-                  getFilePath(plan.id)
+                  getFilePath(
+                    `plan_${plan.currency}_${plan.interval}_${
+                      plan.interval_count
+                    }_${plan.amount ?? 'none'}`
+                  )
                 );
               }
             }
@@ -590,7 +607,7 @@ export class StripeProductsAndPlansConverter {
             await this.writeToFileProductConfig(
               productConfig,
               productConfigId,
-              getFilePath(product.id)
+              getFilePath(`prod_${product.name}`)
             );
           }
         }

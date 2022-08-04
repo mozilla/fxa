@@ -404,10 +404,14 @@ describe('StripeProductsAndPlansConverter', () => {
       const productConfig = deepCopy(product);
       const productConfigId = 'docid_prod_123';
       const testPath = 'home/dir/prod_123';
-      const expectedJSON = JSON.stringify({
-        ...productConfig,
-        id: productConfigId,
-      });
+      const expectedJSON = JSON.stringify(
+        {
+          ...productConfig,
+          id: productConfigId,
+        },
+        null,
+        2
+      );
 
       paymentConfigManager.validateProductConfig = sandbox.stub().resolves();
       const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
@@ -481,10 +485,14 @@ describe('StripeProductsAndPlansConverter', () => {
       const planConfig = deepCopy(plan);
       const existingPlanConfigId = 'docid_plan_123';
       const testPath = 'home/dir/plan_123';
-      const expectedJSON = JSON.stringify({
-        ...planConfig,
-        id: existingPlanConfigId,
-      });
+      const expectedJSON = JSON.stringify(
+        {
+          ...planConfig,
+          id: existingPlanConfigId,
+        },
+        null,
+        2
+      );
 
       paymentConfigManager.validatePlanConfig = sandbox.stub().resolves();
       const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
