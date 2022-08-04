@@ -37,7 +37,7 @@ const AVAILABLE_ENGINES = [
   {
     checked: true,
     id: 'passwords',
-    text: t('Logins and Passwords'),
+    text: t('Passwords'),
   },
   {
     checked: true,
