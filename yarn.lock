@@ -263,9 +263,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:^7.18.9":
-  version: 7.18.9
-  resolution: "@babel/cli@npm:7.18.9"
+"@babel/cli@npm:^7.18.10":
+  version: 7.18.10
+  resolution: "@babel/cli@npm:7.18.10"
   dependencies:
     "@jridgewell/trace-mapping": ^0.3.8
     "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents.3
@@ -273,7 +273,7 @@ __metadata:
     commander: ^4.0.1
     convert-source-map: ^1.1.0
     fs-readdir-recursive: ^1.1.0
-    glob: ^7.0.0
+    glob: ^7.2.0
     make-dir: ^2.1.0
     slash: ^2.0.0
   peerDependencies:
@@ -286,7 +286,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: ed319cf48f6d33307eff08bee9b2418051f9abb9f78418dbd08b5d47c1f9283c7b64b29035b73d88861ceba92c8d52df75b4022b0d724dc78c36cb93caa7b5f4
+  checksum: 558dbba4718ae4a1d77ba0b8517b9cec7766a1e3a0e9dcb67f5269cb851a9bf09afb744cdf9fd5a9bbb2bde1ffabe9887c2da763313f52fcf87de279e655121a
   languageName: node
   linkType: hard
 
@@ -23367,7 +23367,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
   dependencies:
-    "@babel/cli": ^7.18.9
+    "@babel/cli": ^7.18.10
     "@babel/core": ^7.15.0
     "@babel/plugin-proposal-class-properties": ^7.16.7
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
