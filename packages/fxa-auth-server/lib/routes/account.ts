@@ -1,20 +1,21 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import isA from 'joi';
 import {
   deleteAllPayPalBAs,
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
 import {
-  PlayStoreSubscription,
   AppStoreSubscription,
+  PlayStoreSubscription,
 } from 'fxa-shared/dto/auth/payments/iap-subscription';
 import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
 import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import isA from 'joi';
+import Stripe from 'stripe';
 import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
@@ -29,11 +30,11 @@ import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
-import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
 import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
+import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
 import {
-  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
+  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } from '../payments/iap/iap-formatter';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
@@ -574,6 +575,30 @@ export class AccountHandler {
     };
   }
 
+  async setPasswordOnStubAccount(account: any, authPW: string) {
+    // Only set a password on an unverified stub account.
+    if (account.verifierSetAt !== 0) {
+      throw error.unauthorized('token already used');
+    }
+
+    const { authSalt, uid, wrapWrapKb } = account;
+    const { password, verifyHash } = await this.createPassword(
+      authPW,
+      authSalt
+    );
+    await this.db.resetAccount(
+      { uid },
+      {
+        authSalt,
+        verifyHash,
+        wrapWrapKb,
+        verifierVersion: password.version,
+        keysHaveChanged: true,
+      }
+    );
+    await this.db.resetAccountTokens(uid);
+  }
+
   async finishSetup(request: AuthRequest) {
     this.log.begin('Account.finishSetup', request);
     const form = request.payload as any;
@@ -587,31 +612,9 @@ export class AccountHandler {
       uid = payload.uid;
       form.uid = payload.uid;
       const account = await this.db.account(uid);
-      // Only proceed if the account is in the stub state.
-      // This prevents a token from being used multiple times.
-      if (account.verifierSetAt !== 0) {
-        throw error.unauthorized('token already used');
-      }
-      const { authSalt, wrapWrapKb } = account;
-      const password = new this.Password(
-        authPW,
-        authSalt,
-        this.config.verifierVersion
-      );
+      await this.setPasswordOnStubAccount(account, authPW);
       const metricsContext = await request.gatherMetricsContext({});
       await this.signupUtils.verifyAccount(request, account, {});
-      const verifyHash = await password.verifyHash();
-      await this.db.resetAccount(
-        { uid },
-        {
-          authSalt,
-          verifyHash,
-          wrapWrapKb,
-          verifierVersion: password.version,
-          keysHaveChanged: true,
-        }
-      );
-      await this.db.resetAccountTokens(uid);
       const sessionToken = await this.createSessionToken({
         account,
         request,
@@ -638,6 +641,77 @@ export class AccountHandler {
           await this.subscriptionAccountReminders.delete(uid);
         }
       }
+
+      throw err;
+    }
+  }
+
+  async setPassword(request: AuthRequest) {
+    this.log.begin('Account.set_password', request);
+
+    const form = request.payload as any;
+    const { authPW, metricsContext } = form;
+    const { query } = request;
+    const auth = request.auth;
+    const { user: uid } = auth.credentials;
+
+    const account = await this.db.account(uid);
+    const email = account.primaryEmail.email;
+
+    await this.customs.check(request, email, 'setPassword');
+
+    const response: Record<string, any> = {};
+    response.uid = uid;
+
+    try {
+      await this.setPasswordOnStubAccount(account, authPW);
+
+      const { emailCode: tokenVerificationId } = account;
+      const sessionToken = await this.createSessionToken({
+        account,
+        request,
+        tokenVerificationId,
+      });
+      response.sessionToken = sessionToken.data;
+
+      if (query.sendVerifyEmail) {
+        await this.sendVerifyCode({
+          account,
+          request,
+          sessionToken,
+          tokenVerificationId,
+          verificationMethod: 'email-otp',
+        });
+      }
+
+      // This is a brand new (unverified) user who just created their first
+      // subscription, so we know we will only have one priceId result here.
+      const priceId = (
+        await this.capabilityService.subscribedPriceIds(uid as string)
+      )[0];
+      const price = (await this.stripeHelper.allPlans()).find(
+        (p) => p.id === priceId
+      );
+      // Cached prices have products expanded already
+      const product = price?.product as Stripe.Product;
+      if (product && product?.id && product?.name) {
+        await this.subscriptionAccountReminders.create(
+          uid,
+          metricsContext.flowId,
+          metricsContext.flowBeginTime,
+          metricsContext.deviceId,
+          product.id,
+          product.name
+        );
+      }
+
+      // TODO (FXA-5557): record flow metrics
+
+      return response;
+    } catch (err) {
+      this.log.error('Account.set_password.error', {
+        err,
+      });
 
       throw err;
     }
@@ -1602,7 +1676,9 @@ export const accountRoutes = (
               .description(DESCRIPTION.resume),
             metricsContext: METRICS_CONTEXT_SCHEMA,
             style: isA.string().allow('trailhead').optional(),
-            verificationMethod: validators.verificationMethod.optional(),
+            verificationMethod: validators.verificationMethod
+              .optional()
+              .description(DESCRIPTION.verificationMethod),
             // preVerified is not available in production mode.
             ...(!(config as any).isProduction && {
               preVerified: isA.boolean(),
@@ -1615,7 +1691,9 @@ export const accountRoutes = (
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
-            verificationMethod: validators.verificationMethod.optional(),
+            verificationMethod: validators.verificationMethod
+              .optional()
+              .description(DESCRIPTION.verificationMethod),
           }),
         },
       },
@@ -1625,7 +1703,7 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/stub',
       options: {
-        ...MISC_DOCS.ACCOUNT_STUB_POST,
+        ...ACCOUNT_DOCS.ACCOUNT_STUB_POST,
         validate: {
           payload: isA.object({
             email: validators.email().required(),
@@ -1640,7 +1718,7 @@ export const accountRoutes = (
       method: 'POST',
       path: '/account/finish_setup',
       options: {
-        ...MISC_DOCS.ACCOUNT_FINISH_SETUP_POST,
+        ...ACCOUNT_DOCS.ACCOUNT_FINISH_SETUP_POST,
         validate: {
           payload: isA.object({
             token: validators.jwt,
@@ -1649,6 +1727,47 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.finishSetup(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/set_password',
+      options: {
+        ...ACCOUNT_DOCS.ACCOUNT_SET_PASSWORD_POST,
+        auth: {
+          mode: 'required',
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          query: isA.object({
+            sendVerifyEmail: isA
+              .boolean()
+              .optional()
+              .default(true)
+              .description(DESCRIPTION.sendVerifyEmail),
+          }),
+          payload: isA.object({
+            authPW: validators.authPW.description(DESCRIPTION.authPW),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            service: validators.service.description(DESCRIPTION.service),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            sessionToken: isA
+              .string()
+              .regex(HEX_STRING)
+              .required()
+              .description(DESCRIPTION.sessionToken),
+            uid: isA
+              .string()
+              .regex(HEX_STRING)
+              .required()
+              .description(DESCRIPTION.uid),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.setPassword(request),
     },
     {
       method: 'POST',

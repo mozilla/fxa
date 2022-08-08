@@ -39,7 +39,7 @@ function hexString(bytes) {
 }
 
 const makeRoutes = function (options = {}, requireMocks) {
-  Container.set(CapabilityService, sinon.fake);
+  Container.set(CapabilityService, options.capabilityService || sinon.fake);
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
@@ -1611,6 +1611,231 @@ describe('/account/finish_setup', () => {
   });
 });
 
+describe('/account/set_password', () => {
+  function setup(options) {
+    const config = {
+      securityHistory: {
+        enabled: true,
+      },
+    };
+    const mockLog = log('ERROR', 'test');
+    mockLog.activityEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.flowEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.error = sinon.spy();
+    mockLog.notifier.send = sinon.spy();
+
+    const mockMetricsContext = mocks.mockMetricsContext();
+    const email = Math.random() + '_stub@mozilla.com';
+    const emailCode = hexString(16);
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const mockRequest = mocks.mockRequest({
+      auth: {
+        credentials: {
+          user: uid,
+          email,
+        },
+      },
+      locale: 'en-GB',
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      payload: {
+        metricsContext: mockMetricsContext,
+        service: '123Done',
+        uid,
+      },
+      ...(options.query && { query: options.query }),
+      uaBrowser: 'Firefox Mobile',
+      uaBrowserVersion: '9',
+      uaOS: 'iOS',
+      uaOSVersion: '11',
+      uaDeviceType: 'tablet',
+      uaFormFactor: 'iPad',
+    });
+    const clientAddress = mockRequest.app.clientAddress;
+    const mockDB = mocks.mockDB(
+      {
+        email,
+        emailCode,
+        emailVerified: false,
+        locale: 'en',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: 52,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.10',
+        uid,
+        authSalt: '',
+        wrapWrapKb: 'wibble',
+        verifierSetAt: options.verifierSetAt,
+      },
+      {
+        emailRecord: new error.unknownAccount(),
+      }
+    );
+    const mockMailer = mocks.mockMailer();
+    const mockPush = mocks.mockPush();
+    const verificationReminders = mocks.mockVerificationReminders();
+    const subscriptionAccountReminders = mocks.mockVerificationReminders();
+    const fakeProduct = { id: 'prod_123', name: 'Wow Great Product' };
+    const fakePlan = {
+      id: 'price_123',
+      product: fakeProduct,
+    };
+    const mockStripeHelper = options.mockStripeHelper || {
+      allProducts: sinon.fake.resolves([fakeProduct]),
+      allPlans: sinon.fake.resolves([fakePlan]),
+    };
+    const mockCapabilityService = options.mockCapabilityService || {
+      subscribedPriceIds: sinon.fake.resolves([fakePlan.id]),
+    };
+    const accountRoutes = makeRoutes({
+      config,
+      db: mockDB,
+      log: mockLog,
+      mailer: mockMailer,
+      Password: function () {
+        return {
+          unwrap: function () {
+            return Promise.resolve('wibble');
+          },
+          verifyHash: function () {
+            return Promise.resolve('wibble');
+          },
+        };
+      },
+      push: mockPush,
+      verificationReminders,
+      subscriptionAccountReminders,
+      stripeHelper: mockStripeHelper,
+      capabilityService: mockCapabilityService,
+    });
+    const route = getRoute(accountRoutes, '/account/set_password');
+
+    return {
+      config,
+      clientAddress,
+      email,
+      emailCode,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      uid,
+      verificationReminders,
+      subscriptionAccountReminders,
+    };
+  }
+
+  it('succeeds when the account is a stub', () => {
+    const {
+      route,
+      mockRequest,
+      mockDB,
+      mockMailer,
+      subscriptionAccountReminders,
+      uid,
+    } = setup({
+      query: {
+        // The framework sets this as the default value in the source code
+        sendVerifyEmail: true,
+      },
+      verifierSetAt: 0,
+    });
+    return runTest(route, mockRequest, (response) => {
+      // setPasswordOnStubAccount
+      assert.equal(
+        mockDB.resetAccount.callCount,
+        1,
+        'db.resetAccount was called'
+      );
+      assert.equal(
+        mockDB.resetAccountTokens.callCount,
+        1,
+        'db.resetAccountTokens was called'
+      );
+      // sendVerifyCode
+      assert.equal(
+        mockMailer.sendVerifyShortCodeEmail.callCount,
+        1,
+        'mailer.sendVerifyShortCodeEmail was called'
+      );
+      // subscriptionAccountReminders
+      assert.calledOnce(subscriptionAccountReminders.create);
+      // response
+      assert.ok(response.sessionToken);
+      assert.equal(response.uid, uid);
+    });
+  });
+
+  it('returns an unauthorized error when the account is already set up', async () => {
+    const { route, mockRequest } = setup({
+      verifierSetAt: Date.now(),
+    });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, 110);
+    }
+  });
+
+  it('does not send the verify email if query parameter is set to false', async () => {
+    const { route, mockRequest, mockMailer, uid } = setup({
+      query: {
+        sendVerifyEmail: false,
+      },
+      verifierSetAt: 0,
+    });
+    return runTest(route, mockRequest, (response) => {
+      assert.notCalled(mockMailer.sendVerifyShortCodeEmail);
+      assert.ok(response.sessionToken);
+      assert.equal(response.uid, uid);
+    });
+  });
+
+  it('does not create a reminder if product is undefined', () => {
+    const mockStripeHelper = {
+      allProducts: sinon.fake.resolves([]),
+      allPlans: sinon.fake.resolves([]),
+    };
+    const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
+      mockStripeHelper,
+      verifierSetAt: 0,
+    });
+    return runTest(route, mockRequest, (response) => {
+      assert.notCalled(subscriptionAccountReminders.create);
+      assert.ok(response.sessionToken);
+      assert.equal(response.uid, uid);
+    });
+  });
+
+  it('does not create a reminder if product is invalid', () => {
+    const fakeProduct = { otherProp: 'fun' };
+    const fakePlan = {
+      id: 'price_123',
+      product: fakeProduct,
+    };
+    const mockStripeHelper = {
+      allProducts: sinon.fake.resolves([fakeProduct]),
+      allPlans: sinon.fake.resolves([fakePlan]),
+    };
+    const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
+      mockStripeHelper,
+      verifierSetAt: 0,
+    });
+    return runTest(route, mockRequest, (response) => {
+      assert.notCalled(subscriptionAccountReminders.create);
+      assert.ok(response.sessionToken);
+      assert.equal(response.uid, uid);
+    });
+  });
+});
+
 describe('/account/login', () => {
   const config = {
     securityHistory: {
@@ -1771,6 +1996,7 @@ describe('/account/login', () => {
     mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => Promise.resolve([]));
     mockMailer.sendVerifyLoginEmail = sinon.spy(() => Promise.resolve());
     mockMailer.sendVerifyLoginCodeEmail = sinon.spy(() => Promise.resolve());
+    mockMailer.sendVerifyShortCodeEmail = sinon.spy(() => Promise.resolve());
     mockMailer.sendVerifyEmail.resetHistory();
     mockDB.createSessionToken.resetHistory();
     mockDB.sessions.resetHistory();
