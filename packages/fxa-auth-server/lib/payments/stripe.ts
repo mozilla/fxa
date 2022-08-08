@@ -2898,7 +2898,7 @@ export class StripeHelper extends StripeHelperBase {
     } = this.mergeMetadata(planOld, abbrevProductOld);
 
     const updateType =
-      productOrderNew > productOrderOld
+      parseInt(productOrderNew) > parseInt(productOrderOld)
         ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
         : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 

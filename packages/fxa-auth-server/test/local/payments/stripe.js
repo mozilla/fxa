@@ -5163,7 +5163,7 @@ describe('StripeHelper', () => {
             .successActionButtonURL,
         'product:termsOfServiceURL': termsOfServiceURL,
         'product:privacyNoticeURL': privacyNoticeURL,
-        productOrder: 0,
+        productOrder: '0',
       },
     };
 
