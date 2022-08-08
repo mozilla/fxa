@@ -2,6 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@layer utilities {
+  /* For number inputs where we want to hide the step/increment arrows */
+  .no-step {
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+}
+
 .input-text {
-  @apply flex-1 p-4 text-grey-500 text-base rounded border border-grey-300 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus;
+  @apply w-full p-4 text-grey-500 text-base rounded-md border border-grey-300 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus;
+}
+
+/* REACT TODO: Probably move this into JSX, currently lives in `form.js`
+ * NOTE: Leave this class after `input-text`, we want it to override its styles */
+.invalid {
+  @apply border-red-700 focus:border-red-700 focus:shadow-input-red-focus;
+}
+
+/* REACT TODO: Probably consolidate with existing `Checkbox` component */
+.input-checkbox {
+  @apply appearance-none border border-grey-300 w-4 h-4 transition-standard rounded-sm focus:outline-2 focus:outline-offset-2 focus:outline focus-visible:outline focus:outline-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+
+  &:checked {
+    @apply bg-check-white bg-contain bg-no-repeat bg-blue-500 border-blue-500 active:bg-blue-800 active:border-blue-800;
+  }
+
+  &:not(:checked) {
+    @apply bg-grey-50 active:bg-grey-200;
+  }
+
+  &-label {
+    @apply ltr:ml-2 rtl:mr-2;
+  }
+}
+
+@media (hover: hover) {
+  .input-checkbox {
+    &:checked:not(:active):hover {
+      @apply bg-blue-600 border-blue-600;
+    }
+
+    &:not(:checked):not(:active):hover {
+      @apply bg-grey-100;
+    }
+
+    &:hover,
+    &-label:hover {
+      @apply cursor-pointer;
+    }
+  }
 }

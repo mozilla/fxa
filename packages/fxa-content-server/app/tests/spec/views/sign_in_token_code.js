@@ -17,10 +17,13 @@ import User from 'models/user';
 import View from 'views/sign_in_token_code';
 import VerificationReasons from 'lib/verification-reasons';
 import WindowMock from '../../mocks/window';
+import { SIGNIN_TOKEN_CODE } from '../../../../tests/functional/lib/selectors';
 
 const { createRandomString } = helpers;
 
 const TOKEN_CODE = createRandomString(Constants.TOKEN_CODE_LENGTH, 10);
+
+const Selectors = SIGNIN_TOKEN_CODE;
 
 describe('views/sign_in_token_code', () => {
   let account;
@@ -127,7 +130,7 @@ describe('views/sign_in_token_code', () => {
 
     describe('with an empty code', () => {
       beforeEach(() => {
-        view.$('input.otp-code').val('');
+        view.$(Selectors.INPUT).val('');
         return view.validateAndSubmit().then(assert.fail, () => {});
       });
 
@@ -146,7 +149,7 @@ describe('views/sign_in_token_code', () => {
     validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
-          view.$('input.otp-code').val(code);
+          view.$(Selectors.INPUT).val(code);
           return view.validateAndSubmit();
         });
 
@@ -166,7 +169,7 @@ describe('views/sign_in_token_code', () => {
         sinon
           .stub(view, 'invokeBrokerMethod')
           .callsFake(() => Promise.resolve());
-        view.$('input.otp-code').val(TOKEN_CODE);
+        view.$(Selectors.INPUT).val(TOKEN_CODE);
         return view.submit();
       });
 
@@ -193,7 +196,7 @@ describe('views/sign_in_token_code', () => {
         sinon
           .stub(view, 'invokeBrokerMethod')
           .callsFake(() => Promise.resolve());
-        view.$('input.otp-code').val(TOKEN_CODE);
+        view.$(Selectors.INPUT).val(TOKEN_CODE);
         return view.submit();
       });
 
@@ -219,7 +222,7 @@ describe('views/sign_in_token_code', () => {
           .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
-        view.$('input.otp-code').val(TOKEN_CODE);
+        view.$(Selectors.INPUT).val(TOKEN_CODE);
         return view.submit();
       });
 
