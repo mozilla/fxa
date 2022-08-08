@@ -7,9 +7,7 @@ import * as apiClient from '../../lib/apiClient';
 import { Customer, Plan } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
-import classNames from 'classnames';
 
-import './index.scss';
 import { needsCustomer } from '../../lib/customer';
 
 declare var paypal: {
@@ -216,9 +214,9 @@ export const PaypalButton = ({
   return (
     <>
       <div
-        className={classNames({
-          'disabled-overlay': disabled,
-        })}
+        className={disabled
+          ? "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
+          : undefined}
         data-testid="paypal-button-container"
       >
         {ButtonBase && (

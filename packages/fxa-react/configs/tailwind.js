@@ -10,6 +10,9 @@ module.exports = {
   content: ['./src/**/*.tsx', './public/index.html'],
   theme: {
     extend: {
+      zIndex: {
+        1000: '1000',
+      },
       padding: {
         7: '1.75rem',
         11: '2.75rem',
