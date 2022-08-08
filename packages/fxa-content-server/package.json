@@ -141,7 +141,7 @@
     "webpack-cli": "^4.10.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.18.9",
+    "@babel/cli": "^7.18.10",
     "@testing-library/react": "^12.1.5",
     "@types/backbone": "^1.4.10",
     "@types/postcss-import": "^14",
