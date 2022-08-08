@@ -38,6 +38,8 @@ $(document).ready(function () {
       product: 'prod_GqM9ToKK62qjkK',
       plans: {
         usd: 'plan_GqM9N6qyhvxaVk',
+        usd6: 'price_1LTAC5BVqmGyQTManGVoSBsc',
+        usd12: 'price_1KbomlBVqmGyQTMaa0Tq7UaW',
         eur: 'price_1H8NnnBVqmGyQTMaLwLRKbF3',
         cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
         myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
@@ -47,6 +49,8 @@ $(document).ready(function () {
       product: 'prod_FfiuDs9u11ESbD',
       plans: {
         usd: 'plan_FfiupsKXZ3mMZ6',
+        usd6: 'price_1LOOaNKb9q6OnNsLet1Ow4MH',
+        usd12: 'price_1LOObPKb9q6OnNsLtscL1rMt',
         eur: 'price_1H8OrbKb9q6OnNsLI1Hs9lBU',
         cad: 'price_1H8OroKb9q6OnNsLbn5v95el',
         myr: 'price_1H8Os8Kb9q6OnNsLTDqGHIbC',
