@@ -89,16 +89,29 @@ if (config.get('sentry.dsn')) {
  */
 function tryCaptureValidationError(err) {
   try {
-    const errorDetails =
-      err?.details instanceof Map && err?.details?.get('body');
+    // Try to get error details. This might not be present.
+    let errorDetails = null;
+    if (err != null && err.details instanceof Map) {
+      errorDetails = err.details.get('body');
+    }
 
     if (errorDetails) {
       const message = `${errorDetails}`;
       const validationError = errorDetails.details.reduce((a, v) => {
-        return {
-          ...a,
-          [v?.path?.join('.')]: `reason: ${v.type} - ${v.message}`,
-        };
+        // Try to get the key for the field that failed validation and update
+        // the error state
+        if (v && Array.isArray(v.path)) {
+          const key = v.path.join('.');
+
+          if (key) {
+            return {
+              ...a,
+              [key]: `reason: ${v.type} - ${v.message}`,
+            };
+          }
+        }
+
+        return a;
       }, {});
 
       Sentry.withScope((scope) => {
