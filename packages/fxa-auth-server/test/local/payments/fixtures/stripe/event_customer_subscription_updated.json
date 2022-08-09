@@ -51,7 +51,7 @@
               "interval_count": 1,
               "livemode": false,
               "metadata": {
-                "productOrder": 0,
+                "productOrder": "0",
                 "emailIconURL": "http://example.com/icon-new",
                 "successActionButtonURL": "http://example.com/download-new"
               },
@@ -93,7 +93,7 @@
         "interval_count": 1,
         "livemode": false,
         "metadata": {
-          "productOrder": 0,
+          "productOrder": "0",
           "emailIconURL": "http://example.com/icon-new",
           "successActionButtonURL": "http://example.com/download-new"
         },
@@ -121,7 +121,7 @@
         "interval": "month",
         "interval_count": 1,
         "metadata": {
-          "productOrder": 1,
+          "productOrder": "1",
           "emailIconURL": "http://example.com/icon-old",
           "successActionButtonURL": "http://example.com/download-old"
         },
