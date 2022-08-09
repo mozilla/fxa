@@ -325,27 +325,30 @@ export const SubscriptionCreate = ({
             {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
           </div>
         </div>
-        <PlanDetails
-          {...{
-            className: classNames('default', {
-              hidden: transactionInProgress && isMobile,
-            }),
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-            coupon: coupon,
-          }}
-        >
-          <CouponForm
-            {...{
-              planId: selectedPlan.plan_id,
-              readOnly: false,
-              subscriptionInProgress: inProgress || transactionInProgress,
-              coupon,
-              setCoupon,
-            }}
-          />
-        </PlanDetails>
+
+        { (transactionInProgress && isMobile)
+          ? null
+          : (
+            <PlanDetails
+              {...{
+                selectedPlan,
+                isMobile,
+                showExpandButton: isMobile,
+                coupon: coupon,
+              }}
+            >
+              <CouponForm
+                {...{
+                  planId: selectedPlan.plan_id,
+                  readOnly: false,
+                  subscriptionInProgress: inProgress || transactionInProgress,
+                  coupon,
+                  setCoupon,
+                }}
+              />
+            </PlanDetails>
+          )
+        }
       </div>
     </>
   );

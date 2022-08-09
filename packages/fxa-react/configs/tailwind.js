@@ -75,6 +75,12 @@ module.exports = {
         ten: '10%',
         full: '100%',
       },
+      top: {
+        2.5: '0.6rem',
+      },
+      left: {
+        3.5: '.87rem',
+      },
       boxShadow: {
         // Specific-use focus shadows for input elements
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
