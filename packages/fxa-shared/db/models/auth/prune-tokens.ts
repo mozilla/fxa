@@ -42,9 +42,9 @@ export class PruneTokens extends BaseAuthModel {
       // Note that the database will also check if the pruneInterval has been exceeded. This
       // is by design, so concurrent calls to prune coming from multiple instances won't
       // result in an onslaught of deletes.
-      const result = await PruneTokens.callProcedureWithOutputs(
+      const result = await PruneTokens.callProcedureWithOutputsAndQueryResults(
         Proc.Prune,
-        [Date.now(), maxTokenAge, maxCodeAge, 0],
+        [Date.now(), maxTokenAge, maxCodeAge],
         [
           '@unblockCodesDeleted',
           '@signInCodesDeleted',
@@ -55,18 +55,39 @@ export class PruneTokens extends BaseAuthModel {
         ]
       );
 
-      this.onCompleteMetric(prefix, '@unblockCodesDeleted', result);
-      this.onCompleteMetric(prefix, '@signInCodesDeleted', result);
-      this.onCompleteMetric(prefix, '@accountResetTokensDeleted', result);
-      this.onCompleteMetric(prefix, '@passwordForgotTokensDeleted', result);
-      this.onCompleteMetric(prefix, '@passwordChangeTokensDeleted', result);
-      this.onCompleteMetric(prefix, '@sessionTokensDeleted', result);
+      this.onCompleteMetric(prefix, '@unblockCodesDeleted', result.outputs);
+      this.onCompleteMetric(prefix, '@signInCodesDeleted', result.outputs);
+      this.onCompleteMetric(
+        prefix,
+        '@accountResetTokensDeleted',
+        result.outputs
+      );
+      this.onCompleteMetric(
+        prefix,
+        '@passwordForgotTokensDeleted',
+        result.outputs
+      );
+      this.onCompleteMetric(
+        prefix,
+        '@passwordChangeTokensDeleted',
+        result.outputs
+      );
+      this.onCompleteMetric(prefix, '@sessionTokensDeleted', result.outputs);
 
-      return result;
+      return {
+        outputs: result.outputs,
+        uids:
+          result.results?.rows?.length === 5 ? result.results.rows[3] : null,
+      };
     } catch (err) {
       this.onErrorMetric(prefix);
       this.log?.error(prefix, err);
     }
+
+    return {
+      outputs: null,
+      uids: null,
+    };
   }
 
   /**
@@ -89,14 +110,19 @@ export class PruneTokens extends BaseAuthModel {
       this.onCompleteMetric(prefix, '@accountsOverLimit', result.outputs);
       this.onCompleteMetric(prefix, '@totalDeletions', result.outputs);
 
-      return result;
+      return {
+        outputs: result.outputs,
+        uids:
+          result.results?.rows?.length === 3 ? result.results.rows[1] : null,
+      };
     } catch (err) {
       this.onErrorMetric(prefix);
       this.log?.error(prefix, err);
     }
+
     return {
       outputs: null,
-      results: null,
+      uids: null,
     };
   }
 

@@ -6,10 +6,13 @@ import program from 'commander';
 import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
-import { RedisShared } from 'fxa-shared/db/redis';
 import moment from 'moment';
+import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 const { PruneTokens } = require('fxa-shared/db/models/auth');
 const pckg = require('../package.json');
+
+// Max number anticipated redis session tokens
+const MAX_REDIS_SESSION_TOKENS = 500;
 
 /** Wrapper around moment to parse input args coming in as duration strings */
 function parseDuration(duration: string | number) {
@@ -25,7 +28,13 @@ export async function init() {
   const config = require('../config').getProperties();
   const statsd = new StatsD(config.statsd);
   const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
-  const redis = new RedisShared(config.redis, log, statsd);
+  const redis = require('../lib/redis')(
+    {
+      ...config.redis,
+      ...config.redis.sessionTokens,
+    },
+    log
+  );
 
   // Parse args
   program
@@ -84,6 +93,7 @@ Exit Codes:
 
   // Create token pruner instance
   const pruner = new PruneTokens(statsd, log);
+  const accountsImpacted = new Set<string>();
 
   // Start max session pruning
   if (maxSessions > 0) {
@@ -97,24 +107,9 @@ Exit Codes:
 
       // Any account impacted by the prune operation should have it's session tokens cleaned out
       // of the redis cache.
-      for (const row of result.results?.rows[1] || []) {
+      for (const row of result.uids || []) {
         const uid = row.uid.toString('hex');
-        log.info('try flushing redis cache', { uid });
-
-        // Check for accounts with potentially orphaned session tokens, and try to flush them out
-        // of the redis cache.
-        const tokens = await redis.getSessionTokens(uid);
-
-        if (tokens) {
-          const tokenIds = Object.keys(tokens);
-          await redis.pruneSessionTokens(row.uid, tokenIds);
-          log.info('flushed redis cache tokens', {
-            uid,
-            tokenCount: tokenIds.length,
-          });
-        } else {
-          log.info('no tokens found in redis cache', { uid });
-        }
+        accountsImpacted.add(uid);
       }
     } catch (err) {
       log.error('error during limit sessions', err);
@@ -134,7 +129,12 @@ Exit Codes:
         codeMaxAge: codeMaxAge + 'ms',
       });
       const result = await pruner.prune(tokenMaxAge, codeMaxAge);
-      log.info('token pruning complete', result);
+      log.info('token pruning complete', result.outputs);
+
+      for (const row of result.uids || []) {
+        const uid = row.uid.toString('hex');
+        accountsImpacted.add(uid);
+      }
     } catch (err) {
       log.error('error during token prune', err);
       return 3;
@@ -143,6 +143,64 @@ Exit Codes:
     log.info(
       'skipping token pruning operation. tokenMaxAge and codeMaxAge are both 0.'
     );
+  }
+
+  // Clean up redis cache
+  if (accountsImpacted.size > 0) {
+    for (const uid of accountsImpacted) {
+      try {
+        // Pull session tokens from redis, sanity check sizes
+        const redisSessionTokens = await redis.getSessionTokens(uid);
+        const redisSessionTokenIds = new Set(
+          Object.keys(redisSessionTokens || {})
+        );
+
+        // Short circuit if there are no redis session tokens
+        if (redisSessionTokenIds.size === 0) {
+          log.info('no tokens found in redis cache', { uid });
+          continue;
+        }
+
+        // Pull session tokens from sql db.
+        const sessionTokens = await SessionToken.findByUid(uid);
+        const sqlSessionTokenIds = new Set(sessionTokens.map((x) => x.tokenId));
+
+        // Sanity check size of sqlSessionTokenIds and redisSessionTokenIds
+        if (maxSessions > 0 && sqlSessionTokenIds.size > maxSessions) {
+          log.warn(
+            `Found ${sqlSessionTokenIds.size}. Expected no more than ${maxSessions}.`
+          );
+        }
+        if (redisSessionTokenIds.size > MAX_REDIS_SESSION_TOKENS) {
+          log.warn(
+            `found ${redisSessionTokenIds.size}. expected no more than ${MAX_REDIS_SESSION_TOKENS}.`
+          );
+        }
+
+        // Difference redisSessionTokenIds and sqlSessionTokenIds. This will result in a
+        // set of orphaned tokens.
+        const difference = new Set(redisSessionTokenIds);
+        for (const x of sqlSessionTokenIds) {
+          difference.delete(x);
+        }
+
+        // Delete orphaned tokens from Redis
+        const orphanedTokenIds = [...difference];
+        if (orphanedTokenIds.length > 0) {
+          log.info(`pruning orphaned tokens from redis`, {
+            uid,
+            count: orphanedTokenIds.length,
+          });
+          await redis.pruneSessionTokens(uid, orphanedTokenIds);
+        } else {
+          log.info(`no orphaned tokens found in redis`);
+        }
+      } catch (err) {
+        log.err(`error while pruning redis cache for account ${uid}`, err);
+      }
+    }
+  } else {
+    log.info('no accounts impacted. skipping redis cache clean up.');
   }
 
   return 0;
