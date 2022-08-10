@@ -12,7 +12,7 @@ tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
 tfa-cannot-retrieve-code = There was a problem retrieving your code.
-tfa-cannot-verify-code-2 = There was a problem verifying your recovery code
+tfa-cannot-verify-code-3 = There was a problem confirming your recovery code
 tfa-incorrect-recovery-code = Incorrect recovery code
 tfa-enabled = Two-step authentication enabled
 

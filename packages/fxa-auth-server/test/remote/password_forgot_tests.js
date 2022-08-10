@@ -167,7 +167,7 @@ describe('remote password forgot', function () {
           assert.equal(err.tries, 2, 'used a try');
           assert.equal(
             err.message,
-            'Invalid verification code',
+            'Invalid confirmation code',
             'bad attempt 1'
           );
         }
@@ -187,7 +187,7 @@ describe('remote password forgot', function () {
           assert.equal(err.tries, 1, 'used a try');
           assert.equal(
             err.message,
-            'Invalid verification code',
+            'Invalid confirmation code',
             'bad attempt 2'
           );
         }
@@ -207,7 +207,7 @@ describe('remote password forgot', function () {
           assert.equal(err.tries, 0, 'used a try');
           assert.equal(
             err.message,
-            'Invalid verification code',
+            'Invalid confirmation code',
             'bad attempt 3'
           );
         }

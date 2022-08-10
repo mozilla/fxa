@@ -1178,7 +1178,7 @@ describe('/recovery_email', () => {
           assert.fail(
             'Should have failed adding secondary email with unverified primary email'
           ),
-        (err) => assert.equal(err.errno, 104, 'unverified account')
+        (err) => assert.equal(err.errno, 104, 'unconfirmed account')
       );
     });
 
@@ -1329,7 +1329,7 @@ describe('/recovery_email', () => {
           assert.equal(
             err.errno,
             195,
-            'cannot add secondary email, unverified account has active subscription'
+            'cannot add secondary email, unconfirmed account has active subscription'
           )
       );
     });
@@ -1656,7 +1656,7 @@ describe('/recovery_email', () => {
 
       await assert.failsAsync(runTest(route, mockRequest), {
         errno: 105,
-        message: 'Invalid verification code',
+        message: 'Invalid confirmation code',
       });
     });
 
@@ -1666,7 +1666,7 @@ describe('/recovery_email', () => {
 
       await assert.failsAsync(runTest(route, mockRequest), {
         errno: 105,
-        message: 'Invalid verification code',
+        message: 'Invalid confirmation code',
       });
     });
   });

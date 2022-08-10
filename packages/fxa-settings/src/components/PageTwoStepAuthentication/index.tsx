@@ -15,7 +15,7 @@ import { checkCode, copyRecoveryCodes, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors, composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
@@ -92,7 +92,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         if (e.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             l10n.getString(
-              `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
+              composeAuthUiErrorTranslationId(e),
               null,
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
@@ -100,9 +100,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'tfa-cannot-verify-code-2',
+              'tfa-cannot-verify-code-3',
               null,
-              'There was a problem verifying your recovery code'
+              'There was a problem confirming your recovery code'
             )
           );
         }

@@ -9,7 +9,7 @@ import InputText from '../InputText';
 import { ApolloError } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
 import { Localized, useLocalization } from '@fluent/react';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrors, composeAuthUiErrorTranslationId } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type ModalProps = {
   onDismiss: () => void;
@@ -46,7 +46,7 @@ export const ModalVerifySession = ({
       } catch (e) {
         if (e.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno) {
           const errorText = l10n.getString(
-            `auth-error-${AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno}`,
+            composeAuthUiErrorTranslationId(e),
             null,
             AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
           );
@@ -88,11 +88,11 @@ export const ModalVerifySession = ({
       >
         <Localized id="mvs-verify-your-email">
           <h2
-            id="modal-verify-session-header"
+            id="modal-verify-session-header-2"
             className="font-bold text-xl text-center"
             data-testid="modal-verify-session-header"
           >
-            Verify your email
+            Confirm your email
           </h2>
         </Localized>
 
@@ -104,11 +104,11 @@ export const ModalVerifySession = ({
           }}
         >
           <p
-            id="modal-verify-session-desc"
+            id="modal-verify-session-desc-2"
             data-testid="modal-verify-session-desc"
             className="my-6 text-center"
           >
-            Please enter the verification code that was sent to{' '}
+            Please enter the confirmation code that was sent to{' '}
             <span className="font-bold">{primaryEmail.email}</span> within 5
             minutes.
           </p>
@@ -118,9 +118,9 @@ export const ModalVerifySession = ({
           <InputText
             name="verificationCode"
             label={l10n.getString(
-              'mvs-enter-verification-code',
+              'mvs-enter-verification-code-2',
               null,
-              'Enter your verification code'
+              'Enter your confirmation code'
             )}
             onChange={() => {
               if (errorText) {
@@ -147,14 +147,14 @@ export const ModalVerifySession = ({
               Cancel
             </button>
           </Localized>
-          <Localized id="msv-submit-button">
+          <Localized id="msv-submit-button-2">
             <button
               type="submit"
               className="cta-primary cta-base-p mx-2 flex-1"
               data-testid="modal-verify-session-submit"
               disabled={buttonDisabled}
             >
-              Verify
+              Confirm
             </button>
           </Localized>
         </div>

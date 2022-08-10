@@ -30,13 +30,13 @@ function ensureHeader(headers, key, lang) {
 
 const messageContentChecks = [
   {
-    subject: 'Verify your Firefox Account',
+    subject: 'Confirm your Firefox Account',
     pathname: '/v1/verify_email',
     args: ['code', 'service', 'uid'],
     xheaders: ['x-service-id', 'x-uid', 'x-verify-code'],
   },
   {
-    subject: 'Firefox Account Verified',
+    subject: 'Firefox Account Confirmed',
     pathname: '/firefox/sync/',
     args: ['utm_source', 'utm_medium', 'utm_campaign'],
     xheaders: [],

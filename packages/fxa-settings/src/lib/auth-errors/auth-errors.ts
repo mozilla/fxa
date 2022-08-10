@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AuthServerError } from 'fxa-auth-client/browser';
+import * as Sentry from '@sentry/browser';
 
-export type AuthUiError = AuthServerError;
+export type AuthUiError = AuthServerError & { version?: number };
 
 const UNEXPECTED_ERROR_MESSAGE = 'Unexpected error';
 const EXPIRED_VERIFICATION_ERROR_MESSAGE =
-  'The link you clicked to verify your email is expired.';
+  'The link you clicked to confirm your email is expired.';
+const REUSED_SINGLE_USE_CONFIRMATION_CODE_ERROR_MESSAGE =
+  'That confirmation link was already used, and can only be used once.';
 
+// We add a `version` value onto the errors for translations. This allows us to signal to translators (via the string ID) that a string has been updated.
 const ERRORS = {
   UNEXPECTED_ERROR: {
     errno: 999,
@@ -45,11 +49,13 @@ const ERRORS = {
   },
   UNVERIFIED_ACCOUNT: {
     errno: 104,
-    message: 'Unverified account',
+    message: 'Unconfirmed account',
+    version: 2,
   },
   INVALID_VERIFICATION_CODE: {
     errno: 105,
-    message: 'Invalid verification code',
+    message: 'Invalid confirmation code',
+    version: 2,
   },
   INVALID_JSON: {
     errno: 106,
@@ -135,11 +141,13 @@ const ERRORS = {
   },
   EMAIL_EXISTS: {
     errno: 136,
-    message: 'This email was already verified by another user',
+    message: 'This email was already confirmed by another user',
+    version: 2,
   },
   UNVERIFIED_SESSION: {
     errno: 138,
-    message: 'Unverified session',
+    message: 'Unconfirmed session',
+    version: 2,
   },
   EMAIL_PRIMARY_EXISTS: {
     errno: 139,
@@ -179,7 +187,8 @@ const ERRORS = {
   },
   CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: {
     errno: 147,
-    message: 'Can not change primary email to an unverified email',
+    message: 'Can not change primary email to an unconfirmed email',
+    version: 2,
   },
   CHANGE_EMAIL_TO_UNOWNED_EMAIL: {
     errno: 148,
@@ -205,7 +214,8 @@ const ERRORS = {
   },
   EXPIRED_TOKEN_VERIFICATION_CODE: {
     errno: 153,
-    message: 'This verification code has expired',
+    message: 'This confirmation code has expired',
+    version: 2,
   },
   TOTP_TOKEN_EXISTS: {
     errno: 154,
@@ -271,7 +281,8 @@ const ERRORS = {
   },
   INVALID_EXPIRED_SIGNUP_CODE: {
     errno: 183,
-    message: 'Invalid or expired verification code',
+    message: 'Invalid or expired confirmation code',
+    version: 2,
   },
   SERVER_BUSY: {
     errno: 201,
@@ -373,7 +384,8 @@ const ERRORS = {
   },
   SIGNUP_EMAIL_BOUNCE: {
     errno: 1018,
-    message: 'Your verification email was just returned. Mistyped email?',
+    message: 'Your confirmation email was just returned. Mistyped email?',
+    version: 2,
   },
   DIFFERENT_EMAIL_REQUIRED: {
     errno: 1019,
@@ -406,10 +418,12 @@ const ERRORS = {
   EXPIRED_VERIFICATION_LINK: {
     errno: 1025,
     message: EXPIRED_VERIFICATION_ERROR_MESSAGE,
+    version: 2,
   },
   DAMAGED_VERIFICATION_LINK: {
     errno: 1026,
-    message: 'Verification link damaged',
+    message: 'Confirmation link damaged',
+    version: 2,
   },
   UNEXPECTED_POSTMESSAGE_ORIGIN: {
     errno: 1027,
@@ -479,11 +493,12 @@ const ERRORS = {
   UNKNOWN_ACCOUNT_VERIFICATION: {
     errno: 1040,
     message: EXPIRED_VERIFICATION_ERROR_MESSAGE,
+    version: 2,
   },
   REUSED_SIGNIN_VERIFICATION_CODE: {
     errno: 1041,
-    message:
-      'That confirmation link was already used, and can only be used once.',
+    message: REUSED_SINGLE_USE_CONFIRMATION_CODE_ERROR_MESSAGE,
+    version: 2,
   },
   INPUT_REQUIRED: {
     errno: 1042,
@@ -540,8 +555,8 @@ const ERRORS = {
   },
   REUSED_PRIMARY_EMAIL_VERIFICATION_CODE: {
     errno: 1052,
-    message:
-      'That confirmation link was already used, and can only be used once.',
+    message: REUSED_SINGLE_USE_CONFIRMATION_CODE_ERROR_MESSAGE,
+    version: 2,
   },
   TOTP_CODE_REQUIRED: {
     errno: 1053,
@@ -573,7 +588,8 @@ const ERRORS = {
   },
   OTP_CODE_REQUIRED: {
     errno: 1060,
-    message: 'Please enter verification code',
+    message: 'Please enter confirmation code',
+    version: 2,
   },
   /*
     Removed in https://github.com/mozilla/fxa/pull/1242
@@ -604,13 +620,41 @@ const ERRORS = {
 };
 
 type ErrorKey = keyof typeof ERRORS;
-type ErrorVal = { errno: number; message: string };
+type ErrorVal = { errno: number; message: string; version?: number };
+
+export const composeAuthUiErrorTranslationId = (err: {
+  errno?: number;
+  message: string;
+}) => {
+  /* all of these checks for fields/values being present look a little wonky, but allow us to work with
+   * the AuthUiError type, which has all optional fields. Previously this wasn't an issue bc we didn't use
+   * a utility.
+   */
+  if (err.errno && err.errno in AuthUiErrorNos) {
+    const error = AuthUiErrorNos[err.errno];
+    return `auth-error-${err.errno}${error.version ? '-' + error.version : ''}`;
+  }
+  /*
+   * We opt to return an empty string instead of throwing an error so that this can't break in prod.
+   * Instead, we log to sentry.
+   */
+  const logMessage = err.errno
+    ? `composeAuthUiErrorTranslationId: There is no matching error in AuthUiErrors. error: ${JSON.stringify(
+        err
+      )}`
+    : `composeAuthUiErrorTranslationId: No error number given, unable to create a localization ID for AuthUiError string. error: ${JSON.stringify(
+        err
+      )}`;
+  Sentry.captureMessage(logMessage);
+  return '';
+};
 
 export const AuthUiErrors: { [key in ErrorKey]: AuthUiError } = (
   Object.entries(ERRORS) as [[ErrorKey, ErrorVal]]
 ).reduce((acc: { [key in ErrorKey]: AuthUiError }, [k, v]) => {
   const e = new Error(v.message) as AuthUiError;
   e.errno = v.errno;
+  e.version = v.version;
   acc[k] = e;
   return acc;
 }, {} as Record<ErrorKey, AuthUiError>);
@@ -621,6 +665,7 @@ export const AuthUiErrorNos: {
   (acc: { [key: number]: AuthUiError }, [k, v]) => {
     const e = new Error(v.message) as AuthUiError;
     e.errno = v.errno;
+    e.version = v.version;
     acc[e.errno] = e;
     return acc;
   },

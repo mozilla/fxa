@@ -44,7 +44,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     try {
       await target.auth.accountDestroy(credentials.email, credentials.password);
     } catch (error: any) {
-      if (error.message === 'Unverified session') {
+      if (error.message === 'Unconfirmed session') {
         // If totp was enabled we'll need a verified session to destroy the account
         if (credentials.secret) {
           // we don't know if the original session still exists

@@ -1,12 +1,12 @@
-verifyPrimary-title = "Verify primary email"
+verifyPrimary-title-2 = "Confirm primary email"
 
 verifyPrimary-description = "A request to perform an account change has been made from the following device:"
 <%- include('/partials/userInfo/index.txt') %>
 
-verifyPrimary-action-plaintext = "Verify email:"
+verifyPrimary-action-plaintext-2 = "Confirm email:"
 <%- link %>
 
-verifyPrimary-post-verify = "Once verified, account changes like adding a secondary email will become possible from this device."
+verifyPrimary-post-verify-2 = "Once confirmed, account changes like adding a secondary email will become possible from this device."
 
 <%- include('/partials/changePassword/index.txt') %>
 
