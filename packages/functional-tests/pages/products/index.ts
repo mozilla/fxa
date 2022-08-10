@@ -13,7 +13,6 @@ export class SubscribePage extends BaseLayout {
     await frame.fill('.InputElement[name=cvc]', '333');
     await frame.fill('.InputElement[name=postal]', '66666');
     await this.page.check('input[type=checkbox]');
-    await this.page.click('button[type=submit]');
   }
 
   async setFailedCreditCardInfo() {
@@ -23,6 +22,9 @@ export class SubscribePage extends BaseLayout {
     await frame.fill('.InputElement[name=cvc]', '444');
     await frame.fill('.InputElement[name=postal]', '77777');
     await this.page.check('input[type=checkbox]');
+  }
+
+  async clickPayNow() {
     await this.page.click('button[type=submit]');
   }
 
@@ -44,8 +46,28 @@ export class SubscribePage extends BaseLayout {
     await paypalWindow.click('button[id=consentButton]');
   }
 
+  async addExpiredCoupon() {
+    await this.page.click('[data-testid="coupon-input"]');
+    await this.page.fill('[data-testid="coupon-input"]', 'autoexpired');
+    await this.page.click('[data-testid="coupon-button"]');
+  }
+
+  async addInvalidCoupon() {
+    await this.page.click('[data-testid="coupon-input"]');
+    await this.page.fill('[data-testid="coupon-input"]', 'autoinvalid');
+    await this.page.click('[data-testid="coupon-button"]');
+  }
+
   async clickTryAgain() {
     this.page.click('[data-testid="retry-link"]');
+  }
+
+  couponErrorMessageText() {
+    return this.page.innerText('[data-testid="coupon-error"]');
+  }
+
+  discountAppliedSucess() {
+    return this.page.innerText('.coupon-header');
   }
 
   submit() {
