@@ -504,6 +504,11 @@ module.exports = function (log, config, bounces) {
       code: message.code,
     };
 
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
     if (message.service) {
       query.service = message.service;
     }
@@ -538,6 +543,7 @@ module.exports = function (log, config, bounces) {
       template: templateName,
       templateValues: {
         device: this._formatUserAgentInfo(message),
+        date: date,
         email: message.email,
         ip: message.ip,
         link: links.link,
@@ -549,6 +555,7 @@ module.exports = function (log, config, bounces) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         sync: message.service === 'sync',
+        time: time,
       },
     });
   };
