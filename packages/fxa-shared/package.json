@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
-    "@nestjs/testing": "^8.4.6",
+    "@nestjs/testing": "^9.0.8",
     "@type-cacheable/core": "^10.1.2",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
     "@types/accept-language-parser": "^1.5.3",
