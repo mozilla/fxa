@@ -1,5 +1,6 @@
-verificationReminderSecond-subject = Final reminder: Activate your account
-verificationReminderSecond-title = Still there?
-verificationReminderSecond-description-2 = Almost a week ago you created a { -product-firefox-account } but never confirmed it. We’re worried about you.
-verificationReminderSecond-sub-description = Confirm this email address to activate your account and let us know you’re okay.
-verificationReminderSecond-action = Confirm email
+verificationReminderSecond-subject-2 = Remember to confirm your account
+verificationReminderSecond-title-2 = Don’t miss out on { -brand-firefox }
+verificationReminderSecond-description-3 = A few days ago you created a { -product-firefox-account }, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted.
+verificationReminderSecond-second-description = Your { -product-firefox-account } lets you sync your info across devices and unlocks access to more privacy-protecting products from { -brand-mozilla }.
+verificationReminderSecond-sub-description-2 = Be part of our mission to transform the internet into a place that’s open for everyone.
+verificationReminderSecond-action-2 = Confirm account

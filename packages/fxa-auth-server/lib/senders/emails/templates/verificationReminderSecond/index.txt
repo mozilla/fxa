@@ -1,10 +1,12 @@
-verificationReminderSecond-title = "Still there?"
+verificationReminderSecond-title-2 = "Don’t miss out on Firefox"
 
-verificationReminderSecond-description-2 = "Almost a week ago you created a Firefox account but never confirmed it. We’re worried about you."
+verificationReminderSecond-description-3 = "A few days ago you created a Firefox account, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted."
 
-verificationReminderSecond-sub-description = "Confirm this email address to activate your account and let us know you’re okay."
+verificationReminderSecond-second-description = "Your Firefox account lets you sync your info across devices and unlocks access to more privacy-protecting products from Mozilla."
 
-confirm-email-plaintext = "Confirm email:"
+verificationReminderSecond-sub-description-2 = "Be part of our mission to transform the internet into a place that’s open for everyone."
+
+confirm-email-plaintext-2 = "Confirm account:"
 <%- link %>
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>

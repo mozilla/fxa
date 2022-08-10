@@ -440,7 +440,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verificationReminderSecondEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Final reminder: Activate your account' }],
+    ['subject', { test: 'equal', expected: 'Remember to confirm your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecond') }],
@@ -457,7 +457,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['text', [
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'second-verification-reminder', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'second-verification-reminder', 'support')}` },
-      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
+      { test: 'include', expected: `Confirm account:\n${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
