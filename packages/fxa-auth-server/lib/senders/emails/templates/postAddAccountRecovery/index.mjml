@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postAddAccountRecovery-title">Account recovery key generated</span>
+      <span data-l10n-id="postAddAccountRecovery-title-2">You created a new account recovery key</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postAddAccountRecovery-description">You have successfully generated an account recovery key for your Firefox account using the following device:</span>
+      <span data-l10n-id="postAddAccountRecovery-description-2">A new key was created from:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -19,9 +19,14 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postAddAccountRecovery-recovery">
-        If this was not you,
-        <a class="link-blue" href="<%- revokeAccountRecoveryLink %>" data-l10n-name="revokeAccountRecoveryLink">click here</a>.
+      <span data-l10n-id="postAddAccountRecovery-not-you">
+        Not you?
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddAccountRecovery-change">
+        <a class="link-blue" href="<%- revokeAccountRecoveryLink %>" data-l10n-name="revokeAccountRecoveryLink">Delete the new key</a> and <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">change your password</a>
       </span>
     </mj-text>
   </mj-column>

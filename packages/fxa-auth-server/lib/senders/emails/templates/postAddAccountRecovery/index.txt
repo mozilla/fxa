@@ -1,15 +1,18 @@
-postAddAccountRecovery-title = "Account recovery key generated"
+postAddAccountRecovery-title-2 = "You created a new account recovery key"
 
-postAddAccountRecovery-description = "You have successfully generated an account recovery key for your Firefox account from the following device:"
+postAddAccountRecovery-description-2 = "A new key was created from:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-postAddAccountRecovery-revoke = "If this was not you, revoke key."
+postAddAccountRecovery-not-you = "Not you?"
 
+postAddAccountRecovery-delete-key = "Delete the new key:"
 <%- revokeAccountRecoveryLink %>
 
-<%- include('/partials/manageAccount/index.txt') %>
+postAddAccountRecovery-changd-password = "Change your password:"
+<%- passwordChangeLink %>
 
-<%- include('/partials/changePassword/index.txt') %>
+<%- include('/partials/manageAccount/index.txt') %>
+<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
 
 <%- include('/partials/support/index.txt') %>
