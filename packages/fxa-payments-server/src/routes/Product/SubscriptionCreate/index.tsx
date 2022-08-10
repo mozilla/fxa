@@ -156,12 +156,12 @@ export const SubscriptionCreate = ({
               });
             },
           });
+          refreshSubmitNonce();
         } catch (error) {
           console.error('handleSubscriptionPayment failed', error);
           setSubscriptionError(error);
         }
         setInProgress(false);
-        refreshSubmitNonce();
       },
       [
         selectedPlan,
@@ -187,12 +187,12 @@ export const SubscriptionCreate = ({
             priceId,
             productId: selectedPlan.product_id,
           });
+          refreshSubmitNonce();
           refreshSubscriptions();
         } catch (error) {
           setSubscriptionError(error);
         }
         setInProgress(false);
-        refreshSubmitNonce();
       },
       [setInProgress, refreshSubmitNonce, refreshSubscriptions, selectedPlan]
     );

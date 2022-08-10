@@ -441,7 +441,7 @@ export class StripeHelper extends StripeHelperBase {
    * Create a subscription for the provided customer.
    */
   async createSubscriptionWithPMI(opts: {
-    customerId: string;
+    customer: Stripe.Customer;
     priceId: string;
     paymentMethodId?: string;
     promotionCode?: Stripe.PromotionCode;
@@ -449,14 +449,23 @@ export class StripeHelper extends StripeHelperBase {
     taxRateId?: string;
   }) {
     const {
-      customerId,
+      customer,
       priceId,
       paymentMethodId,
       promotionCode,
       subIdempotencyKey,
       taxRateId,
     } = opts;
+    const customerId = customer.id;
     const taxRates = taxRateId ? [taxRateId] : [];
+
+    const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
+    if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
+      throw error.subscriptionAlreadyExists();
+    } else if (sub && sub.status === 'incomplete') {
+      // Sub has never been active or charged, delete it.
+      this.stripe.subscriptions.del(sub.id);
+    }
 
     let paymentMethod;
     if (paymentMethodId) {
@@ -465,8 +474,13 @@ export class StripeHelper extends StripeHelperBase {
           paymentMethodId,
           {
             customer: customerId,
-          },
-          { idempotencyKey: `pma-${subIdempotencyKey}` }
+          }
+          // At the moment the frontend creates a new paymentMethod before every call to this method.
+          // If we were to reuse the same idempotencyKey we'd get the idempotency_error from Stripe.
+          // https://stripe.com/docs/api/errors
+          // As a potential alternative approach, we could compare paymentMethod fingerprints before
+          // attaching it to paymentMethods.
+          // { idempotencyKey: `pma-${subIdempotencyKey}` }
         );
       } catch (err) {
         if (err.type === 'StripeCardError') {

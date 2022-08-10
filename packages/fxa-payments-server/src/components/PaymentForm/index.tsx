@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import {
   Localized,
   withLocalization,
@@ -130,11 +130,8 @@ export const PaymentForm = ({
     onChangeProp();
   }, [engageOnce, onChangeProp]);
 
-  const [lastSubmitNonce, setLastSubmitNonce] = useState('');
-  const nonceMatch = submitNonce === lastSubmitNonce;
-  const allowSubmit =
-    !nonceMatch && !inProgress && validator.allValid() && shouldAllowSubmit;
-  const showProgressSpinner = nonceMatch || inProgress;
+  const allowSubmit = !inProgress && validator.allValid() && shouldAllowSubmit;
+  const showProgressSpinner = inProgress;
 
   const payButtonL10nId = (c?: Customer | null) =>
     hasPaymentProvider(c) && isPaypal(c!.payment_provider)
@@ -144,7 +141,6 @@ export const PaymentForm = ({
   const onPaypalFormSubmit = useCallback(
     async (ev: React.FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
-      setLastSubmitNonce(submitNonce);
       (onSubmitForParent as PaypalSubmitHandler)({
         priceId: plan!.plan_id,
         idempotencyKey: submitNonce,
@@ -160,7 +156,6 @@ export const PaymentForm = ({
       if (!stripe || !elements || !allowSubmit) {
         return;
       }
-      setLastSubmitNonce(submitNonce);
       const { name } = validator.getValues();
       const card = elements.getElement(CardElement);
       /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */

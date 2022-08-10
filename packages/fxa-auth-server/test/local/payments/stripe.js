@@ -831,7 +831,7 @@ describe('StripeHelper', () => {
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.createSubscriptionWithPMI({
-        customerId: 'customerId',
+        customer: customer1,
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
         subIdempotencyKey,
@@ -842,7 +842,7 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.create,
         {
-          customer: 'customerId',
+          customer: customer1.id,
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
@@ -887,7 +887,7 @@ describe('StripeHelper', () => {
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.createSubscriptionWithPMI({
-        customerId: 'customerId',
+        customer: customer1,
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
         subIdempotencyKey,
@@ -906,7 +906,7 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.create,
         {
-          customer: 'customerId',
+          customer: customer1.id,
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
@@ -959,7 +959,7 @@ describe('StripeHelper', () => {
 
       try {
         await stripeHelper.createSubscriptionWithPMI({
-          customerId: 'customerId',
+          customer: customer1,
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
           subIdempotencyKey,
@@ -975,7 +975,7 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.create,
         {
-          customer: 'customerId',
+          customer: customer1.id,
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
@@ -1001,7 +1001,7 @@ describe('StripeHelper', () => {
 
       return stripeHelper
         .createSubscriptionWithPMI({
-          customerId: 'customerId',
+          customer: customer1,
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
           subIdempotencyKey: uuidv4(),
@@ -1025,7 +1025,7 @@ describe('StripeHelper', () => {
 
       return stripeHelper
         .createSubscriptionWithPMI({
-          customerId: 'customerId',
+          customer: customer1,
           priceId: 'invoiceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
           subIdempotencyKey: uuidv4(),

@@ -173,28 +173,6 @@ it('calls onSubmit when all fields valid and submitted', async () => {
   expect(onSubmit).toHaveBeenCalled();
 });
 
-it('renders a progress spinner when submitted, disables further submission (issue #4386 / FXA-1275)', async () => {
-  const onSubmit = jest.fn();
-
-  const { queryByTestId, getByTestId } = renderWithValidFields({
-    onSubmit,
-    submitNonce: 'unique-nonce-1',
-  });
-
-  const submitButton = getByTestId('submit');
-  fireEvent.click(submitButton);
-
-  await waitForExpect(() => expect(onSubmit).toHaveBeenCalled());
-
-  expect(queryByTestId('spinner-submit')).toBeInTheDocument();
-  expect(getByTestId('submit')).toHaveAttribute('disabled');
-
-  fireEvent.submit(getByTestId('paymentForm'));
-  fireEvent.click(submitButton);
-
-  expect(onSubmit).toHaveBeenCalledTimes(1);
-});
-
 it('renders a progress spinner when inProgress = true', () => {
   const { queryByTestId } = render(<Subject {...{ inProgress: true }} />);
   expect(queryByTestId('spinner-submit')).toBeInTheDocument();

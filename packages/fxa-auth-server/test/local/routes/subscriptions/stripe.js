@@ -783,6 +783,8 @@ describe('DirectStripeRoutes', () => {
   describe('createSubscriptionWithPMI', () => {
     let plan, paymentMethod;
 
+    const customer = deepCopy(emptyCustomer);
+
     beforeEach(() => {
       plan = deepCopy(PLANS[2]);
       plan.currency = 'USD';
@@ -792,7 +794,6 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
         paymentMethod
       );
-      const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       directStripeRoutesInstance.stripeHelper.setCustomerLocation.resolves();
     });
@@ -908,7 +909,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
-          customerId: 'cus_new',
+          customer,
           priceId: 'Jane Doe',
           paymentMethodId: 'pm_asdf',
           promotionCode: {
@@ -1160,7 +1161,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledWith(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
-          customerId: customer.id,
+          customer,
           priceId: 'quux',
           promotionCode: undefined,
           paymentMethodId: undefined,

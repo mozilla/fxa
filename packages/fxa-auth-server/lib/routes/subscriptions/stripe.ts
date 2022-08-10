@@ -492,7 +492,9 @@ export class StripeHandler {
     try {
       await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-      const customer = await this.stripeHelper.fetchCustomer(uid);
+      const customer = await this.stripeHelper.fetchCustomer(uid, [
+        'subscriptions',
+      ]);
       if (!customer) {
         throw error.unknownCustomer(uid);
       }
@@ -544,7 +546,7 @@ export class StripeHandler {
       const subIdempotencyKey = `${idempotencyKey}-createSub`;
       const subscription: any =
         await this.stripeHelper.createSubscriptionWithPMI({
-          customerId: customer.id,
+          customer,
           priceId,
           paymentMethodId,
           promotionCode: promotionCode,
