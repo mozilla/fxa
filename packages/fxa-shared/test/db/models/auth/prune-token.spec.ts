@@ -105,10 +105,7 @@ describe('PruneTokens', () => {
   });
 
   it('Prunes expired tokens', async () => {
-    pruneTokens.prune(1, 1);
-    await new Promise((resolve) =>
-      setTimeout(resolve, pruneInterval + maxJitter)
-    );
+    const result = await pruneTokens.prune(1, 1);
 
     // Check for the session token again
     const sessionTokens = await SessionToken.query().select(
@@ -117,20 +114,20 @@ describe('PruneTokens', () => {
     );
 
     expect(sessionTokens.length).to.equal(0);
+    expect(result.uids?.[0]?.uid?.toString('hex')).to.equal(
+      '0123456789abcdef0000000000000000'
+    );
   });
 
   it('Will not prune valid tokens', async () => {
-    pruneTokens.prune(now - age - 1, 1 - age - 1);
-    await new Promise((resolve) =>
-      setTimeout(resolve, pruneInterval + maxJitter)
-    );
-
+    const result = await pruneTokens.prune(now - age - 1, now - age - 1);
     const sessionTokens = await SessionToken.query().select(
       'tokenId',
       'createdAt'
     );
 
     expect(sessionTokens.length).to.equal(1);
+    expect(result.uids).to.be.null;
   });
 
   it('Will limit sessions', async () => {
@@ -138,16 +135,13 @@ describe('PruneTokens', () => {
 
     expect(result.outputs['@accountsOverLimit']).to.equal(1);
     expect(result.outputs['@totalDeletions']).to.equal(1);
-    expect(result.results?.rows[1]?.[0]?.uid?.toString('hex')).to.equal(
+    expect(result.uids[0].uid.toString('hex')).to.equal(
       '0123456789abcdef0000000000000000'
     );
   });
 
   it('Calls statsd', async () => {
-    pruneTokens.prune(1, 1);
-    await new Promise((resolve) =>
-      setTimeout(resolve, pruneInterval + maxJitter)
-    );
+    await pruneTokens.prune(1, 1);
 
     expect(statsd.increment.calledWith('prune-tokens.start')).to.be.true;
     expect(statsd.increment.calledWith('prune-tokens.error')).to.be.false;
