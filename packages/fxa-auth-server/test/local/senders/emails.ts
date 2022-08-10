@@ -473,7 +473,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'Finish creating your account' },
-      { test: 'include', expected: 'Activate the Firefox family of products' },
+      { test: 'include', expected: 'Open the internet with Firefox' },
       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
@@ -486,11 +486,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Activate the Firefox family of products' },
-      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+      { test: 'include', expected: 'Open the internet with Firefox' },
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
-      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
+      { test: 'include', expected: `Confirm account:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

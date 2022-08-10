@@ -152,7 +152,7 @@ describe('remote account create', function () {
         return server.mailbox.waitForEmail(email);
       })
       .then((emailData) => {
-        assert.include(emailData.text, 'Confirm email', 'en-US');
+        assert.include(emailData.text, 'Confirm account', 'en-US');
         // TODO: reinstate after translations catch up
         //assert.notInclude(emailData.text, 'Ativar agora', 'not pt-BR');
         return client.destroyAccount();

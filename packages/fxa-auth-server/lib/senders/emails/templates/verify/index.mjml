@@ -4,7 +4,7 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-header"><span data-l10n-id="verify-title">Activate the Firefox family of products</span></mj-text>
+    <mj-text css-class="text-header"><span data-l10n-id="verify-title-2">Open the internet with Firefox</span></mj-text>
   </mj-column>
 </mj-section>
 
@@ -16,7 +16,8 @@
 
 <%- include('/partials/userInfo/index.mjml') %>
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "verify-action",
-  buttonText: "Confirm email"
+  buttonL10nId: "verify-action-2",
+  buttonText: "Confirm account"
 }) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>
+<%- include('/partials/support/index.txt') %>
