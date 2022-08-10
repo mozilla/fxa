@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.scss';
 
 // eslint-disable-next-line max-len
 const spinnerImage =
@@ -11,7 +10,10 @@ type LoadingOverlayProps = {
 
 export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) =>
   !isLoading ? null : (
-    <div id="loading-overlay" data-testid="loading-overlay">
-      <img alt="" src={spinnerImage} />
+    <div
+      className="flex justify-center items-center fixed inset-0 z-[9999]"
+      data-testid="loading-overlay"
+    >
+      <img className="h-10 w-10 animate-spin" alt="" src={spinnerImage} />
     </div>
   );
