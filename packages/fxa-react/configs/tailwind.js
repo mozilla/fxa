@@ -12,6 +12,7 @@ module.exports = {
     extend: {
       zIndex: {
         1000: '1000',
+        9999: '9999',
       },
       padding: {
         7: '1.75rem',
