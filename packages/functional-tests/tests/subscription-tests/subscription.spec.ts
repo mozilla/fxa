@@ -1,4 +1,4 @@
-import { test, expect } from '../lib/fixtures/standard';
+import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1', () => {
   test('subscribe with credit card and login to product', async ({
@@ -11,6 +11,7 @@ test.describe('severity-1', () => {
     await relier.clickSubscribe();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
+    await subscribe.clickPayNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
@@ -30,6 +31,7 @@ test.describe('severity-1', () => {
     await subscribe.setFailedCreditCardInfo();
     await subscribe.clickTryAgain();
     await subscribe.setCreditCardInfo();
+    await subscribe.clickPayNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
