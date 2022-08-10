@@ -3,13 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
-import PaymentConfirmation from './index';
+import { PaymentConfirmation, PaymentConfirmationProps } from './index';
 import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { Meta } from '@storybook/react';
+
+export default {
+  title: 'components/PaymentConfirmation',
+  component: PaymentConfirmation,
+} as Meta;
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -83,73 +88,62 @@ const coupon: CouponDetails = {
   maximallyRedeemed: false,
 };
 
-storiesOf('components/PaymentConfirmation', module)
-  .add('default', () => (
-    <MockApp>
-      <PaymentConfirmation
-        {...{ profile: userProfile, selectedPlan, customer, productUrl }}
-      />
+const storyWithProps = (
+  props: PaymentConfirmationProps,
+  languages?: readonly string[]
+) => {
+  const story = () => (
+    <MockApp languages={languages}>
+      <PaymentConfirmation {...props} />
     </MockApp>
-  ))
-  .add('custom action button label', () => (
-    <MockApp>
-      <PaymentConfirmation
-        {...{
-          profile: userProfile,
-          selectedPlan: selectedPlanWithMetadata,
-          customer,
-          productUrl,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('custom action button label localized to xx-pirate', () => (
-    <MockApp languages={['xx-pirate']}>
-      <PaymentConfirmation
-        {...{
-          profile: userProfile,
-          selectedPlan: selectedPlanWithMetadata,
-          customer,
-          productUrl,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('paypal', () => (
-    <MockApp>
-      <PaymentConfirmation
-        {...{
-          profile: userProfile,
-          selectedPlan,
-          customer: PAYPAL_CUSTOMER,
-          productUrl,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('with passwordless account', () => (
-    <MockApp>
-      <PaymentConfirmation
-        {...{
-          profile: userProfile,
-          selectedPlan,
-          customer: PAYPAL_CUSTOMER,
-          productUrl,
-          accountExists: false,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('with coupon', () => (
-    <MockApp>
-      <PaymentConfirmation
-        {...{
-          profile: userProfile,
-          selectedPlan,
-          customer: PAYPAL_CUSTOMER,
-          productUrl,
-          coupon,
-        }}
-      />
-    </MockApp>
-  ));
+  );
+
+  return story;
+};
+
+export const Default = storyWithProps({
+  profile: userProfile,
+  selectedPlan: selectedPlan,
+  customer: customer,
+  productUrl: productUrl,
+});
+
+export const CustomActionButtonLabel = storyWithProps({
+  profile: userProfile,
+  selectedPlan: selectedPlanWithMetadata,
+  customer: customer,
+  productUrl: productUrl,
+});
+
+export const CustomActionButtonLabelWithLocalization = storyWithProps(
+  {
+    profile: userProfile,
+    selectedPlan: selectedPlanWithMetadata,
+    customer: customer,
+    productUrl: productUrl,
+  },
+  ['xx-pirate']
+);
+
+export const Paypal = storyWithProps({
+  profile: userProfile,
+  selectedPlan: selectedPlan,
+  customer: PAYPAL_CUSTOMER,
+  productUrl: productUrl,
+});
+
+export const WithPasswordlessAccount = storyWithProps({
+  profile: userProfile,
+  selectedPlan: selectedPlan,
+  customer: PAYPAL_CUSTOMER,
+  productUrl: productUrl,
+  accountExists: false,
+});
+
+export const WithCoupon = storyWithProps({
+  profile: userProfile,
+  selectedPlan: selectedPlan,
+  customer: PAYPAL_CUSTOMER,
+  productUrl: productUrl,
+  coupon: coupon,
+});
