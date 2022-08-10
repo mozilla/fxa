@@ -358,6 +358,10 @@ plan-details-list-price = List Price
 
 coupon-discount = Discount
 coupon-discount-applied = Discount Reward Applied
+# Title of container where a user can input a coupon code to get a discount on a subscription.
+coupon-promo-code = Promo Code
+# Title of container showing discount coupon code applied to a subscription.
+coupon-promo-code-applied = Promo Code Applied
 coupon-submit = Apply
 coupon-remove = Remove
 coupon-error = The code you entered is invalid or expired.
