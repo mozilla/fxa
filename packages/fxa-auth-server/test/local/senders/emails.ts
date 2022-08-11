@@ -874,7 +874,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recovery }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Need to reset your password?' },
+      { test: 'include', expected: 'Forgot your password?' },
       { test: 'include', expected: 'Create new password' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'forgot-password', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
@@ -886,7 +886,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Need to reset your password?' },
+      { test: 'include', expected: 'Forgot your password?' },
+      { test: 'include', expected: 'Create a new password by copying and pasting the URL below into your browser. This link will expire within the next hour.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },

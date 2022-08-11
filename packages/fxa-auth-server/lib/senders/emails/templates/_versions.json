@@ -28,7 +28,7 @@
   "postRemoveSecondary": 5,
   "postVerify": 8,
   "postVerifySecondary": 6,
-  "recovery": 5,
+  "recovery": 6,
   "unblockCode": 6,
   "verificationReminderFirst": 10,
   "verificationReminderSecond": 11,
