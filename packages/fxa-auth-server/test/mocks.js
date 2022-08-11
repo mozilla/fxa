@@ -798,11 +798,15 @@ function mockRequest(data, errors) {
 
 function mockVerificationReminders(data = {}) {
   return {
-    keys: ['first', 'second', 'third'],
-    create: sinon.spy(() => data.create || { first: 1, second: 1, third: 1 }),
-    delete: sinon.spy(() => data.delete || { first: 1, second: 1, third: 1 }),
+    keys: ['first', 'second', 'third', 'final'],
+    create: sinon.spy(
+      () => data.create || { first: 1, second: 1, third: 1, final: 1 }
+    ),
+    delete: sinon.spy(
+      () => data.delete || { first: 1, second: 1, third: 1, final: 1 }
+    ),
     process: sinon.spy(
-      () => data.process || { first: [], second: [], third: [] }
+      () => data.process || { first: [], second: [], third: [], final: [] }
     ),
   };
 }

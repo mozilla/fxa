@@ -34,6 +34,7 @@ module.exports = function (log, config, bounces) {
     log,
     config
   );
+
   const cadReminders = require('../cad-reminders')(config, log);
   const subscriptionAccountReminders =
     require('../subscription-account-reminders')(log, config);
