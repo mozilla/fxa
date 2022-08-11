@@ -1,10 +1,10 @@
 {
   "subject": {
-    "id": "postVerify-subject-2",
-    "message": "Account confirmed. Next, sync another device to finish setup"
+    "id": "postVerify-subject-3",
+    "message": "Welcome to Firefox!"
   },
   "action": {
-    "id": "postVerify-action",
-    "message": "Set up next device"
+    "id": "postVerify-action-2",
+    "message": "Connect another device"
   }
 }
