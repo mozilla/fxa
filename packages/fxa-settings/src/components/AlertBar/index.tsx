@@ -11,7 +11,7 @@ import { useReactiveVar } from '@apollo/client';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 
 export const typeClasses = {
-  success: 'text-grey-600 bg-green-500 success',
+  success: 'text-grey-900 bg-green-500 success',
   error: 'text-white bg-red-500 error',
   info: 'text-white bg-blue-500 info',
 };

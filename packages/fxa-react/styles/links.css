@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .link-blue {
-  @apply underline text-blue-500 rounded-sm;
-
-  &:active {
-    @apply text-blue-800;
-  }
+  @apply underline text-blue-500 rounded-sm
+    focus:shadow-input-blue-focus
+    focus-visible:shadow-input-blue-focus
+    focus-visible:outline-none
+    active:text-blue-700;
 }
 
 .link-grey {
-  @apply underline text-grey-500 rounded-sm;
-
-  &:active {
-    @apply text-grey-500;
-  }
+  @apply underline text-grey-500 rounded-sm
+    focus:shadow-input-grey-focus
+    focus-visible:shadow-input-grey-focus
+    focus-visible:outline-none
+    active:text-grey-700;
 }
 
 @media (hover: hover) {
@@ -23,6 +23,6 @@
     @apply text-blue-600;
   }
   .link-grey:hover {
-    @apply text-grey-500;
+    @apply text-grey-600;
   }
 }
