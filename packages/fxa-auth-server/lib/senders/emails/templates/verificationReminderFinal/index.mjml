@@ -1,0 +1,17 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="verificationReminderFinal-description">A couple of weeks ago you created a Firefox account, but never confirmed it. For your security, we will delete the account if not verified in the next 24 hours.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "verificationReminderFinal-action",
+  buttonText: "Confirm account"
+}) %>
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

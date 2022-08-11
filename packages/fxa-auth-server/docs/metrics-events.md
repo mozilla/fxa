@@ -150,7 +150,7 @@ represent a successful step
 in a sign-in or sign-up flow:
 
 | Name                                             | Description                                                                                                                                               |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | `flow.begin`                                     | A user has requested a page that allows them to sign in/up.                                                                                               |
 | `flow.${viewName}.view`                          | A view has rendered.                                                                                                                                      |
 | `flow.${viewName}.engage`                        | A user has interacted with the the form on a page that allows them to sign in/up`.                                                                        |
@@ -160,7 +160,7 @@ in a sign-in or sign-up flow:
 | `flow.${viewName}.forgot-password`               | A user has clicked on the 'Forgot password?' link.                                                                                                        |
 | `flow.${viewName}.install_from.${connectMethod}` | A user has been shown a suggested 'connect another device' method.                                                                                        |
 | `flow.${viewName}.link.${linkName}`              | A user has clicked on a link.                                                                                                                             |
-| `flow.${viewName}.signedin.(true|false)`         | Is the user signed in during the connect another device flow?.                                                                                            |
+| `flow.${viewName}.signedin.(true|false)`         | Is the user signed in during the connect another device flow?. |
 | `flow.${viewName}.signin.eligible`               | A user is eligible to sign in during the connect another device flow.                                                                                     |
 | `flow.${viewName}.signin.ineligible`             | A user is not eligible to sign in during the connect another device flow.                                                                                 |
 | `flow.${action}.attempt`                         | The content server has sent a sign-in/up request to the auth server.                                                                                      |
@@ -253,9 +253,9 @@ Possible values for `${linkName}` are:
 
 Possible values for `${experiment}` are:
 
-| Experiment name        | Description                            |
-| ---------------------- | -------------------------------------- |
-| `connectAnotherDevice` | Connect another device, phase 1        |
+| Experiment name        | Description                     |
+| ---------------------- | ------------------------------- |
+| `connectAnotherDevice` | Connect another device, phase 1 |
 
 #### Connect method names
 
@@ -384,10 +384,10 @@ has the same schema as `daily_multi_device_users`.
 | `device.created`       | A device record has been created for a Sync account.         |
 | `device.updated`       | Device record is updated on a Sync account.                  |
 | `device.deleted`       | Device record has been deleted from a Sync account.          |
-| `oauth.token.created`  | An oauth access token has been issued for an account. **      |
+| `oauth.token.created`  | An oauth access token has been issued for an account. \*\*   |
 | `sync.sentTabToDevice` | Device sent a push message for send-tab-to-device feature.   |
 
-** We emit the ecosystem_anonymous_id along with this event into the AET pipeline, this is so that we can calulate Daily Active Users in a safe, non-identifiable way.
+\*\* We emit the ecosystem_anonymous_id along with this event into the AET pipeline, this is so that we can calulate Daily Active Users in a safe, non-identifiable way.
 
 ## Email events
 
@@ -424,18 +424,19 @@ NOTE: the following is outdated, we have many more templates than this. Check ou
 
 Possible values for `${template}` include
 
-| Name                       | Description                                                     |
-| -------------------------- | --------------------------------------------------------------- |
-| `newDeviceLoginEmail`      | Email sent when a login has occurred from a new device.         |
-| `passwordChangedEmail`     | Email sent when a user has successfully changed their password. |
-| `passwordResetEmail`       | Email sent when a user has reset their password.                |
-| `postAddLinkedAccountEmail`| Email sent when an account is linked to another account.        |
-| `postVerifyEmail`          | Email sent when a user has verified their account.              |
-| `recoveryEmail`            | Email sent when a user attempts to reset their password.        |
-| `unblockCodeEmail`         | Email sent containing the account unblock code.                 |
-| `verifyEmail`              | Email sent to verify a user's account.                          |
-| `verifyLoginEmail`         | Sign-in confirmation email was sent.                            |
-| `postVerifySecondaryEmail` | Email sent when a user has added a secondary email.             |
+| Name                             | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `newDeviceLoginEmail`            | Email sent when a login has occurred from a new device.               |
+| `passwordChangedEmail`           | Email sent when a user has successfully changed their password.       |
+| `passwordResetEmail`             | Email sent when a user has reset their password.                      |
+| `postAddLinkedAccountEmail`      | Email sent when an account is linked to another account.              |
+| `postVerifyEmail`                | Email sent when a user has verified their account.                    |
+| `recoveryEmail`                  | Email sent when a user attempts to reset their password.              |
+| `unblockCodeEmail`               | Email sent containing the account unblock code.                       |
+| `verifyEmail`                    | Email sent to verify a user's account.                                |
+| `verifyLoginEmail`               | Sign-in confirmation email was sent.                                  |
+| `postVerifySecondaryEmail`       | Email sent when a user has added a secondary email.                   |
+| `verificationReminderFinalEmail` | Final reminder sent to users with unverified accounts before deletion |
 
 #### Type names
 

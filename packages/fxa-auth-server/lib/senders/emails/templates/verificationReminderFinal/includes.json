@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verificationReminderFinal-subject",
+    "message": "Final reminder to confirm your account"
+  },
+  "action": {
+    "id": "verificationReminderFinal-action",
+    "message": "Confirm account"
+  }
+}

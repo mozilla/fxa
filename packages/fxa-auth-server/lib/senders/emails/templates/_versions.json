@@ -32,6 +32,7 @@
   "unblockCode": 6,
   "verificationReminderFirst": 10,
   "verificationReminderSecond": 11,
+  "verificationReminderFinal": 1,
   "verify": 7,
   "verifyPrimary": 8,
   "verifyLogin": 6,

@@ -1709,6 +1709,12 @@ const conf = convict({
       env: 'VERIFICATION_REMINDERS_SECOND_INTERVAL',
       format: 'duration',
     },
+    finalInterval: {
+      doc: 'Time since account creation after which the final reminder is sent',
+      default: '15 days',
+      env: 'VERIFICATION_REMINDERS_FINAL_INTERVAL',
+      format: 'duration',
+    },
     redis: {
       prefix: {
         default: 'verificationReminders:',
