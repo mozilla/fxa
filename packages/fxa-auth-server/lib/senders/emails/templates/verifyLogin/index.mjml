@@ -5,8 +5,8 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyLogin-title" data-l10n-args="<%= JSON.stringify({clientName}) %>">
-        New sign-in to <%- clientName %>
+      <span data-l10n-id="verifyLogin-title-2" data-l10n-args="<%= JSON.stringify({clientName}) %>">
+        Did you sign in to <%- clientName %>?
       </span>
     </mj-text>
   </mj-column>
@@ -15,9 +15,8 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyLogin-description">
-        For added security, please confirm this sign-in from the following
-        device:
+      <span data-l10n-id="verifyLogin-description-2">
+        Help us keep your account safe by confirming you signed in on:
       </span>
     </mj-text>
   </mj-column>
