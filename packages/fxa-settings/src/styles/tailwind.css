@@ -15,7 +15,7 @@
 @import './switch';
 
 body {
-  @apply text-base font-body bg-grey-10 text-grey-600;
+  @apply text-base font-body bg-grey-10 text-grey-900;
 }
 
 .nav-anchor {

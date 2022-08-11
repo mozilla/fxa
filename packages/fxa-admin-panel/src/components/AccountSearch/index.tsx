@@ -209,7 +209,7 @@ export const AccountSearch = () => {
   };
 
   return (
-    <div className="text-grey-600" data-testid="account-search">
+    <div className="text-grey-900" data-testid="account-search">
       <h2 className="text-lg font-semibold mb-2">Account Search</h2>
       <p className="mb-1">
         Search for a Firefox user account by email or UID and view its details,

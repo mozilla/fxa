@@ -26,7 +26,7 @@ const BreakpointExample = ({ size, screens }) => (
     className={`shadow-md mb-4 rounded border border-black/25 max-w-${size}`}
   >
     <div
-      className={`rounded-t bg-grey-100 text-grey-600 px-3 text-sm flex flex-col tablet:flex-row justify-between py-2 ${size}:bg-green-400`}
+      className={`rounded-t bg-grey-100 text-grey-900 px-3 text-sm flex flex-col tablet:flex-row justify-between py-2 ${size}:bg-green-400`}
     >
       {typeof screens[size] === 'string' && (
         <span className="font-bold">(min-width: {screens[size]})</span>
