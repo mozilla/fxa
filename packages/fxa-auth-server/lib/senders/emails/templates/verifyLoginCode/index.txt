@@ -1,8 +1,9 @@
-verifyLoginCode-title = "Is this you signing in?"
+verifyLoginCode-title-2 = "Did you sign in to <%- serviceName %>?"
 
+verifyLoginCode-request-info = "Help us keep your account safe by approving you signed in on:"
 <%- include('/partials/userInfo/index.txt') %>
 
-verifyLoginCode-prompt-2 = "If yes, here is the confirmation code:"
+verifyLoginCode-prompt-3 = "If yes, here is your authorization code:"
 <%- code %>
 
 verifyLoginCode-expiry-notice = "It expires in 5 minutes."

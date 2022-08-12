@@ -35,7 +35,7 @@
   "verify": 6,
   "verifyPrimary": 8,
   "verifyLogin": 5,
-  "verifyLoginCode": 7,
+  "verifyLoginCode": 8,
   "verifyShortCode": 4,
   "verifySecondaryCode": 3,
   "postAddTwoStepAuthentication": 8,

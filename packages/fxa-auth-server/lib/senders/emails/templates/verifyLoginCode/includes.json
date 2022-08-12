@@ -1,6 +1,6 @@
 {
   "subject": {
-    "id": "verifyLoginCode-subject-line",
-    "message": "Sign-in code for <%- serviceName %>"
+    "id": "verifyLoginCode-subject-line-2",
+    "message": "Approve sign in to <%- serviceName %>"
   }
 }

@@ -814,7 +814,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verifyLoginCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Sign-in code for Mock Relier' }],
+    ['subject', { test: 'equal', expected: 'Approve sign in to Mock Relier' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCode') }],
       ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
@@ -822,8 +822,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCode }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Sign-in code for Mock Relier' },
-      { test: 'include', expected: 'Is this you signing in?' },
+      { test: 'include', expected: 'Did you sign in to Mock Relier?' },
+      { test: 'include', expected: 'Help us keep your account safe by approving you signed in on:' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin-verify-code', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-signin-verify-code', 'support')) },
@@ -833,11 +833,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Is this you signing in?' },
+      { test: 'include', expected: 'Did you sign in to Mock Relier?' },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin-verify-code', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-signin-verify-code', 'support')}` },
-      { test: 'include', expected: `If yes, here is the confirmation code:\n${MESSAGE.code}` },
+      { test: 'include', expected: `If yes, here is your authorization code:\n${MESSAGE.code}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },

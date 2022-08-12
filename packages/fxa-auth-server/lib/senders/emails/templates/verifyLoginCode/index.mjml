@@ -5,7 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyLoginCode-title">Is this you signing in?</span>
+      <span data-l10n-id="verifyLoginCode-title-2" data-l10n-args="<%= JSON.stringify({serviceName}) %>">Did you sign in to <%- serviceName %>?</span>
+    </mj-text>
+
+    <mj-text css-class="text-header">
+      <span data-l10n-id="verifyLoginCode-request-info">Help us keep your account safe by approving you signed in on:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -15,8 +19,8 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyLoginCode-prompt-2">
-        If yes, here is the confirmation code:
+      <span data-l10n-id="verifyLoginCode-prompt-3">
+        If yes, here is your authorization code:
       </span>
     </mj-text>
 
