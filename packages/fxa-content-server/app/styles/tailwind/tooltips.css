@@ -1,0 +1,11 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* REACT NOTE: We're currently using jQ to look for the "closest" element matching `input-row` to
+ * set which element the tooltip should be relative to. If the component is using Tailwind, it's
+ * using `tooltip-container` instead, which only has a component class because its purpose is more
+ * clear than matching closest "relative" class. This can be done in a nicer way with React. */
+.tooltip-container {
+  @apply relative;
+}

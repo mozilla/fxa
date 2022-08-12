@@ -9,11 +9,19 @@ const config = require('fxa-react/configs/tailwind');
 config.content = [
   './app/scripts/templates/**/*.mustache',
   './app/server/templates/pages/**/*.html',
+  // for 'invalid' class
+  './app/scripts/views/form.js',
 ];
 
-config.theme.extend.content = {
-  ...config.theme.extend.content,
-  'circle-check': "inline('../images/circle-check.svg')",
+config.theme.extend = {
+  ...config.theme.extend,
+  backgroundImage: {
+    'check-white': 'inline("../images/icon-check-white.svg")',
+  },
+  content: {
+    ...config.theme.extend.content,
+    'circle-check': "inline('../images/circle-check.svg')",
+  },
 };
 
 module.exports = config;

@@ -17,6 +17,7 @@
 @import './tailwind/ctas';
 @import './tailwind/inputs';
 @import './tailwind/images';
+@import './tailwind/tooltips';
 
 body {
   @apply min-h-screen mobileLandscape:pt-12 text-black flex flex-col justify-center;

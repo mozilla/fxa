@@ -16,11 +16,11 @@
 
         <p id="verification-email-message" class="mb-5">{{#unsafeTranslate}}Enter the code that was sent to %(escapedEmail)s within 5 minutes.{{/unsafeTranslate}}</p>
         <form novalidate>
-            <div class="input-row">
+            <div class="tooltip-container">
                 <!-- Using `type="text" inputmode="numeric"` shows the numericpad on mobile and strips out whitespace on desktop. -->
-                <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+                <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below input-text" id="otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
             </div>
-            <div class="flex">
+            <div class="flex mt-5">
                 <button id="submit-btn" type="submit" class="cta-primary cta-xl">{{#t}}Confirm{{/t}}</button>
             </div>
             <p id="links" class="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs">

@@ -80,6 +80,7 @@ module.exports = {
         // Specific-use focus shadows for input elements
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
         'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
+        'input-red-focus': '0 0 0 1px #C50042, 0 0 0 3px #FFBDC5',
         'tooltip-grey-drop': '0 0 4px rgba(32, 18, 58, 0.24)',
       },
       scale: {

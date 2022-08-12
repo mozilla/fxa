@@ -1,4 +1,7 @@
-<div id="coppa" class="input-row input-row-age mb-8">
-  <input type="number" pattern="\d*" id="age" placeholder="{{#t}}How old are you?{{/t}}" min="0" max="130" value="{{ age }}" {{#required}}required{{/required}} />
-  <p>{{#t}}You must be at least 13 years old to create an account.{{/t}}</p>
+<div id="coppa" class="mb-8 tooltip-container">
+  <label for="age" id="age-label" class="sr-only">{{#t}}How old are you? You must be at least 13 years old to create an account.{{/t}}</label>
+  <input type="number" pattern="\d*" id="age" class="input-text no-step" placeholder="{{#t}}How old are you?{{/t}}" aria-labelledby="age-label" min="0" max="130" value="{{ age }}" {{#required}}required{{/required}} />
+  <!-- If you update this string you must update it in the label as well.
+  This is hidden from screenreaders in favor of reading it before users enter their age. -->
+  <p aria-hidden="true" id="age-explainer" class="text-grey-500 text-start text-xs mt-3">{{#t}}You must be at least 13 years old to create an account.{{/t}}</p>
 </div>
