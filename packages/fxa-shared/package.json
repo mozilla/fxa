@@ -125,7 +125,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "stripe": "^9.16.0",
-    "superagent": "^7.1.2",
+    "superagent": "^8.0.0",
     "typesafe-node-firestore": "^1.4.0"
   },
   "jest": {
