@@ -80,6 +80,7 @@ module.exports = {
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
         'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
         'tooltip-grey-drop': '0 0 4px rgba(32, 18, 58, 0.24)',
+        'card-grey-drop': '0px 2px 14px rgba(58, 57, 68, 0.2)',
       },
       scale: {
         80: '.8',
