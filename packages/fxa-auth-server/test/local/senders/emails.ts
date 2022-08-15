@@ -801,7 +801,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'Did you sign in to Mock Relier?' },
-      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },

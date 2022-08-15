@@ -7,5 +7,6 @@ verifyLogin-description-2 = "Help us keep your account safe by confirming you si
 verifyLogin-action = "Confirm sign-in"
 <%- link %>
 
-<%- include('/partials/changePassword/index.txt') %>
+<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
+
 <%- include('/partials/support/index.txt') %>
