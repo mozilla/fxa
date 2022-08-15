@@ -124,7 +124,7 @@
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
     "helmet": "^5.0.0",
-    "hot-shots": "^9.1.0",
+    "hot-shots": "^9.2.0",
     "joi": "17.4.0",
     "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "morgan": "^1.10.0",
