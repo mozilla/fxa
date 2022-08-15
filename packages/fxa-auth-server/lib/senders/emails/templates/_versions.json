@@ -43,7 +43,7 @@
   "postConsumeRecoveryCode": 5,
   "postNewRecoveryCodes": 5,
   "passwordResetAccountRecovery": 6,
-  "postAddAccountRecovery": 6,
+  "postAddAccountRecovery": 7,
   "postRemoveAccountRecovery": 6,
   "cadReminderFirst": 3,
   "cadReminderSecond": 3,

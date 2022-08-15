@@ -913,7 +913,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postAddAccountRecoveryEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Account recovery key generated' }],
+    ['subject', { test: 'equal', expected: 'Account recovery key created' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecovery') }],
@@ -921,7 +921,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecovery }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Account recovery key generated' },
+      { test: 'include', expected: 'You created a new account recovery key' },
+      { test: 'include', expected: decodeUrl(configHref('revokeAccountRecoveryUrl', 'account-recovery-generated', 'report')) },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-generated', 'privacy')) },
@@ -931,9 +932,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Account recovery key generated' },
+      { test: 'include', expected: 'You created a new account recovery key' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')}` },
-      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')}` },
+      { test: 'include', expected: `Delete the new key:\n${configUrl('revokeAccountRecoveryUrl', 'account-recovery-generated', 'report')}` },
+      { test: 'include', expected: `Change your password:\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-generated', 'support')}` },
       { test: 'include', expected: `${MESSAGE.date}` },

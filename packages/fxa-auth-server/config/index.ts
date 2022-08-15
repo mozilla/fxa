@@ -1974,10 +1974,7 @@ conf.set(
   `${baseUri}/post_verify/finish_account_setup/set_password`
 );
 conf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
-conf.set(
-  'smtp.revokeAccountRecoveryUrl',
-  `${baseUri}/settings/account_recovery`
-);
+conf.set('smtp.revokeAccountRecoveryUrl', `${baseUri}/settings#recovery-key`);
 conf.set(
   'smtp.createAccountRecoveryUrl',
   `${baseUri}/settings/account_recovery`
