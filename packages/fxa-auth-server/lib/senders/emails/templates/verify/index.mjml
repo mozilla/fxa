@@ -20,4 +20,3 @@
   buttonText: "Confirm account"
 }) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>
-<%- include('/partials/support/index.txt') %>

@@ -28,4 +28,4 @@
 	</mj-column>
 </mj-section>
 
-<%- include('/partials/automatedEmailNoActionSupport/index.mjml') %>
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

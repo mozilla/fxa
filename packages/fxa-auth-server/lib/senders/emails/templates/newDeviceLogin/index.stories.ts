@@ -18,6 +18,7 @@ const createStory = storyWithProps(
     clientName: 'Firefox',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
     link: 'http://localhost:3030/settings',
+    mozillaSupportUrl: 'https://support.mozilla.org',
   }
 );
 
