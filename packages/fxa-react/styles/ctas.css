@@ -20,8 +20,9 @@
       @apply border-grey-400 bg-grey-100 text-grey-400;
     }
 
-    &:focus {
-      @apply bg-white;
+    &:focus,
+    &:focus-visible {
+      @apply bg-white outline outline-2 outline-offset-2 outline-blue-500;
     }
 
     &:disabled {
@@ -36,8 +37,9 @@
       @apply bg-blue-800 border-blue-800;
     }
 
-    &:focus {
-      @apply border-0;
+    &:focus,
+    &:focus-visible {
+      @apply outline outline-2 outline-offset-2 outline-blue-500;
     }
 
     &:disabled {
@@ -52,7 +54,8 @@
       @apply bg-red-800 border-red-800;
     }
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
       @apply border-transparent outline-dotted outline-black;
     }
 
