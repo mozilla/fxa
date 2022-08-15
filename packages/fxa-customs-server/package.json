@@ -35,7 +35,7 @@
     "convict-format-with-validator": "^6.2.0",
     "dedent": "^0.7.0",
     "deep-equal": "2.0.5",
-    "hapi-swagger": "^14.5.2",
+    "hapi-swagger": "^14.5.5",
     "ip": "^1.1.8",
     "ip-reputation-js-client": "^6.0.4",
     "lodash.isequal": "4.5.0",
