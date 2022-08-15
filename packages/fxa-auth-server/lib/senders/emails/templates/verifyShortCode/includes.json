@@ -1,6 +1,6 @@
 {
   "subject": {
-    "id": "verifyShortCode-subject-2",
-    "message": "Confirmation code: <%- code %>"
+    "id": "verifyShortCode-subject-3",
+    "message": "Confirm your account"
   }
 }
