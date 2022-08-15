@@ -354,7 +354,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {updateTemplateValues: values => ({...values, numberRemaining: 1 })}],
 
   ['postVerifyEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Account confirmed. Next, sync another device to finish setup' }],
+    ['subject', { test: 'equal', expected: 'Welcome to Firefox!' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
@@ -362,10 +362,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Account confirmed. Next, sync another device to finish setup' },
-      { test: 'include', expected: "Firefox account confirmed. You’re almost there." },
-      { test: 'include', expected: 'Next sync between your devices!' },
-      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: 'We’re delighted to see you!' },
+      { test: 'include', expected: 'Want to see the same tab on two devices?' },
+      { test: 'include', expected: 'It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!' },
+      { test: 'include', expected: '(Psst...It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
@@ -377,11 +377,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Firefox account confirmed. You’re almost there.' },
-      { test: 'include', expected: 'Next sync between your devices!' },
-      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: 'We’re delighted to see you!' },
+      { test: 'include', expected: 'Want to see the same tab on two devices?' },
+      { test: 'include', expected: 'It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
-      { test: 'include', expected: `Have questions? Visit` },
+      { test: 'include', expected: `For more information` },
       { test: 'include', expected: configUrl('supportUrl', 'account-verified', 'support') },
       { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },

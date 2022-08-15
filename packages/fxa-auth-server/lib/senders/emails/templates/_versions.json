@@ -26,7 +26,7 @@
   "postAddLinkedAccount": 1,
   "postChangePrimary": 5,
   "postRemoveSecondary": 5,
-  "postVerify": 7,
+  "postVerify": 8,
   "postVerifySecondary": 6,
   "recovery": 5,
   "unblockCode": 6,
