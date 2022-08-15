@@ -148,7 +148,7 @@ describe('remote account signin verification', function () {
       .then((emailData) => {
         uid = emailData.headers['x-uid'];
         code = emailData.headers['x-verify-code'];
-        assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
+        assert.equal(emailData.subject, 'Confirm sign-in');
         assert.ok(uid, 'sent uid');
         assert.ok(code, 'sent verify code');
 
@@ -220,7 +220,7 @@ describe('remote account signin verification', function () {
         // Verify sign-confirm email
         uid = emailData.headers['x-uid'];
         tokenCode = emailData.headers['x-verify-code'];
-        assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
+        assert.equal(emailData.subject, 'Confirm sign-in');
         assert.ok(uid, 'sent uid');
         assert.ok(tokenCode, 'sent verify code');
         assert.notEqual(
@@ -278,7 +278,7 @@ describe('remote account signin verification', function () {
         assert.ok(query.code, 'code is in link');
         assert.equal(query.service, options.service, 'service is in link');
         assert.equal(query.resume, options.resume, 'resume is in link');
-        assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
+        assert.equal(emailData.subject, 'Confirm sign-in');
       });
   });
 
@@ -316,7 +316,7 @@ describe('remote account signin verification', function () {
         assert.ok(query.code, 'code is in link');
         assert.equal(query.service, options.service, 'service is in link');
         assert.equal(query.resume, options.resume, 'resume is in link');
-        assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
+        assert.equal(emailData.subject, 'Confirm sign-in');
       })
       .then(() => {
         // Attempt to login from new location
@@ -682,7 +682,7 @@ describe('remote account signin verification', function () {
         return server.mailbox.waitForEmail(email);
       })
       .then((emailData) => {
-        assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
+        assert.equal(emailData.subject, 'Confirm sign-in');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
       })

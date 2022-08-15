@@ -34,7 +34,7 @@
   "verificationReminderSecond": 10,
   "verify": 6,
   "verifyPrimary": 8,
-  "verifyLogin": 5,
+  "verifyLogin": 6,
   "verifyLoginCode": 7,
   "verifyShortCode": 5,
   "verifySecondaryCode": 3,

@@ -1,10 +1,10 @@
-verifyLogin-title = "New sign-in to <%- clientName %>"
+verifyLogin-title-2 = "Did you sign in to <%- clientName %>?"
 
-verifyLogin-description = "For added security, please confirm this sign-in from the following device:"
+verifyLogin-description-2 = "Help us keep your account safe by confirming you signed in on:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-verifyLogin-action = "Confirm sign-in:"
+verifyLogin-action = "Confirm sign-in"
 <%- link %>
 
 <%- include('/partials/changePassword/index.txt') %>

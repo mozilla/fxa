@@ -779,7 +779,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verifyLoginEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Confirm new sign-in to Mock Relier' }],
+    ['subject', { test: 'equal', expected: 'Confirm sign-in' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLogin') }],
@@ -787,8 +787,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLogin }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Confirm new sign-in to Mock Relier' },
-      { test: 'include', expected: 'New sign-in to Mock Relier' },
+      { test: 'include', expected: 'Confirm sign-in' },
+      { test: 'include', expected: 'Did you sign in to Mock Relier?' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')) },
@@ -800,7 +800,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'New sign-in to Mock Relier' },
+      { test: 'include', expected: 'Did you sign in to Mock Relier?' },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
