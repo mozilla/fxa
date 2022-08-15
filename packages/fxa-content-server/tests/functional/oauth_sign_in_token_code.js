@@ -58,19 +58,20 @@ registerSuite('OAuth signin token code', {
   },
 
   tests: {
-    'verified - bounce': function () {
+    'verified - invalid token': function () {
       experimentParams.query.forceExperiment = 'tokenCode';
       experimentParams.query.forceExperimentGroup = 'treatment-code';
 
-      return this.remote
-        .then(openFxaFromRp('enter-email', experimentParams))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-        .then(destroySessionForEmail(email))
-        .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER))
-        .then(testElementExists(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
-        .then(testElementExists(selectors.SIGNIN_BOUNCED.BACK))
-        .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
+      return (
+        this.remote
+          .then(openFxaFromRp('enter-email', experimentParams))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+          // This will cause the token become 'invalid' and ultimately cause an
+          // INVALID_TOKEN error to be thrown.
+          .then(destroySessionForEmail(email))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+      );
     },
 
     'verified - valid code': function () {

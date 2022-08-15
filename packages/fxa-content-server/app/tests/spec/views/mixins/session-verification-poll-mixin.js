@@ -117,7 +117,7 @@ describe('views/mixins/session-verification-poll-mixin', () => {
       assert.isTrue(view.replaceCurrentPage.calledWith('/', { account }));
     });
 
-    it('navigates to /signin_bounced if INVALID_TOKEN occurs on signin', () => {
+    it('navigates to /signin if INVALID_TOKEN occurs on signin', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => false);
       sinon.spy(view, 'replaceCurrentPage');
       view._handleSessionVerificationPollErrors(
@@ -125,11 +125,7 @@ describe('views/mixins/session-verification-poll-mixin', () => {
         AuthErrors.toError('INVALID_TOKEN')
       );
 
-      assert.isTrue(
-        view.replaceCurrentPage.calledWith('signin_bounced', {
-          email: 'a@a.com',
-        })
-      );
+      assert.isTrue(view.replaceCurrentPage.calledWith('/signin'));
     });
 
     it('displays an error when an unknown error occurs', function () {
