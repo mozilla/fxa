@@ -23185,7 +23185,7 @@ fsevents@~2.1.1:
     googleapis: ^102.0.0
     graphql: ^15.6.1
     helmet: ^5.0.0
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     jest: 27.5.1
     knex: ^2.2.0
     pem-jwk: ^2.0.0
@@ -23319,7 +23319,7 @@ fsevents@~2.1.1:
     hapi-error: ^3.0.0
     hapi-swagger: ^14.5.2
     hkdf: 0.0.2
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     i18n-iso-countries: ^7.5.0
     ioredis: ^4.28.2
     joi: 17.4.0
@@ -23492,7 +23492,7 @@ fsevents@~2.1.1:
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
     helmet: ^5.0.0
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     htmlparser2: 8.0.1
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
@@ -23681,7 +23681,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^8.0.2
     graphql: ^15.6.1
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     jest: 27.5.1
     joi: 17.4.0
     jwks-rsa: ^2.1.4
@@ -23780,7 +23780,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^13.0.0
     helmet: ^5.0.0
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     ioredis: ^4.28.2
     jest: 27.5.1
     knex: ^2.2.0
@@ -23900,7 +23900,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
     helmet: ^5.0.0
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     intl: 1.2.5
     jest: 27.5.1
     joi: 17.4.0
@@ -24190,7 +24190,7 @@ fsevents@~2.1.1:
     find-up: ^5.0.0
     generic-pool: ^3.8.2
     graphql: ^15.6.1
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     ioredis: ^4.28.2
     ip: ^1.1.8
     jest: 27.5.1
@@ -24258,7 +24258,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hbs: ^4.2.0
     helmet: ^5.0.0
-    hot-shots: ^9.1.0
+    hot-shots: ^9.2.0
     jest: 27.5.1
     mozlog: ^3.0.2
     pm2: ^5.1.2
@@ -26245,15 +26245,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hot-shots@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "hot-shots@npm:9.1.0"
+"hot-shots@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "hot-shots@npm:9.2.0"
   dependencies:
     unix-dgram: 2.0.x
   dependenciesMeta:
     unix-dgram:
       optional: true
-  checksum: d41391c2da1c14e57cb6458fe4b89ffe450d979db12bce69df234db8b57cb308216002e2dd3ba77758f6ace43129c10f7bc3fe82273fa9433bf6973af4119f09
+  checksum: a7feb39383d77033735fc02eb19ac088816ad663cce89f1fc41f1877b501e17d3744bd1e2e1529215de31a91db7bd564bf7592cb077f2a43ea5945dabdc49251
   languageName: node
   linkType: hard
 
