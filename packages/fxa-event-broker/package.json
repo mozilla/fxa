@@ -59,7 +59,7 @@
     "fxa-shared": "workspace:*",
     "google-auth-library": "^8.0.2",
     "graphql": "^15.6.1",
-    "hot-shots": "^9.1.0",
+    "hot-shots": "^9.2.0",
     "joi": "17.4.0",
     "jwks-rsa": "^2.1.4",
     "mozlog": "^3.0.2",

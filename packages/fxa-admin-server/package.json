@@ -51,7 +51,7 @@
     "googleapis": "^102.0.0",
     "graphql": "^15.6.1",
     "helmet": "^5.0.0",
-    "hot-shots": "^9.1.0",
+    "hot-shots": "^9.2.0",
     "knex": "^2.2.0",
     "pem-jwk": "^2.0.0",
     "reflect-metadata": "^0.1.13",
