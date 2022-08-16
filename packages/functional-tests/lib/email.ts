@@ -57,6 +57,7 @@ export enum EmailType {
   verifyPrimary,
   verificationReminderFirst,
   verificationReminderSecond,
+  verificationReminderFinal,
   cadReminderFirst,
   cadReminderSecond,
 }

@@ -72,6 +72,7 @@ const EMAIL_TYPES = {
   verifyPrimary: 'verify',
   verificationReminderFirst: 'registration',
   verificationReminderSecond: 'registration',
+  verificationReminderFinal: 'registration',
   cadReminderFirst: 'connect_another_device',
   cadReminderSecond: 'connect_another_device',
 };

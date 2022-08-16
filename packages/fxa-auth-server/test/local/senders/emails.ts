@@ -462,6 +462,29 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['verificationReminderFinalEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Final reminder to confirm your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'final-verification-reminder', 'confirm-email', 'code', 'reminder=final', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFinal') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFinal' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFinal }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'final-verification-reminder', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'final-verification-reminder', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'final-verification-reminder', 'confirm-email', 'code', 'reminder=final', 'uid')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'final-verification-reminder', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'final-verification-reminder', 'support')}` },
+      { test: 'include', expected: `Confirm account:\n${configUrl('verificationUrl', 'final-verification-reminder', 'confirm-email', 'code', 'reminder=final', 'uid')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
   ['verifyEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Finish creating your account' }],
     ['headers', new Map([
