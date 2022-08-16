@@ -34,7 +34,7 @@ export const PlanUpgradeDetails = ({
 
   return (
     <section
-      className={`plan-details-component plan-upgrade-details-component ${className}`}
+      className={`plan-details-component my-8 mx-0 p-0 plan-upgrade-details-component ${className}`}
       {...{ role }}
       data-testid="plan-upgrade-details-component"
     >
@@ -42,20 +42,21 @@ export const PlanUpgradeDetails = ({
         <p className="plan-label current-plan-label">
           <Localized id="sub-update-current-plan-label">Current plan</Localized>
         </p>
+
         <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} />
+
         <p className="plan-label new-plan-label">
           <Localized id="sub-update-new-plan-label">New plan</Localized>
         </p>
+
         <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
-        <div
-          className="plan-details-total plan-upgrade-details-total"
-          aria-labelledby="plan-details-product"
-        >
+        <div className="plan-details-total plan-upgrade-details-total">
           <div className="plan-details-total-inner">
             <Localized id="sub-update-total-label">
-              <p className="label">New total</p>
+              <div className="total-label">New total</div>
             </Localized>
+
             <Localized
               id={`plan-price-${selectedPlan.interval}`}
               vars={{
@@ -66,7 +67,9 @@ export const PlanUpgradeDetails = ({
                 intervalCount: selectedPlan.interval_count,
               }}
             >
-              <p className="total-price">{totalPrice}</p>
+              <div className="total-price">
+                {totalPrice}
+              </div>
             </Localized>
           </div>
         </div>
@@ -107,10 +110,10 @@ export const PlanDetailsCard = ({
 
   return (
     <div
-      className={`container card plan-details-component-card plan-upgrade-details-component-card ${className}`}
+      className={`plan-details-component-card ${className}`}
     >
       <div className="plan-details-header">
-        <div className="plan-details-header-wrap">
+        <div className="flex">
           <div
             className="plan-details-logo-wrap"
             style={{ ...setWebIconBackground }}
@@ -119,8 +122,10 @@ export const PlanDetailsCard = ({
               src={webIcon || ffLogo}
               alt={product_name}
               data-testid="product-logo"
+              className="w-8 h-8"
             />
           </div>
+
           <div className="plan-details-heading-wrap">
             <h3
               id="plan-details-product"
@@ -128,8 +133,9 @@ export const PlanDetailsCard = ({
             >
               {product_name}
             </h3>
+
             {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
-            <p className="product-description plan-details-description">
+            <p id="product-description" className="plan-details-description">
               <Localized
                 id={`plan-price-${interval}`}
                 vars={{

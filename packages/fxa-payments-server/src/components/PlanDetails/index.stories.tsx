@@ -3,11 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
-import PlanDetails from './index';
+import PlanDetails, { PlanDetailsProps} from './index';
 import { Profile } from '../../store/types';
 import { COUPON_DETAILS_VALID } from '../../lib/mock-data';
+import { Meta } from '@storybook/react';
+
+export default {
+  title: 'components/PlanDetails',
+  component: PlanDetails,
+} as Meta;
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -47,99 +52,84 @@ const selectedPlan = {
   },
 };
 
-storiesOf('components/PlanDetail', module)
-  .add('default', () => (
-    <MockApp>
+const storyWithProps = (
+  plan: PlanDetailsProps,
+  languages?: readonly string[],
+) => {
+  const story = () => (
+    <MockApp languages={languages}>
       <PlanDetails
         {...{
+          ...plan,
           profile: userProfile,
-          showExpandButton: false,
-          selectedPlan,
-          isMobile: false,
         }}
       />
     </MockApp>
-  ))
-  .add('localized to xx-pirate', () => (
-    <MockApp languages={['xx-pirate']}>
-      <PlanDetails
-        {...{
-          profile: userProfile,
-          showExpandButton: false,
-          selectedPlan,
-          isMobile: false,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('with expand button', () => (
-    <MockApp>
-      <PlanDetails
-        {...{
-          profile: userProfile,
-          showExpandButton: true,
-          selectedPlan,
-          isMobile: false,
-        }}
-      />
-    </MockApp>
-  ))
-  .add('with coupon - type "forever"', () => (
-    <MockApp>
-      <PlanDetails
-        {...{
-          profile: userProfile,
-          showExpandButton: false,
-          selectedPlan,
-          isMobile: false,
-          coupon: { ...COUPON_DETAILS_VALID, type: 'forever' },
-        }}
-      />
-    </MockApp>
-  ))
-  .add('with coupon - type "once"', () => (
-    <MockApp>
-      <PlanDetails
-        {...{
-          profile: userProfile,
-          showExpandButton: false,
-          selectedPlan,
-          isMobile: false,
-          coupon: { ...COUPON_DETAILS_VALID, type: 'once' },
-        }}
-      />
-    </MockApp>
-  ))
-  .add(
-    'with coupon - type "repeating" where plan interval is greater than coupon duration',
-    () => (
-      <MockApp>
-        <PlanDetails
-          {...{
-            profile: userProfile,
-            showExpandButton: false,
-            selectedPlan: { ...selectedPlan, interval_count: 6 },
-            isMobile: false,
-            coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
-          }}
-        />
-      </MockApp>
-    )
   )
-  .add('with coupon - type "repeating"', () => (
-    <MockApp>
-      <PlanDetails
-        {...{
-          profile: userProfile,
-          showExpandButton: false,
-          selectedPlan,
-          isMobile: false,
-          coupon: {
-            ...COUPON_DETAILS_VALID,
-            durationInMonths: 3,
-            type: 'repeating',
-          },
-        }}
-      />
-    </MockApp>
-  ));
+  return story;
+};
+
+export const Default = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: false,
+  },
+);
+
+export const LocalizedToPirate = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: false,
+  },
+  ['xx-pirate'],
+);
+
+export const WithExpandedButton = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: true,
+  },
+);
+
+export const WithCouponTypeForever = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: false,
+    coupon: {...COUPON_DETAILS_VALID, type: 'forever'}
+  },
+);
+
+export const WithCouponTypeOnce = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: false,
+    coupon: {...COUPON_DETAILS_VALID, type: 'once'}
+  },
+);
+
+export const WithCouponTypeRepeatingPlanIntervalGreaterThanCouponDuration = storyWithProps(
+  {
+    selectedPlan: {...selectedPlan, interval_count: 6},
+    isMobile: false,
+    showExpandButton: false,
+    coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
+  },
+);
+
+export const WithCouponTypeRepeating = storyWithProps(
+  {
+    selectedPlan,
+    isMobile: false,
+    showExpandButton: false,
+    coupon: {
+      ...COUPON_DETAILS_VALID,
+      durationInMonths: 3,
+      type: 'repeating',
+    }
+  },
+);

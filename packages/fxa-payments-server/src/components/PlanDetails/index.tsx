@@ -16,13 +16,14 @@ import { AppContext } from '../../lib/AppContext';
 // this is a rare case, but it also keeps typescript
 // happy
 import ffLogo from '../../images/firefox-logo.svg';
+import infoLogo from './images/Information.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useInfoBoxMessage } from '../../lib/hooks';
 
-type PlanDetailsProps = {
+export type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
@@ -35,7 +36,6 @@ export const PlanDetails = ({
   selectedPlan,
   isMobile,
   showExpandButton = false,
-  className = 'default',
   coupon,
   children,
 }: PlanDetailsProps) => {
@@ -73,16 +73,14 @@ export const PlanDetails = ({
 
   return (
     <div
-      className={`plan-details-component ${className}`}
+      className="plan-details-component my-8 mx-0 p-0"
       {...{ role }}
       data-testid="plan-details-component"
     >
       <div className="plan-details-component-inner">
-        <div
-          className={`container card plan-details-component-card ${className}`}
-        >
-          <div className="plan-details-header">
-            <div className="plan-details-header-wrap">
+        <div className="plan-details-component-card">
+          <div className="plan-details-header row-divider-grey-200">
+            <div className="flex">
               <div
                 className="plan-details-logo-wrap"
                 style={{ ...setWebIconBackground }}
@@ -91,12 +89,15 @@ export const PlanDetails = ({
                   src={webIcon || ffLogo}
                   alt={product_name}
                   data-testid="product-logo"
+                  className="w-8 h-8"
                 />
               </div>
+
               <div className="plan-details-heading-wrap">
                 <h3 id="plan-details-product" className="plan-details-product">
                   {product_name}
                 </h3>
+
                 <p className="plan-details-description">
                   <Localized
                     id={`plan-price-${interval}`}
@@ -108,73 +109,80 @@ export const PlanDetails = ({
                     {planPrice}
                   </Localized>
                   &nbsp;&bull;&nbsp;
-                  <span className="plan-details-subtitle">
-                    {productDetails.subtitle}
-                  </span>
+                  <span>{productDetails.subtitle}</span>
                 </p>
               </div>
             </div>
           </div>
-          {!detailsHidden && productDetails.details ? (
-            <div className="plan-details-list" data-testid="list">
+
+          {!detailsHidden && productDetails.details && (
+            <div className="mt-2 pt-0 px-4 pb-px tablet:border-b-0 text-left" data-testid="list">
               <Localized id="plan-details-header">
-                <h4>Product details</h4>
+                <h4 className="text-sm text-grey-600 my-4 mx-0">Product details</h4>
               </Localized>
-              <ul>
+
+              <ul className="row-divider-grey-200 text-grey-400 m-0 pl-3">
                 {productDetails.details.map((detail, idx) => (
-                  <li key={idx}>{detail}</li>
+                  <li className="mb-4 leading-5 marker:text-xs" key={idx}>
+                    {detail}
+                  </li>
                 ))}
               </ul>
-              <div
-                className="plan-details-total"
-                aria-labelledby="plan-details-product"
-              >
-                {coupon && coupon.discountAmount ? (
-                  <div className="plan-details-coupon-details">
+
+              <div className="plan-details-total">
+                {coupon && coupon.discountAmount && (
+                  <div className="row-divider-grey-200 mb-4 pb-6">
                     <div className="plan-details-total-inner">
                       <Localized id="plan-details-list-price">
                         <div>List Price</div>
                       </Localized>
+
+                      <Localized
+                        id={`list-price`}
+                        attrs={{ title: true }}
+                        vars={{
+                          amount: getLocalizedCurrency(amount, currency),
+                          intervalCount: interval_count,
+                        }}
+                      >
                       <div>
-                        <Localized
-                          id={`list-price`}
-                          attrs={{ title: true }}
-                          vars={{
-                            amount: getLocalizedCurrency(amount, currency),
-                            intervalCount: interval_count,
-                          }}
-                        >
-                          {getLocalizedCurrencyString(amount, currency)}
-                        </Localized>
+                        {getLocalizedCurrencyString(amount, currency)}
                       </div>
+                      </Localized>
                     </div>
+
                     <div className="plan-details-total-inner">
                       <Localized id="coupon-discount">
                         <div>Discount</div>
                       </Localized>
-                      <div>
-                        <Localized
-                          id={`coupon-amount`}
-                          attrs={{ title: true }}
-                          vars={{
-                            amount: getLocalizedCurrency(
-                              coupon.discountAmount,
-                              currency
-                            ),
-                            intervalCount: interval_count,
-                          }}
-                        >{`- ${getLocalizedCurrencyString(
-                          coupon.discountAmount,
-                          currency
-                        )}`}</Localized>
-                      </div>
+
+                      <Localized
+                        id={`coupon-amount`}
+                        attrs={{ title: true }}
+                        vars={{
+                          amount: getLocalizedCurrency(
+                            coupon.discountAmount,
+                            currency
+                          ),
+                          intervalCount: interval_count,
+                        }}
+                      >
+                        <div>
+                          {`- ${getLocalizedCurrencyString(
+                            coupon.discountAmount,
+                            currency
+                          )}`}
+                        </div>
+                      </Localized>
                     </div>
                   </div>
-                ) : null}
+                )}
+
                 <div className="plan-details-total-inner">
                   <Localized id="plan-details-total-label">
-                    <p className="label">Total</p>
+                    <div className="total-label">Total</div>
                   </Localized>
+
                   <Localized
                     id={`plan-price-${interval}`}
                     data-testid="plan-price-total"
@@ -190,52 +198,55 @@ export const PlanDetails = ({
                       intervalCount: interval_count,
                     }}
                   >
-                    <p
+                    <div
                       className="total-price"
                       title={planPrice}
                       data-testid="total-price"
                       id="total-price"
                     >
                       {planPrice}
-                    </p>
+                    </div>
                   </Localized>
                 </div>
-                {infoBoxMessage ? (
+
+                {infoBoxMessage && (
                   infoBoxMessage.couponDurationDate ? (
-                    <Localized
-                      id={infoBoxMessage.message}
-                      vars={{
-                        couponDurationDate: getLocalizedDate(
-                          infoBoxMessage.couponDurationDate,
-                          true
-                        ),
-                      }}
-                    >
-                      <div
-                        className="coupon-info"
-                        data-testid="coupon-success-with-date"
+                    <div className="coupon-info" data-testid="coupon-success-with-date">
+                      <img src={infoLogo} alt="" />
+
+                      <Localized
+                        id={infoBoxMessage.message}
+                        vars={{
+                          couponDurationDate: getLocalizedDate(
+                            infoBoxMessage.couponDurationDate,
+                            true
+                          ),
+                        }}
                       >
                         {infoBoxMessage.message}
-                      </div>
-                    </Localized>
+                      </Localized>
+                    </div>
                   ) : (
-                    <Localized id={infoBoxMessage.message}>
-                      <div className="coupon-info" data-testid="coupon-success">
+                    <div className="coupon-info" data-testid="coupon-success">
+                      <img src={infoLogo} alt="" />
+
+                      <Localized id={infoBoxMessage.message}>
                         {infoBoxMessage.message}
-                      </div>
-                    </Localized>
+                      </Localized>
+                    </div>
                   )
-                ) : null}
+                )}
               </div>
             </div>
-          ) : null}
-          {showExpandButton ? (
-            <div className="footer" data-testid="footer">
+          )}
+
+          { showExpandButton && (
+            <div className="footer text-center" data-testid="footer">
               {detailsHidden ? (
                 <Localized id="plan-details-show-button">
                   <button
                     data-testid="button"
-                    className="btn arrow"
+                    className="accordion-btn arrow"
                     aria-expanded={!detailsHidden}
                     onClick={() => setDetailsState(false)}
                   >
@@ -246,7 +257,7 @@ export const PlanDetails = ({
                 <Localized id="plan-details-hide-button">
                   <button
                     data-testid="button"
-                    className="btn arrow up-arrow"
+                    className="accordion-btn arrow before:rotate-180 up-arrow"
                     aria-expanded={!detailsHidden}
                     onClick={() => setDetailsState(true)}
                   >
@@ -255,7 +266,7 @@ export const PlanDetails = ({
                 </Localized>
               )}
             </div>
-          ) : null}
+          )}
         </div>
       </div>
       {children}

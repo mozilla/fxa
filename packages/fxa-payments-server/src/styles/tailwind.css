@@ -37,3 +37,60 @@
 .payment-error .legal-heading {
   @apply mt-5;
 }
+
+/* shared styles used in PlanDetails and PlanUpgradeDetails */
+.accordion-btn {
+  @apply bg-transparent border-transparent cursor-pointer text-blue-500 leading-5 my-2 outline-none py-2 pr-2 pl-6 relative w-auto h-auto focus:border focus:border-solid focus:border-blue-400 focus:py-2 focus:pr-4 focus:pl-10 focus:shadow-none;
+}
+
+.arrow {
+  @apply before:bg-[url('../components/PlanDetails/images/chevron.svg')] before:content-[''] before:absolute before:h-4 before:w-6 before:top-2.5  before:left-0 focus:before:left-3.5;
+}
+
+.coupon-info {
+  @apply flex items-center justify-center gap-2 pt-6 text-sm text-green-700;
+}
+
+.plan-details-component-card {
+  @apply bg-white rounded-lg shadow-sm shadow-grey-300;
+}
+
+.plan-details-component-inner {
+  @apply tablet:max-w-xs;
+}
+
+.plan-details-description {
+  @apply text-grey-400 mt-1 mb-0;
+}
+
+.plan-details-header {
+  @apply flex justify-between my-0 mx-4 py-4 px-0;
+}
+
+.plan-details-heading-wrap {
+  @apply pl-4 text-left;
+}
+
+.plan-details-logo-wrap {
+  @apply flex h-16 items-center justify-center rounded-lg shrink-0 w-16;
+}
+
+.plan-details-product {
+  @apply text-grey-600 text-sm leading-5 my-0 mr-1 ml-0 break-words;
+}
+
+.plan-details-total {
+  @apply py-6 w-full;
+}
+
+.plan-details-total-inner {
+  @apply flex items-center justify-between gap-2 text-grey-600 text-sm;
+}
+
+.total-label {
+  @apply font-semibold text-base;
+}
+
+.total-price {
+  @apply font-semibold overflow-hidden text-ellipsis text-lg whitespace-nowrap;
+}
