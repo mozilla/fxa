@@ -56,7 +56,7 @@
     "@fluent/bundle": "^0.17.1",
     "@fluent/dom": "^0.8.1",
     "@fluent/langneg": "^0.6.2",
-    "@google-cloud/bigquery": "^6.0.1",
+    "@google-cloud/bigquery": "^6.0.2",
     "@google-cloud/firestore": "^5.0.2",
     "@google-cloud/translate": "^6.3.1",
     "@googlemaps/google-maps-services-js": "^3.3.16",

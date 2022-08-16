@@ -3798,11 +3798,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/bigquery@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "@google-cloud/bigquery@npm:6.0.1"
+"@google-cloud/bigquery@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@google-cloud/bigquery@npm:6.0.2"
   dependencies:
-    "@google-cloud/common": ^3.10.0
+    "@google-cloud/common": ^4.0.0
     "@google-cloud/paginator": ^4.0.0
     "@google-cloud/promisify": ^3.0.0
     arrify: ^2.0.1
@@ -3811,14 +3811,14 @@ __metadata:
     extend: ^3.0.2
     is: ^3.3.0
     p-event: ^4.1.0
-    readable-stream: ^3.6.0
+    readable-stream: ^4.0.0
     stream-events: ^1.0.5
     uuid: ^8.0.0
-  checksum: 9dcfe14a90a0bf26de027a81c99d11d889194c1619051018738d7e89de2384efa7fa8a42881350cd584d8637570ca6ae8220a60dd1f6f06536cdd4ded10186d9
+  checksum: 2a8afeb20aa648210ae28547eaeaab1c8abf881d465173d632943f64aa0fa8b235998b4653714d703da72e362612ff2d4b967ea7fae569b7ccf82d167a7e2243
   languageName: node
   linkType: hard
 
-"@google-cloud/common@npm:^3.0.0, @google-cloud/common@npm:^3.10.0":
+"@google-cloud/common@npm:^3.0.0":
   version: 3.10.0
   resolution: "@google-cloud/common@npm:3.10.0"
   dependencies:
@@ -3832,6 +3832,23 @@ __metadata:
     retry-request: ^4.2.2
     teeny-request: ^7.0.0
   checksum: 833b593777425c4193620e94d5eba6b63065b35681b9a45d3c77fbfcf728844a1cc15ec383c7dabb9926d3d40a1e96f6a7386f26939cf69575671aff91e81717
+  languageName: node
+  linkType: hard
+
+"@google-cloud/common@npm:^4.0.0":
+  version: 4.0.2
+  resolution: "@google-cloud/common@npm:4.0.2"
+  dependencies:
+    "@google-cloud/projectify": ^3.0.0
+    "@google-cloud/promisify": ^3.0.0
+    arrify: ^2.0.1
+    duplexify: ^4.1.1
+    ent: ^2.2.0
+    extend: ^3.0.2
+    google-auth-library: ^8.0.2
+    retry-request: ^5.0.0
+    teeny-request: ^8.0.0
+  checksum: 0bc81478069ae61db9558c8582e0553b981a9fdefce0f3e71e8ff3913c9666892b38eaaf1dfcf9ad695270558e5a8110267e7ab4d7645033e96c97b948422cda
   languageName: node
   linkType: hard
 
@@ -3878,6 +3895,13 @@ __metadata:
   version: 2.0.1
   resolution: "@google-cloud/projectify@npm:2.0.1"
   checksum: c03906701c325859aca1c190bfc1647f1d938ad93c77580cfc25a14eab7d3d83896116ca2e16557c51884555b76f14f72f05e71d924f45abd9f432fce7bbb90a
+  languageName: node
+  linkType: hard
+
+"@google-cloud/projectify@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@google-cloud/projectify@npm:3.0.0"
+  checksum: 4fa7ad689422b0b9c152fb00260e54e39d81678f9c51518bdb34bc57ee00604524fcdd5837fa97eb2f8ff4811afee3f345b1b0993bc4a2fa1b803bdd6554839a
   languageName: node
   linkType: hard
 
@@ -23283,7 +23307,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.6.2
-    "@google-cloud/bigquery": ^6.0.1
+    "@google-cloud/bigquery": ^6.0.2
     "@google-cloud/firestore": ^5.0.2
     "@google-cloud/translate": ^6.3.1
     "@googlemaps/google-maps-services-js": ^3.3.16
@@ -38846,6 +38870,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"readable-stream@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "readable-stream@npm:4.1.0"
+  dependencies:
+    abort-controller: ^3.0.0
+  checksum: ff2bb513af6fb43618c8360211b5b9052e25a59e6626d3669c7ba060d021dfffa43c43832e11b18acd6aac15b057c6deae1c41004c1731688c95c455ad02f982
+  languageName: node
+  linkType: hard
+
 "readable-stream@npm:~2.0.0, readable-stream@npm:~2.0.5":
   version: 2.0.6
   resolution: "readable-stream@npm:2.0.6"
@@ -39859,6 +39892,16 @@ resolve@^2.0.0-next.3:
     debug: ^4.1.1
     extend: ^3.0.2
   checksum: 392b6bcb3b5b15868cb67fbdf7cfa365ec9d4b5f2034f194598b1aa4f05bf815e5a331a5b58d70deef69b7d0d61803ea3c2733153be6262142e43523499e0135
+  languageName: node
+  linkType: hard
+
+"retry-request@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "retry-request@npm:5.0.1"
+  dependencies:
+    debug: ^4.1.1
+    extend: ^3.0.2
+  checksum: 8da06c4d0ae59bd48ba38f2a69235f90fd87001a195fcde2fcf91614e3bc16704d0dada8e790a55ff902522e733db0d7bd3bf3c2f26be8b943a7062cd06f1b91
   languageName: node
   linkType: hard
 
@@ -43147,6 +43190,19 @@ resolve@^2.0.0-next.3:
     stream-events: ^1.0.5
     uuid: ^8.0.0
   checksum: 81f27b1ebe4672e355871b5b1012dacdf06bd441523fe91eb8f8492f1ef3aa367ec9e9df079218504e0648b059357cd8fd0f1b432e12a12e95a474f7d1df3a89
+  languageName: node
+  linkType: hard
+
+"teeny-request@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "teeny-request@npm:8.0.0"
+  dependencies:
+    http-proxy-agent: ^5.0.0
+    https-proxy-agent: ^5.0.0
+    node-fetch: ^2.6.1
+    stream-events: ^1.0.5
+    uuid: ^8.0.0
+  checksum: a867fb58406308e3ee8415f6b6612471a78af136971575bb51eb3ecf4b76d2ea363936da5eb68bbc28ef3d3af59e24dcf0803f1e80c8eb658c73cc9a53881c52
   languageName: node
   linkType: hard
 
