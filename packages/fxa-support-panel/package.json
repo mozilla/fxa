@@ -33,7 +33,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.4.7",
+    "@nestjs/common": "^9.0.9",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.5",
     "@nestjs/mapped-types": "^1.0.1",
