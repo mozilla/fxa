@@ -1,16 +1,16 @@
 'use strict';
 
 const PASSWORD_BALLOON = {
-  BALLOON: '.password-strength-balloon',
-  MIN_LENGTH_FAIL: '.min-length.fail',
-  MIN_LENGTH_MET: '.min-length.met',
-  MIN_LENGTH_UNMET: '.min-length.unmet',
-  NOT_COMMON_FAIL: '.not-common.fail',
-  NOT_COMMON_MET: '.not-common.met',
-  NOT_COMMON_UNMET: '.not-common.unmet',
-  NOT_EMAIL_FAIL: '.not-email.fail',
-  NOT_EMAIL_MET: '.not-email.met',
-  NOT_EMAIL_UNMET: '.not-email.unmet',
+  BALLOON: '#password-strength-balloon',
+  MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
+  MIN_LENGTH_MET: '#password-too-short.password-strength-unmet',
+  MIN_LENGTH_UNMET: '#password-too-short.password-strength-unmet',
+  NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
+  NOT_COMMON_MET: '#password-too-common.password-strength-unmet',
+  NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
+  NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
+  NOT_EMAIL_MET: '#password-same-as-email.password-strength-unmet',
+  NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
 };
 
 const NEWSLETTERS = {
@@ -697,7 +697,7 @@ module.exports = {
     LINK_FORGOT_PASSWORD: 'a[href^="/reset_password"]',
     LINK_USE_DIFFERENT: '#use-different',
     PASSWORD: 'input[type=password]',
-    SHOW_PASSWORD: '#password ~ .show-password-label',
+    SHOW_PASSWORD: '#password ~ [for^="show-"]',
     SUB_HEADER: '#subheader',
     SUB_HEADER_ENTER_PW: '#subheader',
     SUCCESS: '.success',
@@ -775,8 +775,8 @@ module.exports = {
     PASSWORD: '#password',
     PASSWORD_BALLOON,
     PRIVACY_POLICY: '#fxa-pp',
-    SHOW_PASSWORD: '#password ~ .show-password-label',
-    SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
+    SHOW_PASSWORD: '#password ~ [for="show-password"]',
+    SHOW_VPASSWORD: '#vpassword ~ [for="show-vpassword"]',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP_AGE_REQUIRED: '#age ~ .tooltip',
     TOS: '#fxa-tos',

@@ -101,35 +101,4 @@
       }
     }
   }
-
-  .input-help {
-    color: $input-placeholder-color;
-    margin-top: 6px;
-    transition: opacity $medium-transition;
-
-    &.input-help-complete-password {
-      text-align: center;
-    }
-
-    @include respond-to('small') {
-      font-size: $small-font;
-    }
-  }
-
-  .input-help-forgot-pw {
-    display: block;
-    text-align: left;
-  }
-
-  .input-help-focused {
-    opacity: 0;
-  }
-
-  input:focus ~ .input-help-focused,
-  label:active ~ .input-help-focused,
-  label:focus ~ .input-help-focused,
-  .input-help-focused.highlight {
-    color: $input-border-color-focus;
-    opacity: 1;
-  }
 }
