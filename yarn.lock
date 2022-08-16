@@ -5477,9 +5477,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^8.4.5":
-  version: 8.4.5
-  resolution: "@nestjs/core@npm:8.4.5"
+"@nestjs/core@npm:^9.0.9":
+  version: 9.0.9
+  resolution: "@nestjs/core@npm:9.0.9"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.1.1
@@ -5489,10 +5489,10 @@ __metadata:
     tslib: 2.4.0
     uuid: 8.3.2
   peerDependencies:
-    "@nestjs/common": ^8.0.0
-    "@nestjs/microservices": ^8.0.0
-    "@nestjs/platform-express": ^8.0.0
-    "@nestjs/websockets": ^8.0.0
+    "@nestjs/common": ^9.0.0
+    "@nestjs/microservices": ^9.0.0
+    "@nestjs/platform-express": ^9.0.0
+    "@nestjs/websockets": ^9.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^7.1.0
   peerDependenciesMeta:
@@ -5502,7 +5502,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: c81e8d380be398d15585392b69fd44a6f2fea9dfab94c47fc1e57ba592270baf7b9af89dbb6cf7970fff1485a32f816e62e46c93932f9cde6787729a20d97b66
+  checksum: 1dedb63ebaac1561e648038b172e556289cff74740b63a1e39b6ea2b5163f803ffe51ee475c1ef72d4eecf64427c36c5af9a654b1ad208844207bceeb1885153
   languageName: node
   linkType: hard
 
@@ -23210,7 +23210,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.2.8
     "@nestjs/common": ^8.4.7
     "@nestjs/config": ^2.2.0
-    "@nestjs/core": ^8.4.5
+    "@nestjs/core": ^9.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/platform-express": ^8.4.6
     "@types/chance": ^1.1.2
@@ -23687,7 +23687,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.2.8
     "@nestjs/common": ^8.4.7
     "@nestjs/config": ^2.2.0
-    "@nestjs/core": ^8.4.5
+    "@nestjs/core": ^9.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.2.1
@@ -23784,7 +23784,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.2.8
     "@nestjs/common": ^8.4.7
     "@nestjs/config": ^2.2.0
-    "@nestjs/core": ^8.4.5
+    "@nestjs/core": ^9.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.2.1
@@ -24189,7 +24189,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.2
     "@nestjs/common": ^8.4.7
     "@nestjs/config": ^2.2.0
-    "@nestjs/core": ^8.4.5
+    "@nestjs/core": ^9.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/testing": ^8.4.6
@@ -24282,7 +24282,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.2.8
     "@nestjs/common": ^8.4.7
     "@nestjs/config": ^2.2.0
-    "@nestjs/core": ^8.4.5
+    "@nestjs/core": ^9.0.9
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.4.6
     "@sentry/integrations": ^6.19.1
