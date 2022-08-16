@@ -1202,12 +1202,14 @@ export class StripeHelper extends StripeHelperBase {
     customerId,
     options,
     name,
+    ipAddress,
   }: {
     customerId: string;
     options?: BillingAddressOptions;
     name?: string;
+    ipAddress?: string;
   }): Promise<Stripe.Customer> {
-    const updates: Stripe.CustomerUpdateParams = {};
+    const updates: Stripe.CustomerUpdateParams = { expand: ['tax'] };
     if (options) {
       updates.address = {
         city: options.city,
@@ -1221,12 +1223,18 @@ export class StripeHelper extends StripeHelperBase {
     if (name) {
       updates.name = name;
     }
+    if (ipAddress) {
+      updates.tax = { ip_address: ipAddress };
+    }
     const customer = await this.stripe.customers.update(customerId, updates);
+    // Pull out tax as we don't want to cache that inconsistently.
+    const tax = customer.tax;
+    delete customer.tax;
     await this.stripeFirestore.insertCustomerRecordWithBackfill(
       customer.metadata.userid,
       customer
     );
-    return customer;
+    return { ...customer, tax };
   }
 
   /**

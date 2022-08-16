@@ -2477,7 +2477,7 @@ describe('StripeHelper', () => {
     it('updates Customer with empty PayPal billing address', async () => {
       sandbox
         .stub(stripeHelper.stripe.customers, 'update')
-        .resolves({ metadata: {} });
+        .resolves({ metadata: {}, tax: {} });
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -2492,7 +2492,7 @@ describe('StripeHelper', () => {
           state: 'CA',
         },
       });
-      assert.deepEqual(result, { metadata: {} });
+      assert.deepEqual(result, { metadata: {}, tax: {} });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.customers.update,
         customer1.id,
@@ -2505,6 +2505,34 @@ describe('StripeHelper', () => {
             postal_code: '12345',
             state: 'CA',
           },
+          expand: ['tax'],
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertCustomerRecordWithBackfill,
+        undefined,
+        { metadata: {} }
+      );
+    });
+
+    it('updates Customer with the ip address', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves({ metadata: {}, tax: {} });
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      const result = await stripeHelper.updateCustomerBillingAddress({
+        customerId: customer1.id,
+        ipAddress: '1.1.1.1',
+      });
+      assert.deepEqual(result, { metadata: {}, tax: {} });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer1.id,
+        {
+          tax: { ip_address: '1.1.1.1' },
+          expand: ['tax'],
         }
       );
       sinon.assert.calledOnceWithExactly(
