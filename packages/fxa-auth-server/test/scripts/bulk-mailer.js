@@ -174,7 +174,7 @@ describe('scripts/bulk-mailer', function () {
     this.timeout(10000);
     return cp
       .execAsync(
-        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --write ${OUTPUT_DIRECTORY}`,
+        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail --write ${OUTPUT_DIRECTORY}`,
         execOptions
       )
       .then(() => {
@@ -192,11 +192,11 @@ describe('scripts/bulk-mailer', function () {
         const test1Html = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user1@test.com.html'))
           .toString();
-        assert.include(test1Html, 'This is an automated email');
+        assert.include(test1Html, 'Password changed successfully');
         const test1Text = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user1@test.com.txt'))
           .toString();
-        assert.include(test1Text, 'This is an automated email');
+        assert.include(test1Text, 'Password changed successfully');
 
         assert.isTrue(
           fs.existsSync(path.join(OUTPUT_DIRECTORY, 'user1@test.com.headers'))
@@ -212,28 +212,29 @@ describe('scripts/bulk-mailer', function () {
         const test2Html = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user2@test.com.html'))
           .toString();
-        assert.include(test2Html, 'Confirma tu cuenta');
+        assert.include(test2Html, 'Has cambiado la contraseña correctamente');
         const test2Text = fs
           .readFileSync(path.join(OUTPUT_DIRECTORY, 'user2@test.com.txt'))
           .toString();
-        assert.include(test2Text, 'Confirma tu cuenta');
+        assert.include(test2Text, 'Has cambiado la contraseña correctamente');
       });
   });
+
 
   it('succeeds with valid input file and method, writing emails to stdout', () => {
     return cp
       .execAsync(
-        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail`,
+        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail`,
         execOptions
       )
       .then(({ stdout: result }) => {
         assert.include(result, account1Mock.uid);
         assert.include(result, account1Mock.email);
-        assert.include(result, 'This is an automated email');
+        assert.include(result, 'Password changed successfully');
 
         assert.include(result, account2Mock.uid);
         assert.include(result, account2Mock.email);
-        assert.include(result, 'Confirma tu cuenta');
+        assert.include(result, 'Has cambiado la contraseña correctamente');
       });
   });
 
