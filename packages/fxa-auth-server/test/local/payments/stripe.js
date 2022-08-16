@@ -862,6 +862,58 @@ describe('StripeHelper', () => {
       sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
+    it('creates a subscription with automatic tax successfully', async () => {
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .resolves(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const actual = await stripeHelper.createSubscriptionWithPMI({
+        customerId: 'customerId',
+        priceId: 'priceId',
+        paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        subIdempotencyKey,
+        automaticTax: true,
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: 'customerId',
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice.payment_intent'],
+          promotion_code: undefined,
+          automatic_tax: { enabled: true },
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
     it('uses the given promotion code', async () => {
       const promotionCode = { id: 'redpanda', code: 'firefox' };
       const attachExpected = deepCopy(paymentMethodAttach);
@@ -1078,6 +1130,50 @@ describe('StripeHelper', () => {
           days_until_due: 1,
           promotion_code: undefined,
           default_tax_rates: ['tr_asdf'],
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
+    it('creates a subscription with automatic tax successfully', async () => {
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(undefined);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey,
+        automaticTax: true,
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: customer1.id,
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice'],
+          collection_method: 'send_invoice',
+          days_until_due: 1,
+          promotion_code: undefined,
+          automatic_tax: { enabled: true },
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );

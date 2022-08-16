@@ -447,6 +447,7 @@ export class StripeHelper extends StripeHelperBase {
     promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
     taxRateId?: string;
+    automaticTax?: boolean;
   }) {
     const {
       customerId,
@@ -455,6 +456,7 @@ export class StripeHelper extends StripeHelperBase {
       promotionCode,
       subIdempotencyKey,
       taxRateId,
+      automaticTax,
     } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
@@ -488,16 +490,22 @@ export class StripeHelper extends StripeHelperBase {
       payment_provider: 'stripe',
     });
 
-    const subscription = await this.stripe.subscriptions.create(
-      {
-        customer: customerId,
-        items: [{ price: priceId }],
-        expand: ['latest_invoice.payment_intent'],
-        default_tax_rates: taxRates,
-        promotion_code: promotionCode?.id,
-      },
-      { idempotencyKey: `ssc-${subIdempotencyKey}` }
-    );
+    const createParams: Stripe.SubscriptionCreateParams = {
+      customer: customerId,
+      items: [{ price: priceId }],
+      expand: ['latest_invoice.payment_intent'],
+      promotion_code: promotionCode?.id,
+    };
+
+    if (automaticTax) {
+      createParams.automatic_tax = { enabled: true };
+    } else if (taxRates.length > 0) {
+      createParams.default_tax_rates = taxRates;
+    }
+
+    const subscription = await this.stripe.subscriptions.create(createParams, {
+      idempotencyKey: `ssc-${subIdempotencyKey}`,
+    });
 
     const paymentIntent = (subscription.latest_invoice as Stripe.Invoice)
       .payment_intent as Stripe.PaymentIntent;
@@ -537,9 +545,16 @@ export class StripeHelper extends StripeHelperBase {
     promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
     taxRateId?: string;
+    automaticTax?: boolean;
   }) {
-    const { customer, priceId, promotionCode, subIdempotencyKey, taxRateId } =
-      opts;
+    const {
+      customer,
+      priceId,
+      promotionCode,
+      subIdempotencyKey,
+      taxRateId,
+      automaticTax,
+    } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
@@ -561,18 +576,24 @@ export class StripeHelper extends StripeHelperBase {
       payment_provider: 'paypal',
     });
 
-    const subscription = await this.stripe.subscriptions.create(
-      {
-        customer: customer.id,
-        items: [{ price: priceId }],
-        expand: ['latest_invoice'],
-        collection_method: 'send_invoice',
-        days_until_due: 1,
-        default_tax_rates: taxRates,
-        promotion_code: promotionCode?.id,
-      },
-      { idempotencyKey: `ssc-${subIdempotencyKey}` }
-    );
+    const createParams: Stripe.SubscriptionCreateParams = {
+      customer: customer.id,
+      items: [{ price: priceId }],
+      expand: ['latest_invoice'],
+      collection_method: 'send_invoice',
+      days_until_due: 1,
+      promotion_code: promotionCode?.id,
+    };
+
+    if (automaticTax) {
+      createParams.automatic_tax = { enabled: true };
+    } else if (taxRates.length > 0) {
+      createParams.default_tax_rates = taxRates;
+    }
+
+    const subscription = await this.stripe.subscriptions.create(createParams, {
+      idempotencyKey: `ssc-${subIdempotencyKey}`,
+    });
 
     const updatedSubscription = await this.postSubscriptionCreationUpdates({
       subscription,
