@@ -487,7 +487,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'Open the internet with Firefox' },
-      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
       { test: 'include', expected: `Confirm account:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },

@@ -1,6 +1,6 @@
 verify-title-2 = "Open the internet with Firefox"
 
-verify-description-plaintext-2 = "Confirm your account and get the most out of Firefox everywhere you sign in starting with:"
+verify-description-plaintext = "Confirm your account and get the most out of Firefox everywhere you sign in."
 
 confirm-email-plaintext-2 = "Confirm account:"
 <%- link %>
