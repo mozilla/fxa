@@ -210,7 +210,7 @@ export class CapabilityService {
   /**
    * Return a list of all price ids with an active subscription.
    */
-  private async subscribedPriceIds(uid: string) {
+  async subscribedPriceIds(uid: string) {
     const [
       subscribedStripePrices,
       subscribedPlayPrices,

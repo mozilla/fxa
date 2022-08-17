@@ -152,6 +152,8 @@ const DESCRIPTIONS = {
     'Opaque URL-encoded string to be included in the verification link as a query parameter.',
   scope:
     'A space-separated list of scope values that the user has authorized, or is held by the granted access token that the connecting client will be granted. The requested scope will be provided by the connecting client as part of its authorization request, but may be pruned by the user in a confirmation dialog before being sent to this endpoint.',
+  sendVerifyEmail:
+    'Boolean indicating whether a verification email should be sent.',
   service: 'Opaque alphanumeric token to be included in verification links.',
   serviceRP:
     'Identifies the relying service the user was interacting with that triggered the password reset.',

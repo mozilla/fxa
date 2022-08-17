@@ -8,16 +8,6 @@ const TAGS_MISC = {
   tags: TAGS.MISCELLANEOUS,
 };
 
-const ACCOUNT_STUB_POST = {
-  ...TAGS_MISC,
-  description: '/account/stub',
-};
-
-const ACCOUNT_FINISH_SETUP_POST = {
-  ...TAGS_MISC,
-  description: '/account/finish_setup',
-};
-
 const ACCOUNT_GET = {
   ...TAGS_MISC,
   description: '/account',
@@ -68,10 +58,8 @@ const OAUTH_ID_TOKEN_VERIFY_POST = {
 
 const API_DOCS = {
   ACCOUNT_GET,
-  ACCOUNT_FINISH_SETUP_POST,
   ACCOUNT_LOCK_POST,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
-  ACCOUNT_STUB_POST,
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
   SUPPORT_TICKET_POST,
