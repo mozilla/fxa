@@ -326,29 +326,26 @@ export const SubscriptionCreate = ({
           </div>
         </div>
 
-        { (transactionInProgress && isMobile)
-          ? null
-          : (
-            <PlanDetails
+        {transactionInProgress && isMobile ? null : (
+          <PlanDetails
+            {...{
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
+              coupon: coupon,
+            }}
+          >
+            <CouponForm
               {...{
-                selectedPlan,
-                isMobile,
-                showExpandButton: isMobile,
-                coupon: coupon,
+                planId: selectedPlan.plan_id,
+                readOnly: false,
+                subscriptionInProgress: inProgress || transactionInProgress,
+                coupon,
+                setCoupon,
               }}
-            >
-              <CouponForm
-                {...{
-                  planId: selectedPlan.plan_id,
-                  readOnly: false,
-                  subscriptionInProgress: inProgress || transactionInProgress,
-                  coupon,
-                  setCoupon,
-                }}
-              />
-            </PlanDetails>
-          )
-        }
+            />
+          </PlanDetails>
+        )}
       </div>
     </>
   );

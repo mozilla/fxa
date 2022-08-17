@@ -367,7 +367,6 @@ describe('API requests', () => {
       expect(
         await apiCreateCustomer({
           displayName: 'Bar Fooson',
-          idempotencyKey: 'idk-8675309',
         })
       ).toEqual(MOCK_CUSTOMER);
       requestMock.done();
@@ -380,7 +379,6 @@ describe('API requests', () => {
       priceId: 'price_12345',
       productId: 'prod_abdce',
       paymentMethodId: 'pm_test',
-      idempotencyKey: 'idk-8675309',
     };
     const metricsOptions: EventProperties = {
       planId: params.priceId,
@@ -409,9 +407,9 @@ describe('API requests', () => {
     });
 
     it('sends amplitude ping on error', async () => {
-      const { priceId, paymentMethodId, idempotencyKey } = params;
+      const { priceId, paymentMethodId } = params;
       const requestMock = nock(AUTH_BASE_URL)
-        .post(path, { priceId, paymentMethodId, idempotencyKey })
+        .post(path, { priceId, paymentMethodId })
         .reply(400, { message: 'oops' });
       let error = null;
       try {
@@ -660,7 +658,6 @@ describe('API requests', () => {
   describe('apiCapturePaypalPayment', () => {
     const path = '/v1/oauth/subscriptions/active/new-paypal';
     const params = {
-      idempotencyKey: 'idk-8675309',
       priceId: 'price_12345',
       productId: 'product_2a',
       ...MOCK_CHECKOUT_TOKEN,

@@ -112,7 +112,6 @@ export async function handleSubscriptionPayment({
       await apiCreateSubscriptionWithPaymentMethod({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
-        idempotencyKey,
         promotionCode: promotionCode,
       });
     return handlePaymentIntent({
@@ -152,7 +151,6 @@ export async function handleSubscriptionPayment({
     // No need to retain the result of this call for later.
     await apiCreateCustomer({
       displayName: name,
-      idempotencyKey,
     });
   }
 
@@ -172,7 +170,6 @@ export async function handleSubscriptionPayment({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
-        idempotencyKey,
         promotionCode: promotionCode,
       });
     return handlePaymentIntent({

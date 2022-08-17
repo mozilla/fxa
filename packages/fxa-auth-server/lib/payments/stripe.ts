@@ -71,6 +71,7 @@ import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { generateIdempotencyKey } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -445,7 +446,6 @@ export class StripeHelper extends StripeHelperBase {
     priceId: string;
     paymentMethodId?: string;
     promotionCode?: Stripe.PromotionCode;
-    subIdempotencyKey: string;
     taxRateId?: string;
     automaticTax?: boolean;
   }) {
@@ -454,7 +454,6 @@ export class StripeHelper extends StripeHelperBase {
       priceId,
       paymentMethodId,
       promotionCode,
-      subIdempotencyKey,
       taxRateId,
       automaticTax,
     } = opts;
@@ -467,8 +466,13 @@ export class StripeHelper extends StripeHelperBase {
           paymentMethodId,
           {
             customer: customerId,
-          },
-          { idempotencyKey: `pma-${subIdempotencyKey}` }
+          }
+          // At the moment the frontend creates a new paymentMethod before every call to this method.
+          // If we were to reuse the same idempotencyKey we'd get the idempotency_error from Stripe.
+          // https://stripe.com/docs/api/errors
+          // As a potential alternative approach, we could compare paymentMethod fingerprints before
+          // attaching it to paymentMethods.
+          // { idempotencyKey: `pma-${subIdempotencyKey}` }
         );
       } catch (err) {
         if (err.type === 'StripeCardError') {
@@ -489,6 +493,12 @@ export class StripeHelper extends StripeHelperBase {
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
     });
+
+    const subIdempotencyKey = generateIdempotencyKey([
+      customerId,
+      priceId,
+      paymentMethod?.card?.fingerprint,
+    ]);
 
     const createParams: Stripe.SubscriptionCreateParams = {
       customer: customerId,
