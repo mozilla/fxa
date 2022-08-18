@@ -16,7 +16,6 @@
 
 import $ from 'jquery';
 import _ from 'underscore';
-import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import Constants from './constants';
 import Backbone from 'backbone';
@@ -28,6 +27,11 @@ import speedTrap from 'speed-trap';
 import Strings from './strings';
 import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
+import {
+  MetricValidator,
+  MetricErrorReporter,
+  UTM_REGEX,
+} from 'fxa-shared/metrics/validate';
 import Validate from '../lib/validate';
 
 // Speed trap is a singleton, convert it
@@ -83,9 +87,10 @@ const ALLOWED_FIELDS = [
   'utm_term',
 ];
 
-var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('10s').milliseconds();
-var NOT_REPORTED_VALUE = 'none';
-var UNKNOWN_CAMPAIGN_ID = 'unknown';
+const DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('10s').milliseconds();
+
+const NOT_REPORTED_VALUE = 'none';
+const UNKNOWN_CAMPAIGN_ID = 'unknown';
 const INVALID_UTM = 'invalid';
 
 // convert a hash of metrics impressions into an array of objects.
@@ -121,7 +126,7 @@ function marshallProperty(property) {
 
 function marshallUtmProperty(property) {
   if (property && property !== NOT_REPORTED_VALUE) {
-    if (Validate.isUtmValid(property)) {
+    if (UTM_REGEX.test(property)) {
       return property;
     }
     return INVALID_UTM;
@@ -153,6 +158,7 @@ function Metrics(options = {}) {
 
   this._activeExperiments = {};
   this._brokerType = options.brokerType || NOT_REPORTED_VALUE;
+  this._maxEventOffset = options.maxEventOffset;
   this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;
   this._clientWidth = options.clientWidth || NOT_REPORTED_VALUE;
   // by default, send the metrics to the content server.
@@ -344,7 +350,28 @@ _.extend(Metrics.prototype, Backbone.Events, {
     // reported again.
     this._numStoredAccounts = '';
 
-    this._validateSanitizeUtmParams(filteredData);
+    // Create a sanitizer and check the data. This will report issues to sentry
+    // and keep track of critical errors that may have been encountered.
+    const reporter = new MetricErrorReporter(this._sentryMetrics);
+    const validator = new MetricValidator(reporter, {
+      maxEventOffset: this._maxEventOffset,
+      // These are optional, but we will do this to ensure backwards compatibility
+      isUtmValid: Validate.isUtmValid,
+      isDeviceIdValid: Validate.isDeviceIdValid,
+    });
+
+    validator.sanitizeDeviceId(filteredData);
+    validator.sanitizeDuration(filteredData);
+    validator.sanitizeEvents(filteredData);
+    validator.sanitizeNavigationTiming(filteredData);
+    validator.sanitizeUtmParams(filteredData);
+
+    // For now, if any data is coerced and resulted in a critical error being
+    // captured do no send the metric. Depending on the metrics captured in
+    // sentry we may want to revise what is considered critical.
+    if (reporter.critical > 0) {
+      return;
+    }
 
     const send = () => this._send(filteredData, isPageUnloading);
     return (
@@ -397,30 +424,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
       this.logEvent('inactivity.flush');
       this.flush();
     }, this._inactivityFlushMs);
-  },
-
-  // Since RPs and client do not have full control over the UTM
-  // params that could be passed to them, we need to sanitize those values
-  // the best we can. This replaces and reports any invalid utm params which
-  // allows us to still submit the metrics.
-  _validateSanitizeUtmParams(filteredData) {
-    const utmKeyReg = /^utm_/;
-    return Object.keys(filteredData)
-      .filter((key) => {
-        return utmKeyReg.test(key);
-      })
-      .forEach((utmKey) => {
-        const valid = Validate.isUtmValid(filteredData[utmKey]);
-        if (!valid && this._sentryMetrics) {
-          this._sentryMetrics.captureException(
-            AuthErrors.toInvalidParameterError(utmKey)
-          );
-
-          // Override original UTM param with `invalid` value. This will allow us
-          // to submit the metrics
-          filteredData[utmKey] = INVALID_UTM;
-        }
-      });
   },
 
   /**
@@ -798,7 +801,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   setBrokerType(brokerType) {
-    this._brokerType = brokerType;
+    this._brokerType = brokerType || NOT_REPORTED_VALUE;
   },
 
   isCollectionEnabled() {

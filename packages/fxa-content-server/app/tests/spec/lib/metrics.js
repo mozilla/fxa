@@ -9,6 +9,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
+import Duration from 'duration';
 import Environment from 'lib/environment';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -21,6 +22,9 @@ const FLOW_ID =
 const FLOW_BEGIN_TIME = 1484923219448;
 const MARKETING_CAMPAIGN = 'campaign1';
 const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
+const INTEGER_OVERFLOW = Number.MAX_SAFE_INTEGER + 1;
+const MAX_INTEGER = Number.MAX_SAFE_INTEGER;
+const BAD_METRIC_ERROR_PREFIX = 'Bad metric encountered:';
 
 describe('lib/metrics', () => {
   let environment;
@@ -717,6 +721,262 @@ describe('lib/metrics', () => {
 
       assert.equal(broker, 'fx-desktop-v3');
     });
+
+    it('handles undefined broker type', function () {
+      metrics.setBrokerType(undefined);
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
+
+    it('handles null broker type', function () {
+      metrics.setBrokerType(null);
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
+
+    it('handles empty broker type', function () {
+      metrics.setBrokerType('');
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
+  });
+
+  describe('clamp', function () {
+    it('returns original value when no default is defined', () => {
+      assert.equal(metrics.clamp('a', 0, 100), 'a');
+    });
+
+    it('returns a default value when value is invalid', () => {
+      assert.equal(metrics.clamp('a', 0, 100, 2), 2);
+    });
+
+    it('handles undefined values a default value', () => {
+      assert.equal(metrics.clamp(null, 0, 100, 2), 2);
+      assert.equal(metrics.clamp(undefined, 0, 100, 2), 2);
+    });
+
+    it('clamps to max', () => {
+      assert.equal(metrics.clamp('101', 0, 100, 2), 100);
+      assert.equal(metrics.clamp(101, 0, 100, 2), 100);
+    });
+
+    it('clamps to min', () => {
+      assert.equal(metrics.clamp('-1', 0, 100, 2), 0);
+      assert.equal(metrics.clamp(-1, 0, 100, 2), 0);
+    });
+
+    it('fails on invalid min/max request', () => {
+      assert.throws(() => metrics.clamp(2, 100, 0, 2), 0);
+    });
+
+    it('clamps max integer overflow', () => {
+      assert.equal(
+        metrics.clamp(INTEGER_OVERFLOW, 0, MAX_INTEGER),
+        MAX_INTEGER
+      );
+    });
+  });
+
+  describe('sanitize', function () {
+    it('fixes bad utm param', () => {
+      assert.include(
+        metrics.sanitize({
+          deviceId: 'none',
+          // eslint-disable-next-line
+          utm_test: '[bad]',
+        }),
+        {
+          // eslint-disable-next-line
+          utm_test: 'invalid',
+        }
+      );
+
+      assert.equal(sentryMock.captureException.callCount, 1);
+      assert.include(
+        sentryMock.captureException.args[0][0].message,
+        BAD_METRIC_ERROR_PREFIX
+      );
+    });
+
+    it('fixes duration', () => {
+      assert.include(
+        metrics.sanitize({
+          duration: '',
+        }),
+        {
+          duration: 0,
+        }
+      );
+
+      assert.include(
+        metrics.sanitize({
+          duration: null,
+        }),
+        {
+          duration: 0,
+        }
+      );
+
+      assert.include(
+        metrics.sanitize({
+          duration: undefined,
+        }),
+        {
+          duration: 0,
+        }
+      );
+
+      assert.include(
+        metrics.sanitize({
+          duration: -1,
+        }),
+        {
+          duration: 0,
+        }
+      );
+
+      assert.include(
+        metrics.sanitize({
+          duration: INTEGER_OVERFLOW,
+        }),
+        {
+          duration: MAX_INTEGER,
+        }
+      );
+    });
+
+    it('fixes nav timings', () => {
+      assert.deepInclude(
+        metrics.sanitize({
+          navigationTiming: {
+            connectStart: '',
+            connectEnd: '',
+            domainLookupEnd: '',
+            redirectStart: '',
+          },
+        }),
+        {
+          navigationTiming: {
+            connectStart: 0,
+            connectEnd: 0,
+            domainLookupEnd: 0,
+            redirectStart: 0,
+          },
+        }
+      );
+
+      assert.deepInclude(
+        metrics.sanitize({
+          navigationTiming: {
+            connectStart: INTEGER_OVERFLOW,
+            connectEnd: INTEGER_OVERFLOW,
+            domainLookupEnd: INTEGER_OVERFLOW,
+            redirectStart: INTEGER_OVERFLOW,
+          },
+        }),
+        {
+          navigationTiming: {
+            connectStart: MAX_INTEGER,
+            connectEnd: MAX_INTEGER,
+            domainLookupEnd: MAX_INTEGER,
+            redirectStart: MAX_INTEGER,
+          },
+        }
+      );
+
+      assert.deepInclude(
+        metrics.sanitize({
+          navigationTiming: {
+            connectStart: -1,
+            connectEnd: -1,
+            domainLookupEnd: -1,
+            redirectStart: -1,
+          },
+        }),
+        {
+          navigationTiming: {
+            connectStart: 0,
+            connectEnd: 0,
+            domainLookupEnd: 0,
+            redirectStart: 0,
+          },
+        }
+      );
+    });
+
+    it('fixes events', () => {
+      assert.deepInclude(
+        metrics.sanitize({
+          events: [
+            {
+              offset: 0,
+              type: 'some.error[weirdness]',
+            },
+          ],
+        }),
+        {
+          events: [
+            {
+              offset: 0,
+              type: 'some.error',
+            },
+          ],
+        }
+      );
+
+      assert.deepInclude(
+        metrics.sanitize({
+          events: [
+            {
+              offset: -1,
+              type: 'some.type',
+            },
+          ],
+        }),
+        {
+          events: [
+            {
+              offset: 0,
+              type: 'some.type',
+            },
+          ],
+        }
+      );
+
+      assert.deepInclude(
+        metrics.sanitize({
+          events: [
+            {
+              offset: INTEGER_OVERFLOW,
+              type: 'some.type',
+            },
+          ],
+        }),
+        {
+          events: [
+            {
+              offset: new Duration('2d').milliseconds(),
+              type: 'some.type',
+            },
+          ],
+        }
+      );
+    });
+
+    it('fixes bad device id', () => {
+      assert.include(
+        metrics.sanitize({
+          deviceId: null,
+        }),
+        {
+          deviceId: 'none',
+        }
+      );
+
+      // Make sure error gets reported to sentry
+      assert.equal(sentryMock.captureException.callCount, 1);
+      assert.include(
+        sentryMock.captureException.args[0][0].message,
+        BAD_METRIC_ERROR_PREFIX
+      );
+    });
   });
 
   describe('setService', function () {
@@ -1008,10 +1268,9 @@ describe('lib/metrics', () => {
           assert.equal(firstPayload.utm_term, 'none');
 
           assert.equal(sentryMock.captureException.callCount, 1);
-          assert.equal(
-            sentryMock.captureException.args[0][0].errno,
-            107,
-            'invalid param'
+          assert.include(
+            sentryMock.captureException.args[0][0].message,
+            BAD_METRIC_ERROR_PREFIX
           );
         } catch (err) {
           return done(err);

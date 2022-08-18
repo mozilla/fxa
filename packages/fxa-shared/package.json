@@ -117,7 +117,7 @@
     "knex": "^2.2.0",
     "lodash.omitby": "^4.6.0",
     "lodash.pick": "^4.4.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",

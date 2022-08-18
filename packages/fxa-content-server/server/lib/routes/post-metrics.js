@@ -112,7 +112,7 @@ const BODY_SCHEMA = {
       loadEventStart: NAVIGATION_TIMING_TYPE.required(),
       navigationStart: NAVIGATION_TIMING_TYPE.required(),
       redirectEnd: NAVIGATION_TIMING_TYPE.required(),
-      redirectStart: NAVIGATION_TIMING_TYPE.required(),
+      redirectStart: NAVIGATION_TIMING_TYPE.optional(),
       requestStart: NAVIGATION_TIMING_TYPE.required(),
       responseEnd: NAVIGATION_TIMING_TYPE.required(),
       responseStart: NAVIGATION_TIMING_TYPE.required(),
@@ -215,7 +215,7 @@ function findInvalidEventOffsets(events, maxOffset) {
 function MaxOffsetError(offset, maxOffset) {
   return {
     error: 'Bad Request',
-    message: `offset ${offset} > maxiumum possible of ${maxOffset}`,
+    message: `offset exceeds maximum of ${maxOffset}`,
     statusCode: 400,
     validation: {
       keys: ['offset'],

@@ -22,21 +22,14 @@ const BODY_SCHEMA = {
     .object()
     .keys({
       // CSP 2, 3 required
-      // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-      'blocked-uri': URL_TYPE.allow('')
-        .allow('asset')
-        .allow('blob')
-        .allow('data')
-        .allow('eval')
-        .allow('inline')
-        .allow('self')
+      'blocked-uri': STRING_TYPE.allow('')
+        .not(/^telnet:/i)
         .optional(),
       // CSP 2, 3 optional
       'column-number': INTEGER_TYPE.min(0).optional(),
       // CSP 3 required, but not always sent
       disposition: STRING_TYPE.optional(),
       // CSP 2, 3 required
-      // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
       'document-uri': URL_TYPE.required().allow('about:srcdoc'),
       // CSP 2 required, but not always sent
       'effective-directive': STRING_TYPE.optional(),

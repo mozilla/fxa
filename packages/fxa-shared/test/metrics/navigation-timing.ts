@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sinon from 'sinon';
-import { observeNavigationTiming } from '../../metrics/navigation-timing';
+import { InvalidNavigationTimingError } from '../../metrics/metric-errors';
+import {
+  checkNavTiming,
+  observeNavigationTiming,
+} from '../../metrics/navigation-timing';
+const { assert } = require('chai');
 
 type MockEntryList = { getEntries: () => [object] };
 type ObsCallback = (_entries: MockEntryList, _obs: object) => undefined;
@@ -58,6 +63,83 @@ describe('lib/navigation-timing', () => {
       mockGetEntriesByType([navTiming as PerformanceEntry]);
       observeNavigationTiming('/x/y/z', sendFn);
       sinon.assert.calledOnceWithExactly(sendFn, '/x/y/z', navTiming);
+    });
+  });
+
+  describe('detects invalid navigation timings', () => {
+    it('detects missing value violation', () => {
+      assert.deepInclude(
+        checkNavTiming({}).map((x) => x.message),
+        new InvalidNavigationTimingError(
+          `navTiming.domainLookupStart`,
+          'missing',
+          false,
+          undefined,
+          0
+        ).message
+      );
+    });
+
+    it('detects minimum values violation', () => {
+      assert.deepInclude(
+        checkNavTiming({
+          domainLookupStart: -1,
+        }).map((x) => x.message),
+        new InvalidNavigationTimingError(
+          `navTiming.domainLookupStart`,
+          'less than 0',
+          false,
+          -1,
+          0
+        ).message
+      );
+    });
+
+    it('detects relative value violation', () => {
+      assert.deepInclude(
+        checkNavTiming({
+          domainLookupStart: 100,
+          requestStart: 1,
+        }).map((x) => x.message),
+        new InvalidNavigationTimingError(
+          `navTiming.requestStart`,
+          'less than domainLookupStart',
+          false,
+          1,
+          100
+        ).message
+      );
+    });
+
+    it('detects relative value violation', () => {
+      assert.deepInclude(
+        checkNavTiming({
+          domainLookupStart: 100,
+          requestStart: 1,
+        }).map((x) => x.message),
+        new InvalidNavigationTimingError(
+          `navTiming.requestStart`,
+          'less than domainLookupStart',
+          false,
+          1,
+          100
+        ).message
+      );
+    });
+
+    it('detects allows undefined min', () => {
+      assert.notDeepInclude(
+        checkNavTiming({
+          redirectStart: -100,
+        }).map((x) => x.message),
+        new InvalidNavigationTimingError(
+          `navTiming.redirectStart`,
+          'less than 0',
+          false,
+          -100,
+          0
+        ).message
+      );
     });
   });
 });

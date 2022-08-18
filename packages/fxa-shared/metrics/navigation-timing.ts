@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as sentry from '@sentry/browser';
+import { InvalidNavigationTimingError } from './metric-errors';
+
 /**
  * This is browser code to send Navigation Timing Level 2 (see
  * https://www.w3.org/TR/navigation-timing-2/) performance data.
@@ -13,29 +16,80 @@
 
 const NAV_ENTRY_TYPE = 'navigation';
 
+export const checkNavTiming = (navTimings: any) => {
+  const errors = [];
+  function check(key: string, min?: number, rel?: string) {
+    if (navTimings[key] == null) {
+      errors.push(
+        new InvalidNavigationTimingError(
+          `navTiming.${key}`,
+          'missing',
+          navTimings[key],
+          0
+        )
+      );
+    } else if (min != null && navTimings[key] < min) {
+      errors.push(
+        new InvalidNavigationTimingError(
+          `navTiming.${key}`,
+          'less than 0',
+          navTimings[key],
+          0
+        )
+      );
+    } else if (rel && navTimings[key] < navTimings[rel]) {
+      errors.push(
+        new InvalidNavigationTimingError(
+          `navTiming.${key}`,
+          `less than ${rel}`,
+          navTimings[key],
+          navTimings[rel]
+        )
+      );
+    }
+  }
+
+  check('domainLookupStart', Number.MAX_SAFE_INTEGER);
+  check('requestStart', 0, 'domainLookupStart');
+  check('responseStart', 0, 'requestStart');
+  check('responseEnd', 0, 'responseStart');
+  check('domInteractive', 0, 'responseEnd');
+  check('domComplete', 0, 'domInteractive');
+  check('loadEventStart', 0, 'domComplete');
+  check('loadEventEnd', 0, 'loadEventStart');
+  check('redirectStart');
+
+  // Name must be a valid url, and ideally it matches the window.document.URL
+  try {
+    new URL(navTimings.name);
+  } catch (err) {
+    errors.push(
+      new InvalidNavigationTimingError(
+        'navTiming.name',
+        'invalid value',
+        navTimings.name,
+        window.document.URL
+      )
+    );
+  }
+
+  return errors;
+};
+
 // export for testing
 export const sendFn = () => {
   if (!!navigator.sendBeacon) {
     return (url: string, navTiming: PerformanceNavigationTiming) => {
-      // Clamp timings to 0. Sometimes negative values are getting reported
-      // causing validation errors. The w3c spec indicates all timing values
-      // should be unsigned longs, so we will enforce this here.
-      navTiming = Object.assign({}, navTiming, {
-        domComplete: Math.max(0, navTiming.domComplete),
-        domContentLoadedEventEnd: Math.max(
-          0,
-          navTiming.domContentLoadedEventEnd
-        ),
-        domContentLoadedEventStart: Math.max(
-          0,
-          navTiming.domContentLoadedEventStart
-        ),
-        domInteractive: Math.max(0, navTiming.domInteractive),
-        loadEventEnd: Math.max(0, navTiming.loadEventEnd),
-        loadEventStart: Math.max(0, navTiming.loadEventStart),
-        unloadEventEnd: Math.max(0, navTiming.unloadEventEnd),
-        unloadEventStart: Math.max(0, navTiming.unloadEventStart),
-      });
+      // Raise errors for bad states
+      const errors = checkNavTiming(navTiming);
+
+      // Short circuit and capture errors, don't report bad data.
+      if (errors.length > 0) {
+        for (const error of errors) {
+          sentry.captureException(error);
+        }
+        return;
+      }
 
       return navigator.sendBeacon(
         url,
