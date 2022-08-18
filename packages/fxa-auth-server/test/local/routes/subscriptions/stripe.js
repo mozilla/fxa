@@ -914,7 +914,6 @@ describe('DirectStripeRoutes', () => {
           promotionCode: {
             coupon: { id: 'couponId' },
           },
-          subIdempotencyKey: `${VALID_REQUEST.payload.idempotencyKey}-createSub`,
           taxRateId: undefined,
         }
       );
@@ -1164,7 +1163,6 @@ describe('DirectStripeRoutes', () => {
           priceId: 'quux',
           promotionCode: undefined,
           paymentMethodId: undefined,
-          subIdempotencyKey: `${idempotencyKey}-createSub`,
           taxRateId: undefined,
         }
       );

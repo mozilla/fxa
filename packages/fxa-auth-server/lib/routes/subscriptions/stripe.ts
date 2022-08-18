@@ -34,6 +34,7 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
+import { generateIdempotencyKey } from '../../payments/utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
@@ -354,16 +355,14 @@ export class StripeHandler {
       return filterCustomer(customer);
     }
 
-    const { displayName, idempotencyKey } = request.payload as Record<
-      string,
-      string
-    >;
-    const customerIdempotencyKey = `${idempotencyKey}-customer`;
+    const { displayName } = request.payload as Record<string, string>;
+
+    const idempotencyKey = generateIdempotencyKey([uid]);
     customer = await this.stripeHelper.createPlainCustomer(
       uid,
       email,
       displayName,
-      customerIdempotencyKey
+      idempotencyKey
     );
     return filterCustomer(customer);
   }
@@ -501,7 +500,6 @@ export class StripeHandler {
         priceId,
         paymentMethodId,
         promotionCode: promotionCodeFromRequest,
-        idempotencyKey,
         metricsContext,
       } = request.payload as Record<string, string>;
 
@@ -541,14 +539,12 @@ export class StripeHandler {
         }
       }
 
-      const subIdempotencyKey = `${idempotencyKey}-createSub`;
       const subscription: any =
         await this.stripeHelper.createSubscriptionWithPMI({
           customerId: customer.id,
           priceId,
           paymentMethodId,
           promotionCode: promotionCode,
-          subIdempotencyKey,
           taxRateId,
         });
 
@@ -863,7 +859,6 @@ export const stripeRoutes = (
         validate: {
           payload: {
             displayName: isA.string().optional(),
-            idempotencyKey: isA.string().required(),
           },
         },
       },
@@ -891,7 +886,6 @@ export const stripeRoutes = (
             priceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.optional(),
             promotionCode: isA.string().optional(),
-            idempotencyKey: isA.string().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },

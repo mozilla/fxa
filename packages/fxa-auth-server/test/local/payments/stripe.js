@@ -40,6 +40,7 @@ const {
   'fxa-shared/db/models/auth': dbStub,
 });
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
+const { generateIdempotencyKey } = require('../../../lib/payments/utils');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -822,7 +823,6 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -830,11 +830,16 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        subIdempotencyKey,
         taxRateId: 'tr_asdf',
       });
 
@@ -848,7 +853,7 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: undefined,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.insertSubscriptionRecordWithBackfill,
@@ -874,7 +879,6 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -882,11 +886,16 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        subIdempotencyKey,
         automaticTax: true,
       });
 
@@ -900,7 +909,7 @@ describe('StripeHelper', () => {
           promotion_code: undefined,
           automatic_tax: { enabled: true },
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.insertSubscriptionRecordWithBackfill,
@@ -930,7 +939,6 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(newSubscription);
       sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -938,11 +946,16 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        subIdempotencyKey,
         taxRateId: 'tr_asdf',
         promotionCode,
       });
@@ -964,7 +977,7 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: promotionCode.id,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.update,
@@ -1000,7 +1013,6 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpandedIncompleteCVCFail);
       sandbox.stub(stripeHelper, 'cancelSubscription').resolves({});
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -1008,13 +1020,17 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
 
       try {
         await stripeHelper.createSubscriptionWithPMI({
           customerId: 'customerId',
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey,
           taxRateId: 'tr_asdf',
         });
         sinon.assert.fail();
@@ -1033,7 +1049,7 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: undefined,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.cancelSubscription,
@@ -1056,7 +1072,6 @@ describe('StripeHelper', () => {
           customerId: 'customerId',
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey: uuidv4(),
         })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
@@ -1080,7 +1095,6 @@ describe('StripeHelper', () => {
           customerId: 'customerId',
           priceId: 'invoiceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey: uuidv4(),
         })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
