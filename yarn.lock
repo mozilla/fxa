@@ -23682,7 +23682,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     request: ^2.88.2
-    restify-clients: ^3.1.0
+    restify-clients: ^4.1.1
     sinon: ^9.0.3
     tap: ^16.3.0
     walk: ^2.3.15
@@ -39798,9 +39798,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"restify-clients@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "restify-clients@npm:3.1.0"
+"restify-clients@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "restify-clients@npm:4.1.1"
   dependencies:
     assert-plus: ^1.0.0
     backoff: ^2.5.0
@@ -39820,7 +39820,7 @@ resolve@^2.0.0-next.3:
   dependenciesMeta:
     dtrace-provider:
       optional: true
-  checksum: cc9a9d79a8ffe75e14abcc76306ccdb06bbf728814eeb34c6610353cb7880dc1ad10e8922e0408751fab6ca507f239218a6e1fc740cf508ecc3049c94e86d195
+  checksum: e4ec72be3adaf003bd262db48e82ff874d2e4ed772cbb52d86c4c0c41950f75dc562c2aed9691dc62236e0736db8763ce6b59b5fd235b19eeacf42588c6c7381
   languageName: node
   linkType: hard
 
