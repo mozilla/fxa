@@ -497,7 +497,7 @@ export class StripeHelper extends StripeHelperBase {
     const subIdempotencyKey = generateIdempotencyKey([
       customerId,
       priceId,
-      paymentMethod?.card?.fingerprint,
+      paymentMethod?.card?.fingerprint || '',
     ]);
 
     const createParams: Stripe.SubscriptionCreateParams = {
