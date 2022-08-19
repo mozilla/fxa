@@ -6253,6 +6253,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/hub@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/hub@npm:7.11.1"
+  dependencies:
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
+    tslib: ^1.9.3
+  checksum: 1df55e6e3a494167e6b1592f1aa6ea185feeed3a68d9060340877b3db5943fe45437c5d508dfabc1d4275ce7f3c3910f3bb4ad1880a3c9d01a7d07200f3feb91
+  languageName: node
+  linkType: hard
+
 "@sentry/hub@npm:7.3.1":
   version: 7.3.1
   resolution: "@sentry/hub@npm:7.3.1"
@@ -6358,29 +6369,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:6.19.7":
-  version: 6.19.7
-  resolution: "@sentry/tracing@npm:6.19.7"
+"@sentry/tracing@npm:7.11.1, @sentry/tracing@npm:^7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/tracing@npm:7.11.1"
   dependencies:
-    "@sentry/hub": 6.19.7
-    "@sentry/minimal": 6.19.7
-    "@sentry/types": 6.19.7
-    "@sentry/utils": 6.19.7
+    "@sentry/hub": 7.11.1
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
     tslib: ^1.9.3
-  checksum: 26e7bf435f0478356d95fab50fe4acd2cf449bfdfd457996111aeedd082f6c76f0592abd0c5f5dcfe2b582d3fd7988ffef07787e7ecc7f5d228278731ce6264e
-  languageName: node
-  linkType: hard
-
-"@sentry/tracing@npm:^6.19.1":
-  version: 6.19.2
-  resolution: "@sentry/tracing@npm:6.19.2"
-  dependencies:
-    "@sentry/hub": 6.19.2
-    "@sentry/minimal": 6.19.2
-    "@sentry/types": 6.19.2
-    "@sentry/utils": 6.19.2
-    tslib: ^1.9.3
-  checksum: 07bdc2658118d5ad8b0c921d6b15362731cac6383f82396784ba8fdecfabc9a9712456d5c5c90a24dc57fa6ecb8cb366cc5dc426482f2a2a243ee04c1c61c2ba
+  checksum: c0c4b540eff30deb94b939d7792f765410bd0abb3c495a49cd89c1ed113f0ca46fb7b12bdc777ddb42f64018a5647afe69bb444d77a2e0cb8a8ae9ed813a7f7b
   languageName: node
   linkType: hard
 
@@ -6410,6 +6407,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/types@npm:7.11.1"
+  checksum: 935dbd83d8c43bca202979fef12fe2af0508e44c61a0b3b2e10971006b59938fac36bfde530c7b7db14601dcbb17a2a7b35f479de8bbfe961df3eff7fd9327ce
+  languageName: node
+  linkType: hard
+
 "@sentry/types@npm:7.3.1":
   version: 7.3.1
   resolution: "@sentry/types@npm:7.3.1"
@@ -6434,6 +6438,16 @@ __metadata:
     "@sentry/types": 6.19.7
     tslib: ^1.9.3
   checksum: a000223b9c646c64e3565e79cace1eeb75114342b768367c4dddd646476c215eb1bddfb70c63f05e2352d3bce2d7d415344e4757a001605d0e01ac74da5dd306
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/utils@npm:7.11.1"
+  dependencies:
+    "@sentry/types": 7.11.1
+    tslib: ^1.9.3
+  checksum: e0a1d8528e9f99a35c88786cc230a5466966a59554796bbf13a33aa8956911c8bce7c556bb7a90ba20c9af9fa64ef6b87b956d1d8bae6ff42950ce4125c3b44e
   languageName: node
   linkType: hard
 
@@ -15528,7 +15542,7 @@ __metadata:
   dependencies:
     "@sentry/integrations": 6.19.7
     "@sentry/node": 6.19.7
-    "@sentry/tracing": 6.19.7
+    "@sentry/tracing": 7.11.1
     async: 3.2.4
     audit-filter: 0.5.0
     body-parser: ^1.19.1
@@ -23488,7 +23502,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
-    "@sentry/tracing": ^6.19.1
+    "@sentry/tracing": ^7.11.1
     "@testing-library/react": ^12.1.5
     "@types/backbone": ^1.4.10
     "@types/postcss-import": ^14
@@ -23918,7 +23932,7 @@ fsevents@~2.1.1:
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.19.7
     "@sentry/node": ^6.19.1
-    "@sentry/tracing": ^6.19.1
+    "@sentry/tracing": ^7.11.1
     "@storybook/addon-actions": ^6.5.9
     "@storybook/addon-links": ^6.5.9
     "@storybook/addon-postcss": ^2.0.0
@@ -24138,7 +24152,7 @@ fsevents@~2.1.1:
     "@rescripts/cli": 0.0.16
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
-    "@sentry/tracing": ^6.19.1
+    "@sentry/tracing": ^7.11.1
     "@storybook/addon-actions": ^6.5.9
     "@storybook/addon-links": ^6.5.9
     "@storybook/addon-postcss": ^2.0.0
@@ -24220,7 +24234,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
-    "@sentry/tracing": ^6.19.1
+    "@sentry/tracing": ^7.11.1
     "@type-cacheable/core": ^10.1.2
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/accept-language-parser": ^1.5.3
