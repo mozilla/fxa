@@ -1,12 +1,14 @@
 <div id="fxa-settings-header-wrapper">
   <header id="fxa-settings-header">
-    <h1 id="fxa-manage-account"><span class="fxa-account-title">{{#t}}Firefox Accounts{{/t}}</span></h1>
+    <h1 id="fxa-manage-account" class="text-xl">
+      <span class="fxa-account-title font-bold ltr:mr-2 rtl:ml-2">{{#t}}Firefox Accounts{{/t}}</span>
+    </h1>
   </header>
 
   <ol class="breadcrumbs">
-    <li><a href="/settings">{{#t}}Account Home{{/t}}</a></li>
-    <li><a href="/subscriptions">{{#t}}Subscriptions{{/t}}</a></li>
-    <li><a href="/support">{{#t}}Contact Us{{/t}}</a></li>
+    <li><a class="text-blue-500" href="/settings">{{#t}}Account Home{{/t}}</a></li>
+    <li><a class="text-blue-500" href="/subscriptions">{{#t}}Subscriptions{{/t}}</a></li>
+    <li><a class="text-blue-500" href="/support">{{#t}}Contact Us{{/t}}</a></li>
   </ol>
 
   <div class="settings-success-wrapper">
@@ -15,7 +17,7 @@
 </div>
 
 <div id="fxa-settings">
-  <div id="fxa-settings-content" class="card">
+  <div id="fxa-settings-content" class="card !text-left before:content-none">
 
     <header id="fxa-settings-profile-header-wrapper">
       <div class="avatar-wrapper avatar-settings-view nohover"></div>
@@ -86,8 +88,8 @@
                 </div>
               </div>
               <div class="button-row">
-                <button class="settings-button secondary-button cancel" type="button">{{#t}}Cancel{{/t}}</button>
-                <button type="submit" class="settings-button primary-button" disabled>
+                <button class="settings-button secondary-button cancel cta-neutral" type="button">{{#t}}Cancel{{/t}}</button>
+                <button type="submit" class="settings-button primary-button cta-primary" disabled>
                   <span class="submit-content">{{#t}}Send{{/t}}</span>
                   <div class="spinner hidden"></div>
                 </button>
@@ -100,4 +102,4 @@
   </div>
 </div>
 
-<footer id="legal-footer"><a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>
+<footer id="legal-footer"><a class="terms text-blue-500" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy text-blue-500" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>
