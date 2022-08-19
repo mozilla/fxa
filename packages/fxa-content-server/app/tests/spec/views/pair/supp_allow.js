@@ -5,10 +5,10 @@
 import { assert } from 'chai';
 import $ from 'jquery';
 import Notifier from 'lib/channels/notifier';
+import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import { mockPairingChannel } from 'tests/mocks/pair';
-import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import View from 'views/pair/supp_allow';
 
 const REMOTE_METADATA = {
@@ -74,13 +74,13 @@ describe('views/pair/supp_allow', () => {
       return view.render().then(() => {
         $('#container').html(view.el);
         assert.ok(view.$el.find('#supp-approve-btn').length);
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(view.$el.find('#family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el.find('.location').text().trim(),
+          view.$el.find('#location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
-          view.$el.find('.ip-address').text(),
+          view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
         view.submit();

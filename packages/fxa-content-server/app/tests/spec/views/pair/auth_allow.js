@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import $ from 'jquery';
 import Backbone from 'backbone';
 import { assert } from 'chai';
-import AuthorityBroker from 'models/auth_brokers/pairing/authority';
+import $ from 'jquery';
 import Notifier from 'lib/channels/notifier';
-import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
-import sinon from 'sinon';
+import AuthorityBroker from 'models/auth_brokers/pairing/authority';
+import Relier from 'models/reliers/relier';
 import User from 'models/user';
+import sinon from 'sinon';
 import View from 'views/pair/auth_allow';
 
 const REMOTE_METADATA = {
@@ -30,7 +30,7 @@ const MOCK_ACCOUNT_PROFILE = {
   email: MOCK_EMAIL,
 };
 
-describe ('views/pair/auth_allow', () => {
+describe('views/pair/auth_allow', () => {
   let account;
   let broker;
   let config;
@@ -105,13 +105,13 @@ describe ('views/pair/auth_allow', () => {
             .includes(HEADER_TEXT)
         );
         assert.isTrue(view.$el.find('header p').text().includes(MOCK_EMAIL));
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(view.$el.find('#family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el.find('.location').text().trim(),
+          view.$el.find('#location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
-          view.$el.find('.ip-address').text(),
+          view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
         view.submit();
@@ -127,14 +127,16 @@ describe ('views/pair/auth_allow', () => {
 
     it('can change password', async () => {
       sinon.spy(view, 'navigateAway');
-      
+
       await view.render();
-      
+
       view.$('#change-password').click();
-      
-      assert.isTrue(view.navigateAway.calledOnceWith('/settings/change_password'));
+
+      assert.isTrue(
+        view.navigateAway.calledOnceWith('/settings/change_password')
+      );
     });
-    
+
     it('handles errors', (done) => {
       sinon.spy(view, 'displayError');
       view.initialize();
@@ -185,13 +187,13 @@ describe ('views/pair/auth_allow', () => {
             .text()
             .includes(HEADER_TEXT)
         );
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(view.$el.find('#family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el.find('.location').text().trim(),
+          view.$el.find('#location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
-          view.$el.find('.ip-address').text(),
+          view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
       });

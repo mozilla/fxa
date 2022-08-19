@@ -1,8 +1,8 @@
-<div class="client {{ deviceType }}">
-    {{#deviceName}}<h2 class="device-name">{{deviceName}}</h2>{{/deviceName}}
-    <div class="family-os">{{#t}}%(family)s on %(OS)s{{/t}}</div>
+<div class="mt-9">
+    {{#deviceName}}<h2 class="mb-5 text-base">{{deviceName}}</h2>{{/deviceName}}
 
-    <div class="location">
+    <p class="text-xs" id="family-os">{{#t}}%(family)s on %(OS)s{{/t}}</p>
+    <p class="text-xs" id="location">
         {{#country}}
             {{#city}}
                 {{#region}}{{#t}}%(city)s, %(region)s, %(country)s (estimated){{/t}}{{/region}}
@@ -14,6 +14,6 @@
             {{/city}}
         {{/country}}
         {{^country}}{{#t}}Location unknown{{/t}}{{/country}}
-    </div>
-    <div class="ip-address">{{#t}}IP address: %(ipAddress)s{{/t}}</div>
+    </p>
+    <p class="text-xs" id="ip-address">{{#t}}IP address: %(ipAddress)s{{/t}}</p>
 </div>

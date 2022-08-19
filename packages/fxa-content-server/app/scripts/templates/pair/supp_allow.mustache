@@ -1,7 +1,7 @@
-<div id="main-content" class="card pair-auth">
+<div class="card">
   <header>
-    <h1 id="fxa-pair-supp-allow-header">
-      {{#unsafeTranslate}}Confirm pairing <small>for %(email)s</small>{{/unsafeTranslate}}
+    <h1 id="fxa-pair-supp-allow-header" class="card-header">
+      {{#unsafeTranslate}}Confirm pairing <span class="card-subheader">for <span class="break-all">%(email)s</span></span>{{/unsafeTranslate}}
     </h1>
   </header>
 
@@ -12,8 +12,8 @@
     <form novalidate>
         {{{ unsafeDeviceBeingPairedHTML }}}
 
-      <div class="button-row">
-        <button type="submit" id="supp-approve-btn">{{#t}}Confirm pairing{{/t}}</button>
+      <div class="flex my-5">
+        <button type="submit" class="cta-primary cta-xl" id="supp-approve-btn">{{#t}}Confirm pairing{{/t}}</button>
       </div>
 
       <div class="links">
