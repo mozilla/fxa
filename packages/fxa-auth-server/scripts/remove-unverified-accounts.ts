@@ -36,7 +36,8 @@ export async function retreiveUnverifiedAccounts(
 export async function cancelSubscriptionsAndDeleteCustomer(
   stripeHelper: StripeHelper,
   paypalHelper: PayPalHelper,
-  account: Account
+  account: Account,
+  removedAccounts: Account[]
 ): Promise<void> {
   const stripeCustomer = await stripeHelper.fetchCustomer(account.uid, [
     'subscriptions',
@@ -62,6 +63,7 @@ export async function cancelSubscriptionsAndDeleteCustomer(
 
     // Remove the customer from stripe
     await stripeHelper.removeCustomer(account.uid, stripeCustomer.email!);
+    removedAccounts.push(account);
 
     // Delete any PayPal billing agreements
     if (paymentProvider === 'paypal') {
@@ -119,7 +121,7 @@ export async function deletePayPalBillingAgreements(
 
 export async function init() {
   const { log, database, senders, stripeHelper } =
-    await setupProcessingTaskObjects('remove-accounts');
+    await setupProcessingTaskObjects('remove-unverified-accounts');
 
   const paypalClient = new PayPalClient(
     config.subscriptions.paypalNvpSigCredentials
@@ -129,22 +131,22 @@ export async function init() {
   Container.set(PayPalHelper, paypalHelper);
   const statsd = Container.get(StatsD);
 
-  statsd.increment('remove-accounts.startup');
+  statsd.increment('remove-unverified-accounts.startup');
 
   // retreive all unverified accounts
-  const allAccounts = await retreiveUnverifiedAccounts(database);
-  const removedAccounts = [];
+  const allUnverifiedAccounts = await retreiveUnverifiedAccounts(database);
+  const removedAccounts: Account[] = [];
 
   // iterate through unverified accounts and try to cancel subs, issue refunds, delete customers and accounts
-  for (const account of allAccounts) {
+  for (const account of allUnverifiedAccounts) {
     try {
       await cancelSubscriptionsAndDeleteCustomer(
         stripeHelper,
         paypalHelper,
-        account
+        account,
+        removedAccounts
       );
       await database.deleteAccount({ uid: account.uid });
-      removedAccounts.push(account);
     } catch (error) {
       reportSentryError(error);
       log.error(`Failed to remove unverified account`, { error });
@@ -165,7 +167,7 @@ export async function init() {
     }
   }
 
-  statsd.increment('remove-accounts.shutdown');
+  statsd.increment('remove-unverified-accounts.shutdown');
   await promisify(statsd.close).bind(statsd)();
   return 0;
 }

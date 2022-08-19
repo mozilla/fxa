@@ -1072,8 +1072,9 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Issue stripe refund
+   *
    * @param paymentIntentId
+   * @param reason
    * @returns
    */
   async refundPayment(

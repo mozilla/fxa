@@ -4,16 +4,15 @@ import {
   retreiveUnverifiedAccounts,
   cancelSubscriptionsAndDeleteCustomer,
   issueRefund,
-} from '../../scripts/remove-accounts';
+} from '../../scripts/remove-unverified-accounts';
+import * as cp from 'child_process';
+import * as util from 'util';
+import * as path from 'path';
+import * as sinon from 'sinon';
+import { assert } from 'chai';
 
 const ROOT_DIR = '../..';
-const cp = require('child_process');
-const util = require('util');
-const path = require('path');
 const execAsync = util.promisify(cp.exec);
-const sinon = require('sinon');
-const { assert } = require('chai');
-
 const cwd = path.resolve(__dirname, ROOT_DIR);
 const execOptions = {
   cwd,
@@ -25,17 +24,17 @@ const execOptions = {
   },
 };
 
-describe('scripts/remove-accounts startup', () => {
+describe('scripts/remove-unverified-accounts startup', () => {
   it('does not fail', function () {
     this.timeout(20000);
     return execAsync(
-      'node -r esbuild-register scripts/remove-accounts.ts',
+      'node -r esbuild-register scripts/remove-unverified-accounts.ts',
       execOptions
     );
   });
 });
 
-describe('scripts/remove-accounts - retreiveUnverifiedAccounts', () => {
+describe('scripts/remove-unverified-accounts - retreiveUnverifiedAccounts', () => {
   it('filters for unverified accounts that are older than 16 days old', async () => {
     const accounts = [
       {
@@ -55,7 +54,7 @@ describe('scripts/remove-accounts - retreiveUnverifiedAccounts', () => {
       },
       {
         uid: '1234',
-        createdAt: new Date().getDate() - 17,
+        createdAt: new Date().setDate(new Date().getDate() - 17),
         email: 'user2@test.com',
         emailCode: undefined,
         normalizedEmail: 'user2@test.com',
@@ -82,7 +81,7 @@ describe('scripts/remove-accounts - retreiveUnverifiedAccounts', () => {
   });
 });
 
-describe('scripts/remove-accounts - cancelSubscriptionsAndDeleteCustomer', () => {
+describe('scripts/remove-unverified-accounts - cancelSubscriptionsAndDeleteCustomer', () => {
   let account, stripeHelper;
 
   beforeEach(() => {
@@ -136,14 +135,14 @@ describe('scripts/remove-accounts - cancelSubscriptionsAndDeleteCustomer', () =>
     const cancelSpy = sinon.spy(stripeHelper, 'cancelSubscription');
     const removeSpy = sinon.spy(stripeHelper, 'removeCustomer');
 
-    await cancelSubscriptionsAndDeleteCustomer(stripeHelper, {}, account);
+    await cancelSubscriptionsAndDeleteCustomer(stripeHelper, {}, account, []);
     sinon.assert.calledOnce(refundSpy);
     sinon.assert.calledOnce(cancelSpy);
     sinon.assert.calledOnce(removeSpy);
   });
 });
 
-describe('scripts/remove-accounts - issueRefund', () => {
+describe('scripts/remove-unverified-accounts - issueRefund', () => {
   it('calls stripeHelper.refundPayment if the paymentProvider is stripe', async () => {
     const stripeHelper = {
       getInvoice: () => {
