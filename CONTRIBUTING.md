@@ -40,7 +40,7 @@ you saw the issue.
 
 ## Development Process
 
-[Read about our development process](https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/fxa-dev-process)
+[Read about our development process](https://mozilla.github.io/ecosystem-platform/reference/team-processes/development-process)
 
 ## Sending Pull Requests
 
@@ -63,6 +63,8 @@ When submitting a PR:
   [commit guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines).
 - To skip CI tests add the "🙈 skip ci" github label to the PR.
   - You can skip only specific packages by also adding the corresponding "fxa-" label, for example "fxa-content-server".
+- Be aware that a member of the FxA team will need to open a separate PR for CI
+  to run properly.
 
 See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
 
@@ -164,16 +166,14 @@ For more info, see [Github Help: Syncing a Fork](https://docs.github.com/en/gith
 
 ## Servers
 
-- **latest development** - https://accounts-latest.dev.lcip.org/
-- **testing** - https://accounts.dev.lcip.org/
 - **stage** - https://accounts.stage.mozaws.net/
 - **production** - https://accounts.firefox.com/
 
 ## Dependencies and Tools
 
-### npm
+### yarn
 
-We use [npm](http://npmjs.com/) to manage dependencies. Required components are [automatically
+We use [yarn](https://yarnpkg.com/) to manage dependencies. Required components are [automatically
 installed](https://github.com/mozilla/fxa/blob/main/package.json#L6) when you install this project.
 
 ### L10N
