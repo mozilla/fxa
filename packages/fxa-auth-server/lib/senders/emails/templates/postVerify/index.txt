@@ -4,7 +4,7 @@ postVerify-title-2 = "Want to see the same tab on two devices?"
 
 postVerify-description-2 = "It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!"
 
-postVerify-sub-description = "(Psst…It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)"
+postVerify-sub-description = "(Psst… It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)"
 
 postVerify-setup-2 = "Connect another device:"
 <%- link %>

@@ -1,4 +1,4 @@
-verificationReminderSecond-title-2 = "Don’t miss out on Firefox"
+verificationReminderSecond-title-2 = "Don’t miss out on Firefox!"
 
 verificationReminderSecond-description-3 = "A few days ago you created a Firefox account, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted."
 

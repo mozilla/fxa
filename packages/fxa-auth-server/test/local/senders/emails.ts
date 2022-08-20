@@ -365,7 +365,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'We’re delighted to see you!' },
       { test: 'include', expected: 'Want to see the same tab on two devices?' },
       { test: 'include', expected: 'It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!' },
-      { test: 'include', expected: '(Psst…It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)' },
+      { test: 'include', expected: '(Psst… It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },

@@ -20,7 +20,7 @@
       <span data-l10n-id="postVerify-description-2">It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!</span>
     </mj-text>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postVerify-sub-description">(Psst…It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)</span>
+      <span data-l10n-id="postVerify-sub-description">(Psst… It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)</span>
     </mj-text>
   </mj-column>
 </mj-section>

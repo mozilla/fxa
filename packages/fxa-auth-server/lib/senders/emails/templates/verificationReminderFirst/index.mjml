@@ -13,7 +13,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="verificationReminderFirst-description-2">A few days ago you created a Firefox account, but never confirmed it. Please confirm your account within the next 15 days or it will be automatically deleted.</span>
+      <span data-l10n-id="verificationReminderFirst-description-2">A few days ago you created a Firefox account, but never confirmed it. Please confirm your account in the next 15 days or it will be automatically deleted.</span>
     </mj-text>
     <mj-text css-class="text-body">
       <span data-l10n-id="verificationReminderFirst-sub-description">Don’t miss out on tech that puts you and your privacy first.</span>

@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verificationReminderSecond-title-2">Don’t miss out on Firefox</span>
+      <span data-l10n-id="verificationReminderSecond-title-2">Don’t miss out on Firefox!</span>
     </mj-text>
   </mj-column>
 </mj-section>
