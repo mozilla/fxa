@@ -11,7 +11,7 @@ export default {
 
 const createStory = storyWithProps(
   'postVerify',
-  'Sent after account is confirmed during Sync registration.',
+  'Sent after account is confirmed during Sync registration on non-mobile and mobile devices.',
   {
     link: 'http://localhost:3030/connect_another_device',
     desktopLink: 'https://firefox.com',

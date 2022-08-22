@@ -418,7 +418,8 @@
   },
   "verificationReminders": {
     "firstInterval": "5s",
-    "secondInterval": "10s"
+    "secondInterval": "10s",
+    "finalInterval": "15s"
   },
   "cadReminders": {
     "firstInterval": "1s",

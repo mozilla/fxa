@@ -40,6 +40,7 @@ const {
   'fxa-shared/db/models/auth': dbStub,
 });
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
+const { generateIdempotencyKey } = require('../../../lib/payments/utils');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -822,7 +823,6 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -830,11 +830,16 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        subIdempotencyKey,
         taxRateId: 'tr_asdf',
       });
 
@@ -848,7 +853,63 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: undefined,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
+    it('creates a subscription with automatic tax successfully', async () => {
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .resolves(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
+      const actual = await stripeHelper.createSubscriptionWithPMI({
+        customerId: 'customerId',
+        priceId: 'priceId',
+        paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        automaticTax: true,
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: 'customerId',
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice.payment_intent'],
+          promotion_code: undefined,
+          automatic_tax: { enabled: true },
+        },
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.insertSubscriptionRecordWithBackfill,
@@ -878,7 +939,6 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(newSubscription);
       sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -886,11 +946,16 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
+
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        subIdempotencyKey,
         taxRateId: 'tr_asdf',
         promotionCode,
       });
@@ -912,7 +977,7 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: promotionCode.id,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.update,
@@ -948,7 +1013,6 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpandedIncompleteCVCFail);
       sandbox.stub(stripeHelper, 'cancelSubscription').resolves({});
-      const subIdempotencyKey = uuidv4();
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -956,13 +1020,17 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const expectedIdempotencyKey = generateIdempotencyKey([
+        'customerId',
+        'priceId',
+        attachExpected.card.fingerprint,
+      ]);
 
       try {
         await stripeHelper.createSubscriptionWithPMI({
           customerId: 'customerId',
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey,
           taxRateId: 'tr_asdf',
         });
         sinon.assert.fail();
@@ -981,7 +1049,7 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
           promotion_code: undefined,
         },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.cancelSubscription,
@@ -1004,7 +1072,6 @@ describe('StripeHelper', () => {
           customerId: 'customerId',
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey: uuidv4(),
         })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
@@ -1028,7 +1095,6 @@ describe('StripeHelper', () => {
           customerId: 'customerId',
           priceId: 'invoiceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          subIdempotencyKey: uuidv4(),
         })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
@@ -1078,6 +1144,50 @@ describe('StripeHelper', () => {
           days_until_due: 1,
           promotion_code: undefined,
           default_tax_rates: ['tr_asdf'],
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
+    it('creates a subscription with automatic tax successfully', async () => {
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(undefined);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey,
+        automaticTax: true,
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: customer1.id,
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice'],
+          collection_method: 'send_invoice',
+          days_until_due: 1,
+          promotion_code: undefined,
+          automatic_tax: { enabled: true },
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -2477,7 +2587,7 @@ describe('StripeHelper', () => {
     it('updates Customer with empty PayPal billing address', async () => {
       sandbox
         .stub(stripeHelper.stripe.customers, 'update')
-        .resolves({ metadata: {} });
+        .resolves({ metadata: {}, tax: {} });
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -2492,7 +2602,7 @@ describe('StripeHelper', () => {
           state: 'CA',
         },
       });
-      assert.deepEqual(result, { metadata: {} });
+      assert.deepEqual(result, { metadata: {}, tax: {} });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.customers.update,
         customer1.id,
@@ -2505,6 +2615,34 @@ describe('StripeHelper', () => {
             postal_code: '12345',
             state: 'CA',
           },
+          expand: ['tax'],
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertCustomerRecordWithBackfill,
+        undefined,
+        { metadata: {} }
+      );
+    });
+
+    it('updates Customer with the ip address', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves({ metadata: {}, tax: {} });
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      const result = await stripeHelper.updateCustomerBillingAddress({
+        customerId: customer1.id,
+        ipAddress: '1.1.1.1',
+      });
+      assert.deepEqual(result, { metadata: {}, tax: {} });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer1.id,
+        {
+          tax: { ip_address: '1.1.1.1' },
+          expand: ['tax'],
         }
       );
       sinon.assert.calledOnceWithExactly(
@@ -5163,7 +5301,7 @@ describe('StripeHelper', () => {
             .successActionButtonURL,
         'product:termsOfServiceURL': termsOfServiceURL,
         'product:privacyNoticeURL': privacyNoticeURL,
-        productOrder: 0,
+        productOrder: '0',
       },
     };
 

@@ -17,12 +17,11 @@ import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
-type PaymentConfirmationProps = {
+export type PaymentConfirmationProps = {
   customer: Customer;
   profile: Profile;
   selectedPlan: Plan;
   productUrl: string;
-  className?: string;
   accountExists?: boolean;
   coupon?: CouponDetails;
 };
@@ -32,7 +31,6 @@ export const PaymentConfirmation = ({
   profile,
   selectedPlan,
   productUrl,
-  className = 'default',
   accountExists = true,
   coupon,
 }: PaymentConfirmationProps) => {
@@ -71,57 +69,63 @@ export const PaymentConfirmation = ({
   const downloadUrl: URL = new URL(productUrl);
   downloadUrl.searchParams.append('email', email);
 
+  // TW classes
+  const subheadingClasses = 'text-grey-400 max-w-sm';
+  const h2classes = 'text-xl font-normal mx-0 mt-6 mb-3';
+  const h3classes = 'text-sm font-semibold';
+  const bottomRowClasses = 'flex justify-between items-center text-grey-400';
+
   return (
     <>
       <SubscriptionTitle screenType="success" />
       <section
-        className={`container card payment-confirmation ${className}`}
+        className="mb-auto mx-4 tablet:m-0 payment-confirmation"
         data-testid="payment-confirmation"
       >
-        <header>
+        <header className="flex flex-col justify-center items-center row-divider-grey-200 text-center pb-8 mt-5 desktop:mt-2">
           {accountExists ? (
             <>
               <img
-                className="circled-check"
+                className="max-h-12"
                 src={circledCheckbox}
                 alt="circled checkbox"
               />
               <Localized id="payment-confirmation-thanks-heading">
-                <h2>Thank you!</h2>
+                <h2 className={h2classes}>Thank you!</h2>
               </Localized>
               <Localized
                 id="payment-confirmation-thanks-subheading"
                 vars={{ email, product_name }}
               >
-                <p>{`A confirmation email has been sent to ${email} with details on how to get started with ${product_name}.`}</p>
+                <p
+                  className={subheadingClasses}
+                >{`A confirmation email has been sent to ${email} with details on how to get started with ${product_name}.`}</p>
               </Localized>
             </>
           ) : (
             <>
               <img src={checkmarkIcon} alt="checkmark icon" />
-              <img
-                className="email-sent-icon"
-                src={emailSentIcon}
-                alt="email sent icon"
-              />
+              <img src={emailSentIcon} alt="email sent icon" />
               <Localized id="payment-confirmation-thanks-heading-account-exists">
-                <h2>Thanks, now check your email!</h2>
+                <h2 className={h2classes}>Thanks, now check your email!</h2>
               </Localized>
               <Localized
                 id="payment-confirmation-thanks-subheading-account-exists"
                 vars={{ email }}
               >
-                <p>{`You'll receive an email at ${email} with instructions for setting up your account as well as  your payment details.`}</p>
+                <p
+                  className={subheadingClasses}
+                >{`You\`ll receive an email at ${email} with instructions for setting up your account as well as  your payment details.`}</p>
               </Localized>
             </>
           )}
         </header>
 
-        <div className="order-details">
+        <div className="pb-6 row-divider-grey-200">
           <Localized id="payment-confirmation-order-heading">
-            <h3>Order details</h3>
+            <h3 className={h3classes}>Order details</h3>
           </Localized>
-          <div className="bottom-row">
+          <div className={bottomRowClasses}>
             <Localized
               id="payment-confirmation-invoice-number"
               vars={{ invoiceNumber }}
@@ -132,11 +136,11 @@ export const PaymentConfirmation = ({
           </div>
         </div>
 
-        <div className="payment-details">
+        <div className="pb-6 row-divider-grey-200">
           <Localized id="payment-confirmation-details-heading-2">
-            <h3>Payment information</h3>
+            <h3 className={h3classes}>Payment information</h3>
           </Localized>
-          <div className="bottom-row">
+          <div className={bottomRowClasses}>
             <Localized
               id={`payment-confirmation-amount-${interval}`}
               vars={{
@@ -152,7 +156,7 @@ export const PaymentConfirmation = ({
         </div>
 
         {accountExists && (
-          <div className="options" data-testid="options">
+          <div className="options mb-6" data-testid="options">
             <a
               data-testid="download-link"
               className="button download-link"

@@ -5,19 +5,29 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="recovery-title">Need to reset your password?</span>
+      <span data-l10n-id="recovery-title-2">Forgot your password?</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="recovery-description">
-        Click the button within the next hour to create a new password. The
-        request came from the following device:
+      <span data-l10n-id="recovery-request-origin">
+        We received a request for a password change on your Firefox account from:
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="recovery-new-password-button">
+        Create a new password by clicking the button below. This link will expire within the next hour.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
 <%- include('/partials/button/index.mjml', {
   buttonL10nId: "recovery-action",
   buttonText: "Create new password"

@@ -9,11 +9,27 @@ const config = require('fxa-react/configs/tailwind');
 config.content = [
   './app/scripts/templates/**/*.mustache',
   './app/server/templates/pages/**/*.html',
+  // for 'invalid' class
+  './app/scripts/views/form.js',
+  // for 'opacity-0 opacity-100' classes
+  './app/scripts/views/password_strength/password_strength_balloon.js',
 ];
 
-config.theme.extend.content = {
-  ...config.theme.extend.content,
-  'circle-check': "inline('../images/circle-check.svg')",
+config.theme.extend = {
+  ...config.theme.extend,
+  backgroundImage: {
+    'check-white': 'inline("../images/icon-check-white.svg")',
+    'show-password': 'inline("../images/icon-show-password.svg")',
+    'hide-password': 'inline("../images/icon-show-password-closed.svg")',
+  },
+  content: {
+    ...config.theme.extend.content,
+    'circle-check': "inline('../images/circle-check.svg')",
+    lock: "inline('../images/icon-lock.svg')",
+    alert: "inline('../images/icon-warning-red-50.svg')",
+    'check-blue': "inline('../images/icon-check-blue-50.svg')",
+    key: "inline('../images/icon-key-grey-50.svg')",
+  },
 };
 
 module.exports = config;

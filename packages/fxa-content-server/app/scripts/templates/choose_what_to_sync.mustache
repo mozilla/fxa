@@ -9,7 +9,7 @@
           {{#t}}Choose what to sync:{{/t}}
         </h1>
       </header>
-      <div class="flex flex-wrap ltr:text-left rtl:text-right ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
+      <div class="flex flex-wrap text-start ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
         {{#engines}}
           <div class="mb-5 relative flex-50% rtl:mobileLandscape:pr-6 ltr:mobileLandscape:pl-6 rtl:pr-3 ltr:pl-3">
             <input name="sync-content" id="sync-engine-{{id}}" type="checkbox" {{#checked}}checked="checked"{{/checked}} value="{{id}}" tabindex="{{tabindex}}" /><label class="top-1" for="sync-engine-{{id}}">{{text}}</label>

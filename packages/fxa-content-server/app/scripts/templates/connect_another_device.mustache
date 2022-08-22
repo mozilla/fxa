@@ -2,11 +2,11 @@
   <header class="hidden" id="fxa-connect-another-device-header"><h1 class="card-header mb-8">{{#t}}Connect another device{{/t}}</h1></header>
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <h2 id="fxa-connected-heading" class="card-header mb-8 ltr:before:content-circle-check rtl:after:content-circle-check rtl:after:relative"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}Firefox account connected{{/t}}</span></h2>
+      <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}Firefox account connected{{/t}}</span></h2>
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
-        <div class="success visible" id="success-not-authenticated">{{#t}}Email verified{{/t}}</div>
+        <div class="success visible" id="success-not-authenticated">{{#t}}Email confirmed{{/t}}</div>
       {{/isSignUp}}
       {{#isSignIn}}
         <div class="success visible" id="success-not-authenticated">{{#t}}Sign-in confirmed{{/t}}</div>

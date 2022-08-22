@@ -1,10 +1,10 @@
 {
   "subject": {
-    "id": "verificationReminderFirst-subject",
-    "message": "Reminder: Finish creating your account"
+    "id": "verificationReminderFirst-subject-2",
+    "message": "Remember to confirm your account"
   },
   "action": {
-    "id": "verificationReminderFirst-action",
-    "message": "Confirm email"
+    "id": "verificationReminderFirst-action-2",
+    "message": "Confirm account"
   }
 }

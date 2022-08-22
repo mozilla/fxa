@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
-import FormView from '../../form';
-import Template from '../../../templates/post_verify/finish_account_setup/set_password.mustache';
+import AuthErrors from '../../../lib/auth-errors';
 import Cocktail from '../../../lib/cocktail';
+import Url from '../../../lib/url';
+import VerificationInfo from '../../../models/verification/set-password';
+import Template from '../../../templates/post_verify/finish_account_setup/set_password.mustache';
+import FormView from '../../form';
 import FlowEventsMixin from '../../mixins/flow-events-mixin';
 import PasswordMixin from '../../mixins/password-mixin';
 import PasswordStrengthMixin from '../../mixins/password-strength-mixin';
-import AuthErrors from '../../../lib/auth-errors';
-import Url from '../../../lib/url';
-import VerificationInfo from '../../../models/verification/set-password';
 
 const PASSWORD_INPUT_SELECTOR = '#password';
 const VPASSWORD_INPUT_SELECTOR = '#vpassword';
@@ -115,7 +115,7 @@ Cocktail.mixin(
   SetPassword,
   PasswordMixin,
   PasswordStrengthMixin({
-    balloonEl: '.helper-balloon',
+    balloonEl: '#password-strength-balloon',
     passwordEl: '#password',
   }),
   FlowEventsMixin

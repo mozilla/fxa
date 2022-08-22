@@ -5,14 +5,25 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="newDeviceLogin-title" data-l10n-args="<%= JSON.stringify({clientName}) %>">New sign-in to <%- clientName %></span>
+      <span data-l10n-id="newDeviceLogin-title-2">Your Firefox account was used to sign in</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="newDeviceLogin-change-password">
+        Not you? <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">Change your password</a>.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
 <%- include('/partials/button/index.mjml', {
   buttonL10nId: "newDeviceLogin-action",
   buttonText: "Manage account"
 }) %>
-<%- include('/partials/automatedEmailChangePassword/index.mjml') %>
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

@@ -5,8 +5,8 @@ fi
 
 # 1. Get the list of all modified and dependent services.
 echo "checking for modified services..."
-# Cleans up yarn's output by removing everything before the package name, the first and the last line.
-PACKAGES_MODIFIED=`yarn workspaces list --since=HEAD^ -R | cut -d/ -f2 | sed '1d' | sed '$d'`
+# Cleans up yarn's output by removing everything before the package name, and the last line.
+PACKAGES_MODIFIED=`yarn workspaces list --since=HEAD^ -R | cut -d/ -f2 | sed '$d'`
 
 # 2. If no services were modified, return early; otherwise we'd try to compile everything.
 if [[ $PACKAGES_MODIFIED == "" ]]; then

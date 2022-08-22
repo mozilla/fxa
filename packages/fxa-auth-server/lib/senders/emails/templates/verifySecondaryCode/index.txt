@@ -1,13 +1,13 @@
-verifySecondaryCode-title = "Verify secondary email"
+verifySecondaryCode-title-2 = "Confirm secondary email"
 
 verifySecondaryCode-explainer = "A request to use <%- email %> as a secondary email address has been made from the following Firefox account:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-verifySecondaryCode-prompt = "Use this verification code:"
+verifySecondaryCode-prompt-2 = "Use this confirmation code:"
 <%- code %>
 
-verifySecondaryCode-expiry-notice = "It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations."
+verifySecondaryCode-expiry-notice-2 = "It expires in 5 minutes. Once confirmed, this address will begin receiving security notifications and confirmations."
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>
 <%- include('/partials/support/index.txt') %>

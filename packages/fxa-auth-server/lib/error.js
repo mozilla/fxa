@@ -386,7 +386,7 @@ AppError.unverifiedAccount = function () {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.ACCOUNT_UNVERIFIED,
-    message: 'Unverified account',
+    message: 'Unconfirmed account',
   });
 };
 
@@ -396,7 +396,7 @@ AppError.invalidVerificationCode = function (details) {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.INVALID_VERIFICATION_CODE,
-      message: 'Invalid verification code',
+      message: 'Invalid confirmation code',
     },
     details
   );
@@ -844,7 +844,7 @@ AppError.unverifiedSession = function () {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.SESSION_UNVERIFIED,
-    message: 'Unverified session',
+    message: 'Unconfirmed session',
   });
 };
 
@@ -955,7 +955,7 @@ AppError.cannotChangeEmailToUnverifiedEmail = function () {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.CHANGE_EMAIL_TO_UNVERIFIED_EMAIL,
-    message: 'Can not change primary email to an unverified email',
+    message: 'Can not change primary email to an unconfirmed email',
   });
 };
 
@@ -1011,7 +1011,7 @@ AppError.invalidTokenVerficationCode = function (details) {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
-      message: 'Invalid token verification code',
+      message: 'Invalid token confirmation code',
     },
     details
   );
@@ -1023,7 +1023,7 @@ AppError.expiredTokenVerficationCode = function (details) {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE,
-      message: 'Expired token verification code',
+      message: 'Expired token confirmation code',
     },
     details
   );
@@ -1469,7 +1469,7 @@ AppError.invalidOrExpiredOtpCode = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
-    message: 'Invalid or expired verification code',
+    message: 'Invalid or expired confirmation code',
   });
 };
 

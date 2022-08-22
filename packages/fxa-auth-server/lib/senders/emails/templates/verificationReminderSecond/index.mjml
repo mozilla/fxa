@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verificationReminderSecond-title">Still there?</span>
+      <span data-l10n-id="verificationReminderSecond-title-2">Don’t miss out on Firefox!</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -13,16 +13,19 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="verificationReminderSecond-description">Almost a week ago you created a Firefox account but never verified it. We’re worried about you.</span>
+      <span data-l10n-id="verificationReminderSecond-description-3">A few days ago you created a Firefox account, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted.</span>
+    </mj-text>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="verificationReminderSecond-second-description">Your Firefox account lets you sync your info across devices and unlocks access to more privacy-protecting products from Mozilla.</span>
     </mj-text>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verificationReminderSecond-sub-description">Confirm this email address to activate your account and let us know you’re okay.</span>
+      <span data-l10n-id="verificationReminderSecond-sub-description-2">Be part of our mission to transform the internet into a place that’s open for everyone.</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "verificationReminderSecond-action",
-  buttonText: "Confirm email"
+  buttonL10nId: "verificationReminderSecond-action-2",
+  buttonText: "Confirm account"
 }) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

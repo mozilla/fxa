@@ -242,7 +242,6 @@ export async function apiCreatePasswordlessAccount(params: {
 
 export async function apiCreateCustomer(params: {
   displayName?: string;
-  idempotencyKey: string;
 }): Promise<Customer> {
   return apiFetch(
     'POST',
@@ -310,7 +309,6 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
   paymentMethodId?: string;
-  idempotencyKey: string;
   promotionCode?: string;
 }): Promise<{
   id: string;
@@ -326,7 +324,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     };
   };
 }> {
-  const { priceId, paymentMethodId, idempotencyKey, promotionCode } = params;
+  const { priceId, paymentMethodId, promotionCode } = params;
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     productId: params.productId,
@@ -342,7 +340,6 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
         body: JSON.stringify({
           priceId,
           paymentMethodId,
-          idempotencyKey,
           metricsContext: getFlowData(),
           promotionCode: promotionCode,
         }),

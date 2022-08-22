@@ -5,7 +5,10 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyShortCode-title">Is this you signing up?</span>
+      <span data-l10n-id="verifyShortCode-title-2">Open the internet with Firefox</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyShortCode-title-subtext">Confirm your account and get the most out of Firefox everywhere you sign in starting with:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -15,7 +18,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-prompt">If yes, use this verification code in your registration form:</span>
+      <span data-l10n-id="verifyShortCode-prompt-3">Use this confirmation code:</span>
     </mj-text>
 
     <mj-text css-class="code-large"><%- code %></mj-text>

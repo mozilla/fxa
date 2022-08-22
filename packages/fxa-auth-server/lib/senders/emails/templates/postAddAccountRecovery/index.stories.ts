@@ -17,8 +17,7 @@ const createStory = storyWithProps(
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
-    revokeAccountRecoveryLink:
-      'http://localhost:3030/settings/account_recovery',
+    revokeAccountRecoveryLink: 'http://localhost:3030/settings/#recovery-key',
   }
 );
 

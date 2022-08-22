@@ -60,7 +60,11 @@ const Tooltip = BaseView.extend({
   },
 
   afterRender() {
-    const tooltipContainer = this.invalidEl.closest('.input-row');
+    let tooltipContainer = this.invalidEl.closest('.input-row');
+
+    if (tooltipContainer.length === 0) {
+      tooltipContainer = this.invalidEl.closest('.tooltip-container');
+    }
 
     this.$el.addClass(this.extraClassNames);
     this.$el.appendTo(tooltipContainer);

@@ -12,11 +12,13 @@ module.exports = {
     extend: {
       zIndex: {
         1000: '1000',
+        9999: '9999',
       },
       padding: {
         7: '1.75rem',
         11: '2.75rem',
         18: '4.5rem',
+        33: '8.5rem',
       },
       margin: {
         7: '1.75rem',
@@ -74,11 +76,19 @@ module.exports = {
         ten: '10%',
         full: '100%',
       },
+      top: {
+        2.5: '0.6rem',
+      },
+      left: {
+        3.5: '.87rem',
+      },
       boxShadow: {
         // Specific-use focus shadows for input elements
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
         'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
+        'input-red-focus': '0 0 0 1px #C50042, 0 0 0 3px #FFBDC5',
         'tooltip-grey-drop': '0 0 4px rgba(32, 18, 58, 0.24)',
+        'card-grey-drop': '0px 2px 14px rgba(58, 57, 68, 0.2)',
       },
       scale: {
         80: '.8',
@@ -178,8 +188,10 @@ module.exports = {
         200: '#C2C2C2',
         300: '#9E9E9E',
         400: '#6D6D6E',
-        500: '#5e5e72',
-        600: '#0C0C0D',
+        500: '#5E5E72',
+        600: '#32313C',
+        700: '#15141A',
+        900: '#0C0C0D',
       },
       pink: {
         50: '#FFDEF0',

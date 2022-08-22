@@ -1,19 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
-import base32encode from 'base32-encode';
-import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAccount, useAlertBar } from '../../models';
-import InputPassword from '../InputPassword';
-import FlowContainer from '../FlowContainer';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import DataBlock from '../DataBlock';
+import base32encode from 'base32-encode';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { HomePath } from '../../constants';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import {
-  AuthUiErrors,
   AuthUiErrorNos,
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { useAccount, useAlertBar } from '../../models';
+import DataBlock from '../DataBlock';
+import FlowContainer from '../FlowContainer';
+import InputPassword from '../InputPassword';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 type FormData = {
   password: string;
@@ -73,13 +74,13 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
 
         if (e.errno === AuthUiErrors.THROTTLED.errno) {
           localizedError = l10n.getString(
-            `auth-error-${e.errno}`,
+            composeAuthUiErrorTranslationId(e),
             { retryAfter: e.retryAfterLocalized },
             AuthUiErrorNos[e.errno].message
           );
         } else {
           localizedError = l10n.getString(
-            `auth-error-${e.errno}`,
+            composeAuthUiErrorTranslationId(e),
             null,
             e.message
           );
@@ -138,7 +139,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button
-                  className="cta-primary mx-2 px-10 py-2"
+                  className="cta-primary mx-2 px-10 py-2 mt-6"
                   onClick={alertSuccessAndGoHome}
                   data-testid="close-button"
                 >

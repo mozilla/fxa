@@ -4,11 +4,11 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-sub-body">
-      <span data-l10n-id="postVerify-sub-title">Firefox account verified. You’re almost there.</span>
-    </mj-text>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postVerify-title">Next sync between your devices!</span>
+      <span data-l10n-id="postVerify-sub-title-3">We’re delighted to see you!</span>
+    </mj-text>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="postVerify-title-2">Want to see the same tab on two devices?</span>
     </mj-text>
     <mj-image width="240px" css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
@@ -17,14 +17,17 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postVerify-description">Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.</span>
+      <span data-l10n-id="postVerify-description-2">It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postVerify-sub-description">(Psst… It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "postVerify-action",
-  buttonText: "Set up next device"
+  buttonL10nId: "postVerify-action-2",
+  buttonText: "Connect another device"
 }) %>
 <%- include('/partials/appBadges/index.mjml') %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

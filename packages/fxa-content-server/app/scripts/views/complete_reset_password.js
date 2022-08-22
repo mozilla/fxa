@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Cocktail from 'cocktail';
+import Template from 'templates/complete_reset_password.mustache';
 import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import Cocktail from 'cocktail';
+import Notifier from '../lib/channels/notifier';
+import Url from '../lib/url';
+import AccountRecoveryVerificationInfo from '../models/verification/account-recovery';
+import VerificationInfo from '../models/verification/reset-password';
+import preventDefaultThen from './decorators/prevent_default_then';
 import FormView from './form';
 import FlowEventsMixin from './mixins/flow-events-mixin';
-import Notifier from '../lib/channels/notifier';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import PasswordStrengthMixin from './mixins/password-strength-mixin';
-import preventDefaultThen from './decorators/prevent_default_then';
 import ResendMixin from './mixins/resend-mixin';
 import ServiceMixin from './mixins/service-mixin';
-import Template from 'templates/complete_reset_password.mustache';
-import Url from '../lib/url';
-import VerificationInfo from '../models/verification/reset-password';
-import AccountRecoveryVerificationInfo from '../models/verification/account-recovery';
 
 const proto = FormView.prototype;
 const View = FormView.extend({
@@ -244,7 +244,7 @@ Cocktail.mixin(
   PasswordMixin,
   PasswordResetMixin,
   PasswordStrengthMixin({
-    balloonEl: '.helper-balloon',
+    balloonEl: '#password-strength-balloon-container',
     passwordEl: '#password',
   }),
   ResendMixin(),

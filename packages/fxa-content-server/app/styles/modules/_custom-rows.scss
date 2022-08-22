@@ -107,19 +107,6 @@
   margin: 0 10px;
 }
 
-.show-password-label {
-  background-color: $show-password-background-color;
-  color: $show-password-label-color;
-  background-image: image-url('icon-show-password.svg');
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.password[type='text'] ~ .show-password-label {
-  color: $show-password-focus-label-color;
-  background-image: image-url('icon-show-password-closed.svg');
-}
-
 .modal {
   .small-label {
     margin-left: 1px;

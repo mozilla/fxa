@@ -23,7 +23,7 @@ export default function (defaultBehavior, options = {}) {
   const behavior = function (view, account) {
     return account.isSignedIn().then((isSignedIn) => {
       if (isSignedIn) {
-        let success = t('Account verified successfully');
+        let success = t('Account confirmed successfully');
         let endpoint = 'settings';
 
         // Strict comparison because undefined == null, but undefined !== null, and

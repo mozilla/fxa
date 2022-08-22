@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.238.0",
+  "version": "1.239.0",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -19,9 +19,9 @@
     "@hapi/catbox-memory": "~5.0.1",
     "@hapi/catbox-redis": "~6.0.2",
     "@hapi/hapi": "^20.2.1",
-    "@hapi/inert": "6.0.5",
+    "@hapi/inert": "7.0.0",
     "@sentry/node": "^6.19.1",
-    "aws-sdk": "^2.1189.0",
+    "aws-sdk": "^2.1199.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
     "checksum": "1.0.0",

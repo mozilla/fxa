@@ -9,7 +9,7 @@ const AppErrorDialog = ({ error }: { error: Error }) => {
     <div className="bg-grey-20 flex items-center flex-col justify-center h-screen">
       <div className="text-center max-w-lg">
         <h2
-          className="text-grey-600 font-header text-lg font-bold mb-3"
+          className="text-grey-900 font-header text-lg font-bold mb-3"
           data-testid="error-loading-app"
         >
           General application error

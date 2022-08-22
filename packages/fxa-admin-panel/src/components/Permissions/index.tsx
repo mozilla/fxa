@@ -75,7 +75,7 @@ export const Permissions = () => {
   const featureFlags: IFeatureFlag[] = guard.getFeatureFlags(user.group);
 
   return (
-    <div className="text-grey-600">
+    <div className="text-grey-900">
       <h2 className="text-lg font-semibold mb-2">Permissions</h2>
       <p className="mb-2">
         This page displays your current user, group, and associated permissions.

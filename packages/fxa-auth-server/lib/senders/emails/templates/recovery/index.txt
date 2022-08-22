@@ -1,12 +1,12 @@
-recovery-title = "Need to reset your password?"
+recovery-title-2 = "Forgot your password?"
 
-recovery-description = "Click the button within the next hour to create a new password. The request came from the following device:"
+recovery-request-origin = "We received a request for a password change on your Firefox account from:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-recovery-action = "Create new password"
+recovery-copy-paste = "Create a new password by copying and pasting the URL below into your browser. This link will expire within the next hour."
+
 <%- link %>
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>
-
 <%- include('/partials/support/index.txt') %>

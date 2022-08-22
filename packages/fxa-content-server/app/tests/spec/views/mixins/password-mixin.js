@@ -2,17 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import $ from 'jquery';
 import { assert } from 'chai';
-import AuthErrors from 'lib/auth-errors';
-import BaseView from 'views/base';
 import Cocktail from 'cocktail';
-import Metrics from 'lib/metrics';
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
 import Notifier from 'lib/channels/notifier';
-import PasswordMixin from 'views/mixins/password-mixin';
+import Metrics from 'lib/metrics';
 import sinon from 'sinon';
-import TestHelpers from '../../../lib/helpers';
 import TestTemplate from 'templates/test_template.mustache';
+import BaseView from 'views/base';
+import PasswordMixin from 'views/mixins/password-mixin';
+import { PASSWORD_TOGGLE_LABEL } from '../../../../scripts/views/mixins/password-mixin';
+import TestHelpers from '../../../lib/helpers';
 import WindowMock from '../../../mocks/window';
 
 const PasswordView = BaseView.extend({
@@ -58,22 +59,29 @@ describe('views/mixins/password-mixin', function () {
     function testPasswordEntered(eventName) {
       it(`${eventName} with password adds show password label`, () => {
         const $passwordField = view.$('#password');
+        const $showPasswordLabel = $passwordField.siblings(
+          PASSWORD_TOGGLE_LABEL
+        );
+
         $passwordField.val('asdf');
         // label not visible until event is triggered.
-        assert.isTrue($passwordField.hasClass('empty'));
+        assert.isTrue($showPasswordLabel.hasClass('hidden'));
 
         view.$('#password').trigger(eventName);
 
-        assert.isFalse($passwordField.hasClass('empty'));
+        assert.isFalse($showPasswordLabel.hasClass('hidden'));
       });
     }
 
     function testNoPasswordEntered(eventName) {
       it(`${eventName} without password does not show label`, () => {
         const $passwordField = view.$('#password');
+        const $showPasswordLabel = $passwordField.siblings(
+          PASSWORD_TOGGLE_LABEL
+        );
         $passwordField.val('');
         view.$('#password').trigger(eventName);
-        assert.isTrue($passwordField.hasClass('empty'));
+        assert.isTrue($showPasswordLabel.hasClass('hidden'));
       });
     }
 
@@ -88,22 +96,25 @@ describe('views/mixins/password-mixin', function () {
       it('adds password when a password is entered, hides when none', () => {
         // password is initially empty
         const $passwordField = view.$('#password');
-        assert.isTrue($passwordField.hasClass('empty'));
+        const $showPasswordLabel = $passwordField.siblings(
+          PASSWORD_TOGGLE_LABEL
+        );
+        assert.isTrue($showPasswordLabel.hasClass('hidden'));
 
         // user types first character
         $passwordField.val('a');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-        assert.isFalse($passwordField.hasClass('empty'));
+        assert.isFalse($showPasswordLabel.hasClass('hidden'));
 
         // user deletes password
         $passwordField.val('');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-        assert.isTrue($passwordField.hasClass('empty'));
+        assert.isTrue($showPasswordLabel.hasClass('hidden'));
 
         // user re-enters first character
         $passwordField.val('b');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-        assert.isFalse($passwordField.hasClass('empty'));
+        assert.isFalse($showPasswordLabel.hasClass('hidden'));
       });
     });
 
@@ -116,18 +127,18 @@ describe('views/mixins/password-mixin', function () {
       });
 
       it('works with mouse events', () => {
-        view.$('#password ~ .show-password-label').trigger('mousedown');
+        view.$(`#password ~ ${PASSWORD_TOGGLE_LABEL}`).trigger('mousedown');
         assert.equal(view.$('#password').attr('type'), 'text');
 
         $(windowMock).trigger('mouseup');
         assert.equal(view.$('#password').attr('type'), 'text');
 
-        view.$('#password ~ .show-password-label').trigger('mousedown');
+        view.$(`#password ~ ${PASSWORD_TOGGLE_LABEL}`).trigger('mousedown');
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
       it('logs whether the password is shown or hidden', function () {
-        view.$('#password ~ .show-password-label').trigger('mousedown');
+        view.$(`#password ~ ${PASSWORD_TOGGLE_LABEL}`).trigger('mousedown');
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'password-view.password.visible')
         );
@@ -137,7 +148,7 @@ describe('views/mixins/password-mixin', function () {
           TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
         );
 
-        view.$('#password ~ .show-password-label').trigger('mousedown');
+        view.$(`#password ~ ${PASSWORD_TOGGLE_LABEL}`).trigger('mousedown');
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
         );
@@ -154,7 +165,8 @@ describe('views/mixins/password-mixin', function () {
         assert.equal($passwordEl.attr('autocorrect'), 'off');
 
         // Ensure the show password state stays in sync
-        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        const $showPasswordEl = view.$('#show-password');
+
         assert.isTrue($showPasswordEl.is(':checked'));
       });
 
@@ -168,25 +180,27 @@ describe('views/mixins/password-mixin', function () {
         assert.equal($passwordEl.attr('autocorrect'), null);
 
         // Ensure the show password state stays in sync
-        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        const $showPasswordEl = $('#show-password');
         assert.isFalse($showPasswordEl.is(':checked'));
       });
 
       it('getAffectedPasswordInputs - gets all affected inputs', function () {
         $('#container').html(view.$el);
         let targets = view.getAffectedPasswordInputs('#show-password');
-        assert.lengthOf(targets, 1);
+        // Note that this affects 5 in the test template, but with the real template,
+        // only 2 are affected. We just care about the next assertion being 1 value higher.
+        assert.lengthOf(targets, 5);
 
         view.$('#vpassword').attr('data-synchronize-show', 'true');
         targets = view.getAffectedPasswordInputs('#show-password');
-        assert.lengthOf(targets, 2);
+        assert.lengthOf(targets, 6);
       });
     });
   });
 
   describe('hideVisiblePasswords', () => {
     it('sets all password fields to type `password`', () => {
-      const $passwordEls = view.$('.password');
+      const $passwordEls = view.$('#password, #vpassword');
 
       assert.equal($passwordEls.length, 2);
 

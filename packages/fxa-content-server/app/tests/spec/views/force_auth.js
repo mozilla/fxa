@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import $ from 'jquery';
-import Account from 'models/account';
-import { assert } from 'chai';
-import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
-import Broker from 'models/auth_brokers/base';
-import { FORCE_AUTH } from '../../../../tests/functional/lib/selectors';
-import FormPrefill from 'models/form-prefill';
-import Metrics from 'lib/metrics';
+import { assert } from 'chai';
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
 import Notifier from 'lib/channels/notifier';
-import Relier from 'models/reliers/relier';
-import sinon from 'sinon';
-import TestHelpers from '../../lib/helpers';
+import Metrics from 'lib/metrics';
 import Translator from 'lib/translator';
+import Account from 'models/account';
+import Broker from 'models/auth_brokers/base';
+import FormPrefill from 'models/form-prefill';
+import Relier from 'models/reliers/relier';
 import User from 'models/user';
+import sinon from 'sinon';
 import View from 'views/force_auth';
+import { FORCE_AUTH } from '../../../../tests/functional/lib/selectors';
+import TestHelpers from '../../lib/helpers';
 import WindowMock from '../../mocks/window';
 
 const Selectors = FORCE_AUTH;
@@ -391,7 +391,7 @@ describe('/views/force_auth', function () {
       });
 
       it('isValid is successful when the password is filled out', function () {
-        view.$('.password').val('password');
+        view.$('input[id*="password"]').val('password');
         assert.isTrue(view.isValid());
       });
     });
@@ -537,7 +537,7 @@ describe('/views/force_auth', function () {
       isEmailRegistered = true;
 
       return view.render().then(function () {
-        view.$('.password').val('password');
+        view.$('input[id*="password"]').val('password');
         view.beforeDestroy();
       });
     });

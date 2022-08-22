@@ -51,7 +51,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     ) as Element;
     expect(fromName.textContent).toEqual(UPGRADE_FROM_PLAN.product_name);
     const fromDesc = container.querySelector(
-      '.from-plan .product-description'
+      '.from-plan #product-description'
     ) as Element;
     expect(fromDesc.textContent).toContain(
       UPGRADE_FROM_PLAN.product_metadata['product:subtitle']
@@ -59,7 +59,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     const toName = container.querySelector('.to-plan .product-name') as Element;
     expect(toName.textContent).toEqual(SELECTED_PLAN.product_name);
     const toDesc = container.querySelector(
-      '.to-plan .product-description'
+      '.to-plan #product-description'
     ) as Element;
     expect(toDesc.textContent).toContain(
       SELECTED_PLAN.product_metadata['product:subtitle']

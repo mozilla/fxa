@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifySecondaryCode-title">Verify secondary email</span>
+      <span data-l10n-id="verifySecondaryCode-title-2">Confirm secondary email</span>
     </mj-text>
 
     <mj-text css-class="text-body">
@@ -19,13 +19,13 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifySecondaryCode-prompt">Use this verification code:</span>
+      <span data-l10n-id="verifySecondaryCode-prompt-2">Use this confirmation code:</span>
     </mj-text>
 
     <mj-text css-class="code-large"><%- code %></mj-text>
 
     <mj-text css-class="text-body-no-margin">
-      <span data-l10n-id="verifySecondaryCode-expiry-notice">It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.</span>
+      <span data-l10n-id="verifySecondaryCode-expiry-notice-2">It expires in 5 minutes. Once confirmed, this address will begin receiving security notifications and confirmations.</span>
     </mj-text>
   </mj-column>
 </mj-section>

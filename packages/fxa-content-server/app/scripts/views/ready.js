@@ -54,14 +54,14 @@ const TEMPLATE_INFO = {
       'You are now ready to make changes to your Firefox Account.'
     ),
     headerId: 'fxa-sign-up-complete-header',
-    headerTitle: t('Primary email verified'),
+    headerTitle: t('Primary email confirmed'),
   },
   SECONDARY_EMAIL_VERIFIED: {
     emailReadyText: t(
       'Account notifications will now also be sent to %(secondaryEmailVerified)s.'
     ),
     headerId: 'fxa-sign-up-complete-header',
-    headerTitle: t('Secondary email verified'),
+    headerTitle: t('Secondary email confirmed'),
   },
   // signin_confirmed and signin_verified are only shown to Sync for now.
   SIGN_IN: {
@@ -71,7 +71,7 @@ const TEMPLATE_INFO = {
   },
   SIGN_UP: {
     headerId: 'fxa-sign-up-complete-header',
-    headerTitle: t('Account verified'),
+    headerTitle: t('Account confirmed'),
     readyToSyncText: t('You are now ready to use %(serviceName)s'),
   },
   SUCCESSFUL_OAUTH: {

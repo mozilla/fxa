@@ -102,7 +102,7 @@ describe('views/confirm_signup_code', () => {
       );
       assert.include(view.$(Selectors.LINKS).text(), 'Code expired?');
       assert.include(view.$(Selectors.LINKS).text(), 'Email new code.');
-      assert.lengthOf(view.$('.otp-code'), 1, 'has input');
+      assert.lengthOf(view.$(Selectors.INPUT), 1, 'has input');
       assert.lengthOf(view.$('.step-3'), 0, 'no progress indicator');
     });
 
@@ -158,7 +158,7 @@ describe('views/confirm_signup_code', () => {
 
     describe('with an empty code', () => {
       beforeEach(() => {
-        view.$('input.otp-code').val('');
+        view.$(Selectors.INPUT).val('');
         return view.validateAndSubmit().then(assert.fail, () => {});
       });
 
@@ -172,7 +172,7 @@ describe('views/confirm_signup_code', () => {
     validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
-          view.$('input.otp-code').val(code);
+          view.$(Selectors.INPUT).val(code);
           return view.validateAndSubmit();
         });
 
@@ -192,7 +192,7 @@ describe('views/confirm_signup_code', () => {
         sinon
           .stub(view, 'invokeBrokerMethod')
           .callsFake(() => Promise.resolve());
-        view.$('input.otp-code').val(CODE);
+        view.$(Selectors.INPUT).val(CODE);
         return view.submit();
       });
 
@@ -221,7 +221,7 @@ describe('views/confirm_signup_code', () => {
           .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
-        view.$('input.otp-code').val(CODE);
+        view.$(Selectors.INPUT).val(CODE);
         return view.submit();
       });
 
@@ -239,7 +239,7 @@ describe('views/confirm_signup_code', () => {
           .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
-        view.$('input.otp-code').val(CODE);
+        view.$(Selectors.INPUT).val(CODE);
         return view.submit();
       });
 
@@ -257,7 +257,7 @@ describe('views/confirm_signup_code', () => {
           .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
-        view.$('input.otp-code').val(CODE);
+        view.$(Selectors.INPUT).val(CODE);
         return view.submit();
       });
 
@@ -278,7 +278,7 @@ describe('views/confirm_signup_code', () => {
       });
 
       it('rejects with the error for display', () => {
-        view.$('input.otp-code').val(CODE);
+        view.$(Selectors.INPUT).val(CODE);
         return view.validateAndSubmit().then(assert.fail, () => {
           assert.ok(view.$('.error').text().length);
           assert.equal(view.showValidationError.callCount, 0);

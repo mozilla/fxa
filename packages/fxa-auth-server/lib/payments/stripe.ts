@@ -71,6 +71,7 @@ import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { generateIdempotencyKey } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -445,16 +446,16 @@ export class StripeHelper extends StripeHelperBase {
     priceId: string;
     paymentMethodId?: string;
     promotionCode?: Stripe.PromotionCode;
-    subIdempotencyKey: string;
     taxRateId?: string;
+    automaticTax?: boolean;
   }) {
     const {
       customerId,
       priceId,
       paymentMethodId,
       promotionCode,
-      subIdempotencyKey,
       taxRateId,
+      automaticTax,
     } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
@@ -465,8 +466,13 @@ export class StripeHelper extends StripeHelperBase {
           paymentMethodId,
           {
             customer: customerId,
-          },
-          { idempotencyKey: `pma-${subIdempotencyKey}` }
+          }
+          // At the moment the frontend creates a new paymentMethod before every call to this method.
+          // If we were to reuse the same idempotencyKey we'd get the idempotency_error from Stripe.
+          // https://stripe.com/docs/api/errors
+          // As a potential alternative approach, we could compare paymentMethod fingerprints before
+          // attaching it to paymentMethods.
+          // { idempotencyKey: `pma-${subIdempotencyKey}` }
         );
       } catch (err) {
         if (err.type === 'StripeCardError') {
@@ -488,16 +494,28 @@ export class StripeHelper extends StripeHelperBase {
       payment_provider: 'stripe',
     });
 
-    const subscription = await this.stripe.subscriptions.create(
-      {
-        customer: customerId,
-        items: [{ price: priceId }],
-        expand: ['latest_invoice.payment_intent'],
-        default_tax_rates: taxRates,
-        promotion_code: promotionCode?.id,
-      },
-      { idempotencyKey: `ssc-${subIdempotencyKey}` }
-    );
+    const subIdempotencyKey = generateIdempotencyKey([
+      customerId,
+      priceId,
+      paymentMethod?.card?.fingerprint || '',
+    ]);
+
+    const createParams: Stripe.SubscriptionCreateParams = {
+      customer: customerId,
+      items: [{ price: priceId }],
+      expand: ['latest_invoice.payment_intent'],
+      promotion_code: promotionCode?.id,
+    };
+
+    if (automaticTax) {
+      createParams.automatic_tax = { enabled: true };
+    } else if (taxRates.length > 0) {
+      createParams.default_tax_rates = taxRates;
+    }
+
+    const subscription = await this.stripe.subscriptions.create(createParams, {
+      idempotencyKey: `ssc-${subIdempotencyKey}`,
+    });
 
     const paymentIntent = (subscription.latest_invoice as Stripe.Invoice)
       .payment_intent as Stripe.PaymentIntent;
@@ -537,9 +555,16 @@ export class StripeHelper extends StripeHelperBase {
     promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
     taxRateId?: string;
+    automaticTax?: boolean;
   }) {
-    const { customer, priceId, promotionCode, subIdempotencyKey, taxRateId } =
-      opts;
+    const {
+      customer,
+      priceId,
+      promotionCode,
+      subIdempotencyKey,
+      taxRateId,
+      automaticTax,
+    } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
@@ -561,18 +586,24 @@ export class StripeHelper extends StripeHelperBase {
       payment_provider: 'paypal',
     });
 
-    const subscription = await this.stripe.subscriptions.create(
-      {
-        customer: customer.id,
-        items: [{ price: priceId }],
-        expand: ['latest_invoice'],
-        collection_method: 'send_invoice',
-        days_until_due: 1,
-        default_tax_rates: taxRates,
-        promotion_code: promotionCode?.id,
-      },
-      { idempotencyKey: `ssc-${subIdempotencyKey}` }
-    );
+    const createParams: Stripe.SubscriptionCreateParams = {
+      customer: customer.id,
+      items: [{ price: priceId }],
+      expand: ['latest_invoice'],
+      collection_method: 'send_invoice',
+      days_until_due: 1,
+      promotion_code: promotionCode?.id,
+    };
+
+    if (automaticTax) {
+      createParams.automatic_tax = { enabled: true };
+    } else if (taxRates.length > 0) {
+      createParams.default_tax_rates = taxRates;
+    }
+
+    const subscription = await this.stripe.subscriptions.create(createParams, {
+      idempotencyKey: `ssc-${subIdempotencyKey}`,
+    });
 
     const updatedSubscription = await this.postSubscriptionCreationUpdates({
       subscription,
@@ -1202,12 +1233,14 @@ export class StripeHelper extends StripeHelperBase {
     customerId,
     options,
     name,
+    ipAddress,
   }: {
     customerId: string;
     options?: BillingAddressOptions;
     name?: string;
+    ipAddress?: string;
   }): Promise<Stripe.Customer> {
-    const updates: Stripe.CustomerUpdateParams = {};
+    const updates: Stripe.CustomerUpdateParams = { expand: ['tax'] };
     if (options) {
       updates.address = {
         city: options.city,
@@ -1221,12 +1254,18 @@ export class StripeHelper extends StripeHelperBase {
     if (name) {
       updates.name = name;
     }
+    if (ipAddress) {
+      updates.tax = { ip_address: ipAddress };
+    }
     const customer = await this.stripe.customers.update(customerId, updates);
+    // Pull out tax as we don't want to cache that inconsistently.
+    const tax = customer.tax;
+    delete customer.tax;
     await this.stripeFirestore.insertCustomerRecordWithBackfill(
       customer.metadata.userid,
       customer
     );
-    return customer;
+    return { ...customer, tax };
   }
 
   /**
@@ -2898,7 +2937,7 @@ export class StripeHelper extends StripeHelperBase {
     } = this.mergeMetadata(planOld, abbrevProductOld);
 
     const updateType =
-      productOrderNew > productOrderOld
+      parseInt(productOrderNew) > parseInt(productOrderOld)
         ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
         : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 

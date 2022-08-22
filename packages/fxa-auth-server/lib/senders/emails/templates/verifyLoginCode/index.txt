@@ -2,7 +2,7 @@ verifyLoginCode-title = "Is this you signing in?"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-verifyLoginCode-prompt = "If yes, here is the verification code:"
+verifyLoginCode-prompt-2 = "If yes, here is the confirmation code:"
 <%- code %>
 
 verifyLoginCode-expiry-notice = "It expires in 5 minutes."

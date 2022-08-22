@@ -1,11 +1,13 @@
-postVerify-sub-title = "Firefox account verified. You’re almost there."
+postVerify-sub-title-3 = "We’re delighted to see you!"
 
-postVerify-title = "Next sync between your devices!"
+postVerify-title-2 = "Want to see the same tab on two devices?"
 
-postVerify-description = "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices."
+postVerify-description-2 = "It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!"
 
-postVerify-setup = "Set up next device"
+postVerify-sub-description = "(Psst… It also means you can get your bookmarks, passwords, and other Firefox data everywhere you’re signed in.)"
+
+postVerify-setup-2 = "Connect another device:"
 <%- link %>
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>
-postVerify-support = "Have questions? Visit <%- supportUrl %>"
+<%- include('/partials/support/index.txt') %>

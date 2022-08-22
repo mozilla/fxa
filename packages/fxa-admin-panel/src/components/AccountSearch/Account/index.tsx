@@ -171,11 +171,11 @@ export const DangerZone = ({
 }: DangerZoneProps) => {
   const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
     onCompleted: () => {
-      window.alert("The user's email has been unverified.");
+      window.alert("The user's email has been unconfirmed.");
       onCleared();
     },
     onError: () => {
-      window.alert('Error in unverifying email');
+      window.alert('Error in unconfirming email');
     },
   });
 
@@ -248,17 +248,17 @@ export const DangerZone = ({
         </p>
       </Guard>
       <Guard features={[AdminPanelFeature.UnverifyEmail]}>
-        <h2 className="text-lg account-header">Email Verification</h2>
+        <h2 className="text-lg account-header">Email Confirmation</h2>
         <div className="border-l-2 border-red-600 mb-4 pl-4">
           <p className="text-base leading-6">
-            Reset email verification. User needs to re-verify on next login.
+            Reset email confirmation. User needs to re-confirm on next login.
           </p>
           <button
             className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
             type="button"
             onClick={handleUnverify}
           >
-            Unverify Email
+            Unconfirm Email
           </button>
           <br />
           <p className="text-base">{unverifyMessage}</p>
@@ -360,7 +360,7 @@ export const Account = ({
                           : 'account-disabled-unverified'
                       }
                     >
-                      {primaryEmail.isVerified ? 'verified' : 'not verified'}
+                      {primaryEmail.isVerified ? 'confirmed' : 'not confirmed'}
                     </span>
                   }
                 />
@@ -431,7 +431,7 @@ export const Account = ({
                         : 'account-disabled-unverified'
                     }`}
                   >
-                    {secondaryEmail.isVerified ? 'verified' : 'not verified'}
+                    {secondaryEmail.isVerified ? 'confirmed' : 'not confirmed'}
                   </span>
                 </li>
               ))}
@@ -766,7 +766,7 @@ const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
           TOTP Created At: <span data-testid="totp-created-at">{totpDate}</span>
         </li>
         <li className="account-li">
-          TOTP Verified:{' '}
+          TOTP Confirmed:{' '}
           <span
             data-testid="totp-verified"
             className={`ml-3 text-base ${
@@ -775,7 +775,7 @@ const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
                 : 'account-disabled-unverified'
             }`}
           >
-            {verified ? 'verified' : 'not verified'}
+            {verified ? 'confirmed' : 'not confirmed'}
           </span>
         </li>
         <li className="account-li">
@@ -812,7 +812,7 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
           </span>
         </li>
         <li className="account-li">
-          Recovery Key Verified At:{' '}
+          Recovery Key Confirmed At:{' '}
           <span
             data-testid="recovery-keys-verified"
             className={`ml-3 text-base ${
@@ -821,7 +821,7 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
                 : 'account-disabled-unverified'
             }`}
           >
-            {verifiedAt ? recoveryKeyVerifiedDate : 'not verified'}
+            {verifiedAt ? recoveryKeyVerifiedDate : 'not confirmed'}
           </span>
         </li>
         <li className="account-li">

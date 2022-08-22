@@ -116,9 +116,7 @@ export const PaypalButton = ({
           ...apiClientOverrides,
         };
         if (needsCustomer(customer)) {
-          await apiCreateCustomer({
-            idempotencyKey,
-          });
+          await apiCreateCustomer({});
         }
         // This is the same token as obtained in createOrder
         const token = data.orderID;
@@ -153,14 +151,15 @@ export const PaypalButton = ({
     [
       apiClientOverrides,
       customer,
-      idempotencyKey,
+      priceId,
+      productId,
       newPaypalAgreement,
       refreshSubmitNonce,
       postSubscriptionAttemptPaypalCallback,
-      selectedPlan,
       setSubscriptionError,
       setTransactionInProgress,
       promotionCode,
+      idempotencyKey,
     ]
   );
 
@@ -214,9 +213,11 @@ export const PaypalButton = ({
   return (
     <>
       <div
-        className={disabled
-          ? "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
-          : undefined}
+        className={
+          disabled
+            ? "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
+            : undefined
+        }
         data-testid="paypal-button-container"
       >
         {ButtonBase && (

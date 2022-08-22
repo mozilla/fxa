@@ -4,7 +4,7 @@
     "message": "Confirm secondary email"
   },
   "action": {
-    "id": "verifySecondaryCode-action",
-    "message": "Verify email"
+    "id": "verifySecondaryCode-action-2",
+    "message": "Confirm email"
   }
 }

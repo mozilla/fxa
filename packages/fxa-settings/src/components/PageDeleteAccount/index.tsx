@@ -14,7 +14,7 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors, composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
@@ -76,7 +76,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         window.location.href = `${ROOTPATH}?delete_account_success=true`;
       } catch (e) {
         const localizedError = l10n.getString(
-          `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+          composeAuthUiErrorTranslationId(AuthUiErrors.INCORRECT_PASSWORD),
           null,
           AuthUiErrors.INCORRECT_PASSWORD.message
         );

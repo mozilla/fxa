@@ -1,7 +1,12 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { LoadingOverlay } from './index';
+import { Meta } from '@storybook/react';
 
-storiesOf('components/LoadingOverlay', module).add('isLoading = true', () => (
-  <LoadingOverlay isLoading={true} />
-));
+export default {
+  title: 'components/LoadingOverlay',
+  component: LoadingOverlay,
+} as Meta;
+
+export const Default = () => {
+  return <LoadingOverlay isLoading={true} />;
+};

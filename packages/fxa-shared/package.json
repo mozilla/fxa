@@ -1,6 +1,6 @@
 {
   "name": "fxa-shared",
-  "version": "1.238.0",
+  "version": "1.239.0",
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "exports": {
@@ -84,7 +84,7 @@
   "dependencies": {
     "@fluent/langneg": "^0.6.2",
     "@nestjs/common": "^8.4.7",
-    "@nestjs/config": "^2.1.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.5",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
@@ -98,7 +98,7 @@
     "ajv": "^8.11.0",
     "apollo-server": "^2.25.4",
     "app-store-server-api": "^0.5.0",
-    "aws-sdk": "^2.1189.0",
+    "aws-sdk": "^2.1199.0",
     "buf": "^0.1.1",
     "celebrate": "^15.0.1",
     "class-transformer": "^0.5.1",
@@ -109,7 +109,7 @@
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",
-    "hot-shots": "^9.1.0",
+    "hot-shots": "^9.2.0",
     "ioredis": "^4.28.2",
     "ip": "^1.1.8",
     "joi": "17.4.0",
@@ -124,8 +124,8 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^9.10.0",
-    "superagent": "^7.1.2",
+    "stripe": "^9.16.0",
+    "superagent": "^8.0.0",
     "typesafe-node-firestore": "^1.4.0"
   },
   "jest": {

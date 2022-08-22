@@ -8,7 +8,7 @@ import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrors, composeAuthUiErrorTranslationId } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type FormData = {
   verificationCode: string;
@@ -60,7 +60,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       } catch (e) {
         if (e.errno) {
           const errorText = l10n.getString(
-            `auth-error-${e.errno}`,
+            composeAuthUiErrorTranslationId(e),
             null,
             AuthUiErrors.INVALID_VERIFICATION_CODE.message
           );
@@ -68,9 +68,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         } else {
           alertBar.error(
             l10n.getString(
-              'verify-secondary-email-error-2',
+              'verify-secondary-email-error-3',
               null,
-              'There was a problem sending the verification code'
+              'There was a problem sending the confirmation code'
             )
           );
         }
@@ -100,24 +100,24 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           })}
         >
           <Localized
-            id="verify-secondary-email-please-enter-code"
+            id="verify-secondary-email-please-enter-code-2"
             vars={{ email: email }}
             elems={{ strong: <span className="font-bold"> </span> }}
           >
             <p>
-              Please enter the verification code that was sent to{' '}
+              Please enter the confirmation code that was sent to{' '}
               <strong>{email}</strong> within 5 minutes.
             </p>
           </Localized>
 
           <div className="my-6">
             <Localized
-              id="verify-secondary-email-verification-code"
+              id="verify-secondary-email-verification-code-2"
               attrs={{ label: true }}
             >
               <InputText
                 name="verificationCode"
-                label="Enter your verification code"
+                label="Enter your confirmation code"
                 onChange={() => {
                   if (errorText) {
                     setErrorText(undefined);
@@ -144,14 +144,14 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
                 Cancel
               </button>
             </Localized>
-            <Localized id="verify-secondary-email-verify-button">
+            <Localized id="verify-secondary-email-verify-button-2">
               <button
                 type="submit"
                 className="cta-primary cta-base-p mx-2 flex-1"
                 data-testid="secondary-email-verify-submit"
                 disabled={buttonDisabled}
               >
-                Verify
+                Confirm
               </button>
             </Localized>
           </div>

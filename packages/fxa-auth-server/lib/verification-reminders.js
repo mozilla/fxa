@@ -71,7 +71,7 @@ module.exports = (log, config) => {
         const key = matches[1];
 
         if (key === METADATA_KEY) {
-          throw new Error('Invalid verification reminder key found in config');
+          throw new Error('Invalid confirmation reminder key found in config');
         }
 
         keys.push(key);

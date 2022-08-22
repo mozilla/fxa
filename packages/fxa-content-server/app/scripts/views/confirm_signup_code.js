@@ -13,7 +13,7 @@ import ResendMixin from './mixins/resend-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 
-const CODE_INPUT_SELECTOR = 'input.otp-code';
+const CODE_INPUT_SELECTOR = '#otp-code';
 
 const proto = FormView.prototype;
 

@@ -1,7 +1,7 @@
-verificationReminderFirst-subject = Reminder: Finish creating your account
-verificationReminderFirst-title = Welcome to the { -brand-firefox } family
-verificationReminderFirst-description = A few days ago you created a { -product-firefox-account }, but never confirmed it.
-verificationReminderFirst-sub-description = Confirm now and get technology that fights for and protects your privacy, arms you with practical knowledge, and the respect you deserve.
-confirm-email = Confirm email
-confirm-email-plaintext = { confirm-email }:
-verificationReminderFirst-action = Confirm email
+verificationReminderFirst-subject-2 = Remember to confirm your account
+verificationReminderFirst-title-2 = Welcome to { -brand-firefox }!
+verificationReminderFirst-description-2 = A few days ago you created a { -product-firefox-account }, but never confirmed it. Please confirm your account in the next 15 days or it will be automatically deleted.
+verificationReminderFirst-sub-description-2 = Don’t miss out on tech that puts you and your privacy first.
+confirm-email-2 = Confirm account
+confirm-email-plaintext-2 = { confirm-email-2 }:
+verificationReminderFirst-action-2 = Confirm account

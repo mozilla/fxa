@@ -14,7 +14,7 @@ import ResendMixin from './mixins/resend-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 
-const CODE_INPUT_SELECTOR = 'input.otp-code';
+const CODE_INPUT_SELECTOR = '#otp-code';
 
 const proto = FormView.prototype;
 

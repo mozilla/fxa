@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.238.0",
+  "version": "1.239.0",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -34,7 +34,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@nestjs/common": "^8.4.7",
-    "@nestjs/config": "^2.1.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.5",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/platform-express": "^8.4.6",
@@ -50,13 +50,13 @@
     "handlebars": "^4.7.7",
     "hbs": "^4.2.0",
     "helmet": "^5.0.0",
-    "hot-shots": "^9.1.0",
+    "hot-shots": "^9.2.0",
     "mozlog": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "semver": "^7.3.5",
-    "superagent": "^7.1.2",
+    "superagent": "^8.0.0",
     "tslib": "^2.3.1"
   },
   "devDependencies": {

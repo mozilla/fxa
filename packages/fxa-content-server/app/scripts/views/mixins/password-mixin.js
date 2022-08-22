@@ -4,20 +4,22 @@
 
 // helper functions for views with passwords. Meant to be mixed into views.
 
-import KeyCodes from '../../lib/key-codes';
-import AuthErrors from '../../lib/auth-errors';
 import showPasswordTemplate from 'templates/partial/show-password.mustache';
+import AuthErrors from '../../lib/auth-errors';
+import KeyCodes from '../../lib/key-codes';
 const t = (msg) => msg;
+
+export const PASSWORD_TOGGLE_LABEL = 'label[for^="show-"]';
 
 export default {
   events: {
-    'change input.password': 'onPasswordChanged',
-    'keyup input.password': 'onPasswordChanged',
+    'change input[id*="password"]': 'onPasswordChanged',
+    'keyup input[id*="password"]': 'onPasswordChanged',
     'blur #vpassword': 'hidePasswordHelper',
     'keyup #vpassword': 'onVPasswordChanged',
-    'mousedown .show-password-label': 'onShowPasswordMouseDown',
-    'mouseup .show-password-label': 'onShowPasswordMouseUp',
-    'keydown input.show-password': 'onShowPasswordTV',
+    'mousedown label[for^="show-"]': 'onShowPasswordMouseDown',
+    'mouseup label[for^="show-"]': 'onShowPasswordMouseUp',
+    'keydown .input-password-toggle': 'onShowPasswordTV',
   },
 
   initialize() {
@@ -39,12 +41,13 @@ export default {
    * @param {String|Element} passwordEls
    */
   _updateShowPasswordLabel(passwordEls) {
-    const $targetEl = this.$(passwordEls);
+    const $passwordEl = this.$(passwordEls);
+    const $showPasswordLabel = $passwordEl.siblings(PASSWORD_TOGGLE_LABEL);
 
-    if ($targetEl.val().length === 0) {
-      $targetEl.addClass('empty');
+    if ($passwordEl.val().length === 0) {
+      $showPasswordLabel.addClass('hidden');
     } else {
-      $targetEl.removeClass('empty');
+      $showPasswordLabel.removeClass('hidden');
     }
   },
 
@@ -96,14 +99,14 @@ export default {
   },
 
   onShowPasswordMouseDown(event) {
-    const $buttonEl = this.$(event.target).siblings('.show-password');
+    const $buttonEl = this.$(event.target).siblings('.input-password-toggle');
     const $passwordEl = this.getAffectedPasswordInputs($buttonEl);
     this.togglePasswordVisibility($passwordEl);
   },
 
   onShowPasswordMouseUp(event) {
     // return focus to input
-    this.$(event.target).siblings('.password').focus();
+    this.$(event.target).siblings('[id*="password"]').focus();
   },
 
   togglePasswordVisibility($el) {
@@ -115,9 +118,9 @@ export default {
   },
 
   getAffectedPasswordInputs(button) {
-    let $passwordEl = this.$(button).siblings('.password');
+    let $passwordEl = this.$(button).siblings('[id*="password"]');
     if (this.$(button).data('synchronizeShow')) {
-      $passwordEl = this.$('.password[data-synchronize-show]');
+      $passwordEl = this.$('[id*="password"][data-synchronize-show]');
     }
     return $passwordEl;
   },
@@ -139,9 +142,14 @@ export default {
       this._logErrorConvertingPasswordType($passwordEl);
     }
 
-    const $showPasswordEl = $passwordEl.siblings('.show-password');
+    const $showPasswordEl = $passwordEl.siblings('.input-password-toggle');
     $showPasswordEl.attr('checked', true);
-    this.$('.show-password-label').attr('title', t('Hide password'));
+    this.$(PASSWORD_TOGGLE_LABEL).attr('title', t('Hide password'));
+    this.$(PASSWORD_TOGGLE_LABEL).attr('aria-label', t('Hide password'));
+    this.$(PASSWORD_TOGGLE_LABEL).addClass('input-password-toggle-label-hide');
+    this.$(PASSWORD_TOGGLE_LABEL).removeClass(
+      'input-password-toggle-label-show'
+    );
 
     this.logViewEvent('password.visible');
   },
@@ -165,7 +173,12 @@ export default {
 
     const $showPasswordEl = $passwordEl.siblings('.show-password');
     $showPasswordEl.removeAttr('checked');
-    this.$('.show-password-label').attr('title', t('Show password'));
+    this.$(PASSWORD_TOGGLE_LABEL).attr('title', t('Show password'));
+    this.$(PASSWORD_TOGGLE_LABEL).attr('aria-label', t('Show password'));
+    this.$(PASSWORD_TOGGLE_LABEL).addClass('input-password-toggle-label-show');
+    this.$(PASSWORD_TOGGLE_LABEL).removeClass(
+      'input-password-toggle-label-hide'
+    );
 
     this.logViewEvent('password.hidden');
     this.focus($passwordEl);
@@ -194,7 +207,7 @@ export default {
    */
   hideVisiblePasswords() {
     const active = document.activeElement;
-    this.$el.find('.password[type=text]').each((index, el) => {
+    this.$el.find('[id*="password"][type=text]').each((index, el) => {
       this.hidePassword(el);
     });
     active.focus();
@@ -214,21 +227,18 @@ export default {
 
   showPasswordHelper() {
     if (this.$('#vpassword').is(':focus')) {
-      const inverse =
-        this.$('#password-strength-balloon').css('display') === 'block'
-          ? 'none'
-          : 'block';
-      this.$('.input-help:not(.password-strength-balloon)').css(
-        'display',
-        inverse
-      );
+      const vPwBalloon = this.$('#vpassword-balloon');
+
+      if (this.$('#password-strength-balloon').hasClass('hidden')) {
+        vPwBalloon.removeClass('hidden');
+      } else {
+        vPwBalloon.addClass('hidden');
+      }
     }
   },
 
   hidePasswordHelper() {
-    // Hide all input-help classes except input-help-forgot-pw
-    this.$(
-      '.input-help:not(.input-help-forgot-pw,.password-strength-balloon)'
-    ).css('display', 'none');
+    // Hide all .input-balloon classes
+    this.$('.input-balloon').addClass('hidden');
   },
 };

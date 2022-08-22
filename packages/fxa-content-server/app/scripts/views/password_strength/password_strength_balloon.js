@@ -11,17 +11,17 @@
  * @extends {BaseView}
  */
 
-import AuthErrors from '../../lib/auth-errors';
-import BaseView from '../base';
 import Cocktail from 'cocktail';
-import OneVisibleOfTypeMixin from '../mixins/one-visible-of-type-mixin';
-import Template from '../../templates/partial/password-strength-balloon.mustache';
+import AuthErrors from '../../lib/auth-errors';
 import XSS from '../../lib/xss';
+import Template from '../../templates/partial/password-strength-balloon.mustache';
+import BaseView from '../base';
 import ExternalLinksMixin from '../mixins/external-links-mixin';
+import OneVisibleOfTypeMixin from '../mixins/one-visible-of-type-mixin';
 
-const DELAY_BEFORE_HIDE_BALLOON_EL_MS = 500;
+const DELAY_BEFORE_HIDE_BALLOON_EL_MS = 200;
 
-const PASSWORD_STRENGTH_BALLOON_SELECTOR = '.password-strength-balloon';
+const PASSWORD_STRENGTH_BALLOON_SELECTOR = '#password-strength-balloon';
 const ESCAPED_SUMO_ARTICLE_HREF = XSS.href(
   'https://support.mozilla.org/kb/password-strength'
 );
@@ -76,18 +76,20 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   show() {
-    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR).show().css('opacity', '1');
+    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR)
+      .removeClass('hidden opacity-0')
+      .addClass('opacity-100');
   }
 
   hide() {
     const $balloonEl = this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR);
-    $balloonEl.css('opacity', '0');
+    $balloonEl.addClass('opacity-0').removeClass('opacity-100');
     this._hideBalloonElTimeout = this.setTimeout(() => {
       // In addition to the opacity, the element must be hidden
       // or else it overlays the subsequent input elements making
       // them impossible to click or tap into.
       // `transitionend` is not fired for an unknown reason.
-      $balloonEl.hide();
+      $balloonEl.addClass('hidden');
     }, DELAY_BEFORE_HIDE_BALLOON_EL_MS);
   }
 }

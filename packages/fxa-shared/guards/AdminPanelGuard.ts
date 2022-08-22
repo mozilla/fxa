@@ -112,7 +112,7 @@ const defaultAdminPanelPermissions: Permissions = {
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnverifyEmail]: {
-    name: 'Unverify Email Address',
+    name: 'Unconfirm Email Address',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnlinkAccount]: {

@@ -28,11 +28,20 @@ const {
 const { AccountResetToken, Device } = require('fxa-shared/db/models/auth');
 const { UnblockCodes } = require('fxa-shared/db/models/auth/unblock-codes');
 const { SignInCodes } = require('fxa-shared/db/models/auth/sign-in-codes');
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+const { uuidTransformer } = require('fxa-shared/db/transformers');
 
 const log = mocks.mockLog();
 const Token = require('../../lib/tokens')(log, config);
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+
+const redis = require('../../lib/redis')(
+  {
+    ...config.redis,
+    ...config.redis.sessionTokens,
+    maxttl: 1337,
+  },
+  mocks.mockLog()
+);
 
 describe('scripts/prune-tokens', () => {
   let db;
@@ -76,7 +85,32 @@ describe('scripts/prune-tokens', () => {
     tokenVerificationId: null,
     uid,
     createdAt,
+    lastAccessTime: Date.now(),
+    location: {
+      city: 'pdx',
+      state: 'or',
+      stateCode: 'or',
+      country: 'usa',
+      countryCode: 'usa',
+    },
+    uaBrowser: '',
+    uaBrowserVersion: '',
+    uaOS: '',
+    uaOSVersion: '',
+    uaDeviceType: '',
+    uaFormFactor: '',
   });
+
+  function serialize(t) {
+    return {
+      ...t,
+      ...{
+        id: t.id.toString('hex'),
+        data: t.data.toString('hex'),
+        uid: t.uid.toString('hex'),
+      },
+    };
+  }
 
   const device = (uid, sessionTokenId) => ({
     id: toRandomBuff(16),
@@ -172,19 +206,24 @@ describe('scripts/prune-tokens', () => {
   });
 
   describe('prune tokens', () => {
+    let token;
+
     before(async () => {
       await clearDb();
 
-      await SessionToken.create(sessionToken());
+      token = sessionToken();
+      await SessionToken.create(token);
       await PasswordChangeToken.create(passwordChangeToken);
       await PasswordForgotToken.create(passwordForgotToken);
       await AccountResetToken.knexQuery().insert(accountResetToken);
       await UnblockCodes.knexQuery().insert(unblockCode);
       await SignInCodes.knexQuery().insert(signInCode);
+      await redis.touchSessionToken(uid.toString('hex'), serialize(token));
     });
 
     after(async () => {
       await clearDb();
+      await redis.del(uid.toString('hex'));
     });
 
     it('prunes tokens', async () => {
@@ -196,12 +235,33 @@ describe('scripts/prune-tokens', () => {
           shell: '/bin/bash',
         }
       );
+
       assert.isTrue(/"@passwordForgotTokensDeleted":1/.test(stderr));
       assert.isTrue(/"@passwordChangeTokensDeleted":1/.test(stderr));
       assert.isTrue(/"@accountResetTokensDeleted":1/.test(stderr));
       assert.isTrue(/"@sessionTokensDeleted":1/.test(stderr));
       assert.isTrue(/"@unblockCodesDeleted":1/.test(stderr));
       assert.isTrue(/"@signInCodesDeleted":1/.test(stderr));
+      assert.isTrue(/pruning orphaned tokens/.test(stderr));
+
+      const redisTokens = await redis.getSessionTokens(uid.toString('hex'));
+      assert.equal(Object.keys(redisTokens).length, 0);
+      assert.isNull(await SessionToken.findByTokenId(token.id));
+      assert.isNull(
+        await PasswordChangeToken.findByTokenId(passwordChangeToken.id)
+      );
+      assert.isNull(
+        await PasswordForgotToken.findByTokenId(passwordForgotToken.id)
+      );
+      assert.isNull(
+        await AccountResetToken.findByTokenId(accountResetToken.tokenId)
+      );
+      assert.isEmpty(
+        await UnblockCodes.knexQuery().where({ uid: unblockCode.uid })
+      );
+      assert.isEmpty(
+        await SignInCodes.knexQuery().where({ uid: signInCode.uid })
+      );
     });
   });
 
@@ -223,6 +283,7 @@ describe('scripts/prune-tokens', () => {
 
     before(async () => {
       await clearDb();
+      await redis.del(uid.toString('hex'));
       tokens = [];
       devices = [];
 
@@ -240,6 +301,11 @@ describe('scripts/prune-tokens', () => {
         await Device.create(curDevice);
         await new Promise((r) => setTimeout(r, 10));
 
+        await redis.touchSessionToken(
+          curToken.uid.toString('hex'),
+          serialize(curToken)
+        );
+
         tokens.push(curToken);
         devices.push(curDevice);
       }
@@ -255,6 +321,7 @@ describe('scripts/prune-tokens', () => {
 
     after(async () => {
       await clearDb();
+      await redis.del(uid.toString('hex'));
     });
 
     it('limits', async () => {
@@ -269,24 +336,30 @@ describe('scripts/prune-tokens', () => {
         }
       );
 
+      // Get the remaining redis tokens
+      const redisTokens = await redis.getSessionTokens(uid.toString('hex'));
+
       // Expected counts
       assert.equal(await sessionCount(), size - 1);
       assert.equal(await deviceCount(), size - 1);
+      assert.equal(Object.keys(redisTokens).length, size - 1);
 
       // Expected program output. Note that there are two deletions,
       // one for the sessionToken and one for the device.
       assert.isTrue(/"@accountsOverLimit":1/.test(stderr));
       assert.isTrue(/"@totalDeletions":2/.test(stderr));
-      assert.isTrue(/flushing redis cache/.test(stderr));
+      assert.isTrue(/pruning orphaned tokens/.test(stderr));
 
       // Expect that last session & device were removed
       assert.isNull(await sessionAt(-1));
       assert.isNull(await deviceAt(-1));
+      assert.isUndefined(redisTokens[tokens.at(-1).id]);
 
       // Expect that first set of sessions & devices are intact
       for (let i = 0; i < size - 1; i++) {
         assert.isNotNull(await sessionAt(i));
         assert.isNotNull(await deviceAt(i));
+        assert.isNotNull(await redisTokens[tokens.at(i).id]);
       }
     });
   });

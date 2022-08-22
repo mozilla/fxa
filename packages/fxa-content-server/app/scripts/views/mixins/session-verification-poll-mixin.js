@@ -78,12 +78,26 @@ export default {
    * @private
    */
   _handleSessionVerificationPollErrors(account, err) {
-    // The user's email may have bounced because it was invalid.
-    // Redirect them to the sign up page with an error notice.
-    if (
-      AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE') ||
-      AuthErrors.is(err, 'INVALID_TOKEN')
-    ) {
+    if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+      // Something has tripped an invalid token error. Note, there are quite a
+      // few ways this can happen. One of which is cross contamination due
+      // to interactions on other tabs. This error state is a bit nebulous,
+      // so let's redirect the user to the main sign in, as it indicates that
+      // something invalidated local storage or perhaps their session token has
+      // expired and a polling operation picked up on this. Either way, the user
+      // is likely in the middle of login flow on another tab, or the tab has been
+      // idle for quite some time. See #13806
+      if (this.isSignUp()) {
+        this.replaceCurrentPage('/', {
+          account,
+        });
+      } else {
+        this.replaceCurrentPage('/signin');
+      }
+    } else if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+      // The user's email may have bounced because it was invalid.
+      // Redirect them to the sign up page with an error notice.
+
       account.set('hasBounced', true);
       if (this.isSignUp()) {
         this.replaceCurrentPage('/', {

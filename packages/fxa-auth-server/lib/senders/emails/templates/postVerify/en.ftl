@@ -1,9 +1,7 @@
-postVerify-sub-title = { -product-firefox-account } verified. You’re almost there.
-postVerify-title = Next sync between your devices!
-postVerify-description = Sync privately keeps your bookmarks, passwords and other { -brand-firefox } data the same across all your devices.
-postVerify-subject = Account verified. Next, sync another device to finish setup
-postVerify-setup = Set up next device
-postVerify-action = Set up next device
-# Variables:
-#  $email (String) - Link to https://accounts.firefox.com/support
-postVerify-support = Have questions? Visit { $supportUrl }
+postVerify-sub-title-3 = We’re delighted to see you!
+postVerify-title-2 = Want to see the same tab on two devices?
+postVerify-description-2 = It’s easy! Just install { -brand-firefox } on another device and log in to sync. It’s like magic!
+postVerify-sub-description = (Psst… It also means you can get your bookmarks, passwords, and other { -brand-firefox } data everywhere you’re signed in.)
+postVerify-subject-3 = Welcome to { -brand-firefox }!
+postVerify-setup-2 = Connect another device:
+postVerify-action-2 = Connect another device

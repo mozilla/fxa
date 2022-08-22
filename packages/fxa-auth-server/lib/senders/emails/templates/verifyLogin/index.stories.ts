@@ -23,9 +23,9 @@ const createStory = storyWithProps(
 
 export const VerifyLoginFirefox = createStory(
   {},
-  'Verify login through Firefox'
+  'Sent to users to confirm a new login to a Firefox Browser'
 );
 export const VerifyLoginOther = createStory(
   { clientName: 'Some Other Relier' },
-  'Verify login through something else'
+  'Sent to users to confirm a new login to a Firefox Service'
 );

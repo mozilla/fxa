@@ -1709,6 +1709,12 @@ const conf = convict({
       env: 'VERIFICATION_REMINDERS_SECOND_INTERVAL',
       format: 'duration',
     },
+    finalInterval: {
+      doc: 'Time since account creation after which the final reminder is sent',
+      default: '15 days',
+      env: 'VERIFICATION_REMINDERS_FINAL_INTERVAL',
+      format: 'duration',
+    },
     redis: {
       prefix: {
         default: 'verificationReminders:',
@@ -1974,10 +1980,7 @@ conf.set(
   `${baseUri}/post_verify/finish_account_setup/set_password`
 );
 conf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
-conf.set(
-  'smtp.revokeAccountRecoveryUrl',
-  `${baseUri}/settings/account_recovery`
-);
+conf.set('smtp.revokeAccountRecoveryUrl', `${baseUri}/settings#recovery-key`);
 conf.set(
   'smtp.createAccountRecoveryUrl',
   `${baseUri}/settings/account_recovery`

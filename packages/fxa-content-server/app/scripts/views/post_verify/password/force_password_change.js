@@ -6,14 +6,14 @@
  * This view handles forcing a user to change their password.
  */
 import Cocktail from 'cocktail';
+import Template from 'templates/post_verify/password/force_password_change.mustache';
+import AuthErrors from '../../../lib/auth-errors';
 import FormView from '../../form';
-import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import PasswordMixin from '../../mixins/password-mixin';
 import PasswordStrengthMixin from '../../mixins/password-strength-mixin';
 import ServiceMixin from '../../mixins/service-mixin';
-import Template from 'templates/post_verify/password/force_password_change.mustache';
 import VerificationReasonMixin from '../../mixins/verification-reason-mixin';
-import AuthErrors from '../../../lib/auth-errors';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 
 const OPASSWORD_INPUT_SELECTOR = '#opassword';
 const PASSWORD_INPUT_SELECTOR = '#password';
@@ -94,7 +94,7 @@ Cocktail.mixin(
   FlowEventsMixin,
   PasswordMixin,
   PasswordStrengthMixin({
-    balloonEl: '.helper-balloon',
+    balloonEl: '#password-strength-balloon-container',
     passwordEl: PASSWORD_INPUT_SELECTOR,
   }),
   VerificationReasonMixin,

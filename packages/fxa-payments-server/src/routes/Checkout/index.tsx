@@ -461,27 +461,29 @@ export const Checkout = ({
             </>
           </div>
         </div>
-        <PlanDetails
-          {...{
-            className: classNames('default', {
-              hidden: transactionInProgress && isMobile,
-            }),
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-            coupon,
-          }}
-        >
-          <CouponForm
+
+        { (transactionInProgress && isMobile)
+          ? null
+          : (
+          <PlanDetails
             {...{
-              planId: selectedPlan.plan_id,
-              readOnly: false,
-              subscriptionInProgress: inProgress || transactionInProgress,
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
               coupon,
-              setCoupon,
             }}
-          />
-        </PlanDetails>
+          >
+            <CouponForm
+              {...{
+                planId: selectedPlan.plan_id,
+                readOnly: false,
+                subscriptionInProgress: inProgress || transactionInProgress,
+                coupon,
+                setCoupon,
+              }}
+            />
+          </PlanDetails>
+        )}
       </div>
     </>
   );
