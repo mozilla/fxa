@@ -40,6 +40,24 @@
   }
 }
 
+.input-password-toggle {
+  @apply opacity-0 absolute w-1;
+
+  &-label {
+    &-show,
+    &-hide {
+      @apply bg-cover bg-no-repeat bg-center absolute cursor-pointer ltr:right-px rtl:left-px h-full w-14;
+    }
+
+    &-show {
+      @apply bg-show-password;
+    }
+    &-hide {
+      @apply bg-hide-password;
+    }
+  }
+}
+
 @media (hover: hover) {
   .input-checkbox {
     &:checked:not(:active):hover {

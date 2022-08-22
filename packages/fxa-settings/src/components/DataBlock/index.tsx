@@ -47,7 +47,7 @@ export const DataBlock = ({
   return (
     <>
       <div
-        className={`flex rounded-xl px-7 font-mono text-center text-sm text-green-900 bg-green-800/10 flex-wrap relative mb-8 ${
+        className={`flex rounded-xl px-7 font-mono text-center text-sm text-green-900 bg-green-800/10 flex-wrap relative mb-6 ${
           valueIsArray ? 'py-4' : 'py-5'
         }`}
         data-testid={dataTestId}

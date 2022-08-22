@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Cocktail from 'cocktail';
+import Template from 'templates/sign_up_password.mustache';
 import { assign, debounce } from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import CWTSOnSignupPasswordMixin from './mixins/cwts-on-signup-password';
-import Cocktail from 'cocktail';
+import preventDefaultThen from './decorators/prevent_default_then';
+import FormView from './form';
+import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 import CoppaMixin from './mixins/coppa-mixin';
+import CWTSOnSignupPasswordMixin from './mixins/cwts-on-signup-password';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
-import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordStrengthMixin from './mixins/password-strength-mixin';
-import preventDefaultThen from './decorators/prevent_default_then';
+import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
-import PocketMigrationMixin from './mixins/pocket-migration-mixin';
-import Template from 'templates/sign_up_password.mustache';
-import AccountSuggestionMixin from './mixins/account-suggestion-mixin';
 
 const t = (msg) => msg;
 
@@ -30,7 +30,6 @@ const DELAY_BEFORE_PASSWORD_CHECK_MS = 1500;
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
-  className: 'sign-up',
 
   events: assign({}, FormView.prototype.events, {
     'click #use-different': preventDefaultThen('useDifferentAccount'),
@@ -152,7 +151,7 @@ Cocktail.mixin(
   FormPrefillMixin,
   PasswordMixin,
   PasswordStrengthMixin({
-    balloonEl: '.helper-balloon',
+    balloonEl: '#password-strength-balloon-container',
     passwordEl: '#password',
   }),
   ServiceMixin,
