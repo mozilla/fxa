@@ -1,9 +1,11 @@
-newDeviceLogin-title = "New sign-in to <%- clientName %>"
+newDeviceLogin-title-2 = "Your Firefox account was used to sign in"
 
 <%- include('/partials/userInfo/index.txt') %>
 
+newDeviceLogin-change-password-plain = "Not you? Change your password:"
+<%- passwordChangeLink %>
+
 <%- include('/partials/manageAccount/index.txt') %>
 
-<%- include('/partials/automatedEmailChangePassword/index.txt') %>
-
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
 <%- include('/partials/support/index.txt') %>

@@ -1,4 +1,3 @@
-# supportLink - https://accounts.firefox.com/support (requires subscription to visit this URL)
-automated-email = This is an automated email; if you received it in error, no action is required.
-  For more information, please visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
-automated-email-plaintext = This is an automated email; if you received it in error, no action is required.
+# supportLink - https://support.mozilla.org/kb/im-having-problems-my-firefox-account
+automated-email-no-action = { automated-email-no-action-plaintext } For more info, visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
+automated-email-no-action-plaintext = This is an automated email. If you received it by mistake, you don’t need to do anything.

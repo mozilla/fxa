@@ -19,7 +19,7 @@
   "downloadSubscription": 2,
   "fraudulentAccountDeletion": 1,
   "lowRecoveryCodes": 6,
-  "newDeviceLogin": 6,
+  "newDeviceLogin": 7,
   "passwordChanged": 5,
   "passwordChangeRequired": 2,
   "passwordReset": 5,

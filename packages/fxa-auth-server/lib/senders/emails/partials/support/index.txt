@@ -1,1 +1,1 @@
-support-message = "For more information, please visit <%- supportUrl %>"
+support-message-2 = "For more info, visit Mozilla Support: <%- supportUrl %>"

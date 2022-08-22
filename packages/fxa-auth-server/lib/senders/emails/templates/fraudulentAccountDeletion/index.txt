@@ -6,4 +6,4 @@ fraudulentAccountDeletion-content-2 = "At present, we see that the account was n
 
 fraudulentAccountDeletion-contact-plaintext = "If you have any questions, please contact our support team: <%- mozillaSupportUrl %>"
 
-<%- include('/partials/automatedEmailNoActionSupport/index.txt') %>
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

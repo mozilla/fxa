@@ -30,4 +30,3 @@
 </mj-section>
 
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>
-<%- include('/partials/support/index.txt') %>
