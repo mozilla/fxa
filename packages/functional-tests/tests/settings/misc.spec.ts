@@ -20,42 +20,9 @@ test.describe('severity-1 #smoke', () => {
     const primary = await settings.primaryEmail.statusText();
     expect(primary).toEqual(newEmail);
   });
-
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293493
-  test('delete account #1293493', async ({
-    credentials,
-    pages: { settings, deleteAccount, page },
-  }) => {
-    test.slow(); 
-    await settings.goto();
-    await settings.clickDeleteAccount();
-    await deleteAccount.checkAllBoxes();
-    await deleteAccount.clickContinue();
-    await deleteAccount.setPassword(credentials.password);
-    await deleteAccount.submit();
-    const success = await page.waitForSelector('.success');
-    expect(await success.isVisible()).toBeTruthy();
-  });
 });
 
 test.describe('severity-2 #smoke', () => {
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293371
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293373
-  test('set/unset the display name #1293371 #1293373', async ({
-    pages: { settings, displayName },
-  }) => {
-    await settings.goto();
-    expect(await settings.displayName.statusText()).toEqual('None');
-    await settings.displayName.clickAdd();
-    await displayName.setDisplayName('me');
-    await displayName.submit();
-    expect(await settings.displayName.statusText()).toEqual('me');
-    await settings.displayName.clickAdd();
-    await displayName.setDisplayName('');
-    await displayName.submit();
-    expect(await settings.displayName.statusText()).toEqual('None');
-  });
-
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293407
   test('removing secondary emails #1293407', async ({
     credentials,
