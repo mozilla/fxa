@@ -17,6 +17,16 @@ const mockConfig = {
     url: 'https://foo.bar',
     key: 'foo',
     maxTTL: 123456000,
+    database: {
+      database: 'pushbox',
+      host: 'example.local',
+      password: '',
+      port: 3306,
+      user: 'root',
+      connectionLimitMin: 2,
+      connectionLimitMax: 10,
+      acquireTimeoutMillis: 30000,
+    },
   },
 };
 const mockDeviceIds = ['AAAA11', 'BBBB22', 'CCCC33'];

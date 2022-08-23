@@ -1599,6 +1599,7 @@ const conf = convict({
       default: '28 days',
       env: 'PUSHBOX_MAX_TTL',
     },
+    database: makeMySQLConfig('PUSHBOX', 'pushbox'),
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
