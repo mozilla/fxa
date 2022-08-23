@@ -4,12 +4,12 @@
 
 import { assert } from 'chai';
 import Notifier from 'lib/channels/notifier';
-import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
-import { mockPairingChannel } from 'tests/mocks/pair';
-import sinon from 'sinon';
 import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
+import Relier from 'models/reliers/relier';
 import User from 'models/user';
+import sinon from 'sinon';
+import { mockPairingChannel } from 'tests/mocks/pair';
 import View from 'views/pair/supp_wait_for_auth';
 
 const REMOTE_METADATA = {
@@ -98,13 +98,13 @@ describe('views/pair/supp_wait_for_auth', () => {
   describe('render', () => {
     it('renders', () => {
       return view.render().then(() => {
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(view.$el.find('#family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el.find('.location').text().trim(),
+          view.$el.find('#location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
-          view.$el.find('.ip-address').text(),
+          view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
       });

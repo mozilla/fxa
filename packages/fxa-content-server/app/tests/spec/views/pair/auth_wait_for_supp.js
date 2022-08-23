@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import AuthorityBroker from 'models/auth_brokers/pairing/authority';
-import Session from 'lib/session';
 import Notifier from 'lib/channels/notifier';
+import Session from 'lib/session';
+import AuthorityBroker from 'models/auth_brokers/pairing/authority';
 import Relier from 'models/reliers/relier';
-import sinon from 'sinon';
 import User from 'models/user';
+import sinon from 'sinon';
 import View from 'views/pair/auth_wait_for_supp';
 
 const REMOTE_METADATA = {
@@ -92,13 +92,13 @@ describe('views/pair/auth_wait_for_supp', () => {
   describe('render', () => {
     it('renders', () => {
       return view.render().then(() => {
-        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(view.$el.find('#family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el.find('.location').text().trim(),
+          view.$el.find('#location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
-          view.$el.find('.ip-address').text(),
+          view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
       });
