@@ -2730,6 +2730,7 @@ module.exports = function (log, config, bounces) {
       template,
       templateValues: {
         ...links,
+        mozillaSupportUrl: 'https://support.mozilla.org',
         uid,
         email,
         wasDeleted: true,

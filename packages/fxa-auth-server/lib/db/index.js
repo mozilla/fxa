@@ -286,6 +286,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return account;
   };
 
+  DB.prototype.listAllUnverifiedAccounts = async function () {
+    log.trace('DB.listAllUnverifiedAccounts');
+    return await Account.listAllUnverified({ include: ['emails'] });
+  };
+
   DB.prototype.devices = async function (uid) {
     log.trace('DB.devices', { uid });
 

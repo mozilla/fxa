@@ -33,6 +33,7 @@
     "paypal-processor": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/paypal-processor.ts",
     "prune-tokens": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/prune-tokens.ts",
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
+    "remove-unverified-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/remove-unverified-accounts.ts",
     "emails-scss": "node -r esbuild-register ./lib/senders/emails/sass-compile-files.ts",
     "storybook": "npm run install-ejs && yarn emails-scss && start-storybook -p 6010 --no-version-updates -s ./",
     "build-storybook": "npm run install-ejs && yarn emails-scss && build-storybook && yarn build-storybook:copy-locales && yarn build-storybook:copy-templates",

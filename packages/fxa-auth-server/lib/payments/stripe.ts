@@ -1103,6 +1103,22 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
+   *
+   * @param paymentIntentId
+   * @param reason
+   * @returns
+   */
+  async refundPayment(
+    paymentIntentId: string,
+    reason: Stripe.RefundCreateParams.Reason
+  ) {
+    return await this.stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      reason,
+    });
+  }
+
+  /**
    * Updates invoice metadata with the PayPal Transaction ID.
    */
   async updateInvoiceWithPaypalTransactionId(
