@@ -15,12 +15,13 @@ const conf = convict({
   fxa: makeMySQLConfig('AUTH', 'fxa'),
   fxa_profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
   fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
+  pushbox: makeMySQLConfig('PUSHBOX', 'pushbox'),
 });
 if (process.env.CONFIG_FILES) {
   const files = process.env.CONFIG_FILES.split(',');
   conf.loadFile(files);
 }
-conf.validate()
+conf.validate();
 
 const databasesDir = path.resolve(
   new URL('.', import.meta.url).pathname,
