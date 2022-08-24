@@ -14,6 +14,16 @@ export class PushboxDB {
     const knex = setupDatabase(options.config, options.log, options.statsd);
     Record.knex(knex);
   }
+
+  async store(x: { uid: string; deviceId: string; data: string; ttl: number }) {
+    const res = await Record.query().insertAndFetch({
+      user_id: x.uid,
+      device_id: x.deviceId,
+      data: x.data,
+      ttl: x.ttl,
+    });
+    return res;
+  }
 }
 
 export default PushboxDB;

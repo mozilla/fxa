@@ -21,6 +21,7 @@ const error = require('../error');
 const createBackendServiceAPI = require('../backendService');
 const validators = require('../routes/validators');
 const { PushboxDB } = require('./db');
+const { performance } = require('perf_hooks');
 
 const base64url = require('base64url');
 
@@ -63,7 +64,7 @@ function decodeFromStorage(data) {
   return JSON.parse(base64url.decode(data));
 }
 
-module.exports = function (log, config, statsd) {
+module.exports = function (log, config, statsd, DB = PushboxDB) {
   if (!config.pushbox.enabled) {
     return {
       retrieve() {
@@ -75,12 +76,17 @@ module.exports = function (log, config, statsd) {
     };
   }
 
-  // eslint-disable-next-line
-  const pushboxDb = new PushboxDB({
-    config: config.pushbox.database,
-    log,
-    statsd,
-  });
+  const useDirectDbAccess = config.pushbox.directDbAccessPercentage > 0;
+  const pushboxDb = useDirectDbAccess
+    ? new DB({
+        config: config.pushbox.database,
+        log,
+        statsd,
+      })
+    : null;
+  const shouldUseDb = useDirectDbAccess
+    ? () => Math.random() * 100 <= config.pushbox.directDbAccessPercentage
+    : () => false;
 
   const PushboxAPI = createBackendServiceAPI(
     log,
@@ -175,19 +181,45 @@ module.exports = function (log, config, statsd) {
 
     /**
      * Enqueue an item for a specific device.
-     * This simply relays the request to the Pushbox service,
-     * encoding rich objects down into a string for storage.
+     * This inserts into the pushbox database or relays the request to the
+     * Pushbox service, encoding rich objects down into a string for storage.
      *
      * @param {String} uid - Firefox Account uid
      * @param {String} deviceId
      * @param {string} topic
      * @param {Object} data - data object to serialize into storage
-     * @returns {Promise} direct url to the stored message
+     * @returns {Promise} object with `index` to the inserted record
      */
     async store(uid, deviceId, data, ttl) {
       if (typeof ttl === 'undefined' || ttl > maxTTL) {
         ttl = maxTTL;
       }
+
+      if (shouldUseDb()) {
+        const startTime = performance.now();
+        try {
+          const result = await pushboxDb.store({
+            uid,
+            deviceId,
+            data: encodeForStorage(data),
+            ttl,
+          });
+          statsd.timing(
+            'pushbox.db.store.success',
+            performance.now() - startTime
+          );
+          statsd.increment('pushbox.db.store', { uid, deviceId });
+          return { index: result.idx };
+        } catch (err) {
+          statsd.timing(
+            'pushbox.db.store.failure',
+            performance.now() - startTime
+          );
+          log.error('pushbox.db.store', { error: err });
+          throw error.unexpectedError();
+        }
+      }
+
       const body = await api.store(uid, deviceId, {
         data: encodeForStorage(data),
         ttl,

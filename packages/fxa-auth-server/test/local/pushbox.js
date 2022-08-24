@@ -5,10 +5,15 @@
 'use strict';
 
 const { assert } = require('chai');
+const sinon = require('sinon');
+const sandbox = sinon.createSandbox();
 const nock = require('nock');
+
 const pushboxModule = require('../../lib/pushbox');
+const pushboxDbModule = require('../../lib/pushbox/db');
 const error = require('../../lib/error');
 const { mockLog } = require('../mocks');
+const mockStatsD = { increment: sandbox.stub(), timing: sandbox.stub() };
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -27,6 +32,7 @@ const mockConfig = {
       connectionLimitMax: 10,
       acquireTimeoutMillis: 30000,
     },
+    directDbAccessPercentage: 100,
   },
 };
 const mockDeviceIds = ['AAAA11', 'BBBB22', 'CCCC33'];
@@ -47,202 +53,329 @@ describe('pushbox', () => {
     );
   });
 
-  it('retrieve', () => {
-    mockPushboxServer
-      .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
-      .query({ limit: 50, index: 10 })
-      .reply(200, {
-        status: 200,
-        last: true,
-        index: '15',
-        messages: [
-          {
-            index: '15',
-            // This is { foo: "bar", bar: "bar" }, encoded.
-            data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
-          },
-        ],
-      });
-    const pushbox = pushboxModule(mockLog(), mockConfig);
-    return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then((resp) => {
-      assert.deepEqual(resp, {
-        last: true,
-        index: 15,
-        messages: [
-          {
-            index: 15,
-            data: { foo: 'bar', bar: 'bar' },
-          },
-        ],
-      });
+  describe('using direct Pushbox database access', () => {
+    let stubDbModule;
+    let stubConstructor;
+
+    before(() => {
+      mockConfig.pushbox.directDbAccessPercentage = 100;
+    });
+
+    beforeEach(() => {
+      stubDbModule = sandbox.createStubInstance(pushboxDbModule.PushboxDB);
+      stubConstructor = sandbox
+        .stub(pushboxDbModule, 'PushboxDB')
+        .returns(stubDbModule);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('store', () => {
+      stubDbModule.store.resolves({ idx: 12 });
+      const pushbox = pushboxModule(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' })
+        .then(({ index }) => {
+          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+            uid: mockUid,
+            deviceId: mockDeviceIds[0],
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 123456,
+          });
+          sinon.assert.calledOnce(mockStatsD.timing);
+          assert.strictEqual(
+            mockStatsD.timing.args[0][0],
+            'pushbox.db.store.success'
+          );
+          sinon.assert.calledOnceWithExactly(
+            mockStatsD.increment,
+            'pushbox.db.store',
+            { uid: mockUid, deviceId: mockDeviceIds[0] }
+          );
+          assert.equal(index, '12');
+        });
+    });
+
+    it('store with custom ttl', () => {
+      stubDbModule.store.resolves({ idx: 12 });
+      const pushbox = pushboxModule(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
+        .then(({ index }) => {
+          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+            uid: mockUid,
+            deviceId: mockDeviceIds[0],
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 42,
+          });
+          assert.equal(index, '12');
+        });
+    });
+
+    it('store caps ttl at configured maximum', () => {
+      stubDbModule.store.resolves({ idx: 12 });
+      const pushbox = pushboxModule(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
+        .then(({ index }) => {
+          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+            uid: mockUid,
+            deviceId: mockDeviceIds[0],
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 123456,
+          });
+          assert.equal(index, '12');
+        });
+    });
+
+    it('logs an error when failed to store', () => {
+      stubDbModule.store.rejects(new Error('db is a mess right now'));
+      const log = mockLog();
+      const pushbox = pushboxModule(
+        log,
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
+        .then(
+          () => assert.ok(false, 'should not happen'),
+          (err) => {
+            assert.ok(err);
+            assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+            sinon.assert.calledOnce(log.error);
+            assert.equal(log.error.args[0][0], 'pushbox.db.store');
+            assert.equal(
+              log.error.args[0][1]['error']['message'],
+              'db is a mess right now'
+            );
+          }
+        );
     });
   });
 
-  it('retrieve validates the pushbox server response', () => {
-    mockPushboxServer
-      .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
-      .query({ limit: 50, index: 10 })
-      .reply(200, {
-        bogus: 'object',
-      });
-    const log = mockLog();
-    const pushbox = pushboxModule(log, mockConfig);
-    return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
-      () => assert.ok(false, 'should not happen'),
-      (err) => {
-        assert.ok(err);
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
-        assert.equal(log.error.callCount, 1, 'an error was logged');
-        assert.equal(log.error.getCall(0).args[0], 'pushbox.retrieve');
-        assert.equal(
-          log.error.getCall(0).args[1].error,
-          'response schema validation failed'
-        );
-      }
-    );
-  });
+  describe('using Pushbox service', () => {
+    before(() => {
+      mockConfig.pushbox.directDbAccessPercentage = 0;
+    });
 
-  it('retrieve throws on error response', () => {
-    mockPushboxServer
-      .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
-      .query({ limit: 50, index: 10 })
-      .reply(200, {
-        error: 'lamentably, an error hath occurred',
-        status: 1234,
-      });
-    const log = mockLog();
-    const pushbox = pushboxModule(log, mockConfig);
-    return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
-      () => assert.ok(false, 'should not happen'),
-      (err) => {
-        assert.ok(err);
-        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-        assert.equal(log.error.callCount, 1, 'an error was logged');
-        assert.equal(log.error.getCall(0).args[0], 'pushbox.retrieve');
-        assert.equal(
-          log.error.getCall(0).args[1].error,
-          'lamentably, an error hath occurred'
-        );
-        assert.equal(log.error.getCall(0).args[1].status, 1234);
-      }
-    );
-  });
-
-  it('store', () => {
-    let requestBody;
-    mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
-        requestBody = body;
-        return true;
-      })
-      .reply(200, {
-        status: 200,
-        index: '12',
-      });
-    const pushbox = pushboxModule(mockLog(), mockConfig);
-    return pushbox
-      .store(mockUid, mockDeviceIds[0], { test: 'data' })
-      .then(({ index }) => {
-        assert.deepEqual(requestBody, {
-          data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-          ttl: 123456,
+    it('retrieve', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 50, index: 10 })
+        .reply(200, {
+          status: 200,
+          last: true,
+          index: '15',
+          messages: [
+            {
+              index: '15',
+              // This is { foo: "bar", bar: "bar" }, encoded.
+              data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
+            },
+          ],
         });
-        assert.equal(index, '12');
-      });
-  });
-
-  it('store with custom ttl', () => {
-    let requestBody;
-    mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
-        requestBody = body;
-        return true;
-      })
-      .reply(200, {
-        status: 200,
-        index: '12',
-      });
-    const pushbox = pushboxModule(mockLog(), mockConfig);
-    return pushbox
-      .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
-      .then(({ index }) => {
-        assert.deepEqual(requestBody, {
-          data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-          ttl: 42,
+      const pushbox = pushboxModule(mockLog(), mockConfig);
+      return pushbox
+        .retrieve(mockUid, mockDeviceIds[0], 50, 10)
+        .then((resp) => {
+          assert.deepEqual(resp, {
+            last: true,
+            index: 15,
+            messages: [
+              {
+                index: 15,
+                data: { foo: 'bar', bar: 'bar' },
+              },
+            ],
+          });
         });
-        assert.equal(index, '12');
-      });
-  });
+    });
 
-  it('store caps ttl at configured maximum', () => {
-    let requestBody;
-    mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
-        requestBody = body;
-        return true;
-      })
-      .reply(200, {
-        status: 200,
-        index: '12',
-      });
-    const pushbox = pushboxModule(mockLog(), mockConfig);
-    return pushbox
-      .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
-      .then(({ index }) => {
-        assert.deepEqual(requestBody, {
-          data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-          ttl: 123456,
+    it('retrieve validates the pushbox server response', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 50, index: 10 })
+        .reply(200, {
+          bogus: 'object',
         });
-        assert.equal(index, '12');
-      });
-  });
+      const log = mockLog();
+      const pushbox = pushboxModule(log, mockConfig);
+      return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+          assert.equal(log.error.callCount, 1, 'an error was logged');
+          assert.equal(log.error.getCall(0).args[0], 'pushbox.retrieve');
+          assert.equal(
+            log.error.getCall(0).args[1].error,
+            'response schema validation failed'
+          );
+        }
+      );
+    });
 
-  it('store validates the pushbox server response', () => {
-    mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
-      .reply(200, {
-        bogus: 'object',
-      });
-    const log = mockLog();
-    const pushbox = pushboxModule(log, mockConfig);
-    return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
-      () => assert.ok(false, 'should not happen'),
-      (err) => {
-        assert.ok(err);
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
-        assert.equal(log.error.callCount, 1, 'an error was logged');
-        assert.equal(log.error.getCall(0).args[0], 'pushbox.store');
-        assert.equal(
-          log.error.getCall(0).args[1].error,
-          'response schema validation failed'
-        );
-      }
-    );
-  });
+    it('retrieve throws on error response', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 50, index: 10 })
+        .reply(200, {
+          error: 'lamentably, an error hath occurred',
+          status: 1234,
+        });
+      const log = mockLog();
+      const pushbox = pushboxModule(log, mockConfig);
+      return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+          assert.equal(log.error.callCount, 1, 'an error was logged');
+          assert.equal(log.error.getCall(0).args[0], 'pushbox.retrieve');
+          assert.equal(
+            log.error.getCall(0).args[1].error,
+            'lamentably, an error hath occurred'
+          );
+          assert.equal(log.error.getCall(0).args[1].status, 1234);
+        }
+      );
+    });
 
-  it('retrieve throws on error response', () => {
-    mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
-      .reply(200, {
-        error: 'Alas, an error! I knew it, Horatio.',
-        status: 789,
-      });
-    const log = mockLog();
-    const pushbox = pushboxModule(log, mockConfig);
-    return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
-      () => assert.ok(false, 'should not happen'),
-      (err) => {
-        assert.ok(err);
-        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-        assert.equal(log.error.callCount, 1, 'an error was logged');
-        assert.equal(log.error.getCall(0).args[0], 'pushbox.store');
-        assert.equal(
-          log.error.getCall(0).args[1].error,
-          'Alas, an error! I knew it, Horatio.'
-        );
-        assert.equal(log.error.getCall(0).args[1].status, 789);
-      }
-    );
+    it('store', () => {
+      let requestBody;
+      mockPushboxServer
+        .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
+          requestBody = body;
+          return true;
+        })
+        .reply(200, {
+          status: 200,
+          index: '12',
+        });
+      const pushbox = pushboxModule(mockLog(), mockConfig);
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' })
+        .then(({ index }) => {
+          assert.deepEqual(requestBody, {
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 123456,
+          });
+          assert.equal(index, '12');
+        });
+    });
+
+    it('store with custom ttl', () => {
+      let requestBody;
+      mockPushboxServer
+        .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
+          requestBody = body;
+          return true;
+        })
+        .reply(200, {
+          status: 200,
+          index: '12',
+        });
+      const pushbox = pushboxModule(mockLog(), mockConfig);
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
+        .then(({ index }) => {
+          assert.deepEqual(requestBody, {
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 42,
+          });
+          assert.equal(index, '12');
+        });
+    });
+
+    it('store caps ttl at configured maximum', () => {
+      let requestBody;
+      mockPushboxServer
+        .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
+          requestBody = body;
+          return true;
+        })
+        .reply(200, {
+          status: 200,
+          index: '12',
+        });
+      const pushbox = pushboxModule(mockLog(), mockConfig);
+      return pushbox
+        .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
+        .then(({ index }) => {
+          assert.deepEqual(requestBody, {
+            data: 'eyJ0ZXN0IjoiZGF0YSJ9',
+            ttl: 123456,
+          });
+          assert.equal(index, '12');
+        });
+    });
+
+    it('store validates the pushbox server response', () => {
+      mockPushboxServer
+        .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .reply(200, {
+          bogus: 'object',
+        });
+      const log = mockLog();
+      const pushbox = pushboxModule(log, mockConfig);
+      return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+          assert.equal(log.error.callCount, 1, 'an error was logged');
+          assert.equal(log.error.getCall(0).args[0], 'pushbox.store');
+          assert.equal(
+            log.error.getCall(0).args[1].error,
+            'response schema validation failed'
+          );
+        }
+      );
+    });
+
+    it('retrieve throws on error response', () => {
+      mockPushboxServer
+        .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .reply(200, {
+          error: 'Alas, an error! I knew it, Horatio.',
+          status: 789,
+        });
+      const log = mockLog();
+      const pushbox = pushboxModule(log, mockConfig);
+      return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+          assert.equal(log.error.callCount, 1, 'an error was logged');
+          assert.equal(log.error.getCall(0).args[0], 'pushbox.store');
+          assert.equal(
+            log.error.getCall(0).args[1].error,
+            'Alas, an error! I knew it, Horatio.'
+          );
+          assert.equal(log.error.getCall(0).args[1].status, 789);
+        }
+      );
+    });
   });
 
   it('feature disabled', () => {

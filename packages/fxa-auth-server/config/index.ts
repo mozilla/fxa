@@ -1576,7 +1576,7 @@ const conf = convict({
   },
   pushbox: {
     enabled: {
-      doc: 'Indicates whether talking to the Pushbox server is enabled',
+      doc: 'Indicates whether Pushbox integration enabled',
       format: Boolean,
       default: false,
       env: 'PUSHBOX_ENABLED',
@@ -1600,6 +1600,12 @@ const conf = convict({
       env: 'PUSHBOX_MAX_TTL',
     },
     database: makeMySQLConfig('PUSHBOX', 'pushbox'),
+    directDbAccessPercentage: {
+      doc: 'The percentage of pushbox request to be handle through direct database access. 0 = off',
+      format: Number,
+      default: 0,
+      env: 'PUSHBOX_DIRECT_DB_PERCENT',
+    },
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
