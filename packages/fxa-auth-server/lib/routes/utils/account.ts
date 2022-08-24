@@ -1,14 +1,16 @@
+import { reportSentryError } from '../../../lib/sentry';
+import error from '../../error';
+import { CapabilityService } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import error from '../../error';
-import { reportSentryError } from '../../../lib/sentry';
 
 export const deleteAccountIfUnverified = async (
   db: any,
   stripeHelper: StripeHelper,
   log: AuthLogger,
   request: AuthRequest,
-  email: string
+  email: string,
+  capabilityService: CapabilityService
 ) => {
   try {
     const secondaryEmailRecord = await db.getSecondaryEmail(email);
@@ -17,7 +19,9 @@ export const deleteAccountIfUnverified = async (
     if (secondaryEmailRecord.isPrimary) {
       if (
         secondaryEmailRecord.isVerified ||
-        (await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid))
+        (await capabilityService.hasActiveSubscription(
+          secondaryEmailRecord.uid
+        ))
       ) {
         throw error.accountExists(secondaryEmailRecord.email);
       }

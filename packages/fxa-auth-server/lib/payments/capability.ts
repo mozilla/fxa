@@ -208,6 +208,14 @@ export class CapabilityService {
   }
 
   /**
+   * Returns true if the FxA account with uid has an active subscription.
+   */
+  async hasActiveSubscription(uid: string): Promise<Boolean> {
+    const subscribedPrices = await this.subscribedPriceIds(uid);
+    return !!subscribedPrices.length;
+  }
+
+  /**
    * Return a list of all price ids with an active subscription.
    */
   async subscribedPriceIds(uid: string) {

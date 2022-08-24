@@ -164,7 +164,8 @@ export class PayPalHandler extends StripeWebhookHandler {
             this.stripeHelper,
             this.log,
             request,
-            email
+            email,
+            this.capabilityService
           );
         }
       } catch (deleteAccountError) {

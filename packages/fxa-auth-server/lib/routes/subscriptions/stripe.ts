@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
-import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
+import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -18,27 +18,33 @@ import {
   filterSubscription,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
+import isA from 'joi';
 import omitBy from 'lodash/omitBy';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
+import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import error from '../../error';
-import { commaSeparatedListToArray } from '../../payments/utils';
-import { StripeHelper } from '../../payments/stripe';
+import { CapabilityService } from '../../payments/capability';
 import {
-  stripeInvoiceToFirstInvoicePreviewDTO,
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
+  StripeHelper,
+} from '../../payments/stripe';
+import {
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
+  stripeInvoiceToFirstInvoicePreviewDTO,
 } from '../../payments/stripe-formatter';
+import {
+  commaSeparatedListToArray,
+  generateIdempotencyKey,
+} from '../../payments/utils';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
+import { deleteAccountIfUnverified } from '../utils/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import { generateIdempotencyKey } from '../../payments/utils';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
-import { deleteAccountIfUnverified } from '../utils/account';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
-import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -72,6 +78,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
+  protected capabilityService: CapabilityService;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -85,6 +92,7 @@ export class StripeHandler {
     protected profile: any,
     protected stripeHelper: StripeHelper
   ) {
+    this.capabilityService = Container.get(CapabilityService);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
   }
@@ -604,7 +612,8 @@ export class StripeHandler {
             this.stripeHelper,
             this.log,
             request,
-            email
+            email,
+            this.capabilityService
           );
         }
       } catch (deleteAccountError) {

@@ -17,7 +17,6 @@ import {
   reportValidationError,
 } from '../../../lib/sentry';
 import error from '../../error';
-import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import {
   CUSTOMER_RESOURCE,
@@ -61,7 +60,6 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
-  protected capabilityService: CapabilityService;
   protected paypalHelper?: PayPalHelper;
 
   constructor(
@@ -78,7 +76,6 @@ export class StripeWebhookHandler extends StripeHandler {
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
       this.paypalHelper = Container.get(PayPalHelper);
     }
-    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**

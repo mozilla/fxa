@@ -1490,24 +1490,6 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Returns true if the FxA account with uid has an active subscription.
-   */
-  async hasActiveSubscription(uid: string): Promise<Boolean> {
-    const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
-    if (!stripeCustomerId) {
-      return false;
-    }
-    const customer = await this.expandResource<Stripe.Customer>(
-      stripeCustomerId,
-      CUSTOMER_RESOURCE
-    );
-    const subscription = customer.subscriptions?.data.find((sub) =>
-      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
-    );
-    return !!subscription;
-  }
-
-  /**
    * Fetches all latest invoices for all active subscriptions.
    */
   async getLatestInvoicesForActiveSubscriptions(

@@ -4,6 +4,7 @@
 
 'use strict';
 
+const { default: Container } = require('typedi');
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
@@ -11,6 +12,7 @@ const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
+const { CapabilityService } = require('../payments/capability');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
@@ -90,6 +92,7 @@ module.exports = (
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper
 ) => {
+  const capabilityService = Container.get(CapabilityService);
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
@@ -157,7 +160,7 @@ module.exports = (
             // to delete them so the browser will stop polling.
             if (
               !validators.isValidEmailAddress(sessionToken.email) &&
-              !(await stripeHelper.hasActiveSubscription(sessionToken.uid))
+              !(await capabilityService.hasActiveSubscription(sessionToken.uid))
             ) {
               await db.deleteAccount(sessionToken);
               log.info('accountDeleted.invalidEmailAddress', {
@@ -651,7 +654,7 @@ module.exports = (
                 msSinceCreated >= minUnverifiedAccountTime;
               if (
                 exceedsMinUnverifiedAccountTime &&
-                !(await stripeHelper.hasActiveSubscription(
+                !(await capabilityService.hasActiveSubscription(
                   secondaryEmailRecord.uid
                 ))
               ) {

@@ -6,7 +6,7 @@
 
 const utils = require('./utils/helpers');
 const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../lib/payments/stripe');
+const { CapabilityService } = require('../../lib/payments/capability');
 
 // Account deletion threshold for new unverified accounts that receive
 // a bounce or complaint notification. Unverified accounts younger than
@@ -14,7 +14,7 @@ const { StripeHelper } = require('../../lib/payments/stripe');
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
 module.exports = (log, error) => {
-  const stripeHelper = Container.get(StripeHelper);
+  const capabilityService = Container.get(CapabilityService);
   return (queue, db) => {
     queue.start();
 
@@ -49,7 +49,9 @@ module.exports = (log, error) => {
               if (
                 !emailRecord.emailVerified &&
                 emailRecord.createdAt >= Date.now() - SIX_HOURS &&
-                !(await stripeHelper.hasActiveSubscription(emailRecord.uid))
+                !(await capabilityService.hasActiveSubscription(
+                  emailRecord.uid
+                ))
               ) {
                 // A bounce or complaint on a new unverified account is grounds for deletion
                 await db.deleteAccount(emailRecord);

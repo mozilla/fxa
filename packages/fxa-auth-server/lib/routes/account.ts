@@ -452,7 +452,8 @@ export class AccountHandler {
       this.stripeHelper,
       this.log,
       request,
-      email
+      email,
+      this.capabilityService
     );
 
     const { hex16: emailCode, hex32: authSalt } =
@@ -531,7 +532,8 @@ export class AccountHandler {
       this.stripeHelper,
       this.log,
       request,
-      email
+      email,
+      this.capabilityService
     );
 
     const { hex16: emailCode, hex32: authSalt } =
@@ -629,7 +631,7 @@ export class AccountHandler {
         verified: sessionToken.emailVerified,
       };
     } catch (err) {
-      this.log.error('Account.finish_setup.error', {
+      this.log.error('Account.finishSetup.error', {
         err,
       });
 
@@ -647,7 +649,7 @@ export class AccountHandler {
   }
 
   async setPassword(request: AuthRequest) {
-    this.log.begin('Account.set_password', request);
+    this.log.begin('Account.setPassword', request);
 
     const form = request.payload as any;
     const { authPW, metricsContext } = form;
@@ -709,7 +711,7 @@ export class AccountHandler {
 
       return response;
     } catch (err) {
-      this.log.error('Account.set_password.error', {
+      this.log.error('Account.setPassword.error', {
         err,
       });
 
