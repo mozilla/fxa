@@ -4,6 +4,7 @@
 
 import jwt from '../../oauth/jwt';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import { Account } from '../../account';
 
 export async function sendFinishSetupEmailForStubAccount({
   uid,
@@ -13,6 +14,7 @@ export async function sendFinishSetupEmailForStubAccount({
   mailer,
   metricsContext,
   subscriptionAccountReminders,
+  accountClass,
 }: {
   uid: string;
   account: any;
@@ -21,6 +23,7 @@ export async function sendFinishSetupEmailForStubAccount({
   mailer: any;
   subscriptionAccountReminders: any;
   metricsContext?: any;
+  accountClass: Account;
 }) {
   // If this fxa user is a stub (no-password) this is where we
   // send the "create a password" email.
@@ -34,7 +37,7 @@ export async function sendFinishSetupEmailForStubAccount({
   // receive the welcome email.
   if (
     account &&
-    account.verifierSetAt <= 0 &&
+    !accountClass.isVerified(account) &&
     (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status) ||
       subscription.latest_invoice?.payment_intent?.status === 'requires_action')
   ) {

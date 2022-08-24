@@ -15,11 +15,14 @@
 
 'use strict';
 
+const { Container } = require('postcss');
+
 const ROOT_DIR = '..';
 const LIB_DIR = `${ROOT_DIR}/lib`;
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
 
+const { Account } = require(`${LIB_DIR}/account`);
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
 const jwt = require(`${LIB_DIR}/oauth/jwt`);
@@ -43,6 +46,7 @@ run()
   });
 
 async function run() {
+  const accountClass = Container.get(Account);
   const [vReminders, saReminders, cReminders, db] = await Promise.all([
     verificationReminders.process(),
     subscriptionAccountReminders.process(),
@@ -182,7 +186,7 @@ async function run() {
             acceptLanguage: account.locale,
             code: account.emailCode,
             email: account.email,
-            accountVerified: account.verifierSetAt > 0,
+            accountVerified: accountClass.isVerified(account),
             token: token,
             flowBeginTime,
             flowId,

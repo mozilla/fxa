@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
-import { commaSeparatedListToArray } from './utils';
 import error from '../error';
-import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';
-import { PlayBilling } from './iap/google-play/play-billing';
+import { PaymentConfigManager } from './configuration/manager';
+import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayBilling } from './iap/google-play/play-billing';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
-import { PaymentConfigManager } from './configuration/manager';
-import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { commaSeparatedListToArray } from './utils';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {

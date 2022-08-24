@@ -23,6 +23,7 @@ import { ConfigType } from '../../config';
 import ACCOUNT_DOCS from '../../docs/swagger/account-api';
 import MISC_DOCS from '../../docs/swagger/misc-api';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+import { Account } from '../account';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
@@ -39,7 +40,6 @@ import {
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
-import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
@@ -56,6 +56,7 @@ const MS_ONE_MONTH = MS_ONE_DAY * 30;
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
 
+  private account: Account;
   private paypalHelper?: PayPalHelper;
   private otpUtils: any;
   private otpOptions: ConfigType['otp'];
@@ -77,6 +78,7 @@ export class AccountHandler {
     private oauth: any,
     private stripeHelper: StripeHelper
   ) {
+    this.account = Container.get(Account);
     this.otpUtils = require('./utils/otp')(log, config, db);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
       .skipForEmailAddresses as string[];
@@ -447,14 +449,7 @@ export class AccountHandler {
     }
 
     await this.customs.check(request, email, 'accountCreate');
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
-      request,
-      email,
-      this.capabilityService
-    );
+    await this.account.deleteAccountIfUnverified(request, email);
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
@@ -527,14 +522,7 @@ export class AccountHandler {
 
     const client = await getClientById(clientId);
 
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
-      request,
-      email,
-      this.capabilityService
-    );
+    await this.account.deleteAccountIfUnverified(request, email);
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
@@ -579,7 +567,7 @@ export class AccountHandler {
 
   async setPasswordOnStubAccount(account: any, authPW: string) {
     // Only set a password on an unverified stub account.
-    if (account.verifierSetAt !== 0) {
+    if (this.account.isVerified(account)) {
       throw error.unauthorized('token already used');
     }
 
@@ -639,7 +627,7 @@ export class AccountHandler {
       // remove the uid from the list of accounts to send reminders to.
       if (!!uid) {
         const account = await this.db.account(uid);
-        if (account.verifierSetAt > 0) {
+        if (await this.account.isVerified(account)) {
           await this.subscriptionAccountReminders.delete(uid);
         }
       }

@@ -12,6 +12,8 @@ const error = require('../error');
 const isA = require('joi');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
+const { default: Container } = require('typedi');
+const { Account } = require('../account');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 
 const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
@@ -38,6 +40,8 @@ module.exports = function (
       ? db.deletePasswordForgotToken(passwordForgotToken)
       : db.updatePasswordForgotToken(passwordForgotToken);
   }
+
+  const accountClass = Container.get(Account);
 
   const routes = [
     {
@@ -770,7 +774,7 @@ module.exports = function (
         // We don't allow users that have a password set already to create a new password
         // because this process would destroy their original encryption keys and might
         // leave the account in an invalid state.
-        if (account.verifierSetAt > 0) {
+        if (accountClass.isVerified(account)) {
           throw error.cannotCreatePassword();
         }
 

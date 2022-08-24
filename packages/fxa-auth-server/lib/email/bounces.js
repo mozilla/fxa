@@ -5,7 +5,7 @@
 'use strict';
 
 const { default: Container } = require('typedi');
-const { CapabilityService } = require('../../lib/payments/capability');
+const { Account } = require('../../lib/account');
 
 const eaddrs = require('email-addresses');
 const utils = require('./utils/helpers');
@@ -14,7 +14,7 @@ const isValidEmailAddress =
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
 module.exports = function (log, error) {
-  const capabilityService = Container.get(CapabilityService);
+  const account = Container.get(Account);
 
   return function start(bounceQueue, db) {
     function accountDeleted(uid, email) {
@@ -39,7 +39,7 @@ module.exports = function (log, error) {
         !record.emailVerified &&
         record.createdAt &&
         record.createdAt > Date.now() - SIX_HOURS &&
-        !(await capabilityService.hasActiveSubscription(record.uid))
+        !(await account.hasActiveSubscription({ uid: record.uid }))
       ) {
         try {
           await db.deleteAccount(record);

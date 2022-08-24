@@ -457,7 +457,8 @@ export class StripeWebhookHandler extends StripeHandler {
         // account which subsequently deletes their subscription from stripe.
         !account ||
         !(
-          sub.collection_method === 'send_invoice' && account.verifierSetAt <= 0
+          sub.collection_method === 'send_invoice' &&
+          !this.account.isVerified(account)
         )
       ) {
         await this.sendSubscriptionDeletedEmail(sub);
@@ -911,7 +912,7 @@ export class StripeWebhookHandler extends StripeHandler {
 
         // To not overwhelm users with emails, we only send download subscription email
         // for existing accounts. Passwordless accounts get their own email.
-        if (account.verifierSetAt > 0) {
+        if (this.account.isVerified(account)) {
           await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
         }
         break;

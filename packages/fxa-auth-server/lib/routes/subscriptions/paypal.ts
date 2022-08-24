@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import isA from 'joi';
 import {
   createPayPalBA,
   getAccountCustomerByUid,
@@ -13,10 +12,13 @@ import {
   getMinimumAmount,
   hasPaypalSubscription,
 } from 'fxa-shared/subscriptions/stripe';
+import isA from 'joi';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
+import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
+import { Account } from '../../account';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal/helper';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
@@ -31,8 +33,6 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
-import { deleteAccountIfUnverified } from '../utils/account';
-import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
@@ -41,6 +41,7 @@ const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
 };
 
 export class PayPalHandler extends StripeWebhookHandler {
+  account: Account;
   protected paypalHelper: PayPalHelper;
   subscriptionAccountReminders: any;
 
@@ -58,6 +59,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.paypalHelper = Container.get(PayPalHelper);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+    this.account = Container.get(Account);
   }
 
   /**
@@ -150,6 +152,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         mailer: this.mailer,
         subscriptionAccountReminders: this.subscriptionAccountReminders,
         metricsContext,
+        accountClass: this.account,
       });
 
       return {
@@ -158,16 +161,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       };
     } catch (err) {
       try {
-        if (account.verifierSetAt <= 0) {
-          await deleteAccountIfUnverified(
-            this.db,
-            this.stripeHelper,
-            this.log,
-            request,
-            email,
-            this.capabilityService
-          );
-        }
+        await this.account.deleteAccountIfUnverified(request, email);
       } catch (deleteAccountError) {
         if (
           deleteAccountError.errno !== error.ERRNO.ACCOUNT_EXISTS &&

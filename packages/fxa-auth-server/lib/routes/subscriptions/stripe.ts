@@ -26,6 +26,7 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
+import { Account } from '../../account';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import {
@@ -42,7 +43,6 @@ import {
 } from '../../payments/utils';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
-import { deleteAccountIfUnverified } from '../utils/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
 
@@ -79,6 +79,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   protected capabilityService: CapabilityService;
+  protected account: Account;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -95,6 +96,7 @@ export class StripeHandler {
     this.capabilityService = Container.get(CapabilityService);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+    this.account = Container.get(Account);
   }
 
   /**
@@ -598,6 +600,7 @@ export class StripeHandler {
         mailer: this.mailer,
         subscriptionAccountReminders: this.subscriptionAccountReminders,
         metricsContext,
+        accountClass: this.account,
       });
 
       return {
@@ -606,16 +609,7 @@ export class StripeHandler {
       };
     } catch (err) {
       try {
-        if (account.verifierSetAt <= 0) {
-          await deleteAccountIfUnverified(
-            this.db,
-            this.stripeHelper,
-            this.log,
-            request,
-            email,
-            this.capabilityService
-          );
-        }
+        await this.account.deleteAccountIfUnverified(request, email);
       } catch (deleteAccountError) {
         if (
           deleteAccountError.errno !== error.ERRNO.ACCOUNT_EXISTS &&

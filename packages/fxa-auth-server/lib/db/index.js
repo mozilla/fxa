@@ -9,7 +9,7 @@ const error = require('../error');
 const random = require('../crypto/random');
 const { StatsD } = require('hot-shots');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { Container } = require('typedi');
+const { Container, Token } = require('typedi');
 const {
   mergeDevicesAndSessionTokens,
   mergeDeviceAndSessionToken,
@@ -40,6 +40,8 @@ function resolveMetrics() {
     return Container.get(StatsD);
   }
 }
+
+const DB_TOKEN = new Token('DB_TOKEN');
 
 module.exports = (config, log, Token, UnblockCode = null) => {
   const scrypt = require('../crypto/scrypt')(log, config);
@@ -1064,8 +1066,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, [id]);
   };
 
+  Container.set(DB_TOKEN, DB);
+
   return DB;
 };
+
+module.exports.DB_TOKEN = DB_TOKEN;
 
 // Note that these errno's were defined in the fxa-auth-db-mysql repo
 // and don't necessarily match the errnos in this repo...
