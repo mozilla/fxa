@@ -41,6 +41,32 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
 const APP_VERSION_RE = /([0-9]+)\.([0-9]{1,2})$/;
 const APP_VERSION = APP_VERSION_RE.exec(pkg.version)[0];
 
+const getBasicEvent = (type) => ({
+  time: '1585321743',
+  type,
+});
+
+const BASIC_REQUEST = {
+  connection: {},
+  headers: {
+    'x-forwarded-for': '63.245.221.32',
+  },
+};
+
+const BASIC_DATA = {
+  flowBeginTime: '1585261624219',
+  flowId: '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+  uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+};
+
+function createAmplitudeEvent(
+  type = '',
+  request = BASIC_REQUEST,
+  data = BASIC_DATA
+) {
+  return amplitude({ ...getBasicEvent(type) }, { ...request }, { ...data });
+}
+
 registerSuite('amplitude', {
   beforeEach: function () {
     amplitudeConfig.disabled = false;
@@ -294,6 +320,16 @@ registerSuite('amplitude', {
       });
     },
 
+    'screen.settings.change-password': () => {
+      createAmplitudeEvent('screen.settings.change-password');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - change_password_view'
+      );
+    },
+
     'settings.change-password.success': () => {
       amplitude(
         {
@@ -365,6 +401,56 @@ registerSuite('amplitude', {
           utm_term: 'm',
         },
       });
+    },
+
+    'screen.settings.create-password': () => {
+      createAmplitudeEvent('screen.settings.create-password');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - create_password_view'
+      );
+    },
+
+    'settings.create-password.engage': () => {
+      createAmplitudeEvent('settings.create-password.engage');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - create_password_engage'
+      );
+    },
+
+    'settings.create-password.submit': () => {
+      createAmplitudeEvent('settings.create-password.submit');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - create_password_submit'
+      );
+    },
+
+    'settings.create-password.success': () => {
+      createAmplitudeEvent('settings.create-password.success');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - create_password_success'
+      );
+    },
+
+    'settings.create-password.fail': () => {
+      createAmplitudeEvent('settings.create-password.fail');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - create_password_fail'
+      );
     },
 
     'settings.clients.disconnect.submit': () => {
@@ -469,6 +555,248 @@ registerSuite('amplitude', {
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - logout');
+    },
+
+    'settings.test.fallback.start': () => {
+      createAmplitudeEvent('settings.test.fallback.start');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - test_fallback_start'
+      );
+    },
+
+    'settings.test.fallback.text-needed': () => {
+      createAmplitudeEvent('settings.test.fallback.text-needed');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - test_fallback_text_needed'
+      );
+    },
+
+    'settings.test.fallback.text-not-needed': () => {
+      createAmplitudeEvent('settings.test.fallback.text-not-needed');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - test_fallback_text_not_needed'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-revoke.submit': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-revoke.submit'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_revoke_submit'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-revoke.success': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-revoke.success'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_revoke_success'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-revoke.fail': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-revoke.fail'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_revoke_fail'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-password.submit': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-password.submit'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_password_submit'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-password.success': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-password.success'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_password_success'
+      );
+    },
+
+    'flow.settings.account-recovery.confirm-password.fail': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.confirm-password.fail'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_confirm_password_fail'
+      );
+    },
+
+    'flow.settings.account-recovery.recovery-key.download-option': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.recovery-key.download-option'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_option_download'
+      );
+    },
+
+    'flow.settings.account-recovery.recovery-key.print-option': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.recovery-key.print-option'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_option_print'
+      );
+    },
+
+    'screen.settings.avatar.change': () => {
+      createAmplitudeEvent('screen.settings.avatar.change');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - avatar_change_view'
+      );
+    },
+
+    'avatar.crop.submit.change': () => {
+      createAmplitudeEvent('avatar.crop.submit.change');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - avatar_crop_submit_change'
+      );
+    },
+
+    'screen.settings.delete-account': () => {
+      createAmplitudeEvent('screen.settings.delete-account');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - delete_account_view'
+      );
+    },
+
+    'flow.settings.account-delete.terms-checked.success': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-delete.terms-checked.success'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - delete_account_terms_checked_success'
+      );
+    },
+
+    'flow.settings.account-delete.confirm-password.success': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-delete.confirm-password.success'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - delete_account_confirm_password_success'
+      );
+    },
+
+    'flow.settings.account-delete.confirm-password.fail': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-delete.confirm-password.fail'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - delete_account_confirm_password_fail'
+      );
+    },
+
+    'screen.settings.emails': () => {
+      createAmplitudeEvent('screen.settings.emails');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - add_secondary_email_view'
+      );
+    },
+
+    'settings.emails.submit': () => {
+      createAmplitudeEvent('settings.emails.submit');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - add_secondary_email_submit'
+      );
+    },
+
+    'verify-secondary-email.verification.clicked': () => {
+      createAmplitudeEvent('verify-secondary-email.verification.clicked');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - verify_secondary_email_clicked'
+      );
+    },
+
+    'verify-secondary-email.verification.success': () => {
+      createAmplitudeEvent('verify-secondary-email.verification.success');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - verify_secondary_email_success'
+      );
+    },
+
+    'verify-secondary-email.verification.fail': () => {
+      createAmplitudeEvent('verify-secondary-email.verification.fail');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - verify_secondary_email_fail'
+      );
     },
 
     'flow.update-firefox.view': () => {
@@ -876,6 +1204,16 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_connect_device - view');
       assert.equal(arg.event_properties.connect_device_flow, 'signin');
       assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
+    'screen.add-recovery-key': () => {
+      createAmplitudeEvent('screen.add-recovery-key');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - add_recovery_key_view'
+      );
     },
 
     'flow.connect-another-device.link.app-store.foo': () => {
@@ -1477,28 +1815,56 @@ registerSuite('amplitude', {
     },
 
     'screen.settings.two-step-authentication': () => {
-      amplitude(
-        {
-          time: '1585321743',
-          type: 'screen.settings.two-step-authentication',
-        },
-        {
-          connection: {},
-          headers: {
-            'x-forwarded-for': '63.245.221.32',
-          },
-        },
-        {
-          flowBeginTime: '1585261624219',
-          flowId:
-            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
-          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
-        }
-      );
+      createAmplitudeEvent('screen.settings.two-step-authentication');
+
       assert.equal(logger.info.callCount, 1);
       assert.equal(
         logger.info.args[0][1].event_type,
         'fxa_pref - two_step_authentication_view'
+      );
+    },
+
+    'flow.settings.two-step-authentication.submit': () => {
+      createAmplitudeEvent('flow.settings.two-step-authentication.submit');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - two_step_authentication_submit'
+      );
+    },
+
+    'flow.settings.two-step-authentication.download-option': () => {
+      createAmplitudeEvent(
+        'flow.settings.two-step-authentication.download-option'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - two_step_authentication_recovery_codes_download'
+      );
+    },
+
+    'flow.settings.two-step-authentication.copy-option': () => {
+      createAmplitudeEvent('flow.settings.two-step-authentication.copy-option');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - two_step_authentication_recovery_codes_copy'
+      );
+    },
+
+    'flow.settings.two-step-authentication.print-option': () => {
+      createAmplitudeEvent(
+        'flow.settings.two-step-authentication.print-option'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - two_step_authentication_recovery_codes_print'
       );
     },
 

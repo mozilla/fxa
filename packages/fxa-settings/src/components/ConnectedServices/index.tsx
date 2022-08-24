@@ -95,7 +95,10 @@ export const ConnectedServices = () => {
   const disconnectClient = useCallback(
     async (client: AttachedClient) => {
       try {
-        logViewEvent('settings.clients.disconnect', `submit.${reason}`);
+        logViewEvent(
+          'settings.clients.disconnect',
+          `submit.${reason ? reason : 'no-reason'}`
+        );
 
         // disconnect all clients/sessions with this name since only unique names
         // are displayed to the user. This is batched into one network request request
