@@ -211,7 +211,7 @@ export const PaypalButton = ({
   };
 
   return (
-    <>
+    <div className="w-60 h-24 m-auto relative z-0">
       <div
         className={
           disabled
@@ -231,7 +231,7 @@ export const PaypalButton = ({
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

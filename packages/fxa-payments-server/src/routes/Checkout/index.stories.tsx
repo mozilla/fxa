@@ -1,54 +1,26 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
   defaultAppContextValue,
 } from '../../../.storybook/components/MockApp';
-import { QueryParams } from '../../lib/types';
-import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
-import { Checkout, CheckoutProps } from './index';
+import { APIError } from '../../lib/apiClient';
 import { PLANS } from '../../lib/mock-data';
+import { QueryParams } from '../../lib/types';
+import { Checkout, CheckoutProps } from './index';
+import { Meta } from '@storybook/react';
 
-function init() {
-  storiesOf('routes/Checkout', module)
-    .add('subscribing with a new account', () => (
-      <CheckoutRoute
-        routeProps={{
-          ...MOCK_PROPS,
-        }}
-      />
-    ))
-    .add('plans loading', () => (
-      <CheckoutRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          plans: { loading: true, error: null, result: null },
-        }}
-      />
-    ))
-    .add('plans error', () => (
-      <CheckoutRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          plans: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              statusCode: 500,
-              message: 'Internal Server Error',
-            }),
-          },
-        }}
-      />
-    ));
-}
+export default {
+  title: 'routes/Checkout',
+  component: Checkout,
+} as Meta;
 
 type CheckoutRouteProps = {
   routeProps?: CheckoutProps;
   queryParams?: QueryParams;
   applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
 };
+
 const CheckoutRoute = ({
   routeProps = MOCK_PROPS,
   queryParams = defaultAppContextValue.queryParams,
@@ -77,4 +49,28 @@ const MOCK_PROPS: CheckoutProps = {
   fetchCheckoutRouteResources: action('fetchCheckoutRouteResources'),
 };
 
-init();
+const storyWithProps = (routeProps: CheckoutProps) => {
+  const story = () => (
+    <CheckoutRoute routeProps={routeProps} />
+  )
+  return story;
+};
+
+export const SubscribingWithANewAccount = storyWithProps({...MOCK_PROPS});
+
+export const PlansLoading = storyWithProps({
+  ...MOCK_PROPS,
+  plans: { loading: true, error: null, result: null },
+});
+
+export const PlansError = storyWithProps({
+  ...MOCK_PROPS,
+  plans: {
+    loading: false,
+    result: null,
+    error: new APIError({
+      statusCode: 500,
+      message: 'Internal Server Error',
+    }),
+  },
+});

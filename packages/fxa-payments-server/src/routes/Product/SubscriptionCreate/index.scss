@@ -77,14 +77,6 @@
   }
 
   .pay-with-heading {
-    color: rgb(115, 115, 115);
-    margin: 0 0 24px 0;
-    display: grid;
-    width: 100%;
-    align-items: center;
-    text-align: center;
-    grid-template-columns: minmax(20px, 1fr) auto minmax(20px, 1fr);
-    grid-gap: 20px;
     &:before,
     &:after {
       content: '';
@@ -94,19 +86,5 @@
     @include max-width('tablet') {
       margin-top: 16px;
     }
-  }
-
-  .subscription-create-pay-with-other .paypal-button {
-    width: 240px;
-    height: 48px + 48;
-    margin: auto;
-    position: relative;
-    z-index: 0;
-  }
-
-  .billing-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 20px;
   }
 }

@@ -15,6 +15,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.label-title {
+  @apply font-semibold my-3 text-base text-grey-600 text-left;
+}
+
 /* borders */
 /* after '@tailwind base' has been enabled for payments remove border-0 border-solid */
 .row-divider-grey-200 {
@@ -38,6 +42,19 @@
   @apply mt-5;
 }
 
+/* shared styles used in Checkout and SubscriptionCreate*/
+.pay-with-heading {
+  @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mt-0 mx-0 mb-6 text-center text-grey-400 w-full;
+}
+
+.subscription-create-footer {
+  @apply mt-10;
+}
+
+.step-header {
+  @apply mt-10 text-lg;
+}
+
 /* shared styles used in PlanDetails and PlanUpgradeDetails */
 .accordion-btn {
   @apply bg-transparent border-transparent cursor-pointer text-blue-500 leading-5 my-2 outline-none py-2 pr-2 pl-6 relative w-auto h-auto focus:border focus:border-solid focus:border-blue-400 focus:py-2 focus:pr-4 focus:pl-10 focus:shadow-none;
@@ -48,7 +65,7 @@
 }
 
 .coupon-info {
-  @apply flex items-center justify-center gap-2 pt-6 text-sm text-green-700;
+  @apply flex items-center justify-center gap-2 pt-6 font-medium text-sm text-green-900;
 }
 
 .plan-details-component-card {

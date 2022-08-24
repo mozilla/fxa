@@ -39,21 +39,11 @@ body {
   }
 }
 
-h3.billing-title {
-  color: #000;
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  justify-content: space-between;
-  margin: 13px 0;
-  text-align: left;
+.card-details {
+  font-size: 14px;
 
-  .card-details {
-    font-size: 14px;
-
-    .last4 {
-      margin-right: 25px;
-    }
+  .last4 {
+    margin-right: 25px;
   }
 }
 
