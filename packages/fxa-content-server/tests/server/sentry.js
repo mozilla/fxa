@@ -63,14 +63,10 @@ suite.tests['captures validation errors'] = function () {
   assert.ok(sentry.tryCaptureValidationError(err));
 };
 
-suite.tests['captures general error'] = function () {
-  var err = new Error('BOOM');
-  assert.ok(sentry.tryCaptureValidationError(err));
-};
-
-suite.tests['handles malformed error'] = function () {
-  var err = {};
-  assert.ok(sentry.tryCaptureValidationError(err));
+suite.tests['it ignores errors that are not validation based'] = function () {
+  assert.isFalse(sentry.tryCaptureValidationError(new Error('BOOM')));
+  assert.isFalse(sentry.tryCaptureValidationError({}));
+  assert.isFalse(sentry.tryCaptureValidationError('BOOM'));
 };
 
 registerSuite('sentry', suite);

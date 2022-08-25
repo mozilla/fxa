@@ -217,7 +217,17 @@ function makeApp() {
   });
 
   // The sentry error handler must be before any other error middleware
-  app.use(sentry.sentryModule.Handlers.errorHandler());
+  app.use(
+    sentry.sentryModule.Handlers.errorHandler({
+      shouldHandleError(error) {
+        const success = tryCaptureValidationError(error);
+
+        // If the validation was explicitly captured, we return false. Otherwise the
+        // error is reported twice.
+        return !success;
+      },
+    })
+  );
 
   // log and capture any errors
   app.use((err, req, res, next) => {
@@ -229,7 +239,6 @@ function makeApp() {
         req.query,
         req.originalUrl
       );
-    tryCaptureValidationError(err);
     routeHelpers.validationErrorHandler(err, req, res, next);
   });
 
