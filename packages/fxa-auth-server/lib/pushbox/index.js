@@ -17,9 +17,10 @@
 'use strict';
 
 const isA = require('joi');
-const error = require('./error');
-const createBackendServiceAPI = require('./backendService');
-const validators = require('./routes/validators');
+const error = require('../error');
+const createBackendServiceAPI = require('../backendService');
+const validators = require('../routes/validators');
+const { PushboxDB } = require('./db');
 
 const base64url = require('base64url');
 
@@ -73,6 +74,13 @@ module.exports = function (log, config, statsd) {
       },
     };
   }
+
+  // eslint-disable-next-line
+  const pushboxDb = new PushboxDB({
+    config: config.pushbox.database,
+    log,
+    statsd,
+  });
 
   const PushboxAPI = createBackendServiceAPI(
     log,
