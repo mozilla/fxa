@@ -12,7 +12,7 @@
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "main": "lib/server.js",
   "dependencies": {
-    "@sentry/integrations": "6.19.7",
+    "@sentry/integrations": "7.11.1",
     "@sentry/node": "6.19.7",
     "@sentry/tracing": "6.19.7",
     "async": "3.2.4",
