@@ -19739,10 +19739,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"emittery@npm:^0.12.1":
-  version: 0.12.1
-  resolution: "emittery@npm:0.12.1"
-  checksum: 64ad8f2c498be09449b232730d07044976ef2662aa891e9ecfb956d70fc1c39a46aa66adb70f2d2a097059c5f923408723f2ec1778b86360268591b403348c1c
+"emittery@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "emittery@npm:0.13.0"
+  checksum: 7503cbe5950dfe9fe31abf84d2591abc99367e4d352156b2c82345a5258fe8044f43b7d930c43cee523cc8b511065461be4ec961adb301e1e1ac2c560de252f8
   languageName: node
   linkType: hard
 
@@ -23052,7 +23052,7 @@ fsevents@~2.1.1:
     dedent: ^0.7.0
     ejs: ^3.1.6
     email-addresses: 4.0.0
-    emittery: ^0.12.1
+    emittery: ^0.13.0
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
