@@ -22,6 +22,7 @@ export interface MetricsContext {
   utmCampaign?: string;
   utmContext?: string;
   utmMedium?: string;
+  utmReferrer?: string;
   utmSource?: string;
   utmTerm?: string;
 }
@@ -153,12 +154,23 @@ export async function apiUpdateSubscriptionPlan(params: {
   planId: string;
   productId: string;
   paymentProvider: PaymentProvider | undefined;
+  previousPlanId: string;
+  previousProductId: string;
 }) {
-  const { subscriptionId, planId, productId, paymentProvider } = params;
+  const {
+    subscriptionId,
+    planId,
+    productId,
+    paymentProvider,
+    previousPlanId,
+    previousProductId,
+  } = params;
   const metricsOptions: Amplitude.EventProperties = {
     planId,
     productId,
     paymentProvider,
+    previousPlanId,
+    previousProductId,
   };
   try {
     Amplitude.updateSubscriptionPlan_PENDING(metricsOptions);

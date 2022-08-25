@@ -87,6 +87,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     fireEvent.click(getByTestId('submit'));
     expect(updateSubscriptionPlanAndRefresh).toBeCalledWith(
       CUSTOMER.subscriptions[0].subscription_id,
+      UPGRADE_FROM_PLAN,
       SELECTED_PLAN,
       CUSTOMER.payment_provider
     );

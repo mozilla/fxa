@@ -240,11 +240,15 @@ describe('API requests', () => {
       planId: 'plan_2345',
       productId: 'prod_4567',
       paymentProvider: 'paypal' as PaymentProvider,
+      previousPlanId: 'plan_1234',
+      previousProductId: 'prod_3456',
     };
     const metricsOptions = {
       planId: params.planId,
       productId: params.productId,
       paymentProvider: params.paymentProvider,
+      previousPlanId: params.previousPlanId,
+      previousProductId: params.previousProductId,
     };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {

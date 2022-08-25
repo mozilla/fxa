@@ -187,6 +187,7 @@ describe('metrics/amplitude:', () => {
             utm_campaign: 'u',
             utm_content: 'v',
             utm_medium: 'w',
+            utm_referrer: 'z',
             utm_source: 'x',
             utm_term: 'y',
           }
@@ -240,6 +241,7 @@ describe('metrics/amplitude:', () => {
             utm_campaign: 'u',
             utm_content: 'v',
             utm_medium: 'w',
+            utm_referrer: 'z',
             utm_source: 'x',
             utm_term: 'y',
           },

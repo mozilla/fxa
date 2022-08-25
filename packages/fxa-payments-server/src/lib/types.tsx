@@ -7,6 +7,7 @@ export interface QueryParams {
   utm_campaign?: string;
   utm_context?: string;
   utm_medium?: string;
+  utm_referrer?: string;
   utm_source?: string;
   utm_term?: string;
 }
