@@ -287,7 +287,7 @@ var ERRORS = {
   },
   INVALID_EXPIRED_SIGNUP_CODE: {
     errno: 183,
-    message: t('Invalid or expired verification code'),
+    message: t('Invalid or expired confirmation code'),
   },
   SERVER_BUSY: {
     errno: 201,
@@ -389,7 +389,7 @@ var ERRORS = {
   },
   SIGNUP_EMAIL_BOUNCE: {
     errno: 1018,
-    message: t('Your verification email was just returned. Mistyped email?'),
+    message: t('Your confirmation email was just returned. Mistyped email?'),
   },
   DIFFERENT_EMAIL_REQUIRED: {
     errno: 1019,

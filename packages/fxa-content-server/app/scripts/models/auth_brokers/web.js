@@ -17,7 +17,7 @@ const t = (msg) => msg;
 const proto = BaseBroker.prototype;
 
 const redirectToSettingsBehavior = new NavigateOrRedirectBehavior('settings', {
-  success: t('Account verified successfully'),
+  success: t('Account confirmed successfully'),
 });
 
 const redirectToSettingsAfterResetBehavior = new NavigateBehavior('settings', {
