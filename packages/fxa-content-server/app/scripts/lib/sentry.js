@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as Sentry from '@sentry/browser';
-import { BrowserTracing } from '@sentry/tracing';
 
 import {
   buildSentryConfig,
@@ -140,11 +139,6 @@ function SentryMetrics(config) {
         event = beforeSend(event);
         return event;
       },
-      integrations: [
-        new BrowserTracing({
-          tracingOrigins: opts.tracingOrigins,
-        }),
-      ],
     });
   } catch (e) {
     this._logger.error(e);

@@ -16,7 +16,6 @@ export interface Config {
     dsn: string;
     env: string;
     sampleRate: number;
-    tracesSampleRate: number;
     clientName?: string;
     serverName?: string;
   };
@@ -63,7 +62,6 @@ export function defaultConfig(): Config {
       dsn: '',
       env: 'test',
       sampleRate: 1.0,
-      tracesSampleRate: 0.0,
       serverName: 'fxa-payments-server',
       clientName: 'fxa-payments-client',
     },

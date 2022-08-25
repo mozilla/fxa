@@ -97,7 +97,6 @@ const version = getVersionInfo(__dirname);
           serverName: sentry.serverName,
           release: version.version,
           sampleRate: sentry.sampleRate,
-          tracesSampleRate: sentry.tracesSampleRate,
         };
       },
     }),

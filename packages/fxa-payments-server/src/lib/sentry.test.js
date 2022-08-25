@@ -31,7 +31,6 @@ describe('lib/sentry', function () {
             env,
             serverName,
             sampleRate: 1.0,
-            tracesSampleRate: 0.0,
           },
         });
       } catch (e) {
@@ -51,7 +50,6 @@ describe('lib/sentry', function () {
         env,
         serverName,
         sampleRate: 1.0,
-        tracesSampleRate: 0.0,
       },
     });
 

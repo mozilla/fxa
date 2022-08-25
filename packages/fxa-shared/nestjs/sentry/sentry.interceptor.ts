@@ -9,7 +9,6 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import '@sentry/tracing';
 import { Span, Transaction } from '@sentry/types';
 import { ApolloError } from 'apollo-server';
 import { Observable } from 'rxjs';

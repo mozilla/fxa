@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-require('@sentry/tracing');
 import { ExtraErrorData } from '@sentry/integrations';
 
 import { buildSentryConfig, tagCriticalEvent, tagFxaName } from '../../sentry';
@@ -28,7 +27,6 @@ export class SentryService {
       normalizeDepth: 6,
       integrations: [
         new ExtraErrorData({ depth: 5 }),
-        new Sentry.Integrations.Http({ tracing: true }),
       ],
 
       beforeSend(event, hint) {

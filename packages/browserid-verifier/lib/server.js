@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sentry = require('@sentry/node');
-const Tracing = require('@sentry/tracing');
 
 const express = require('express'),
   bodyParser = require('body-parser'),
@@ -47,13 +46,8 @@ if (sentryConfig.dsn) {
       event = tagFxaName(event, opts.serverName);
       return event;
     },
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Tracing.Integrations.Express({ app }),
-    ],
   });
   app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
 }
 
 var verifier = new CCVerifier({

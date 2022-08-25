@@ -15,7 +15,6 @@ const {
 const logger = require('./logging/log')('sentry');
 
 const Sentry = require('@sentry/node');
-require('@sentry/tracing');
 
 function removeQuery(url) {
   if (!url) {
@@ -60,7 +59,6 @@ if (config.get('sentry.dsn')) {
         dsn: config.get('sentry.dsn'),
         env: config.get('sentry.env'),
         sampleRate: config.get('sentry.sampleRate'),
-        tracesSampleRate: config.get('sentry.tracesSampleRate'),
         serverName: config.get('sentry.serverName'),
       },
     },
@@ -76,7 +74,6 @@ if (config.get('sentry.dsn')) {
     },
     integrations: [
       new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-      new Sentry.Integrations.Http({ tracing: true }),
     ],
   });
 }

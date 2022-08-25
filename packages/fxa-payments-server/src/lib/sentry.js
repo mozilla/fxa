@@ -4,7 +4,6 @@
 
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
-import { BrowserTracing } from '@sentry/tracing';
 
 import {
   tagFxaName,
@@ -145,11 +144,6 @@ SentryMetrics.prototype = {
           event = tagFxaName(event, opts.clientName);
           return event;
         },
-        integrations: [
-          new BrowserTracing({
-            tracingOrigins: opts.tracingOrigins,
-          }),
-        ],
       });
     } catch (e) {
       this._logger.error(e);
