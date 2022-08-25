@@ -115,7 +115,7 @@ export function Service({
                   {name}
                 </LinkExternal>
               ) : (
-                <p className="text-xs break-word" data-testid="service-name">
+                <p className="text-sm break-word" data-testid="service-name">
                   {name}
                 </p>
               )}
