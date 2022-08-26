@@ -123,12 +123,12 @@ describe('Renderer', () => {
       const result = await renderer.localizeAndRender(
         undefined,
         {
-          id: 'verifyShortCode-title',
-          message: 'Is this you signing up?',
+          id: 'verifyShortCode-title-2',
+          message: 'Open the internet with Firefox',
         },
         rendererContext
       );
-      assert.equal(result, 'Hai effettuato tu questo accesso?');
+      assert.equal(result, 'Esplora Internet con Firefox');
     });
   });
 });
