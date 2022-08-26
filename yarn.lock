@@ -23087,7 +23087,7 @@ fsevents@~2.1.1:
     jws: 4.0.0
     jwt-decode: ^3.1.2
     keypair: 1.0.4
-    keyv: 4.3.3
+    keyv: 4.4.1
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -30244,13 +30244,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.3.3":
-  version: 4.3.3
-  resolution: "keyv@npm:4.3.3"
+"keyv@npm:4.4.1":
+  version: 4.4.1
+  resolution: "keyv@npm:4.4.1"
   dependencies:
     compress-brotli: ^1.3.8
     json-buffer: 3.0.1
-  checksum: bcc946eeec3407fb3b42d831ce985357162113c5f07a8c45c12ede39704ba2d99be4c3dded76d2d2d2a2366627e42440bdde24393216164156928399949c12a1
+  checksum: efce046d161381121b727e9d753deeaad4ce06a98db6d68442cf1542a3731a46f461d0834fa1937c6ce7b27c807fe7892d4de3074440f4d3dff01ac4c7b32692
   languageName: node
   linkType: hard
 
