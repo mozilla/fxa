@@ -14,16 +14,17 @@
  * oauth-authenticated service, once we get more experience with using it.
  */
 
-'use strict';
+import base64url from 'base64url';
+import { ILogger } from 'fxa-shared/log';
+import { StatsD } from 'hot-shots';
+import * as isA from 'joi';
+import { performance } from 'perf_hooks';
 
-const isA = require('joi');
-const error = require('../error');
-const createBackendServiceAPI = require('../backendService');
-const validators = require('../routes/validators');
-const { PushboxDB } = require('./db');
-const { performance } = require('perf_hooks');
-
-const base64url = require('base64url');
+import { ConfigType } from '../../config';
+import createBackendServiceAPI from '../backendService';
+import error from '../error';
+import validators from '../routes/validators';
+import { PushboxDB } from './db';
 
 const PUSHBOX_RETRIEVE_SCHEMA = isA
   .object({
@@ -56,15 +57,20 @@ const PUSHBOX_STORE_SCHEMA = isA
 // of helper functions to allow us to store arbitrary
 // JSON-serializable objects.
 
-function encodeForStorage(data) {
+function encodeForStorage(data: any) {
   return base64url.encode(JSON.stringify(data));
 }
 
-function decodeFromStorage(data) {
+function decodeFromStorage(data: string) {
   return JSON.parse(base64url.decode(data));
 }
 
-module.exports = function (log, config, statsd, DB = PushboxDB) {
+export const pushboxApi = (
+  log: ILogger,
+  config: ConfigType,
+  statsd: StatsD,
+  DB = PushboxDB
+) => {
   if (!config.pushbox.enabled) {
     return {
       retrieve() {
@@ -134,28 +140,67 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
   });
 
   // pushbox expects this in seconds, not millis.
-  const maxTTL = Math.round(config.pushbox.maxTTL / 1000);
+  const maxTTL = Math.round(
+    (config.pushbox.maxTTL as unknown as number) / 1000
+  );
 
   return {
     /**
      * Retrieves enqueued items for a specific device.
      * This simply relays the request to the pushbox service,
      * decoding stored strings back into rich objects.
-     *
-     * @param {String} uid
-     * @param {String} deviceId
-     * @param {Object} options
-     * @param {Number} limit
-     * @param {String} [index]
-     * @returns {Promise}
      */
-    async retrieve(uid, deviceId, limit, index) {
-      const query = {
+    async retrieve(
+      uid: string,
+      deviceId: string,
+      limit: number,
+      index?: number | null
+    ) {
+      const query: Record<string, string> = {
         limit: limit.toString(),
       };
       if (index) {
         query.index = index.toString();
       }
+
+      if (shouldUseDb()) {
+        const startTime = performance.now();
+        try {
+          const result = await pushboxDb!.retrieve({
+            uid,
+            deviceId,
+            limit,
+            index,
+          });
+          statsd.timing(
+            'pushbox.db.retrieve.success',
+            performance.now() - startTime
+          );
+          statsd.increment('pushbox.db.retrieve', {
+            uid,
+            deviceId,
+            msgCount: result.messages.length.toString(),
+          });
+          return {
+            last: result.last,
+            index: result.index,
+            messages: result.messages.map((msg) => ({
+              index: msg.idx,
+              data: decodeFromStorage(msg.data as string),
+            })),
+          };
+        } catch (err) {
+          statsd.timing(
+            'pushbox.db.retrieve.failure',
+            performance.now() - startTime
+          );
+          log.error('pushbox.db.retrieve', { error: err });
+          throw error.unexpectedError();
+        }
+      }
+
+      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
+      // removing this since we want to move over to direct db calls
       const body = await api.retrieve(uid, deviceId, query);
       log.debug('pushbox.retrieve.response', { body: body });
       if (body.error) {
@@ -170,10 +215,10 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
         index: body.index,
         messages: !body.messages
           ? undefined
-          : body.messages.map((msg) => {
+          : body.messages.map((msg: Record<string, unknown>) => {
               return {
                 index: msg.index,
-                data: decodeFromStorage(msg.data),
+                data: decodeFromStorage(msg.data as string),
               };
             }),
       };
@@ -190,7 +235,7 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
      * @param {Object} data - data object to serialize into storage
      * @returns {Promise} object with `index` to the inserted record
      */
-    async store(uid, deviceId, data, ttl) {
+    async store(uid: string, deviceId: string, data: any, ttl: number) {
       if (typeof ttl === 'undefined' || ttl > maxTTL) {
         ttl = maxTTL;
       }
@@ -198,11 +243,12 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
       if (shouldUseDb()) {
         const startTime = performance.now();
         try {
-          const result = await pushboxDb.store({
+          const result = await pushboxDb!.store({
             uid,
             deviceId,
             data: encodeForStorage(data),
-            ttl,
+            // ttl is in seconds
+            ttl: Math.ceil(Date.now() / 1000) + ttl,
           });
           statsd.timing(
             'pushbox.db.store.success',
@@ -220,6 +266,8 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
         }
       }
 
+      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
+      // removing this since we want to move over to direct db calls
       const body = await api.store(uid, deviceId, {
         data: encodeForStorage(data),
         ttl,
@@ -234,4 +282,5 @@ module.exports = function (log, config, statsd, DB = PushboxDB) {
   };
 };
 
-module.exports.RETRIEVE_SCHEMA = PUSHBOX_RETRIEVE_SCHEMA;
+export default pushboxApi;
+export const RETRIEVE_SCHEMA = PUSHBOX_RETRIEVE_SCHEMA;
