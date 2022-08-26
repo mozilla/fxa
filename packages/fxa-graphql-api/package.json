@@ -60,7 +60,7 @@
     "graphql-parse-resolve-info": "^4.12.3",
     "graphql-query-complexity": "0.8.0",
     "graphql-tools": "^8.0.0",
-    "graphql-upload": "^13.0.0",
+    "graphql-upload": "^16.0.1",
     "helmet": "^5.0.0",
     "hot-shots": "^9.2.0",
     "ioredis": "^4.28.2",
