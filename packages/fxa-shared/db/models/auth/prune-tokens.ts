@@ -4,6 +4,7 @@
 
 import { StatsD } from 'hot-shots';
 import { ILogger } from '../../../log';
+import { uuidTransformer } from '../../transformers';
 import { BaseAuthModel, Proc } from './base-auth';
 
 /**
@@ -55,6 +56,7 @@ export class PruneTokens extends BaseAuthModel {
         ]
       );
 
+      this.onEndMetric(prefix);
       this.onCompleteMetric(prefix, '@unblockCodesDeleted', result.outputs);
       this.onCompleteMetric(prefix, '@signInCodesDeleted', result.outputs);
       this.onCompleteMetric(
@@ -91,29 +93,64 @@ export class PruneTokens extends BaseAuthModel {
   }
 
   /**
-   * Prunes sessions from accounts with high session counts. Pruning targets older sessions, and
-   * effects the sessionTokens, unverifiedTokens and devices tables.
-   * @param maxSessions - Max allowed number of sessions per account
+   * Find accounts with a large number of session related sessions. Note this can be expensive, call sparingly.
+   * @param sessionsRequired - An account must have at more sessions than this value to be considered large.
+   * @param rowLimit - The maximum number of accounts to return.
    */
-  async limitSessions(maxSessions: number) {
-    const prefix = 'limit-sessions';
-
+  async findLargeAccounts(sessionsRequired: number, rowLimit: number) {
+    const prefix = 'find-large-accounts';
     this.onStartMetric(prefix);
 
     try {
-      const result = await PruneTokens.callProcedureWithOutputsAndQueryResults(
+      const result = await PruneTokens.callProcedure(Proc.FindLargeAccounts, [
+        sessionsRequired.toString(),
+        rowLimit.toString(),
+      ]);
+
+      this.onEndMetric(prefix);
+      this.onCompleteMetric(prefix, '@totalAccounts', {
+        '@totalAccounts': result.rows?.length,
+      });
+
+      return result.rows;
+    } catch (err) {
+      this.onErrorMetric(prefix);
+      this.log?.error(prefix, err);
+    }
+
+    return [];
+  }
+
+  /**
+   * Prunes old sessions from accounts. Oldest tokens are deleted first.
+   * @param accountUid - The target account
+   * @param maxSessions - Max allowed number of sessions for account
+   * @param maxSessionsDeleted - Limits the number of session tokens deleted per call
+   */
+  async limitSessions(
+    accountUid: string,
+    maxSessions: number,
+    maxSessionsDeleted: number
+  ) {
+    const prefix = 'limit-sessions';
+    this.onStartMetric(prefix);
+
+    try {
+      const result = await PruneTokens.callProcedureWithOutputs(
         Proc.LimitSessions,
-        [maxSessions.toString()],
-        ['@accountsOverLimit', '@totalDeletions']
+        [
+          uuidTransformer.to(accountUid),
+          maxSessions.toString(),
+          maxSessionsDeleted.toString(),
+        ],
+        ['@totalDeletions']
       );
 
-      this.onCompleteMetric(prefix, '@accountsOverLimit', result.outputs);
-      this.onCompleteMetric(prefix, '@totalDeletions', result.outputs);
+      this.onEndMetric(prefix);
+      this.onCompleteMetric(prefix, '@totalDeletions', result);
 
       return {
-        outputs: result.outputs,
-        uids:
-          result.results?.rows?.length === 3 ? result.results.rows[1] : null,
+        outputs: result,
       };
     } catch (err) {
       this.onErrorMetric(prefix);
@@ -122,12 +159,15 @@ export class PruneTokens extends BaseAuthModel {
 
     return {
       outputs: null,
-      uids: null,
     };
   }
 
   private onStartMetric(prefix: string) {
     this.metrics?.increment(`${prefix}.start`);
+  }
+
+  private onEndMetric(prefix: string) {
+    this.metrics?.increment(`${prefix}.end`);
   }
 
   private onCompleteMetric(prefix: string, key: string, result: any) {

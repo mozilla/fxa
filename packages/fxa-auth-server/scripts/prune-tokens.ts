@@ -51,9 +51,25 @@ export async function init() {
     )
     .option(
       '--maxSessions <number>',
-      'Max number of sessions that any account is allowed to hold. A value of 0 results in a no-op.',
+      'Controls the maximum number of sessions allowed per account. A value of 0 results in a no-op.',
       0
     )
+    .option(
+      '--maxSessionsMaxAccounts <number>',
+      'When maxSessions is greater than 0, this value allows us to limit scope of the delete by restricting the number of accounts processed on any given run. This generally be an order of magnitude smaller than maxAccountsConsidered.',
+      100
+    )
+    .option(
+      '--maxSessionsMaxDeletions <number>',
+      'When maxSessions is greater than 0, this value restricts the total number of sessions that can be deleted.',
+      100e3
+    )
+    .option(
+      '--maxSessionsBatchSize <number>',
+      'When maxSessions is greater than 0, this value controls the number of deletions that are batched together. By default, no more than 1000 session tokens will be deleted by anyone query.',
+      1e3
+    )
+    .option('--wait', 'Amount of time to sleep between delete operations.', 5e3)
     .on('--help', function () {
       console.log(`
 Example:
@@ -71,11 +87,20 @@ Exit Codes:
   const tokenMaxAge = parseDuration(program.maxTokenAge);
   const codeMaxAge = parseDuration(program.maxCodeAge);
   const maxSessions = program.maxSessions;
+  const maxSessionsMaxAccounts = program.maxSessionsMaxAccounts;
+  const maxSessionsBatchSize = program.maxSessionsBatchSize;
+  const maxSessionsMaxDeletions = program.maxSessionsMaxDeletions;
+  const wait = program.wait;
+  const sleep = async () => new Promise((r) => setTimeout(r, wait));
 
   log.info('token pruning args', {
     maxTokenAge: program.maxTokenAge,
     maxCodeAge: program.maxCodeAge,
     maxSessions,
+    maxSessionsMaxAccounts,
+    maxSessionsBatchSize,
+    maxSessionsMaxDeletions,
+    wait,
   });
 
   // Setup Knex Connection. PruneTokens relies on this being done.
@@ -97,23 +122,82 @@ Exit Codes:
 
   // Start max session pruning
   if (maxSessions > 0) {
-    try {
+    // recursive function that prunes session tokens until all extraneous tokens have been removed or
+    // number of deletions exceed max deletions.
+    const limitSessions = async (
+      account: string,
+      deletions: number
+    ): Promise<number> => {
       log.info('limit sessions start', {
         maxSessions,
+        account,
+        maxSessionsDeleted: maxSessionsBatchSize,
       });
 
-      const result = await pruner.limitSessions(maxSessions);
-      log.info('limit sessions complete', result.outputs);
+      // Make the DB call limiting the next 'maxSessionsDeleted'
+      const result = await pruner.limitSessions(
+        account,
+        maxSessions,
+        maxSessionsBatchSize
+      );
 
-      // Any account impacted by the prune operation should have it's session tokens cleaned out
-      // of the redis cache.
-      for (const row of result.uids || []) {
-        const uid = row.uid.toString('hex');
-        accountsImpacted.add(uid);
+      // Keeping looping until all extraneous sessions been cleaned up
+      if (result.outputs['@totalDeletions'] <= 0) {
+        return deletions;
       }
+
+      deletions += result.outputs['@totalDeletions'];
+
+      // Exit early and return the number of rows deleted.
+      if (deletions > maxSessionsMaxDeletions) {
+        log.info('hit max allowed deletions', { deletions });
+        return deletions;
+      }
+
+      // Give process a break
+      await sleep();
+      return await limitSessions(account, deletions);
+    };
+
+    // Locate large accounts
+    const targetAccounts = [];
+    try {
+      log.info('finding large accounts', {
+        maxSessions,
+        maxAccountsProcessed: maxSessionsMaxAccounts,
+      });
+
+      const result = await pruner.findLargeAccounts(
+        maxSessions,
+        maxSessionsMaxAccounts
+      );
+
+      for (const row of result || []) {
+        const uid = row.uid.toString('hex');
+        targetAccounts.push(uid);
+      }
+
+      log.info('found large accounts', targetAccounts);
     } catch (err) {
-      log.error('error during limit sessions', err);
-      return 3;
+      log.error('error while finding large accounts', err);
+      return 2;
+    }
+
+    // Loop over target accounts and start deleting sessions
+    for (const account of targetAccounts) {
+      try {
+        const deletions = await limitSessions(account, 0);
+
+        // If there were session tokens deleted, take note of the account for clean up later.
+        if (deletions > 0) {
+          accountsImpacted.add(account);
+        }
+
+        log.info(`limit sessions complete`, { deletions });
+      } catch (err) {
+        log.error('error during limit sessions', err);
+        return 2;
+      }
     }
   } else {
     log.info(
