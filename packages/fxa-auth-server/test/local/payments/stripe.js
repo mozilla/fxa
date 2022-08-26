@@ -4838,6 +4838,20 @@ describe('StripeHelper', () => {
         },
       };
 
+      const fixtureProrated = deepCopy(invoicePaidSubscriptionCreate);
+      fixtureProrated.lines.data.unshift({
+        ...fixtureProrated.lines.data[0],
+        type: 'invoiceitem',
+        proration: true,
+        amount: -100,
+        plan: {
+          id: 'mock-prorated-plan-id',
+          nickname: 'Prorated plan',
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+      });
+
       const planConfig = {
         urls: {
           emailIcon: 'http://firestore.example.gg/email.ico',
@@ -4977,6 +4991,16 @@ describe('StripeHelper', () => {
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
         });
+      });
+
+      it('extracts expected details from an invoice with invoiceitem for a previous subscription', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureProrated
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, expected);
       });
 
       it('extracts expected details from an invoice with discount', async () => {

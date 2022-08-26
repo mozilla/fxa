@@ -2356,6 +2356,7 @@ export class StripeHelper extends StripeHelperBase {
    *   - No plan in the invoice.
    *   - No product attached to the plan.
    *   - No email on the customer object.
+   *   - No subscriptions in the invoice.
    */
   async extractInvoiceDetailsForEmail(invoice: Stripe.Invoice) {
     const customer = await this.expandResource(
@@ -2366,8 +2367,24 @@ export class StripeHelper extends StripeHelperBase {
       throw error.unknownCustomer(invoice.customer);
     }
 
+    // Get the new subscription, ignoring any invoiceitem line items
+    // that could contain prorations for old subscriptions
+    const subscriptionLineItem = invoice.lines.data.find(
+      (line) => line.type === 'subscription'
+    );
+
+    if (!subscriptionLineItem) {
+      // No subscription is present for the invoice. This should never happen
+      // since all invoices have a related incoming subscription as one of the line items.
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(`No subscription line items found for invoice: ${invoice.id}`)
+      );
+    }
+
     // Dig up & expand objects in the invoice that usually come as just IDs
-    const { plan } = invoice.lines.data[0];
+    const { plan } = subscriptionLineItem;
     if (!plan) {
       // No plan is present if this is not a subscription or proration, which
       // should never happen as we only have subscriptions.
@@ -2439,20 +2456,9 @@ export class StripeHelper extends StripeHelperBase {
       total: invoiceTotalInCents,
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
-      lines: { data: invoiceLines },
     } = invoice;
 
-    const nextInvoiceDate = invoiceLines.find(
-      (line) => line.type === 'subscription'
-    )?.period.end;
-
-    if (!nextInvoiceDate) {
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        invoice,
-        'Could not find next invoice date for subscription.'
-      );
-    }
+    const nextInvoiceDate = subscriptionLineItem.period.end;
 
     const invoiceDiscountAmountInCents =
       (invoice.total_discount_amounts &&
