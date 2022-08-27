@@ -21,12 +21,12 @@ async function init() {
     .option(
       '-p, --plan-length [days]',
       'Plan length in days beyond which a reminder email before the next recurring charge should be sent. Defaults to 180.',
-      DEFAULT_PLAN_LENGTH
+      DEFAULT_PLAN_LENGTH.toString()
     )
     .option(
       '-r, --reminder-length [days]',
       'Reminder length in days before the renewal date to send the reminder email. Defaults to 14.',
-      DEFAULT_REMINDER_LENGTH
+      DEFAULT_REMINDER_LENGTH.toString()
     )
     .parse(process.argv);
 

@@ -46,7 +46,7 @@ export async function init() {
     .option(
       '-d, --lock-duration [milliseconds]',
       `The max duration in milliseconds to hold the lock.  The lock will be extended as needed.  Defaults to ${DEFAULT_LOCK_DURATION_MS}.`,
-      DEFAULT_LOCK_DURATION_MS
+      DEFAULT_LOCK_DURATION_MS.toString()
     )
     .parse(process.argv);
 

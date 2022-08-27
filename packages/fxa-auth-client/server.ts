@@ -17,6 +17,7 @@ https.globalAgent = new https.Agent({
 global.crypto = new Crypto();
 // @ts-ignore
 global.fetch = fetch;
+// @ts-ignore
 global.AbortController = AbortController;
 // @ts-ignore
 global.Headers = Headers;

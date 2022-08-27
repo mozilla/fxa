@@ -25,7 +25,7 @@ export async function init() {
     .option(
       '--ttl <number>',
       'The TTL of OAuth authorization codes in milliseconds.  Defaults to 15 minutes.',
-      DEFAULT_TTL_MS
+      DEFAULT_TTL_MS.toString()
     )
     .on('--help', () =>
       console.log('\n\nPrunes up to 10000 expired OAuth authorization codes.')

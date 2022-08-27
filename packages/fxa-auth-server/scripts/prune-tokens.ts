@@ -42,17 +42,17 @@ export async function init() {
     .option(
       '--maxTokenAge <duration>',
       'Max age of token. Any tokens older than this value will be pruned. A value of 0 results in a no-op.',
-      0
+      '0'
     )
     .option(
       '--maxCodeAge <duration>',
       'Max age of code. Any codes older than this value will be pruned. A value of 0 results in a no-op.',
-      0
+      '0'
     )
     .option(
       '--maxSessions <number>',
       'Max number of sessions that any account is allowed to hold. A value of 0 results in a no-op.',
-      0
+      '0'
     )
     .on('--help', function () {
       console.log(`
