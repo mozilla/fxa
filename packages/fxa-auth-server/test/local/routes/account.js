@@ -16,6 +16,7 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
+const { Account } = require('../../../lib/account');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
@@ -28,9 +29,6 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../../lib/payments/iap/apple-app-store/subscriptions');
-const {
-  deleteAccountIfUnverified,
-} = require('../../../lib/routes/utils/account');
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -40,6 +38,17 @@ function hexString(bytes) {
 
 const makeRoutes = function (options = {}, requireMocks) {
   Container.set(CapabilityService, options.capabilityService || sinon.fake);
+  const mockAccount = mocks.mockAccount([
+    'isVerified',
+    'deleteAccountIfUnverified',
+  ]);
+  mockAccount.isVerified = sinon.spy(() => {
+    return;
+  });
+  mockAccount.deleteAccountIfUnverified = sinon.spy(async () => {
+    return;
+  });
+  Container.set(Account, options.account || mockAccount);
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
@@ -505,125 +514,6 @@ describe('/account/reset', () => {
         'db.createSessionToken was passed correct form factor'
       );
     });
-  });
-});
-
-describe('deleteAccountIfUnverified', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-  const mockDB = mocks.mockDB({
-    email: TEST_EMAIL,
-    uid,
-  });
-  const mockLog = {
-    info: () => {},
-  };
-  const mockRequest = mocks.mockRequest({
-    payload: {
-      email: TEST_EMAIL,
-      metricsContext: {},
-    },
-  });
-
-  const mockConfig = {};
-  mockConfig.oauth = {};
-  mockConfig.signinConfirmation = {};
-  mockConfig.signinConfirmation.skipForEmailAddresses = [];
-  const emailRecord = {
-    isPrimary: true,
-    isVerified: false,
-  };
-  mockDB.getSecondaryEmail = sinon.spy(async () =>
-    Promise.resolve(emailRecord)
-  );
-  beforeEach(() => {
-    mockDB.deleteAccount = sinon.spy(async () => Promise.resolve());
-  });
-  afterEach(() => {
-    sinon.restore();
-  });
-  it('should delete an unverified account with no linked Stripe account', async () => {
-    const mockStripeHelper = {
-      hasActiveSubscription: async () => Promise.resolve(false),
-    };
-
-    await deleteAccountIfUnverified(
-      mockDB,
-      mockStripeHelper,
-      mockLog,
-      mockRequest,
-      TEST_EMAIL
-    );
-    sinon.assert.calledWithMatch(mockDB.deleteAccount, emailRecord);
-  });
-  it('should not delete an unverified account with a linked Stripe account and return early', async () => {
-    const mockStripeHelper = {
-      hasActiveSubscription: async () => Promise.resolve(true),
-    };
-    let failed = false;
-    try {
-      await deleteAccountIfUnverified(
-        mockDB,
-        mockStripeHelper,
-        mockLog,
-        mockRequest,
-        TEST_EMAIL
-      );
-    } catch (err) {
-      failed = true;
-      assert.equal(err.errno, error.ERRNO.ACCOUNT_EXISTS);
-    }
-    assert.isTrue(failed);
-    sinon.assert.notCalled(mockDB.deleteAccount);
-  });
-  it('should delete a Stripe customer with no subscriptions', async () => {
-    const mockStripeHelper = {
-      hasActiveSubscription: async () => Promise.resolve(false),
-      removeCustomer: sinon.stub().resolves(),
-    };
-
-    await deleteAccountIfUnverified(
-      mockDB,
-      mockStripeHelper,
-      mockLog,
-      mockRequest,
-      TEST_EMAIL
-    );
-    sinon.assert.calledOnceWithExactly(
-      mockStripeHelper.removeCustomer,
-      emailRecord.uid,
-      emailRecord.email
-    );
-  });
-  it('should report to Sentry when a Stripe customer deletion fails', async () => {
-    const stripeError = new Error('no good');
-    const mockStripeHelper = {
-      hasActiveSubscription: async () => Promise.resolve(false),
-      removeCustomer: sinon.stub().throws(stripeError),
-    };
-    const sentryModule = require('../../../lib/sentry');
-    sinon.stub(sentryModule, 'reportSentryError').returns({});
-    try {
-      await deleteAccountIfUnverified(
-        mockDB,
-        mockStripeHelper,
-        mockLog,
-        mockRequest,
-        TEST_EMAIL
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.removeCustomer,
-        emailRecord.uid,
-        emailRecord.email
-      );
-      sinon.assert.calledOnceWithExactly(
-        sentryModule.reportSentryError,
-        stripeError,
-        mockRequest
-      );
-    } catch (e) {
-      assert.fail('should not have re-thrown');
-    }
-    sentryModule.reportSentryError.restore();
   });
 });
 
@@ -1516,7 +1406,6 @@ describe('/account/finish_setup', () => {
         uid,
         authSalt: '',
         wrapWrapKb: 'wibble',
-        verifierSetAt: options.verifierSetAt,
       },
       {
         emailRecord: new error.unknownAccount(),
@@ -1545,6 +1434,7 @@ describe('/account/finish_setup', () => {
         push: mockPush,
         verificationReminders,
         subscriptionAccountReminders,
+        ...(options?.account && { account: options.account }),
       },
       {
         '../oauth/jwt': {
@@ -1572,9 +1462,7 @@ describe('/account/finish_setup', () => {
   }
 
   it('succeeds when the account is a stub', () => {
-    const { route, mockRequest, mockDB, uid } = setup({
-      verifierSetAt: 0,
-    });
+    const { route, mockRequest, mockDB, uid } = setup();
     return runTest(route, mockRequest, (response) => {
       assert.equal(mockDB.verifyEmail.callCount, 1);
       assert.equal(mockDB.resetAccount.callCount, 1);
@@ -1585,8 +1473,11 @@ describe('/account/finish_setup', () => {
   });
 
   it('returns an unauthorized error when the account is already set up', async () => {
+    const mockAccount = {
+      isVerified: () => true,
+    };
     const { route, mockRequest } = setup({
-      verifierSetAt: Date.now(),
+      account: mockAccount,
     });
     try {
       await runTest(route, mockRequest);
@@ -1597,8 +1488,11 @@ describe('/account/finish_setup', () => {
   });
 
   it('removes the reminder if it errors after account is verified', async () => {
+    const mockAccount = {
+      isVerified: () => true,
+    };
     const { route, mockRequest, subscriptionAccountReminders } = setup({
-      verifierSetAt: Date.now(),
+      account: mockAccount,
     });
 
     try {
@@ -1647,7 +1541,7 @@ describe('/account/set_password', () => {
         service: '123Done',
         uid,
       },
-      ...(options.query && { query: options.query }),
+      ...(options?.query && { query: options.query }),
       uaBrowser: 'Firefox Mobile',
       uaBrowserVersion: '9',
       uaOS: 'iOS',
@@ -1669,7 +1563,6 @@ describe('/account/set_password', () => {
         uid,
         authSalt: '',
         wrapWrapKb: 'wibble',
-        verifierSetAt: options.verifierSetAt,
       },
       {
         emailRecord: new error.unknownAccount(),
@@ -1684,11 +1577,11 @@ describe('/account/set_password', () => {
       id: 'price_123',
       product: fakeProduct,
     };
-    const mockStripeHelper = options.mockStripeHelper || {
+    const mockStripeHelper = options?.mockStripeHelper || {
       allProducts: sinon.fake.resolves([fakeProduct]),
       allPlans: sinon.fake.resolves([fakePlan]),
     };
-    const mockCapabilityService = options.mockCapabilityService || {
+    const mockCapabilityService = options?.mockCapabilityService || {
       subscribedPriceIds: sinon.fake.resolves([fakePlan.id]),
     };
     const accountRoutes = makeRoutes({
@@ -1711,6 +1604,7 @@ describe('/account/set_password', () => {
       subscriptionAccountReminders,
       stripeHelper: mockStripeHelper,
       capabilityService: mockCapabilityService,
+      ...(options?.account && { account: options.account }),
     });
     const route = getRoute(accountRoutes, '/account/set_password');
 
@@ -1744,7 +1638,6 @@ describe('/account/set_password', () => {
         // The framework sets this as the default value in the source code
         sendVerifyEmail: true,
       },
-      verifierSetAt: 0,
     });
     return runTest(route, mockRequest, (response) => {
       // setPasswordOnStubAccount
@@ -1773,8 +1666,11 @@ describe('/account/set_password', () => {
   });
 
   it('returns an unauthorized error when the account is already set up', async () => {
+    const mockAccount = {
+      isVerified: () => true,
+    };
     const { route, mockRequest } = setup({
-      verifierSetAt: Date.now(),
+      account: mockAccount,
     });
     try {
       await runTest(route, mockRequest);
@@ -1789,7 +1685,6 @@ describe('/account/set_password', () => {
       query: {
         sendVerifyEmail: false,
       },
-      verifierSetAt: 0,
     });
     return runTest(route, mockRequest, (response) => {
       assert.notCalled(mockMailer.sendVerifyShortCodeEmail);
@@ -1805,7 +1700,6 @@ describe('/account/set_password', () => {
     };
     const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
       mockStripeHelper,
-      verifierSetAt: 0,
     });
     return runTest(route, mockRequest, (response) => {
       assert.notCalled(subscriptionAccountReminders.create);
@@ -1826,7 +1720,6 @@ describe('/account/set_password', () => {
     };
     const { route, mockRequest, subscriptionAccountReminders, uid } = setup({
       mockStripeHelper,
-      verifierSetAt: 0,
     });
     return runTest(route, mockRequest, (response) => {
       assert.notCalled(subscriptionAccountReminders.create);

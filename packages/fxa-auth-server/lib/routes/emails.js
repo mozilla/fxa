@@ -92,7 +92,7 @@ module.exports = (
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper
 ) => {
-  const account = Container.get(Account);
+  const accountClass = Container.get(Account);
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
@@ -160,7 +160,9 @@ module.exports = (
             // to delete them so the browser will stop polling.
             if (
               !validators.isValidEmailAddress(sessionToken.email) &&
-              !(await account.hasActiveSubscription({ uid: sessionToken.uid }))
+              !(await accountClass.hasActiveSubscription({
+                uid: sessionToken.uid,
+              }))
             ) {
               await db.deleteAccount(sessionToken);
               log.info('accountDeleted.invalidEmailAddress', {
@@ -654,7 +656,7 @@ module.exports = (
                 msSinceCreated >= minUnverifiedAccountTime;
               if (
                 exceedsMinUnverifiedAccountTime &&
-                !(await account.hasActiveSubscription({
+                !(await accountClass.hasActiveSubscription({
                   uid: secondaryEmailRecord.uid,
                 }))
               ) {

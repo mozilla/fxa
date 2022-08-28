@@ -6,8 +6,10 @@
 
 const sinon = require('sinon');
 
+const { Account } = require('../../../lib/account');
 const assert = require('../../assert');
 const crypto = require('crypto');
+const { default: Container } = require('typedi');
 const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
@@ -342,13 +344,13 @@ describe('/recovery_email/status', () => {
       }
     }),
   });
-  const stripeHelper = mocks.mockStripeHelper();
-  stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+  const mockAccount = mocks.mockAccount();
+  mockAccount.hasActiveSubscription = sinon.fake.resolves(false);
+  Container.set(Account, mockAccount);
   const accountRoutes = makeRoutes({
     config: config,
     db: mockDB,
     log: mockLog,
-    stripeHelper,
   });
   const route = getRoute(accountRoutes, '/recovery_email/status');
   const mockRequest = mocks.mockRequest({
@@ -397,7 +399,7 @@ describe('/recovery_email/status', () => {
     });
 
     it('unverified account - active subscription', () => {
-      stripeHelper.hasActiveSubscription = sinon.fake.resolves(true);
+      mockAccount.hasActiveSubscription = sinon.fake.resolves(true);
       mockRequest.auth.credentials.emailVerified = false;
       return runTest(route, mockRequest)
         .then(
@@ -409,6 +411,7 @@ describe('/recovery_email/status', () => {
         )
         .then(() => {
           mockDB.deleteAccount.resetHistory();
+          mockAccount.hasActiveSubscription = sinon.fake.resolves(false);
         });
     });
 
@@ -1082,10 +1085,12 @@ describe('/recovery_email/verify_code', () => {
 describe('/recovery_email', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
-  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils, stripeHelper;
+  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils;
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
+  const mockAccount = mocks.mockAccount();
+  const mockStripeHelper = mocks.mockStripeHelper();
 
   beforeEach(() => {
     mockRequest = mocks.mockRequest({
@@ -1108,8 +1113,8 @@ describe('/recovery_email', () => {
       secondEmailCode: '123123',
     };
     mockDB = mocks.mockDB(dbData);
-    stripeHelper = mocks.mockStripeHelper();
-    stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+    mockAccount.hasActiveSubscription = sinon.fake.resolves(false);
+    Container.set(Account, mockAccount);
     accountRoutes = makeRoutes({
       checkPassword: function () {
         return Promise.resolve(true);
@@ -1124,7 +1129,7 @@ describe('/recovery_email', () => {
       log: mockLog,
       mailer: mockMailer,
       push: mockPush,
-      stripeHelper,
+      stripeHelper: mockStripeHelper,
     });
 
     otpUtils = require('../../../lib/routes/utils/otp')(
@@ -1310,7 +1315,7 @@ describe('/recovery_email', () => {
     });
 
     it('fails to create the email if it is primary for an unverified account older than one day that has an active subscription', () => {
-      stripeHelper.hasActiveSubscription = sinon.fake.resolves(true);
+      mockAccount.hasActiveSubscription = sinon.fake.resolves(true);
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return Promise.resolve({
           isVerified: false,
@@ -1497,8 +1502,8 @@ describe('/recovery_email', () => {
 
   describe('/recovery_email/set_primary', () => {
     it('should set primary email on account', () => {
-      stripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
-      stripeHelper.stripe = {
+      mockStripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
+      mockStripeHelper.stripe = {
         customers: { update: sinon.fake.returns(CUSTOMER_1_UPDATED) },
       };
 
@@ -1560,8 +1565,8 @@ describe('/recovery_email', () => {
           TEST_EMAIL_ADDITIONAL,
           'third argument was event data with new email'
         );
-        assert.equal(stripeHelper.fetchCustomer.callCount, 1);
-        assert.equal(stripeHelper.stripe.customers.update.callCount, 1);
+        assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+        assert.equal(mockStripeHelper.stripe.customers.update.callCount, 1);
       });
     });
 

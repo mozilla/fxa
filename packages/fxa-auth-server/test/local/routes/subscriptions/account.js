@@ -5,6 +5,7 @@
 'use strict';
 
 const sinon = require('sinon');
+const mocks = require('../../../mocks');
 const proxyquire = require('proxyquire');
 
 const token = 'a.test.jwt';
@@ -49,6 +50,8 @@ describe('routes/subscriptions/account', () => {
     };
 
     let stripeHelper, mailer;
+    const mockAccount = mocks.mockAccount();
+    mockAccount.isVerified = sinon.fake.returns(false);
 
     beforeEach(() => {
       stripeHelper = {
@@ -59,7 +62,12 @@ describe('routes/subscriptions/account', () => {
     });
 
     it('does not send an email when the account is not a stub', async () => {
-      await sendFinishSetupEmailForStubAccount({ email, uid, account: null });
+      await sendFinishSetupEmailForStubAccount({
+        email,
+        uid,
+        account: null,
+        accountClass: mockAccount,
+      });
       sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
@@ -71,6 +79,7 @@ describe('routes/subscriptions/account', () => {
         subscription: { ...subscription, status: 'incomplete' },
         stripeHelper,
         mailer,
+        accountClass: mockAccount,
       });
       sinon.assert.notCalled(stripeHelper.findAbbrevPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
@@ -90,6 +99,7 @@ describe('routes/subscriptions/account', () => {
         subscription: sub,
         stripeHelper,
         mailer,
+        accountClass: mockAccount,
       });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.extractInvoiceDetailsForEmail,
@@ -114,6 +124,7 @@ describe('routes/subscriptions/account', () => {
         subscription,
         stripeHelper,
         mailer,
+        accountClass: mockAccount,
       });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.extractInvoiceDetailsForEmail,

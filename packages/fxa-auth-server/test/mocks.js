@@ -223,6 +223,7 @@ module.exports = {
   mockPayPalHelper,
   mockPlaySubscriptions,
   mockAppStoreSubscriptions,
+  mockAccount,
 };
 
 function mockCustoms(errors) {
@@ -864,4 +865,8 @@ function mockAppStoreSubscriptions(methods) {
     require('../lib/payments/iap/apple-app-store/subscriptions')
       .AppStoreSubscriptions
   );
+}
+
+function mockAccount(methods) {
+  return mockObject(methods, require('../lib/account').Account);
 }

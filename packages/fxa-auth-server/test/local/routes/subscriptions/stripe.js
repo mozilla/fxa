@@ -32,7 +32,7 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
   }
 );
 
-const accountUtils = require('../../../../lib/routes/utils/account.ts');
+const { Account } = require('../../../../lib/account');
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
@@ -63,7 +63,7 @@ const currencyHelper = new CurrencyHelper({
 });
 const mockCapabilityService = {};
 
-let config, log, db, customs, push, mailer, profile;
+let config, log, db, customs, push, mailer, profile, account;
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 
@@ -216,6 +216,9 @@ describe('subscriptions stripeRoutes', () => {
 
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, {});
+
+    account = sinon.createStubInstance(Account);
+    Container.set(Account, account);
 
     db = mocks.mockDB({
       uid: UID,
@@ -401,6 +404,7 @@ describe('handleAuth', () => {
 describe('DirectStripeRoutes', () => {
   let sandbox;
   let directStripeRoutesInstance;
+  let accountMock;
 
   const VALID_REQUEST = {
     auth: {
@@ -417,6 +421,13 @@ describe('DirectStripeRoutes', () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+
+    Container.set(CapabilityService, {});
+
+    accountMock = mocks.mockAccount();
+    accountMock.deleteAccountIfUnverified = sinon.fake.resolves();
+    accountMock.isVerified = sinon.fake.returns(true);
+    Container.set(Account, accountMock);
 
     config = {
       subscriptions: {
@@ -458,6 +469,7 @@ describe('DirectStripeRoutes', () => {
 
   afterEach(() => {
     sandbox.restore();
+    Container.reset();
   });
 
   describe('extractPromotionCode', () => {
@@ -995,9 +1007,7 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .returns(null);
+      accountMock.deleteAccountIfUnverified = sinon.stub().returns(null);
 
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1005,7 +1015,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
-        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.equal(accountMock.deleteAccountIfUnverified.calledOnce, true);
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
       }
@@ -1022,8 +1032,8 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
+      accountMock.deleteAccountIfUnverified = sinon
+        .stub()
         .throws(error.accountExists(null));
 
       try {
@@ -1032,7 +1042,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
-        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.equal(accountMock.deleteAccountIfUnverified.calledOnce, true);
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
       }
@@ -1049,8 +1059,8 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
+      accountMock.deleteAccountIfUnverified = sinon
+        .stub()
         .throws(error.verifiedSecondaryEmailAlreadyExists());
 
       try {
@@ -1059,71 +1069,9 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
-        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+        assert.equal(accountMock.deleteAccountIfUnverified.calledOnce, true);
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
-      }
-    });
-
-    it('skips calling deleteAccountIfUnverified if verifiedSetAt is greater than 0', async () => {
-      sandbox = sinon.createSandbox();
-
-      config = {
-        subscriptions: {
-          enabled: true,
-          managementClientId: MOCK_CLIENT_ID,
-          managementTokenTTL: MOCK_TTL,
-          stripeApiKey: 'sk_test_1234',
-        },
-      };
-
-      log = mocks.mockLog();
-      customs = mocks.mockCustoms();
-      profile = mocks.mockProfile({
-        deleteCache: sinon.spy(async (uid) => ({})),
-      });
-      mailer = mocks.mockMailer();
-
-      db = mocks.mockDB({
-        uid: UID,
-        email: TEST_EMAIL,
-        locale: ACCOUNT_LOCALE,
-      });
-      const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
-      stripeHelperMock.currencyHelper = currencyHelper;
-
-      directStripeRoutesInstance = new DirectStripeRoutes(
-        log,
-        db,
-        config,
-        customs,
-        push,
-        mailer,
-        profile,
-        stripeHelperMock
-      );
-
-      paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
-        paymentMethod
-      );
-      VALID_REQUEST.payload = {
-        priceId: 'Jane Doe',
-        paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
-      };
-
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .throws(error.verifiedSecondaryEmailAlreadyExists());
-
-      try {
-        await directStripeRoutesInstance.createSubscriptionWithPMI(
-          VALID_REQUEST
-        );
-        assert.fail('Create subscription with wrong planCurrency should fail.');
-      } catch (err) {
-        assert.equal(deleteAccountIfUnverifiedStub.calledOnce, false);
       }
     });
 
@@ -1175,6 +1123,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('sends an email when the fxa account is a stub', async () => {
+      accountMock.isVerified = sinon.fake.returns(false);
       const sourceCountry = 'us';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry

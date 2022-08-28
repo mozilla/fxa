@@ -26,6 +26,7 @@ const buildRoutes = require('../../../../lib/routes/subscriptions');
 
 const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { Account } = require('../../../../lib/account');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const {
   PlaySubscriptions,
@@ -37,7 +38,6 @@ const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-const accountUtils = require('../../../../lib/routes/utils/account.ts');
 
 let log,
   config,
@@ -48,14 +48,14 @@ let log,
   token,
   stripeHelper,
   profile,
-  push;
+  push,
+  mockAccount;
 
 function runTest(routePath, requestOptions) {
   const db = mocks.mockDB({
     uid: UID,
     email: TEST_EMAIL,
     locale: ACCOUNT_LOCALE,
-    verifierSetAt: requestOptions.verifierSetAt,
   });
   const routes = buildRoutes(
     log,
@@ -135,6 +135,9 @@ describe('subscriptions payPalRoutes', () => {
     push = {};
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
+    mockAccount = sinon.createStubInstance(Account);
+    mockAccount.isVerified = sinon.fake.returns(true);
+    Container.set(Account, mockAccount);
   });
 
   afterEach(() => {
@@ -255,7 +258,7 @@ describe('subscriptions payPalRoutes', () => {
         }
       });
 
-      describe('eleteAccountIfUnverified', () => {
+      describe('deleteAccountIfUnverified', () => {
         let sandbox;
         beforeEach(() => {
           sandbox = sinon.createSandbox();
@@ -267,13 +270,9 @@ describe('subscriptions payPalRoutes', () => {
 
         it('calls deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
-          requestOptions.verifierSetAt = 0;
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
-            .returns(null);
 
           try {
             await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -285,18 +284,20 @@ describe('subscriptions payPalRoutes', () => {
             );
           } catch (err) {
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+            assert.equal(
+              mockAccount.deleteAccountIfUnverified.calledOnce,
+              true
+            );
           }
         });
 
         it('ignores account exists error from deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
-          requestOptions.verifierSetAt = 0;
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
+          mockAccount.deleteAccountIfUnverified = sinon
+            .stub()
             .throws(error.accountExists(null));
 
           try {
@@ -309,18 +310,20 @@ describe('subscriptions payPalRoutes', () => {
             );
           } catch (err) {
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+            assert.equal(
+              mockAccount.deleteAccountIfUnverified.calledOnce,
+              true
+            );
           }
         });
 
         it('ignores verified email error from deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
-          requestOptions.verifierSetAt = 0;
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
+          mockAccount.deleteAccountIfUnverified = sinon
+            .stub()
             .throws(error.verifiedSecondaryEmailAlreadyExists());
 
           try {
@@ -333,7 +336,10 @@ describe('subscriptions payPalRoutes', () => {
             );
           } catch (err) {
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-            assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
+            assert.equal(
+              mockAccount.deleteAccountIfUnverified.calledOnce,
+              true
+            );
           }
         });
       });

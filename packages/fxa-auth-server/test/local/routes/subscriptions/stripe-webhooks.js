@@ -43,6 +43,7 @@ const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_cre
 const eventTaxRateCreated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
 const eventTaxRateUpdated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
 const eventPaymentMethodUpdated = require('../../payments/fixtures/stripe/event_payment_method_updated.json');
+const { Account } = require('../../../../lib/account');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
@@ -72,6 +73,7 @@ function deepCopy(object) {
 describe('StripeWebhookHandler', () => {
   let sandbox;
   let StripeWebhookHandlerInstance;
+  let accountMock;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -110,10 +112,12 @@ describe('StripeWebhookHandler', () => {
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
     const paypalHelperMock = sandbox.createStubInstance(PayPalHelper);
+    accountMock = sandbox.createStubInstance(Account);
     Container.set(CurrencyHelper, {});
     Container.set(PayPalHelper, paypalHelperMock);
     Container.set(StripeHelper, stripeHelperMock);
     Container.set(CapabilityService, mockCapabilityService);
+    Container.set(Account, accountMock);
 
     StripeWebhookHandlerInstance = new StripeWebhookHandler(
       log,
@@ -1955,7 +1959,7 @@ describe('StripeWebhookHandler', () => {
 
   describe('sendSubscriptionInvoiceEmail', () => {
     const commonSendSubscriptionInvoiceEmailTest =
-      (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
+      (expectedMethodName, billingReason, isVerified = true) =>
       async () => {
         const invoice = [
           'sendSubscriptionFirstInvoiceDiscountEmail',
@@ -1985,8 +1989,9 @@ describe('StripeWebhookHandler', () => {
         const mockAccount = {
           emails: 'fakeemails',
           locale: 'fakelocale',
-          verifierSetAt,
+          verifierSetAt: isVerified ? 1 : 0,
         };
+        accountMock.isVerified = sinon.fake.returns(isVerified);
         StripeWebhookHandlerInstance.db.account = sinon.spy(
           async (data) => mockAccount
         );
@@ -2009,7 +2014,7 @@ describe('StripeWebhookHandler', () => {
             'sendSubscriptionFirstInvoiceDiscountEmail',
           ].includes(expectedMethodName)
         ) {
-          if (verifierSetAt) {
+          if (isVerified) {
             assert.calledWith(
               StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
               mockAccount.emails,

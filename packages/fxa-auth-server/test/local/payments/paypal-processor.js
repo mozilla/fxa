@@ -24,6 +24,7 @@ const {
 } = require('../../../lib/payments/paypal/error-codes');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 const { CapabilityService } = require('../../../lib/payments/capability');
+const { Account } = require('../../../lib/account');
 
 const sandbox = sinon.createSandbox();
 
@@ -59,6 +60,7 @@ describe('PaypalProcessor', () => {
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PayPalHelper, mockPaypalHelper);
     Container.set(CapabilityService, {});
+    Container.set(Account, {});
     processor = new PaypalProcessor(mockLog, mockConfig, 1, 1, {}, {});
     processor.webhookHandler = mockHandler;
   });

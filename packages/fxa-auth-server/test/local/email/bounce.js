@@ -13,7 +13,7 @@ const { EventEmitter } = require('events');
 const { mockLog } = require('../../mocks');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../../lib/payments/stripe');
+const { Account } = require('../../../lib/account');
 
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
@@ -29,7 +29,7 @@ function mockedBounces(log, db) {
 }
 
 describe('bounce messages', () => {
-  let log, mockDB, mockStripeHelper;
+  let log, mockDB, mockAccount;
   beforeEach(() => {
     log = mockLog();
     mockDB = {
@@ -44,10 +44,10 @@ describe('bounce messages', () => {
       }),
       deleteAccount: sinon.spy(() => Promise.resolve({})),
     };
-    mockStripeHelper = {
+    mockAccount = {
       hasActiveSubscription: async () => Promise.resolve(false),
     };
-    Container.set(StripeHelper, mockStripeHelper);
+    Container.set(Account, mockAccount);
   });
 
   afterEach(() => {
@@ -323,7 +323,7 @@ describe('bounce messages', () => {
   });
 
   it('should not delete an unverified account that bounces, is older than 6 hours but has an active subscription', () => {
-    mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(true);
+    mockAccount.hasActiveSubscription = async () => Promise.resolve(true);
     const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
     mockDB.accountRecord = sinon.spy((email) => {
       return Promise.resolve({

@@ -78,8 +78,8 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
-  protected capabilityService: CapabilityService;
   protected account: Account;
+  protected capabilityService: CapabilityService;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -93,10 +93,10 @@ export class StripeHandler {
     protected profile: any,
     protected stripeHelper: StripeHelper
   ) {
-    this.capabilityService = Container.get(CapabilityService);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
     this.account = Container.get(Account);
+    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**

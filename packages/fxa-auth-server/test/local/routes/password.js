@@ -8,6 +8,8 @@ const { assert } = require('chai');
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 
+const { Account } = require('../../../lib/account');
+const { default: Container } = require('typedi');
 const uuid = require('uuid');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
@@ -57,6 +59,12 @@ function runRoute(routes, name, request) {
 }
 
 describe('/password', () => {
+  let mockAccount;
+  before(() => {
+    mockAccount = mocks.mockAccount();
+    Container.set(Account, mockAccount);
+  });
+
   it('/forgot/send_code', () => {
     const mockCustoms = mocks.mockCustoms();
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -672,6 +680,8 @@ describe('/password', () => {
           authPW,
         },
       });
+
+      mockAccount.isVerified = sinon.fake.returns(false);
     });
 
     it('should create password', async () => {
@@ -686,6 +696,7 @@ describe('/password', () => {
     });
 
     it('should fail if password already created', async () => {
+      mockAccount.isVerified = sinon.fake.returns(true);
       mockDB = mocks.mockDB({
         uid,
         email: TEST_EMAIL,

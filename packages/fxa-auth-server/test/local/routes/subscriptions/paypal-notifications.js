@@ -25,6 +25,7 @@ const dbStub = {
   updatePayPalBA: sandbox.stub(),
 };
 
+const { Account } = require('../../../../lib/account');
 const { PayPalNotificationHandler } = proxyquire(
   '../../../../lib/routes/subscriptions/paypal-notifications',
   { 'fxa-shared/db/models/auth': dbStub }
@@ -87,6 +88,7 @@ describe('PayPalNotificationHandler', () => {
 
     Container.set(PayPalHelper, paypalHelper);
     Container.set(CapabilityService, {});
+    Container.set(Account, {});
 
     handler = new PayPalNotificationHandler(
       log,

@@ -12,18 +12,18 @@ const { mockLog } = require('../../mocks');
 const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../../lib/payments/stripe');
+const { Account } = require('../../../lib/account');
 
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
 describe('lib/email/notifications:', () => {
-  let now, del, log, queue, emailRecord, db, mockStripeHelper;
+  let now, del, log, queue, emailRecord, db, mockAccount;
 
   beforeEach(() => {
-    mockStripeHelper = {
+    mockAccount = {
       hasActiveSubscription: async () => Promise.resolve(false),
     };
-    Container.set(StripeHelper, mockStripeHelper);
+    Container.set(Account, mockAccount);
     now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
     del = sinon.spy();
@@ -335,8 +335,7 @@ describe('lib/email/notifications:', () => {
   describe('complaint message, new unverified account with active subscription', () => {
     beforeEach(() => {
       emailRecord.createdAt += 1;
-      mockStripeHelper.hasActiveSubscription = async () =>
-        Promise.resolve(true);
+      mockAccount.hasActiveSubscription = async () => Promise.resolve(true);
       return queue.on.args[0][1]({
         del,
         mail: {
