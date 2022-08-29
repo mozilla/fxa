@@ -59,10 +59,11 @@ const TYPES = {
     .string()
     .max(2048)
     .uri({ scheme: ['http', 'https'] }), // 2048 is also arbitrary, the same limit we use on the front end.
-  LONG_URL: joi
+  LONG_URI: joi
     .string()
     .max(64 * 1024) // 64k is the upper bounds of what is supported for URLs by browsers
-    .uri({ scheme: ['http', 'https'] }), // 2048 is also arbitrary, the same limit we use on the front end.
+    .uri()
+    .regex(/^telnet/i, { invert: true }),
   USER_PREFERENCES: joi.object().keys({
     'account-recovery': joi.boolean(),
     emails: joi.boolean(),
