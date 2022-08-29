@@ -172,7 +172,9 @@ describe('scripts/prune-tokens', () => {
   }
 
   before(async () => {
-    db = await DB.connect(config);
+    db = await DB.connect(
+      Object.assign({}, config, { log: { level: 'error' } })
+    );
     await clearDb();
     await Account.create(account);
   });
@@ -266,7 +268,7 @@ describe('scripts/prune-tokens', () => {
   });
 
   describe('limits sessions', async () => {
-    const size = 10;
+    const size = 20;
     let tokens = [];
     let devices = [];
 
@@ -291,7 +293,8 @@ describe('scripts/prune-tokens', () => {
       await SessionToken.knexQuery().del();
       await Device.knexQuery().del();
 
-      // Add tokens
+      // Add tokens. The first token will be the oldest, and the last token
+      // will be the newest.
       for (let i = 0; i < size; i++) {
         const curToken = sessionToken();
         const curDevice = device(account.uid, curToken.id);
@@ -324,12 +327,10 @@ describe('scripts/prune-tokens', () => {
       await redis.del(uid.toString('hex'));
     });
 
-    it('limits', async () => {
+    async function testScript(args, opts) {
       // Note that logger output, directs to standard err.
       const { stderr } = await exec(
-        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts '--maxSessions=${
-          size - 1
-        }' `,
+        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts ${args}`,
         {
           cwd,
           shell: '/bin/bash',
@@ -340,27 +341,67 @@ describe('scripts/prune-tokens', () => {
       const redisTokens = await redis.getSessionTokens(uid.toString('hex'));
 
       // Expected counts
-      assert.equal(await sessionCount(), size - 1);
-      assert.equal(await deviceCount(), size - 1);
-      assert.equal(Object.keys(redisTokens).length, size - 1);
+      assert.equal(await sessionCount(), opts.remaining);
+      assert.equal(await deviceCount(), opts.remaining);
+      assert.equal(Object.keys(redisTokens).length, opts.remaining);
 
       // Expected program output. Note that there are two deletions,
       // one for the sessionToken and one for the device.
-      assert.isTrue(/"@accountsOverLimit":1/.test(stderr));
-      assert.isTrue(/"@totalDeletions":2/.test(stderr));
+      assert.isTrue(
+        new RegExp(
+          'limit sessions complete.*"deletions":' + opts.remaining
+        ).test(stderr)
+      );
       assert.isTrue(/pruning orphaned tokens/.test(stderr));
 
-      // Expect that last session & device were removed
-      assert.isNull(await sessionAt(-1));
-      assert.isNull(await deviceAt(-1));
-      assert.isUndefined(redisTokens[tokens.at(-1).id]);
+      // Expect that oldest session & device were removed
+      for (let i = 0; i < size - opts.remaining; i++) {
+        assert.isNull(await sessionAt(i));
+        assert.isNull(await deviceAt(i));
+        assert.isUndefined(redisTokens[tokens.at(i).id]);
+      }
 
-      // Expect that first set of sessions & devices are intact
-      for (let i = 0; i < size - 1; i++) {
+      // Expect that the first set of sessions & devices are intact
+      for (let i = opts.remaining; i < size; i++) {
         assert.isNotNull(await sessionAt(i));
         assert.isNotNull(await deviceAt(i));
         assert.isNotNull(await redisTokens[tokens.at(i).id]);
       }
+    }
+
+    it('limits with large delete batch size', async () => {
+      testScript(`--maxSessions=10 --maxSessionsBatchSize=1000 `, {
+        remaining: size - 10,
+        totalDeletions: 10 * 2,
+      });
+    });
+
+    it('limits with small delete batch size', async () => {
+      testScript(`--maxSessions=10 --maxSessionsBatchSize=2 `, {
+        remaining: size - 10,
+        totalDeletions: 10 * 2,
+      });
+    });
+
+    it('limits with --maxSessionsMaxDeletions=2', async () => {
+      testScript(`--maxSessions=10 --maxSessionsMaxDeletions=2`, {
+        remaining: size - 2,
+        totalDeletions: 2 * 2,
+      });
+    });
+
+    it('limits with --maxSessionsMaxDeletions=0', async () => {
+      testScript(`--maxSessions=10 --maxSessionsMaxDeletions=2`, {
+        remaining: size,
+        totalDeletions: 0,
+      });
+    });
+
+    it('limits with maxSessionsMaxAccounts arg', async () => {
+      testScript(`--maxSessions=10 --maxSessionsMaxAccounts=0`, {
+        remaining: size,
+        totalDeletions: 0,
+      });
     });
   });
 });
