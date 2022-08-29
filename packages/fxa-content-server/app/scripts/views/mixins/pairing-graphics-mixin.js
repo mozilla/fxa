@@ -33,7 +33,7 @@ export default {
   },
 
   /**
-   * Returns true if the we believe the current entry points merits that we show the user
+   * Returns true if we believe the current entry points merits that we show the user
    * a QR code that can be used download firefox on a mobile device.
    */
   showDownloadFirefoxQrCode() {
@@ -42,7 +42,8 @@ export default {
       entryPoint === Constants.FIREFOX_MENU_ENTRYPOINT ||
       entryPoint === Constants.FIREFOX_PREFERENCES_ENTRYPOINT ||
       entryPoint === Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT
+      entryPoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT ||
+      entryPoint === Constants.FIREFOX_FX_VIEW
     );
   },
 };
