@@ -132,7 +132,7 @@
     "speed-trap": "0.0.10",
     "thread-loader": "^3.0.4",
     "time-grunt": "2.0.0",
-    "typescript": "^4.5.2",
+    "typescript": "^4.8.2",
     "ua-parser-js": "1.0.2",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
