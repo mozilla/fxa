@@ -337,7 +337,7 @@ describe('Connected Services', () => {
     await clickConfirmDisconnectButton();
     expect(logViewEvent).toHaveBeenCalledWith(
       'settings.clients.disconnect',
-      'submit.'
+      'submit.no-reason'
     );
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
 
@@ -368,7 +368,7 @@ describe('Connected Services', () => {
     await clickFirstSignOutButton();
     expect(logViewEvent).toHaveBeenCalledWith(
       'settings.clients.disconnect',
-      'submit.'
+      'submit.no-reason'
     );
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
 
@@ -423,7 +423,7 @@ describe('Connected Services', () => {
       await clickFirstSignOutButton();
       expect(logViewEvent).toHaveBeenCalledWith(
         'settings.clients.disconnect',
-        'submit.'
+        'submit.no-reason'
       );
 
       expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');

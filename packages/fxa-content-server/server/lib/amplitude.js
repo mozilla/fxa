@@ -78,14 +78,6 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'cwts_view',
   },
-  'settings.change-password.success': {
-    group: GROUPS.settings,
-    event: 'password',
-  },
-  'settings.signout.success': {
-    group: GROUPS.settings,
-    event: 'logout',
-  },
   'cached.signin.success': {
     group: GROUPS.login,
     event: 'complete',
@@ -109,81 +101,81 @@ const EVENTS = {
     event: 'signup_code_submit',
   },
 
-  // Add recovery key metrics
+  // Add recovery key metrics, on `post_verify/account_recovery/*`
   'screen.add-recovery-key': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'add_recovery_key_view',
   },
   'flow.add-recovery-key.submit': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'add_recovery_key_submit',
   },
 
   // Recovery key confirm password
   'screen.confirm-password': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'recovery_key_confirm_password_view',
   },
   'flow.confirm-password.engage': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'recovery_key_confirm_password_engage',
   },
   'flow.confirm-password.submit': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'recovery_key_confirm_password_submit',
   },
   'flow.confirm-password.success': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'recovery_key_confirm_password_success',
   },
 
   // Save recovery key
   'screen.save-recovery-key': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'save_recovery_key_view',
   },
   'flow.save-recovery-key.submit': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'save_recovery_key_submit',
   },
   'flow.save-recovery-key.copy': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'save_recovery_key_copy',
   },
   'flow.save-recovery-key.download': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'save_recovery_key_download',
   },
   'flow.save-recovery-key.print': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'save_recovery_key_print',
   },
 
   // Confirm recovery key
   'screen.confirm-recovery-key': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'confirm_recovery_key_view',
   },
   'flow.confirm-recovery-key.engage': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'confirm_recovery_key_engage',
   },
   'flow.confirm-recovery-key.submit': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'confirm_recovery_key_submit',
   },
   'flow.confirm-recovery-key.success': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'confirm_recovery_key_success',
   },
 
   // Verified recovery key
   'screen.post-verify.account-recovery.verified-recovery-key': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'verified_recovery_key_view',
   },
   'flow.post-verify.account-recovery.verified-recovery-key.submit': {
-    group: GROUPS.settings,
+    group: GROUPS.activity,
     event: 'verified_recovery_key_submit',
   },
 
@@ -259,6 +251,170 @@ const EVENTS = {
   'enter-email.thirdPartyAuth': {
     group: GROUPS.thirdPartyAuth,
     event: 'view',
+  },
+
+  /* Everything under this point should be Settings events, aka 'fxa_pref' group */
+  // temp fallback tests
+  'settings.test.fallback.start': {
+    group: GROUPS.settings,
+    event: 'test_fallback_start',
+    minimal: true,
+  },
+  'settings.test.fallback.text-needed': {
+    group: GROUPS.settings,
+    event: 'test_fallback_text_needed',
+    minimal: true,
+  },
+  'settings.test.fallback.text-not-needed': {
+    group: GROUPS.settings,
+    event: 'test_fallback_text_not_needed',
+    minimal: true,
+  },
+  // Recovery key
+  'screen.settings.account-recovery': {
+    group: GROUPS.settings,
+    event: 'account_recovery_view',
+  },
+  // Revoke
+  'flow.settings.account-recovery.confirm-revoke.submit': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_revoke_submit',
+  },
+  'flow.settings.account-recovery.confirm-revoke.success': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_revoke_success',
+  },
+  'flow.settings.account-recovery.confirm-revoke.fail': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_revoke_fail',
+  },
+  // Add
+  'flow.settings.account-recovery.confirm-password.submit': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_password_submit',
+  },
+  'flow.settings.account-recovery.confirm-password.success': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_password_success',
+  },
+  'flow.settings.account-recovery.confirm-password.fail': {
+    group: GROUPS.settings,
+    event: 'account_recovery_confirm_password_fail',
+  },
+  'flow.settings.account-recovery.recovery-key.download-option': {
+    group: GROUPS.settings,
+    event: 'account_recovery_option_download',
+  },
+  'flow.settings.account-recovery.recovery-key.copy-option': {
+    group: GROUPS.settings,
+    event: 'account_recovery_option_copy',
+  },
+  'flow.settings.account-recovery.recovery-key.print-option': {
+    group: GROUPS.settings,
+    event: 'account_recovery_option_print',
+  },
+  // Avatar
+  'screen.settings.avatar.change': {
+    group: GROUPS.settings,
+    event: 'avatar_change_view',
+  },
+  'avatar.crop.submit.change': {
+    group: GROUPS.settings,
+    event: 'avatar_crop_submit_change',
+  },
+  // Change password
+  'screen.settings.change-password': {
+    group: GROUPS.settings,
+    event: 'change_password_view',
+  },
+  'settings.change-password.success': {
+    group: GROUPS.settings,
+    event: 'password',
+  },
+  // Create password
+  'screen.settings.create-password': {
+    group: GROUPS.settings,
+    event: 'create_password_view',
+  },
+  'settings.create-password.engage': {
+    group: GROUPS.settings,
+    event: 'create_password_engage',
+  },
+  'settings.create-password.submit': {
+    group: GROUPS.settings,
+    event: 'create_password_submit',
+  },
+  'settings.create-password.success': {
+    group: GROUPS.settings,
+    event: 'create_password_success',
+  },
+  'settings.create-password.fail': {
+    group: GROUPS.settings,
+    event: 'create_password_fail',
+  },
+  // Delete account
+  'screen.settings.delete-account': {
+    group: GROUPS.settings,
+    event: 'delete_account_view',
+  },
+  'flow.settings.account-delete.terms-checked.success': {
+    group: GROUPS.settings,
+    event: 'delete_account_terms_checked_success',
+  },
+  'flow.settings.account-delete.confirm-password.success': {
+    group: GROUPS.settings,
+    event: 'delete_account_confirm_password_success',
+  },
+  'flow.settings.account-delete.confirm-password.fail': {
+    group: GROUPS.settings,
+    event: 'delete_account_confirm_password_fail',
+  },
+  // Secondary email
+  'screen.settings.emails': {
+    group: GROUPS.settings,
+    event: 'add_secondary_email_view',
+  },
+  'settings.emails.submit': {
+    group: GROUPS.settings,
+    event: 'add_secondary_email_submit',
+  },
+  'verify-secondary-email.verification.clicked': {
+    group: GROUPS.settings,
+    event: 'verify_secondary_email_clicked',
+  },
+  'verify-secondary-email.verification.success': {
+    group: GROUPS.settings,
+    event: 'verify_secondary_email_success',
+  },
+  'verify-secondary-email.verification.fail': {
+    group: GROUPS.settings,
+    event: 'verify_secondary_email_fail',
+  },
+  // Two factor auth
+  'screen.settings.two-step-authentication.recovery-codes': {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_recovery_codes_view',
+  },
+  'flow.settings.two-step-authentication.submit': {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_submit',
+  },
+  'flow.settings.two-step-authentication.download-option': {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_recovery_codes_download',
+  },
+  'flow.settings.two-step-authentication.copy-option': {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_recovery_codes_copy',
+  },
+  'flow.settings.two-step-authentication.print-option': {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_recovery_codes_print',
+  },
+  // Misc
+  'settings.signout.success': {
+    group: GROUPS.settings,
+    event: 'logout',
   },
 };
 
