@@ -215,7 +215,7 @@ function findInvalidEventOffsets(events, maxOffset) {
 function MaxOffsetError(offset, maxOffset) {
   return {
     error: 'Bad Request',
-    message: `offset ${offset} > maxiumum possible of ${maxOffset}`,
+    message: `offset exceeds maximum of ${maxOffset}`,
     statusCode: 400,
     validation: {
       keys: ['offset'],

@@ -29,6 +29,7 @@ module.exports = function (config) {
     'marketing_email.preferences_url'
   );
   const MX_RECORD_VALIDATION = config.get('mxRecordValidation');
+  const MAX_EVENT_OFFSET = config.get('client_metrics.max_event_offset');
   const REDIRECT_CHECK_ALLOW_LIST = config.get('redirect_check.allow_list');
   const SENTRY_CLIENT_DSN = config.get('sentry.dsn');
   const SENTRY_CLIENT_ENV = config.get('sentry.env');
@@ -60,6 +61,7 @@ module.exports = function (config) {
 
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
+    maxEventOffset: MAX_EVENT_OFFSET,
     env: ENV,
     isCoppaEnabled: COPPA_ENABLED,
     isPromptNoneEnabled: PROMPT_NONE_ENABLED,

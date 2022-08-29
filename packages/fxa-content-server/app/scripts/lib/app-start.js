@@ -185,6 +185,7 @@ Start.prototype = {
       entrypointVariation: relier.get('entrypointVariation'),
       isSampledUser: isSampledUser,
       lang: this._config.lang,
+      maxEventOffset: this._config.maxEventOffset,
       notifier: this._notifier,
       screenHeight: screenInfo.screenHeight,
       screenWidth: screenInfo.screenWidth,
