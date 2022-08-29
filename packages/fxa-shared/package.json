@@ -98,7 +98,7 @@
     "ajv": "^8.11.0",
     "apollo-server": "^2.25.4",
     "app-store-server-api": "^0.5.0",
-    "aws-sdk": "^2.1199.0",
+    "aws-sdk": "^2.1203.0",
     "buf": "^0.1.1",
     "celebrate": "^15.0.1",
     "class-transformer": "^0.5.1",
