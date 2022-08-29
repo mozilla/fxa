@@ -16,14 +16,19 @@ export class DeleteAccountPage extends SettingsLayout {
     return this.page.click('button[data-testid=continue-button]');
   }
 
+  clickCancel() {
+    return this.page.click('button[data-testid=cancel-button]');
+  }
+
   setPassword(password: string) {
     return this.page.fill('input[type=password]', password);
   }
 
+  toolTipText() {
+    return this.page.innerText('[data-testid="tooltip"]');
+  }
+
   submit() {
-    return Promise.all([
-      this.page.click('button[type=submit]'),
-      this.page.waitForNavigation(),
-    ]);
+    return this.page.click('button[type=submit]');
   }
 }

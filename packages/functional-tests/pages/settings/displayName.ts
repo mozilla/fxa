@@ -11,6 +11,10 @@ export class DisplayNamePage extends SettingsLayout {
     return this.page.fill('input[type=text]', name);
   }
 
+  clickCancelDisplayName() {
+    return this.page.click('[data-testid="cancel-display-name"]');
+  }
+
   submit() {
     return Promise.all([
       this.page.click('button[type=submit]'),
