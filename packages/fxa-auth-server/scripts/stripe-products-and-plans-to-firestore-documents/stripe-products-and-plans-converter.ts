@@ -21,7 +21,7 @@ import { Container } from 'typedi';
 
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { StripeHelper } from '../../lib/payments/stripe';
-import { commaSeparatedListToArray } from '../../lib/payments/utils';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import {
   PLAN_EN_LANG_ERROR,
   getLanguageTagFromPlanMetadata,
@@ -270,7 +270,7 @@ export class StripeProductsAndPlansConverter {
     productConfig.stripeProductId = product.id;
     const { productSet, promotionCodes } = product.metadata;
     if (productSet) {
-      productConfig.productSet = productSet;
+      productConfig.productSet = commaSeparatedListToArray(productSet);
     }
     if (promotionCodes) {
       productConfig.promotionCodes = commaSeparatedListToArray(promotionCodes);

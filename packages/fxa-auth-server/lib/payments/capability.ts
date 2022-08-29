@@ -7,7 +7,7 @@ import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
-import { commaSeparatedListToArray } from './utils';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import error from '../error';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { authEvents } from '../events';

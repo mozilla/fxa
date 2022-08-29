@@ -258,6 +258,105 @@ describe('stripe', () => {
         SubscriptionUpdateEligibility.INVALID
       );
     });
+
+    it('returns invalid if the current plan does not have any productSet', () => {
+      const x = {
+        ...currentPlan,
+        plan_metadata: { ...currentPlan.plan_metadata, productSet: null },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(x, newPlan),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid if the new plan does not have any productSet', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: null },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid if the new plan product set is an empty array', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: [] },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid if the current plan productSet is an empty array', () => {
+      const x = {
+        ...currentPlan,
+        plan_metadata: { ...currentPlan.plan_metadata, productSet: [] },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(x, newPlan),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid if there is not at least one element of overlap in the productSet arrays', () => {
+      const newPlanCopy = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: ['1'] },
+      };
+
+      const currentPlanCopy = {
+        ...currentPlan,
+        plan_metadata: { ...currentPlan.plan_metadata, productSet: ['2'] },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns upgrade if there is 1 element of overlap in the productSet arrays', () => {
+      const newPlanCopy = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: ['1'] },
+      };
+
+      const currentPlanCopy = {
+        ...currentPlan,
+        plan_metadata: { ...currentPlan.plan_metadata, productSet: ['1', '2'] },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
+        SubscriptionUpdateEligibility.UPGRADE
+      );
+    });
+
+    it('returns upgrade if there is more than 1 element of overlap in the productSet arrays', () => {
+      const newPlanCopy = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: ['1', '2'] },
+      };
+
+      const currentPlanCopy = {
+        ...currentPlan,
+        plan_metadata: { ...currentPlan.plan_metadata, productSet: ['1', '2'] },
+      };
+
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
+        SubscriptionUpdateEligibility.UPGRADE
+      );
+    });
   });
 
   describe('getMinimumAmount', () => {

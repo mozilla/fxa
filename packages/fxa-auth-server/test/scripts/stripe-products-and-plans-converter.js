@@ -255,7 +255,7 @@ describe('StripeProductsAndPlansConverter', () => {
           dcdb5ae7add825d2: ['123donePro', 'gogogo'],
         },
         locales: {},
-        productSet: '123done',
+        productSet: ['123done'],
         styles: {
           webIconBackground: 'lime',
         },
@@ -566,7 +566,7 @@ describe('StripeProductsAndPlansConverter', () => {
         dcdb5ae7add825d2: ['123donePro', 'gogogo'],
       },
       locales: {},
-      productSet: '123done',
+      productSet: ['123done'],
       styles: {
         webIconBackground: 'lime',
       },

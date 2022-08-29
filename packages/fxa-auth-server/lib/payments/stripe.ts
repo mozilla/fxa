@@ -1829,7 +1829,7 @@ export class StripeHelper extends StripeHelperBase {
     ) {
       currentPlan.plan_metadata ??= {};
       currentPlan.plan_metadata['productSet'] =
-        currentPlan.configuration.productSet;
+        currentPlan.configuration.productSet.join(',');
       currentPlan.plan_metadata[
         'productOrder'
       ] = `${currentPlan.configuration.productOrder}`;
@@ -1839,7 +1839,8 @@ export class StripeHelper extends StripeHelperBase {
       newPlan.configuration?.productOrder
     ) {
       newPlan.plan_metadata ??= {};
-      newPlan.plan_metadata['productSet'] = newPlan.configuration.productSet;
+      newPlan.plan_metadata['productSet'] =
+        newPlan.configuration.productSet.join(',');
       newPlan.plan_metadata[
         'productOrder'
       ] = `${newPlan.configuration.productOrder}`;

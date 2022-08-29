@@ -252,14 +252,33 @@ export const getSubscriptionUpdateEligibility: (
   const newOrder =
     !!newPlanConfig.productOrder && parseInt(newPlanConfig.productOrder);
 
+  // if any of the following conditions is true, then the proposed
+  // subscription update from currentPlan to newPlan is invalid
   if (
+    // plans have the same planId
     currentPlan.plan_id === newPlan.plan_id ||
+    // metadata is missing for the currentPlan's product set
     !currentPlanConfig.productSet ||
-    currentPlanConfig.productSet !== newPlanConfig.productSet ||
+    // metadata is missing for the newPlan's product set
+    !newPlanConfig.productSet ||
+    // currentPlan productSet is empty
+    !currentPlanConfig.productSet.length ||
+    // newPlan productSet is empty
+    !newPlanConfig.productSet.length ||
+    // there is not at least 1 element in common between
+    // currentPlan and newPlan product sets
+    !newPlanConfig.productSet.filter((elem) =>
+      currentPlanConfig.productSet!.includes(elem)
+    ).length ||
+    // currentPlan productOrder is missing
     !currentOrder ||
+    // currenPlan productOrder can't be cast to a number
     Number.isNaN(currentOrder) ||
+    // newPlan productOrder is missing
     !newOrder ||
+    // newPlan productOrder can't be cast to a number
     Number.isNaN(newOrder) ||
+    // currentPlan and newPlan have the same productOrder
     newOrder === currentOrder
   ) {
     return SubscriptionUpdateEligibility.INVALID;
