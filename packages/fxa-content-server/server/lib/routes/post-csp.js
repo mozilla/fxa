@@ -15,7 +15,7 @@ const validation = require('../validation');
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
 const STRING_TYPE = validation.TYPES.LONG_STRING;
-const URL_TYPE = validation.TYPES.LONG_URL;
+const LONG_URI_TYPE = validation.TYPES.LONG_URI;
 
 const BODY_SCHEMA = {
   'csp-report': joi
@@ -23,7 +23,7 @@ const BODY_SCHEMA = {
     .keys({
       // CSP 2, 3 required
       // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-      'blocked-uri': URL_TYPE.allow('')
+      'blocked-uri': LONG_URI_TYPE.allow('')
         .allow('asset')
         .allow('blob')
         .allow('data')
@@ -37,7 +37,7 @@ const BODY_SCHEMA = {
       disposition: STRING_TYPE.optional(),
       // CSP 2, 3 required
       // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
-      'document-uri': URL_TYPE.required().allow('about:srcdoc'),
+      'document-uri': LONG_URI_TYPE.required().allow('about:srcdoc'),
       // CSP 2 required, but not always sent
       'effective-directive': STRING_TYPE.optional(),
       // CSP 2 optional
