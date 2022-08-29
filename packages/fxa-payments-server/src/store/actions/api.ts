@@ -33,17 +33,20 @@ export default {
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
   updateSubscriptionPlan: (
     subscriptionId: string,
-    plan: Plan,
+    currentPlan: Plan,
+    newPlan: Plan,
     paymentProvider: PaymentProvider | undefined
   ) =>
     ({
       type: 'updateSubscriptionPlan',
-      meta: { subscriptionId, plan },
+      meta: { subscriptionId, newPlan },
       payload: apiUpdateSubscriptionPlan({
         subscriptionId,
-        planId: plan.plan_id,
-        productId: plan.product_id,
+        planId: newPlan.plan_id,
+        productId: newPlan.product_id,
         paymentProvider,
+        previousPlanId: currentPlan.plan_id,
+        previousProductId: currentPlan.product_id,
       }),
     } as const),
   cancelSubscription: (

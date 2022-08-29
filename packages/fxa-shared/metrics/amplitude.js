@@ -63,7 +63,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subPayManage]: NOP,
   [GROUPS.subPaySetup]: mapSubscriptionPaymentEventProperties,
   [GROUPS.subPayAccountSetup]: mapSubscriptionPaymentEventProperties,
-  [GROUPS.subPayUpgrade]: NOP,
+  [GROUPS.subPayUpgrade]: mapSubscriptionUpgradeEventProperties,
   [GROUPS.subSupport]: NOP,
   [GROUPS.subCoupon]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
@@ -127,6 +127,27 @@ function mapDomainValidationResult(
   // properties for the results pertaining to domain_validation_result.
   if (eventType === 'domain_validation_result' && eventCategory) {
     return { validation_result: eventCategory };
+  }
+}
+
+function mapSubscriptionUpgradeEventProperties(
+  eventType,
+  eventCategory,
+  eventTarget,
+  data
+) {
+  if (data) {
+    const properties = {};
+
+    if (data.previousPlanId) {
+      properties['previous_plan_id'] = data.previousPlanId;
+    }
+
+    if (data.previousProductId) {
+      properties['previous_product_id'] = data.previousProductId;
+    }
+
+    return properties;
   }
 }
 
@@ -363,6 +384,7 @@ module.exports = {
           utm_campaign: data.utm_campaign,
           utm_content: data.utm_content,
           utm_medium: data.utm_medium,
+          utm_referrer: data.utm_referrer,
           utm_source: data.utm_source,
           utm_term: data.utm_term,
         }),

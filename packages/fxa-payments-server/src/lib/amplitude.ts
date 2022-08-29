@@ -45,12 +45,17 @@ export type EventProperties = GlobalEventProperties & {
   productId?: string;
   product_id?: string;
   paymentProvider?: PaymentProvider;
+  previousPlanId?: string;
+  previous_plan_id?: string;
+  previousProductId?: string;
+  previous_product_id?: string;
   promotionCode?: string;
   error?: Error;
   checkoutType?: string;
   utm_campaign?: string;
   utm_content?: string;
   utm_medium?: string;
+  utm_referrer?: string;
   utm_source?: string;
   utm_term?: string;
   other?: string;
@@ -114,9 +119,14 @@ const normalizeEventProperties = (eventProperties: EventProperties) => {
     productId = undefined,
     product_id = undefined,
     paymentProvider = undefined,
+    previousPlanId = undefined,
+    previous_plan_id = undefined,
+    previousProductId = undefined,
+    previous_product_id = undefined,
     utm_campaign = undefined,
     utm_content = undefined,
     utm_medium = undefined,
+    utm_referrer = undefined,
     utm_source = undefined,
     utm_term = undefined,
     ...otherEventProperties
@@ -126,10 +136,13 @@ const normalizeEventProperties = (eventProperties: EventProperties) => {
     planId: planId || plan_id,
     productId: productId || product_id,
     paymentProvider,
+    previousPlanId: previousPlanId || previous_plan_id,
+    previousProductId: previousProductId || previous_product_id,
     reason: error && error.message ? error.message : undefined,
     utm_campaign,
     utm_content,
     utm_medium,
+    utm_referrer,
     utm_source,
     utm_term,
     ...otherEventProperties,

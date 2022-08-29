@@ -73,6 +73,7 @@ export const SubscriptionUpgrade = ({
       if (validator.allValid()) {
         updateSubscriptionPlanAndRefresh(
           upgradeFromSubscription.subscription_id,
+          upgradeFromPlan,
           selectedPlan,
           paymentProvider
         );
@@ -82,6 +83,7 @@ export const SubscriptionUpgrade = ({
       validator,
       updateSubscriptionPlanAndRefresh,
       upgradeFromSubscription,
+      upgradeFromPlan,
       selectedPlan,
       paymentProvider,
     ]

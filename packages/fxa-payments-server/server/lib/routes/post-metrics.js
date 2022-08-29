@@ -26,6 +26,7 @@ const BODY_SCHEMA = joi.object({
       utm_campaign: UTM_CAMPAIGN.optional(),
       utm_content: UTM.optional(),
       utm_medium: UTM.optional(),
+      utm_referrer: UTM.optional(),
       utm_source: UTM.optional(),
       utm_term: UTM.optional(),
     })
