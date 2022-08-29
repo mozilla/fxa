@@ -21,6 +21,7 @@ const FLOW_ID =
 const FLOW_BEGIN_TIME = 1484923219448;
 const MARKETING_CAMPAIGN = 'campaign1';
 const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
+const BAD_METRIC_ERROR_PREFIX = 'Bad metric encountered:';
 
 describe('lib/metrics', () => {
   let environment;
@@ -717,6 +718,21 @@ describe('lib/metrics', () => {
 
       assert.equal(broker, 'fx-desktop-v3');
     });
+
+    it('handles undefined broker type', function () {
+      metrics.setBrokerType(undefined);
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
+
+    it('handles null broker type', function () {
+      metrics.setBrokerType(null);
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
+
+    it('handles empty broker type', function () {
+      metrics.setBrokerType('');
+      assert.equal(metrics.getFilteredData().broker, 'none');
+    });
   });
 
   describe('setService', function () {
@@ -1008,10 +1024,9 @@ describe('lib/metrics', () => {
           assert.equal(firstPayload.utm_term, 'none');
 
           assert.equal(sentryMock.captureException.callCount, 1);
-          assert.equal(
-            sentryMock.captureException.args[0][0].errno,
-            107,
-            'invalid param'
+          assert.include(
+            sentryMock.captureException.args[0][0].message,
+            BAD_METRIC_ERROR_PREFIX
           );
         } catch (err) {
           return done(err);
