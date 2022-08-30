@@ -35,7 +35,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@golevelup/ts-jest": "^0.3.2",
-    "@google-cloud/firestore": "^5.0.2",
+    "@google-cloud/firestore": "^6.0.0",
     "@nestjs/common": "^8.4.7",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.5",
