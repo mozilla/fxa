@@ -639,12 +639,6 @@ const conf = (module.exports = convict({
       env: 'SENTRY_SAMPLE_RATE',
       format: Number,
     },
-    tracesSampleRate: {
-      default: 0.0,
-      doc: 'Sentry config for client side errors. If not set, then no errors reported.',
-      env: 'SENTRY_TRACES_SAMPLE_RATE',
-      format: Number,
-    },
   },
   sourceMapType: {
     default: 'source-map',

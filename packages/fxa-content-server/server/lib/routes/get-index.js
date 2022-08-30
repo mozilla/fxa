@@ -34,7 +34,6 @@ module.exports = function (config) {
   const SENTRY_CLIENT_DSN = config.get('sentry.dsn');
   const SENTRY_CLIENT_ENV = config.get('sentry.env');
   const SENTRY_SAMPLE_RATE = config.get('sentry.sampleRate');
-  const SENTRY_TRACES_SAMPLE_RATE = config.get('sentry.tracesSampleRate');
   const SENTRY_CLIENT_NAME = config.get('sentry.clientName');
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
@@ -83,7 +82,6 @@ module.exports = function (config) {
       dsn: SENTRY_CLIENT_DSN,
       env: SENTRY_CLIENT_ENV,
       sampleRate: SENTRY_SAMPLE_RATE,
-      tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
       clientName: SENTRY_CLIENT_NAME,
     },
     staticResourceUrl: STATIC_RESOURCE_URL,

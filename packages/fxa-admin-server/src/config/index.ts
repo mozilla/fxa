@@ -80,12 +80,6 @@ const conf = convict({
       format: 'Number',
       env: 'SENTRY_SAMPLE_RATE',
     },
-    tracesSampleRate: {
-      doc: 'Rate at which sentry traces are captured.',
-      default: 0.0,
-      format: 'Number',
-      env: 'SENTRY_TRACES_SAMPLE_RATE',
-    },
     serverName: {
       doc: 'Name used by sentry to identify the server.',
       default: 'fxa-admin-server',

@@ -7,7 +7,6 @@
 const config = require('../config').getProperties();
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
-require('@sentry/tracing');
 const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 const { ERRNO } = require('./error');
@@ -194,7 +193,6 @@ async function configureSentry(server, config, processName = 'key_server') {
       integrations: [
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
         new ExtraErrorData({ depth: 5 }),
-        new Sentry.Integrations.Http({ tracing: true }),
       ],
       // https://docs.sentry.io/platforms/node/configuration/options/#max-value-length
       maxValueLength: 500,

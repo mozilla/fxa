@@ -21,7 +21,6 @@ module.exports = () => {
   const helmet = require('helmet');
   const noCache = require('nocache');
   const Sentry = require('@sentry/node');
-  const Tracing = require('@sentry/tracing');
   const serveStatic = require('serve-static');
 
   const bodyParser = require('body-parser');
@@ -75,7 +74,6 @@ module.exports = () => {
       dsn: config.get('sentry.dsn'),
       env: config.get('sentry.env'),
       sampleRate: config.get('sentry.sampleRate'),
-      tracesSampleRate: config.get('sentry.tracesSampleRate'),
       serverName: config.get('sentry.serverName'),
       clientName: config.get('sentry.clientName'),
     },
@@ -131,13 +129,8 @@ module.exports = () => {
         event = tagFxaName(event, opts.serverName);
         return event;
       },
-      integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Tracing.Integrations.Express({ app }),
-      ],
     });
     app.use(Sentry.Handlers.requestHandler());
-    app.use(Sentry.Handlers.tracingHandler());
   }
 
   const hstsEnabled = config.get('hstsEnabled');

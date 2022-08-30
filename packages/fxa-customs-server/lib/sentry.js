@@ -6,7 +6,6 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
-require('@sentry/tracing');
 const {
   buildSentryConfig,
   tagCriticalEvent,
@@ -28,7 +27,6 @@ async function configureSentry(server, config, log) {
     ...opts,
     integrations: [
       new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-      new Sentry.Integrations.Http({ tracing: true }),
     ],
     beforeSend(event, _hint) {
       event = tagCriticalEvent(event);

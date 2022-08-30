@@ -35,7 +35,6 @@ describe('config-builder', () => {
       dsn: 'https://foo.sentry.io',
       env: 'test',
       sampleRate: 1,
-      tracesSampleRate: 0,
       serverName: 'fxa-shared-test',
       clientName: 'fxa-shared-client-test',
     },

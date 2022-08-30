@@ -4,7 +4,6 @@
 
 // TO DO: CORS, other security-related tasks (#4312)
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
@@ -61,13 +60,8 @@ if (sentryConfig.dsn) {
       event = tagFxaName(event, opts.serverName);
       return event;
     },
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Tracing.Integrations.Express({ app }),
-    ],
   });
   app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
 }
 
 app.use(

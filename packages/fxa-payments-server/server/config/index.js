@@ -236,12 +236,6 @@ const conf = convict({
       env: 'SENTRY_SAMPLE_RATE',
       format: 'Number',
     },
-    tracesSampleRate: {
-      default: 0.0,
-      doc: 'Rate at which traces are sampled.',
-      env: 'SENTRY_TRACES_SAMPLE_RATE',
-      format: 'Number',
-    },
     serverName: {
       doc: 'Name used by sentry to identify the server.',
       default: 'fxa-payments-broker',

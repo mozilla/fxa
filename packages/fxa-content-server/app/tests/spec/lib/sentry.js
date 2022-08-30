@@ -26,7 +26,6 @@ describe('lib/sentry', function () {
             dsn,
             env: 'test',
             sampleRate: 1.0,
-            tracesSampleRate: 1.0,
             clientName: 'fxa-content-server-test',
           },
         });

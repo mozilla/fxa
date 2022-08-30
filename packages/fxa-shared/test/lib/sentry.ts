@@ -15,7 +15,6 @@ const config: SentryConfigOpts = {
     env: 'test',
     clientName: 'fxa-shared-testing',
     sampleRate: 0,
-    tracesSampleRate: 0,
   },
 };
 

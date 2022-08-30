@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
-import { BrowserTracing } from '@sentry/tracing';
 import Logger from './logger';
 import { buildSentryConfig, SentryConfigOpts, tagFxaName } from '../sentry';
 import { options } from 'superagent';
@@ -154,12 +153,6 @@ SentryMetrics.prototype = {
           }
           return event;
         },
-        integrations: [
-          // @ts-ignore
-          new BrowserTracing({
-            tracingOrigins: opts.tracingOrigins,
-          }),
-        ],
       });
     } catch (e) {
       this._logger.error(e);

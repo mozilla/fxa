@@ -4,7 +4,6 @@
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-require('@sentry/tracing');
 const cloneDeep = require('lodash').cloneDeep;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -112,7 +111,6 @@ exports.create = async function createServer() {
         event = tagFxaName(event, opts.serverName);
         return event;
       },
-      integrations: [new Sentry.Integrations.Http({ tracing: true })],
     });
 
     // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
