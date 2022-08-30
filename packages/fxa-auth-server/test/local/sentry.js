@@ -111,7 +111,7 @@ describe('Sentry', () => {
       code: 500,
       errno: 998,
       error: 'Internal Server Error',
-      info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+      info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
       message: 'An internal validation check failed.',
       op: 'internalError',
     });

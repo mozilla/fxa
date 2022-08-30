@@ -486,7 +486,7 @@ describe('lib/server', () => {
             code: 400,
             errno: 125,
             error: 'Request blocked',
-            info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+            info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
             message: 'The request was blocked for security reasons',
           };
           beforeEach(() => {

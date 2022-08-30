@@ -130,7 +130,7 @@ const DEFAULTS = {
   error: 'Internal Server Error',
   errno: ERRNO.UNEXPECTED_ERROR,
   message: 'Unspecified error',
-  info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+  info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
 };
 
 const TOO_LARGE =
@@ -267,10 +267,7 @@ AppError.translate = function (request, response) {
       );
     }
   } else if (payload.validation) {
-    if (
-      payload.message &&
-      payload.message.includes('is required')
-    ) {
+    if (payload.message?.includes('is required')) {
       error = AppError.missingRequestParameter(payload.validation.keys[0]);
     } else {
       error = AppError.invalidRequestParameter(payload.validation);
@@ -371,14 +368,12 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
 };
 
 AppError.cannotCreatePassword = function () {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad Request',
-      errno: ERRNO.CANNOT_CREATE_PASSWORD,
-      message: 'Can not create password, password already set.',
-    }
-  );
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.CANNOT_CREATE_PASSWORD,
+    message: 'Can not create password, password already set.',
+  });
 };
 
 AppError.unverifiedAccount = function () {

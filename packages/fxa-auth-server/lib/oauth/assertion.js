@@ -31,7 +31,7 @@ const { verifyJWT } = require('../../lib/serverJWT');
 const HEX_STRING = /^[0-9a-f]+$/;
 
 // FxA sends several custom claims, ref
-// https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#post-certificatesign
+// https://mozilla.github.io/ecosystem-platform/api#tag/Sign/operation/postCertificateSign
 const CLAIMS_SCHEMA = Joi.object({
   uid: Joi.string().length(32).regex(HEX_STRING).required(),
   'fxa-generation': Joi.number().integer().min(0).required(),
