@@ -65,11 +65,33 @@ export class PurchaseManager {
         throw new Error('No transactions found');
       }
       subscriptionStatus = item.status;
-      // FIXME: improve performance; see https://mozilla-hub.atlassian.net/browse/FXA-4949
       transactionInfo = await decodeTransaction(item.signedTransactionInfo);
       renewalInfo = await decodeRenewalInfo(item.signedRenewalInfo);
+      this.log.debug(
+        'appleIap.querySubscriptionPurchase.getSubscriptionStatuses',
+        {
+          bundleId,
+          originalTransactionId,
+          transactionInfo,
+          renewalInfo,
+          ...(triggerNotificationType && {
+            notificationType: triggerNotificationType,
+          }),
+          ...(triggerNotificationSubtype && {
+            notificationSubtype: triggerNotificationSubtype,
+          }),
+        }
+      );
     } catch (err) {
-      throw this.convertAppStoreAPIErrorToLibraryError(err);
+      const libraryError = this.convertAppStoreAPIErrorToLibraryError(err);
+      this.log.error(
+        'querySubscriptionPurchase.PurchaseQueryError.LibraryError',
+        {
+          err: libraryError,
+          originalTransactionId,
+        }
+      );
+      throw libraryError;
     }
 
     try {
@@ -123,6 +145,13 @@ export class PurchaseManager {
       // Some unexpected error has occurred while interacting with Firestore.
       const libraryError = new Error(err.message);
       libraryError.name = PurchaseQueryError.OTHER_ERROR;
+      this.log.error(
+        'querySubscriptionPurchase.PurchaseQueryError.OtherError',
+        {
+          err: libraryError,
+          originalTransactionId,
+        }
+      );
       throw libraryError;
     }
   }
@@ -208,9 +237,17 @@ export class PurchaseManager {
 
       return purchaseList;
     } catch (err) {
-      this.log.error('queryCurrentSubscriptions.firestoreFetch', { err });
       const libraryError = new Error(err.message);
       libraryError.name = PurchaseQueryError.OTHER_ERROR;
+      this.log.error(
+        'queryCurrentSubscriptionPurchases.PurchaseQueryError.OtherError',
+        {
+          err: libraryError,
+          originalTransactionIds: purchaseList.map(
+            (p) => p.originalTransactionId
+          ),
+        }
+      );
       throw libraryError;
     }
   }

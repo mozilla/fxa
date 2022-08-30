@@ -157,7 +157,10 @@ describe('AppleIapHandler', () => {
     let mockPurchase;
     let mockRequest;
     beforeEach(() => {
-      mockDecodedNotificationPayload = {};
+      mockDecodedNotificationPayload = {
+        notificationType: 'WOW',
+        subtype: 'IMPRESS',
+      };
       mockPurchase = {
         userId: 'test1234',
       };
@@ -187,6 +190,31 @@ describe('AppleIapHandler', () => {
       assert.calledOnce(appleIap.purchaseManager.getSubscriptionPurchase);
       assert.calledOnce(appleIap.purchaseManager.processNotification);
       assert.calledOnce(mockCapabilityService.iapUpdate);
+      assert.calledOnceWithExactly(
+        log.debug,
+        'appleIap.processNotification.decodedPayload',
+        {
+          bundleId: mockBundleId,
+          originalTransactionId: mockOriginalTransactionId,
+          notificationType: mockDecodedNotificationPayload.notificationType,
+          notificationSubtype: mockDecodedNotificationPayload.subtype,
+        }
+      );
+    });
+
+    it("doesn't log a notificationSubtype when omitted from the notification", async () => {
+      delete mockDecodedNotificationPayload.subtype;
+      const result = await appleIapHandler.processNotification(mockRequest);
+      assert.deepEqual(result, {});
+      assert.calledOnceWithExactly(
+        log.debug,
+        'appleIap.processNotification.decodedPayload',
+        {
+          bundleId: mockBundleId,
+          originalTransactionId: mockOriginalTransactionId,
+          notificationType: mockDecodedNotificationPayload.notificationType,
+        }
+      );
     });
 
     it('throws an unauthorized error on certificate validation failure', async () => {

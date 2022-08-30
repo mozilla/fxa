@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference } from '@google-cloud/firestore';
 import {
-  decodeNotificationPayload,
   DecodedNotificationPayload,
+  decodeNotificationPayload,
   decodeTransaction,
   NotificationSubtype,
   NotificationType,
@@ -61,6 +61,13 @@ export class PurchaseManager extends PurchaseManagerBase {
         // Error when attempt to query purchase. Return not found error to caller.
         const libraryError = new Error(err.message);
         libraryError.name = PurchaseUpdateError.INVALID_ORIGINAL_TRANSACTION_ID;
+        this.log.error(
+          'registerToUserAccount.PurchaseUpdateError.InvalidOriginalTransactionId',
+          {
+            err: libraryError,
+            originalTransactionId,
+          }
+        );
         throw libraryError;
       }
     }
@@ -81,6 +88,10 @@ export class PurchaseManager extends PurchaseManagerBase {
         'Purchase has been registered to another user'
       );
       libraryError.name = PurchaseUpdateError.CONFLICT;
+      this.log.error('registerToUserAccount.PurchaseUpdateError.Conflict', {
+        err: libraryError,
+        originalTransactionId,
+      });
       throw libraryError;
     }
 
@@ -105,6 +116,13 @@ export class PurchaseManager extends PurchaseManagerBase {
     } catch (err) {
       const libraryError = new Error(err.message);
       libraryError.name = PurchaseUpdateError.OTHER_ERROR;
+      this.log.error(
+        'forceRegisterToUserAccount.PurchaseUpdateError.OtherError',
+        {
+          err: libraryError,
+          originalTransactionId,
+        }
+      );
       throw libraryError;
     }
   }
