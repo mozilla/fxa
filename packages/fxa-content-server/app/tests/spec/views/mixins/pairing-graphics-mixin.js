@@ -60,6 +60,11 @@ describe('views/mixins/pairing-graphics-mixin', function () {
       assert.equal(view.showDownloadFirefoxQrCode(), true);
     });
 
+    it('returns true if entry point is fx-view', () => {
+      sinon.stub(view, 'getSearchParam').callsFake(() => 'fx-view');
+      assert.equal(view.showDownloadFirefoxQrCode(), true);
+    });
+
     it('returns false if entry point is not app menu', () => {
       sinon.stub(view, 'getSearchParam').callsFake(() => undefined);
       assert.equal(view.showDownloadFirefoxQrCode(), false);

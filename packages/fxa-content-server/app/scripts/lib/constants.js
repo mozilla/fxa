@@ -171,6 +171,7 @@ module.exports = {
   FIREFOX_PREFERENCES_ENTRYPOINT: 'preferences',
   FIREFOX_SYNCED_TABS_ENTRYPOINT: 'synced-tabs',
   FIREFOX_TABS_SIDEBAR_ENTRYPOINT: 'tabs-sidebar',
+  FIREFOX_FX_VIEW: 'fx-view',
 
   // This is compared against all secondary email
   // records, both verified and unverified
