@@ -20,6 +20,7 @@ const PLAN: Plan = {
   amount: 599,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   plan_metadata: null,
   product_metadata: null,
 };

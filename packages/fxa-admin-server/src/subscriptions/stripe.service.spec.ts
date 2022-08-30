@@ -189,6 +189,7 @@ describe('Stripe Service', () => {
 
   describe('iap mappings', () => {
     const plan: AbbrevPlan = {
+      active: true,
       amount: 1.0,
       configuration: null,
       currency: 'USD',

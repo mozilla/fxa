@@ -26,6 +26,7 @@ export interface Plan {
   product_id: string;
   product_metadata: RawMetadata | null;
   product_name: string;
+  active: boolean;
   // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
   configuration?: PlanConfigurationDtoT | null;
 }
@@ -98,6 +99,7 @@ export type AbbrevPlan = {
   product_id: string;
   product_metadata: Stripe.Product['metadata'];
   product_name: string;
+  active: boolean;
   // TODO remove the '?' here when removing the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
   configuration?: PlanConfigurationDtoT | null;
 };
