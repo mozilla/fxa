@@ -55,14 +55,6 @@ class Renderer extends Localizer {
       : localizedString;
   }
 
-  private getFtlMsg(
-    ftlId: Pick<FtlIdMsg, 'id'>,
-    message: Pick<FtlIdMsg, 'message'>
-  ) {
-    // TODO: get message from Fluent bundle and return this as fallback text
-    return message;
-  }
-
   /**
    * Renders and localizes an MJML/EJS email.
    * @param templateContext Contains either values sent through mailer.send or mock values from Storybook
@@ -76,6 +68,22 @@ class Renderer extends Localizer {
       acceptLanguage
     );
 
+    function getFtlMsg(
+      ftlId: Pick<FtlIdMsg, 'id'>,
+      fallback: Pick<FtlIdMsg, 'message'>
+    ) {
+      // TODO (rough pseudo code, actual functionality may differ)
+      // Also see https://github.com/mozilla/fxa/pull/11530/files
+      //
+      // 1) Grab translated message from Fluent bundle based on locale and ftlId
+      // 2) If message contains `VariableReferences`, supply them with matching `templateValues`
+      // 3) If error or no `VariableReferences`, then `return fallback;`
+      //
+      // The linked PR uses the 'en' bundle as a single source of truth for variable presence.
+      // I'm not sure that's more preferable here given we aren't using `l10n-data-args`.
+      return fallback;
+    }
+
     const context = {
       ...templateContext.templateValues,
       ...templateContext,
@@ -83,7 +91,7 @@ class Renderer extends Localizer {
       // subject will always be set later but initialize with a string to make TS happy
       subject: '',
       //@ts-ignore TODO: add to RendererContext type
-      getFtlMsg: this.getFtlMsg,
+      getFtlMsg,
     } as RendererContext;
 
     if (template !== '_storybook') {

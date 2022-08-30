@@ -53,9 +53,7 @@
       <mj-column>
         <mj-text css-class="footer-text-bottom-margin">
           <% if (locals.productName) { %>
-            <span data-l10n-id="subplat-explainer-specific" data-l10n-args="<%= JSON.stringify({ email, productName }) %>">
-              You’re receiving this email because <%- email %> has a Firefox account and you signed up for <%- productName %>.
-            </span>
+            <%- locals.getFtlMsg('subplat-explainer-specific', `You’re receiving this email because ${name} has a Firefox account and you signed up for ${productName}.`) %>
           <% } else if (locals.reminderShortForm) { %>
             <span data-l10n-id="subplat-explainer-reminder-form" data-l10n-args="<%= JSON.stringify({ email }) %>">
               You’re receiving this email because <%- email %> has a Firefox account.
