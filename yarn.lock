@@ -17,7 +17,6 @@ __metadata:
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.2
     fxa-jwtool: ^0.7.2
-    fxa-shared: "workspace:*"
     ioredis: ^5.0.6
     morgan: ^1.10.0
     node-rsa: 1.1.1
