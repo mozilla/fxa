@@ -74,7 +74,7 @@ BEGIN
         from sessionTokens AS st
         LEFT JOIN unverifiedTokens AS ut
         ON st.tokenId = ut.tokenId
-        WHERE st.createdAt > @pruneFrom
+        WHERE st.createdAt >= @pruneFrom
         AND st.createdAt <= @pruneUntil
         AND NOT EXISTS (
             SELECT sessionTokenId FROM devices
@@ -89,7 +89,7 @@ BEGIN
         FROM sessionTokens AS st
         LEFT JOIN unverifiedTokens AS ut
         ON st.tokenId = ut.tokenId
-        WHERE st.createdAt > @pruneFrom
+        WHERE st.createdAt >= @pruneFrom
         AND st.createdAt <= @pruneUntil
         AND NOT EXISTS (
             SELECT sessionTokenId FROM devices

@@ -12,6 +12,10 @@ import { MetaData } from '../../../../db/models/auth/metadata';
 import { uuidTransformer } from '../../../../db/transformers';
 import { ILogger } from '../../../../log';
 import { defaultOpts, testDatabaseSetup } from '../../helpers';
+import crypto from 'crypto';
+
+const toRandomBuff = (size) =>
+  uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
 
 describe('PruneTokens', () => {
   const sandbox = sinon.createSandbox();
@@ -26,7 +30,9 @@ describe('PruneTokens', () => {
   let knex: Knex;
   let pruneTokens: PruneTokens;
   let now: number;
-  const age = 1e4;
+  let tokenIds: string[] = [];
+  const age = 1e9;
+  const uid = uuidTransformer.to('0123456789abcdef0000000000000000');
 
   before(async () => {
     knex = await testDatabaseSetup({
@@ -35,6 +41,8 @@ describe('PruneTokens', () => {
       oauth: false,
       profile: false,
     });
+
+    knex.client.isDebugging = false;
 
     await MetaData.query().insert({
       name: 'prunedUntil',
@@ -60,26 +68,46 @@ describe('PruneTokens', () => {
 
     now = Date.now();
 
-    // Add a dummy token that was created 10s ago
-    await insertToken(now - age, now - age);
+    // Add a 100 dummy token that were created 10s ago
+    for (let i = 0; i < 100; i++) {
+      await insertToken(
+        uid,
+        toRandomBuff(32),
+        toRandomBuff(32),
+        now - age - i * 1000,
+        now - age - i * 1000
+      );
+    }
 
     // Sanity check that a token does exist
-    const sessionTokens1 = await SessionToken.query().select(
-      'tokenId',
-      'createdAt'
-    );
-    expect(sessionTokens1.length).to.equal(1);
+    let sessionTokens1 = await SessionToken.query()
+      .select('tokenId', 'createdAt')
+      .orderBy('createdAt', 'DESC');
+
+    // Keep a list of ordered token IDs for later tests.
+    tokenIds = sessionTokens1.map((x) => x.tokenId);
+
+    expect(sessionTokens1.length).to.equal(100);
+    expect(sessionTokens1[0].createdAt > sessionTokens1[99].createdAt).to.be
+      .true;
   });
 
   afterEach(() => {
     sandbox.reset();
+    sinon.restore();
   });
 
-  async function insertToken(createdAt: number, lastAccessTime: number) {
+  async function insertToken(
+    uid: Buffer,
+    tokenId: Buffer,
+    tokenData: Buffer,
+    createdAt: number,
+    lastAccessTime: number
+  ) {
     await SessionToken.query().insert({
-      tokenId: uuidTransformer.to('0123456789abcdef0123456789abcdef'),
-      tokenData: uuidTransformer.to('0123456789abcdef0123456789abcdef'),
-      uid: uuidTransformer.to('0123456789abcdef'),
+      tokenId,
+      tokenData,
+      uid,
       createdAt,
       lastAccessTime,
       uaBrowser: '',
@@ -114,46 +142,133 @@ describe('PruneTokens', () => {
     );
 
     expect(sessionTokens.length).to.equal(0);
-    expect(result.uids?.[0]?.uid?.toString('hex')).to.equal(
-      '0123456789abcdef0000000000000000'
-    );
+    expect(result.uids?.[0]?.uid.toString('hex')).to.equal(uid.toString('hex'));
+    expect(statsd.increment.calledWith('prune-tokens.start')).to.be.true;
+    expect(statsd.increment.calledWith('prune-tokens.end')).to.be.true;
+    expect(statsd.increment.calledWith('prune-tokens.error')).to.be.false;
+    expect(
+      statsd.increment.calledWith(
+        'prune-tokens.complete.session-tokens-deleted',
+        100
+      )
+    ).to.be.true;
   });
 
   it('Will not prune valid tokens', async () => {
-    const result = await pruneTokens.prune(now - age - 1, now - age - 1);
+    const result = await pruneTokens.prune(now, now);
     const sessionTokens = await SessionToken.query().select(
       'tokenId',
       'createdAt'
     );
 
-    expect(sessionTokens.length).to.equal(1);
+    expect(sessionTokens.length).to.equal(100);
     expect(result.uids).to.be.null;
   });
 
-  it('Will limit sessions', async () => {
-    const result = await pruneTokens.limitSessions(0);
-
-    expect(result.outputs['@accountsOverLimit']).to.equal(1);
-    expect(result.outputs['@totalDeletions']).to.equal(1);
-    expect(result.uids[0].uid.toString('hex')).to.equal(
-      '0123456789abcdef0000000000000000'
-    );
-  });
-
-  it('Calls statsd', async () => {
-    await pruneTokens.prune(1, 1);
-
-    expect(statsd.increment.calledWith('prune-tokens.start')).to.be.true;
-    expect(statsd.increment.calledWith('prune-tokens.error')).to.be.false;
+  it('Finds large accounts', async () => {
+    const result = await pruneTokens.findLargeAccounts(0, 1000);
+    expect(result.length).to.equal(1);
+    expect(result[0].uid.toString('hex')).to.equal(uid.toString('hex'));
+    expect(statsd.increment.calledWith('find-large-accounts.start')).to.be.true;
+    expect(statsd.increment.calledWith('find-large-accounts.end')).to.be.true;
+    expect(statsd.increment.calledWith('find-large-accounts.error')).to.be
+      .false;
     expect(
       statsd.increment.calledWith(
-        'prune-tokens.complete.session-tokens-deleted',
+        'find-large-accounts.complete.total-accounts',
         1
       )
     ).to.be.true;
   });
 
-  it('Handles error', async () => {
+  it('Find large accounts respects session limit', async () => {
+    const result = await pruneTokens.findLargeAccounts(1000, 1000);
+    expect(result.length).to.equal(0);
+  });
+
+  it('Finds large accounts and respects row limit', async () => {
+    const result = await pruneTokens.findLargeAccounts(0, 0);
+    expect(result.length).to.equal(0);
+  });
+
+  it('Limit sessions', async () => {
+    const result = await pruneTokens.limitSessions(
+      uid.toString('hex'),
+      0,
+      1000
+    );
+    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
+      x.tokenId.toString('hex')
+    );
+
+    expect(result.outputs['@totalDeletions']).to.equal(100);
+    expect(tokens.length).to.equal(0);
+    expect(tokens).to.not.include(
+      tokenIds[0],
+      'should have have removed the newest token'
+    );
+    expect(tokens).to.not.include(
+      tokenIds[tokenIds.length - 1],
+      'should have removed the oldest token'
+    );
+    expect(statsd.increment.calledWith('limit-sessions.start')).to.be.true;
+    expect(statsd.increment.calledWith('limit-sessions.end')).to.be.true;
+    expect(statsd.increment.calledWith('limit-sessions.error')).to.be.false;
+    expect(
+      statsd.increment.calledWith(
+        'limit-sessions.complete.total-deletions',
+        100
+      )
+    ).to.be.true;
+  });
+
+  it('Limits sessions and respects deletion limit', async () => {
+    const result = await pruneTokens.limitSessions(uid.toString('hex'), 0, 0);
+    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
+      x.tokenId.toString('hex')
+    );
+
+    expect(result.outputs['@totalDeletions']).to.equal(0);
+    expect(tokens.length).to.equal(100);
+    expect(tokens).to.include(tokenIds[0], 'should have kept the newest token');
+    expect(tokens).to.include(
+      tokenIds[tokenIds.length - 1],
+      'should have kept the oldest token'
+    );
+  });
+
+  it('Limits sessions and respects max sessions', async () => {
+    const result = await pruneTokens.limitSessions(
+      uid.toString('hex'),
+      40,
+      1000
+    );
+    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
+      x.tokenId.toString('hex')
+    );
+
+    expect(result.outputs['@totalDeletions']).to.equal(60);
+    expect(tokens.length).to.equal(40);
+    expect(tokens).to.include(tokenIds[0], 'should have kept the newest token');
+    expect(tokens).to.not.include(
+      tokenIds[tokenIds.length - 1],
+      'should have removed the oldest token'
+    );
+  });
+
+  it('Respects max sessions and deletion limit', async () => {
+    const result = await pruneTokens.limitSessions(uid.toString('hex'), 50, 10);
+    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
+      x.tokenId.toString('hex')
+    );
+
+    expect(result.outputs['@totalDeletions']).to.equal(10);
+    expect(tokens.length).to.equal(90);
+    expect(tokens).to.include(tokenIds[0]);
+    expect(tokens).to.not.include(tokenIds[tokenIds.length - 1]);
+  });
+
+  it('Handles prune error', async () => {
     // Causes error, will be reset on subsequent test
     (PruneTokens as any).knex = null;
 
@@ -161,5 +276,25 @@ describe('PruneTokens', () => {
 
     expect(statsd.increment.calledWith('prune-tokens.error')).to.be.true;
     expect(log.error.calledWith('prune-tokens')).to.be.true;
+  });
+
+  it('Handles findLargeAccounts error', async () => {
+    // Causes error, will be reset on subsequent test
+    (PruneTokens as any).knex = null;
+
+    await pruneTokens.findLargeAccounts(0, 1000);
+
+    expect(statsd.increment.calledWith('find-large-accounts.error')).to.be.true;
+    expect(log.error.calledWith('find-large-accounts')).to.be.true;
+  });
+
+  it('Handles limitSessions error', async () => {
+    // Causes error, will be reset on subsequent test
+    (PruneTokens as any).knex = null;
+
+    await pruneTokens.limitSessions(uid.toString('hex'), 0, 1000);
+
+    expect(statsd.increment.calledWith('limit-sessions.error')).to.be.true;
+    expect(log.error.calledWith('limit-sessions')).to.be.true;
   });
 });
