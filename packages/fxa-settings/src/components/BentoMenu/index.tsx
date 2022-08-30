@@ -17,6 +17,19 @@ import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Localized, useLocalization } from '@fluent/react';
+import { FluentVariable } from '@fluent/bundle';
+
+// TODO: console complains about `AppLocalizationProvider` side-effect
+function useFtlMsg() {
+  const { l10n } = useLocalization();
+  return {
+    getFtlMsg: (
+      id: string,
+      fallback: string,
+      args?: Record<string, FluentVariable> | null | undefined
+    ) => l10n.getString(id, args, fallback),
+  };
+}
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -26,12 +39,8 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 ltr:pr-1 rtl:pl-1';
-  const { l10n } = useLocalization();
-  const bentoMenuTitle = l10n.getString(
-    'bento-menu-title',
-    null,
-    'Firefox Bento Menu'
-  );
+  const { getFtlMsg } = useFtlMsg();
+  const bentoMenuTitle = getFtlMsg('bento-menu-title', 'Firefox Bento Menu');
 
   return (
     <div className="relative self-center flex" ref={bentoMenuInsideRef}>
