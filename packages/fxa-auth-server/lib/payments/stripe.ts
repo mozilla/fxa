@@ -196,7 +196,7 @@ export class StripeHelper extends StripeHelperBase {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2020-08-27',
+      apiVersion: '2022-08-01',
       maxNetworkRetries: 3,
     });
 

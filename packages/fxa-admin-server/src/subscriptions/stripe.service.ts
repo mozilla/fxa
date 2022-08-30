@@ -31,7 +31,7 @@ export const StripeFactory: Provider<Stripe> = {
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
     return new Stripe(stripeConfig.stripeApiKey, {
-      apiVersion: '2020-08-27',
+      apiVersion: '2022-08-01',
       maxNetworkRetries: 3,
     });
   },
