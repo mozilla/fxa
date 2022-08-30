@@ -13,7 +13,6 @@
  */
 import { ApolloError } from 'apollo-server';
 import * as Sentry from '@sentry/node';
-import '@sentry/tracing';
 import { Transaction } from '@sentry/types';
 
 import { ExtraContext, reportRequestException } from './reporting';
@@ -33,30 +32,7 @@ export async function createContext(ctx: any): Promise<Context> {
 
 export const SentryPlugin: ApolloServerPlugin<Context> = {
   requestDidStart({ request, context }) {
-    // Set the transacion name if request has an operation name defined
-    if (!!request.operationName) {
-      context.transaction.setName('GQL ' + request.operationName!);
-    }
-
     return {
-      willSendResponse({ context }) {
-        // Finalizes transactionand sends it off to Sentry
-        context.transaction.finish();
-      },
-      executionDidStart() {
-        return {
-          // Create child span for each field resolved
-          willResolveField({ context, info }) {
-            const span = context.transaction.startChild({
-              op: 'resolver',
-              description: `${info.parentType.name}.${info.fieldName}`,
-            });
-            return () => {
-              span.finish();
-            };
-          },
-        };
-      },
       didEncounterErrors({ context, errors, operation }) {
         // If we couldn't parse the operation, don't
         // do anything here
