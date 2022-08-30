@@ -55,6 +55,14 @@ class Renderer extends Localizer {
       : localizedString;
   }
 
+  private getFtlMsg(
+    ftlId: Pick<FtlIdMsg, 'id'>,
+    message: Pick<FtlIdMsg, 'message'>
+  ) {
+    // TODO: get message from Fluent bundle and return this as fallback text
+    return message;
+  }
+
   /**
    * Renders and localizes an MJML/EJS email.
    * @param templateContext Contains either values sent through mailer.send or mock values from Storybook
@@ -74,6 +82,8 @@ class Renderer extends Localizer {
       cssPath: this.bindings.opts.templates.cssPath,
       // subject will always be set later but initialize with a string to make TS happy
       subject: '',
+      //@ts-ignore TODO: add to RendererContext type
+      getFtlMsg: this.getFtlMsg,
     } as RendererContext;
 
     if (template !== '_storybook') {

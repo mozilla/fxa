@@ -18,7 +18,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-prompt-3">Use this confirmation code:</span>
+      <%- locals.getFtlMsg('verifyShortCode-prompt-3', 'Use this confirmation code') %>
     </mj-text>
 
     <mj-text css-class="code-large"><%- code %></mj-text>
