@@ -3,7 +3,15 @@ import { useAccount } from '../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 import { HomePath } from '../../constants';
-import { Localized } from '@fluent/react';
+import { Localized, LocalizedProps } from '@fluent/react';
+
+type FtlMsgProps = {
+  children: React.ReactNode;
+} & LocalizedProps;
+
+const FtlMsg = (props: FtlMsgProps) => (
+  <Localized {...props}>{props.children}</Localized>
+);
 
 export const Profile = () => {
   const { avatar, primaryEmail, displayName } = useAccount();
@@ -12,7 +20,7 @@ export const Profile = () => {
     <section className="mt-11" data-testid="settings-profile">
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="profile" className="nav-anchor"></span>
-        <Localized id="profile-heading">Profile</Localized>
+        <FtlMsg id="profile-heading">Profile</FtlMsg>
       </h2>
 
       <div className="bg-white tablet:rounded-xl shadow">
