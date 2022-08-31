@@ -119,20 +119,14 @@ export async function deletePayPalBillingAgreements(
   await deleteAllPayPalBAs(account.uid);
 }
 
-export async function init() {
-  const { log, database, senders, stripeHelper } =
-    await setupProcessingTaskObjects('remove-unverified-accounts');
-
-  const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
-  );
-  Container.set(PayPalClient, paypalClient);
-  const paypalHelper = new PayPalHelper({ log });
-  Container.set(PayPalHelper, paypalHelper);
-  const statsd = Container.get(StatsD);
-
-  statsd.increment('remove-unverified-accounts.startup');
-
+export async function removeUnverifiedAccounts(
+  database: any,
+  log: any,
+  statsd: StatsD,
+  stripeHelper: StripeHelper,
+  paypalHelper: PayPalHelper,
+  senders: any
+) {
   // retreive all unverified accounts
   const allUnverifiedAccounts = await retreiveUnverifiedAccounts(database);
   const removedAccounts: Account[] = [];
@@ -147,6 +141,8 @@ export async function init() {
         removedAccounts
       );
       await database.deleteAccount({ uid: account.uid });
+      log.info(`Suspected Fraudulent Account Deleted`, { account });
+      statsd.increment(`remove-unverified-accounts.deletion`);
     } catch (error) {
       reportSentryError(error);
       log.error(`Failed to remove unverified account`, { error });
@@ -156,6 +152,11 @@ export async function init() {
   // send emails for successfully removed customers
   for (const account of removedAccounts) {
     try {
+      log.info(`Suspected Fraudulent Account With Subscription Deleted`, {
+        account,
+      });
+      statsd.increment(`remove-unverified-accounts.deletionWithSubscription`);
+
       await senders.email.sendFraudulentAccountDeletionEmail(
         ...[account.emails!, account]
       );
@@ -166,8 +167,31 @@ export async function init() {
       });
     }
   }
+}
 
+export async function init() {
+  const { log, database, senders, stripeHelper } =
+    await setupProcessingTaskObjects('remove-unverified-accounts');
+
+  const paypalClient = new PayPalClient(
+    config.subscriptions.paypalNvpSigCredentials
+  );
+  Container.set(PayPalClient, paypalClient);
+  const paypalHelper = new PayPalHelper({ log });
+  Container.set(PayPalHelper, paypalHelper);
+  const statsd = Container.get(StatsD);
+
+  statsd.increment('remove-unverified-accounts.startup');
+  await removeUnverifiedAccounts(
+    database,
+    log,
+    statsd,
+    stripeHelper,
+    paypalHelper,
+    senders
+  );
   statsd.increment('remove-unverified-accounts.shutdown');
+
   await promisify(statsd.close).bind(statsd)();
   return 0;
 }

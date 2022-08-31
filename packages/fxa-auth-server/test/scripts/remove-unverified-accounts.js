@@ -4,6 +4,7 @@ import {
   retreiveUnverifiedAccounts,
   cancelSubscriptionsAndDeleteCustomer,
   issueRefund,
+  removeUnverifiedAccounts,
 } from '../../scripts/remove-unverified-accounts';
 import * as cp from 'child_process';
 import * as util from 'util';
@@ -81,7 +82,7 @@ describe('scripts/remove-unverified-accounts - retreiveUnverifiedAccounts', () =
   });
 });
 
-describe('scripts/remove-unverified-accounts - cancelSubscriptionsAndDeleteCustomer', () => {
+describe('scripts/remove-unverified-accounts', () => {
   let account, stripeHelper;
 
   beforeEach(() => {
@@ -127,18 +128,66 @@ describe('scripts/remove-unverified-accounts - cancelSubscriptionsAndDeleteCusto
     };
   });
 
-  it('calls refundPayment, cancelSubscription, and removeCustomer for a stripe customer', async () => {
-    stripeHelper.getPaymentProvider = () => {
-      return Promise.resolve('stripe');
-    };
-    const refundSpy = sinon.spy(stripeHelper, 'refundPayment');
-    const cancelSpy = sinon.spy(stripeHelper, 'cancelSubscription');
-    const removeSpy = sinon.spy(stripeHelper, 'removeCustomer');
+  describe('cancelSubscriptionsAndDeleteCustomer', () => {
+    it('calls refundPayment, cancelSubscription, and removeCustomer for a stripe customer', async () => {
+      stripeHelper.getPaymentProvider = () => {
+        return Promise.resolve('stripe');
+      };
+      const refundSpy = sinon.spy(stripeHelper, 'refundPayment');
+      const cancelSpy = sinon.spy(stripeHelper, 'cancelSubscription');
+      const removeSpy = sinon.spy(stripeHelper, 'removeCustomer');
 
-    await cancelSubscriptionsAndDeleteCustomer(stripeHelper, {}, account, []);
-    sinon.assert.calledOnce(refundSpy);
-    sinon.assert.calledOnce(cancelSpy);
-    sinon.assert.calledOnce(removeSpy);
+      await cancelSubscriptionsAndDeleteCustomer(stripeHelper, {}, account, []);
+      sinon.assert.calledOnce(refundSpy);
+      sinon.assert.calledOnce(cancelSpy);
+      sinon.assert.calledOnce(removeSpy);
+    });
+  });
+
+  describe('statsd/log', () => {
+    it('calls statsd/logs when a user with a subscription is deleted', async () => {
+      const sandbox = sinon.createSandbox();
+      const statsd = { increment: sandbox.stub() };
+
+      const database = {
+        listAllUnverifiedAccounts: () => {
+          return Promise.resolve([account]);
+        },
+      };
+
+      const log = {
+        info: sandbox.stub(),
+      };
+
+      const senders = {
+        email: {
+          sendFraudulentAccountDeletionEmail: () => {},
+        },
+      };
+
+      await removeUnverifiedAccounts(
+        database,
+        log,
+        statsd,
+        stripeHelper,
+        {},
+        senders
+      );
+      sinon.assert.calledWith(
+        statsd.increment,
+        'remove-unverified-accounts.deletion'
+      );
+      sinon.assert.calledWith(
+        statsd.increment,
+        'remove-unverified-accounts.deletionWithSubscription'
+      );
+      sinon.assert.calledWith(log.info, 'Suspected Fraudulent Account Deleted');
+      sinon.assert.calledWith(
+        log.info,
+        'Suspected Fraudulent Account With Subscription Deleted',
+        { account }
+      );
+    });
   });
 });
 
