@@ -136,11 +136,9 @@ export const SubscriptionUpgrade = ({
             </div>
           ) : null}
           <div className="payment-details">
-            <h3 className="billing-title">
-              <Localized id="sub-update-payment-title">
-                <span className="title">Payment information</span>
-              </Localized>
-            </h3>
+            <Localized id="sub-update-payment-title">
+              <span className="label-title">Payment information</span>
+            </Localized>
             <PaymentProviderDetails customer={customer!} />
           </div>
 

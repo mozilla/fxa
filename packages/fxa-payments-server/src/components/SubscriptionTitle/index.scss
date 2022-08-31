@@ -2,7 +2,10 @@
 
 .subscription-title {
   background-color: #fff;
-  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1), 2px 2px 2px -2px rgba(12, 12, 13, 0.1);  text-align: center;
+  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
+    2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+  padding-top: 20px;
+  text-align: center;
 
   .title {
     font-size: 22px;

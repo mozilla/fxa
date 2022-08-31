@@ -258,32 +258,28 @@ export const PaymentUpdateForm = ({
             </Localized>
             {paypalScriptLoaded && (
               <Suspense fallback={<div>Loading...</div>}>
-                <div className="paypal-button">
-                  <PaypalButton
-                    disabled={false}
-                    customer={customer}
-                    idempotencyKey={submitNonce}
-                    refreshSubmitNonce={refreshSubmitNonce}
-                    selectedPlan={plan!}
-                    newPaypalAgreement={false}
-                    postSubscriptionAttemptPaypalCallback={refreshSubscriptions}
-                    setSubscriptionError={setPaymentError}
-                    apiClientOverrides={apiClientOverrides}
-                    setTransactionInProgress={setTransactionInProgress}
-                    ButtonBase={paypalButtonBase}
-                  />
-                </div>
+                <PaypalButton
+                  disabled={false}
+                  customer={customer}
+                  idempotencyKey={submitNonce}
+                  refreshSubmitNonce={refreshSubmitNonce}
+                  selectedPlan={plan!}
+                  newPaypalAgreement={false}
+                  postSubscriptionAttemptPaypalCallback={refreshSubscriptions}
+                  setSubscriptionError={setPaymentError}
+                  apiClientOverrides={apiClientOverrides}
+                  setTransactionInProgress={setTransactionInProgress}
+                  ButtonBase={paypalButtonBase}
+                />
               </Suspense>
             )}
           </DialogMessage>
         )}
 
         <header id="payment-information">
-          <h2 className="billing-title">
-            <Localized id="sub-update-payment-title">
-              <span className="title">Payment information</span>
-            </Localized>
-          </h2>
+          <Localized id="sub-update-payment-title">
+            <span className="label-title">Payment information</span>
+          </Localized>
         </header>
         {!updateRevealed ? (
           <div className="with-settings-button">
