@@ -47,6 +47,14 @@ export class AppleIapHandler {
       }
       throw err;
     }
+    this.log.debug('appleIap.processNotification.decodedPayload', {
+      bundleId,
+      originalTransactionId,
+      notificationType: decodedPayload.notificationType,
+      ...(decodedPayload.subtype && {
+        notificationSubtype: decodedPayload.subtype,
+      }),
+    });
     const purchase =
       await this.appStore.purchaseManager.getSubscriptionPurchase(
         originalTransactionId

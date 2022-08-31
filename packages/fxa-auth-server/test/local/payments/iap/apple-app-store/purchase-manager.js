@@ -38,11 +38,17 @@ const mockDecodedNotificationPayload = {
 const mockDecodeNotificationPayload = sandbox.fake.resolves(
   mockDecodedNotificationPayload
 );
-const mockDecodeTransactionInfo = sandbox.fake.resolves({
+const mockDecodedTransactionInfo = {
   bundleId: mockBundleId,
   originalTransactionId: mockOriginalTransactionId,
-});
-const mockDecodeRenewalInfo = sandbox.fake.resolves({});
+};
+const mockDecodeTransactionInfo = sandbox.fake.resolves(
+  mockDecodedTransactionInfo
+);
+const mockDecodedRenewalInfo = {
+  autoRenewStatus: 0,
+};
+const mockDecodeRenewalInfo = sandbox.fake.resolves(mockDecodedRenewalInfo);
 const mockApiResult = {
   bundleId: mockBundleId,
   data: [
@@ -191,6 +197,16 @@ describe('PurchaseManager', () => {
       sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
       sinon.assert.calledOnce(mockDecodeTransactionInfo);
       sinon.assert.calledOnce(mockDecodeRenewalInfo);
+      sinon.assert.calledOnceWithExactly(
+        log.debug,
+        'appleIap.querySubscriptionPurchase.getSubscriptionStatuses',
+        {
+          bundleId: mockBundleId,
+          originalTransactionId: mockOriginalTransactionId,
+          transactionInfo: mockDecodedTransactionInfo,
+          renewalInfo: mockDecodedRenewalInfo,
+        }
+      );
 
       sinon.assert.calledOnce(mockPurchaseDbRef.doc);
       sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
@@ -198,6 +214,45 @@ describe('PurchaseManager', () => {
       sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
 
       sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+    });
+
+    it('logs the notification type and subtype if present', async () => {
+      const mockTriggerNotificationType = 'WOW';
+      const mockTriggerNotificationSubtype = 'IMPRESS';
+      await purchaseManager.querySubscriptionPurchase(
+        mockBundleId,
+        mockOriginalTransactionId,
+        mockTriggerNotificationType,
+        mockTriggerNotificationSubtype
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        log.debug,
+        'appleIap.querySubscriptionPurchase.getSubscriptionStatuses',
+        {
+          bundleId: mockBundleId,
+          originalTransactionId: mockOriginalTransactionId,
+          transactionInfo: mockDecodedTransactionInfo,
+          renewalInfo: mockDecodedRenewalInfo,
+          notificationType: mockTriggerNotificationType,
+          notificationSubtype: mockTriggerNotificationSubtype,
+        }
+      );
+    });
+
+    it("throws if there's an App Store Server client or API error", async () => {
+      mockAppStoreHelper.getSubscriptionStatuses = sinon.fake.rejects(
+        new Error('Oops')
+      );
+      try {
+        await purchaseManager.querySubscriptionPurchase(
+          mockBundleId,
+          mockOriginalTransactionId
+        );
+        assert.fail('Expected error');
+      } catch (err) {
+        assert.equal(err.name, PurchaseQueryError.OTHER_ERROR);
+      }
     });
 
     it('queries with found firestore doc', async () => {
@@ -308,7 +363,7 @@ describe('PurchaseManager', () => {
       });
       try {
         await purchaseManager.forceRegisterToUserAccount(
-          'testToken',
+          mockOriginalTransactionId,
           'testUserId'
         );
         assert.fail('Expected error');
