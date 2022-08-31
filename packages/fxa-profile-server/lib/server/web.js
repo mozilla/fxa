@@ -149,17 +149,6 @@ exports.create = async function createServer() {
       },
     });
 
-    // Finalize sentry transaction
-    server.events.on('response', (request) => {
-      request.app.sentry.transaction.name = `${request.method.toUpperCase()} ${
-        request.route.path
-      }`;
-      request.app.sentry.transaction.setHttpStatus(request.response.statusCode);
-      request.app.sentry.transaction.setData('url', request.path);
-      request.app.sentry.transaction.setData('query', request.query);
-      request.app.sentry.transaction.finish();
-    });
-
     // Handle sentry errors
     server.events.on(
       { name: 'request', channels: 'error' },
