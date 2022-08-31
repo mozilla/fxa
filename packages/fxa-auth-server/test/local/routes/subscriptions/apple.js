@@ -84,6 +84,15 @@ describe('AppleIapHandler', () => {
       assert.deepEqual(result, { transactionIdValid: true });
     });
 
+    it('accepts a "profile" scope for auth', async () => {
+      request.auth.credentials.scope = ['profile'];
+      appleIap.purchaseManager = {
+        registerToUserAccount: sinon.fake.resolves({}),
+      };
+      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      await appleIapHandler.registerOriginalTransactionId(request);
+    });
+
     it('throws on invalid package', async () => {
       appleIap.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
