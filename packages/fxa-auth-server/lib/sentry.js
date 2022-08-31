@@ -241,16 +241,6 @@ async function configureSentry(server, config, processName = 'key_server') {
       },
     });
 
-    server.events.on('response', (request) => {
-      request.app.sentry.transaction.name = `${request.method.toUpperCase()} ${
-        request.route.path
-      }`;
-      request.app.sentry.transaction.setHttpStatus(request.response.statusCode);
-      request.app.sentry.transaction.setData('url', request.path);
-      request.app.sentry.transaction.setData('query', request.query);
-      request.app.sentry.transaction.finish();
-    });
-
     server.events.on('request', (request, event, tags) => {
       if (event?.error && tags?.handler && tags?.error) {
         reportSentryError(event.error, request);
