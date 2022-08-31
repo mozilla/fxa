@@ -4,7 +4,7 @@ subscriptionUpgrade-title = "Thank you for upgrading!"
 
 subscriptionUpgrade-upgrade-info = "You have successfully upgraded from <%- productNameOld %> to <%- productName %>."
 
-subscriptionUpgrade-content-charge-info = "Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycleOld %>."
+<% if (locals.productPaymentCycleOld === locals.productPaymentCycleNew) { %>subscriptionUpgrade-content-charge-info = "Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycleOld %>."<% } else { %>subscriptionUpgrade-content-charge-info-different-cycle = "You will be charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this <%- productPaymentCycleOld %>. Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>."<% } %>
 
 subscriptionUpgrade-install = "If there is new software for you to install in order to use <%- productName %>, you will receive a separate email with download instructions."
 
