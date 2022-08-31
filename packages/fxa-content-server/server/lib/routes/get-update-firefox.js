@@ -11,6 +11,9 @@ const { logFlowEvent } = require('../flow-event');
 const Url = require('url');
 const uuid = require('node-uuid');
 const validation = require('../validation');
+const {
+  overrideJoiMessages,
+} = require('fxa-shared/sentry/joi-message-overrides');
 
 const {
   ACTION: ACTION_TYPE,
@@ -50,7 +53,7 @@ module.exports = function (config) {
     validate: {
       // because this endpoint logs data from the query params,
       // ensure the query params are all well formed
-      query: QUERY_PARAM_SCHEMA,
+      query: overrideJoiMessages(QUERY_PARAM_SCHEMA),
     },
     process: function (req, res) {
       const flowEventData = flowMetrics.create(

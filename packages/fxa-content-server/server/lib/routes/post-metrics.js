@@ -12,6 +12,9 @@ const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
 const MetricsCollector = require('../metrics-collector-stderr');
 const validation = require('../validation');
+const {
+  overrideJoiMessages,
+} = require('fxa-shared/sentry/joi-message-overrides');
 
 const clientMetricsConfig = config.get('client_metrics');
 const DISABLE_CLIENT_METRICS_STDERR =
@@ -163,7 +166,7 @@ module.exports = function () {
     method: 'post',
     path: '/metrics',
     validate: {
-      body: BODY_SCHEMA,
+      body: overrideJoiMessages(BODY_SCHEMA),
     },
     preProcess: function (req, res, next) {
       // convert text/plain types to JSON for validation.

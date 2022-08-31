@@ -12,6 +12,9 @@ const joi = require('joi');
 const logger = require('../logging/log')();
 const url = require('url');
 const validation = require('../validation');
+const {
+  overrideJoiMessages,
+} = require('fxa-shared/sentry/joi-message-overrides');
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
 const STRING_TYPE = validation.TYPES.LONG_STRING;
@@ -63,7 +66,7 @@ module.exports = function (options = {}) {
     method: 'post',
     path: options.path,
     validate: {
-      body: BODY_SCHEMA,
+      body: overrideJoiMessages(BODY_SCHEMA),
     },
     process: function (req, res) {
       res.json({ success: true });
