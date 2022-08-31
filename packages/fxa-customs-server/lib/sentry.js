@@ -25,9 +25,7 @@ async function configureSentry(server, config, log) {
   );
   Sentry.init({
     ...opts,
-    integrations: [
-      new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-    ],
+    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
     beforeSend(event, _hint) {
       event = tagCriticalEvent(event);
       event = tagFxaName(event, opts.serverName);
@@ -73,17 +71,6 @@ async function configureSentry(server, config, log) {
 
       return h.continue;
     },
-  });
-
-  // Finalize Transaction
-  server.events.on('response', (request) => {
-    request.app.sentry.transaction.name = `${request.method.toUpperCase()} ${
-      request.route.path
-    }`;
-    request.app.sentry.transaction.setHttpStatus(request.response.statusCode);
-    request.app.sentry.transaction.setData('url', request.path);
-    request.app.sentry.transaction.setData('query', request.query);
-    request.app.sentry.transaction.finish();
   });
 
   // Sentry handler for hapi errors
