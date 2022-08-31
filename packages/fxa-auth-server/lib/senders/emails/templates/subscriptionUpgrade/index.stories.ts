@@ -21,11 +21,25 @@ const createStory = subplatStoryWithProps(
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     productName: 'Product Name B',
     productNameOld: 'Product Name A',
-    productPaymentCycleNew: 'year',
+    productPaymentCycleNew: 'month',
     productPaymentCycleOld: 'month',
     paymentProrated: '$5,231.00',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }
 );
 
-export const SubscriptionUpgrade = createStory();
+export const SubscriptionUpgradeSameBillingCycle = createStory(
+  {},
+  'Subscription upgrade - same billing cycle'
+);
+
+export const SubscriptionUpgradeDifferentBillingCycle = createStory(
+  {
+    paymentAmountNew: '$69.89',
+    paymentAmountOld: '$9.89',
+    productPaymentCycleNew: 'year',
+    productPaymentCycleOld: 'month',
+    paymentProrated: '$60.00',
+  },
+  'Subscription upgrade - different billing cycle'
+);
