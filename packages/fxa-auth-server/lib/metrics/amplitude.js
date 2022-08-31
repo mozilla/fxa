@@ -302,7 +302,7 @@ module.exports = (log, config) => {
           productId,
           service,
           uid,
-          userAgent: request.headers['user-agent'],
+          userAgent: request.headers?.['user-agent'],
         },
       };
       log.info('rawAmplitudeData', rawEvent);

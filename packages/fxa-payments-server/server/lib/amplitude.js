@@ -83,7 +83,7 @@ module.exports = (event, request, data) => {
       context: {
         eventSource: 'payments',
         version: VERSION,
-        userAgent: request.headers['user-agent'],
+        userAgent: request.headers?.['user-agent'],
         ...picked,
       },
     };
@@ -91,7 +91,7 @@ module.exports = (event, request, data) => {
     statsd.increment('amplitude.event.raw');
   }
 
-  const userAgent = ua.parse(request.headers['user-agent']);
+  const userAgent = ua.parse(request.headers?.['user-agent']);
 
   statsd.increment('amplitude.event');
 
