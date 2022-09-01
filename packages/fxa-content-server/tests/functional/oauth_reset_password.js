@@ -303,7 +303,7 @@ registerSuite('oauth reset password with TOTP', {
   tests: {
     'reset password, verify same browser same tab': function () {
       return this.remote
-        .then(openVerificationLinkInSameTab(email, 1))
+        .then(openVerificationLinkInSameTab(email, 2))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
@@ -320,7 +320,7 @@ registerSuite('oauth reset password with TOTP', {
 
     'reset password, verify same browser different tab': function () {
       return this.remote
-        .then(openVerificationLinkInNewTab(email, 1))
+        .then(openVerificationLinkInNewTab(email, 2))
         .then(switchToWindow(1))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
@@ -342,7 +342,7 @@ registerSuite('oauth reset password with TOTP', {
       function () {
         return (
           this.remote
-            .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD, 1))
+            .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD, 2))
 
             // user verified in a new browser, they have to enter
             // their password in the original tab.
@@ -373,7 +373,7 @@ registerSuite('oauth reset password with TOTP', {
           this.remote
             // clear all browser state, simulate opening in a new browser
             .then(clearBrowserState({ forceAll: true }))
-            .then(openVerificationLinkInSameTab(email, 1))
+            .then(openVerificationLinkInSameTab(email, 2))
             .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
             // this tab's success is seeing the reset password complete header.

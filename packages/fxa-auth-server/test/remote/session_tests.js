@@ -447,6 +447,10 @@ describe('remote session', function () {
         })
         .then((x) => {
           client = x;
+          // Clears inbox of new signin email
+          return server.mailbox.waitForEmail(email);
+        })
+        .then(() => {
           return client.sessionStatus();
         })
         .then((status) => {

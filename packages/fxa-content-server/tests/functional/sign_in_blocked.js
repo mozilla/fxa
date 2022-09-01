@@ -399,7 +399,7 @@ registerSuite('signin blocked', {
           )
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(fillOutSignInUnblock(email, 2))
+          .then(fillOutSignInUnblock(email, 3))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
