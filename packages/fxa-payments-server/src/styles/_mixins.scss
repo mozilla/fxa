@@ -1,8 +1,8 @@
 @mixin checkout-title() {
   border-top: 0;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
-    2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgb(158, 158, 158),
+    2px 2px 2px -2px rgb(158, 158, 158);
 
   @include max-width("tablet") {
     position: relative;
@@ -12,7 +12,7 @@
 @mixin checkout-view() {
   grid-row: 2/3;
   background: $color-white;
-  box-shadow: 0px 1px 4px rgba(12, 12, 13, 0.1);
+  box-shadow: 0px 1px 4px rgb(158, 158, 158);
   border-radius: 8px;
   color: rgba(12, 12, 13, 0.8);
   padding: 16px 16px 60px;
@@ -24,7 +24,7 @@
 
   @include min-width("desktop") {
     min-width: 60%;
-    padding: 0 48px 48px;
+    padding: -1px 48px 48px;
   }
 
   .wrapper {

@@ -65,11 +65,19 @@
 }
 
 .coupon-info {
-  @apply flex items-center justify-center gap-2 pt-6 font-medium text-sm text-green-900;
+  @apply pt-6 font-medium text-sm;
+}
+
+.green-icon-text {
+  @apply flex items-center justify-center gap-2 text-green-900;
+}
+
+.plan-details-component {
+  @apply my-0 mx-4 p-0;
 }
 
 .plan-details-component-card {
-  @apply bg-white rounded-lg shadow-sm shadow-grey-300;
+  @apply bg-white rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 tablet:rounded-lg;
 }
 
 .plan-details-component-inner {

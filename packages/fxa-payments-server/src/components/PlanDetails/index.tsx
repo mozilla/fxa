@@ -73,7 +73,7 @@ export const PlanDetails = ({
 
   return (
     <div
-      className="plan-details-component my-8 mx-0 p-0"
+      className="plan-details-component"
       {...{ role }}
       data-testid="plan-details-component"
     >
@@ -116,9 +116,14 @@ export const PlanDetails = ({
           </div>
 
           {!detailsHidden && productDetails.details && (
-            <div className="mt-2 pt-0 px-4 pb-px tablet:border-b-0 text-left" data-testid="list">
+            <div
+              className="mt-2 pt-0 px-4 pb-px tablet:border-b-0 text-left"
+              data-testid="list"
+            >
               <Localized id="plan-details-header">
-                <h4 className="text-sm text-grey-600 my-4 mx-0">Product details</h4>
+                <h4 className="text-sm text-grey-600 my-4 mx-0">
+                  Product details
+                </h4>
               </Localized>
 
               <ul className="row-divider-grey-200 text-grey-400 m-0 pl-3">
@@ -145,9 +150,9 @@ export const PlanDetails = ({
                           intervalCount: interval_count,
                         }}
                       >
-                      <div>
-                        {getLocalizedCurrencyString(amount, currency)}
-                      </div>
+                        <div>
+                          {getLocalizedCurrencyString(amount, currency)}
+                        </div>
                       </Localized>
                     </div>
 
@@ -209,9 +214,12 @@ export const PlanDetails = ({
                   </Localized>
                 </div>
 
-                {infoBoxMessage && (
-                  infoBoxMessage.couponDurationDate ? (
-                    <div className="coupon-info" data-testid="coupon-success-with-date">
+                {infoBoxMessage &&
+                  (infoBoxMessage.couponDurationDate ? (
+                    <div
+                      className="green-icon-text coupon-info"
+                      data-testid="coupon-success-with-date"
+                    >
                       <img src={infoLogo} alt="" />
 
                       <Localized
@@ -227,20 +235,22 @@ export const PlanDetails = ({
                       </Localized>
                     </div>
                   ) : (
-                    <div className="coupon-info" data-testid="coupon-success">
+                    <div
+                      className="green-icon-text coupon-info"
+                      data-testid="coupon-success"
+                    >
                       <img src={infoLogo} alt="" />
 
                       <Localized id={infoBoxMessage.message}>
                         {infoBoxMessage.message}
                       </Localized>
                     </div>
-                  )
-                )}
+                  ))}
               </div>
             </div>
           )}
 
-          { showExpandButton && (
+          {showExpandButton && (
             <div className="footer text-center" data-testid="footer">
               {detailsHidden ? (
                 <Localized id="plan-details-show-button">

@@ -85,7 +85,7 @@ export const PaymentErrorView = ({
     <>
       {title}
       <section
-        className={`payment-error row-start-3 row-end-4 mt-6 mx-4 tablet:mt-0 ${className}`}
+        className={`payment-error row-start-3 row-end-4 mx-4 tablet:mt-0 ${className}`}
         data-testid="payment-error"
       >
         <div className="wrapper mb-16">
