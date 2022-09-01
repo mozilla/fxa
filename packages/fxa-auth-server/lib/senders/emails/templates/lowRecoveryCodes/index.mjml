@@ -5,21 +5,39 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="codes-reminder-title">Low recovery codes remaining</span>
+      <% if (numberRemaining === 0 ) { %>
+        <span data-l10n-id="codes-reminder-title-zero">You’re out of backup authentication codes!</span>
+      <% } else if (numberRemaining === 1) { %>
+        <span data-l10n-id="codes-reminder-title-one">You’re on your last backup authentication code</span>
+      <% } else { %>
+        <span data-l10n-id="codes-reminder-title-two">Time to create more backup authentication codes</span>
+      <%} %>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-body">
-      <span data-l10n-id="codes-reminder-description">We noticed that you are running low on recovery codes. Please consider generating new codes to avoid getting locked out of your account.</span>
-    </mj-text>
+      <% if (numberRemaining < 2) { %>
+        <mj-text css-class="text-body">
+          <span data-l10n-id="codes-reminder-description-part-one">Backup authentication codes help you restore your info when you forget your password.</span>
+        </mj-text>
+        <mj-text css-class="text-body">
+          <span data-l10n-id="codes-reminder-description-part-two">Create new codes now so you don’t lose your data later.</span>
+        </mj-text>
+      <% } else { %>
+        <mj-text css-class="text-body">
+          <span data-l10n-id="codes-reminder-description-two-left">You only have two codes left.</span>
+        </mj-text>
+        <mj-text css-class="text-body">
+          <span data-l10n-id="codes-reminder-description-create-codes">Create new backup authentication codes to help you get back into your account if you’re locked out.</span>
+        </mj-text>
+      <%} %>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "lowRecoveryCodes-action",
-  buttonText: "Generate codes"
+  buttonL10nId: "lowRecoveryCodes-action-2",
+  buttonText: "Create codes"
 }) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

@@ -18,6 +18,13 @@ const createStory = storyWithProps(
   }
 );
 
+export const LowRecoveryCodesZero = createStory(
+  {
+    numberRemaining: 0,
+  },
+  'User has 0 recovery codes remaining'
+);
+
 export const LowRecoveryCodesOne = createStory(
   {
     numberRemaining: 1,
