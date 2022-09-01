@@ -39,7 +39,7 @@
           align="left"
           href="https://www.mozilla.org/firefox/new"
           src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo-email.png"
-          alt="Firefox logo"
+          alt="<%- locals.getFtlMsg('subplat-header-firefox-logo-2', 'Firefox logo') %>"
           title="Firefox">
         </mj-image>
       </mj-column>
