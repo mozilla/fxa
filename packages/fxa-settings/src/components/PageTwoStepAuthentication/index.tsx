@@ -15,7 +15,10 @@ import { checkCode, copyRecoveryCodes, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
-import { AuthUiErrors, composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from '../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
@@ -316,6 +319,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
+                contentType="Firefox backup verification codes"
               ></DataBlock>
             </div>
           </div>

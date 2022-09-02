@@ -119,7 +119,9 @@ test.describe('severity-3 #smoke', () => {
     await recoveryKey.setPassword(credentials.password);
     await recoveryKey.submit();
     const dl = await recoveryKey.dataTrio.clickDownload();
-    expect(dl.suggestedFilename()).toBe(`${credentials.email} Firefox.txt`);
+    expect(dl.suggestedFilename()).toBe(
+      `${credentials.email} Firefox recovery key.txt`
+    );
     const clipboard = await recoveryKey.dataTrio.clickCopy();
     expect(clipboard).toEqual(await recoveryKey.getKey());
     const printed = await recoveryKey.dataTrio.clickPrint();
