@@ -11,7 +11,7 @@ import { ReactComponent as PrintIcon } from './print.svg';
 import { useAccount } from '../../models';
 
 export type DownloadContentType =
-  | 'Firefox recovery key'
+  | 'Firefox account recovery key'
   | 'Firefox backup verification codes'
   | 'Firefox';
 
@@ -19,7 +19,8 @@ const DownloadContentTypeL10nMapping: Record<DownloadContentType, string> = {
   Firefox: 'get-data-trio-title-firefox',
   'Firefox backup verification codes':
     'get-data-trio-title-firefox-backup-verification-codes',
-  'Firefox recovery key': 'get-data-trio-title-firefox-recovery-key',
+  'Firefox account recovery key':
+    'get-data-trio-title-firefox-account-recovery-key',
 };
 
 export type GetDataTrioProps = {

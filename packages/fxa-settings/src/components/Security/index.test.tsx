@@ -28,14 +28,14 @@ describe('Security', () => {
       </AppContext.Provider>
     );
 
-    expect(await screen.findByText('Recovery key')).toBeTruthy();
+    expect(await screen.findByText('Account recovery key')).toBeTruthy();
     expect(await screen.findByText('Two-step authentication')).toBeTruthy();
 
     const result = await screen.findAllByText('Not Set');
     expect(result).toHaveLength(2);
   });
 
-  it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
+  it('renders "enabled two factor" and "account recovery key present" <Security/> with correct content', async () => {
     const account = {
       avatar: { url: null, id: null },
       primaryEmail: {

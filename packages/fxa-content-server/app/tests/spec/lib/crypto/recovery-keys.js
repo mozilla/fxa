@@ -21,7 +21,7 @@ const encryptionOptions = {
 
 describe('lib/crypto/recovery-keys', () => {
   describe('getRecoveryKeyVersion', () => {
-    it('should get current recovery key version', () => {
+    it('should get current account recovery key version', () => {
       const version = RecoveryKeys.getCurrentRecoveryKeyVersion();
       assert.equal(version, 'A', 'current version matches');
     });
@@ -52,7 +52,10 @@ describe('lib/crypto/recovery-keys', () => {
 
     it('should fail for length less than 27', () => {
       return RecoveryKeys.generateRecoveryKey(26).then(assert.fail, (err) => {
-        assert.equal(err.message, 'Recovery key length must be at least 27');
+        assert.equal(
+          err.message,
+          'Account recovery key length must be at least 27'
+        );
       });
     });
   });
@@ -160,7 +163,7 @@ describe('lib/crypto/recovery-keys', () => {
       });
     });
 
-    it('should fail to unbundle with incorrect recovery key', () => {
+    it('should fail to unbundle with incorrect account recovery key', () => {
       const recoveryKey = '00000000000000000000000000';
       return RecoveryKeys.getRecoveryJwk(uid, recoveryKey)
         .then((recoveryJwk) => {
@@ -176,7 +179,7 @@ describe('lib/crypto/recovery-keys', () => {
     });
   });
 
-  describe('recovery key `round trip` sanity check', () => {
+  describe('account recovery key `round trip` sanity check', () => {
     it('performs round trip check', () => {
       let recoveryKey, recoveryJwk;
       return RecoveryKeys.generateRecoveryKey(32)

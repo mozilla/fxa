@@ -291,13 +291,13 @@ FxaClientWrapper.prototype = {
               accountData.verificationMethod = VerificationMethods.EMAIL;
             }
           }
-          
+
           // The `originalLoginEmail` is a users current primary email, ensure
           // the account model uses this email and updates local storage with it
           if (signInOptions.originalLoginEmail) {
-            email = signInOptions.originalLoginEmail
+            email = signInOptions.originalLoginEmail;
           }
-          
+
           return getUpdatedSessionData(email, relier, accountData, options);
         });
     }
@@ -1071,8 +1071,8 @@ FxaClientWrapper.prototype = {
   replaceRecoveryCodes: createClientDelegate('replaceRecoveryCodes'),
 
   /**
-   * Creates a new recovery key bundle for the current user. To
-   * create a recovery key first a session re-auth is performed,
+   * Creates a new account recovery key bundle for the current user. To
+   * create an account recovery key first a session re-auth is performed,
    * then the account keys are fetched and finally the recovery
    * bundle stores an encrypted copy of the original user's `kB`
    *
@@ -1120,14 +1120,14 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Deletes the recovery key associated with this user.
+   * Deletes the account recovery key associated with this user.
    *
    * @param sessionToken
    */
   deleteRecoveryKey: createClientDelegate('deleteRecoveryKey'),
 
   /**
-   * Verify the recovery key associated with this user.
+   * Verify the account recovery key associated with this user.
    *
    * @param sessionToken
    * @param recoveryKeyId
@@ -1135,7 +1135,7 @@ FxaClientWrapper.prototype = {
   verifyRecoveryKey: createClientDelegate('verifyRecoveryKey'),
 
   /**
-   * This checks to see if a recovery key exists for a user.
+   * This checks to see if an account recovery key exists for a user.
    *
    * @param sessionToken
    * @param {String} email User's email
@@ -1149,7 +1149,7 @@ FxaClientWrapper.prototype = {
    * @param {String} passwordForgotCode - password forgot code
    * @param {String} passwordForgotToken - password forgot token
    * @param {Object} [options={}] Options
-   *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with recovery key
+   *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with account recovery key
    * @returns {Promise} resolves with response when complete.
    */
   passwordForgotVerifyCode: withClient(
@@ -1163,11 +1163,11 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Gets recovery key bundle for the current user.
+   * Gets account recovery key bundle for the current user.
    *
    * @param {String} accountResetToken
    * @param {String} uid - Uid of user
-   * @param {String} recoveryKey - User's recovery key
+   * @param {String} recoveryKey - User's account recovery key
    * @returns {Promise} resolves with response when complete.
    */
   getRecoveryBundle: withClient(
@@ -1191,12 +1191,12 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Reset an account using a recovery key. This maintains a user's original encryption keys.
+   * Reset an account using an account recovery key. This maintains a user's original encryption keys.
    *
    * @param {String} accountResetToken
    * @param {String} email - Email of user
    * @param {String} newPassword - New password for user
-   * @param {String} recoveryKeyId - The recoveryKeyId that mapped to original recovery key
+   * @param {String} recoveryKeyId - The recoveryKeyId that mapped to original account recovery key
    * @param {String} kB - Wrap new password with this kB
    * @param {String} relier - Relier to sign-in
    * @returns {Promise} resolves with response when complete.

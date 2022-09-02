@@ -4,7 +4,7 @@
 
 /**
  * This file contains utilities to help create, bundle and unbundle encrypted
- * recovery key data.
+ * account recovery key data.
  *
  * For more encryption details, check out
  * https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md
@@ -22,16 +22,16 @@ function getRecoveryKeyVersion() {
 
 export default {
   /**
-   * Generate a random base32 recovery key. The recovery key
+   * Generate a random base32 account recovery key. The account recovery key
    * string is prepended with version information.
    *
    * @param {Integer} length Length of string to generate (default 32 length)
-   * @returns {Promise<string>} recovery key
+   * @returns {Promise<string>} account recovery key
    */
   generateRecoveryKey: function (length = 32) {
     return Promise.resolve().then(() => {
       if (length < 27) {
-        throw new Error('Recovery key length must be at least 27');
+        throw new Error('Account recovery key length must be at least 27');
       }
       return Base32.generate(length - 1).then((key) => {
         return getRecoveryKeyVersion() + key;
@@ -42,18 +42,18 @@ export default {
   /**
    * Get the current version of the recovery keys.
    *
-   * @returns {string} current recovery key version
+   * @returns {string} current account recovery key version
    */
   getCurrentRecoveryKeyVersion: function () {
     return getRecoveryKeyVersion();
   },
 
   /**
-   * Generates the recovery JWK from the uid and recovery key. The
+   * Generates the recovery JWK from the uid and account recovery key. The
    * recoveryJwk can be used to encrypt and decrypt data.
    *
    * @param {String} uid Uid of user
-   * @param {String} recoveryKey Recovery key
+   * @param {String} recoveryKey Account recovery key
    * @returns {Promise} A promise that will be fulfilled with JWK
    */
   getRecoveryJwk: function (uid, recoveryKey) {

@@ -100,7 +100,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
       });
     });
 
-    describe('without a recovery key', () => {
+    describe('without an account recovery key', () => {
       beforeEach(() => {
         model.unset('recoveryKey');
         model.unset('recoveryKeyId');
@@ -108,7 +108,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
         return view.render();
       });
 
-      it('redirects to add recovery key view', () => {
+      it('redirects to add account recovery key view', () => {
         assert.isTrue(
           view.navigate.calledWith(
             '/post_verify/account_recovery/add_recovery_key'
@@ -124,7 +124,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
       return view.clickBack();
     });
 
-    it('redirects to save recovery key view', () => {
+    it('redirects to save account recovery key view', () => {
       assert.isTrue(
         view.navigate.calledWith(
           '/post_verify/account_recovery/save_recovery_key',
@@ -148,7 +148,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
         return view.submit();
       });
 
-      it('redirects to verified recovery key view', () => {
+      it('redirects to verified account recovery key view', () => {
         assert.isTrue(
           view.navigate.calledWith(
             '/post_verify/account_recovery/verified_recovery_key'
@@ -160,7 +160,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
     describe('errors', () => {
       let error;
 
-      describe('with mismatch recovery key', () => {
+      describe('with mismatch account recovery key', () => {
         beforeEach(() => {
           sinon.spy(view, 'showValidationError');
           error = AuthErrors.toError('INVALID_RECOVERY_KEY');
@@ -172,7 +172,11 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
           assert.equal(view.showValidationError.args.length, 1);
           const args = view.showValidationError.args[0];
           assert.deepEqual(args[0], view.$('#recovery-key'));
-          assert.equal(args[1].errno, 159, 'throws invalid recovery key error');
+          assert.equal(
+            args[1].errno,
+            159,
+            'throws invalid account recovery key error'
+          );
         });
       });
 

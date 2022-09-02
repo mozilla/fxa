@@ -22,7 +22,7 @@ const account = {
 } as unknown as Account;
 
 describe('UnitRowRecoveryKey', () => {
-  it('renders when recovery key is set', () => {
+  it('renders when account recovery key is set', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
@@ -30,7 +30,7 @@ describe('UnitRowRecoveryKey', () => {
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
-    ).toContain('Recovery key');
+    ).toContain('Account recovery key');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Enabled');
@@ -39,11 +39,11 @@ describe('UnitRowRecoveryKey', () => {
     ).toContain('Remove');
     expect(screen.getByTestId('recovery-key-refresh')).toHaveAttribute(
       'title',
-      'Refresh recovery key'
+      'Refresh account recovery key'
     );
   });
 
-  it('renders when recovery key is not set', () => {
+  it('renders when account recovery key is not set', () => {
     const account = {
       hasPassword: true,
       recoveryKey: false,
@@ -55,7 +55,7 @@ describe('UnitRowRecoveryKey', () => {
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
-    ).toContain('Recovery key');
+    ).toContain('Account recovery key');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Not Set');
@@ -111,7 +111,7 @@ describe('UnitRowRecoveryKey', () => {
     expect(account.refresh).toBeCalledWith('recovery');
   });
 
-  describe('delete recovery key', () => {
+  describe('delete account recovery key', () => {
     let logViewEventSpy: jest.SpyInstance;
 
     beforeAll(() => {
@@ -147,7 +147,7 @@ describe('UnitRowRecoveryKey', () => {
       fireEvent.click(await screen.findByRole('button', { name: 'Remove' }));
       fireEvent.click(
         await within(
-          await screen.findByLabelText('Remove recovery key?')
+          await screen.findByLabelText('Remove account recovery key?')
         ).findByRole('button', { name: 'Remove' })
       );
     };

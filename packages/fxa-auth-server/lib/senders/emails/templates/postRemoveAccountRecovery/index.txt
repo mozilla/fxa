@@ -4,7 +4,7 @@ postRemoveAccountRecovery-description = "You have successfully removed an accoun
 
 <%- include('/partials/userInfo/index.txt') %>
 
-postRemoveAccountRecovery-invalid = "This recovery key can no longer be used to recover your account."
+postRemoveAccountRecovery-invalid = "This account recovery key can no longer be used to recover your account."
 
 <%- include('/partials/manageAccount/index.txt') %>
 

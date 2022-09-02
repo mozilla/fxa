@@ -122,7 +122,7 @@ const DESCRIPTIONS = {
     'Alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect".',
   recoveryData: "An encrypted bundle containing the user's kB.",
   recoveryKeyId:
-    'A unique identifier for this recovery key, derived from the key via HKDF.',
+    'A unique identifier for this account recovery key, derived from the key via HKDF.',
   redirectTo:
     'URL that the client should be redirected to after handling the request.',
   redirectUri:

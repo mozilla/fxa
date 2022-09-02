@@ -1,19 +1,19 @@
-## Recovery key sub-section on main Settings page
+## Account recovery key sub-section on main Settings page
 
-rk-header = Recovery key
+rk-header = Account recovery key
 rk-enabled = Enabled
 rk-not-set = Not Set
 rk-action-create = Create
 rk-action-remove = Remove
-rk-cannot-refresh = Sorry, there was a problem refreshing the recovery key.
+rk-cannot-refresh = Sorry, there was a problem refreshing the account recovery key.
 rk-key-removed-2 = Account recovery key removed
 rk-cannot-remove-key = Your account recovery key could not be removed.
-rk-refresh-key = Refresh recovery key
+rk-refresh-key = Refresh account recovery key
 rk-content-explain = Restore your information when you forget your password.
 rk-content-reset-data = Why does resetting my password reset my data?
 rk-cannot-verify-session-4 = Sorry, there was a problem confirming your session
-rk-remove-modal-heading = Remove recovery key?
+rk-remove-modal-heading = Remove account recovery key?
 rk-remove-modal-content = In the event you reset your password, you won’t be
-  able to use your recovery key to access your data. You can’t undo this action.
-rk-refresh-error = Sorry, there was a problem refreshing the recovery key.
+  able to use your account recovery key to access your data. You can’t undo this action.
+rk-refresh-error = Sorry, there was a problem refreshing the account recovery key.
 rk-remove-error-2 = Your account recovery key could not be removed

@@ -120,7 +120,7 @@ test.describe('severity-3 #smoke', () => {
     await recoveryKey.submit();
     const dl = await recoveryKey.dataTrio.clickDownload();
     expect(dl.suggestedFilename()).toBe(
-      `${credentials.email} Firefox recovery key.txt`
+      `${credentials.email} Firefox account recovery key.txt`
     );
     const clipboard = await recoveryKey.dataTrio.clickCopy();
     expect(clipboard).toEqual(await recoveryKey.getKey());

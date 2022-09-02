@@ -12,7 +12,7 @@ const TAGS = {
   OAUTH_SERVER: ['api', 'OAuth Server API Overview'],
   PASSWORD: ['api', 'Password'],
   RECOVERY_CODES: ['api', 'Recovery codes'],
-  RECOVERY_KEY: ['api', 'Recovery key'],
+  RECOVERY_KEY: ['api', 'Account recovery key'],
   SECURITY_EVENTS: ['api', 'Security events'],
   SESSION: ['api', 'Session'],
   SIGN: ['api', 'Sign'],

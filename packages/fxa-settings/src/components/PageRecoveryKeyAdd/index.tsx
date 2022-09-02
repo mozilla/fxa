@@ -46,7 +46,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
       l10n.getString(
         'recovery-key-success-alert-2',
         null,
-        'Recovery key created'
+        'Account recovery key created'
       )
     );
     navigate(HomePath + '#recovery-key', { replace: true });
@@ -116,15 +116,16 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
 
   return (
     <Localized id="recovery-key-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Recovery key" subtitle={subtitleText}>
+      <FlowContainer title="Account recovery key" subtitle={subtitleText}>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {formattedRecoveryKey && (
           <div className="my-2" data-testid="recover-key-confirm">
             <Localized id="recovery-key-created">
               <p>
-                Your recovery key has been created. Be sure to save the key in a
-                safe place that you can easily find later — you'll need the key
-                to regain access to your data if you forget your password.
+                Your account recovery key has been created. Be sure to save the
+                key in a safe place that you can easily find later — you'll need
+                the key to regain access to your data if you forget your
+                password.
               </p>
             </Localized>
             <div className="mt-6 flex flex-col items-center h-48 justify-between">
@@ -136,7 +137,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                     `recovery-key.${type}-option`
                   );
                 }}
-                contentType="Firefox recovery key"
+                contentType="Firefox account recovery key"
               ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button

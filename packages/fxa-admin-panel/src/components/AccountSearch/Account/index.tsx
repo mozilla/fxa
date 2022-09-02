@@ -486,7 +486,7 @@ export const Account = ({
         )}
 
         <li className="account-li">
-          <h3 className="account-header">Recovery Key</h3>
+          <h3 className="account-header">Account Recovery Key</h3>
         </li>
         {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
@@ -499,7 +499,7 @@ export const Account = ({
           </>
         ) : (
           <li className="account-li account-border-info">
-            This account doesn't have a recovery key enabled.
+            This account doesn't have an account recovery key enabled.
           </li>
         )}
 
@@ -806,13 +806,13 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
     <li className="account-li">
       <ul className="account-border-info">
         <li className="account-li">
-          Recovery Key Created At:{' '}
+          Account Recovery Key Created At:{' '}
           <span data-testid="recovery-keys-created-at">
             {recoveryKeyCreatedDate}
           </span>
         </li>
         <li className="account-li">
-          Recovery Key Confirmed At:{' '}
+          Account Recovery Key Confirmed At:{' '}
           <span
             data-testid="recovery-keys-verified"
             className={`ml-3 text-base ${
@@ -825,7 +825,7 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
           </span>
         </li>
         <li className="account-li">
-          Recovery Key Enabled:{' '}
+          Account Recovery Key Enabled:{' '}
           <span
             data-testid="recovery-keys-enabled"
             className={`ml-3 text-base ${

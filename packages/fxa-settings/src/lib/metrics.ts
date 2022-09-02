@@ -395,7 +395,7 @@ export function logExperiment(
 
 /**
  * Log when a user preference is updated. Example, two step
- * authentication, adding recovery email or recovery key.
+ * authentication, adding recovery email or account recovery key.
  *
  * @param prefName - Name of preference, typically view name
  */

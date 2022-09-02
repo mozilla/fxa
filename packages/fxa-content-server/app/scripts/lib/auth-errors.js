@@ -239,11 +239,11 @@ var ERRORS = {
   },
   RECOVERY_KEY_NOT_FOUND: {
     errno: 158,
-    message: t('Recovery key not found'),
+    message: t('Account recovery key not found'),
   },
   INVALID_RECOVERY_KEY: {
     errno: 159,
-    message: t('Invalid recovery key'),
+    message: t('Invalid account recovery key'),
   },
   TOTP_REQUIRED: {
     errno: 160,
@@ -586,7 +586,7 @@ var ERRORS = {
   },
   RECOVERY_KEY_REQUIRED: {
     errno: 1059,
-    message: t('Recovery key required'),
+    message: t('Account recovery key required'),
   },
   OTP_CODE_REQUIRED: {
     errno: 1060,

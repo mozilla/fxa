@@ -35,10 +35,10 @@ describe('lib/crypto/base32', () => {
       });
     });
 
-    it('should decode base32 recovery key', () => {
+    it('should decode base32 account recovery key', () => {
       return RecoveryKey.generateRecoveryKey(32).then((string) => {
         return Base32.decode(string).then((key) => {
-          assert.ok(key, 'correctly decoded base32 recovery key');
+          assert.ok(key, 'correctly decoded base32 account recovery key');
         });
       });
     });

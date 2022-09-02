@@ -47,7 +47,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293431
-  test('forgot password has recovery key but skip using it #1293431', async ({
+  test('forgot password has account recovery key but skip using it #1293431', async ({
     target,
     credentials,
     page,

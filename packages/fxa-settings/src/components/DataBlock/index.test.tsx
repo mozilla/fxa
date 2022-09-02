@@ -81,13 +81,16 @@ it('displays a tooltip on action', async () => {
 it('sets download file name', async () => {
   render(
     <AppContext.Provider value={{ account }}>
-      <DataBlock value={multiValue} contentType="Firefox recovery key" />
+      <DataBlock
+        value={multiValue}
+        contentType="Firefox account recovery key"
+      />
     </AppContext.Provider>
   );
   let element = await screen.findByTestId('databutton-download');
   expect(element).toBeInTheDocument();
   expect(element.getAttribute('download')).toContain(
-    'Firefox recovery key.txt'
+    'Firefox account recovery key.txt'
   );
 });
 

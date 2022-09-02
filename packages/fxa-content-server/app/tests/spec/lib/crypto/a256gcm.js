@@ -103,7 +103,7 @@ describe('lib/crypto/a256gcm', () => {
       });
     });
 
-    it('should fail to unbundle with incorrect recovery key', () => {
+    it('should fail to unbundle with incorrect account recovery key', () => {
       return createJwkForHexKey(incorrectHexKey)
         .then((incorrectJwk) => {
           return a256gcm.decrypt(ciphertext, incorrectJwk);

@@ -4,7 +4,7 @@
 
 /**
  * View logic for the account recovery confirm password screen.
- * The recovery key generated requires the password as an
+ * The account recovery key generated requires the password as an
  * encryption key.
  */
 import _, { assign } from 'underscore';
@@ -35,7 +35,7 @@ class ConfirmRecoveryKey extends FormView {
     if (!this.model.get('recoveryKeyId') || !this.model.get('recoveryKey')) {
       return this.navigate('/post_verify/account_recovery/add_recovery_key');
     }
-    // An account can only support one recovery key at a time
+    // An account can only support one account recovery key at a time
     return account.checkRecoveryKeyExists().then((status) => {
       if (status.exists) {
         return this.navigate(

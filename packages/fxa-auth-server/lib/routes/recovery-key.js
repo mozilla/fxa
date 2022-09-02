@@ -47,8 +47,8 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         const { uid } = sessionToken;
         const { recoveryKeyId, recoveryData, enabled } = request.payload;
 
-        // Users that already have an enabled recovery key can not
-        // create a second recovery key
+        // Users that already have an enabled account recovery key can not
+        // create a second account recovery key
         try {
           await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
         } catch (err) {
@@ -130,7 +130,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         const { recoveryKeyId } = request.payload;
 
-        // Attempt to retrieve a recovery key, if it exists and is not already enabled,
+        // Attempt to retrieve an account recovery key, if it exists and is not already enabled,
         // then we enable it.
         const recoveryKeyData = await db.getRecoveryKey(uid, recoveryKeyId);
 
@@ -223,7 +223,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         if (!uid) {
           // If not using a sessionToken, an email is required to check
-          // for a recovery key. This occurs when checking from the
+          // for an account recovery key. This occurs when checking from the
           // password reset page and allows us to redirect the user to either
           // the regular password reset or account recovery password reset.
           if (!email) {

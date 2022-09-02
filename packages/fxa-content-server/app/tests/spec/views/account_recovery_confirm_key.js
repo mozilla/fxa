@@ -180,7 +180,7 @@ describe('views/account_recovery_confirm_key', () => {
     });
   });
 
-  describe('should display error with invalid recovery key', () => {
+  describe('should display error with invalid account recovery key', () => {
     beforeEach(() => {
       return initView().then(() => {
         account = user.initAccount();
@@ -214,7 +214,7 @@ describe('views/account_recovery_confirm_key', () => {
     });
   });
 
-  describe('should navigate to regular password reset with lost recovery key', () => {
+  describe('should navigate to regular password reset with lost account recovery key', () => {
     beforeEach(() => {
       return initView().then(() => {
         sinon.spy(view, 'navigate');

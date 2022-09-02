@@ -113,10 +113,10 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 155   | TOTP token not found.                                                         |
     | 400         | 156   | Recovery code not found.                                                      |
     | 400         | 157   | Unavailable device command.                                                   |
-    | 400         | 158   | Recovery key not found.                                                       |
-    | 400         | 159   | Recovery key is not valid.                                                    |
+    | 400         | 158   | Account recovery key not found.                                                       |
+    | 400         | 159   | Account recovery key is not valid.                                                    |
     | 400         | 160   | This request requires two step authentication enabled on your account.        |
-    | 400         | 161   | Recovery key already exists.                                                  |
+    | 400         | 161   | Account recovery key already exists.                                                  |
     | 400         | 162   | Unknown client_id                                                             |
     | 400         | 164   | Stale auth timestamp                                                          |
     | 409         | 165   | Redis WATCH detected a conflicting update                                     |

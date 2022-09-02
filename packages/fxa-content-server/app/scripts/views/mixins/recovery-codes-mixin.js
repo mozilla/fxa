@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Shared code used by recovery key setup step, the second part of TOTP setup.
+// Shared code used by account recovery key setup step, the second part of TOTP setup.
 // Shared by views in login flow and settings page.
 
 import AuthErrors from 'lib/auth-errors';

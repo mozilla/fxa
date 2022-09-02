@@ -350,7 +350,7 @@ const SecondaryEmailDefaultContent = () => (
             href="#recovery-key"
             data-testid="secondary-email-link-recovery-key"
           >
-            recovery key
+            account recovery key
           </a>
         ),
       }}
@@ -362,7 +362,7 @@ const SecondaryEmailDefaultContent = () => (
           href="#recovery-key"
           data-testid="secondary-email-link-recovery-key"
         >
-          recovery key
+          account recovery key
         </a>{' '}
         for that.
       </p>

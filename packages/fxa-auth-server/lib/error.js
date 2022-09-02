@@ -1065,7 +1065,7 @@ AppError.recoveryKeyNotFound = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_KEY_NOT_FOUND,
-    message: 'Recovery key not found.',
+    message: 'Account recovery key not found.',
   });
 };
 
@@ -1074,7 +1074,7 @@ AppError.recoveryKeyInvalid = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_KEY_INVALID,
-    message: 'Recovery key is not valid.',
+    message: 'Account recovery key is not valid.',
   });
 };
 
@@ -1093,7 +1093,7 @@ AppError.recoveryKeyExists = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_KEY_EXISTS,
-    message: 'Recovery key already exists.',
+    message: 'Account recovery key already exists.',
   });
 };
 

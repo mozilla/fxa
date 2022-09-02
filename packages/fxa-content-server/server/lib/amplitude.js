@@ -101,7 +101,7 @@ const EVENTS = {
     event: 'signup_code_submit',
   },
 
-  // Add recovery key metrics, on `post_verify/account_recovery/*`
+  // Add account recovery key metrics, on `post_verify/account_recovery/*`
   'screen.add-recovery-key': {
     group: GROUPS.activity,
     event: 'add_recovery_key_view',
@@ -111,7 +111,7 @@ const EVENTS = {
     event: 'add_recovery_key_submit',
   },
 
-  // Recovery key confirm password
+  // Account recovery key confirm password
   'screen.confirm-password': {
     group: GROUPS.activity,
     event: 'recovery_key_confirm_password_view',
@@ -129,7 +129,7 @@ const EVENTS = {
     event: 'recovery_key_confirm_password_success',
   },
 
-  // Save recovery key
+  // Save account recovery key
   'screen.save-recovery-key': {
     group: GROUPS.activity,
     event: 'save_recovery_key_view',
@@ -151,7 +151,7 @@ const EVENTS = {
     event: 'save_recovery_key_print',
   },
 
-  // Confirm recovery key
+  // Confirm account recovery key
   'screen.confirm-recovery-key': {
     group: GROUPS.activity,
     event: 'confirm_recovery_key_view',
@@ -169,7 +169,7 @@ const EVENTS = {
     event: 'confirm_recovery_key_success',
   },
 
-  // Verified recovery key
+  // Verified account recovery key
   'screen.post-verify.account-recovery.verified-recovery-key': {
     group: GROUPS.activity,
     event: 'verified_recovery_key_view',
@@ -192,7 +192,7 @@ const EVENTS = {
     event: 'forgot_password_confirm_recovery_key_submit',
   },
 
-  // Password reset with recovery key metrics
+  // Password reset with account recovery key metrics
   'screen.account-recovery-reset-password': {
     group: GROUPS.login,
     event: 'forgot_password_recovery_key_view',
@@ -270,7 +270,7 @@ const EVENTS = {
     event: 'test_fallback_text_not_needed',
     minimal: true,
   },
-  // Recovery key
+  // Account recovery key
   'screen.settings.account-recovery': {
     group: GROUPS.settings,
     event: 'account_recovery_view',

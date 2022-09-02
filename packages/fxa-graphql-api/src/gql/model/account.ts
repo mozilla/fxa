@@ -40,7 +40,9 @@ export class Account {
   @Field((type) => Totp)
   public totp!: Totp;
 
-  @Field({ description: 'Whether the user has had a recovery key issued.' })
+  @Field({
+    description: 'Whether the user has had an account recovery key issued.',
+  })
   public recoveryKey!: boolean;
 
   @Field({ description: 'Whether metrics are enabled and may be reported' })

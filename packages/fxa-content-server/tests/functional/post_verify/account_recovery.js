@@ -36,7 +36,7 @@ const {
 const getRecoveryKey = thenify(function () {
   return (
     this.parent
-      // Extract the recovery key from form
+      // Extract the account recovery key from form
       .findByCssSelector(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.RECOVERY_KEY)
       .getVisibleText()
       .then((key) => {
@@ -119,7 +119,7 @@ registerSuite('post_verify_account_recovery', {
             .then(
               testElementTextInclude(
                 selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP,
-                'Invalid recovery key'
+                'Invalid account recovery key'
               )
             )
             .then(
