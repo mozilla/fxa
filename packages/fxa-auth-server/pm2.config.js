@@ -29,6 +29,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_AUTH,
+        TRACING_SERVICE_NAME: 'fxa-auth-server',
       },
       filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],

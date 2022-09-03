@@ -4,6 +4,14 @@
 
 'use strict';
 
+const config = require('../config');
+
+// Must be required and initialized right away
+require('fxa-shared/tracing/node-tracing').init(
+  config.get('tracing'),
+  require('../lib/log')({ ...config.log })
+);
+
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
 const { StatsD } = require('hot-shots');
@@ -192,8 +200,6 @@ async function run(config) {
 }
 
 async function main() {
-  const config = require('../config');
-
   try {
     const server = await run(config.getProperties());
     process.on('uncaughtException', (err) => {
