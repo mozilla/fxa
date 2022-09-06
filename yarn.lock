@@ -9295,15 +9295,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.16.0":
-  version: 0.16.0
-  resolution: "@ts-morph/common@npm:0.16.0"
+"@ts-morph/common@npm:~0.17.0":
+  version: 0.17.0
+  resolution: "@ts-morph/common@npm:0.17.0"
   dependencies:
     fast-glob: ^3.2.11
     minimatch: ^5.1.0
     mkdirp: ^1.0.4
     path-browserify: ^1.0.1
-  checksum: 0ef97330a164a42b81b0499b042e91db8e39d705bb983ef83cbc80cc32ab36123e26baefb78203953d1a0c6e3b92cad9bc7a5e0ea409623a5e7db90cb3742112
+  checksum: f588c0acabcc6ca9463ac09b343d67a73f6e7bf47f674aaff11542b95b58342556b05241610b9e6dffc2966db529e7261b6860577786f919a835c22488ec9260
   languageName: node
   linkType: hard
 
@@ -16803,12 +16803,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-block-writer@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "code-block-writer@npm:11.0.0"
-  dependencies:
-    tslib: 2.3.1
-  checksum: d3d92a06f762d5926ecdb2033e4f30eb4c51aca365ea69ef424afbce7cc2b1518a50deff2645cc17b6fa53f234d664631f2268a4caf91af6a1fd696aa0b2fefb
+"code-block-writer@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "code-block-writer@npm:11.0.3"
+  checksum: f0a2605f19963d7087267c9b0fd0b05a6638a50e7b29b70f97aa01a514f59475b0626f8aa092188df853ee6d96745426dfa132d6a677795df462c6ce32c21639
   languageName: node
   linkType: hard
 
@@ -22910,7 +22908,7 @@ fsevents@~2.1.1:
     stripe: ^9.16.0
     supertest: ^6.2.4
     ts-jest: ^28.0.7
-    ts-morph: ^15.1.0
+    ts-morph: ^16.0.0
     tslib: ^2.3.1
     typescript: ^4.8.2
     yargs: ^17.0.1
@@ -43551,13 +43549,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^15.1.0":
-  version: 15.1.0
-  resolution: "ts-morph@npm:15.1.0"
+"ts-morph@npm:^16.0.0":
+  version: 16.0.0
+  resolution: "ts-morph@npm:16.0.0"
   dependencies:
-    "@ts-morph/common": ~0.16.0
-    code-block-writer: ^11.0.0
-  checksum: 95e026214282850f08d1d4de673e969cdc166cb6d9366e455e1ea0251a204f80cffcb958c8ed7b1f351e56b972c4244e0dc7be0b13df3c4a6f22abdd4d4608e4
+    "@ts-morph/common": ~0.17.0
+    code-block-writer: ^11.0.3
+  checksum: a45ee1a2da09b06ac45a468c1cb9b00cc1b335224afddb22c30e4ad8a747b71c8a7c6cea29a6309ebf68d69f5dc8d3650d381891b77da5e2ad3e301dc3de40d5
   languageName: node
   linkType: hard
 
@@ -43672,13 +43670,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.3.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:~2.3.0":
-  version: 2.3.1
-  resolution: "tslib@npm:2.3.1"
-  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
-  languageName: node
-  linkType: hard
-
 "tslib@npm:2.4.0, tslib@npm:^2.4.0":
   version: 2.4.0
   resolution: "tslib@npm:2.4.0"
@@ -43690,6 +43681,13 @@ resolve@^2.0.0-next.3:
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:~2.3.0":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
   languageName: node
   linkType: hard
 
