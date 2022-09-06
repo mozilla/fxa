@@ -123,7 +123,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^9.16.0",
+    "stripe": "^10.7.0",
     "superagent": "^8.0.0",
     "typesafe-node-firestore": "^1.4.0"
   },
