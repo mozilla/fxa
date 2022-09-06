@@ -5,7 +5,13 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-footer-automatedEmail">
-      <span data-l10n-id="automated-email-change">
+      <!-- @fluent/bundle test -->
+      <%- locals.getFtlMsg('automated-email-change-2', `This is an automated email; if you did not authorize this action, then <a class="link-blue" href="${passwordChangeLink}">please change your password</a>. For more information, please visit <a class="link-blue" href="${supportUrl}">Mozilla Support</a>.`) %>
+
+      <br /><br />
+
+      <!-- @fluent/DOM -->
+      <span data-l10n-id="automated-email-change-3">
         This is an automated email; if you did not authorize this action, then
         <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">please change your password</a>.
         For more information, please visit

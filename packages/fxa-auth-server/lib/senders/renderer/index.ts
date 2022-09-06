@@ -10,6 +10,7 @@ import {
   TemplateValues,
 } from './bindings';
 import Localizer, { FtlIdMsg } from '../../l10n';
+import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 const RTL_LOCALES = [
   'ar',
@@ -68,10 +69,7 @@ class Renderer extends Localizer {
       acceptLanguage
     );
 
-    function getFtlMsg(
-      ftlId: Pick<FtlIdMsg, 'id'>,
-      fallback: Pick<FtlIdMsg, 'message'>
-    ) {
+    function getFtlMsg(ftlId: keyof FtlIdMsg, fallback: keyof FtlIdMsg) {
       // TODO (rough pseudo code, actual functionality may differ)
       // Also see https://github.com/mozilla/fxa/pull/11530/files
       //
@@ -81,7 +79,27 @@ class Renderer extends Localizer {
       //
       // The linked PR uses the 'en' bundle as a single source of truth for variable presence.
       // I'm not sure that's more preferable here given we aren't using `l10n-data-args`.
-      return fallback;
+
+      // Fake bundle test for `automatedEmailChangePassword` to show fluent bundle vs DOM
+      // Looks weird, but Fluent needs these spaces to be dedented
+      const res = new FluentResource(`
+-brand-mozilla = Foxkeh
+
+automated-email-change-2 = Lorem ipsum @fluent/bundle test <a class="link-blue" href="{$passwordChangeLink}">totam rem aperiam</a>. Nemo enim ipsam quia <a class="link-blue" href="{$supportUrl}">{ -brand-mozilla } Neque</a>.
+
+automated-email-change-3 = Lorem ipsum @fluent/dom test <a data-l10n-name="passwordChangeLink">totam rem aperiam</a>. Nemo enim ipsam voluptatem quia <a data-l10n-name="supportUrl">{ -brand-mozilla } Neque</a>.
+`);
+      const bundle = new FluentBundle(['en']);
+      bundle.addResource(res);
+      const bundleMsg = bundle.getMessage(ftlId);
+
+      return bundleMsg && bundleMsg.value && bundleMsg.value !== ftlId
+        ? bundle.formatPattern(
+            bundleMsg.value,
+            // @ts-ignore TODO: fix type
+            templateContext
+          )
+        : fallback;
     }
 
     const context = {
