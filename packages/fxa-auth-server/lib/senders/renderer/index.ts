@@ -93,12 +93,23 @@ automated-email-change-3 = Lorem ipsum @fluent/dom test <a data-l10n-name="passw
       bundle.addResource(res);
       const bundleMsg = bundle.getMessage(ftlId);
 
+      function formatMsg() {
+        // using fluentDOM - if `data-l10n-name` is provided, can we use `formatValue` and make this work?
+        // if (
+        // 'data-l10n-name' is provided anywhere?
+        // ) {
+        // do stuff with this
+        //   return l10n.formatValue(ftlId, templateContext);
+        // }
+        return bundle.formatPattern(
+          // @ts-ignore TODO: fix type
+          bundleMsg.value,
+          templateContext
+        );
+      }
+
       return bundleMsg && bundleMsg.value && bundleMsg.value !== ftlId
-        ? bundle.formatPattern(
-            bundleMsg.value,
-            // @ts-ignore TODO: fix type
-            templateContext
-          )
+        ? formatMsg()
         : fallback;
     }
 

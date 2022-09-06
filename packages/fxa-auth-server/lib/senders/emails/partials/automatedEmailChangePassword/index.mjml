@@ -10,8 +10,13 @@
 
       <br /><br />
 
-      <!-- @fluent/DOM -->
-      <span data-l10n-id="automated-email-change-3">
+      <!-- @fluent/DOM test - attributes not applied -->
+      <%- locals.getFtlMsg('automated-email-change-3', `This is an automated email; if you did not authorize this action, then <a class="link-blue" href="${passwordChangeLink}" data-l10n-name="passwordChangeLink">please change your password</a>. For more information, please visit <a class="link-blue" href="${supportUrl}" data-l10n-name="supportUrl">Mozilla Support</a>.`) %>
+
+      <br /><br />
+
+      <!-- @fluent/DOM using standard data-l10n-id -->
+      <span data-l10n-id="automated-email-change">
         This is an automated email; if you did not authorize this action, then
         <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">please change your password</a>.
         For more information, please visit
