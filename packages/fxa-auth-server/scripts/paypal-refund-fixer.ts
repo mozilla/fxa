@@ -81,7 +81,7 @@ class PayPalFixer {
       return;
     }
     const refundResponse = await this.paypalHelper.refundTransaction({
-      idempotencyKey: invoice.id,
+      idempotencyKey: invoice.id!,
       transactionId: transactionId,
     });
     const success = ['instant', 'delayed'];

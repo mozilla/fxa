@@ -23978,7 +23978,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^7.5.7
-    stripe: ^9.16.0
+    stripe: ^10.7.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
     ts-morph: ^16.0.0
@@ -24159,7 +24159,7 @@ fsevents@~2.1.1:
     sass: ^1.55.0
     simplesmtp: 0.3.35
     sinon: ^9.0.3
-    stripe: ^9.16.0
+    stripe: ^10.7.0
     superagent: ^8.0.0
     through: 2.3.8
     type-fest: ^3.0.0
@@ -25010,7 +25010,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.7
     sinon: ^9.0.3
-    stripe: ^9.16.0
+    stripe: ^10.7.0
     superagent: ^8.0.0
     ts-jest: ^29.0.0
     ts-loader: ^8.4.0
@@ -38739,6 +38739,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"qs@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "qs@npm:6.11.0"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 6e1f29dd5385f7488ec74ac7b6c92f4d09a90408882d0c208414a34dd33badc1a621019d4c799a3df15ab9b1d0292f97c1dd71dc7c045e69f81a8064e5af7297
+  languageName: node
+  linkType: hard
+
 "qs@npm:~6.3.0":
   version: 6.3.2
   resolution: "qs@npm:6.3.2"
@@ -43237,13 +43246,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stripe@npm:^9.16.0":
-  version: 9.16.0
-  resolution: "stripe@npm:9.16.0"
+"stripe@npm:^10.7.0":
+  version: 10.13.0
+  resolution: "stripe@npm:10.13.0"
   dependencies:
     "@types/node": ">=8.1.0"
-    qs: ^6.10.3
-  checksum: d84eb9ef3fa0c50e1b62271bf822d3e9da22272ec7364ae8334db7277e42f657c42c10f6fa535c634c36081e17d1c8c5a1efc509b3747f84bfbe4cf2a94ade4b
+    qs: ^6.11.0
+  checksum: 217df59a86eab02097fe54a24967687bdf0f11be6f3a918037db28abe8014433acda12e21f477f92717da9f0183baa034f5b923c56369e14da8988a00d598380
   languageName: node
   linkType: hard
 

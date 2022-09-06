@@ -196,7 +196,7 @@ export class StripeHelper extends StripeHelperBase {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2020-08-27',
+      apiVersion: '2022-08-01',
       maxNetworkRetries: 3,
     });
 
@@ -1097,7 +1097,7 @@ export class StripeHelper extends StripeHelperBase {
    * Finalizes an invoice and marks auto_advance as false.
    */
   async finalizeInvoice(invoice: Stripe.Invoice) {
-    return this.stripe.invoices.finalizeInvoice(invoice.id, {
+    return this.stripe.invoices.finalizeInvoice(invoice.id!, {
       auto_advance: false,
     });
   }
@@ -1125,7 +1125,7 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     transactionId: string
   ) {
-    return this.stripe.invoices.update(invoice.id, {
+    return this.stripe.invoices.update(invoice.id!, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID]: transactionId,
       },
@@ -1139,7 +1139,7 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     transactionId: string
   ) {
-    return this.stripe.invoices.update(invoice.id, {
+    return this.stripe.invoices.update(invoice.id!, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID]: transactionId,
       },
@@ -1153,7 +1153,7 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     reason: string
   ) {
-    return this.stripe.invoices.update(invoice.id, {
+    return this.stripe.invoices.update(invoice.id!, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_REASON]: reason,
       },
@@ -1190,7 +1190,7 @@ export class StripeHelper extends StripeHelperBase {
    */
   async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
     const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
-    return this.stripe.invoices.update(invoice.id, {
+    return this.stripe.invoices.update(invoice.id!, {
       metadata: {
         [STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS]: setAttempt.toString(),
       },
@@ -1216,7 +1216,7 @@ export class StripeHelper extends StripeHelperBase {
     if (emailTypes.includes(emailType)) {
       return;
     }
-    return this.stripe.invoices.update(invoice.id, {
+    return this.stripe.invoices.update(invoice.id!, {
       metadata: {
         [STRIPE_INVOICE_METADATA.EMAIL_SENT]: [...emailTypes, emailType].join(
           ':'
@@ -1230,7 +1230,7 @@ export class StripeHelper extends StripeHelperBase {
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     try {
-      return await this.stripe.invoices.pay(invoice.id, {
+      return await this.stripe.invoices.pay(invoice.id!, {
         paid_out_of_band: true,
       });
     } catch (err) {
@@ -1409,7 +1409,7 @@ export class StripeHelper extends StripeHelperBase {
    * Updates the invoice to uncollectible
    */
   markUncollectible(invoice: Stripe.Invoice) {
-    return this.stripe.invoices.markUncollectible(invoice.id);
+    return this.stripe.invoices.markUncollectible(invoice.id!);
   }
 
   /**
@@ -2073,13 +2073,13 @@ export class StripeHelper extends StripeHelperBase {
       return null;
     }
 
-    if (subscription.latest_invoice.payment_intent.charges.data.length !== 0) {
+    if (subscription.latest_invoice.payment_intent.charges?.data.length !== 0) {
       // Get the country from the payment details.
       // However, historically there were (rare) instances where `charges` was
       // not found in the object graph, hence the defensive code.
       // There's only one charge (the latest), per Stripe's docs.
       const paymentMethodDetails =
-        subscription.latest_invoice.payment_intent.charges.data[0]
+        subscription.latest_invoice.payment_intent.charges?.data[0]
           .payment_method_details;
 
       if (paymentMethodDetails?.card?.country) {
@@ -2415,7 +2415,7 @@ export class StripeHelper extends StripeHelperBase {
       !!invoice.discounts?.length &&
       invoice.discounts.length === 1
     ) {
-      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id);
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id!);
       const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
       discountType = discount.coupon.duration;
       discountDuration = discount.coupon.duration_in_months;
@@ -3045,7 +3045,7 @@ export class StripeHelper extends StripeHelperBase {
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
     const invoice = await this.stripe.invoices.retrieve(
-      (event.data.object as Stripe.Invoice).id
+      (event.data.object as Stripe.Invoice).id!
     );
 
     try {
