@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'postNewRecoveryCodes',
-  'Sent when user has created new recovery codes, resetting their existing ones',
+  'Sent when user has created new backup authentication codes, resetting their existing ones',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Recovery code model
+ * Backup authentication code model
  */
 
 import Backbone from 'backbone';

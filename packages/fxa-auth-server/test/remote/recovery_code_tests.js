@@ -11,7 +11,7 @@ const Client = require('../client')();
 const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
 
-describe('remote recovery codes', function () {
+describe('remote backup authentication codes', function () {
   let server, client, email, recoveryCodes;
   const recoveryCodeCount = 9;
   const password = 'pssssst';
@@ -53,10 +53,10 @@ describe('remote recovery codes', function () {
         assert.equal(
           result.recoveryCodes.length,
           recoveryCodeCount,
-          'recovery codes returned'
+          'backup authentication codes returned'
         );
 
-        // Verify TOTP token so that initial recovery codes are generated
+        // Verify TOTP token so that initial backup authentication codes are generated
         const code = otplib.authenticator.generate();
         return client
           .verifyTotpCode(code, { metricsContext })
@@ -75,12 +75,12 @@ describe('remote recovery codes', function () {
     });
   });
 
-  it('should create recovery codes', () => {
+  it('should create backup authentication codes', () => {
     assert.ok(recoveryCodes);
     assert.equal(
       recoveryCodes.length,
       recoveryCodeCount,
-      'recovery codes returned'
+      'backup authentication codes returned'
     );
     recoveryCodes.forEach((code) => {
       assert.equal(code.length > 1, true, 'correct length');
@@ -88,19 +88,19 @@ describe('remote recovery codes', function () {
     });
   });
 
-  it('should replace recovery codes', () => {
+  it('should replace backup authentication codes', () => {
     return client
       .replaceRecoveryCodes()
       .then((result) => {
         assert.ok(
           result.recoveryCodes.length,
           recoveryCodeCount,
-          'recovery codes returned'
+          'backup authentication codes returned'
         );
         assert.notDeepEqual(
           result,
           recoveryCodes,
-          'recovery codes should not match'
+          'backup authentication codes should not match'
         );
 
         return server.mailbox.waitForEmail(email);
@@ -113,9 +113,9 @@ describe('remote recovery codes', function () {
       });
   });
 
-  describe('recovery code verification', () => {
+  describe('backup authentication code verification', () => {
     beforeEach(() => {
-      // Create a new unverified session to test recovery codes
+      // Create a new unverified session to test backup authentication codes
       return Client.login(config.publicUrl, email, password)
         .then((response) => {
           client = response;
@@ -126,7 +126,7 @@ describe('remote recovery codes', function () {
         );
     });
 
-    it('should fail to consume unknown recovery code', () => {
+    it('should fail to consume unknown backup authentication code', () => {
       return client
         .consumeRecoveryCode('1234abcd', { metricsContext })
         .then(assert.fail, (err) => {
@@ -135,7 +135,7 @@ describe('remote recovery codes', function () {
         });
     });
 
-    it('should consume recovery code and verify session', () => {
+    it('should consume backup authentication code and verify session', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
         .then((res) => {
@@ -158,7 +158,7 @@ describe('remote recovery codes', function () {
         });
     });
 
-    it('should consume recovery code and can remove TOTP token', () => {
+    it('should consume backup authentication code and can remove TOTP token', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
         .then((res) => {
@@ -189,9 +189,9 @@ describe('remote recovery codes', function () {
     });
   });
 
-  describe('should notify user when recovery codes are low', () => {
+  describe('should notify user when backup authentication codes are low', () => {
     beforeEach(() => {
-      // Create a new unverified session to test recovery codes
+      // Create a new unverified session to test backup authentication codes
       return Client.login(config.publicUrl, email, password)
         .then((response) => {
           client = response;
@@ -202,7 +202,7 @@ describe('remote recovery codes', function () {
         );
     });
 
-    it('should consume recovery code and verify session', () => {
+    it('should consume backup authentication code and verify session', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
         .then((res) => {

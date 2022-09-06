@@ -1047,7 +1047,7 @@ AppError.recoveryCodeNotFound = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_CODE_NOT_FOUND,
-    message: 'Recovery code not found.',
+    message: 'Backup authentication code not found.',
   });
 };
 

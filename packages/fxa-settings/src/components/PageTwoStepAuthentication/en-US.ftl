@@ -12,8 +12,8 @@ tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
 tfa-cannot-retrieve-code = There was a problem retrieving your code.
-tfa-cannot-verify-code-3 = There was a problem confirming your recovery code
-tfa-incorrect-recovery-code = Incorrect recovery code
+tfa-cannot-verify-code-3 = There was a problem confirming your backup authentication code
+tfa-incorrect-recovery-code = Incorrect backup authentication code
 tfa-enabled = Two-step authentication enabled
 
 tfa-scan-this-code = Scan this QR code using one of <linkExternal>these
@@ -34,13 +34,20 @@ tfa-enter-secret-key = Enter this secret key into your authenticator app:
 tfa-enter-totp = Now enter the security code from the authentication app.
 tfa-input-enter-totp =
  .label = Enter security code
-tfa-save-these-codes = Save these one-time use codes in a safe place for when
+tfa-save-these-codes = Save these one-time use backup authentication codes in a safe place for when
   you don’t have your mobile device.
 
-tfa-enter-code-to-confirm = Please enter one of your recovery codes now to
+<<<<<<< HEAD
+tfa-enter-code-to-confirm = Please enter one of your backup authentication codes now to
   confirm you’ve saved it. You’ll need a code if you lose your device and want
   to access your account.
 tfa-enter-recovery-code =
- .label = Enter a recovery code
+=======
+tfa-enter-code-to-confirm-1 = Please enter one of your backup authentication codes now to
+  confirm you’ve saved it. You’ll need a code to login if you don’t have access to your
+  mobile device.
+tfa-enter-recovery-code-1 =
+>>>>>>> 782bda91e4 (Update text on 2fa enter code to confirm screen)
+ .label = Enter a backup authentication code
 
 ##

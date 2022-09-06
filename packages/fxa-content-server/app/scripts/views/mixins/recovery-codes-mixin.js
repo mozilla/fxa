@@ -72,7 +72,7 @@ export default {
   getFormatedRecoveryCodeFilename() {
     const account = this.getSignedInAccount();
     let formattedFilename =
-      account.get('email') + ' ' + t('Firefox Recovery Codes');
+      account.get('email') + ' ' + t('Firefox Backup Authentication Codes');
     if (formattedFilename.length > 200) {
       // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);
@@ -81,7 +81,7 @@ export default {
   },
 
   setupRecoveryCodes(codes, msg) {
-    // Store a readable version of recovery codes so that they can
+    // Store a readable version of backup authentication codes so that they can
     // be copied, printed and downloaded
     this.recoveryCodesText = '';
     if (codes) {

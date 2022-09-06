@@ -8,12 +8,12 @@
 
 Firefox Account originally implemented multi-factor authentication (MFA) support in Q1 of 2018.
 This feature used TOTP based codes and was based on RFC 6238.
-Additionally, if users lost their MFA device, they could use one time recovery codes to regain access to the account.
+Additionally, if users lost their MFA device, they could use one time backup authentication codes to regain access to the account.
 
 Having MFA support has helped secure our users' accounts and given them more security flexibility.
-However, over time it has become more obvious that users that lose their MFA device (usually phone) are at risk of getting locked out of their account because they don't save their recovery codes.
-There are a non-trivial amount of users that don’t save or download their recovery codes, which is currently the only way they can regain access.
-In 2019 Q4, FxA started requiring that users confirm recovery codes before enabling MFA.
+However, over time it has become more obvious that users that lose their MFA device (usually phone) are at risk of getting locked out of their account because they don't save their backup authentication codes.
+There are a non-trivial amount of users that don’t save or download their backup authentication codes, which is currently the only way they can regain access.
+In 2019 Q4, FxA started requiring that users confirm backup authentication codes before enabling MFA.
 While this did help reduce lockouts, we still want to reduce it further.
 
 We believe that adding a new MFA method to Firefox Accounts that has the similar security properties as TOTP would allow users to have another method to recover their account.
@@ -21,7 +21,7 @@ We believe that adding a new MFA method to Firefox Accounts that has the similar
 ## Decision Drivers
 
 - Improve user's account security
-- Reduce the risk of account lockout because of lost device/recovery code
+- Reduce the risk of account lockout because of lost device/backup authentication code
 - Could be completed in roughly a quarter
 
 ## Considered Options
@@ -54,7 +54,7 @@ There is less security risk to users if this feature is added.
 ### Option B - Implement SMS as opt-in backup method
 
 - Description
-  - Add the ability to have users send a recovery code to a phone number associated to the account, which could then be used to recover the account.
+  - Add the ability to have users send a backup authentication code to a phone number associated to the account, which could then be used to recover the account.
 - Pros
   - Common account recovery pattern used on many sites
   - Less UX unknowns

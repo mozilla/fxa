@@ -36,7 +36,7 @@ const unblockCodeRegExp = new RegExp(unblockCodeRegExpStr, 'i');
 
 // TOTP codes are 6 digits
 const TOTP_CODE = /^[0-9]{6}$/;
-// Recovery codes can be 8-10 alpha numeric characters
+// Backup authentication codes can be 8-10 alpha numeric characters
 const RECOVERY_CODE = /^([a-zA-Z0-9]{8,10})$/;
 
 const utmRegex = /^[\w\/.%-]{1,128}$/;
@@ -210,7 +210,7 @@ var Validate = {
   },
 
   /**
-   * Check if an recovery code is valid
+   * Check if an backup authentication code is valid
    *
    * @param {String} value
    * @returns {Boolean}

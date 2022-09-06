@@ -105,7 +105,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             l10n.getString(
               'tfa-cannot-verify-code-3',
               null,
-              'There was a problem confirming your recovery code'
+              'There was a problem confirming your backup authentication code'
             )
           );
         }
@@ -149,7 +149,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         l10n.getString(
           'tfa-incorrect-recovery-code',
           null,
-          'Incorrect recovery code'
+          'Incorrect backup authentication code'
         )
       );
       return;
@@ -310,8 +310,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         <>
           <div className="my-2" data-testid="2fa-recovery-codes">
             <Localized id="tfa-save-these-codes">
-              Save these one-time use codes in a safe place for when you don’t
-              have your mobile device.
+              Save these one-time use backup authentication codes in a safe
+              place for when you don’t have your mobile device.
             </Localized>
             <div className="mt-6 flex flex-col items-center justify-between">
               <DataBlock
@@ -319,7 +319,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
-                contentType="Firefox backup verification codes"
+                contentType="Firefox backup authentication codes"
               ></DataBlock>
             </div>
           </div>
@@ -350,16 +350,16 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         <form onSubmit={recoveryCodeForm.handleSubmit(onRecoveryCodeSubmit)}>
           <Localized id="tfa-enter-code-to-confirm">
             <p className="mt-4 mb-4">
-              Please enter one of your recovery codes now to confirm you've
-              saved it. You'll need a code if you lose your device and want to
-              access your account.
+              Please enter one of your backup authentication codes now to
+              confirm you've saved it. You’ll need a code to login if you don’t
+              have access to your mobile device.
             </p>
           </Localized>
           <div className="mt-4 mb-6" data-testid="recovery-code-input">
             <Localized id="tfa-enter-recovery-code" attrs={{ label: true }}>
               <InputText
                 name="recoveryCode"
-                label="Enter a recovery code"
+                label="Enter a backup authentication code"
                 prefixDataTestId="recovery-code"
                 autoFocus
                 onChange={() => {

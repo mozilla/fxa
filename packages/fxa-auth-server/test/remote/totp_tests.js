@@ -60,7 +60,7 @@ describe('remote totp', function () {
         assert.equal(
           result.recoveryCodes.length > 1,
           true,
-          'recovery codes returned'
+          'backup authentication codes returned'
         );
 
         // Verify TOTP token

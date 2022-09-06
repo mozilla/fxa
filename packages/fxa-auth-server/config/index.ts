@@ -1675,18 +1675,18 @@ const conf = convict({
     },
     recoveryCodes: {
       length: {
-        doc: 'The length of a recovery code',
+        doc: 'The length of a backup authentication code',
         default: 10,
         format: 'nat',
         env: 'RECOVERY_CODE_LENGTH',
       },
       count: {
-        doc: 'Number of recovery codes to create',
+        doc: 'Number of backup authentication codes to create',
         default: 8,
         env: 'RECOVERY_CODE_COUNT',
       },
       notifyLowCount: {
-        doc: 'Notify the user when there are less than these many recovery codes',
+        doc: 'Notify the user when there are less than these many backup authentication codes',
         default: 2,
         env: 'RECOVERY_CODE_NOTIFY_LOW_COUNT',
       },

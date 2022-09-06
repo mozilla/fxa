@@ -1505,7 +1505,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Consume a recovery code.
+     * Consume a backup authentication code.
      *
      * @param {String} code
 
@@ -1524,7 +1524,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Replaces all current recovery codes.
+     * Replaces all current backup authentication codes.
      *
      * @returns {Promise}
      */

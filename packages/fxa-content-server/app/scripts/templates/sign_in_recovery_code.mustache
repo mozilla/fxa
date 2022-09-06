@@ -1,6 +1,6 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-recovery-code-header">{{#t}}Enter recovery code{{/t}}
+    <h1 id="fxa-recovery-code-header">{{#t}}Enter backup authentication code{{/t}}
       <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
     </h1>
   </header>
@@ -12,12 +12,12 @@
     <div class="graphic graphic-recovery-codes"></div>
 
     <p class="verification-recovery-code-message">
-    {{#t}}Please enter a recovery code that was provided to you during setup.{{/t}}
+    {{#t}}Please enter a backup authentication code that was provided to you during two step authentication setup.{{/t}}
     </p>
 
     <form novalidate>
       <div class="input-row otp-code-row">
-        <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Enter 10-digit recovery code{{/t}}" required autofocus />
+        <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Enter 10-digit backup authentication code{{/t}}" required autofocus />
       </div>
 
       <div class="button-row">

@@ -3,7 +3,7 @@
   <header>
     <h1 id="fxa-save-recovery-codes">
       <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-      {{#t}}Save recovery codes{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{#t}}Save backup authentication codes{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
     </h1>
   </header>
   <section>
@@ -57,7 +57,7 @@
   <header>
     <h1 id="fxa-confirm-recovery-code">
       <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-      {{#t}}Confirm recovery code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{#t}}Confirm backup authentication code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
     </h1>
   </header>
   <section>
@@ -67,10 +67,10 @@
       <div id="recovery-codes">
         <div class="graphic graphic-recovery-codes"></div>
         <p>
-            {{#t}}To ensure that you will be able to regain access to your account, in the event of a lost device, please enter one of your saved recovery codes.{{/t}}
+            {{#t}}To ensure that you will be able to regain access to your account, in the event of a lost device, please enter one of your saved backup authentication codes.{{/t}}
         </p>
         <div class="input-row">
-            <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Recovery code{{/t}}" required autofocus autocomplete="off"/>
+            <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Backup authentication code{{/t}}" required autofocus autocomplete="off"/>
         </div>
         <div class="button-row">
             <button type="submit" class="primary-button recovery-confirm-code">{{#t}}Confirm{{/t}}</button>

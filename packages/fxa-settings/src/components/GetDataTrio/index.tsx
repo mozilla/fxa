@@ -12,13 +12,13 @@ import { useAccount } from '../../models';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
-  | 'Firefox backup verification codes'
+  | 'Firefox backup authentication codes'
   | 'Firefox';
 
 const DownloadContentTypeL10nMapping: Record<DownloadContentType, string> = {
   Firefox: 'get-data-trio-title-firefox',
-  'Firefox backup verification codes':
-    'get-data-trio-title-firefox-backup-verification-codes',
+  'Firefox backup authentication codes':
+    'get-data-trio-title-firefox-backup-authentication-codes',
   'Firefox account recovery key':
     'get-data-trio-title-firefox-account-recovery-key',
 };

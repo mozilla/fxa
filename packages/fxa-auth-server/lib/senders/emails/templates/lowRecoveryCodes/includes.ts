@@ -6,8 +6,8 @@ import { GlobalTemplateValues } from '../../../renderer';
 
 const getSubject = (numberRemaining: number) =>
   numberRemaining === 1
-    ? '1 recovery code remaining'
-    : '<%= numberRemaining %> recovery codes remaining';
+    ? '1 backup authentication code remaining'
+    : '<%= numberRemaining %> backup authentication codes remaining';
 
 export const getIncludes = (numberRemaining: number): GlobalTemplateValues => ({
   subject: {

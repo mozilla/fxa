@@ -1054,16 +1054,16 @@ FxaClientWrapper.prototype = {
   verifyTotpCode: createClientDelegate('verifyTotpCode'),
 
   /**
-   * Consume and verifies a session with a recovery code.
+   * Consume and verifies a session with a backup authentication code.
    *
    * @param {String} sessionToken SessionToken obtained from signIn
-   * @param {String} code Recovery code
+   * @param {String} code Backup authentication code
    * @returns {Promise} resolves when complete
    */
   consumeRecoveryCode: createClientDelegate('consumeRecoveryCode'),
 
   /**
-   * Replace all user recovery codes.
+   * Replace all user backup authentication codes.
    *
    * @param {String} sessionToken SessionToken obtained from signIn
    * @returns {Promise} resolves when complete

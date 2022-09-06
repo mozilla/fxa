@@ -145,8 +145,8 @@ export const UnitRowTwoStepAuth = () => {
                 Disable two-step authentication?
               </h2>
             </Localized>
-            {/* "replacing recovery codes" link below will actually drop you into
-            recovery codes flow in the future. */}
+            {/* "replacing backup authentication codes" link below will actually drop you into
+            backup authentication codes flow in the future. */}
             <Localized
               id="tfa-row-disable-modal-explain"
               elems={{
@@ -167,7 +167,7 @@ export const UnitRowTwoStepAuth = () => {
                   className="link-blue"
                   href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
                 >
-                  replacing your recovery codes
+                  replacing your backup authentication codes
                 </LinkExternal>
                 .
               </p>
@@ -207,7 +207,7 @@ export const UnitRowTwoStepAuth = () => {
                 className="font-bold text-xl text-center mb-2"
                 data-testid="change-codes-modal-header"
               >
-                Change recovery codes?
+                Change backup authentication codes?
               </h2>
             </Localized>
             <Localized id="tfa-row-change-modal-explain">

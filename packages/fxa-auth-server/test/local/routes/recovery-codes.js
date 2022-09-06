@@ -36,7 +36,7 @@ function runTest(routePath, requestOptions, method) {
   return route.handler(request);
 }
 
-describe('recovery codes', () => {
+describe('backup authentication codes', () => {
   beforeEach(() => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -63,7 +63,7 @@ describe('recovery codes', () => {
   });
 
   describe('GET /recoveryCodes', () => {
-    it('should replace recovery codes in TOTP session', () => {
+    it('should replace backup authentication codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
       return runTest('/recoveryCodes', requestOptions, 'GET').then((res) => {
         assert.equal(res.recoveryCodes.length, 2, 'correct default code count');
@@ -71,7 +71,11 @@ describe('recovery codes', () => {
         assert.equal(db.replaceRecoveryCodes.callCount, 1);
         const args = db.replaceRecoveryCodes.args[0];
         assert.equal(args[0], UID, 'called with uid');
-        assert.equal(args[1], 8, 'called with recovery code count');
+        assert.equal(
+          args[1],
+          8,
+          'called with backup authentication code count'
+        );
       });
     });
 
@@ -87,7 +91,7 @@ describe('recovery codes', () => {
   });
 
   describe('PUT /recoveryCodes', () => {
-    it('should overwrite recovery codes in TOTP session', () => {
+    it('should overwrite backup authentication codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
       requestOptions.payload.recoveryCodes = ['123'];
 
@@ -98,7 +102,11 @@ describe('recovery codes', () => {
 
         const args = db.updateRecoveryCodes.args[0];
         assert.equal(args[0], UID, 'called with uid');
-        assert.deepEqual(args[1], ['123'], 'called with recovery codes');
+        assert.deepEqual(
+          args[1],
+          ['123'],
+          'called with backup authentication codes'
+        );
       });
     });
 
@@ -115,7 +123,7 @@ describe('recovery codes', () => {
   });
 
   describe('/session/verify/recoveryCode', () => {
-    it('sends email if recovery codes are low', async () => {
+    it('sends email if backup authentication codes are low', async () => {
       db.consumeRecoveryCode = sinon.spy((code) => {
         return Promise.resolve({ remaining: 1 });
       });
@@ -126,7 +134,7 @@ describe('recovery codes', () => {
       assert.equal(args[2].numberRemaining, 1);
     });
 
-    it('should rate-limit attempts to use a recovery code via customs', () => {
+    it('should rate-limit attempts to use a backup authentication code via customs', () => {
       requestOptions.payload.code = '1234567890';
       db.consumeRecoveryCode = sinon.spy((code) => {
         throw error.recoveryCodeNotFound();

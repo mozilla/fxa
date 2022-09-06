@@ -528,13 +528,13 @@ const conf = (module.exports = convict({
   recovery_codes: {
     count: {
       default: 8,
-      doc: 'The default number of recovery codes to create',
+      doc: 'The default number of backup authentication codes to create',
       env: 'RECOVERY_CODE_COUNT',
       format: 'nat',
     },
     length: {
       default: 10,
-      doc: 'The default length of a recovery code',
+      doc: 'The default length of a backup authentication code',
       env: 'RECOVERY_CODE_LENGTH',
       format: 'nat',
     },

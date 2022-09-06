@@ -54,7 +54,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293450
-  test('can change recovery codes #1293450', async ({
+  test('can change backup authentication codes #1293450', async ({
     credentials,
     page,
     pages: { settings, totp, login },
@@ -78,7 +78,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293460
-  test('can get new recovery codes via email #1293460', async ({
+  test('can get new backup authentication codes via email #1293460', async ({
     target,
     credentials,
     pages: { page, login, settings, totp },

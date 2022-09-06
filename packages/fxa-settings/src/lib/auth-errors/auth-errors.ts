@@ -227,7 +227,7 @@ const ERRORS = {
   },
   RECOVERY_CODE_NOT_FOUND: {
     errno: 156,
-    message: 'Recovery code not found',
+    message: 'Backup authentication code not found',
   },
   DEVICE_COMMAND_UNAVAILABLE: {
     errno: 157,
@@ -568,11 +568,11 @@ const ERRORS = {
   },
   RECOVERY_CODE_REQUIRED: {
     errno: 1055,
-    message: 'Recovery code required',
+    message: 'Backup authentication code required',
   },
   INVALID_RECOVERY_CODE: {
     errno: 1056,
-    message: 'Invalid recovery code',
+    message: 'Invalid backup authentication code',
   },
   PASSWORD_SAME_AS_EMAIL: {
     errno: 1057,

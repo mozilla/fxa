@@ -37,9 +37,9 @@ as follows:
 
 - User completes an email confirmation loop to confirm password reset.
   - This produces an `accountResetToken`, a credential for subsequent requests.
-- User retrieves recovery code from print out or downloaded file,
+- User retrieves backup authentication code from print out or downloaded file,
   and provides it to FxA web-content in the password reset flow.
-- FxA web-content uses the recovery code to derive the fingerprint
+- FxA web-content uses the backup authentication code to derive the fingerprint
   and encryption key (recover-kid and recover-enc as defined above).
 - FxA web-content requests recover-data from FxA server, providing recover-kid.
   - `GET /recoveryKey/:recoveryKeyId`, authenticated with `accountResetToken`.

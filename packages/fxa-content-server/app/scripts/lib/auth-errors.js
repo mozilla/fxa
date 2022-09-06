@@ -231,7 +231,7 @@ var ERRORS = {
   },
   RECOVERY_CODE_NOT_FOUND: {
     errno: 156,
-    message: t('Recovery code not found'),
+    message: t('Backup authentication code not found'),
   },
   DEVICE_COMMAND_UNAVAILABLE: {
     errno: 157,
@@ -570,11 +570,11 @@ var ERRORS = {
   },
   RECOVERY_CODE_REQUIRED: {
     errno: 1055,
-    message: t('Recovery code required'),
+    message: t('Backup authentication code required'),
   },
   INVALID_RECOVERY_CODE: {
     errno: 1056,
-    message: t('Invalid recovery code'),
+    message: t('Invalid backup authentication code'),
   },
   PASSWORD_SAME_AS_EMAIL: {
     errno: 1057,

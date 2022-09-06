@@ -90,7 +90,7 @@ describe('views/sign_in_recovery_code', () => {
       assert.lengthOf(view.$('#fxa-recovery-code-header'), 1);
       assert.include(
         view.$('.verification-recovery-code-message').text(),
-        'recovery code'
+        'backup authentication code'
       );
       assert.equal(
         view.$('#use-backup-link').attr('href'),
@@ -189,7 +189,7 @@ describe('views/sign_in_recovery_code', () => {
       });
     });
 
-    describe('invalid recovery code', () => {
+    describe('invalid backup authentication code', () => {
       beforeEach(() => {
         sinon
           .stub(account, 'consumeRecoveryCode')

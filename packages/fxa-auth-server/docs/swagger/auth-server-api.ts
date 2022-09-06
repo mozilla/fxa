@@ -65,7 +65,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 102   | Unknown account                                                               |
     | 400         | 103   | Incorrect password                                                            |
     | 400         | 104   | Unverified account                                                            |
-    | 400         | 105   | Invalid verification code                                                     |
+    | 400         | 105   | Invalid authentication code                                                   |
     | 400         | 106   | Invalid JSON in request body                                                  |
     | 400         | 107   | Invalid parameter in request body                                             |
     | 400         | 108   | Missing parameter in request body                                             |
@@ -107,16 +107,16 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 150   | Can not resend email code to an email that does not belong to this account    |
     | 500         | 151   | Failed to send email                                                          |
     | 422         | 151   | Failed to send email                                                          |
-    | 400         | 152   | Invalid token verification code                                               |
-    | 400         | 153   | Expired token verification code                                               |
+    | 400         | 152   | Invalid token authentication code                                             |
+    | 400         | 153   | Expired token authentication code                                             |
     | 400         | 154   | TOTP token already exists for this account.                                   |
     | 400         | 155   | TOTP token not found.                                                         |
-    | 400         | 156   | Recovery code not found.                                                      |
+    | 400         | 156   | Backup authentication code not found.                                         |
     | 400         | 157   | Unavailable device command.                                                   |
-    | 400         | 158   | Account recovery key not found.                                                       |
-    | 400         | 159   | Account recovery key is not valid.                                                    |
+    | 400         | 158   | Account recovery key not found.                                               |
+    | 400         | 159   | Account recovery key is not valid.                                            |
     | 400         | 160   | This request requires two step authentication enabled on your account.        |
-    | 400         | 161   | Account recovery key already exists.                                                  |
+    | 400         | 161   | Account recovery key already exists.                                          |
     | 400         | 162   | Unknown client_id                                                             |
     | 400         | 164   | Stale auth timestamp                                                          |
     | 409         | 165   | Redis WATCH detected a conflicting update                                     |
