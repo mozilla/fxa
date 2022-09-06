@@ -11,7 +11,7 @@ const getSubject = (numberRemaining: number) =>
 
 export const getIncludes = (numberRemaining: number): GlobalTemplateValues => ({
   subject: {
-    id: 'lowRecoveryCodes-subject',
+    id: 'lowRecoveryCodes-subject-1',
     message: getSubject(numberRemaining),
   },
   action: {

@@ -19,7 +19,7 @@
 <mj-section>
   <mj-column>
 <mj-text css-class="text-body">
-  <span data-l10n-id="postRemoveAccountRecovery-invalid">This account recovery key can no longer be used to recover your account.</span>
+  <span data-l10n-id="postRemoveAccountRecovery-invalid-1">This account recovery key can no longer be used to recover your account.</span>
 </mj-text>
 </mj-column>
 </mj-section>

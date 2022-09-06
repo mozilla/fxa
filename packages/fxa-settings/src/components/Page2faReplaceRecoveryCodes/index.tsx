@@ -36,7 +36,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = () => {
     alertBar.success(
       l10n.getString(
-        'tfa-replace-code-success-alert-2',
+        'tfa-replace-code-success-alert-3',
         null,
         'Account backup authentication codes updated'
       )
@@ -55,7 +55,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error-2',
+          'tfa-replace-code-error-3',
           null,
           'There was a problem replacing your backup authentication codes'
         )
@@ -81,7 +81,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error-2',
+          'tfa-replace-code-error-3',
           null,
           'There was a problem creating your backup authentication codes'
         )
@@ -213,7 +213,7 @@ const RecoveryCodeCheck = ({
     if (!recoveryCodes.includes(recoveryCode)) {
       setRecoveryCodeError(
         l10n.getString(
-          'tfa-incorrect-recovery-code',
+          'tfa-incorrect-recovery-code-1',
           null,
           'Incorrect backup authentication code'
         )
@@ -229,7 +229,7 @@ const RecoveryCodeCheck = ({
 
   return (
     <form onSubmit={recoveryCodeForm.handleSubmit(onSubmit)}>
-      <Localized id="tfa-enter-code-to-confirm">
+      <Localized id="tfa-enter-code-to-confirm-1">
         <p className="mt-4 mb-4">
           Please enter one of your backup authentication codes now to confirm
           you've saved it. You’ll need a code to login if you don’t have access
@@ -237,7 +237,7 @@ const RecoveryCodeCheck = ({
         </p>
       </Localized>
       <div className="mt-4 mb-6" data-testid="recovery-code-input">
-        <Localized id="tfa-enter-recovery-code" attrs={{ label: true }}>
+        <Localized id="tfa-enter-recovery-code-1" attrs={{ label: true }}>
           <InputText
             name="recoveryCode"
             label="Enter a backup authentication code"

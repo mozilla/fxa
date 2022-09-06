@@ -342,7 +342,7 @@ const SecondaryEmailDefaultContent = () => (
       </p>
     </Localized>
     <Localized
-      id="se-content-note"
+      id="se-content-note-1"
       elems={{
         a: (
           <a

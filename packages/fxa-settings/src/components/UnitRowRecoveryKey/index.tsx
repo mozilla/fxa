@@ -43,14 +43,14 @@ export const UnitRowRecoveryKey = () => {
   }, [account, hideModal, alertBar, l10n]);
 
   const localizedRefreshRkText = l10n.getString(
-    'rk-refresh-key',
+    'rk-refresh-key-1',
     null,
     'Refresh account recovery key'
   );
 
   return (
     <UnitRow
-      header={l10n.getString('rk-header', null, 'Account recovery key')}
+      header={l10n.getString('rk-header-1', null, 'Account recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
@@ -133,7 +133,7 @@ export const UnitRowRecoveryKey = () => {
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >
-            <Localized id="rk-remove-modal-heading">
+            <Localized id="rk-remove-modal-heading-1">
               <h2
                 id="recovery-key-header"
                 className="font-bold text-xl text-center mb-2"

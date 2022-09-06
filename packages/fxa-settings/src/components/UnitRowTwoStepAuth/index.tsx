@@ -148,7 +148,7 @@ export const UnitRowTwoStepAuth = () => {
             {/* "replacing backup authentication codes" link below will actually drop you into
             backup authentication codes flow in the future. */}
             <Localized
-              id="tfa-row-disable-modal-explain"
+              id="tfa-row-disable-modal-explain-1"
               elems={{
                 linkExternal: (
                   <LinkExternal
@@ -202,7 +202,7 @@ export const UnitRowTwoStepAuth = () => {
             confirmBtnClassName="cta-primary cta-base-p"
             route={replaceCodesRoute}
           >
-            <Localized id="tfa-row-change-modal-heading">
+            <Localized id="tfa-row-change-modal-heading-1">
               <h2
                 className="font-bold text-xl text-center mb-2"
                 data-testid="change-codes-modal-header"

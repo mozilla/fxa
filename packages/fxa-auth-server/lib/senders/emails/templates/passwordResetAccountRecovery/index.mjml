@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="passwordResetAccountRecovery-title">Your account password was reset with an account recovery key</span>
+      <span data-l10n-id="passwordResetAccountRecovery-title-1">Your account password was reset with an account recovery key</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-description">You have successfully reset your password using an account recovery key from the following device:</span>
+      <span data-l10n-id="passwordResetAccountRecovery-description-1">You have successfully reset your password using an account recovery key from the following device:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -19,13 +19,13 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-regen-required">You will need to generate a new account recovery key.</span>
+      <span data-l10n-id="passwordResetAccountRecovery-regen-required-1">You will need to generate a new account recovery key.</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "passwordResetAccountRecovery-action",
+  buttonL10nId: "passwordResetAccountRecovery-action-1",
   buttonText: "Create new account recovery key"
 }) %>
 
