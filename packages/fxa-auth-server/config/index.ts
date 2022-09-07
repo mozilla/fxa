@@ -4,6 +4,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
+import { tracingConfig } from 'fxa-shared/tracing/config';
 import path from 'path';
 import url from 'url';
 
@@ -1945,6 +1946,7 @@ const conf = convict({
       format: Number,
     },
   },
+  tracing: tracingConfig,
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

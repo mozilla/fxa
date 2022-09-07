@@ -85,6 +85,27 @@ Or by building up the new set in place:
   allScopes.add(s3);  // now "profile:write basket clients"
 ```
 
+### tracing
+
+This utility allows for easy configuration of open tracing. To use this in a service:
+
+- Add the config chunk in fxa-shared/tracing/config to your service's config.
+
+- Then initialize as follows. This invocation should happen as early as possible in the service's lifecycle. Ideally it's
+  the first thing done, even before importing other modules.
+
+```
+const config = require('../config');
+require('fxa-shared/tracing/node-tracing').init(config.get('tracing'));
+```
+
+To see traces on your local system, simply enable Jaeger exports on the service. This can be done by setting the environment
+variable TRACING_JAEGER_EXPORTER_ENABLED=true. The default config for tracing found at fxa-shared/tracing/config.ts will pick
+up this variable and start exporting trace data to the Jaeger container running at `localhost:16686`.
+
+It is also possible to publish directly to google cloud trace from your local environment; however, this is not recommended. If you
+are interested in doing this, more info can be found [here](https://cloud.google.com/trace/docs/setup/nodejs-ot#running_locally_and_elsewhere).
+
 ## Publishing new version
 
 Install the [np](https://github.com/sindresorhus/np) tool, run `np [new_version_here]`.
