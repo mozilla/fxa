@@ -316,17 +316,18 @@ export const Checkout = ({
       <div className="main-content">
         {newsletterSignupError && <NewsletterErrorAlertBar />}
 
-        { subscriptionError &&
-          <PaymentErrorView
-            error={subscriptionError}
-            actionFn={() => {
-              setSubscriptionError(undefined);
-              setTransactionInProgress(false);
-            }}
-            plan={selectedPlan}
-            showFxaLegalFooterLinks={true}
-          />
-        }
+        <PaymentErrorView
+          error={subscriptionError}
+          actionFn={() => {
+            setSubscriptionError(undefined);
+            setTransactionInProgress(false);
+          }}
+          className={classNames({
+            hidden: !subscriptionError,
+          })}
+          plan={selectedPlan}
+          showFxaLegalFooterLinks={true}
+        />
 
         <PaymentProcessing
           provider="paypal"
@@ -335,133 +336,136 @@ export const Checkout = ({
           })}
         />
 
-        { (transactionInProgress || subscriptionError)
-          ? null
-          : (
-            <>
-              <SubscriptionTitle screenType="create" />
+        <SubscriptionTitle
+          screenType="create"
+          className={classNames({
+            hidden: transactionInProgress || subscriptionError,
+          })}
+        />
 
-              <div className="checkout-payment bg-white border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 text-grey-600" data-testid="subscription-create">
-                <Localized id="new-user-step-1">
-                  <h2 className="step-header">1. Create a Firefox account</h2>
-                </Localized>
+        <div
+          className={classNames("checkout-payment bg-white border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 text-grey-600", {
+            hidden: transactionInProgress || subscriptionError,
+          })}
+          data-testid="subscription-create"
+        >
+          <Localized id="new-user-step-1">
+            <h2 className="step-header">1. Create a Firefox account</h2>
+          </Localized>
 
-                <NewUserEmailForm
-                  setValidEmail={setValidEmail}
-                  signInURL={signInURL}
-                  setAccountExists={setAccountExists}
-                  setInvalidEmailDomain={setInvalidEmailDomain}
-                  checkAccountExists={checkAccountExists}
-                  setEmailsMatch={setEmailsMatch}
-                  getString={l10n.getString.bind(l10n)}
-                  selectedPlan={selectedPlan}
-                  onToggleNewsletterCheckbox={() =>
-                    toggleSubscribeToNewsletter(!subscribeToNewsletter)
-                  }
-                />
+          <NewUserEmailForm
+            setValidEmail={setValidEmail}
+            signInURL={signInURL}
+            setAccountExists={setAccountExists}
+            setInvalidEmailDomain={setInvalidEmailDomain}
+            checkAccountExists={checkAccountExists}
+            setEmailsMatch={setEmailsMatch}
+            getString={l10n.getString.bind(l10n)}
+            selectedPlan={selectedPlan}
+            onToggleNewsletterCheckbox={() =>
+              toggleSubscribeToNewsletter(!subscribeToNewsletter)
+            }
+          />
 
-                <hr />
+          <hr />
 
-                <PaymentMethodHeader
-                  plan={selectedPlan}
-                  onClick={() => setCheckboxSet(!checkboxSet)}
-                  type={PaymentMethodHeaderType.SecondStep}
-                />
+          <PaymentMethodHeader
+            plan={selectedPlan}
+            onClick={() => setCheckboxSet(!checkboxSet)}
+            type={PaymentMethodHeaderType.SecondStep}
+          />
+
+          <>
+            {paypalScriptLoaded && (
+              <>
+                <div data-testid="pay-with-other">
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <PaypalButton
+                      beforeCreateOrder={beforePaypalCreateOrder}
+                      customer={null}
+                      disabled={
+                        !checkboxSet ||
+                        validEmail === '' ||
+                        accountExists ||
+                        invalidEmailDomain ||
+                        !emailsMatch
+                      }
+                      idempotencyKey={submitNonce}
+                      newPaypalAgreement={true}
+                      selectedPlan={selectedPlan}
+                      refreshSubmitNonce={refreshSubmitNonce}
+                      postSubscriptionAttemptPaypalCallback={
+                        postSubscriptionAttemptPaypalCallback
+                      }
+                      setSubscriptionError={setSubscriptionError}
+                      setTransactionInProgress={setTransactionInProgress}
+                      ButtonBase={paypalButtonBase}
+                      promotionCode={coupon?.promotionCode}
+                    />
+                  </Suspense>
+                </div>
 
                 <>
-                  {paypalScriptLoaded && (
-                    <>
-                      <div data-testid="pay-with-other">
-                        <Suspense fallback={<div>Loading...</div>}>
-                          <PaypalButton
-                            beforeCreateOrder={beforePaypalCreateOrder}
-                            customer={null}
-                            disabled={
-                              !checkboxSet ||
-                              validEmail === '' ||
-                              accountExists ||
-                              invalidEmailDomain ||
-                              !emailsMatch
-                            }
-                            idempotencyKey={submitNonce}
-                            newPaypalAgreement={true}
-                            selectedPlan={selectedPlan}
-                            refreshSubmitNonce={refreshSubmitNonce}
-                            postSubscriptionAttemptPaypalCallback={
-                              postSubscriptionAttemptPaypalCallback
-                            }
-                            setSubscriptionError={setSubscriptionError}
-                            setTransactionInProgress={setTransactionInProgress}
-                            ButtonBase={paypalButtonBase}
-                            promotionCode={coupon?.promotionCode}
-                          />
-                        </Suspense>
-                      </div>
-
-                      <>
-                        <Localized id="pay-with-heading-card-or">
-                          <p className="pay-with-heading">Or pay with card</p>
-                        </Localized>
-                        <AcceptedCards />
-                      </>
-                    </>
-                  )}
-
-                  {!paypalScriptLoaded && (
-                    <>
-                      <Localized id="pay-with-heading-card-only">
-                        <p className="pay-with-heading">Pay with card</p>
-                      </Localized>
-
-                      <AcceptedCards />
-                    </>
-                  )}
-                </>
-
-                <div>
-                  <Localized id="new-user-card-title">
-                    <div className="label-title">Enter your card information</div>
+                  <Localized id="pay-with-heading-card-or">
+                    <p className="pay-with-heading">Or pay with card</p>
                   </Localized>
+                  <AcceptedCards />
+                </>
+              </>
+            )}
 
-                  <PaymentForm
-                    {...{
-                      submitNonce,
-                      onSubmit: onStripeSubmit,
-                      onChange,
-                      submitButtonL10nId: 'new-user-submit',
-                      submitButtonCopy: 'Subscribe Now',
-                      shouldAllowSubmit:
-                        checkboxSet &&
-                        validEmail !== '' &&
-                        !accountExists &&
-                        !invalidEmailDomain &&
-                        emailsMatch,
+            {!paypalScriptLoaded && (
+              <>
+                <Localized id="pay-with-heading-card-only">
+                  <p className="pay-with-heading">Pay with card</p>
+                </Localized>
 
-                      inProgress,
-                      validatorInitialState,
-                      confirm: false,
-                      submit: true,
-                      plan: selectedPlan,
-                      onMounted: onFormMounted,
-                      onEngaged: onFormEngaged,
-                      promotionCode: coupon?.promotionCode,
-                    }}
-                  />
-                </div>
+                <AcceptedCards />
+              </>
+            )}
+          </>
 
-                <div className="subscription-create-footer">
-                  <PaymentLegalBlurb provider={undefined} />
+          <div>
+            <Localized id="new-user-card-title">
+              <div className="label-title">Enter your card information</div>
+            </Localized>
 
-                  <TermsAndPrivacy
-                    showFXALinks={!accountExists}
-                    plan={selectedPlan}
-                    contentServerURL={config.servers.content.url}
-                  />
-                </div>
-              </div>
-            </>
-          )
-        }
+            <PaymentForm
+              {...{
+                submitNonce,
+                onSubmit: onStripeSubmit,
+                onChange,
+                submitButtonL10nId: 'new-user-submit',
+                submitButtonCopy: 'Subscribe Now',
+                shouldAllowSubmit:
+                  checkboxSet &&
+                  validEmail !== '' &&
+                  !accountExists &&
+                  !invalidEmailDomain &&
+                  emailsMatch,
+
+                inProgress,
+                validatorInitialState,
+                confirm: false,
+                submit: true,
+                plan: selectedPlan,
+                onMounted: onFormMounted,
+                onEngaged: onFormEngaged,
+                promotionCode: coupon?.promotionCode,
+              }}
+            />
+          </div>
+
+          <div className="subscription-create-footer">
+            <PaymentLegalBlurb provider={undefined} />
+
+            <TermsAndPrivacy
+              showFXALinks={!accountExists}
+              plan={selectedPlan}
+              contentServerURL={config.servers.content.url}
+            />
+          </div>
+        </div>
 
         { (transactionInProgress && isMobile)
           ? null

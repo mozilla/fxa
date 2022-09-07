@@ -9,7 +9,7 @@ const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 const nock = require('nock');
 
-const pushboxModule = require('../../lib/pushbox');
+const { pushboxApi } = require('../../lib/pushbox');
 const pushboxDbModule = require('../../lib/pushbox/db');
 const error = require('../../lib/error');
 const { mockLog } = require('../mocks');
@@ -73,8 +73,9 @@ describe('pushbox', () => {
     });
 
     it('store', () => {
+      sandbox.stub(Date, 'now').returns(1000534);
       stubDbModule.store.resolves({ idx: 12 });
-      const pushbox = pushboxModule(
+      const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
         mockStatsD,
@@ -87,7 +88,7 @@ describe('pushbox', () => {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-            ttl: 123456,
+            ttl: 124457,
           });
           sinon.assert.calledOnce(mockStatsD.timing);
           assert.strictEqual(
@@ -104,8 +105,9 @@ describe('pushbox', () => {
     });
 
     it('store with custom ttl', () => {
+      sandbox.stub(Date, 'now').returns(1000534);
       stubDbModule.store.resolves({ idx: 12 });
-      const pushbox = pushboxModule(
+      const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
         mockStatsD,
@@ -118,15 +120,16 @@ describe('pushbox', () => {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-            ttl: 42,
+            ttl: 1043,
           });
           assert.equal(index, '12');
         });
     });
 
     it('store caps ttl at configured maximum', () => {
+      sandbox.stub(Date, 'now').returns(1000432);
       stubDbModule.store.resolves({ idx: 12 });
-      const pushbox = pushboxModule(
+      const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
         mockStatsD,
@@ -139,7 +142,7 @@ describe('pushbox', () => {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
-            ttl: 123456,
+            ttl: 124457,
           });
           assert.equal(index, '12');
         });
@@ -148,12 +151,7 @@ describe('pushbox', () => {
     it('logs an error when failed to store', () => {
       stubDbModule.store.rejects(new Error('db is a mess right now'));
       const log = mockLog();
-      const pushbox = pushboxModule(
-        log,
-        mockConfig,
-        mockStatsD,
-        stubConstructor
-      );
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
         .then(
@@ -169,6 +167,59 @@ describe('pushbox', () => {
             );
           }
         );
+    });
+
+    it('retrieve', () => {
+      stubDbModule.retrieve.resolves({
+        last: true,
+        index: 15,
+        messages: [
+          {
+            idx: 15,
+            // This is { foo: "bar", bar: "bar" }, encoded.
+            data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
+          },
+        ],
+      });
+      const pushbox = pushboxApi(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .retrieve(mockUid, mockDeviceIds[0], 50, 10)
+        .then((result) => {
+          assert.deepEqual(result, {
+            last: true,
+            index: 15,
+            messages: [
+              {
+                index: 15,
+                data: { foo: 'bar', bar: 'bar' },
+              },
+            ],
+          });
+        });
+    });
+
+    it('retrieve throws on error response', () => {
+      stubDbModule.retrieve.rejects(new Error('db is a mess right now'));
+      const log = mockLog();
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
+      return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+          sinon.assert.calledOnce(log.error);
+          assert.equal(log.error.args[0][0], 'pushbox.db.retrieve');
+          assert.equal(
+            log.error.args[0][1]['error']['message'],
+            'db is a mess right now'
+          );
+        }
+      );
     });
   });
 
@@ -193,7 +244,7 @@ describe('pushbox', () => {
             },
           ],
         });
-      const pushbox = pushboxModule(mockLog(), mockConfig);
+      const pushbox = pushboxApi(mockLog(), mockConfig);
       return pushbox
         .retrieve(mockUid, mockDeviceIds[0], 50, 10)
         .then((resp) => {
@@ -218,7 +269,7 @@ describe('pushbox', () => {
           bogus: 'object',
         });
       const log = mockLog();
-      const pushbox = pushboxModule(log, mockConfig);
+      const pushbox = pushboxApi(log, mockConfig);
       return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
         () => assert.ok(false, 'should not happen'),
         (err) => {
@@ -243,7 +294,7 @@ describe('pushbox', () => {
           status: 1234,
         });
       const log = mockLog();
-      const pushbox = pushboxModule(log, mockConfig);
+      const pushbox = pushboxApi(log, mockConfig);
       return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
         () => assert.ok(false, 'should not happen'),
         (err) => {
@@ -271,7 +322,7 @@ describe('pushbox', () => {
           status: 200,
           index: '12',
         });
-      const pushbox = pushboxModule(mockLog(), mockConfig);
+      const pushbox = pushboxApi(mockLog(), mockConfig);
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' })
         .then(({ index }) => {
@@ -294,7 +345,7 @@ describe('pushbox', () => {
           status: 200,
           index: '12',
         });
-      const pushbox = pushboxModule(mockLog(), mockConfig);
+      const pushbox = pushboxApi(mockLog(), mockConfig);
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
         .then(({ index }) => {
@@ -317,7 +368,7 @@ describe('pushbox', () => {
           status: 200,
           index: '12',
         });
-      const pushbox = pushboxModule(mockLog(), mockConfig);
+      const pushbox = pushboxApi(mockLog(), mockConfig);
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
         .then(({ index }) => {
@@ -336,7 +387,7 @@ describe('pushbox', () => {
           bogus: 'object',
         });
       const log = mockLog();
-      const pushbox = pushboxModule(log, mockConfig);
+      const pushbox = pushboxApi(log, mockConfig);
       return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
         () => assert.ok(false, 'should not happen'),
         (err) => {
@@ -360,7 +411,7 @@ describe('pushbox', () => {
           status: 789,
         });
       const log = mockLog();
-      const pushbox = pushboxModule(log, mockConfig);
+      const pushbox = pushboxApi(log, mockConfig);
       return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
         () => assert.ok(false, 'should not happen'),
         (err) => {
@@ -382,7 +433,7 @@ describe('pushbox', () => {
     const config = Object.assign({}, mockConfig, {
       pushbox: { enabled: false },
     });
-    const pushbox = pushboxModule(mockLog(), config);
+    const pushbox = pushboxApi(mockLog(), config);
     return pushbox
       .store(mockUid, mockDeviceIds[0], 'sendtab', mockData)
       .then(

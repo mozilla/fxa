@@ -24,6 +24,41 @@ export class PushboxDB {
     });
     return res;
   }
+
+  async retrieve(x: {
+    uid: string;
+    deviceId: string;
+    limit: number;
+    index?: number | null;
+  }) {
+    const lastest = await Record.query()
+      .select('idx')
+      .findOne({ user_id: x.uid, device_id: x.deviceId })
+      .orderBy('idx', 'desc');
+    const maxIndex = lastest?.idx || 0;
+    const query = Record.query()
+      .where({
+        user_id: x.uid,
+        device_id: x.deviceId,
+      })
+      .where('ttl', '>=', Math.floor(Date.now() / 1000))
+      .limit(x.limit)
+      .orderBy('idx');
+    if (x.index) {
+      query.where('idx', '>=', x.index);
+    }
+
+    const messages = await query.execute();
+    // because there was an ORDER BY idx in the query
+    const lastIndex = messages.at(-1)?.idx || 0;
+    const last = lastIndex === maxIndex || maxIndex === 0 || !messages.length;
+
+    return {
+      last,
+      index: lastIndex,
+      messages,
+    };
+  }
 }
 
 export default PushboxDB;

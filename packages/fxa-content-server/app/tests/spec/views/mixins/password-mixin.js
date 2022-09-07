@@ -187,13 +187,11 @@ describe('views/mixins/password-mixin', function () {
       it('getAffectedPasswordInputs - gets all affected inputs', function () {
         $('#container').html(view.$el);
         let targets = view.getAffectedPasswordInputs('#show-password');
-        // Note that this affects 5 in the test template, but with the real template,
-        // only 2 are affected. We just care about the next assertion being 1 value higher.
-        assert.lengthOf(targets, 5);
+        assert.lengthOf(targets, 1);
 
         view.$('#vpassword').attr('data-synchronize-show', 'true');
         targets = view.getAffectedPasswordInputs('#show-password');
-        assert.lengthOf(targets, 6);
+        assert.lengthOf(targets, 2);
       });
     });
   });
