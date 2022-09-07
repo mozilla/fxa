@@ -10,8 +10,21 @@ import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
 import { useAccount } from '../../models';
 
+export type DownloadContentType =
+  | 'Firefox recovery key'
+  | 'Firefox backup verification codes'
+  | 'Firefox';
+
+const DownloadContentTypeL10nMapping: Record<DownloadContentType, string> = {
+  Firefox: 'get-data-trio-title-firefox',
+  'Firefox backup verification codes':
+    'get-data-trio-title-firefox-backup-verification-codes',
+  'Firefox recovery key': 'get-data-trio-title-firefox-recovery-key',
+};
+
 export type GetDataTrioProps = {
   value: string | string[];
+  contentType?: DownloadContentType;
   onAction?: (type: 'download' | 'copy' | 'print') => void;
 };
 
@@ -30,12 +43,22 @@ const recoveryCodesPrintTemplate = (
   `;
 };
 
-export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
+export const GetDataTrio = ({
+  value,
+  contentType,
+  onAction,
+}: GetDataTrioProps) => {
   const { l10n } = useLocalization();
+
+  // Fall back to 'Firefox' just in case.
+  if (contentType == null) {
+    contentType = 'Firefox';
+  }
+
   const pageTitle = l10n.getString(
-    'get-data-trio-title',
+    DownloadContentTypeL10nMapping[contentType],
     null,
-    'Recovery Codes'
+    contentType
   );
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
@@ -57,7 +80,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
               type: 'text/plain',
             })
           )}
-          download={`${primaryEmail.email} Firefox.txt`}
+          download={`${primaryEmail.email} ${contentType}.txt`}
           data-testid="databutton-download"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-dotted active:outline-black focus:outline-dotted focus:outline-black hover:bg-grey-50"
           onClick={() => onAction?.('download')}

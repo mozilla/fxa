@@ -7,23 +7,28 @@ import { render, screen } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 
+const contentType = 'Firefox recovery key';
 const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'pbooth@mozilla.com',
   },
-} as unknown) as Account;
+} as unknown as Account;
 
 it('renders as expected', () => {
   window.URL.createObjectURL = jest.fn();
   render(
     <AppContext.Provider value={{ account }}>
-      <GetDataTrio {...{ value, url }} />
+      <GetDataTrio {...{ value, contentType, url }} />
     </AppContext.Provider>
   );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
+  expect(screen.getByTestId('databutton-download')).toHaveAttribute(
+    'download',
+    expect.stringMatching(contentType)
+  );
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-print')).toBeInTheDocument();
 });

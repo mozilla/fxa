@@ -136,6 +136,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                     `recovery-key.${type}-option`
                   );
                 }}
+                contentType="Firefox recovery key"
               ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button

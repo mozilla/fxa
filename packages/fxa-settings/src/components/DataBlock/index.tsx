@@ -4,7 +4,7 @@
 
 import { Localized } from '@fluent/react';
 import React, { useState } from 'react';
-import GetDataTrio from '../GetDataTrio';
+import GetDataTrio, { DownloadContentType } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
 
 const actionTypeToNotification = {
@@ -18,6 +18,7 @@ type actionFn = (action: actions) => void;
 
 export type DataBlockProps = {
   value: string | string[];
+  contentType?: DownloadContentType;
   prefixDataTestId?: string;
   separator?: string;
   onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
@@ -26,6 +27,7 @@ export type DataBlockProps = {
 
 export const DataBlock = ({
   value,
+  contentType,
   prefixDataTestId,
   separator,
   onCopy,
@@ -77,7 +79,7 @@ export const DataBlock = ({
           </Localized>
         )}
       </div>
-      <GetDataTrio {...{ value, onAction: actionCb }} />
+      <GetDataTrio {...{ value, contentType, onAction: actionCb }} />
     </>
   );
 };
