@@ -18,7 +18,7 @@ export class StripeFormatter {
     plan?: MozPlanDetails,
     invoice?: MozInvoiceDetails,
     manageSubscriptionLink?: string
-  ) {
+  ): MozSubscription {
     return {
       // The stripe API returns timestamps in UTC seconds instead of milliseconds. The conversion
       // can be done here to normalize the response so that it is consistent with other APIs.
@@ -28,7 +28,7 @@ export class StripeFormatter {
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       endedAt: !!subscription.ended_at
         ? subscription.ended_at * 1e3
-        : subscription.ended_at,
+        : subscription.ended_at || undefined,
       latestInvoice: invoice?.hosted_invoice_url || 'NA',
       manageSubscriptionLink: manageSubscriptionLink || '',
       planId: plan?.plan_id || 'NA',
@@ -36,7 +36,7 @@ export class StripeFormatter {
       productId: plan?.product_id || 'NA',
       status: subscription.status || 'Undetermined',
       subscriptionId: subscription.id,
-    } as MozSubscription;
+    };
   }
 }
 export type MozStripeSubscriptionDetails = Pick<
@@ -63,24 +63,22 @@ export type MozInvoiceDetails = Pick<
  */
 export class AppStoreFormatter {
   static toMozSubscription(
-    subscription: MozAppSubscriptionType,
-    plan?: MozPlanDetails | null
-  ) {
+    subscription: AppStoreSubscriptionPurchase,
+    plan: AbbrevPlan
+  ): MozSubscription {
     return {
       created: subscription.originalPurchaseDate,
       currentPeriodEnd: subscription.expiresDate,
       currentPeriodStart: subscription.verifiedAt,
       cancelAtPeriodEnd: subscription.willRenew() === false,
-      endedAt: subscription.isExpired()
-        ? subscription.expiresDate
-        : null || null,
+      endedAt: subscription.isExpired() ? subscription.expiresDate : undefined,
       latestInvoice: '',
-      planId: plan?.plan_id,
-      productName: plan?.product_name,
-      productId: plan?.product_id,
+      planId: plan.plan_id,
+      productName: plan.product_name,
+      productId: plan.product_id,
       status: this.toStatus(subscription) || 'Undetermined',
       subscriptionId: subscription.originalTransactionId, // Not sure
-    } as MozSubscription;
+    };
   }
 
   static toStatus(
@@ -135,21 +133,21 @@ export type MozAppSubscriptionStatusType = Pick<
 export class PlayStoreFormatter {
   static toMozSubscription(
     subscription: MozPlaySubscriptionType,
-    plan?: MozPlanDetails | null
-  ) {
+    plan: AbbrevPlan
+  ): MozSubscription {
     return {
       created: subscription.startTimeMillis,
       currentPeriodEnd: subscription.expiryTimeMillis,
       currentPeriodStart: subscription.verifiedAt,
       cancelAtPeriodEnd: subscription.autoRenewing === false,
-      endedAt: subscription.userCancellationTimeMillis || null,
+      endedAt: subscription.userCancellationTimeMillis || undefined,
       latestInvoice: '',
       planId: plan?.plan_id || 'NA',
       productName: plan?.product_name || 'NA',
       productId: plan?.product_id || 'NA',
       status: this.toStatus(subscription) || 'Undetermined',
       subscriptionId: subscription.purchaseToken,
-    } as MozSubscription;
+    };
   }
 
   static toStatus(subscription: MozPlaySubscriptionStatusType) {
