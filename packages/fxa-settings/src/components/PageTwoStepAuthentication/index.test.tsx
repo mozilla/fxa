@@ -148,6 +148,10 @@ describe('step 2', () => {
     expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
       totp.recoveryCodes.join(' ')
     );
+    expect(screen.getByTestId('databutton-download')).toHaveAttribute(
+      'download',
+      expect.stringContaining('Firefox backup verification codes')
+    );
   });
 
   it('shows an error when an invalid auth code is entered', async () => {

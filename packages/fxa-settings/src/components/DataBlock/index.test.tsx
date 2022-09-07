@@ -77,3 +77,27 @@ it('displays a tooltip on action', async () => {
     await screen.findByTestId('datablock-copy-tooltip')
   ).toBeInTheDocument();
 });
+
+it('sets download file name', async () => {
+  render(
+    <AppContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} contentType="Firefox recovery key" />
+    </AppContext.Provider>
+  );
+  let element = await screen.findByTestId('databutton-download');
+  expect(element).toBeInTheDocument();
+  expect(element.getAttribute('download')).toContain(
+    'Firefox recovery key.txt'
+  );
+});
+
+it('sets has fallback download file name', async () => {
+  render(
+    <AppContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} />
+    </AppContext.Provider>
+  );
+  const element = await screen.findByTestId('databutton-download');
+  expect(element).toBeInTheDocument();
+  expect(element.getAttribute('download')).toContain('Firefox.txt');
+});

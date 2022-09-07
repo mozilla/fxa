@@ -58,6 +58,11 @@ it('renders', async () => {
   );
 
   expect(screen.getByTestId('ack-recovery-code')).toBeInTheDocument();
+
+  expect(screen.getByTestId('databutton-download')).toHaveAttribute(
+    'download',
+    expect.stringContaining('Firefox backup verification codes')
+  );
 });
 
 it('displays an error when fails to fetch new recovery codes', async () => {
