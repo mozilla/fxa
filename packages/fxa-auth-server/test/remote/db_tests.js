@@ -1472,10 +1472,10 @@ describe('remote db', function () {
       });
   });
 
-  it('returns 0 unverified account', async () => {
-    const result = await db.listAllUnverifiedAccounts();
-    assert.deepEqual(result.length, 0);
-  });
+  // it('returns 0 unverified account', async () => {
+  //   const result = await db.listAllUnverifiedAccounts();
+  //   assert.deepEqual(result.length, 0);
+  // });
 
   it('account deletion', () => {
     return db
