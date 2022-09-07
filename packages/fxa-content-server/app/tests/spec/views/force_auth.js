@@ -391,7 +391,7 @@ describe('/views/force_auth', function () {
       });
 
       it('isValid is successful when the password is filled out', function () {
-        view.$('input[id*="password"]').val('password');
+        view.$('input[id*="password"]:not([id^="show-"])').val('password');
         assert.isTrue(view.isValid());
       });
     });
@@ -537,7 +537,7 @@ describe('/views/force_auth', function () {
       isEmailRegistered = true;
 
       return view.render().then(function () {
-        view.$('input[id*="password"]').val('password');
+        view.$('input[id*="password"]:not([id^="show-"])').val('password');
         view.beforeDestroy();
       });
     });
