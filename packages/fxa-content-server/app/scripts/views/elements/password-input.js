@@ -8,7 +8,7 @@ import Vat from '../../lib/vat';
 export default {
   match($el) {
     const type = $el.attr('type');
-    return type === 'password' || (type === 'text' && $el.hasClass('password'));
+    return type === 'password' || (type === 'text' && $el.is('[id*="password"]:not([id^="show-"])'));
   },
 
   validate() {
