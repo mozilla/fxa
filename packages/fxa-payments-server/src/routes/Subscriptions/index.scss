@@ -60,7 +60,8 @@
   }
 
   .cancel-subscription {
-    p {
+    p,
+    .input-row--checkbox {
       color: $faint-text-color;
       line-height: 1.5;
     }

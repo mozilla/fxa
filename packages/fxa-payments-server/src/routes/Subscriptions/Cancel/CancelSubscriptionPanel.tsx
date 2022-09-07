@@ -192,7 +192,7 @@ const CancelSubscriptionPanel = ({
                 your billing cycle.
               </p>
             </Localized>
-            <p>
+            <div className="input-row input-row--checkbox">
               <label>
                 <input
                   data-testid="confirm-cancel-subscription-checkbox"
@@ -214,7 +214,7 @@ const CancelSubscriptionPanel = ({
                   </span>
                 </Localized>
               </label>
-            </p>
+            </div>
             <div className="button-row">
               <Localized id="sub-item-stay-sub">
                 <button
