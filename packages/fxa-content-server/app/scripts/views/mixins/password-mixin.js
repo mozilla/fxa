@@ -13,8 +13,8 @@ export const PASSWORD_TOGGLE_LABEL = 'label[for^="show-"]';
 
 export default {
   events: {
-    'change input[id*="password"]': 'onPasswordChanged',
-    'keyup input[id*="password"]': 'onPasswordChanged',
+    'change input[id*="password"]:not([id^="show-"])': 'onPasswordChanged',
+    'keyup input[id*="password"]:not([id^="show-"])': 'onPasswordChanged',
     'blur #vpassword': 'hidePasswordHelper',
     'keyup #vpassword': 'onVPasswordChanged',
     'mousedown label[for^="show-"]': 'onShowPasswordMouseDown',
@@ -106,7 +106,7 @@ export default {
 
   onShowPasswordMouseUp(event) {
     // return focus to input
-    this.$(event.target).siblings('[id*="password"]').focus();
+    this.$(event.target).siblings('[id*="password"]:not([id^="show-"])').focus();
   },
 
   togglePasswordVisibility($el) {
@@ -118,9 +118,9 @@ export default {
   },
 
   getAffectedPasswordInputs(button) {
-    let $passwordEl = this.$(button).siblings('[id*="password"]');
+    let $passwordEl = this.$(button).siblings('[id*="password"]:not([id^="show-"])');
     if (this.$(button).data('synchronizeShow')) {
-      $passwordEl = this.$('[id*="password"][data-synchronize-show]');
+      $passwordEl = this.$('[id*="password"]:not([id^="show-"])[data-synchronize-show]');
     }
     return $passwordEl;
   },
@@ -207,7 +207,7 @@ export default {
    */
   hideVisiblePasswords() {
     const active = document.activeElement;
-    this.$el.find('[id*="password"][type=text]').each((index, el) => {
+    this.$el.find('[id*="password"][type=text]:not([id^="show-"])').each((index, el) => {
       this.hidePassword(el);
     });
     active.focus();
