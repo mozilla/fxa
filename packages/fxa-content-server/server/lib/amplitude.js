@@ -644,7 +644,7 @@ function receiveEvent(event, request, data) {
         eventSource: 'content',
         version: VERSION,
         emailTypes: EMAIL_TYPES,
-        userAgent: request.headers?.['user-agent'],
+        userAgent: request.headers && request.headers['user-agent'],
         ..._.pick(data, [
           'deviceId',
           'devices',
@@ -677,7 +677,7 @@ function receiveEvent(event, request, data) {
     statsd.increment('amplitude.event.raw');
   }
 
-  const userAgent = ua.parse(request.headers?.['user-agent']);
+  const userAgent = ua.parse(request.headers && request.headers['user-agent']);
 
   const amplitudeEvent = transform(
     event,
