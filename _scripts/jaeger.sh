@@ -16,5 +16,5 @@ then
     -p 9411:9411 \
     jaegertracing/all-in-one:latest
 else
-  echo -e "Jaeger not enabled. Set env TRACING_JAEGER_EXPORTER_ENABLED=true to enable. \n"
+  echo -e "Jaeger did not start, because it is not enabled. Set env TRACING_JAEGER_EXPORTER_ENABLED=true to enable. Running Jaeger is optional! \n"
 fi
