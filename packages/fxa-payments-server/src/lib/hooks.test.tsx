@@ -209,8 +209,8 @@ describe('useInfoBoxMessage', () => {
     const couponDurationDate = getByTestId('couponDurationDate').textContent;
     expect(messageText).toBe(CouponInfoBoxMessageType.Repeating);
     expect(couponDurationDate).not.toBeNull();
-    expect(couponDurationDate?.slice(0, 8)).toBe(
-      expectedCouponDurationDate.slice(0, 8)
+    expect(couponDurationDate?.slice(0, 7)).toBe(
+      expectedCouponDurationDate.slice(0, 7)
     );
   });
 });
