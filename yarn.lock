@@ -10799,13 +10799,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-buffer@npm:~3.0.0":
-  version: 3.0.0
-  resolution: "@types/json-buffer@npm:3.0.0"
-  checksum: 6b0a371dd603f0eec9d00874574bae195382570e832560dadf2193ee0d1062b8e0694bbae9798bc758632361c227b1e3b19e3bd914043b498640470a2da38b77
-  languageName: node
-  linkType: hard
-
 "@types/json-schema@npm:*, @types/json-schema@npm:^7.0.3, @types/json-schema@npm:^7.0.4, @types/json-schema@npm:^7.0.5, @types/json-schema@npm:^7.0.7, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.9
   resolution: "@types/json-schema@npm:7.0.9"
@@ -18014,16 +18007,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compress-brotli@npm:^1.3.8":
-  version: 1.3.8
-  resolution: "compress-brotli@npm:1.3.8"
-  dependencies:
-    "@types/json-buffer": ~3.0.0
-    json-buffer: ~3.0.1
-  checksum: de7589d692d40eb362f6c91070b5e51bc10b05a89eabb4a7c76c1aa21b625756f8c101c6999e4df0c4dc6199c5ca2e1353573bfdcca5615810f27485394162a5
-  languageName: node
-  linkType: hard
-
 "compressible@npm:~2.0.16":
   version: 2.0.18
   resolution: "compressible@npm:2.0.18"
@@ -23999,7 +23982,7 @@ fsevents@~2.1.1:
     jws: 4.0.0
     jwt-decode: ^3.1.2
     keypair: 1.0.4
-    keyv: 4.4.1
+    keyv: 4.5.0
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -30705,7 +30688,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"json-buffer@npm:3.0.1, json-buffer@npm:~3.0.1":
+"json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
   checksum: 9026b03edc2847eefa2e37646c579300a1f3a4586cfb62bf857832b60c852042d0d6ae55d1afb8926163fa54c2b01d83ae24705f34990348bdac6273a29d4581
@@ -31188,13 +31171,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.4.1":
-  version: 4.4.1
-  resolution: "keyv@npm:4.4.1"
+"keyv@npm:4.5.0":
+  version: 4.5.0
+  resolution: "keyv@npm:4.5.0"
   dependencies:
-    compress-brotli: ^1.3.8
     json-buffer: 3.0.1
-  checksum: efce046d161381121b727e9d753deeaad4ce06a98db6d68442cf1542a3731a46f461d0834fa1937c6ce7b27c807fe7892d4de3074440f4d3dff01ac4c7b32692
+  checksum: d294873cf88ec8f691e5edeb7b4b884f886c5f021a01902a0e243c362449db2b55419d7fb7187d059add747b7398321e39e44d391b65f94935174ce13452714d
   languageName: node
   linkType: hard
 
