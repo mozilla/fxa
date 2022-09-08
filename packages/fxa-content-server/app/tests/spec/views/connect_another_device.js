@@ -93,13 +93,7 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    [
-      'fxa_discoverability_native',
-      'fxa_app_menu',
-      'preferences',
-      'synced-tabs',
-      'tabs-sidebar',
-    ].forEach((entrypoint) => {
+    ['fxa_discoverability_native', 'fxa_app_menu'].forEach((entrypoint) => {
       describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
         beforeEach(() => {
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -121,6 +115,38 @@ describe('views/connect_another_device', () => {
         });
       });
     });
+
+    ['preferences', 'synced-tabs', 'tabs-sidebar', 'fxa_app_menu'].forEach(
+      (entrypoint) => {
+        const isAppMenu = entrypoint === 'fxa_app_menu';
+        describe(`with known entrypoint ${entrypoint}${
+          isAppMenu && ' and action=email'
+        }`, () => {
+          beforeEach(() => {
+            sinon.stub(view, '_isSignedIn').callsFake(() => true);
+            relier.set('entrypoint', entrypoint);
+            relier.set('context', 'fx_desktop_v3');
+            // `fxa_app_menu` without `action=email` redirects. If present, it does not redirect.
+            if (isAppMenu) {
+              relier.set('action', 'email');
+            }
+            sinon.spy(view, 'navigate');
+
+            windowMock.navigator.userAgent =
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+
+            return view.render().then(() => {
+              view.afterVisible();
+            });
+          });
+
+          it('shows the success message and does not redirect', () => {
+            assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+            assert.isTrue(view.navigate.notCalled);
+          });
+        });
+      }
+    );
 
     describe('with a fennec user that is signed in', () => {
       beforeEach(() => {

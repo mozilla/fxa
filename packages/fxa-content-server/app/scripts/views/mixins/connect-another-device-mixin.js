@@ -87,10 +87,8 @@ export default {
       this.isDefault() &&
       context === Constants.FX_DESKTOP_V3_CONTEXT &&
       (entrypoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT ||
-        entrypoint === Constants.FIREFOX_MENU_ENTRYPOINT ||
-        entrypoint === Constants.FIREFOX_PREFERENCES_ENTRYPOINT ||
-        entrypoint === Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
-        entrypoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT)
+        (entrypoint === Constants.FIREFOX_MENU_ENTRYPOINT &&
+          this.relier.get('action') !== 'email'))
     ) {
       return true;
     }
