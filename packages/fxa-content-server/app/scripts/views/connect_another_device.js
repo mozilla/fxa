@@ -26,8 +26,12 @@ import Template from 'templates/connect_another_device.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
-class ConnectAnotherDeviceView extends FormView {
-  template = Template;
+const ConnectAnotherDeviceView = FormView.extend({
+  template: Template,
+
+  events: {
+    'click #cad-not-now': 'notNowLinkHandler',
+  },
 
   beforeRender() {
     // To avoid to redirection loops the forceView property might be set
@@ -38,7 +42,7 @@ class ConnectAnotherDeviceView extends FormView {
     if (this.isEligibleForPairing()) {
       return this.replaceCurrentPageWithPairScreen();
     }
-  }
+  },
 
   afterRender() {
     const options = {
@@ -55,13 +59,13 @@ class ConnectAnotherDeviceView extends FormView {
     }
 
     return this.createMarketingSnippet(options);
-  }
+  },
 
   afterVisible() {
     this._logViewMetrics();
 
-    return super.afterVisible();
-  }
+    return FormView.prototype.afterVisible.bind(this)();
+  },
 
   getAccount() {
     if (!this.model.get('account')) {
@@ -69,7 +73,7 @@ class ConnectAnotherDeviceView extends FormView {
     }
 
     return this.model.get('account');
-  }
+  },
 
   /**
    * Log view related metrics.
@@ -122,7 +126,7 @@ class ConnectAnotherDeviceView extends FormView {
     if (connectMethod) {
       this.logFlowEvent(connectMethod);
     }
-  }
+  },
 
   setInitialContext(context) {
     const isSignedIn = this._isSignedIn();
@@ -162,7 +166,7 @@ class ConnectAnotherDeviceView extends FormView {
       pairingUrl,
       showSuccessMessage,
     });
-  }
+  },
 
   /**
    * Check if the current user is already signed in.
@@ -185,7 +189,7 @@ class ConnectAnotherDeviceView extends FormView {
       this.user.isSignedInAccount(this.getAccount()) ||
       this.broker.get('isVerificationSameBrowser')
     );
-  }
+  },
 
   /**
    * Check if the current user can sign in.
@@ -196,7 +200,7 @@ class ConnectAnotherDeviceView extends FormView {
   _canSignIn() {
     // Only users that are not signed in can do so.
     return !this._isSignedIn() && this.isSyncAuthSupported();
-  }
+  },
 
   /**
    * Check whether to render the success message at the top of the view.
@@ -212,7 +216,7 @@ class ConnectAnotherDeviceView extends FormView {
       !!this.model.get('showSuccessMessage') ||
       !!this.getSearchParam('showSuccessMessage')
     );
-  }
+  },
 
   /**
    * Get an escaped sign in URL.
@@ -237,12 +241,15 @@ class ConnectAnotherDeviceView extends FormView {
       //eslint-disable-next-line camelcase
       utm_source: UTM_SOURCE_EMAIL,
     });
-  }
+  },
 
-  static get ENTRYPOINT() {
-    return 'fxa:connect_another_device';
-  }
-}
+  ENTRYPOINT: 'fxa:connect_another_device',
+
+  notNowLinkHandler() {
+    this.logEvent('cad.notnow.engage');
+    return true;
+  },
+});
 
 Cocktail.mixin(
   ConnectAnotherDeviceView,

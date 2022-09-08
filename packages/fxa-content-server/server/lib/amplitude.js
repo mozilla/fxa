@@ -457,6 +457,11 @@ const EVENTS = {
     group: GROUPS.qrConnectDevice,
     event: 'fx_view_engage',
   },
+
+  'cad.notnow.engage': {
+    group: GROUPS.connectDevice,
+    event: 'cad_notnow_engage',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
