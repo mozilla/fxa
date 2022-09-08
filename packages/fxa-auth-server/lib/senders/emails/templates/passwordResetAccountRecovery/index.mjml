@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="passwordResetAccountRecovery-title-1">Your account password was reset with an account recovery key</span>
+      <span data-l10n-id="passwordResetAccountRecovery-title-2">Password reset successfully</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-description-1">You have successfully reset your password using an account recovery key from the following device:</span>
+      <span data-l10n-id="passwordResetAccountRecovery-description-2">You used your account recovery key to update your password from:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -19,14 +19,15 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-regen-required-1">You will need to generate a new account recovery key.</span>
+      <span data-l10n-id="passwordResetAccountRecovery-regen-required-mjml-1">You’ll need to sign in again on all of your synced devices. Remember to create a new account recovery key to replace the one you used.</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "passwordResetAccountRecovery-action-1",
-  buttonText: "Create new account recovery key"
+  buttonL10nId: "passwordResetAccountRecovery-action-2",
+  buttonText: "Create a new account recovery key"
 }) %>
 
+<%- include('/partials/appBadges/index.mjml') %>
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>

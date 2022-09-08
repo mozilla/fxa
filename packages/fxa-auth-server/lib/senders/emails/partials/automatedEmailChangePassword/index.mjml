@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-footer-automatedEmail">
-      <span data-l10n-id="automated-email-change">
-        This is an automated email; if you did not authorize this action, then
-        <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">please change your password</a>.
-        For more information, please visit
-        <a class="link-blue" href="<%- supportUrl %>" data-l10n-name="supportLink">Mozilla Support</a>.
+      <span data-l10n-id="automated-email-change-2">
+        If you didn’t take this action, <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">change your password</a> right away.
+      </span>
+      <span data-l10n-id="automated-email-support">
+        For more info, visit <a class="link-blue" href="<%- supportUrl %>" data-l10n-name="supportLink">Mozilla Support</a>.
       </span>
     </mj-text>
   </mj-column>

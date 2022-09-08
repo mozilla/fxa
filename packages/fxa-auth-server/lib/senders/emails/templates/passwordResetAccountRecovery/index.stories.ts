@@ -12,11 +12,12 @@ export default {
 
 const createStory = storyWithProps(
   'passwordResetAccountRecovery',
-  'Sent when account recovery key is used',
+  'Sent when account recovery key is used.',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings/account_recovery',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
+    productName: 'Firefox',
   }
 );
 

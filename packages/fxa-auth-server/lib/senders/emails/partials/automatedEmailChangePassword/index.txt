@@ -1,1 +1,4 @@
-automated-email-change-plaintext = "This is an automated email; if you didn’t add a new device to your Firefox account, you should change your password immediately at <%- passwordChangeLink %>"
+automated-email-change-plaintext-2 = "If you didn’t take this action, change your password right away: "
+<%- passwordChangeLink %>
+automated-email-support-plaintext = "For more info, visit Mozilla Support: "
+<%- supportUrl %>
