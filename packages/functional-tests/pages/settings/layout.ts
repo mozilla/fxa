@@ -14,7 +14,8 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   alertBarText() {
-    return this.page.innerText('[data-testid=alert-bar-content]');
+    const alert = this.page.locator('[data-testid=alert-bar-content]');
+    return alert.textContent();
   }
 
   async waitForAlertBar() {

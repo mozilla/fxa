@@ -9,12 +9,32 @@ export class LoginPage extends BaseLayout {
     await this.setEmail(email);
     await this.page.click('button[type=submit]');
     await this.setPassword(password);
-    await this.submit();
+    await this.page.click('button[type=submit]');
     if (recoveryCode) {
       await this.clickUseRecoveryCode();
       await this.setCode(recoveryCode);
       await this.submit();
     }
+  }
+
+  async fillOutFirstSignUp(email: string, password: string) {
+    await this.setEmail(email);
+    await this.page.click('button[type=submit]');
+    await this.page.fill('#password', password);
+    await this.page.fill('#vpassword', password);
+    await this.page.fill('#age', '24');
+    await this.page.click('#submit-btn');
+    await this.fillOutSignUpCode(email);
+  }
+
+  async fillOutSignUpCode(email: string) {
+    const code = await this.target.email.waitForEmail(
+      email,
+      EmailType.verifyShortCode,
+      EmailHeader.shortCode
+    );
+    await this.setCode(code);
+    await this.submit();
   }
 
   setEmail(email: string) {
@@ -31,6 +51,20 @@ export class LoginPage extends BaseLayout {
 
   async setCode(code: string) {
     return this.page.fill('input[type=text]', code);
+  }
+
+  async signInError() {
+    const error = this.page.locator('.error');
+    await error.waitFor();
+    return error.textContent();
+  }
+
+  useDifferentAccountLink() {
+    return this.page.click('#use-different');
+  }
+
+  async signInPasswordTooltip() {
+    return this.page.innerText('#error-tooltip-103');
   }
 
   async unblock(email: string) {
