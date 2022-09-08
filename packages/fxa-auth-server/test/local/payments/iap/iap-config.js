@@ -128,10 +128,7 @@ describe('IAPConfig', () => {
         await iapConfig.plans('testApp');
         assert.fail('Expected exception thrown.');
       } catch (err) {
-        assert.strictEqual(
-          err.message,
-          'IAP Plans document does not exist for testApp'
-        );
+        assert.strictEqual(err.message, 'Unknown app name');
       }
     });
   });
@@ -167,10 +164,7 @@ describe('IAPConfig', () => {
         await iapConfig.packageName('testApp');
         assert.fail('Expected exception thrown.');
       } catch (err) {
-        assert.strictEqual(
-          err.message,
-          'IAP Plans document does not exist for testApp'
-        );
+        assert.strictEqual(err.message, 'Unknown app name');
       }
     });
   });
@@ -206,10 +200,7 @@ describe('IAPConfig', () => {
         await iapConfig.getBundleId('testApp');
         assert.fail('Expected exception thrown.');
       } catch (err) {
-        assert.strictEqual(
-          err.message,
-          'IAP Plans document does not exist for testApp'
-        );
+        assert.strictEqual(err.message, 'Unknown app name');
       }
     });
   });

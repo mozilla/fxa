@@ -1309,7 +1309,7 @@ AppError.unknownAppName = (appName) => {
       code: 404,
       error: 'Not Found',
       errno: ERRNO.IAP_UNKNOWN_APPNAME,
-      message: 'Unknown subscription',
+      message: 'Unknown app name',
     },
     {
       appName,
