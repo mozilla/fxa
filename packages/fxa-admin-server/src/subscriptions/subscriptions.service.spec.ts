@@ -94,7 +94,7 @@ describe('Subscription Service', () => {
     product_metadata: {},
     product_name: productName,
   };
-  const subscription = {
+  const mockStripeCustomer = {
     subscriptions: {
       data: [],
     },
@@ -138,7 +138,7 @@ describe('Subscription Service', () => {
   });
 
   it('should resolve no subscriptions', async () => {
-    mockFetchCustomers.mockImplementation(async () => subscription);
+    mockFetchCustomers.mockImplementation(async () => mockStripeCustomer);
     mockAppStoreGetSubscriptions.mockImplementation(async () => []);
     mockPlayStoreGetSubscriptions.mockImplementation(async () => []);
 
@@ -245,7 +245,7 @@ describe('Subscription Service', () => {
       },
     };
 
-    mockFetchCustomers.mockImplementation(async () => subscription);
+    mockFetchCustomers.mockImplementation(async () => mockStripeCustomer);
     mockAppStoreGetSubscriptions.mockImplementation(async (_uid: string) => [
       appStoreSubscriptionPurchase,
     ]);
@@ -277,6 +277,50 @@ describe('Subscription Service', () => {
     expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
+  });
+
+  it('should throw an error when apple IAP subscription has no stripe plan', async () => {
+    // Arrange
+    const appStoreSubscriptionPurchase: Partial<AppStoreSubscriptionPurchase> =
+      {
+        autoRenewStatus: 1,
+        bundleId,
+        expiresDate: currentPeriodEnd,
+        isEntitlementActive: () => true,
+        isExpired: () => false,
+        isFreeTrial: () => false,
+        isInBillingRetryPeriod: () => false,
+        isInGracePeriod: () => false,
+        originalPurchaseDate: created,
+        originalTransactionId: subscriptionId,
+        productId: 'some-unmatched-product-id',
+        verifiedAt: currentPeriodStart,
+        willRenew: () => true,
+      };
+    const abbrevPlan = {
+      ...plan,
+      plan_metadata: {
+        [STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS]:
+          'product-123,product-234',
+      },
+    };
+
+    mockFetchCustomers.mockImplementation(async () => mockStripeCustomer);
+    mockAppStoreGetSubscriptions.mockImplementation(async (_uid: string) => [
+      appStoreSubscriptionPurchase,
+    ]);
+    mockPlayStoreGetSubscriptions.mockImplementation(
+      async (_uid: string) => []
+    );
+    mockAllAbbrevPlans.mockImplementation(async () => [abbrevPlan]);
+
+    // Act
+    const result = service.getSubscriptions(uid);
+
+    // Assert
+    await expect(result).rejects.toThrow(
+      `No matching plan for IAP apple subscription productId: ${appStoreSubscriptionPurchase.productId}`
+    );
   });
 
   it('should provide play store subscriptions', async () => {
@@ -338,6 +382,47 @@ describe('Subscription Service', () => {
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
 
+  it('should throw an error when play store IAP subscription has no stripe plan', async () => {
+    // Arrange
+    const playStorePurchase: Partial<PlayStoreSubscriptionPurchase> = {
+      autoRenewing: true,
+      countryCode: 'US',
+      expiryTimeMillis: currentPeriodEnd,
+      isEntitlementActive: () => true,
+      orderId: orderId,
+      paymentState: 1,
+      packageName: productName,
+      priceCurrencyCode: plan.currency,
+      priceAmountMicros: plan.amount * 10e6,
+      purchaseToken: subscriptionId,
+      sku: 'some-unmatched-sku',
+      startTimeMillis: currentPeriodStart,
+      verifiedAt: created,
+    };
+
+    mockFetchCustomers.mockImplementation(async () => mockStripeCustomer);
+    mockAppStoreGetSubscriptions.mockImplementation(async (_uid: string) => []);
+    mockPlayStoreGetSubscriptions.mockImplementation(async (_uid: string) => [
+      playStorePurchase,
+    ]);
+    mockAllAbbrevPlans.mockImplementation(async () => [
+      {
+        ...plan,
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]: 'product-123,product-234',
+        },
+      },
+    ]);
+
+    // Act
+    const result = service.getSubscriptions(uid);
+
+    // Assert
+    expect(result).rejects.toThrow(
+      `No matching plan for IAP play subscription sku: ${playStorePurchase.sku}`
+    );
+  });
+
   describe('feature flags', () => {
     beforeEach(() => {
       mockConfigOverrides['featureFlags.subscriptions.appStore'] = false;
@@ -346,7 +431,7 @@ describe('Subscription Service', () => {
     });
 
     it('should respect feature flags', async () => {
-      mockFetchCustomers.mockImplementation(async () => subscription);
+      mockFetchCustomers.mockImplementation(async () => mockStripeCustomer);
       mockAppStoreGetSubscriptions.mockImplementation(async () => []);
       mockPlayStoreGetSubscriptions.mockImplementation(async () => []);
 
