@@ -14,12 +14,14 @@ import {
 } from '../../../constants';
 import { AdminPanelEnv, AdminPanelGuard } from 'fxa-shared/guards';
 import log from '../logging';
+import version from '../version';
 
 const guard = new AdminPanelGuard(config.get('guard.env') as AdminPanelEnv);
 
 /** Client Config Defaults provided by env */
 const defaultConfig: IClientConfig = {
   env: config.get('env'),
+  version: version?.version,
   guard,
   user: {
     group: guard.getBestGroup(config.get('user.group')),
@@ -29,6 +31,13 @@ const defaultConfig: IClientConfig = {
     admin: {
       url: config.get('servers.admin.url'),
     },
+  },
+  sentry: {
+    dsn: config.get('sentry.dsn'),
+    env: config.get('sentry.env'),
+    sampleRate: config.get('sentry.sampleRate'),
+    serverName: config.get('sentry.serverName'),
+    clientName: config.get('sentry.clientName'),
   },
 };
 

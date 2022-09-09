@@ -78,9 +78,15 @@ const conf = convict({
     },
     serverName: {
       doc: 'Name used by sentry to identify the server.',
-      default: 'fxa-admin-panel',
+      default: 'fxa-admin-panel-server',
       format: 'String',
       env: 'SENTRY_SERVER_NAME',
+    },
+    clientName: {
+      doc: 'Name used by sentry to identify the client.',
+      default: 'fxa-admin-panel-client',
+      format: 'String',
+      env: 'SENTRY_CLIENT_NAME',
     },
   },
   listen: {

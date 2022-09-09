@@ -15,8 +15,9 @@ import {
 import { IUserInfo } from '../../../interfaces';
 
 describe('ClientConfig', () => {
+  const html = `<head><meta name="fxa-config" content="${SERVER_CONFIG_PLACEHOLDER}"/></meta></head>`;
+
   function configCheck(remoteHeader: string, user: IUserInfo) {
-    const html = `<head><meta name="fxa-config" content="${SERVER_CONFIG_PLACEHOLDER}"/></meta></head>`;
     const expectedConfig = Object.assign({}, ClientConfig.defaultConfig, {
       user,
     });
@@ -74,6 +75,19 @@ describe('ClientConfig', () => {
         level: PermissionLevel.None,
       },
     });
+  });
+
+  it('injects sentry config into html', () => {
+    const injectedHtml = ClientConfig.injectIntoHtml(html, {});
+    const injectedVal = JSDOM.fragment(injectedHtml)
+      .querySelector('meta[name="fxa-config"]')
+      ?.getAttribute('content');
+
+    expect(injectedVal).toBeDefined();
+    expect(injectedHtml).not.toEqual(html);
+
+    const decodedConfig = JSON.parse(decodeURIComponent(injectedVal!));
+    expect(decodedConfig.sentry).toEqual(ClientConfig.defaultConfig.sentry);
   });
 
   it('handles noisy remote groups header', () => {

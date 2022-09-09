@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This configuration is a subset of the configuration declared in server/config/index.ts
 
 import {
@@ -32,6 +36,14 @@ export function defaultConfig(): IClientConfig {
         url: '',
       },
     },
+    sentry: {
+      dsn: '',
+      env: 'local',
+      serverName: 'fxa-admin-panel-server',
+      clientName: 'fxa-admin-panel-client',
+      sampleRate: 1.0,
+    },
+    version: undefined,
   };
 }
 
