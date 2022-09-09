@@ -87,9 +87,9 @@ let accountResponse: AccountProps = {
       lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
       lastAccessTimeFormatted: '5 seconds ago',
       location: {
-        city: null,
-        country: null,
-        state: null,
+        city: 'Orlando',
+        country: 'USA',
+        state: 'FL',
         stateCode: null,
       },
       name: "UserX's Nightly on machine-xyz",
@@ -307,13 +307,23 @@ it('displays the attached clients', async () => {
     sessionTokenIdFields: await findAllByTestId(
       'attached-clients-session-token-id'
     ),
-    freshreshTokenIdFields: await findAllByTestId(
+    refreshTokenIdFields: await findAllByTestId(
       'attached-clients-refresh-token-id'
     ),
   };
 
-  // Make sure all data is rendered
-  Object.values(fields).forEach((x) => expect(x).toHaveLength(5));
+  // Ensure that only known data is rendered
+  expect(fields['clientFields']).toHaveLength(5);
+  expect(fields['deviceTypeFields']).toHaveLength(1);
+  expect(fields['userAgentFields']).toHaveLength(3);
+  expect(fields['osFields']).toHaveLength(3);
+  expect(fields['createdAtFields']).toHaveLength(5);
+  expect(fields['lastAccessFields']).toHaveLength(5);
+  expect(fields['locationFields']).toHaveLength(1);
+  expect(fields['clientIdFields']).toHaveLength(2);
+  expect(fields['deviceIdFields']).toHaveLength(1);
+  expect(fields['sessionTokenIdFields']).toHaveLength(3);
+  expect(fields['refreshTokenIdFields']).toHaveLength(1);
 
   // Make sure fields have some sort of content
   Object.values(fields)
