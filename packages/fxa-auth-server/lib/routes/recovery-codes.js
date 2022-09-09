@@ -181,6 +181,7 @@ module.exports = (log, db, config, customs, mailer) => {
             acceptLanguage,
             ip,
             location: geo.location,
+            numberRemaining: remaining,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
