@@ -323,7 +323,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
 
   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
     ['subject', [
-      { test: 'include', expected: '2 recovery codes remaining' }
+      { test: 'include', expected: 'Only 2 backup authentication codes left!' }
     ]],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
@@ -332,7 +332,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodes }],
     ])],
     ['html', [
-      { test: 'include', expected: '2 recovery codes remaining' },
+      { test: 'include', expected: 'Time to create more backup authentication codes' },
       { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
@@ -340,8 +340,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Low recovery codes remaining' },
-      { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+      { test: 'include', expected: 'You only have two codes left' },
+      { test: 'include', expected: `Create codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -349,9 +349,46 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
     ['subject', [
-      { test: 'include', expected: '1 recovery code remaining' }
-    ]]]),
+      { test: 'include', expected: 'Only 1 backup authentication code left' }
+    ]],
+    ['html', [
+      { test: 'include', expected: 'You’re on your last backup authentication code' },
+      { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Backup authentication codes help you restore your info when you forget your password.' },
+      { test: 'include', expected: `Create codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ]),
       {updateTemplateValues: values => ({...values, numberRemaining: 1 })}],
+  ['lowRecoveryCodesEmail', new Map<string, Test | any>([
+    ['subject', [
+      { test: 'include', expected: 'No backup authentication codes left' }
+    ]],
+    ['html', [
+      { test: 'include', expected: 'You’re out of backup authentication codes!' },
+      { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'You’re out of backup authentication codes!' },
+      { test: 'include', expected: `Create codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ]),
+      {updateTemplateValues: values => ({...values, numberRemaining: 0 })}],
 
   ['postVerifyEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Welcome to Firefox!' }],
