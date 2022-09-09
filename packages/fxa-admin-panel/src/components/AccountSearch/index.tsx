@@ -13,6 +13,7 @@ const ACCOUNT_SCHEMA = `
   createdAt
   disabledAt
   lockedAt
+  locale
   emails {
     email
     isVerified

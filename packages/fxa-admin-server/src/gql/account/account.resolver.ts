@@ -44,6 +44,7 @@ const ACCOUNT_COLUMNS = [
   'createdAt',
   'disabledAt',
   'lockedAt',
+  'locale',
 ];
 const EMAIL_COLUMNS = [
   'createdAt',
@@ -159,6 +160,22 @@ export class AccountResolver {
       .query()
       .update({ disabledAt: Date.now() })
       .where('uid', uidBuffer);
+    return !!result;
+  }
+
+  @Features(AdminPanelFeature.EditLocale)
+  @Mutation((returns) => Boolean)
+  public async editLocale(
+    @Args('uid') uid: string,
+    @Args('locale') locale: string
+  ) {
+    this.eventLogging.onEvent(EventNames.EditLocale);
+    const uidBuffer = uuidTransformer.to(uid);
+    const result = await this.db.account
+      .query()
+      .update({ locale: locale })
+      .where('uid', uidBuffer);
+
     return !!result;
   }
 
