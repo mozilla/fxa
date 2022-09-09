@@ -50,6 +50,8 @@ class PairAuthCompleteView extends FormView {
   }
 
   openFirefoxView() {
+    this.metrics.logEvent('screen.pair.auth.fx-view');
+    this.metrics.flush();
     const channel = this._notificationChannel;
     return channel.send(channel.COMMANDS.FIREFOX_VIEW, {
       // TODO: What is the correct entrypoint value?
