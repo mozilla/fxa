@@ -356,7 +356,7 @@ const SecondaryEmailDefaultContent = () => (
       }}
     >
       <p className="text-grey-400 text-xs mt-2">
-        Note: a secondary email won't restore your information — you'll need a{' '}
+        Note: a secondary email won't restore your information — you'll need an{' '}
         <a
           className="link-blue"
           href="#recovery-key"

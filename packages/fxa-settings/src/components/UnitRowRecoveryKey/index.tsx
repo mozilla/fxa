@@ -141,7 +141,7 @@ export const UnitRowRecoveryKey = () => {
                 Remove account recovery key?
               </h2>
             </Localized>
-            <Localized id="rk-remove-modal-content">
+            <Localized id="rk-remove-modal-content-1">
               <p id="recovery-key-desc" className="my-6 text-center">
                 In the event you reset your password, you won't be able to use
                 your account recovery key to access your data. You can't undo
