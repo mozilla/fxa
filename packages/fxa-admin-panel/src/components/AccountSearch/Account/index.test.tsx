@@ -39,6 +39,7 @@ let accountResponse: AccountProps = {
   uid: 'ca1c61239f2448b2af618f0b50226cde',
   email: 'hey@happy.com',
   emailVerified: true,
+  locale: 'en-US',
   emails: [
     {
       email: 'hey@happy.com',
@@ -87,9 +88,9 @@ let accountResponse: AccountProps = {
       lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
       lastAccessTimeFormatted: '5 seconds ago',
       location: {
-        city: null,
-        country: null,
-        state: null,
+        city: 'Orlando',
+        country: 'USA',
+        state: 'FL',
         stateCode: null,
       },
       name: "UserX's Nightly on machine-xyz",
@@ -208,6 +209,10 @@ it('displays the account', async () => {
   expect(getByTestId('account-created-at')).toHaveTextContent(
     accountResponse.createdAt.toString()
   );
+
+  expect(getByTestId('account-locale')).toHaveTextContent(
+    accountResponse.locale!
+  );
 });
 
 it('displays when account is disabled', async () => {
@@ -307,13 +312,23 @@ it('displays the attached clients', async () => {
     sessionTokenIdFields: await findAllByTestId(
       'attached-clients-session-token-id'
     ),
-    freshreshTokenIdFields: await findAllByTestId(
+    refreshTokenIdFields: await findAllByTestId(
       'attached-clients-refresh-token-id'
     ),
   };
 
-  // Make sure all data is rendered
-  Object.values(fields).forEach((x) => expect(x).toHaveLength(5));
+  // Ensure that only known data is rendered
+  expect(fields['clientFields']).toHaveLength(5);
+  expect(fields['deviceTypeFields']).toHaveLength(1);
+  expect(fields['userAgentFields']).toHaveLength(3);
+  expect(fields['osFields']).toHaveLength(3);
+  expect(fields['createdAtFields']).toHaveLength(5);
+  expect(fields['lastAccessFields']).toHaveLength(5);
+  expect(fields['locationFields']).toHaveLength(1);
+  expect(fields['clientIdFields']).toHaveLength(2);
+  expect(fields['deviceIdFields']).toHaveLength(1);
+  expect(fields['sessionTokenIdFields']).toHaveLength(3);
+  expect(fields['refreshTokenIdFields']).toHaveLength(1);
 
   // Make sure fields have some sort of content
   Object.values(fields)
@@ -345,4 +360,14 @@ it('displays secondary emails', async () => {
     'ohdeceiver@gmail.com'
   );
   expect(getByTestId('secondary-verified')).toHaveTextContent('not confirmed');
+});
+
+it('displays the locale', async () => {
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
+  expect(getByTestId('account-locale')).toHaveTextContent('en-US');
+  expect(getByTestId('edit-account-locale')).toBeInTheDocument();
 });

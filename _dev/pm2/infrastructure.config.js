@@ -51,8 +51,6 @@ module.exports = {
     {
       name: 'jaeger',
       script: '_scripts/jaeger.sh',
-      max_restarts: '1',
-      min_uptime: '2m',
       autorestart: false,
       kill_timeout: 20000,
     },

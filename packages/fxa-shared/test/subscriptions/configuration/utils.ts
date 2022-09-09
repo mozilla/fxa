@@ -138,7 +138,7 @@ const CONFIGURATION: PlanConfigurationDtoT = {
   styles: {
     webIconBackground: 'webbackgroundfr',
   },
-  productSet: 'Set 1',
+  productSet: ['Set 1'],
   productOrder: 1,
 };
 
@@ -207,7 +207,7 @@ describe('product configuration util functions', () => {
   const productConfig = {
     id: '001',
     active: true,
-    productSet: 'testo',
+    productSet: ['testo'],
     capabilities: productCapabilities,
     urls: productUrls,
     uiContent: productUiContent,
@@ -262,7 +262,7 @@ describe('product configuration util functions', () => {
     },
     support: planSupport,
     promotionCodes: ['generous', 'very', 'insane'],
-    productSet: 'testo',
+    productSet: ['testo'],
     productOrder: 3,
   };
 
@@ -484,7 +484,7 @@ describe('product configuration util functions', () => {
       const actual = productUpgradeFromProductConfig(PLAN_WITH_METADATA, false);
       expect(actual).to.deep.equal({
         productOrder: PLAN_WITH_METADATA.product_metadata!.productOrder,
-        productSet: PLAN_WITH_METADATA.product_metadata!.productSet,
+        productSet: PLAN_WITH_METADATA.product_metadata!.productSet.split(','),
       });
     });
 

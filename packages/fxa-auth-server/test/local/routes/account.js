@@ -2575,9 +2575,7 @@ describe('/account/login', () => {
           tokenData.tokenVerificationId,
           'sessionToken was created unverified'
         );
-        // Note that *neither* email is sent in this case,
-        // since it can't have been a new device connection.
-        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
           0,

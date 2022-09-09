@@ -304,7 +304,7 @@ registerSuite('Account recovery key - unverified session', {
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown.
           .then(testElementExists('[data-testid=modal-verify-session]'))
-          .then(fillOutVerificationCode(email, 0))
+          .then(fillOutVerificationCode(email, 1))
           .then(
             testElementExists(
               selectors.SETTINGS.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_LABEL

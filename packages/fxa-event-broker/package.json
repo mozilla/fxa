@@ -1,6 +1,6 @@
 {
   "name": "fxa-event-broker",
-  "version": "1.240.1",
+  "version": "1.240.2",
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -47,7 +47,7 @@
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "@types/sinon": "10.0.1",
-    "aws-sdk": "^2.1203.0",
+    "aws-sdk": "^2.1212.0",
     "axios": "^0.26.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",

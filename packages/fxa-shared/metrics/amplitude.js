@@ -42,7 +42,7 @@ const CONNECT_DEVICE_FLOWS = {
   'app-store': 'store_buttons',
   install_from: 'store_buttons',
   pair: 'pairing',
-  signin_from: 'signin'
+  signin_from: 'signin',
 };
 
 const EVENT_PROPERTIES = {

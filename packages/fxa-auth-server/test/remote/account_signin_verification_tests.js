@@ -332,6 +332,10 @@ describe('remote account signin verification', function () {
         client2 = c;
       })
       .then(() => {
+        // Clears inbox of new signin email
+        return server.mailbox.waitForEmail(email);
+      })
+      .then(() => {
         return client2.login(options);
       })
       .then(() => {

@@ -416,6 +416,47 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'logout',
   },
+
+  // pairing page during sign up
+  'screen.signup.pair': {
+    group: GROUPS.connectDevice,
+    event: 'pair_view',
+  },
+  'screen.pair': {
+    group: GROUPS.connectDevice,
+    event: 'pair_view',
+  },
+  'signup.pair.submit': {
+    group: GROUPS.connectDevice,
+    event: 'pair_submit',
+  },
+  'pair.submit': {
+    group: GROUPS.connectDevice,
+    event: 'pair_submit',
+  },
+  // link to download mobile Firefox
+  'screen.pair.downloadlink.engage': {
+    group: GROUPS.connectDevice,
+    event: 'download_engage',
+  },
+
+  // pairing process
+  'screen.pair.auth.allow': {
+    group: GROUPS.qrConnectDevice,
+    event: 'view',
+  },
+  'screen.pair.auth.wait-for-supp': {
+    group: GROUPS.qrConnectDevice,
+    event: 'engage',
+  },
+  'screen.pair.auth.complete': {
+    group: GROUPS.qrConnectDevice,
+    event: 'complete',
+  },
+  'screen.pair.auth.fx-view': {
+    group: GROUPS.qrConnectDevice,
+    event: 'fx_view_engage',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
@@ -538,6 +579,13 @@ const FUZZY_EVENTS = new Map([
   ],
   [
     /^flow\.connect-another-device\.link\.(app-store)\.([\w-]+)$/,
+    {
+      group: GROUPS.connectDevice,
+      event: 'engage',
+    },
+  ],
+  [
+    /^flow\.(signup|signin)\.connect-another-device\.link\.([\w-]+)$/,
     {
       group: GROUPS.connectDevice,
       event: 'engage',

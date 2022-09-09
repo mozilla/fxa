@@ -388,7 +388,7 @@ registerSuite('cached signin', {
               selectors.SIGNIN_TOKEN_CODE.HEADER
             )
           )
-          .then(fillOutSignInTokenCode(email, 0))
+          .then(fillOutSignInTokenCode(email, 1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))

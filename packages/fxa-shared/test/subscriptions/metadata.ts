@@ -102,7 +102,7 @@ describe('subscriptions/metadata', () => {
       const product_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
@@ -116,7 +116,7 @@ describe('subscriptions/metadata', () => {
       const plan_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
@@ -130,14 +130,14 @@ describe('subscriptions/metadata', () => {
       const product_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
       const plan_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'bar',
+          productSet: ['bar'],
         }
       );
       expect(
@@ -145,7 +145,7 @@ describe('subscriptions/metadata', () => {
       ).to.deep.equal({
         ...NULL_METADATA,
         productOrder: '1',
-        productSet: 'bar',
+        productSet: ['bar'],
       });
     });
   });
@@ -302,7 +302,7 @@ describe('subscriptions/metadata', () => {
         styles: {},
         locales: {},
         support: {},
-        productSet: 'foxkeh',
+        productSet: ['foxkeh'],
       },
     ];
 

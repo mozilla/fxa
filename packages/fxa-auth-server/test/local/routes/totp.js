@@ -380,7 +380,7 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
       });
     });

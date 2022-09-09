@@ -25,6 +25,7 @@ export enum AdminPanelFeature {
   LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
   DisableAccount = 'DisableAccount',
+  EditLocale = 'EditLocale',
   EnableAccount = 'EnableAccount',
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
@@ -106,6 +107,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.DisableAccount]: {
     name: 'Disable Account',
     level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.EditLocale]: {
+    name: 'Edit Locale',
+    level: PermissionLevel.Support,
   },
   [AdminPanelFeature.EnableAccount]: {
     name: 'Enable Account',

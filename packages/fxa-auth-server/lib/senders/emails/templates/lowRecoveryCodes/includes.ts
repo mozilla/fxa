@@ -4,19 +4,19 @@
 
 import { GlobalTemplateValues } from '../../../renderer';
 
+const SUBJECTS = [ 'No backup authentication codes left', 'Only 1 backup authentication code left' ];
+
 const getSubject = (numberRemaining: number) =>
-  numberRemaining === 1
-    ? '1 backup authentication code remaining'
-    : '<%= numberRemaining %> backup authentication codes remaining';
+  SUBJECTS[numberRemaining] || 'Only <%= numberRemaining %> backup authentication codes left!';
 
 export const getIncludes = (numberRemaining: number): GlobalTemplateValues => ({
   subject: {
-    id: 'lowRecoveryCodes-subject-1',
+    id: 'lowRecoveryCodes-subject-2',
     message: getSubject(numberRemaining),
   },
   action: {
-    id: 'lowRecoveryCodes-action',
-    message: 'Confirm email',
+    id: 'lowRecoveryCodes-action-2',
+    message: 'Create codes',
   },
 });
 

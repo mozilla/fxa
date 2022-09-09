@@ -13,6 +13,7 @@ const ACCOUNT_SCHEMA = `
   createdAt
   disabledAt
   lockedAt
+  locale
   emails {
     email
     isVerified
@@ -312,7 +313,7 @@ const AccountSearchResult = ({
   if (error) {
     return (
       <p data-testid="error-message" className="mt-2">
-        An error occurred.
+        An error occurred. Error: {error.toString()}
       </p>
     );
   }
