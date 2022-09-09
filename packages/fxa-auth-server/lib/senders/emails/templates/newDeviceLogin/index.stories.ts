@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'newDeviceLogin',
-  'Sent to notify the account that a new device has signed in.',
+  'Sent to notify the account that a new device or service has signed in.',
   {
     ...MOCK_USER_INFO,
     clientName: 'Firefox',

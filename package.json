@@ -17,7 +17,8 @@
     "format": "yarn workspaces foreach run format",
     "ports": "pm2 jlist | json -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name",
     "heroku-postbuild": "yarn workspaces foreach --verbose --include 123done install",
-    "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql"
+    "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql",
+    "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {

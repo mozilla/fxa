@@ -335,21 +335,17 @@ module.exports = (log, db, mailer, customs, config) => {
           };
 
           // Check to see if this token was just verified, if it is, then this means
-          // the user has enabled two step authentication, otherwise send new device
+          // the user has enabled two-step authentication, otherwise send new device
           // login email.
-          if (isValidCode && !tokenVerified) {
-            return mailer.sendPostAddTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
-          }
+          if (isValidCode) {
+            if (!tokenVerified) {
+              return mailer.sendPostAddTwoStepAuthenticationEmail(
+                account.emails,
+                account,
+                emailOptions
+              );
+            }
 
-          // All accounts that have a TOTP token, force the session to be verified, therefore
-          // we can not check `session.mustVerify=true` to determine sending the new device
-          // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
-          // don't send.
-          if (isValidCode && service === 'sync') {
             return mailer.sendNewDeviceLoginEmail(
               account.emails,
               account,
