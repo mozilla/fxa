@@ -1,5 +1,6 @@
-postRemoveAccountRecovery-subject = Account recovery key removed
-postRemoveAccountRecovery-title = Account recovery key removed
-postRemoveAccountRecovery-description = You have successfully removed an account recovery key for your { -product-firefox-account } using the following device:
+postRemoveAccountRecovery-subject-2 = Account recovery key deleted
+postRemoveAccountRecovery-title-2 = You deleted your account recovery key.
+# After the colon, there is information about the device that the account recovery key was deleted from
+postRemoveAccountRecovery-description-2 = It was deleted from:
 postRemoveAccountRecovery-action = Manage account
-postRemoveAccountRecovery-invalid-1 = This account recovery key can no longer be used to recover your account.
+postRemoveAccountRecovery-invalid-2 = You need an account recovery key to recover your Firefox data if you forget your password.
