@@ -57,7 +57,7 @@ export class PlanConfig implements BaseConfig {
 
   // Extended by PlanConfig
   stripePriceId?: string;
-  productSet?: string;
+  productSet?: string[];
   productOrder?: number;
   [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]?: string[];
   [STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS]?: string[];

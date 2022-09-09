@@ -362,7 +362,7 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 3,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
       webIconURL: 'http://example.com/product.jpg',
       webIconBackground: 'purple',
     },
@@ -377,7 +377,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: '123done',
+      productSet: ['123done'],
       webIconURL: 'http://example.com/123donepro.jpg',
       webIconBackground: 'orange',
       'product:subtitle': '123DonePro subtitle',
@@ -395,7 +395,7 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 5,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
   },
   {
@@ -408,7 +408,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: {},
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
   },
   {
@@ -423,7 +423,7 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 1,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
   },
   {
@@ -436,7 +436,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -449,7 +449,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -462,7 +462,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -475,7 +475,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -488,7 +488,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -501,7 +501,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -514,7 +514,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
@@ -527,7 +527,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
   },
   {
