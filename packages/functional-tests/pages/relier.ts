@@ -8,8 +8,10 @@ export class RelierPage extends BaseLayout {
     return this.page.goto(url);
   }
 
-  isLoggedIn() {
-    return this.page.isVisible('#loggedin', { timeout: 1000 });
+  async isLoggedIn() {
+    const login = this.page.locator('#loggedin');
+    await login.waitFor();
+    return login.isVisible();
   }
 
   isPro() {
