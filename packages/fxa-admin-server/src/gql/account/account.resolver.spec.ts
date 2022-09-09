@@ -308,4 +308,11 @@ describe('AccountResolver', () => {
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
   });
+
+  it('edits locale', async () => {
+    const result1 = await resolver.editLocale(USER_1.uid, 'en-CA');
+    const result2 = await resolver.accountByEmail(USER_1.email, true, 'joe');
+    expect(result1).toBe(true);
+    expect(result2.locale).toBe('en-CA');
+  });
 });

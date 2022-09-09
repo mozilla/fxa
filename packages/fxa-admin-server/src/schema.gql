@@ -129,6 +129,7 @@ type Account {
   emailVerified: Boolean!
   createdAt: Float!
   disabledAt: Float
+  locale: String
   lockedAt: Float
   emails: [Email!]
   emailBounces: [EmailBounce!]
@@ -162,6 +163,7 @@ type Query {
 type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
+  editLocale(locale: String!, uid: String!): Boolean!
   enableAccount(uid: String!): Boolean!
   recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!

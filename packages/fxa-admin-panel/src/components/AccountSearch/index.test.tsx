@@ -8,6 +8,7 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import {
   CLEAR_BOUNCES_BY_EMAIL,
+  EDIT_LOCALE,
   RECORD_ADMIN_SECURITY_EVENT,
 } from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, AccountSearch, GET_EMAILS_LIKE } from './index';
@@ -20,6 +21,7 @@ import {
 const chance = new Chance();
 
 let testEmail: string;
+let testLocale: string = 'en-US';
 let deleteBouncesMutationCalled = false;
 let calledAccountSearch = false;
 let calledGetEmailsLike = false;
@@ -89,6 +91,7 @@ class GetAccountsByEmail {
             uid: '123',
             createdAt: 1658534643990,
             disabledAt: null,
+            locale: testLocale,
             lockedAt: null,
             emails: [
               {
@@ -134,6 +137,7 @@ class GetAccountsByEmail {
           ],
           createdAt: chance.timestamp(),
           disabledAt: null,
+          locale: testLocale,
           lockedAt: null,
           emailBounces: [bounce, { ...bounce, createdAt: chance.timestamp() }],
           totp: [
@@ -193,6 +197,37 @@ class GetAccountsByEmail {
     };
   }
 }
+
+class EditLocaleMock {
+  static request(uid: string, locale: string) {
+    // Update the test locale fake state. This will effect the result from
+    // the GetAccountsByEmail.mock
+    testLocale = locale;
+    return {
+      query: EDIT_LOCALE,
+      variables: {
+        uid,
+        locale,
+      },
+    };
+  }
+
+  static result(success: boolean) {
+    return {
+      data: {
+        editLocale: success,
+      },
+    };
+  }
+
+  static mock(uid: string, locale: string, success: boolean) {
+    return {
+      request: this.request(uid, locale),
+      result: this.result(success),
+    };
+  }
+}
+
 class RecordAdminSecurityEvent {
   static request() {
     return {
@@ -217,6 +252,7 @@ class RecordAdminSecurityEvent {
     };
   }
 }
+
 class GetEmailsLike {
   static request(email: string) {
     return {
@@ -251,40 +287,13 @@ function renderView(mocks: any) {
   );
 }
 
-const MinimalAccountResponse = (testEmail: string) => ({
-  data: {
-    accountByEmail: {
-      uid: '123',
-      createdAt: 1658534643990,
-      disabledAt: null,
-      lockedAt: null,
-      emails: [
-        {
-          email: testEmail,
-          isVerified: true,
-          isPrimary: true,
-          createdAt: 1658534643990,
-        },
-      ],
-      emailBounces: [],
-      securityEvents: [],
-      totp: [],
-      recoveryKeys: [],
-      linkedAccounts: [],
-      attachedClients: [],
-      subscriptions: [],
-    },
-  },
-});
-
-const nextTick = (t?: number) => new Promise((r) => setTimeout(r, t || 0));
-
 beforeEach(() => {
   jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
   deleteBouncesMutationCalled = false;
   calledAccountSearch = false;
   calledGetEmailsLike = false;
+  testLocale = 'en-US';
 });
 
 afterEach(() => {
@@ -368,4 +377,84 @@ it('displays the error state if there is an error', async () => {
 
   await waitFor(() => screen.getByTestId('error-message'));
   expect(calledAccountSearch).toBeTruthy();
+});
+
+describe('Editing user locale', () => {
+  let localeEl: HTMLElement;
+  let alertSpy: jest.SpyInstance;
+  let promptSpy: jest.SpyInstance;
+
+  // A setup method instead of beforeEach so params can be used.
+  async function setup(newLocale: string | null, success: boolean = true) {
+    const mocks = [
+      GetAccountsByEmail.mock(testEmail, false, true),
+      EditLocaleMock.mock('123', 'en-CA', success),
+      GetAccountsByEmail.mock(testEmail, false, true),
+    ];
+
+    renderView(mocks);
+
+    // Look up account
+    fireEvent.change(await screen.findByTestId('email-input'), {
+      target: { value: testEmail },
+    });
+    fireEvent.click(screen.getByTestId('search-button'));
+
+    localeEl = await screen.findByTestId('account-locale');
+    expect(localeEl).toHaveTextContent('en-US');
+
+    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {
+      return true;
+    });
+    promptSpy = jest.spyOn(window, 'prompt').mockImplementation(() => {
+      return newLocale;
+    });
+  }
+
+  it('edits locale', async () => {
+    await setup('en-CA');
+    fireEvent.click(await screen.findByTestId('edit-account-locale'));
+    await waitFor(() => {
+      expect(localeEl).toHaveTextContent('en-CA');
+    });
+  });
+
+  it('cancels edit of locale', async () => {
+    await setup(null);
+    fireEvent.click(await screen.findByTestId('edit-account-locale'));
+
+    await waitFor(() => {
+      expect(localeEl).toHaveTextContent('en-US');
+    });
+    expect(promptSpy).toHaveBeenCalled();
+    expect(alertSpy).not.toHaveBeenCalled();
+  });
+
+  it('reports failure during edit', async () => {
+    await setup('en-CA', false);
+    fireEvent.click(await screen.findByTestId('edit-account-locale'));
+
+    await waitFor(() => {
+      // Content should not change
+      expect(localeEl).toHaveTextContent('en-US');
+    });
+    expect(promptSpy).toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith(`Edit unsuccessful.`);
+  });
+
+  it('reports error during edit', async () => {
+    // This will throw an error, because there is no matching mock, which
+    // allows testing the error case.
+    await setup('NA', false);
+    fireEvent.click(await screen.findByTestId('edit-account-locale'));
+
+    await waitFor(() => {
+      // Content should not change
+      expect(localeEl).toHaveTextContent('en-US');
+    });
+    expect(promptSpy).toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith(
+      `An unexpected error was encountered. Edit unsuccessful.`
+    );
+  });
 });

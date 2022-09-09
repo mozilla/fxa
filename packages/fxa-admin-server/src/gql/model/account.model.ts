@@ -30,6 +30,9 @@ export class Account {
   public disabledAt?: number;
 
   @Field({ nullable: true })
+  public locale?: string;
+
+  @Field({ nullable: true })
   public lockedAt?: number;
 
   @Field((type) => [Email], { nullable: true })

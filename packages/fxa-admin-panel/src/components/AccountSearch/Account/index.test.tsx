@@ -39,6 +39,7 @@ let accountResponse: AccountProps = {
   uid: 'ca1c61239f2448b2af618f0b50226cde',
   email: 'hey@happy.com',
   emailVerified: true,
+  locale: 'en-US',
   emails: [
     {
       email: 'hey@happy.com',
@@ -208,6 +209,10 @@ it('displays the account', async () => {
   expect(getByTestId('account-created-at')).toHaveTextContent(
     accountResponse.createdAt.toString()
   );
+
+  expect(getByTestId('account-locale')).toHaveTextContent(
+    accountResponse.locale!
+  );
 });
 
 it('displays when account is disabled', async () => {
@@ -355,4 +360,14 @@ it('displays secondary emails', async () => {
     'ohdeceiver@gmail.com'
   );
   expect(getByTestId('secondary-verified')).toHaveTextContent('not confirmed');
+});
+
+it('displays the locale', async () => {
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
+  expect(getByTestId('account-locale')).toHaveTextContent('en-US');
+  expect(getByTestId('edit-account-locale')).toBeInTheDocument();
 });
