@@ -3098,6 +3098,7 @@ describe('StripeHelper', () => {
             product_id: p.product.id,
             product_metadata: p.product.metadata,
             product_name: p.product.name,
+            active: true,
             configuration: {
               locales: {},
               productSet: undefined,
@@ -3120,6 +3121,7 @@ describe('StripeHelper', () => {
               product_id: p.product.id,
               product_metadata: p.product.metadata,
               product_name: p.product.name,
+              active: true,
               configuration: null,
             }))
           )
@@ -3164,6 +3166,7 @@ describe('StripeHelper', () => {
             product_id: p.product.id,
             product_metadata: p.product.metadata,
             product_name: p.product.name,
+            active: true,
             configuration: {
               locales: {},
               productSet: undefined,
@@ -3186,6 +3189,7 @@ describe('StripeHelper', () => {
               product_id: p.product.id,
               product_metadata: p.product.metadata,
               product_name: p.product.name,
+              active: true,
               configuration: null,
             }))
           )

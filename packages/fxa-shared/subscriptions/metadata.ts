@@ -10,6 +10,7 @@ import {
   ProductMetadata,
   RawMetadata,
 } from './types';
+import { commaSeparatedListToArray } from '../lib/utils';
 
 const DEFAULT_LOCALE = 'en-US';
 
@@ -35,20 +36,30 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
 
 // Support some default null values for product / plan metadata and
 // allow plan metadata to override product metadata
-export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
-  productSet: null,
-  productOrder: null,
-  emailIconURL: null,
-  webIconURL: null,
-  webIconBackground: null,
-  upgradeCTA: null,
-  successActionButtonURL: null,
-  'product:termsOfServiceDownloadURL': '',
-  'product:termsOfServiceURL': '',
-  'product:privacyNoticeURL': '',
-  ...plan.product_metadata,
-  ...plan.plan_metadata,
-});
+export const metadataFromPlan = (plan: Plan): ProductMetadata => {
+  const metadata = {
+    productSet: null,
+    productOrder: null,
+    emailIconURL: null,
+    webIconURL: null,
+    webIconBackground: null,
+    upgradeCTA: null,
+    successActionButtonURL: null,
+    'product:termsOfServiceDownloadURL': '',
+    'product:termsOfServiceURL': '',
+    'product:privacyNoticeURL': '',
+    ...plan.product_metadata,
+    ...plan.plan_metadata,
+  };
+
+  if (typeof metadata.productSet === 'string') {
+    //@ts-ignore
+    // prettier-ignore
+    metadata.productSet = commaSeparatedListToArray(metadata.productSet);
+  }
+
+  return metadata;
+};
 
 /**
  * Parses through Stripe metadata for product detail strings and localized overrides

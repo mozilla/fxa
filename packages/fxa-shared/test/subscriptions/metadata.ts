@@ -37,6 +37,7 @@ const PLAN: Plan = {
   amount: 599,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   plan_metadata: null,
   product_metadata: null,
 };
@@ -102,7 +103,7 @@ describe('subscriptions/metadata', () => {
       const product_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
@@ -116,7 +117,7 @@ describe('subscriptions/metadata', () => {
       const plan_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
@@ -130,14 +131,14 @@ describe('subscriptions/metadata', () => {
       const product_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'foo',
+          productSet: ['foo'],
           productOrder: '1',
         }
       );
       const plan_metadata: ProductMetadata = Object.assign(
         requiredProductMetadata,
         {
-          productSet: 'bar',
+          productSet: ['bar'],
         }
       );
       expect(
@@ -145,7 +146,7 @@ describe('subscriptions/metadata', () => {
       ).to.deep.equal({
         ...NULL_METADATA,
         productOrder: '1',
-        productSet: 'bar',
+        productSet: ['bar'],
       });
     });
   });
@@ -277,6 +278,7 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_HzXGNuO76B5o6g',
         product_metadata: { 'support:app:1': 'Pop!_OS' },
         product_name: 'myproduct',
+        active: true,
         configuration: null,
       },
     ];
@@ -302,7 +304,7 @@ describe('subscriptions/metadata', () => {
         styles: {},
         locales: {},
         support: {},
-        productSet: 'foxkeh',
+        productSet: ['foxkeh'],
       },
     ];
 

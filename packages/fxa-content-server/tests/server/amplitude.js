@@ -2391,8 +2391,7 @@ registerSuite('amplitude', {
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
-      assert.equal(arg.event_type, 'fxa_connect_device - view');
-      assert.equal(arg.event_properties.connect_device_flow, 'pairing');
+      assert.equal(arg.event_type, 'fxa_connect_device - pair_view');
     },
 
     'flow.pair.submit': () => {
@@ -2419,6 +2418,206 @@ registerSuite('amplitude', {
       const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - submit');
       assert.equal(arg.event_properties.connect_device_flow, 'pairing');
+    },
+
+    'screen.signup.pair': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.signup.pair',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_connect_device - pair_view'
+      );
+    },
+
+    'signup.pair.submit': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'signup.pair.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_connect_device - pair_submit'
+      );
+    },
+
+    'pair.submit': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'signup.pair.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_connect_device - pair_submit'
+      );
+    },
+
+    'screen.pair.downloadlink.engage': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.pair.downloadlink.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_connect_device - download_engage'
+      );
+    },
+
+    'screen.pair.auth.allow': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.pair.auth.allow',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_qr_connect_device - view'
+      );
+    },
+
+    'screen.pair.auth.wait-for-supp': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.pair.auth.wait-for-supp',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_qr_connect_device - engage'
+      );
+    },
+
+    'screen.pair.auth.complete': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.pair.auth.complete',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_qr_connect_device - complete'
+      );
+    },
+
+    'screen.pair.auth.fx-view': () => {
+      amplitude(
+        {
+          offset: 31721,
+          type: 'screen.pair.auth.fx-view',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_qr_connect_device - fx_view_engage'
+      );
     },
   },
 });

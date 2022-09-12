@@ -22,6 +22,7 @@ import {
   mockConfig,
   mockServerUrl,
   mockOptionsResponses,
+  INACTIVE_PLAN_ID,
 } from '../../lib/test-utils';
 
 import { SignInLayout } from '../../components/AppLayout';
@@ -196,6 +197,24 @@ describe('routes/Product', () => {
     ];
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-plans');
+    expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('displays an error when attempting to load inactive plan', async () => {
+    const apiMocks = [
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER),
+    ];
+    const { findByTestId } = render(<Subject planId={INACTIVE_PLAN_ID} />);
+    const errorEl = await findByTestId('no-such-plan-error');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });

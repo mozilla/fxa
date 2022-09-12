@@ -20,6 +20,7 @@ const PLAN: Plan = {
   amount: 599,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   plan_metadata: null,
   product_metadata: null,
 };
@@ -135,7 +136,7 @@ const CONFIGURATION: PlanConfigurationDtoT = {
   styles: {
     webIconBackground: 'webbackgroundfr',
   },
-  productSet: 'Set 1',
+  productSet: ['Set 1'],
   productOrder: 1,
 };
 
@@ -359,7 +360,7 @@ describe('subscriptions/configuration/helpers', () => {
       const actual = productUpgradeFromProductConfig(PLAN_WITH_METADATA, false);
       expect(actual).to.deep.equal({
         productOrder: PLAN_WITH_METADATA.product_metadata!.productOrder,
-        productSet: PLAN_WITH_METADATA.product_metadata!.productSet,
+        productSet: PLAN_WITH_METADATA.product_metadata!.productSet.split(','),
       });
     });
 

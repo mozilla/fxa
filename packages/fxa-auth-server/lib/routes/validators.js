@@ -547,6 +547,7 @@ module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
   interval_count: isA.number().required(),
   amount: isA.number().required(),
   currency: isA.string().required(),
+  active: isA.boolean().required(),
   configuration: minimalConfigSchema
     .keys(productConfigJoiKeys)
     .keys(planConfigJoiKeys)
@@ -565,6 +566,7 @@ module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
   interval_count: isA.number().required(),
   amount: isA.number().required(),
   currency: isA.string().required(),
+  active: isA.boolean().required(),
   configuration: minimalConfigSchema
     .keys(productConfigJoiKeys)
     .keys(planConfigJoiKeys)

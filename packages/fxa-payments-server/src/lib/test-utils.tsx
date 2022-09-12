@@ -340,6 +340,7 @@ export const STRIPE_FIELDS = [
 ];
 
 export const PLAN_ID = 'plan_12345';
+export const INACTIVE_PLAN_ID = 'inactive';
 
 export const PRODUCT_ID = 'product_8675309';
 
@@ -362,10 +363,11 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 3,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
       webIconURL: 'http://example.com/product.jpg',
       webIconBackground: 'purple',
     },
+    active: true,
   },
   {
     plan_id: '123doneProMonthly',
@@ -377,11 +379,12 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: '123done',
+      productSet: ['123done'],
       webIconURL: 'http://example.com/123donepro.jpg',
       webIconBackground: 'orange',
       'product:subtitle': '123DonePro subtitle',
     },
+    active: true,
   },
   {
     plan_id: 'plan_upgrade',
@@ -395,8 +398,9 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 5,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_no_upgrade',
@@ -408,8 +412,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: {},
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_no_downgrade',
@@ -423,8 +428,9 @@ export const MOCK_PLANS: Plan[] = [
       productOrder: 1,
     },
     product_metadata: {
-      productSet: 'example_upgrade',
+      productSet: ['example_upgrade'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_daily',
@@ -436,8 +442,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_6days',
@@ -449,8 +456,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_weekly',
@@ -462,8 +470,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_6weeks',
@@ -475,8 +484,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_monthly',
@@ -488,8 +498,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_6months',
@@ -501,8 +512,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_yearly',
@@ -514,8 +526,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'plan_6years',
@@ -527,8 +540,9 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     plan_metadata: null,
     product_metadata: {
-      productSet: 'fpn',
+      productSet: ['fpn'],
     },
+    active: true,
   },
   {
     plan_id: 'nextlevel',
@@ -543,6 +557,22 @@ export const MOCK_PLANS: Plan[] = [
       webIconURL: 'http://example.com/product.jpg',
       webIconBackground: 'purple',
     },
+    active: true,
+  },
+  {
+    plan_id: INACTIVE_PLAN_ID,
+    product_id: PRODUCT_ID,
+    product_name: PRODUCT_NAME,
+    interval: 'year' as const,
+    interval_count: 1,
+    amount: 999,
+    currency: 'usd',
+    plan_metadata: null,
+    product_metadata: {
+      webIconURL: 'http://example.com/product.jpg',
+      webIconBackground: 'purple',
+    },
+    active: false,
   },
 ];
 

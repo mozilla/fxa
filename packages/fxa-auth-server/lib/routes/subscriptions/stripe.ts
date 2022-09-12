@@ -24,7 +24,7 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { commaSeparatedListToArray } from '../../payments/utils';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import { StripeHelper } from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,

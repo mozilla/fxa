@@ -4,6 +4,7 @@
 
 import Cocktail from 'cocktail';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
 import PairingTotpMixin from './pairing-totp-mixin';
 import FormView from '../form';
 import Template from '../../templates/pair/auth_allow.mustache';
@@ -25,19 +26,23 @@ class PairAuthAllowView extends FormView {
 
   beforeRender() {
     this.listenTo(this.broker, 'error', this.displayError);
-
     return this.checkTotpStatus();
   }
 
   submit() {
     return this.invokeBrokerMethod('afterPairAuthAllow');
   }
-  
+
   changePassword() {
     this.navigateAway('/settings/change_password');
   }
 }
 
-Cocktail.mixin(PairAuthAllowView, PairingTotpMixin(), DeviceBeingPairedMixin());
+Cocktail.mixin(
+  PairAuthAllowView,
+  FlowEventsMixin,
+  PairingTotpMixin(),
+  DeviceBeingPairedMixin()
+);
 
 export default PairAuthAllowView;

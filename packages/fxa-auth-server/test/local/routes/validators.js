@@ -507,6 +507,7 @@ describe('lib/routes/validators:', () => {
       interval_count: 1,
       amount: '867',
       currency: 'usd',
+      active: true,
     };
 
     it('accepts missing plan and product metadata', () => {
@@ -549,6 +550,7 @@ describe('lib/routes/validators:', () => {
       interval_count: 1,
       amount: '867',
       currency: 'usd',
+      active: true,
       configuration: {
         urls: {
           emailIcon: 'http://firestore.example.gg/email.ico',

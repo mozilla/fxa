@@ -54,6 +54,12 @@ export const DISABLE_ACCOUNT = gql`
   }
 `;
 
+export const EDIT_LOCALE = gql`
+  mutation editLocale($uid: String!, $locale: String!) {
+    editLocale(uid: $uid, locale: $locale)
+  }
+`;
+
 export const ENABLE_ACCOUNT = gql`
   mutation enableAccount($uid: String!) {
     enableAccount(uid: $uid)
@@ -311,6 +317,7 @@ export const Account = ({
   emails,
   createdAt,
   disabledAt,
+  locale,
   lockedAt,
   emailBounces,
   totp,
@@ -327,6 +334,32 @@ export const Account = ({
   const lockedAtDate = dateFormat(new Date(lockedAt || 0), DATE_FORMAT);
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
+
+  const [editLocale] = useMutation(EDIT_LOCALE, {});
+  const handleEditLocale = async () => {
+    try {
+      const newLocale = window.prompt('Enter a new local.');
+      if (!newLocale) {
+        return;
+      }
+
+      const res = await editLocale({
+        variables: {
+          uid,
+          locale: newLocale,
+        },
+      });
+
+      if (res.data?.editLocale) {
+        onCleared();
+      } else {
+        window.alert(`Edit unsuccessful.`);
+      }
+    } catch (err) {
+      window.alert(`An unexpected error was encountered. Edit unsuccessful.`);
+    }
+  };
+
   return (
     <section className="mt-8" data-testid="account-section">
       <ul>
@@ -372,6 +405,26 @@ export const Account = ({
                     </>
                   }
                   testId="account-created-at"
+                />
+                <ResultTableRow
+                  label="Locale"
+                  value={
+                    <>
+                      {locale}
+
+                      <Guard features={[AdminPanelFeature.EditLocale]}>
+                        <button
+                          className="bg-grey-10 border-2 border-grey-100 font-small leading-6 ml-2 rounded text-red-700 w-10 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                          type="button"
+                          onClick={handleEditLocale}
+                          data-testid="edit-account-locale"
+                        >
+                          Edit
+                        </button>
+                      </Guard>
+                    </>
+                  }
+                  testId="account-locale"
                 />
                 {lockedAt != null && (
                   <ResultTableRow
@@ -535,7 +588,7 @@ export const Account = ({
                     attachedClient.sessionTokenId ||
                     attachedClient.refreshTokenId ||
                     attachedClient.clientId ||
-                    'unknown'
+                    'Unknown'
                   }-${attachedClient.createdTime}`}
                   {...attachedClient}
                 />
@@ -869,7 +922,7 @@ const AttachedClients = ({
           />
           <ResultTableRow
             label="Device Type"
-            value={format.deviceType(deviceType, sessionTokenId, deviceId)}
+            value={deviceType}
             testId={testId('device-type')}
           />
           <ResultTableRow
@@ -934,12 +987,16 @@ const ResultTableRow = ({
   testId: string;
   className?: string;
 }) => {
+  if (!value || value === 'Unknown' || value === 'N/A') {
+    return null;
+  }
+
   return (
     <tr className={className || ''}>
       <td className="account-label">
         <span>{label}</span>
       </td>
-      <td data-testid={testId}>{value ? value : <i>Unknown</i>}</td>
+      <td data-testid={testId}>{value}</td>
     </tr>
   );
 };
@@ -985,18 +1042,6 @@ const format = {
         {name} {clientId && <i>[{clientId}]</i>}
       </>
     );
-  },
-  deviceType(
-    deviceType?: Nullable<string>,
-    sessionId?: Nullable<string>,
-    deviceId?: Nullable<string>
-  ) {
-    // This logic might be better at the api level, but it's probably better not to introduce a breaking change.
-    return deviceType
-      ? deviceType
-      : sessionId || deviceId
-      ? 'desktop'
-      : 'unknown';
   },
 };
 

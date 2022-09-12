@@ -311,7 +311,7 @@ registerSuite('TOTP - unverified session', {
           .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
 
           // send and open verification in same tab
-          .then(fillOutVerificationCode(email, 0))
+          .then(fillOutVerificationCode(email, 1))
 
           // panel becomes verified and can be opened
           .then(

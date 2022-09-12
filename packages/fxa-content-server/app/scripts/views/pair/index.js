@@ -16,7 +16,13 @@ import MarketingMixin from '../mixins/marketing-mixin';
 class PairIndexView extends FormView {
   template = Template;
 
+  events = {
+    ...FormView.prototype.events,
+    'click #get-fx-mobile': 'downloadLinkEngagement',
+  };
+
   submit() {
+    this.metrics.flush();
     return this.broker.openPairPreferences();
   }
 
@@ -53,6 +59,10 @@ class PairIndexView extends FormView {
       graphicId,
       showQrCode,
     });
+  }
+
+  downloadLinkEngagement() {
+    this.metrics.logEvent('screen.pair.downloadlink.engage');
   }
 }
 

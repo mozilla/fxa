@@ -11,6 +11,7 @@ export enum EventNames {
   UnverifyEmail = 'unverify-email',
   DisableLogin = 'disable-login',
   AccountSearch = 'account-search',
+  EditLocale = 'edit-locale',
 }
 
 /**

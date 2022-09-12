@@ -46,6 +46,7 @@ const PLAN = {
   amount: 1099,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   plan_metadata: null,
   product_metadata: {
     'product:termsOfServiceURL':
