@@ -16,12 +16,16 @@ test.describe('change primary email tests', () => {
 
   test('change primary email and login', async ({
     credentials,
+    page,
     pages: { login, settings },
   }) => {
     await settings.signOut();
 
     // Sign in with old primary email fails
-    await login.login(credentials.email, credentials.password);
+    await login.setEmail(credentials.email);
+    await page.locator('button[type=submit]').click();
+    await login.setPassword(credentials.password);
+    await page.locator('button[type=submit]').click();
     expect(await login.signInError()).toMatch(
       'Primary account email required for sign-in'
     );
@@ -35,6 +39,7 @@ test.describe('change primary email tests', () => {
 
   test('change primary email, password and login', async ({
     credentials,
+    page,
     pages: { settings, changePassword, login },
   }) => {
     const newPassword = credentials.password + '@@2';
@@ -46,7 +51,10 @@ test.describe('change primary email tests', () => {
     await settings.signOut();
 
     // Sign in with old password
-    await login.login(newEmail, credentials.password);
+    await login.setEmail(newEmail);
+    await page.locator('button[type=submit]').click();
+    await login.setPassword(credentials.password);
+    await page.locator('button[type=submit]').click();
     expect(await login.signInPasswordTooltip()).toMatch('Incorrect password');
 
     // Sign in with new password

@@ -12,7 +12,10 @@ test.describe('severity-1 #smoke', () => {
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
     );
-    await login.login(credentials.email, credentials.password);
+    await login.setEmail(credentials.email);
+    await page.locator('button[type=submit]').click();
+    await login.setPassword(credentials.password);
+    await page.locator('button[type=submit]').click();
     await settings.goto();
     const services = await settings.connectedServices.services();
     const sync = services.find((s) => s.name !== 'playwright');

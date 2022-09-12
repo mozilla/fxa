@@ -9,7 +9,7 @@ export class LoginPage extends BaseLayout {
     await this.setEmail(email);
     await this.page.click('button[type=submit]');
     await this.setPassword(password);
-    await this.page.click('button[type=submit]');
+    await this.submit();
     if (recoveryCode) {
       await this.clickUseRecoveryCode();
       await this.setCode(recoveryCode);
