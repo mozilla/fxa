@@ -221,7 +221,12 @@ export const Product = ({
     );
   }
 
-  if (!plans.result || plans.error !== null || !selectedPlan) {
+  if (
+    !plans.result ||
+    plans.error !== null ||
+    !selectedPlan ||
+    !selectedPlan.active
+  ) {
     return <PlanErrorDialog {...{ locationReload, plans }} />;
   }
 

@@ -323,7 +323,6 @@ export abstract class StripeHelper {
     const plans = [];
 
     for await (const item of this.stripe.plans.list({
-      active: true,
       expand: ['data.product'],
     })) {
       if (!item.product) {
@@ -435,6 +434,7 @@ export abstract class StripeHelper {
       product_id: (p.product as Stripe.Product).id,
       product_metadata: (p.product as Stripe.Product).metadata,
       product_name: (p.product as Stripe.Product).name,
+      active: p.active,
       // TODO simply copy p.configuration below when remove the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag
       // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does not have a `configuration`
       configuration: p.configuration ?? null,

@@ -37,6 +37,7 @@ const PLAN: Plan = {
   amount: 599,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   plan_metadata: null,
   product_metadata: null,
 };
@@ -277,6 +278,7 @@ describe('subscriptions/metadata', () => {
         product_id: 'prod_HzXGNuO76B5o6g',
         product_metadata: { 'support:app:1': 'Pop!_OS' },
         product_name: 'myproduct',
+        active: true,
         configuration: null,
       },
     ];

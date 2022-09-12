@@ -4,7 +4,7 @@
 
 import React from 'react';
 import MockApp from '../../../.storybook/components/MockApp';
-import PlanDetails, { PlanDetailsProps} from './index';
+import PlanDetails, { PlanDetailsProps } from './index';
 import { Profile } from '../../store/types';
 import { COUPON_DETAILS_VALID } from '../../lib/mock-data';
 import { Meta } from '@storybook/react';
@@ -35,6 +35,7 @@ const selectedPlan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+  active: true,
   product_metadata: null,
   plan_metadata: {
     'product:subtitle': 'Really keen product',
@@ -54,7 +55,7 @@ const selectedPlan = {
 
 const storyWithProps = (
   plan: PlanDetailsProps,
-  languages?: readonly string[],
+  languages?: readonly string[]
 ) => {
   const story = () => (
     <MockApp languages={languages}>
@@ -65,17 +66,15 @@ const storyWithProps = (
         }}
       />
     </MockApp>
-  )
+  );
   return story;
 };
 
-export const Default = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: false,
-  },
-);
+export const Default = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+});
 
 export const LocalizedToPirate = storyWithProps(
   {
@@ -83,53 +82,44 @@ export const LocalizedToPirate = storyWithProps(
     isMobile: false,
     showExpandButton: false,
   },
-  ['xx-pirate'],
+  ['xx-pirate']
 );
 
-export const WithExpandedButton = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: true,
-  },
-);
+export const WithExpandedButton = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: true,
+});
 
-export const WithCouponTypeForever = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: false,
-    coupon: {...COUPON_DETAILS_VALID, type: 'forever'}
-  },
-);
+export const WithCouponTypeForever = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+  coupon: { ...COUPON_DETAILS_VALID, type: 'forever' },
+});
 
-export const WithCouponTypeOnce = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: false,
-    coupon: {...COUPON_DETAILS_VALID, type: 'once'}
-  },
-);
+export const WithCouponTypeOnce = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+  coupon: { ...COUPON_DETAILS_VALID, type: 'once' },
+});
 
-export const WithCouponTypeRepeatingPlanIntervalGreaterThanCouponDuration = storyWithProps(
-  {
-    selectedPlan: {...selectedPlan, interval_count: 6},
+export const WithCouponTypeRepeatingPlanIntervalGreaterThanCouponDuration =
+  storyWithProps({
+    selectedPlan: { ...selectedPlan, interval_count: 6 },
     isMobile: false,
     showExpandButton: false,
     coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
-  },
-);
+  });
 
-export const WithCouponTypeRepeating = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: false,
-    coupon: {
-      ...COUPON_DETAILS_VALID,
-      durationInMonths: 3,
-      type: 'repeating',
-    }
+export const WithCouponTypeRepeating = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+  coupon: {
+    ...COUPON_DETAILS_VALID,
+    durationInMonths: 3,
+    type: 'repeating',
   },
-);
+});
