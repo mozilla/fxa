@@ -374,8 +374,7 @@ it('displays the error state if there is an error', async () => {
     target: { value: testEmail },
   });
   fireEvent.click(screen.getByTestId('search-button'));
-
-  await waitFor(() => screen.getByTestId('error-message'));
+  await waitFor(() => screen.getByTestId('error-alert'));
   expect(calledAccountSearch).toBeTruthy();
 });
 
