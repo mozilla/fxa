@@ -19,6 +19,7 @@ class PairIndexView extends FormView {
   events = {
     ...FormView.prototype.events,
     'click #get-fx-mobile': 'downloadLinkEngagement',
+    'click #pair-not-now': 'pairNotNowHandler',
   };
 
   submit() {
@@ -63,6 +64,11 @@ class PairIndexView extends FormView {
 
   downloadLinkEngagement() {
     this.metrics.logEvent('screen.pair.downloadlink.engage');
+  }
+
+  pairNotNowHandler() {
+    this.metrics.logEvent('screen.pair.notnow.engage');
+    return true;
   }
 }
 
