@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useLazyQuery, gql } from '@apollo/client';
+import { useLazyQuery, gql, ApolloError } from '@apollo/client';
 import Account from './Account';
 import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 import iconSearch from '../../images/icon-search.svg';
+import ErrorAlert from '../ErrorAlert';
 
 const ACCOUNT_SCHEMA = `
   uid
@@ -297,7 +298,7 @@ const AccountSearchResult = ({
 }: {
   onCleared: () => void;
   loading: boolean;
-  error?: {};
+  error?: ApolloError;
   data?: {
     accountByEmail: AccountType;
     accountByUid: AccountType;
@@ -311,11 +312,7 @@ const AccountSearchResult = ({
       </p>
     );
   if (error) {
-    return (
-      <p data-testid="error-message" className="mt-2">
-        An error occurred. Error: {error.toString()}
-      </p>
-    );
+    return <ErrorAlert {...{ error }}></ErrorAlert>;
   }
 
   if (data?.accountByEmail) {

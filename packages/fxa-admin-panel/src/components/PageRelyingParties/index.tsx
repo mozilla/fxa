@@ -8,6 +8,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
 import { DATE_FORMAT } from '../AccountSearch/Account';
 import dateFormat from 'dateformat';
+import ErrorAlert from '../ErrorAlert';
 
 const RELYING_PARTIES_SCHEMA = `
   relyingParties {
@@ -46,7 +47,7 @@ const Result = ({
     return <p className="mt-2">Loading...</p>;
   }
   if (error) {
-    return <p className="mt-2">An error occurred.</p>;
+    return <ErrorAlert {...{ error }}></ErrorAlert>;
   }
   if (data && data.relyingParties.length > 0) {
     return (
