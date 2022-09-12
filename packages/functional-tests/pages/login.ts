@@ -59,7 +59,7 @@ export class LoginPage extends BaseLayout {
     return error.textContent();
   }
 
-  useDifferentAccountLink() {
+  async useDifferentAccountLink() {
     return this.page.click('#use-different');
   }
 

@@ -1,6 +1,5 @@
 import { test, expect } from '../../lib/fixtures/standard';
 let newEmail;
-let invalidPassword;
 
 test.describe('change primary email tests', () => {
   test.beforeEach(
@@ -27,7 +26,7 @@ test.describe('change primary email tests', () => {
       'Primary account email required for sign-in'
     );
 
-    // Suceess signing in with New email
+    // Success signing in with New email
     await login.useDifferentAccountLink();
     await login.login(newEmail, credentials.password);
     const primary = await settings.primaryEmail.statusText();
@@ -144,7 +143,6 @@ test.describe('change primary - unblock', () => {
     page,
     pages: { settings, login },
   }) => {
-    invalidPassword = credentials.password + '@@2';
     await login.login(credentials.email, credentials.password);
 
     // Fill out unblock
