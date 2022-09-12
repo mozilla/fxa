@@ -279,7 +279,7 @@ it('displays the totp status', async () => {
   expect(getByTestId('totp-enabled')).toBeInTheDocument();
 });
 
-it('displays the recovery key status', async () => {
+it('displays the account recovery key status', async () => {
   const { getByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />

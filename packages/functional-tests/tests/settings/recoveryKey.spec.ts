@@ -4,7 +4,7 @@ import { EmailHeader, EmailType } from '../../lib/email';
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293421
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293429
-  test('add and remove recovery key #1293421 #1293429', async ({
+  test('add and remove account recovery key #1293421 #1293429', async ({
     credentials,
     pages: { settings, recoveryKey },
   }) => {
@@ -26,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293432
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293433
-  test('use recovery key #1293432 #1293433', async ({
+  test('use account recovery key #1293432 #1293433', async ({
     credentials,
     target,
     pages: { page, login, recoveryKey, settings },

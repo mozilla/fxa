@@ -616,13 +616,13 @@ var User = Backbone.Model.extend({
   },
 
   /**
-   * Complete a password reset for the account using a recovery key. Notifies other tabs
+   * Complete a password reset for the account using an account recovery key. Notifies other tabs
    * of signin on success.
    *
    * @param {Object} account - account to sign up
    * @param {String} password - the user's new password
    * @param {String} accountResetToken - token used to issue request
-   * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery code
+   * @param {String} recoveryKeyId - recoveryKeyId that maps to backup authentication code
    * @param {String} kB - original kB
    * @param {Object} relier - relier being signed in to
    * @param {String} emailToHashWith - hash password with this email

@@ -94,7 +94,7 @@ describe('views/post_verify/account_recovery/add_recovery_key', () => {
       });
     });
 
-    describe('with a recovery key', () => {
+    describe('with an account recovery key', () => {
       beforeEach(() => {
         recoveryKeyExists = true;
         sinon.spy(view, 'navigate');

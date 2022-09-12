@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'postConsumeRecoveryCode',
-  'Sent when user has used a recovery code',
+  'Sent when user has used a backup authentication code',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',

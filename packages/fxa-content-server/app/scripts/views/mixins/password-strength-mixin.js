@@ -29,11 +29,12 @@ export default function (config = {}) {
       return Promise.resolve().then(() => {
         if (!this.$(passwordEl).length) {
           // Only attach the balloon iff there is a password element. This avoids
-          // problems in the reset-password screen when using the recovery key
+          // problems in the reset-password screen when using the account recovery key
           return;
         }
 
-        const passwordModel = (this.passwordModel = this._createPasswordStrengthBalloonModel());
+        const passwordModel = (this.passwordModel =
+          this._createPasswordStrengthBalloonModel());
         // wait a short time after the last invalid event to log the invalid reason.
         // The additional delay over when the UI updates is to minimize the
         // chances of spurious warnings being logged as us helping the user.

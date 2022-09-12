@@ -69,7 +69,7 @@ const Mixin = {
   },
 
   print(template) {
-    // We dynamically create a new window with recovery key and attempt to
+    // We dynamically create a new window with account recovery key and attempt to
     // print it.
     const printWindow = this.window.open('', 'Print', 'height=600,width=800');
     printWindow.document.write(template);

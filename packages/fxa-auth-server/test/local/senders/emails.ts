@@ -937,7 +937,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['passwordResetAccountRecoveryEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Password updated using recovery key' }],
+    ['subject', { test: 'equal', expected: 'Password updated using account recovery key' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecovery') }],
@@ -945,7 +945,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecovery }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Your account password was reset with a recovery key' },
+      { test: 'include', expected: 'Your account password was reset with an account recovery key' },
       { test: 'include', expected: decodeUrl(configHref('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-account-recovery-success', 'privacy')) },
@@ -958,7 +958,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Your account password was reset with a recovery key' },
+      { test: 'include', expected: 'Your account password was reset with an account recovery key' },
       { test: 'include', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
@@ -1170,7 +1170,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postConsumeRecoveryCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Recovery code used' }],
+    ['subject', { test: 'equal', expected: 'Backup authentication code used' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCode') }],
@@ -1178,8 +1178,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCode }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Recovery code consumed' },
-      { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
+      { test: 'include', expected: 'Backup authentication code consumed' },
+      { test: 'include', expected: 'You have successfully consumed a backup authentication code from the following device:' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-consume-recovery-code', 'privacy')) },
@@ -1192,8 +1192,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Recovery code consumed' },
-      { test: 'include', expected: 'You have successfully consumed a recovery code from the following device:' },
+      { test: 'include', expected: 'Backup authentication code consumed' },
+      { test: 'include', expected: 'You have successfully consumed a backup authentication code from the following device:' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
@@ -1208,7 +1208,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postNewRecoveryCodesEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'New recovery codes generated' }],
+    ['subject', { test: 'equal', expected: 'New backup authentication codes generated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodes') }],
@@ -1216,8 +1216,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodes }],
     ])],
     ['html', [
-      { test: 'include', expected: 'New recovery codes generated' },
-      { test: 'include', expected: 'You have successfully generated new recovery codes' },
+      { test: 'include', expected: 'New backup authentication codes generated' },
+      { test: 'include', expected: 'You have successfully generated new backup authentication codes' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-replace-recovery-codes', 'privacy')) },
@@ -1230,8 +1230,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'New recovery codes generated' },
-      { test: 'include', expected: 'You have successfully generated new recovery codes' },
+      { test: 'include', expected: 'New backup authentication codes generated' },
+      { test: 'include', expected: 'You have successfully generated new backup authentication codes' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },

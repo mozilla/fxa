@@ -3,10 +3,10 @@
         <h1 id="fxa-confirm-recovery-key-header">
             {{#serviceName}}
                 <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Confirm recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                {{#t}}Confirm account recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
             {{/serviceName}}
             {{^serviceName}}
-                {{#t}}Confirm recovery key{{/t}}
+                {{#t}}Confirm account recovery key{{/t}}
             {{/serviceName}}
         </h1>
     </header>
@@ -17,11 +17,11 @@
 
         <div class="graphic graphic-recovery-codes"></div>
 
-        <p class="verification-email-message">{{#t}}Enter your recovery key to confirm that you've saved a copy.{{/t}}</p>
+        <p class="verification-email-message">{{#t}}Enter your account recovery key to confirm that you've saved a copy.{{/t}}</p>
 
         <form novalidate>
             <div class="input-row otp-code-row">
-                <input id="recovery-key" type="text" class="text recovery-key tooltip-below" placeholder="{{#t}}Confirm recovery key{{/t}}" autofocus  autocomplete="off"/>
+                <input id="recovery-key" type="text" class="text recovery-key tooltip-below" placeholder="{{#t}}Confirm account recovery key{{/t}}" autofocus  autocomplete="off"/>
             </div>
             <div class="button-row">
                 <button id="submit-btn" type="submit">{{#t}}Confirm{{/t}}</button>

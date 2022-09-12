@@ -22,7 +22,7 @@
         <header>
             <h1 id="fxa-recovery-key-confirm">
                 <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Reset password with recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                {{#t}}Reset password with account recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
             </h1>
         </header>
 
@@ -31,20 +31,20 @@
 
             <form novalidate>
                 <p class="description">
-                    {{#t}}Please enter the one time use recovery key you stored in a safe place to regain access to your Firefox Account.{{/t}}
+                    {{#t}}Please enter the one time use account recovery key you stored in a safe place to regain access to your Firefox Account.{{/t}}
                 </p>
                 <p class="description">
                     {{#unsafeTranslate}}<span class="note">NOTE:</span> If you reset your password and don't have account recovery key saved, some of your data will be erased (including synced server data like history and bookmarks).{{/unsafeTranslate}}
                 </p>
                 <div class="input-row">
-                    <input id="recovery-key" type="text" class="text recovery-key" placeholder="{{#t}}Enter recovery key{{/t}}" value="{{ recoveryKey }}" autofocus  autocomplete="off"/>
+                    <input id="recovery-key" type="text" class="text recovery-key" placeholder="{{#t}}Enter account recovery key{{/t}}" value="{{ recoveryKey }}" autofocus  autocomplete="off"/>
                 </div>
 
                 <div class="button-row">
-                    <button id="submit-btn" type="submit" class="primary-button">{{#t}}Confirm recovery key{{/t}}</button>
+                    <button id="submit-btn" type="submit" class="primary-button">{{#t}}Confirm account recovery key{{/t}}</button>
                 </div>
                 <div class="links">
-                  <a href="#" class="lost-recovery-key">{{#t}}Don't have a recovery key?{{/t}}</a>
+                  <a href="#" class="lost-recovery-key">{{#t}}Don't have an account recovery key?{{/t}}</a>
                 </div>
             </form>
         </section>

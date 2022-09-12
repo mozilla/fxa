@@ -195,7 +195,7 @@ A user can't do the following in an unverified session, as determined by an `Unv
 - Change their password
 - All actions around secondary emails
 - All actions around TOTP
-- All actions around the recovery key
+- All actions around the account recovery key
 
 This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the component containing the action in question with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content.
 

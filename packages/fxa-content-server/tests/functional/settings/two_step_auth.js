@@ -170,7 +170,7 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
-    'can change recovery codes': function () {
+    'can change backup authentication codes': function () {
       return this.remote
         .then(confirmTotpCode(secret))
         .then(

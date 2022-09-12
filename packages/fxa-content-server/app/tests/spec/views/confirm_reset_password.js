@@ -441,7 +441,7 @@ describe('views/confirm_reset_password', function () {
     });
   });
 
-  describe('_finishPasswordResetDifferentBrowser with recovery key', () => {
+  describe('_finishPasswordResetDifferentBrowser with account recovery key', () => {
     beforeEach(() => {
       recoveryKeyExists = true;
       return view.render();

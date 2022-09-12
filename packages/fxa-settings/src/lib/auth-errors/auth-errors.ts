@@ -227,7 +227,7 @@ const ERRORS = {
   },
   RECOVERY_CODE_NOT_FOUND: {
     errno: 156,
-    message: 'Recovery code not found',
+    message: 'Backup authentication code not found',
   },
   DEVICE_COMMAND_UNAVAILABLE: {
     errno: 157,
@@ -235,11 +235,11 @@ const ERRORS = {
   },
   RECOVERY_KEY_NOT_FOUND: {
     errno: 158,
-    message: 'Recovery key not found',
+    message: 'Account recovery key not found',
   },
   INVALID_RECOVERY_KEY: {
     errno: 159,
-    message: 'Invalid recovery key',
+    message: 'Invalid account recovery key',
   },
   TOTP_REQUIRED: {
     errno: 160,
@@ -568,11 +568,11 @@ const ERRORS = {
   },
   RECOVERY_CODE_REQUIRED: {
     errno: 1055,
-    message: 'Recovery code required',
+    message: 'Backup authentication code required',
   },
   INVALID_RECOVERY_CODE: {
     errno: 1056,
-    message: 'Invalid recovery code',
+    message: 'Invalid backup authentication code',
   },
   PASSWORD_SAME_AS_EMAIL: {
     errno: 1057,
@@ -584,7 +584,7 @@ const ERRORS = {
   },
   RECOVERY_KEY_REQUIRED: {
     errno: 1059,
-    message: 'Recovery key required',
+    message: 'Account recovery key required',
   },
   OTP_CODE_REQUIRED: {
     errno: 1060,

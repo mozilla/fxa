@@ -1505,7 +1505,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Consume a recovery code.
+     * Consume a backup authentication code.
      *
      * @param {String} code
 
@@ -1524,7 +1524,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Replaces all current recovery codes.
+     * Replaces all current backup authentication codes.
      *
      * @returns {Promise}
      */
@@ -1533,10 +1533,10 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Creates a new recovery key bundle for the current user.
+     * Creates a new account recovery key bundle for the current user.
      *
      * @param {String} password The current password for the user
-     * @param {String} enable Enable to recovery key
+     * @param {String} enable Enable to account recovery key
      * @returns {Promise}
      */
     createRecoveryBundle(password, enabled) {
@@ -1550,7 +1550,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Deletes the recovery key associated with this user.
+     * Deletes the account recovery key associated with this user.
      *
      * @returns {Promise} resolves when complete.
      */
@@ -1559,7 +1559,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Verify the recovery key associated with this user.
+     * Verify the account recovery key associated with this user.
      *
      * @returns {Promise} resolves when complete.
      */
@@ -1571,7 +1571,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * This checks to see if a recovery key exists for a user.
+     * This checks to see if an account recovery key exists for a user.
      *
      * @returns {Promise} resolves with response when complete.
      *
@@ -1584,7 +1584,7 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * This checks to see if a recovery key exists for a given
+     * This checks to see if an account recovery key exists for a given
      * email.
      *
      * Response: {
@@ -1602,7 +1602,7 @@ const Account = Backbone.Model.extend(
      * @param {String} code
      * @param {String} token
      * @param {Object} [options={}] Options
-     *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with recovery key
+     *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with account recovery key
      * @returns {Promise} resolves with response when complete.
      */
     passwordForgotVerifyCode(code, token, options) {
@@ -1613,7 +1613,7 @@ const Account = Backbone.Model.extend(
      * Get this user's recovery bundle, which contains their `kB`.
      *
      * @param {String} uid - Uid of user
-     * @param  {String} recoveryKey - Recovery key for user
+     * @param  {String} recoveryKey - Account recovery key for user
      * @returns {Promise} resolves with response when complete.
      */
     getRecoveryBundle(uid, recoveryKey) {
@@ -1629,7 +1629,7 @@ const Account = Backbone.Model.extend(
      *
      * @param {String} accountResetToken
      * @param {String} password - new password
-     * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery key
+     * @param {String} recoveryKeyId - recoveryKeyId that maps to account recovery key
      * @param {String} kB - original kB
      * @param {Object} relier - relier being signed in to.
      * @param {String} emailToHashWith - has password with this email address

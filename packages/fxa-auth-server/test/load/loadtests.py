@@ -258,7 +258,7 @@ class LoadTest(TestCase):
                     raise
             pft = self.client.send_reset_code(email)
         assert "tries" in pft.get_status()
-        # Get the recovery code  and redeem it.
+        # Get the backup authentication code  and redeem it.
         code = self._get_code_from_email(emailAcct, "x-recovery-code")
         assert code is not None, "failed to get code"
         try:

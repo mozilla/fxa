@@ -738,7 +738,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
   /**
    * Log when a user preference is updated. Example, two step authentication,
-   * adding recovery email or recovery key.
+   * adding recovery email or account recovery key.
    *
    * @param {String} prefName - name of preference, typically view name
    * @param {Boolean} value - value of preference

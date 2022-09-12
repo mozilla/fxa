@@ -139,9 +139,9 @@ module.exports = {
 
   UTM_SOURCE_EMAIL: 'email',
 
-  // Recovery keys are base32 encoded, length 32 gives 155 bits of entropy
+  // Account recovery keys are base32 encoded, length 32 gives 155 bits of entropy
   // Ex. (32 char - 1 version char) * 5 bits = 155 bits. This gives us a
-  // 1 in 2^155 chance of clashing recovery keys.
+  // 1 in 2^155 chance of clashing account recovery keys.
   RECOVERY_KEY_LENGTH: 32,
 
   DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',

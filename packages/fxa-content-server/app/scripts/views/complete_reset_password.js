@@ -52,7 +52,7 @@ const View = FormView.extend({
 
     // If the complete password screen was navigated from the account recovery confirm
     // key view, then these properties must be set in order to recover the account
-    // using the recovery key.
+    // using the account recovery key.
     if (model && model.get('recoveryKeyId')) {
       this._accountRecoveryVerficationInfo =
         new AccountRecoveryVerificationInfo(model.toJSON());
@@ -94,7 +94,7 @@ const View = FormView.extend({
 
       // When the user clicks the confirm password reset link from their
       // email, we should check to see if they have an account recovery key.
-      // If so, navigate to the confirm recovery key view, else continue with
+      // If so, navigate to the confirm account recovery key view, else continue with
       // a regular password reset.
       return account.checkRecoveryKeyExistsByEmail().then((result) => {
         if (result.exists) {
@@ -165,7 +165,7 @@ const View = FormView.extend({
     return Promise.resolve()
       .then(() => {
         // The account recovery verification info will be set from the
-        // `confirm recovery key` view. If the are not set, then perform
+        // `confirm account recovery key` view. If the are not set, then perform
         // a regular password reset.
         const accountRecoveryVerificationInfo =
           this._accountRecoveryVerficationInfo;

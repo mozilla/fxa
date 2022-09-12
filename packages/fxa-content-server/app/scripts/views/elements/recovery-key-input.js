@@ -17,7 +17,7 @@ element.val = function (val) {
     return this.__val(val);
   }
 
-  // Recovery key is displayed to the user with spaces every 4
+  // Account recovery key is displayed to the user with spaces every 4
   // characters, replace them with empty spaces.
   return this.__val().replace(/ /g, '').toUpperCase();
 };

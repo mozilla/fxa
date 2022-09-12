@@ -16,7 +16,7 @@ const RECOVERYKEY_POST = {
     dedent`
       🔒 Authenticated with session token
 
-      Creates a new recovery key for a user. Recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [recovery keys](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md) docs.
+      Creates a new account recovery key for a user. Account recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [account recovery keys](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md) docs.
     `,
   ],
 };
@@ -26,7 +26,7 @@ const RECOVERYKEY_RECOVERYKEYID_GET = {
   description: '/recoveryKey/{recoveryKeyId}',
   notes: [
     '🔒 Authenticated with account reset token',
-    'Retrieve the account recovery data associated with the given recovery key.',
+    'Retrieve the account recovery data associated with the given account recovery key.',
   ],
 };
 
@@ -44,7 +44,7 @@ const RECOVERYKEY_DELETE = {
   description: '/recoveryKey',
   notes: [
     '🔒 Authenticated with session token',
-    "This route remove an account's recovery key. When the key is removed, it can no longer be used to restore an account's kB.",
+    "This route remove an account's account recovery key. When the key is removed, it can no longer be used to restore an account's kB.",
   ],
 };
 

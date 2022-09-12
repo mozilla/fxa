@@ -7,7 +7,7 @@ import { render, screen } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 
-const contentType = 'Firefox recovery key';
+const contentType = 'Firefox account recovery key';
 const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 

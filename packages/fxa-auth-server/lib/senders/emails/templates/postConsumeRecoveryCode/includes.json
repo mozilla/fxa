@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postConsumeRecoveryCode-subject",
-    "message": "Recovery code used"
+    "id": "postConsumeRecoveryCode-subject-1",
+    "message": "Backup authentication code used"
   },
   "action": {
     "id": "postConsumeRecoveryCode-action",

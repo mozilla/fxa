@@ -11,7 +11,7 @@ import { mockAppContext, mockSession } from 'fxa-settings/src/models/mocks';
 
 storiesOf('Components/UnitRowRecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('with recovery key', () => (
+  .add('with account recovery key', () => (
     <AppContext.Provider
       value={mockAppContext({
         account: {
@@ -22,7 +22,7 @@ storiesOf('Components/UnitRowRecoveryKey', module)
       <UnitRowRecoveryKey />
     </AppContext.Provider>
   ))
-  .add('no recovery key', () => (
+  .add('no account recovery key', () => (
     <AppContext.Provider
       value={mockAppContext({
         account: {

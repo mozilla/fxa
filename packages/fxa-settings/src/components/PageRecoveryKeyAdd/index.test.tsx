@@ -73,7 +73,7 @@ describe('PageRecoveryKeyAdd', () => {
     expect(screen.getByTestId('continue-button')).toBeDisabled();
   });
 
-  it('Generates a recovery key on submit', async () => {
+  it('Generates an account recovery key on submit', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyAdd />
@@ -132,12 +132,10 @@ describe('PageRecoveryKeyAdd', () => {
           .fn()
           .mockResolvedValue(new Uint8Array(20));
       } else {
-        account.createRecoveryKey = jest
-          .fn()
-          .mockImplementation(() => {
-            // this is just a random key that does match a real error to keep tests passing.
-            throw { message: 'Example error', errno: 106 }
-          })
+        account.createRecoveryKey = jest.fn().mockImplementation(() => {
+          // this is just a random key that does match a real error to keep tests passing.
+          throw { message: 'Example error', errno: 106 };
+        });
       }
 
       renderWithRouter(
@@ -159,7 +157,7 @@ describe('PageRecoveryKeyAdd', () => {
 
       // Wait for page to settle
       if (process) {
-        await screen.findByText('Your recovery key has been created.', {
+        await screen.findByText('Your account recovery key has been created.', {
           exact: false,
         });
       } else {

@@ -53,7 +53,7 @@ const View = BaseView.extend({
       return;
     }
 
-    // Check to see if account has a recovery key and store in model.
+    // Check to see if account has an account recovery key and store in model.
     // The password reset success messaging will change depending on if it does
     return this.getAccount()
       .checkRecoveryKeyExistsByEmail()

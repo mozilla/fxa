@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Shared code used by recovery key setup step, the second part of TOTP setup.
+// Shared code used by account recovery key setup step, the second part of TOTP setup.
 // Shared by views in login flow and settings page.
 
 import AuthErrors from 'lib/auth-errors';
@@ -72,7 +72,7 @@ export default {
   getFormatedRecoveryCodeFilename() {
     const account = this.getSignedInAccount();
     let formattedFilename =
-      account.get('email') + ' ' + t('Firefox Recovery Codes');
+      account.get('email') + ' ' + t('Firefox Backup Authentication Codes');
     if (formattedFilename.length > 200) {
       // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);
@@ -81,7 +81,7 @@ export default {
   },
 
   setupRecoveryCodes(codes, msg) {
-    // Store a readable version of recovery codes so that they can
+    // Store a readable version of backup authentication codes so that they can
     // be copied, printed and downloaded
     this.recoveryCodesText = '';
     if (codes) {

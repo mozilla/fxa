@@ -2654,7 +2654,7 @@ const enableTotpInline = thenify(function () {
       })
       .then(click(selectors.INLINE_TOTP.READY_BUTTON))
 
-      // on the recovery codes screen, get the codes and advance to the confirm screen
+      // on the backup authentication codes screen, get the codes and advance to the confirm screen
       .then(testElementExists(selectors.INLINE_RECOVERY_CODES.HEADER))
       .then(visibleByQSA(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES))
       .findByCssSelector(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES)

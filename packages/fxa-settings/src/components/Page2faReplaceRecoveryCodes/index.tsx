@@ -36,9 +36,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = () => {
     alertBar.success(
       l10n.getString(
-        'tfa-replace-code-success-alert-2',
+        'tfa-replace-code-success-alert-3',
         null,
-        'Account recovery codes updated'
+        'Account backup authentication codes updated'
       )
     );
     navigate(HomePath + '#two-step-authentication', { replace: true });
@@ -48,15 +48,16 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     try {
       const { success } = await account.updateRecoveryCodes(recoveryCodes);
 
-      if (!success) throw new Error('Update recovery codes not successful.');
+      if (!success)
+        throw new Error('Update backup authentication codes not successful.');
 
       alertSuccessAndGoHome();
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error-2',
+          'tfa-replace-code-error-3',
           null,
-          'There was a problem replacing your recovery codes'
+          'There was a problem replacing your backup authentication codes'
         )
       );
     }
@@ -80,9 +81,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     } catch (e) {
       alertBar.error(
         l10n.getString(
-          'tfa-replace-code-error-2',
+          'tfa-replace-code-error-3',
           null,
-          'There was a problem creating your recovery codes'
+          'There was a problem creating your backup authentication codes'
         )
       );
     }
@@ -131,9 +132,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         <>
           <div className="my-2" data-testid="2fa-recovery-codes">
             <Localized id="tfa-replace-code-success">
-              New codes have been created. Save these one-time use codes in a
-              safe place — you’ll need them to access your account if you don’t
-              have your mobile device.
+              New codes have been created. Save these one-time use backup
+              authentication codes in a safe place — you’ll need them to access
+              your account if you don’t have your mobile device.
             </Localized>
             <div className="mt-6 flex flex-col items-center h-auto justify-between">
               {recoveryCodes.length > 0 ? (
@@ -141,8 +142,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   value={recoveryCodes}
                   separator=" "
                   onCopy={copyRecoveryCodes}
-                  contentType="Firefox backup verification codes"
-                />
+                  contentType="Firefox backup authentication codes" />
               ) : (
                 <LoadingSpinner />
               )}
@@ -212,9 +212,9 @@ const RecoveryCodeCheck = ({
     if (!recoveryCodes.includes(recoveryCode)) {
       setRecoveryCodeError(
         l10n.getString(
-          'tfa-incorrect-recovery-code',
+          'tfa-incorrect-recovery-code-1',
           null,
-          'Incorrect recovery code'
+          'Incorrect backup authentication code'
         )
       );
       return;
@@ -228,18 +228,18 @@ const RecoveryCodeCheck = ({
 
   return (
     <form onSubmit={recoveryCodeForm.handleSubmit(onSubmit)}>
-      <Localized id="tfa-enter-code-to-confirm">
+      <Localized id="tfa-enter-code-to-confirm-1">
         <p className="mt-4 mb-4">
-          Please enter one of your recovery codes now to confirm you've saved
-          it. You'll need a code if you lose your device and want to access your
-          account.
+          Please enter one of your backup authentication codes now to confirm
+          you've saved it. You’ll need a code to login if you don’t have access
+          to your mobile device.
         </p>
       </Localized>
       <div className="mt-4 mb-6" data-testid="recovery-code-input">
-        <Localized id="tfa-enter-recovery-code" attrs={{ label: true }}>
+        <Localized id="tfa-enter-recovery-code-1" attrs={{ label: true }}>
           <InputText
             name="recoveryCode"
-            label="Enter a recovery code"
+            label="Enter a backup authentication code"
             prefixDataTestId="recovery-code"
             autoFocus
             onChange={() => {

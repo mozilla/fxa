@@ -1,4 +1,4 @@
-## Tooltip notifications for actions performed on recovery keys or one-time use codes
+## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
   .message = Downloaded

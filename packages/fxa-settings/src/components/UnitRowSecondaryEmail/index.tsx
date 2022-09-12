@@ -342,7 +342,7 @@ const SecondaryEmailDefaultContent = () => (
       </p>
     </Localized>
     <Localized
-      id="se-content-note"
+      id="se-content-note-1"
       elems={{
         a: (
           <a
@@ -350,19 +350,19 @@ const SecondaryEmailDefaultContent = () => (
             href="#recovery-key"
             data-testid="secondary-email-link-recovery-key"
           >
-            recovery key
+            account recovery key
           </a>
         ),
       }}
     >
       <p className="text-grey-400 text-xs mt-2">
-        Note: a secondary email won't restore your information — you'll need a{' '}
+        Note: a secondary email won't restore your information — you'll need an{' '}
         <a
           className="link-blue"
           href="#recovery-key"
           data-testid="secondary-email-link-recovery-key"
         >
-          recovery key
+          account recovery key
         </a>{' '}
         for that.
       </p>

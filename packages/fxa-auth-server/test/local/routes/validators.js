@@ -1033,7 +1033,7 @@ describe('lib/routes/validators:', () => {
     });
   });
 
-  describe('recovery codes', () => {
+  describe('backup authentication codes', () => {
     it('allows base32 codes', () => {
       assert.notExists(
         validators
@@ -1050,7 +1050,7 @@ describe('lib/routes/validators:', () => {
       );
     });
 
-    it('detects missing recovery codes', () => {
+    it('detects missing backup authentication codes', () => {
       assert.exists(
         validators.recoveryCodes(2, 10).validate({ recoveryCodes: [] }).error
       );
@@ -1089,14 +1089,14 @@ describe('lib/routes/validators:', () => {
     });
   });
 
-  describe('recovery code', () => {
-    it('validates recovery codes', () => {
+  describe('backup authentication code', () => {
+    it('validates backup authentication codes', () => {
       assert.notExists(
         validators.recoveryCode(10).validate('0123456789').error
       );
     });
 
-    it('invalidates recovery code', () => {
+    it('invalidates backup authentication code', () => {
       assert.exists(validators.recoveryCode(10).validate('012345678-').error);
     });
 

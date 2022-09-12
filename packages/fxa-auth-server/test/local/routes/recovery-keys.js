@@ -17,7 +17,7 @@ const recoveryData = '11111111111';
 const uid = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 describe('POST /recoveryKey', () => {
-  describe('should create recovery key', () => {
+  describe('should create account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
         credentials: { uid, email },
@@ -85,7 +85,7 @@ describe('POST /recoveryKey', () => {
     });
   });
 
-  describe('should create disabled recovery key', () => {
+  describe('should create disabled account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
         credentials: { uid, email },
@@ -112,7 +112,7 @@ describe('POST /recoveryKey', () => {
     });
   });
 
-  describe('should verify recovery key', () => {
+  describe('should verify account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
         credentials: { uid, email },
@@ -196,7 +196,7 @@ describe('POST /recoveryKey', () => {
 });
 
 describe('GET /recoveryKey/{recoveryKeyId}', () => {
-  describe('should get recovery key', () => {
+  describe('should get account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
         credentials: { uid, email },
@@ -264,14 +264,14 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
       assert.deepEqual(
         response.errno,
         errors.ERRNO.RECOVERY_KEY_INVALID,
-        'correct invalid recovery key errno'
+        'correct invalid account recovery key errno'
       );
     });
   });
 });
 
 describe('POST /recoveryKey/exists', () => {
-  describe('should check if recovery key exists using sessionToken', () => {
+  describe('should check if account recovery key exists using sessionToken', () => {
     beforeEach(() => {
       const requestOptions = {
         credentials: { uid, email },
@@ -305,7 +305,7 @@ describe('POST /recoveryKey/exists', () => {
     });
   });
 
-  describe('should check if recovery key exists using email', () => {
+  describe('should check if account recovery key exists using email', () => {
     beforeEach(() => {
       const requestOptions = {
         payload: { email },
@@ -349,7 +349,7 @@ describe('POST /recoveryKey/exists', () => {
 });
 
 describe('DELETE /recoveryKey', () => {
-  describe('should delete recovery key', () => {
+  describe('should delete account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
         method: 'DELETE',

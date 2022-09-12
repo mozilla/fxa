@@ -8,7 +8,6 @@ Changes are now documented at https://github.com/mozilla/fxa/releases
 
 - pair: Show Fx View when version >= 106 Because: ([7f1bccf601](https://github.com/mozilla/fxa/commit/7f1bccf601))
 
-
 ## 1.236.0
 
 ### New features
@@ -987,7 +986,7 @@ No changes.
 - tests: some testing updates ([d13f9fc5e](https://github.com/mozilla/fxa/commit/d13f9fc5e))
 - settings: clear local storage on account delete ([382795556](https://github.com/mozilla/fxa/commit/382795556))
 - settings: ensure the object returned from useSession is stable ([045902b45](https://github.com/mozilla/fxa/commit/045902b45))
-- tests: Fixes recovery key flaky test and updates functional settings test ([37858955f](https://github.com/mozilla/fxa/commit/37858955f))
+- tests: Fixes account recovery key flaky test and updates functional settings test ([37858955f](https://github.com/mozilla/fxa/commit/37858955f))
 - tests: Enabled the disabled smoke tests ([7f948a394](https://github.com/mozilla/fxa/commit/7f948a394))
 
 ### Other changes

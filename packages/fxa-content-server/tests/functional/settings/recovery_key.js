@@ -37,7 +37,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-registerSuite('Recovery key', {
+registerSuite('Account recovery key', {
   beforeEach: function () {
     email = createEmail('sync{id}');
     const remote = this.remote;
@@ -94,7 +94,7 @@ registerSuite('Recovery key', {
   },
 
   tests: {
-    'can revoke recovery key': function () {
+    'can revoke account recovery key': function () {
       const remote = this.remote;
       let secondKey;
       return (
@@ -122,7 +122,7 @@ registerSuite('Recovery key', {
             testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set')
           )
 
-          // create a new recovery key
+          // create a new account recovery key
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
           .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
@@ -176,7 +176,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can reset password with recovery key': function () {
+    'can reset password with account recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -189,7 +189,7 @@ registerSuite('Recovery key', {
             )
           )
 
-          // enter invalid recovery key
+          // enter invalid account recovery key
           .then(fillOutRecoveryKey('N8TVALID'))
           .then(
             testElementExists(
@@ -215,7 +215,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can reset password when forgot recovery key': function () {
+    'can reset password when forgot account recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -246,7 +246,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can not re-use recovery key': function () {
+    'can not re-use account recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -281,7 +281,7 @@ registerSuite('Recovery key', {
   },
 });
 
-registerSuite('Recovery key - unverified session', {
+registerSuite('Account recovery key - unverified session', {
   beforeEach: function () {
     email = createEmail('sync{id}');
 

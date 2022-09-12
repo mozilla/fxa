@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Mixin to support common methods on a recovery key.
+ * Mixin to support common methods on an account recovery key.
  *
  * @mixin RecoveryKeyMixin
  */
@@ -20,7 +20,7 @@ const Mixin = {
   getFormatedRecoveryKeyFilename() {
     const account = this.getSignedInAccount();
     let formattedFilename =
-      account.get('email') + ' ' + t('Firefox Recovery Key');
+      account.get('email') + ' ' + t('Firefox Account Recovery Key');
     if (formattedFilename.length > 200) {
       // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);

@@ -96,7 +96,7 @@ describe('views/post_verify/account_recovery/confirm_password', () => {
       });
     });
 
-    describe('with a recovery key', () => {
+    describe('with an account recovery key', () => {
       beforeEach(() => {
         recoveryKeyExists = true;
         sinon.spy(view, 'navigate');
@@ -123,7 +123,7 @@ describe('views/post_verify/account_recovery/confirm_password', () => {
         return view.submit();
       });
 
-      it('redirects to save recovery key page', () => {
+      it('redirects to save account recovery key page', () => {
         assert.isTrue(
           view.navigate.calledWith(
             '/post_verify/account_recovery/save_recovery_key',

@@ -28,8 +28,8 @@ se-resend-code-2 = Confirmation needed. <button>Resend confirmation code</button
 # Button to make secondary email the primary
 se-make-primary = Make primary
 se-default-content = Access your account if you can’t log in to your primary email.
-se-content-note = Note: a secondary email won’t restore your information — you’ll
-  need a <a>recovery key</a> for that.
+se-content-note-1 = Note: a secondary email won’t restore your information — you’ll
+  need an <a>account recovery key</a> for that.
 # Default value for the secondary email
 se-secondary-email-none = None
 

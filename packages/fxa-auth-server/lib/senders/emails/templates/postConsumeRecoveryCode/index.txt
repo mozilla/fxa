@@ -1,6 +1,6 @@
-postConsumeRecoveryCode-title = "Recovery code consumed"
+postConsumeRecoveryCode-title-1 = "Backup authentication code consumed"
 
-postConsumeRecoveryCode-description = "You have successfully consumed a recovery code from the following device:"
+postConsumeRecoveryCode-description-1 = "You have successfully consumed a backup authentication code from the following device:"
 
 <%- include('/partials/userInfo/index.txt') %>
 

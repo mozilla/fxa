@@ -198,7 +198,7 @@ describe('/account/reset', () => {
     clientAddress = mockRequest.app.clientAddress;
   });
 
-  describe('reset account with recovery key', () => {
+  describe('reset account with account recovery key', () => {
     let res;
     beforeEach(() => {
       mockRequest.payload.wrapKb = hexString(32);
@@ -211,7 +211,7 @@ describe('/account/reset', () => {
       assert.ok(res.keyFetchToken, 'return keyFetchToken');
     });
 
-    it('should have checked for recovery key', () => {
+    it('should have checked for account recovery key', () => {
       assert.equal(mockDB.getRecoveryKey.callCount, 1);
       const args = mockDB.getRecoveryKey.args[0];
       assert.equal(
@@ -223,11 +223,11 @@ describe('/account/reset', () => {
       assert.equal(
         args[1],
         mockRequest.payload.recoveryKeyId,
-        'recovery key id passed'
+        'account recovery key id passed'
       );
     });
 
-    it('should have reset account with recovery key', () => {
+    it('should have reset account with account recovery key', () => {
       assert.equal(mockDB.resetAccount.callCount, 1);
       assert.equal(mockDB.resetAccountTokens.callCount, 1);
       assert.equal(mockDB.createKeyFetchToken.callCount, 1);
@@ -241,7 +241,7 @@ describe('/account/reset', () => {
       assert.equal(args[0].wrapKb, mockRequest.payload.wrapKb, 'wrapKb passed');
     });
 
-    it('should have deleted recovery key', () => {
+    it('should have deleted account recovery key', () => {
       assert.equal(mockDB.deleteRecoveryKey.callCount, 1);
       const args = mockDB.deleteRecoveryKey.args[0];
       assert.equal(

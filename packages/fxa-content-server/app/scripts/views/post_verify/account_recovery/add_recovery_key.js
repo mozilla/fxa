@@ -28,7 +28,7 @@ class AddAccountRecovery extends FormView {
       return this.replaceCurrentPage('/');
     }
 
-    // An account can only support one recovery key at a time
+    // An account can only support one account recovery key at a time
     return account.checkRecoveryKeyExists().then((status) => {
       if (status.exists) {
         return this.navigate(

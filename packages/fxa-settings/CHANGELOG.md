@@ -133,7 +133,7 @@ No changes.
 - fxa-settings: update string id on updated string" ([122f2c641](https://github.com/mozilla/fxa/commit/122f2c641))
 - settings: remove extra white-space before and after "Resend verification code" text Because: ([98a678bca](https://github.com/mozilla/fxa/commit/98a678bca))
 - 10b272048 PR Followup ([10b272048](https://github.com/mozilla/fxa/commit/10b272048))
-- settings: Disable 2FA and Recovery Code actions when account has no password ([6c911c6e8](https://github.com/mozilla/fxa/commit/6c911c6e8))
+- settings: Disable 2FA and Backup Verification Code actions when account has no password ([6c911c6e8](https://github.com/mozilla/fxa/commit/6c911c6e8))
 
 ## 1.231.4
 

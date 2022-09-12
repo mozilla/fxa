@@ -112,13 +112,14 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
-    description: 'Creates a new password for a user and overrides encryption keys',
+    description:
+      'Creates a new password for a user and overrides encryption keys',
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async createPassword(
-   @GqlSessionToken() token: string,
-   @Args('input', { type: () => CreatePassword })
+    @GqlSessionToken() token: string,
+    @Args('input', { type: () => CreatePassword })
     input: CreatePassword
   ): Promise<BasicPayload> {
     await this.authAPI.createPassword(token, input.email, input.password);
@@ -201,7 +202,8 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => ChangeRecoveryCodesPayload, {
-    description: 'Return new recovery codes while removing old ones.',
+    description:
+      'Return new backup authentication codes while removing old ones.',
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError

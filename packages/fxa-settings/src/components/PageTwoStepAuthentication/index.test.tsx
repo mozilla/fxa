@@ -135,7 +135,7 @@ describe('step 2', () => {
     resetCheckcodeMock();
   });
 
-  it('shows the recovery codes when valid auth code is submitted', async () => {
+  it('shows the backup authentication codes when valid auth code is submitted', async () => {
     await act(async () => {
       render();
     });
@@ -150,7 +150,7 @@ describe('step 2', () => {
     );
     expect(screen.getByTestId('databutton-download')).toHaveAttribute(
       'download',
-      expect.stringContaining('Firefox backup verification codes')
+      expect.stringContaining('Firefox backup authentication codes')
     );
   });
 
@@ -182,12 +182,12 @@ describe('step 3', () => {
     resetCheckcodeMock();
   });
 
-  it('renders the recovery code form', async () => {
+  it('renders the backup authentication code form', async () => {
     await getRecoveryCodes();
     expect(screen.getByTestId('recovery-code-input-field')).toBeInTheDocument();
   });
 
-  it('shows an error when an incorrect recovery code is entered', async () => {
+  it('shows an error when an incorrect backup authentication code is entered', async () => {
     await getRecoveryCodes();
     await act(async () => {
       await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
@@ -199,7 +199,7 @@ describe('step 3', () => {
     });
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
     expect(screen.getByTestId('tooltip')).toHaveTextContent(
-      'Incorrect recovery code'
+      'Incorrect backup authentication code'
     );
   });
 

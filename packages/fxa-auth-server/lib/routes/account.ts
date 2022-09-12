@@ -1316,8 +1316,8 @@ export class AccountHandler {
     };
 
     const recoveryKeyDeleteAndEmailNotification = async () => {
-      // If the password was reset with a recovery key, then we explicitly delete the
-      // recovery key and send an email that the account was reset with it.
+      // If the password was reset with an account recovery key, then we explicitly delete the
+      // account recovery key and send an email that the account was reset with it.
       if (recoveryKeyId) {
         await this.db.deleteRecoveryKey(account.uid);
 

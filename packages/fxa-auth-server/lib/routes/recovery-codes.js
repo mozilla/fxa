@@ -16,7 +16,7 @@ module.exports = (log, db, config, customs, mailer) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
 
-  // Validate recovery codes
+  // Validate backup authentication codes
   const recoveryCodesSchema = validators.recoveryCodes(
     RECOVERY_CODE_COUNT,
     RECOVERY_CODE_SANE_MAX_LENGTH
@@ -39,8 +39,8 @@ module.exports = (log, db, config, customs, mailer) => {
 
         const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
 
-        // Since TOTP and recovery codes go hand in hand, you should only be
-        // able to replace recovery codes in a TOTP verified session.
+        // Since TOTP and backup authentication codes go hand in hand, you should only be
+        // able to replace backup authentication codes in a TOTP verified session.
         if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
           throw errors.unverifiedSession();
         }
@@ -94,8 +94,8 @@ module.exports = (log, db, config, customs, mailer) => {
 
         const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
 
-        // Since TOTP and recovery codes go hand in hand, you should only be
-        // able to replace recovery codes in a TOTP verified session.
+        // Since TOTP and backup authentication codes go hand in hand, you should only be
+        // able to replace backup authentication codes in a TOTP verified session.
         if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
           throw errors.unverifiedSession();
         }
@@ -138,7 +138,7 @@ module.exports = (log, db, config, customs, mailer) => {
         validate: {
           payload: isA.object({
             // Validation here is done with BASE_36 superset to be backwards compatible...
-            // Ideally all recovery codes are Crockford Base32.
+            // Ideally all backup authentication codes are Crockford Base32.
             code: validators.recoveryCode(
               RECOVERY_CODE_SANE_MAX_LENGTH,
               validators.BASE_36

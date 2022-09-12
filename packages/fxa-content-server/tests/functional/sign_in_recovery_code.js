@@ -36,7 +36,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite('recovery code', {
+registerSuite('backup authentication code', {
   beforeEach: function () {
     email = createEmail();
     const self = this;
@@ -81,7 +81,7 @@ registerSuite('recovery code', {
               )
               .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
 
-              // Store a recovery code
+              // Store a backup authentication code
               .findByCssSelector(
                 selectors.SETTINGS.SECURITY.TFA.FIRST_RECOVERY_CODE
               )
@@ -114,7 +114,7 @@ registerSuite('recovery code', {
   },
 
   tests: {
-    'can sign-in with recovery code - sync': function () {
+    'can sign-in with backup authentication code - sync': function () {
       return (
         this.remote
           .then(
@@ -153,7 +153,7 @@ registerSuite('recovery code', {
       );
     },
 
-    'can regenerate recovery code when low': function () {
+    'can regenerate backup authentication code when low': function () {
       return (
         this.remote
           .then(
@@ -183,8 +183,8 @@ registerSuite('recovery code', {
 
           .then(testIsBrowserNotified('fxaccounts:login'))
 
-          // Next attempt to use recovery code will redirect to
-          // page where user can generate more recovery codes
+          // Next attempt to use backup authentication code will redirect to
+          // page where user can generate more backup authentication codes
           .then(clearBrowserState({ force: true }))
 
           .then(
@@ -203,7 +203,7 @@ registerSuite('recovery code', {
           .then(testIsBrowserNotified('fxaccounts:login'))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
-          // User gets an email notifying them to generate new recovery codes.
+          // User gets an email notifying them to generate new backup authentication codes.
           // Clicking the link in email opens the security page
           .then(getEmail(email, 3))
           .then((emailData) => {

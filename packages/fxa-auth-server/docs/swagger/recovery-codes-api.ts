@@ -16,7 +16,7 @@ const RECOVERYCODES_GET = {
     dedent`
       🔒 Authenticated with session token
 
-      Return new recovery codes while removing old ones.
+      Return new backup authentication codes while removing old ones.
     `,
   ],
 };
@@ -33,7 +33,7 @@ const SESSION_VERIFY_RECOVERYCODE_POST = {
     dedent`
       🔒 Authenticated with session token
 
-      Verify a session using a recovery code.
+      Verify a session using a backup authentication code.
     `,
   ],
 };

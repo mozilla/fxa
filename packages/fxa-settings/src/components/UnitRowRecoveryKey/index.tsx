@@ -43,14 +43,14 @@ export const UnitRowRecoveryKey = () => {
   }, [account, hideModal, alertBar, l10n]);
 
   const localizedRefreshRkText = l10n.getString(
-    'rk-refresh-key',
+    'rk-refresh-key-1',
     null,
-    'Refresh recovery key'
+    'Refresh account recovery key'
   );
 
   return (
     <UnitRow
-      header={l10n.getString('rk-header', null, 'Recovery key')}
+      header={l10n.getString('rk-header-1', null, 'Account recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
@@ -133,19 +133,19 @@ export const UnitRowRecoveryKey = () => {
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >
-            <Localized id="rk-remove-modal-heading">
+            <Localized id="rk-remove-modal-heading-1">
               <h2
                 id="recovery-key-header"
                 className="font-bold text-xl text-center mb-2"
               >
-                Remove recovery key?
+                Remove account recovery key?
               </h2>
             </Localized>
-            <Localized id="rk-remove-modal-content">
+            <Localized id="rk-remove-modal-content-1">
               <p id="recovery-key-desc" className="my-6 text-center">
                 In the event you reset your password, you won't be able to use
-                your recovery key to access your data. You can't undo this
-                action.
+                your account recovery key to access your data. You can't undo
+                this action.
               </p>
             </Localized>
           </Modal>

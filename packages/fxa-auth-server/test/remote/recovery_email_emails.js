@@ -329,7 +329,10 @@ describe('remote emails', function () {
         })
         .then((emailData) => {
           code = emailData.headers['x-recovery-code'];
-          assert.ok(code, 'recovery code was sent the secondary email');
+          assert.ok(
+            code,
+            'backup authentication code was sent the secondary email'
+          );
         })
         .then((res) => {
           return client.deleteEmail(secondEmail);
@@ -344,7 +347,9 @@ describe('remote emails', function () {
         })
         .then(
           () => {
-            assert.fail('password recovery code shoud not have been accepted');
+            assert.fail(
+              'password backup authentication code should not have been accepted'
+            );
           },
           (err) => {
             assert.equal(

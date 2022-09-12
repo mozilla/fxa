@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'postAddAccountRecovery',
-  'Sent when new recovery key is generated',
+  'Sent when new account recovery key is generated',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',

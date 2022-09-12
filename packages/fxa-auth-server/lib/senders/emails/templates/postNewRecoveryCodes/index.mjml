@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postNewRecoveryCodes-title">New recovery codes generated</span>
+      <span data-l10n-id="postNewRecoveryCodes-title-1">New backup authentication codes generated</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postNewRecoveryCodes-description">You have successfully generated new recovery codes from the following device:</span>
+      <span data-l10n-id="postNewRecoveryCodes-description-1">You have successfully generated new backup authentication codes from the following device:</span>
     </mj-text>
   </mj-column>
 </mj-section>

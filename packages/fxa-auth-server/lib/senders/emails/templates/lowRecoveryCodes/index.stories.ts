@@ -11,7 +11,7 @@ export default {
 
 const createStory = storyWithProps(
   'lowRecoveryCodes',
-  'Sent when a user has 2 or less recovery codes remaining.',
+  'Sent when a user has 2 or less backup authentication codes remaining.',
   {
     link: 'http://localhost:3030/settings/two_step_authentication/replace_codes?low_recovery_codes=true',
     numberRemaining: 1,
@@ -29,12 +29,12 @@ export const LowRecoveryCodesOne = createStory(
   {
     numberRemaining: 1,
   },
-  'User has 1 recovery code remaining'
+  'User has 1 backup authentication code remaining'
 );
 
 export const LowRecoveryCodesMultiple = createStory(
   {
     numberRemaining: 2,
   },
-  'User has 2 recovery codes remaining'
+  'User has 2 backup authentication codes remaining'
 );

@@ -62,7 +62,7 @@ describe('views/mixins/save-options-mixin', () => {
       assert.include(
         printDocument.document.write.args[0][0],
         text,
-        'window contains recovery key'
+        'window contains account recovery key'
       );
       assert.equal(printDocument.print.called, true, 'called print');
     });

@@ -61,11 +61,11 @@ it('renders', async () => {
 
   expect(screen.getByTestId('databutton-download')).toHaveAttribute(
     'download',
-    expect.stringContaining('Firefox backup verification codes')
+    expect.stringContaining('Firefox backup authentication codes')
   );
 });
 
-it('displays an error when fails to fetch new recovery codes', async () => {
+it('displays an error when fails to fetch new backup authentication codes', async () => {
   const account = {
     replaceRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
   } as unknown as Account;
@@ -80,7 +80,7 @@ it('displays an error when fails to fetch new recovery codes', async () => {
   expect(context.alertBarInfo?.error).toBeCalledTimes(1);
 });
 
-it('forces users to validate recovery code', async () => {
+it('forces users to validate backup authentication code', async () => {
   await renderPage2faReplaceRecoveryCodes();
   fireEvent.click(screen.getByTestId('ack-recovery-code'));
 
@@ -89,7 +89,7 @@ it('forces users to validate recovery code', async () => {
   );
 });
 
-it('will not allow bad recovery code', async () => {
+it('will not allow bad backup authentication code', async () => {
   await renderPage2faReplaceRecoveryCodes();
   fireEvent.click(screen.getByTestId('ack-recovery-code'));
   await typeByTestIdFn('recovery-code-input-field')('xyz');
