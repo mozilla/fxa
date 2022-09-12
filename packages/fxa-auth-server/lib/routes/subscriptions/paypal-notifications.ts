@@ -176,7 +176,15 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
       return;
     }
-    if (billingAgreement.status === 'Cancelled') {
+    if (
+      billingAgreement.status === 'Canceled' ||
+      billingAgreement.status === 'Cancelled'
+    ) {
+      this.log.error('handleMpCancel', {
+        message: 'Billing agreement was cancelled',
+        ipnMessage: message,
+        customerUid: billingAgreement.uid,
+      });
       return;
     }
     const account = await Account.findByUid(billingAgreement.uid, {
