@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postNewRecoveryCodes-subject-1",
-    "message": "New backup authentication codes generated"
+    "id": "postNewRecoveryCodes-subject-2",
+    "message": "New backup authentication codes created"
   },
   "action": {
     "id": "postNewRecoveryCodes-action",

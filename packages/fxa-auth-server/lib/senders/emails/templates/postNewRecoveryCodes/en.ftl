@@ -1,4 +1,5 @@
-postNewRecoveryCodes-subject-1 = New backup authentication codes generated
-postNewRecoveryCodes-title-1 = New backup authentication codes generated
-postNewRecoveryCodes-description-1 = You have successfully generated new backup authentication codes from the following device:
+postNewRecoveryCodes-subject-2 = New backup authentication codes created
+postNewRecoveryCodes-title-2 = You created new backup authentication codes
+# After the colon, there is information about the device that the authentication codes were created on
+postNewRecoveryCodes-description-2 = They were created on:
 postNewRecoveryCodes-action = Manage account
