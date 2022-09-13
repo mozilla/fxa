@@ -1010,7 +1010,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postRemoveAccountRecoveryEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Account recovery key removed' }],
+    ['subject', { test: 'equal', expected: 'Account recovery key deleted' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecovery') }],
@@ -1018,7 +1018,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecovery }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Account recovery key removed' },
+      { test: 'include', expected: 'You deleted your account recovery key.' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-removed', 'privacy')) },
@@ -1031,11 +1031,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Account recovery key removed' },
+      { test: 'include', expected: 'You deleted your account recovery key.' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
-      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
+      { test: 'include', expected: `change your password right away: \n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
-      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: \n${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
