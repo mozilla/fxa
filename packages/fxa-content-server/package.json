@@ -153,7 +153,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "core-js": "^3.15.1",
     "css": "3.0.0",
-    "esbuild": "^0.14.2",
+    "esbuild": "^0.15.7",
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",

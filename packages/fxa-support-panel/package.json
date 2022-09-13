@@ -68,7 +68,7 @@
     "@types/superagent": "4.1.11",
     "@types/supertest": "^2.0.11",
     "audit-filter": "^0.5.0",
-    "esbuild": "^0.14.2",
+    "esbuild": "^0.15.7",
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "jest": "27.5.1",
