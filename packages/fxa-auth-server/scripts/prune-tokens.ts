@@ -23,11 +23,12 @@ function parseDuration(duration: string | number) {
   return moment.duration(...duration.split(/\s|-/)).asMilliseconds();
 }
 
+const config = require('../config').getProperties();
+const statsd = new StatsD(config.statsd);
+const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
+
 export async function init() {
   // Setup utilities
-  const config = require('../config').getProperties();
-  const statsd = new StatsD(config.statsd);
-  const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
   const redis = require('../lib/redis')(
     {
       ...config.redis,
@@ -122,43 +123,6 @@ Exit Codes:
 
   // Start max session pruning
   if (maxSessions > 0) {
-    // recursive function that prunes session tokens until all extraneous tokens have been removed or
-    // number of deletions exceed max deletions.
-    const limitSessions = async (
-      account: string,
-      deletions: number
-    ): Promise<number> => {
-      log.info('limit sessions start', {
-        maxSessions,
-        account,
-        maxSessionsDeleted: maxSessionsBatchSize,
-      });
-
-      // Make the DB call limiting the next 'maxSessionsDeleted'
-      const result = await pruner.limitSessions(
-        account,
-        maxSessions,
-        maxSessionsBatchSize
-      );
-
-      // Keeping looping until all extraneous sessions been cleaned up
-      if (result.outputs['@totalDeletions'] <= 0) {
-        return deletions;
-      }
-
-      deletions += result.outputs['@totalDeletions'];
-
-      // Exit early and return the number of rows deleted.
-      if (deletions > maxSessionsMaxDeletions) {
-        log.info('hit max allowed deletions', { deletions });
-        return deletions;
-      }
-
-      // Give process a break
-      await sleep();
-      return await limitSessions(account, deletions);
-    };
-
     // Locate large accounts
     const targetAccounts = [];
     try {
@@ -186,7 +150,40 @@ Exit Codes:
     // Loop over target accounts and start deleting sessions
     for (const account of targetAccounts) {
       try {
-        const deletions = await limitSessions(account, 0);
+        let deletions = 0;
+        while (deletions < maxSessionsMaxDeletions) {
+          log.info('calling limitSessions', {
+            maxSessions,
+            account,
+            maxSessionsDeleted: maxSessionsBatchSize,
+          });
+
+          // Make the DB call limiting the next 'maxSessionsDeleted'
+          const result = await pruner.limitSessions(
+            account,
+            maxSessions,
+            maxSessionsBatchSize
+          );
+
+          log.info('limitSessions result', {
+            result,
+          });
+
+          // Keeping looping until all extraneous sessions been cleaned up
+          if (result.outputs['@totalDeletions'] <= 0) {
+            break;
+          }
+
+          deletions += result.outputs['@totalDeletions'];
+
+          // Give process a break
+          await sleep();
+        }
+
+        // Exit early and return the number of rows deleted.
+        if (deletions >= maxSessionsMaxDeletions) {
+          log.info('hit max allowed deletions', { deletions });
+        }
 
         // If there were session tokens deleted, take note of the account for clean up later.
         if (deletions > 0) {
@@ -245,39 +242,31 @@ Exit Codes:
           continue;
         }
 
-        // Pull session tokens from sql db.
-        const sessionTokens = await SessionToken.findByUid(uid);
-        const sqlSessionTokenIds = new Set(sessionTokens.map((x) => x.tokenId));
-
-        // Sanity check size of sqlSessionTokenIds and redisSessionTokenIds
-        if (maxSessions > 0 && sqlSessionTokenIds.size > maxSessions) {
-          log.warn(
-            `Found ${sqlSessionTokenIds.size}. Expected no more than ${maxSessions}.`
-          );
-        }
         if (redisSessionTokenIds.size > MAX_REDIS_SESSION_TOKENS) {
           log.warn(
             `found ${redisSessionTokenIds.size}. expected no more than ${MAX_REDIS_SESSION_TOKENS}.`
           );
         }
 
-        // Difference redisSessionTokenIds and sqlSessionTokenIds. This will result in a
-        // set of orphaned tokens.
-        const difference = new Set(redisSessionTokenIds);
-        for (const x of sqlSessionTokenIds) {
-          difference.delete(x);
+        log.info(`processing ${redisSessionTokenIds.size} for account ${uid}.`);
+
+        // Iterate through current set of redis tokens, and remove any that
+        // don't exist in the sql database anymore.
+        const orphanedTokens = [];
+        for (const redisSessionTokenId of redisSessionTokenIds) {
+          const dbSessionTokens = await SessionToken.findByTokenId(
+            redisSessionTokenId
+          );
+          if (dbSessionTokens === null) {
+            orphanedTokens.push(redisSessionTokenId);
+          }
         }
 
-        // Delete orphaned tokens from Redis
-        const orphanedTokenIds = [...difference];
-        if (orphanedTokenIds.length > 0) {
-          log.info(`pruning orphaned tokens from redis`, {
-            uid,
-            count: orphanedTokenIds.length,
-          });
-          await redis.pruneSessionTokens(uid, orphanedTokenIds);
-        } else {
-          log.info(`no orphaned tokens found in redis`);
+        if (orphanedTokens.length > 0) {
+          log.info(
+            `pruning orphaned sessions in redis. tokenCount=${orphanedTokens.length}`
+          );
+          await redis.pruneSessionTokens(uid, orphanedTokens);
         }
       } catch (err) {
         log.err(`error while pruning redis cache for account ${uid}`, err);
@@ -297,6 +286,7 @@ if (require.main === module) {
       exitStatus = result;
     })
     .catch((err) => {
+      log.error(err);
       console.error(err);
     })
     .finally(() => {

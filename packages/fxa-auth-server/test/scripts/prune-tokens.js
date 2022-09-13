@@ -244,7 +244,7 @@ describe('scripts/prune-tokens', () => {
       assert.isTrue(/"@sessionTokensDeleted":1/.test(stderr));
       assert.isTrue(/"@unblockCodesDeleted":1/.test(stderr));
       assert.isTrue(/"@signInCodesDeleted":1/.test(stderr));
-      assert.isTrue(/pruning orphaned tokens/.test(stderr));
+      assert.isTrue(/pruning orphaned sessions in redis/.test(stderr));
 
       const redisTokens = await redis.getSessionTokens(uid.toString('hex'));
       assert.equal(Object.keys(redisTokens).length, 0);
@@ -369,14 +369,14 @@ describe('scripts/prune-tokens', () => {
       }
     }
 
-    it('limits with large delete batch size', async () => {
+    it('limits with --maxSessionsBatchSize=1000', async () => {
       testScript(`--maxSessions=10 --maxSessionsBatchSize=1000 `, {
         remaining: size - 10,
         totalDeletions: 10 * 2,
       });
     });
 
-    it('limits with small delete batch size', async () => {
+    it('limits with --maxSessionsBatchSize=2', async () => {
       testScript(`--maxSessions=10 --maxSessionsBatchSize=2 `, {
         remaining: size - 10,
         totalDeletions: 10 * 2,
@@ -397,7 +397,7 @@ describe('scripts/prune-tokens', () => {
       });
     });
 
-    it('limits with maxSessionsMaxAccounts arg', async () => {
+    it('limits with --maxSessionsMaxAccounts=0', async () => {
       testScript(`--maxSessions=10 --maxSessionsMaxAccounts=0`, {
         remaining: size,
         totalDeletions: 0,
