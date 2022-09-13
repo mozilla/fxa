@@ -28,7 +28,7 @@
 }
 
 .bg-image-cad-qr-code {
-  @apply mt-9 bg-center bg-no-repeat bg-contain h-48;
+  @apply bg-center bg-no-repeat bg-contain h-[150px];
   background-image: inline('../images/qr_code_firefox_mobile.svg');
 }
 

@@ -2628,5 +2628,13 @@ registerSuite('amplitude', {
       const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - cad_notnow_engage');
     },
+
+    'screen.pair.notnow.engage': () => {
+      createAmplitudeEvent('screen.pair.notnow.engage');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_connect_device - pair_notnow_engage'
+      );
+    },
   },
 });

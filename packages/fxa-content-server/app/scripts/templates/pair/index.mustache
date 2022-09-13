@@ -1,24 +1,37 @@
 <div class="card">
   <header>
-    <h2 id="pair-header" class="card-header">{{#t}}Download Firefox on your phone or tablet{{/t}}</h2>
+    {{#showQrCode}}
+      <h2 id="pair-header" class="card-header">{{#t}}Connect Firefox on another device{{/t}}</h2>
+    {{/showQrCode}}
+    {{^showQrCode}}
+      <h2 id="pair-header" class="card-header">{{#t}}Sync Firefox on your phone or tablet{{/t}}</h2>
+    {{/showQrCode}}
   </header>
 
   <section>
     <div class="error"></div>
 
     {{#showQrCode}}
-      <div class="bg-image-cad-qr-code" role="img" aria-label="{{#t}}QR code{{/t}}"></div>
-      <p class="my-5">{{#t}}To download Firefox on your mobile device, hold the device’s camera over this code to scan.{{/t}}<br>{{#unsafeTranslate}}Or, send yourself a <a id="get-fx-mobile" href="https://www.mozilla.org/firefox/mobile/get-app/" target="_blank" class="link-blue">download link.</a>{{/unsafeTranslate}}</p>
-    {{/showQrCode}}
-    {{^showQrCode}}
-      <div class="{{graphicId}} mt-5" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
-    {{/showQrCode}}
-
+    <div class="mt-9 mb-5">{{#t}}Already have Firefox on a phone or tablet?{{/t}}</div>
     <form novalidate>
       <div class="flex">
-        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}I’m ready to sync devices{{/t}}</button>
+        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}Sync your device{{/t}}</button>
       </div>
     </form>
-    <p class="mt-5 text-grey-500 text-xs">{{#t}}Sync devices to access your tabs, passwords, and bookmarks everywhere you use Firefox.{{/t}}</p>
+
+      <h3 class="text-lg font-bold mt-10">Or download</h3>
+      <p class="my-5 px-16">{{#unsafeTranslate}}Scan to download Firefox for mobile, or send yourself a <a id="get-fx-mobile" href="https://www.mozilla.org/firefox/mobile/get-app/" target="_blank" class="link-blue">download link.</a>{{/unsafeTranslate}}</p>
+      <div class="bg-image-cad-qr-code" role="img" aria-label="{{#t}}QR code{{/t}}"></div>
+    <p class="mt-5 text-sm"><a id="pair-not-now" class="link-blue" href="/settings">{{#t}}Not now{{/t}}</a></p>
+    {{/showQrCode}}
+    {{^showQrCode}}
+    <div class="{{graphicId}} mt-5" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
+    <p class="mt-5 mb-5 px-16">{{#t}}Take your tabs, bookmarks, and passwords anywhere you use Firefox.{{/t}}</p>
+    <form novalidate>
+      <div class="flex">
+        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}Get started{{/t}}</button>
+      </div>
+    </form>
+    {{/showQrCode}}
   </section>
 </div>

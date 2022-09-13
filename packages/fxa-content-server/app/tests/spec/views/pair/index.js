@@ -169,6 +169,15 @@ describe('views/pair/index', () => {
     it('shows qr code', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
       return view.render().then(() => {
+        const heading = view.$('#pair-header');
+        assert.strictEqual(heading.text(), 'Connect Firefox on another device');
+
+        const pairButton = view.$('#start-pairing');
+        assert.equal(pairButton.length, 1);
+
+        const downloadLink = view.$('#get-fx-mobile');
+        assert.equal(downloadLink.length, 1);
+
         const qrCode = view.$el.find('.bg-image-cad-qr-code');
         assert.equal(qrCode.length, 1);
       });
@@ -177,6 +186,15 @@ describe('views/pair/index', () => {
     it('does not show qr code', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
       return view.render().then(() => {
+        const heading = view.$('#pair-header');
+        assert.strictEqual(
+          heading.text(),
+          'Sync Firefox on your phone or tablet'
+        );
+
+        const pairButton = view.$('#start-pairing');
+        assert.equal(pairButton.length, 1);
+
         const qrCode = view.$el.find('.bg-image-cad-qr-code');
         assert.equal(qrCode.length, 0);
       });

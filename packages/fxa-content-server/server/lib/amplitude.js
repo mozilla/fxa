@@ -439,6 +439,11 @@ const EVENTS = {
     group: GROUPS.connectDevice,
     event: 'download_engage',
   },
+  // link to skip pairing and go to Settings
+  'screen.pair.notnow.engage': {
+    group: GROUPS.connectDevice,
+    event: 'pair_notnow_engage',
+  },
 
   // pairing process
   'screen.pair.auth.allow': {
