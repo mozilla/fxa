@@ -1,4 +1,9 @@
-postConsumeRecoveryCode-subject-1 = Backup authentication code used
-postConsumeRecoveryCode-title-1 = Backup authentication code consumed
-postConsumeRecoveryCode-description-1 = You have successfully consumed a backup authentication code from the following device:
+postConsumeRecoveryCode-title-2 = You used a backup authentication code
+# After the colon, there is description of the device that the backup authentication code was used on
+postConsumeRecoveryCode-description-2 = It was used on:
 postConsumeRecoveryCode-action = Manage account
+postConsumeRecoveryCode-subject-2 =
+    { $numberRemaining ->
+        [one]  1 backup authentication code left
+       *[other] { $numberRemaining } backup authentication codes left
+   }

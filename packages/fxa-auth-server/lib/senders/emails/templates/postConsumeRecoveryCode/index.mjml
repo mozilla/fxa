@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postConsumeRecoveryCode-title-1">Backup authentication code consumed</span>
+      <span data-l10n-id="postConsumeRecoveryCode-title-2">You used a backup authentication code</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postConsumeRecoveryCode-description-1">You have successfully consumed a backup authentication code from the following device:</span>
+      <span data-l10n-id="postConsumeRecoveryCode-description-2">It was used on:</span>
     </mj-text>
   </mj-column>
 </mj-section>

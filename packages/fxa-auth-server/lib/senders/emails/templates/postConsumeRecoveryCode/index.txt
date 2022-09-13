@@ -1,11 +1,9 @@
-postConsumeRecoveryCode-title-1 = "Backup authentication code consumed"
+postConsumeRecoveryCode-title-2 = "You used a backup authentication code"
 
-postConsumeRecoveryCode-description-1 = "You have successfully consumed a backup authentication code from the following device:"
+postConsumeRecoveryCode-description-2 = "It was used on:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>
 
-<%- include('/partials/changePassword/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>

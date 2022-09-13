@@ -15,6 +15,7 @@ const createStory = storyWithProps(
   'Sent when user has used a backup authentication code',
   {
     ...MOCK_USER_INFO,
+    numberRemaining: 2,
     link: 'http://localhost:3030/settings',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
