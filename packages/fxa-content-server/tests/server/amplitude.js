@@ -2439,6 +2439,7 @@ registerSuite('amplitude', {
           uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
+
       assert.equal(
         logger.info.args[0][1].event_type,
         'fxa_connect_device - pair_view'
@@ -2618,6 +2619,14 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_qr_connect_device - fx_view_engage'
       );
+    },
+
+    'cad.notnow.engage': () => {
+      createAmplitudeEvent('cad.notnow.engage');
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_connect_device - cad_notnow_engage');
     },
   },
 });

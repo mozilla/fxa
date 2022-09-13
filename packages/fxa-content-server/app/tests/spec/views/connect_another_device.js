@@ -77,11 +77,15 @@ describe('views/connect_another_device', () => {
       it('shows the pairing link, logs appropriately', () => {
         assert.isTrue(view._isSignedIn.called);
         assert.lengthOf(view.$('#sync-firefox-devices'), 1);
+        assert.lengthOf(view.$('#pair-value-prop'), 1);
         assert.isTrue(
           view
             .$('#sync-firefox-devices')
             .prop('href')
             .endsWith('/pair?entrypoint=fxa_app_menu')
+        );
+        assert.isTrue(
+          view.$('#cad-not-now').prop('href').endsWith('/settings')
         );
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
@@ -301,27 +305,6 @@ describe('views/connect_another_device', () => {
         });
       });
 
-      it('shows FxDesktop text, pairing CTA', () => {
-        sinon.stub(view, 'getUserAgent').callsFake(() => {
-          return {
-            isAndroid: () => false,
-            isFirefox: () => true,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => true,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-            supportsSvgTransformOrigin: () => true,
-          };
-        });
-
-        return view.render().then(() => {
-          view.afterVisible();
-
-          assert.lengthOf(view.$('#pair-everywhere'), 1);
-          testIsFlowEventLogged('install_from.fx_desktop');
-        });
-      });
-
       it('shows Other text, marketing area to everyone else', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
@@ -396,7 +379,9 @@ describe('views/connect_another_device', () => {
 
       it('shows the marketing area, logs appropriately', () => {
         assert.isTrue(view._isSignedIn.called);
-        assert.lengthOf(view.$('#pair-everywhere'), 1);
+        assert.isTrue(
+          view.$('#cad-not-now').prop('href').endsWith('/settings')
+        );
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');

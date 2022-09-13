@@ -2,7 +2,7 @@
   <header class="hidden" id="fxa-connect-another-device-header"><h1 class="card-header mb-8">{{#t}}Connect another device{{/t}}</h1></header>
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}Firefox account connected{{/t}}</span></h2>
+      <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}You’re signed into Firefox{{/t}}</span></h2>
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
@@ -42,15 +42,17 @@
       {{#isFirefoxDesktop}}
         <p id="install-mobile-firefox-desktop">
           {{#isSignedIn}}
+            <div id="pair-value-prop" class="flex items-center justify-center mt-4 mb-5">
+              <p class="font-normal text-sm px-16">{{#t}}Want to get your tabs, bookmarks, and passwords on another device?{{/t}}</p>
+            </div>
             <div class="flex">
-              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl" data-flow-event="link.pair">{{#t}}Sync Firefox across devices{{/t}}</a>
+              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl">{{#t}}Connect another device{{/t}}</a>
+            </div>
+            <div class="mt-5">
+              <a id="cad-not-now" class="link-blue" href="/settings">{{#t}}Not now{{/t}}</a>
             </div>
           {{/isSignedIn}}
         </p>
-        <div id="pair-everywhere" class="text-grey-500 text-xs font-normal mt-4">
-          <p>{{#t}}Sign in everywhere you use Firefox.{{/t}}</p>
-          <p>{{#t}}We’re on Android and iOS, too!{{/t}}</p>
-        </div>
       {{/isFirefoxDesktop}}
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
