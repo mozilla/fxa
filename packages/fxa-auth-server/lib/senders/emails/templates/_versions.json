@@ -2,7 +2,7 @@
   "subscriptionAccountFinishSetup": 2,
   "subscriptionReactivation": 2,
   "subscriptionRenewalReminder": 2,
-  "subscriptionUpgrade": 2,
+  "subscriptionUpgrade": 3,
   "subscriptionDowngrade": 2,
   "subscriptionPaymentExpired": 3,
   "subscriptionsPaymentExpired": 3,
