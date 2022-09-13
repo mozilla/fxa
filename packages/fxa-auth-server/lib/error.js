@@ -121,6 +121,8 @@ const ERRNO = {
   CANNOT_CREATE_PASSWORD: 206,
   ACCOUNT_CREATION_REJECTED: 207,
 
+  IAP_PURCHASE_ALREADY_REGISTERED: 208,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -1417,6 +1419,19 @@ AppError.iapInvalidToken = (error) => {
       error: 'Bad Request',
       errno: ERRNO.IAP_INVALID_TOKEN,
       message: 'Invalid token',
+    },
+    ...extra
+  );
+};
+
+AppError.iapPurchaseConflict = (error) => {
+  const extra = error ? [{}, undefined, error] : [];
+  return new AppError(
+    {
+      code: 403,
+      error: 'Forbidden',
+      errno: ERRNO.IAP_PURCHASE_ALREADY_REGISTERED,
+      message: 'Purchase has been registered to another user.',
     },
     ...extra
   );

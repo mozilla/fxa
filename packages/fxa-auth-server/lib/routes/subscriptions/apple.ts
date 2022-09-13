@@ -126,6 +126,7 @@ export class AppleIapHandler {
         case PurchaseUpdateError.INVALID_ORIGINAL_TRANSACTION_ID:
           throw error.iapInvalidToken(err);
         case PurchaseUpdateError.CONFLICT:
+          throw error.iapPurchaseConflict(err);
         case PurchaseUpdateError.OTHER_ERROR:
           throw error.iapInternalError(err);
         default:

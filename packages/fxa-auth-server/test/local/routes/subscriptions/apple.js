@@ -137,7 +137,10 @@ describe('AppleIapHandler', () => {
         await appleIapHandler.registerOriginalTransactionId(request);
         assert.fail('Expected failure');
       } catch (err) {
-        assert.strictEqual(err.errno, error.ERRNO.IAP_INTERNAL_OTHER);
+        assert.strictEqual(
+          err.errno,
+          error.ERRNO.IAP_PURCHASE_ALREADY_REGISTERED
+        );
         assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
         assert.calledOnce(iapConfig.getBundleId);
       }
