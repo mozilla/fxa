@@ -69,7 +69,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "sqs-consumer": "^5.7.0",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.8",
