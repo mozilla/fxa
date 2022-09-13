@@ -9,9 +9,15 @@ import { SubscriptionModule } from '../subscriptions/subscriptions.module';
 import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
+import { BackendModule } from '../backend/backend.module';
 
 @Module({
-  imports: [DatabaseModule, SubscriptionModule, EventLoggingModule],
+  imports: [
+    DatabaseModule,
+    SubscriptionModule,
+    EventLoggingModule,
+    BackendModule,
+  ],
   providers: [AccountResolver, EmailBounceResolver, RelyingPartyResolver],
 })
 export class GqlModule {}

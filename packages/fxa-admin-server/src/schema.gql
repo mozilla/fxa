@@ -165,6 +165,7 @@ type Mutation {
   disableAccount(uid: String!): Boolean!
   editLocale(locale: String!, uid: String!): Boolean!
   enableAccount(uid: String!): Boolean!
+  sendPasswordResetEmail(email: String!): Boolean!
   recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!

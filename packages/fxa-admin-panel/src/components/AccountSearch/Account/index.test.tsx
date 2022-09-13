@@ -218,3 +218,12 @@ it('displays the locale', async () => {
   expect(getByTestId('account-locale')).toHaveTextContent('en-US');
   expect(getByTestId('edit-account-locale')).toBeInTheDocument();
 });
+
+it('displays send password reset', async () => {
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
+  expect(getByTestId('password-reset-button')).toBeInTheDocument();
+});

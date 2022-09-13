@@ -65,6 +65,12 @@ export const ENABLE_ACCOUNT = gql`
   }
 `;
 
+export const SEND_PASSWORD_RESET_EMAIL = gql`
+  mutation sendPasswordResetEmail($email: String!) {
+    sendPasswordResetEmail(email: $email)
+  }
+`;
+
 export const UNLINK_ACCOUNT = gql`
   mutation unlinkAccount($uid: String!) {
     unlinkAccount(uid: $uid)
@@ -211,6 +217,16 @@ export const DangerZone = ({
     },
   });
 
+  const [sendPasswordResetEmail] = useMutation(SEND_PASSWORD_RESET_EMAIL, {
+    onCompleted: () => {
+      window.alert(`Password reset email sent to ${email.email}`);
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error sending password reset email.');
+    },
+  });
+
   const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
 
   const handleDisable = () => {
@@ -227,6 +243,13 @@ export const DangerZone = ({
     }
     enableAccount({ variables: { uid } });
     recordAdminSecurityEvent({ variables: { uid, name: 'account.enable' } });
+  };
+
+  const handleSendPasswordReset = () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    sendPasswordResetEmail({ variables: { email: email.email } });
   };
 
   // define loading messages
@@ -288,6 +311,24 @@ export const DangerZone = ({
               Disable
             </button>
           )}
+        </div>
+      </Guard>
+      <Guard features={[AdminPanelFeature.SendPasswordResetEmail]}>
+        <h2 className="text-lg account-header">Send Password Reset Email</h2>
+        <div className="border-l-2 border-red-600 mb-4 pl-4">
+          <p className="text-base leading-6 ">
+            Send the user a password reset email to all verified emails. For
+            Sync users this will also reset their encryption key so make sure
+            they have a backup of Sync data.
+          </p>
+          <button
+            className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+            type="button"
+            onClick={handleSendPasswordReset}
+            data-testid="password-reset-button"
+          >
+            Password Reset
+          </button>
         </div>
       </Guard>
       {disabledAt && (
