@@ -24062,7 +24062,7 @@ fsevents@~2.1.1:
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.8.2
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     verror: ^1.10.1
     web-push: 3.4.4
     webpack: ^4.43.0
@@ -24382,7 +24382,7 @@ fsevents@~2.1.1:
     tsconfig-paths: ^4.0.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.8.2
-    uuid: ^8.3.2
+    uuid: ^9.0.0
   languageName: unknown
   linkType: soft
 
@@ -24616,7 +24616,7 @@ fsevents@~2.1.1:
     ts-jest: ^29.0.0
     typedi: ^0.8.0
     typescript: ^4.8.2
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     wait-for-expect: ^3.0.2
     webpack: ^4.43.0
   languageName: unknown
@@ -24804,7 +24804,7 @@ fsevents@~2.1.1:
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^3.0.24
     typescript: ^4.8.2
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     webpack: ^4.43.0
     webpack-merge-and-include-globally: ^2.3.4
     webpack-watch-files-plugin: ^1.2.1
@@ -24905,7 +24905,7 @@ fsevents@~2.1.1:
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.8.2
     underscore: ^1.13.1
-    uuid: ^8.3.2
+    uuid: ^9.0.0
   languageName: unknown
   linkType: soft
 
@@ -46029,6 +46029,15 @@ resolve@^2.0.0-next.3:
   bin:
     uuid: ./bin/uuid
   checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
   languageName: node
   linkType: hard
 
