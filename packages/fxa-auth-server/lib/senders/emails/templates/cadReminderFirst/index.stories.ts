@@ -15,6 +15,7 @@ const createStory = storyWithProps(
   {
     oneClickLink: 'http://localhost:3030/connect_another_device?one_click=true',
     link: 'http://localhost:3030/connect_another_device',
+    productName: 'Firefox'
   }
 );
 

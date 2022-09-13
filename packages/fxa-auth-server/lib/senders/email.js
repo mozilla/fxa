@@ -1254,6 +1254,7 @@ module.exports = function (log, config, bounces) {
         style: message.style,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        productName: 'Firefox'
       },
     });
   };
@@ -1661,6 +1662,7 @@ module.exports = function (log, config, bounces) {
         link: links.link,
         location: message.location,
         privacyUrl: links.privacyUrl,
+        productName: 'Firefox',
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
@@ -2770,6 +2772,7 @@ module.exports = function (log, config, bounces) {
           iosUrl: links.iosLink,
           link: links.link,
           privacyUrl: links.privacyUrl,
+          productName: 'Firefox',
           style: message.style,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,

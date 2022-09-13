@@ -1,5 +1,6 @@
-automated-email-change = This is an automated email; if you did not authorize this action, then <a data-l10n-name="passwordChangeLink">please change your password</a>.
-  For more information, please visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
-# Variables:
-#  $passwordChangeLink (String) - Link to https://accounts.firefox.com/settings/change_password
-automated-email-change-plaintext = This is an automated email; if you didn’t add a new device to your { -product-firefox-account }, you should change your password immediately at { $passwordChangeLink }
+automated-email-change-2 = If you didn’t take this action, <a data-l10n-name="passwordChangeLink">change your password</a> right away.
+automated-email-support =  For more info, visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
+# After the colon, there's a link to https://accounts.firefox.com/settings/change_password
+automated-email-change-plaintext-2 = If you didn’t take this action, change your password right away:
+#  After the colon, there's a link to https://support.mozilla.org/kb/im-having-problems-my-firefox-account
+automated-email-support-plaintext = For more info, visit { -brand-mozilla } Support:

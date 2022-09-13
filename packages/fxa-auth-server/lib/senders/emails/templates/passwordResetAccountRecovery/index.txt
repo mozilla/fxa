@@ -1,14 +1,13 @@
-passwordResetAccountRecovery-title-1 = "Your account password was reset with an account recovery key"
+passwordResetAccountRecovery-title-2 = "Password reset successfully"
 
-passwordResetAccountRecovery-description-1 = "You have successfully reset your password using an account recovery key from the following device:"
+passwordResetAccountRecovery-description-2 = "You used your account recovery key to update your password from:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-passwordResetAccountRecovery-regen-required-1 = "You will need to generate a new account recovery key."
+passwordResetAccountRecovery-regen-required-txt-1 = "You’ll need to sign in again on all of your synced devices. Remember to create a new account recovery key to replace the one you used:"
 
-passwordResetAccountRecovery-create-key-1 = "Create new account recovery key:"
 <%- link %>
 
-<%- include('/partials/changePassword/index.txt') %>
+<%- include('/partials/appBadges/index.txt') %>
 
-<%- include('/partials/support/index.txt') %>
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
