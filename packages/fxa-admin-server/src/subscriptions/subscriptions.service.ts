@@ -130,6 +130,10 @@ export class SubscriptionsService {
         'iap_apple',
         plans
       );
+      if (!plan)
+        throw new Error(
+          `No matching plan for IAP apple subscription productId: ${subscription.productId}`
+        );
       yield AppStoreFormatter.toMozSubscription(subscription, plan);
     }
   }
@@ -142,6 +146,10 @@ export class SubscriptionsService {
     const subscriptions = await this.playStoreService.getSubscriptions(uid);
     for (const subscription of subscriptions || []) {
       const plan = iapPurchaseToPlan(subscription.sku, 'iap_google', plans);
+      if (!plan)
+        throw new Error(
+          `No matching plan for IAP play subscription sku: ${subscription.sku}`
+        );
       yield PlayStoreFormatter.toMozSubscription(subscription, plan);
     }
   }
