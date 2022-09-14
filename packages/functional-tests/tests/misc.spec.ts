@@ -15,25 +15,6 @@ test.describe('severity-1', () => {
     expect(failures).toBe(0);
   });
 
-  test('change email and unblock', async ({
-    credentials,
-    pages: { page, login, settings, secondaryEmail },
-  }) => {
-    test.slow();
-    await settings.goto();
-    await settings.secondaryEmail.clickAdd();
-    const newEmail = `blocked${Math.floor(
-      Math.random() * 100000
-    )}@restmail.net`;
-    await secondaryEmail.addAndVerify(newEmail);
-    await settings.secondaryEmail.clickMakePrimary();
-    credentials.email = newEmail;
-    await settings.signOut();
-    await login.login(credentials.email, credentials.password);
-    await login.unblock(newEmail);
-    expect(page.url()).toBe(settings.url);
-  });
-
   test('prompt=consent', async ({
     credentials,
     pages: { page, relier, login },

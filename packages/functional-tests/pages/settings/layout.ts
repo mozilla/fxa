@@ -13,8 +13,9 @@ export abstract class SettingsLayout extends BaseLayout {
     return super.goto('networkidle');
   }
 
-  alertBarText() {
-    return this.page.innerText('[data-testid=alert-bar-content]');
+  async alertBarText() {
+    const alert = this.page.locator('[data-testid=alert-bar-content]');
+    return alert.textContent();
   }
 
   async waitForAlertBar() {

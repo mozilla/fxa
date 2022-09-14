@@ -1,26 +1,6 @@
 import { test, expect, newPages } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293402
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293406
-  test('change email and login #1293402 #1293406', async ({
-    credentials,
-    pages: { login, settings, secondaryEmail },
-  }, { project }) => {
-    test.slow(project.name !== 'local', 'email delivery can be slow');
-    await settings.goto();
-    await settings.secondaryEmail.clickAdd();
-    const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
-    await secondaryEmail.addAndVerify(newEmail);
-    await settings.waitForAlertBar();
-    await settings.secondaryEmail.clickMakePrimary();
-    credentials.email = newEmail;
-    await settings.signOut();
-    await login.login(credentials.email, credentials.password);
-    const primary = await settings.primaryEmail.statusText();
-    expect(primary).toEqual(newEmail);
-  });
-
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293407
   test('removing secondary emails #1293407', async ({
     credentials,
