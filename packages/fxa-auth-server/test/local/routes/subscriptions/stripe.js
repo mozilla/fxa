@@ -661,6 +661,9 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.info = {
+        remoteAddress: '1.1.1.1',
+      };
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
       );
@@ -671,7 +674,13 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
-        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+        {
+          automaticTax: false,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
     });
@@ -809,6 +818,9 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.info = {
+        remoteAddress: '1.1.1.1',
+      };
 
       const actual = await directStripeRoutesInstance.retrieveCouponDetails(
         VALID_REQUEST
@@ -816,7 +828,13 @@ describe('DirectStripeRoutes', () => {
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
-        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+        {
+          automaticTax: false,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
       );
 
       assert.deepEqual(actual, expected);

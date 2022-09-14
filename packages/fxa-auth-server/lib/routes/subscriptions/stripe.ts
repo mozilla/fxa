@@ -421,12 +421,19 @@ export class StripeHandler {
       string,
       string
     >;
+
     const country = request.app.geo.location?.country || 'US';
+    const ipAddress = request.info.remoteAddress;
+    const automaticTax = this.automaticTax;
+
     const previewInvoice = await this.stripeHelper.previewInvoice({
+      automaticTax,
       country,
+      ipAddress,
       promotionCode,
       priceId,
     });
+
     return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
   }
 
@@ -478,8 +485,13 @@ export class StripeHandler {
       string
     >;
     const country = request.app.geo.location?.country || 'US';
+    const ipAddress = request.info.remoteAddress;
+    const automaticTax = this.automaticTax;
+
     const couponDetails = this.stripeHelper.retrieveCouponDetails({
+      automaticTax,
       country,
+      ipAddress,
       priceId,
       promotionCode,
     });

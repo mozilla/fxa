@@ -25,10 +25,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       invoice.tax.amount,
       previewInvoiceWithTax.total_tax_amounts[0].amount
     );
-    assert.equal(
-      invoice.tax.percentage,
-      previewInvoiceWithTax.default_tax_rates[0].percentage
-    );
     assert.equal(invoice.tax.inclusive, true);
     assert.isUndefined(invoice.discount);
   });
@@ -42,10 +38,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     assert.equal(
       invoice.tax.amount,
       previewInvoiceWithDiscountAndTax.total_tax_amounts[0].amount
-    );
-    assert.equal(
-      invoice.tax.percentage,
-      previewInvoiceWithDiscountAndTax.default_tax_rates[0].percentage
     );
     assert.equal(invoice.tax.inclusive, true);
     assert.equal(

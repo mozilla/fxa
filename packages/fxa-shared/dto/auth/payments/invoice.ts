@@ -13,8 +13,6 @@ export interface InvoiceLineItem {
 export interface InvoiceTax {
   amount: number;
   inclusive: boolean;
-  name: string;
-  percentage: number;
 }
 
 export interface InvoiceDiscount {
@@ -54,8 +52,6 @@ export const firstInvoicePreviewSchema = joi.object({
   tax: joi.object({
     amount: joi.number().required(),
     inclusive: joi.boolean().required(),
-    name: joi.string().required(),
-    percentage: joi.number().required(),
   }),
   discount: joi.object({
     amount: joi.number().required(),
@@ -78,8 +74,6 @@ export type firstInvoicePreviewSchema = {
   tax?: {
     amount: number;
     inclusive: boolean;
-    name: string;
-    percentage: number;
   };
   discount?: {
     amount: number;
