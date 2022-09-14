@@ -123,6 +123,7 @@ const mockConfig = {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
+    stripeAutomaticTax: { enabled: false },
   },
   subhub: {
     enabled: true,
@@ -1763,13 +1764,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
@@ -1798,13 +1803,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });

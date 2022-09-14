@@ -22,17 +22,11 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
   };
 
   // Add tax if it exists
-  if (
-    invoice.total_tax_amounts.length > 0 &&
-    invoice.default_tax_rates.length > 0
-  ) {
-    const taxObject = invoice.default_tax_rates[0];
+  if (invoice.total_tax_amounts.length > 0) {
     const tax = invoice.total_tax_amounts[0];
     invoicePreview.tax = {
       amount: tax.amount,
       inclusive: tax.inclusive,
-      name: taxObject.display_name,
-      percentage: taxObject.percentage,
     };
   }
 

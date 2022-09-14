@@ -60,7 +60,12 @@ export const updateSubscriptionPlanAndRefresh =
   async (dispatch: Function) => {
     try {
       await dispatch(
-        updateSubscriptionPlan(subscriptionId, currentPlan, newPlan, paymentProvider)
+        updateSubscriptionPlan(
+          subscriptionId,
+          currentPlan,
+          newPlan,
+          paymentProvider
+        )
       );
       await dispatch(fetchCustomerAndSubscriptions());
     } catch (err) {

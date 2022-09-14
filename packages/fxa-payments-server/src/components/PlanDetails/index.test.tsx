@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 
@@ -356,12 +356,11 @@ describe('PlanDetails', () => {
         },
       };
 
-      const testRenderer = TestRenderer.create(<PlanDetails {...props} />);
-      const testInstance = testRenderer.root;
+      const subject = () => {
+        return render(<PlanDetails {...props} />);
+      };
 
-      const planPriceComponent = testInstance.findByProps({
-        'data-testid': `plan-price-total`,
-      });
+      const { queryByTestId } = subject();
 
       const expectedAmount = getLocalizedCurrency(
         selectedPlan.amount && coupon.discountAmount
@@ -370,12 +369,14 @@ describe('PlanDetails', () => {
         selectedPlan.currency
       );
 
-      expect(planPriceComponent.props.vars.amount).toStrictEqual(
-        expectedAmount
-      );
+      await waitFor(() => {
+        const totalPriceComponent = queryByTestId('total-price');
+        expect(totalPriceComponent).toBeInTheDocument();
+        expect(totalPriceComponent?.innerHTML).toContain(expectedAmount.value);
+      });
     });
 
-    it('for coupon info box without couponDurationDate, display coupon-success message', () => {
+    it('for coupon info box without couponDurationDate, display coupon-success message', async () => {
       const subject = () => {
         return render(
           <PlanDetails
@@ -391,11 +392,16 @@ describe('PlanDetails', () => {
       };
 
       const { queryByTestId } = subject();
-      expect(queryByTestId('coupon-success')).toBeInTheDocument();
-      expect(queryByTestId('coupon-success-with-date')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(queryByTestId('coupon-success')).toBeInTheDocument();
+        expect(
+          queryByTestId('coupon-success-with-date')
+        ).not.toBeInTheDocument();
+      });
     });
 
-    it('for coupon info box with couponDurationDate, display coupon-success-with-date message', () => {
+    it('for coupon info box with couponDurationDate, display coupon-success-with-date message', async () => {
       const subject = () => {
         return render(
           <PlanDetails
@@ -415,8 +421,10 @@ describe('PlanDetails', () => {
       };
 
       const { queryByTestId } = subject();
-      expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
-      expect(queryByTestId('coupon-success-with-date')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
+        expect(queryByTestId('coupon-success-with-date')).toBeInTheDocument();
+      });
     });
 
     it('do not show either coupon-success message, if info box is empty', () => {
