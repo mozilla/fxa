@@ -9,6 +9,7 @@ import {
 import { Container } from 'typedi';
 import { TypedCollectionReference } from 'typesafe-node-firestore';
 
+import error from '../../error';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
 import { AppStoreSubscriptionPurchase } from './apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './google-play/subscription-purchase';
@@ -53,7 +54,7 @@ export class IAPConfig {
     if (doc.exists) {
       return doc.data()?.plans;
     } else {
-      throw Error(`IAP Plans document does not exist for ${appName}`);
+      throw error.unknownAppName(appName);
     }
   }
 
@@ -66,7 +67,7 @@ export class IAPConfig {
     if (doc.exists) {
       return doc.data()?.packageName;
     } else {
-      throw Error(`IAP Plans document does not exist for ${appName}`);
+      throw error.unknownAppName(appName);
     }
   }
 
@@ -79,7 +80,7 @@ export class IAPConfig {
     if (doc.exists) {
       return doc.data()?.bundleId;
     } else {
-      throw Error(`IAP Plans document does not exist for ${appName}`);
+      throw error.unknownAppName(appName);
     }
   }
 }
