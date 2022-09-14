@@ -170,6 +170,7 @@ export interface IMutation {
     disableAccount(uid: string): boolean | Promise<boolean>;
     editLocale(locale: string, uid: string): boolean | Promise<boolean>;
     enableAccount(uid: string): boolean | Promise<boolean>;
+    sendPasswordResetEmail(email: string): boolean | Promise<boolean>;
     recordAdminSecurityEvent(name: string, uid: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;

@@ -18,6 +18,13 @@ const conf = convict({
     env: 'AUTH_HEADER',
     format: String,
   },
+  authServer: {
+    url: {
+      doc: 'URL of fxa-auth-server',
+      env: 'AUTH_SERVER_URL',
+      default: 'http://localhost:9000/v1',
+    },
+  },
   user: {
     group: {
       default: '',

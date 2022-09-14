@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   Args,
@@ -36,6 +36,8 @@ import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
+import { AuthClientService } from '../../backend/auth-client.service';
+import AuthClient from 'fxa-auth-client';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -86,7 +88,8 @@ export class AccountResolver {
     private db: DatabaseService,
     private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>,
-    private eventLogging: EventLoggingService
+    private eventLogging: EventLoggingService,
+    @Inject(AuthClientService) private authAPI: AuthClient
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -187,6 +190,13 @@ export class AccountResolver {
       .query()
       .update({ disabledAt: null })
       .where('uid', uidBuffer);
+    return !!result;
+  }
+
+  @Features(AdminPanelFeature.SendPasswordResetEmail)
+  @Mutation((returns) => Boolean)
+  public async sendPasswordResetEmail(@Args('email') email: string) {
+    const result = await this.authAPI.passwordForgotSendCode(email);
     return !!result;
   }
 

@@ -40,6 +40,7 @@ import { Knex } from 'knex';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
+import { AuthClientService } from '../../backend/auth-client.service';
 
 export const chance = new Chance();
 
@@ -84,6 +85,7 @@ describe('AccountResolver', () => {
       return mergeCachedSessionTokens(sessions, {}, true);
     },
   };
+  let authClient: any;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -143,6 +145,7 @@ describe('AccountResolver', () => {
       },
     };
 
+    authClient = {};
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
@@ -152,6 +155,7 @@ describe('AccountResolver', () => {
         MockMetricsFactory,
         MockSubscription,
         { provide: DatabaseService, useValue: db },
+        { provide: AuthClientService, useValue: authClient },
       ],
     }).compile();
 
@@ -314,5 +318,12 @@ describe('AccountResolver', () => {
     const result2 = await resolver.accountByEmail(USER_1.email, true, 'joe');
     expect(result1).toBe(true);
     expect(result2.locale).toBe('en-CA');
+  });
+
+  it('sends password reset email', async () => {
+    authClient.passwordForgotSendCode = jest.fn().mockResolvedValue(true);
+    const result = await resolver.sendPasswordResetEmail(USER_1.email);
+    expect(authClient.passwordForgotSendCode).toBeCalledTimes(1);
+    expect(result).toBe(true);
   });
 });

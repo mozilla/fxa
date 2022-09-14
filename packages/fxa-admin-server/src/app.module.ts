@@ -23,6 +23,7 @@ import { DatabaseService } from './database/database.service';
 import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
+import { BackendModule } from './backend/backend.module';
 
 const version = getVersionInfo(__dirname);
 
@@ -32,6 +33,7 @@ const version = getVersionInfo(__dirname);
       load: [(): AppConfig => Config.getProperties()],
       isGlobal: true,
     }),
+    BackendModule,
     DatabaseModule,
     EventLoggingModule,
     SubscriptionModule,
