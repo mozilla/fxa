@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ReactDOM from 'react-dom';
+import React from 'react';
+import { render } from 'react-dom';
 import { ApolloProvider } from '@apollo/client';
+import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 import { config, readConfigFromMeta, getExtraHeaders } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';
-
-readConfigFromMeta(headQuerySelector);
 
 const httpLink = createHttpLink({
   uri: `${config.servers.admin.url}/graphql`,
@@ -28,12 +29,29 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-ReactDOM.render(
-  <ApolloProvider {...{ client }}>
-    <App {...{ config }} />
-  </ApolloProvider>,
-  document.getElementById('root')
-);
+try {
+  readConfigFromMeta(headQuerySelector);
+
+  sentryMetrics.configure({
+    release: config.version,
+    sentry: {
+      ...config.sentry,
+    },
+  });
+
+  render(
+    <React.StrictMode>
+      <AppErrorBoundary>
+        <ApolloProvider {...{ client }}>
+          <App {...{ config }} />
+        </ApolloProvider>
+      </AppErrorBoundary>
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
+} catch (error) {
+  console.error('Error initializing fxa-admin-panel', error);
+}
 
 function headQuerySelector(name: string) {
   return document.head.querySelector(name);

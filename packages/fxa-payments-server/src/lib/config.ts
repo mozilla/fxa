@@ -60,7 +60,7 @@ export function defaultConfig(): Config {
     productRedirectURLs: {},
     sentry: {
       dsn: '',
-      env: 'test',
+      env: 'local',
       sampleRate: 1.0,
       serverName: 'fxa-payments-server',
       clientName: 'fxa-payments-client',

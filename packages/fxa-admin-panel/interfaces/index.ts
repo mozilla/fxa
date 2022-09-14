@@ -22,6 +22,14 @@ export interface IClientConfig {
   servers: {
     admin: IServerInfo;
   };
+  sentry: {
+    dsn: string;
+    env: string;
+    serverName: string;
+    clientName: string;
+    sampleRate: number;
+  };
+  version?: string;
 }
 
 export interface IncomingAdminPanelHttpHeaders extends IncomingHttpHeaders {
