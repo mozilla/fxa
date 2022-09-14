@@ -15,6 +15,7 @@ import { selectors, SelectorReturns } from '../../store/selectors';
 import { Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/stripe';
+import { apiFetchPlanUpgradeEligibility } from '../../lib/apiClient';
 
 import '../Product/index.scss';
 
@@ -171,6 +172,36 @@ export const Product = ({
 
   const [coupon, setCoupon] = useState<CouponDetails>();
 
+  const [planUpgradeEligibility, setPlanUpgradeEligibility] =
+    useState('invalid');
+
+  const checkPlanUpgradeEligibility = async (planId: string) => {
+    try {
+      const planUpgradeDetails = await apiFetchPlanUpgradeEligibility(planId);
+      const eligibility = await planUpgradeDetails.eligibility;
+
+      return eligibility;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Fetch plan update eligibility
+  useEffect(() => {
+    (async () => {
+      if (selectedPlan) {
+        try {
+          const eligibilityResult = await checkPlanUpgradeEligibility(
+            selectedPlan.plan_id
+          );
+          setPlanUpgradeEligibility(eligibilityResult);
+        } catch (err) {
+          setPlanUpgradeEligibility('invalid');
+        }
+      }
+    })();
+  }, [selectedPlan]);
+
   // Please read the comment in `fetchProfileAndCustomer` in Checkout/index.tsx
   // regarding a possible race condition first.  The workaround here is to
   // simply delay the request on the front end so that the subscription is more
@@ -237,7 +268,26 @@ export const Product = ({
       productId
     );
 
-    if (iapSubscription) {
+    // Note regarding IAP roadblock:
+    //
+    // Currently, customers cannot upgrade IAP subscriptions directly.
+    // Products that are eligible for upgrade can only be done through support.
+    //
+    // iapSubscription checks if user is subscribed to product (not product set)
+    // planUpgradeEligibility returns 'blocked_iap' for all products on same product set.
+    // Therefore, a combination of both is required to show IAP roadblock (planUpgradeEligibility)
+    // and appropriate error messaging (iapSubscription).
+    //
+    // if desired product is already subscribed to, show iap already subscribed error
+    // else, product is not subscribed to, but on same product set/might be eligible for upgrade
+    // show iap upgrade contact support error messaging
+    const iapErrorMessageCode = () => {
+      return iapSubscription
+        ? 'iap_already_subscribed' // already subscribed to this product
+        : 'iap_upgrade_contact_support'; // different product, but same product set/eligible for upgrade
+    };
+
+    if (planUpgradeEligibility === 'blocked_iap') {
       return (
         <IapRoadblock
           {...{
@@ -245,7 +295,8 @@ export const Product = ({
             customer: customer.result,
             profile: profile.result,
             isMobile,
-            subscription: iapSubscription,
+            subscription: iapSubscription ? iapSubscription : undefined,
+            code: iapErrorMessageCode(),
           }}
         />
       );

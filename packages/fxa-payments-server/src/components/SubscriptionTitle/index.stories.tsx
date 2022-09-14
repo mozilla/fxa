@@ -39,4 +39,10 @@ export const NoPlanChange = storyWithProps({
 
 export const IapSubscribed = storyWithProps({
   screenType: 'iapsubscribed',
+  subtitle: <p />,
+});
+
+export const IapUpgradeError = storyWithProps({
+  screenType: 'iaperrorupgrade',
+  subtitle: <p />,
 });
