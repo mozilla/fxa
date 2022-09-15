@@ -25,6 +25,7 @@ module.exports = {
         CUSTOMS_SERVER_URL: 'none',
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_GRAPHQL_API,
+        TRACING_SERVICE_NAME: 'fxa-graphql-api',
       },
       filter_env: ['npm_'],
       watch: ['src'],

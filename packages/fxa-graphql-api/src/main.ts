@@ -6,13 +6,21 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
+import { init as initTracing } from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
 import { Request, Response } from 'express';
+import mozLog from 'mozlog';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
 
 async function bootstrap() {
+  // Initialize tracing first
+  initTracing(
+    Config.getProperties().tracing,
+    mozLog(Config.getProperties().log)(Config.getProperties().log.app)
+  );
+
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;
@@ -33,27 +41,27 @@ async function bootstrap() {
   // since this interferes with Graphql playground
   if (Config.getProperties().env !== 'development') {
     app.use(
-     helmet.frameguard({
-       action: 'deny',
-     }),
+      helmet.frameguard({
+        action: 'deny',
+      })
     );
 
     app.use((req: Request, res: Response, next: any) => {
       res.setHeader('X-XSS-Protection', '1; mode=block');
       next();
     });
-    
+
     app.use(helmet.noSniff());
-    const NONE = '\'none\'';
+    const NONE = "'none'";
     app.use(
-     helmet.contentSecurityPolicy({
-       directives: {
-         baseUri: [NONE],
-         defaultSrc: [NONE],
-         frameSrc: [NONE],
-         objectSrc: [NONE],
-       },
-     }),
+      helmet.contentSecurityPolicy({
+        directives: {
+          baseUri: [NONE],
+          defaultSrc: [NONE],
+          frameSrc: [NONE],
+          objectSrc: [NONE],
+        },
+      })
     );
 
     // We run behind a proxy when deployed, include the express middleware
