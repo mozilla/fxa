@@ -47,7 +47,7 @@
         </mj-text>
       <% } else { %>
         <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-device-2" data-l10n-args="<%= JSON.stringify({ productName }) %>"> Install <%- locals.productName %>
-          <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
+           on <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
         </mj-text>
       <% } %>
     </mj-column>
