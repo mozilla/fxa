@@ -21,6 +21,17 @@ export class ChangePasswordPage extends SettingsLayout {
     );
   }
 
+  async fillOutChangePassword(oldPassword, newPasswod) {
+    await this.setCurrentPassword(oldPassword);
+    await this.setNewPassword(newPasswod);
+    await this.setConfirmPassword(newPasswod);
+    await this.page.click('button[type=submit]');
+  }
+
+  async changePasswordTooltip() {
+    return this.page.innerText('[data-testid=tooltip]');
+  }
+
   submit() {
     return Promise.all([
       this.page.click('button[type=submit]'),
