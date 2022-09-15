@@ -5,6 +5,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
+import { tracingConfig } from 'fxa-shared/tracing/config';
 
 const FIVE_MINUTES = 60 * 5;
 
@@ -228,6 +229,7 @@ const conf = convict({
     env: 'PUBSUB_QUEUE_PREFIX',
     format: String,
   },
+  tracing: tracingConfig,
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

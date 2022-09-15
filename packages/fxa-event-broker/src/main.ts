@@ -4,12 +4,21 @@
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import mozLog from 'mozlog';
+
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
+import { init as initTracing } from 'fxa-shared/tracing/node-tracing';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
 
 async function bootstrap() {
+  // Initialize tracing first
+  initTracing(
+    Config.getProperties().tracing,
+    mozLog(Config.getProperties().log)(Config.getProperties().log.app)
+  );
+
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;
