@@ -13,24 +13,25 @@ import { config, readConfigFromMeta, getExtraHeaders } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';
 
-const httpLink = createHttpLink({
-  uri: `${config.servers.admin.url}/graphql`,
-});
-
-const authLink = setContext((_, { headers }) => ({
-  headers: {
-    ...headers,
-    ...getExtraHeaders(config),
-  },
-}));
-
-const client = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
-});
-
 try {
+  // Watch out! This mutates the config. Make sure it gets run first!
   readConfigFromMeta(headQuerySelector);
+
+  const httpLink = createHttpLink({
+    uri: `${config.servers.admin.url}/graphql`,
+  });
+
+  const authLink = setContext((_, { headers }) => ({
+    headers: {
+      ...headers,
+      ...getExtraHeaders(config),
+    },
+  }));
+
+  const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache(),
+  });
 
   sentryMetrics.configure({
     release: config.version,
