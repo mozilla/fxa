@@ -15,10 +15,12 @@ import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
+  ParentBasedSampler,
   ReadableSpan,
   SimpleSpanProcessor,
   SpanExporter,
   TimedEvent,
+  TraceIdRatioBasedSampler,
 } from '@opentelemetry/sdk-trace-base';
 
 import {
@@ -55,6 +57,16 @@ describe('node-tracing', () => {
       .mock()
       .callsFake((x: SpanExporter) => new BatchSpanProcessor(x)),
     newGcpTraceExporter: sandbox.mock().returns(new GcpTraceExporter()),
+    newTraceIdRatioBasedSampler: sandbox
+      .mock()
+      .returns(new TraceIdRatioBasedSampler()),
+    newParentBasedSampler: sandbox
+      .mock()
+      .callsFake((x: TraceIdRatioBasedSampler) => {
+        return new ParentBasedSampler({
+          root: x,
+        });
+      }),
   };
 
   const tracing = proxyquire('../../tracing/node-tracing', {
@@ -65,6 +77,8 @@ describe('node-tracing', () => {
       BatchSpanProcessor: mocks.newBatchSpanProcessor,
       ConsoleSpanExporter: mocks.newConsoleSpanExporter,
       SimpleSpanProcessor: mocks.newSimpleSpanProcessor,
+      ParentBasedSampler: mocks.newParentBasedSampler,
+      TraceIdRatioBasedSampler: mocks.newTraceIdRatioBasedSampler,
     },
     '@google-cloud/opentelemetry-cloud-trace-exporter': {
       TraceExporter: mocks.newGcpTraceExporter,
@@ -84,6 +98,7 @@ describe('node-tracing', () => {
     expect(() => {
       new tracing.NodeTracingInitializer({
         serviceName: '',
+        sampleRate: 1,
       });
     }).to.throws('Missing config. serviceName must be defined!');
     const processor = tracing.provider?.getTracer;
@@ -94,8 +109,11 @@ describe('node-tracing', () => {
   it('enables initializes with no modes', () => {
     new NodeTracingInitializer({
       serviceName: 'test',
+      sampleRate: 1,
     });
 
+    sinon.assert.calledWith(mocks.newTraceIdRatioBasedSampler, 1);
+    sinon.assert.calledOnce(mocks.newParentBasedSampler);
     sinon.assert.calledOnce(spies.register);
     sinon.assert.notCalled(mocks.newJaegerExporter);
     sinon.assert.notCalled(mocks.newGcpTraceExporter);
@@ -107,13 +125,13 @@ describe('node-tracing', () => {
       new NodeTracingInitializer(
         {
           serviceName: 'test',
+          sampleRate: 1,
           console: {
             enabled: true,
           },
         },
         spies.logger
       );
-
       sinon.assert.calledOnce(mocks.newConsoleSpanExporter);
       sinon.assert.notCalled(mocks.newJaegerExporter);
       sinon.assert.notCalled(mocks.newGcpTraceExporter);
@@ -126,6 +144,7 @@ describe('node-tracing', () => {
       new NodeTracingInitializer(
         {
           serviceName: 'test',
+          sampleRate: 1,
           jaeger: {
             enabled: true,
           },
@@ -145,6 +164,7 @@ describe('node-tracing', () => {
       new NodeTracingInitializer(
         {
           serviceName: 'test',
+          sampleRate: 1,
           gcp: {
             enabled: true,
           },
@@ -165,11 +185,27 @@ describe('node-tracing', () => {
       tracing.init(
         {
           serviceName: '',
+          sampleRate: 1,
         },
         spies.logger
       );
-      sinon.assert.calledWith(spies.logger.warn, 'node-tracing', {
-        msg: 'skipping node-tracing initialization. serviceName must be defined.',
+      sinon.assert.calledWith(spies.logger.error, 'node-tracing', {
+        msg: 'Trace initialization failed: Missing config. serviceName must be defined!',
+      });
+    });
+
+    [null, -1, 2].forEach((sampleRate) => {
+      it('skips initialization if sampleRate is ' + sampleRate, () => {
+        tracing.init(
+          {
+            serviceName: 'test',
+            sampleRate: sampleRate,
+          },
+          spies.logger
+        );
+        sinon.assert.calledWith(spies.logger.error, 'node-tracing', {
+          msg: `Trace initialization failed: Invalid config. sampleRate must be a number between 0 and 1, but was ${sampleRate}.`,
+        });
       });
     });
 
@@ -177,20 +213,26 @@ describe('node-tracing', () => {
       tracing.init(
         {
           serviceName: 'test',
+          sampleRate: 1,
         },
         spies.logger
       );
+
+      sinon.assert.calledWith(spies.logger.info, 'node-tracing', {
+        msg: 'Trace initialized succeeded!',
+      });
     });
 
     it('warns of second initialization', () => {
       tracing.init(
         {
           serviceName: 'test',
+          sampleRate: 1,
         },
         spies.logger
       );
       sinon.assert.calledWith(spies.logger.warn, 'node-tracing', {
-        msg: 'skipping node-tracing initialization. node-tracing already initialized.',
+        msg: 'Trace initialization skipped. Tracing already initialized.',
       });
     });
   });

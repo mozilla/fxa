@@ -14,8 +14,10 @@ import { Resource } from '@opentelemetry/resources';
 import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
+  ParentBasedSampler,
   ReadableSpan,
   SimpleSpanProcessor,
+  TraceIdRatioBasedSampler,
 } from '@opentelemetry/sdk-trace-base';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -75,7 +77,21 @@ export class NodeTracingInitializer {
     if (!this.opts.serviceName) {
       throw new Error('Missing config. serviceName must be defined!');
     }
+
+    if (
+      this.opts.sampleRate == null ||
+      this.opts.sampleRate < 0 ||
+      this.opts.sampleRate > 1
+    ) {
+      throw new Error(
+        `Invalid config. sampleRate must be a number between 0 and 1, but was ${this.opts.sampleRate}.`
+      );
+    }
+
     const provider = new NodeTracerProvider({
+      sampler: new ParentBasedSampler({
+        root: new TraceIdRatioBasedSampler(this.opts.sampleRate),
+      }),
       resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: this.opts.serviceName,
       }),
@@ -132,21 +148,21 @@ export class NodeTracingInitializer {
 
 let nodeTracing: NodeTracingInitializer;
 export function init(opts: TracingOpts, logger?: ILogger) {
-  logger?.info(log_type, { msg: 'initializing node tracing' });
-
-  if (!opts.serviceName) {
-    logger?.warn(log_type, {
-      msg: 'skipping node-tracing initialization. serviceName must be defined.',
-    });
-    return;
-  }
+  logger?.info(log_type, { msg: 'Initializing node tracing.' });
 
   if (nodeTracing != null) {
     logger?.warn(log_type, {
-      msg: 'skipping node-tracing initialization. node-tracing already initialized.',
+      msg: 'Trace initialization skipped. Tracing already initialized.',
     });
     return;
   }
 
-  nodeTracing = new NodeTracingInitializer(opts, logger);
+  try {
+    nodeTracing = new NodeTracingInitializer(opts, logger);
+    logger?.info(log_type, { msg: 'Trace initialized succeeded!' });
+  } catch (err) {
+    logger?.error(log_type, {
+      msg: `Trace initialization failed: ${err.message}`,
+    });
+  }
 }
