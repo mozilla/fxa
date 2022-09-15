@@ -38,4 +38,18 @@ export class RelierPage extends BaseLayout {
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
+
+  async clickSubscribe6Month() {
+    await Promise.all([
+      this.page.click('text=Subscribe to Pro 6m (USD)'),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
+    ]);
+  }
+
+  async clickSubscribe12Month() {
+    await Promise.all([
+      this.page.click('text=Subscribe to Pro 12m (USD)'),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
+    ]);
+  }
 }
