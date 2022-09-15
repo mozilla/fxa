@@ -2,25 +2,6 @@ import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('severity-1 #smoke', () => {
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293385
-  test('change password #1293385', async ({
-    pages: { settings, changePassword, login },
-    credentials,
-  }) => {
-    const newPassword = credentials.password + '2';
-    await settings.goto();
-    await settings.password.clickChange();
-    await changePassword.setCurrentPassword(credentials.password);
-    await changePassword.setNewPassword(newPassword);
-    await changePassword.setConfirmPassword(newPassword);
-    await changePassword.submit();
-    await settings.signOut();
-    credentials.password = newPassword;
-    await login.login(credentials.email, credentials.password);
-    const primaryEmail = await settings.primaryEmail.statusText();
-    expect(primaryEmail).toEqual(credentials.email);
-  });
-
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293389
   test('forgot password #1293389', async ({
     target,

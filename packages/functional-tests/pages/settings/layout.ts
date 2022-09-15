@@ -54,6 +54,10 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.click('[data-testid=avatar-menu-sign-out]');
   }
 
+  clickSignIn() {
+    return this.page.click('button[type=submit]');
+  }
+
   async signOut() {
     await this.clickAvatarIcon();
     await Promise.all([
