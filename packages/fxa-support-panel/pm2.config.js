@@ -24,6 +24,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_SUPPPORT_PANEL,
+        TRACING_SERVICE_NAME: 'fxa-support-panel',
       },
       filter_env: ['npm_'],
       watch: ['src'],
