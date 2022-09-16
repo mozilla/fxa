@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { tracingConfig } = require('fxa-shared/tracing/config');
+
 module.exports = function (fs, path, url, convict) {
   var conf = convict({
     env: {
@@ -325,6 +327,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'SENTRY_SERVER_NAME',
       },
     },
+    tracing: tracingConfig,
     userDefinedRateLimitRules: {
       totpCodeRules: {
         actions: {
