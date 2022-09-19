@@ -557,36 +557,6 @@ registerSuite('amplitude', {
       assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - logout');
     },
 
-    'settings.test.fallback.start': () => {
-      createAmplitudeEvent('settings.test.fallback.start');
-
-      assert.equal(logger.info.callCount, 1);
-      assert.equal(
-        logger.info.args[0][1].event_type,
-        'fxa_pref - test_fallback_start'
-      );
-    },
-
-    'settings.test.fallback.text-needed': () => {
-      createAmplitudeEvent('settings.test.fallback.text-needed');
-
-      assert.equal(logger.info.callCount, 1);
-      assert.equal(
-        logger.info.args[0][1].event_type,
-        'fxa_pref - test_fallback_text_needed'
-      );
-    },
-
-    'settings.test.fallback.text-not-needed': () => {
-      createAmplitudeEvent('settings.test.fallback.text-not-needed');
-
-      assert.equal(logger.info.callCount, 1);
-      assert.equal(
-        logger.info.args[0][1].event_type,
-        'fxa_pref - test_fallback_text_not_needed'
-      );
-    },
-
     'flow.settings.account-recovery.confirm-revoke.submit': () => {
       createAmplitudeEvent(
         'flow.settings.account-recovery.confirm-revoke.submit'

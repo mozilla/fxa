@@ -254,22 +254,6 @@ const EVENTS = {
   },
 
   /* Everything under this point should be Settings events, aka 'fxa_pref' group */
-  // temp fallback tests
-  'settings.test.fallback.start': {
-    group: GROUPS.settings,
-    event: 'test_fallback_start',
-    minimal: true,
-  },
-  'settings.test.fallback.text-needed': {
-    group: GROUPS.settings,
-    event: 'test_fallback_text_needed',
-    minimal: true,
-  },
-  'settings.test.fallback.text-not-needed': {
-    group: GROUPS.settings,
-    event: 'test_fallback_text_not_needed',
-    minimal: true,
-  },
   // Account recovery key
   'screen.settings.account-recovery': {
     group: GROUPS.settings,
