@@ -5,6 +5,7 @@ import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
 import { makeMySQLConfig } from 'fxa-shared/db/config';
+import { tracingConfig } from 'fxa-shared/tracing/config';
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -136,6 +137,7 @@ const conf = convict({
       env: 'SENTRY_SERVER_NAME',
     },
   },
+  tracing: tracingConfig,
   hstsEnabled: {
     default: true,
     doc: 'Send a Strict-Transport-Security header',
