@@ -13,6 +13,10 @@ module.exports = () => {
   const version = require('./version');
   const config = require('../config');
 
+  // Tracing must be initialized asap
+  const tracing = require('fxa-shared/tracing/node-tracing');
+  tracing.init(config.get('tracing'), logger);
+
   logger.info(`source set to: ${version.source}`);
   logger.info(`version set to: ${version.version}`);
   logger.info(`commit hash set to: ${version.commit}`);

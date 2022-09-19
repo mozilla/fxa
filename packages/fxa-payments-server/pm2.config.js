@@ -25,6 +25,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_PAYMENTS,
+        TRACING_SERVICE_NAME: 'fxa-payments-server',
       },
       filter_env: ['npm_'],
       time: true,

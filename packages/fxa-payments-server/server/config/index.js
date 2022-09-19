@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const convict = require('convict');
+const { tracingConfig } = require('fxa-shared/tracing/config');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -409,6 +410,7 @@ const conf = convict({
       format: 'url',
     },
   },
+  tracing: tracingConfig,
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
