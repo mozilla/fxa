@@ -16,6 +16,11 @@ logger.info(`version set to: ${version.version}`);
 logger.info(`commit hash set to: ${version.commit}`);
 logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
 logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
+const config = require('../lib/configuration');
+
+// Tracing must be initialized asap
+const tracing = require('fxa-shared/tracing/node-tracing');
+tracing.init(config.getProperties().tracing, logger);
 
 const bodyParser = require('body-parser');
 const consolidate = require('consolidate');
@@ -27,7 +32,6 @@ const https = require('https');
 const path = require('path');
 const serveStatic = require('serve-static');
 
-const config = require('../lib/configuration');
 const sentry = require('../lib/sentry');
 const statsd = require('../lib/statsd');
 const { cors, routing } = require('fxa-shared/express')();

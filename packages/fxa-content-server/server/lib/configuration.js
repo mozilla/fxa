@@ -11,6 +11,7 @@ const path = require('path');
 const versionInfo = require('./version');
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { tracingConfig } = require('fxa-shared/tracing/config');
 const DEFAULT_SUPPORTED_LANGUAGES =
   require('fxa-shared').l10n.supportedLanguages;
 
@@ -767,6 +768,7 @@ const conf = (module.exports = convict({
       threshold: 50,
     },
   },
+  tracing: tracingConfig,
   use_https: false,
   var_path: {
     default: path.resolve(__dirname, '..', 'var'),

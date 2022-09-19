@@ -20,6 +20,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,
+        TRACING_SERVICE_NAME: 'fxa-content-server',
       },
       filter_env: ['npm_'],
       watch: ['server'],
