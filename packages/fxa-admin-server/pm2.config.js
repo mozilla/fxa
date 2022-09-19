@@ -26,6 +26,7 @@ module.exports = {
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
         FIRESTORE_EMULATOR_HOST: 'localhost:9090',
+        TRACING_SERVICE_NAME: 'fxa-admin-server',
       },
       filter_env: ['npm_'],
       watch: ['src'],
