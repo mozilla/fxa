@@ -7,6 +7,7 @@
  */
 export type TracingOpts = {
   serviceName: string;
+  sampleRate: number;
   console?: {
     enabled: boolean;
   };
@@ -25,6 +26,11 @@ export const tracingConfig = {
     doc: 'The name service being traced.',
     env: 'TRACING_SERVICE_NAME',
     format: String,
+  },
+  sampleRate: {
+    default: 0,
+    doc: 'A number between 0 and 1 that indicates the rate at which to sample. 1 will capture all traces. .5 would capture half the traces, and 0 would capture no traces.',
+    env: 'TRACING_SAMPLE_RATE',
   },
   console: {
     enabled: {
