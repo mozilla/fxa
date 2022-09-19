@@ -11,6 +11,7 @@ import { ExportResult } from '@opentelemetry/core';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { Resource } from '@opentelemetry/resources';
+
 import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
@@ -38,7 +39,7 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
     resultCallback: (result: ExportResult) => void
   ) {
     for (const span of spans) {
-      // Don't record raw db statemets. They often leak PII.
+      // Don't record raw db statements. They often leak PII.
       if (span.attributes['db.statement']) {
         span.attributes['db.statement'] = '[FILTERED]';
       }
@@ -146,7 +147,7 @@ export class NodeTracingInitializer {
   }
 }
 
-let nodeTracing: NodeTracingInitializer;
+export let nodeTracing: NodeTracingInitializer;
 export function init(opts: TracingOpts, logger?: ILogger) {
   logger?.info(log_type, { msg: 'Initializing node tracing.' });
 

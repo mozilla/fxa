@@ -1018,40 +1018,40 @@ export class AccountHandler {
         if (sessionToken.tokenVerified || !sessionToken.mustVerify) {
           const geoData = request.app.geo;
           const service =
-           (request.payload as any).service || request.query.service;
+            (request.payload as any).service || request.query.service;
           const ip = request.app.clientAddress;
           const { deviceId, flowId, flowBeginTime } = await request.app
-           .metricsContext;
+            .metricsContext;
 
           try {
             await this.mailer.sendNewDeviceLoginEmail(
-             accountRecord.emails,
-             accountRecord,
-             {
-               acceptLanguage: request.app.acceptLanguage,
-               deviceId,
-               flowId,
-               flowBeginTime,
-               ip,
-               location: geoData.location,
-               service,
-               timeZone: geoData.timeZone,
-               uaBrowser: request.app.ua.browser,
-               uaBrowserVersion: request.app.ua.browserVersion,
-               uaOS: request.app.ua.os,
-               uaOSVersion: request.app.ua.osVersion,
-               uaDeviceType: request.app.ua.deviceType,
-               uid: sessionToken.uid,
-             },
+              accountRecord.emails,
+              accountRecord,
+              {
+                acceptLanguage: request.app.acceptLanguage,
+                deviceId,
+                flowId,
+                flowBeginTime,
+                ip,
+                location: geoData.location,
+                service,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: sessionToken.uid,
+              }
             );
           } catch (err) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
             this.log.trace(
-             'Account.login.sendNewDeviceLoginNotification.error',
-             {
-               error: err,
-             },
+              'Account.login.sendNewDeviceLoginNotification.error',
+              {
+                error: err,
+              }
             );
           }
         }
