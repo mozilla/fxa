@@ -1654,11 +1654,11 @@ module.exports = function (log, config, bounces) {
       headers,
       template: templateName,
       templateValues: {
-        androidLink: links.androidLink,
+        androidUrl: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
-        iosLink: links.iosLink,
+        iosUrl: links.iosLink,
         ip: message.ip,
         link: links.link,
         location: message.location,

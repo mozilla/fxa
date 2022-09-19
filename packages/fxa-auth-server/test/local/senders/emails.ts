@@ -957,7 +957,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
-      { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: 'Password reset successfully' },
@@ -973,7 +972,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Download ${MESSAGE.productName} on the App Store:` },
       { test: 'include', expected: `Install ${MESSAGE.productName} on another device:` },
       { test: 'include', expected: `Get ${MESSAGE.productName} on Google Play:` },
-      { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
 
