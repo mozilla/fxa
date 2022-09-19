@@ -26,6 +26,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_EVENT_BROKER,
+        TRACING_SERVICE_NAME: 'fxa-event-broker',
       },
       filter_env: ['npm_'],
       watch: ['src', 'config'],
