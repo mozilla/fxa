@@ -32,12 +32,12 @@ const mockConfig = {
       connectionLimitMax: 10,
       acquireTimeoutMillis: 30000,
     },
-    directDbAccessPercentage: 100,
+    directDbAccessUidDigits: ['a'],
   },
 };
 const mockDeviceIds = ['AAAA11', 'BBBB22', 'CCCC33'];
 const mockData = 'eyJmb28iOiAiYmFyIn0';
-const mockUid = 'ABCDEF';
+const mockUid = 'abcdef';
 
 const mockPushboxServer = nock(mockConfig.pushbox.url, {
   reqheaders: { Authorization: `FxA-Server-Key ${mockConfig.pushbox.key}` },
@@ -58,7 +58,7 @@ describe('pushbox', () => {
     let stubConstructor;
 
     before(() => {
-      mockConfig.pushbox.directDbAccessPercentage = 100;
+      mockConfig.pushbox.directDbAccessUidDigits = ['a'];
     });
 
     beforeEach(() => {
@@ -169,7 +169,14 @@ describe('pushbox', () => {
         );
     });
 
-    it('retrieve', () => {
+    it('retrieves one record', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 1, index: 10 })
+        .reply(200, {
+          status: 200,
+          index: '15',
+        });
       stubDbModule.retrieve.resolves({
         last: true,
         index: 15,
@@ -188,7 +195,7 @@ describe('pushbox', () => {
         stubConstructor
       );
       return pushbox
-        .retrieve(mockUid, mockDeviceIds[0], 50, 10)
+        .retrieve(mockUid, mockDeviceIds[0], 1, 10)
         .then((result) => {
           assert.deepEqual(result, {
             last: true,
@@ -203,7 +210,160 @@ describe('pushbox', () => {
         });
     });
 
+    it('retrieves from the service with next page in the new db', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 2, index: 10 })
+        .reply(200, {
+          status: 200,
+          last: true,
+          index: '15',
+          messages: [
+            {
+              index: '14',
+              data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
+            },
+            {
+              index: '15',
+              data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
+            },
+          ],
+        });
+      stubDbModule.retrieve.resolves({
+        last: true,
+        index: 33,
+        messages: [
+          {
+            idx: 33,
+            data: 'IkRvIHlvdSBmZWVsIGx1Y2t5PyI=',
+          },
+        ],
+      });
+      const pushbox = pushboxApi(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .retrieve(mockUid, mockDeviceIds[0], 2, 10)
+        .then((result) => {
+          assert.deepEqual(result, {
+            last: false,
+            index: 15,
+            messages: [
+              {
+                index: 14,
+                data: { foo: 'bar', bar: 'bar' },
+              },
+              {
+                index: 15,
+                data: { foo: 'bar', bar: 'bar' },
+              },
+            ],
+          });
+        });
+    });
+
+    it('combines results into a single page', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 2, index: 10 })
+        .reply(200, {
+          status: 200,
+          last: true,
+          index: '14',
+          messages: [
+            {
+              index: '14',
+              data: 'eyJmb28iOiJiYXIiLCAiYmFyIjogImJhciJ9',
+            },
+          ],
+        });
+      stubDbModule.retrieve.resolves({
+        last: true,
+        index: 33,
+        messages: [
+          {
+            idx: 33,
+            data: 'IkRvIHlvdSBmZWVsIGx1Y2t5PyI=',
+          },
+        ],
+      });
+      const pushbox = pushboxApi(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .retrieve(mockUid, mockDeviceIds[0], 2, 10)
+        .then((result) => {
+          assert.deepEqual(result, {
+            last: true,
+            index: 33,
+            messages: [
+              {
+                index: 14,
+                data: { foo: 'bar', bar: 'bar' },
+              },
+              {
+                index: 33,
+                data: 'Do you feel lucky?',
+              },
+            ],
+          });
+        });
+    });
+
+    it('retrieves a page from the new db', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 2, index: 10 })
+        .reply(200, {
+          status: 200,
+          index: '15',
+        });
+      stubDbModule.retrieve.resolves({
+        last: true,
+        index: 33,
+        messages: [
+          {
+            idx: 33,
+            data: 'IkRvIHlvdSBmZWVsIGx1Y2t5PyI=',
+          },
+        ],
+      });
+      const pushbox = pushboxApi(
+        mockLog(),
+        mockConfig,
+        mockStatsD,
+        stubConstructor
+      );
+      return pushbox
+        .retrieve(mockUid, mockDeviceIds[0], 2, 10)
+        .then((result) => {
+          assert.deepEqual(result, {
+            last: true,
+            index: 33,
+            messages: [
+              {
+                index: 33,
+                data: 'Do you feel lucky?',
+              },
+            ],
+          });
+        });
+    });
+
     it('retrieve throws on error response', () => {
+      mockPushboxServer
+        .get(`/v1/store/${mockUid}/${mockDeviceIds[0]}`)
+        .query({ limit: 50, index: 10 })
+        .reply(200, {
+          status: 200,
+          index: '15',
+        });
       stubDbModule.retrieve.rejects(new Error('db is a mess right now'));
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
@@ -225,7 +385,7 @@ describe('pushbox', () => {
 
   describe('using Pushbox service', () => {
     before(() => {
-      mockConfig.pushbox.directDbAccessPercentage = 0;
+      mockConfig.pushbox.directDbAccessUidDigits = [];
     });
 
     it('retrieve', () => {

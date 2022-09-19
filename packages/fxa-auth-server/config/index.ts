@@ -1601,11 +1601,11 @@ const conf = convict({
       env: 'PUSHBOX_MAX_TTL',
     },
     database: makeMySQLConfig('PUSHBOX', 'pushbox'),
-    directDbAccessPercentage: {
-      doc: 'The percentage of pushbox request to be handle through direct database access. 0 = off',
-      format: Number,
-      default: 0,
-      env: 'PUSHBOX_DIRECT_DB_PERCENT',
+    directDbAccessUidDigits: {
+      doc: 'List of hex digits [0-f] that is used to match the first digit of a uid; direct DB access is used on a match.',
+      format: Array,
+      env: 'PUSHBOX_DIRECT_DB_UID_DIGITS',
+      default: [],
     },
   },
   secondaryEmail: {

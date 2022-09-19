@@ -82,7 +82,7 @@ export const pushboxApi = (
     };
   }
 
-  const useDirectDbAccess = config.pushbox.directDbAccessPercentage > 0;
+  const useDirectDbAccess = config.pushbox.directDbAccessUidDigits.length > 0;
   const pushboxDb = useDirectDbAccess
     ? new DB({
         config: config.pushbox.database,
@@ -91,7 +91,8 @@ export const pushboxApi = (
       })
     : null;
   const shouldUseDb = useDirectDbAccess
-    ? () => Math.random() * 100 <= config.pushbox.directDbAccessPercentage
+    ? (uid: string) =>
+        (config.pushbox.directDbAccessUidDigits as string[]).includes(uid[0])
     : () => false;
 
   const PushboxAPI = createBackendServiceAPI(
@@ -163,7 +164,50 @@ export const pushboxApi = (
         query.index = index.toString();
       }
 
-      if (shouldUseDb()) {
+      // It's possible that the user has records in the old DB so we need to
+      // query new DB (if config'd) and the Pushbox service.  In the message
+      // pushed to the device, notifying it of a new device command, a url to
+      // fetch the command payload is included.  An index and a limit of 1 are
+      // in that url.  When there is a limit of 1, we can safely return the
+      // found record from either DB.
+      //
+      // Clients have the option to poll for commands, with potentially
+      // paginated results.  We need to handle that.
+
+      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
+      // removing this since we want to move over to direct db calls
+      const body = await api.retrieve(uid, deviceId, query);
+      log.debug('pushbox.retrieve.response', { body: body });
+      if (body.error) {
+        log.error('pushbox.retrieve', {
+          status: body.status,
+          error: body.error,
+        });
+        throw error.backendServiceFailure();
+      }
+      const pushboxServiceResult = {
+        last: body.last,
+        index: body.index,
+        messages: !body.messages
+          ? undefined
+          : body.messages.map((msg: Record<string, unknown>) => {
+              return {
+                index: msg.index,
+                data: decodeFromStorage(msg.data as string),
+              };
+            }),
+      };
+
+      // the old DB instance have lower index values, so we return a record
+      // from there if found
+
+      if (limit === 1 && pushboxServiceResult.messages?.length > 0) {
+        return pushboxServiceResult;
+      }
+
+      let directDbResult = null;
+
+      if (shouldUseDb(uid)) {
         const startTime = performance.now();
         try {
           const result = await pushboxDb!.retrieve({
@@ -181,7 +225,7 @@ export const pushboxApi = (
             deviceId,
             msgCount: result.messages.length.toString(),
           });
-          return {
+          directDbResult = {
             last: result.last,
             index: result.index,
             messages: result.messages.map((msg) => ({
@@ -189,6 +233,9 @@ export const pushboxApi = (
               data: decodeFromStorage(msg.data as string),
             })),
           };
+          if (limit === 1) {
+            return directDbResult;
+          }
         } catch (err) {
           statsd.timing(
             'pushbox.db.retrieve.failure',
@@ -199,29 +246,81 @@ export const pushboxApi = (
         }
       }
 
-      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
-      // removing this since we want to move over to direct db calls
-      const body = await api.retrieve(uid, deviceId, query);
-      log.debug('pushbox.retrieve.response', { body: body });
-      if (body.error) {
-        log.error('pushbox.retrieve', {
-          status: body.status,
-          error: body.error,
-        });
-        throw error.backendServiceFailure();
-      }
-      return {
-        last: body.last,
-        index: body.index,
-        messages: !body.messages
-          ? undefined
-          : body.messages.map((msg: Record<string, unknown>) => {
-              return {
-                index: msg.index,
-                data: decodeFromStorage(msg.data as string),
-              };
-            }),
+      // the client is polling for commands
+
+      const getAdditionalCommands = async (x: {
+        uid: string;
+        deviceId: string;
+        limit: number;
+        index: number;
+      }) => {
+        try {
+          return pushboxDb!.retrieve(x);
+        } catch (err) {
+          // we can return some results even if this additional check errors, so we won't be rethrowing here
+          log.error('pushbox.db.retrieve.additional_commands', {
+            error: err,
+          });
+        }
+        return null;
       };
+
+      // the simplest case is a $limit number of records have been found in the old db.
+      if (pushboxServiceResult?.messages?.length === limit) {
+        // however, if the pushbox service indicates that this is the last
+        // page, we should check whether that there are additional, newer
+        // commands, in the new DB.
+        if (pushboxServiceResult.last && shouldUseDb(uid)) {
+          const additionalCommands = await getAdditionalCommands({
+            uid,
+            deviceId,
+            limit: 1,
+            index: 0,
+          });
+          if (additionalCommands && additionalCommands.messages.length > 0) {
+            pushboxServiceResult.last = false;
+          }
+        }
+
+        return pushboxServiceResult;
+      }
+
+      // or we might need to combine up to $limit commands from old and new db.
+
+      if (pushboxServiceResult?.messages?.length < limit && shouldUseDb(uid)) {
+        const additionalCommands = await getAdditionalCommands({
+          uid,
+          deviceId,
+          index: 0,
+          limit: limit - pushboxServiceResult.messages.length,
+        });
+
+        if (additionalCommands && additionalCommands.messages.length > 0) {
+          return {
+            last: additionalCommands.last,
+            index: additionalCommands.index,
+            messages: [
+              ...pushboxServiceResult.messages,
+              ...additionalCommands.messages.map((msg) => ({
+                index: msg.idx,
+                data: decodeFromStorage(msg.data as string),
+              })),
+            ],
+          };
+        }
+
+        return pushboxServiceResult;
+      }
+
+      // or nothing found in the old DB but there are commands in the new db.
+
+      if (directDbResult && directDbResult?.messages.length > 0) {
+        return directDbResult;
+      }
+
+      // default
+      // nothing found or user data is entirely in old db
+      return pushboxServiceResult;
     },
 
     /**
@@ -240,7 +339,7 @@ export const pushboxApi = (
         ttl = maxTTL;
       }
 
-      if (shouldUseDb()) {
+      if (shouldUseDb(uid)) {
         const startTime = performance.now();
         try {
           const result = await pushboxDb!.store({
