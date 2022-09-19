@@ -786,14 +786,19 @@ export class StripeWebhookHandler extends StripeHandler {
     updatedList.push(product);
     await this.stripeHelper.updateAllProducts(updatedList);
 
-    const plans = await this.stripeHelper.fetchPlansByProductId(product.id);
-    const allPlans = await this.stripeHelper.fetchAllPlans();
-    const updatedPlans = allPlans.filter(
+    const cachedPlans = await this.stripeHelper.fetchPlansByProductId(
+      product.id
+    );
+    const latestStripePlans = await this.stripeHelper.fetchAllPlans();
+    const updatedPlans = latestStripePlans.filter(
       (plan) => (plan.product as Stripe.Product).id !== product.id
+    );
+    const latestStripePlansForProduct = latestStripePlans.filter(
+      (plan) => (plan.product as Stripe.Product).id == product.id
     );
 
     if (event.type !== 'product.deleted') {
-      for (const plan of plans) {
+      for (const plan of cachedPlans) {
         const { error } =
           await subscriptionProductMetadataValidator.validateAsync({
             ...product.metadata,
@@ -822,6 +827,18 @@ export class StripeWebhookHandler extends StripeHandler {
           this.config.subscriptions.productConfigsFirestore.enabled ||
           !error
         ) {
+          updatedPlans.push({
+            ...plan,
+            product,
+          });
+        }
+      }
+      // Add any valid plans found in Stripe that are missing from the cache.
+      // This is possible e.g. if a plan was created before a product's metadata
+      // was valid and was never updated afterward.
+      for (const plan of latestStripePlansForProduct) {
+        const cachedPlan = updatedPlans.find((p) => p.id === plan.id);
+        if (!cachedPlan) {
           updatedPlans.push({
             ...plan,
             product,

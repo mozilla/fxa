@@ -139,12 +139,13 @@ describe('StripeWebhookHandler', () => {
 
   describe('stripe webhooks', () => {
     const validPlan = deepCopy(eventPlanUpdated);
-    const validPlanList = [validPlan.data.object, validPlan.data.object].map(
-      (p) => ({
-        ...p,
-        product: eventProductUpdated.data.object,
-      })
-    );
+    const plan1 = deepCopy(validPlan.data.object);
+    const plan2 = deepCopy(validPlan.data.object);
+    plan2.id = 'plan_123';
+    const validPlanList = [plan1, plan2].map((p) => ({
+      ...p,
+      product: eventProductUpdated.data.object,
+    }));
     const validProduct = deepCopy(eventProductUpdated);
 
     beforeEach(() => {
@@ -717,6 +718,31 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
           allPlans
+        );
+      });
+
+      it('updates the cached plans to include any valid plans missing from the cache', async () => {
+        const updatedEvent = deepCopy(eventProductUpdated);
+        StripeWebhookHandlerInstance.stripeHelper.updateAllPlans.resolves();
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+          validPlanList
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          []
+        );
+        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
+          {},
+          updatedEvent
+        );
+
+        assert.isTrue(
+          scopeContextSpy.notCalled,
+          'Expected not to call Sentry.withScope'
+        );
+
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          validPlanList
         );
       });
     });
