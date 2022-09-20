@@ -646,6 +646,7 @@ describe('PayPalNotificationHandler', () => {
         dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
+      sinon.assert.calledOnce(log.error);
     });
 
     it('receives IPN message for billing agreement with no FXA account', async () => {
