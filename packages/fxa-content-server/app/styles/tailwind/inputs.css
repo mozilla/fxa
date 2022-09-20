@@ -47,6 +47,16 @@
     &-show,
     &-hide {
       @apply bg-cover bg-no-repeat bg-center absolute cursor-pointer ltr:right-px rtl:left-px h-full w-14;
+
+      /* SAFARI HACK: This awkward double media query targets Safari 10.1+ which includes FF
+       * mobile on iOS. Without this, the PW eye is scooted down which is fixed by `top-0` on all
+       * Safari flavors. Then, Safari's desktop native PW helper shows as a key icon, which
+       * appears on top of the PW eye, so we also scoot the eye over to make space for the key. */
+      @media not all and (min-resolution: 0.001dpcm) {
+        @media {
+          @apply top-0 ltr:desktop:right-8 rtl:desktop:left-8;
+        }
+      }
     }
 
     &-show {
