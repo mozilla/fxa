@@ -86,7 +86,7 @@
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
     "@nestjs/common": "^9.0.11",
     "@nestjs/config": "^2.2.0",
-    "@nestjs/core": "^8.4.5",
+    "@nestjs/core": "^9.1.1",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@opentelemetry/api": "^1.1.0",
