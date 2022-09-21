@@ -149,13 +149,12 @@ hr {
 .input-row--checkbox {
   label {
     display: flex;
-    flex-direction: row;
+    align-items: center;
 
     input[type='checkbox'] {
       flex: 0 0 18px;
       margin-right: 16px;
-      position: relative;
-      top: 2px;
+      transform: scale(1.5);
 
       &:checked {
         background-image: url('images/check.svg');

@@ -46,14 +46,6 @@
 
       h2 {
         font-size: 16px;
-        font-weight: bold;
-      }
-    }
-  }
-
-  .payment-update {
-    header {
-      h2 {
         font-weight: 600;
       }
     }
@@ -71,21 +63,6 @@
       font-weight: 400;
       margin: 13px 0;
       text-align: left;
-    }
-
-    label {
-      display: flex;
-      flex-direction: row;
-    }
-
-    input[type='checkbox'] {
-      flex: 0 0 18px;
-      position: relative;
-      top: 2px;
-
-      &:checked {
-        background-image: url('../../images/check.svg');
-      }
     }
   }
 
