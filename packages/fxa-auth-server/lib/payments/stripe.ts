@@ -2457,6 +2457,7 @@ export class StripeHelper extends StripeHelperBase {
       total: invoiceTotalInCents,
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
+      tax: invoiceTaxAmountInCents,
     } = invoice;
 
     const nextInvoiceDate = subscriptionLineItem.period.end;
@@ -2466,6 +2467,10 @@ export class StripeHelper extends StripeHelperBase {
         invoice.total_discount_amounts.length &&
         invoice.total_discount_amounts[0].amount) ||
       null;
+
+    // Only show the Subtotal when there is a Discount
+    const showSubtotal =
+      invoiceDiscountAmountInCents || discountType || discountDuration;
 
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
@@ -2500,8 +2505,9 @@ export class StripeHelper extends StripeHelperBase {
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
-      invoiceSubtotalInCents,
+      invoiceSubtotalInCents: showSubtotal ? invoiceSubtotalInCents : null,
       invoiceDiscountAmountInCents,
+      invoiceTaxAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
       productId,
@@ -2513,6 +2519,7 @@ export class StripeHelper extends StripeHelperBase {
       planConfig,
       productMetadata,
       showPaymentMethod: !!invoiceTotalInCents,
+      showTaxAmount: false, // Currently we do not want to show tax amounts in emails
       discountType,
       discountDuration,
     };

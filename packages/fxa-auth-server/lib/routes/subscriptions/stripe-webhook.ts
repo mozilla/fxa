@@ -899,13 +899,7 @@ export class StripeWebhookHandler extends StripeHandler {
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
       await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
-    const {
-      uid,
-      invoiceSubtotalInCents,
-      invoiceDiscountAmountInCents,
-      discountType,
-      discountDuration,
-    } = invoiceDetails;
+    const { uid } = invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
       account.emails,
@@ -917,17 +911,7 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        if (
-          invoiceSubtotalInCents &&
-          invoiceDiscountAmountInCents &&
-          discountType
-        ) {
-          await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
-            ...mailParams
-          );
-        } else {
-          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
-        }
+        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
 
         // To not overwhelm users with emails, we only send download subscription email
         // for existing accounts. Passwordless accounts get their own email.
@@ -938,19 +922,7 @@ export class StripeWebhookHandler extends StripeHandler {
       default:
         // Other billing reasons should be covered in subsequent invoice email
         // https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason
-        if (
-          invoiceSubtotalInCents &&
-          invoiceDiscountAmountInCents &&
-          discountType
-        ) {
-          this.mailer.sendSubscriptionSubsequentInvoiceDiscountEmail(
-            ...mailParams
-          );
-        } else {
-          await this.mailer.sendSubscriptionSubsequentInvoiceEmail(
-            ...mailParams
-          );
-        }
+        await this.mailer.sendSubscriptionSubsequentInvoiceEmail(...mailParams);
         break;
     }
     return invoiceDetails;
