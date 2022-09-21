@@ -14,6 +14,13 @@ const Server = require('../lib/server');
 // The stringify/parse is to force the output back to unindented json.
 logger.info('config', JSON.stringify(JSON.parse(configuration.toString())));
 
+// Must be required and initialized right away
+require('fxa-shared/tracing/node-tracing').init(
+  configuration.get('tracing'),
+  require('../lib/logging')({ ...configuration.log })
+);
+
+
 async function start() {
   const server = await Server.create();
   const events = require('../lib/events')(server);
