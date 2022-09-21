@@ -10,6 +10,7 @@
  */
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import ReactContentServerExperimentMixin from './mixins/react-content-server-experiment-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
@@ -26,7 +27,10 @@ import Template from 'templates/connect_another_device.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
+
 const ConnectAnotherDeviceView = FormView.extend({
+  dependsOn: [ReactContentServerExperimentMixin],
+
   template: Template,
 
   events: {
@@ -41,6 +45,10 @@ const ConnectAnotherDeviceView = FormView.extend({
 
     if (this.isEligibleForPairing()) {
       return this.replaceCurrentPageWithPairScreen();
+    }
+
+    if (this.isInReactContentServerExperimentGroup()) {
+      return this.replaceCurrentPageWithReactConnectAnotherDeviceScreen();
     }
   },
 
@@ -74,7 +82,6 @@ const ConnectAnotherDeviceView = FormView.extend({
 
     return this.model.get('account');
   },
-
   /**
    * Log view related metrics.
    *

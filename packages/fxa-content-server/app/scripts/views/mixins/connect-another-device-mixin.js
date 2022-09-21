@@ -20,9 +20,10 @@ import ExperimentMixin from './experiment-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import VerificationReasonMixin from './verification-reason-mixin';
 import Constants from '../../lib/constants';
+import ReactContentServerExperimentMixin from './react-content-server-experiment-mixin';
 
 export default {
-  dependsOn: [ExperimentMixin, UserAgentMixin, VerificationReasonMixin],
+  dependsOn: [ExperimentMixin, UserAgentMixin, VerificationReasonMixin, ReactContentServerExperimentMixin],
 
   /**
    * Is `account` eligible for connect another device?
@@ -114,4 +115,12 @@ export default {
   replaceCurrentPageWithPairScreen() {
     this.navigate('/pair', {});
   },
+
+    /**
+   * Replace the current page with the React version of the same page.
+   *
+   */
+     replaceCurrentPageWithReactConnectAnotherDeviceScreen() {
+      this.navigateAway('/test/connect_another_device', {});
+    },
 };
