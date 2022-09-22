@@ -21,6 +21,7 @@ module.exports = {
         PATH,
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_PROFILE,
+        TRACING_SERVICE_NAME: 'fxa-profile-server'
       },
       filter_env: ['npm_'],
       min_uptime: '2m',

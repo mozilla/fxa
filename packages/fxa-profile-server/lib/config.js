@@ -5,11 +5,14 @@
 const fs = require('fs');
 const path = require('path');
 
+const tracing = require('fxa-shared/tracing/config');
 const convict = require('convict');
 const convict_format_with_validator = require('convict-format-with-validator');
 const convict_format_with_moment = require('convict-format-with-moment');
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
+
+const tracingConfig = tracing.tracingConfig;
 
 const conf = convict({
   api: {
@@ -317,12 +320,6 @@ const conf = convict({
       format: ['local', 'ci', 'dev', 'stage', 'prod'],
       env: 'SENTRY_ENV',
     },
-    sampleRate: {
-      doc: 'Rate at which sentry traces are captured.',
-      default: 1.0,
-      format: 'Number',
-      env: 'SENTRY_SAMPLE_RATE',
-    },
     serverName: {
       doc: 'Name used by sentry to identify the server.',
       default: 'fxa-profile-server',
@@ -336,6 +333,7 @@ const conf = convict({
     env: 'AUTH_SECRET_BEARER_TOKEN',
     format: 'String',
   },
+  tracing: tracingConfig,
 });
 
 var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
