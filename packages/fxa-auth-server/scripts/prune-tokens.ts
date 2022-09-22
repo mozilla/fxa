@@ -280,16 +280,31 @@ Exit Codes:
 }
 
 if (require.main === module) {
-  let exitStatus = 1;
+  process.on('exit', (code) => {
+    log.info('exit', { code });
+  });
+
   init()
     .then((result) => {
-      exitStatus = result;
+      log.info('result', { result });
+    })
+    .then(() => {
+      // Make sure statsd closes cleanly so we don't lose any metrics
+      return new Promise((resolve) => {
+        statsd.close((err) => {
+          if (err) {
+            log.warn('statsd', { closed: true, err });
+          } else {
+            log.info('statsd', { closed: true });
+          }
+          resolve(true);
+        });
+      });
     })
     .catch((err) => {
       log.error(err);
-      console.error(err);
     })
     .finally(() => {
-      process.exit(exitStatus);
+      process.exit();
     });
 }

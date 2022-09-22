@@ -283,7 +283,7 @@ describe('scripts/prune-tokens', () => {
     const deviceCount = async () =>
       (await Device.knexQuery().count())[0]['count(*)'];
 
-    before(async () => {
+    beforeEach(async () => {
       await clearDb();
       await redis.del(uid.toString('hex'));
       tokens = [];
@@ -322,7 +322,7 @@ describe('scripts/prune-tokens', () => {
       assert.equal(await deviceCount(), size);
     });
 
-    after(async () => {
+    afterEach(async () => {
       await clearDb();
       await redis.del(uid.toString('hex'));
     });
@@ -347,12 +347,15 @@ describe('scripts/prune-tokens', () => {
 
       // Expected program output. Note that there are two deletions,
       // one for the sessionToken and one for the device.
-      assert.isTrue(
-        new RegExp(
-          'limit sessions complete.*"deletions":' + opts.remaining
-        ).test(stderr)
-      );
-      assert.isTrue(/pruning orphaned tokens/.test(stderr));
+      if (opts.totalDeletions > 0) {
+        assert.isTrue(
+          new RegExp(
+            'limit sessions complete.*"deletions":' + opts.totalDeletions
+          ).test(stderr)
+        );
+
+        assert.isTrue(/pruning orphaned sessions/.test(stderr));
+      }
 
       // Expect that oldest session & device were removed
       for (let i = 0; i < size - opts.remaining; i++) {
@@ -370,35 +373,38 @@ describe('scripts/prune-tokens', () => {
     }
 
     it('limits with --maxSessionsBatchSize=1000', async () => {
-      testScript(`--maxSessions=10 --maxSessionsBatchSize=1000 `, {
+      await testScript(`--maxSessions=10 --maxSessionsBatchSize=1000 `, {
         remaining: size - 10,
         totalDeletions: 10 * 2,
       });
     });
 
     it('limits with --maxSessionsBatchSize=2', async () => {
-      testScript(`--maxSessions=10 --maxSessionsBatchSize=2 `, {
+      await testScript(`--maxSessions=10 --maxSessionsBatchSize=2 `, {
         remaining: size - 10,
         totalDeletions: 10 * 2,
       });
     });
 
     it('limits with --maxSessionsMaxDeletions=2', async () => {
-      testScript(`--maxSessions=10 --maxSessionsMaxDeletions=2`, {
-        remaining: size - 2,
-        totalDeletions: 2 * 2,
-      });
+      await testScript(
+        `--maxSessions=10 --maxSessionsMaxDeletions=2 --maxSessionsBatchSize=2`,
+        {
+          remaining: size - 2,
+          totalDeletions: 2 * 2,
+        }
+      );
     });
 
     it('limits with --maxSessionsMaxDeletions=0', async () => {
-      testScript(`--maxSessions=10 --maxSessionsMaxDeletions=2`, {
+      await testScript(`--maxSessions=10 --maxSessionsMaxDeletions=0`, {
         remaining: size,
         totalDeletions: 0,
       });
     });
 
     it('limits with --maxSessionsMaxAccounts=0', async () => {
-      testScript(`--maxSessions=10 --maxSessionsMaxAccounts=0`, {
+      await testScript(`--maxSessions=10 --maxSessionsMaxAccounts=0`, {
         remaining: size,
         totalDeletions: 0,
       });
