@@ -25,7 +25,6 @@ export class ChangePasswordPage extends SettingsLayout {
     await this.setCurrentPassword(oldPassword);
     await this.setNewPassword(newPassword);
     await this.setConfirmPassword(newPassword);
-    await this.page.click('button[type=submit]');
   }
 
   async changePasswordTooltip() {

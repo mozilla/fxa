@@ -19,6 +19,7 @@ test.describe('change password tests', () => {
 
     // Enter incorrect old password and verify the tooltip error
     await changePassword.fillOutChangePassword('Incorrect Password', newPassword);
+    await changePassword.clickSignIn();
     expect(await changePassword.changePasswordTooltip()).toMatch('Incorrect password');
   });
 
@@ -29,6 +30,7 @@ test.describe('change password tests', () => {
 
     // Enter the correct old password and verify that chnage password is succesful
     await changePassword.fillOutChangePassword(credentials.password, newPassword);
+    await changePassword.submit();
 
     // Sign out and login with new password
     await settings.signOut();
