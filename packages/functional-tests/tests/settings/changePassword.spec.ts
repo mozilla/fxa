@@ -13,18 +13,22 @@ test.describe('change password tests', () => {
     }
   );
 
-  test('change password with an incorrect password', async ({
-    pages: { settings, changePassword, login },
-    credentials,
+  test('change password with an incorrect old password', async ({
+    pages: { changePassword },
   }) => {
 
     // Enter incorrect old password and verify the tooltip error
     await changePassword.fillOutChangePassword('Incorrect Password', newPassword);
-    expect(await changePassword.changePasswordTooltip()).toMatch('Incorrect password');
+    expect(await changePassword.changePasswordTooltip()).toMatch('abcd');
+  });
+
+  test('change password with a correct password', async ({
+    pages: { settings, changePassword, login },
+    credentials,
+  }) => {
 
     // Enter the correct old password and verify that chnage password is succesful
-    await changePassword.setCurrentPassword(credentials.password);
-    await changePassword.submit();
+    await changePassword.fillOutChangePassword(credentials.password, newPassword);
 
     // Sign out and login with new password
     await settings.signOut();
