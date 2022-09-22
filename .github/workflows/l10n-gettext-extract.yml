@@ -1,0 +1,71 @@
+name: String extraction test
+on:
+  pull_request:
+    paths:
+      - 'packages/fxa-content-server/**'
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Linux packages
+        run: |
+          sudo apt update
+          sudo apt install gettext -y
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: Install global npm packages
+        run: |
+          npm install -g grunt-cli
+      - name: Clone l10n repository
+        uses: actions/checkout@v3
+        with:
+          repository: mozilla/fxa-content-server-l10n
+          path: "fxa-l10n"
+      - name: Clone FxA code repository
+        uses: actions/checkout@v3
+        with:
+          repository: "mozilla/fxa"
+          fetch-depth: 2
+          path: "fxa-code"
+      - name: Install npm packages
+        run: |
+          cd fxa-l10n
+          npm install
+      - name: Extract gettext strings and flag for review
+        run: |
+          cd fxa-code
+          yarn workspaces focus fxa-content-server
+
+          # Extract gettext
+          cd ./packages/fxa-content-server
+          npx grunt l10n-extract
+          cd ../..
+
+          # Get hash from PR commit.
+          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
+          # Checkout base commit
+          git checkout ${{ github.event.pull_request.base.sha }}
+
+          # Extract gettext
+          cd ./packages/fxa-content-server
+          npx grunt l10n-extract
+          cd ../..
+
+          # Get hash frome base commit
+          OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
+          # Compare hashes
+          if [ "$NEW_HASHES" = "$OLD_HASHES" ]
+          then
+            echo "No changes found."
+          else
+            # Add mozilla/fxa-l10n as reviewer for pull request if .pot file changes
+            echo "New changes found, adding reviewer."
+            gh pr edit $PR_NUMBER --add-reviewer mozilla/fxa-l10n
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
