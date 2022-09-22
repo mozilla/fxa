@@ -5704,9 +5704,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^9.0.11":
-  version: 9.0.11
-  resolution: "@nestjs/testing@npm:9.0.11"
+"@nestjs/testing@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "@nestjs/testing@npm:9.1.1"
   dependencies:
     tslib: 2.4.0
   peerDependencies:
@@ -5719,7 +5719,7 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 8343529a878869d2b5cbc51a63c4517cce6f38e88a39fd4a527f566878638669faf3c10ca1e89b8b1a137c2f21437718d2004d22b02e1df57318995c733ed0bb
+  checksum: 68b20c088ace8f80fe1af9326e79fd8a5576bcfdf58bfe42da53753dc70a8a6cc5f99a06ccc0e26e057fa7073ca3d6cd6013f942f6c9e0bc3013ea7995be82e8
   languageName: node
   linkType: hard
 
@@ -24314,7 +24314,7 @@ fsevents@~2.1.1:
     "@nestjs/platform-express": ^9.1.1
     "@nestjs/schedule": ^2.1.0
     "@nestjs/schematics": ^9.0.1
-    "@nestjs/testing": ^9.0.11
+    "@nestjs/testing": ^9.1.1
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@types/chance": ^1.1.2
@@ -24811,7 +24811,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^9.1.1
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/testing": ^9.0.11
+    "@nestjs/testing": ^9.1.1
     "@opentelemetry/api": ^1.1.0
     "@opentelemetry/auto-instrumentations-node": ^0.32.0
     "@opentelemetry/exporter-jaeger": ^1.7.0
