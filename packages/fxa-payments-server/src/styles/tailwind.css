@@ -77,7 +77,7 @@
 }
 
 .plan-details-component-card {
-  @apply bg-white rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 tablet:rounded-lg;
+  @apply bg-white rounded-t-none rounded-b-lg shadow-sm shadow-grey-300;
 }
 
 .plan-details-component-inner {
