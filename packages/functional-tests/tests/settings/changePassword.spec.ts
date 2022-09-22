@@ -19,7 +19,7 @@ test.describe('change password tests', () => {
 
     // Enter incorrect old password and verify the tooltip error
     await changePassword.fillOutChangePassword('Incorrect Password', newPassword);
-    expect(await changePassword.changePasswordTooltip()).toMatch('abcd');
+    expect(await changePassword.changePasswordTooltip()).toMatch('Incorrect password');
   });
 
   test('change password with a correct password', async ({
