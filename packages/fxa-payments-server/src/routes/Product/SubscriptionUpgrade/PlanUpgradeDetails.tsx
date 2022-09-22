@@ -34,7 +34,7 @@ export const PlanUpgradeDetails = ({
 
   return (
     <section
-      className={`plan-details-component my-8 mx-0 p-0 plan-upgrade-details-component ${className}`}
+      className={`plan-details-component plan-upgrade-details-component ${className}`}
       {...{ role }}
       data-testid="plan-upgrade-details-component"
     >
@@ -67,9 +67,7 @@ export const PlanUpgradeDetails = ({
                 intervalCount: selectedPlan.interval_count,
               }}
             >
-              <div className="total-price">
-                {totalPrice}
-              </div>
+              <div className="total-price">{totalPrice}</div>
             </Localized>
           </div>
         </div>
@@ -109,9 +107,7 @@ export const PlanDetailsCard = ({
     : '';
 
   return (
-    <div
-      className={`plan-details-component-card ${className}`}
-    >
+    <div className={`plan-details-component-card ${className}`}>
       <div className="plan-details-header">
         <div className="flex">
           <div

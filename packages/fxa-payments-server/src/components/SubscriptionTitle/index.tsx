@@ -1,7 +1,6 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
-
-import './index.scss';
+import checkLogo from './images/check.svg';
 
 export const titles = {
   create: 'Set up your subscription',
@@ -23,22 +22,27 @@ export const SubscriptionTitle = ({
   subtitle,
   className = '',
 }: SubscriptionTitleProps) => {
-  const subtitleElement = subtitle ? (
-    subtitle
-  ) : (
-    <Localized id="sub-guarantee">
-      <p className="subtitle">30-day money-back guarantee</p>
-    </Localized>
+  const subtitleElement = subtitle || (
+    <div className="green-icon-text mb-4">
+      <img src={checkLogo} alt="" />
+
+      <Localized id="sub-guarantee">
+        <div className="font-semibold text-sm">30-day money-back guarantee</div>
+      </Localized>
+    </div>
   );
 
   return (
     <div
-      className={`subscription-title ${className}`}
+      className={`subscription-title bg-white shadow-sm shadow-grey-300 text-center mt-0 mx-4 mb-auto pt-5 px-4 pb-px border-y-auto z-1 row-start-1 row-end-2 tablet:mx-0 ${className}`}
       data-testid={`subscription-${screenType}-title`}
     >
       <Localized id={`subscription-${screenType}-title`}>
-        <h3 className="title">{titles[screenType]}</h3>
+        <h3 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
+          {titles[screenType]}
+        </h3>
       </Localized>
+
       {subtitleElement}
     </div>
   );
