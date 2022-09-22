@@ -29,11 +29,22 @@ function Lug(options) {
 
   this.stdout = options.stdout || process.stdout;
 
+  this.nodeTracer = options.nodeTracer;
+
   this.notifier = require('./notifier')(this, statsd);
 }
 util.inherits(Lug, EventEmitter);
 
 Lug.prototype.close = function () {};
+
+Lug.prototype.setTraceId = function (data) {
+  if (this.nodeTracer) {
+    const traceId = this.nodeTracer.getTraceId();
+    if (traceId) {
+      data.traceId = traceId;
+    }
+  }
+};
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
@@ -42,10 +53,12 @@ Lug.prototype.trace = function (op, data) {
 };
 
 Lug.prototype.debug = function (op, data) {
+  this.setTraceId(data);
   this.logger.debug(op, data);
 };
 
 Lug.prototype.error = function (op, data) {
+  this.setTraceId(data);
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
@@ -67,6 +80,7 @@ Lug.prototype.warn = function (op, data) {
 };
 
 Lug.prototype.info = function (op, data) {
+  this.setTraceId(data);
   this.logger.info(op, data);
 };
 
