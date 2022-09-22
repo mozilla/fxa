@@ -21,10 +21,10 @@ export class ChangePasswordPage extends SettingsLayout {
     );
   }
 
-  async fillOutChangePassword(oldPassword, newPasswod) {
+  async fillOutChangePassword(oldPassword, newPassword) {
     await this.setCurrentPassword(oldPassword);
-    await this.setNewPassword(newPasswod);
-    await this.setConfirmPassword(newPasswod);
+    await this.setNewPassword(newPassword);
+    await this.setConfirmPassword(newPassword);
     await this.page.click('button[type=submit]');
   }
 
