@@ -36,7 +36,7 @@
   "dependencies": {
     "@golevelup/ts-jest": "^0.3.2",
     "@google-cloud/firestore": "^5.0.2",
-    "@nestjs/common": "^9.0.11",
+    "@nestjs/common": "^9.1.2",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.1.1",
     "@nestjs/graphql": "^8.0.2",
