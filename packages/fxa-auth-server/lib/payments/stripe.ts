@@ -2935,16 +2935,12 @@ export class StripeHelper extends StripeHelperBase {
     productOrderNew: string,
     planOld: Stripe.Plan
   ) {
-    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
-      subscription: subscription.id,
-    });
-
-    const { id: invoiceId, number: invoiceNumber } = invoice;
-
     const {
+      id: invoiceId,
+      number: invoiceNumber,
       currency: paymentProratedCurrency,
       amount_due: paymentProratedInCents,
-    } = upcomingInvoice;
+    } = invoice;
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
