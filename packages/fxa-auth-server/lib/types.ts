@@ -43,6 +43,7 @@ export interface AuthApp extends RequestApplicationState {
     formFactor: string;
   };
   isSuspiciousRequest: boolean;
+  isMetricsEnabled: Promise<boolean>;
   geo: {
     location?: {
       city: string;
