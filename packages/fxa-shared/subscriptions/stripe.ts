@@ -229,15 +229,11 @@ export function singlePlan(
  * Given two plans, A and B, determine whether B is eligible for a subscription
  * update (upgrade/downgrade) from A.
  */
-export const getSubscriptionUpdateEligibility: (
-  x: Plan,
-  y: Plan,
-  useFirestoreProductConfigs?: boolean
-) => SubscriptionUpdateEligibility = (
+export const getSubscriptionUpdateEligibility = (
   currentPlan: Plan,
   newPlan: Plan,
   useFirestoreProductConfigs: boolean = false
-) => {
+): SubscriptionUpdateEligibility => {
   const currentPlanConfig = productUpgradeFromProductConfig(
     currentPlan,
     useFirestoreProductConfigs

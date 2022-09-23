@@ -2,8 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
-import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
+import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
+  getSubscriptionUpdateEligibility,
+} from 'fxa-shared/subscriptions/stripe';
+import {
+  AbbrevPlan,
+  ClientIdCapabilityMap,
+  SubscriptionUpdateEligibility,
+} from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
@@ -19,6 +26,15 @@ import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
 import { PaymentConfigManager } from './configuration/manager';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
+
+enum SubscriptionEligibilityResult {
+  CREATE = 'create',
+  UPGRADE = 'upgrade',
+  DOWNGRADE = 'downgrade',
+  BLOCKED_IAP = 'blocked_iap',
+  INVALID = 'invalid',
+}
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -227,6 +243,117 @@ export class CapabilityService {
         ...subscribedAppStorePrices,
       ]),
     ];
+  }
+
+  /**
+   * Determine the subscription eligibility path for a user for a given plan,
+   * considering existing IAP subscriptions in the process.
+   * Will throw an error if the targetPlanId does not match with a known plan
+   */
+  public async getPlanEligibility(
+    uid: string,
+    targetPlanId: string,
+    useFirestoreProductConfigs: boolean = false
+  ) {
+    const allPlans = await this.stripeHelper.allAbbrevPlans();
+
+    // Create a map of planId: abbrevPlan for speed/ease of lookup later without iterating
+    const allPlansByPlanId: { [key: string]: AbbrevPlan } = allPlans.reduce(
+      (acc, plan) => {
+        return {
+          ...acc,
+          [plan.plan_id]: plan,
+        };
+      },
+      {}
+    );
+
+    const targetPlan = allPlansByPlanId[targetPlanId];
+
+    if (!targetPlan) throw error.unknownSubscriptionPlan(targetPlanId);
+
+    const { productSet: targetProductSet } = productUpgradeFromProductConfig(
+      targetPlan,
+      useFirestoreProductConfigs
+    );
+
+    if (!targetProductSet) {
+      return SubscriptionEligibilityResult.INVALID;
+    }
+
+    // Fetch all user's subscriptions from all sources
+    const [stripeSubscriptions, appleIapSubscriptions, playIapSubscriptions] =
+      await Promise.all([
+        this.fetchSubscribedPricesFromStripe(uid),
+        this.fetchSubscribedPricesFromAppStore(uid),
+        this.fetchSubscribedPricesFromPlay(uid),
+      ]);
+
+    const mapSubscriptions = (planIds: string[]) => {
+      return planIds
+        .map((planId) => allPlansByPlanId[planId])
+        .filter((plan) => plan);
+    };
+
+    const stripeSubscribedPlans = mapSubscriptions(stripeSubscriptions);
+    const appleIapSubscribedPlans = mapSubscriptions(appleIapSubscriptions);
+    const playIapSubscribedPlans = mapSubscriptions(playIapSubscriptions);
+
+    const iapSubscribedPlans = [
+      ...appleIapSubscribedPlans,
+      ...playIapSubscribedPlans,
+    ];
+
+    // Lookup whether user holds an IAP subscription with a shared product set to the target
+    const iapRoadblock = iapSubscribedPlans.some((abbrevPlan) => {
+      const { productSet } = productUpgradeFromProductConfig(
+        abbrevPlan,
+        useFirestoreProductConfigs
+      );
+
+      return productSet?.some((name) => targetProductSet.includes(name));
+    });
+
+    // Users with an IAP subscription to the productSet that we're trying to subscribe
+    // to should not be allowed to proceed
+    if (iapRoadblock) {
+      return SubscriptionEligibilityResult.BLOCKED_IAP;
+    }
+
+    const isSubscribedToProductSet = stripeSubscribedPlans.some(
+      (abbrevPlan) => {
+        const { productSet } = productUpgradeFromProductConfig(
+          abbrevPlan,
+          useFirestoreProductConfigs
+        );
+
+        return productSet?.some((name) => targetProductSet.includes(name));
+      }
+    );
+
+    if (!isSubscribedToProductSet) {
+      return SubscriptionEligibilityResult.CREATE;
+    }
+
+    // Use the upgradeEligibility helper to check if any of our existing plans are
+    // elegible for an upgrade and if so the user can upgrade that existing plan to the desired plan
+    for (const abbrevPlan of stripeSubscribedPlans) {
+      const eligibility = getSubscriptionUpdateEligibility(
+        abbrevPlan,
+        targetPlan,
+        useFirestoreProductConfigs
+      );
+
+      if (eligibility === SubscriptionUpdateEligibility.UPGRADE) {
+        return SubscriptionEligibilityResult.UPGRADE;
+      }
+
+      if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE) {
+        return SubscriptionEligibilityResult.DOWNGRADE;
+      }
+    }
+
+    return SubscriptionEligibilityResult.INVALID;
   }
 
   /**

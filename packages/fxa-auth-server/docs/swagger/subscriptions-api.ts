@@ -158,6 +158,19 @@ const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET = {
   notes: ['🔒 Authenticated with OAuth bearer token'],
 };
 
+const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY = {
+  ...TAGS_SUBSCRIPTIONS,
+  description:
+    '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planid}',
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Get eligibility for a given plan. Returns eligibility as 'create'|'upgrade'|'downgrade'|'blocked_iap'|'invalid'.
+    `,
+  ],
+};
+
 const OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/iap/rtdn',
@@ -243,6 +256,7 @@ const API_DOCS = {
   OAUTH_SUBSCRIPTIONS_PLANS_GET,
   OAUTH_SUBSCRIPTIONS_SETUPINTENT_CREATE_POST,
   OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
+  OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY,
   OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_PAYPAL_POST,
   OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_PUT,
   OAUTH_SUBSCRIPTIONS_CLIENTS_GET,
