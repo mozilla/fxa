@@ -13,7 +13,6 @@ const config = require('../configuration').getProperties();
 const remoteAddress = require('fxa-shared/express/remote-address')(
   config.clientAddressDepth
 );
-// const tracing = require('fxa-shared/tracing/node-tracing');
 
 /**
  * Enhances connect logger middleware - custom formats.
@@ -27,8 +26,7 @@ const disabled = function (req, res, next) {
 
 function defaultFxaFormat(tokens, req, res) {
   const { clientAddress, addresses } = remoteAddress(req);
-
-  const data = {
+  return JSON.stringify({
     clientAddress,
     contentLength: tokens.res(req, res, 'content-length'),
     method: tokens.method(req, res),
@@ -38,13 +36,7 @@ function defaultFxaFormat(tokens, req, res) {
     status: tokens.status(req, res),
     t: tokens['response-time'](req, res),
     userAgent: req.headers['user-agent'],
-  };
-
-  // if (tracing.nodeTracing) {
-  //   data.traceId = tracing.nodeTracing.getTraceId();
-  // }
-  //
-  return data;
+  });
 }
 
 const formats = {
