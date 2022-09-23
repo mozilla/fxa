@@ -15,6 +15,14 @@
 
 .input-text {
   @apply w-full p-4 text-grey-500 text-base rounded-md border border-grey-300 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus;
+
+  /* SAFARI HACK: move the native PW helper further inside the input to avoid overlap with PW eye.
+   * REACT TODO: In Settings, our HTML structured differently for PW inputs and we use `flex` to
+   * keep the native PW helper to the side of the PW eye. When we refactor to React, we should use
+   * use that PW input or refactor to a similar structure using `flex`. */
+  &::-webkit-credentials-auto-fill-button {
+    @apply relative ltr:right-11 rtl:left-11;
+  }
 }
 
 /* REACT TODO: Probably move this into JSX, currently lives in `form.js`
@@ -46,7 +54,9 @@
   &-label {
     &-show,
     &-hide {
-      @apply bg-cover bg-no-repeat bg-center absolute cursor-pointer ltr:right-px rtl:left-px h-full w-14;
+      @apply bg-cover bg-no-repeat bg-center absolute cursor-pointer ltr:right-px rtl:left-px h-full w-14
+      /* SAFARI HACK: The PW eye appears below the input without `top` */
+      top-0;
     }
 
     &-show {
