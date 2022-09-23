@@ -104,7 +104,6 @@ test.describe('change primary email tests', () => {
     // Enter the correct password
     await deleteAccount.setPassword(credentials.password);
     await deleteAccount.submit();
-    await page.pause();
 
     // // Try creating a new account with the same secondary email as previous account and new password
     await login.fillOutFirstSignUp(newEmail, credentials.password);

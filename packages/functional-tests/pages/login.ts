@@ -91,6 +91,12 @@ export class LoginPage extends BaseLayout {
     ]);
   }
 
+  async resetPasswordHeader() {
+    const resetPass = this.page.locator('#fxa-reset-password-header');
+    await resetPass.waitFor();
+    return resetPass.isVisible();
+  }
+
   async clickDontHaveRecoveryKey() {
     return Promise.all([
       this.page.click('a.lost-recovery-key'),
