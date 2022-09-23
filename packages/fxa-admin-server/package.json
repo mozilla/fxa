@@ -49,7 +49,7 @@
     "express": "^4.17.2",
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
-    "googleapis": "^102.0.0",
+    "googleapis": "^108.0.0",
     "graphql": "^15.6.1",
     "helmet": "^6.0.0",
     "hot-shots": "^9.2.0",
