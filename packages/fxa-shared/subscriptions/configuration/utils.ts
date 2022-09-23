@@ -215,6 +215,7 @@ export const uiContentFromProductConfig = (
     const detailsFromPlan = productDetailsFromPlan(plan, userLocales);
 
     return {
+      name: detailsFromPlan.name,
       subtitle: detailsFromPlan.subtitle,
       details: detailsFromPlan.details,
       successActionButtonLabel: detailsFromPlan.successActionButtonLabel,

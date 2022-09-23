@@ -175,6 +175,38 @@ describe('PlanDetailsCard', () => {
       expect(planPriceComponent.props.children).toBe(expectedMsg);
     }
 
+    it('displays product:name when present instead of product_name', () => {
+      const plan_id = 'plan_withname';
+      const plan = findMockPlan(plan_id);
+
+      const props = { plan: plan };
+
+      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
+      const testInstance = testRenderer.root;
+      const planPriceComponent = testInstance.findByProps({
+        id: 'plan-details-product',
+      });
+
+      expect(planPriceComponent.props.children).toEqual(
+        plan.plan_metadata?.['product:name']
+      );
+    });
+
+    it('displays product_name when plan_metadata name is not present', () => {
+      const plan_id = 'plan_daily';
+      const plan = findMockPlan(plan_id);
+
+      const props = { plan: plan };
+
+      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
+      const testInstance = testRenderer.root;
+      const planPriceComponent = testInstance.findByProps({
+        id: 'plan-details-product',
+      });
+
+      expect(planPriceComponent.props.children).toEqual(plan.product_name);
+    });
+
     describe('When plan has day interval', () => {
       const expectedMsgId = dayBasedId;
 

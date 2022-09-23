@@ -44,6 +44,7 @@ const PLAN_WITH_METADATA: Plan = {
     'product:privacyNoticeDownloadURL':
       'https://example.org/en-US/privacy/download',
     'product:ignoreme': 'Unknown name here',
+    'product:name': 'Name override!',
     'product:subtitle': 'Great Full-device VPN',
     'product:details:3': 'Baz Connects 5 devices with one subscription',
     'product:details:1': 'Foo Device-level encryption',
@@ -410,6 +411,7 @@ describe('product configuration util functions', () => {
         false
       );
       expect(actual).to.deep.equal({
+        name: PLAN_WITH_METADATA.product_metadata!['product:name'],
         subtitle: PLAN_WITH_METADATA.product_metadata!['product:subtitle'],
         details: [
           PLAN_WITH_METADATA.product_metadata!['product:details:1'],

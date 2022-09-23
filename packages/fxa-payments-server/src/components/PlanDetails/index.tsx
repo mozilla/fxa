@@ -87,7 +87,7 @@ export const PlanDetails = ({
               >
                 <img
                   src={webIcon || ffLogo}
-                  alt={product_name}
+                  alt={productDetails.name || product_name}
                   data-testid="product-logo"
                   className="w-8 h-8"
                 />
@@ -95,7 +95,7 @@ export const PlanDetails = ({
 
               <div className="plan-details-heading-wrap">
                 <h3 id="plan-details-product" className="plan-details-product">
-                  {product_name}
+                  {productDetails.name || product_name}
                 </h3>
 
                 <p className="plan-details-description">

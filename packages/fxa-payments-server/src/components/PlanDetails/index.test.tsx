@@ -175,6 +175,50 @@ describe('PlanDetails', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders product_name when product:name is not present', () => {
+    render(
+      <PlanDetails
+        {...{
+          profile: userProfile,
+          showExpandButton: true,
+          isMobile: false,
+          selectedPlan,
+        }}
+      />
+    );
+
+    const detailsTitle = document.getElementById(
+      'plan-details-product'
+    )?.textContent;
+    expect(detailsTitle).toEqual(selectedPlan.product_name);
+  });
+
+  it('renders product:name if present instead of product_name', () => {
+    const name = 'Foxkeh Pro Level';
+    const selectedPlanWithPlanMetadataName = {
+      ...selectedPlan,
+      plan_metadata: {
+        'product:name': name,
+      },
+    };
+
+    render(
+      <PlanDetails
+        {...{
+          profile: userProfile,
+          showExpandButton: true,
+          isMobile: false,
+          selectedPlan: selectedPlanWithPlanMetadataName,
+        }}
+      />
+    );
+
+    const detailsTitle = document.getElementById(
+      'plan-details-product'
+    )?.textContent;
+    expect(detailsTitle).toEqual(name);
+  });
+
   it('hides expand button when showExpandButton is false', () => {
     const subject = () => {
       return render(

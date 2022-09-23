@@ -45,6 +45,7 @@ const urlsSchema = joi.object({
 });
 
 export const UiContentConfigKeys = {
+  name: 'name',
   subtitle: 'subtitle',
   details: 'details',
   successActionButtonLabel: 'successActionButtonLabel',
@@ -56,6 +57,7 @@ export type UiContentConfig = {
 } & { details?: string[] };
 
 const uiContentSchema = joi.object({
+  name: joi.string(),
   subtitle: joi.string(),
   details: joi.array().items(joi.string()),
   successActionButtonLabel: joi.string(),
