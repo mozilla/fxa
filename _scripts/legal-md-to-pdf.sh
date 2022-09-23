@@ -27,6 +27,8 @@ documents_to_convert=(
   firefox_relay_privacy_notice.md
   mdn_plus_privacy.md
   mdn_plus_terms.md
+  mozilla_hubs_privacy_notice.md
+  mozilla_hubs_tos.md
 )
 
 legal_docs_path=""
