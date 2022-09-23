@@ -28,7 +28,7 @@ test.describe('change password tests', () => {
     credentials,
   }) => {
 
-    // Enter the correct old password and verify that chnage password is succesful
+    // Enter the correct old password and verify that change password is successful
     await changePassword.fillOutChangePassword(credentials.password, newPassword);
     await changePassword.submit();
 
