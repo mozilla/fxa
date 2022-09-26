@@ -53,6 +53,12 @@ export class LoginPage extends BaseLayout {
     return this.page.fill('input[type=text]', code);
   }
 
+  async loginHeader() {
+    const header = this.page.locator('[data-testid=logo]');
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async signInError() {
     const error = this.page.locator('.error');
     await error.waitFor();
@@ -93,6 +99,12 @@ export class LoginPage extends BaseLayout {
 
   async resetPasswordHeader() {
     const resetPass = this.page.locator('#fxa-reset-password-header');
+    await resetPass.waitFor();
+    return resetPass.isVisible();
+  }
+
+  async resetPasswordLinkExpriredHeader() {
+    const resetPass = this.page.locator('#fxa-reset-link-expired-header');
     await resetPass.waitFor();
     return resetPass.isVisible();
   }

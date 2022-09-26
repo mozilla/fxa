@@ -12,9 +12,22 @@ export class RecoveryKeyPage extends SettingsLayout {
     return this.page.innerText('[data-testid=datablock] span');
   }
 
+  async invalidRecoveryKeyError() {
+    return this.page.innerText('#error-tooltip-159');
+  }
+
   setPassword(password: string) {
     return this.page.fill('input[type=password]', password);
   }
+
+  async confirmRecoveryKey() {
+    return this.page.click('button[type=submit]');
+  }
+
+  async clickLostRecoveryKey() {
+    return this.page.click('.lost-recovery-key');
+  }
+
 
   submit() {
     return Promise.all([
