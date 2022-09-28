@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import { CapabilityService } from 'fxa-auth-server/lib/payments/capability';
+import { CapabilityService } from '../../../lib/payments/capability';
 import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 
