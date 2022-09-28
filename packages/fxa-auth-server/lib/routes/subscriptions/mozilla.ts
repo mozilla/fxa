@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
+import { CapabilityService } from 'fxa-auth-server/lib/payments/capability';
 import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 
@@ -25,6 +26,7 @@ export const mozillaSubscriptionRoutes = ({
   stripeHelper,
   playSubscriptions,
   appStoreSubscriptions,
+  capabilityService,
 }: {
   log: AuthLogger;
   db: any;
@@ -32,6 +34,7 @@ export const mozillaSubscriptionRoutes = ({
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
   appStoreSubscriptions?: AppStoreSubscriptions;
+  capabilityService?: CapabilityService;
 }): ServerRoute[] => {
   if (!playSubscriptions) {
     playSubscriptions = Container.get(PlaySubscriptions);
@@ -39,13 +42,17 @@ export const mozillaSubscriptionRoutes = ({
   if (!appStoreSubscriptions) {
     appStoreSubscriptions = Container.get(AppStoreSubscriptions);
   }
+  if (!capabilityService) {
+    capabilityService = Container.get(CapabilityService);
+  }
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,
     db,
     customs,
     stripeHelper,
     playSubscriptions,
-    appStoreSubscriptions
+    appStoreSubscriptions,
+    capabilityService
   );
   return [
     {
@@ -64,6 +71,24 @@ export const mozillaSubscriptionRoutes = ({
       handler: (request: AuthRequest) =>
         mozillaSubscriptionHandler.getBillingDetailsAndSubscriptions(request),
     },
+    {
+      method: 'GET',
+      path: '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planId}',
+      options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          params: {
+            planId: validators.subscriptionsPlanId.required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        mozillaSubscriptionHandler.getPlanEligibility(request),
+    },
   ];
 };
 
@@ -74,7 +99,8 @@ export class MozillaSubscriptionHandler {
     protected customs: any,
     protected stripeHelper: StripeHelper,
     protected playSubscriptions: PlaySubscriptions,
-    protected appStoreSubscriptions: AppStoreSubscriptions
+    protected appStoreSubscriptions: AppStoreSubscriptions,
+    protected capabilityService: CapabilityService
   ) {}
 
   async getBillingDetailsAndSubscriptions(request: AuthRequest) {
@@ -122,6 +148,28 @@ export class MozillaSubscriptionHandler {
           appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO
         ),
       ],
+    };
+  }
+
+  async getPlanEligibility(request: AuthRequest) {
+    this.log.begin('mozillaSubscriptions.validatePlanEligibility', request);
+
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(
+      request,
+      email,
+      'mozillaSubscriptionsValidatePlanEligibility'
+    );
+
+    const targetPlanId = request.params.planId;
+
+    const eligibility = await this.capabilityService.getPlanEligibility(
+      uid,
+      targetPlanId
+    );
+
+    return {
+      eligibility,
     };
   }
 }

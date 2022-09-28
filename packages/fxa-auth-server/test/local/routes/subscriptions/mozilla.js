@@ -144,6 +144,7 @@ const db = mocks.mockDB({
 });
 const customs = mocks.mockCustoms();
 let stripeHelper;
+let capabilityService;
 
 async function runTest(routePath, routeDependencies = {}) {
   const playSubscriptions = {
@@ -161,6 +162,7 @@ async function runTest(routePath, routeDependencies = {}) {
     db,
     customs,
     stripeHelper,
+    capabilityService,
     playSubscriptions,
     appStoreSubscriptions,
     ...routeDependencies,
@@ -172,6 +174,7 @@ async function runTest(routePath, routeDependencies = {}) {
 
 describe('mozilla-subscriptions', () => {
   beforeEach(() => {
+    capabilityService = {};
     stripeHelper = {
       getBillingDetailsAndSubscriptions: sandbox
         .stub()
@@ -309,6 +312,29 @@ describe('mozilla-subscriptions', () => {
       } catch (e) {
         assert.strictEqual(e.errno, ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
+    });
+  });
+});
+
+describe('plan-eligibility', () => {
+  beforeEach(() => {
+    capabilityService = {
+      getPlanEligibility: sandbox.stub().resolves('eligibility'),
+    };
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe('GET /customer/plan-eligibility/example-planid', () => {
+    it('gets plan eligibility', async () => {
+      const resp = await runTest(
+        '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planId}'
+      );
+      assert.deepEqual(resp, {
+        eligibility: 'eligibility',
+      });
     });
   });
 });

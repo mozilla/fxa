@@ -414,6 +414,128 @@ describe('CapabilityService', () => {
     });
   });
 
+  describe('getPlanEligibility', () => {
+    const mockAbbrevPlans = [
+      {
+        plan_id: 'plan_123456',
+        product_id: 'prod_123456',
+        product_metadata: {
+          productSet: 'set1,set2',
+          productOrder: 1,
+        },
+      },
+      {
+        plan_id: 'plan_876543',
+        product_id: 'prod_876543',
+        product_metadata: {
+          productSet: 'set2,set3',
+          productOrder: 1,
+        },
+      },
+      {
+        plan_id: 'plan_ABCDEF',
+        product_id: 'prod_ABCDEF',
+        product_metadata: {
+          productSet: 'set1,set2',
+          productOrder: 2,
+        },
+      },
+      {
+        plan_id: 'plan_NOPRODUCTORDER',
+        product_id: 'prod_ABCDEF',
+        product_metadata: {
+          productSet: 'set1,set2',
+        },
+      },
+      {
+        plan_id: 'plan_NOPRODUCTSET',
+        product_id: 'prod_ABCDEF',
+        product_metadata: {},
+      },
+    ];
+
+    beforeEach(() => {
+      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockAbbrevPlans);
+      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+        []
+      );
+      capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
+        []
+      );
+      capabilityService.fetchSubscribedPricesFromPlay = sinon.fake.resolves([]);
+    });
+
+    it('throws an error for an invalid targetPlanId', async () => {
+      let error;
+      try {
+        await capabilityService.getPlanEligibility(UID, 'invalid-id');
+      } catch (e) {
+        error = e;
+      }
+      assert.equal(error.message, 'Unknown subscription plan');
+    });
+
+    it('returns invalid for targetPlan with no productSet', async () => {
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_NOPRODUCTSET'
+      );
+      assert.equal(actual, 'invalid');
+    });
+
+    it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
+      capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
+        ['plan_123456']
+      );
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_ABCDEF'
+      );
+      assert.equal(actual, 'blocked_iap');
+    });
+
+    it('returns create for targetPlan with productSet user is not subscribed to', async () => {
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_ABCDEF'
+      );
+      assert.equal(actual, 'create');
+    });
+
+    it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
+      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
+        'plan_123456',
+      ]);
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_ABCDEF'
+      );
+      assert.equal(actual, 'upgrade');
+    });
+
+    it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
+      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
+        'plan_ABCDEF',
+      ]);
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_123456'
+      );
+      assert.equal(actual, 'downgrade');
+    });
+
+    it('returns invalid for targetPlan with no product order', async () => {
+      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
+        'plan_ABCDEF',
+      ]);
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_NOPRODUCTORDER'
+      );
+      assert.equal(actual, 'invalid');
+    });
+  });
+
   describe('processPriceIdDiff', () => {
     it('should process the product diff', async () => {
       mockAuthEvents.emit = sinon.fake.returns({});
