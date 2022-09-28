@@ -130,25 +130,18 @@ export const UnitRowSecondaryEmail = () => {
   const UnitRowSecondaryEmailNotSet = () => {
     // user doesn't have a secondary email (verified or unverified) set
     return (
-      <Localized id="se-heading" attrs={{ header: true }}>
-        <UnitRow
-          header="Secondary email"
-          headerId="secondary-email"
-          prefixDataTestId="secondary-email"
-          headerValue={null}
-          noHeaderValueText={l10n.getString(
-            'se-secondary-email-none',
-            null,
-            'None'
-          )}
-          route={`${HomePath}/emails`}
-          {...{
-            alertBarRevealed: alertBar.visible,
-          }}
-        >
-          <SecondaryEmailDefaultContent />
-        </UnitRow>
-      </Localized>
+      <UnitRow
+        header={l10n.getString('se-heading', null, 'Secondary email')}
+        headerId="secondary-email"
+        prefixDataTestId="secondary-email"
+        headerValue={null}
+        route={`${HomePath}/emails`}
+        {...{
+          alertBarRevealed: alertBar.visible,
+        }}
+      >
+        <SecondaryEmailDefaultContent />
+      </UnitRow>
     );
   };
 
@@ -338,7 +331,7 @@ const SecondaryEmailDefaultContent = () => (
   <div data-testid="secondary-email-default-content">
     <Localized id="se-default-content">
       <p className="text-sm mt-3">
-        Access your account if you can't log in to your primary email.
+        Access your account if you can’t log in to your primary email.
       </p>
     </Localized>
     <Localized
@@ -356,7 +349,7 @@ const SecondaryEmailDefaultContent = () => (
       }}
     >
       <p className="text-grey-400 text-xs mt-2">
-        Note: a secondary email won't restore your information — you'll need an{' '}
+        Note: a secondary email won’t restore your information — you’ll need an{' '}
         <a
           className="link-blue"
           href="#recovery-key"

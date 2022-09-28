@@ -49,9 +49,15 @@ describe('UnitRowSecondaryEmail', () => {
       expect(
         screen.getByTestId('secondary-email-unit-row-route')
       ).toHaveAttribute('href', '/settings/emails');
-      expect(
-        screen.getByTestId('secondary-email-default-content')
-      ).toBeInTheDocument();
+
+      screen.getByText(
+        'Access your account if you can’t log in to your primary email',
+        { exact: false }
+      );
+      screen.getByText(
+        'Note: a secondary email won’t restore your information',
+        { exact: false }
+      );
       expect(
         screen.getByTestId('secondary-email-link-recovery-key')
       ).toHaveAttribute('href', '#recovery-key');
