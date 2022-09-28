@@ -7,7 +7,8 @@
 const config = require('../config');
 
 // Must be required and initialized right away
-require('fxa-shared/tracing/node-tracing').init(
+const TracingProvider = require('fxa-shared/tracing/node-tracing');
+TracingProvider.init(
   config.get('tracing'),
   require('../lib/log')({ ...config.log })
 );
@@ -46,7 +47,11 @@ async function run(config) {
       };
   Container.set(StatsD, statsd);
 
-  const log = require('../lib/log')({ ...config.log, statsd });
+  const log = require('../lib/log')({
+    ...config.log,
+    statsd,
+    nodeTracer: TracingProvider.nodeTracing,
+  });
   Container.set(AuthLogger, log);
 
   if (!Container.has(AuthFirestore)) {

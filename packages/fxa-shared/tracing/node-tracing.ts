@@ -22,6 +22,7 @@ import {
 } from '@opentelemetry/sdk-trace-base';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import api from '@opentelemetry/api';
 
 import { ILogger } from '../log';
 import { TracingOpts } from './config';
@@ -144,6 +145,14 @@ export class NodeTracingInitializer {
     this.provider.addSpanProcessor(processor);
     this.provider.register();
     this.logger?.info(log_type, { msg: 'gcp enabled' });
+  }
+
+  protected getTraceId() {
+    const currentSpan = api.trace.getSpan(api.context.active());
+    if (currentSpan) {
+      return currentSpan.spanContext().traceId;
+    }
+    return null;
   }
 }
 

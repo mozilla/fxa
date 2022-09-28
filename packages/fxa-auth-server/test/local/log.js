@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
 const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
 const proxyquire = require('proxyquire');
 
 const { mockRequest, mockMetricsContext } = require('../mocks');
@@ -636,7 +636,10 @@ describe('log', () => {
       'test@example.com',
       'email is reported in top-level fields'
     );
-    assert(!args[1].err.email, 'email should not be reported in error object');
+    assert.isNull(
+      args[1].err.email,
+      'email should not be reported in error object'
+    );
   });
 
   it('.summary should log an info message and call request.emitRouteFlowEvent', () => {
@@ -783,6 +786,63 @@ describe('log', () => {
     );
 
     assert.equal(logger.info.args[0][1].email, 'quix');
+  });
+
+  describe('traceId', () => {
+    it("doesn't set if tracing is not enabled", () => {
+      log = proxyquire(
+        '../../lib/log',
+        mocks
+      )({
+        level: 'debug',
+        name: 'test',
+        stdout: { on: sinon.spy() },
+      });
+
+      log.info('op', {
+        uid: 'bloop',
+      });
+
+      assert.calledOnceWithExactly(logger.info, 'op', { uid: 'bloop' });
+    });
+
+    it('should set trace id', () => {
+      log = proxyquire(
+        '../../lib/log',
+        mocks
+      )({
+        level: 'debug',
+        name: 'test',
+        stdout: { on: sinon.spy() },
+        nodeTracer: {
+          getTraceId: sinon.stub().callsFake(() => 'fake trace id'),
+        },
+      });
+
+      log.info('op', {
+        uid: 'bloop',
+      });
+      assert.calledOnceWithExactly(logger.info, 'op', {
+        uid: 'bloop',
+        traceId: 'fake trace id',
+      });
+
+      log.debug('op', {
+        uid: 'bloop',
+      });
+      assert.calledOnceWithExactly(logger.debug, 'op', {
+        uid: 'bloop',
+        traceId: 'fake trace id',
+      });
+
+      log.error('op', {
+        uid: 'bloop',
+      });
+      assert.calledOnceWithExactly(logger.error, 'op', {
+        uid: 'bloop',
+        traceId: 'fake trace id',
+      });
+    });
   });
 
   it('.notifyAttachedServices should send a notification (with service=known clientid)', () => {
