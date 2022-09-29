@@ -16,6 +16,7 @@ const experimentGroupingRules = [
   require('./sentry'),
   require('./push'),
   require('./third-party-auth'),
+  require('./react-content-server'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {

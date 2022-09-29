@@ -20,9 +20,10 @@ import ExperimentMixin from './experiment-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import VerificationReasonMixin from './verification-reason-mixin';
 import Constants from '../../lib/constants';
+import ReactContentServerExperimentMixin from './react-content-server-experiment-mixin';
 
 export default {
-  dependsOn: [ExperimentMixin, UserAgentMixin, VerificationReasonMixin],
+  dependsOn: [ExperimentMixin, UserAgentMixin, VerificationReasonMixin, ReactContentServerExperimentMixin],
 
   /**
    * Is `account` eligible for connect another device?
@@ -34,6 +35,10 @@ export default {
     // If a user is already signed in to Sync which is different to the
     // user that just verified, show them the old "Account verified!" screen.
     return !this.user.isAnotherAccountSignedIn(account);
+  },
+
+  canSeeReactContentServer() {
+    return this.isInReactContentServerExperiment();
   },
 
   /**
@@ -112,6 +117,7 @@ export default {
    *
    */
   replaceCurrentPageWithPairScreen() {
-    this.navigate('/pair', {});
+    const pairingLink = this.canSeeReactContentServer() ? '/test/pair' : '/pair';
+    this.navigate(pairingLink, {});
   },
 };

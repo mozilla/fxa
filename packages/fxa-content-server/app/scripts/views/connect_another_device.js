@@ -10,6 +10,7 @@
  */
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import ReactContentServerExperimentMixin from './mixins/react-content-server-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
@@ -25,12 +26,17 @@ import SyncAuthMixin from './mixins/sync-auth-mixin';
 import Template from 'templates/connect_another_device.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
+
 
 const ConnectAnotherDeviceView = FormView.extend({
+  dependsOn: [ReactContentServerExperimentMixin],
+
   template: Template,
 
   events: {
     'click #cad-not-now': 'notNowLinkHandler',
+    'click #sync-firefox-devices': preventDefaultThen('_navigateToPairingUrl'),
   },
 
   beforeRender() {
@@ -74,7 +80,6 @@ const ConnectAnotherDeviceView = FormView.extend({
 
     return this.model.get('account');
   },
-
   /**
    * Log view related metrics.
    *
@@ -128,6 +133,14 @@ const ConnectAnotherDeviceView = FormView.extend({
     }
   },
 
+  getPairingUrl(){
+    // const group = this.isInReactContentServerExperiment;
+    // when this actually works, we'll do matching to check that the user is in the expected group.
+    // const pairingUrl = group ? '/test/pair?entrypoint=fxa_app_menu' : '/pair?entrypoint=fxa_app_menu'
+    // return pairingUrl;
+    return '/test/pair?entrypoint=fxa_app_menu';
+  },
+
   setInitialContext(context) {
     const isSignedIn = this._isSignedIn();
     const canSignIn = this._canSignIn();
@@ -147,7 +160,7 @@ const ConnectAnotherDeviceView = FormView.extend({
     const isSignIn = this.isSignIn();
     const isSignUp = this.isSignUp();
     const showSuccessMessage = this._showSuccessMessage();
-    const pairingUrl = '/pair?entrypoint=fxa_app_menu';
+    const pairingUrl = this.getPairingUrl();
 
     context.set({
       canSignIn,
@@ -249,6 +262,10 @@ const ConnectAnotherDeviceView = FormView.extend({
     this.logEvent('cad.notnow.engage');
     return true;
   },
+  _navigateToPairingUrl() {
+    this.logEvent('************** CLICK PAIRING URL ****************')
+    return this.navigate(this.getPairingUrl());
+  }
 });
 
 Cocktail.mixin(
