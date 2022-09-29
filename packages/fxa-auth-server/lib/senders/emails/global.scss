@@ -6,7 +6,7 @@
 $font-sans: sans-serif;
 
 // Colors
-$blue-400: #0090ed;
+$blue-500: #0060df;
 $white: #fff;
 $black: #000;
 $grey-400: #6d6d6e;
@@ -60,8 +60,8 @@ $s-10: 40px;
   font-family: $font-sans !important;
 }
 
-.text-blue-400 {
-  color: $blue-400;
+.text-blue-500 {
+  color: $blue-500;
 }
 
 .mt {
@@ -117,7 +117,7 @@ tr > td:first-child {
 }
 
 .link-blue {
-  @extend .text-blue-400;
+  @extend .text-blue-500;
   text-decoration: none;
   font-family: $font-sans;
 }
