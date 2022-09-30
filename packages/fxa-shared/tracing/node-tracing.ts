@@ -167,6 +167,17 @@ export function init(opts: TracingOpts, logger?: ILogger) {
     return;
   }
 
+  if (
+    opts.console?.enabled !== true &&
+    opts.gcp?.enabled !== true &&
+    opts.jaeger?.enabled !== true
+  ) {
+    logger?.debug(log_type, {
+      msg: 'Trace initialization skipped. No exporters configured. Enable, gcp, jeager, or console to activate tracing.',
+    });
+    return;
+  }
+
   try {
     nodeTracing = new NodeTracingInitializer(opts, logger);
     logger?.info(log_type, { msg: 'Trace initialized succeeded!' });

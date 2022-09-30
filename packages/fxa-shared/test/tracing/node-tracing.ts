@@ -181,11 +181,27 @@ describe('node-tracing', () => {
   });
 
   describe('init', () => {
+    it('skips initialization if all modes are disabled', () => {
+      tracing.init(
+        {
+          serviceName: '',
+          sampleRate: 1,
+        },
+        spies.logger
+      );
+      sinon.assert.calledWith(spies.logger.debug, 'node-tracing', {
+        msg: 'Trace initialization skipped. No exporters configured. Enable, gcp, jeager, or console to activate tracing.',
+      });
+    });
+
     it('skips initialization if serviceName is missing', () => {
       tracing.init(
         {
           serviceName: '',
           sampleRate: 1,
+          console: {
+            enabled: true,
+          },
         },
         spies.logger
       );
@@ -200,6 +216,9 @@ describe('node-tracing', () => {
           {
             serviceName: 'test',
             sampleRate: sampleRate,
+            console: {
+              enabled: true,
+            },
           },
           spies.logger
         );
@@ -214,6 +233,9 @@ describe('node-tracing', () => {
         {
           serviceName: 'test',
           sampleRate: 1,
+          console: {
+            enabled: true,
+          },
         },
         spies.logger
       );
@@ -228,6 +250,9 @@ describe('node-tracing', () => {
         {
           serviceName: 'test',
           sampleRate: 1,
+          console: {
+            enabled: true,
+          },
         },
         spies.logger
       );
