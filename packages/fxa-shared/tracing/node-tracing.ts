@@ -8,7 +8,10 @@ import {
 } from '@google-cloud/opentelemetry-cloud-trace-exporter';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { ExportResult } from '@opentelemetry/core';
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+import {
+  ExporterConfig as JaegerExporterConfig,
+  JaegerExporter,
+} from '@opentelemetry/exporter-jaeger';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { Resource } from '@opentelemetry/resources';
 
@@ -25,12 +28,18 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 import { ILogger } from '../log';
 import { TracingOpts } from './config';
+import { TracingPiiFilter } from './pii-filters';
 
 const log_type = 'node-tracing';
 
-/** Overloaded GcpTraceExporter that removes PII from traces. */
+/**
+ * Overloaded GcpTraceExporter that removes PII from traces.
+ */
 export class FxaGcpTraceExporter extends GcpTraceExporter {
-  constructor(config?: GcpTraceExporterOptions) {
+  constructor(
+    protected readonly filter?: TracingPiiFilter,
+    config?: GcpTraceExporterOptions
+  ) {
     super(config);
   }
 
@@ -38,11 +47,30 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
     spans: ReadableSpan[],
     resultCallback: (result: ExportResult) => void
   ) {
-    for (const span of spans) {
-      // Don't record raw db statements. They often leak PII.
-      if (span.attributes['db.statement']) {
-        span.attributes['db.statement'] = '[FILTERED]';
-      }
+    if (this.filter) {
+      spans.forEach((x) => this.filter?.filter(x));
+    }
+    return super.export(spans, resultCallback);
+  }
+}
+
+/**
+ * Overloaded JaegerExporter that removes PII from traces.
+ */
+export class FxaJaegerTraceExporter extends JaegerExporter {
+  constructor(
+    protected readonly filter?: TracingPiiFilter,
+    config?: JaegerExporterConfig
+  ) {
+    super(config);
+  }
+
+  override export(
+    spans: ReadableSpan[],
+    resultCallback: (result: ExportResult) => void
+  ) {
+    if (this.filter) {
+      spans.forEach((x) => this.filter?.filter(x));
     }
     return super.export(spans, resultCallback);
   }
@@ -55,11 +83,13 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
  */
 export class NodeTracingInitializer {
   protected provider: NodeTracerProvider;
+  protected piiFilter: TracingPiiFilter;
 
   constructor(
     protected readonly opts: TracingOpts,
     protected readonly logger?: ILogger
   ) {
+    this.piiFilter = new TracingPiiFilter(this.logger);
     this.provider = this.initProvider();
     this.init();
   }
@@ -103,7 +133,17 @@ export class NodeTracingInitializer {
 
   protected initInstrumentations() {
     registerInstrumentations({
-      instrumentations: [getNodeAutoInstrumentations({})],
+      instrumentations: [
+        getNodeAutoInstrumentations({
+          // These instrumentations added a lot of unnecessary noise
+          '@opentelemetry/instrumentation-dns': {
+            enabled: false,
+          },
+          '@opentelemetry/instrumentation-net': {
+            enabled: false,
+          },
+        }),
+      ],
     });
   }
 
@@ -119,27 +159,46 @@ export class NodeTracingInitializer {
   }
 
   protected initJaeger() {
-    if (!this.opts.jaeger?.enabled) {
+    const opts = this.opts.jaeger;
+
+    if (!opts?.enabled) {
       this.logger?.info(log_type, { msg: 'jaeger not enabled' });
       return;
     }
+    this.logger?.info(log_type, {
+      msg: 'Initializing trace exports to jaeger.',
+      ...opts,
+    });
+
     const options = {
       endpoint: 'http://localhost:14268/api/traces',
     };
-    const exporter = new JaegerExporter(options);
-    this.provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+    const exporter = opts.filterPii
+      ? new FxaJaegerTraceExporter(this.piiFilter)
+      : new FxaJaegerTraceExporter();
+
+    const processor = new SimpleSpanProcessor(exporter);
+    this.provider.addSpanProcessor(processor);
     this.provider.register();
     this.logger?.info(log_type, { msg: 'jaeger enabled' });
   }
 
   protected initGcp() {
-    if (!this.opts.gcp?.enabled) {
+    const opts = this.opts?.gcp;
+
+    if (!opts?.enabled) {
       this.logger?.info(log_type, { msg: 'gcp not enabled' });
       return;
     }
+    this.logger?.info(log_type, {
+      msg: 'Initializing trace exports to gcp.',
+      ...opts,
+    });
 
-    this.logger?.info(log_type, { msg: 'Initializing trace exports to gcp.' });
-    const exporter = new FxaGcpTraceExporter();
+    const exporter = opts.filterPii
+      ? new FxaGcpTraceExporter(this.piiFilter)
+      : new FxaGcpTraceExporter();
+
     const processor = new BatchSpanProcessor(exporter);
     this.provider.addSpanProcessor(processor);
     this.provider.register();

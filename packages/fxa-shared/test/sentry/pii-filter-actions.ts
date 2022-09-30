@@ -231,6 +231,21 @@ describe('pii-filter-actions', () => {
       expect(result).to.equal(`http://foo.bar/?${FILTERED}&key=1`);
     });
 
+    it('filters email in route', () => {
+      const { val: result } = CommonPiiActions.emailValues.execute(
+        '/account?email=foxkey@mozilla.com&key=1'
+      );
+      expect(result).to.equal(`/account?email=${FILTERED}&key=1`);
+    });
+
+    it('filters email in query', () => {
+      const { val: result } = CommonPiiActions.emailValues.execute(
+        `where email='test@mozilla.com'`
+      );
+
+      expect(result).to.equal(`where email='${FILTERED}'`);
+    });
+
     it('filters username / password from url', () => {
       const { val: result } = CommonPiiActions.urlUsernamePassword.execute(
         'http://me:wut@foo.bar/'
@@ -323,11 +338,47 @@ describe('pii-filter-actions', () => {
       });
     });
 
+    it('filters 16 byte token values', () => {
+      const token1 = uuid.v4().replace(/-/g, '');
+      const { val: result } = CommonPiiActions.tokenValues.execute({
+        foo: `X'${token1.substring(0, 16)}'`,
+      });
+
+      expect(result).to.deep.equal({
+        foo: `X'${FILTERED}'`,
+      });
+    });
+
+    it('filters 64 byte token values', () => {
+      const token1 = uuid.v4().replace(/-/g, '');
+      const { val: result } = CommonPiiActions.tokenValues.execute({
+        foo: `X'${token1}${token1}'`,
+      });
+
+      expect(result).to.deep.equal({
+        foo: `X'${FILTERED}'`,
+      });
+    });
+
     it('filters token value in url', () => {
       const result = CommonPiiActions.tokenValues.execute(
         'https://foo.bar/?uid=12345678123456781234567812345678'
       );
       expect(result.val).to.equal(`https://foo.bar/?uid=${FILTERED}`);
+    });
+
+    it('filters token value in db statement', () => {
+      const result = CommonPiiActions.tokenValues.execute(
+        `Call accountDevices_17(X'cce22e4006d243c895c7596e2cad53d8',500)`
+      );
+      expect(result.val).to.equal(`Call accountDevices_17(X'${FILTERED}',500)`);
+    });
+
+    it('filters token value in db query', () => {
+      const result = CommonPiiActions.tokenValues.execute(
+        ` where uid = X'cce22e4006d243c895c7596e2cad53d8' `
+      );
+      expect(result.val).to.equal(` where uid = X'${FILTERED}' `);
     });
 
     it('filters multiple multiline token values', () => {

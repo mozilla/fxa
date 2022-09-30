@@ -223,6 +223,9 @@ export class UrlUsernamePasswordFilter extends PiiFilter {
  * Strips emails from data.
  */
 export class EmailFilter extends PiiRegexFilter {
+  private readonly encode = [`'`, `"`, `=`];
+  private readonly decode = [`[[[']]]`, `[[["]]]`, `[[[=]]]`];
+
   constructor(checkOnly: CheckOnly = 'values', replaceWith = FILTERED) {
     super(
       // RFC 5322 generalized email regex, ~ 99.99% accurate.
@@ -244,7 +247,18 @@ export class EmailFilter extends PiiRegexFilter {
       val = decodeURI(url.toString());
     }
 
-    return val.replace(this.regex, this.replaceWith);
+    // Encode/decode to work around weird cases like email='foo@bar.com' which is
+    // technically a valid email, but ill advised an unlikely. Even if a user had
+    // this odd example email, the majority of the email would stripped, for example,
+    // email='[Filtered]' thereby eliminating PII.
+    this.encode.forEach((x, i) => {
+      val = val.replace(x, this.decode[i]);
+    });
+    val = val.replace(this.regex, this.replaceWith);
+    this.decode.forEach((x, i) => {
+      val = val.replace(x, this.encode[i]);
+    });
+    return val;
   }
 
   protected filterKey(key: string): boolean {
@@ -310,5 +324,7 @@ export const CommonPiiActions = {
   /**
    * Matches uid, session, oauth and other common tokens which we would prefer not to include in Sentry reports.
    */
-  tokenValues: new PiiRegexFilter(/[a-fA-F0-9]{32,}/gim),
+  tokenValues: new PiiRegexFilter(
+    /[a-fA-F0-9]{16,}|[a-fA-F0-9]{32,}|[a-fA-F0-9]{64,}/gim
+  ),
 };
