@@ -20,6 +20,7 @@ const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
 function Lug(options) {
   EventEmitter.call(this);
   this.name = options.name || 'fxa-auth-server';
+
   this.logger = mozlog({
     app: this.name,
     level: options.level,

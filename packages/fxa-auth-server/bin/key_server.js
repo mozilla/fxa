@@ -10,7 +10,7 @@ const config = require('../config');
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 TracingProvider.init(
   config.get('tracing'),
-  require('../lib/log')({ ...config.log })
+  require('../lib/log')({ ...config.log, name: 'tracing' })
 );
 
 const error = require('../lib/error');
