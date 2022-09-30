@@ -13,9 +13,11 @@ export type TracingOpts = {
   };
   gcp?: {
     enabled: boolean;
+    filterPii: boolean;
   };
   jaeger?: {
     enabled: boolean;
+    filterPii: boolean;
   };
 };
 
@@ -45,12 +47,22 @@ export const tracingConfig = {
       doc: 'Traces report to the jaeger. This is only applicable for local development.',
       env: 'TRACING_JAEGER_EXPORTER_ENABLED',
     },
+    filterPii: {
+      default: true,
+      doc: 'Enables filtering PII in Jaeger traces.',
+      env: 'TRACING_JAEGER_FILTER_PII',
+    },
   },
   gcp: {
     enabled: {
       default: false,
       doc: 'Traces report to google cloud tracing. This should be turned on in the wild, but is discouraged for local development.',
       env: 'TRACING_GCP_EXPORTER_ENABLED',
+    },
+    filterPii: {
+      default: true,
+      doc: 'Enables filtering PII in GCP traces',
+      env: 'TRACING_GCP_FILTER_PII',
     },
   },
 };
