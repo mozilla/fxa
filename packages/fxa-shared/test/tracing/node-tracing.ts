@@ -32,6 +32,7 @@ import {
   SpanStatus,
 } from '@opentelemetry/api';
 import { FxaGcpTraceExporter } from '../../tracing/node-tracing';
+import { TracingPiiFilter } from '../../tracing/pii-filters';
 
 describe('node-tracing', () => {
   const sandbox = sinon.createSandbox();
@@ -292,13 +293,46 @@ describe('node-tracing', () => {
       }
     }
 
-    it('removes db.statements', () => {
-      const exporter = new FxaGcpTraceExporter();
-      const spans: ReadableSpan[] = [
-        new FakeSpan({ 'db.statement': 'select * from test' }),
-      ];
-      exporter.export(spans, () => {});
-      expect(spans[0].attributes['db.statement']).equals('[FILTERED]');
+    describe('pii filters', () => {
+      function check(key: string, val: string, mutation: string) {
+        const filter = new TracingPiiFilter();
+        const exporter = new FxaGcpTraceExporter(filter);
+        const spans: ReadableSpan[] = [new FakeSpan({ [key]: val })];
+        exporter.export(spans, () => {});
+        expect(spans[0].attributes[key]).equals(mutation);
+      }
+
+      it('filters pii from typical db.query', () => {
+        check(
+          'db.query',
+          `select * from test where email = 'test@mozilla.com' or ip = '1.1.1.1' or uid = x'abcd1234abcd1234abcd1234abcd1234';`,
+          `select * from test where email = '[Filtered]' or ip = '[Filtered]' or uid = x'[Filtered]';`
+        );
+      });
+
+      it('filters pii from typical db.statement call', () => {
+        check(
+          'db.statement',
+          `Call deleteSessionToken_4(X'28d678b8d828ad79d6666877ae6c2919556a1bdaa1598efc264633203abbc279');`,
+          `Call deleteSessionToken_4(X'[Filtered]');`
+        );
+      });
+
+      it('filters pii from typical http url call', () => {
+        check(
+          'http.route',
+          `/v1/session/28d678b8d828ad79d6666877ae6c2919556a1bdaa1598efc264633203abbc279`,
+          `/v1/session/[Filtered]`
+        );
+      });
+
+      it('filters pii from typical http url call', () => {
+        check(
+          'http.route',
+          `/v1/find?email=test@mozilla.com`,
+          `/v1/find?email=[Filtered]`
+        );
+      });
     });
   });
 });
