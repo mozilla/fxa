@@ -134,11 +134,10 @@ const ConnectAnotherDeviceView = FormView.extend({
   },
 
   getPairingUrl(){
-    // const group = this.isInReactContentServerExperiment;
+    const group = this.isInReactContentServerExperiment;
     // when this actually works, we'll do matching to check that the user is in the expected group.
-    // const pairingUrl = group ? '/test/pair?entrypoint=fxa_app_menu' : '/pair?entrypoint=fxa_app_menu'
-    // return pairingUrl;
-    return '/test/pair?entrypoint=fxa_app_menu';
+    const pairingUrl = group ? '/test/pair?entrypoint=fxa_app_menu' : '/pair?entrypoint=fxa_app_menu'
+    return pairingUrl;
   },
 
   setInitialContext(context) {
@@ -284,7 +283,8 @@ Cocktail.mixin(
   }),
   SyncAuthMixin,
   UserAgentMixin,
-  VerificationReasonMixin
+  VerificationReasonMixin,
+  ReactContentServerExperimentMixin
 );
 
 export default ConnectAnotherDeviceView;

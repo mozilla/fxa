@@ -9,7 +9,10 @@
    dependsOn: [ExperimentMixin],
 
    isInReactContentServerExperimentGroup() {
-     const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME);
-     return experimentGroup;
+    let isInExperiment = false;
+    if (this.isInExperiment(EXPERIMENT_NAME)) {
+      isInExperiment = true;
+    }
+    return isInExperiment;
    },
  };

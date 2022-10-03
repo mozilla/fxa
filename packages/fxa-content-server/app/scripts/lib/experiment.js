@@ -24,6 +24,7 @@ const MANUAL_EXPERIMENTS = {
   qrCodeCad: BaseExperiment,
   pushLogin: BaseExperiment,
   pocketMigration: BaseExperiment,
+  reactContentServer: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);

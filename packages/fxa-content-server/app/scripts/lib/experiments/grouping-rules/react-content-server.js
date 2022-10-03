@@ -34,6 +34,6 @@ module.exports = class ReactContentServer extends BaseGroupingRule {
    */
   choose(subject) {
     // For now this is just in testing so everyone gets in to the experiment.
-    return 'react';
+    return true;
   }
 };

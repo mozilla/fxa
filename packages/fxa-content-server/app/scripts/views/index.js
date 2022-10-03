@@ -103,12 +103,16 @@ class IndexView extends FormView {
     // select the experiment the user will belong to.
     this.getAndReportExperimentGroup('newsletterCadChooser');
 
+
+    this.getAndReportExperimentGroup('reactContentServer');
+
     // This is so we can show the delete success message after redirect
     // from the settings beta.
     if (this.getSearchParam('delete_account_success')) {
       this.displaySuccess(t('Account deleted successfully'));
     }
   }
+
 
   chooseEmailActionPage() {
     const relierEmail = this.relier.get('email');
