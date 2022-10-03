@@ -26,7 +26,6 @@ jobs:
       - name: Clone FxA code repository
         uses: actions/checkout@v3
         with:
-          repository: "mozilla/fxa"
           fetch-depth: 2
           path: "fxa-code"
       - name: Install npm packages
@@ -47,6 +46,7 @@ jobs:
           NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
 
           # Checkout base commit
+          git fetch origin ${{ github.event.pull_request.base.sha }}
           git checkout ${{ github.event.pull_request.base.sha }}
 
           # Extract gettext
