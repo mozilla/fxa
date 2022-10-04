@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postRemoveTwoStepAuthentication-subject-line",
-    "message": "Two-step authentication is off"
+    "id": "postRemoveTwoStepAuthentication-subject-line-2",
+    "message": "Two-step authentication turned off"
   },
   "action": {
     "id": "postRemoveTwoStepAuthentication-action",

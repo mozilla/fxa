@@ -5,24 +5,18 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postRemoveTwoStepAuthentication-title">Two-step authentication disabled</span>
+      <span data-l10n-id="postRemoveTwoStepAuthentication-title-2">You turned off two-step authentication</span>
     </mj-text>
-
     <mj-text css-class="text-body">
-      <span data-l10n-id="postRemoveTwoStepAuthentication-description">You have successfully disabled two-step authentication on your Firefox account from the following device:</span>
+      <span data-l10n-id="postRemoveTwoStepAuthentication-not-required-2">You no longer need security codes from your authentication app when you sign in.</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postRemoveTwoStepAuthentication-from-device">You disabled it from:</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/userInfo/index.mjml') %>
-
-<mj-section>
-  <mj-column>
-<mj-text css-class="text-body">
-  <span data-l10n-id="postRemoveTwoStepAuthentication-not-required">Security codes will no longer be required at each sign-in.</span>
-</mj-text>
-</mj-column>
-</mj-section>
 
 <%- include('/partials/button/index.mjml', {
   buttonL10nId: "postRemoveTwoStepAuthentication-action",

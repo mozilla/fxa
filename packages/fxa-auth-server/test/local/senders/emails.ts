@@ -1044,7 +1044,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postRemoveTwoStepAuthenticationEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Two-step authentication is off' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication turned off' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],
@@ -1052,7 +1052,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthentication }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Two-step authentication disabled' },
+      { test: 'include', expected: 'You turned off two-step authentication' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-disabled', 'privacy')) },
@@ -1065,11 +1065,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Two-step authentication disabled' },
+      { test: 'include', expected: 'You turned off two-step authentication' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')}` },
-      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')}` },
+      { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
-      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },

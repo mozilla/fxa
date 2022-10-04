@@ -1,6 +1,6 @@
-postRemoveTwoStepAuthentication-subject-line = Two-step authentication is off
-postRemoveTwoStepAuthentication-title = Two-step authentication disabled
-postRemoveTwoStepAuthentication-description = You have successfully disabled two-step authentication on your { -product-firefox-account } from the following device:
-postRemoveTwoStepAuthentication-description-plaintext = You have successfully disabled two-step authentication on your { -product-firefox-account }. Security codes will no longer be required at each sign-in.
+postRemoveTwoStepAuthentication-subject-line-2 = Two-step authentication turned off
+postRemoveTwoStepAuthentication-title-2 = You turned off two-step authentication
+# After the colon is a description of the device the user used to disable two-step authentication
+postRemoveTwoStepAuthentication-from-device = You disabled it from:
 postRemoveTwoStepAuthentication-action = Manage account
-postRemoveTwoStepAuthentication-not-required = Security codes will no longer be required at each sign-in.
+postRemoveTwoStepAuthentication-not-required-2 = You no longer need security codes from your authentication app when you sign in.
