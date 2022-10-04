@@ -24013,7 +24013,7 @@ fsevents@~2.1.1:
     mjml: ^4.13.0
     mjml-browser: ^4.13.0
     mocha: ^10.0.0
-    mocha-junit-reporter: ^2.0.2
+    mocha-junit-reporter: ^2.1.0
     moment: ^2.29.2
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
@@ -33664,9 +33664,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha-junit-reporter@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "mocha-junit-reporter@npm:2.0.2"
+"mocha-junit-reporter@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "mocha-junit-reporter@npm:2.1.0"
   dependencies:
     debug: ^2.2.0
     md5: ^2.1.0
@@ -33675,7 +33675,7 @@ fsevents@~2.1.1:
     xml: ^1.0.0
   peerDependencies:
     mocha: ">=2.2.5"
-  checksum: 78505ab4c471a176ac27195d7a95034ff90e2a123ec79f762b588e845a40a5423821e6bbf444033931e60bcab9b4fdd57d08026cecef7c7e766fbd2334c43df4
+  checksum: 26b3ce65159f36ce3861e0d3b15ec2e6d1dd5aa8b1619665a6d64e1fc8aba6bf37ecd0eb5368663143060ec9a7696b59642b524c870e674d8d4b093c50139ca2
   languageName: node
   linkType: hard
 
