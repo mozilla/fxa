@@ -29,6 +29,8 @@ documents_to_convert=(
   mdn_plus_terms.md
   mozilla_hubs_privacy_notice.md
   mozilla_hubs_tos.md
+  subscription_services_privacy_notice.md
+  subscription_services_tos.md
 )
 
 legal_docs_path=""
