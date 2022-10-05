@@ -193,7 +193,7 @@
     "mailparser": "0.6.1",
     "mjml-browser": "^4.13.0",
     "mocha": "^10.0.0",
-    "mocha-junit-reporter": "^2.0.2",
+    "mocha-junit-reporter": "^2.1.0",
     "moment": "^2.29.2",
     "nock": "^13.2.2",
     "nodemon": "^2.0.19",
