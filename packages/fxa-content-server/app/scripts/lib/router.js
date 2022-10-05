@@ -223,6 +223,7 @@ const Router = Backbone.Router.extend({
         isSampledUser,
         service,
         uniqueUserId,
+        experiments
       } = this.metrics.getFilteredData();
 
       // Our GQL client sets the `redirect_to` param if a user attempts
@@ -238,6 +239,8 @@ const Router = Backbone.Router.extend({
         throw new Error('Invalid redirect!');
       }
 
+      const showNewReactApp = experiments.includes('generalizedReactApp');
+
       const settingsLink = `${endpoint}${Url.objToSearchString({
         deviceId,
         flowBeginTime,
@@ -247,47 +250,9 @@ const Router = Backbone.Router.extend({
         isSampledUser,
         service,
         uniqueUserId,
+        showNewReactApp
       })}`;
       this.navigateAway(settingsLink);
-    },
-    'testing(/)': function () {
-      // Because settings is a separate js app, we need to ensure navigating
-      // from the content-server app passes along flow parameters.
-      const { deviceId, flowBeginTime, flowId } =
-        this.metrics.getFlowEventMetadata();
-
-      const {
-        broker,
-        context: ctx,
-        isSampledUser,
-        service,
-        uniqueUserId,
-      } = this.metrics.getFilteredData();
-
-      // Our GQL client sets the `redirect_to` param if a user attempts
-      // to navigate directly to a section in testing
-      const searchParams = new URLSearchParams(this.window.location.search);
-
-      let endpoint = searchParams.get('redirect_to');
-      if (!endpoint) {
-        endpoint = `/testing`;
-      } else if (
-        !this.isValidRedirect(endpoint, this.config.redirectAllowlist)
-      ) {
-        throw new Error('Invalid redirect!');
-      }
-
-      const testingLink = `${endpoint}${Url.objToSearchString({
-        deviceId,
-        flowBeginTime,
-        flowId,
-        broker,
-        context: ctx,
-        isSampledUser,
-        service,
-        uniqueUserId,
-      })}`;
-      this.navigateAway(testingLink);
     },
     'signin(/)': createViewHandler(SignInPasswordView),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),

@@ -121,6 +121,6 @@ export default {
    *
    */
      replaceCurrentPageWithReactConnectAnotherDeviceScreen() {
-      this.navigateAway('/test/connect_another_device', {});
+      this.navigateAway('/test/connect_another_device?showNewReactApp="true"', {});
     },
 };

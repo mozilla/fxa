@@ -17,4 +17,5 @@ interface FlowQueryParams {
   isSampledUser?: boolean;
   service?: string;
   uniqueUserId?: string;
+  showNewReactApp?: string;
 }

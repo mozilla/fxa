@@ -6,7 +6,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import App from './components/App';
+import GeneralizedApp from './components/GeneralizedRootApp';
+import { App } from './components/App';
 import config from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
@@ -30,12 +31,23 @@ try {
     <React.StrictMode>
       <AppContext.Provider value={appContext}>
         <AppErrorBoundary>
-          <App
-            {...{
-              flowQueryParams,
-              navigatorLanguages: navigator.languages,
-            }}
-          />
+          {
+            //hacky! needs a cleanup. sometimes we get a bool and sometimes a string.
+            flowQueryParams.showNewReactApp !== "false" ?
+              <GeneralizedApp
+                {...{
+                  flowQueryParams,
+                  navigatorLanguages: navigator.languages,
+                }}
+              />
+              :
+              <App
+              {...{
+                flowQueryParams,
+                navigatorLanguages: navigator.languages,
+              }}
+            />
+          }
         </AppErrorBoundary>
       </AppContext.Provider>
     </React.StrictMode>,
