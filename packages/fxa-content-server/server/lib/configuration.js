@@ -609,6 +609,12 @@ const conf = (module.exports = convict({
             'https://send2.dev.lcip.org/oauth',
           ],
         },
+        'https://identity.mozilla.com/apps/123done': {
+          redirectUris: [
+            'http://localhost:8080/api/oauth',
+            'https://stage-123done.herokuapp.com/api/oauth',
+          ],
+        },
       },
       doc: 'Validates redirect uris for requested scopes',
       env: 'SCOPED_KEYS_VALIDATION',
