@@ -120,37 +120,79 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    ['preferences', 'synced-tabs', 'tabs-sidebar', 'fxa_app_menu'].forEach(
-      (entrypoint) => {
-        const isAppMenu = entrypoint === 'fxa_app_menu';
-        describe(`with known entrypoint ${entrypoint}${
-          isAppMenu && ' and action=email'
-        }`, () => {
-          beforeEach(() => {
-            sinon.stub(view, '_isSignedIn').callsFake(() => true);
-            relier.set('entrypoint', entrypoint);
-            relier.set('context', 'fx_desktop_v3');
-            // `fxa_app_menu` without `action=email` redirects. If present, it does not redirect.
-            if (isAppMenu) {
-              relier.set('action', 'email');
-            }
-            sinon.spy(view, 'navigate');
+    [
+      'preferences',
+      'synced-tabs',
+      'tabs-sidebar',
+      'fxa_app_menu',
+      'fx-view',
+    ].forEach((entrypoint) => {
+      const isAppMenu = entrypoint === 'fxa_app_menu';
+      describe(`with known entrypoint ${entrypoint}${
+        isAppMenu && ' and action=email'
+      }`, () => {
+        beforeEach(() => {
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
+          relier.set('entrypoint', entrypoint);
+          relier.set('context', 'fx_desktop_v3');
+          // `fxa_app_menu` without `action=email` redirects. If present, it does not redirect.
+          if (isAppMenu) {
+            relier.set('action', 'email');
+          }
+          sinon.spy(view, 'navigate');
 
-            windowMock.navigator.userAgent =
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+          windowMock.location.search = `?entrypoint=${entrypoint}`;
+          windowMock.navigator.userAgent =
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
-            return view.render().then(() => {
-              view.afterVisible();
-            });
-          });
-
-          it('shows the success message and does not redirect', () => {
-            assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
-            assert.isTrue(view.navigate.notCalled);
+          return view.render().then(() => {
+            view.afterVisible();
           });
         });
-      }
-    );
+
+        it('shows the success message and does not redirect', () => {
+          assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+          assert.isTrue(view.navigate.notCalled);
+        });
+
+        it('passes the entrypoint param through', () => {
+          assert.isTrue(
+            view
+              .$('#sync-firefox-devices')
+              .attr('href')
+              .includes(`entrypoint=${entrypoint}`)
+          );
+        });
+      });
+    });
+
+    describe('with an invalid entrypoint', () => {
+      beforeEach(() => {
+        sinon.stub(view, '_isSignedIn').callsFake(() => true);
+        sinon.spy(view, 'navigate');
+        windowMock.location.search = '?entrypoint=t3st0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+
+        return view.render().then(() => {
+          view.afterVisible();
+        });
+      });
+
+      it('shows the success message and does not redirect', () => {
+        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+        assert.isTrue(view.navigate.notCalled);
+      });
+
+      it('sets entrypoint param with to the default', () => {
+        assert.isTrue(
+          view
+            .$('#sync-firefox-devices')
+            .attr('href')
+            .includes('entrypoint=fxa_app_menu')
+        );
+      });
+    });
 
     describe('with a fennec user that is signed in', () => {
       beforeEach(() => {
