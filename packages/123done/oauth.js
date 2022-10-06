@@ -146,16 +146,17 @@ module.exports = function (app, db) {
   });
 
   app.get('/api/two_step_authentication', function (req, res) {
-    setupOAuthFlow(req, 'email', { acrValues: 'AAL2' }, function (
-      err,
-      params,
-      oauthConfig
-    ) {
-      if (err) {
-        return res.send(400, err);
+    setupOAuthFlow(
+      req,
+      'email',
+      { acrValues: 'AAL2' },
+      function (err, params, oauthConfig) {
+        if (err) {
+          return res.send(400, err);
+        }
+        return res.redirect(redirectUrl(params, oauthConfig));
       }
-      return res.redirect(redirectUrl(params, oauthConfig));
-    });
+    );
   });
 
   // begin a force auth flow
@@ -169,22 +170,24 @@ module.exports = function (app, db) {
   });
 
   app.get('/api/prompt_none', function (req, res) {
-    setupOAuthFlow(req, null, { prompt: 'none' }, function (
-      err,
-      params,
-      oauthConfig
-    ) {
-      if (err) {
-        return res.send(400, err);
+    setupOAuthFlow(
+      req,
+      null,
+      { prompt: 'none' },
+      function (err, params, oauthConfig) {
+        if (err) {
+          return res.send(400, err);
+        }
+        // If there is an email specified on the query params,
+        // save it in case FxA returns an error code saying
+        // the user needs to authenticate. FxA will be
+        // re-opened with the email in the query params
+        // and asked to sign in as that user.
+        req.session.requestedLoginHint =
+          req.query.email || req.query.login_hint;
+        return res.redirect(redirectUrl(params, oauthConfig));
       }
-      // If there is an email specified on the query params,
-      // save it in case FxA returns an error code saying
-      // the user needs to authenticate. FxA will be
-      // re-opened with the email in the query params
-      // and asked to sign in as that user.
-      req.session.requestedLoginHint = req.query.email || req.query.login_hint;
-      return res.redirect(redirectUrl(params, oauthConfig));
-    });
+    );
   });
 
   app.get('/api/oauth', function (req, res) {
@@ -235,6 +238,7 @@ module.exports = function (app, db) {
           console.log(err, body); //eslint-disable-line no-console
           req.session.scopes = body.scopes;
           req.session.token_type = body.token_type;
+          req.session.keys_jwe = body.keys_jwe;
           var token = (req.session.token = body.access_token);
           var id_token = body.id_token;
 

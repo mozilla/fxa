@@ -167,6 +167,10 @@ $(document).ready(function () {
       } else {
         $('body').removeClass('is-subscribed');
       }
+
+      if (loggedInState.keys_jwe) {
+        $('#keys').text(`Scoped key: ${loggedInState.keys_jwe}`);
+      }
     }
 
     function updateListArea(email) {
@@ -256,6 +260,16 @@ $(document).ready(function () {
         forceExperiment: 'thirdPartyAuth',
         forceExperimentGroup: 'google',
         deeplink: 'googleLogin',
+      });
+    });
+
+    $('button.scope-keys').click(function (ev) {
+      authenticate('best_choice', {
+        keys_jwk:
+          'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
+          'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
+          'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+        scope: 'profile openid https://identity.mozilla.com/apps/123done',
       });
     });
 

@@ -71,6 +71,7 @@ app.get('/api/auth_status', function (req, res) {
       subscriptions: req.session.subscriptions || [],
       amr: req.session.amr || null,
       acr: req.session.acr || '0',
+      keys_jwe: req.session.keys_jwe || null,
     })
   );
 });

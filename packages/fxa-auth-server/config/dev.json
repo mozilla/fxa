@@ -205,7 +205,8 @@
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
         "redirectUri": "http://localhost:8080/api/oauth",
         "trusted": true,
-        "canGrant": false
+        "canGrant": false,
+        "allowedScopes": "https://identity.mozilla.com/apps/123done"
       },
       {
         "id": "38a6b9b3a65a1871",
@@ -400,6 +401,10 @@
     "scopes": [
       {
         "scope": "https://identity.mozilla.com/apps/notes",
+        "hasScopedKeys": true
+      },
+      {
+        "scope": "https://identity.mozilla.com/apps/123done",
         "hasScopedKeys": true
       },
       {
