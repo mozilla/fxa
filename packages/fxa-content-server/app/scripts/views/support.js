@@ -219,11 +219,11 @@ const SupportView = BaseView.extend({
   },
 
   formatProductName: function (name) {
-    return `${productPrefix}${name}`;
+    return name ? `${productPrefix}${name}` : '';
   },
 
   unformatProductName: function (name) {
-    return name.slice(productPrefix.length);
+    return name ? name.slice(productPrefix.length) : '';
   },
 
   submitButtonUIToggle: function () {
