@@ -2650,6 +2650,13 @@ export class StripeHelper extends StripeHelperBase {
     };
   }
 
+  stripePlanToPaymentCycle(plan: Stripe.Plan) {
+    if (plan.interval_count === 1) {
+      return plan.interval;
+    }
+    return `${plan.interval_count} ${plan.interval}s`;
+  }
+
   /**
    * Extract subscription update details for billing emails
    */
@@ -2696,18 +2703,26 @@ export class StripeHelper extends StripeHelperBase {
       );
     }
 
-    const previousAttributes = eventData.previous_attributes;
+    // Stripe only sends fields that have changed in their previous_attributes field
+    // Additionally, previous_attributes is a generic field that has no proper typings
+    // and is used in a flexible manner.
+    const previousAttributes = eventData.previous_attributes as any;
+    const planOldDiff = (previousAttributes as any)
+      .plan as Partial<Stripe.Plan> | null;
+    const planOld: Stripe.Plan | null = planOldDiff
+      ? {
+          ...planNew,
+          ...planOldDiff,
+        }
+      : null;
+
     const planIdNew = planNew.id;
-    // This may be in error, its not obvious what previous attributes must exist
-    // @ts-ignore
-    const planOld = previousAttributes.plan;
+
     const cancelAtPeriodEndNew = subscription.cancel_at_period_end;
-    // @ts-ignore
     const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
 
     const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
     const {
-      interval: productPaymentCycleNew,
       amount: paymentAmountNewInCents,
       currency: paymentAmountNewCurrency,
     } = planNew;
@@ -2719,6 +2734,8 @@ export class StripeHelper extends StripeHelperBase {
       emailIconURL: productIconURLNew = '',
     } = productNewMetadata;
     const planConfig = await this.maybeGetPlanConfig(planIdNew);
+
+    const productPaymentCycleNew = this.stripePlanToPaymentCycle(planNew);
 
     const baseDetails = {
       uid,
@@ -2960,14 +2977,15 @@ export class StripeHelper extends StripeHelperBase {
         ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
         : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 
+    const productPaymentCycleOld = this.stripePlanToPaymentCycle(planOld);
+
     return {
       ...baseDetails,
       updateType,
       productIdOld,
       productNameOld,
       productIconURLOld,
-      productPaymentCycleOld:
-        planOld.interval ?? baseDetails.productPaymentCycleNew,
+      productPaymentCycleOld,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
       invoiceNumber,
