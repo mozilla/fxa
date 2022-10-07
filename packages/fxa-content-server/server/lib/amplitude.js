@@ -434,9 +434,15 @@ const EVENTS = {
     group: GROUPS.qrConnectDevice,
     event: 'view',
   },
+  // submit event from pairing authority
+  'flow.pair.auth.allow.submit': {
+    group: GROUPS.qrConnectDevice,
+    event: 'submit',
+  },
+  // the screen displayed if the pairing authority approved first
   'screen.pair.auth.wait-for-supp': {
     group: GROUPS.qrConnectDevice,
-    event: 'engage',
+    event: 'wait_for_supp',
   },
   'screen.pair.auth.complete': {
     group: GROUPS.qrConnectDevice,
