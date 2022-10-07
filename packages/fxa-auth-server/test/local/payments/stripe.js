@@ -5418,13 +5418,17 @@ describe('StripeHelper', () => {
             event
           );
         assert.equal(result, mockUpgradeDowngradeDetails);
+        const oldPlan = {
+          ...event.data.object.plan,
+          ...event.data.previous_attributes.plan,
+        };
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
           event.data.object.plan.metadata.productOrder,
-          event.data.previous_attributes.plan
+          oldPlan
         );
       });
 
@@ -5437,13 +5441,17 @@ describe('StripeHelper', () => {
             event
           );
         assert.equal(result, mockUpgradeDowngradeDetails);
+        const oldPlan = {
+          ...event.data.object.plan,
+          ...event.data.previous_attributes.plan,
+        };
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
           event.data.object.plan.metadata.productOrder,
-          event.data.previous_attributes.plan
+          oldPlan
         );
       });
 
