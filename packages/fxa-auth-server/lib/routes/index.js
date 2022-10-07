@@ -5,9 +5,7 @@
 'use strict';
 
 const url = require('url');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
-const api = require('@opentelemetry/api');
-const { suppressTracing } = require('@opentelemetry/core');
+const tracing = require('fxa-shared/tracing/node-tracing');
 
 module.exports = function (
   log,
@@ -215,12 +213,12 @@ module.exports = function (
 
       if (canOptOut) {
         const isMetricsEnabled = await request.app.isMetricsEnabled;
-        const currentCxt = api.context.active();
         if (!isMetricsEnabled) {
           // We need to create a parent context that suppresses traces.
           // Hapi's auto instrumentation inherits from the parent context and therefore
           // will get this.
-          return api.context.with(suppressTracing(currentCxt), () => {
+
+          return tracing.suppressTracing(() => {
             return fn(request);
           });
         }
@@ -232,7 +230,7 @@ module.exports = function (
   v1Routes.forEach((r) => {
     r.path = `${basePath}/v1${r.path}`;
 
-    if (TracingProvider.nodeTracing) {
+    if (tracing.isInitialized()) {
       if (r.handler) {
         r.handler = optionallyIgnoreTrace(r.handler);
       }

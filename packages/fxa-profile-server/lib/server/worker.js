@@ -2,15 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const config = require('../config').getProperties();
+const logger = require('../logging')('server.worker');
+
+const tracing = require('fxa-shared/tracing/node-tracing');
+tracing.init(config.tracing, logger);
+
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const P = require('../promise');
 
 const AppError = require('../error');
 const compute = require('../compute');
-const config = require('../config').getProperties();
+
 const img = require('../img');
-const logger = require('../logging')('server.worker');
 
 const SIZES = img.SIZES;
 
