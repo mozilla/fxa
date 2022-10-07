@@ -23862,7 +23862,7 @@ fsevents@~2.1.1:
     pm2: ^5.1.2
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.2.0
+    rxjs: ^7.5.7
     stripe: ^9.16.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -24363,7 +24363,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.2.0
+    rxjs: ^7.5.7
     sqs-consumer: ^5.7.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -24463,7 +24463,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.2.0
+    rxjs: ^7.5.7
     superagent: ^8.0.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -24884,7 +24884,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
-    rxjs: ^7.2.0
+    rxjs: ^7.5.7
     sinon: ^9.0.3
     stripe: ^9.16.0
     superagent: ^8.0.0
@@ -24937,7 +24937,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.2.0
+    rxjs: ^7.5.7
     semver: ^7.3.5
     superagent: ^8.0.0
     supertest: ^6.3.0
@@ -40934,21 +40934,21 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "rxjs@npm:7.2.0"
-  dependencies:
-    tslib: ~2.1.0
-  checksum: 92a3511035b3d51e97018247218183e5ef88d167ef271c1222be1b2d98b4a5daa5c3827e2b536c3f11f91ad435907820e7a91446d92f222430fd00e0b9f7dbba
-  languageName: node
-  linkType: hard
-
 "rxjs@npm:^7.5.5":
   version: 7.5.6
   resolution: "rxjs@npm:7.5.6"
   dependencies:
     tslib: ^2.1.0
   checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^7.5.7":
+  version: 7.5.7
+  resolution: "rxjs@npm:7.5.7"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: edabcdb73b0f7e0f5f6e05c2077aff8c52222ac939069729704357d6406438acca831c24210db320aba269e86dbe1a400f3769c89101791885121a342fb15d9c
   languageName: node
   linkType: hard
 
@@ -45001,13 +45001,6 @@ resolve@^2.0.0-next.3:
   version: 2.0.3
   resolution: "tslib@npm:2.0.3"
   checksum: 00fcdd1f9995c9f8eb6a4a1ad03f55bc95946321b7f55434182dddac259d4e095fedf78a84f73b6e32dd3f881d9281f09cb583123d3159ed4bdac9ad7393ef8b
-  languageName: node
-  linkType: hard
-
-"tslib@npm:~2.1.0":
-  version: 2.1.0
-  resolution: "tslib@npm:2.1.0"
-  checksum: aa189c8179de0427b0906da30926fd53c59d96ec239dff87d6e6bc831f608df0cbd6f77c61dabc074408bd0aa0b9ae4ec35cb2c15f729e32f37274db5730cb78
   languageName: node
   linkType: hard
 
