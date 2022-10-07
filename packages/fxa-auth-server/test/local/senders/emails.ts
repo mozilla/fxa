@@ -1107,7 +1107,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postAddTwoStepAuthenticationEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Two-step authentication enabled' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication turned on' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
@@ -1115,8 +1115,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthentication }],
     ])],
     ['html', [
-      { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account from the following device:' },
-      { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
+      { test: 'include', expected: 'You turned on two-step authentication' },
+      { test: 'include', expected: 'Security codes from your authentication app are now required every time you sign in.' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
@@ -1129,12 +1129,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'You have successfully enabled two-step authentication on your Firefox account.' },
-      { test: 'include', expected: 'Security codes from your authentication app will now be required at each sign-in.' },
+      { test: 'include', expected: 'You turned on two-step authentication' },
+      { test: 'include', expected: 'Security codes from your authentication app are now required every time you sign in.' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
-      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
+      { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
-      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },

@@ -5,24 +5,19 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postAddTwoStepAuthentication-title">Two-step authentication enabled</span>
+      <span data-l10n-id="postAddTwoStepAuthentication-title-2">You turned on two-step authentication</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postAddTwoStepAuthentication-description">You have successfully enabled two-step authentication on your Firefox account from the following device:</span>
+      <span data-l10n-id="postAddTwoStepAuthentication-code-required-2">Security codes from your authentication app are now required every time you sign in.</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddTwoStepAuthentication-from-device">You enabled it from:</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/userInfo/index.mjml') %>
-
-<mj-section>
-  <mj-column>
-    <mj-text css-class="text-body">
-      <span data-l10n-id="postAddTwoStepAuthentication-code-required">Security codes from your authentication app will now be required at each sign-in.</span>
-    </mj-text>
-  </mj-column>
-</mj-section>
 
 <%- include('/partials/button/index.mjml', {
   buttonL10nId: "postAddTwoStepAuthentication-action",

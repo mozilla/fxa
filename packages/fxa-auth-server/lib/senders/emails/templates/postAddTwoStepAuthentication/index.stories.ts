@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'postAddTwoStepAuthentication',
-  'Sent when a user has enabled 2FA on their account, informing them of the change and new requirement to use a security code',
+  'Sent to notify the account is linked to another account.',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',
