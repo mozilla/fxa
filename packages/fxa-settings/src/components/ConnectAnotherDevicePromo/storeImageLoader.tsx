@@ -83,7 +83,7 @@ const storeImages = [
     sl: slApple,
     'sv-SE': svSEApple,
     tr: trApple,
-    'zh-CH': zhCNApple,
+    'zh-CN': zhCNApple,
     'zh-TW': zhTWApple,
   },
   {
@@ -112,7 +112,7 @@ const storeImages = [
     sv: svGoogle,
     tr: trGoogle,
     uk: ukGoogle,
-    'zh-CH': zhCNGoogle,
+    'zh-CN': zhCNGoogle,
     'zh-TW': zhTWGoogle,
   },
 ];
