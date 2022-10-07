@@ -116,7 +116,7 @@ export const PlanDetailsCard = ({
           >
             <img
               src={webIcon || ffLogo}
-              alt={product_name}
+              alt={productDetails.name || product_name}
               data-testid="product-logo"
               className="w-8 h-8"
             />
@@ -127,7 +127,7 @@ export const PlanDetailsCard = ({
               id="plan-details-product"
               className="product-name plan-details-product"
             >
-              {product_name}
+              {productDetails.name || product_name}
             </h3>
 
             {/* TODO: make this configurable, issue #4741 / FXA-1484 */}

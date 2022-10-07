@@ -62,6 +62,7 @@ export interface ProductMetadata {
 // The ProductDetails type is exploded out into enums describing keys to
 // make Stripe metadata parsing & validation easier.
 export enum ProductDetailsStringProperties {
+  'name',
   'subtitle',
   'successActionButtonLabel',
   'termsOfServiceURL',

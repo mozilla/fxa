@@ -574,6 +574,23 @@ export const MOCK_PLANS: Plan[] = [
     },
     active: false,
   },
+  {
+    plan_id: 'plan_withname',
+    product_id: PRODUCT_ID,
+    product_name: PRODUCT_NAME,
+    interval: 'year' as const,
+    interval_count: 1,
+    amount: 999,
+    currency: 'usd',
+    plan_metadata: {
+      'product:name': 'Nyctereutes viverrinus',
+    },
+    product_metadata: {
+      webIconURL: 'http://example.com/product.jpg',
+      webIconBackground: 'purple',
+    },
+    active: true,
+  },
 ];
 
 export const MOCK_PROFILE: Profile = {
