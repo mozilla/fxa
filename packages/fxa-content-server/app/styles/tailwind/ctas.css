@@ -13,3 +13,7 @@
   background-image: inline('../images/spinnerwhite.svg');
   @apply -mt-[6px] mx-auto;
 }
+
+a.cta-primary:focus {
+  color: #fff;
+}
