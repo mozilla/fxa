@@ -43,7 +43,7 @@ export default {
       entryPoint === Constants.FIREFOX_PREFERENCES_ENTRYPOINT ||
       entryPoint === Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
       entryPoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_FX_VIEW ||
+      entryPoint === Constants.FIREFOX_FX_VIEW_ENTRYPOINT ||
       entryPoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT
     );
   },

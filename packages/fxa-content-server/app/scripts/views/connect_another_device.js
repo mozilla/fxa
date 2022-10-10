@@ -14,17 +14,22 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
-import {
-  MARKETING_ID_AUTUMN_2016,
-  SYNC_SERVICE,
-  UTM_SOURCE_EMAIL,
-} from '../lib/constants';
+import Constants from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
 import MarketingSnippet from './marketing_snippet';
 import SyncAuthMixin from './mixins/sync-auth-mixin';
 import Template from 'templates/connect_another_device.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+
+const entrypoints = Object.keys(Constants)
+  .filter((k) => k.endsWith('_ENTRYPOINT'))
+  .map((k) => Constants[k]);
+const isValidEntrypoint = (entrypoint) => entrypoints.includes(entrypoint);
+const getEntrypoint = (entrypoint) =>
+  isValidEntrypoint(entrypoint)
+    ? entrypoint
+    : Constants.FIREFOX_MENU_ENTRYPOINT;
 
 const ConnectAnotherDeviceView = FormView.extend({
   template: Template,
@@ -46,7 +51,7 @@ const ConnectAnotherDeviceView = FormView.extend({
 
   afterRender() {
     const options = {
-      marketingId: MARKETING_ID_AUTUMN_2016,
+      marketingId: Constants.MARKETING_ID_AUTUMN_2016,
     };
 
     // If the user signed up and verified in Firefox for Android or is using Firefox iOS,
@@ -147,7 +152,9 @@ const ConnectAnotherDeviceView = FormView.extend({
     const isSignIn = this.isSignIn();
     const isSignUp = this.isSignUp();
     const showSuccessMessage = this._showSuccessMessage();
-    const pairingUrl = '/pair?entrypoint=fxa_app_menu';
+
+    const entrypoint = getEntrypoint(this.getSearchParam('entrypoint'));
+    const pairingUrl = `/pair?entrypoint=${entrypoint}`;
 
     context.set({
       canSignIn,
@@ -239,7 +246,7 @@ const ConnectAnotherDeviceView = FormView.extend({
       //   * https://github.com/mozilla/fxa-auth-server/issues/2496
       //
       //eslint-disable-next-line camelcase
-      utm_source: UTM_SOURCE_EMAIL,
+      utm_source: Constants.UTM_SOURCE_EMAIL,
     });
   },
 
@@ -263,7 +270,7 @@ Cocktail.mixin(
     // This screen is only shown to Sync users. The service is always Sync,
     // even if not specified on the URL. This makes manual testing slightly
     // easier where sometimes ?service=sync is forgotten. See #4948.
-    service: SYNC_SERVICE,
+    service: Constants.SYNC_SERVICE,
   }),
   SyncAuthMixin,
   UserAgentMixin,
