@@ -4,6 +4,7 @@
 
 const { readFileSync } = require('fs');
 const { join } = require('path');
+const { getTraceParentId } = require('fxa-shared/tracing/node-tracing');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const config = require('./configuration');
 
@@ -59,6 +60,7 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
+  tracing: config.get('tracing'),
 };
 
 // Inject Beta Settings meta content
@@ -73,6 +75,15 @@ function swapBetaMeta(html, metaContent = {}) {
       key,
       encodeURIComponent(JSON.stringify(metaContent[key]))
     );
+  });
+
+  Object.keys(metaContent).forEach((key) => {
+    let val = metaContent[key];
+    if (typeof val === 'object') {
+      val = encodeURIComponent(JSON.stringify(metaContent[key]));
+    }
+
+    result = result.replace(key, val);
   });
 
   return result;
@@ -103,6 +114,7 @@ function modifyProxyRes(proxyRes, req, res) {
       let html = body.toString();
       html = swapBetaMeta(html, {
         __SERVER_CONFIG__: settingsConfig,
+        __TRACE_PARENT__: getTraceParentId(),
       });
       res.send(new Buffer.from(html));
     } else {
@@ -125,6 +137,7 @@ const modifySettingsStatic = function (req, res) {
   return res.send(
     swapBetaMeta(settingsIndexFile, {
       __SERVER_CONFIG__: settingsConfig,
+      __TRACE_PARENT__: getTraceParentId(),
     })
   );
 };

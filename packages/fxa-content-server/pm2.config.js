@@ -21,6 +21,7 @@ module.exports = {
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,
         TRACING_SERVICE_NAME: 'fxa-content-server',
+        TRACING_CLIENT_NAME: 'fxa-content-client',
       },
       filter_env: ['npm_'],
       watch: ['server'],

@@ -2,80 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  TraceExporter as GcpTraceExporter,
-  TraceExporterOptions as GcpTraceExporterOptions,
-} from '@google-cloud/opentelemetry-cloud-trace-exporter';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { ExportResult } from '@opentelemetry/core';
-import {
-  ExporterConfig as JaegerExporterConfig,
-  JaegerExporter,
-} from '@opentelemetry/exporter-jaeger';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { Resource } from '@opentelemetry/resources';
-
-import {
-  BatchSpanProcessor,
-  ConsoleSpanExporter,
-  ParentBasedSampler,
-  ReadableSpan,
-  SimpleSpanProcessor,
-  TraceIdRatioBasedSampler,
-} from '@opentelemetry/sdk-trace-base';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import api from '@opentelemetry/api';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { suppressTracing } from '@opentelemetry/core';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 
 import { ILogger } from '../log';
-import { TracingOpts } from './config';
-import { TracingPiiFilter } from './pii-filters';
+import { checkSampleRate, checkServiceName, TracingOpts } from './config';
+import { addConsoleExporter } from './exporters/fxa-console';
+import { addGcpTraceExporter } from './exporters/fxa-gcp';
+import { addOtlpTraceExporter } from './exporters/fxa-otlp';
+import { createPiiFilter } from './pii-filters';
+import { createNodeProvider } from './providers/node-provider';
 
 const log_type = 'node-tracing';
-
-/**
- * Overloaded GcpTraceExporter that removes PII from traces.
- */
-export class FxaGcpTraceExporter extends GcpTraceExporter {
-  constructor(
-    protected readonly filter?: TracingPiiFilter,
-    config?: GcpTraceExporterOptions
-  ) {
-    super(config);
-  }
-
-  override export(
-    spans: ReadableSpan[],
-    resultCallback: (result: ExportResult) => void
-  ) {
-    if (this.filter) {
-      spans.forEach((x) => this.filter?.filter(x));
-    }
-    return super.export(spans, resultCallback);
-  }
-}
-
-/**
- * Overloaded JaegerExporter that removes PII from traces.
- */
-export class FxaJaegerTraceExporter extends JaegerExporter {
-  constructor(
-    protected readonly filter?: TracingPiiFilter,
-    config?: JaegerExporterConfig
-  ) {
-    super(config);
-  }
-
-  override export(
-    spans: ReadableSpan[],
-    resultCallback: (result: ExportResult) => void
-  ) {
-    if (this.filter) {
-      spans.forEach((x) => this.filter?.filter(x));
-    }
-    return super.export(spans, resultCallback);
-  }
-}
+const tracer_name = 'fxa-tracer';
 
 /**
  * Responsible for initializing node tracing from a config object. This uses the auto instrumentation feature
@@ -84,55 +26,27 @@ export class FxaJaegerTraceExporter extends JaegerExporter {
  */
 export class NodeTracingInitializer {
   protected provider: NodeTracerProvider;
-  protected piiFilter: TracingPiiFilter;
 
   constructor(
     protected readonly opts: TracingOpts,
     protected readonly logger?: ILogger
   ) {
-    this.piiFilter = new TracingPiiFilter(this.logger);
-    this.provider = this.initProvider();
-    this.init();
+    // Error out if certain options are invalid
+    checkServiceName(this.opts);
+    checkSampleRate(this.opts);
+
+    const provider = createNodeProvider(this.opts);
+    this.provider = provider;
+
+    const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
+    addGcpTraceExporter(opts, provider, filter);
+    addOtlpTraceExporter(opts, provider, filter);
+    addConsoleExporter(opts, provider, filter);
+
+    this.register();
   }
 
-  /**
-   * The main initialization routine.
-   */
-  public init() {
-    this.initInstrumentations();
-    this.initConsole();
-    this.initJaeger();
-    this.initGcp();
-  }
-
-  protected initProvider() {
-    if (!this.opts.serviceName) {
-      throw new Error('Missing config. serviceName must be defined!');
-    }
-
-    if (
-      this.opts.sampleRate == null ||
-      this.opts.sampleRate < 0 ||
-      this.opts.sampleRate > 1
-    ) {
-      throw new Error(
-        `Invalid config. sampleRate must be a number between 0 and 1, but was ${this.opts.sampleRate}.`
-      );
-    }
-
-    const provider = new NodeTracerProvider({
-      sampler: new ParentBasedSampler({
-        root: new TraceIdRatioBasedSampler(this.opts.sampleRate),
-      }),
-      resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: this.opts.serviceName,
-      }),
-    });
-    provider.register();
-    return provider;
-  }
-
-  protected initInstrumentations() {
+  protected register() {
     registerInstrumentations({
       instrumentations: [
         getNodeAutoInstrumentations({
@@ -143,106 +57,102 @@ export class NodeTracingInitializer {
           '@opentelemetry/instrumentation-net': {
             enabled: false,
           },
+          '@opentelemetry/instrumentation-express': {
+            enabled: false,
+            ignoreLayers: [
+              // These two routes always produce bad timings... Maybe it's something to look into.
+              //  'request handler - undefined',
+              // 'request handler - /'
+            ],
+          },
         }),
       ],
     });
-  }
-
-  protected initConsole() {
-    if (!this.opts.console?.enabled) {
-      this.logger?.info(log_type, { msg: 'console not enabled' });
-      return;
-    }
-    const exporter = new ConsoleSpanExporter();
-    this.provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
     this.provider.register();
-    this.logger?.info(log_type, { msg: 'console enabled' });
   }
 
-  protected initJaeger() {
-    const opts = this.opts.jaeger;
-
-    if (!opts?.enabled) {
-      this.logger?.info(log_type, { msg: 'jaeger not enabled' });
-      return;
-    }
-    this.logger?.info(log_type, {
-      msg: 'Initializing trace exports to jaeger.',
-      ...opts,
-    });
-
-    const options = {
-      endpoint: 'http://localhost:14268/api/traces',
-    };
-    const exporter = opts.filterPii
-      ? new FxaJaegerTraceExporter(this.piiFilter)
-      : new FxaJaegerTraceExporter();
-
-    const processor = new SimpleSpanProcessor(exporter);
-    this.provider.addSpanProcessor(processor);
-    this.provider.register();
-    this.logger?.info(log_type, { msg: 'jaeger enabled' });
+  public startSpan(name: string, action: () => void) {
+    return this.provider.getTracer(tracer_name).startActiveSpan(name, action);
   }
 
-  protected initGcp() {
-    const opts = this.opts?.gcp;
-
-    if (!opts?.enabled) {
-      this.logger?.info(log_type, { msg: 'gcp not enabled' });
-      return;
-    }
-    this.logger?.info(log_type, {
-      msg: 'Initializing trace exports to gcp.',
-      ...opts,
-    });
-
-    const exporter = opts.filterPii
-      ? new FxaGcpTraceExporter(this.piiFilter)
-      : new FxaGcpTraceExporter();
-
-    const processor = new BatchSpanProcessor(exporter);
-    this.provider.addSpanProcessor(processor);
-    this.provider.register();
-    this.logger?.info(log_type, { msg: 'gcp enabled' });
-  }
-
-  protected getTraceId() {
+  /** Gets current traceId */
+  public getTraceId() {
     const currentSpan = api.trace.getSpan(api.context.active());
     if (currentSpan) {
       return currentSpan.spanContext().traceId;
     }
     return null;
   }
+
+  public getTraceParentId() {
+    const tracer = this.provider.getTracer('fxa');
+    const span = tracer.startSpan('client-inject');
+    const version = '00';
+    const spanContext = span.spanContext();
+    let sampleDecision = '00';
+    if (Math.random() <= this.opts.sampleRate) {
+      sampleDecision = '01';
+    }
+    const parentId = `${version}-${spanContext.traceId}-${spanContext.spanId}-${sampleDecision}`;
+    span.end();
+    return parentId;
+  }
 }
 
-export let nodeTracing: NodeTracingInitializer;
-export function init(opts: TracingOpts, logger?: ILogger) {
-  logger?.info(log_type, { msg: 'Initializing node tracing.' });
+/** Singleton */
+let nodeTracing: NodeTracingInitializer | undefined;
 
+/** Gets active trace parent id */
+export function getTraceParentId() {
+  if (nodeTracing == null) {
+    return '00-0-0-00';
+  }
+  return nodeTracing.getTraceParentId();
+}
+
+/** Initializes tracing in node context */
+export function init(opts: TracingOpts, logger: ILogger) {
   if (nodeTracing != null) {
-    logger?.warn(log_type, {
-      msg: 'Trace initialization skipped. Tracing already initialized.',
+    logger?.debug(log_type, {
+      msg: 'Trace initialization skipped. Tracing already initialized, ignoring new opts.',
     });
-    return;
+    return nodeTracing;
   }
 
-  if (
-    opts.console?.enabled !== true &&
-    opts.gcp?.enabled !== true &&
-    opts.jaeger?.enabled !== true
-  ) {
-    logger?.debug(log_type, {
-      msg: 'Trace initialization skipped. No exporters configured. Enable, gcp, jeager, or console to activate tracing.',
+  if (!opts.jaeger?.enabled && !opts.gcp?.enabled && !opts.console?.enabled) {
+    logger.debug(log_type, {
+      msg: 'Trace initialization skipped. No exporters configured. Enable gcp, jeager or console to activate tracing.',
     });
     return;
   }
 
   try {
     nodeTracing = new NodeTracingInitializer(opts, logger);
-    logger?.info(log_type, { msg: 'Trace initialized succeeded!' });
+    logger.info(log_type, { msg: 'Trace initialized succeeded!' });
   } catch (err) {
-    logger?.error(log_type, {
+    logger.error(log_type, {
       msg: `Trace initialization failed: ${err.message}`,
     });
   }
+  return nodeTracing;
+}
+
+/** Resets the current tracing instance. Use only for testing purposes. */
+export function getCurrent() {
+  return nodeTracing;
+}
+
+/** Indicates that tracing has been initialized. */
+export function isInitialized() {
+  return !!nodeTracing;
+}
+
+export function suppressTrace(action: () => any) {
+  const currentCtx = api.context.active();
+  return api.context.with(suppressTracing(currentCtx), action);
+}
+
+/** Resets the current tracing instance. Use only for testing purposes. */
+export function reset() {
+  nodeTracing = undefined;
 }
