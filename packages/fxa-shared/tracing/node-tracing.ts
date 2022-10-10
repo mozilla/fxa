@@ -40,7 +40,7 @@ export class NodeTracingInitializer {
 
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
     addGcpTraceExporter(opts, provider, filter);
-    addOtlpTraceExporter(opts, provider, filter);
+    addOtlpTraceExporter(opts, provider, undefined, filter);
     addConsoleExporter(opts, provider, filter);
 
     this.register();

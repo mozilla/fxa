@@ -13,11 +13,15 @@ import { BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
 import { ILogger } from '../log';
 import { checkClientName, checkSampleRate, TracingOpts } from './config';
 import { addConsoleExporter } from './exporters/fxa-console';
-import { addOtlpTraceExporter } from './exporters/fxa-otlp';
+import {
+  addOtlpTraceExporter,
+  FxaOtlpTracingHeaders,
+} from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
 import { createWebProvider } from './providers/web-provider';
 
 export const log_type = 'browser-tracing';
+
 /**
  * Responsible for initializing browser tracing from a config object.
  */
@@ -32,7 +36,7 @@ export class BrowserTracing {
 
   constructor(
     public readonly opts: TracingOpts,
-    protected readonly flowId?: string,
+    protected readonly headers?: FxaOtlpTracingHeaders,
     protected readonly logger?: ILogger
   ) {
     // Make sure config has valid options
@@ -44,13 +48,13 @@ export class BrowserTracing {
 
     const filter = createPiiFilter(opts.filterPii, this.logger);
     addConsoleExporter(opts, provider, filter);
-    addOtlpTraceExporter(opts, provider, filter);
+    addOtlpTraceExporter(opts, provider, headers, filter);
     this.register();
   }
 
   public addFlowId(span: Span) {
-    if (this.flowId) {
-      span.setAttribute('flow.id', this.flowId);
+    if (this.headers?.flowid) {
+      span.setAttribute('flow.id', this.headers?.flowid);
     }
   }
 
@@ -109,7 +113,11 @@ export class BrowserTracing {
 let browserTracing: BrowserTracing | undefined;
 
 /** Initializes web tracing. This can only be invoked once. */
-export function init(opts: TracingOpts, flowId: string, logger: ILogger) {
+export function init(
+  opts: TracingOpts,
+  headers: FxaOtlpTracingHeaders,
+  logger: ILogger
+) {
   if (browserTracing != null) {
     logger.debug(log_type, {
       msg: 'Trace initialization skipped. Tracing already initialized, ignoring new opts.',
@@ -131,7 +139,7 @@ export function init(opts: TracingOpts, flowId: string, logger: ILogger) {
   }
 
   try {
-    browserTracing = new BrowserTracing(opts, flowId, logger);
+    browserTracing = new BrowserTracing(opts, headers, logger);
     logger.info(log_type, { msg: 'Trace initialized succeeded!' });
   } catch (err) {
     logger.error(log_type, {

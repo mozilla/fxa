@@ -6,11 +6,21 @@ import * as tracing from 'fxa-shared/tracing/browser-tracing';
 import ConfigLoader from './lib/config-loader';
 import AppStart from './lib/app-start';
 
+const getAttr = (selector, attrName) => {
+  const el = document.querySelector(selector);
+  return el && el.getAttribute(attrName);
+};
+
 const configLoader = new ConfigLoader();
 configLoader.fetch().then((config) => {
   if (config.tracing) {
-    const flowId = $ && $(document.body).data('flowId'); // eslint-disable-line no-undef
-    tracing.init(config.tracing, flowId, console);
+    const tracingHeaders = {
+      flowid: getAttr('body', 'data-flow-id'),
+      traceparent: getAttr('meta[name="traceparent"]', 'content'),
+      tracestate: getAttr('meta[name="tracestate"]', 'content'),
+    };
+
+    tracing.init(config.tracing, tracingHeaders, console);
   }
 
   const appStart = new AppStart({
