@@ -105,7 +105,7 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$(Selectors.PASSWORD), 1);
       assert.lengthOf(view.$(Selectors.VPASSWORD), 1);
       assert.lengthOf(view.$(Selectors.AGE), 1);
-      assert.lengthOf(view.$(Selectors.AGE_EXPLAINER), 1);
+      assert.lengthOf(view.$(Selectors.COPPA_LINK), 1);
       assert.lengthOf(view.$(Selectors.TOS), 1);
       assert.lengthOf(view.$(Selectors.PRIVACY_POLICY), 1);
       assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 1);

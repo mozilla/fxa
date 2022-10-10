@@ -764,8 +764,8 @@ module.exports = {
   },
   SIGNUP_PASSWORD: {
     AGE: '#age',
-    AGE_EXPLAINER: '#age-explainer',
     CHOOSE_WHAT_TO_SYNC_HEADER: '#fxa-choose-what-to-sync-header',
+    COPPA_LINK: '#coppa-link',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     ERROR_PASSWORDS_DO_NOT_MATCH: '.error',

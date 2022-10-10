@@ -1,7 +1,5 @@
 <div id="coppa" class="mb-8 tooltip-container">
-  <label for="age" id="age-label" class="sr-only">{{#t}}How old are you? You must be at least 13 years old to create an account.{{/t}}</label>
+  <label for="age" id="age-label" class="sr-only">{{#t}}How old are you? To learn why we ask for your age, follow the “why do we ask” link below.{{/t}}</label>
   <input type="number" pattern="\d*" id="age" class="input-text no-step" placeholder="{{#t}}How old are you?{{/t}}" aria-labelledby="age-label" min="0" max="130" value="{{ age }}" {{#required}}required{{/required}} />
-  <!-- If you update this string you must update it in the label as well.
-  This is hidden from screenreaders in favor of reading it before users enter their age. -->
-  <p aria-hidden="true" id="age-explainer" class="text-grey-500 text-start text-xs mt-3">{{#t}}You must be at least 13 years old to create an account.{{/t}}</p>
+  <p id="coppa-link" class="text-start mt-3 link-blue"><a href="https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites" target="_blank">{{#t}}Why do we ask?{{/t}}</a></p>
 </div>
