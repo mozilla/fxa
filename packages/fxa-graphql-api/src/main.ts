@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-import { init as initTracing } from 'fxa-shared/tracing/node-tracing';
+import * as tracing from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
 import { Request, Response } from 'express';
 import mozLog from 'mozlog';
@@ -16,7 +16,7 @@ import Config, { AppConfig } from './config';
 
 async function bootstrap() {
   // Initialize tracing first
-  initTracing(
+  tracing.init(
     Config.getProperties().tracing,
     mozLog(Config.getProperties().log)(Config.getProperties().log.app)
   );

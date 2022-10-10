@@ -2,14 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const config = require('../config').getProperties();
+const logger = require('../logging')('server.web');
+
+const tracing = require('fxa-shared/tracing/node-tracing');
+tracing.init(config.tracing, logger);
+
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
 const cloneDeep = require('lodash').cloneDeep;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
-const config = require('../config').getProperties();
-const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
 

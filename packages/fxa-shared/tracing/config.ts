@@ -6,51 +6,70 @@
  * Options for configuring tracing.
  */
 export type TracingOpts = {
-  serviceName: string;
+  batchProcessor: boolean;
+  clientName: string;
+  corsUrls: string;
+  filterPii: boolean;
   sampleRate: number;
+  serviceName: string;
+
   console?: {
     enabled: boolean;
   };
   gcp?: {
     enabled: boolean;
-    filterPii: boolean;
   };
   jaeger?: {
     enabled: boolean;
-    filterPii: boolean;
+    otlpUrl: string;
+    concurrencyLimit: number;
   };
 };
 
 /** Default convict config for node tracing */
 export const tracingConfig = {
-  serviceName: {
+  clientName: {
     default: '',
-    doc: 'The name service being traced.',
-    env: 'TRACING_SERVICE_NAME',
+    doc: 'The name of client being traced.',
+    env: 'TRACING_CLIENT_NAME',
     format: String,
+  },
+  batchProcessor: {
+    default: true,
+    doc: 'Indicates if batch processing should be used. Batch processing is better for production environments.',
+    env: 'TRACING_BATCH_PROCESSING',
+    format: Boolean,
+  },
+  corsUrls: {
+    default: 'http://localhost:\\d*/',
+    doc: 'A regex to allow tracing of cors requests',
+    env: 'TRACING_CORS_URLS',
+    format: String,
+  },
+  filterPii: {
+    default: true,
+    doc: 'Enables filtering PII in Console traces.',
+    env: 'TRACING_FILTER_PII',
+    format: Boolean,
   },
   sampleRate: {
     default: 0,
     doc: 'A number between 0 and 1 that indicates the rate at which to sample. 1 will capture all traces. .5 would capture half the traces, and 0 would capture no traces.',
     env: 'TRACING_SAMPLE_RATE',
+    format: Number,
+  },
+  serviceName: {
+    default: '',
+    doc: 'The name of service being traced.',
+    env: 'TRACING_SERVICE_NAME',
+    format: String,
   },
   console: {
     enabled: {
       default: false,
       doc: 'Trace report to the console',
       env: 'TRACING_CONSOLE_EXPORTER_ENABLED',
-    },
-  },
-  jaeger: {
-    enabled: {
-      default: false,
-      doc: 'Traces report to the jaeger. This is only applicable for local development.',
-      env: 'TRACING_JAEGER_EXPORTER_ENABLED',
-    },
-    filterPii: {
-      default: true,
-      doc: 'Enables filtering PII in Jaeger traces.',
-      env: 'TRACING_JAEGER_FILTER_PII',
+      format: Boolean,
     },
   },
   gcp: {
@@ -58,11 +77,58 @@ export const tracingConfig = {
       default: false,
       doc: 'Traces report to google cloud tracing. This should be turned on in the wild, but is discouraged for local development.',
       env: 'TRACING_GCP_EXPORTER_ENABLED',
+      format: Boolean,
     },
-    filterPii: {
-      default: true,
-      doc: 'Enables filtering PII in GCP traces',
-      env: 'TRACING_GCP_FILTER_PII',
+  },
+  jaeger: {
+    enabled: {
+      default: false,
+      doc: 'Traces report to the jaeger. This is only applicable for local development.',
+      env: 'TRACING_JAEGER_EXPORTER_ENABLED',
+      format: Boolean,
+    },
+    otlpUrl: {
+      default: 'http://localhost:4318/v1/traces',
+      doc: 'Open telemetry collector url',
+      env: 'TRACING_JAEGER_OTLP_URL',
+      format: String,
+    },
+    concurrencyLimit: {
+      default: 10,
+      doc: 'Max amount of concurrency',
+      env: 'TRACING_JAEGER_CONCURRENCY_LIMIT',
+      format: Number,
     },
   },
 };
+
+export function checkServiceName(opts: Pick<TracingOpts, 'serviceName'>) {
+  if (!opts.serviceName) {
+    throw new Error('Missing config. serviceName must be defined!');
+  }
+}
+
+export function checkSampleRate(opts: Pick<TracingOpts, 'sampleRate'>) {
+  if (
+    opts.sampleRate == null ||
+    Number.isNaN(opts.sampleRate) ||
+    opts.sampleRate < 0 ||
+    opts.sampleRate > 1
+  ) {
+    throw new Error(
+      `Invalid config. sampleRate must be a number between 0 and 1, but was ${opts.sampleRate}.`
+    );
+  }
+}
+
+export function checkClientName(opts: Pick<TracingOpts, 'clientName'>) {
+  if (!opts.clientName) {
+    throw new Error('Missing config. clientName must be defined!');
+  }
+}
+
+export function someModesEnabled(
+  opts: Pick<TracingOpts, 'jaeger' | 'gcp' | 'console'>
+) {
+  return opts.jaeger?.enabled || opts.gcp?.enabled || opts.console?.enabled;
+}

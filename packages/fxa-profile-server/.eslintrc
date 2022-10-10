@@ -1,6 +1,4 @@
 {
-  "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"],
   "env": {
     "mocha": true
   },

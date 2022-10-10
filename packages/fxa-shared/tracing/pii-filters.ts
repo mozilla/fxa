@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FilterBase } from '../sentry/pii-filters';
-import { CommonPiiActions } from '../sentry/pii-filter-actions';
-import { PiiData } from '../sentry/models/pii';
 import { ILogger } from '../log';
+import { PiiData } from '../sentry/models/pii';
+import { CommonPiiActions } from '../sentry/pii-filter-actions';
+import { FilterBase } from '../sentry/pii-filters';
 
 /** Matches attribute names that need to be filtered. */
 const reTargetPiiAttributes = /^(db|http)\./;
@@ -57,4 +57,20 @@ export class TracingPiiFilter extends FilterBase {
 
     return data;
   }
+}
+
+/** Singleton */
+let piiFilter: TracingPiiFilter;
+
+/** Creates a PII filter for tracing. This behaves as a singleton. */
+export function createPiiFilter(enabled: boolean, logger?: ILogger) {
+  if (!enabled) {
+    return;
+  }
+
+  if (!piiFilter) {
+    piiFilter = new TracingPiiFilter(logger);
+  }
+
+  return piiFilter;
 }
