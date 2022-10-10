@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { deepMerge } from './utilities';
+import { TracingOpts } from 'fxa-shared/tracing/config';
 
 export const META_CONFIG = 'fxa-config';
 
@@ -42,6 +43,7 @@ export interface Config {
     length: number;
   };
   version: string;
+  tracing: TracingOpts;
 }
 
 export function getDefault() {
@@ -76,6 +78,13 @@ export function getDefault() {
       count: 8,
       length: 10,
     },
+    tracing: {
+      serviceName: '',
+      clientName: '',
+      sampleRate: 0.0,
+      batchProcessor: true,
+      filterPii: true,
+    },
   } as Config;
 }
 
@@ -88,7 +97,8 @@ export function readConfigMeta(
     throw new Error('<meta name="fxa-config"> is missing');
   }
 
-  update(decode(metaEl.getAttribute('content')));
+  const metaConfig = decode(metaEl.getAttribute('content'));
+  update(metaConfig);
 }
 
 export function decode(content: string | null) {

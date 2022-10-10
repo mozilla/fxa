@@ -21,6 +21,8 @@ module.exports = {
         BROWSER: 'NONE',
         PORT: '3000',
         PATH,
+        TRACING_SERVICE_NAME: 'fxa-settings-server',
+        TRACING_CLIENT_NAME: 'fxa-settings-client',
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
       time: true,

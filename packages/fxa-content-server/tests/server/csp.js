@@ -42,7 +42,7 @@ suite.tests['blockingRules'] = function () {
   assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, config.get('env') === 'development' ? 9 : 8);
+  assert.lengthOf(connectSrc, config.get('env') === 'development' ? 10 : 9);
   assert.include(connectSrc, Sources.AUTH_SERVER);
   assert.include(connectSrc, Sources.GQL_SERVER);
   assert.include(connectSrc, Sources.OAUTH_SERVER);
@@ -51,6 +51,7 @@ suite.tests['blockingRules'] = function () {
   assert.include(connectSrc, Sources.PROFILE_SERVER);
   assert.include(connectSrc, Sources.SELF);
   assert.include(connectSrc, Sources.SENTRY_SERVER);
+  assert.include(connectSrc, Sources.TRACE_OTLP_URL);
 
   const defaultSrc = directives.defaultSrc;
   assert.lengthOf(defaultSrc, 1);

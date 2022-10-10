@@ -6,13 +6,27 @@ import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import sentryMetrics from 'fxa-shared/lib/sentry';
+import { init as initTracing } from 'fxa-shared/tracing/browser-tracing';
 import App from './components/App';
-import config from './lib/config';
+import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import './styles/tailwind.out.css';
 
 try {
+  // Check for flow id
+  const flowQueryParams = searchParams(
+    window.location.search
+  ) as FlowQueryParams;
+
+  // Populate config
+  readConfigMeta((name: string) => {
+    return document.head.querySelector(name);
+  });
+
+  // Add tracing support
+  initTracing(config.tracing, flowQueryParams.flowId || '', console);
+
   const appContext = initializeAppContext();
 
   sentryMetrics.configure({
@@ -21,10 +35,6 @@ try {
       ...config.sentry,
     },
   });
-
-  const flowQueryParams = searchParams(
-    window.location.search
-  ) as FlowQueryParams;
 
   render(
     <React.StrictMode>

@@ -6,6 +6,7 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
+const { getTraceParentId } = require('fxa-shared/tracing/node-tracing');
 
 module.exports = function (config) {
   let featureFlags;
@@ -46,6 +47,8 @@ module.exports = function (config) {
   const GOOGLE_AUTH_CONFIG = config.get('googleAuthConfig');
   const APPLE_AUTH_CONFIG = config.get('appleAuthConfig');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
+  const TRACING_CONFIG = config.get('tracing');
+
   // Note that this list is only enforced for clients that use login_hint/email
   // with prompt=none. id_token_hint clients are not subject to this check.
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
@@ -86,6 +89,7 @@ module.exports = function (config) {
     },
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
+    tracing: TRACING_CONFIG,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   };
 
@@ -121,6 +125,11 @@ module.exports = function (config) {
         req.query.client_id &&
         PROMPT_NONE_ENABLED_CLIENT_IDS.has(req.query.client_id);
 
+      const traceParent = getTraceParentId();
+      let traceState = '';
+      if (flowEventData && flowEventData.flowId) {
+        traceState = `flow.id=${flowEventData.flowId}`;
+      }
       res.render('index', {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
@@ -136,6 +145,8 @@ module.exports = function (config) {
         flowId: flowEventData.flowId,
         // Note that staticResourceUrl is added to templates as a build step
         staticResourceUrl: STATIC_RESOURCE_URL,
+        traceParent,
+        traceState,
       });
 
       if (req.headers.dnt === '1') {
