@@ -66,6 +66,9 @@ const mockCapabilityService = {};
 let config, log, db, customs, push, mailer, profile;
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const {
+  SubscriptionEligibilityResult,
+} = require('fxa-shared/subscriptions/types');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
@@ -443,6 +446,15 @@ describe('DirectStripeRoutes', () => {
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
     stripeHelperMock.currencyHelper = currencyHelper;
+    stripeHelperMock.stripe = {
+      subscriptions: {
+        del: sinon.spy(async (uid) => undefined),
+      },
+    };
+    mockCapabilityService.getPlanEligibility = sinon.stub();
+    mockCapabilityService.getPlanEligibility.resolves(
+      SubscriptionEligibilityResult.CREATE
+    );
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -452,7 +464,8 @@ describe('DirectStripeRoutes', () => {
       push,
       mailer,
       profile,
-      stripeHelperMock
+      stripeHelperMock,
+      mockCapabilityService
     );
   });
 
@@ -794,6 +807,9 @@ describe('DirectStripeRoutes', () => {
       );
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.returns(
+        undefined
+      );
       directStripeRoutesInstance.stripeHelper.setCustomerLocation.resolves();
     });
 
@@ -933,6 +949,29 @@ describe('DirectStripeRoutes', () => {
       } catch (err) {
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+
+    it('errors when customer is already subscribed to plan', async () => {
+      mockCapabilityService.getPlanEligibility.resolves(
+        SubscriptionEligibilityResult.INVALID
+      );
+
+      VALID_REQUEST.payload = {
+        displayName: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription when already subscribed should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS);
+        sinon.assert.notCalled(
+          directStripeRoutesInstance.stripeHelper.cancelSubscription
+        );
       }
     });
 
@@ -1171,6 +1210,48 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST,
         UID,
         TEST_EMAIL
+      );
+    });
+
+    it('deletes incomplete subscription when creating new subscription', async () => {
+      const invalidSubscriptionId = 'example';
+      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.returns(
+        {
+          id: invalidSubscriptionId,
+          status: 'incomplete',
+        }
+      );
+
+      const sourceCountry = 'us';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        deepCopy(subscription2)
+      );
+
+      VALID_REQUEST.payload = {
+        priceId: 'quux',
+        idempotencyKey: uuidv4(),
+      };
+
+      await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
+
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
+        {
+          customerId: customer.id,
+          priceId: 'quux',
+          promotionCode: undefined,
+          paymentMethodId: undefined,
+          taxRateId: undefined,
+        }
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.cancelSubscription,
+        invalidSubscriptionId
       );
     });
 
