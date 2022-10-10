@@ -40,12 +40,12 @@ export function addOtlpTraceExporter(
   provider: BasicTracerProvider,
   filter?: TracingPiiFilter
 ) {
-  if (!opts.jaeger?.enabled) {
+  if (!opts.otel?.enabled) {
     return;
   }
   const config = {
-    url: opts.jaeger?.otlpUrl,
-    concurrencyLimit: opts.jaeger?.concurrencyLimit,
+    url: opts.otel?.url,
+    concurrencyLimit: opts.otel?.concurrencyLimit,
   };
   const exporter = new FxaOtlpWebExporter(filter, config);
   addExporter(opts, provider, exporter);

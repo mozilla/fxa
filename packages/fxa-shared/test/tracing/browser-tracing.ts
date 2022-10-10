@@ -139,7 +139,7 @@ describe('browser-tracing', () => {
         spies.logger
       );
       sinon.assert.calledWithMatch(spies.logger.debug, log_type, {
-        msg: 'Trace initialization skipped. No exporters configured. Enable jeager or console to activate tracing.',
+        msg: 'Trace initialization skipped. No exporters configured. Enable otel or console to activate tracing.',
       });
     });
 

@@ -100,7 +100,7 @@ require('fxa-shared/tracing/node-tracing').init(config.get('tracing'));
 ```
 
 To see traces on your local system, simply enable Jaeger exports on the service. This can be done by setting the environment
-variable TRACING_JAEGER_EXPORTER_ENABLED=true and TRACING_SAMPLE_RATE=1. The default config for tracing found at fxa-shared/tracing/config.ts
+variable TRACING_OTEL_EXPORTER_ENABLED=true and TRACING_SAMPLE_RATE=1. The default config for tracing found at fxa-shared/tracing/config.ts
 will pick up this variable and start exporting trace data to the Jaeger container running at `localhost:16686`.
 
 It is also possible to publish directly to google cloud trace from your local environment; however, this is not recommended. If you

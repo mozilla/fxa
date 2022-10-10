@@ -123,9 +123,9 @@ export function init(opts: TracingOpts, flowId: string, logger: ILogger) {
     });
   }
 
-  if (!opts.jaeger?.enabled && !opts.console?.enabled) {
+  if (!opts.otel?.enabled && !opts.console?.enabled) {
     logger.debug(log_type, {
-      msg: 'Trace initialization skipped. No exporters configured. Enable jeager or console to activate tracing.',
+      msg: 'Trace initialization skipped. No exporters configured. Enable otel or console to activate tracing.',
     });
     return;
   }

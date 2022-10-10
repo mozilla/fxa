@@ -71,10 +71,12 @@ function swapBetaMeta(html, metaContent = {}) {
   let result = html;
 
   Object.keys(metaContent).forEach((key) => {
-    result = result.replace(
-      key,
-      encodeURIComponent(JSON.stringify(metaContent[key]))
-    );
+    let val = metaContent[key];
+    if (typeof val === 'object') {
+      val = encodeURIComponent(JSON.stringify(metaContent[key]));
+    }
+
+    result = result.replace(key, val);
   });
 
   Object.keys(metaContent).forEach((key) => {

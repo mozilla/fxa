@@ -39,8 +39,8 @@ module.exports = function (config) {
 
   const tracingConfig = config.get('tracing');
   let TRACE_OTLP_URL = undefined;
-  if (tracingConfig.jaeger && tracingConfig.jaeger.otlpUrl) {
-    TRACE_OTLP_URL = url.parse(tracingConfig.jaeger.otlpUrl);
+  if (tracingConfig.otel && tracingConfig.otel.url) {
+    TRACE_OTLP_URL = url.parse(tracingConfig.otel.url);
     TRACE_OTLP_URL = TRACE_OTLP_URL.href.replace(TRACE_OTLP_URL.pathname, '');
   }
 
