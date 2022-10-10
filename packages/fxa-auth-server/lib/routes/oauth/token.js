@@ -292,17 +292,24 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       throw OauthError.invalidToken();
     }
     // Scope should default to those previously requested,
-    // but can be further limited on request.
+    // but can be further limited or increased on request.
     if (params.scope) {
-      // You can't request *extra* scopes using this grant though!
+      // Untrusted clients can not request *extra* scopes using this grant.
+      // However, we do allow trusted clients to request additional scopes in the
+      // clients allowedScopes property
       if (!tokObj.scope.contains(params.scope)) {
-        log.debug('refresh_token.invalidScopes', {
-          allowed: tokObj.scope,
-          requested: params.scope,
-        });
-        throw OauthError.invalidScopes(
-          params.scope.difference(tokObj.scope).getScopeValues()
-        );
+        const allowedScopes = ScopeSet.fromArray(
+          client.allowedScopes ? client.allowedScopes.split(' ') : []
+        ).union(tokObj.scope);
+        if (!client.trusted || !allowedScopes.contains(params.scope)) {
+          log.debug('refresh_token.invalidScopes', {
+            allowed: tokObj.scope,
+            requested: params.scope,
+          });
+          throw OauthError.invalidScopes(
+            params.scope.difference(tokObj.scope).getScopeValues()
+          );
+        }
       }
       tokObj.scope = params.scope;
     }
