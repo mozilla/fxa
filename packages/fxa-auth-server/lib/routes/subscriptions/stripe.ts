@@ -77,6 +77,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
+  capabilityService: CapabilityService;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -88,11 +89,12 @@ export class StripeHandler {
     protected push: any,
     protected mailer: any,
     protected profile: any,
-    protected stripeHelper: StripeHelper,
-    protected capabilityService: CapabilityService
+    protected stripeHelper: StripeHelper
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+
+    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**
@@ -512,11 +514,8 @@ export class StripeHandler {
       // Make sure to clean up any subscriptions that may be hanging with no payment
       const existingSubscription =
         this.stripeHelper.findCustomerSubscriptionByPlanId(customer, priceId);
-      if (
-        existingSubscription &&
-        existingSubscription.status === 'incomplete'
-      ) {
-        this.stripeHelper.cancelSubscription(existingSubscription.id);
+      if (existingSubscription?.status === 'incomplete') {
+        await this.stripeHelper.cancelSubscription(existingSubscription.id);
       }
 
       // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
@@ -799,13 +798,8 @@ export const stripeRoutes = (
   push: any,
   mailer: any,
   profile: any,
-  stripeHelper: StripeHelper,
-  capabilityService?: CapabilityService
+  stripeHelper: StripeHelper
 ): ServerRoute[] => {
-  if (!capabilityService) {
-    capabilityService = Container.get(CapabilityService);
-  }
-
   const stripeHandler = new StripeHandler(
     log,
     db,
@@ -814,8 +808,7 @@ export const stripeRoutes = (
     push,
     mailer,
     profile,
-    stripeHelper,
-    capabilityService
+    stripeHelper
   );
 
   // FIXME: All of these need to be wrapped in Stripe error handling

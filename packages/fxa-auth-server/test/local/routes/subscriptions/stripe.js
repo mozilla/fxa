@@ -455,6 +455,7 @@ describe('DirectStripeRoutes', () => {
     mockCapabilityService.getPlanEligibility.resolves(
       SubscriptionEligibilityResult.CREATE
     );
+    Container.set(CapabilityService, mockCapabilityService);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -464,8 +465,7 @@ describe('DirectStripeRoutes', () => {
       push,
       mailer,
       profile,
-      stripeHelperMock,
-      mockCapabilityService
+      stripeHelperMock
     );
   });
 
