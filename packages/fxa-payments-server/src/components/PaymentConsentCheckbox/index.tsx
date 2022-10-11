@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import { Checkbox } from '../fields';
-import { Plan } from '../../store/types';
-import { formatPlanPricing, getLocalizedCurrency } from '../../lib/formats';
-import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
-import AppContext from '../../lib/AppContext';
 import { Localized } from '@fluent/react';
+import { urlsFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
+import React, { useContext } from 'react';
+
+import AppContext from '../../lib/AppContext';
+import { Plan } from '../../store/types';
+import { Checkbox } from '../fields';
 
 export type PaymentConsentCheckboxProps = {
   plan: Plan;
@@ -23,29 +23,17 @@ export const PaymentConsentCheckbox = ({
     config.featureFlags.useFirestoreProductConfigs
   );
 
-  const planPricing = formatPlanPricing(
-    plan.amount,
-    plan.currency,
-    plan.interval,
-    plan.interval_count
-  );
-
   return (
     <Localized
-      id={`payment-confirm-with-legal-links-${plan.interval}`}
-      vars={{
-        intervalCount: plan.interval_count,
-        amount: getLocalizedCurrency(plan.amount, plan.currency),
-      }}
+      id="payment-confirm-with-legal-links-static"
       elems={{
-        strong: <strong></strong>,
         termsOfServiceLink: <a href={termsOfService}>Terms of Service</a>,
         privacyNoticeLink: <a href={privacyNotice}>Privacy Notice</a>,
       }}
     >
       <Checkbox name="confirm" data-testid="confirm" onClick={onClick} required>
         I authorize Mozilla, maker of Firefox products, to charge my payment
-        method <strong>{planPricing}</strong>, according to{' '}
+        method for the amount shown, according to{' '}
         <a href={termsOfService}>Terms of Service</a> and{' '}
         <a href={privacyNotice}>Privacy Notice</a>, until I cancel my
         subscription.
