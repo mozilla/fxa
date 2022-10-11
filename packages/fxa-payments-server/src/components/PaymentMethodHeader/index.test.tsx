@@ -1,6 +1,8 @@
-import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { cleanup, fireEvent, render, act } from '@testing-library/react';
+
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import React from 'react';
+
 import { PaymentMethodHeader, PaymentMethodHeaderType } from '.';
 import {
   getLocalizedMessage,
@@ -94,7 +96,7 @@ describe('components/PaymentMethodHeader', () => {
         MOCK_PLANS.find((p) => p.plan_id === 'plan_daily') || MOCK_PLANS[0];
       const props = { plan, onClick: () => {} };
       const expectedMsg =
-        'I authorize Mozilla, maker of Firefox products, to charge my payment method $5.00 daily, according to Terms of Service and Privacy Notice, until I cancel my subscription.';
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method for the amount shown, according to Terms of Service and Privacy Notice, until I cancel my subscription.';
 
       const { findByTestId } = render(<PaymentMethodHeader {...props} />);
 
