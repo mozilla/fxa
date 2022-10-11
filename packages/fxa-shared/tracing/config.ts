@@ -19,9 +19,9 @@ export type TracingOpts = {
   gcp?: {
     enabled: boolean;
   };
-  jaeger?: {
+  otel?: {
     enabled: boolean;
-    otlpUrl: string;
+    url: string;
     concurrencyLimit: number;
   };
 };
@@ -80,23 +80,23 @@ export const tracingConfig = {
       format: Boolean,
     },
   },
-  jaeger: {
+  otel: {
     enabled: {
       default: false,
-      doc: 'Traces report to the jaeger. This is only applicable for local development.',
-      env: 'TRACING_JAEGER_EXPORTER_ENABLED',
+      doc: 'Traces report to the otel. This is only applicable for local development.',
+      env: 'TRACING_OTEL_EXPORTER_ENABLED',
       format: Boolean,
     },
-    otlpUrl: {
+    url: {
       default: 'http://localhost:4318/v1/traces',
       doc: 'Open telemetry collector url',
-      env: 'TRACING_JAEGER_OTLP_URL',
+      env: 'TRACING_OTEL_URL',
       format: String,
     },
     concurrencyLimit: {
       default: 10,
       doc: 'Max amount of concurrency',
-      env: 'TRACING_JAEGER_CONCURRENCY_LIMIT',
+      env: 'TRACING_OTEL_CONCURRENCY_LIMIT',
       format: Number,
     },
   },
@@ -128,7 +128,7 @@ export function checkClientName(opts: Pick<TracingOpts, 'clientName'>) {
 }
 
 export function someModesEnabled(
-  opts: Pick<TracingOpts, 'jaeger' | 'gcp' | 'console'>
+  opts: Pick<TracingOpts, 'otel' | 'gcp' | 'console'>
 ) {
-  return opts.jaeger?.enabled || opts.gcp?.enabled || opts.console?.enabled;
+  return opts.otel?.enabled || opts.gcp?.enabled || opts.console?.enabled;
 }

@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+
+exporters:
+  logging:
+    loglevel: debug
+  jaeger:
+    endpoint: "jaeger.otel:14250"
+    tls:
+      insecure: true
+  googlecloud:
+    project: '${TRACING_GCP_PROJECT}'
+    retry_on_failure:
+      enabled: false
+    log:
+      default_log_name: opentelemetry.io/collector-exported-log
+
+processors:
+  batch:
+  memory_limiter:
+    # 75% of maximum memory up to 4G
+    limit_mib: 1536
+    # 25% of limit up to 2G
+    spike_limit_mib: 512
+    check_interval: 5s
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      # Set env EXPORTERS to toggle exporters. ie to turn all exporters set as:
+      #    EXPORTERS=logging,jaeger,googlecloud
+      exporters: '${EXPORTERS}'

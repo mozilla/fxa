@@ -5942,7 +5942,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/core@npm:1.6.0, @opentelemetry/core@npm:^1.0.0":
+"@opentelemetry/core@npm:1.6.0":
   version: 1.6.0
   resolution: "@opentelemetry/core@npm:1.6.0"
   dependencies:
@@ -5953,7 +5953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/core@npm:1.7.0":
+"@opentelemetry/core@npm:1.7.0, @opentelemetry/core@npm:^1.0.0":
   version: 1.7.0
   resolution: "@opentelemetry/core@npm:1.7.0"
   dependencies:
@@ -6568,7 +6568,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/resources@npm:1.6.0, @opentelemetry/resources@npm:^1.0.0":
+"@opentelemetry/resources@npm:1.6.0":
   version: 1.6.0
   resolution: "@opentelemetry/resources@npm:1.6.0"
   dependencies:
@@ -6580,7 +6580,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/resources@npm:1.7.0":
+"@opentelemetry/resources@npm:1.7.0, @opentelemetry/resources@npm:^1.0.0":
   version: 1.7.0
   resolution: "@opentelemetry/resources@npm:1.7.0"
   dependencies:
@@ -10382,9 +10382,9 @@ __metadata:
   linkType: hard
 
 "@types/bluebird@npm:*":
-  version: 3.5.36
-  resolution: "@types/bluebird@npm:3.5.36"
-  checksum: efe7484e1f6c3443c083f052efb7688b461a9f43899b1891c10b1faf92e4932d686265d10c3e02b8c8fe0c8c371774e6a55ff6eec5e79525390a1ddeee7eb41b
+  version: 3.5.37
+  resolution: "@types/bluebird@npm:3.5.37"
+  checksum: 851a2eca0ae2daa422d4bcea5f8f659a673fcff5f51d18997ffb19bb9e54b64800301b167613d9cbbebaa8fdfd2433f0f9f8bb39267efd7b6898011aedcc944d
   languageName: node
   linkType: hard
 
@@ -41125,9 +41125,9 @@ resolve@^2.0.0-next.3:
   linkType: hard
 
 "safe-stable-stringify@npm:^2.1.0":
-  version: 2.3.1
-  resolution: "safe-stable-stringify@npm:2.3.1"
-  checksum: a0a0bad0294c3e2a9d1bf3cf2b1096dfb83c162d09a5e4891e488cce082120bd69161d2a92aae7fc48255290f17700decae9c89a07fe139794e61b5c8b411377
+  version: 2.4.0
+  resolution: "safe-stable-stringify@npm:2.4.0"
+  checksum: 5c9e4b2b2423470becafe232244948e7ce9545baaa65d67965e8c36536c93d2f7b4c1ddeb4bba8a912d0325e02c7691f24dd4de6935a9c1221402c17582ae1c1
   languageName: node
   linkType: hard
 

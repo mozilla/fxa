@@ -6,7 +6,10 @@ import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import { init as initTracing } from 'fxa-shared/tracing/browser-tracing';
+import {
+  getTracingHeadersFromDocument,
+  init as initTracing,
+} from 'fxa-shared/tracing/browser-tracing';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
@@ -25,7 +28,14 @@ try {
   });
 
   // Add tracing support
-  initTracing(config.tracing, flowQueryParams.flowId || '', console);
+  initTracing(
+    config.tracing,
+    {
+      ...getTracingHeadersFromDocument(document),
+      flowid: flowQueryParams.flowId,
+    },
+    console
+  );
 
   const appContext = initializeAppContext();
 

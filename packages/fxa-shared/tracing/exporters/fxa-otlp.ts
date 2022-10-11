@@ -14,6 +14,12 @@ import { TracingPiiFilter } from '../pii-filters';
 import { addExporter } from './exporters';
 import { checkDuration } from './util';
 
+export type FxaOtlpTracingHeaders = {
+  flowid?: string;
+  traceparent?: string;
+  tracestate?: string;
+};
+
 /** OTLP exporter customized for FxA */
 export class FxaOtlpWebExporter extends OTLPTraceExporter {
   constructor(
@@ -31,21 +37,25 @@ export class FxaOtlpWebExporter extends OTLPTraceExporter {
       checkDuration(x);
       this.filter?.filter(x);
     });
-    return super.export(spans, resultCallback);
+    super.export(spans, (result) => {
+      resultCallback(result);
+    });
   }
 }
 
 export function addOtlpTraceExporter(
   opts: TracingOpts,
   provider: BasicTracerProvider,
+  headers?: FxaOtlpTracingHeaders,
   filter?: TracingPiiFilter
 ) {
-  if (!opts.jaeger?.enabled) {
+  if (!opts.otel?.enabled) {
     return;
   }
   const config = {
-    url: opts.jaeger?.otlpUrl,
-    concurrencyLimit: opts.jaeger?.concurrencyLimit,
+    url: opts.otel?.url,
+    headers,
+    concurrencyLimit: opts.otel?.concurrencyLimit,
   };
   const exporter = new FxaOtlpWebExporter(filter, config);
   addExporter(opts, provider, exporter);

@@ -40,7 +40,7 @@ export class NodeTracingInitializer {
 
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
     addGcpTraceExporter(opts, provider, filter);
-    addOtlpTraceExporter(opts, provider, filter);
+    addOtlpTraceExporter(opts, provider, undefined, filter);
     addConsoleExporter(opts, provider, filter);
 
     this.register();
@@ -119,9 +119,9 @@ export function init(opts: TracingOpts, logger: ILogger) {
     return nodeTracing;
   }
 
-  if (!opts.jaeger?.enabled && !opts.gcp?.enabled && !opts.console?.enabled) {
+  if (!opts.otel?.enabled && !opts.gcp?.enabled && !opts.console?.enabled) {
     logger.debug(log_type, {
-      msg: 'Trace initialization skipped. No exporters configured. Enable gcp, jeager or console to activate tracing.',
+      msg: 'Trace initialization skipped. No exporters configured. Enable gcp, otel or console to activate tracing.',
     });
     return;
   }

@@ -82,6 +82,15 @@ function swapBetaMeta(html, metaContent = {}) {
   return result;
 }
 
+// Try to pull the flow id from the request query to setup the trace state context
+function getTraceState(req) {
+  let state = '';
+  if (req && req.query && req.query.flowId) {
+    state = `flow.id=${req.query.flowId}`;
+  }
+  return state;
+}
+
 // Conditionally modify the response
 function modifyProxyRes(proxyRes, req, res) {
   const bodyChunks = [];
@@ -108,6 +117,7 @@ function modifyProxyRes(proxyRes, req, res) {
       html = swapBetaMeta(html, {
         __SERVER_CONFIG__: settingsConfig,
         __TRACE_PARENT__: getTraceParentId(),
+        __TRACE_STATE__: getTraceState(req),
       });
       res.send(new Buffer.from(html));
     } else {
@@ -131,6 +141,7 @@ const modifySettingsStatic = function (req, res) {
     swapBetaMeta(settingsIndexFile, {
       __SERVER_CONFIG__: settingsConfig,
       __TRACE_PARENT__: getTraceParentId(),
+      __TRACE_STATE__: getTraceState(req),
     })
   );
 };
