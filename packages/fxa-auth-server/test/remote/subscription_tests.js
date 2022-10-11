@@ -40,6 +40,7 @@ describe('remote subscriptions:', function () {
     config.subscriptions = {
       sharedSecret: 'wibble',
       paymentsServer: config.subscriptions.paymentsServer,
+      stripeAutomaticTax: { enabled: false },
     };
   });
 

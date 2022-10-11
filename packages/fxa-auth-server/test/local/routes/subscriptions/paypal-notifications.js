@@ -60,6 +60,7 @@ describe('PayPalNotificationHandler', () => {
       subscriptions: {
         enabled: true,
         stripeApiKey: 'sk_test_1234',
+        stripeAutomaticTax: { enabled: false },
         paypalNvpSigCredentials: {
           enabled: false,
         },

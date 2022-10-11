@@ -48,7 +48,10 @@ describe('PaypalProcessor', () => {
   beforeEach(() => {
     mockConfig = {
       currenciesToCountries: { ZAR: ['AS', 'CA'] },
-      subscriptions: { paypalNvpSigCredentials: { enabled: false } },
+      subscriptions: {
+        paypalNvpSigCredentials: { enabled: false },
+        stripeAutomaticTax: { enabled: false },
+      },
     };
     mockStripeHelper = {};
     mockPaypalHelper = {};
