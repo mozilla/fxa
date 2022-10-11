@@ -179,12 +179,11 @@ export const SubscriptionCreate = ({
 
   const onPaypalFormSubmit: (x: PaypalPaymentSubmitResult) => void =
     useCallback(
-      async ({ priceId, idempotencyKey }: PaypalPaymentSubmitResult) => {
+      async (params: PaypalPaymentSubmitResult) => {
         setInProgress(true);
         try {
           await apiCapturePaypalPayment({
-            idempotencyKey,
-            priceId,
+            ...params,
             productId: selectedPlan.product_id,
           });
           refreshSubscriptions();
