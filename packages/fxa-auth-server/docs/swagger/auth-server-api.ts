@@ -64,8 +64,8 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 101   | Account already exists                                                        |
     | 400         | 102   | Unknown account                                                               |
     | 400         | 103   | Incorrect password                                                            |
-    | 400         | 104   | Unverified account                                                            |
-    | 400         | 105   | Invalid authentication code                                                   |
+    | 400         | 104   | Unconfirmed account                                                            |
+    | 400         | 105   | Invalid confirmation code                                                   |
     | 400         | 106   | Invalid JSON in request body                                                  |
     | 400         | 107   | Invalid parameter in request body                                             |
     | 400         | 108   | Missing parameter in request body                                             |
@@ -107,8 +107,8 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 150   | Can not resend email code to an email that does not belong to this account    |
     | 500         | 151   | Failed to send email                                                          |
     | 422         | 151   | Failed to send email                                                          |
-    | 400         | 152   | Invalid token authentication code                                             |
-    | 400         | 153   | Expired token authentication code                                             |
+    | 400         | 152   | Invalid token confirmation code                                               |
+    | 400         | 153   | Expired token confirmation code                                               |
     | 400         | 154   | TOTP token already exists for this account.                                   |
     | 400         | 155   | TOTP token not found.                                                         |
     | 400         | 156   | Backup authentication code not found.                                         |
@@ -123,15 +123,42 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 166   | Not a public client                                                           |
     | 400         | 167   | Incorrect redirect URI                                                        |
     | 400         | 168   | Invalid response_type                                                         |
-    | 400         | 169   | Requested scopes are not allowed                                              |
-    | 400         | 170   | Public clients require PKCE OAuth parameters                                  |
-    | 400         | 171   | Required Authentication Context Reference values could not be satisfied       |
-    | 404         | 176   | Unknown subscription                                                          |
-    | 400         | 177   | Unknown subscription plan                                                     |
-    | 400         | 178   | Subscription payment token rejected                                           |
+    | 400         | 169   | Public clients require PKCE OAuth parameters                                  |
+    | 400         | 170   | Required Authentication Context Reference values could not be satisfied       |
+    | 400         | 171   | Incorrect client_secret                                                       |
+    | 400         | 172   | Unknown authorization code                                                    |
+    | 400         | 173   | Mismatched authorization code                                                 |
+    | 400         | 174   | Expired authorization code                                                    |
+    | 400         | 175   | Public clients require PKCE OAuth parameters                                  |
+    | 404         | 176   | Unknown customer                                                              |
+    | 404         | 177   | Unknown subscription                                                          |
+    | 400         | 178   | Unknown subscription plan                                                     |
+    | 400         | 179   | Subscription payment token rejected                                           |
+    | 400         | 180   | Subscription has already been cancelled                                       |
+    | 400         | 181   | Customer update rejected                                                      |
+    | 400         | 182   | Unknown refresh token                                                         |
+    | 400         | 183   | Invalid or expired confirmation code                                          |
+    | 400         | 184   | Subscription has already been cancelled                                       |
+    | 400         | 185   | Subscription plan is not a valid update                                       |
+    | 400         | 186   | Payment method failed                                                         |
+    | 409         | 187   | User already subscribed                                                       |
+    | 500         | 188   | Failed to find a subscription associated with Stripe source                   |
+    | 400         | 192   | Billing agreement already on file for this customer                           |
+    | 400         | 193   | PayPal payment token is missing                                               |
+    | 400         | 194   | PayPal billing agreement is missing for the existing subscriber               |
+    | 400         | 195   | Account for this email has an active subscription                             |
+    | 400         | 196   | Invalid token                                                                 |
+    | 500         | 197   | IAP Internal Error                                                            |
+    | 404         | 198   | Unknown app name                                                              |
+    | 400         | 199   | Invalid promotion code                                                        |
     | 503         | 201   | Service unavailable                                                           |
     | 503         | 202   | Feature not enabled                                                           |
     | 500         | 203   | A backend service request failed.                                             |
+    | 503         | 204   | This client has been temporarily disabled                                     |
+    | 500         | 205   | Could not login with third party account, please try again later              |
+    | 400         | 206   | Can not create password, password already set.                                |
+    | 400         | 207   | Account creation rejected.                                                    |
+    | 403         | 208   | Purchase has been registered to another user.                                 |
     | 500         | 998   | An internal validation check failed.                                          |
 
     The following errors include additional response properties:
