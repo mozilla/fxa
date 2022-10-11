@@ -9,9 +9,9 @@ import {
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 import { expect } from 'chai';
-import { addConsoleExporter } from 'fxa-shared/tracing/exporters/fxa-console';
-import { addGcpTraceExporter } from 'fxa-shared/tracing/exporters/fxa-gcp';
-import { addOtlpTraceExporter } from 'fxa-shared/tracing/exporters/fxa-otlp';
+import { addConsoleExporter } from '../../tracing/exporters/fxa-console';
+import { addGcpTraceExporter } from '../../tracing/exporters/fxa-gcp';
+import { addOtlpTraceExporter } from '../../tracing/exporters/fxa-otlp';
 import sinon from 'sinon';
 import { TracingOpts } from '../../tracing/config';
 import { addExporter } from '../../tracing/exporters/exporters';
@@ -37,9 +37,9 @@ describe('tracing exports', () => {
       console: {
         enabled: true,
       },
-      jaeger: {
+      otel: {
         enabled: true,
-        otlpUrl: 'http://localhost:4138/v1/traces',
+        url: 'http://localhost:4138/v1/traces',
         concurrencyLimit: 10,
       },
       gcp: {

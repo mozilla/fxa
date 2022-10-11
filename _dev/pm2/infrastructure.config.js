@@ -55,6 +55,14 @@ module.exports = {
       kill_timeout: 20000,
     },
 
+    {
+      name: 'otel-collector',
+      script: '_scripts/otel-collector.sh',
+      max_restarts: '1',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
+
     // TODO FIXME?? this has been broken for-ev-er, do we even want it?
     // {
     //   name: 'pushbox',

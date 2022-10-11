@@ -89,22 +89,51 @@ Or by building up the new set in place:
 
 This utility allows for easy configuration of open tracing. To use this in a service:
 
-- Add the config chunk in fxa-shared/tracing/config to your service's config.
+- Add the config chunk in fxa-shared/tracing/config to your packages's config.
 
-- Then initialize as follows. This invocation should happen as early as possible in the service's lifecycle. Ideally it's
+- Then initialize as follows. This invocation should happen as early as possible in the service's or app's lifecycle. Ideally it's
   the first thing done, even before importing other modules.
 
 ```
+// For services
 const config = require('../config');
 require('fxa-shared/tracing/node-tracing').init(config.get('tracing'));
 ```
 
-To see traces on your local system, simply enable Jaeger exports on the service. This can be done by setting the environment
-variable TRACING_JAEGER_EXPORTER_ENABLED=true and TRACING_SAMPLE_RATE=1. The default config for tracing found at fxa-shared/tracing/config.ts
-will pick up this variable and start exporting trace data to the Jaeger container running at `localhost:16686`.
+```
+// For client side apps
+import {
+  init as initTracing,
+  getTracingHeadersFromDocument,
+} from 'fxa-shared/tracing/browser-tracing';
 
-It is also possible to publish directly to google cloud trace from your local environment; however, this is not recommended. If you
-are interested in doing this, more info can be found [here](https://cloud.google.com/trace/docs/setup/nodejs-ot#running_locally_and_elsewhere).
+initTracing(
+  config.tracing,
+  // Looks up values in various DOM element attributes.
+  getTracingHeadersFromDocument(document),
+  console
+);
+```
+
+To see traces on your local system, set the following environment variables:
+
+```
+# Capture all traces
+TRACING_SAMPLE_RATE=1
+
+# Send traces to console (optional, it's nice to see it working but noisy...)
+TRACING_CONSOLE_EXPORTER_ENABLED=true
+
+# Send traces to the otel service
+TRACING_OTEL_EXPORTER_ENABLED=true
+
+# Enable the otel collector service and instruct it to export traces to jaeger
+TRACING_OTEL_COLLECTOR_ENABLED=true
+TRACING_OTEL_COLLECTOR_JAEGER_ENABLED=true
+
+```
+
+The default config for tracing found at fxa-shared/tracing/config.ts will pick up these variables and result in traces showing up in Jaeger which runs locally at `localhost:16686`.
 
 ## Publishing new version
 

@@ -7,6 +7,7 @@ import { StackContextManager } from '@opentelemetry/sdk-trace-web';
 import { assert, expect } from 'chai';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
+import jsdom from 'jsdom';
 
 proxyquire.noCallThru();
 
@@ -100,11 +101,13 @@ describe('browser-tracing', () => {
           filterPii: false,
         },
       },
-      '123'
+      {
+        flowid: '123',
+      }
     );
     const span = tracing.startSpan('test');
     const spy = sandbox.spy(span, 'setAttribute');
-    tracing.addFlowId(span, '123');
+    tracing.addFlowId(span);
     sinon.assert.calledWith(spy, 'flow.id', '123');
   });
 
@@ -139,7 +142,7 @@ describe('browser-tracing', () => {
         spies.logger
       );
       sinon.assert.calledWithMatch(spies.logger.debug, log_type, {
-        msg: 'Trace initialization skipped. No exporters configured. Enable jeager or console to activate tracing.',
+        msg: 'Trace initialization skipped. No exporters configured. Enable otel or console to activate tracing.',
       });
     });
 
@@ -199,6 +202,23 @@ describe('browser-tracing', () => {
       init();
       reset();
       expect(getCurrent()).to.not.exist;
+    });
+
+    it('gets tracing headers', () => {
+      const html = `<html>
+        <head>
+          <meta name="traceparent" content="00-1-1-01" />
+          <meta name="tracestate" content="state=1" />
+        </head>
+        <body data-flow-id="123"></body>
+      </html>`;
+      const document = new jsdom.JSDOM(html).window.document;
+      const result = tracing.getTracingHeadersFromDocument(document);
+
+      expect(result).to.exist;
+      expect(result.traceparent).to.equal('00-1-1-01');
+      expect(result.tracestate).to.equal('state=1');
+      expect(result.flowid).to.equal('123');
     });
   });
 });

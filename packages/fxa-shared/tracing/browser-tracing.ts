@@ -13,11 +13,15 @@ import { BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
 import { ILogger } from '../log';
 import { checkClientName, checkSampleRate, TracingOpts } from './config';
 import { addConsoleExporter } from './exporters/fxa-console';
-import { addOtlpTraceExporter } from './exporters/fxa-otlp';
+import {
+  addOtlpTraceExporter,
+  FxaOtlpTracingHeaders,
+} from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
 import { createWebProvider } from './providers/web-provider';
 
 export const log_type = 'browser-tracing';
+
 /**
  * Responsible for initializing browser tracing from a config object.
  */
@@ -32,7 +36,7 @@ export class BrowserTracing {
 
   constructor(
     public readonly opts: TracingOpts,
-    protected readonly flowId?: string,
+    protected readonly headers?: FxaOtlpTracingHeaders,
     protected readonly logger?: ILogger
   ) {
     // Make sure config has valid options
@@ -44,13 +48,13 @@ export class BrowserTracing {
 
     const filter = createPiiFilter(opts.filterPii, this.logger);
     addConsoleExporter(opts, provider, filter);
-    addOtlpTraceExporter(opts, provider, filter);
+    addOtlpTraceExporter(opts, provider, headers, filter);
     this.register();
   }
 
   public addFlowId(span: Span) {
-    if (this.flowId) {
-      span.setAttribute('flow.id', this.flowId);
+    if (this.headers?.flowid) {
+      span.setAttribute('flow.id', this.headers?.flowid);
     }
   }
 
@@ -109,7 +113,11 @@ export class BrowserTracing {
 let browserTracing: BrowserTracing | undefined;
 
 /** Initializes web tracing. This can only be invoked once. */
-export function init(opts: TracingOpts, flowId: string, logger: ILogger) {
+export function init(
+  opts: TracingOpts,
+  headers: FxaOtlpTracingHeaders,
+  logger: ILogger
+) {
   if (browserTracing != null) {
     logger.debug(log_type, {
       msg: 'Trace initialization skipped. Tracing already initialized, ignoring new opts.',
@@ -123,15 +131,15 @@ export function init(opts: TracingOpts, flowId: string, logger: ILogger) {
     });
   }
 
-  if (!opts.jaeger?.enabled && !opts.console?.enabled) {
+  if (!opts.otel?.enabled && !opts.console?.enabled) {
     logger.debug(log_type, {
-      msg: 'Trace initialization skipped. No exporters configured. Enable jeager or console to activate tracing.',
+      msg: 'Trace initialization skipped. No exporters configured. Enable otel or console to activate tracing.',
     });
     return;
   }
 
   try {
-    browserTracing = new BrowserTracing(opts, flowId, logger);
+    browserTracing = new BrowserTracing(opts, headers, logger);
     logger.info(log_type, { msg: 'Trace initialized succeeded!' });
   } catch (err) {
     logger.error(log_type, {
@@ -150,4 +158,17 @@ export function getCurrent() {
 /** Resets the current tracing instance. Use only for testing purposes. */
 export function reset() {
   browserTracing = undefined;
+}
+
+export function getTracingHeadersFromDocument(document: Document) {
+  const getAttr = (selector: string, attrName: string) => {
+    const el = document && document.querySelector(selector);
+    return el && el.getAttribute(attrName);
+  };
+
+  return {
+    flowid: getAttr('body', 'data-flow-id') || '',
+    traceparent: getAttr('meta[name="traceparent"]', 'content') || '00-0-0-00',
+    tracestate: getAttr('meta[name="tracestate"]', 'content') || '',
+  };
 }
