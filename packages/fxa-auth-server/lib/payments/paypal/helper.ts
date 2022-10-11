@@ -455,7 +455,7 @@ export class PayPalHelper {
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
     const idempotencyKey = this.generateIdempotencyKey(
-      invoice.id,
+      invoice.id!,
       paymentAttempt
     );
 
@@ -463,7 +463,7 @@ export class PayPalHelper {
       this.chargeCustomer({
         amountInCents: invoice.amount_due,
         billingAgreementId: agreementId,
-        invoiceNumber: invoice.id,
+        invoiceNumber: invoice.id!,
         currencyCode: invoice.currency,
         idempotencyKey,
         ...(ipaddress && { ipaddress }),
@@ -556,7 +556,7 @@ export class PayPalHelper {
 
   public async issueRefund(invoice: Stripe.Invoice, transactionId: string) {
     const refundResponse = await this.refundTransaction({
-      idempotencyKey: invoice.id,
+      idempotencyKey: invoice.id!,
       transactionId: transactionId,
     });
     const success = ['instant', 'delayed'];
