@@ -24238,7 +24238,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.5.0
     ioredis: ^4.28.2
     joi: 17.4.0
-    jose: ^4.8.1
+    jose: ^4.10.0
     jsdom: ^20.0.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
@@ -30665,6 +30665,13 @@ fsevents@~2.1.1:
   dependencies:
     "@panva/asn1.js": ^1.0.0
   checksum: 80a3447b51f794f8f2c7e21395dd880b55d374a055564595c69ff17722fb07aeb2dff722b5da9030651f67fafc7494e9ec5f5b56f5e1836d1ac94e604e6096ea
+  languageName: node
+  linkType: hard
+
+"jose@npm:^4.10.0":
+  version: 4.10.0
+  resolution: "jose@npm:4.10.0"
+  checksum: c575bf2519b758592b3037cac0da34ff2641e56a050b156fe6ab18c03cd6c22e5338d28d1fe3dd997c9b3c0cc7deda72faca4a93ff41274a587850c6519852d0
   languageName: node
   linkType: hard
 
