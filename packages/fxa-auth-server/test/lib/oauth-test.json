@@ -61,7 +61,7 @@
       {
         "name": "Untrusted",
         "id": "ea3ca969f8c6bb0e",
-        "hashedSecret": "ec62e3281e3b56e702fe7e82ca7b1fa59d6c2a6766d6d28cccbf8bfa8d5fc8a8",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "imageUri": "",
         "redirectUri": "https://example.domain/return?foo=bar",
         "trusted": false,

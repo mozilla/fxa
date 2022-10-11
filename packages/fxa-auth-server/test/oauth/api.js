@@ -2022,58 +2022,112 @@ describe('/v1', function () {
             });
         });
 
-        it('should not expand scopes', function () {
-          return newToken({
-            access_type: 'offline',
-            scope: 'foo bar:baz',
-          })
-            .then(function (res) {
-              assert.equal(res.statusCode, 200);
-              assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo bar:baz');
-              return Server.api.post({
-                url: '/token',
-                payload: {
-                  client_id: clientId,
-                  client_secret: secret,
-                  grant_type: 'refresh_token',
-                  refresh_token: res.result.refresh_token,
-                  scope: 'foo quux',
-                },
-              });
-            })
-            .then(function (res) {
-              assert.equal(res.statusCode, 400);
-              assertSecurityHeaders(res);
-              assert.equal(res.result.errno, 114);
+        describe('expand scopes', () => {
+          it('should not expand scopes not in allowedScopes', async function () {
+            let res = await newToken({
+              access_type: 'offline',
+              scope: 'foo bar:baz',
             });
-        });
 
-        it('should not expand read scope to write scope', function () {
-          return newToken({
-            access_type: 'offline',
-            scope: 'foo',
-          })
-            .then(function (res) {
-              assert.equal(res.statusCode, 200);
-              assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo');
-              return Server.api.post({
-                url: '/token',
-                payload: {
-                  client_id: clientId,
-                  client_secret: secret,
-                  grant_type: 'refresh_token',
-                  refresh_token: res.result.refresh_token,
-                  scope: 'foo:write',
-                },
-              });
-            })
-            .then(function (res) {
-              assert.equal(res.statusCode, 400);
-              assertSecurityHeaders(res);
-              assert.equal(res.result.errno, 114);
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.scope, 'foo bar:baz');
+            res = await Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo quux',
+              },
             });
+
+            assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.errno, 114);
+          });
+
+          it('should not expand read scope to write scope', async function () {
+            let res = await newToken({
+              access_type: 'offline',
+              scope: 'foo',
+            });
+
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.scope, 'foo');
+            res = await Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo:write',
+              },
+            });
+
+            assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.errno, 114);
+          });
+
+          it('should not allow untrusted clients to expand scopes in allowedScopes', async function () {
+            const client2 = clientByName('Untrusted');
+            let res = await newToken(
+              {
+                scope: 'profile:email profile:uid',
+                access_type: 'offline',
+              },
+              {
+                clientId: client2.id,
+              }
+            );
+
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+
+            res = await Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: client2.id,
+                grant_type: 'refresh_token',
+                client_secret: secret,
+                refresh_token: res.result.refresh_token,
+                scope: 'foo https://identity.mozilla.com/apps/notes',
+              },
+            });
+
+            assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.errno, 114);
+          });
+
+          it('should allow trusted clients to expand scopes in allowedScopes', async function () {
+            let res = await newToken({
+              access_type: 'offline',
+              scope: 'foo bar:baz',
+            });
+
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.equal(res.result.scope, 'foo bar:baz');
+
+            res = await Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo https://identity.mozilla.com/apps/notes',
+              },
+            });
+
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+          });
         });
       });
 
