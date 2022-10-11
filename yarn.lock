@@ -6742,15 +6742,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.25.2":
-  version: 1.25.2
-  resolution: "@playwright/test@npm:1.25.2"
+"@playwright/test@npm:^1.27.0":
+  version: 1.27.0
+  resolution: "@playwright/test@npm:1.27.0"
   dependencies:
     "@types/node": "*"
-    playwright-core: 1.25.2
+    playwright-core: 1.27.0
   bin:
     playwright: cli.js
-  checksum: 3c24027bd9b305a3985cae35a4046e656dd0ffb76ef4dfcfc864f6c8492a643fc21c79048ee8169c5c1562d3cae493e7223a5473b127fef3bda7c7c52795c17d
+  checksum: ee72ba5f00b0ebc344e2ea710f8c8c11b82f187bbce4f90918a93081b24c50ac18dc4b6f0b56509a06c17d9bf6a0e4482cf62d9021a6db05cd403b5bcc65e13f
   languageName: node
   linkType: hard
 
@@ -23980,7 +23980,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "functional-tests@workspace:packages/functional-tests"
   dependencies:
-    "@playwright/test": ^1.25.2
+    "@playwright/test": ^1.27.0
     "@types/upng-js": ^2
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
@@ -36739,6 +36739,15 @@ fsevents@~2.1.1:
   bin:
     playwright: cli.js
   checksum: 24ada61e2132bd7278cf0aa0ef711280e1519c437efa0088a99c47ef994202f4c9880521d8c0c51ab854bef08806f372477d754aac1e790ea64f18cd346b5b2f
+  languageName: node
+  linkType: hard
+
+"playwright-core@npm:1.27.0":
+  version: 1.27.0
+  resolution: "playwright-core@npm:1.27.0"
+  bin:
+    playwright: cli.js
+  checksum: e45565af0c33c34ccf7b513d8e84eda5101f0e12d495e9e1c2bfe16b675ddcdd8f064c449a1bd908365f2f126c8d40cc14bf95976e881e2e1620cd239240ed23
   languageName: node
   linkType: hard
 
