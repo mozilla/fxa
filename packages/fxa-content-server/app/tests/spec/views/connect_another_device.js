@@ -97,7 +97,13 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    ['fxa_discoverability_native', 'fxa_app_menu'].forEach((entrypoint) => {
+    [
+      'fxa_discoverability_native',
+      'preferences',
+      'synced-tabs',
+      'tabs-sidebar',
+      'fxa_app_menu',
+    ].forEach((entrypoint) => {
       describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
         beforeEach(() => {
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -113,7 +119,7 @@ describe('views/connect_another_device', () => {
           });
         });
 
-        it('shows pairing', () => {
+        it('redirects and shows pairing', () => {
           assert.isTrue(view._isSignedIn.called);
           assert.isTrue(view.navigate.calledWith('/pair'));
         });
@@ -127,18 +133,14 @@ describe('views/connect_another_device', () => {
       'fxa_app_menu',
       'fx-view',
     ].forEach((entrypoint) => {
-      const isAppMenu = entrypoint === 'fxa_app_menu';
-      describe(`with known entrypoint ${entrypoint}${
-        isAppMenu && ' and action=email'
+      describe(`with known entrypoint ${entrypoint} and action=email'
       }`, () => {
         beforeEach(() => {
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
           relier.set('entrypoint', entrypoint);
           relier.set('context', 'fx_desktop_v3');
-          // `fxa_app_menu` without `action=email` redirects. If present, it does not redirect.
-          if (isAppMenu) {
-            relier.set('action', 'email');
-          }
+          // These entrypoints without `action=email` redirect. If present, they do not redirect.
+          relier.set('action', 'email');
           sinon.spy(view, 'navigate');
 
           windowMock.location.search = `?entrypoint=${entrypoint}`;
