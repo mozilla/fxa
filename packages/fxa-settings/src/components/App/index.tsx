@@ -23,6 +23,7 @@ import { PageDeleteAccount } from '../PageDeleteAccount';
 import { ScrollToTop } from '../ScrollToTop';
 import { HomePath } from '../../constants';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import PageAvatar from '../PageAvatar';
 
@@ -49,6 +50,24 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   useEffect(() => {
     Metrics.init(metricsEnabled, flowQueryParams);
   }, [metricsEnabled, flowQueryParams]);
+
+  useEffect(() => {
+    if (!loading) {
+      // For settings app, we only enable Sentry once we know the user's metrics
+      // preferences. A bit of chicken and egg but it could be possible that we
+      // miss some errors while the page is loading and user is being fetched.
+      if (metricsEnabled) {
+        sentryMetrics.configure({
+          release: config.version,
+          sentry: {
+            ...config.sentry,
+          },
+        });
+      } else {
+        sentryMetrics.disable();
+      }
+    }
+  }, [metricsEnabled, config.sentry, config.version, loading]);
 
   // In case of an invalid token the page will redirect,
   // but to prevent a flash of the error message we show

@@ -205,4 +205,13 @@ describe('lib/sentry', () => {
       sentryCaptureException.restore();
     });
   });
+
+  describe('disable', () => {
+    it('calls Sentry.close', () => {
+      const close = sinon.stub(_Sentry, 'close');
+      sentryMetrics.disable();
+      sinon.assert.calledOnce(close);
+      close.restore();
+    });
+  });
 });

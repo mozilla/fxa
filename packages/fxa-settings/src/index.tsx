@@ -5,7 +5,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
-import sentryMetrics from 'fxa-shared/lib/sentry';
 import {
   getTracingHeadersFromDocument,
   init as initTracing,
@@ -38,13 +37,6 @@ try {
   );
 
   const appContext = initializeAppContext();
-
-  sentryMetrics.configure({
-    release: config.version,
-    sentry: {
-      ...config.sentry,
-    },
-  });
 
   render(
     <React.StrictMode>

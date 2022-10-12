@@ -11,6 +11,7 @@ import { options } from 'superagent';
 // https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
 export const _Sentry = {
   captureException: Sentry.captureException,
+  close: Sentry.close,
 };
 
 const ALLOWED_QUERY_PARAMETERS = [
@@ -108,6 +109,7 @@ interface SentryMetrics {
   _logger: Logger;
   configure: (config: SentryConfigOpts) => void;
   captureException: (arg0: Error) => void;
+  disable: () => void;
   __beforeSend: (arg0: Sentry.Event) => Sentry.Event;
   __cleanUpQueryParam: (arg0: string) => string;
 }
@@ -180,6 +182,14 @@ SentryMetrics.prototype = {
       });
       _Sentry.captureException(err);
     });
+  },
+
+  /**
+   * Disables the current Sentry client. A timeout of 0 is used otherwise Sentry
+   * would try to flush any pending metrics.
+   */
+  disable() {
+    return _Sentry.close(0);
   },
 
   // Private functions, exposed for testing
