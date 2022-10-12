@@ -9,6 +9,7 @@ import {
 import {
   AbbrevPlan,
   ClientIdCapabilityMap,
+  SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
@@ -27,14 +28,6 @@ import { StripeHelper } from './stripe';
 import { PaymentConfigManager } from './configuration/manager';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
-
-enum SubscriptionEligibilityResult {
-  CREATE = 'create',
-  UPGRADE = 'upgrade',
-  DOWNGRADE = 'downgrade',
-  BLOCKED_IAP = 'blocked_iap',
-  INVALID = 'invalid',
-}
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {

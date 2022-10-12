@@ -61,7 +61,6 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
-  protected capabilityService: CapabilityService;
   protected paypalHelper?: PayPalHelper;
 
   constructor(
@@ -78,7 +77,6 @@ export class StripeWebhookHandler extends StripeHandler {
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
       this.paypalHelper = Container.get(PayPalHelper);
     }
-    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**

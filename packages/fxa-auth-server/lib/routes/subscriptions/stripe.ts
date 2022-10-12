@@ -5,7 +5,10 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
-import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
+import {
+  AbbrevPlan,
+  SubscriptionEligibilityResult,
+} from 'fxa-shared/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
@@ -39,6 +42,8 @@ import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { CapabilityService } from 'fxa-auth-server/lib/payments/capability';
+import Container from 'typedi';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -72,6 +77,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
+  capabilityService: CapabilityService;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -87,6 +93,8 @@ export class StripeHandler {
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+
+    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**
@@ -502,6 +510,22 @@ export class StripeHandler {
         promotionCode: promotionCodeFromRequest,
         metricsContext,
       } = request.payload as Record<string, string>;
+
+      // Make sure to clean up any subscriptions that may be hanging with no payment
+      const existingSubscription =
+        this.stripeHelper.findCustomerSubscriptionByPlanId(customer, priceId);
+      if (existingSubscription?.status === 'incomplete') {
+        await this.stripeHelper.cancelSubscription(existingSubscription.id);
+      }
+
+      // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
+      const eligibility = await this.capabilityService.getPlanEligibility(
+        customer.metadata.userid,
+        priceId
+      );
+      if (eligibility !== SubscriptionEligibilityResult.CREATE) {
+        throw error.userAlreadySubscribedToProduct();
+      }
 
       const promotionCode: Stripe.PromotionCode | undefined =
         await this.extractPromotionCode(promotionCodeFromRequest, priceId);

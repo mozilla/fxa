@@ -151,11 +151,23 @@ export type SentEmailParams = {
   subscriptionId: string;
 };
 
+// Used to represent upgrade eligibility only
+// Invalid is used in cases where plan is not an upgrade/downgrade
+// including new subscriptions
 export const SubscriptionUpdateEligibility = {
   UPGRADE: 'upgrade',
   DOWNGRADE: 'downgrade',
   INVALID: 'invalid',
 } as const;
+
+// Used to represent plan eligibility in general
+export enum SubscriptionEligibilityResult {
+  CREATE = 'create',
+  UPGRADE = 'upgrade',
+  DOWNGRADE = 'downgrade',
+  BLOCKED_IAP = 'blocked_iap',
+  INVALID = 'invalid',
+}
 
 export type SubscriptionUpdateEligibility =
   typeof SubscriptionUpdateEligibility[keyof typeof SubscriptionUpdateEligibility];
