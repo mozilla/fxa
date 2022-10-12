@@ -218,7 +218,7 @@ module.exports = function (
           // Hapi's auto instrumentation inherits from the parent context and therefore
           // will get this.
 
-          return tracing.suppressTracing(() => {
+          return tracing.suppressTrace(() => {
             return fn(request);
           });
         }
