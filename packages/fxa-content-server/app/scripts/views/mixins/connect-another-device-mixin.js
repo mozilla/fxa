@@ -74,21 +74,47 @@ export default {
   /**
    * Checks to see if a user is eligible for the pairing flow.
    *
-   * To be eligible, the user must not be in a sign-in or sign-up flow,
-   * and have access CAD from the Firefox desktop app toolbar menu or app
-   * menu.
+   * Users can access the connect another device (CAD) page through various ways and we
+   * conditionally redirect them to the `/pair` page by returning `true` here.
    *
+   * Users logging in or registering for a new account will have an action=email param present,
+   * and we want to keep these users on the CAD page. We want to redirect logged in users if they
+   * get to CAD within FF via:
+   *
+   * - FF account > connect another device: entrypoint=fxa_discoverability_native
+   *   - if not signed in: can't access
+   * - about:preferences#sync > connect another device: entrypoint=preferences
+   *   - if not signed in, "sign in to sync...": entrypoint=preferences&action=email
+   * - menu > email (FF account) > connect another device: entrypoint=fxa_app_menu
+   *   - if not signed in, menu > "Sync and save data": entrypoint=fxa_app_menu&action=email
+   * - sidebars (toolbar) > synced tabs > connect another device: entrypoint=tabs-sidebar
+   *   - if not signed in, "Sign in to sync": entrypoint=tabs-sidebar&action=email
+   * - synced tabs (toolbar) > connect another device: entrypoint=synced-tabs
+   *   - if not signed in, "sign in to sync...": entrypoint=synced-tabs&action=email
+   * - about:firefoxview > Get FF for mobile: goes directly to `/pair?entrypoint=fx-view`¹
+   *   - if not signed in, "Continue": entrypoint=firefoxview&action=email
+   *
+   * ¹At the time of writing we don't have to check for `isNotActionEmail` with entrypoint=fx-view
+   * since the logged in state takes them directly to `/pair` but check anyway for consistency.
+   *
+   * We also want to keep users on CAD if they hit the page directly (no parameters).
    */
   isEligibleForPairing() {
     const context = this.relier.get('context');
     const entrypoint = this.relier.get('entrypoint');
-
+    const isNotActionEmail = this.relier.get('action') !== 'email';
     if (
       this.isDefault() &&
       context === Constants.FX_DESKTOP_V3_CONTEXT &&
       (entrypoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT ||
-        (entrypoint === Constants.FIREFOX_MENU_ENTRYPOINT &&
-          this.relier.get('action') !== 'email'))
+        (isNotActionEmail &&
+          [
+            Constants.FIREFOX_PREFERENCES_ENTRYPOINT,
+            Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT,
+            Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT,
+            Constants.FIREFOX_MENU_ENTRYPOINT,
+            Constants.FIREFOX_FX_VIEW_ENTRYPOINT,
+          ].includes(entrypoint)))
     ) {
       return true;
     }
