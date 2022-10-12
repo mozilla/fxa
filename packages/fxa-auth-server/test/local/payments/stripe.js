@@ -349,6 +349,38 @@ describe('StripeHelper', () => {
       );
     });
 
+    it('creates a customer using the stripe api with an ipaddress', async () => {
+      const expected = deepCopy(newCustomerPM);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      const uid = chance.guid({ version: 4 }).replace(/-/g, '');
+      const idempotencyKey = uuidv4();
+      const actual = await stripeHelper.createPlainCustomer(
+        uid,
+        'joe@example.com',
+        'Joe Cool',
+        idempotencyKey,
+        '127.0.0.1'
+      );
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.create,
+        {
+          email: 'joe@example.com',
+          name: 'Joe Cool',
+          description: uid,
+          metadata: { userid: uid },
+          tax: { ip_address: '127.0.0.1' },
+        },
+        { idempotency_key: idempotencyKey }
+      );
+      sinon.assert.calledWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        uid,
+        expected
+      );
+    });
+
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
       sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
@@ -3884,6 +3916,28 @@ describe('StripeHelper', () => {
 
       // reset for tests:
       existingCustomer = await createAccountCustomer(existingUid, customer1.id);
+    });
+
+    it('expands the tax information if present', async () => {
+      const customer = deepCopy(customer1);
+      const customerSecond = deepCopy(customer1);
+      customerSecond.tax = {
+        location: { country: 'US', state: 'CA', source: 'billing_address' },
+        ip_address: null,
+        automatic_tax: 'supported',
+      };
+      sandbox.stub(stripeHelper, 'expandResource').returns(customer);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .resolves(customerSecond);
+      const result = await stripeHelper.fetchCustomer(existingCustomer.uid, [
+        'tax',
+      ]);
+      const customerResult = {
+        ...customer,
+        tax: customerSecond.tax,
+      };
+      assert.deepEqual(result, customerResult);
     });
   });
 

@@ -110,6 +110,7 @@ describe('subscriptions payPalRoutes', () => {
         paypalNvpSigCredentials: {
           enabled: true,
         },
+        stripeAutomaticTax: { enabled: false },
       },
       currenciesToCountries: {
         USD: ['US', 'CA', 'GB'],

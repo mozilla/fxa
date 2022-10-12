@@ -371,7 +371,8 @@ export class StripeHelper extends StripeHelperBase {
     uid: string,
     email: string,
     displayName: string,
-    idempotencyKey: string
+    idempotencyKey: string,
+    ipAddress?: string
   ): Promise<Stripe.Customer> {
     const stripeCustomer = await this.stripe.customers.create(
       {
@@ -379,6 +380,7 @@ export class StripeHelper extends StripeHelperBase {
         name: displayName,
         description: uid,
         metadata: { userid: uid },
+        ...{ tax: { ip_address: ipAddress } },
       },
       {
         idempotency_key: idempotencyKey,
@@ -1614,7 +1616,11 @@ export class StripeHelper extends StripeHelperBase {
    */
   async fetchCustomer(
     uid: string,
-    expand?: ('subscriptions' | 'invoice_settings.default_payment_method')[]
+    expand?: (
+      | 'subscriptions'
+      | 'invoice_settings.default_payment_method'
+      | 'tax'
+    )[]
   ): Promise<Stripe.Customer | void> {
     try {
       return await super.fetchCustomer(uid, expand);

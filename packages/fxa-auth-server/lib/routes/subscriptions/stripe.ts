@@ -78,6 +78,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
+  automaticTax: boolean;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -95,6 +96,7 @@ export class StripeHandler {
       require('../../subscription-account-reminders')(log, config);
 
     this.capabilityService = Container.get(CapabilityService);
+    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -365,12 +367,15 @@ export class StripeHandler {
 
     const { displayName } = request.payload as Record<string, string>;
 
+    const ipAddress = this.automaticTax ? request.app.clientAddress : undefined;
+
     const idempotencyKey = generateIdempotencyKey([uid]);
     customer = await this.stripeHelper.createPlainCustomer(
       uid,
       email,
       displayName,
-      idempotencyKey
+      idempotencyKey,
+      ipAddress
     );
     return filterCustomer(customer);
   }
@@ -495,14 +500,18 @@ export class StripeHandler {
       request.auth,
       true
     );
+    await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
     try {
-      await this.customs.check(request, email, 'createSubscriptionWithPMI');
-
-      const customer = await this.stripeHelper.fetchCustomer(uid);
+      const customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
       if (!customer) {
         throw error.unknownCustomer(uid);
       }
+
+      // Creating a subscription with automatic_tax enabled requires a customer with an address
+      // that is in a recognized location with an active tax registration.
+      const taxSubscription =
+        this.automaticTax && customer.tax?.automatic_tax === 'supported';
 
       const {
         priceId,
@@ -553,7 +562,7 @@ export class StripeHandler {
             paymentMethodCountry
           );
         }
-        if (paymentMethodCountry) {
+        if (!this.automaticTax && paymentMethodCountry) {
           if (!this.stripeHelper.customerTaxId(customer)) {
             await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
           }
@@ -563,19 +572,37 @@ export class StripeHandler {
         }
       }
 
+      const taxOptions = this.automaticTax
+        ? { automatic_tax: taxSubscription }
+        : { taxRateId };
+
       const subscription: any =
         await this.stripeHelper.createSubscriptionWithPMI({
           customerId: customer.id,
           priceId,
           paymentMethodId,
           promotionCode: promotionCode,
-          taxRateId,
+          ...taxOptions,
         });
+
+      if (this.automaticTax && !taxSubscription) {
+        this.log.warn(
+          'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
+          {
+            uid,
+            automatic_tax: customer.tax?.automatic_tax,
+          }
+        );
+      }
 
       const sourceCountry =
         this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
-      if (sourceCountry && addressLookupCountries.includes(sourceCountry)) {
+      if (
+        !this.automaticTax &&
+        sourceCountry &&
+        addressLookupCountries.includes(sourceCountry)
+      ) {
         if (paymentMethod?.billing_details?.address?.postal_code) {
           this.stripeHelper.setCustomerLocation({
             customerId: customer.id,
