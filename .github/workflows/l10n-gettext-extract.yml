@@ -62,9 +62,25 @@ jobs:
           then
             echo "No changes found."
           else
-            # Add mozilla/fxa-l10n as reviewer for pull request if .pot file changes
-            echo "New changes found, adding reviewer."
-            gh pr edit $PR_NUMBER --add-reviewer mozilla/fxa-l10n
+            gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
+            if [ $? -ne 0 ]; then
+                # Check if someone from the Localization Team already reviewed the PR.
+                # Get the list of fxa-l10n reviewers, excluding non-l10n members
+                L10N_REVIEWERS=$(gh api -H "Accept: application/vnd.github+json" /orgs/mozilla/teams/fxa-l10n/members | jq -r '(.[].login | select(. != "clouserw"))' | sort)
+                # Get the list of reviewers who already approved the pull request
+                PR_REVIEWERS=$(gh pr view $PR_NUMBER --json reviews | jq -r '.reviews[] | select(.state=="APPROVED") | .author.login' | sort)
+                # Check intersection of the two lists
+                L10N_APPROVERS=$(comm -12 <(echo "$L10N_REVIEWERS") <(echo "$PR_REVIEWERS"))
+                if [ -z "$L10N_APPROVERS" ]; then
+                    # Add mozilla/fxa-l10n as reviewer
+                    echo "New changes found, adding reviewer."
+                    gh pr edit $PR_NUMBER --add-reviewer mozilla/fxa-l10n
+                else
+                    echo "PR already reviewed by the localization team, skip adding reviewer."
+                fi
+            else
+                echo "fxa-l10n already added, skip adding reviewer."
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
