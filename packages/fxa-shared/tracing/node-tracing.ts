@@ -147,6 +147,7 @@ export function isInitialized() {
   return !!nodeTracing;
 }
 
+/** Suppresses trace capture on the current context */
 export function suppressTrace(action: () => any) {
   const currentCtx = api.context.active();
   return api.context.with(suppressTracing(currentCtx), action);
