@@ -38,28 +38,31 @@ util.inherits(Lug, EventEmitter);
 
 Lug.prototype.close = function () {};
 
-Lug.prototype.setTraceId = function (data) {
+Lug.prototype.getTraceId = function (data) {
+  let result = {};
+
   if (this.nodeTracer) {
-    const traceId = this.nodeTracer.getTraceId();
-    if (traceId) {
-      data.traceId = traceId;
+    try {
+      result = { traceId: this.nodeTracer.getTraceId() };
+    } catch {
+      // don't let a tracing issue break logging
+      this.debug('log', { msg: 'could not get trace id' });
     }
   }
+  return result;
 };
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
 Lug.prototype.trace = function (op, data) {
-  this.logger.debug(op, data);
+  this.logger.debug(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.debug = function (op, data) {
-  this.setTraceId(data);
-  this.logger.debug(op, data);
+  this.logger.debug(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.error = function (op, data) {
-  this.setTraceId(data);
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
@@ -69,20 +72,19 @@ Lug.prototype.error = function (op, data) {
     }
     data.err.email = null;
   }
-  this.logger.error(op, data);
+  this.logger.error(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.fatal = function (op, data) {
-  this.logger.critical(op, data);
+  this.logger.critical(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.warn = function (op, data) {
-  this.logger.warn(op, data);
+  this.logger.warn(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.info = function (op, data) {
-  this.setTraceId(data);
-  this.logger.info(op, data);
+  this.logger.info(op, Object.assign({}, data, this.getTraceId()));
 };
 
 Lug.prototype.begin = function (op, request) {
