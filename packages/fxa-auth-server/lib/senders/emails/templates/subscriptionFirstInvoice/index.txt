@@ -8,8 +8,7 @@ subscriptionFirstInvoice-content-install-2 = "You will receive a separate email 
 
 subscriptionFirstInvoice-content-auto-renew = "Your subscription will automatically renew each billing period unless you choose to cancel."
 
-subscriptionFirstInvoice-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
-subscriptionFirstInvoice-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<%- include ('/partials/subscriptionCharges/index.txt') %>
 <%- include ('/partials/viewInvoice/index.txt') %>
 <%- include ('/partials/paymentProvider/index.txt') %>
 

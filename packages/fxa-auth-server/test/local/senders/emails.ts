@@ -161,6 +161,7 @@ const MESSAGE_FORMATTED = {
   paymentProrated: '$5,231.00',
   invoiceSubtotal: '€10,002.00',
   invoiceDiscountAmount: '€2.00',
+  invoiceTaxAmount: '€0.48',
 };
 
 // key = query param name, value = MESSAGE property name
@@ -1583,17 +1584,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
-  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
@@ -1621,18 +1622,18 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
   // Do not display the Payment Method when "showPaymentMethod" is false
-  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
@@ -1658,17 +1659,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, showPaymentMethod: false})}
   ],
 
-  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
@@ -1698,17 +1699,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     {...x, discountType: 'once', discountDuration: null})}
   ],
 
-  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
@@ -1736,6 +1737,90 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ]), {updateTemplateValues: x => (
     {...x, discountType: 'repeating', discountDuration: 3})}
+  ],
+
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Taxes &amp; fees: ${MESSAGE_FORMATTED.invoiceTaxAmount}` },
+      { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+      { test: 'notInclude', expected: `Discount:` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+      { test: 'include', expected: `Taxes & fees: ${MESSAGE_FORMATTED.invoiceTaxAmount}` },
+      { test: 'notInclude', expected: `Discount:` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ]), {updateTemplateValues: x => (
+    {...x, discountType: null, discountDuration: null, invoiceTaxAmountInCents: 48, showTaxAmount: true })}
+  ],
+
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Taxes &amp; fees: ${MESSAGE_FORMATTED.invoiceTaxAmount}` },
+      { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+      { test: 'include', expected: `3-month Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Subtotal: ${MESSAGE_FORMATTED.invoiceSubtotal}` },
+      { test: 'include', expected: `Taxes & fees: ${MESSAGE_FORMATTED.invoiceTaxAmount}` },
+      { test: 'include', expected: `3-month Discount: -${MESSAGE_FORMATTED.invoiceDiscountAmount}` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ]), {updateTemplateValues: x => (
+    {...x, discountType: 'repeating', discountDuration: 3, invoiceTaxAmountInCents: 48, showTaxAmount: true })}
   ],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
@@ -1948,17 +2033,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
-  ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
@@ -1986,17 +2071,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
-  ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
       ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
       ['headers', new Map([
-        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
-        ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
-        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+        ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
       ])],
       ['html', [
-        { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
-        { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+        { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+        { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
         { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
         { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
         { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
@@ -2026,17 +2111,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]),
     {updateTemplateValues: x => ({...x, showPaymentMethod: false})}
   ],
-  ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
@@ -2066,17 +2151,17 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ]), {updateTemplateValues: x => (
     {...x, discountType: 'once', discountDuration: null})}
   ],
-  ['subscriptionSubsequentInvoiceDiscountEmail', new Map<string, Test | any>([
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoiceDiscount') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoiceDiscount' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice-discount', 'subscription-terms') },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
@@ -2396,109 +2481,6 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
     ]),
   ],
   [
-    'subscriptionFirstInvoiceDiscountEmail',
-    new Map<string, Test | any>([
-      [
-        'subject',
-        {
-          test: 'equal',
-          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
-        },
-      ],
-      [
-        'headers',
-        new Map([
-          [
-            'X-SES-MESSAGE-TAGS',
-            {
-              test: 'equal',
-              expected: sesMessageTagsHeaderValue(
-                'subscriptionFirstInvoiceDiscount'
-              ),
-            },
-          ],
-          [
-            'X-Template-Name',
-            { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
-          ],
-          [
-            'X-Template-Version',
-            {
-              test: 'equal',
-              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
-            },
-          ],
-        ]),
-      ],
-      [
-        'html',
-        [
-          { test: 'include', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-      [
-        'text',
-        [
-          { test: 'include', expected: `PayPal` },
-          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
-        ],
-      ],
-    ]),
-  ],
-  [
-    'subscriptionFirstInvoiceDiscountEmail',
-    new Map<string, Test | any>([
-      [
-        'subject',
-        {
-          test: 'equal',
-          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
-        },
-      ],
-      [
-        'headers',
-        new Map([
-          [
-            'X-SES-MESSAGE-TAGS',
-            {
-              test: 'equal',
-              expected: sesMessageTagsHeaderValue(
-                'subscriptionFirstInvoiceDiscount'
-              ),
-            },
-          ],
-          [
-            'X-Template-Name',
-            { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
-          ],
-          [
-            'X-Template-Version',
-            {
-              test: 'equal',
-              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
-            },
-          ],
-        ]),
-      ],
-      [
-        'html',
-        [
-          { test: 'notInclude', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-      [
-        'text',
-        [
-          { test: 'notInclude', expected: `PayPal` },
-          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
-        ],
-      ],
-    ]),
-    { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
-  ],
-  [
     'subscriptionSubsequentInvoiceEmail',
     new Map<string, Test | any>([
       [
@@ -2548,115 +2530,6 @@ const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
         ],
       ],
     ]),
-  ],
-  [
-    'subscriptionSubsequentInvoiceDiscountEmail',
-    new Map<string, Test | any>([
-      [
-        'subject',
-        {
-          test: 'equal',
-          expected: `${PAYPAL_MESSAGE.productName} payment received`,
-        },
-      ],
-      [
-        'headers',
-        new Map([
-          [
-            'X-SES-MESSAGE-TAGS',
-            {
-              test: 'equal',
-              expected: sesMessageTagsHeaderValue(
-                'subscriptionSubsequentInvoiceDiscount'
-              ),
-            },
-          ],
-          [
-            'X-Template-Name',
-            {
-              test: 'equal',
-              expected: 'subscriptionSubsequentInvoiceDiscount',
-            },
-          ],
-          [
-            'X-Template-Version',
-            {
-              test: 'equal',
-              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount,
-            },
-          ],
-        ]),
-      ],
-      [
-        'html',
-        [
-          { test: 'include', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-      [
-        'text',
-        [
-          { test: 'include', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-    ]),
-  ],
-  [
-    'subscriptionSubsequentInvoiceDiscountEmail',
-    new Map<string, Test | any>([
-      [
-        'subject',
-        {
-          test: 'equal',
-          expected: `${PAYPAL_MESSAGE.productName} payment received`,
-        },
-      ],
-      [
-        'headers',
-        new Map([
-          [
-            'X-SES-MESSAGE-TAGS',
-            {
-              test: 'equal',
-              expected: sesMessageTagsHeaderValue(
-                'subscriptionSubsequentInvoiceDiscount'
-              ),
-            },
-          ],
-          [
-            'X-Template-Name',
-            {
-              test: 'equal',
-              expected: 'subscriptionSubsequentInvoiceDiscount',
-            },
-          ],
-          [
-            'X-Template-Version',
-            {
-              test: 'equal',
-              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoiceDiscount,
-            },
-          ],
-        ]),
-      ],
-      [
-        'html',
-        [
-          { test: 'notInclude', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-      [
-        'text',
-        [
-          { test: 'notInclude', expected: `PayPal` },
-          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
-        ],
-      ],
-    ]),
-    { updateTemplateValues: (x) => ({ ...x, showPaymentMethod: false }) },
   ],
 ];
 

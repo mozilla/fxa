@@ -28,18 +28,7 @@
       </span>
     </mj-text>
 
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
-        Invoice Number: <b><%- invoiceNumber %></b>
-      </span>
-    </mj-text>
-
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoice-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
-        Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
-      </span>
-    </mj-text>
-
+    <%- include ('/partials/subscriptionCharges/index.mjml') %>
     <%- include ('/partials/viewInvoice/index.mjml') %>
     <%- include ('/partials/paymentProvider/index.mjml') %>
 

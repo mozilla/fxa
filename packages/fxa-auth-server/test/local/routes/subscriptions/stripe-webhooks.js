@@ -30,7 +30,6 @@ const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription
 const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
 const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
 const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
-const eventInvoicePaidDiscount = require('../../payments/fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
 const eventInvoiceUpcoming = require('../../payments/fixtures/stripe/event_invoice_upcoming.json');
 const eventCouponCreated = require('../../payments/fixtures/stripe/event_coupon_created.json');
@@ -1983,27 +1982,11 @@ describe('StripeWebhookHandler', () => {
     const commonSendSubscriptionInvoiceEmailTest =
       (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
       async () => {
-        const invoice = [
-          'sendSubscriptionFirstInvoiceDiscountEmail',
-          'sendSubscriptionSubsequentInvoiceDiscountEmail',
-        ].includes(expectedMethodName)
-          ? deepCopy(eventInvoicePaidDiscount)
-          : deepCopy(eventInvoicePaid.data.object);
+        const invoice = eventInvoicePaid.data.object;
 
         invoice.billing_reason = billingReason;
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
-        if (
-          [
-            'sendSubscriptionFirstInvoiceDiscountEmail',
-            'sendSubscriptionSubsequentInvoiceDiscountEmail',
-          ].includes(expectedMethodName)
-        ) {
-          mockInvoiceDetails.invoiceSubtotalInCents = 12;
-          mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
-          mockInvoiceDetails.discountType = 'forever';
-          mockInvoiceDetails.discountDuration = null;
-        }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails
         );
@@ -2029,12 +2012,7 @@ describe('StripeWebhookHandler', () => {
             ...mockInvoiceDetails,
           }
         );
-        if (
-          [
-            'sendSubscriptionFirstInvoiceEmail',
-            'sendSubscriptionFirstInvoiceDiscountEmail',
-          ].includes(expectedMethodName)
-        ) {
+        if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
           if (verifierSetAt) {
             assert.calledWith(
               StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
@@ -2064,15 +2042,6 @@ describe('StripeWebhookHandler', () => {
     );
 
     it(
-      'sends the initial invoice email for a newly created subscription with a discount',
-      commonSendSubscriptionInvoiceEmailTest(
-        'sendSubscriptionFirstInvoiceDiscountEmail',
-        'subscription_create',
-        1
-      )
-    );
-
-    it(
       'sends the initial invoice email for a newly created subscription with passwordless account',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionFirstInvoiceEmail',
@@ -2082,26 +2051,9 @@ describe('StripeWebhookHandler', () => {
     );
 
     it(
-      'sends the initial invoice email for a newly created subscription with passwordless account and a discount',
-      commonSendSubscriptionInvoiceEmailTest(
-        'sendSubscriptionFirstInvoiceDiscountEmail',
-        'subscription_create',
-        0
-      )
-    );
-
-    it(
       'sends the subsequent invoice email for billing reasons besides creation',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
-        'subscription_cycle'
-      )
-    );
-
-    it(
-      'sends the subsequent invoice email for billing reasons besides creation with a discount',
-      commonSendSubscriptionInvoiceEmailTest(
-        'sendSubscriptionSubsequentInvoiceDiscountEmail',
         'subscription_cycle'
       )
     );

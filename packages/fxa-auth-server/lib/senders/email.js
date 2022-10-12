@@ -61,10 +61,7 @@ module.exports = function (log, config, bounces) {
     subscriptionFailedPaymentsCancellation:
       'subscription-failed-payments-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
-    subscriptionSubsequentInvoiceDiscount:
-      'subscription-subsequent-invoice-discount',
     subscriptionFirstInvoice: 'subscription-first-invoice',
-    subscriptionFirstInvoiceDiscount: 'subscription-first-invoice-discount',
     downloadSubscription: 'new-subscription',
     fraudulentAccountDeletion: 'account-deletion',
     lowRecoveryCodes: 'low-recovery-codes',
@@ -113,9 +110,7 @@ module.exports = function (log, config, bounces) {
     subscriptionCancellation: 'subscriptions',
     subscriptionFailedPaymentsCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
-    subscriptionSubsequentInvoiceDiscount: 'subscriptions',
     subscriptionFirstInvoice: 'subscriptions',
-    subscriptionFirstInvoiceDiscount: 'subscriptions',
     downloadSubscription: 'subscriptions',
     fraudulentAccountDeletion: 'manage-account',
     lowRecoveryCodes: 'recovery-codes',
@@ -1254,7 +1249,7 @@ module.exports = function (log, config, bounces) {
         style: message.style,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        productName: 'Firefox'
+        productName: 'Firefox',
       },
     });
   };
@@ -2313,6 +2308,9 @@ module.exports = function (log, config, bounces) {
       invoiceDate,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
+      invoiceTaxAmountInCents,
       cardType,
       lastFour,
       nextInvoiceDate,
@@ -2320,6 +2318,9 @@ module.exports = function (log, config, bounces) {
       paymentProratedInCents,
       paymentProratedCurrency,
       showPaymentMethod,
+      showTaxAmount,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2378,6 +2379,27 @@ module.exports = function (log, config, bounces) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotal:
+          invoiceSubtotalInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceSubtotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceTaxAmount:
+          invoiceTaxAmountInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceTaxAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceDiscountAmount:
+          invoiceDiscountAmountInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceDiscountAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
@@ -2385,112 +2407,7 @@ module.exports = function (log, config, bounces) {
         paymentProrated,
         showProratedAmount,
         showPaymentMethod,
-      },
-    });
-  };
-
-  Mailer.prototype.subscriptionSubsequentInvoiceDiscountEmail = async function (
-    message
-  ) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      planEmailIconURL,
-      productName,
-      invoiceLink,
-      invoiceNumber,
-      invoiceDate,
-      invoiceTotalInCents,
-      invoiceTotalCurrency,
-      invoiceSubtotalInCents,
-      invoiceDiscountAmountInCents,
-      cardType,
-      lastFour,
-      nextInvoiceDate,
-      payment_provider,
-      paymentProratedInCents,
-      paymentProratedCurrency,
-      showPaymentMethod,
-      discountType,
-      discountDuration,
-    } = message;
-
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionSubsequentInvoiceDiscount', {
-      enabled,
-      email,
-      productId,
-      uid,
-    });
-    if (!enabled) {
-      return;
-    }
-
-    const query = { plan_id: planId, product_id: productId, uid };
-    const template = 'subscriptionSubsequentInvoiceDiscount';
-
-    const links = this._generateLinks(null, message, query, template);
-    const headers = {};
-
-    let paymentProrated;
-    let showProratedAmount = false;
-    if (typeof paymentProratedInCents !== 'undefined') {
-      showProratedAmount = true;
-      paymentProrated = this._getLocalizedCurrencyString(
-        paymentProratedInCents,
-        paymentProratedCurrency,
-        message.acceptLanguage
-      );
-    }
-
-    return this.send({
-      ...message,
-      headers,
-      layout: 'subscription',
-      template,
-      templateValues: {
-        ...links,
-        uid,
-        email,
-        invoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          invoiceDate
-        ),
-        nextInvoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          nextInvoiceDate
-        ),
-        icon: planEmailIconURL,
-        productName,
-        invoiceLink,
-        invoiceNumber,
-        invoiceDate,
-        invoiceTotal: this._getLocalizedCurrencyString(
-          invoiceTotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceSubtotal: this._getLocalizedCurrencyString(
-          invoiceSubtotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceDiscountAmount: this._getLocalizedCurrencyString(
-          invoiceDiscountAmountInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        payment_provider,
-        cardType: cardTypeToText(cardType),
-        lastFour,
-        nextInvoiceDate,
-        paymentProrated,
-        showProratedAmount,
-        showPaymentMethod,
+        showTaxAmount,
         discountType,
         discountDuration,
       },
@@ -2510,11 +2427,17 @@ module.exports = function (log, config, bounces) {
       invoiceLink,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
+      invoiceTaxAmountInCents,
       payment_provider,
       cardType,
       lastFour,
       nextInvoiceDate,
       showPaymentMethod,
+      showTaxAmount,
+      discountType,
+      discountDuration,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2532,7 +2455,6 @@ module.exports = function (log, config, bounces) {
     const template = 'subscriptionFirstInvoice';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-
     return this.send({
       ...message,
       headers,
@@ -2562,101 +2484,34 @@ module.exports = function (log, config, bounces) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotal:
+          invoiceSubtotalInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceSubtotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceTaxAmount:
+          invoiceTaxAmountInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceTaxAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceDiscountAmount:
+          invoiceDiscountAmountInCents &&
+          this._getLocalizedCurrencyString(
+            invoiceDiscountAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
         showPaymentMethod,
-      },
-    });
-  };
-
-  Mailer.prototype.subscriptionFirstInvoiceDiscountEmail = async function (
-    message
-  ) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      planEmailIconURL,
-      productName,
-      invoiceNumber,
-      invoiceDate,
-      invoiceLink,
-      invoiceTotalInCents,
-      invoiceTotalCurrency,
-      invoiceSubtotalInCents,
-      invoiceDiscountAmountInCents,
-      payment_provider,
-      cardType,
-      lastFour,
-      nextInvoiceDate,
-      showPaymentMethod,
-      discountType,
-      discountDuration,
-    } = message;
-
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionFirstInvoiceDiscount', {
-      enabled,
-      email,
-      productId,
-      uid,
-    });
-    if (!enabled) {
-      return;
-    }
-
-    const query = { plan_id: planId, product_id: productId, uid };
-    const template = 'subscriptionFirstInvoiceDiscount';
-    const links = this._generateLinks(null, message, query, template);
-    const headers = {};
-
-    return this.send({
-      ...message,
-      headers,
-      layout: 'subscription',
-      template,
-      templateValues: {
-        ...links,
-        uid,
-        email,
-        invoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          invoiceDate
-        ),
-        nextInvoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          nextInvoiceDate
-        ),
-        icon: planEmailIconURL,
-        productName,
-        invoiceLink,
-        invoiceNumber,
-        invoiceDate,
-        invoiceTotal: this._getLocalizedCurrencyString(
-          invoiceTotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceSubtotal: this._getLocalizedCurrencyString(
-          invoiceSubtotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceDiscountAmount: this._getLocalizedCurrencyString(
-          invoiceDiscountAmountInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        payment_provider,
-        cardType: cardTypeToText(cardType),
-        lastFour,
-        nextInvoiceDate,
-        showPaymentMethod,
+        showTaxAmount,
+        showProratedAmount: false,
         discountType,
         discountDuration,
       },

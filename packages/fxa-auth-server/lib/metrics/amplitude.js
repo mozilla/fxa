@@ -39,10 +39,7 @@ const EMAIL_TYPES = {
   subscriptionFailedPaymentsCancellation:
     'subscription_failed_payments_cancellation',
   subscriptionSubsequentInvoice: 'subscription_subsequent_invoice',
-  subscriptionSubsequentInvoiceDiscount:
-    'subscription_subsequent_invoice_discount',
   subscriptionFirstInvoice: 'subscription_first_invoice',
-  subscriptionFirstInvoiceDiscount: 'subscription_first_invoice_discount',
   downloadSubscription: 'subscription_download',
   fraudulentAccountDeletion: 'account_deletion',
   lowRecoveryCodes: '2fa',

@@ -73,6 +73,8 @@ const paymentMethodAttach = require('./fixtures/stripe/payment_method_attach.jso
 const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const invoicePaidSubscriptionCreateDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_discount.json');
+const invoicePaidSubscriptionCreateTaxDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_tax_discount.json');
+const invoicePaidSubscriptionCreateTax = require('./fixtures/stripe/invoice_paid_subscription_create_tax.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
@@ -4842,6 +4844,30 @@ describe('StripeHelper', () => {
         },
       };
 
+      const fixtureTaxDiscount = {
+        ...invoicePaidSubscriptionCreateTaxDiscount,
+      };
+      fixtureTaxDiscount.lines.data[0] = {
+        ...fixtureTaxDiscount.lines.data[0],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+      };
+
+      const fixtureTax = { ...invoicePaidSubscriptionCreateTax };
+      fixtureTax.lines.data[0] = {
+        ...fixtureTax.lines.data[0],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+      };
+
       const fixtureProrated = deepCopy(invoicePaidSubscriptionCreate);
       fixtureProrated.lines.data.unshift({
         ...fixtureProrated.lines.data[0],
@@ -4874,8 +4900,9 @@ describe('StripeHelper', () => {
         invoiceNumber: 'AAF2CECC-0001',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
-        invoiceSubtotalInCents: 500,
+        invoiceSubtotalInCents: null,
         invoiceDiscountAmountInCents: null,
+        invoiceTaxAmountInCents: null,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
         payment_provider: 'stripe',
@@ -4893,6 +4920,7 @@ describe('StripeHelper', () => {
           'product:termsOfServiceURL': termsOfServiceURL,
         },
         showPaymentMethod: true,
+        showTaxAmount: false,
         discountType: null,
         discountDuration: null,
       };
@@ -5061,6 +5089,32 @@ describe('StripeHelper', () => {
             ...expected.productMetadata,
             'product:cancellationSurveyURL': cancellationSurveyURL,
           },
+        });
+      });
+
+      it('extracts expected details for an invoice with tax', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureTax
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, {
+          ...expected,
+          invoiceTaxAmountInCents: 54,
+        });
+      });
+
+      it('extracts expected details from an invoice with discount and tax', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureTaxDiscount
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, {
+          ...expectedDiscount_foreverCoupon,
+          invoiceTaxAmountInCents: 48,
         });
       });
 

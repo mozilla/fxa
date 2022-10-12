@@ -17,26 +17,7 @@
       </span>
     </mj-text>
 
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionSubsequentInvoice-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
-        Invoice Number: <b><%- invoiceNumber %></b>
-      </span>
-    </mj-text>
-
-    <% if (showProratedAmount) { %>
-      <mj-text css-class="text-body-no-bottom-margin">
-        <span data-l10n-id="subscriptionSubsequentInvoice-content-plan-change" data-l10n-args="<%= JSON.stringify({paymentProrated}) %>">
-          Plan change: <%- paymentProrated %>
-        </span>
-      </mj-text>
-    <% } %>
-
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionSubsequentInvoice-content-charged" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
-        Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
-      </span>
-    </mj-text>
-
+    <%- include ('/partials/subscriptionCharges/index.mjml') %>
     <%- include ('/partials/viewInvoice/index.mjml') %>
     <%- include ('/partials/paymentProvider/index.mjml') %>
 

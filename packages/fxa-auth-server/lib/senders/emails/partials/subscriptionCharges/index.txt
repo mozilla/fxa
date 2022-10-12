@@ -1,0 +1,22 @@
+subscriptionFirstInvoice-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
+<% if (showProratedAmount) { %>
+  subscriptionSubsequentInvoice-content-plan-change = "Plan change: <%- paymentProrated %>"
+<% } %>
+<% if (invoiceSubtotal) { %>
+  subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
+<% } %>
+<% if (showTaxAmount) { %>
+  subscriptionCharges-content-tax = "Taxes & fees: <%- invoiceTaxAmount %>"
+<% } %>
+<% if (discountType && invoiceDiscountAmount) { %>
+<% if (discountType === 'once') { %>
+  subscriptionFirstInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"
+<% } %>
+<% if (discountType === 'repeating') { %>
+  subscriptionFirstInvoiceDiscount-content-discount-repeating = "<%discountDuration%>-month Discount: -<%- invoiceDiscountAmount %>"
+<% } %>
+<% if (discountType === 'forever') { %>
+  subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
+<% } %>
+<% } %>
+subscriptionFirstInvoice-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
