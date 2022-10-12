@@ -42,7 +42,7 @@ import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
-import { CapabilityService } from 'fxa-auth-server/lib/payments/capability';
+import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
 
 // List of countries for which we need to look up the province/state of the
