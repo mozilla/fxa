@@ -4,17 +4,14 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Account, AppContext } from '../../models';
+import { AppContext } from '../../models';
+import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
 import Avatar from '.';
-
-const account = ({
-  avatar: { url: null, id: null },
-} as unknown) as Account;
 
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
     render(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
         <Avatar />
       </AppContext.Provider>
     );
@@ -28,7 +25,7 @@ describe('Avatar', () => {
 
   it('renders default avatar with a custom className', () => {
     render(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
         <Avatar className="my-class" />
       </AppContext.Provider>
     );
@@ -37,11 +34,8 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with expected attributes', () => {
-    const account = ({
-      avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
-    } as unknown) as Account;
     render(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
         <Avatar />
       </AppContext.Provider>
     );
@@ -58,11 +52,8 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with a custom className', () => {
-    const account = ({
-      avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
-    } as unknown) as Account;
     render(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
         <Avatar className="my-class" />
       </AppContext.Provider>
     );
