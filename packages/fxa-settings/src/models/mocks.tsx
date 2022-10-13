@@ -66,7 +66,7 @@ export function mockSession(verified: boolean = true) {
 }
 
 export const mockEmail = (
-  email: string,
+  email = 'johndope@example.com',
   isPrimary = true,
   verified = true
 ) => ({

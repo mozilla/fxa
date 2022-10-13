@@ -15,7 +15,7 @@ storiesOf('Components/UnitRowSecondaryEmail', module)
   .add('No secondary email set', () => <UnitRowSecondaryEmail />)
   .add('One secondary email set, unverified', () => {
     const emails = [
-      mockEmail('johndope@example.com'),
+      mockEmail(),
       mockEmail('johndope2@example.com', false, false),
     ];
     return (
@@ -27,10 +27,7 @@ storiesOf('Components/UnitRowSecondaryEmail', module)
     );
   })
   .add('One secondary email set, verified', () => {
-    const emails = [
-      mockEmail('johndope@example.com'),
-      mockEmail('johndope2@example.com', false),
-    ];
+    const emails = [mockEmail(), mockEmail('johndope2@example.com', false)];
     return (
       <AppContext.Provider
         value={mockAppContext({ account: { emails } as any })}
@@ -41,7 +38,7 @@ storiesOf('Components/UnitRowSecondaryEmail', module)
   })
   .add('Multiple secondary emails set, all verified', () => {
     const emails = [
-      mockEmail('johndope@example.com'),
+      mockEmail(),
       mockEmail('johndope2@example.com', false),
       mockEmail('johndope3@example.com', false),
       mockEmail('johndope4@example.com', false),
@@ -56,7 +53,7 @@ storiesOf('Components/UnitRowSecondaryEmail', module)
   })
   .add('Multiple secondary emails set, one unverified', () => {
     const emails = [
-      mockEmail('johndope@example.com'),
+      mockEmail(),
       mockEmail('johndope2@example.com', false),
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false),
@@ -71,7 +68,7 @@ storiesOf('Components/UnitRowSecondaryEmail', module)
   })
   .add('Multiple secondary emails set, multiple unverified', () => {
     const emails = [
-      mockEmail('johndope@example.com'),
+      mockEmail(),
       mockEmail('johndope2@example.com', false),
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false, false),
