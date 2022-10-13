@@ -10030,9 +10030,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^8.11.2":
-  version: 8.11.2
-  resolution: "@testing-library/dom@npm:8.11.2"
+"@testing-library/dom@npm:^8.19.0":
+  version: 8.19.0
+  resolution: "@testing-library/dom@npm:8.19.0"
   dependencies:
     "@babel/code-frame": ^7.10.4
     "@babel/runtime": ^7.12.5
@@ -10042,7 +10042,7 @@ __metadata:
     dom-accessibility-api: ^0.5.9
     lz-string: ^1.4.4
     pretty-format: ^27.0.2
-  checksum: 163e6572a3caa9fab4cb48e03fa2bf2cf702a72ba55b13c8ad7ad1f807762fd480e28f54c36ff5df8ce14a97adda275b4b3bf3c81439c6509ec219c198dc4f9b
+  checksum: 6bb93fef96703b6c47cf1b7cc8f71d402a9576084a94ba4e9926f51bd7bb1287fbb4f6942d82bd03fc6f3d998ae97e60f6aea4618f3a1ce6139597d2a4ecb7b9
   languageName: node
   linkType: hard
 
@@ -24786,7 +24786,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.5.9
     "@storybook/react": ^6.5.9
     "@svgr/webpack": ^5.5.0
-    "@testing-library/dom": ^8.11.2
+    "@testing-library/dom": ^8.19.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.1.5
     "@testing-library/user-event": ^14.4.3
@@ -24853,7 +24853,7 @@ fsevents@~2.1.1:
     "@storybook/addon-postcss": ^2.0.0
     "@storybook/addons": ^6.5.9
     "@storybook/react": ^6.5.9
-    "@testing-library/dom": ^8.11.2
+    "@testing-library/dom": ^8.19.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^8.0.0
