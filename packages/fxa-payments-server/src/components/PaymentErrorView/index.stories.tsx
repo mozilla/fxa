@@ -9,8 +9,8 @@ export default {
   component: PaymentErrorView,
 } as Meta;
 
-const storyWithProps = () => {
-  const story = () => (
+export const Default = () => {
+  return (
     <BrowserRouter>
       <Routes>
         <Route
@@ -26,8 +26,4 @@ const storyWithProps = () => {
       </Routes>
     </BrowserRouter>
   );
-
-  return story;
 };
-
-export const Default = storyWithProps();

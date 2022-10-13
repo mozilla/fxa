@@ -58,22 +58,10 @@ const Subject = ({
   );
 };
 
-const storyWithContext = (
-  storyName?: string,
-  disabled?: boolean,
-) => {
-  const story = () => (
-    <Subject disabled={disabled} />
-  );
-  if (storyName) story.storyName = storyName;
+const storyWithProps = (disabled?: boolean) => {
+  const story = () => <Subject disabled={disabled} />;
   return story;
-}
+};
 
-export const Default = storyWithContext(
-  'default'
-)
-
-export const Disabled = storyWithContext(
-  'disabled',
-  true
-)
+export const Default = storyWithProps();
+export const Disabled = storyWithProps(true);

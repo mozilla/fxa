@@ -42,11 +42,13 @@ const WrapNewUserEmailForm = ({
   );
 };
 
-const storyWithContext = (
-  accountExistsReturnValue: boolean,
-  invalidDomain: boolean,
-  storyName?: string
-) => {
+const storyWithProps = ({
+  accountExistsReturnValue = false,
+  invalidDomain = false,
+}: {
+  accountExistsReturnValue?: boolean;
+  invalidDomain?: boolean;
+}) => {
   const story = () => (
     <WrapNewUserEmailForm
       accountExistsReturnValue={accountExistsReturnValue}
@@ -54,20 +56,13 @@ const storyWithContext = (
     />
   );
 
-  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Default = storyWithContext(false, false, 'default');
+export const Default = storyWithProps({});
 
-export const ExistingAccount = storyWithContext(
-  true,
-  false,
-  'existing account'
-);
+export const ExistingAccount = storyWithProps({
+  accountExistsReturnValue: true,
+});
 
-export const InvalidEmailDomain = storyWithContext(
-  false,
-  true,
-  'invalid email domain'
-);
+export const InvalidEmailDomain = storyWithProps({ invalidDomain: true });

@@ -9,33 +9,26 @@ export default {
   component: TermsAndPrivacy,
 } as Meta;
 
-const storyWithContext = (
-  languages?: readonly string[],
-  showFXALinks?: boolean,
-  storyName?: string
-) => {
+const storyWithProps = ({
+  languages = [],
+  showFXALinks = false,
+}: {
+  languages?: readonly string[];
+  showFXALinks?: boolean;
+}) => {
   const story = () => (
     <MockApp languages={languages}>
       <TermsAndPrivacy plan={SELECTED_PLAN} showFXALinks={showFXALinks} />
     </MockApp>
   );
 
-  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Default = storyWithContext([], false, 'default locale');
-
-export const DefaultLocaleWithFXALinks = storyWithContext(
-  [],
-  true,
-  'default locale with fxa links'
-);
-
-export const WithFRLocale = storyWithContext(['fr'], false, 'with fr locale');
-
-export const WithFRLocaleAndFXALinks = storyWithContext(
-  ['fr'],
-  true,
-  'with fr locale and fxa links'
-);
+export const Default = storyWithProps({});
+export const DefaultLocaleWithFXALinks = storyWithProps({ showFXALinks: true });
+export const WithFRLocale = storyWithProps({ languages: ['fr'] });
+export const WithFRLocaleAndFXALinks = storyWithProps({
+  languages: ['fr'],
+  showFXALinks: true,
+});

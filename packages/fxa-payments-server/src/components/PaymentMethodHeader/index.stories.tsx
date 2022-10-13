@@ -22,25 +22,19 @@ export default {
   component: PaymentMethodHeader,
 } as Meta;
 
-const storyWithContext = (
-  plan: Plan,
-  storyName?: string,
-  type?: PaymentMethodHeaderType
-) => {
+const storyWithProps = (plan: Plan, type?: PaymentMethodHeaderType) => {
   const story = () => (
     <MockApp>
       <PaymentMethodHeader {...{ plan, onClick: () => {}, type }} />
     </MockApp>
   );
 
-  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const basic = storyWithContext(selectedPlan, 'default');
+export const Default = storyWithProps(selectedPlan);
 
-export const withPrefix = storyWithContext(
+export const WithPrefix = storyWithProps(
   selectedPlan,
-  'with prefix',
   PaymentMethodHeaderType.SecondStep
 );

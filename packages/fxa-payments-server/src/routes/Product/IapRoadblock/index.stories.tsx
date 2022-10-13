@@ -1,8 +1,10 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+
 import MockApp from '../../../../.storybook/components/MockApp';
-import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
+import { defaultAppContext } from '../../../lib/AppContext';
 import { SignInLayout } from '../../../components/AppLayout';
+import IapRoadblock, { IapRoadblockProps } from './index';
 
 import {
   CUSTOMER,
@@ -13,7 +15,10 @@ import {
   IAP_APPLE_SUBSCRIPTION,
 } from '../../../lib/mock-data';
 
-import IapRoadblock, { IapRoadblockProps } from './index';
+export default {
+  title: 'routes/Product/IapRoadblock',
+  component: IapRoadblock,
+} as Meta;
 
 const MOCK_PROPS: IapRoadblockProps = {
   customer: CUSTOMER,
@@ -25,45 +30,39 @@ const MOCK_PROPS: IapRoadblockProps = {
   code: 'iap_already_subscribed',
 };
 
-const IapRoadblockView = ({
+const storyWithProps = ({
   props = MOCK_PROPS,
-  appContextValue = defaultAppContext,
+  storyName,
 }: {
   props?: IapRoadblockProps;
-  appContextValue?: AppContextType;
-}) => (
-  <MockApp appContextValue={appContextValue}>
-    <SignInLayout>
-      <IapRoadblock {...props} />
-    </SignInLayout>
-  </MockApp>
-);
+  storyName?: string;
+}) => {
+  const story = () => (
+    <MockApp appContextValue={defaultAppContext}>
+      <SignInLayout>
+        <IapRoadblock {...props} />
+      </SignInLayout>
+    </MockApp>
+  );
 
-function init() {
-  storiesOf('routes/Product/IapRoadblock', module)
-    .add('with a Google Play subscription', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-        }}
-      />
-    ))
-    .add('with an Apple App Store subscription', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-          subscription: IAP_APPLE_SUBSCRIPTION,
-        }}
-      />
-    ))
-    .add('Mozilla support needed for upgrade', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-          code: 'iap_upgrade_contact_support',
-        }}
-      />
-    ));
-}
+  if (storyName) story.storyName = storyName;
+  return story;
+};
 
-init();
+export const Default = storyWithProps({
+  storyName: 'With A Google Play Subscription',
+});
+
+export const WithAnAppleAppStoreSubscription = storyWithProps({
+  props: {
+    ...MOCK_PROPS,
+    subscription: IAP_APPLE_SUBSCRIPTION,
+  },
+});
+
+export const MozillaSupportNeededForUpgrade = storyWithProps({
+  props: {
+    ...MOCK_PROPS,
+    code: 'iap_upgrade_contact_support',
+  },
+});

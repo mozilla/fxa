@@ -13,28 +13,20 @@ export default {
   component: PlanErrorDialog,
 } as Meta;
 
-const locationReload = () => {};
 const plans: FetchState<Plan[], any> = {
   error: null,
   loading: false,
   result: PLANS,
 };
 
-const storyWithContext = (
-  plans: FetchState<Plan[], any>,
-  storyName?: string
-) => {
+const storyWithProps = (plans: FetchState<Plan[], any>, storyName?: string) => {
   const story = () => (
-    <PlanErrorDialog locationReload={locationReload} plans={plans} />
+    <PlanErrorDialog locationReload={() => {}} plans={plans} />
   );
 
   if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Default = storyWithContext(plans, 'no plan for product');
-
-export const ProblemLoadingPlans = storyWithContext(
-  { ...plans, result: null },
-  'problem loading plans'
-);
+export const Default = storyWithProps(plans, 'No Plan For Product');
+export const ProblemLoadingPlans = storyWithProps({ ...plans, result: null });

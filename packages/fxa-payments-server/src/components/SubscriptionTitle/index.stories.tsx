@@ -14,6 +14,7 @@ const storyWithProps = (defaultProps: SubscriptionTitleProps) => {
       <SubscriptionTitle {...defaultProps} />
     </MockApp>
   );
+
   return story;
 };
 

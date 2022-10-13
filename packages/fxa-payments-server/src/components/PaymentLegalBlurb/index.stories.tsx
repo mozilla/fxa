@@ -9,31 +9,16 @@ export default {
   component: PaymentLegalBlurb,
 } as Meta;
 
-const storyWithContext = (
-  provider?: PaymentProvider.PaymentProvider,
-  storyName?: string
-) => {
+const storyWithProps = (provider?: PaymentProvider.PaymentProvider) => {
   const story = () => (
     <MockApp>
       <PaymentLegalBlurb {...{ provider }} />
     </MockApp>
   );
 
-  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Default = storyWithContext(
-  PaymentProvider.PaymentProviders.none,
-  'default'
-);
-
-export const Paypal = storyWithContext(
-  PaymentProvider.PaymentProviders.paypal,
-  'paypal'
-);
-
-export const Stripe = storyWithContext(
-  PaymentProvider.PaymentProviders.stripe,
-  'stripe'
-);
+export const Default = storyWithProps(PaymentProvider.PaymentProviders.none);
+export const Paypal = storyWithProps(PaymentProvider.PaymentProviders.paypal);
+export const Stripe = storyWithProps(PaymentProvider.PaymentProviders.stripe);

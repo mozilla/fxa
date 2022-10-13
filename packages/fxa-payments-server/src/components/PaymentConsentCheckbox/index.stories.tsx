@@ -11,31 +11,18 @@ export default {
   component: PaymentConsentCheckbox,
 } as Meta;
 
-const WrapCheckbox = () => {
+export const Default = () => {
   const validator = useValidatorState();
-  return (
-    <Form validator={validator}>
-      <PaymentConsentCheckbox plan={SELECTED_PLAN} />
-    </Form>
-  );
-};
 
-const storyWithContext = (
-  languages?: readonly string[],
-  storyName?: string
-) => {
-  const story = () => (
+  return (
     <div className="flex">
-      <MockApp languages={languages}>
+      <MockApp languages={['auto']}>
         <div className="product-payment">
-          <WrapCheckbox />
+          <Form validator={validator}>
+            <PaymentConsentCheckbox plan={SELECTED_PLAN} />
+          </Form>
         </div>
       </MockApp>
     </div>
   );
-
-  if (storyName) story.storyName = storyName;
-  return story;
 };
-
-export const Default = storyWithContext(['auto'], 'default');
