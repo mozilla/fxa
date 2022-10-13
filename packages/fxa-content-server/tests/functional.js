@@ -26,8 +26,6 @@ module.exports = testsSettings.concat([
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/legal.js',
-  'tests/functional/oauth_force_auth.js',
-  'tests/functional/oauth_handshake.js',
   'tests/functional/oauth_permissions.js',
   'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
@@ -68,6 +66,11 @@ module.exports = testsSettings.concat([
 
   // Disabled because of https://github.com/mozilla/fxa/issues/9863
   // 'tests/functional/verification_reminders.js',
+
+  // Disabled because this test migrated to Playwright
+  // See `/functional-test`
+  // 'tests/functional/oauth_handshake.js',
+  // 'tests/functional/oauth_force_auth.js',
 ]);
 
 // Mocha tests are only exposed during local dev, not on prod-like

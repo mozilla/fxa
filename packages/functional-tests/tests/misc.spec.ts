@@ -20,15 +20,10 @@ test.describe('severity-1', () => {
     pages: { page, relier, login },
   }, { project }) => {
     test.skip(project.name === 'production', 'no 123done relier in prod');
-    await relier.goto();
-    await relier.clickEmailFirst();
-    await login.login(credentials.email, credentials.password);
-    expect(await relier.isLoggedIn()).toBe(true);
-    await relier.signOut();
     await relier.goto('prompt=consent');
     await relier.clickEmailFirst();
-    await login.submit();
-    expect(page.url()).toMatch(/signin_permissions/);
+    await login.login(credentials.email, credentials.password);
+    expect(await login.permissionsHeader()).toBe(true);
     await login.submit();
     expect(await relier.isLoggedIn()).toBe(true);
   });

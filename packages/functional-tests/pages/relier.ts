@@ -32,6 +32,13 @@ export class RelierPage extends BaseLayout {
     ]);
   }
 
+  clickForceAuth() {
+    return Promise.all([
+      this.page.click('button.force-auth'),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
+    ]);
+  }
+
   async clickSubscribe() {
     await Promise.all([
       this.page.click('a[data-currency=usd]'),

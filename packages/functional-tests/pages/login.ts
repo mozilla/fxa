@@ -5,9 +5,33 @@ import { getCode } from 'fxa-settings/src/lib/totp';
 export class LoginPage extends BaseLayout {
   readonly path = '';
 
+  readonly selectors = {
+    AGE: '#age',
+    DATA_TESTID: '[data-testid=logo]',
+    EMAIL: 'input[type=email]',
+    EMAIL_PREFILLED: '#prefillEmail',
+    ERROR: '.error',
+    LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
+    LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
+    LINK_USE_DIFFERENT: '#use-different',
+    LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
+    NUMBER_INPUT: 'input[type=number]',
+    PASSWORD: '#password',
+    PASSWORD_INPUT: 'input[type=password]',
+    PERMISSIONS_HEADER: '#fxa-permissions-header',
+    RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
+    RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
+    SIGNIN_HEADER: '#fxa-signin-header',
+    SUBMIT: 'button[type=submit]',
+    SUBMIT_USER_SIGNED_IN: '#use-logged-in',
+    TEXT_INPUT: 'input[type=text]',
+    TOOLTIP: '.tooltip',
+    VPASSWORD: '#vpassword',
+  };
+
   async login(email: string, password: string, recoveryCode?: string) {
     await this.setEmail(email);
-    await this.page.click('button[type=submit]');
+    await this.page.click(this.selectors.SUBMIT);
     await this.setPassword(password);
     await this.submit();
     if (recoveryCode) {
@@ -19,11 +43,11 @@ export class LoginPage extends BaseLayout {
 
   async fillOutFirstSignUp(email: string, password: string) {
     await this.setEmail(email);
-    await this.page.click('button[type=submit]');
-    await this.page.fill('#password', password);
-    await this.page.fill('#vpassword', password);
-    await this.page.fill('#age', '24');
-    await this.page.click('#submit-btn');
+    await this.page.click(this.selectors.SUBMIT);
+    await this.page.fill(this.selectors.PASSWORD, password);
+    await this.page.fill(this.selectors.VPASSWORD, password);
+    await this.page.fill(this.selectors.AGE, '24');
+    await this.page.click(this.selectors.SUBMIT);
     await this.fillOutSignUpCode(email);
   }
 
@@ -38,39 +62,39 @@ export class LoginPage extends BaseLayout {
   }
 
   setEmail(email: string) {
-    return this.page.fill('input[type=email]', email);
+    return this.page.fill(this.selectors.EMAIL, email);
   }
 
   setPassword(password: string) {
-    return this.page.fill('input[type=password]', password);
+    return this.page.fill(this.selectors.PASSWORD, password);
   }
 
   async clickUseRecoveryCode() {
-    return this.page.click('#use-recovery-code-link');
+    return this.page.click(this.selectors.LINK_USE_RECOVERY_CODE);
   }
 
   async setCode(code: string) {
-    return this.page.fill('input[type=text]', code);
+    return this.page.fill(this.selectors.TEXT_INPUT, code);
   }
 
   async loginHeader() {
-    const header = this.page.locator('[data-testid=logo]');
+    const header = this.page.locator(this.selectors.DATA_TESTID);
     await header.waitFor();
     return header.isVisible();
   }
 
   async signInError() {
-    const error = this.page.locator('.error');
+    const error = this.page.locator(this.selectors.ERROR);
     await error.waitFor();
     return error.textContent();
   }
 
   async useDifferentAccountLink() {
-    return this.page.click('#use-different');
+    return this.page.click(this.selectors.LINK_USE_DIFFERENT);
   }
 
-  async signInPasswordTooltip() {
-    return this.page.innerText('#error-tooltip-103');
+  async getTooltipError() {
+    return this.page.innerText(this.selectors.TOOLTIP);
   }
 
   async unblock(email: string) {
@@ -85,51 +109,73 @@ export class LoginPage extends BaseLayout {
 
   async submit() {
     return Promise.all([
-      this.page.click('button[type=submit]'),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
+      this.page.click(this.selectors.SUBMIT),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   async clickForgotPassword() {
     return Promise.all([
-      this.page.click('a[href="/reset_password"]'),
+      this.page.click(this.selectors.LINK_RESET_PASSWORD),
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
     ]);
   }
 
   async resetPasswordHeader() {
-    const resetPass = this.page.locator('#fxa-reset-password-header');
+    const resetPass = this.page.locator(this.selectors.RESET_PASSWORD_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
   async resetPasswordLinkExpriredHeader() {
-    const resetPass = this.page.locator('#fxa-reset-link-expired-header');
+    const resetPass = this.page.locator(
+      this.selectors.RESET_PASSWORD_EXPIRED_HEADER
+    );
+    await resetPass.waitFor();
+    return resetPass.isVisible();
+  }
+
+  async permissionsHeader() {
+    const resetPass = this.page.locator(this.selectors.PERMISSIONS_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
   async clickDontHaveRecoveryKey() {
     return Promise.all([
-      this.page.click('a.lost-recovery-key'),
+      this.page.click(this.selectors.LINK_LOST_RECOVERY_KEY),
       this.page.waitForNavigation(),
     ]);
   }
 
   setRecoveryKey(key: string) {
-    return this.page.fill('input[type=text]', key);
+    return this.page.fill(this.selectors.TEXT_INPUT, key);
+  }
+
+  setAge(age: string) {
+    return this.page.fill(this.selectors.AGE, age);
   }
 
   async setNewPassword(password: string) {
-    await this.page.fill('#password', password);
-    await this.page.fill('#vpassword', password);
+    await this.page.fill(this.selectors.PASSWORD, password);
+    await this.page.fill(this.selectors.VPASSWORD, password);
     await this.submit();
   }
 
   async setTotp(secret: string) {
     const code = await getCode(secret);
-    await this.page.fill('input[type=number]', code);
+    await this.page.fill(this.selectors.NUMBER_INPUT, code);
     await this.submit();
+  }
+
+  async getPrefilledEmail() {
+    return this.page.innerText(this.selectors.EMAIL_PREFILLED);
+  }
+
+  async isCachedLogin() {
+    return this.page.isVisible(this.selectors.SUBMIT_USER_SIGNED_IN, {
+      timeout: 100,
+    });
   }
 
   async useCredentials(credentials: any) {
