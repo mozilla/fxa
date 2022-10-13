@@ -53,6 +53,7 @@ export type ChargeCustomerOptions = {
   idempotencyKey: string;
   invoiceNumber: string;
   ipaddress?: string;
+  taxAmount?: string;
 };
 
 export type ChargeResponse = {
@@ -267,6 +268,7 @@ export class PayPalHelper {
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
       ...(options.ipaddress && { ipaddress: options.ipaddress }),
+      ...(options.taxAmount && { taxAmount: options.taxAmount }),
     };
     const response = await this.client.doReferenceTransaction(
       doReferenceTransactionOptions

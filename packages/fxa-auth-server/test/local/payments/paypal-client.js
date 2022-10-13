@@ -5,6 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
+const { deepCopy } = require('./util');
 const nock = require('nock');
 const sinon = require('sinon');
 
@@ -376,72 +377,25 @@ describe('PayPalClient', () => {
       );
     });
 
-    it('calls api with requested amount', async () => {
+    it('calls api with requested optional tax amount', async () => {
+      const data = deepCopy(defaultData);
+      data.TAXAMT = '500';
       client.doRequest = sandbox.fake.resolves(
         successfulDoReferenceTransactionResponse
       );
-      const amt = '44.55';
       await client.doReferenceTransaction({
-        amount: amt,
-        billingAgreementId: defaultData.REFERENCEID,
-        currencyCode: defaultData.CURRENCYCODE,
-        idempotencyKey: defaultData.MSGSUBID,
-        invoiceNumber: defaultData.INVNUM,
-        ipaddress: defaultData.IPADDRESS,
+        amount: data.AMT,
+        billingAgreementId: data.REFERENCEID,
+        currencyCode: data.CURRENCYCODE,
+        idempotencyKey: data.MSGSUBID,
+        invoiceNumber: data.INVNUM,
+        ipaddress: data.IPADDRESS,
+        taxAmount: data.TAXAMT,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
         'DoReferenceTransaction',
-        {
-          ...defaultData,
-          AMT: amt,
-        }
-      );
-    });
-
-    it('calls api with requested referenceID', async () => {
-      client.doRequest = sandbox.fake.resolves(
-        successfulDoReferenceTransactionResponse
-      );
-      const ref = 'B-123588';
-      await client.doReferenceTransaction({
-        amount: defaultData.AMT,
-        billingAgreementId: ref,
-        currencyCode: defaultData.CURRENCYCODE,
-        idempotencyKey: defaultData.MSGSUBID,
-        invoiceNumber: defaultData.INVNUM,
-        ipaddress: defaultData.IPADDRESS,
-      });
-      sinon.assert.calledOnceWithExactly(
-        client.doRequest,
-        'DoReferenceTransaction',
-        {
-          ...defaultData,
-          REFERENCEID: ref,
-        }
-      );
-    });
-
-    it('calls api with requested currency', async () => {
-      client.doRequest = sandbox.fake.resolves(
-        successfulDoReferenceTransactionResponse
-      );
-      const currency = 'EUR';
-      await client.doReferenceTransaction({
-        amount: defaultData.AMT,
-        billingAgreementId: defaultData.REFERENCEID,
-        currencyCode: currency,
-        idempotencyKey: defaultData.MSGSUBID,
-        invoiceNumber: defaultData.INVNUM,
-        ipaddress: defaultData.IPADDRESS,
-      });
-      sinon.assert.calledOnceWithExactly(
-        client.doRequest,
-        'DoReferenceTransaction',
-        {
-          ...defaultData,
-          CURRENCYCODE: currency,
-        }
+        data
       );
     });
 
