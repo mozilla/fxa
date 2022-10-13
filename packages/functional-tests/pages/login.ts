@@ -2,33 +2,34 @@ import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
 
+export const selectors = {
+  AGE: '#age',
+  DATA_TESTID: '[data-testid=logo]',
+  EMAIL: 'input[type=email]',
+  EMAIL_PREFILLED: '#prefillEmail',
+  ERROR: '.error',
+  LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
+  LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
+  LINK_USE_DIFFERENT: '#use-different',
+  LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
+  NUMBER_INPUT: 'input[type=number]',
+  PASSWORD: '#password',
+  PASSWORD_INPUT: 'input[type=password]',
+  PERMISSIONS_HEADER: '#fxa-permissions-header',
+  RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
+  RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
+  SIGNIN_HEADER: '#fxa-signin-header',
+  SUBMIT: 'button[type=submit]',
+  SUBMIT_USER_SIGNED_IN: '#use-logged-in',
+  TEXT_INPUT: 'input[type=text]',
+  TOOLTIP: '.tooltip',
+  VPASSWORD: '#vpassword',
+  SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
+  NOTES_HEADER: '#notes-by-firefox',
+};
+
 export class LoginPage extends BaseLayout {
   readonly path = '';
-
-  readonly selectors = {
-    AGE: '#age',
-    DATA_TESTID: '[data-testid=logo]',
-    EMAIL: 'input[type=email]',
-    EMAIL_PREFILLED: '#prefillEmail',
-    ERROR: '.error',
-    LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
-    LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
-    LINK_USE_DIFFERENT: '#use-different',
-    LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
-    NUMBER_INPUT: 'input[type=number]',
-    PASSWORD: '#password',
-    PASSWORD_INPUT: 'input[type=password]',
-    PERMISSIONS_HEADER: '#fxa-permissions-header',
-    RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
-    RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
-    SIGNIN_HEADER: '#fxa-signin-header',
-    SUBMIT: 'button[type=submit]',
-    SUBMIT_USER_SIGNED_IN: '#use-logged-in',
-    TEXT_INPUT: 'input[type=text]',
-    TOOLTIP: '.tooltip',
-    VPASSWORD: '#vpassword',
-    SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
-  };
 
   async login(email: string, password: string, recoveryCode?: string) {
     // When running tests in parallel, playwright shares the storage state,
@@ -57,14 +58,16 @@ export class LoginPage extends BaseLayout {
     }
   }
 
-  async fillOutFirstSignUp(email: string, password: string) {
+  async fillOutFirstSignUp(email: string, password: string, verify = true) {
     await this.setEmail(email);
-    await this.page.click(this.selectors.SUBMIT);
-    await this.page.fill(this.selectors.PASSWORD, password);
-    await this.page.fill(this.selectors.VPASSWORD, password);
-    await this.page.fill(this.selectors.AGE, '24');
-    await this.page.click(this.selectors.SUBMIT);
-    await this.fillOutSignUpCode(email);
+    await this.submit();
+    await this.page.fill(selectors.PASSWORD, password);
+    await this.page.fill(selectors.VPASSWORD, password);
+    await this.page.fill(selectors.AGE, '24');
+    await this.submit();
+    if (verify) {
+      await this.fillOutSignUpCode(email);
+    }
   }
 
   async fillOutSignUpCode(email: string) {
@@ -77,40 +80,50 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
+  async fillOutSignInCode(email: string) {
+    const code = await this.target.email.waitForEmail(
+      email,
+      EmailType.verifyLoginCode,
+      EmailHeader.signinCode
+    );
+    await this.setCode(code);
+    await this.submit();
+  }
+
   setEmail(email: string) {
-    return this.page.fill(this.selectors.EMAIL, email);
+    return this.page.fill(selectors.EMAIL, email);
   }
 
   setPassword(password: string) {
-    return this.page.fill(this.selectors.PASSWORD, password);
+    return this.page.fill(selectors.PASSWORD, password);
   }
 
   async clickUseRecoveryCode() {
-    return this.page.click(this.selectors.LINK_USE_RECOVERY_CODE);
+    return this.page.click(selectors.LINK_USE_RECOVERY_CODE);
   }
 
   async setCode(code: string) {
-    return this.page.fill(this.selectors.TEXT_INPUT, code);
+    return this.page.fill(selectors.TEXT_INPUT, code);
   }
 
   async loginHeader() {
-    const header = this.page.locator(this.selectors.DATA_TESTID);
+    const header = this.page.locator(selectors.DATA_TESTID);
     await header.waitFor();
     return header.isVisible();
   }
 
   async signInError() {
-    const error = this.page.locator(this.selectors.ERROR);
+    const error = this.page.locator(selectors.ERROR);
     await error.waitFor();
     return error.textContent();
   }
 
   async useDifferentAccountLink() {
-    return this.page.click(this.selectors.LINK_USE_DIFFERENT);
+    return this.page.click(selectors.LINK_USE_DIFFERENT);
   }
 
   async getTooltipError() {
-    return this.page.innerText(this.selectors.TOOLTIP);
+    return this.page.innerText(selectors.TOOLTIP);
   }
 
   async unblock(email: string) {
@@ -125,92 +138,128 @@ export class LoginPage extends BaseLayout {
 
   async submit() {
     return Promise.all([
-      this.page.click(this.selectors.SUBMIT),
+      this.page.click(selectors.SUBMIT),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   async clickForgotPassword() {
     return Promise.all([
-      this.page.click(this.selectors.LINK_RESET_PASSWORD),
+      this.page.click(selectors.LINK_RESET_PASSWORD),
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
     ]);
   }
 
   async isSigninHeader() {
-    return this.page.isVisible(this.selectors.SIGNIN_HEADER, {
+    return this.page.isVisible(selectors.SIGNIN_HEADER, {
       timeout: 100,
     });
   }
 
   async isSyncConnectedHeader() {
-    return this.page.isVisible(this.selectors.SYNC_CONNECTED_HEADER, {
+    return this.page.isVisible(selectors.SYNC_CONNECTED_HEADER, {
       timeout: 100,
     });
   }
 
+  async signInPasswordHeader() {
+    const header = this.page.locator('#fxa-signin-password-header');
+    await header.waitFor();
+    return header.isVisible();
+  }
+
+  async signUpPasswordHeader() {
+    const header = this.page.locator('#fxa-signup-password-header');
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async resetPasswordHeader() {
-    const resetPass = this.page.locator(this.selectors.RESET_PASSWORD_HEADER);
+    const resetPass = this.page.locator(selectors.RESET_PASSWORD_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
   async resetPasswordLinkExpriredHeader() {
     const resetPass = this.page.locator(
-      this.selectors.RESET_PASSWORD_EXPIRED_HEADER
+      selectors.RESET_PASSWORD_EXPIRED_HEADER
     );
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
   async permissionsHeader() {
-    const resetPass = this.page.locator(this.selectors.PERMISSIONS_HEADER);
+    const resetPass = this.page.locator(selectors.PERMISSIONS_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
+  async notesHeader() {
+    const header = this.page.locator(selectors.NOTES_HEADER);
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async clickDontHaveRecoveryKey() {
     return Promise.all([
-      this.page.click(this.selectors.LINK_LOST_RECOVERY_KEY),
+      this.page.click(selectors.LINK_LOST_RECOVERY_KEY),
       this.page.waitForNavigation(),
     ]);
   }
 
   setRecoveryKey(key: string) {
-    return this.page.fill(this.selectors.TEXT_INPUT, key);
+    return this.page.fill(selectors.TEXT_INPUT, key);
   }
 
   setAge(age: string) {
-    return this.page.fill(this.selectors.AGE, age);
+    return this.page.fill(selectors.AGE, age);
   }
 
   async setNewPassword(password: string) {
-    await this.page.fill(this.selectors.PASSWORD, password);
-    await this.page.fill(this.selectors.VPASSWORD, password);
+    await this.page.fill(selectors.PASSWORD, password);
+    await this.page.fill(selectors.VPASSWORD, password);
     await this.submit();
   }
 
   async setTotp(secret: string) {
     const code = await getCode(secret);
-    await this.page.fill(this.selectors.NUMBER_INPUT, code);
+    await this.page.fill(selectors.NUMBER_INPUT, code);
     await this.submit();
   }
 
   async getPrefilledEmail() {
-    return this.page.innerText(this.selectors.EMAIL_PREFILLED);
+    return this.page.innerText(selectors.EMAIL_PREFILLED);
+  }
+
+  async getEmailInput() {
+    return this.page.inputValue(selectors.EMAIL);
   }
 
   async isCachedLogin() {
-    return this.page.isVisible(this.selectors.SUBMIT_USER_SIGNED_IN, {
-      timeout: 100,
+    return this.page.isVisible(selectors.SUBMIT_USER_SIGNED_IN, {
+      timeout: 1000,
     });
   }
 
   async clearCache() {
-    return Promise.all([
-      this.page.goto(`${this.target.contentServerUrl}/clear`),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
-    ]);
+    await this.page.goto(`${this.target.contentServerUrl}/clear`, {
+      waitUntil: 'networkidle',
+    });
+    return this.page.waitForTimeout(1000);
+  }
+
+  createEmail(template?: string) {
+    if (!template) {
+      template = 'signin{id}';
+    }
+    return template.replace('{id}', Math.random() + '') + '@restmail.net';
+  }
+
+  async getStorage() {
+    await this.goto();
+    return this.page.evaluate((creds) => {
+      console.log('getStorage', localStorage.getItem('__fxa_storage.accounts'));
+    });
   }
 
   async useCredentials(credentials: any) {

@@ -60,6 +60,7 @@ export function getFirefoxUserPrefs(
     'identity.sync.tokenserver.uri': fxaEnv.token,
     'services.sync.tokenServerURI': fxaEnv.token,
     'identity.fxaccounts.contextParam': 'fx_desktop_v3',
+    'identity.fxaccounts.lastSignedInUserHash': '',
     'browser.newtabpage.activity-stream.fxaccounts.endpoint': fxaEnv.content,
     // allow webchannel url, strips slash from content-server origin.
     'webchannel.allowObject.urlWhitelist': fxaEnv.content.slice(0, -1),

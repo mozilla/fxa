@@ -24,9 +24,7 @@ test.describe('recovery key test', () => {
     }
   );
 
-  test('revoke recovery key', async ({
-    pages: { settings },
-  }) => {
+  test('revoke recovery key', async ({ pages: { settings } }) => {
     await settings.recoveryKey.clickRemove();
     await settings.clickModalConfirm();
     await settings.waitForAlertBar();
@@ -93,7 +91,6 @@ test.describe('recovery key test', () => {
     // Verify login successful
     expect(await login.loginHeader()).toBe(true);
   });
-
 
   test('can reset password when forgot recovery key', async ({
     credentials,
@@ -172,7 +169,6 @@ test.describe('recovery key test', () => {
 
     // Verify reset link expired
     expect(await login.resetPasswordLinkExpriredHeader()).toBe(true);
-
   });
 
   test('use account recovery key', async ({

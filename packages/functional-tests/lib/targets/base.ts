@@ -1,5 +1,6 @@
 import AuthClient from 'fxa-auth-client';
 import { EmailClient } from '../email';
+import { TargetName } from './index';
 
 export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   email: string;
@@ -12,6 +13,7 @@ export abstract class BaseTarget {
   readonly email: EmailClient;
   abstract readonly contentServerUrl: string;
   abstract readonly relierUrl: string;
+  abstract readonly name: TargetName;
 
   constructor(readonly authServerUrl: string, emailUrl?: string) {
     this.auth = new AuthClient(authServerUrl);

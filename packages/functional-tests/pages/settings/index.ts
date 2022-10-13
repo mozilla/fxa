@@ -65,6 +65,30 @@ export class SettingsPage extends SettingsLayout {
     ]);
   }
 
+  async disconnectSync(creds) {
+    await this.goto();
+    const services = await this.connectedServices.services();
+    const sync = services.find((s) => s.name.includes(' on '));
+
+    await sync.signout();
+    await this.page.click('text=Rather not say >> input[name="reason"]');
+    await this.clickModalConfirm();
+
+    await this.page.evaluate((uid) => {
+      window.dispatchEvent(
+        new CustomEvent('WebChannelMessageToChrome', {
+          detail: JSON.stringify({
+            id: 'account_updates',
+            message: {
+              command: 'fxaccounts:logout',
+              data: { uid },
+            },
+          }),
+        })
+      );
+    }, creds.uid);
+  }
+
   async clickEmailPreferences() {
     const [emailPage] = await Promise.all([
       this.page.context().waitForEvent('page'),

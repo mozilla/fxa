@@ -1,19 +1,22 @@
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293471
   test('signin to sync and disconnect #1293471', async ({
     target,
-    page,
     credentials,
-    pages: { login, settings },
   }) => {
+    const { page, login, settings } = await newPagesForSync(target);
+
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email',
       { waitUntil: 'networkidle' }
     );
+    await page.waitForTimeout(1000);
+
     await login.login(credentials.email, credentials.password);
+
     expect(await login.isSyncConnectedHeader()).toBe(true);
 
     // Normally we wouldn't need this delay, but because we are
@@ -21,27 +24,7 @@ test.describe('severity-1 #smoke', () => {
     // record and web channels have been sent and created.
     await page.waitForTimeout(1000);
 
-    await settings.goto();
-    const services = await settings.connectedServices.services();
-    const sync = services.find((s) => s.name.includes(' on '));
-
-    await sync.signout();
-
-    await page.click('text=Rather not say >> input[name="reason"]');
-    await settings.clickModalConfirm();
-    await page.evaluate((uid) => {
-      window.dispatchEvent(
-        new CustomEvent('WebChannelMessageToChrome', {
-          detail: JSON.stringify({
-            id: 'account_updates',
-            message: {
-              command: 'fxaccounts:logout',
-              data: { uid },
-            },
-          }),
-        })
-      );
-    }, credentials.uid);
+    await settings.disconnectSync(credentials);
 
     expect(page.url()).toMatch(login.url);
   });
@@ -165,5 +148,51 @@ test.describe('severity-3 #smoke', () => {
     await page.hover('a[href="/en-US/users/auth"]');
     await page.click('text=Sign Out');
     await expect(page.locator('text=Sign In/Up').first()).toBeVisible();
+  });
+});
+
+test.describe('OAuth and Fx Desktop handshake', () => {
+  test('user signed into browser and OAuth login', async ({
+    target,
+    credentials,
+  }) => {
+    const { page, login, settings, relier } = await newPagesForSync(target);
+    await page.goto(
+      target.contentServerUrl +
+        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
+    );
+    await login.login(credentials.email, credentials.password);
+    expect(await login.isSyncConnectedHeader()).toBe(true);
+
+    // Normally we wouldn't need this delay, but because we are
+    // disconnecting the sync service, we need to ensure that the device
+    // record and web channels have been sent and created.
+    await page.waitForTimeout(1000);
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // User can sign in with cached credentials, no password needed.
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    await relier.signOut();
+
+    // Attempt to sign back in
+    await relier.clickEmailFirst();
+
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    // Disconnect sync otherwise we can have flaky tests.
+    await settings.disconnectSync(credentials);
+
+    expect(page.url()).toMatch(login.url);
   });
 });

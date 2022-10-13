@@ -39,6 +39,10 @@ export class RelierPage extends BaseLayout {
     ]);
   }
 
+  clickChooseFlow() {
+    return this.page.click('button.sign-choose');
+  }
+
   async clickSubscribe() {
     await Promise.all([
       this.page.click('a[data-currency=usd]'),
