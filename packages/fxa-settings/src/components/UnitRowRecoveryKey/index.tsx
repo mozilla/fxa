@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAccount, useAlertBar } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
@@ -95,14 +94,6 @@ export const UnitRowRecoveryKey = () => {
         <p className="text-sm mt-3">
           Restores your information when you forget your password.
         </p>
-      </Localized>
-      <Localized id="rk-content-reset-data">
-        <LinkExternal
-          className="link-blue text-xs mt-2"
-          href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
-        >
-          Why does resetting my password reset my data?
-        </LinkExternal>
       </Localized>
       {modalRevealed && (
         <VerifiedSessionGuard
