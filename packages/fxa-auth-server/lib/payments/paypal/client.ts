@@ -181,6 +181,7 @@ export type DoReferenceTransactionOptions = {
   invoiceNumber: string;
   idempotencyKey: string;
   currencyCode: string;
+  taxAmount?: string;
   ipaddress?: string;
 };
 
@@ -448,6 +449,7 @@ export class PayPalClient {
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
       REFERENCEID: options.billingAgreementId,
+      ...(options.taxAmount && { TAXAMT: options.taxAmount }),
     };
     return this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',

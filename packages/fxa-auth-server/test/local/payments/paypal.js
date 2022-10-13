@@ -266,6 +266,31 @@ describe('PayPalHelper', () => {
       assert.deepEqual(response, expectedResponse);
     });
 
+    it('calls doReferenceTransaction with taxAmount option', async () => {
+      const options = deepCopy(validOptions);
+      options.taxAmount = '500';
+      paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      await paypalHelper.chargeCustomer(options);
+      const expectedOptions = {
+        amount:
+          paypalHelper.currencyHelper.getPayPalAmountStringFromAmountInCents(
+            options.amountInCents
+          ),
+        billingAgreementId: options.billingAgreementId,
+        invoiceNumber: options.invoiceNumber,
+        idempotencyKey: options.idempotencyKey,
+        currencyCode: options.currencyCode,
+        taxAmount: options.taxAmount,
+      };
+      assert.ok(
+        paypalHelper.client.doReferenceTransaction.calledOnceWith(
+          expectedOptions
+        )
+      );
+    });
+
     it('if doRequest unsuccessful, throws an error', async () => {
       paypalHelper.client.doRequest = sinon.fake.throws(
         new PayPalClientError('Fake', {})
