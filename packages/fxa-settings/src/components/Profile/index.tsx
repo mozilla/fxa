@@ -1,9 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { useAccount } from '../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 import { HomePath } from '../../constants';
-import { Localized } from '@fluent/react';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const Profile = () => {
   const { avatar, primaryEmail, displayName } = useAccount();
@@ -12,11 +16,11 @@ export const Profile = () => {
     <section className="mt-11" data-testid="settings-profile">
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="profile" className="nav-anchor"></span>
-        <Localized id="profile-heading">Profile</Localized>
+        <FtlMsg id="profile-heading">Profile</FtlMsg>
       </h2>
 
       <div className="bg-white tablet:rounded-xl shadow">
-        <Localized id="profile-picture" attrs={{ header: true }}>
+        <FtlMsg id="profile-picture" attrs={{ header: true }}>
           <UnitRow
             header="Picture"
             headerId="profile-picture"
@@ -25,11 +29,11 @@ export const Profile = () => {
             prefixDataTestId="avatar"
             {...{ avatar }}
           />
-        </Localized>
+        </FtlMsg>
 
         <hr className="unit-row-hr" />
 
-        <Localized id="profile-display-name" attrs={{ header: true }}>
+        <FtlMsg id="profile-display-name" attrs={{ header: true }}>
           <UnitRow
             header="Display name"
             headerId="display-name"
@@ -38,11 +42,11 @@ export const Profile = () => {
             route="/settings/display_name"
             prefixDataTestId="display-name"
           />
-        </Localized>
+        </FtlMsg>
 
         <hr className="unit-row-hr" />
 
-        <Localized id="profile-primary-email" attrs={{ header: true }}>
+        <FtlMsg id="profile-primary-email" attrs={{ header: true }}>
           <UnitRow
             header="Primary email"
             headerId="primary-email"
@@ -50,7 +54,7 @@ export const Profile = () => {
             headerValueClassName="break-all"
             prefixDataTestId="primary-email"
           />
-        </Localized>
+        </FtlMsg>
 
         <hr className="unit-row-hr" />
 

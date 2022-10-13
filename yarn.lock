@@ -21449,13 +21449,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es6-promisify@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "es6-promisify@npm:6.1.1"
-  checksum: e57dfa8b6533387e6cae115bdc1591e4e6e7648443741360c4f4f8f1d2c17d1f0fb293ccd3f86193f016c236ed15f336e075784eab7ec9a67af0aed2b949dd7c
-  languageName: node
-  linkType: hard
-
 "es6-shim@npm:^0.35.5":
   version: 0.35.5
   resolution: "es6-shim@npm:0.35.5"
@@ -25349,6 +25342,10 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
     graphql: ^15.6.1
+    grunt: ^1.5.3
+    grunt-cli: ^1.4.3
+    grunt-contrib-concat: ^2.1.0
+    grunt-contrib-watch: ^1.1.0
     jest-watch-typeahead: 0.6.5
     lodash.groupby: ^4.6.0
     mutationobserver-shim: ^0.3.7
@@ -25371,8 +25368,6 @@ fsevents@~2.1.1:
     typescript: ^4.8.2
     uuid: ^9.0.0
     webpack: ^4.43.0
-    webpack-merge-and-include-globally: ^2.3.4
-    webpack-watch-files-plugin: ^1.2.1
   languageName: unknown
   linkType: soft
 
@@ -41341,13 +41336,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"rev-hash@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "rev-hash@npm:3.0.0"
-  checksum: d7af9e411b945cae85c40d3d5e061589b5e84b16d3ffddcee948766ca4e70e7040942fc9aee0e8a4d64e1edf832730687bbcaf63577b8b6ca59866116bd8f6bd
-  languageName: node
-  linkType: hard
-
 "rework-visit@npm:1.0.0":
   version: 1.0.0
   resolution: "rework-visit@npm:1.0.0"
@@ -47167,19 +47155,6 @@ resolve@^2.0.0-next.3:
   peerDependencies:
     webpack: 2 || 3 || 4
   checksum: ed1387774031a59bc1bd5f79150e7a49dcf5048a6d5e9652672637bed7f93df6220cbd88b2e371e7c8c8e7640b3a8ed6895f771c6b05a8bb90b721f82001ac25
-  languageName: node
-  linkType: hard
-
-"webpack-merge-and-include-globally@npm:^2.3.4":
-  version: 2.3.4
-  resolution: "webpack-merge-and-include-globally@npm:2.3.4"
-  dependencies:
-    es6-promisify: ^6.1.1
-    glob: ^7.1.6
-    rev-hash: ^3.0.0
-  peerDependencies:
-    webpack: ">=1.0.0"
-  checksum: 00e99409653303ef9e99ba9f622a35f890110932d6feecaa65779f2bf8237a892ac5905bb4a4ea4fd41dd2e584461ee9de4f366e7ce307737e9c0e5b9693fe39
   languageName: node
   linkType: hard
 

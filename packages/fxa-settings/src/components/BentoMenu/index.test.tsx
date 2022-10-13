@@ -5,8 +5,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import BentoMenu from '.';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 describe('BentoMenu', () => {
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('settings');
+  });
   const dropDownId = 'drop-down-bento-menu';
 
   it('renders and toggles as expected with default values', () => {
@@ -23,6 +29,7 @@ describe('BentoMenu', () => {
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
     expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
+    testAllL10n(screen, bundle);
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');

@@ -4,19 +4,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const { default: WebpackWatchPlugin } = require('webpack-watch-files-plugin');
-const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 const { permitAdditionalJSImports } = require('fxa-react/configs/rescripts');
-
-const watchFtlPlugin = new WebpackWatchPlugin({
-  files: ['src/**/*.ftl'],
-});
-
-const mergeFtlPlugin = new MergeIntoSingleFilePlugin({
-  files: {
-    '../public/locales/en-US/settings.ftl': ['.license.header', 'src/**/*.ftl'],
-  },
-});
 
 module.exports = [
   {
@@ -44,11 +32,6 @@ module.exports = [
           },
         };
       }
-
-      newConfig = {
-        ...newConfig,
-        plugins: [...newConfig.plugins, watchFtlPlugin, mergeFtlPlugin],
-      };
 
       return newConfig;
     },

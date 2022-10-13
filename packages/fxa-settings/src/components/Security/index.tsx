@@ -8,6 +8,7 @@ import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
 import { useAccount } from '../../models';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   const pwdDateText = Intl.DateTimeFormat('default', {
@@ -17,11 +18,11 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   }).format(new Date(passwordCreated));
 
   return (
-    <Localized id="security-password-created-date" vars={{ date: pwdDateText }}>
+    <FtlMsg id="security-password-created-date" vars={{ date: pwdDateText }}>
       <p className="text-grey-400 text-xs mobileLandscape:mt-3">
         Created {pwdDateText}
       </p>
-    </Localized>
+    </FtlMsg>
   );
 };
 
@@ -62,8 +63,8 @@ export const Security = () => {
             ) : (
               <Localized id="security-set-password">
                 <p className="text-sm mt-3">
-                  Set a password to sync and use certain account
-                  security features.
+                  Set a password to sync and use certain account security
+                  features.
                 </p>
               </Localized>
             )}

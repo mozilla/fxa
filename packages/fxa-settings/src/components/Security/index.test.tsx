@@ -7,8 +7,15 @@ import { screen } from '@testing-library/react';
 import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
+import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 describe('Security', () => {
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('settings');
+  });
+
   it('renders "fresh load" <Security/> with correct content', async () => {
     const account = {
       avatar: { url: null, id: null },
@@ -68,7 +75,7 @@ describe('Security', () => {
         passwordCreated: 1234567890,
         hasPassword: true,
       } as unknown as Account;
-      const createDate = new Date(1234567890).getDate();
+      const createDate = `1/${new Date(1234567890).getDate()}/1970`;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <Security />
@@ -76,8 +83,13 @@ describe('Security', () => {
       );
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle, {
+        date: createDate,
+      });
+
       await screen.findByText('••••••••••••••••••');
-      await screen.findByText(`Created 1/${createDate}/1970`);
+      await screen.findByText(`Created ${createDate}`);
 
       expect(passwordRouteLink).toHaveTextContent('Change');
       expect(passwordRouteLink).toHaveAttribute(
