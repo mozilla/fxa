@@ -68,6 +68,7 @@ describe('Security', () => {
         passwordCreated: 1234567890,
         hasPassword: true,
       } as unknown as Account;
+      const createDate = new Date(1234567890).getDate();
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <Security />
@@ -76,7 +77,7 @@ describe('Security', () => {
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
       await screen.findByText('••••••••••••••••••');
-      await screen.findByText('Created 1/15/1970');
+      await screen.findByText(`Created 1/${createDate}/1970`);
 
       expect(passwordRouteLink).toHaveTextContent('Change');
       expect(passwordRouteLink).toHaveAttribute(
