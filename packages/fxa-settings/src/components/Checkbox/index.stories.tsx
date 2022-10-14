@@ -3,10 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import Checkbox from './index';
+import { Meta } from '@storybook/react';
 
-storiesOf('Components/Checkbox', module).add('default', () => (
+export default {
+  title: 'Components/Checkbox',
+  component: Checkbox,
+} as Meta;
+
+export const Basic = () => (
   <div className="p-10 max-w-lg">
     <div className="mb-3">
       <Checkbox />
@@ -34,4 +39,4 @@ storiesOf('Components/Checkbox', module).add('default', () => (
       />
     </div>
   </div>
-));
+);
