@@ -66,6 +66,9 @@ Thumbs.db
 .yarn/build-state.yml
 .yarn/install-state.gz
 
+# nektos/act - Github Actions
+bin/
+
 ## Package-specific ##
 
 # circleci
