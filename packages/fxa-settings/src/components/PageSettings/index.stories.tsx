@@ -17,7 +17,6 @@ import { AppContext } from 'fxa-settings/src/models';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 
-
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 export default {
@@ -45,18 +44,15 @@ const partiallyFilledOutAccount = {
 const completelyFilledOutAccount = {
   ...MOCK_ACCOUNT,
   subscriptions: [{ created: 1, productName: 'x' }],
-  emails: [
-    mockEmail('johndope@example.com'),
-    mockEmail('johndope2@gmail.com', false),
-  ],
+  emails: [mockEmail(), mockEmail('johndope2@gmail.com', false)],
   attachedClients: SERVICES_NON_MOBILE,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
-}
+};
 
 const storyWithContext = (
   account: Partial<Account>,
   storyName?: string,
-  config?: Config,
+  config?: Config
 ) => {
   const context = config
     ? { account: account as Account, config: config }
@@ -66,7 +62,7 @@ const storyWithContext = (
     <LocationProvider>
       <AppContext.Provider value={mockAppContext(context)}>
         <AppLayout>
-          <PageSettings/>
+          <PageSettings />
         </AppLayout>
       </AppContext.Provider>
     </LocationProvider>
@@ -75,17 +71,14 @@ const storyWithContext = (
   return story;
 };
 
-export const ColdStart = storyWithContext(
-  coldStartAccount,
-  'cold start',
-);
+export const ColdStart = storyWithContext(coldStartAccount, 'cold start');
 
 export const PartiallyFilledOut = storyWithContext(
   partiallyFilledOutAccount,
-  'partially filled out',
+  'partially filled out'
 );
 
 export const CompletelyFilledOut = storyWithContext(
   completelyFilledOutAccount,
-  'completely filled out',
+  'completely filled out'
 );

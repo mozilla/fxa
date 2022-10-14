@@ -3,10 +3,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
 import { Profile } from '.';
+import { Account, AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
+import {
+  MOCK_PROFILE_EMPTY,
+  MOCK_PROFILE_UNCONFIRMED_FEATURES,
+  MOCK_PROFILE_ALL,
+} from './mocks';
+import { Meta } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 
-storiesOf('Components/Profile', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => <Profile />);
+export default {
+  title: 'components/Profile',
+  component: Profile,
+} as Meta;
+
+const storyWithContext = (account: Account, storyName?: string) => {
+  const story = () => (
+    <LocationProvider>
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <Profile />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const FreshAccount = storyWithContext(MOCK_PROFILE_EMPTY);
+export const UnconfirmedFeatures = storyWithContext(
+  MOCK_PROFILE_UNCONFIRMED_FEATURES
+);
+export const CompletelyFilledOut = storyWithContext(MOCK_PROFILE_ALL);

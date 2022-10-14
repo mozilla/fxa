@@ -14,10 +14,7 @@ import { UnitRowSecondaryEmail } from '.';
 import { Account, AppContext } from '../../models';
 
 const account = {
-  emails: [
-    mockEmail('johndope@example.com'),
-    mockEmail('johndope2@example.com', false, false),
-  ],
+  emails: [mockEmail(), mockEmail('johndope2@example.com', false, false)],
   resendEmailCode: jest.fn().mockResolvedValue(true),
   makeEmailPrimary: jest.fn().mockResolvedValue(true),
   deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
@@ -35,7 +32,7 @@ describe('UnitRowSecondaryEmail', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       const account = {
-        emails: [mockEmail('johndope@example.com')],
+        emails: [mockEmail()],
       } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
@@ -86,10 +83,7 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('renders as expected when verified', () => {
       const account = {
-        emails: [
-          mockEmail('johndope@example.com'),
-          mockEmail('johndope2@example.com', false),
-        ],
+        emails: [mockEmail(), mockEmail('johndope2@example.com', false)],
       } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
@@ -132,7 +126,7 @@ describe('UnitRowSecondaryEmail', () => {
   describe('multiple secondary emails set', () => {
     it('renders as expected and with verified email text only present on the last verified', () => {
       const emails = [
-        mockEmail('johndope@example.com'),
+        mockEmail(),
         mockEmail('johndope2@example.com', false),
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false),
@@ -170,7 +164,7 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('renders multiple unverified as expected', () => {
       const emails = [
-        mockEmail('johndope@example.com'),
+        mockEmail(),
         mockEmail('johndope2@example.com', false, false),
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false, false),
@@ -230,7 +224,7 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('displays an error message in the AlertBar', async () => {
       const emails = [
-        mockEmail('johndope@example.com'),
+        mockEmail(),
         mockEmail('johndope2@example.com', false, false),
       ];
       const account = {
@@ -281,7 +275,7 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('displays an error message in the AlertBar', async () => {
       const emails = [
-        mockEmail('johndope@example.com'),
+        mockEmail(),
         mockEmail('johndope2@example.com', false, true),
       ];
       const account = {
@@ -331,7 +325,7 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('displays an error message in the AlertBar', async () => {
       const emails = [
-        mockEmail('johndope@example.com'),
+        mockEmail(),
         mockEmail('johndope2@example.com', false, false),
       ];
       const account = {
