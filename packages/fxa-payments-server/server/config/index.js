@@ -38,12 +38,6 @@ const conf = convict({
       env: 'AMPLITUDE_SCHEMA_VALIDATION',
       format: Boolean,
     },
-    rawEvents: {
-      default: false,
-      doc: 'Log raw Amplitude events',
-      env: 'AMPLITUDE_RAW_EVENTS',
-      format: Boolean,
-    },
   },
   clientAddressDepth: {
     default: 3,

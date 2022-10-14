@@ -6,6 +6,7 @@
 
 const bufferEqualConstantTime = require('buffer-equal-constant-time');
 const crypto = require('crypto');
+const { filterDntValues } = require('fxa-shared/metrics/dnt');
 const HEX_STRING = require('../routes/validators').HEX_STRING;
 const isA = require('joi');
 
@@ -162,24 +163,25 @@ module.exports = function (log, config) {
       data.flowBeginTime = metadata.flowBeginTime;
       data.flowCompleteSignal = metadata.flowCompleteSignal;
       data.flowType = metadata.flowType;
+      data.entrypoint = metadata.entrypoint;
+      data.entrypoint_experiment = metadata.entrypointExperiment;
+      data.entrypoint_variation = metadata.entrypointVariation;
+      data.utm_campaign = metadata.utmCampaign;
+      data.utm_content = metadata.utmContent;
+      data.utm_medium = metadata.utmMedium;
+      data.utm_source = metadata.utmSource;
+      data.utm_term = metadata.utmTerm;
+      data.product_id = metadata.productId;
+      data.plan_id = metadata.planId;
 
       if (metadata.service) {
         data.service = metadata.service;
       }
+    }
 
-      const doNotTrack = this.headers && this.headers.dnt === '1';
-      if (!doNotTrack) {
-        data.entrypoint = metadata.entrypoint;
-        data.entrypoint_experiment = metadata.entrypointExperiment;
-        data.entrypoint_variation = metadata.entrypointVariation;
-        data.utm_campaign = metadata.utmCampaign;
-        data.utm_content = metadata.utmContent;
-        data.utm_medium = metadata.utmMedium;
-        data.utm_source = metadata.utmSource;
-        data.utm_term = metadata.utmTerm;
-        data.product_id = metadata.productId;
-        data.plan_id = metadata.planId;
-      }
+    const doNotTrack = this.headers && this.headers.dnt === '1';
+    if (doNotTrack) {
+      data = filterDntValues(data);
     }
 
     return data;
