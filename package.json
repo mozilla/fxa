@@ -33,7 +33,7 @@
   "dependencies": {
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
+    "lint-staged": "^13.0.3",
     "node-fetch": "^2.6.1",
     "nps": "^5.10.0",
     "pm2": "^5.1.2",
