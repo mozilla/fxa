@@ -3,20 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import Avatar from '.';
-import { AppContext } from 'fxa-settings/src/models';
+import { Account, AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
+import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
+import { Meta } from '@storybook/react';
 
-const account = {
-  avatar: {
-    url: null,
-    id: null,
-  },
-} as any;
-storiesOf('Components/Avatar', module)
-  .add('default avatar', () => (
-    <AppContext.Provider value={{ account }}>
+export default {
+  title: 'Components/Avatar',
+  component: Avatar,
+} as Meta;
+
+const storyWithContext = (account: Account, storyName?: string) => {
+  const story = () => (
+    <AppContext.Provider value={mockAppContext({ account })}>
       <Avatar className="w-32 h-32" />
     </AppContext.Provider>
-  ))
-  .add('non-default avatar', () => <Avatar className="w-32 h-32" />);
+  );
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const DefaultAvatar = storyWithContext(MOCK_AVATAR_DEFAULT);
+
+export const NonDefaultAvatar = storyWithContext(MOCK_AVATAR_NON_DEFAULT);
