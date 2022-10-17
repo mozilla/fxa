@@ -55,6 +55,11 @@ const DEVICE_TOKEN_1 = randomDeviceToken(SESSION_TOKEN_1.tokenId);
 const OAUTH_CLIENT_1 = randomOauthClient(Date.now() - 60 * 1e3);
 
 const USER_2 = randomAccount();
+// Fake a different sing up email
+const EMAIL_2 = randomEmail({
+  ...USER_2,
+  email: USER_2.email.replace('@', '+01@'),
+});
 
 describe('AccountResolver', () => {
   let resolver: AccountResolver;
@@ -219,7 +224,23 @@ describe('AccountResolver', () => {
   });
 
   it('does not locate non-existent users by email', async () => {
+    const result = await resolver.accountByEmail(
+      'non-existent@test.com',
+      true,
+      'joe'
+    );
+    expect(result).toBeUndefined();
+    expect(logger.info).toBeCalledTimes(2);
+  });
+
+  it('locate users by sign-up email', async () => {
     const result = await resolver.accountByEmail(USER_2.email, true, 'joe');
+    expect(result).toBeUndefined();
+    expect(logger.info).toBeCalledTimes(2);
+  });
+
+  it('locates users by secondary email', async () => {
+    const result = await resolver.accountByEmail(EMAIL_2.email, true, 'joe');
     expect(result).toBeUndefined();
     expect(logger.info).toBeCalledTimes(2);
   });

@@ -99,8 +99,9 @@ it('displays the account', async () => {
   );
 
   expect(getByTestId('account-section')).toBeInTheDocument();
-  expect(getByTestId('account-verified-status')).toHaveTextContent('confirmed');
-  expect(getByTestId('email-label')).toHaveTextContent(
+  expect(getByTestId('sign-up-email')).toHaveTextContent(accountResponse.email);
+  expect(getByTestId('primary-verified')).toHaveTextContent('confirmed');
+  expect(getByTestId('primary-email')).toHaveTextContent(
     accountResponse.emails![0].email
   );
   expect(getByTestId('account-uid')).toHaveTextContent(accountResponse.uid);
@@ -152,9 +153,7 @@ it('displays the unverified account', async () => {
       <Account {...accountResponse} />
     </MockedProvider>
   );
-  expect(getByTestId('account-verified-status')).toHaveTextContent(
-    'not confirmed'
-  );
+  expect(getByTestId('primary-verified')).toHaveTextContent('not confirmed');
 });
 
 it('displays the bounce type description', async () => {
