@@ -19622,10 +19622,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.9.4":
-  version: 1.9.4
-  resolution: "dayjs@npm:1.9.4"
-  checksum: 46586e8116c3dd5b6e24ad846491b1ca67890777d15459f8f76b69f68cb6d50a5d68d16cc6eea2e26a92444daf5ee6b9829fd3a6ba08ad0736f79054d759695f
+"dayjs@npm:^1.11.5":
+  version: 1.11.5
+  resolution: "dayjs@npm:1.11.5"
+  checksum: e3bbaa7b4883b31be4bf75a181f1447fbb19800c29b332852125aab96baeff3ac232dcba8b88c4ea17d3b636c99dac5fb9d1af4bb6ae26615698bbc4a852dffb
   languageName: node
   linkType: hard
 
@@ -24937,7 +24937,7 @@ fsevents@~2.1.1:
     convict: ^6.2.3
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    dayjs: ^1.9.4
+    dayjs: ^1.11.5
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
