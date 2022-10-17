@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var IdP = require('browserid-local-verify/testing').IdP,
   Client = require('browserid-local-verify/testing').Client,
@@ -16,18 +16,20 @@ describe('audience tests', function () {
   var idp = new IdP();
   var client;
 
-  it('test servers should start', function (done) {
-    idp.start(function (e) {
-      verifier.start(function (e1) {
-        client = new Client({
-          idp: idp,
-          // note, using an email not rooted at the idp.  trustIssuer is the only
-          // way this can work
-          email: 'user@example.com',
-        });
-        done(e || e1);
-      });
+  before(async () => {
+    await new Promise((resolve) => idp.start(resolve));
+    await new Promise((resolve) => verifier.start(resolve));
+    client = new Client({
+      idp: idp,
+      // note, using an email not rooted at the idp.  trustIssuer is the only
+      // way this can work
+      email: 'user@example.com',
     });
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
+    await new Promise((resolve) => idp.stop(resolve));
   });
 
   var assertion;
@@ -84,23 +86,17 @@ describe('audience tests', function () {
   });
 
   it('should fail when trusted issuers contains non-strings', function (done) {
-    submitWithTrustedIssuers([idp.domain(), ['example.com']], function (
-      err,
-      r
-    ) {
-      should.not.exist(err);
-      'failure'.should.equal(r.body.status);
-      'trusted issuers must be an array of strings'.should.equal(r.body.reason);
-      shouldReturnSecurityHeaders(r);
-      done();
-    });
-  });
-
-  it('test servers should stop', function (done) {
-    idp.stop(function (e) {
-      verifier.stop(function (e1) {
-        done(e || e1);
-      });
-    });
+    submitWithTrustedIssuers(
+      [idp.domain(), ['example.com']],
+      function (err, r) {
+        should.not.exist(err);
+        'failure'.should.equal(r.body.status);
+        'trusted issuers must be an array of strings'.should.equal(
+          r.body.reason
+        );
+        shouldReturnSecurityHeaders(r);
+        done();
+      }
+    );
   });
 });

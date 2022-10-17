@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var IdP = require('browserid-local-verify/testing').IdP,
   Client = require('browserid-local-verify/testing').Client,
@@ -15,13 +15,16 @@ describe('fallback configuration test', function () {
   var idp = new IdP();
   var verifier = new Verifier();
 
-  it('test servers should start', function (done) {
-    idp.start(function (e) {
-      verifier.setFallback(idp);
-      verifier.start(function (e1) {
-        done(e || e1);
-      });
-    });
+  before(async function () {
+    this.timeout(10000);
+    await new Promise((resolve) => idp.start(resolve));
+    verifier.setFallback(idp);
+    await new Promise((resolve) => verifier.start(resolve));
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
+    await new Promise((resolve) => idp.stop(resolve));
   });
 
   it('should verify an assertion vouched by the configured fallback', function (done) {
@@ -104,13 +107,5 @@ describe('fallback configuration test', function () {
         );
       }
     );
-  });
-
-  it('test servers should stop', function (done) {
-    idp.stop(function (e) {
-      verifier.stop(function (e1) {
-        done(e || e1);
-      });
-    });
   });
 });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var Verifier = require('./lib/verifier.js'),
   should = require('should'),
@@ -12,8 +12,12 @@ var Verifier = require('./lib/verifier.js'),
 describe('missing assertion test', function () {
   var verifier = new Verifier();
 
-  it('test servers should start', function (done) {
-    verifier.start(done);
+  before(async () => {
+    await new Promise((resolve) => verifier.start(resolve));
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
   });
 
   it('should fail to verify when assertion is missing', function (done) {
@@ -35,9 +39,5 @@ describe('missing assertion test', function () {
         done();
       }
     );
-  });
-
-  it('test servers should stop', function (done) {
-    verifier.stop(done);
   });
 });

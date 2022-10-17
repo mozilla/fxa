@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var IdP = require('browserid-local-verify/testing').IdP,
   Client = require('browserid-local-verify/testing').Client,
@@ -15,45 +15,46 @@ describe('basic verifier test', function () {
   var idp = new IdP();
   var verifier = new Verifier();
 
-  it('test servers should start', function (done) {
-    idp.start(function (e) {
-      verifier.setFallback(idp);
-      verifier.start(function (e1) {
-        done(e || e1);
-      });
-    });
+  before(async () => {
+    await new Promise((resolve) => idp.start(resolve));
+    await new Promise((resolve) => verifier.start(resolve));
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
+    await new Promise((resolve) => idp.stop(resolve));
   });
 
   it('should verify an assertion', function (done) {
     var client = new Client({ idp: idp });
 
-    client.assertion({ audience: 'http://example.com' }, function (
-      err,
-      assertion
-    ) {
-      should.not.exist(err);
-      request(
-        {
-          method: 'post',
-          url: verifier.url(),
-          json: true,
-          body: {
-            assertion: assertion,
-            audience: 'http://example.com',
+    client.assertion(
+      { audience: 'http://example.com' },
+      function (err, assertion) {
+        should.not.exist(err);
+        request(
+          {
+            method: 'post',
+            url: verifier.url(),
+            json: true,
+            body: {
+              assertion: assertion,
+              audience: 'http://example.com',
+            },
           },
-        },
-        function (err, r) {
-          should.not.exist(err);
-          r.body.email.should.equal(client.email());
-          r.body.issuer.should.equal(idp.domain());
-          r.body.status.should.equal('okay');
-          r.body.audience.should.equal('http://example.com');
-          r.statusCode.should.equal(200);
-          shouldReturnSecurityHeaders(r);
-          done();
-        }
-      );
-    });
+          function (err, r) {
+            should.not.exist(err);
+            r.body.email.should.equal(client.email());
+            r.body.issuer.should.equal(idp.domain());
+            r.body.status.should.equal('okay');
+            r.body.audience.should.equal('http://example.com');
+            r.statusCode.should.equal(200);
+            shouldReturnSecurityHeaders(r);
+            done();
+          }
+        );
+      }
+    );
   });
 
   it('should return 405 for GET requests', function (done) {
@@ -86,13 +87,5 @@ describe('basic verifier test', function () {
         done();
       }
     );
-  });
-
-  it('test servers should stop', function (done) {
-    idp.stop(function (e) {
-      verifier.stop(function (e1) {
-        done(e || e1);
-      });
-    });
   });
 });

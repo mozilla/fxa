@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var IdP = require('browserid-local-verify/testing').IdP,
   Client = require('browserid-local-verify/testing').Client,
@@ -16,13 +16,15 @@ describe('audience tests', function () {
   var idp = new IdP();
   var client;
 
-  it('test servers should start', function (done) {
-    idp.start(function (e) {
-      verifier.start(function (e1) {
-        client = new Client({ idp: idp });
-        done(e || e1);
-      });
-    });
+  before(async () => {
+    await new Promise((resolve) => idp.start(resolve));
+    await new Promise((resolve) => verifier.start(resolve));
+    client = new Client({ idp: idp });
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
+    await new Promise((resolve) => idp.stop(resolve));
   });
 
   var assertion;
@@ -74,13 +76,5 @@ describe('audience tests', function () {
         done();
       }
     );
-  });
-
-  it('test servers should stop', function (done) {
-    idp.stop(function (e) {
-      verifier.stop(function (e1) {
-        done(e || e1);
-      });
-    });
   });
 });

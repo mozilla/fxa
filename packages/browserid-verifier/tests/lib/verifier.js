@@ -89,6 +89,7 @@ Verifier.prototype.start = function (cb) {
       cwd: repoBaseDir,
       stdio: 'pipe',
       env: e,
+      timeout: 4 * 1000,
     }
   );
 
@@ -123,7 +124,6 @@ Verifier.prototype.start = function (cb) {
     var msg = 'exited';
     if (code !== 0) {
       msg += ' with code ' + code + ' (' + self.errBuf + ')';
-      console.error(msg);
     }
     if (cb) cb(msg);
     cb = null;
@@ -136,10 +136,13 @@ Verifier.prototype.stop = function (cb) {
   if (!this.process || !this._url) {
     throw new Error('verifier not running');
   }
-  this.process.kill('SIGINT');
   this.process.on('exit', function (code) {
     cb(!code ? null : 'non-zero exit code: ' + code);
   });
+  const pid = this.process.pid;
+  // Really really kill it. This shouldn't be necesary, but sometimes when
+  // running tests in a loop, the process doesn't die with just a SIGINT.
+  cp.spawn('kill', ['-9', pid]);
 };
 
 module.exports = Verifier;

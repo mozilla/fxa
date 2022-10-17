@@ -4,7 +4,7 @@
 
 /* global describe,it */
 
-require('should');
+const should = require('should');
 
 var Verifier = require('./lib/verifier.js'),
   async = require('async'),
@@ -44,18 +44,17 @@ describe('cascading configuration files', function () {
     );
   });
 
-  it('test servers should start', function (done) {
+  it('test servers should start and finish cleanly', async () => {
     verifier.buffer(true);
-    verifier.start(done);
+    should(verifier.process).equal(undefined);
+    await new Promise((resolve, error) => verifier.start(resolve));
+    should(verifier.process).not.equal(null);
+    await new Promise((resolve, error) => verifier.stop(resolve));
+    should(verifier.process).equal(null);
   });
 
-  it('test servers should shutdown cleanly', function (done) {
-    verifier.stop(done);
-  });
-
-  it('verifier should have determined proper configuration', function (done) {
+  it('verifier should have determined proper configuration', () => {
     verifier.buffer().indexOf('a.example.com').should.equal(-1);
     verifier.buffer().indexOf('b.example.com').should.not.equal(-1);
-    done();
   });
 });

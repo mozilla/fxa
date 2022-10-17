@@ -24,9 +24,9 @@ describe('send-email-batches', () => {
 
   let totalTimeMS;
 
-  const DELAY_BETWEEN_BATCHES_MS = 100;
+  const DELAY_BETWEEN_BATCHES_MS = 120;
 
-  before(() => {
+  before(async () => {
     sendEmailBatchSpy = sinon.spy((batch) => {
       if (batch.indexOf('c') > -1) {
         return Promise.resolve({
@@ -49,15 +49,14 @@ describe('send-email-batches', () => {
     );
 
     const startTime = Date.now();
-    return sendEmailBatches(
+    await sendEmailBatches(
       batches,
       DELAY_BETWEEN_BATCHES_MS,
       sender,
       log,
       false
-    ).then(() => {
-      totalTimeMS = Date.now() - startTime;
-    });
+    );
+    totalTimeMS = Date.now() - startTime;
   });
 
   it('calls log as expected', () => {
@@ -82,16 +81,15 @@ describe('send-email-batches', () => {
     assert.strictEqual(sendEmailBatchSpy.args[1][1], sender);
   });
 
-  it(
-    'uses a delay between batches',
-    async () => {
-      await retry(async () => {
-        assert.isAbove(totalTimeMS, 100);
-      });
-    },
-    {
-      retries: 10,
-      minTimeout: 20,
-    }
-  );
+  it('uses a delay between batches', async () => {
+    await retry(
+      async () => {
+        assert.isAbove(totalTimeMS, 80);
+      },
+      {
+        retries: 10,
+        minTimeout: 20,
+      }
+    );
+  }).timeout(15000);
 });
