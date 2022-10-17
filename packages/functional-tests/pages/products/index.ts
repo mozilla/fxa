@@ -46,16 +46,11 @@ export class SubscribePage extends BaseLayout {
     await paypalWindow.click('button[id=consentButton]');
   }
 
-  async addExpiredCoupon() {
-    await this.page.click('[data-testid="coupon-input"]');
-    await this.page.fill('[data-testid="coupon-input"]', 'autoexpired');
-    await this.page.click('[data-testid="coupon-button"]');
-  }
+  async addCouponCode(code) {
+    this.page.click('[data-testid="coupon-input"]');
+    this.page.fill('[data-testid="coupon-input"]', code);
+    this.page.click('[data-testid="coupon-button"]');
 
-  async addInvalidCoupon() {
-    await this.page.click('[data-testid="coupon-input"]');
-    await this.page.fill('[data-testid="coupon-input"]', 'autoinvalid');
-    await this.page.click('[data-testid="coupon-button"]');
   }
 
   async clickTryAgain() {
@@ -70,8 +65,37 @@ export class SubscribePage extends BaseLayout {
     return msg;
   }
 
-  discountAppliedSucess() {
-    return this.page.innerText('.coupon-header');
+  async discountAppliedSuccess() {
+    const discount = this.page.locator('.coupon-header:has-text("Discount Reward Applied")');
+    await discount.waitFor();
+    return discount.isVisible();
+  }
+
+  async oneTimeDiscountSuccess() {
+    const discount = this.page.locator
+      ('[data-testid="coupon-success"]:has-text("Your plan will automatically renew at the list price.")');
+    await discount.waitFor();
+    return discount.isVisible();
+  }
+
+  async discountListPrice() {
+    const listPrice = this.page.locator('.plan-details-total:has-text("List Price")');
+    return listPrice.isVisible();
+  }
+
+  async discountLineItem() {
+    const disc = this.page.locator('.plan-details-total:has-text("Discount")');
+    return disc.isVisible();
+  }
+
+  async discountTextbox() {
+    const discount = this.page.locator('.coupon-header:has-text("Discount")');
+    await discount.waitFor();
+    return discount.isVisible();
+  }
+
+  async removeCouponCode() {
+    await this.page.click('[data-testid="coupon-remove-button"]');
   }
 
   submit() {
