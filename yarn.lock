@@ -24260,7 +24260,7 @@ fsevents@~2.1.1:
     supertest: ^6.3.0
     ts-jest: ^29.0.0
     ts-morph: ^16.0.0
-    tslib: ^2.3.1
+    tslib: ^2.4.0
     typescript: ^4.8.2
     yargs: ^17.0.1
   languageName: unknown
@@ -24860,7 +24860,7 @@ fsevents@~2.1.1:
     superagent: ^8.0.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
-    tslib: ^2.3.1
+    tslib: ^2.4.0
     typescript: ^4.8.2
   languageName: unknown
   linkType: soft
@@ -25344,7 +25344,7 @@ fsevents@~2.1.1:
     superagent: ^8.0.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
-    tslib: ^2.3.1
+    tslib: ^2.4.0
     typescript: ^4.8.2
   languageName: unknown
   linkType: soft
@@ -45185,7 +45185,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:~2.3.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:~2.3.0":
   version: 2.3.1
   resolution: "tslib@npm:2.3.1"
   checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9

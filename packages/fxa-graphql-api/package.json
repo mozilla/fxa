@@ -74,7 +74,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.7",
     "superagent": "^8.0.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.1.3",
