@@ -235,7 +235,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice: latestInvoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       } catch (err) {
         // We must delete the subscription and billing agreement if the transaction
@@ -294,7 +294,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice: latestInvoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       } catch (err) {
         // We must delete the subscription since we cannot have 'incomplete'
@@ -396,7 +396,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       }
     } catch (err) {
