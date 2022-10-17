@@ -57,7 +57,7 @@
     "rxjs": "^7.5.7",
     "semver": "^7.3.5",
     "superagent": "^8.0.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.1.3",
