@@ -114,7 +114,7 @@
     "convict": "^6.2.3",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
-    "dayjs": "^1.9.4",
+    "dayjs": "^1.11.5",
     "eslint-plugin-jest": "^24.5.2",
     "express": "^4.17.2",
     "fxa-auth-server": "workspace:*",
