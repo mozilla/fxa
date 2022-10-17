@@ -55,7 +55,7 @@ test.describe('change primary email tests', () => {
     await page.locator('button[type=submit]').click();
     await login.setPassword(credentials.password);
     await page.locator('button[type=submit]').click();
-    expect(await login.signInPasswordTooltip()).toMatch('Incorrect password');
+    expect(await login.getTooltipError()).toMatch('Incorrect password');
 
     // Sign in with new password
     credentials.password = newPassword;
