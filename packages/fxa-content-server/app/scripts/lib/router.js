@@ -221,6 +221,7 @@ const Router = Backbone.Router.extend({
         broker,
         context: ctx,
         isSampledUser,
+        experiments,
         service,
         uniqueUserId,
       } = this.metrics.getFilteredData();
@@ -245,6 +246,7 @@ const Router = Backbone.Router.extend({
         broker,
         context: ctx,
         isSampledUser,
+        showNewReactApp: experiments.includes('generalizedReactApp'),
         service,
         uniqueUserId,
       })}`;
