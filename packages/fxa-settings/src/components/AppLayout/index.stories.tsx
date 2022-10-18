@@ -1,9 +1,14 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import AppLayout from './index';
+import { Meta } from '@storybook/react';
 
-storiesOf('Components/AppLayout', module).add('basic', () => (
+export default {
+  title: 'Components/AppLayout',
+  component: AppLayout,
+} as Meta;
+
+export const Basic = () => (
   <AppLayout>
     <p>App contents go here</p>
   </AppLayout>
-));
+);
