@@ -234,7 +234,7 @@ describe('lib/server', () => {
             assert.equal(args[0], 'server.onRequest');
             assert.ok(args[1]);
             assert.equal(args[1].path, '/account/create');
-            assert.equal(args[1].app.locale, 'en-GB');
+            assert.equal(args[1].app.locale, 'fr');
           });
 
           it('called log.summary correctly', () => {
@@ -283,8 +283,8 @@ describe('lib/server', () => {
 
           it('parsed locale correctly', () => {
             // Note that fr-CH would be the correct language, but it is not in the list of supported
-            // languages. This means that en-GB has the highest q-value and should be selected.
-            assert.equal(request.app.locale, 'en-GB');
+            // languages so it defaults to fr.
+            assert.equal(request.app.locale, 'fr');
           });
 
           it('parsed user agent correctly', () => {
@@ -336,7 +336,7 @@ describe('lib/server', () => {
               return instance
                 .inject({
                   headers: {
-                    'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
+                    'accept-language': 'fr-CH, en-GB, en;q=0.5',
                     'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)',
                     'x-forwarded-for': ' 194.12.187.0 , 194.12.187.1 ',
                   },
@@ -379,14 +379,14 @@ describe('lib/server', () => {
             it('second request has its own accept-language', () => {
               assert.equal(
                 secondRequest.app.acceptLanguage,
-                'fr-CH, fr;q=0.9, en-GB, en;q=0.5'
+                'fr-CH, en-GB, en;q=0.5'
               );
             });
 
             it('second request has its own locale', () => {
               // Note that fr-CH would be the correct language, but it is not in the list of supported
-              // languages. This means that en-GB has the highest q-value and should be selected.
-              assert.equal(secondRequest.app.locale, 'en-GB');
+              // languages so it defaults to fr.
+              assert.equal(secondRequest.app.locale, 'fr');
             });
 
             it('second request has its own user agent info', () => {
