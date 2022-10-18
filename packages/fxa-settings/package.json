@@ -112,7 +112,7 @@
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^24.5.2",
-    "eslint-plugin-react": "^7.26.1",
+    "eslint-plugin-react": "^7.31.10",
     "fxa-shared": "workspace:*",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
