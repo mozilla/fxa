@@ -47,11 +47,11 @@ describe('l10n/determineLocale:', () => {
     expect(determineLocale('en-US;q=.1, es-MX; q=.8')).to.eq('es-MX');
   });
 
-  it('falls back to supported locale', () => {
-    // This is an intersting case. en-GB has an implicit q=1, fr has q=0.9, and fr-CH is thrown
-    // out because it is not supported. Therefore, en-GB ends up having the highest q value and
+  it('falls back to supported locale with unsupported locale', () => {
+    // en-GB has an implicit q=1, fr has q=0.9, and xyz is thrown out because it is
+    // not supported. Therefore, en-GB ends up having the highest q value and
     // should be the expected result.
-    expect(determineLocale('fr-CH, fr;q=0.9, en-GB, en;q=0.5')).to.eq('en-GB');
+    expect(determineLocale('xyz, fr;q=0.9, en-GB, en;q=0.5')).to.eq('en-GB');
   });
 
   it('handles q-values out of range', () => {

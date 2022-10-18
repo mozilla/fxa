@@ -51,23 +51,16 @@ export function parseAcceptLanguage(
     }
   }
 
-  /*
-   * We use the 'matching' strategy because the default strategy, 'filtering', will load all
-   * English locales with dialects included, e.g. `en-CA`, even when the user prefers 'en' or
-   * 'en-US', which would then be shown instead of the English (US) fallback text.
-   */
+  // Order of locales represents priority and should correspond to q-values.
+  const sortedQValues = Object.entries(qValues).sort((a, b) => b[1] - a[1]);
+  const parsedLocalesByQValue = sortedQValues.map((qValue) => qValue[0]);
+
   const currentLocales = negotiateLanguages(
-    [...Object.keys(qValues)],
+    parsedLocalesByQValue,
     [...supportedLanguages],
     {
       defaultLocale: 'en',
-      strategy: 'matching',
     }
-  );
-
-  // Order of locales represents priority and should correspond to q-values.
-  currentLocales.sort(
-    (a, b) => qValues[b.toLocaleLowerCase()] - qValues[a.toLocaleLowerCase()]
   );
 
   return currentLocales;
