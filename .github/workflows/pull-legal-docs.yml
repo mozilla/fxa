@@ -1,0 +1,60 @@
+name: Pull legal-docs
+on:
+  # TODO
+jobs:
+  pull-legal-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Linux packages
+        run: |
+          type -p curl >/dev/null || sudo apt install curl -y
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Clone FxA code repository
+        uses: actions/checkout@v3
+        with:
+          path: fxa
+          fetch-depth: 2
+      - name: Clone legal-docs repository
+        uses: actions/checkout@v3
+        with:
+          repository: mozilla/legal-docs
+          ref: prod
+          path: legal-docs
+          token: ${{ secrets.GH_LEGAL_TOKEN }}
+      - name: Pull pdfs from legal-docs and create PR in FxA
+        run: |
+          cd fxa
+
+          # Setup git
+          git config --global user.email "pdfs@example.com"
+          git config --global user.name "Pdf Bot"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_LEGAL_TOKEN }}@github.com/${{ github.repository }}
+
+          # Checkout branch
+          git checkout -b pull-legal-docs
+
+          # Run script to pull docs
+          node _scripts/pull-legal-docs.js ../legal-docs/ assets/legal
+
+          # Add changes and push to Github
+          git add -A
+          git status
+          git commit -m "[skip ci] Latest legal docs"
+          echo "Push to GH now"
+          echo ${{ github.repository }}
+          git push origin pull-legal-docs -f
+
+      - name: create pull request
+        run: |
+          cd fxa
+          gh pr create -B main -H pull-legal-docs --title "[skip ci] Latest legal docs" --body "Testing legal docs GH Action"
+        env:
+          GH_TOKEN: ${{ secrets.GH_LEGAL_TOKEN }}
