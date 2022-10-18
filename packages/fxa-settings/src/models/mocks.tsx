@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { AccountData, Session } from '.';
-import { AppContextValue } from './AppContext';
+import { AppSettingsContextValue } from './AppSettingsContext';
 import {
   createHistory,
   createMemorySource,
@@ -75,7 +75,7 @@ export const mockEmail = (
   verified,
 });
 
-export function mockAppContext(context?: AppContextValue) {
+export function mockAppSettingsContext(context?: AppSettingsContextValue) {
   return Object.assign(
     {
       account: MOCK_ACCOUNT,
@@ -84,5 +84,5 @@ export function mockAppContext(context?: AppContextValue) {
       alertBarInfo: new AlertBarInfo(),
     },
     context
-  ) as AppContextValue;
+  ) as AppSettingsContextValue;
 }

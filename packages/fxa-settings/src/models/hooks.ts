@@ -1,12 +1,12 @@
 import { useContext, useRef } from 'react';
-import { AppContext, GET_INITIAL_STATE } from './AppContext';
+import { AppSettingsContext, GET_INITIAL_STATE } from './AppSettingsContext';
 import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { getDefault } from '../lib/config';
 
 export function useAccount() {
-  const { account } = useContext(AppContext);
+  const { account } = useContext(AppSettingsContext);
   if (!account) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
@@ -15,7 +15,7 @@ export function useAccount() {
 
 export function useSession() {
   const ref = useRef(({} as unknown) as Session);
-  const { apolloClient, session } = useContext(AppContext);
+  const { apolloClient, session } = useContext(AppSettingsContext);
   if (session) {
     return session;
   }
@@ -52,7 +52,7 @@ export function useSession() {
 }
 
 export function useConfig() {
-  const { config } = useContext(AppContext);
+  const { config } = useContext(AppSettingsContext);
   if (!config) {
     return getDefault();
   }
@@ -60,7 +60,7 @@ export function useConfig() {
 }
 
 export function useInitialState() {
-  const { apolloClient } = useContext(AppContext);
+  const { apolloClient } = useContext(AppSettingsContext);
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
@@ -68,7 +68,7 @@ export function useInitialState() {
 }
 
 export function useAlertBar() {
-  const { alertBarInfo } = useContext(AppContext);
+  const { alertBarInfo } = useContext(AppSettingsContext);
   if (!alertBarInfo) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }

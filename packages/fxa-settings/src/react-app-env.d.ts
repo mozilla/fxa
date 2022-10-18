@@ -18,3 +18,7 @@ interface FlowQueryParams {
   service?: string;
   uniqueUserId?: string;
 }
+
+interface ShowNewReactApp {
+  showNewReactApp?: boolean;
+}

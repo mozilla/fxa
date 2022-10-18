@@ -9,17 +9,32 @@ import {
   getTracingHeadersFromDocument,
   init as initTracing,
 } from 'fxa-shared/tracing/browser-tracing';
+import AppSettings from './components/settings/App';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
-import { AppContext, initializeAppContext } from './models';
+import { AppSettingsContext, initializeAppSettingsContext } from './models';
 import './styles/tailwind.out.css';
 
 try {
-  // Check for flow id
-  const flowQueryParams = searchParams(
+  // Get all query params
+  const clientQueryParams = searchParams(
     window.location.search
-  ) as FlowQueryParams;
+  ) as FlowQueryParams & ShowNewReactApp;
+
+  // Check for flow id
+  const flowQueryParams = {
+    broker: clientQueryParams.broker,
+    context: clientQueryParams.context,
+    deviceI: clientQueryParams.deviceId,
+    flowBeginTime: clientQueryParams.flowBeginTime,
+    flowId: clientQueryParams.flowId,
+    isSampledUser: clientQueryParams.isSampledUser,
+    service: clientQueryParams.service,
+    uniqueUserId: clientQueryParams.uniqueUserId,
+  } as FlowQueryParams;
+
+  const showNewReactApp = clientQueryParams.showNewReactApp;
 
   // Populate config
   readConfigMeta((name: string) => {
@@ -36,20 +51,30 @@ try {
     console
   );
 
-  const appContext = initializeAppContext();
+  const appSettingsContext = initializeAppSettingsContext();
 
   render(
     <React.StrictMode>
-      <AppContext.Provider value={appContext}>
+      <AppSettingsContext.Provider value={appSettingsContext}>
         <AppErrorBoundary>
+          {
+            showNewReactApp ?
           <App
             {...{
               flowQueryParams,
               navigatorLanguages: navigator.languages,
             }}
           />
+          :
+          <AppSettings
+          {...{
+            flowQueryParams,
+            navigatorLanguages: navigator.languages,
+          }}
+          />
+          }
         </AppErrorBoundary>
-      </AppContext.Provider>
+      </AppSettingsContext.Provider>
     </React.StrictMode>,
     document.getElementById('root')
   );

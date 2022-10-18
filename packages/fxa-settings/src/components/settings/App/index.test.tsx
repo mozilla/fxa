@@ -5,17 +5,17 @@
 import React, { ReactNode } from 'react';
 import { render, act } from '@testing-library/react';
 import { History } from '@reach/router';
-import AppSettings from '.';
-import * as Metrics from '../../lib/metrics';
-import { Account, AppSettingsContext, useInitialState } from '../../models';
+import App from '.';
+import * as Metrics from '../../../lib/metrics';
+import { Account, AppSettingsContext, useInitialState } from '../../../models';
 import {
   mockAppSettingsContext,
   MOCK_ACCOUNT,
   renderWithRouter,
-} from '../../models/mocks';
-import { Config } from '../../lib/config';
+} from '../../../models/mocks';
+import { Config } from '../../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
-import { HomePath } from '../../constants';
+import { HomePath } from '../../../constants';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -70,7 +70,7 @@ describe('metrics', () => {
     });
 
     await act(async () => {
-      render(<AppSettings {...updatedAppProps} />);
+      render(<App {...updatedAppProps} />);
     });
 
     expect(flowInit).toHaveBeenCalledWith(true, {
@@ -105,7 +105,7 @@ describe('performance metrics', () => {
     } as unknown as Account;
     render(
       <AppSettingsContext.Provider value={mockAppSettingsContext({ account, config })}>
-        <AppSettings {...appSettingsProps} />
+        <App {...appSettingsProps} />
       </AppSettingsContext.Provider>
     );
     expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith('/foobar');
@@ -119,7 +119,7 @@ describe('performance metrics', () => {
     } as unknown as Account;
     render(
       <AppSettingsContext.Provider value={mockAppSettingsContext({ account, config })}>
-        <AppSettings {...appSettingsProps} />
+        <App {...appSettingsProps} />
       </AppSettingsContext.Provider>
     );
     expect(NavTiming.observeNavigationTiming).not.toHaveBeenCalled();
@@ -134,7 +134,7 @@ describe('AppSettings component', () => {
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
     (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
-    const { getByLabelText } = renderWithRouter(<AppSettings {...appSettingsProps} />);
+    const { getByLabelText } = renderWithRouter(<App {...appSettingsProps} />);
 
     expect(getByLabelText('Loading...')).toBeInTheDocument();
   });
@@ -165,7 +165,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath);
 
@@ -176,7 +176,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/display_name');
 
@@ -187,7 +187,7 @@ describe('AppSettings component', () => {
     const {
       getAllByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/avatar');
 
@@ -198,7 +198,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/change_password');
 
@@ -209,7 +209,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/account_recovery');
 
@@ -220,7 +220,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/emails');
 
@@ -231,7 +231,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/emails/verify');
 
@@ -242,7 +242,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/two_step_authentication');
 
@@ -253,7 +253,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/two_step_authentication/replace_codes');
 
@@ -264,7 +264,7 @@ describe('AppSettings component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/delete_account');
 
@@ -275,7 +275,7 @@ describe('AppSettings component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/clients');
 
@@ -286,7 +286,7 @@ describe('AppSettings component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/avatar/change');
 
@@ -297,7 +297,7 @@ describe('AppSettings component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<AppSettings {...appSettingsProps} />, { route: HomePath });
+    } = renderWithRouter(<App {...appSettingsProps} />, { route: HomePath });
 
     await navigate(HomePath + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
@@ -318,7 +318,7 @@ describe('AppSettings component', () => {
 
       ({ history } = renderWithRouter(
         <AppSettingsContext.Provider value={mockAppSettingsContext({ account, config })}>
-          <AppSettings {...appSettingsProps} />
+          <App {...appSettingsProps} />
         </AppSettingsContext.Provider>,
         { route: HomePath }
       ));
