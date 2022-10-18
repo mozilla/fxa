@@ -1458,6 +1458,12 @@ const conf = convict({
     env: 'CLIENT_ADDRESS_DEPTH',
     default: 3,
   },
+  remoteAddressChainOverride: {
+    doc: 'Override address chain with this chain. Should be comma separated list of IPs',
+    format: String,
+    env: 'REMOTE_ADDRESS_CHAIN_OVERRIDE',
+    default: '',
+  },
   signinConfirmation: {
     forcedEmailAddresses: {
       doc: 'Force sign-in confirmation for email addresses matching this regex.',
