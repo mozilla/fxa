@@ -211,13 +211,31 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assert.isTrue(mockForm.submit.calledOnce);
   });
 
-  it('handleOauthResponse', () => {
-    windowMock.location.search = '?state=localhost';
-    sinon.stub(view, 'navigateAway');
+  describe('handleOauthResponse', () => {
+    it('navigates away', () => {
+      const redirectUrl = encodeURIComponent(
+        `${windowMock.location.origin}/go/there`
+      );
+      windowMock.location.search = `?state=${redirectUrl}`;
+      sinon.stub(view, 'navigateAway');
 
-    view.handleOauthResponse();
+      view.handleOauthResponse();
 
-    assert.isTrue(view.navigateAway.calledOnceWith('localhost'));
+      assert.isTrue(
+        view.navigateAway.calledOnceWith(
+          `${windowMock.location.origin}/go/there`
+        )
+      );
+    });
+
+    it('navigates home', () => {
+      windowMock.location.search = '?state=quux';
+      sinon.stub(view, 'navigateAway');
+
+      view.handleOauthResponse();
+
+      assert.isTrue(view.navigateAway.calledOnceWith('/'));
+    });
   });
 
   it('completeSignIn', async () => {

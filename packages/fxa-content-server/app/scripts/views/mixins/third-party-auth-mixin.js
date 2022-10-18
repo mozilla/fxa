@@ -167,13 +167,25 @@ export default {
     // To finish the oauth flow, we will need to stash away the response from
     // Google (contains state and code) and redirect back to the original FxA login page.
     const searchParams = Url.searchParams(this.window.location.search);
-    Storage.factory('localStorage', this.window).set(
-      'fxa_third_party_params',
-      searchParams
-    );
-
     const redirectUrl = decodeURIComponent(searchParams.state);
-    this.navigateAway(redirectUrl);
+
+    try {
+      const url = new URL(redirectUrl);
+
+      if (url.origin === this.window.location.origin) {
+        Storage.factory('localStorage', this.window).set(
+          'fxa_third_party_params',
+          searchParams
+        );
+
+        this.navigateAway(redirectUrl);
+        return;
+      }
+    } catch (e) {
+      // noop. navigate to home below.
+    }
+
+    this.navigateAway('/');
   },
 
   async completeSignIn() {
@@ -190,7 +202,7 @@ export default {
         this.clearStoredParams();
 
         this.logFlowEvent(`${provider}.signin-complete`);
-        
+
         this.metrics.flush();
 
         return this.signIn(updatedAccount);
