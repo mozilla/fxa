@@ -175,6 +175,38 @@ describe('log', () => {
     );
   });
 
+  it('warns and fixes duplicate logger names', () => {
+    const logModule = proxyquire('../../lib/log', mocks);
+
+    const opts = {
+      level: 'debug',
+      name: 'test-duplicates',
+      stdout: { on: sinon.spy() },
+    };
+    logModule(opts);
+    logModule(opts);
+    logModule(opts);
+
+    // Edge case, user passes in already incremented name for some reason...
+    logModule({ ...opts, name: 'test-duplicates-1' });
+
+    assert.equal(mocks.mozlog.callCount, 5, 'mozlog was called 5 times');
+    assert.calledWithMatch(mocks.mozlog, { app: 'test' });
+    assert.calledWithMatch(mocks.mozlog, { app: opts.name });
+    assert.calledWithMatch(mocks.mozlog, { app: opts.name + '-1' });
+    assert.calledWithMatch(mocks.mozlog, { app: opts.name + '-2' });
+    assert.calledWithMatch(mocks.mozlog, { app: opts.name + '-1-1' });
+    assert.calledWithMatch(logger.warn, 'init', {
+      msg: `Logger with name of ${opts.name} already registered. Adjusting name to ${opts.name}-1 to prevent double log scenario.`,
+    });
+    assert.calledWithMatch(logger.warn, 'init', {
+      msg: `Logger with name of ${opts.name} already registered. Adjusting name to ${opts.name}-2 to prevent double log scenario.`,
+    });
+    assert.calledWithMatch(logger.warn, 'init', {
+      msg: `Logger with name of ${opts.name}-1 already registered. Adjusting name to ${opts.name}-1-1 to prevent double log scenario.`,
+    });
+  });
+
   it('.activityEvent', () => {
     log.activityEvent({
       event: 'foo',
