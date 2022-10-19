@@ -5,7 +5,7 @@ export class RelierPage extends BaseLayout {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;
-    return this.page.goto(url);
+    return this.page.goto(url, { waitUntil: 'networkidle' });
   }
 
   async isLoggedIn() {

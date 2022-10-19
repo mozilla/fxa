@@ -27,12 +27,28 @@ export class LoginPage extends BaseLayout {
     TEXT_INPUT: 'input[type=text]',
     TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
+    SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
   };
 
   async login(email: string, password: string, recoveryCode?: string) {
-    await this.setEmail(email);
-    await this.page.click(this.selectors.SUBMIT);
-    await this.setPassword(password);
+    // When running tests in parallel, playwright shares the storage state,
+    // so we might not always be at the email first screen.
+    if (await this.isCachedLogin()) {
+      // User is already signed in and attempting to sign in to another service,
+      // we show a `Continue` button, and they don't have to re-enter password
+      return this.submit();
+    } else if (await this.isSigninHeader()) {
+      // The user has specified an email address in url or this service
+      // requires them to set a password to login (ie Sync)
+      await this.setPassword(password);
+    } else {
+      // The email first flow, where user enters email and we take them to
+      // the signin page
+      await this.setEmail(email);
+      await this.submit();
+      await this.setPassword(password);
+    }
+
     await this.submit();
     if (recoveryCode) {
       await this.clickUseRecoveryCode();
@@ -121,6 +137,18 @@ export class LoginPage extends BaseLayout {
     ]);
   }
 
+  async isSigninHeader() {
+    return this.page.isVisible(this.selectors.SIGNIN_HEADER, {
+      timeout: 100,
+    });
+  }
+
+  async isSyncConnectedHeader() {
+    return this.page.isVisible(this.selectors.SYNC_CONNECTED_HEADER, {
+      timeout: 100,
+    });
+  }
+
   async resetPasswordHeader() {
     const resetPass = this.page.locator(this.selectors.RESET_PASSWORD_HEADER);
     await resetPass.waitFor();
@@ -176,6 +204,13 @@ export class LoginPage extends BaseLayout {
     return this.page.isVisible(this.selectors.SUBMIT_USER_SIGNED_IN, {
       timeout: 100,
     });
+  }
+
+  async clearCache() {
+    return Promise.all([
+      this.page.goto(`${this.target.contentServerUrl}/clear`),
+      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
+    ]);
   }
 
   async useCredentials(credentials: any) {
