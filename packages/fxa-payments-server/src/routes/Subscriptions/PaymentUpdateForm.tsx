@@ -105,31 +105,31 @@ export const PaymentUpdateForm = ({
     />
   );
 
-  const alertPendingAriaLabelledBy = "alert-pending-header";
+  const alertPendingAriaLabelledBy = 'alert-pending-header';
 
-  const alertErrorAriaLabelledBy = "alert-error-header";
+  const alertErrorAriaLabelledBy = 'alert-error-header';
 
-  const ariaLabelledBy = "error-invalid-billing-info-header";
-  const ariaDescribedBy = "error-invalid-billing-info-description";
+  const ariaLabelledBy = 'error-invalid-billing-info-header';
+  const ariaDescribedBy = 'error-invalid-billing-info-description';
 
   const billingAgreementErrorAlertBarContent = () => (
     <AlertBar
       actionButton={actionButton}
-      className="alert alertError"
+      className="alert-error"
       dataTestId="invalid-payment-error"
       elems
       headerId={alertErrorAriaLabelledBy}
       localizedId="sub-route-missing-billing-agreement-payment-alert"
     >
-        Invalid payment information; there is an error with your account.{' '}
-        {actionButton}
+      Invalid payment information; there is an error with your account.{' '}
+      {actionButton}
     </AlertBar>
   );
 
   const fundingSourceErrorAlertBarContent = () => (
     <AlertBar
       actionButton={actionButton}
-      className="alert alertError"
+      className="alert-error"
       dataTestId="invalid-payment-error-pending"
       elems
       headerId={alertErrorAriaLabelledBy}
@@ -211,17 +211,20 @@ export const PaymentUpdateForm = ({
   const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
 
   // https://github.com/iamkun/dayjs/issues/639
-  const expirationDate = exp_month && exp_year && dayjs()
-    .set('month', Number(exp_month) - 1)
-    .set('year', Number(exp_year))
-    .format('MMMM YYYY');
+  const expirationDate =
+    exp_month &&
+    exp_year &&
+    dayjs()
+      .set('month', Number(exp_month) - 1)
+      .set('year', Number(exp_year))
+      .format('MMMM YYYY');
 
   return (
     <section className="settings-unit" aria-labelledby="payment-information">
       <div className="payment-update" data-testid="payment-update">
         {stripeSubmitInProgress && (
           <AlertBar
-            className="alert alertPending"
+            className="alert-pending"
             dataTestId="alert-pending"
             headerId={alertPendingAriaLabelledBy}
             localizedId="sub-route-idx-updating"
@@ -230,9 +233,9 @@ export const PaymentUpdateForm = ({
           </AlertBar>
         )}
 
-        {!transactionInProgress && paypal_payment_error && (
-          getPaypalErrorAlertBarContent()
-        )}
+        {!transactionInProgress &&
+          paypal_payment_error &&
+          getPaypalErrorAlertBarContent()}
 
         {transactionInProgress && (
           <LoadingOverlay isLoading={transactionInProgress} />

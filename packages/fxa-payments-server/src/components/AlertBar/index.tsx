@@ -5,10 +5,11 @@
 import React from 'react';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Localized } from '@fluent/react';
+import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
-import './index.scss';
+import checkLogo from '../../images/check.svg';
 
-type AlertBarProps = {
+export type AlertBarProps = {
   actionButton?: any;
   checked?: boolean;
   children: any;
@@ -24,48 +25,81 @@ export const AlertBar = ({
   actionButton,
   checked,
   children,
-  className = 'alert',
+  className,
   dataTestId,
   elems,
   headerId,
   localizedId,
   onClick,
 }: AlertBarProps) => {
+  let alertTypeStyle;
+  switch (className) {
+    case 'alert-error':
+      alertTypeStyle = 'bg-red-600 text-white';
+      break;
+
+    case 'alert-newsletter-error':
+      alertTypeStyle = 'bg-yellow-500';
+      break;
+
+    case 'alert-success':
+      alertTypeStyle = 'bg-grey-700 text-white';
+      break;
+
+    case 'alert-pending':
+    default:
+      alertTypeStyle = 'bg-black/10';
+      break;
+  }
+
   return (
     <Portal id="top-bar">
       <div
         aria-labelledby={headerId}
-        className={className}
+        className={classNames(
+          'flex font-medium items-center justify-center leading-5 min-h-[32px] my-1 mx-auto p-2 relative rounded-md text-sm w-full tablet:max-w-[640px]',
+          alertTypeStyle
+        )}
         data-testid="alert-container"
         role="dialog"
       >
-        <Localized id={localizedId} elems={elems ? { div: actionButton } : undefined}>
-          <span
-            id={headerId}
-            data-testid={dataTestId}
-            className={checked ? "checked" : undefined}
-          >
-            {children}
-          </span>
-        </Localized>
+        <div className="text-center w-[80%]">
+          {checked && (
+            <img
+              src={checkLogo}
+              className="h-4 my-0 mx-1 relative top-[3px] w-4"
+              alt=""
+            />
+          )}
 
-        {onClick && <Localized id="close-aria">
+          <Localized
+            id={localizedId}
+            elems={elems ? { div: actionButton } : undefined}
+          >
+            <span id={headerId} data-testid={dataTestId}>
+              {children}
+            </span>
+          </Localized>
+        </div>
+
+        {onClick && (
+          <Localized id="close-aria">
             <span
               data-testid="clear-success-alert"
-              className="close"
+              className="grid"
               aria-label="Close modal"
               onClick={() => onClick()}
               role="button"
             >
               <CloseIcon
                 role="img"
-                className="close-icon close-alert-bar"
+                className="w-4 h-4 absolute cursor-pointer fill-current justify-self-end right-4 top-2.5"
                 aria-hidden="true"
                 focusable="false"
               />
             </span>
           </Localized>
-        }
+        )}
       </div>
     </Portal>
   );
