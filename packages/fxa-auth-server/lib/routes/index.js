@@ -203,7 +203,7 @@ module.exports = function (
   );
 
   function optionallyIgnoreTrace(fn) {
-    return async function (request) {
+    return async function (request, ...args) {
       // Only authenticated routes or routes that specify an uid/email
       // can be traced because those routes can look a user up
       const canOptOut =
@@ -219,11 +219,11 @@ module.exports = function (
           // will get this.
 
           return tracing.suppressTrace(() => {
-            return fn(request);
+            return fn(request, ...args);
           });
         }
       }
-      return fn(request);
+      return fn(request, ...args);
     };
   }
 
