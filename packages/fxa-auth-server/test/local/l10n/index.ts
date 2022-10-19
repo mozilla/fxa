@@ -28,14 +28,6 @@ describe('Localizer', () => {
       }, 'Invalid ftl translations basePath');
     });
 
-    it('produces the current locales', async () => {
-      const { currentLocales } = await localizer.getLocalizerDeps(
-        'de-CH,it;q=0.8,en-US;q=0.5,en;q=0.3'
-      );
-
-      assert.deepEqual(currentLocales, ['de', 'it', 'en-US', 'en']);
-    });
-
     it('selects the proper locale', async () => {
       const { selectedLocale } = await localizer.setupLocalizer(
         'de-DE,en-US;q=0.7,en;q=0.3'
@@ -82,75 +74,6 @@ describe('Localizer', () => {
           'If yes, here is the authorisation code you need:'
         );
       });
-    });
-  });
-
-  describe('language negotiation', () => {
-    it('handles empty case', () => {
-      const result = parseAcceptLanguage('');
-
-      assert.deepEqual(result, ['en']);
-    });
-
-    it('ignores unknown language', () => {
-      const result = parseAcceptLanguage('zy');
-      assert.deepEqual(result, ['en']);
-    });
-
-    it('handles en case', () => {
-      const result = parseAcceptLanguage('en');
-
-      // Note: We are using the 'filtering' mode for negotiate languages so all are going to be provided
-      assert.deepEqual(result, ['en']);
-    });
-
-    it('handles en-* case', () => {
-      const result = parseAcceptLanguage('en-US');
-
-      // Note: We are using the 'filtering' mode for negotiate languages so all are english dialects are going to be provided
-      assert.deepEqual(result, ['en-US', 'en']);
-    });
-
-    it('handles alias to en-GB', () => {
-      const result = parseAcceptLanguage('en-NZ');
-
-      assert.deepEqual(result, ['en-GB', 'en']);
-    });
-
-    it('always has default language, en, present', () => {
-      const result = parseAcceptLanguage('de');
-
-      assert.deepEqual(result, ['de', 'en']);
-    });
-
-    it('is falls back to root language if dialect is missing', () => {
-      const result = parseAcceptLanguage('fr-FR');
-
-      assert.deepEqual(result, ['fr', 'en']);
-    });
-
-    it('resolves dialects', () => {
-      const result = parseAcceptLanguage('es-MX');
-
-      assert.deepEqual(result, ['es-MX', 'en']);
-    });
-
-    it('handles multiple languages', () => {
-      const result = parseAcceptLanguage('ja, de-CH, en-US, en');
-
-      assert.deepEqual(result, ['ja', 'de', 'en-US', 'en']);
-    });
-
-    it('handles multiple languages with en-GB alias', () => {
-      const result = parseAcceptLanguage('en-NZ, en-GB, en-MY');
-
-      assert.deepEqual(result, ['en-GB', 'en']);
-    });
-
-    it('handles Chinese dialects properly', () => {
-      const result = parseAcceptLanguage('zh-CN, zh-TW, zh-HK, zh');
-
-      assert.deepEqual(result, ['zh-CN', 'zh-TW', 'en']);
     });
   });
 
