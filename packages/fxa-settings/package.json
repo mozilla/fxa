@@ -26,14 +26,14 @@
       "src/**/*.{ts,tsx,js}",
       "!src/**/*.stories.*",
       "!src/**/mocks.*",
-      "!src/components/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*"
+      "!src/Settings/components/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*"
     ],
     "coverageThreshold": {
       "global": {
         "branches": 50,
         "lines": 45
       },
-      "src/components/**/*": {
+      "src/Settings/components/**/*": {
         "branches": 50,
         "lines": 65
       }
