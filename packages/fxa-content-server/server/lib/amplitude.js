@@ -84,7 +84,7 @@ const EVENTS = {
   },
   'pairing.signin.success': {
     group: GROUPS.login,
-    event: 'complete',
+    event: 'complete_pairing',
   },
 
   // Signup code based metrics
