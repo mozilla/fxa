@@ -2074,7 +2074,7 @@ registerSuite('amplitude', {
           oauth_client_id: '1',
           service: 'pocket',
         },
-        event_type: 'fxa_login - complete',
+        event_type: 'fxa_login - complete_pairing',
         language: 'gd',
         op: 'amplitudeEvent',
         os_name: 'Mac OS X',

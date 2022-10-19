@@ -203,6 +203,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     await broker.sendOAuthResultToRelier(
       {
         redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+        action: 'pairing',
       },
       account
     );

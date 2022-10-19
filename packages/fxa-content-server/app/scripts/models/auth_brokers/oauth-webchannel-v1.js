@@ -109,7 +109,10 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
         this.relier.set('service', this.relier.get('clientId'));
         this._metrics.setService(this.relier.get('clientId'));
       }
-      this._metrics.logEvent('pairing.signin.success');
+
+      if (result.action === 'pairing') {
+        this._metrics.logEvent('pairing.signin.success');
+      }
     }
 
     result.redirect = Constants.OAUTH_WEBCHANNEL_REDIRECT;
