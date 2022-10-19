@@ -10,11 +10,9 @@ test.describe('severity-1 #smoke', () => {
     pages: { settings, login },
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
-    await settings.goto();
-    await settings.signOut();
-    await login.setEmail(credentials.email);
-    await login.submit();
-    await login.clickForgotPassword();
+    await page.goto(target.contentServerUrl + '/reset_password', {
+      waitUntil: 'networkidle',
+    });
     await login.setEmail(credentials.email);
     await login.submit();
     const link = await target.email.waitForEmail(
@@ -40,9 +38,10 @@ test.describe('severity-1 #smoke', () => {
     await recoveryKey.setPassword(credentials.password);
     await recoveryKey.submit();
     await settings.signOut();
-    await login.setEmail(credentials.email);
-    await login.submit();
-    await login.clickForgotPassword();
+
+    await page.goto(target.contentServerUrl + '/reset_password', {
+      waitUntil: 'networkidle',
+    });
     await login.setEmail(credentials.email);
     await login.submit();
     const link = await target.email.waitForEmail(
