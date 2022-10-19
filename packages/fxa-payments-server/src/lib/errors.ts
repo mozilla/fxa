@@ -41,7 +41,7 @@ const FXA_POST_PASSWORDLESS_SUB_ERROR = 'fxa-post-passwordless-sub-error';
 const errorToErrorMessageMap: { [key: string]: string } = {
   expired_card: 'expired-card-error',
   insufficient_funds: 'insufficient-funds-error',
-  withdrawal_count_limit_exceeded: 'withdrawal-count-limit-error',
+  withdrawal_count_limit_exceeded: 'withdrawal-count-limit-exceeded-error',
   charge_exceeds_source_limit: 'charge-exceeds-source-limit-error',
   instant_payouts_unsupported: 'instant-payouts-unsupported-error',
   duplicate_transaction: 'duplicate-transaction-error',

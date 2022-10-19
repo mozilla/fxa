@@ -1,5 +1,5 @@
 basepath = "."
 
 [[paths]]
-  reference = "public/locales/en-US/*.ftl"
+  reference = "public/locales/en/*.ftl"
   l10n = "public/locales/{locale}/*.ftl"

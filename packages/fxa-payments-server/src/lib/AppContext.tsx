@@ -29,7 +29,7 @@ export const defaultAppContext = {
   matchMedia: () => false,
   matchMediaDefault: (query: string) => matchMedia(query),
   navigateToUrl: noopFunction,
-  navigatorLanguages: ['en-US', 'en'],
+  navigatorLanguages: ['en'],
   stripePromise: Promise.resolve(null),
 };
 

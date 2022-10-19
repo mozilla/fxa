@@ -42,18 +42,30 @@ async function getFtlFromPackage(packageName: PackageName, locale: string) {
       }
       break;
     case 'payments':
-      // TODO: Not currently used. We need to set up test stuff for payments similarly, FXA-5996
-      ftlPath = path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'fxa-payments-server',
-        'public',
-        'locales',
-        locale,
-        'main.ftl'
-      );
+      if (locale === 'en') {
+        ftlPath = path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'fxa-payments-server',
+          'test',
+          'payments.ftl'
+        );
+      } else {
+        // TODO: Not currently used, but probably want to add one translation test
+        ftlPath = path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'fxa-payments-server',
+          'public',
+          'locales',
+          locale,
+          'payments.ftl'
+        );
+      }
       break;
     default:
       ftlPath = path.join(__dirname, 'test.ftl');

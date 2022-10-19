@@ -135,7 +135,7 @@ AUTH="fxa-auth-server"
 # Copy .ftl files for payments, settings, and auth (emails)
 case "$MODULE" in
     "$PAYMENTS")
-        copy_ftl "main"
+        copy_ftl "payments"
         ;;
     "$SETTINGS")
         copy_ftl "settings"
