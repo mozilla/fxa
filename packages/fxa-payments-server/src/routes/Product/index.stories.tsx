@@ -186,7 +186,7 @@ const PROFILE: Profile = {
   avatarDefault: false,
   displayName: 'Foo Barson',
   email: 'foo@example.com',
-  locale: 'en-US',
+  locale: 'en',
   twoFactorAuthentication: true,
   uid: '8675309asdf',
   metricsEnabled: true,

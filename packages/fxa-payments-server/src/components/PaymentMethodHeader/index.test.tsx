@@ -4,11 +4,9 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import React from 'react';
 
 import { PaymentMethodHeader, PaymentMethodHeaderType } from '.';
-import {
-  getLocalizedMessage,
-  MOCK_PLANS,
-  setupFluentLocalizationTest,
-} from '../../lib/test-utils';
+import { getLocalizedMessage, MOCK_PLANS } from '../../lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 jest.mock('../../lib/sentry');
 
@@ -41,7 +39,10 @@ describe('components/PaymentMethodHeader', () => {
   });
 
   describe('Fluent localized text', () => {
-    const bundle = setupFluentLocalizationTest('en-US');
+    let bundle: FluentBundle;
+    beforeAll(async () => {
+      bundle = await getFtlBundle('payments');
+    });
 
     it('returns correct heading without prefix', async () => {
       const msgId = 'payment-method-header';

@@ -6,11 +6,9 @@ import TestRenderer from 'react-test-renderer';
 import PaymentConfirmation from './index';
 import { getLocalizedCurrency } from '../../lib/formats';
 import { Customer, Plan } from '../../store/types';
-import {
-  MOCK_PLANS,
-  setupFluentLocalizationTest,
-  getLocalizedMessage,
-} from '../../lib/test-utils';
+import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
@@ -22,7 +20,7 @@ const userProfile = {
   email: 'foxy@firefox.com',
   amrValues: ['amrval'],
   avatarDefault: true,
-  locale: 'en-US',
+  locale: 'en',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
   metricsEnabled: false,
@@ -535,7 +533,10 @@ describe('PaymentConfirmation', () => {
     });
 
     describe('Fluent Translations for Plan Billing Description', () => {
-      const bundle = setupFluentLocalizationTest('en-US');
+      let bundle: FluentBundle;
+      beforeAll(async () => {
+        bundle = await getFtlBundle('payments');
+      });
       const amount = getLocalizedCurrency(500, 'USD');
       const args = {
         amount,

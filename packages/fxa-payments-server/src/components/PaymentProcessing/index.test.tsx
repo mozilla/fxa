@@ -1,16 +1,18 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import {
-  setupFluentLocalizationTest,
-  getLocalizedMessage,
-} from '../../lib/test-utils';
+import { getLocalizedMessage } from '../../lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 import { PaymentProcessing } from './index';
 
 afterEach(cleanup);
 describe('PaymentProcessing tests', () => {
-  const bundle = setupFluentLocalizationTest('en-US');
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('payments');
+  });
 
   it('renders as expected', () => {
     const { queryByTestId } = render(<PaymentProcessing provider="paypal" />);

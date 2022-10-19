@@ -95,7 +95,7 @@ export const MockApp = ({
       <AppLocalizationProvider
         baseDir="./locales"
         userLocales={languages}
-        bundles={['main']}
+        bundles={['payments']}
       >
         <StripeProvider stripe={mockStripe}>
           <MockLoader>

@@ -4,10 +4,9 @@ import '@testing-library/jest-dom/extend-expect';
 
 import SubscriptionTitle, { SubscriptionTitleProps, titles } from './index';
 
-import {
-  setupFluentLocalizationTest,
-  getLocalizedMessage,
-} from '../../lib/test-utils';
+import { getLocalizedMessage } from '../../lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 const defaultProps: SubscriptionTitleProps = {
   screenType: 'create',
@@ -16,7 +15,10 @@ const defaultProps: SubscriptionTitleProps = {
 afterEach(cleanup);
 
 describe('SubscriptionTitle', () => {
-  const bundle = setupFluentLocalizationTest('en-US');
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('payments');
+  });
   it('renders as expected', async () => {
     const subject = () => {
       return render(<SubscriptionTitle {...defaultProps} />);
