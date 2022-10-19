@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const { version } = require('../../../package.json');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const sinon = require('sinon');
@@ -13,17 +12,20 @@ const metricsEnabled = sinon.stub();
 metricsEnabled.withArgs('frip').resolves(false);
 metricsEnabled.withArgs('blee').resolves(true);
 const proxyquire = require('proxyquire');
+const dntStub = sinon.stub();
 const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {
       metricsEnabled,
     },
   },
+  'fxa-shared/metrics/dnt': {
+    filterDntValues: dntStub,
+  },
 });
 const mocks = require('../../mocks');
 const mockAmplitudeConfig = {
   schemaValidation: true,
-  rawEvents: false,
 };
 
 const DAY = 1000 * 60 * 60 * 24;
@@ -36,7 +38,6 @@ describe('metrics/amplitude', () => {
 
     beforeEach(() => {
       log = mocks.mockLog();
-      mockAmplitudeConfig.rawEvents = false;
       amplitude = amplitudeModule(log, {
         amplitude: mockAmplitudeConfig,
         oauth: {
@@ -97,87 +98,6 @@ describe('metrics/amplitude', () => {
 
       it('did not call log.amplitudeEvent', () => {
         assert.equal(log.amplitudeEvent.callCount, 0);
-      });
-    });
-
-    describe('raw events enabled', () => {
-      it('logged a raw event', async () => {
-        const statsd = { increment: sinon.spy() };
-        Container.set(StatsD, statsd);
-        mockAmplitudeConfig.rawEvents = true;
-        const now = Date.now();
-        await amplitude(
-          'account.confirmed',
-          mocks.mockRequest({
-            uaBrowser: 'foo',
-            uaBrowserVersion: 'bar',
-            uaOS: 'baz',
-            uaOSVersion: 'qux',
-            uaDeviceType: 'pawk',
-            uaFormFactor: 'melm',
-            locale: 'wibble',
-            credentials: {
-              uid: 'blee',
-            },
-            devices: [],
-            geo: {
-              location: {
-                country: 'United Kingdom',
-                state: 'England',
-              },
-            },
-            query: {
-              service: '0',
-            },
-            payload: {
-              metricsContext: {
-                deviceId: 'juff',
-                flowId: 'udge',
-                flowBeginTime: 'kwop',
-              },
-            },
-          }),
-          { useless: 'junk', utm_source: 'quuz' },
-          { time: now }
-        );
-        const expectedEvent = {
-          time: now,
-          type: 'account.confirmed',
-        };
-        const expectedContext = {
-          deviceId: 'juff',
-          devices: [],
-          emailDomain: undefined,
-          emailTypes: amplitudeModule.EMAIL_TYPES,
-          eventSource: 'auth',
-          flowBeginTime: 'kwop',
-          flowId: 'udge',
-          formFactor: 'melm',
-          lang: 'wibble',
-          location: {
-            country: 'United Kingdom',
-            state: 'England',
-          },
-          planId: undefined,
-          productId: undefined,
-          service: '0',
-          uid: 'blee',
-          userAgent: 'test user-agent',
-          utm_source: 'quuz',
-          version,
-        };
-        assert.deepEqual(log.info.args[0][1]['event'], expectedEvent);
-        assert.deepEqual(log.info.args[0][1]['context'], expectedContext);
-        assert.isTrue(log.info.calledOnceWith('rawAmplitudeData'), {
-          event: expectedEvent,
-          context: expectedContext,
-        });
-        sinon.assert.calledTwice(statsd.increment);
-        sinon.assert.calledWith(
-          statsd.increment.firstCall,
-          'amplitude.event.raw'
-        );
-        sinon.assert.calledWith(statsd.increment.secondCall, 'amplitude.event');
       });
     });
 
@@ -920,6 +840,26 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0];
         assert.equal(args[0].event_properties.plan_id, 'bar');
         assert.equal(args[0].event_properties.product_id, 'foo');
+      });
+    });
+
+    describe('when Do Not Track is set', () => {
+      it('calls the filtering function', async () => {
+        await amplitude(
+          'account.created',
+          mocks.mockRequest({
+            payload: {
+              metricsContext: {
+                planId: 'bar',
+                productId: 'foo',
+              },
+            },
+            headers: { dnt: '1' },
+          }),
+          {},
+          {}
+        );
+        sinon.assert.calledTwice(dntStub);
       });
     });
   });

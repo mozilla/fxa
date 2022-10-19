@@ -17,6 +17,7 @@ const { StatsD } = require('hot-shots');
 
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const { version: VERSION } = require('../../package.json');
+const { filterDntValues } = require('fxa-shared/metrics/dnt');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
@@ -256,56 +257,6 @@ module.exports = (log, config) => {
       time: metricsContext.time || Date.now(),
     };
 
-    if (config.amplitude.rawEvents) {
-      const wanted = [
-        'entrypoint_experiment',
-        'entrypoint_variation',
-        'entrypoint',
-        'experiments',
-        'location',
-        'newsletters',
-        'syncEngines',
-        'templateVersion',
-        'userPreferences',
-        'utm_campaign',
-        'utm_content',
-        'utm_medium',
-        'utm_source',
-        'utm_term',
-      ];
-      const picked = wanted.reduce((acc, v) => {
-        if (data[v] !== undefined) {
-          acc[v] = data[v];
-        }
-        return acc;
-      }, {});
-      const { location } = request.app.geo;
-      const rawEvent = {
-        event,
-        context: {
-          ...picked,
-          eventSource: 'auth',
-          version: VERSION,
-          deviceId,
-          devices,
-          emailDomain: data.email_domain,
-          emailTypes: EMAIL_TYPES,
-          flowBeginTime,
-          flowId,
-          formFactor,
-          lang: request.app.locale,
-          location,
-          planId,
-          productId,
-          service,
-          uid,
-          userAgent: request.headers?.['user-agent'],
-        },
-      };
-      log.info('rawAmplitudeData', rawEvent);
-      statsd.increment('amplitude.event.raw');
-    }
-
     statsd.increment('amplitude.event');
 
     const amplitudeEvent = transformEvent(event, {
@@ -329,6 +280,17 @@ module.exports = (log, config) => {
     });
 
     if (amplitudeEvent) {
+      const dnt = request && request.headers && request.headers.dnt === '1';
+
+      if (dnt) {
+        amplitudeEvent.event_properties = filterDntValues(
+          amplitudeEvent.event_properties
+        );
+        amplitudeEvent.user_properties = filterDntValues(
+          amplitudeEvent.user_properties
+        );
+      }
+
       log.amplitudeEvent(amplitudeEvent);
 
       // HACK: Account reset returns a session token so emit login complete too

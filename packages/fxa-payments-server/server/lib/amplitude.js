@@ -12,6 +12,7 @@ const {
   toSnakeCase,
   validate,
 } = require('fxa-shared/metrics/amplitude');
+const { filterDntValues } = require('fxa-shared/metrics/dnt');
 const config = require('../config');
 const amplitude = config.get('amplitude');
 const log = require('./logging/log')();
@@ -42,53 +43,6 @@ module.exports = (event, request, data) => {
   const statsd = Container.get(StatsD);
   if (!amplitude.enabled || !event || !request || !data) {
     return;
-  }
-
-  if (amplitude.rawEvents) {
-    const wanted = [
-      'deviceId',
-      'devices',
-      'emailDomain',
-      'entrypoint_experiment',
-      'entrypoint_variation',
-      'entrypoint',
-      'experiments',
-      'flowBeginTime',
-      'flowId',
-      'lang',
-      'location',
-      'newsletters',
-      'planId',
-      'productId',
-      'service',
-      'syncEngines',
-      'templateVersion',
-      'uid',
-      'userPreferences',
-      'utm_campaign',
-      'utm_content',
-      'utm_medium',
-      'utm_referrer',
-      'utm_source',
-      'utm_term',
-    ];
-    const picked = wanted.reduce((acc, v) => {
-      if (data[v] !== undefined) {
-        acc[v] = data[v];
-      }
-      return acc;
-    }, {});
-    const rawEvent = {
-      event,
-      context: {
-        eventSource: 'payments',
-        version: VERSION,
-        userAgent: request.headers?.['user-agent'],
-        ...picked,
-      },
-    };
-    log.info('rawAmplitudeData', rawEvent);
-    statsd.increment('amplitude.event.raw');
   }
 
   const userAgent = ua.parse(request.headers?.['user-agent']);
@@ -128,6 +82,16 @@ module.exports = (event, request, data) => {
           );
         });
       }
+    }
+
+    const dnt = request.headers?.['dnt'] === '1';
+    if (dnt) {
+      amplitudeEvent.event_properties = filterDntValues(
+        amplitudeEvent.event_properties
+      );
+      amplitudeEvent.user_properties = filterDntValues(
+        amplitudeEvent.user_properties
+      );
     }
 
     // Amplitude events are logged to stdout, where they are picked up by the
