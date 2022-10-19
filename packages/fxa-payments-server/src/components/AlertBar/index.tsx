@@ -35,7 +35,7 @@ export const AlertBar = ({
   let alertTypeStyle;
   switch (className) {
     case 'alert-error':
-      alertTypeStyle = 'bg-red-600 text-white';
+      alertTypeStyle = 'bg-red-600 text-white alert-error';
       break;
 
     case 'alert-newsletter-error':
