@@ -90,8 +90,4 @@ describe('DatabaseService', () => {
   it('should be able to invoke attachedDevices', async () => {
     await service.attachedDevices('AB12');
   });
-
-  it('should be able to invoke relyingParties', async () => {
-    await service.relyingParties();
-  });
 });

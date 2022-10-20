@@ -7,42 +7,39 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { RelyingParty } from '../../graphql';
+import { RelyingParty } from 'fxa-shared/db/models/auth';
 import { RelyingPartyResolver } from './relying-party.resolver';
+import { Knex } from 'knex';
+import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 
 const MOCK_RP_ID = 'fced6b5e3f4c66b9';
 
-function mockRpFromDb() {
-  return {
-    id: uuidTransformer.to(MOCK_RP_ID),
-    name: 'Firefox Send local-dev',
-    redirectUri: 'http://localhost:1337/oauth',
-    canGrant: true,
-    publicClient: true,
-    createdAt: 1583259953,
-    trusted: true,
-    imageUri:
-      'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
-    allowedScopes: 'https://identity.mozilla.com/apps/send',
-  };
-}
-const MOCK_RP_FROM_DB = mockRpFromDb();
 const MOCK_RP = {
-  ...MOCK_RP_FROM_DB,
   id: MOCK_RP_ID,
-} as RelyingParty;
-
+  name: 'Firefox Send local-dev',
+  redirectUri: 'http://localhost:1337/oauth',
+  canGrant: true,
+  publicClient: true,
+  createdAt: new Date('2022-01-01T00:00:00.000Z'),
+  trusted: true,
+  imageUri:
+    'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
+  allowedScopes: 'https://identity.mozilla.com/apps/send',
+  notes: null,
+};
 describe('RelyingPartyResolver', () => {
-  let resolver: RelyingPartyResolver;
-  let logger: any;
-  const db = {
-    async relyingParties() {
-      return [MOCK_RP_FROM_DB];
-    },
+  let knex: Knex;
+  let db = {
+    relyingParty: RelyingParty,
   };
+  let resolver: RelyingPartyResolver;
 
-  beforeEach(async () => {
-    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+  beforeAll(async () => {
+    knex = await testDatabaseSetup();
+    db.relyingParty = RelyingParty.bindKnex(knex);
+    await db.relyingParty.query().insert(MOCK_RP);
+
+    let logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,
@@ -71,6 +68,23 @@ describe('RelyingPartyResolver', () => {
 
   it('should return relying parties with transformed ID', async () => {
     const result = await resolver.relyingParties();
-    expect(result).toEqual([MOCK_RP]);
+
+    expect(result.length).toEqual(1);
+    expect(result).toEqual([
+      {
+        ...MOCK_RP,
+        $intBoolFields: [],
+        $uuidFields: ['id'],
+      },
+    ]);
+  });
+
+  it('should update notes relying parties with transformed ID', async () => {
+    const result = await resolver.updateNotes(MOCK_RP_ID, 'notes 123');
+
+    const mutated = await resolver.relyingParties();
+    expect(result).toBeTruthy();
+    expect(mutated.length).toBe(1);
+    expect(mutated[0].notes).toBe('notes 123');
   });
 });

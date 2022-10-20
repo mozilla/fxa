@@ -3,48 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import PageRelyingParties, { GET_RELYING_PARTIES } from '.';
-import { RelyingParty } from 'fxa-admin-server/src/graphql';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MockedProvider } from '@apollo/client/testing';
+import PageRelyingParties from '.';
+import {
+  mockGetRelyingParties,
+  mockUpdateNotes,
+  mockUpdateNotesError,
+  MOCK_RP_ALL_FIELDS,
+  MOCK_RP_FALSY_FIELDS,
+} from './mocks';
+import { IClientConfig } from '../../../interfaces';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from '../../../../fxa-shared/guards';
+import { mockConfigBuilder } from '../../lib/config';
 
-const mockGetRelyingParties = (
-  relyingParties: RelyingParty[] = []
-): MockedResponse => ({
-  request: {
-    query: GET_RELYING_PARTIES,
-  },
-  result: {
-    data: {
-      relyingParties,
-    },
+// Setup the current user hook. Required for Guards.
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+
+const mockConfig: IClientConfig = mockConfigBuilder({
+  user: {
+    email: 'test@mozilla.com',
+    group: mockGuard.getGroup(AdminPanelGroup.AdminProd),
   },
 });
 
-const MOCK_RP_ALL_FIELDS = {
-  id: 'fced6b5e3f4c66b9',
-  name: 'Firefox Send local-dev',
-  redirectUri: 'http://localhost:1337/oauth',
-  canGrant: true,
-  publicClient: true,
-  createdAt: 1583259953,
-  trusted: true,
-  imageUri:
-    'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
-  allowedScopes: 'https://identity.mozilla.com/apps/send',
-} as RelyingParty;
-
-const MOCK_RP_FALSY_FIELDS = {
-  id: '38a6b9b3a65a1871',
-  name: '123Done PKCE',
-  redirectUri: 'http://localhost:8080/?oauth_pkce_redirect=1',
-  canGrant: false,
-  publicClient: false,
-  createdAt: 1583259953,
-  trusted: false,
-  imageUri: '',
-  allowedScopes: null,
-} as RelyingParty;
+jest.mock('../../hooks/UserContext.ts', () => ({
+  useUserContext: () => {
+    const ctx = {
+      guard: mockGuard,
+      user: mockConfig.user,
+      setUser: () => {},
+    };
+    return ctx;
+  },
+}));
 
 it('renders without imploding and shows loading text', () => {
   render(
@@ -82,6 +78,62 @@ it('renders as expected with a relying party containing all fields', async () =>
   screen.getByText(MOCK_RP_ALL_FIELDS.allowedScopes!);
   screen.getByText('1970', { exact: false });
   expect(screen.getAllByText('Yes')).toHaveLength(3);
+});
+
+it('updates notes', async () => {
+  render(
+    <MockedProvider
+      mocks={[
+        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
+        mockUpdateNotes(MOCK_RP_ALL_FIELDS.id, 'test123'),
+      ]}
+      addTypename={false}
+    >
+      <PageRelyingParties />
+    </MockedProvider>
+  );
+
+  await screen.findByText(MOCK_RP_ALL_FIELDS.id);
+  fireEvent.change(screen.getByTestId(`notes-${MOCK_RP_ALL_FIELDS.id}`), {
+    target: { value: 'test123' },
+  });
+  fireEvent.click(
+    screen.getByTestId(`notes-save-btn-${MOCK_RP_ALL_FIELDS.id}`)
+  );
+  await waitFor(() => {
+    screen.getByText('Updating...');
+  });
+  await waitFor(() => {
+    screen.getByText('Save');
+  });
+});
+
+it('shows error if notes fail to update', async () => {
+  render(
+    <MockedProvider
+      mocks={[
+        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
+        mockUpdateNotesError(MOCK_RP_ALL_FIELDS.id, 'FAKE_OVERFLOW'),
+      ]}
+      addTypename={false}
+    >
+      <PageRelyingParties />
+    </MockedProvider>
+  );
+
+  await screen.findByText(MOCK_RP_ALL_FIELDS.id);
+  fireEvent.change(screen.getByTestId(`notes-${MOCK_RP_ALL_FIELDS.id}`), {
+    target: { value: 'FAKE_OVERFLOW' },
+  });
+  fireEvent.click(
+    screen.getByTestId(`notes-save-btn-${MOCK_RP_ALL_FIELDS.id}`)
+  );
+  await waitFor(() => {
+    screen.getByText('Updating...');
+  });
+  await waitFor(() => {
+    screen.getByText('Error: Changes not saved. Notes too long!');
+  });
 });
 
 it('renders as expected with a relying party containing falsy fields', async () => {

@@ -22,6 +22,7 @@ import {
   SecurityEvent,
   SessionToken,
   TotpToken,
+  RelyingParty,
 } from 'fxa-shared/db/models/auth';
 import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
@@ -40,6 +41,7 @@ function typeCasting(field: any, next: any) {
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {
   public knex: Knex;
+  public knexOauth: Knex;
   public account: typeof Account;
   public emails: typeof Email;
   public emailBounces: typeof EmailBounce;
@@ -48,6 +50,7 @@ export class DatabaseService implements OnModuleDestroy {
   public recoveryKeys: typeof RecoveryKey;
   public sessionTokens: typeof SessionToken;
   public device: typeof Device;
+  public relyingParty: typeof RelyingParty;
   public linkedAccounts: typeof LinkedAccount;
 
   protected mySqlOAuthShared: MysqlOAuthShared;
@@ -71,6 +74,12 @@ export class DatabaseService implements OnModuleDestroy {
       connection: { typeCast: typeCasting, ...dbConfig.fxa },
       client: 'mysql',
     });
+
+    this.knexOauth = knex({
+      connection: { typeCast: typeCasting, ...dbConfig.fxa_oauth },
+      client: 'mysql',
+    });
+
     monitorKnexConnectionPool(this.knex.client.pool, metrics);
 
     // Binds knex once, which effectively binds for all inherited types
@@ -85,6 +94,10 @@ export class DatabaseService implements OnModuleDestroy {
     this.sessionTokens = SessionToken;
     this.device = Device;
     this.linkedAccounts = LinkedAccount;
+
+    // Rebind for oauth db
+    RelyingParty.knex(this.knexOauth);
+    this.relyingParty = RelyingParty;
 
     this.mySqlOAuthShared = mySqlOAuthShared;
     this.connectedServicesDb = new ConnectedServicesDb(
@@ -122,16 +135,13 @@ export class DatabaseService implements OnModuleDestroy {
     return mergeDevicesAndSessionTokens(devices, sessionTokens, true);
   }
 
-  public async relyingParties() {
-    return this.mySqlOAuthShared.getRelyingParties();
-  }
-
   async onModuleDestroy() {
     // This tear down is important for jest tests. Without this
     // the tests will hang on completion.
     await this.connectedServicesDb.cache.close();
     await this.connectedServicesDb.db.close();
     await this.knex.destroy();
+    await this.knexOauth.destroy();
   }
 
   async dbHealthCheck(): Promise<Record<string, any>> {

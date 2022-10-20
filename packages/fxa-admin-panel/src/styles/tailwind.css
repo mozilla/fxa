@@ -35,6 +35,10 @@ th {
   @apply align-top w-48;
 }
 
+.notes {
+  @apply w-96;
+}
+
 .account-border-info {
   @apply border-l-2 border-grey-500 mb-8 pl-4;
 }

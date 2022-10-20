@@ -47,7 +47,7 @@ export function defaultConfig(): IClientConfig {
   };
 }
 
-export function mockConfigBuilder(overrides: Partial<IClientConfig>) {
+export function mockConfigBuilder(overrides?: Partial<IClientConfig>) {
   return Object.assign({}, defaultConfig(), overrides);
 }
 
