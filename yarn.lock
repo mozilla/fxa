@@ -24723,7 +24723,7 @@ fsevents@~2.1.1:
     jquery-simulate: 1.0.2
     jquery-ui: 1.13.2
     jquery-ui-touch-punch-amd: 1.0.1
-    js-md5: 0.6.0
+    js-md5: 0.7.3
     jsqr: 1.4.0
     jsxgettext-recursive-next: 1.1.0
     legal-docs: "https://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc"
@@ -31159,14 +31159,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-md5@npm:0.6.0":
-  version: 0.6.0
-  resolution: "js-md5@npm:0.6.0"
-  checksum: d6f8fe1a93b233e3f0842d945c3124c620834a2776247c6a91ba6463af56b58375dde62eafb95907fd1e2272d6a70c12001b37e14846bc5081fc800eb37e9df7
-  languageName: node
-  linkType: hard
-
-"js-md5@npm:^0.7.3":
+"js-md5@npm:0.7.3, js-md5@npm:^0.7.3":
   version: 0.7.3
   resolution: "js-md5@npm:0.7.3"
   checksum: 1ed9f7f23a2ad224fc159ba7e074617d20e6b501ea96319091ae4c7cfe722cc472c4e05366fd25708311fb66dc2deb1b82e51c730f9ccd910e64b67ba36d3a75
