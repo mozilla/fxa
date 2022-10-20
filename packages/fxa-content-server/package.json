@@ -104,7 +104,7 @@
     "jquery-simulate": "1.0.2",
     "jquery-ui": "1.13.2",
     "jquery-ui-touch-punch-amd": "1.0.1",
-    "js-md5": "0.6.0",
+    "js-md5": "0.7.3",
     "jsxgettext-recursive-next": "1.1.0",
     "legal-docs": "https://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc",
     "load-grunt-tasks": "^5.1.0",
