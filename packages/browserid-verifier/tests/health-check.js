@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 require('should');
 
@@ -13,8 +13,12 @@ var Verifier = require('./lib/verifier.js'),
 describe('health check', function () {
   var verifier = new Verifier();
 
-  it('test server should start', function (done) {
-    verifier.start(done);
+  before(async () => {
+    await new Promise((resolve) => verifier.start(resolve));
+  });
+
+  after(async () => {
+    await new Promise((resolve) => verifier.stop(resolve));
   });
 
   it('health check should return OK', function (done) {
@@ -91,9 +95,5 @@ describe('health check', function () {
         done(err);
       }
     );
-  });
-
-  it('test server should stop', function (done) {
-    verifier.stop(done);
   });
 });

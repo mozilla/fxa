@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global describe,it */
+/* global describe,it,before,after */
 
 var IdP = require('browserid-local-verify/testing').IdP,
   Client = require('browserid-local-verify/testing').Client,
@@ -17,15 +17,17 @@ describe('force issuer', function () {
   var client;
   var verifier = new Verifier();
 
-  it('test idps should start up', function (done) {
-    idp.start(function (e) {
-      fallback.start(function (e1) {
-        verifier.setFallback(idp);
-        verifier.start(function (e2) {
-          done(e || e1 || e2);
-        });
-      });
-    });
+  before(async () => {
+    await new Promise((resolve, error) => idp.start(resolve));
+    await new Promise((resolve, error) => fallback.start(resolve));
+    verifier.setFallback(idp);
+    await new Promise((resolve, error) => verifier.start(resolve));
+  });
+
+  after(async () => {
+    await new Promise((resolve, error) => verifier.stop(resolve));
+    await new Promise((resolve, error) => fallback.stop(resolve));
+    await new Promise((resolve, error) => idp.stop(resolve));
   });
 
   it('assertion by fallback when primary support is present should fail', function (done) {
@@ -35,30 +37,30 @@ describe('force issuer', function () {
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function (
-      err,
-      assertion
-    ) {
-      request(
-        {
-          method: 'post',
-          url: verifier.url(),
-          json: true,
-          body: {
-            assertion: assertion,
-            audience: 'http://example.com',
+    client.assertion(
+      { audience: 'http://example.com' },
+      function (err, assertion) {
+        request(
+          {
+            method: 'post',
+            url: verifier.url(),
+            json: true,
+            body: {
+              assertion: assertion,
+              audience: 'http://example.com',
+            },
           },
-        },
-        function (err, r) {
-          should.not.exist(err);
-          r.statusCode.should.equal(200);
-          r.body.status.should.equal('failure');
-          r.body.reason.should.startWith('untrusted issuer');
-          shouldReturnSecurityHeaders(r);
-          done();
-        }
-      );
-    });
+          function (_, r) {
+            should.not.exist(err);
+            r.statusCode.should.equal(200);
+            r.body.status.should.equal('failure');
+            r.body.reason.should.startWith('untrusted issuer');
+            shouldReturnSecurityHeaders(r);
+            done();
+          }
+        );
+      }
+    );
   });
 
   it('(v1) forceIssuer should over-ride authority discovery', function (done) {
@@ -68,30 +70,30 @@ describe('force issuer', function () {
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function (
-      err,
-      assertion
-    ) {
-      request(
-        {
-          method: 'post',
-          url: verifier.v1url(),
-          json: true,
-          body: {
-            assertion: assertion,
-            audience: 'http://example.com',
-            experimental_forceIssuer: fallback.domain(),
+    client.assertion(
+      { audience: 'http://example.com' },
+      function (_, assertion) {
+        request(
+          {
+            method: 'post',
+            url: verifier.v1url(),
+            json: true,
+            body: {
+              assertion: assertion,
+              audience: 'http://example.com',
+              experimental_forceIssuer: fallback.domain(),
+            },
           },
-        },
-        function (err, r) {
-          should.not.exist(err);
-          r.statusCode.should.equal(200);
-          r.body.status.should.equal('okay');
-          shouldReturnSecurityHeaders(r);
-          done();
-        }
-      );
-    });
+          function (err, r) {
+            should.not.exist(err);
+            r.statusCode.should.equal(200);
+            r.body.status.should.equal('okay');
+            shouldReturnSecurityHeaders(r);
+            done();
+          }
+        );
+      }
+    );
   });
 
   it('(v2) trustedIssuers should over-ride authority discovery', function (done) {
@@ -101,39 +103,29 @@ describe('force issuer', function () {
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function (
-      err,
-      assertion
-    ) {
-      request(
-        {
-          method: 'post',
-          url: verifier.url(),
-          json: true,
-          body: {
-            assertion: assertion,
-            audience: 'http://example.com',
-            trustedIssuers: [fallback.domain()],
+    client.assertion(
+      { audience: 'http://example.com' },
+      function (_, assertion) {
+        request(
+          {
+            method: 'post',
+            url: verifier.url(),
+            json: true,
+            body: {
+              assertion: assertion,
+              audience: 'http://example.com',
+              trustedIssuers: [fallback.domain()],
+            },
           },
-        },
-        function (err, r) {
-          should.not.exist(err);
-          r.statusCode.should.equal(200);
-          r.body.status.should.equal('okay');
-          shouldReturnSecurityHeaders(r);
-          done();
-        }
-      );
-    });
-  });
-
-  it('test idp should shut down', function (done) {
-    idp.stop(function (e) {
-      fallback.stop(function (e1) {
-        verifier.stop(function (e2) {
-          done(e || e1 || e2);
-        });
-      });
-    });
+          function (err, r) {
+            should.not.exist(err);
+            r.statusCode.should.equal(200);
+            r.body.status.should.equal('okay');
+            shouldReturnSecurityHeaders(r);
+            done();
+          }
+        );
+      }
+    );
   });
 });

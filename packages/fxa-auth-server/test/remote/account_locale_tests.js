@@ -7,93 +7,85 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
+const retry = require('async-retry');
 
 const config = require('../../config').getProperties();
 config.redis.sessionTokens.enabled = false;
 const key = {
   algorithm: 'RS',
-  n:
-    '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+  n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
   e: '65537',
 };
 
 describe('remote account locale', function () {
   this.timeout(15000);
-
   let server;
-  before(() => {
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+
+  before(async () => {
+    server = await TestServer.start(config);
   });
 
-  it('signing a cert against an account with no locale will save the locale', () => {
+  after(async () => {
+    await TestServer.stop(server);
+  });
+
+  it('signing a cert against an account with no locale will save the locale', async () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
-    let client;
-    return Client.createAndVerify(
+    const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox
-    )
-      .then((c) => {
-        client = c;
-        return c.api.accountStatus(c.uid, c.sessionToken);
-      })
-      .then((response) => {
-        assert.ok(!response.locale, 'account has no locale');
-        return client.login();
-      })
-      .then(() => {
-        return client.api.certificateSign(
-          client.sessionToken,
-          key,
-          1000,
-          'en-US'
+    );
+    let response = await client.api.accountStatus(
+      client.uid,
+      client.sessionToken
+    );
+    assert.ok(!response.locale, 'account has no locale');
+    await client.login();
+
+    // Certificate sign kicks off async updates that are not waited on, therefore
+    // we must retry the accouunt status check until the locale is updated.
+    await client.api.certificateSign(client.sessionToken, key, 1000, 'en-US');
+    await retry(
+      async () => {
+        response = await client.api.accountStatus(
+          client.uid,
+          client.sessionToken
         );
-      })
-      .then(() => {
-        return client.api.accountStatus(client.uid, client.sessionToken);
-      })
-      .then((response) => {
         assert.equal(response.locale, 'en-US', 'account has a locale');
-      });
+      },
+      {
+        retries: 10,
+        minTimeout: 20,
+      }
+    );
   });
 
-  it('a really long (invalid) locale', () => {
+  it('a really long (invalid) locale', async () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
-    return Client.create(config.publicUrl, email, password, {
+    const client = await Client.create(config.publicUrl, email, password, {
       lang: Buffer.alloc(128).toString('hex'),
-    })
-      .then((c) => {
-        return c.api.accountStatus(c.uid, c.sessionToken);
-      })
-      .then((response) => {
-        assert.ok(!response.locale, 'account has no locale');
-      });
+    });
+    const response = await client.api.accountStatus(
+      client.uid,
+      client.sessionToken
+    );
+    assert.ok(!response.locale, 'account has no locale');
   });
 
-  it('a really long (valid) locale', () => {
+  it('a really long (valid) locale', async () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
-    return Client.create(config.publicUrl, email, password, {
+    const client = await Client.create(config.publicUrl, email, password, {
       lang: `en-US,en;q=0.8,${Buffer.alloc(128).toString('hex')}`,
-    })
-      .then((c) => {
-        return c.api.accountStatus(c.uid, c.sessionToken);
-      })
-      .then((response) => {
-        assert.equal(
-          response.locale,
-          'en-US,en;q=0.8',
-          'account has no locale'
-        );
-      });
-  });
-
-  after(() => {
-    return TestServer.stop(server);
+    });
+    const response = await client.api.accountStatus(
+      client.uid,
+      client.sessionToken
+    );
+    assert.equal(response.locale, 'en-US,en;q=0.8', 'account has no locale');
   });
 });

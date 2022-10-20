@@ -102,9 +102,24 @@ describe('PaymentConfigManager', () => {
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, {});
     Container.set(AppConfig, mockConfig);
+
     paymentConfigManager = new PaymentConfigManager();
     productConfigDbRef = paymentConfigManager.productConfigDbRef;
     planConfigDbRef = paymentConfigManager.planConfigDbRef;
+
+    // Ensure the collections are clean in case anything else might
+    // not have cleaned up properly. This helps reduce flaky tests.
+    await deleteCollection(
+      paymentConfigManager.firestore,
+      productConfigDbRef,
+      100
+    );
+    await deleteCollection(
+      paymentConfigManager.firestore,
+      planConfigDbRef,
+      100
+    );
+
     await productConfigDbRef.doc(testProductId).set(productConfig);
     testPlanConfig = {
       ...planConfig,
@@ -113,6 +128,20 @@ describe('PaymentConfigManager', () => {
       productConfigId: testProductId,
     };
     await planConfigDbRef.doc(testPlanId).set(testPlanConfig);
+
+    // Ensure all the plans/products have loaded. Some delays may occur
+    // due to triggering of the firestore listeners.
+    await retry(
+      async () => {
+        await paymentConfigManager.maybeLoad();
+        assert.lengthOf(await paymentConfigManager.allProducts(), 1);
+        assert.lengthOf(await paymentConfigManager.allPlans(), 1);
+      },
+      {
+        retries: 50,
+        minTimeout: 10,
+      }
+    );
     mergedConfig = mergeConfigs(testPlanConfig, productConfig);
   });
 
