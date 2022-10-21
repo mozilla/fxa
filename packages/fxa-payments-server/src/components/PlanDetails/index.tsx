@@ -157,8 +157,8 @@ export const PlanDetails = ({
                     </div>
 
                     <div className="plan-details-total-inner">
-                      <Localized id="coupon-discount">
-                        <div>Discount</div>
+                      <Localized id="coupon-promo-code">
+                        <div>Promo Code</div>
                       </Localized>
 
                       <Localized
