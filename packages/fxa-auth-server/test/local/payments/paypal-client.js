@@ -379,7 +379,10 @@ describe('PayPalClient', () => {
 
     it('calls api with requested optional tax amount', async () => {
       const data = deepCopy(defaultData);
-      data.TAXAMT = '500';
+      data.TAXAMT = '5.00';
+      data.L_AMT0 = data.AMT;
+      data.L_TAXAMT0 = data.TAXAMT;
+      data.ITEMAMT = '0.99';
       client.doRequest = sandbox.fake.resolves(
         successfulDoReferenceTransactionResponse
       );
