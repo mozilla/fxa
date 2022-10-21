@@ -1,0 +1,7 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaVersion": "2020"
+  },
+}
