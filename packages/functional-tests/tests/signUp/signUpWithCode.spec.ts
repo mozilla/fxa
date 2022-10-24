@@ -47,7 +47,7 @@ test.describe('Sign up with code ', () => {
     await page.goto(target.contentServerUrl, {
       waitUntil: 'networkidle',
     });
-    await login.fillOutFirstSignUp(email, PASSWORD, false);
+    await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
     await login.setCode('1234');
     await signinTokenCode.clickSubmitButton();
     expect(await login.getTooltipError()).toContain(

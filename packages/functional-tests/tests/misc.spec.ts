@@ -28,3 +28,13 @@ test.describe('severity-1', () => {
     expect(await relier.isLoggedIn()).toBe(true);
   });
 });
+
+test.describe('robots.txt', () => {
+  test('should allow bots to access all pages', async ({ target, page }) => {
+    await page.goto(`${target.contentServerUrl}/robots.txt`, {
+      waitUntil: 'networkidle',
+    });
+    const text = await page.locator('body').innerText();
+    expect(/^Allow:/gm.test(text)).toBeTruthy();
+  });
+});

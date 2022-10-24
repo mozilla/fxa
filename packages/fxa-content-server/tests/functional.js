@@ -4,8 +4,6 @@
 
 const testsSettings = require('./functional_settings');
 module.exports = testsSettings.concat([
-  'tests/functional/oauth_webchannel.js',
-
   // new and flaky tests above here',
   'tests/functional/email_opt_in.js',
   'tests/functional/fx_desktop_handshake.js',

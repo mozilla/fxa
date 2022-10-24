@@ -35,7 +35,7 @@ test.describe('signin with OAuth after Sync', () => {
     await relier.goto();
     await relier.clickEmailFirst();
     await login.useDifferentAccountLink();
-    await login.fillOutFirstSignUp(email2, password, true);
+    await login.fillOutFirstSignUp(email2, password);
 
     // RP is logged in, logout then back in again
     expect(await relier.isLoggedIn()).toBe(true);
@@ -66,7 +66,7 @@ test.describe('signin to Sync after OAuth', () => {
     const email = login.createEmail('sync{id}');
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, true);
+    await login.fillOutFirstSignUp(email, password);
     expect(await relier.isLoggedIn()).toBe(true);
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`

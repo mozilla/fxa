@@ -11,7 +11,6 @@ module.exports = testsSettings.concat([
   'tests/functional/bounced_email.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/fx_desktop_handshake.js',
-  'tests/functional/oauth_webchannel.js',
   'tests/functional/pages.js',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
