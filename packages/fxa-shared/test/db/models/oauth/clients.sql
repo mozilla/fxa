@@ -10,5 +10,6 @@ CREATE TABLE `clients` (
   `allowedScopes` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
   `hashedSecret` binary(32) DEFAULT NULL,
   `hashedSecretPrevious` binary(32) DEFAULT NULL,
+  `notes` TEXT,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

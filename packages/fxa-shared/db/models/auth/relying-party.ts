@@ -17,4 +17,5 @@ export class RelyingParty extends BaseAuthModel {
   createdAt!: number;
   trusted!: boolean;
   allowedScopes!: string | null;
+  notes!: string | null;
 }

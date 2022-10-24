@@ -31,4 +31,7 @@ export class RelyingParty {
 
   @Field({ nullable: true })
   allowedScopes!: string;
+
+  @Field({ nullable: true })
+  notes!: string;
 }

@@ -156,6 +156,7 @@ export interface RelyingParty {
     createdAt: number;
     trusted: boolean;
     allowedScopes?: Nullable<string>;
+    notes?: Nullable<string>;
 }
 
 export interface IQuery {
@@ -174,6 +175,7 @@ export interface IMutation {
     recordAdminSecurityEvent(name: string, uid: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
+    updateNotes(notes: string, id: string): boolean | Promise<boolean>;
 }
 
 type Nullable<T> = T | null;

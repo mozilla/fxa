@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ApolloError, gql, useQuery } from '@apollo/client';
+import React, { useState } from 'react';
+import { ApolloError, gql, useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
 import { DATE_FORMAT } from '../AccountSearch/Account';
 import dateFormat from 'dateformat';
 import ErrorAlert from '../ErrorAlert';
+import { AdminPanelFeature } from '../../../../fxa-shared/guards';
+import { Guard } from '../Guard';
 
 const RELYING_PARTIES_SCHEMA = `
   relyingParties {
@@ -21,6 +23,7 @@ const RELYING_PARTIES_SCHEMA = `
     createdAt
     trusted
     allowedScopes
+    notes
   }
 `;
 
@@ -33,6 +36,111 @@ export const GET_RELYING_PARTIES = gql`
     ${RELYING_PARTIES_SCHEMA}
   }
 `;
+
+export const UPDATE_NOTE = gql`
+  mutation updateNotes($id: String!, $notes: String!) {
+    updateNotes(id: $id, notes: $notes)
+  }
+`;
+
+const Notes = ({ id, notes }: { id: string; notes: string }) => {
+  const [saveAllowed, setSaveAllowed] = useState<boolean>(true);
+  const [status, setStatus] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [newNotes, setNewNotes] = useState<string>(notes);
+
+  const resetState = () => {
+    setSaveAllowed(true);
+    setStatus('');
+    setError('');
+  };
+
+  const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (event.target.value === notes) {
+      return;
+    }
+    resetState();
+    setNewNotes(event.target.value);
+  };
+
+  const handleSaveNotes = () => {
+    setSaveAllowed(false);
+    setStatus('Updating...');
+    updateNote({
+      variables: {
+        id,
+        notes: newNotes,
+      },
+    });
+  };
+
+  const [updateNote] = useMutation(UPDATE_NOTE, {
+    onCompleted: (data) => {
+      setStatus('Success!');
+      setTimeout(resetState, 1000);
+    },
+
+    onError: (err) => {
+      let error = 'Error: Unexpected Error.';
+      if (/ER_DATA_TOO_LONG/.test(err.message)) {
+        error = 'Error: Changes not saved. Notes too long!';
+      }
+      setError(error);
+    },
+  });
+
+  const saveButtonClass = () => {
+    const base =
+      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 ml-2 rounded  mt';
+    const active =
+      'text-red-700 hover:text-red-700 hover:border-2 hover:border-grey-10 hover:bg-grey-50';
+    const inactive = 'text-grey-700 cursor-not-allowed';
+    return `${base} ${saveAllowed ? active : inactive}`;
+  };
+  const saveButtonDisabled = () => {
+    return !saveAllowed || error !== '';
+  };
+  const statusClass = () => {
+    if (error) {
+      return `p-2  text-red-700 visible`;
+    }
+    if (status) {
+      return `p-2 text-gray-800 visible`;
+    }
+    return `collapsed`;
+  };
+
+  const statusText = () => {
+    if (error) {
+      return error;
+    }
+    return status;
+  };
+
+  return (
+    <div className="notes ">
+      <textarea
+        data-testid={`notes-${id}`}
+        className="w-full mt-4 mb-2 border border-grey-100"
+        onChange={handleNotesChange}
+        defaultValue={notes}
+      />
+      <Guard features={[AdminPanelFeature.RelyingPartiesEditNotes]}>
+        <button
+          data-testid={`notes-save-btn-${id}`}
+          className={saveButtonClass()}
+          disabled={saveButtonDisabled()}
+          onClick={handleSaveNotes}
+        >
+          Save
+        </button>
+        <div className={statusClass()} data-testid={`notes-status-${id}`}>
+          {statusText()}
+        </div>
+      </Guard>
+    </div>
+  );
+};
 
 const Result = ({
   loading,
@@ -63,6 +171,7 @@ const Result = ({
             createdAt,
             trusted,
             allowedScopes,
+            notes,
           }) => (
             <div key={id}>
               <h3 className="account-header">{name}</h3>
@@ -106,6 +215,12 @@ const Result = ({
                       ) : (
                         <span className="result-grey">(empty string)</span>
                       )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Notes</th>
+                    <td>
+                      <Notes {...{ id, notes: notes || '' }} />
                     </td>
                   </tr>
                 </tbody>
