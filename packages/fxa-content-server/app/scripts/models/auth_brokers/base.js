@@ -98,7 +98,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
       }
     ),
     afterCompleteSignIn: new NavigateBehavior('signin_verified'),
-    afterCompleteSignInWithCode: new NavigateBehavior('settings'),
+    afterCompleteSignInWithCode: new NavigateOrRedirectBehavior('settings'),
     afterCompleteSignUp: new NavigateOrRedirectBehavior('signup_verified'),
     afterDeleteAccount: new NullBehavior(),
     afterForceAuth: new NavigateBehavior('signin_confirmed'),
