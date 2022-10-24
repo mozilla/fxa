@@ -256,7 +256,7 @@ describe('subscriptions payPalRoutes', () => {
         }
       });
 
-      describe('eleteAccountIfUnverified', () => {
+      describe('deleteAccountIfUnverified', () => {
         let sandbox;
         beforeEach(() => {
           sandbox = sinon.createSandbox();
@@ -371,18 +371,7 @@ describe('subscriptions payPalRoutes', () => {
         payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       });
 
-      it('should run a charge successfully', async () => {
-        const requestOptions = deepCopy(defaultRequestOptions);
-        requestOptions.geo = {
-          location: {
-            countryCode: 'CA',
-            state: 'Ontario',
-          },
-        };
-        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...requestOptions,
-          payload: { token },
-        });
+      function assertChargedSuccessfully(actual) {
         assert.deepEqual(actual, {
           sourceCountry: 'CA',
           subscription: filterSubscription(subscription),
@@ -393,20 +382,7 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processInvoice);
-        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
-        sinon.assert.calledOnce(stripeHelper.customerTaxId);
-        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            taxRateId: 'tr-1234',
-          }
-        );
+
         sinon.assert.calledOnceWithExactly(
           authDbModule.getAccountCustomerByUid,
           UID
@@ -426,26 +402,91 @@ describe('subscriptions payPalRoutes', () => {
             name: 'Test User',
           }
         );
-      });
+      }
 
-      it('should run a charge successfully with coupon', async () => {
-        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...defaultRequestOptions,
-          payload: { token, promotionCode: 'test-promo' },
-        });
-        assert.deepEqual(actual, {
-          sourceCountry: 'CA',
-          subscription: filterSubscription(subscription),
-        });
-        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-        sinon.assert.calledOnce(payPalHelper.agreementDetails);
-        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.calledOnce(payPalHelper.processInvoice);
+      function assertTaxId() {
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
+      }
+
+      function assertAutomaticTax() {
+        sinon.assert.notCalled(stripeHelper.taxRateByCountryCode);
+        sinon.assert.notCalled(stripeHelper.customerTaxId);
+        sinon.assert.notCalled(stripeHelper.addTaxIdToCustomer);
+      }
+
+      it('should run a charge successfully', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            state: 'Ontario',
+          },
+        };
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...requestOptions,
+          payload: { token },
+        });
+        assertChargedSuccessfully(actual);
+        assertTaxId();
+        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer,
+            priceId: undefined,
+            promotionCode: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
+      });
+
+      it('should run a charge with automatic tax successfully', async () => {
+        customer.tax = {
+          automatic_tax: 'supported',
+        };
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            state: 'Ontario',
+          },
+        };
+        config.subscriptions.stripeAutomaticTax.enabled = true;
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...requestOptions,
+          payload: { token },
+        });
+        assertChargedSuccessfully(actual);
+        assertAutomaticTax();
+        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer,
+            priceId: undefined,
+            promotionCode: undefined,
+            subIdempotencyKey: undefined,
+            automatic_tax: true,
+          }
+        );
+      });
+
+      it('should run a charge successfully with coupon', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            state: 'Ontario',
+          },
+        };
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...requestOptions,
+          payload: { token, promotionCode: 'test-promo' },
+        });
+        assertChargedSuccessfully(actual);
         sinon.assert.calledWithExactly(
           stripeHelper.findValidPromoCode,
           'test-promo',
@@ -461,23 +502,35 @@ describe('subscriptions payPalRoutes', () => {
             taxRateId: 'tr-1234',
           }
         );
-        sinon.assert.calledOnceWithExactly(
-          authDbModule.getAccountCustomerByUid,
-          UID
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateCustomerBillingAddress,
+      });
+
+      it('should run a charge with automatic tax in unsupported region successfully', async () => {
+        customer.tax = {
+          automatic_tax: 'unrecognized_location',
+        };
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            state: 'Ontario',
+          },
+        };
+        config.subscriptions.stripeAutomaticTax.enabled = true;
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...requestOptions,
+          payload: { token },
+        });
+        assertChargedSuccessfully(actual);
+        assertAutomaticTax();
+        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
           {
-            customerId: accountCustomer.stripeCustomerId,
-            options: {
-              city: undefined,
-              country: 'CA',
-              line1: undefined,
-              line2: undefined,
-              postalCode: undefined,
-              state: undefined,
-            },
-            name: 'Test User',
+            customer,
+            priceId: undefined,
+            promotionCode: undefined,
+            subIdempotencyKey: undefined,
+            automatic_tax: false,
           }
         );
       });
