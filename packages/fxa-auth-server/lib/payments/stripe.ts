@@ -2380,18 +2380,32 @@ export class StripeHelper extends StripeHelperBase {
       (line) => line.type === 'subscription'
     );
 
-    if (!subscriptionLineItem) {
-      // No subscription is present for the invoice. This should never happen
+    // In certain instances the invoice won't have a 'subscription' line item.
+    // In those cases, select the 'invoiceitem' without proration_details.credited_items
+    const invoiceitemLineItem = !subscriptionLineItem
+      ? invoice.lines.data.find(
+          (line) =>
+            line.type === 'invoiceitem' &&
+            !line.proration_details?.credited_items
+        )
+      : undefined;
+
+    const lineItem = subscriptionLineItem || invoiceitemLineItem;
+
+    if (!lineItem) {
+      // No subscription or invoiceitem is present for the invoice. This should never happen
       // since all invoices have a related incoming subscription as one of the line items.
       throw error.internalValidationError(
         'extractInvoiceDetailsForEmail',
         invoice,
-        new Error(`No subscription line items found for invoice: ${invoice.id}`)
+        new Error(
+          `No subscription or invoiceitem line items found for invoice: ${invoice.id}`
+        )
       );
     }
 
     // Dig up & expand objects in the invoice that usually come as just IDs
-    const { plan } = subscriptionLineItem;
+    const { plan } = lineItem;
     if (!plan) {
       // No plan is present if this is not a subscription or proration, which
       // should never happen as we only have subscriptions.
@@ -2421,7 +2435,9 @@ export class StripeHelper extends StripeHelperBase {
       !!invoice.discounts?.length &&
       invoice.discounts.length === 1
     ) {
-      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id!);
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(
+        invoice.id!
+      );
       const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
       discountType = discount.coupon.duration;
       discountDuration = discount.coupon.duration_in_months;
@@ -2466,7 +2482,7 @@ export class StripeHelper extends StripeHelperBase {
       tax: invoiceTaxAmountInCents,
     } = invoice;
 
-    const nextInvoiceDate = subscriptionLineItem.period.end;
+    const nextInvoiceDate = lineItem.period.end;
 
     const invoiceDiscountAmountInCents =
       (invoice.total_discount_amounts &&

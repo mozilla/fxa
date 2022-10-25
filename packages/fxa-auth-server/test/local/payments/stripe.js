@@ -74,6 +74,7 @@ const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const invoicePaidSubscriptionCreateDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const invoicePaidSubscriptionCreateTaxDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_tax_discount.json');
+const invoiceDraftProrationRefund = require('./fixtures/stripe/invoice_draft_proration_refund.json');
 const invoicePaidSubscriptionCreateTax = require('./fixtures/stripe/invoice_paid_subscription_create_tax.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
@@ -4936,6 +4937,21 @@ describe('StripeHelper', () => {
         },
       });
 
+      const fixtureProrationRefund = { ...invoiceDraftProrationRefund };
+      fixtureProrationRefund.lines.data[1] = {
+        ...fixtureProrationRefund.lines.data[1],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+        period: {
+          end: 1587767020,
+          start: 1585088620,
+        },
+      };
+
       const planConfig = {
         urls: {
           emailIcon: 'http://firestore.example.gg/email.ico',
@@ -5172,6 +5188,16 @@ describe('StripeHelper', () => {
         });
       });
 
+      it('extracts expected details from an invoice without line item of type "subscription"', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureProrationRefund
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, expected);
+      });
+
       it('throws an exception for deleted customer', async () => {
         expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
 
@@ -5225,9 +5251,9 @@ describe('StripeHelper', () => {
         assert.equal(thrownError.name, 'TypeError');
       });
 
-      it('throws an exception if invoice line items doesnt have type = "subscription"', async () => {
+      it('throws an exception if invoice line items doesnt have type = "subscription" or "invoiceitem"', async () => {
         const fixture = deepCopy(invoicePaidSubscriptionCreate);
-        fixture.lines.data[0].type = 'invoiceitem';
+        fixture.lines.data[0].type = 'none';
         try {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
           assert.fail();
