@@ -1,0 +1,174 @@
+import { test, expect } from '../../lib/fixtures/standard';
+
+const PASSWORD = 'passwordzxcv';
+
+test.describe('OAuth signin', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.slow(testInfo.project.name !== 'local', 'email delivery can be slow');
+  });
+
+  test('verified', async ({ credentials, pages: { login, relier } }) => {
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(credentials.email, credentials.password);
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('verified using a cached login', async ({
+    credentials,
+    pages: { login, relier },
+  }) => {
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(credentials.email, credentials.password);
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    await relier.signOut();
+
+    // Attempt to sign back in
+    await relier.clickEmailFirst();
+
+    // Email is prefilled
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    expect(await login.isCachedLogin()).toBe(true);
+    await login.submit();
+
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('verified using a cached expired login', async ({
+    credentials,
+    pages: { login, relier },
+  }) => {
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(credentials.email, credentials.password);
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    await relier.signOut();
+
+    // Attempt to sign back in with cached user
+    await relier.clickEmailFirst();
+
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    expect(await login.isCachedLogin()).toBe(true);
+    await login.submit();
+    await relier.signOut();
+
+    // Clear cache and try to login
+    await login.clearCache();
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // User will have to re-enter login information
+    await login.login(credentials.email, credentials.password);
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('unverified, acts like signup', async ({
+    target,
+    pages: { login, relier },
+  }) => {
+    // Create unverified account via backend
+    const email = login.createEmail();
+    await target.auth.signUp(email, PASSWORD, {
+      lang: 'en',
+      preVerified: 'false',
+    });
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(email, PASSWORD);
+
+    // User is shown confirm email page
+    await login.fillOutSignInCode(email);
+
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('unverified with a cached login', async ({
+    pages: { login, relier },
+  }) => {
+    // Create unverified account
+    const email = login.createEmail();
+    const password = 'passwordzxcv';
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // Dont register account and attempt to login via relier
+    await login.fillOutFirstSignUp(email, password, false);
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // Cached user detected
+    await expect(await login.getPrefilledEmail()).toMatch(email);
+    expect(await login.isCachedLogin()).toBe(true);
+    await login.submit();
+
+    // Verify email and ensure user is redirected to relier
+    await login.fillOutSignUpCode(email);
+
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('oauth endpoint chooses the right auth flows', async ({
+    target,
+    page,
+    credentials,
+    pages: { login, relier },
+  }, { project }) => {
+    test.slow(project.name !== 'local', 'email delivery can be slow');
+
+    // Create unverified account
+    const email = login.createEmail();
+
+    await relier.goto();
+    await relier.clickChooseFlow();
+    await login.fillOutFirstSignUp(email, PASSWORD, false);
+
+    // go back to the OAuth app, the /oauth flow should
+    // now suggest a cached login
+    await relier.goto();
+    await relier.clickChooseFlow();
+
+    // User shown signin enter password page
+    expect(await login.signInPasswordHeader()).toEqual(true);
+  });
+
+  test('verified, blocked', async ({ target, pages: { login, relier } }) => {
+    const blockedEmail = login.createEmail('blocked{id}');
+    await target.auth.signUp(blockedEmail, PASSWORD, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(blockedEmail, PASSWORD);
+
+    await login.unblock(blockedEmail);
+    expect(await relier.isLoggedIn()).toBe(true);
+  });
+
+  test('verified, blocked, incorrect password', async ({
+    target,
+    pages: { login, relier },
+  }) => {
+    const blockedEmail = login.createEmail('blocked{id}');
+    await target.auth.signUp(blockedEmail, PASSWORD, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+    await login.login(blockedEmail, 'wrong password');
+
+    await login.unblock(blockedEmail);
+
+    // After filling in the unblock code, the user is prompted again to enter password
+    expect(await login.signInPasswordHeader()).toEqual(true);
+  });
+});

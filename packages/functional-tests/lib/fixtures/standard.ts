@@ -1,9 +1,14 @@
-import { Browser, test as base, expect } from '@playwright/test';
+import { Browser, test as base, expect, firefox } from '@playwright/test';
 import { TargetName, ServerTarget, create, Credentials } from '../targets';
 import { EmailClient } from '../email';
 import { create as createPages } from '../../pages';
 import { BaseTarget } from '../targets/base';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { getFirefoxUserPrefs } from '../../lib/targets/firefoxUserPrefs';
+
+// The DEBUG env is used to debug without the playwright inspector, like in vscode
+// see .vscode/launch.json
+const DEBUG = !!process.env.DEBUG;
 
 export { expect };
 export type POMS = ReturnType<typeof createPages>;
@@ -111,4 +116,19 @@ export async function newPages(browser: Browser, target: BaseTarget) {
   const context = await browser.newContext();
   const page = await context.newPage();
   return createPages(page, target);
+}
+
+// When running tests that utilize Sync (sign-in/out), we need to run them in a
+// completely different browser, otherwise we will get timeout issues.
+// The main cause of this is that Sync sets a property
+// `identity.fxaccounts.lastSignedInUserHash` to the last
+// user signed in. On subsequent login to Sync, a dialog is prompted for the user
+// to confirm. Playwright does not have functionality to click browser ui.
+export async function newPagesForSync(target: BaseTarget) {
+  const browser = await firefox.launch({
+    args: DEBUG ? ['-start-debugger-server'] : undefined,
+    firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG),
+    headless: !DEBUG,
+  });
+  return newPages(browser, target);
 }

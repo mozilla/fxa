@@ -14,7 +14,7 @@ test.describe('OAuth force auth', () => {
     );
     await login.setPassword(credentials.password);
     await login.submit();
-    await relier.isLoggedIn();
+    expect(await relier.isLoggedIn()).toBe(true);
   });
 
   test('with a unregistered email', async ({
@@ -32,23 +32,24 @@ test.describe('OAuth force auth', () => {
     await login.setNewPassword(credentials.password);
     await login.fillOutSignUpCode(newEmail);
 
-    await relier.isLoggedIn();
+    expect(await relier.isLoggedIn()).toBe(true);
   });
 
   test('with blocked email', async ({ credentials, pages: { login, relier } }, {
     project,
   }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
+
     const blockedEmail = `blocked${Date.now()}@restmail.net`;
     await relier.goto(`email=${blockedEmail}`);
     await relier.clickForceAuth();
-
+    
     await expect(await login.getPrefilledEmail()).toMatch(blockedEmail);
     await login.setAge('21');
     await login.setNewPassword(credentials.password);
     await login.fillOutSignUpCode(blockedEmail);
 
-    await relier.isLoggedIn();
+    expect(await relier.isLoggedIn()).toBe(true);
 
     await relier.signOut();
 
@@ -59,6 +60,6 @@ test.describe('OAuth force auth', () => {
     await login.submit();
 
     await login.unblock(blockedEmail);
-    await relier.isLoggedIn();
+    expect(await relier.isLoggedIn()).toBe(true);
   });
 });
