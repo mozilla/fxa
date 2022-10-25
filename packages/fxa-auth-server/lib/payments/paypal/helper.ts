@@ -410,6 +410,11 @@ export class PayPalHelper {
     const agreementDetails = await this.agreementDetails({
       billingAgreementId,
     });
+    if (agreementDetails.status === 'cancelled') {
+      throw error.internalValidationError('updateStripeNameFromBA', {
+        message: 'Billing agreement was cancelled.',
+      });
+    }
     const name = `${agreementDetails.firstName} ${agreementDetails.lastName}`;
     return this.stripeHelper.updateCustomerBillingAddress({
       customerId: customer.id,
