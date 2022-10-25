@@ -93,6 +93,7 @@ class GetAccountsByEmail {
             disabledAt: null,
             locale: testLocale,
             lockedAt: null,
+            email: email,
             emails: [
               {
                 email,
@@ -127,6 +128,7 @@ class GetAccountsByEmail {
       data: {
         accountByEmail: {
           uid: 'a1b2c3',
+          email: email,
           emails: [
             {
               email,

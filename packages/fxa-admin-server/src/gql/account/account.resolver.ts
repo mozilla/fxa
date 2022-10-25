@@ -94,7 +94,7 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.AccountSearch)
   @Query((returns) => AccountType, { nullable: true })
-  public accountByUid(
+  public async accountByUid(
     @Args('uid', { nullable: false }) uid: string,
     @CurrentUser() user: string
   ) {
@@ -114,19 +114,32 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.AccountSearch)
   @Query((returns) => AccountType, { nullable: true })
-  public accountByEmail(
+  public async accountByEmail(
     @Args('email', { nullable: false }) email: string,
     @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
     @CurrentUser() user: string
   ) {
     this.eventLogging.onAccountSearch('email', autoCompleted);
     this.log.info('accountByEmail', { email, user });
-    return this.db.account
+
+    // Always prefer looks up using the known emails table
+    let account = await this.db.account
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
       .innerJoin('emails', 'emails.uid', 'accounts.uid')
       .where('emails.normalizedEmail', email.toLocaleLowerCase())
       .first();
+
+    // fallback to the accounts.normalized email table
+    if (!account) {
+      account = await this.db.account
+        .query()
+        .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+        .where('accounts.normalizedEmail', email.toLocaleLowerCase())
+        .first();
+    }
+
+    return account;
   }
 
   @Features(AdminPanelFeature.AccountSearch)
