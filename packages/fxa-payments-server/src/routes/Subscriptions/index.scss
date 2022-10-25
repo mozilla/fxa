@@ -184,18 +184,7 @@
 // Wipe out button/link styles so that we can reuse the behavior from the
 // manage/change button inside of the alert bar
 
-// Alerts are going to be refactored
-#top-bar .alert {
-  margin: 0;
-}
-
-.alert {
-  margin: 0;
-
-  .action {
-    display: inline;
-  }
-
+.alert-error {
   button {
     background: inherit;
     color: white;
@@ -210,9 +199,6 @@
     &:hover {
       background: none;
     }
-  }
-  .sr-only {
-    display: none;
   }
 
   a {

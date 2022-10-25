@@ -37,6 +37,13 @@ const Portal = ({ id, children }: PortalProps): React.ReactPortal | null => {
         document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
       );
     }
+
+    if (id === 'top-bar') {
+      el.setAttribute(
+        'class',
+        'portal fixed top-0 inset-x-0 p-0 z-[9999] tablet:px-16'
+      );
+    }
   }
 
   useEffect(() => {

@@ -258,7 +258,7 @@ export const Subscriptions = ({
       {showPaymentSuccessAlert && (
         <AlertBar
           checked
-          className="alert alertSuccess alertCenter"
+          className="alert-success"
           dataTestId="success-billing-update"
           headerId="success-billing-update-header"
           localizedId="sub-billing-update-success"
