@@ -36,7 +36,7 @@
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.1.1",
     "@nestjs/graphql": "^8.0.2",
-    "@nestjs/mapped-types": "^1.0.1",
+    "@nestjs/mapped-types": "^1.2.0",
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^9.1.1",
     "@sentry/integrations": "^6.19.1",
