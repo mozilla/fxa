@@ -64,7 +64,7 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
         ],
       ]
     : 'list',
-  workers: CI ? 2 : undefined,
+  workers: CI ? 4 : undefined,
   maxFailures: CI ? 2 : 0,
 };
 
