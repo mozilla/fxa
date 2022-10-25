@@ -16076,7 +16076,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bindings@npm:^1.3.0, bindings@npm:^1.5.0":
+"bindings@npm:^1.5.0":
   version: 1.5.0
   resolution: "bindings@npm:1.5.0"
   dependencies:
@@ -24403,7 +24403,7 @@ fsevents@~2.1.1:
     googleapis: ^108.0.0
     graphql: ^15.6.1
     helmet: ^6.0.0
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     jest: 27.5.1
     knex: ^2.3.0
     pem-jwk: ^2.0.0
@@ -24537,7 +24537,7 @@ fsevents@~2.1.1:
     hapi-error: ^3.0.0
     hapi-swagger: ^14.5.5
     hkdf: 0.0.2
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     i18n-iso-countries: ^7.5.0
     ioredis: ^4.28.2
     joi: 17.4.0
@@ -24709,7 +24709,7 @@ fsevents@~2.1.1:
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
     helmet: ^6.0.0
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     htmlparser2: 8.0.1
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
@@ -24898,7 +24898,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^8.6.0
     graphql: ^15.6.1
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     jest: 27.5.1
     joi: 17.4.0
     jwks-rsa: ^2.1.4
@@ -24997,7 +24997,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.3.6
     graphql-upload: ^13.0.0
     helmet: ^6.0.0
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     ioredis: ^4.28.2
     jest: 27.5.1
     knex: ^2.3.0
@@ -25116,7 +25116,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
     helmet: ^6.0.0
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     intl: 1.2.5
     jest: 27.5.1
     joi: 17.4.0
@@ -25419,7 +25419,7 @@ fsevents@~2.1.1:
     find-up: ^5.0.0
     generic-pool: ^3.8.2
     graphql: ^15.6.1
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     ioredis: ^4.28.2
     ip: ^1.1.8
     jest: 27.5.1
@@ -25487,7 +25487,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hbs: ^4.2.0
     helmet: ^6.0.0
-    hot-shots: ^9.2.0
+    hot-shots: ^9.3.0
     jest: 27.5.1
     mozlog: ^3.0.2
     pm2: ^5.1.2
@@ -27542,15 +27542,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hot-shots@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "hot-shots@npm:9.2.0"
+"hot-shots@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "hot-shots@npm:9.3.0"
   dependencies:
-    unix-dgram: 2.0.x
+    unix-dgram: 2.x
   dependenciesMeta:
     unix-dgram:
       optional: true
-  checksum: a7feb39383d77033735fc02eb19ac088816ad663cce89f1fc41f1877b501e17d3744bd1e2e1529215de31a91db7bd564bf7592cb077f2a43ea5945dabdc49251
+  checksum: bfc874abcb6da71afe0fc3b63c5872e5b7183c1bbea83e9c6e4a4d3fe399567420057a8a3e090fa0c6689b0cfb24d15d917e6f627ad8e022c45240f2d2b17f28
   languageName: node
   linkType: hard
 
@@ -34598,6 +34598,15 @@ fsevents@~2.1.1:
   dependencies:
     node-gyp: latest
   checksum: b6692edb0a37a7e85f14a2cdb71ef467c00df17e56d8738746984c0219f36494d0d826094aaa1c58ef971ea63e58e2019b6af72cb03b986d38b9821779878824
+  languageName: node
+  linkType: hard
+
+"nan@npm:^2.16.0":
+  version: 2.17.0
+  resolution: "nan@npm:2.17.0"
+  dependencies:
+    node-gyp: latest
+  checksum: ec609aeaf7e68b76592a3ba96b372aa7f5df5b056c1e37410b0f1deefbab5a57a922061e2c5b369bae9c7c6b5e6eecf4ad2dac8833a1a7d3a751e0a7c7f849ed
   languageName: node
   linkType: hard
 
@@ -46154,14 +46163,14 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"unix-dgram@npm:2.0.x":
-  version: 2.0.4
-  resolution: "unix-dgram@npm:2.0.4"
+"unix-dgram@npm:2.x":
+  version: 2.0.6
+  resolution: "unix-dgram@npm:2.0.6"
   dependencies:
-    bindings: ^1.3.0
-    nan: ^2.13.2
+    bindings: ^1.5.0
+    nan: ^2.16.0
     node-gyp: latest
-  checksum: 2ff0d015687ebb3a04c25b372269a206bd627d50f62f0bdf945f7c1fb36cfca9a67b24b4b540f57f3cee1ed6243c34fdfd5eaa155121b22ae2d9e622b9bd442d
+  checksum: 0ab238726fd69e0a0174664225117b4575b40bd5df546c50a01de2fadf9da602c385ec8ff2f159607a127a6e7bf67628931903d43d286db27460b5abbe8cf8ac
   languageName: node
   linkType: hard
 
