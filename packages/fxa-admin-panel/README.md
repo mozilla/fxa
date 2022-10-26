@@ -18,6 +18,26 @@ The React dev server runs at [localhost:8092](http://localhost:8092/) which can 
 
 API calls are done through [Apollo Client](https://www.apollographql.com/docs/react/) with [GraphQL](https://graphql.org/learn/) to communicate with the `fxa-admin-server`. See [its documentation](https://github.com/mozilla/fxa/tree/main/packages/fxa-admin-server) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
 
+With the addition of subscriptions, running the Admin Panel now requires secrets to be set up in fxa-admin-server.
+
+**Option A: Set up Stripe Test Key**
+
+As documented in the [Subscription Platform documentation](https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#pre-development):
+
+> If you're a Mozilla employee, you can request access to the Stripe dev (and/or stage) account, created for the FxA Subscription Platform team to easily connect with fake products and plans. Otherwise, you can create your own Stripe account to use for testing that is not linked to any bank account information with your own products and plans. These keys should be taken from Stripe's test environment which you can verify by checking that the key includes the word test.
+
+Once you have a test key, replace the example key `sk-test_123` in [packages/fxa-admin-server/src/config/development.json](https://github.com/mozilla/fxa/blob/main/packages/fxa-admin-server/src/config/development.json)
+
+```
+"stripeApiKey": "sk-test_123"
+```
+
+You may need to restart the service after replacing the key.
+
+**Option B: Set stripe featureFlag to false**
+
+In [packages/fxa-admin-server/src/config/development.json](https://github.com/mozilla/fxa/blob/main/packages/fxa-admin-server/src/config/development.json), set the feature flag for Stripe to `false`, then restart the service.
+
 ## External imports
 
 You can import React components from other packages into this project. This is currently restricted to `fxa-react`:
