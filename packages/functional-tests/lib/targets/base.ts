@@ -24,5 +24,9 @@ export abstract class BaseTarget {
     return this.contentServerUrl;
   }
 
-  abstract createAccount(email: string, password: string): Promise<Credentials>;
+  abstract createAccount(
+    email: string,
+    password: string,
+    options?: any
+  ): Promise<Credentials>;
 }

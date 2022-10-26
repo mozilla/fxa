@@ -31,6 +31,56 @@ export const selectors = {
 export class LoginPage extends BaseLayout {
   readonly path = '';
 
+  readonly selectors = {
+    AGE: '#age',
+    DATA_TESTID: '[data-testid=logo]',
+    EMAIL: 'input[type=email]',
+    EMAIL_PREFILLED: '#prefillEmail',
+    EMAIL_HEADER: '#fxa-enter-email-header',
+    ERROR: '.error',
+    LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
+    LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
+    LINK_USE_DIFFERENT: '#use-different',
+    LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
+    NUMBER_INPUT: 'input[type=number]',
+    PASSWORD: '#password',
+    PASSWORD_HEADER: '#fxa-signin-password-header',
+    PASSWORD_INPUT: 'input[type=password]',
+    PERMISSIONS_HEADER: '#fxa-permissions-header',
+    RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
+    RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
+    SIGNIN_HEADER: '#fxa-signin-header',
+    SUBMIT: 'button[type=submit]',
+    SUBMIT_USER_SIGNED_IN: '#use-logged-in',
+    TEXT_INPUT: 'input[type=text]',
+    TOOLTIP: '.tooltip',
+    VPASSWORD: '#vpassword',
+    SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
+  };
+
+  get emailHeader() {
+    return this.page.locator(this.selectors.EMAIL_HEADER);
+  }
+
+  get passwordHeader() {
+    return this.page.locator(this.selectors.PASSWORD_HEADER);
+  }
+
+  get tooltip() {
+    return this.page.locator(this.selectors.TOOLTIP);
+  }
+
+  get submitButton() {
+    return this.page.locator(this.selectors.SUBMIT);
+  }
+
+  async fillOutEmailFirstSignIn(email, password) {
+    await this.setEmail(email);
+    await this.submit();
+    await this.setPassword(password);
+    await this.submit();
+  }
+
   async login(email: string, password: string, recoveryCode?: string) {
     // When running tests in parallel, playwright shares the storage state,
     // so we might not always be at the email first screen.
@@ -279,5 +329,20 @@ export class LoginPage extends BaseLayout {
         JSON.stringify(creds.uid)
       );
     }, credentials);
+  }
+
+  async getAccountFromFromLocalStorage(email: string) {
+    return await this.page.evaluate((email) => {
+      const accounts: Array<{ email: string; sessionToken: string }> =
+        JSON.parse(localStorage.getItem('__fxa_storage.accounts') || '{}');
+      return Object.values(accounts).find((x) => x.email === email);
+    }, email);
+  }
+
+  async destroySession(email: string) {
+    const account = await this.getAccountFromFromLocalStorage(email);
+    if (account?.sessionToken) {
+      return await this.target.auth.sessionDestroy(account.sessionToken);
+    }
   }
 }

@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
-  'tests/functional/connect_another_device.js',
   'tests/functional/fx_browser_relier.js',
   'tests/functional/fx_firstrun_v2.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/oauth_reset_password.js',
-  'tests/functional/oauth_sign_in_token_code.js',
   'tests/functional/oauth_sign_up.js',
   'tests/functional/oauth_sync_sign_in.js',
   'tests/functional/reset_password.js',
