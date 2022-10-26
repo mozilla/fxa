@@ -86,3 +86,14 @@ export function mockAppContext(context?: AppContextValue) {
     context
   ) as AppContextValue;
 }
+
+export function mockFlowContext(context?: FlowQueryParams) {
+  return Object.assign(
+    {
+      deviceId: 'x',
+      flowBeginTime: 1,
+      flowId: 'x',
+    },
+    context
+  )
+}
