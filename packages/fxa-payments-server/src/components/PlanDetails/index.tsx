@@ -80,66 +80,16 @@ export const PlanDetails = ({
     interval,
     interval_count
   );
-
+  
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-
-      try {
-        if (!invoicePreview) {
-          invoice.current = await apiInvoicePreview({
-            priceId: selectedPlan.plan_id,
-            promotionCode: coupon?.promotionCode as string,
-          });
-        }
-
-        setSubTotal(invoice.current!.subtotal);
-        setTotalAmount(invoice.current!.total);
-
-        if (invoice.current!.tax && invoice.current?.tax.amount) {
-          setTaxAmount(invoice.current!.tax.amount);
-        } else {
-          setTaxAmount(0);
-        }
-
-        if (invoice.current!.discount) {
-          setDiscountAmount(invoice.current!.discount.amount);
-        } else {
-          setDiscountAmount(0);
-        }
-
-        const price = formatPlanPricing(
-          totalAmount as unknown as number,
-          currency,
-          interval,
-          interval_count
-        );
-
-        setTotalPrice(price);
-        setLoading(false);
-      } catch (e: any) {
-        // gracefully fail/set the state according to the data we have
-        // if previewInvoice errors or if stripe tax is not enabled
-        setSubTotal(amount!);
-        if (coupon && coupon.discountAmount && amount) {
-          setDiscountAmount(coupon.discountAmount);
-          setTotalAmount(amount - coupon.discountAmount);
-        } else {
-          setDiscountAmount(0);
-          setTotalAmount(amount!);
-        }
-
-        const price = formatPlanPricing(
-          totalAmount as unknown as number,
-          currency,
-          interval,
-          interval_count
-        );
-
-        setTotalPrice(price);
-        setLoading(false);
-      }
-    })();
+    setLoading(true);
+  
+    apiInvoicePreview({
+      priceId: selectedPlan.plan_id,
+      promotionCode: coupon?.promotionCode as string,
+    }).then((invoice) => {
+      setInvoice(invoice);
+    });
   }, [
     amount,
     config.featureFlags.useStripeAutomaticTax,
@@ -151,6 +101,56 @@ export const PlanDetails = ({
     totalAmount,
     invoicePreview,
   ]);
+  
+  useEffect(() => {
+    if (invoice) {
+      setSubTotal(invoice.subtotal);
+      setTotalAmount(invoice.total);
+
+      if (invoice.tax && invoice.tax.amount) {
+        setTaxAmount(invoice.tax.amount);
+      } else {
+        setTaxAmount(0);
+      }
+
+      if (invoice.discount) {
+        setDiscountAmount(invoice.discount.amount);
+      } else {
+        setDiscountAmount(0);
+      }
+
+      const price = formatPlanPricing(
+        totalAmount as unknown as number,
+        currency,
+        interval,
+        interval_count
+      );
+
+      setTotalPrice(price);
+    } else {
+      // gracefully fail/set the state according to the data we have
+      // if previewInvoice errors or if stripe tax is not enabled
+      setSubTotal(amount!);
+      if (coupon && coupon.discountAmount && amount) {
+        setDiscountAmount(coupon.discountAmount);
+        setTotalAmount(amount - coupon.discountAmount);
+      } else {
+        setDiscountAmount(0);
+        setTotalAmount(amount!);
+      }
+
+      const price = formatPlanPricing(
+        totalAmount as unknown as number,
+        currency,
+        interval,
+        interval_count
+      );
+
+      setTotalPrice(price);
+    }
+    
+    setLoading(false);
+  }, [invoice]);
 
   return (
     <div
