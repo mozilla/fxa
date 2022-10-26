@@ -76,7 +76,7 @@
     "esbuild-register": "^3.2.0",
     "eslint": "^8.18.0",
     "jest": "27.5.1",
-    "pm2": "^5.1.2",
+    "pm2": "^5.2.2",
     "supertest": "^6.3.0",
     "ts-jest": "^29.0.0",
     "typescript": "^4.8.2",
