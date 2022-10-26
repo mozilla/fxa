@@ -220,6 +220,7 @@ const Router = Backbone.Router.extend({
       const {
         broker,
         context: ctx,
+        experiments,
         isSampledUser,
         service,
         uniqueUserId,
@@ -246,6 +247,7 @@ const Router = Backbone.Router.extend({
         context: ctx,
         isSampledUser,
         service,
+        showNewReactApp: experiments.includes('generalizedReactApp'),
         uniqueUserId,
       })}`;
       this.navigateAway(settingsLink);
