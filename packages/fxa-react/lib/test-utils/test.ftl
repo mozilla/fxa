@@ -1,0 +1,11 @@
+-term = Mozilla
+test-simple = Simple and clean
+test-missing-message =
+test-missing-message-attrs =
+  .header =
+test-attrs =
+  .header = When you walk away
+test-straight-apostrophe = you don't hear me say
+test-straight-quote = "please, don’t go"
+test-var = { $name } smiled at me
+test-term = Lately, { -term } is all I need

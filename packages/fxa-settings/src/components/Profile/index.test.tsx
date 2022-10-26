@@ -6,28 +6,30 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { Profile } from '.';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
-import { Account, AppContext } from '../../models';
+import { AppContext } from '../../models';
+import { MOCK_PROFILE_EMPTY } from './mocks';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { FluentBundle } from '@fluent/bundle';
 
-const account = {
-  avatar: { url: null, id: null },
-  primaryEmail: {
-    email: 'vladikoff@mozilla.com',
-  },
-  emails: [],
-  displayName: 'Vlad',
-} as unknown as Account;
-
-// todo:
-// add test cases for different states, including secondary email
 describe('Profile', () => {
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('settings');
+  });
+
   it('renders "fresh load" <Profile/> with correct content', async () => {
-    const { findByText } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: MOCK_PROFILE_EMPTY })}
+      >
         <Profile />
       </AppContext.Provider>
     );
+    testAllL10n(screen, bundle);
 
-    expect(await findByText('Vlad')).toBeTruthy();
-    expect(await findByText('vladikoff@mozilla.com')).toBeTruthy();
+    await screen.findByAltText('Default avatar');
+    expect(await screen.findAllByText('None')).toHaveLength(2);
+    await screen.findByText('johndope@example.com');
   });
 });

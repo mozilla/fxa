@@ -17,6 +17,7 @@ import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Localized, useLocalization } from '@fluent/react';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -154,7 +155,7 @@ export const BentoMenu = () => {
                   </li>
                 </ul>
               </div>
-              <Localized id="bento-menu-made-by-mozilla">
+              <FtlMsg id="bento-menu-made-by-mozilla">
                 <LinkExternal
                   data-testid="mozilla-link"
                   className="link-blue text-xs w-full text-center block m-2 p-2 hover:bg-grey-100"
@@ -162,7 +163,7 @@ export const BentoMenu = () => {
                 >
                   Made by Mozilla
                 </LinkExternal>
-              </Localized>
+              </FtlMsg>
             </div>
           </div>
         </div>
