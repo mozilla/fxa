@@ -25565,7 +25565,7 @@ fsevents@~2.1.1:
     semver: ^7.3.5
     stylelint: ^14.14.0
     stylelint-config-prettier: ^9.0.3
-    stylelint-config-recommended-scss: ^7.0.0
+    stylelint-config-recommended-scss: ^8.0.0
   languageName: unknown
   linkType: soft
 
@@ -43938,25 +43938,29 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended-scss@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "stylelint-config-recommended-scss@npm:7.0.0"
+"stylelint-config-recommended-scss@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "stylelint-config-recommended-scss@npm:8.0.0"
   dependencies:
     postcss-scss: ^4.0.2
-    stylelint-config-recommended: ^8.0.0
+    stylelint-config-recommended: ^9.0.0
     stylelint-scss: ^4.0.0
   peerDependencies:
-    stylelint: ^14.4.0
-  checksum: 978d3298a1b4d7d0fcc258298c688f4748373092f097733a0bcf24d60ced47b46d9b03c79fe73b88f981219efca8ce27756e870e3e7a2abcac838952b088a8df
+    postcss: ^8.3.3
+    stylelint: ^14.10.0
+  peerDependenciesMeta:
+    postcss:
+      optional: true
+  checksum: 9680c6709239229fbf988529b7fd2cb751feca29cecbcf1054ce136807c031e2e089b94aa4d193fc2dc60410774145e6800210ebb5f72af9c553c4fc4a26a0cd
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "stylelint-config-recommended@npm:8.0.0"
+"stylelint-config-recommended@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "stylelint-config-recommended@npm:9.0.0"
   peerDependencies:
-    stylelint: ^14.8.0
-  checksum: 0c5ca94625e5308a7afb8315bb350a2b48f46fdd8d8922dd9a8c2e37b3407f2294794d930726ad6bf2007abcde1abd34084808cf83adf150efe3a643e0eb5ac4
+    stylelint: ^14.10.0
+  checksum: 6d94582cb6ef0ba7d0181f0ff500fb12092e465915730d0a7f6b6e8d16e8c920658f18bb2c670115cd177f5d3b481609ff3a91bcee083d546ae31d94fdc03261
   languageName: node
   linkType: hard
 
