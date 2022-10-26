@@ -246,6 +246,10 @@ const ERRORS = {
     message:
       'This request requires two step authentication enabled on your account.',
   },
+  RECOVERY_KEY_ALREADY_EXISTS: {
+    errno: 161,
+    message: 'Account recovery key already exists.',
+  },
   REDIS_CONFLICT: {
     errno: 165,
     message: 'Failed due to a conflicting request, please try again.',
