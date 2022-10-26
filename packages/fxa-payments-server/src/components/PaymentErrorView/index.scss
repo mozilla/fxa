@@ -8,4 +8,9 @@
 
 .payment-error {
   @include checkout-view();
+
+  // temporary fix and will be removed after FXA-5620
+  p {
+    margin-bottom: 1rem;
+  }
 }

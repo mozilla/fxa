@@ -9,7 +9,7 @@ export default {
   component: PaymentErrorView,
 } as Meta;
 
-const storyWithContext = (storyName?: string) => {
+const storyWithProps = () => {
   const story = () => (
     <BrowserRouter>
       <Routes>
@@ -27,8 +27,7 @@ const storyWithContext = (storyName?: string) => {
     </BrowserRouter>
   );
 
-  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Default = storyWithContext('default');
+export const Default = storyWithProps();

@@ -12,6 +12,7 @@ import './index.scss';
 import { Plan } from '../../store/types';
 import PaymentLegalBlurb from '../PaymentLegalBlurb';
 import AppContext from '../../lib/AppContext';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type PaymentErrorViewProps = {
   actionFn: VoidFunction;
@@ -50,6 +51,18 @@ const manageSubButtonFn = (onClick: VoidFunction) => {
   );
 };
 
+const iapStopUpgradeSubButtonFn = () => {
+  return (
+    <LinkExternal
+      data-testid="iap-upgrade-get-help-button"
+      className="button primary-button mb-10"
+      href="https://support.mozilla.org/kb/upgrade-error"
+    >
+      <Localized id="iap-upgrade-get-help-button">Get help</Localized>
+    </LinkExternal>
+  );
+};
+
 export const PaymentErrorView = ({
   actionFn,
   plan,
@@ -70,16 +83,63 @@ export const PaymentErrorView = ({
         return manageSubButtonFn(() => navigate('/subscriptions'));
       case 'iap_already_subscribed':
         return manageSubButtonFn(actionFn);
+      case 'iap_upgrade_contact_support':
+        return iapStopUpgradeSubButtonFn();
       default:
         return retryButtonFn(actionFn);
     }
   };
 
+  // We want to know which layout to display
+  const screenType = () => {
+    switch (error?.code) {
+      case 'iap_upgrade_contact_support':
+        return 'iaperrorupgrade';
+      case 'iap_already_subscribed':
+      default:
+        return 'error';
+    }
+  };
+
   const title = subscriptionTitle ?? (
-    <SubscriptionTitle screenType="error" className={className} />
+    <SubscriptionTitle screenType={screenType()} className={className} />
   );
 
   const productName = plan.product_name;
+
+  // Returns an array of localized errors, opening the door for multiline
+  // without having to retranslate whole blocks for one word or one line changes.
+  // Currently hardcodes l10n ids for iap subscription upgrade roadblock error
+  // as per https://mozilla-hub.atlassian.net/browse/FXA-5480 (full refactor out of scope)
+  // Issue filed to refactor and dynamically add ids: https://mozilla-hub.atlassian.net/browse/FXA-6100
+  const PaymentErrorMessage = () => {
+    const l10nIds: string[] = [];
+    const errorMessage: any[] = [];
+
+    getErrorMessage(error) === 'iap-upgrade-contact-support'
+      ? l10nIds.push(
+          'iap-upgrade-already-subscribed',
+          'iap-upgrade-no-bundle-support',
+          'iap-upgrade-contact-support'
+        )
+      : l10nIds.push(getErrorMessage(error));
+
+    for (const [idx, l10nId] of l10nIds.entries()) {
+      errorMessage.push(
+        <Localized
+          key={idx}
+          id={l10nId}
+          vars={{ productName, ...contentProps }}
+        >
+          <p className="mb-4" data-testid="error-payment-submission">
+            {l10nId}
+          </p>
+        </Localized>
+      );
+    }
+
+    return <div className="py-0 px-7 desktop:px-24">{errorMessage}</div>;
+  };
 
   return error ? (
     <>
@@ -88,21 +148,9 @@ export const PaymentErrorView = ({
         className={`payment-error row-start-3 row-end-4 mx-4 tablet:mt-0 ${className}`}
         data-testid="payment-error"
       >
-        <div className="wrapper mb-16">
+        <div className="wrapper mb-12">
           <img className="mt-16 mb-10 mx-auto" src={errorIcon} alt="" />
-          <div>
-            <Localized
-              id={getErrorMessage(error)}
-              vars={{ productName, ...contentProps }}
-            >
-              <p
-                className="py-0 px-7 desktop:px-24"
-                data-testid="error-payment-submission"
-              >
-                {getErrorMessage(error)}
-              </p>
-            </Localized>
-          </div>
+          <PaymentErrorMessage />
         </div>
 
         <div className="footer" data-testid="footer">

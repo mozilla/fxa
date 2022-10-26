@@ -140,6 +140,30 @@ describe('routes/Product', () => {
       }),
   ];
 
+  const initSubscribedIapApiMocks = ({
+    mockProfile = MOCK_PROFILE,
+    mockPlans = MOCK_PLANS,
+    mockCustomer = MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+  } = {}) => [
+    nock(profileServer)
+      .get('/v1/profile')
+      .reply(200, mockProfile, { 'Access-Control-Allow-Origin': '*' }),
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/plans')
+      .reply(200, mockPlans, { 'Access-Control-Allow-Origin': '*' }),
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, mockCustomer, {
+        'Access-Control-Allow-Origin': '*',
+      }),
+    nock(authServer)
+      .persist()
+      .get(
+        '/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/nextlevel'
+      )
+      .reply(200, { eligibility: 'blocked_iap' }),
+  ];
+
   it('renders with product ID and display name', async () => {
     const displayName = 'Foo Barson';
     const apiMocks = initApiMocks(displayName);
@@ -368,13 +392,19 @@ describe('routes/Product', () => {
   });
 
   it('displays roadblock for an IAP subscribed product', async () => {
-    const apiMocks = initSubscribedApiMocks({
+    const apiMocks = initSubscribedIapApiMocks({
       mockCustomer: {
         ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
         subscriptions: [
           {
             _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
             product_id: PRODUCT_ID,
+            auto_renewing: true,
+            expiry_time_millis: Date.now(),
+            package_name: 'org.mozilla.cooking.with.foxkeh',
+            sku: 'org.mozilla.foxkeh.yearly',
+            product_name: 'Cooking with Foxkeh',
+            price_id: 'nextlevel',
           },
         ],
       },

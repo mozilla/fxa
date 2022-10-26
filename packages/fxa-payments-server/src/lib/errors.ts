@@ -54,6 +54,7 @@ const errorToErrorMessageMap: { [key: string]: string } = {
   'Changing currencies is not permitted.': 'currency-currency-mismatch',
   no_subscription_change: 'no-subscription-change',
   iap_already_subscribed: 'iap-already-subscribed',
+  iap_upgrade_contact_support: 'iap-upgrade-contact-support',
 };
 
 const cardErrors = ['card_declined', 'incorrect_cvc'];

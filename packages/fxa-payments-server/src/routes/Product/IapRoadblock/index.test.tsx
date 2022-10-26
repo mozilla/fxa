@@ -25,26 +25,51 @@ const MOCK_PROPS: IapRoadblockProps = {
   isMobile: false,
   subscription,
   customer: MOCK_CUSTOMER as Customer,
-};
-
-const Subject = () => {
-  return (
-    <MockApp>
-      <SignInLayout>
-        <IapRoadblock {...MOCK_PROPS} />
-      </SignInLayout>
-    </MockApp>
-  );
+  code: 'iap_already_subscribed',
 };
 
 describe('routes/Product/IapRoadblock', () => {
   it('renders as expected', async () => {
-    const { findByTestId } = render(<Subject />);
+    const subject = () => {
+      return render(
+        <MockApp>
+          <SignInLayout>
+            <IapRoadblock {...MOCK_PROPS} />
+          </SignInLayout>
+        </MockApp>
+      );
+    };
+
+    const { findByTestId } = subject();
     const titleEl = await findByTestId('subscription-iapsubscribed-title');
     expect(titleEl).toBeInTheDocument();
     const errorEl = await findByTestId('payment-error');
     expect(errorEl).toBeInTheDocument();
     const actionButton = await findByTestId('manage-subscription-link');
+    expect(actionButton).toBeInTheDocument();
+    const detailsEl = await findByTestId('plan-details-component');
+    expect(detailsEl).toBeInTheDocument();
+  });
+
+  it('displays messaging to contact support for help in upgrading', async () => {
+    const subject = () => {
+      return render(
+        <MockApp>
+          <SignInLayout>
+            <IapRoadblock
+              {...{ ...MOCK_PROPS, code: 'iap_upgrade_contact_support' }}
+            />
+          </SignInLayout>
+        </MockApp>
+      );
+    };
+
+    const { findByTestId } = subject();
+    const titleEl = await findByTestId('subscription-iaperrorupgrade-title');
+    expect(titleEl).toBeInTheDocument();
+    const errorEl = await findByTestId('payment-error');
+    expect(errorEl).toBeInTheDocument();
+    const actionButton = await findByTestId('iap-upgrade-get-help-button');
     expect(actionButton).toBeInTheDocument();
     const detailsEl = await findByTestId('plan-details-component');
     expect(detailsEl).toBeInTheDocument();

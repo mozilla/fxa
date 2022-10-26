@@ -20,17 +20,19 @@ export type IapRoadblockProps = {
   profile: Profile;
   customer: Customer;
   selectedPlan: Plan;
-  subscription: IapSubscription;
+  subscription?: IapSubscription;
+  code: string;
 };
 
 const getIapSubscriptionAppStoreL10Id = (
   s: IapRoadblockProps['subscription']
 ) => {
-  switch (s._subscription_type) {
-    case MozillaSubscriptionTypes.IAP_GOOGLE:
-      return 'brand-name-google-play';
-    case MozillaSubscriptionTypes.IAP_APPLE:
-      return 'brand-name-apple-app-store';
+  if (s && s._subscription_type === MozillaSubscriptionTypes.IAP_GOOGLE) {
+    return 'brand-name-google-play';
+  } else if (s && s._subscription_type === MozillaSubscriptionTypes.IAP_APPLE) {
+    return 'brand-name-apple-app-store';
+  } else {
+    return ''; // if s is undefined return empty string
   }
 };
 
@@ -39,19 +41,29 @@ export const IapRoadblock = ({
   isMobile,
   selectedPlan,
   subscription,
+  code,
 }: IapRoadblockProps) => {
   const { l10n } = useLocalization();
-  const mobileAppStore = l10n.getString(
-    getIapSubscriptionAppStoreL10Id(subscription)
-  );
-  const appStoreLink = getIapSubscriptionManagementUrl(subscription);
+  let mobileAppStore = '';
+  let manageSubscription: VoidFunction = () => {};
+
+  if (subscription !== undefined) {
+    mobileAppStore = l10n.getString(
+      getIapSubscriptionAppStoreL10Id(subscription)
+    );
+
+    const appStoreLink = getIapSubscriptionManagementUrl(subscription);
+    manageSubscription = () => (window.location.href = appStoreLink);
+  }
+
+  const screenType =
+    code === 'iap_upgrade_contact_support'
+      ? 'iaperrorupgrade'
+      : 'iapsubscribed';
   const subtitle = <p />;
   const title = (
-    <SubscriptionTitle screenType="iapsubscribed" subtitle={subtitle} />
+    <SubscriptionTitle screenType={screenType} subtitle={subtitle} />
   );
-
-  const manageSubscription: VoidFunction = () =>
-    (window.location.href = appStoreLink);
 
   return (
     <>
@@ -60,7 +72,7 @@ export const IapRoadblock = ({
         <PaymentErrorView
           {...{
             subscriptionTitle: title,
-            error: { code: 'iap_already_subscribed' },
+            error: { code },
             actionFn: manageSubscription,
             plan: selectedPlan,
             contentProps: { mobileAppStore },

@@ -2,7 +2,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../../.storybook/components/MockApp';
 import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
-
 import { SignInLayout } from '../../../components/AppLayout';
 
 import {
@@ -21,6 +20,7 @@ const MOCK_PROPS: IapRoadblockProps = {
   profile: PROFILE,
   selectedPlan: SELECTED_PLAN,
   subscription: IAP_GOOGLE_SUBSCRIPTION,
+  code: 'iap_already_subscribed',
 };
 
 const IapRoadblockView = ({
@@ -51,6 +51,14 @@ function init() {
         props={{
           ...MOCK_PROPS,
           subscription: IAP_APPLE_SUBSCRIPTION,
+        }}
+      />
+    ))
+    .add('Mozilla support needed for upgrade', () => (
+      <IapRoadblockView
+        props={{
+          ...MOCK_PROPS,
+          code: 'iap_upgrade_contact_support',
         }}
       />
     ));

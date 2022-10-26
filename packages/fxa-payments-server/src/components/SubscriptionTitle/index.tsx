@@ -9,6 +9,7 @@ export const titles = {
   error: 'Error confirming subscription…',
   noplanchange: 'This subscription plan change is not supported',
   iapsubscribed: 'Already subscribed',
+  iaperrorupgrade: 'We can’t upgrade you quite yet',
 } as const;
 
 export type SubscriptionTitleProps = {

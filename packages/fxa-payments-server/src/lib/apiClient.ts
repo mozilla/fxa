@@ -149,6 +149,13 @@ export async function apiFetchCustomer(): Promise<Customer> {
   );
 }
 
+export async function apiFetchPlanUpgradeEligibility(planId: string) {
+  return apiFetch(
+    'GET',
+    `${config.servers.auth.url}/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`
+  );
+}
+
 export async function apiUpdateSubscriptionPlan(params: {
   subscriptionId: string;
   planId: string;
