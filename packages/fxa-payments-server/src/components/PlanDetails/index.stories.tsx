@@ -8,6 +8,7 @@ import PlanDetails, { PlanDetailsProps } from './index';
 import { Profile } from '../../store/types';
 import { COUPON_DETAILS_VALID } from '../../lib/mock-data';
 import { Meta } from '@storybook/react';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export default {
   title: 'components/PlanDetails',
@@ -53,9 +54,35 @@ const selectedPlan = {
   },
 };
 
+const invoicePreviewNoTax: FirstInvoicePreview = {
+  subtotal: 935,
+  total: 935,
+  line_items: [],
+};
+
+const invoicePreviewInclusiveTax: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 885,
+  total: 935,
+  tax: {
+    amount: 50,
+    inclusive: true,
+  },
+};
+const invoicePreviewExclusiveTax: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 935,
+  total: 985,
+  tax: {
+    amount: 50,
+    inclusive: false,
+  },
+};
+
 const storyWithProps = (
   plan: PlanDetailsProps,
-  languages?: readonly string[]
+  languages?: readonly string[],
+  invoicePreview?: FirstInvoicePreview
 ) => {
   const story = () => (
     <MockApp languages={languages}>
@@ -63,6 +90,7 @@ const storyWithProps = (
         {...{
           ...plan,
           profile: userProfile,
+          invoicePreview: invoicePreview || invoicePreviewNoTax,
         }}
       />
     </MockApp>
@@ -74,6 +102,20 @@ export const Default = storyWithProps({
   selectedPlan,
   isMobile: false,
   showExpandButton: false,
+});
+
+export const DefaulWithInclusiveTax = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+  invoicePreview: invoicePreviewInclusiveTax,
+});
+
+export const DefaulWithExclusiveTax = storyWithProps({
+  selectedPlan,
+  isMobile: false,
+  showExpandButton: false,
+  invoicePreview: invoicePreviewExclusiveTax,
 });
 
 export const LocalizedToPirate = storyWithProps(

@@ -124,6 +124,7 @@ const mockConfig = {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
+    stripeAutomaticTax: { enabled: false },
   },
   subhub: {
     enabled: true,
@@ -1764,13 +1765,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
@@ -1799,13 +1804,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
@@ -2042,6 +2051,82 @@ describe('StripeHelper', () => {
         });
       } catch (e) {
         assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
+    });
+  });
+
+  describe('previewInvoice', () => {
+    it('uses country when automatic tax is not enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(stripeHelper, 'taxRateByCountryCode').resolves();
+
+      await stripeHelper.previewInvoice({
+        automaticTax: false,
+        country: 'US',
+        ipAddress: '1.1.1.1',
+        priceId: 'priceId',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        customer_details: {
+          address: {
+            country: 'US',
+          },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+      });
+    });
+
+    it('uses ipAddress when automatic tax is enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+
+      await stripeHelper.previewInvoice({
+        automaticTax: true,
+        country: 'US',
+        ipAddress: '1.1.1.1',
+        priceId: 'priceId',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        automatic_tax: {
+          enabled: true,
+        },
+        customer_details: {
+          tax: {
+            ip_address: '1.1.1.1',
+          },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+      });
+    });
+
+    it('logs when there is an error when automatic tax is enabled', async () => {
+      // const logStub = sandbox.stub(stripeHelper.log, 'warn');
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .throws(new Error());
+
+      try {
+        await stripeHelper.previewInvoice({
+          automaticTax: true,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          priceId: 'priceId',
+        });
+      } catch (e) {
+        sinon.assert.calledOnce(stripeHelper.log.warn);
       }
     });
   });

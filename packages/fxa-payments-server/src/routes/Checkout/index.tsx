@@ -132,6 +132,7 @@ export const Checkout = ({
   useEffect(() => {
     fetchCheckoutRouteResources();
   }, [fetchCheckoutRouteResources]);
+
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
   const signInQueryParams = { ...queryParams, signin: 'yes' };
