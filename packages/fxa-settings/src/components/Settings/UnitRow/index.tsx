@@ -143,7 +143,7 @@ export const UnitRow = ({
           <h3
             data-testid={formatDataTestId('unit-row-header')}
             id={headerId}
-            className="scroll-mt-32"
+            className="scroll-mt-32 break-word"
           >
             {header}
           </h3>
