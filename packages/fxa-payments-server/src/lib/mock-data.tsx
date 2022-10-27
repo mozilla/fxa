@@ -232,6 +232,16 @@ export const MOCK_GENERAL_PAYPAL_ERROR = {
   code: 'general-paypal-error',
 };
 
+export const MOCK_CURRENCY_ERROR = {
+  code: '400',
+  errno: 130,
+  error: 'Bad Request',
+  message: 'Funding source country does not match plan currency.',
+  info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
+  currency: 'usd',
+  country: 'RO',
+};
+
 export const IAP_GOOGLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: 'prod_123',
