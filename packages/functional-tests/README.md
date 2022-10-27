@@ -43,7 +43,7 @@ test('mocha tests', async ({ target, page }, info) => {
 
 We have a standard [fixture](https://playwright.dev/docs/test-fixtures) for the most common kind of tests.
 
-It's job is to:
+Its job is to:
 
 - Connect to the target environment
 - Create and verify an account for each test

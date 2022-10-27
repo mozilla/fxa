@@ -108,9 +108,16 @@ export class LoginPage extends BaseLayout {
     }
   }
 
-  async fillOutFirstSignUp(email: string, password: string, verify = true) {
-    await this.setEmail(email);
-    await this.submit();
+  async fillOutFirstSignUp(
+    email: string,
+    password: string,
+    verify = true,
+    enterEmail = true
+  ) {
+    if (enterEmail) {
+      await this.setEmail(email);
+      await this.submit();
+    }
     await this.page.fill(selectors.PASSWORD, password);
     await this.page.fill(selectors.VPASSWORD, password);
     await this.page.fill(selectors.AGE, '24');
@@ -166,6 +173,10 @@ export class LoginPage extends BaseLayout {
     const error = this.page.locator(selectors.ERROR);
     await error.waitFor();
     return error.textContent();
+  }
+
+  async getUseDifferentAccountLink() {
+    return this.page.locator(selectors.LINK_USE_DIFFERENT);
   }
 
   async useDifferentAccountLink() {
@@ -279,6 +290,10 @@ export class LoginPage extends BaseLayout {
 
   async getPrefilledEmail() {
     return this.page.innerText(selectors.EMAIL_PREFILLED);
+  }
+
+  async getEmailInputElement() {
+    return this.page.locator(selectors.EMAIL);
   }
 
   async getEmailInput() {
