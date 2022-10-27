@@ -2744,6 +2744,33 @@ export class StripeHelper extends StripeHelperBase {
 
     const productPaymentCycleNew = this.stripePlanToPaymentCycle(planNew);
 
+    // During upgrades it's possible that an invoice isn't created when the
+    // subscription is updated. Instead there will be pending invoice items
+    // which will be added to next invoice once its generated.
+    // For more info see https://stripe.com/docs/api/subscriptions/update
+    let upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined;
+    try {
+      const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+        customer: customer.id,
+        subscription: subscription.id,
+      });
+      // Only use upcomingInvoice if there are `invoiceitems`
+      upcomingInvoiceWithInvoiceitem = upcomingInvoice?.lines.data.some(
+        (line) => line.type === 'invoiceitem'
+      )
+        ? upcomingInvoice
+        : undefined;
+    } catch (error) {
+      if (
+        error.type === 'StripeInvalidRequestError' &&
+        error.code === 'invoice_upcoming_none'
+      ) {
+        upcomingInvoiceWithInvoiceitem = undefined;
+      } else {
+        throw error;
+      }
+    }
+
     const baseDetails = {
       uid,
       email,
@@ -2773,7 +2800,8 @@ export class StripeHelper extends StripeHelperBase {
       return this.extractSubscriptionUpdateCancellationDetailsForEmail(
         subscription,
         baseDetails,
-        invoice
+        invoice,
+        upcomingInvoiceWithInvoiceitem
       );
     } else if (cancelAtPeriodEndOld && !cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateReactivationDetailsForEmail(
@@ -2785,6 +2813,7 @@ export class StripeHelper extends StripeHelperBase {
         subscription,
         baseDetails,
         invoice,
+        upcomingInvoiceWithInvoiceitem,
         productOrderNew,
         planOld
       );
@@ -2801,7 +2830,8 @@ export class StripeHelper extends StripeHelperBase {
   async extractSubscriptionUpdateCancellationDetailsForEmail(
     subscription: Stripe.Subscription,
     baseDetails: any,
-    invoice: Stripe.Invoice
+    invoice: Stripe.Invoice,
+    upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined
   ) {
     const { current_period_end: serviceLastActiveDate } = subscription;
 
@@ -2820,7 +2850,7 @@ export class StripeHelper extends StripeHelperBase {
       total: invoiceTotalInCents,
       currency: invoiceTotalCurrency,
       created: invoiceDate,
-    } = invoice;
+    } = upcomingInvoiceWithInvoiceitem || invoice;
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
@@ -2834,6 +2864,7 @@ export class StripeHelper extends StripeHelperBase {
       invoiceTotalInCents,
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
+      showOutstandingBalance: !!upcomingInvoiceWithInvoiceitem,
       productMetadata,
       planConfig,
     };
@@ -2956,6 +2987,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
+    upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined,
     productOrderNew: string,
     planOld: Stripe.Plan
   ) {
@@ -2963,8 +2995,22 @@ export class StripeHelper extends StripeHelperBase {
       id: invoiceId,
       number: invoiceNumber,
       currency: paymentProratedCurrency,
-      amount_due: paymentProratedInCents,
     } = invoice;
+
+    // Using stripes default proration behaviour
+    // (https://stripe.com/docs/billing/subscriptions/upgrade-downgrade#immediate-payment)
+    // an invoice is only created at time of upgrade, if the billing period changes.
+    // In the case that the billing period is the same, we sum the pending invoiceItems
+    // retrieved in upcomingInvoiceWithInvoiceitem.
+    // The actual recuring charge, for the next billing cycle, shows up as a type = 'subscription'
+    // line item.
+    const onetimePaymentAmount = upcomingInvoiceWithInvoiceitem
+      ? upcomingInvoiceWithInvoiceitem.lines.data.reduce(
+          (acc, line) =>
+            line.type === 'invoiceitem' ? acc + line.amount : acc,
+          0
+        )
+      : invoice.amount_due;
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
@@ -2997,7 +3043,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountOldCurrency,
       invoiceNumber,
       invoiceId,
-      paymentProratedInCents,
+      paymentProratedInCents: onetimePaymentAmount,
       paymentProratedCurrency,
     };
   }

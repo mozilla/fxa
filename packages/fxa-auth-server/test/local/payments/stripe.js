@@ -5430,7 +5430,11 @@ describe('StripeHelper', () => {
         }
       }
 
-      it('calls the expected helper method for cancellation', async () => {
+      it('calls the expected helper method for cancellation, with retrieveUpcoming error', async () => {
+        const error = new Error('Stripe error');
+        error.type = 'StripeInvalidRequestError';
+        error.code = 'invoice_upcoming_none';
+        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(error);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = { cancel_at_period_end: false };
@@ -5443,7 +5447,55 @@ describe('StripeHelper', () => {
           'extractSubscriptionUpdateCancellationDetailsForEmail',
           event.data.object,
           expectedBaseUpdateDetails,
-          mockInvoice
+          mockInvoice,
+          undefined
+        );
+      });
+
+      it('rejects if invoices.retrieveUpcoming errors with unexpected error', async () => {
+        const error = new Error('Stripe error');
+        error.type = 'unexpected';
+        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(error);
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = true;
+        event.data.previous_attributes = { cancel_at_period_end: false };
+        try {
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        } catch (err) {
+          assert.equal(err.type, 'unexpected');
+        }
+        assert.isTrue(
+          stripeHelper['extractSubscriptionUpdateCancellationDetailsForEmail']
+            .notCalled
+        );
+      });
+
+      it('calls the expected helper method for cancellation', async () => {
+        const mockInvoiceUpcomingWithData = {
+          ...mockInvoiceUpcoming,
+          lines: {
+            data: [{ type: 'invoiceitem' }],
+          },
+        };
+        mockStripe.invoices.retrieveUpcoming = sinon
+          .stub()
+          .resolves(mockInvoiceUpcomingWithData);
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = true;
+        event.data.previous_attributes = { cancel_at_period_end: false };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        assert.equal(result, mockCancellationDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateCancellationDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails,
+          mockInvoice,
+          mockInvoiceUpcomingWithData
         );
       });
 
@@ -5481,6 +5533,7 @@ describe('StripeHelper', () => {
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
+          undefined,
           event.data.object.plan.metadata.productOrder,
           oldPlan
         );
@@ -5504,6 +5557,7 @@ describe('StripeHelper', () => {
           event.data.object,
           expectedBaseUpdateDetails,
           mockInvoice,
+          undefined,
           event.data.object.plan.metadata.productOrder,
           oldPlan
         );
@@ -5526,7 +5580,8 @@ describe('StripeHelper', () => {
           'extractSubscriptionUpdateCancellationDetailsForEmail',
           event.data.object,
           { ...expectedBaseUpdateDetails, planConfig: mockPlanConfig },
-          mockInvoice
+          mockInvoice,
+          undefined
         );
       });
     });
@@ -5539,88 +5594,100 @@ describe('StripeHelper', () => {
     const productDownloadURLNew = 'http://example.com/download-new';
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
-      const commonTest = (isUpgrade) => async () => {
-        const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const productIdOld = event.data.previous_attributes.plan.product;
-        const productIdNew = event.data.object.plan.product;
+      const commonTest =
+        (
+          isUpgrade,
+          upcomingInvoice = undefined,
+          expectedPaymentProratedInCents
+        ) =>
+        async () => {
+          const event = deepCopy(eventCustomerSubscriptionUpdated);
+          const productIdOld = event.data.previous_attributes.plan.product;
+          const productIdNew = event.data.object.plan.product;
 
-        const baseDetails = {
-          ...expectedBaseUpdateDetails,
-          productIdNew,
-          productNameNew,
-          productIconURLNew,
-          productMetadata: {
-            ...expectedBaseUpdateDetails.productMetadata,
-            emailIconURL: productIconURLNew,
-            successActionButtonURL: productDownloadURLNew,
-          },
-        };
-
-        mockAllAbbrevProducts.push(
-          {
-            product_id: productIdOld,
-            product_name: productNameOld,
-            product_metadata: {
-              ...mockProduct.metadata,
-              emailIconUrl: productIconURLOld,
-              successActionButtonURL: productDownloadURLOld,
-            },
-          },
-          {
-            product_id: productIdNew,
-            product_name: productNameNew,
-            product_metadata: {
-              ...mockProduct.metadata,
-              emailIconUrl: productIconURLNew,
+          const baseDetails = {
+            ...expectedBaseUpdateDetails,
+            productIdNew,
+            productNameNew,
+            productIconURLNew,
+            productMetadata: {
+              ...expectedBaseUpdateDetails.productMetadata,
+              emailIconURL: productIconURLNew,
               successActionButtonURL: productDownloadURLNew,
             },
-          }
-        );
-        mockAllAbbrevPlans.unshift(
-          {
-            ...event.data.previous_attributes.plan,
-            plan_id: event.data.previous_attributes.plan.id,
-            product_id: productIdOld,
-          },
-          {
-            ...event.data.object.plan,
-            plan_id: event.data.object.plan.id,
-            product_id: productIdNew,
-          }
-        );
+          };
 
-        event.data.object.plan.metadata.productOrder = isUpgrade ? 2 : 1;
-        event.data.previous_attributes.plan.metadata.productOrder = isUpgrade
-          ? 1
-          : 2;
-
-        const result =
-          await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
-            event.data.object,
-            baseDetails,
-            mockInvoice,
-            event.data.object.plan.metadata.productOrder,
-            event.data.previous_attributes.plan
+          mockAllAbbrevProducts.push(
+            {
+              product_id: productIdOld,
+              product_name: productNameOld,
+              product_metadata: {
+                ...mockProduct.metadata,
+                emailIconUrl: productIconURLOld,
+                successActionButtonURL: productDownloadURLOld,
+              },
+            },
+            {
+              product_id: productIdNew,
+              product_name: productNameNew,
+              product_metadata: {
+                ...mockProduct.metadata,
+                emailIconUrl: productIconURLNew,
+                successActionButtonURL: productDownloadURLNew,
+              },
+            }
+          );
+          mockAllAbbrevPlans.unshift(
+            {
+              ...event.data.previous_attributes.plan,
+              plan_id: event.data.previous_attributes.plan.id,
+              product_id: productIdOld,
+            },
+            {
+              ...event.data.object.plan,
+              plan_id: event.data.object.plan.id,
+              product_id: productIdNew,
+            }
           );
 
-        assert.deepEqual(result, {
-          ...baseDetails,
-          productIdNew,
-          updateType:
-            SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
-          productIdOld,
-          productNameOld,
-          productIconURLOld,
-          productPaymentCycleOld: event.data.previous_attributes.plan.interval,
-          paymentAmountOldCurrency:
-            event.data.previous_attributes.plan.currency,
-          paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
-          paymentProratedCurrency: mockInvoice.currency,
-          paymentProratedInCents: mockInvoice.amount_due,
-          invoiceNumber: mockInvoice.number,
-          invoiceId: mockInvoice.id,
-        });
-      };
+          event.data.object.plan.metadata.productOrder = isUpgrade ? 2 : 1;
+          event.data.previous_attributes.plan.metadata.productOrder = isUpgrade
+            ? 1
+            : 2;
+
+          const result =
+            await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+              event.data.object,
+              baseDetails,
+              mockInvoice,
+              upcomingInvoice,
+              event.data.object.plan.metadata.productOrder,
+              event.data.previous_attributes.plan
+            );
+
+          assert.deepEqual(result, {
+            ...baseDetails,
+            productIdNew,
+            updateType:
+              SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
+            productIdOld,
+            productNameOld,
+            productIconURLOld,
+            productPaymentCycleOld:
+              event.data.previous_attributes.plan.interval,
+            paymentAmountOldCurrency:
+              event.data.previous_attributes.plan.currency,
+            paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
+            paymentProratedCurrency: upcomingInvoice
+              ? upcomingInvoice.currency
+              : mockInvoice.currency,
+            paymentProratedInCents: upcomingInvoice
+              ? expectedPaymentProratedInCents
+              : mockInvoice.amount_due,
+            invoiceNumber: mockInvoice.number,
+            invoiceId: mockInvoice.id,
+          });
+        };
 
       it(
         'extracts expected details for a subscription upgrade',
@@ -5692,6 +5759,7 @@ describe('StripeHelper', () => {
             event.data.object,
             baseDetails,
             mockInvoice,
+            undefined,
             event.data.object.plan.metadata.productOrder,
             event.data.previous_attributes.plan
           );
@@ -5701,6 +5769,23 @@ describe('StripeHelper', () => {
           result.productPaymentCycleNew
         );
       });
+
+      it(
+        'extracts expected details for a subscription upgrade with pending invoice items',
+        commonTest(
+          false,
+          {
+            currency: 'usd',
+            lines: {
+              data: [
+                { type: 'invoiceitem', amount: -500 },
+                { type: 'invoiceitem', amount: 2500 },
+              ],
+            },
+          },
+          2000
+        )
+      );
     });
 
     describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
@@ -5935,7 +6020,8 @@ describe('StripeHelper', () => {
           await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
             event.data.object,
             expectedBaseUpdateDetails,
-            mockInvoice
+            mockInvoice,
+            undefined
           );
         const subscription = event.data.object;
         assert.deepEqual(result, {
@@ -5954,6 +6040,42 @@ describe('StripeHelper', () => {
             subscription.current_period_end * 1000
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
+          showOutstandingBalance: false,
+        });
+      });
+
+      it('extracts expected details for a subscription cancellation with pending invoice items', async () => {
+        const mockUpcomingInvoice = {
+          total: '40839',
+          currency: 'usd',
+          created: 1666968725952,
+        };
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const result =
+          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice,
+            mockUpcomingInvoice
+          );
+        const subscription = event.data.object;
+        assert.deepEqual(result, {
+          updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+          email,
+          uid,
+          productId,
+          planId,
+          planConfig: {},
+          planEmailIconURL: productIconURLNew,
+          productName,
+          invoiceDate: new Date(mockUpcomingInvoice.created * 1000),
+          invoiceTotalInCents: mockUpcomingInvoice.total,
+          invoiceTotalCurrency: mockUpcomingInvoice.currency,
+          serviceLastActiveDate: new Date(
+            subscription.current_period_end * 1000
+          ),
+          productMetadata: expectedBaseUpdateDetails.productMetadata,
+          showOutstandingBalance: true,
         });
       });
     });
