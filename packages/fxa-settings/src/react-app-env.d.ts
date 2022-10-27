@@ -7,18 +7,3 @@
 type hexstring = string;
 
 type Hash<T> = { [key: string]: T };
-
-interface FlowQueryParams {
-  broker?: string;
-  context?: string;
-  deviceId?: string;
-  flowBeginTime?: number;
-  flowId?: string;
-  isSampledUser?: boolean;
-  service?: string;
-  uniqueUserId?: string;
-}
-
-interface ExperimentStatusParams {
-  showNewReactApp?: boolean;
-}

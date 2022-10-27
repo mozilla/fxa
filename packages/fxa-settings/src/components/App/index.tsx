@@ -7,14 +7,17 @@ import { RouteComponentProps, Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import Settings from '../Settings';
+import { QueryParams } from '../..';
 
-export const App = (props: RouteComponentProps) => {
+export const App = ({
+  flowQueryParams,
+}: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   return (
     <>
       <Head />
       <Router basepath={'/'}>
         <ScrollToTop default>
-          <Settings path="/settings/*" />
+          <Settings path="/settings/*" {...{ flowQueryParams }} />
         </ScrollToTop>
       </Router>
     </>

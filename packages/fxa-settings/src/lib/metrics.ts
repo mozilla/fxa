@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react';
 import { useAccount } from '../models';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
+import { QueryParams } from '..';
 
 export const settingsViewName = 'settings';
 
@@ -51,7 +52,7 @@ type ConfigurableProperties = {
   utm_term: Optional<string>;
 };
 
-type EventData = FlowQueryParams &
+type EventData = QueryParams &
   ConfigurableProperties & {
     duration: number;
     events: EventSet[];
@@ -64,7 +65,7 @@ type EventData = FlowQueryParams &
 let initialized = false;
 let metricsEnabled = false;
 let viewNamePrefix: string | null;
-let flowEventData: FlowQueryParams;
+let flowEventData: QueryParams;
 let configurableProperties: ConfigurableProperties = defaultConfigProps();
 
 function defaultConfigProps(): ConfigurableProperties {
@@ -164,7 +165,7 @@ export function reset() {
  *
  * @param flowQueryParams - Flow data sent via query params from the content-server
  */
-export async function init(enabled: boolean, flowQueryParams: FlowQueryParams) {
+export async function init(enabled: boolean, flowQueryParams: QueryParams) {
   setEnabled(enabled);
 
   if (!initialized) {

@@ -15,25 +15,28 @@ import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import { FlowContext } from './models/FlowContext';
 import './styles/tailwind.out.css';
 
+interface FlowQueryParams {
+  broker?: string;
+  context?: string;
+  deviceId?: string;
+  flowBeginTime?: number;
+  flowId?: string;
+  isSampledUser?: boolean;
+  service?: string;
+  uniqueUserId?: string;
+}
+
+// temporary until we can safely direct all users to all routes currently in content-server
+export interface QueryParams extends FlowQueryParams {
+  showNewReactApp?: boolean;
+}
+
 try {
-  const queryParams = searchParams(window.location.search) as FlowQueryParams &
-    ExperimentStatusParams;
+  const flowQueryParams = searchParams(window.location.search) as QueryParams;
 
-  const flowQueryParams = {
-    broker: queryParams.broker,
-    context: queryParams.context,
-    deviceId: queryParams.deviceId,
-    flowBeginTime: queryParams.flowBeginTime,
-    flowId: queryParams.flowId,
-    isSampledUser: queryParams.isSampledUser,
-    service: queryParams.service,
-    uniqueUserId: queryParams.uniqueUserId,
-  };
-
-  const { showNewReactApp } = queryParams;
+  const { showNewReactApp } = flowQueryParams;
 
   // Populate config
   readConfigMeta((name: string) => {
@@ -54,19 +57,21 @@ try {
 
   render(
     <React.StrictMode>
-      <AppContext.Provider value={appContext}>
-        <FlowContext.Provider value={flowQueryParams}>
+      <AppErrorBoundary>
+        <AppContext.Provider value={appContext}>
           <AppLocalizationProvider
             baseDir="/settings/locales"
             bundles={['settings']}
             userLocales={navigator.languages}
           >
-            <AppErrorBoundary>
-              {showNewReactApp ? <App /> : <Settings />}
-            </AppErrorBoundary>
+            {showNewReactApp ? (
+              <App {...{ flowQueryParams }} />
+            ) : (
+              <Settings {...{ flowQueryParams }} />
+            )}
           </AppLocalizationProvider>
-        </FlowContext.Provider>
-      </AppContext.Provider>
+        </AppContext.Provider>
+      </AppErrorBoundary>
     </React.StrictMode>,
     document.getElementById('root')
   );

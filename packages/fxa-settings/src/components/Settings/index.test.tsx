@@ -8,12 +8,10 @@ import { History } from '@reach/router';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import { Account, AppContext, useInitialState } from '../../models';
-import { FlowContext } from '../../models/FlowContext';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
   renderWithRouter,
-  mockFlowContext,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
@@ -38,7 +36,7 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
-const initialFlowContextValue = {
+const flowQueryParams = {
   deviceId: 'x',
   flowBeginTime: 1,
   flowId: 'x',
@@ -60,18 +58,14 @@ describe('metrics', () => {
     const BEGIN_TIME = 123456;
     const FLOW_ID = 'abc123';
     const flowInit = jest.spyOn(Metrics, 'init');
-    const updatedFlowContextValue = {
+    const updatedFlowQueryParams = {
       deviceId: DEVICE_ID,
       flowBeginTime: BEGIN_TIME,
       flowId: FLOW_ID,
     };
 
     await act(async () => {
-      render(
-        <FlowContext.Provider value={mockFlowContext(updatedFlowContextValue)}>
-          <App />
-        </FlowContext.Provider>
-      );
+      render(<App flowQueryParams={updatedFlowQueryParams} />);
     });
 
     expect(flowInit).toHaveBeenCalledWith(true, {
@@ -106,9 +100,7 @@ describe('performance metrics', () => {
     } as unknown as Account;
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
-        <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-          <App />
-        </FlowContext.Provider>
+        <App {...{ flowQueryParams }} />
       </AppContext.Provider>
     );
     expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith('/foobar');
@@ -123,11 +115,7 @@ describe('performance metrics', () => {
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
         <AppContext.Provider value={mockAppContext({ account, config })}>
-          <FlowContext.Provider
-            value={mockFlowContext(initialFlowContextValue)}
-          >
-            <App />
-          </FlowContext.Provider>
+          <App {...{ flowQueryParams }} />
         </AppContext.Provider>
       </AppContext.Provider>
     );
@@ -144,9 +132,7 @@ describe('App component', () => {
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
     (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
     const { getByLabelText } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>
+      <App {...{ flowQueryParams }} />
     );
 
     expect(getByLabelText('Loading...')).toBeInTheDocument();
@@ -157,9 +143,7 @@ describe('App component', () => {
       error: { message: 'Invalid token' },
     });
     const { getByLabelText } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>
+      <App {...{ flowQueryParams }} />
     );
 
     expect(getByLabelText('Loading...')).toBeInTheDocument();
@@ -169,11 +153,7 @@ describe('App component', () => {
     (useInitialState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });
-    const { getByRole } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>
-    );
+    const { getByRole } = renderWithRouter(<App {...{ flowQueryParams }} />);
 
     expect(getByRole('heading', { level: 2 })).toHaveTextContent(
       'General application error'
@@ -186,12 +166,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath);
 
@@ -202,12 +177,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/display_name');
 
@@ -218,12 +188,7 @@ describe('App component', () => {
     const {
       getAllByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/avatar');
 
@@ -234,12 +199,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/change_password');
 
@@ -250,12 +210,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/account_recovery');
 
@@ -266,12 +221,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/emails');
 
@@ -282,12 +232,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/emails/verify');
 
@@ -298,12 +243,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/two_step_authentication');
 
@@ -314,12 +254,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/two_step_authentication/replace_codes');
 
@@ -330,12 +265,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/delete_account');
 
@@ -346,12 +276,7 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/clients');
 
@@ -362,12 +287,7 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/avatar/change');
 
@@ -378,12 +298,7 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(
-      <FlowContext.Provider value={mockFlowContext(initialFlowContextValue)}>
-        <App />
-      </FlowContext.Provider>,
-      { route: HomePath }
-    );
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
 
     await navigate(HomePath + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
@@ -404,11 +319,7 @@ describe('App component', () => {
 
       ({ history } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account, config })}>
-          <FlowContext.Provider
-            value={mockFlowContext(initialFlowContextValue)}
-          >
-            <App />
-          </FlowContext.Provider>
+          <App {...{ flowQueryParams }} />
         </AppContext.Provider>,
         { route: HomePath }
       ));
