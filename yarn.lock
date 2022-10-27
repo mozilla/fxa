@@ -25561,7 +25561,7 @@ fsevents@~2.1.1:
     pm2: ^5.2.2
     postcss: ^8.4.14
     prettier: ^2.3.1
-    replace-in-file: ^6.1.0
+    replace-in-file: ^6.3.5
     semver: ^7.3.5
     stylelint: ^14.14.0
     stylelint-config-prettier: ^9.0.3
@@ -40861,16 +40861,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"replace-in-file@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "replace-in-file@npm:6.1.0"
+"replace-in-file@npm:^6.3.5":
+  version: 6.3.5
+  resolution: "replace-in-file@npm:6.3.5"
   dependencies:
-    chalk: ^4.0.0
-    glob: ^7.1.6
-    yargs: ^15.3.1
+    chalk: ^4.1.2
+    glob: ^7.2.0
+    yargs: ^17.2.1
   bin:
     replace-in-file: bin/cli.js
-  checksum: c4ebe703402d7c1c39164e132db72242acb9b8680913487cf631329da5e69c0243a6c18cea2a6e5c2729c66a17e7372b31f34788a5ab26e046d898c554adbcb7
+  checksum: e5ac3bfee531dcb70cfbb327e6d4ec86bcf4c8045f292e46fb0e4c8743bd70a274c2402918d2609a25fde829862b6e1fe5f09f6c171aabbdde142a9f33008cf1
   languageName: node
   linkType: hard
 
