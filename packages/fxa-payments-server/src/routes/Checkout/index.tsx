@@ -72,7 +72,7 @@ const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 const NewsletterErrorAlertBar = () => {
   return (
     <AlertBar
-      className="newsletter-error"
+      className="alert-newsletter-error"
       dataTestId="newsletter-signup-error-message"
       headerId="newsletter-error-alert-bar-header"
       localizedId="newsletter-signup-error"
