@@ -36,6 +36,7 @@ describe('SubscriptionPurchase', () => {
   const inAppOwnershipType = 'PURCHASED';
   const originalPurchaseDate = 1627306493000;
   const autoRenewProductId = productId;
+  const purchaseDate = 1649329745000;
   const apiResponse = deepCopy(appStoreApiResponse);
   const decodedTransactionInfo = deepCopy(transactionInfo);
   const decodedRenewalInfo = deepCopy(renewalInfo);
@@ -81,6 +82,7 @@ describe('SubscriptionPurchase', () => {
         inAppOwnershipType,
         originalPurchaseDate,
         autoRenewProductId,
+        purchaseDate,
       };
       assert.deepEqual(expected, subscription);
     });
