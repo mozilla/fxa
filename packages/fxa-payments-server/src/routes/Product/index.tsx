@@ -29,8 +29,12 @@ import SubscriptionChangeRoadblock from './SubscriptionChangeRoadblock';
 import {
   SubscriptionUpdateEligibility,
   WebSubscription,
+  IapSubscription,
 } from 'fxa-shared/subscriptions/types';
-import { isWebSubscription } from 'fxa-shared/subscriptions/type-guards';
+import {
+  isWebSubscription,
+  isIapSubscription,
+} from 'fxa-shared/subscriptions/type-guards';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
@@ -175,25 +179,15 @@ export const Product = ({
   const [planUpgradeEligibility, setPlanUpgradeEligibility] =
     useState('invalid');
 
-  const checkPlanUpgradeEligibility = async (planId: string) => {
-    try {
-      const planUpgradeDetails = await apiFetchPlanUpgradeEligibility(planId);
-      const eligibility = await planUpgradeDetails.eligibility;
-
-      return eligibility;
-    } catch (err) {
-      throw err;
-    }
-  };
-
   // Fetch plan update eligibility
   useEffect(() => {
     (async () => {
       if (selectedPlan) {
         try {
-          const eligibilityResult = await checkPlanUpgradeEligibility(
+          const planUpgradeDetails = await apiFetchPlanUpgradeEligibility(
             selectedPlan.plan_id
           );
+          const eligibilityResult = await planUpgradeDetails.eligibility;
           setPlanUpgradeEligibility(eligibilityResult);
         } catch (err) {
           setPlanUpgradeEligibility('invalid');
@@ -281,22 +275,56 @@ export const Product = ({
     // if desired product is already subscribed to, show iap already subscribed error
     // else, product is not subscribed to, but on same product set/might be eligible for upgrade
     // show iap upgrade contact support error messaging
-    const iapErrorMessageCode = () => {
-      return iapSubscription
-        ? 'iap_already_subscribed' // already subscribed to this product
-        : 'iap_upgrade_contact_support'; // different product, but same product set/eligible for upgrade
-    };
-
     if (planUpgradeEligibility === 'blocked_iap') {
+      // Get plan customer is blocked on
+      const currentPlan = () => {
+        if (selectedPlan.product_metadata !== null) {
+          const iapSubscriptions = (customerSubscriptions || []).filter((s) =>
+            isIapSubscription(s)
+          ) as IapSubscription[];
+
+          for (const customerSubscription of iapSubscriptions) {
+            const subscriptionPlanInfo =
+              plansById[customerSubscription.price_id];
+
+            const currentPlanProductSet: Array<string> =
+              subscriptionPlanInfo.metadata.productSet || [];
+            const selectedPlanProductSet: Array<string> = selectedPlan
+              .product_metadata.productSet
+              ? selectedPlan.product_metadata.productSet.split(',')
+              : [];
+
+            if (
+              currentPlanProductSet.length !== 0 &&
+              selectedPlanProductSet.length !== 0
+            ) {
+              if (
+                selectedPlanProductSet.some(
+                  (product: string) =>
+                    currentPlanProductSet.indexOf(product) >= 0
+                )
+              ) {
+                return subscriptionPlanInfo.plan;
+              }
+            }
+          }
+        }
+
+        return selectedPlan;
+      };
+
       return (
         <IapRoadblock
           {...{
+            currentPlan: currentPlan(),
             selectedPlan,
             customer: customer.result,
             profile: profile.result,
             isMobile,
             subscription: iapSubscription ? iapSubscription : undefined,
-            code: iapErrorMessageCode(),
+            code: iapSubscription
+              ? 'iap_already_subscribed'
+              : 'iap_upgrade_contact_support',
           }}
         />
       );
