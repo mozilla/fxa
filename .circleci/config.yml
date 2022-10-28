@@ -53,9 +53,9 @@ commands:
         default: 6
     steps:
       - browser-tools/install-firefox:
-          version: 91.9.1esr
+          version: 78.9.0esr
       - browser-tools/install-geckodriver:
-          version: v0.32.0
+          version: v0.29.1
       - base-install
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
@@ -75,9 +75,9 @@ commands:
   test-settings-server:
     steps:
       - browser-tools/install-firefox:
-          version: 91.9.1esr
+          version: 78.9.0esr
       - browser-tools/install-geckodriver:
-          version: v0.32.0
+          version: v0.29.1
       - base-install
       - run:
           name: Running test...
