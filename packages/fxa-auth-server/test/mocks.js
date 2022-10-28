@@ -715,6 +715,7 @@ function mockRequest(data, errors) {
   const events = proxyquire('../lib/metrics/events', {
     './amplitude': amplitudeModule,
   })(data.log || module.exports.mockLog(), {
+    amplitude: { rawEvents: false },
     oauth: {
       clientIds: data.clientIds || {},
     },

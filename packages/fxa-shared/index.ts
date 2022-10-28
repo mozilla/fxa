@@ -10,7 +10,6 @@ import featureFlags from './feature-flags';
 import { localizeTimestamp } from './l10n/localizeTimestamp';
 import supportedLanguages from './l10n/supportedLanguages.json';
 import amplitude from './metrics/amplitude';
-import { filterDntValues } from './metrics/dnt';
 import flowPerformance from './metrics/flow-performance';
 import navigationTimingSchema from './metrics/navigation-timing-validation';
 import userAgent from './metrics/user-agent';
@@ -37,7 +36,6 @@ module.exports = {
   },
   metrics: {
     amplitude,
-    filterDntValues,
     flowPerformance,
     navigationTimingSchema,
     userAgent,
