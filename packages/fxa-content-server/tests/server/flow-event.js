@@ -936,7 +936,6 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.isUndefined(arg.entrypoint);
           assert.isUndefined(arg.utm_campaign);
           assert.isUndefined(arg.utm_content);
           assert.isUndefined(arg.utm_medium);

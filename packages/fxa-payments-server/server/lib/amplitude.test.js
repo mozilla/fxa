@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const pkg = require('../../package.json');
 const mockSchemaValidatorFn = jest.fn();
 const mockAmplitudeConfig = {
   enabled: true,
   schemaValidation: true,
+  rawEvents: false,
 };
 jest.mock('fxa-shared/metrics/amplitude.js', () => ({
   ...jest.requireActual('fxa-shared/metrics/amplitude.js'),
   validate: mockSchemaValidatorFn,
-}));
-const mockDntFn = jest.fn();
-jest.mock('fxa-shared/metrics/dnt', () => ({
-  filterDntValues: mockDntFn,
 }));
 let scope;
 const mockSentry = {
@@ -92,6 +90,7 @@ describe('lib/amplitude', () => {
     log.error.mockClear();
     mockSchemaValidatorFn.mockReset();
     mockAmplitudeConfig.schemaValidation = true;
+    mockAmplitudeConfig.rawEvents = false;
     Container.set(StatsD, { increment: jest.fn() });
   });
   it('logs a correctly formatted message', () => {
@@ -101,6 +100,35 @@ describe('lib/amplitude', () => {
     expect(log.info.mock.calls[0][0]).toMatch('amplitudeEvent');
     expect(log.info.mock.calls[0][1]).toMatchObject(expectedOutput);
     expect(statsd.increment).toHaveBeenCalledTimes(1);
+  });
+  it('logs raw events', () => {
+    const statsd = Container.get(StatsD);
+    const expectedContext = {
+      eventSource: 'payments',
+      version: pkg.version,
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0',
+      deviceId: '0123456789abcdef0123456789abcdef',
+      flowBeginTime: 1570000000000,
+      flowId:
+        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+      lang: 'gd',
+    };
+    mockAmplitudeConfig.rawEvents = true;
+    amplitude(mocks.event, mocks.request, {
+      ...mocks.data,
+      useless: 'junk',
+      lang: 'gd',
+    });
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info.mock.calls[0][0]).toMatch('rawAmplitudeData');
+    expect(log.info.mock.calls[0][1]).toEqual({
+      event: mocks.event,
+      context: expectedContext,
+    });
+    expect(statsd.increment).toHaveBeenCalledTimes(2);
+    expect(statsd.increment.mock.calls[0][0]).toBe('amplitude.event.raw');
+    expect(statsd.increment.mock.calls[1][0]).toBe('amplitude.event');
   });
   describe('validates inputs', () => {
     it('returns if `event` is missing', () => {
@@ -180,25 +208,6 @@ describe('lib/amplitude', () => {
         Sentry.Severity.Error
       );
       expect(log.info).toHaveBeenCalledTimes(1);
-    });
-  });
-  describe('respects do not track', () => {
-    describe('when dnt is not set', () => {
-      it('does not call the filtering function', () => {
-        amplitude(mocks.event, mocks.request, mocks.data);
-        expect(mockDntFn).toHaveBeenCalledTimes(0);
-      });
-    });
-
-    describe('when dnt is set', () => {
-      it('calls the filtering function', () => {
-        amplitude(
-          mocks.event,
-          { ...mocks.request, headers: { ...mocks.request.headers, dnt: '1' } },
-          mocks.data
-        );
-        expect(mockDntFn).toHaveBeenCalledTimes(2);
-      });
     });
   });
   describe('responds to configuration', () => {

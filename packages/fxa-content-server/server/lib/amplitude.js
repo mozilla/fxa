@@ -14,6 +14,7 @@
 
 'use strict';
 
+const _ = require('lodash');
 const {
   GROUPS,
   initialize,
@@ -23,7 +24,6 @@ const {
   mapOs,
   validate,
 } = require('fxa-shared/metrics/amplitude');
-const { filterDntValues } = require('fxa-shared/metrics/dnt');
 const logger = require('./logging/log')();
 const ua = require('fxa-shared/metrics/user-agent');
 const config = require('./configuration');
@@ -685,6 +685,46 @@ function receiveEvent(event, request, data) {
     return;
   }
 
+  if (amplitude.rawEvents) {
+    const rawEvent = {
+      event,
+      context: {
+        eventSource: 'content',
+        version: VERSION,
+        emailTypes: EMAIL_TYPES,
+        userAgent: request.headers && request.headers['user-agent'],
+        ..._.pick(data, [
+          'deviceId',
+          'devices',
+          'emailDomain',
+          'entrypoint_experiment',
+          'entrypoint_variation',
+          'entrypoint',
+          'experiments',
+          'flowBeginTime',
+          'flowId',
+          'lang',
+          'location',
+          'newsletters',
+          'planId',
+          'productId',
+          'service',
+          'syncEngines',
+          'templateVersion',
+          'uid',
+          'userPreferences',
+          'utm_campaign',
+          'utm_content',
+          'utm_medium',
+          'utm_source',
+          'utm_term',
+        ]),
+      },
+    };
+    logger.info('rawAmplitudeData', rawEvent);
+    statsd.increment('amplitude.event.raw');
+  }
+
   const userAgent = ua.parse(request.headers && request.headers['user-agent']);
 
   const amplitudeEvent = transform(
@@ -724,17 +764,6 @@ function receiveEvent(event, request, data) {
           );
         });
       }
-    }
-
-    const dnt = request && request.headers && request.headers.dnt === '1';
-
-    if (dnt) {
-      amplitudeEvent.event_properties = filterDntValues(
-        amplitudeEvent.event_properties
-      );
-      amplitudeEvent.user_properties = filterDntValues(
-        amplitudeEvent.user_properties
-      );
     }
 
     logger.info('amplitudeEvent', amplitudeEvent);
