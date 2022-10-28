@@ -197,7 +197,8 @@ export const Checkout = ({
         } else {
           // Some Stripe APIs like `createPaymentMethod` return an object with
           // an error property on error.
-          setSubscriptionError(error?.error || error);
+          const err = typeof error.error === 'string' ? error : error.error;
+          setSubscriptionError(err);
         }
       }
       setInProgress(false);
