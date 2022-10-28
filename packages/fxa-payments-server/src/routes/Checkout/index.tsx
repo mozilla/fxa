@@ -459,7 +459,7 @@ export const Checkout = ({
             />
           </div>
 
-          <div className="subscription-create-footer">
+          <div className="payment-footer" data-testid="footer">
             <PaymentLegalBlurb provider={undefined} />
 
             <TermsAndPrivacy

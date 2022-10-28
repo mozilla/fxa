@@ -319,7 +319,7 @@ export const SubscriptionCreate = ({
             />
           </div>
 
-          <div className="subscription-create-footer">
+          <div className="payment-footer" data-testid="footer">
             <PaymentLegalBlurb provider={paymentProvider} />
             {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
           </div>

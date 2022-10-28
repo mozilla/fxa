@@ -26,29 +26,29 @@
 }
 
 /* footer copy */
+.payment-footer {
+  @apply pt-14;
+}
+
 .legal-blurb {
-  @apply clear-both text-xs leading-5 text-center;
+  @apply clear-both mt-5 text-xs leading-5 text-center;
 }
 
 .legal-blurb a {
-  @apply font-normal underline;
+  @apply underline;
+}
+
+.legal-blurb p {
+  @apply m-0 text-grey-400;
 }
 
 .legal-heading {
   @apply font-semibold text-grey-500;
 }
 
-.payment-error .legal-heading {
-  @apply mt-5;
-}
-
 /* shared styles used in Checkout and SubscriptionCreate*/
 .pay-with-heading {
   @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mt-0 mx-0 mb-6 text-center text-grey-400 w-full;
-}
-
-.subscription-create-footer {
-  @apply mt-10;
 }
 
 .step-header {
