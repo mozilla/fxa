@@ -4,8 +4,13 @@ on:
   schedule:
     - cron: '0 0 * * TUE'
 
+permissions: {}
 jobs:
   pull-legal-docs:
+    permissions:
+      contents: write  #  to push changes to fxa
+      pull-requests: write  #  to create pull request
+
     runs-on: ubuntu-latest
     steps:
       - name: Clone FxA code repository
