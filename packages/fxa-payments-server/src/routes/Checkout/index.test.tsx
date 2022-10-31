@@ -31,6 +31,7 @@ import { AppContextType } from '../../lib/AppContext';
 import {
   CONFIRM_CARD_RESULT,
   CUSTOMER,
+  MOCK_CURRENCY_ERROR,
   MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR,
   MOCK_GENERAL_PAYPAL_ERROR,
   MOCK_STRIPE_CARD_ERROR,
@@ -415,6 +416,29 @@ describe('routes/Checkout', () => {
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
         getErrorMessage(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+      );
+    });
+
+    it('displays an error about the wrong currency if there is a currency mismatch', async () => {
+      (apiCreateSubscriptionWithPaymentMethod as jest.Mock)
+        .mockClear()
+        .mockRejectedValue(MOCK_CURRENCY_ERROR);
+
+      await act(async () => {
+        render(<Subject />);
+      });
+      await fillOutZeForm();
+      await waitForExpect(() => {
+        expect(apiCreatePasswordlessAccount).toHaveBeenCalledWith({
+          email: newAccountEmail,
+          clientId: mockConfig.servers.oauth.clientId,
+        });
+      });
+
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_CURRENCY_ERROR)
       );
     });
 
