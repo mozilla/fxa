@@ -308,7 +308,7 @@ export class LoginPage extends BaseLayout {
 
   async clearCache() {
     await this.page.goto(`${this.target.contentServerUrl}/clear`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     return this.page.waitForTimeout(1000);
   }

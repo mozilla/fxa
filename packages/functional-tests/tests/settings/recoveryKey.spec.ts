@@ -40,6 +40,8 @@ test.describe('recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
+    // Generating and consuming recovery keys is a slow process
+    test.slow();
     let secondKey;
 
     // Create new recovery key
@@ -66,7 +68,7 @@ test.describe('recovery key test', () => {
       EmailType.recovery,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await recoveryKey.confirmRecoveryKey();
 
