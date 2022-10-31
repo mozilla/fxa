@@ -55,7 +55,7 @@ export const DialogMessage = ({
               >
                 <CloseIcon
                   role="img"
-                  className="close-icon"
+                  className="w-4 h-4"
                   aria-hidden="true"
                   focusable="false"
                 />

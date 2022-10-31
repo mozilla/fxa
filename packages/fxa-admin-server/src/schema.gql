@@ -151,6 +151,7 @@ type RelyingParty {
   createdAt: Float!
   trusted: Boolean!
   allowedScopes: String
+  notes: String
 }
 
 type Query {
@@ -169,4 +170,5 @@ type Mutation {
   recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!
+  updateNotes(notes: String!, id: String!): Boolean!
 }

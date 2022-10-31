@@ -266,6 +266,34 @@ describe('PayPalHelper', () => {
       assert.deepEqual(response, expectedResponse);
     });
 
+    it('calls doReferenceTransaction with taxAmount option and taxAmount converted to string', async () => {
+      const options = deepCopy(validOptions);
+      options.taxAmountInCents = '500';
+      paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      await paypalHelper.chargeCustomer(options);
+      const expectedOptions = {
+        amount:
+          paypalHelper.currencyHelper.getPayPalAmountStringFromAmountInCents(
+            options.amountInCents
+          ),
+        billingAgreementId: options.billingAgreementId,
+        invoiceNumber: options.invoiceNumber,
+        idempotencyKey: options.idempotencyKey,
+        currencyCode: options.currencyCode,
+        taxAmount:
+          paypalHelper.currencyHelper.getPayPalAmountStringFromAmountInCents(
+            options.taxAmountInCents
+          ),
+      };
+      assert.ok(
+        paypalHelper.client.doReferenceTransaction.calledOnceWith(
+          expectedOptions
+        )
+      );
+    });
+
     it('if doRequest unsuccessful, throws an error', async () => {
       paypalHelper.client.doRequest = sinon.fake.throws(
         new PayPalClientError('Fake', {})
@@ -619,13 +647,7 @@ describe('PayPalHelper', () => {
     const paymentAttempts = 0;
     const transactionId = 'transaction-id';
 
-    it('runs a open invoice successfully', async () => {
-      const validInvoice = {
-        ...mockInvoice,
-        status: 'open',
-        amount_due: 499,
-        currency: 'eur',
-      };
+    beforeEach(() => {
       mockStripeHelper.getCustomerPaypalAgreement =
         sinon.fake.returns(agreementId);
       mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
@@ -637,6 +659,15 @@ describe('PayPalHelper', () => {
         sinon.fake.resolves({ transactionId });
       mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
       mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
+    });
+
+    it('runs a open invoice successfully', async () => {
+      const validInvoice = {
+        ...mockInvoice,
+        status: 'open',
+        amount_due: 499,
+        currency: 'eur',
+      };
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -674,24 +705,43 @@ describe('PayPalHelper', () => {
       assert.deepEqual(response, [{ transactionId }, {}]);
     });
 
+    it('runs a open invoice successfully with tax added', async () => {
+      const validInvoice = {
+        ...mockInvoice,
+        status: 'open',
+        amount_due: 499,
+        currency: 'eur',
+        tax: 500,
+      };
+
+      const response = await paypalHelper.processInvoice({
+        customer: mockCustomer,
+        invoice: validInvoice,
+        ipaddress: '127.0.0.1',
+      });
+      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+        amountInCents: validInvoice.amount_due,
+        billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
+        invoiceNumber: validInvoice.id,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
+        ipaddress: '127.0.0.1',
+        taxAmountInCents: validInvoice.tax,
+      });
+      assert.deepEqual(response, [{ transactionId }, {}]);
+    });
+
     it('runs a draft invoice successfully', async () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'draft',
         amount_due: 499,
       };
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
+
       mockStripeHelper.finalizeInvoice = sinon.fake.resolves({});
-      mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
-      paypalHelper.chargeCustomer = sinon.fake.resolves({
-        paymentStatus: 'Completed',
-        transactionId,
-      });
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
-        sinon.fake.resolves({ transactionId });
-      mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
-      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -737,14 +787,10 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
-      mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
       paypalHelper.chargeCustomer = sinon.fake.resolves({
         paymentStatus: 'Pending',
         transactionId,
       });
-      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -777,14 +823,10 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
-      mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
       paypalHelper.chargeCustomer = sinon.fake.resolves({
         paymentStatus: 'Denied',
         transactionId,
       });
-      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       try {
         await paypalHelper.processInvoice({
@@ -828,10 +870,6 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
-      mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
-      mockStripeHelper.updatePaymentAttempts = sinon.fake.returns({});
       paypalHelper.log = { error: sinon.fake.returns({}) };
       paypalHelper.chargeCustomer = sinon.fake.resolves({
         paymentStatus,
@@ -904,9 +942,6 @@ describe('PayPalHelper', () => {
         ...mockInvoice,
         status: 'paid',
       };
-
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
 
       try {
         await paypalHelper.processInvoice({

@@ -1,55 +1,61 @@
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293471
   test('signin to sync and disconnect #1293471', async ({
     target,
-    page,
     credentials,
-    pages: { login, settings },
   }) => {
+    const { page, login, settings } = await newPagesForSync(target);
+
     await page.goto(
       target.contentServerUrl +
-        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
+        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email',
+      { waitUntil: 'networkidle' }
     );
-    await login.setEmail(credentials.email);
-    await page.locator('button[type=submit]').click();
-    await login.setPassword(credentials.password);
-    await page.locator('button[type=submit]').click();
-    await settings.goto();
-    const services = await settings.connectedServices.services();
-    const sync = services.find((s) => s.name !== 'playwright');
-    await sync.signout();
+    await page.waitForTimeout(1000);
 
-    //update : This is a temp fix until FIXME below is fixed
-    //await page.click('text=Rather not say >> input[name="reason"]');
-    // FIXME
-    // Playwright isn't behaving like a vanilla browser when
-    // sync is disconnected. It's logging out of the web context
-    // but not the browser like it should. This could be due
-    // to a missing pref to handle the broadcast logout message???
-    // In the meantime we have this hack copied from
-    // settings/src/lib/firefox.ts to blast a direct command
-    /*await page.evaluate((uid) => {
-      window.dispatchEvent(
-        new CustomEvent('WebChannelMessageToChrome', {
-          detail: JSON.stringify({
-            id: 'account_updates',
-            message: {
-              command: 'fxaccounts:logout',
-              data: { uid },
-            },
-          }),
-        })
-      );
-    }, credentials.uid);*/
+    await login.login(credentials.email, credentials.password);
 
-    // The clickModalConfirm needs to follow the above event. If
-    // it does not, a race condition can occur.
-    //await settings.clickModalConfirm();
-    await settings.signOut();
-    await login.setEmail(credentials.email);
+    expect(await login.isSyncConnectedHeader()).toBe(true);
+
+    // Normally we wouldn't need this delay, but because we are
+    // disconnecting the sync service, we need to ensure that the device
+    // record and web channels have been sent and created.
+    await page.waitForTimeout(1000);
+
+    await settings.disconnectSync(credentials);
+
     expect(page.url()).toMatch(login.url);
+  });
+
+  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
+  test('disconnect RP #1293475', async ({
+    browser,
+    credentials,
+    pages: { relier, login, settings },
+    target,
+  }, { project }) => {
+    test.skip(project.name === 'production', 'no 123done in production');
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    await login.login(credentials.email, credentials.password);
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    // Login to settings with cached creds
+    await settings.goto();
+
+    let services = await settings.connectedServices.services();
+    expect(services.length).toEqual(3);
+
+    // Sign out of 123Done
+    const rp = services.find((service) => service.name.includes('123'));
+    await rp.signout();
+
+    await settings.waitForAlertBar();
+    services = await settings.connectedServices.services();
+    expect(services.length).toEqual(2);
   });
 });
 
@@ -142,5 +148,51 @@ test.describe('severity-3 #smoke', () => {
     await page.hover('a[href="/en-US/users/auth"]');
     await page.click('text=Sign Out');
     await expect(page.locator('text=Sign In/Up').first()).toBeVisible();
+  });
+});
+
+test.describe('OAuth and Fx Desktop handshake', () => {
+  test('user signed into browser and OAuth login', async ({
+    target,
+    credentials,
+  }) => {
+    const { page, login, settings, relier } = await newPagesForSync(target);
+    await page.goto(
+      target.contentServerUrl +
+        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
+    );
+    await login.login(credentials.email, credentials.password);
+    expect(await login.isSyncConnectedHeader()).toBe(true);
+
+    // Normally we wouldn't need this delay, but because we are
+    // disconnecting the sync service, we need to ensure that the device
+    // record and web channels have been sent and created.
+    await page.waitForTimeout(1000);
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // User can sign in with cached credentials, no password needed.
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    await relier.signOut();
+
+    // Attempt to sign back in
+    await relier.clickEmailFirst();
+
+    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    // Disconnect sync otherwise we can have flaky tests.
+    await settings.disconnectSync(credentials);
+
+    expect(page.url()).toMatch(login.url);
   });
 });

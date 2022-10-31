@@ -18,9 +18,8 @@ th {
   @apply italic text-grey-500;
 }
 
-/* TODO: move this into AccountSearch/index.css. Can't seem to use @import here */
 .account-header {
-  @apply mt-0 my-0 mb-1 text-lg;
+  @apply mt-0 mb-1 text-lg;
 }
 
 .account-li {
@@ -33,6 +32,10 @@ th {
 
 .account-label {
   @apply align-top w-48;
+}
+
+.notes {
+  @apply w-96;
 }
 
 .account-border-info {

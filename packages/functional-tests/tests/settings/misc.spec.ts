@@ -27,30 +27,6 @@ test.describe('severity-1 #smoke', () => {
     expect(await settings.alertBarText()).toMatch('successfully deleted');
   });
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
-  test('disconnect RP #1293475', async ({
-    browser,
-    credentials,
-    pages,
-    target,
-  }, { project }) => {
-    test.skip(project.name === 'production', 'no 123done in production');
-    const [a, b] = [pages, await newPages(browser, target)];
-    await b.relier.goto();
-    await b.relier.clickEmailFirst();
-    await b.login.login(credentials.email, credentials.password);
-
-    await a.settings.goto();
-
-    let services = await a.settings.connectedServices.services();
-    expect(services.length).toEqual(3);
-    const relier = services[2];
-    await relier.signout();
-    await a.settings.waitForAlertBar();
-    services = await a.settings.connectedServices.services();
-    expect(services.length).toEqual(2);
-  });
-
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293504
   test('settings help link #1293504', async ({ pages: { settings } }) => {
     await settings.goto();

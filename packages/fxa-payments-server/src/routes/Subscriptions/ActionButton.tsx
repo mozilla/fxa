@@ -105,7 +105,7 @@ export const ActionButton = ({
     }
   };
 
-  return <div className="action">{setActionButton()}</div>;
+  return <div className="inline">{setActionButton()}</div>;
 };
 
 export default ActionButton;

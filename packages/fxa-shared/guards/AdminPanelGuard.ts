@@ -30,6 +30,7 @@ export enum AdminPanelFeature {
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
   RelyingParties = 'RelyingParties',
+  RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
   SendPasswordResetEmail = 'SendPasswordResetEmail',
 }
 
@@ -128,6 +129,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.RelyingParties]: {
     name: 'View Relying Parties',
     level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.RelyingPartiesEditNotes]: {
+    name: 'Edit Relying Parties Notes',
+    level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.SendPasswordResetEmail]: {
     name: 'Send Password Reset Email',

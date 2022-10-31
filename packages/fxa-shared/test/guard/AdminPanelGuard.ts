@@ -35,6 +35,12 @@ describe('support agents', () => {
         )
       ).true;
       expect(
+        stageGuard.allow(
+          AdminPanelFeature.RelyingPartiesEditNotes,
+          AdminPanelGroup.AdminStage
+        )
+      ).true;
+      expect(
         prodGuard.allow(
           AdminPanelFeature.DisableAccount,
           AdminPanelGroup.AdminProd
@@ -44,6 +50,12 @@ describe('support agents', () => {
         prodGuard.allow(
           AdminPanelFeature.RelyingParties,
           AdminPanelGroup.SupportAgentProd
+        )
+      ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.RelyingPartiesEditNotes,
+          AdminPanelGroup.AdminProd
         )
       ).true;
     });

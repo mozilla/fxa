@@ -11,7 +11,6 @@ module.exports = testsSettings.concat([
   'tests/functional/oauth_query_param_validation.js',
 
   // new and flaky tests above here',
-  'tests/functional/404.js',
   'tests/functional/500.js',
   'tests/functional/avatar.js',
   'tests/functional/back_button_after_start.js',
@@ -41,7 +40,6 @@ module.exports = testsSettings.concat([
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
-  'tests/functional/sign_in_recovery_code.js',
   'tests/functional/sign_up_with_code.js',
   'tests/functional/sign_up.js',
   'tests/functional/sync_v1.js',

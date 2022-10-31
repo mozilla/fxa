@@ -8,7 +8,6 @@ export const selectors = {
   plans: (state: State) => state.plans,
   subsequentInvoices: (state: State) => state.subsequentInvoices,
   customer: (state: State) => state.customer,
-
   updateSubscriptionPlanStatus: (state: State) => state.updateSubscriptionPlan,
   cancelSubscriptionStatus: (state: State) => state.cancelSubscription,
   reactivateSubscriptionStatus: (state: State) => state.reactivateSubscription,

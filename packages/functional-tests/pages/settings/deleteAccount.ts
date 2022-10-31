@@ -1,4 +1,5 @@
 import { SettingsLayout } from './layout';
+import { selectors } from '../login';
 
 export class DeleteAccountPage extends SettingsLayout {
   readonly path = 'settings/delete_account';
@@ -24,11 +25,12 @@ export class DeleteAccountPage extends SettingsLayout {
     return this.page.fill('input[type=password]', password);
   }
 
-  toolTipText() {
+  async toolTipText() {
+    await this.page.isVisible('[data-testid="tooltip"]');
     return this.page.innerText('[data-testid="tooltip"]');
   }
 
   submit() {
-    return this.page.click('button[type=submit]');
+    return this.page.click('[data-testid="delete-account-button"]');
   }
 }

@@ -267,7 +267,7 @@ export const DangerZone = ({
           AdminPanelFeature.EnableAccount,
         ]}
       >
-        <h3 className="mt-0 my-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
+        <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
           Danger Zone
         </h3>
         <p className="text-base leading-6 mb-4">
@@ -276,7 +276,7 @@ export const DangerZone = ({
         </p>
       </Guard>
       <Guard features={[AdminPanelFeature.UnverifyEmail]}>
-        <h2 className="text-lg account-header">Email Confirmation</h2>
+        <h2 className="account-header">Email Confirmation</h2>
         <div className="border-l-2 border-red-600 mb-4 pl-4">
           <p className="text-base leading-6">
             Reset email confirmation. User needs to re-confirm on next login.
@@ -293,7 +293,7 @@ export const DangerZone = ({
         </div>
       </Guard>
       <Guard features={[AdminPanelFeature.DisableAccount]}>
-        <h2 className="text-lg account-header">Disable Login</h2>
+        <h2 className="account-header">Disable Login</h2>
         <div className="border-l-2 border-red-600 mb-4 pl-4">
           <p className="text-base leading-6 ">
             Stops this account from logging in.
@@ -314,7 +314,7 @@ export const DangerZone = ({
         </div>
       </Guard>
       <Guard features={[AdminPanelFeature.SendPasswordResetEmail]}>
-        <h2 className="text-lg account-header">Send Password Reset Email</h2>
+        <h2 className="account-header">Send Password Reset Email</h2>
         <div className="border-l-2 border-red-600 mb-4 pl-4">
           <p className="text-base leading-6 ">
             Send the user a password reset email to all verified emails. For
@@ -333,7 +333,7 @@ export const DangerZone = ({
       </Guard>
       {disabledAt && (
         <Guard features={[AdminPanelFeature.EnableAccount]}>
-          <h2 className="text-lg account-header">Enable Login</h2>
+          <h2 className="account-header">Enable Login</h2>
           <div className="border-l-2 border-red-600 mb-4 pl-4">
             <p className="text-base leading-6">
               Allows this account to log in.
@@ -354,6 +354,7 @@ export const DangerZone = ({
 
 export const Account = ({
   uid,
+  email,
   emails,
   createdAt,
   disabledAt,
@@ -400,20 +401,13 @@ export const Account = ({
     }
   };
 
+  function highlight(val: string) {
+    return query === val ? 'bg-yellow-100' : undefined;
+  }
+
   return (
     <section className="mt-8" data-testid="account-section">
       <ul>
-        <li className="account-li flex justify-between">
-          <h3 data-testid="email-label" className="account-header">
-            <span
-              className={
-                query === primaryEmail.email ? 'bg-yellow-100' : undefined
-              }
-            >
-              {primaryEmail.email}
-            </span>
-          </h3>
-        </li>
         <li className="account-li">
           <h3 className="account-header">Account Details</h3>
         </li>
@@ -421,21 +415,15 @@ export const Account = ({
           <ul>
             <table className="pt-1" aria-label="account details">
               <tbody>
-                <ResultTableRow label="uid" value={uid} testId="account-uid" />
                 <ResultTableRow
-                  label="Status"
-                  testId="account-verified-status"
-                  value={
-                    <span
-                      className={
-                        primaryEmail.isVerified
-                          ? 'account-enabled-verified'
-                          : 'account-disabled-unverified'
-                      }
-                    >
-                      {primaryEmail.isVerified ? 'confirmed' : 'not confirmed'}
-                    </span>
-                  }
+                  label="Sign-up Email"
+                  value={<span className={highlight(email)}>{email}</span>}
+                  testId="sign-up-email"
+                />
+                <ResultTableRow
+                  label="uid"
+                  value={<span className={highlight(uid)}>{uid}</span>}
+                  testId="account-uid"
                 />
                 <ResultTableRow
                   label="Created At"
@@ -496,6 +484,33 @@ export const Account = ({
         </li>
 
         <li className="account-li">
+          <h3 className="account-header">Primary Email</h3>
+        </li>
+        <li
+          className="account-li account-border-info"
+          data-testid="primary-section"
+        >
+          <ul>
+            <span
+              data-testid="primary-email"
+              className={highlight(primaryEmail.email)}
+            >
+              {primaryEmail.email}
+            </span>
+            <span
+              data-testid="primary-verified"
+              className={`ml-3 text-base ${
+                primaryEmail.isVerified
+                  ? 'account-enabled-verified'
+                  : 'account-disabled-unverified'
+              }`}
+            >
+              {primaryEmail.isVerified ? 'confirmed' : 'not confirmed'}
+            </span>
+          </ul>
+        </li>
+
+        <li className="account-li">
           <h3 className="account-header">Secondary Emails</h3>
         </li>
         {secondaryEmails.length > 0 ? (
@@ -508,11 +523,7 @@ export const Account = ({
                 <li key={secondaryEmail.createdAt} className="account-li">
                   <span
                     data-testid="secondary-email"
-                    className={
-                      query === secondaryEmail.email
-                        ? 'bg-yellow-100'
-                        : undefined
-                    }
+                    className={highlight(secondaryEmail.email)}
                   >
                     {secondaryEmail.email}
                   </span>

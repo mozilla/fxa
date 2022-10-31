@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Localized } from '@fluent/react';
 import {
   getLocalizedCurrency,
@@ -22,6 +22,9 @@ import './index.scss';
 import { Plan } from '../../store/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useInfoBoxMessage } from '../../lib/hooks';
+import { apiInvoicePreview } from '../../lib/apiClient';
+import { LoadingSpinner } from '../LoadingSpinner';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export type PlanDetailsProps = {
   selectedPlan: Plan;
@@ -30,6 +33,7 @@ export type PlanDetailsProps = {
   className?: string;
   coupon?: CouponDetails;
   children?: any;
+  invoicePreview?: FirstInvoicePreview;
 };
 
 export const PlanDetails = ({
@@ -38,11 +42,21 @@ export const PlanDetails = ({
   showExpandButton = false,
   coupon,
   children,
+  invoicePreview,
 }: PlanDetailsProps) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const { product_name, amount, currency, interval, interval_count } =
     selectedPlan;
+
+  const [loading, setLoading] = useState(true);
+  const [taxAmount, setTaxAmount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [subTotal, setSubTotal] = useState(0);
+  const [totalPrice, setTotalPrice] = useState('');
+  const invoice = useRef(invoicePreview);
+
   const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
     selectedPlan,
     navigatorLanguages,
@@ -58,18 +72,94 @@ export const PlanDetails = ({
     ? { background: webIconBackground }
     : '';
 
-  const discountAmount =
-    coupon && amount && coupon.discountAmount
-      ? amount - coupon.discountAmount
-      : amount;
+  const infoBoxMessage = useInfoBoxMessage(coupon, selectedPlan);
+
   const planPrice = formatPlanPricing(
-    discountAmount,
+    amount,
     currency,
     interval,
     interval_count
   );
 
-  const infoBoxMessage = useInfoBoxMessage(coupon, selectedPlan);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      const fallBack = () => {
+        setSubTotal(amount!);
+        if (coupon && coupon.discountAmount && amount) {
+          setDiscountAmount(coupon.discountAmount);
+          setTotalAmount(amount - coupon.discountAmount);
+        } else {
+          setDiscountAmount(0);
+          setTotalAmount(amount!);
+        }
+
+        const price = formatPlanPricing(
+          totalAmount as unknown as number,
+          currency,
+          interval,
+          interval_count
+        );
+
+        setTotalPrice(price);
+        setLoading(false);
+      };
+
+      try {
+        if (!config.featureFlags.useStripeAutomaticTax) {
+          fallBack();
+          return;
+        }
+
+        if (!invoicePreview) {
+          invoice.current = await apiInvoicePreview({
+            priceId: selectedPlan.plan_id,
+            promotionCode: coupon?.promotionCode as string,
+          });
+        }
+
+        setSubTotal(invoice.current!.subtotal);
+        setTotalAmount(invoice.current!.total);
+
+        if (invoice.current!.tax && invoice.current?.tax.amount) {
+          setTaxAmount(invoice.current!.tax.amount);
+        } else {
+          setTaxAmount(0);
+        }
+
+        if (invoice.current!.discount) {
+          setDiscountAmount(invoice.current!.discount.amount);
+        } else {
+          setDiscountAmount(0);
+        }
+
+        const price = formatPlanPricing(
+          totalAmount as unknown as number,
+          currency,
+          interval,
+          interval_count
+        );
+
+        setTotalPrice(price);
+        setLoading(false);
+      } catch (e: any) {
+        // gracefully fail/set the state according to the data we have
+        // if previewInvoice errors or if stripe tax is not enabled
+        fallBack();
+      }
+    })();
+  }, [
+    amount,
+    config.featureFlags.useStripeAutomaticTax,
+    coupon,
+    currency,
+    interval,
+    interval_count,
+    selectedPlan.plan_id,
+    totalAmount,
+    invoicePreview,
+  ]);
 
   return (
     <div
@@ -134,119 +224,138 @@ export const PlanDetails = ({
                 ))}
               </ul>
 
-              <div className="plan-details-total">
-                {coupon && coupon.discountAmount && (
-                  <div className="row-divider-grey-200 mb-4 pb-6">
-                    <div className="plan-details-total-inner">
-                      <Localized id="plan-details-list-price">
-                        <div>List Price</div>
-                      </Localized>
-
-                      <Localized
-                        id={`list-price`}
-                        attrs={{ title: true }}
-                        vars={{
-                          amount: getLocalizedCurrency(amount, currency),
-                          intervalCount: interval_count,
-                        }}
-                      >
-                        <div>
-                          {getLocalizedCurrencyString(amount, currency)}
-                        </div>
-                      </Localized>
-                    </div>
-
-                    <div className="plan-details-total-inner">
-                      <Localized id="coupon-discount">
-                        <div>Discount</div>
-                      </Localized>
-
-                      <Localized
-                        id={`coupon-amount`}
-                        attrs={{ title: true }}
-                        vars={{
-                          amount: getLocalizedCurrency(
-                            coupon.discountAmount,
-                            currency
-                          ),
-                          intervalCount: interval_count,
-                        }}
-                      >
-                        <div>
-                          {`- ${getLocalizedCurrencyString(
-                            coupon.discountAmount,
-                            currency
-                          )}`}
-                        </div>
-                      </Localized>
-                    </div>
-                  </div>
-                )}
-
-                <div className="plan-details-total-inner">
-                  <Localized id="plan-details-total-label">
-                    <div className="total-label">Total</div>
-                  </Localized>
-
-                  <Localized
-                    id={`plan-price-${interval}`}
-                    data-testid="plan-price-total"
-                    attrs={{ title: true }}
-                    vars={{
-                      amount:
-                        coupon && coupon.discountAmount
-                          ? getLocalizedCurrency(
-                              amount ? amount - coupon.discountAmount : amount,
-                              currency
-                            )
-                          : getLocalizedCurrency(amount, currency),
-                      intervalCount: interval_count,
-                    }}
-                  >
-                    <div
-                      className="total-price"
-                      title={planPrice}
-                      data-testid="total-price"
-                      id="total-price"
-                    >
-                      {planPrice}
-                    </div>
-                  </Localized>
+              {loading ? (
+                <div className="pb-4">
+                  <LoadingSpinner />
                 </div>
+              ) : (
+                <div className="plan-details-total">
+                  <div className="row-divider-grey-200 mb-4 pb-6">
+                    {!!subTotal && (
+                      <div className="plan-details-total-inner">
+                        <Localized id="plan-details-list-price">
+                          <div>List Price</div>
+                        </Localized>
+                        <Localized
+                          id={`list-price`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(subTotal, currency),
+                            intervalCount: interval_count,
+                          }}
+                        >
+                          <div>
+                            {getLocalizedCurrencyString(subTotal, currency)}
+                          </div>
+                        </Localized>
+                      </div>
+                    )}
+                    {!!taxAmount && (
+                      <div className="plan-details-total-inner">
+                        <Localized id="plan-details-tax">
+                          <div>Taxes and Fees</div>
+                        </Localized>
+                        <Localized
+                          id={`tax`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(taxAmount, currency),
+                            intervalCount: interval_count,
+                          }}
+                        >
+                          <div>
+                            {getLocalizedCurrencyString(taxAmount, currency)}
+                          </div>
+                        </Localized>
+                      </div>
+                    )}
+                    {!!discountAmount && (
+                      <div className="plan-details-total-inner">
+                        <Localized id="coupon-promo-code">
+                          <div>Promo Code</div>
+                        </Localized>
 
-                {infoBoxMessage &&
-                  (infoBoxMessage.couponDurationDate ? (
-                    <div
-                      className="green-icon-text coupon-info"
-                      data-testid="coupon-success-with-date"
-                    >
-                      <img src={infoLogo} alt="" />
+                        <Localized
+                          id={`coupon-amount`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(
+                              discountAmount,
+                              currency
+                            ),
+                            intervalCount: interval_count,
+                          }}
+                        >
+                          <div>
+                            {`- ${getLocalizedCurrencyString(
+                              discountAmount,
+                              currency
+                            )}`}
+                          </div>
+                        </Localized>
+                      </div>
+                    )}
+                  </div>
+                  {!!totalAmount && (
+                    <div className="plan-details-total-inner">
+                      <Localized id="plan-details-total-label">
+                        <div className="total-label">Total</div>
+                      </Localized>
 
                       <Localized
-                        id={infoBoxMessage.message}
+                        id={`plan-price-${interval}`}
+                        data-testid="plan-price-total"
+                        attrs={{ title: true }}
                         vars={{
-                          couponDurationDate: getLocalizedDate(
-                            infoBoxMessage.couponDurationDate,
-                            true
-                          ),
+                          amount: getLocalizedCurrency(totalAmount, currency),
+                          intervalCount: interval_count,
                         }}
                       >
-                        {infoBoxMessage.message}
+                        <div
+                          className="total-price"
+                          title={totalPrice}
+                          data-testid="total-price"
+                          id="total-price"
+                        >
+                          {totalPrice}
+                        </div>
                       </Localized>
                     </div>
-                  ) : (
-                    <div
-                      className="green-icon-text coupon-info"
-                      data-testid="coupon-success"
-                    >
-                      <img src={infoLogo} alt="" />
+                  )}
+                  {infoBoxMessage &&
+                    (infoBoxMessage.couponDurationDate ? (
+                      <div
+                        className="green-icon-text coupon-info"
+                        data-testid="coupon-success-with-date"
+                      >
+                        <img src={infoLogo} alt="" />
 
-                      <Localized id={infoBoxMessage.message}>
-                        {infoBoxMessage.message}
-                      </Localized>
-                    </div>
-                  ))}
-              </div>
+                        <Localized
+                          id={infoBoxMessage.message}
+                          vars={{
+                            couponDurationDate: getLocalizedDate(
+                              infoBoxMessage.couponDurationDate,
+                              true
+                            ),
+                          }}
+                        >
+                          {infoBoxMessage.message}
+                        </Localized>
+                      </div>
+                    ) : (
+                      <div
+                        className="green-icon-text coupon-info"
+                        data-testid="coupon-success"
+                      >
+                        <img src={infoLogo} alt="" />
+
+                        <Localized id={infoBoxMessage.message}>
+                          {infoBoxMessage.message}
+                        </Localized>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           )}
 

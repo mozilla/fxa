@@ -17,9 +17,24 @@ const Sentry = require('@sentry/node');
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
 
+// Keeps track of how many times a logger name has been used.
+const _registered = {};
+
 function Lug(options) {
+  const name = options.name || 'fxa-auth-server';
   EventEmitter.call(this);
-  this.name = options.name || 'fxa-auth-server';
+
+  // Ensure that names are unique. If two loggers are created with the same
+  // name, a double log scenario occurs.
+  if (_registered[name] === undefined) {
+    this.name = name;
+  } else {
+    let i = 1;
+    while (_registered[`${name}-${i}`] !== undefined) {
+      i++;
+    }
+    this.name = `${name}-${i}`;
+  }
 
   this.logger = mozlog({
     app: this.name,
@@ -27,12 +42,19 @@ function Lug(options) {
     stream: options.stderr || process.stderr,
     fmt: options.fmt,
   })();
+  _registered[this.name] = 1;
 
   this.stdout = options.stdout || process.stdout;
 
   this.nodeTracer = options.nodeTracer;
 
   this.notifier = require('./notifier')(this, statsd);
+
+  // Encourage avoiding scenarios where loggers names have to be incremented.
+  if (this.name !== name) {
+    const msg = `Logger with name of ${name} already registered. Adjusting name to ${this.name} to prevent double log scenario.`;
+    this.logger.warn('init', { msg });
+  }
 }
 util.inherits(Lug, EventEmitter);
 

@@ -199,6 +199,7 @@ describe('subscriptions stripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        stripeAutomaticTax: { enabled: false },
         paypalNvpSigCredentials: {
           enabled: false,
         },
@@ -415,6 +416,7 @@ describe('DirectStripeRoutes', () => {
     },
     app: {
       devices: ['deviceId1', 'deviceId2'],
+      clientAddress: '127.0.0.1',
     },
   };
 
@@ -427,6 +429,7 @@ describe('DirectStripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        stripeAutomaticTax: { enabled: false },
         productConfigsFirestore: { enabled: false },
       },
     };
@@ -617,7 +620,34 @@ describe('DirectStripeRoutes', () => {
       const actual = await directStripeRoutesInstance.createCustomer(
         VALID_REQUEST
       );
+      const callArgs =
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(
+          0
+        ).args;
+      assert.equal(callArgs[4], undefined);
 
+      assert.deepEqual(filterCustomer(expected), actual);
+    });
+
+    it('creates a stripe customer with the ip address on automatic tax', async () => {
+      const expected = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.createPlainCustomer.resolves(
+        expected
+      );
+      directStripeRoutesInstance.automaticTax = true;
+      VALID_REQUEST.payload = {
+        displayName: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createCustomer(
+        VALID_REQUEST
+      );
+      const callArgs =
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(
+          0
+        ).args;
+      assert.equal(callArgs[4], '127.0.0.1');
       assert.deepEqual(filterCustomer(expected), actual);
     });
   });
@@ -631,6 +661,9 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.info = {
+        remoteAddress: '1.1.1.1',
+      };
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
       );
@@ -641,7 +674,13 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
-        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+        {
+          automaticTax: false,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
     });
@@ -779,6 +818,9 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.info = {
+        remoteAddress: '1.1.1.1',
+      };
 
       const actual = await directStripeRoutesInstance.retrieveCouponDetails(
         VALID_REQUEST
@@ -786,7 +828,13 @@ describe('DirectStripeRoutes', () => {
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
-        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+        {
+          automaticTax: false,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
       );
 
       assert.deepEqual(actual, expected);
@@ -794,7 +842,7 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('createSubscriptionWithPMI', () => {
-    let plan, paymentMethod;
+    let plan, paymentMethod, customer;
 
     beforeEach(() => {
       plan = deepCopy(PLANS[2]);
@@ -805,7 +853,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
         paymentMethod
       );
-      const customer = deepCopy(emptyCustomer);
+      customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.returns(
         undefined
@@ -813,7 +861,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.setCustomerLocation.resolves();
     });
 
-    it('creates a subscription with a payment method', async () => {
+    function setupCreateSuccessWithTaxIds() {
       const sourceCountry = 'US';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
@@ -829,11 +877,10 @@ describe('DirectStripeRoutes', () => {
         paymentMethodId: 'pm_asdf',
         idempotencyKey: uuidv4(),
       };
+      return { sourceCountry, expected };
+    }
 
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
-
+    function assertSuccessWithTaxIds(sourceCountry, actual, expected) {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.getPaymentMethod,
         VALID_REQUEST.payload.paymentMethodId
@@ -870,48 +917,30 @@ describe('DirectStripeRoutes', () => {
         },
         actual
       );
-    });
+    }
 
-    it('creates a subscription with a payment method and promotion code', async () => {
-      const sourceCountry = 'us';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
-        sourceCountry
+    function assertSuccessWithAutomaticTax(sourceCountry, actual, expected) {
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod,
+        VALID_REQUEST.payload.paymentMethodId
       );
-      const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
-        expected
-      );
-      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
-      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
-      directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
-        coupon: { id: 'couponId' },
-      });
-      VALID_REQUEST.payload = {
-        priceId: 'Jane Doe',
-        paymentMethodId: 'pm_asdf',
-        promotionCode: 'promotionCode',
-        idempotencyKey: uuidv4(),
-      };
-
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
-
       sinon.assert.calledWith(
         directStripeRoutesInstance.customerChanged,
         VALID_REQUEST,
         UID,
         TEST_EMAIL
       );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode,
-        'US'
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode
       );
-      sinon.assert.calledOnce(
+      sinon.assert.notCalled(
         directStripeRoutesInstance.stripeHelper.customerTaxId
       );
-      sinon.assert.calledOnce(
+      sinon.assert.notCalled(
         directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
       );
 
       assert.deepEqual(
@@ -921,6 +950,25 @@ describe('DirectStripeRoutes', () => {
         },
         actual
       );
+    }
+
+    it('creates a subscription with a payment method', async () => {
+      const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+      assertSuccessWithTaxIds(sourceCountry, actual, expected);
+    });
+
+    it('creates a subscription with a payment method and promotion code', async () => {
+      const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
+      directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
+        coupon: { id: 'couponId' },
+      });
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+      assertSuccessWithTaxIds(sourceCountry, actual, expected);
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
@@ -931,6 +979,50 @@ describe('DirectStripeRoutes', () => {
             coupon: { id: 'couponId' },
           },
           taxRateId: undefined,
+        }
+      );
+    });
+
+    it('creates a subscription with a payment method using automatic tax', async () => {
+      const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
+      customer.tax = {
+        automatic_tax: 'supported',
+      };
+      directStripeRoutesInstance.automaticTax = true;
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+      assertSuccessWithAutomaticTax(sourceCountry, actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
+        {
+          customerId: 'cus_new',
+          priceId: 'Jane Doe',
+          paymentMethodId: 'pm_asdf',
+          promotionCode: undefined,
+          automatic_tax: true,
+        }
+      );
+    });
+
+    it('creates a subscription with a payment method using automatic tax but in an unsupported region', async () => {
+      const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
+      customer.tax = {
+        automatic_tax: 'unrecognized_location',
+      };
+      directStripeRoutesInstance.automaticTax = true;
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+      assertSuccessWithAutomaticTax(sourceCountry, actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
+        {
+          customerId: 'cus_new',
+          priceId: 'Jane Doe',
+          paymentMethodId: 'pm_asdf',
+          promotionCode: undefined,
+          automatic_tax: false,
         }
       );
     });
@@ -1113,6 +1205,7 @@ describe('DirectStripeRoutes', () => {
           managementClientId: MOCK_CLIENT_ID,
           managementTokenTTL: MOCK_TTL,
           stripeApiKey: 'sk_test_1234',
+          stripeAutomaticTax: { enabled: false },
         },
       };
 

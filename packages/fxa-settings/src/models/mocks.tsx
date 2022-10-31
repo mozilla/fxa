@@ -66,7 +66,7 @@ export function mockSession(verified: boolean = true) {
 }
 
 export const mockEmail = (
-  email: string,
+  email = 'johndope@example.com',
   isPrimary = true,
   verified = true
 ) => ({
@@ -85,4 +85,15 @@ export function mockAppContext(context?: AppContextValue) {
     },
     context
   ) as AppContextValue;
+}
+
+export function mockFlowContext(context?: FlowQueryParams) {
+  return Object.assign(
+    {
+      deviceId: 'x',
+      flowBeginTime: 1,
+      flowId: 'x',
+    },
+    context
+  )
 }

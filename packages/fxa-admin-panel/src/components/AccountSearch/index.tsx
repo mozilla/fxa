@@ -15,6 +15,7 @@ const ACCOUNT_SCHEMA = `
   disabledAt
   lockedAt
   locale
+  email
   emails {
     email
     isVerified

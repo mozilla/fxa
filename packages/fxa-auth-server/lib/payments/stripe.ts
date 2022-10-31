@@ -71,6 +71,7 @@ import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { stripeInvoiceToFirstInvoicePreviewDTO } from './stripe-formatter';
 import { generateIdempotencyKey } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
@@ -371,7 +372,8 @@ export class StripeHelper extends StripeHelperBase {
     uid: string,
     email: string,
     displayName: string,
-    idempotencyKey: string
+    idempotencyKey: string,
+    ipAddress?: string
   ): Promise<Stripe.Customer> {
     const stripeCustomer = await this.stripe.customers.create(
       {
@@ -379,6 +381,7 @@ export class StripeHelper extends StripeHelperBase {
         name: displayName,
         description: uid,
         metadata: { userid: uid },
+        ...{ tax: { ip_address: ipAddress } },
       },
       {
         idempotency_key: idempotencyKey,
@@ -654,19 +657,19 @@ export class StripeHelper extends StripeHelperBase {
    * a promotion code.
    */
   async previewInvoice({
+    automaticTax,
     country,
+    ipAddress,
     priceId,
     promotionCode,
   }: {
+    automaticTax: boolean;
     country: string;
+    ipAddress: string;
     priceId: string;
     promotionCode?: string;
   }) {
     const params: Stripe.InvoiceRetrieveUpcomingParams = {};
-    const taxRate = await this.taxRateByCountryCode(country);
-    if (taxRate) {
-      params.subscription_default_tax_rates = [taxRate.id];
-    }
 
     if (promotionCode) {
       const stripePromotionCode = await this.findValidPromoCode(
@@ -677,19 +680,54 @@ export class StripeHelper extends StripeHelperBase {
         params['coupon'] = stripePromotionCode.coupon.id;
       }
     }
-    return this.stripe.invoices.retrieveUpcoming({
-      customer_details: {
-        address: {
-          country,
+
+    if (automaticTax) {
+      try {
+        return this.stripe.invoices.retrieveUpcoming({
+          automatic_tax: {
+            enabled: true,
+          },
+          customer_details: {
+            tax: {
+              ip_address: ipAddress,
+            },
+          },
+          subscription_items: [
+            {
+              price: priceId,
+            },
+          ],
+          ...params,
+        });
+      } catch (e: any) {
+        this.log.warn('stripe.previewInvoice.automatic_tax', {
+          ipAddress,
+          priceId,
+          promotionCode,
+        });
+
+        throw e;
+      }
+    } else {
+      const taxRate = await this.taxRateByCountryCode(country);
+      if (taxRate) {
+        params.subscription_default_tax_rates = [taxRate.id];
+      }
+
+      return this.stripe.invoices.retrieveUpcoming({
+        customer_details: {
+          address: {
+            country,
+          },
         },
-      },
-      subscription_items: [
-        {
-          price: priceId,
-        },
-      ],
-      ...params,
-    });
+        subscription_items: [
+          {
+            price: priceId,
+          },
+        ],
+        ...params,
+      });
+    }
   }
 
   /**
@@ -894,11 +932,15 @@ export class StripeHelper extends StripeHelperBase {
    * exist for the provided priceId.
    */
   async retrieveCouponDetails({
+    automaticTax,
     country,
+    ipAddress,
     priceId,
     promotionCode,
   }: {
+    automaticTax: boolean;
     country: string;
+    ipAddress: string;
     priceId: string;
     promotionCode: string;
   }): Promise<Coupon.couponDetailsSchema> {
@@ -928,10 +970,13 @@ export class StripeHelper extends StripeHelperBase {
         try {
           const { currency, discount, total, total_discount_amounts } =
             await this.previewInvoice({
+              automaticTax,
               country,
+              ipAddress,
               priceId,
               promotionCode,
             });
+
           const minAmount = getMinimumAmount(currency);
           if (total !== 0 && minAmount && total < minAmount) {
             throw error.invalidPromoCode(promotionCode);
@@ -1614,7 +1659,11 @@ export class StripeHelper extends StripeHelperBase {
    */
   async fetchCustomer(
     uid: string,
-    expand?: ('subscriptions' | 'invoice_settings.default_payment_method')[]
+    expand?: (
+      | 'subscriptions'
+      | 'invoice_settings.default_payment_method'
+      | 'tax'
+    )[]
   ): Promise<Stripe.Customer | void> {
     try {
       return await super.fetchCustomer(uid, expand);
@@ -2374,18 +2423,32 @@ export class StripeHelper extends StripeHelperBase {
       (line) => line.type === 'subscription'
     );
 
-    if (!subscriptionLineItem) {
-      // No subscription is present for the invoice. This should never happen
+    // In certain instances the invoice won't have a 'subscription' line item.
+    // In those cases, select the 'invoiceitem' without proration_details.credited_items
+    const invoiceitemLineItem = !subscriptionLineItem
+      ? invoice.lines.data.find(
+          (line) =>
+            line.type === 'invoiceitem' &&
+            !line.proration_details?.credited_items
+        )
+      : undefined;
+
+    const lineItem = subscriptionLineItem || invoiceitemLineItem;
+
+    if (!lineItem) {
+      // No subscription or invoiceitem is present for the invoice. This should never happen
       // since all invoices have a related incoming subscription as one of the line items.
       throw error.internalValidationError(
         'extractInvoiceDetailsForEmail',
         invoice,
-        new Error(`No subscription line items found for invoice: ${invoice.id}`)
+        new Error(
+          `No subscription or invoiceitem line items found for invoice: ${invoice.id}`
+        )
       );
     }
 
     // Dig up & expand objects in the invoice that usually come as just IDs
-    const { plan } = subscriptionLineItem;
+    const { plan } = lineItem;
     if (!plan) {
       // No plan is present if this is not a subscription or proration, which
       // should never happen as we only have subscriptions.
@@ -2415,7 +2478,9 @@ export class StripeHelper extends StripeHelperBase {
       !!invoice.discounts?.length &&
       invoice.discounts.length === 1
     ) {
-      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id!);
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(
+        invoice.id!
+      );
       const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
       discountType = discount.coupon.duration;
       discountDuration = discount.coupon.duration_in_months;
@@ -2460,7 +2525,7 @@ export class StripeHelper extends StripeHelperBase {
       tax: invoiceTaxAmountInCents,
     } = invoice;
 
-    const nextInvoiceDate = subscriptionLineItem.period.end;
+    const nextInvoiceDate = lineItem.period.end;
 
     const invoiceDiscountAmountInCents =
       (invoice.total_discount_amounts &&

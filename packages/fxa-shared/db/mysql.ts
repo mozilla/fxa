@@ -188,7 +188,6 @@ export class MysqlStoreShared {
     log?.info('MysqlStoreShared', {
       msg: 'MysqlStoreShared: Creating new MysqlStoreShared.',
       poolStats: getPoolStats(),
-      stack: Error().stack,
     });
   }
 

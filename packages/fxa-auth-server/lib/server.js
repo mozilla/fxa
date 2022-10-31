@@ -9,12 +9,13 @@ const Hapi = require('@hapi/hapi');
 const HapiSwagger = require('hapi-swagger');
 const path = require('path');
 const url = require('url');
+const { getRemoteAddressChain } = require('./getRemoteAddressChain');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
-const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
+const { HEX_STRING } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
@@ -192,14 +193,7 @@ async function create(log, error, config, routes, db, statsd) {
 
   server.ext('onPreAuth', (request, h) => {
     defineLazyGetter(request.app, 'remoteAddressChain', () => {
-      const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
-
-      xff.push(request.info.remoteAddress);
-
-      return xff
-        .filter(Boolean)
-        .map((address) => address.trim())
-        .filter((address) => !IP_ADDRESS.required().validate(address).error);
+      return getRemoteAddressChain(request, config.remoteAddressChainOverride);
     });
 
     defineLazyGetter(request.app, 'clientAddress', () => {

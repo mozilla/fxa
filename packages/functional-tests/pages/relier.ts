@@ -5,7 +5,7 @@ export class RelierPage extends BaseLayout {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;
-    return this.page.goto(url);
+    return this.page.goto(url, { waitUntil: 'networkidle' });
   }
 
   async isLoggedIn() {
@@ -30,6 +30,17 @@ export class RelierPage extends BaseLayout {
       this.page.click('button.email-first-button'),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
+  }
+
+  clickForceAuth() {
+    return Promise.all([
+      this.page.click('button.force-auth'),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
+    ]);
+  }
+
+  clickChooseFlow() {
+    return this.page.click('button.sign-choose');
   }
 
   async clickSubscribe() {

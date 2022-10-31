@@ -21,6 +21,8 @@ executors:
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1
           AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
+          TRACING_SERVICE_NAME: ci-content-server-executor
+          TRACING_CONSOLE_EXPORTER_ENABLED: true
     environment:
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
@@ -103,6 +105,8 @@ jobs:
     environment:
       NODE_ENV: dev
       FIRESTORE_EMULATOR_HOST: localhost:9090
+      TRACING_SERVICE_NAME: ci-test-package
+      TRACING_CONSOLE_EXPORTER_ENABLED: true
     parameters:
       package:
         type: string
@@ -126,6 +130,9 @@ jobs:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
+    environment:
+      TRACING_SERVICE_NAME: ci-test-many
+      TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
       - base-install
       - run:
@@ -268,6 +275,8 @@ jobs:
       - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev
+      TRACING_SERVICE_NAME: ci-playwright-functional-tests
+      TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat

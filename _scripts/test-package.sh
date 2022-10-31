@@ -19,7 +19,8 @@ if [[ -z "$PACKAGE" ]]; then
   >&2 echo "$help"
   exit 1
 elif [[ "$PACKAGE" == "all" ]]; then
-  yarn workspaces foreach --topological-dev run test
+  yarn stop && yarn start infrastructure && \
+  yarn workspaces foreach --topological-dev -v -p --exclude '*fxa-content-server*' --exclude '*functional-tests*' run test
 else
   echo "$workspaces run test" | xargs yarn workspaces foreach --topological-dev
 fi

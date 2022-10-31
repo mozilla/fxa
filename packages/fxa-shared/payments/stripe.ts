@@ -204,7 +204,11 @@ export abstract class StripeHelper {
    */
   async fetchCustomer(
     uid: string,
-    expand?: ('subscriptions' | 'invoice_settings.default_payment_method')[]
+    expand?: (
+      | 'subscriptions'
+      | 'invoice_settings.default_payment_method'
+      | 'tax'
+    )[]
   ): Promise<Stripe.Customer | void> {
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
@@ -252,9 +256,10 @@ export abstract class StripeHelper {
       );
     }
 
-    // There's only 2 expansions used in our code-base:
+    // There's only 3 expansions used in our code-base:
     //  - subscriptions
     //  - invoice_settings.default_payment_method
+    //  - tax
     // Subscriptions is already expanded. Manually fetch the other if needed.
     if (expand?.includes('invoice_settings.default_payment_method')) {
       customer.invoice_settings.default_payment_method =
@@ -262,6 +267,16 @@ export abstract class StripeHelper {
           customer.invoice_settings.default_payment_method,
           PAYMENT_METHOD_RESOURCE
         );
+    }
+    if (expand?.includes('tax')) {
+      const customerWithTax = await this.stripe.customers.retrieve(
+        customer.id,
+        { expand: ['tax'] }
+      );
+      if (customerWithTax.deleted) {
+        return;
+      }
+      customer.tax = customerWithTax.tax;
     }
 
     return customer;

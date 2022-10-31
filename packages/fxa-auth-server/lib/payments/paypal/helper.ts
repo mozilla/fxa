@@ -53,6 +53,7 @@ export type ChargeCustomerOptions = {
   idempotencyKey: string;
   invoiceNumber: string;
   ipaddress?: string;
+  taxAmountInCents?: number;
 };
 
 export type ChargeResponse = {
@@ -267,6 +268,11 @@ export class PayPalHelper {
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
       ...(options.ipaddress && { ipaddress: options.ipaddress }),
+      ...(options.taxAmountInCents && {
+        taxAmount: this.currencyHelper.getPayPalAmountStringFromAmountInCents(
+          options.taxAmountInCents
+        ),
+      }),
     };
     const response = await this.client.doReferenceTransaction(
       doReferenceTransactionOptions
@@ -467,6 +473,7 @@ export class PayPalHelper {
         currencyCode: invoice.currency,
         idempotencyKey,
         ...(ipaddress && { ipaddress }),
+        ...(invoice.tax && { taxAmountInCents: invoice.tax }),
       }),
     ];
     if (invoice.status === 'draft') {

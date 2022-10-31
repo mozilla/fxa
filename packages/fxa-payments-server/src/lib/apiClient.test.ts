@@ -27,6 +27,7 @@ import {
   MOCK_TOKEN,
   MOCK_PAYPAL_SUBSCRIPTION_RESULT,
   MOCK_PLANS,
+  PLAN_ID,
 } from './test-utils';
 
 import {
@@ -38,6 +39,7 @@ import {
   apiFetchSubscriptions,
   apiFetchToken,
   apiFetchCustomer,
+  apiFetchPlanUpgradeEligibility,
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
@@ -228,6 +230,23 @@ describe('API requests', () => {
         )
         .reply(200, MOCK_CUSTOMER);
       expect(await apiFetchCustomer()).toEqual(MOCK_CUSTOMER);
+      requestMock.done();
+    });
+  });
+
+  describe('apiFetchPlanUpgradeEligibility', () => {
+    const path = (planId: string) =>
+      `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`;
+    it(`GET {auth-server}${path}`, async () => {
+      const planId = 'plan_12345';
+      const requestMock = nock(AUTH_BASE_URL)
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`
+        )
+        .reply(200, MOCK_PLANS[0]);
+      expect(await apiFetchPlanUpgradeEligibility(PLAN_ID)).toEqual(
+        MOCK_PLANS[0]
+      );
       requestMock.done();
     });
   });

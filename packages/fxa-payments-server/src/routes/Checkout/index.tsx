@@ -68,18 +68,17 @@ import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
-const ariaLabelledBy = "newsletter-error-alert-bar-header";
 
 const NewsletterErrorAlertBar = () => {
   return (
     <AlertBar
-      className="alert newsletter-error"
+      className="alert-newsletter-error"
       dataTestId="newsletter-signup-error-message"
-      headerId={ariaLabelledBy}
+      headerId="newsletter-error-alert-bar-header"
       localizedId="newsletter-signup-error"
     >
-      You’re not signed up for product update emails. You can try again in
-      your account settings.
+      You’re not signed up for product update emails. You can try again in your
+      account settings.
     </AlertBar>
   );
 };
@@ -133,6 +132,7 @@ export const Checkout = ({
   useEffect(() => {
     fetchCheckoutRouteResources();
   }, [fetchCheckoutRouteResources]);
+
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
   const signInQueryParams = { ...queryParams, signin: 'yes' };
@@ -345,9 +345,12 @@ export const Checkout = ({
         />
 
         <div
-          className={classNames("checkout-payment bg-white border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 text-grey-600", {
-            hidden: transactionInProgress || subscriptionError,
-          })}
+          className={classNames(
+            'checkout-payment bg-white border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 text-grey-600',
+            {
+              hidden: transactionInProgress || subscriptionError,
+            }
+          )}
           data-testid="subscription-create"
         >
           <Localized id="new-user-step-1">
@@ -468,9 +471,7 @@ export const Checkout = ({
           </div>
         </div>
 
-        { (transactionInProgress && isMobile)
-          ? null
-          : (
+        {transactionInProgress && isMobile ? null : (
           <PlanDetails
             {...{
               selectedPlan,

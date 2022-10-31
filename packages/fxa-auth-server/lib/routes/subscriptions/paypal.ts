@@ -43,6 +43,7 @@ const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
   subscriptionAccountReminders: any;
+  automaticTax: boolean;
 
   constructor(
     log: AuthLogger,
@@ -58,6 +59,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.paypalHelper = Container.get(PayPalHelper);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -97,11 +99,17 @@ export class PayPalHandler extends StripeWebhookHandler {
 
       let customer = await this.stripeHelper.fetchCustomer(uid, [
         'subscriptions',
+        'tax',
       ]);
 
       if (!customer) {
         throw error.unknownCustomer(uid);
       }
+
+      // Creating a subscription with automatic_tax enabled requires a customer with an address
+      // that is in a recognized location with an active tax registration.
+      const taxSubscription =
+        this.automaticTax && customer.tax?.automatic_tax === 'supported';
 
       const isPaypalCustomer = hasPaypalSubscription(customer);
       const { token, metricsContext } = request.payload as Record<
@@ -132,8 +140,13 @@ export class PayPalHandler extends StripeWebhookHandler {
             request,
             uid,
             customer,
+            taxSubscription,
           })
-        : await this._createPaypalSubscription({ request, customer });
+        : await this._createPaypalSubscription({
+            request,
+            customer,
+            taxSubscription,
+          });
 
       await this.customerChanged(request, uid, email);
 
@@ -184,10 +197,12 @@ export class PayPalHandler extends StripeWebhookHandler {
     request,
     uid,
     customer,
+    taxSubscription,
   }: {
     request: AuthRequest;
     uid: string;
     customer: Stripe.Customer;
+    taxSubscription: boolean;
   }) {
     const {
       priceId,
@@ -207,13 +222,21 @@ export class PayPalHandler extends StripeWebhookHandler {
         location: request.app.geo.location,
       });
 
-    const taxRate = await this.stripeHelper.taxRateByCountryCode(
-      agreementDetails.countryCode
-    );
-
-    if (!this.stripeHelper.customerTaxId(customer)) {
-      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+    // TODO: Remove the following in FXA-6091
+    let taxRateId: string | undefined;
+    if (!this.automaticTax && agreementDetails.countryCode) {
+      if (!this.stripeHelper.customerTaxId(customer)) {
+        await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+      }
+      const taxRate = await this.stripeHelper.taxRateByCountryCode(
+        agreementDetails.countryCode
+      );
+      taxRateId = taxRate?.id;
     }
+
+    const taxOptions = this.automaticTax
+      ? { automatic_tax: taxSubscription }
+      : { taxRateId };
 
     let subscription;
     [subscription, customer] = await Promise.all([
@@ -222,10 +245,20 @@ export class PayPalHandler extends StripeWebhookHandler {
         priceId,
         promotionCode,
         subIdempotencyKey: idempotencyKey,
-        taxRateId: taxRate?.id,
+        ...taxOptions,
       }),
       this.stripeHelper.updateCustomerPaypalAgreement(customer, agreementId),
     ]);
+
+    if (this.automaticTax && !taxSubscription) {
+      this.log.warn(
+        'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
+        {
+          uid,
+          automatic_tax: customer.tax?.automatic_tax,
+        }
+      );
+    }
 
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
     if (latestInvoice.amount_due < getMinimumAmount(latestInvoice.currency)) {
@@ -235,7 +268,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice: latestInvoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       } catch (err) {
         // We must delete the subscription and billing agreement if the transaction
@@ -258,9 +291,11 @@ export class PayPalHandler extends StripeWebhookHandler {
   async _createPaypalSubscription({
     request,
     customer,
+    taxSubscription,
   }: {
     request: AuthRequest;
     customer: Stripe.Customer;
+    taxSubscription: boolean;
   }) {
     const {
       priceId,
@@ -269,22 +304,32 @@ export class PayPalHandler extends StripeWebhookHandler {
     } = request.payload as Record<string, string>;
     const promotionCode: Stripe.PromotionCode | undefined =
       await this.extractPromotionCode(promotionCodeFromRequest, priceId);
-    const taxRate = customer.address?.country
-      ? await this.stripeHelper.taxRateByCountryCode(customer.address?.country)
-      : undefined;
 
     const currency = (await this.stripeHelper.findAbbrevPlanById(priceId))
       .currency;
-    if (!this.stripeHelper.customerTaxId(customer)) {
-      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+
+    // TODO: Remove the following in FXA-6091
+    let taxRateId: string | undefined;
+    if (!this.automaticTax && customer.address?.country) {
+      if (!this.stripeHelper.customerTaxId(customer)) {
+        await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+      }
+      const taxRate = await this.stripeHelper.taxRateByCountryCode(
+        customer.address.country
+      );
+      taxRateId = taxRate?.id;
     }
+
+    const taxOptions = this.automaticTax
+      ? { automatic_tax: taxSubscription }
+      : { taxRateId };
 
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,
       promotionCode: promotionCode,
       subIdempotencyKey: idempotencyKey,
-      taxRateId: taxRate?.id,
+      ...taxOptions,
     });
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
     if (latestInvoice.amount_due < getMinimumAmount(latestInvoice.currency)) {
@@ -294,7 +339,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice: latestInvoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       } catch (err) {
         // We must delete the subscription since we cannot have 'incomplete'
@@ -396,7 +441,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         await this.paypalHelper.processInvoice({
           customer,
           invoice,
-          ipaddress: request.info.remoteAddress,
+          ipaddress: request.app.clientAddress,
         });
       }
     } catch (err) {

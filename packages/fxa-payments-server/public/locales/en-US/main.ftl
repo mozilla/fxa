@@ -60,6 +60,14 @@ fxa-account-signup-error-2 = A system error caused your { $productName } sign-up
 newsletter-signup-error = You’re not signed up for product update emails. You can try again in your account settings.
 fxa-post-passwordless-sub-error = Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.
 
+## IAP upgrade errors
+
+# $productName (String) - The name of the subscribed product.
+iap-upgrade-already-subscribed = You already have a { $productName } subscription via the { -brand-name-google } or { -brand-name-apple } app stores.
+iap-upgrade-no-bundle-support = We don’t support upgrades for these subscriptions, but we will soon.
+iap-upgrade-contact-support = You can still get this product — please contact support so we can help you.
+iap-upgrade-get-help-button = Get help
+
 ## Settings
 
 settings-home = Account Home
@@ -79,6 +87,7 @@ subscription-processing-title = Confirming subscription…
 subscription-error-title = Error confirming subscription…
 subscription-noplanchange-title = This subscription plan change is not supported
 subscription-iapsubscribed-title = Already subscribed
+subscription-iaperrorupgrade-title = We can’t upgrade you quite yet
 
 ## $productName (String) - The name of the subscribed product.
 ## $amount (Number) - The amount billed. It will be formatted as currency.
@@ -353,11 +362,16 @@ plan-details-show-button = Show details
 plan-details-hide-button = Hide details
 plan-details-total-label = Total
 plan-details-list-price = List Price
+plan-details-tax = Taxes and Fees
 
 ## Coupons
 
 coupon-discount = Discount
 coupon-discount-applied = Discount Reward Applied
+# Title of container where a user can input a coupon code to get a discount on a subscription.
+coupon-promo-code = Promo Code
+# Title of container showing discount coupon code applied to a subscription.
+coupon-promo-code-applied = Promo Code Applied
 coupon-submit = Apply
 coupon-remove = Remove
 coupon-error = The code you entered is invalid or expired.

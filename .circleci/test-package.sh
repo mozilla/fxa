@@ -8,6 +8,10 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
   echo -e "\n###################################"
   echo "# testing $MODULE"
   echo -e "###################################\n"
+
+  echo -e "TRACING_SERVICE_NAME=$TRACING_SERVICE_NAME"
+  echo -e "TRACING_CONSOLE_EXPORTER_ENABLED=$TRACING_CONSOLE_EXPORTER_ENABLED"
+
   if [[ -x scripts/test-ci.sh ]]; then
     time ./scripts/test-ci.sh
   else

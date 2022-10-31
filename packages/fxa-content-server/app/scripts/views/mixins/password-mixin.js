@@ -106,7 +106,9 @@ export default {
 
   onShowPasswordMouseUp(event) {
     // return focus to input
-    this.$(event.target).siblings('[id*="password"]:not([id^="show-"])').focus();
+    this.$(event.target)
+      .siblings('input[id*="password"]:not([id^="show-"])')
+      .focus();
   },
 
   togglePasswordVisibility($el) {

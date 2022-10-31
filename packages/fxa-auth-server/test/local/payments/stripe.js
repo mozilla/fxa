@@ -74,6 +74,7 @@ const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const invoicePaidSubscriptionCreateDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const invoicePaidSubscriptionCreateTaxDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_tax_discount.json');
+const invoiceDraftProrationRefund = require('./fixtures/stripe/invoice_draft_proration_refund.json');
 const invoicePaidSubscriptionCreateTax = require('./fixtures/stripe/invoice_paid_subscription_create_tax.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
@@ -123,6 +124,7 @@ const mockConfig = {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
+    stripeAutomaticTax: { enabled: false },
   },
   subhub: {
     enabled: true,
@@ -342,6 +344,38 @@ describe('StripeHelper', () => {
         uuidv4()
       );
       assert.deepEqual(actual, expected);
+      sinon.assert.calledWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        uid,
+        expected
+      );
+    });
+
+    it('creates a customer using the stripe api with an ipaddress', async () => {
+      const expected = deepCopy(newCustomerPM);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      const uid = chance.guid({ version: 4 }).replace(/-/g, '');
+      const idempotencyKey = uuidv4();
+      const actual = await stripeHelper.createPlainCustomer(
+        uid,
+        'joe@example.com',
+        'Joe Cool',
+        idempotencyKey,
+        '127.0.0.1'
+      );
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.create,
+        {
+          email: 'joe@example.com',
+          name: 'Joe Cool',
+          description: uid,
+          metadata: { userid: uid },
+          tax: { ip_address: '127.0.0.1' },
+        },
+        { idempotency_key: idempotencyKey }
+      );
       sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.insertCustomerRecord,
         uid,
@@ -1731,13 +1765,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
@@ -1766,13 +1804,17 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        automaticTax: false,
         country: 'US',
+        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
       });
@@ -2009,6 +2051,82 @@ describe('StripeHelper', () => {
         });
       } catch (e) {
         assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
+    });
+  });
+
+  describe('previewInvoice', () => {
+    it('uses country when automatic tax is not enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(stripeHelper, 'taxRateByCountryCode').resolves();
+
+      await stripeHelper.previewInvoice({
+        automaticTax: false,
+        country: 'US',
+        ipAddress: '1.1.1.1',
+        priceId: 'priceId',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        customer_details: {
+          address: {
+            country: 'US',
+          },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+      });
+    });
+
+    it('uses ipAddress when automatic tax is enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+
+      await stripeHelper.previewInvoice({
+        automaticTax: true,
+        country: 'US',
+        ipAddress: '1.1.1.1',
+        priceId: 'priceId',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        automatic_tax: {
+          enabled: true,
+        },
+        customer_details: {
+          tax: {
+            ip_address: '1.1.1.1',
+          },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+      });
+    });
+
+    it('logs when there is an error when automatic tax is enabled', async () => {
+      // const logStub = sandbox.stub(stripeHelper.log, 'warn');
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .throws(new Error());
+
+      try {
+        await stripeHelper.previewInvoice({
+          automaticTax: true,
+          country: 'US',
+          ipAddress: '1.1.1.1',
+          priceId: 'priceId',
+        });
+      } catch (e) {
+        sinon.assert.calledOnce(stripeHelper.log.warn);
       }
     });
   });
@@ -3885,6 +4003,28 @@ describe('StripeHelper', () => {
       // reset for tests:
       existingCustomer = await createAccountCustomer(existingUid, customer1.id);
     });
+
+    it('expands the tax information if present', async () => {
+      const customer = deepCopy(customer1);
+      const customerSecond = deepCopy(customer1);
+      customerSecond.tax = {
+        location: { country: 'US', state: 'CA', source: 'billing_address' },
+        ip_address: null,
+        automatic_tax: 'supported',
+      };
+      sandbox.stub(stripeHelper, 'expandResource').returns(customer);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .resolves(customerSecond);
+      const result = await stripeHelper.fetchCustomer(existingCustomer.uid, [
+        'tax',
+      ]);
+      const customerResult = {
+        ...customer,
+        tax: customerSecond.tax,
+      };
+      assert.deepEqual(result, customerResult);
+    });
   });
 
   describe('removeCustomer', () => {
@@ -4882,6 +5022,21 @@ describe('StripeHelper', () => {
         },
       });
 
+      const fixtureProrationRefund = { ...invoiceDraftProrationRefund };
+      fixtureProrationRefund.lines.data[1] = {
+        ...fixtureProrationRefund.lines.data[1],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+        period: {
+          end: 1587767020,
+          start: 1585088620,
+        },
+      };
+
       const planConfig = {
         urls: {
           emailIcon: 'http://firestore.example.gg/email.ico',
@@ -5118,6 +5273,16 @@ describe('StripeHelper', () => {
         });
       });
 
+      it('extracts expected details from an invoice without line item of type "subscription"', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureProrationRefund
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, expected);
+      });
+
       it('throws an exception for deleted customer', async () => {
         expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
 
@@ -5171,9 +5336,9 @@ describe('StripeHelper', () => {
         assert.equal(thrownError.name, 'TypeError');
       });
 
-      it('throws an exception if invoice line items doesnt have type = "subscription"', async () => {
+      it('throws an exception if invoice line items doesnt have type = "subscription" or "invoiceitem"', async () => {
         const fixture = deepCopy(invoicePaidSubscriptionCreate);
-        fixture.lines.data[0].type = 'invoiceitem';
+        fixture.lines.data[0].type = 'none';
         try {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
           assert.fail();

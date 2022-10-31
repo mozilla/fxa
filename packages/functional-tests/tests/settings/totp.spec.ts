@@ -73,7 +73,18 @@ test.describe('severity-1 #smoke', () => {
     await totp.submit();
     await settings.waitForAlertBar();
     await settings.signOut();
-    await login.login(credentials.email, credentials.password, newCodes[0]);
+    await login.login(credentials.email, credentials.password);
+
+    // Make sure an invalid code doesn't work
+    await login.clickUseRecoveryCode();
+    await login.setCode('invalid!!!!');
+    await login.submitButton.click();
+    await expect(login.tooltip).toContainText('Invalid');
+
+    // Apply the correct code
+    await login.setCode(newCodes[0]);
+    await login.submit();
+
     expect(page.url()).toMatch(settings.url);
   });
 

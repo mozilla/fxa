@@ -9,6 +9,7 @@ const CI = !!process.env.CI;
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
 // see .vscode/launch.json
 const DEBUG = !!process.env.DEBUG;
+const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 
 const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   outputDir: path.resolve(__dirname, '../../artifacts/functional'),
@@ -31,6 +32,7 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
               args: DEBUG ? ['-start-debugger-server'] : undefined,
               firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
               headless: !DEBUG,
+              slowMo: SLOWMO,
             },
             trace: CI ? 'on-first-retry' : 'retain-on-failure',
           },
