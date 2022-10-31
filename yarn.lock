@@ -25352,7 +25352,7 @@ fsevents@~2.1.1:
     react: ^16.13.1
     react-async-hook: ^4.0.0
     react-dom: ^16.13.1
-    react-easy-crop: ^4.5.0
+    react-easy-crop: ^4.6.1
     react-hook-form: ^6.15.8
     react-scripts: ^4.0.3
     react-test-renderer: ^17.0.2
@@ -39655,16 +39655,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-easy-crop@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "react-easy-crop@npm:4.5.0"
+"react-easy-crop@npm:^4.6.1":
+  version: 4.6.1
+  resolution: "react-easy-crop@npm:4.6.1"
   dependencies:
     normalize-wheel: ^1.0.1
     tslib: 2.0.1
   peerDependencies:
     react: ">=16.4.0"
     react-dom: ">=16.4.0"
-  checksum: 3388083ac5a6a1498bae8bc5bd7071a6254f6153c29282316cdcae93e95c8f74181ce1705c2b6428533e714c47f8a933adf676bedc5e18d7af165fecf483b5d8
+  checksum: 626359504f489fafe9c61015ad2acfe1c7670299a99d7ef30828f049ce33fcd23d127c03b6abdf284b2837c531c3b80536a772c54703e0981d71f924125e937b
   languageName: node
   linkType: hard
 
