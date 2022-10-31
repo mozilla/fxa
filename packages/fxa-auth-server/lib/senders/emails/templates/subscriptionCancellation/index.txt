@@ -2,6 +2,10 @@ subscriptionCancellation-subject = "Your <%- productName %> subscription has bee
 
 subscriptionCancellation-title = "Sorry to see you go"
 
+<% if (!showOutstandingBalance) { %>
 subscriptionCancellation-content = "We’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>. Your service will continue until the end of your current billing period, which is <%- serviceLastActiveDateOnly %>."
+<% } else { %>
+subscriptionCancellation-outstanding-content = "We’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> will be paid on <%- invoiceDateOnly %>. Your service will continue until the end of your current billing period, which is <%- serviceLastActiveDateOnly %>."
+<% } %>
 
 <%- include ('/partials/cancellationSurvey/index.txt') %>

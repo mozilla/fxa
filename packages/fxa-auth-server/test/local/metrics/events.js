@@ -25,6 +25,7 @@ const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
 const events = proxyquire('../../../lib/metrics/events', {
   './amplitude': amplitudeModule,
 })(log, {
+  amplitude: { rawEvents: false },
   oauth: {
     clientIds: {},
   },

@@ -72,7 +72,7 @@ const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 const NewsletterErrorAlertBar = () => {
   return (
     <AlertBar
-      className="newsletter-error"
+      className="alert-newsletter-error"
       dataTestId="newsletter-signup-error-message"
       headerId="newsletter-error-alert-bar-header"
       localizedId="newsletter-signup-error"
@@ -197,7 +197,8 @@ export const Checkout = ({
         } else {
           // Some Stripe APIs like `createPaymentMethod` return an object with
           // an error property on error.
-          setSubscriptionError(error?.error || error);
+          const err = typeof error.error === 'string' ? error : error.error;
+          setSubscriptionError(err);
         }
       }
       setInProgress(false);

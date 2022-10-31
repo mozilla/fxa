@@ -19,6 +19,7 @@ export type IapRoadblockProps = {
   isMobile: boolean;
   profile: Profile;
   customer: Customer;
+  currentPlan: Plan;
   selectedPlan: Plan;
   subscription?: IapSubscription;
   code: string;
@@ -39,6 +40,7 @@ const getIapSubscriptionAppStoreL10Id = (
 export const IapRoadblock = ({
   profile,
   isMobile,
+  currentPlan,
   selectedPlan,
   subscription,
   code,
@@ -74,7 +76,7 @@ export const IapRoadblock = ({
             subscriptionTitle: title,
             error: { code },
             actionFn: manageSubscription,
-            plan: selectedPlan,
+            plan: currentPlan,
             contentProps: { mobileAppStore },
           }}
         />
