@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import Stripe from 'stripe';
 import { MozSubscription } from '../gql/model/moz-subscription.model';
 import { AppStoreService } from './appstore.service';
 import { PlayStoreService } from './playstore.service';
@@ -15,6 +16,20 @@ import {
   PlayStoreFormatter,
   StripeFormatter,
 } from './subscriptions.formatters';
+
+/**
+ * List of valid of subscription statuses. This should be all known
+ * stripe subscription types.
+ */
+export const VALID_SUBSCRIPTION_STATUSES: Stripe.Subscription.Status[] = [
+  'active',
+  'canceled',
+  'incomplete',
+  'incomplete_expired',
+  'past_due',
+  'trialing',
+  'unpaid',
+];
 
 /**
  * Provides access to account subscriptions
@@ -89,9 +104,12 @@ export class SubscriptionsService {
       return;
     }
 
-    const customer = await this.stripeService.fetchCustomer(uid, [
-      'subscriptions',
-    ]);
+    const customer = await this.stripeService.fetchCustomer(
+      uid,
+      ['subscriptions'],
+      VALID_SUBSCRIPTION_STATUSES
+    );
+
     for (const subscription of customer?.subscriptions?.data || []) {
       // Inspired by code in auth-server payments ;]
       const plan = await plans.find(
