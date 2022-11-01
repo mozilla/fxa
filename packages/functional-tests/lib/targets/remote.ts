@@ -7,12 +7,11 @@ export abstract class RemoteTarget extends BaseTarget {
     password: string,
     options?: any
   ): Promise<Credentials> {
-    const creds = await this.auth.signUp(email, password);
+    const creds = await this.auth.signUp(email, password, options || {});
     const code = await this.email.waitForEmail(
       email,
       EmailType.verify,
-      EmailHeader.verifyCode,
-      ...(options || {})
+      EmailHeader.verifyCode
     );
     await this.auth.verifyCode(creds.uid, code);
     await this.email.clear(email);
