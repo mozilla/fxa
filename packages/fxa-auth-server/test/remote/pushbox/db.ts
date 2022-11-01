@@ -111,4 +111,10 @@ describe('pushbox db', () => {
       assert.equal(result.index, insertIdx - 2);
     });
   });
+
+  describe('deleteDevice', () => {
+    it('deletes without error', async () => {
+      await pushboxDb.deleteDevice({ uid: r.uid, deviceId: r.deviceId });
+    });
+  });
 });

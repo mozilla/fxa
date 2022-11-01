@@ -184,7 +184,12 @@ const PUSH_METHOD_NAMES = [
   'sendPush',
 ];
 
-const PUSHBOX_METHOD_NAMES = ['retrieve', 'store'];
+const PUSHBOX_METHOD_NAMES = [
+  'retrieve',
+  'store',
+  'deleteDevice',
+  'deleteAccount',
+];
 
 const SUBHUB_METHOD_NAMES = [
   'listPlans',
