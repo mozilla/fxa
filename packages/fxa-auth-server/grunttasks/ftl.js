@@ -7,7 +7,11 @@
 module.exports = function (grunt) {
   grunt.config('concat', {
     ftl: {
-      src: ['lib/l10n/auth.ftl', 'lib/**/senders/emails/**/en.ftl'],
+      src: [
+        '../fxa-shared/l10n/branding.ftl',
+        'lib/l10n/server.ftl',
+        'lib/**/senders/emails/**/en.ftl',
+      ],
       dest: 'public/locales/en/auth.ftl',
     },
     'ftl-test': {
@@ -21,7 +25,7 @@ module.exports = function (grunt) {
 
   grunt.config('watch', {
     ftl: {
-      files: ['lib/l10n/auth.ftl', 'lib/**/en.ftl'],
+      files: ['lib/l10n/branding.ftl', 'lib/l10n/server.ftl', 'lib/**/en.ftl'],
       tasks: ['merge-ftl'],
       options: {
         interrupt: true,
