@@ -15,11 +15,12 @@ chai.use(chaiAsPromised);
 describe('Renderer', () => {
   it('fails with a bad localizer ftl basePath', () => {
     assert.throws(() => {
-      let LocalizerBindings = new NodeRendererBindings({
+      const LocalizerBindings = new NodeRendererBindings({
         translations: {
           basePath: '/not/a/apth',
         },
       });
+      // eslint-disable-next-line no-new
       new Renderer(LocalizerBindings);
     }, 'Invalid ftl translations basePath');
   });
@@ -53,7 +54,7 @@ describe('Renderer', () => {
 
     it('handles escaped quote format', () => {
       const { key, val } = splitPlainTextLine(
-        `${pair.key}="${pair.val} \"baz\" "`
+        `${pair.key}="${pair.val} "baz" "`
       );
       assert.equal(key, pair.key);
       assert.equal(val, pair.val + ' "baz" ');

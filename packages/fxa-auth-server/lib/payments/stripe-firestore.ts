@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 

@@ -15,7 +15,7 @@ const FIVE_MINUTES = 1000 * 60 * 5;
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
-const conf = convict({
+const convictConf = convict({
   env: {
     doc: 'The current node.js environment',
     default: 'prod',
@@ -1572,7 +1572,7 @@ const conf = convict({
       format: RegExp,
       // eslint-disable-next-line no-useless-escape
       default:
-        /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/,
+        /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?::\d+)?(\/.*)?$/,
     },
   },
   pushbox: {
@@ -1953,55 +1953,64 @@ const conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-let envConfig = path.join(__dirname, `${conf.get('env')}.json`);
+let envConfig = path.join(__dirname, `${convictConf.get('env')}.json`);
 envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
-conf.loadFile(files);
-conf.validate();
+convictConf.loadFile(files);
+convictConf.validate();
 
 // set the public url as the issuer domain for assertions
-conf.set('domain', url.parse(conf.get('publicUrl')).host);
+convictConf.set('domain', url.parse(convictConf.get('publicUrl')).host);
 
 // derive fxa-auth-mailer configuration from our content-server url
-const baseUri = conf.get('contentServer.url');
-conf.set('smtp.accountSettingsUrl', `${baseUri}/settings`);
-conf.set(
+const baseUri = convictConf.get('contentServer.url');
+convictConf.set('smtp.accountSettingsUrl', `${baseUri}/settings`);
+convictConf.set(
   'smtp.accountRecoveryCodesUrl',
   `${baseUri}/settings/two_step_authentication/replace_codes`
 );
-conf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
-conf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);
-conf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
-conf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
-conf.set(
+convictConf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
+convictConf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);
+convictConf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
+convictConf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
+convictConf.set(
   'smtp.initiatePasswordChangeUrl',
   `${baseUri}/settings/change_password`
 );
-conf.set('smtp.verifyLoginUrl', `${baseUri}/complete_signin`);
-conf.set(
+convictConf.set('smtp.verifyLoginUrl', `${baseUri}/complete_signin`);
+convictConf.set(
   'smtp.accountFinishSetupUrl',
   `${baseUri}/post_verify/finish_account_setup/set_password`
 );
-conf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
-conf.set('smtp.revokeAccountRecoveryUrl', `${baseUri}/settings#recovery-key`);
-conf.set(
+convictConf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
+convictConf.set(
+  'smtp.revokeAccountRecoveryUrl',
+  `${baseUri}/settings#recovery-key`
+);
+convictConf.set(
   'smtp.createAccountRecoveryUrl',
   `${baseUri}/settings/account_recovery`
 );
-conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
-conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
-conf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
-conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
-conf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
+convictConf.set(
+  'smtp.verifyPrimaryEmailUrl',
+  `${baseUri}/verify_primary_email`
+);
+convictConf.set(
+  'smtp.verifySecondaryEmailUrl',
+  `${baseUri}/verify_secondary_email`
+);
+convictConf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
+convictConf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
+convictConf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 
-conf.set('isProduction', conf.get('env') === 'prod');
+convictConf.set('isProduction', convictConf.get('env') === 'prod');
 
 //sns endpoint is not to be set in production
-if (conf.has('snsTopicEndpoint') && conf.get('env') !== 'dev') {
+if (convictConf.has('snsTopicEndpoint') && convictConf.get('env') !== 'dev') {
   throw new Error('snsTopicEndpoint is only allowed in dev env');
 }
 
-if (conf.get('env') === 'dev') {
+if (convictConf.get('env') === 'dev') {
   if (!process.env.AWS_ACCESS_KEY_ID) {
     process.env.AWS_ACCESS_KEY_ID = 'DEV_KEY_ID';
   }
@@ -2010,65 +2019,71 @@ if (conf.get('env') === 'dev') {
   }
 }
 
-if (conf.get('oauthServer.openid.keyFile')) {
+if (convictConf.get('oauthServer.openid.keyFile')) {
   const keyFile = path.resolve(
     __dirname,
     '..',
-    conf.get('oauthServer.openid.keyFile')
+    convictConf.get('oauthServer.openid.keyFile')
   );
-  conf.set('oauthServer.openid.keyFile', keyFile);
+  convictConf.set('oauthServer.openid.keyFile', keyFile);
   // If the file doesnt exist, or contains an empty object, then there's no active key.
-  conf.set('oauthServer.openid.key', null);
+  convictConf.set('oauthServer.openid.key', null);
   if (fs.existsSync(keyFile)) {
     const key = JSON.parse(fs.readFileSync(keyFile, 'utf-8'));
     if (key && Object.keys(key).length > 0) {
-      conf.set('oauthServer.openid.key', key);
+      convictConf.set('oauthServer.openid.key', key);
     }
   }
-} else if (Object.keys(conf.get('oauthServer.openid.key')).length === 0) {
-  conf.set('oauthServer.openid.key', null);
+} else if (
+  Object.keys(convictConf.get('oauthServer.openid.key')).length === 0
+) {
+  convictConf.set('oauthServer.openid.key', null);
 }
 
-if (conf.get('oauthServer.openid.newKeyFile')) {
+if (convictConf.get('oauthServer.openid.newKeyFile')) {
   const newKeyFile = path.resolve(
     __dirname,
     '..',
-    conf.get('oauthServer.openid.newKeyFile')
+    convictConf.get('oauthServer.openid.newKeyFile')
   );
-  conf.set('oauthServer.openid.newKeyFile', newKeyFile);
+  convictConf.set('oauthServer.openid.newKeyFile', newKeyFile);
   // If the file doesnt exist, or contains an empty object, then there's no new key.
-  conf.set('oauthServer.openid.newKey', null);
+  convictConf.set('oauthServer.openid.newKey', null);
   if (fs.existsSync(newKeyFile)) {
     const newKey = JSON.parse(fs.readFileSync(newKeyFile, 'utf-8'));
     if (newKey && Object.keys(newKey).length > 0) {
-      conf.set('oauthServer.openid.newKey', newKey);
+      convictConf.set('oauthServer.openid.newKey', newKey);
     }
   }
-} else if (Object.keys(conf.get('oauthServer.openid.newKey')).length === 0) {
-  conf.set('oauthServer.openid.newKey', null);
+} else if (
+  Object.keys(convictConf.get('oauthServer.openid.newKey')).length === 0
+) {
+  convictConf.set('oauthServer.openid.newKey', null);
 }
 
-if (conf.get('oauthServer.openid.oldKeyFile')) {
+if (convictConf.get('oauthServer.openid.oldKeyFile')) {
   const oldKeyFile = path.resolve(
     __dirname,
     '..',
-    conf.get('oauthServer.openid.oldKeyFile')
+    convictConf.get('oauthServer.openid.oldKeyFile')
   );
-  conf.set('oauthServer.openid.oldKeyFile', oldKeyFile);
+  convictConf.set('oauthServer.openid.oldKeyFile', oldKeyFile);
   // If the file doesnt exist, or contains an empty object, then there's no old key.
-  conf.set('oauthServer.openid.oldKey', null);
+  convictConf.set('oauthServer.openid.oldKey', null);
   if (fs.existsSync(oldKeyFile)) {
     const oldKey = JSON.parse(fs.readFileSync(oldKeyFile, 'utf-8'));
     if (oldKey && Object.keys(oldKey).length > 0) {
-      conf.set('oauthServer.openid.oldKey', oldKey);
+      convictConf.set('oauthServer.openid.oldKey', oldKey);
     }
   }
-} else if (Object.keys(conf.get('oauthServer.openid.oldKey')).length === 0) {
-  conf.set('oauthServer.openid.oldKey', null);
+} else if (
+  Object.keys(convictConf.get('oauthServer.openid.oldKey')).length === 0
+) {
+  convictConf.set('oauthServer.openid.oldKey', null);
 }
 
 // Ensure secrets are not set to their default values in production.
-if (conf.get('isProduction')) {
+if (convictConf.get('isProduction')) {
   const SECRET_SETTINGS = [
     'pushbox.key',
     'metrics.flow_id_key',
@@ -2078,13 +2093,13 @@ if (conf.get('isProduction')) {
     'supportPanel.secretBearerToken',
   ];
   for (const key of SECRET_SETTINGS) {
-    if (conf.get(key) === conf.default(key)) {
+    if (convictConf.get(key) === convictConf.default(key)) {
       throw new Error(`Config '${key}' must be set in production`);
     }
   }
 }
 
-export type conf = typeof conf;
+export type conf = typeof convictConf;
 export type ConfigType = ReturnType<conf['getProperties']>;
 
-module.exports = conf;
+module.exports = convictConf;

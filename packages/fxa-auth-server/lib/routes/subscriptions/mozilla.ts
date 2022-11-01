@@ -19,79 +19,6 @@ import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
 
-export const mozillaSubscriptionRoutes = ({
-  log,
-  db,
-  customs,
-  stripeHelper,
-  playSubscriptions,
-  appStoreSubscriptions,
-  capabilityService,
-}: {
-  log: AuthLogger;
-  db: any;
-  customs: any;
-  stripeHelper: StripeHelper;
-  playSubscriptions?: PlaySubscriptions;
-  appStoreSubscriptions?: AppStoreSubscriptions;
-  capabilityService?: CapabilityService;
-}): ServerRoute[] => {
-  if (!playSubscriptions) {
-    playSubscriptions = Container.get(PlaySubscriptions);
-  }
-  if (!appStoreSubscriptions) {
-    appStoreSubscriptions = Container.get(AppStoreSubscriptions);
-  }
-  if (!capabilityService) {
-    capabilityService = Container.get(CapabilityService);
-  }
-  const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
-    log,
-    db,
-    customs,
-    stripeHelper,
-    playSubscriptions,
-    appStoreSubscriptions,
-    capabilityService
-  );
-  return [
-    {
-      method: 'GET',
-      path: '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
-      options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
-        auth: {
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        response: {
-          schema: validators.subscriptionsMozillaSubscriptionsValidator as any,
-        },
-      },
-      handler: (request: AuthRequest) =>
-        mozillaSubscriptionHandler.getBillingDetailsAndSubscriptions(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planId}',
-      options: {
-        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY,
-        auth: {
-          payload: false,
-          strategy: 'oauthToken',
-        },
-        validate: {
-          params: {
-            planId: validators.subscriptionsPlanId.required(),
-          },
-        },
-      },
-      handler: (request: AuthRequest) =>
-        mozillaSubscriptionHandler.getPlanEligibility(request),
-    },
-  ];
-};
-
 export class MozillaSubscriptionHandler {
   constructor(
     protected log: AuthLogger,
@@ -173,3 +100,76 @@ export class MozillaSubscriptionHandler {
     };
   }
 }
+
+export const mozillaSubscriptionRoutes = ({
+  log,
+  db,
+  customs,
+  stripeHelper,
+  playSubscriptions,
+  appStoreSubscriptions,
+  capabilityService,
+}: {
+  log: AuthLogger;
+  db: any;
+  customs: any;
+  stripeHelper: StripeHelper;
+  playSubscriptions?: PlaySubscriptions;
+  appStoreSubscriptions?: AppStoreSubscriptions;
+  capabilityService?: CapabilityService;
+}): ServerRoute[] => {
+  if (!playSubscriptions) {
+    playSubscriptions = Container.get(PlaySubscriptions);
+  }
+  if (!appStoreSubscriptions) {
+    appStoreSubscriptions = Container.get(AppStoreSubscriptions);
+  }
+  if (!capabilityService) {
+    capabilityService = Container.get(CapabilityService);
+  }
+  const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
+    log,
+    db,
+    customs,
+    stripeHelper,
+    playSubscriptions,
+    appStoreSubscriptions,
+    capabilityService
+  );
+  return [
+    {
+      method: 'GET',
+      path: '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
+      options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsMozillaSubscriptionsValidator as any,
+        },
+      },
+      handler: (request: AuthRequest) =>
+        mozillaSubscriptionHandler.getBillingDetailsAndSubscriptions(request),
+    },
+    {
+      method: 'GET',
+      path: '/oauth/mozilla-subscriptions/customer/plan-eligibility/{planId}',
+      options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          params: {
+            planId: validators.subscriptionsPlanId.required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        mozillaSubscriptionHandler.getPlanEligibility(request),
+    },
+  ];
+};

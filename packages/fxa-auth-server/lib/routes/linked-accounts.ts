@@ -30,7 +30,7 @@ export class LinkedAccountHandler {
     private db: any,
     private config: ConfigType,
     private mailer: any,
-    private profile: ProfileClient,
+    private profile: ProfileClient
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
@@ -163,7 +163,10 @@ export class LinkedAccountHandler {
     const name = idToken.name;
 
     let accountRecord;
-    let linkedAccountRecord = await this.db.getLinkedAccount(userid, provider);
+    const linkedAccountRecord = await this.db.getLinkedAccount(
+      userid,
+      provider
+    );
 
     if (!linkedAccountRecord) {
       try {
@@ -303,7 +306,7 @@ export const linkedAccountRoutes = (
   db: any,
   config: ConfigType,
   mailer: any,
-  profile: ProfileClient,
+  profile: ProfileClient
 ) => {
   const handler = new LinkedAccountHandler(log, db, config, mailer, profile);
 

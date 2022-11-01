@@ -12,8 +12,8 @@ export class CurrencyHelper {
     this.payPalEnabled = config.subscriptions?.paypalNvpSigCredentials?.enabled;
     // Validate currencyMap
     const currencyMap = new Map(Object.entries(config.currenciesToCountries));
-    let allListedCountries: string[] = [];
-    for (let [currency, countries] of currencyMap) {
+    const allListedCountries: string[] = [];
+    for (const [currency, countries] of currencyMap) {
       // Is currency acceptable
       if (!CurrencyHelper.validCurrencyCodes.includes(currency)) {
         throw new Error(`Currency code ${currency} is invalid.`);
@@ -25,7 +25,7 @@ export class CurrencyHelper {
         throw new Error(`Currency code ${currency} is invalid.`);
       }
       // Are countries acceptable
-      for (let country of countries) {
+      for (const country of countries) {
         if (!CurrencyHelper.validCountryCodes.includes(country)) {
           throw new Error(`Country code ${country} is invalid.`);
         }

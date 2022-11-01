@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// NOTE: This file handled with browser ESLint bindings
+// instead of NodeJS for DOM typings support
+/* eslint-env browser */
+
 import { RendererBindings, RendererOpts, TemplateContext } from './bindings';
 
 // When rendering templates in storybook, use the mjml-browser implementation

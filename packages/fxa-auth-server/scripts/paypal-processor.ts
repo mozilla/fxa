@@ -4,7 +4,7 @@
 import program from 'commander';
 import { StatsD } from 'hot-shots';
 import Redis from 'ioredis';
-import Redlock, { Lock, RedlockAbortSignal } from 'redlock';
+import Redlock, { RedlockAbortSignal } from 'redlock';
 import Container from 'typedi';
 import { promisify } from 'util';
 
@@ -90,6 +90,7 @@ export async function init() {
         [program.lockName],
         lockDuration,
         async (signal: RedlockAbortSignal) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for await (const _ of processor.processInvoices()) {
             if (signal.aborted) {
               throw signal.error;
@@ -101,6 +102,7 @@ export async function init() {
       throw new Error(`Cannot acquire lock to run: ${err.message}`);
     }
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of processor.processInvoices()) {
       // no need to do anything between invoices since we are not extending a lock
     }

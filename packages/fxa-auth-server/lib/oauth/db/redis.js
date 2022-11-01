@@ -9,10 +9,10 @@ const { AuthLogger } = require('../../types');
 const { Container } = require('typedi');
 
 // These are used only in type declarations.
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AccessToken = require('./accessToken');
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
 
 function resolveLogger() {

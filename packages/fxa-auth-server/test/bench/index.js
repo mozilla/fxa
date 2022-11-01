@@ -13,7 +13,7 @@ const through = require('through');
 let clientCount = 2;
 const pathStats = {};
 let requests = 0;
-let pass = 0; // eslint-disable-line no-unused-vars
+let pass = 0; // eslint-disable-line @typescript-eslint/no-unused-vars
 let fail = 0;
 let start = null;
 
@@ -41,7 +41,7 @@ server.stderr
         }
         requests++;
         if (json.code === 200) {
-          pass++;
+          pass++; // eslint-disable-line @typescript-eslint/no-unused-vars
         } else {
           fail++;
         }

@@ -86,6 +86,14 @@ Use the following as a template, and fill in your own values:
 
 The sandbox PayPal business account API credentials above can be found in the PayPal developer dashboard under ["Sandbox" > "Accounts"](https://developer.paypal.com/developer/accounts/). You may need to create a business account if one doesn't exist.
 
+## Linting
+
+Run lint with:
+
+    yarn lint
+
+Linting will also be run for staged files automatically via Husky when you attempt to commit.
+
 ## Testing
 
 Run tests with:

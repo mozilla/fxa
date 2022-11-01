@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DOMLocalization, Localization } from '@fluent/dom';
-import {
-  RendererBindings,
-  TemplateContext,
-  RendererContext,
-  TemplateValues,
-} from './bindings';
+import { RendererBindings, TemplateContext, RendererContext } from './bindings';
 import Localizer, { FtlIdMsg } from '../../l10n';
 
 const RTL_LOCALES = [
@@ -135,9 +130,13 @@ class Renderer extends Localizer {
   ): Promise<GlobalTemplateValues> {
     // We must use 'require' here, 'import' causes an 'unknown file extension .ts'
     // error. Might be a config option to make it work?
+    // eslint-disable-next-line no-useless-catch
     try {
       // make this a switch statement on 'template' if more cases arise?
-      if (context.template === 'lowRecoveryCodes' || context.template === 'postConsumeRecoveryCode') {
+      if (
+        context.template === 'lowRecoveryCodes' ||
+        context.template === 'postConsumeRecoveryCode'
+      ) {
         return (
           await require(`../emails/templates/${context.template}/includes`)
         ).getIncludes(context.numberRemaining);
@@ -159,7 +158,7 @@ class Renderer extends Localizer {
     const ftlContext = flattenNestedObjects(context);
 
     const plainTextArr = text.split('\n');
-    for (let i in plainTextArr) {
+    for (const i in plainTextArr) {
       // match the lines that are of format key = "value" since we will be extracting the key
       // to pass down to fluent
       const { key, val } = splitPlainTextLine(plainTextArr[i]);

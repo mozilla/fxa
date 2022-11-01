@@ -97,7 +97,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     try {
       await this.customs.check(request, email, 'createSubscriptionWithPaypal');
 
-      let customer = await this.stripeHelper.fetchCustomer(uid, [
+      const customer = await this.stripeHelper.fetchCustomer(uid, [
         'subscriptions',
         'tax',
       ]);
@@ -135,7 +135,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         throw error.billingAgreementExists(customer.id);
       }
 
-      const { sourceCountry, subscription } = !!token
+      const { sourceCountry, subscription } = token
         ? await this._createPaypalBillingAgreementAndSubscription({
             request,
             uid,
@@ -370,7 +370,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updatePaypalBillingAgreement');
 
-    let customer = await this.stripeHelper.fetchCustomer(uid, [
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
 
@@ -476,7 +476,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     // copy bill to address information to Customer
     const accountCustomer = await getAccountCustomerByUid(uid);
     if (accountCustomer.stripeCustomerId) {
-      let locationDetails = {} as any;
+      const locationDetails = {} as any;
       if (agreementDetails.countryCode === options.location?.countryCode) {
         // Record the state (short name) if needed
         const state = options.location?.state;

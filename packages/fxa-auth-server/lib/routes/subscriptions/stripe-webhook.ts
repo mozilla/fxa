@@ -17,7 +17,6 @@ import {
   reportValidationError,
 } from '../../../lib/sentry';
 import error from '../../error';
-import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import {
   CUSTOMER_RESOURCE,
@@ -792,7 +791,7 @@ export class StripeWebhookHandler extends StripeHandler {
       (plan) => (plan.product as Stripe.Product).id !== product.id
     );
     const latestStripePlansForProduct = latestStripePlans.filter(
-      (plan) => (plan.product as Stripe.Product).id == product.id
+      (plan) => (plan.product as Stripe.Product).id === product.id
     );
 
     if (event.type !== 'product.deleted') {

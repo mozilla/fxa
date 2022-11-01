@@ -60,15 +60,11 @@ describe('remote recovery email verify', function () {
   it('verification email link', () => {
     const email = server.uniqueEmail();
     const password = 'something';
-    let client = null; // eslint-disable-line no-unused-vars
     const options = {
       redirectTo: `https://sync.${config.smtp.redirectDomain}/`,
       service: 'sync',
     };
     return Client.create(config.publicUrl, email, password, options)
-      .then((c) => {
-        client = c;
-      })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })

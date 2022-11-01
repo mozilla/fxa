@@ -15,18 +15,6 @@ import { ConfigType } from '../config';
  *
  */
 
-export interface AuthLogger extends Logger {
-  (tags: string | string[], data?: string | object): void;
-
-  begin(location: string, request: AuthRequest): void;
-
-  notifyAttachedServices(
-    serviceName: string,
-    request: AuthRequest,
-    data: Record<string, any>
-  ): Promise<void>;
-}
-
 export interface AuthApp extends RequestApplicationState {
   devices: Promise<any>;
   locale: String;
@@ -56,6 +44,7 @@ export interface AuthApp extends RequestApplicationState {
 }
 
 export interface AuthRequest extends Request {
+  // eslint-disable-next-line no-use-before-define
   log: AuthLogger;
   app: AuthApp;
   validateMetricsContext: any;
@@ -71,8 +60,22 @@ export interface ProfileClient {
   updateDisplayName(uid: string, name: string): Promise<void>;
 }
 
+export interface AuthLogger extends Logger {
+  (tags: string | string[], data?: string | object): void;
+
+  begin(location: string, request: AuthRequest): void;
+
+  notifyAttachedServices(
+    serviceName: string,
+    request: AuthRequest,
+    data: Record<string, any>
+  ): Promise<void>;
+}
+
 // Container token types
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
 export const AuthFirestore = new Token<Firestore>('AUTH_FIRESTORE');
 export const AppConfig = new Token<ConfigType>('APP_CONFIG');
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ProfileClient = new Token<ProfileClient>('PROFILE_CLIENT');

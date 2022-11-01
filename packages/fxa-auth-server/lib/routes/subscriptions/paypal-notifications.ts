@@ -86,7 +86,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
 
     if (invoice.status == null || !['draft', 'open'].includes(invoice.status)) {
       if (
-        invoice.status == 'uncollectible' &&
+        invoice.status === 'uncollectible' &&
         ['Completed', 'Processed'].includes(message.payment_status)
       ) {
         // we need to refund the user since the invoice was cancelled
@@ -108,7 +108,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
       case 'Failed':
       case 'Voided':
       case 'Expired':
-        if (message.custom.length == 0) {
+        if (message.custom.length === 0) {
           this.log.error('handleMerchPayment', {
             message: 'No idempotency key on PayPal transaction',
             ipnMessage: message,
