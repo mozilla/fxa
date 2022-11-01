@@ -1,6 +1,5 @@
 module.exports = {
-  coveragePathIgnorePatterns: ['<rootDir>'],
-  collectCoverageFrom: ['**/*.js', '!**/jest*js'],
+  collectCoverageFrom: ['**/*.js', '!bin/*', '!coverage/**', '!**/jest*js'],
   // TO DO: update this file once more server tests are in place
   coverageThreshold: {
     global: {

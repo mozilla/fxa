@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { MockApp, MOCK_CUSTOMER } from '../../../lib/test-utils';
-import { SELECTED_PLAN, PROFILE } from '../../../lib/mock-data';
+import { PLAN, SELECTED_PLAN, PROFILE } from '../../../lib/mock-data';
 import { SignInLayout } from '../../../components/AppLayout';
 import IapRoadblock, { IapRoadblockProps } from './index';
 import {
@@ -14,6 +14,8 @@ import { Customer } from '../../../store/types';
 const subscription: IapSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: SELECTED_PLAN.product_id,
+  product_name: 'Better Upgrade Product',
+  price_id: 'plan_123',
   auto_renewing: true,
   expiry_time_millis: Date.now(),
   package_name: 'mozilla.cooking.with.foxkeh.monthly',
@@ -21,6 +23,7 @@ const subscription: IapSubscription = {
 };
 const MOCK_PROPS: IapRoadblockProps = {
   profile: PROFILE,
+  currentPlan: PLAN,
   selectedPlan: SELECTED_PLAN,
   isMobile: false,
   subscription,

@@ -103,6 +103,7 @@ export class AppStoreSubscriptionPurchase {
   latestNotificationSubtype?: NotificationSubtype;
   private offerType?: OfferType;
   private offerIdentifier?: string;
+  private purchaseDate?: number;
   private revocationDate?: number;
   private revocationReason?: number;
 
@@ -155,6 +156,9 @@ export class AppStoreSubscriptionPurchase {
     }
     if (renewalInfo.offerType) {
       purchase.offerType = renewalInfo.offerType;
+    }
+    if (transactionInfo.purchaseDate) {
+      purchase.purchaseDate = transactionInfo.purchaseDate;
     }
     if (transactionInfo.revocationDate) {
       purchase.revocationDate = transactionInfo.revocationDate;

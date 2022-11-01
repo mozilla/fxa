@@ -16,9 +16,9 @@ const statsd = {
 };
 const amplitudeConfig = {
   disabled: false,
+  rawEvents: false,
   schemaValidation: false,
 };
-const dntStub = sinon.stub();
 
 const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   './configuration': {
@@ -36,7 +36,6 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   },
   './logging/log': () => logger,
   './statsd': statsd,
-  'fxa-shared/metrics/dnt': { filterDntValues: dntStub },
 });
 
 const APP_VERSION_RE = /([0-9]+)\.([0-9]{1,2})$/;
@@ -71,6 +70,7 @@ function createAmplitudeEvent(
 registerSuite('amplitude', {
   beforeEach: function () {
     amplitudeConfig.disabled = false;
+    amplitudeConfig.rawEvents = false;
     sinon.stub(process.stderr, 'write').callsFake(() => {});
   },
 
@@ -94,6 +94,7 @@ registerSuite('amplitude', {
     'disable writing amplitude events': {
       'logger.info was not called': () => {
         amplitudeConfig.disabled = true;
+        amplitudeConfig.rawEvents = true;
         amplitude(
           {
             time: 'a',
@@ -120,6 +121,110 @@ registerSuite('amplitude', {
       assert.doesNotThrow(amplitude);
       assert.doesNotThrow(() => amplitude('foo'));
       assert.doesNotThrow(() => amplitude(null, {}));
+    },
+
+    'logs raw event with context': () => {
+      amplitudeConfig.rawEvents = true;
+      const event = {
+        type: 'oauth.signup.success',
+        offset: 3846,
+        time: 1585695795375,
+        flowTime: 3847,
+      };
+
+      const context = {
+        eventSource: 'content',
+        version: pkg.version,
+        emailTypes: {
+          'complete-reset-password': 'reset_password',
+          'complete-signin': 'login',
+          'verify-email': 'registration',
+        },
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0',
+        deviceId: '6519d5fce18a427e87745ef6c25143ba',
+        devices: [{ name: 'cray-1', lastAccessTime: 1585695795375 }],
+        emailDomain: 'other',
+        entrypoint_experiment: 'herf',
+        entrypoint_variation: 'menk',
+        entrypoint: 'zoo',
+        experiments: ['abc', 'ASAP'],
+        flowBeginTime: 1585695791528,
+        flowId:
+          '804e3ce43ed994db863afcb93640809c239f6db0378a6f2b01659f7e26e25a66',
+        lang: 'en',
+        location: {
+          country: 'United States',
+          state: 'California',
+        },
+        newsletters: 'none',
+        planId: 'abc',
+        productId: 'gamma',
+        service: 'dcdb5ae7add825d2',
+        syncEngines: ['bookmarks', 'history'],
+        templateVersion: '3.1',
+        uid: '66853f3ab5404b5f30674d532a2dd54e',
+        userPreferences: { yes: 'no' },
+        utm_campaign: 'none',
+        utm_content: 'none',
+        utm_medium: 'none',
+        utm_source: 'none',
+        utm_term: 'none',
+      };
+      amplitude(
+        event,
+        {
+          headers: {
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0',
+          },
+        },
+        {
+          junk: 'dontpickthis',
+          deviceId: '6519d5fce18a427e87745ef6c25143ba',
+          devices: [{ name: 'cray-1', lastAccessTime: 1585695795375 }],
+          emailDomain: 'other',
+          entrypoint_experiment: 'herf',
+          entrypoint_variation: 'menk',
+          entrypoint: 'zoo',
+          experiments: ['abc', 'ASAP'],
+          flowBeginTime: 1585695791528,
+          flowId:
+            '804e3ce43ed994db863afcb93640809c239f6db0378a6f2b01659f7e26e25a66',
+          lang: 'en',
+          location: {
+            country: 'United States',
+            state: 'California',
+          },
+          newsletters: 'none',
+          planId: 'abc',
+          productId: 'gamma',
+          service: 'dcdb5ae7add825d2',
+          syncEngines: ['bookmarks', 'history'],
+          templateVersion: '3.1',
+          uid: '66853f3ab5404b5f30674d532a2dd54e',
+          userPreferences: { yes: 'no' },
+          utm_campaign: 'none',
+          utm_content: 'none',
+          utm_medium: 'none',
+          utm_source: 'none',
+          utm_term: 'none',
+        }
+      );
+
+      assert.isTrue(
+        logger.info.calledOnceWith('rawAmplitudeData', { event, context })
+      );
+      sinon.assert.calledThrice(statsd.increment);
+      sinon.assert.calledWith(
+        statsd.increment.firstCall,
+        'amplitude.event.raw'
+      );
+      sinon.assert.calledWith(statsd.increment.secondCall, 'amplitude.event');
+      sinon.assert.calledWith(
+        statsd.increment.thirdCall,
+        'amplitude.event.dropped'
+      );
     },
 
     'flow.reset-password.submit': () => {
@@ -2491,14 +2596,6 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_connect_device - pair_notnow_engage'
       );
-    },
-
-    'respects do not track': () => {
-      createAmplitudeEvent('screen.pair.notnow.engage', {
-        ...BASIC_REQUEST,
-        headers: { ...BASIC_REQUEST.headers, dnt: '1' },
-      });
-      sinon.assert.calledTwice(dntStub);
     },
   },
 });

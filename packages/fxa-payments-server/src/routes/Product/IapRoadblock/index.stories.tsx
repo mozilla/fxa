@@ -6,6 +6,7 @@ import { SignInLayout } from '../../../components/AppLayout';
 
 import {
   CUSTOMER,
+  PLAN,
   SELECTED_PLAN,
   PROFILE,
   IAP_GOOGLE_SUBSCRIPTION,
@@ -18,6 +19,7 @@ const MOCK_PROPS: IapRoadblockProps = {
   customer: CUSTOMER,
   isMobile: false,
   profile: PROFILE,
+  currentPlan: PLAN,
   selectedPlan: SELECTED_PLAN,
   subscription: IAP_GOOGLE_SUBSCRIPTION,
   code: 'iap_already_subscribed',

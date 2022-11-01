@@ -18,15 +18,21 @@ const geolocate = require('fxa-shared/express/geo-locate')(geodb)(
 )(log);
 const os = require('os');
 const statsd = require('./statsd');
-const { filterDntValues } = require('fxa-shared/metrics/dnt');
 const {
   VERSION,
   PERFORMANCE_TIMINGS,
   limitLength,
   isValidTime,
-} = require('fxa-shared/metrics/flow-performance');
+} = require('fxa-shared').metrics.flowPerformance;
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
+const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];
+const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
+  'utm_campaign',
+  'utm_content',
+  'utm_medium',
+  'utm_source',
+]);
 const HOSTNAME = os.hostname();
 
 const FLOW_BEGIN_EVENT = 'flow.begin';
@@ -194,11 +200,9 @@ function logFlowEvent(event, data, request) {
   optionallySetFallbackData(eventData, 'service', data.client_id);
   optionallySetFallbackData(eventData, 'entrypoint', data.entryPoint);
 
-  const filteredData = isDNT(request) ? filterDntValues(eventData) : eventData;
-
   // The data pipeline listens on stderr.
-  process.stderr.write(JSON.stringify(filteredData) + '\n');
-  logStatsdPerfEvent(filteredData);
+  process.stderr.write(JSON.stringify(eventData) + '\n');
+  logStatsdPerfEvent(eventData);
 }
 
 function logStatsdPerfEvent(eventData) {
@@ -218,16 +222,11 @@ function logStatsdPerfEvent(eventData) {
 }
 
 function pickFlowData(data, request) {
-  const keys = [
-    'context',
-    'entrypoint',
-    'service',
-    'utm_campaign',
-    'utm_content',
-    'utm_medium',
-    'utm_source',
-  ];
-  const pickedData = _.pick(data, keys);
+  if (isDNT(request)) {
+    return _.pick(data, DNT_ALLOWED_DATA);
+  }
+
+  const pickedData = _.pick(data, NO_DNT_ALLOWED_DATA);
 
   return _.pickBy(pickedData, (value, key) => {
     if (key.indexOf('utm_') === 0) {
