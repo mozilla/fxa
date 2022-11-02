@@ -100,7 +100,7 @@ it('displays the account', async () => {
 
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(getByTestId('sign-up-email')).toHaveTextContent(accountResponse.email);
-  expect(getByTestId('primary-verified')).toHaveTextContent('confirmed');
+  expect(getByTestId('primary-verified')).toHaveTextContent('Yes');
   expect(getByTestId('primary-email')).toHaveTextContent(
     accountResponse.emails![0].email
   );
@@ -146,14 +146,14 @@ it('displays when account is locked', async () => {
   );
 });
 
-it('displays the unverified account', async () => {
+it('displays the unconfirmed account', async () => {
   accountResponse.emails![0].isVerified = false;
   const { getByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />
     </MockedProvider>
   );
-  expect(getByTestId('primary-verified')).toHaveTextContent('not confirmed');
+  expect(getByTestId('primary-verified')).toHaveTextContent('No');
 });
 
 it('displays the bounce type description', async () => {
@@ -205,7 +205,7 @@ it('displays secondary emails', async () => {
   expect(getByTestId('secondary-email')).toHaveTextContent(
     'ohdeceiver@gmail.com'
   );
-  expect(getByTestId('secondary-verified')).toHaveTextContent('not confirmed');
+  expect(getByTestId('secondary-verified')).toHaveTextContent('No');
 });
 
 it('displays the locale', async () => {

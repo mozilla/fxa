@@ -1,0 +1,39 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.table-th {
+  @apply font-medium text-violet-900 align-top p-1 pr-4 bg-grey-10;
+}
+
+.table-td {
+  @apply px-2 py-1 border-grey-10;
+}
+
+.table-xy-headers {
+  @apply mb-5 border border-grey-50 border-separate rounded;
+
+  &.border-l-thick {
+    @apply border-l-2 border-l-grey-300;
+  }
+}
+
+.table-y-headers {
+  @apply table-xy-headers;
+
+  tr:last-of-type td {
+    @apply border-none;
+  }
+}
+
+.table-x-headers {
+  @apply table-xy-headers;
+
+  td:last-of-type {
+    @apply border-r-0;
+  }
+
+  tr:last-of-type td {
+    @apply border-b-0;
+  }
+}

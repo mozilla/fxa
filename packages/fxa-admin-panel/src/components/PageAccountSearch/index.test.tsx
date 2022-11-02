@@ -6,18 +6,15 @@ import React from 'react';
 import Chance from 'chance';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import {
-  CLEAR_BOUNCES_BY_EMAIL,
-  EDIT_LOCALE,
-  RECORD_ADMIN_SECURITY_EVENT,
-  UNSUBSCRIBE_FROM_MAILING_LISTS,
-} from './Account/index';
+import { EDIT_LOCALE, RECORD_ADMIN_SECURITY_EVENT } from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, AccountSearch, GET_EMAILS_LIKE } from './index';
 import {
   AdminPanelEnv,
   AdminPanelGroup,
   AdminPanelGuard,
 } from 'fxa-shared/guards';
+import { UNSUBSCRIBE_FROM_MAILING_LISTS } from './DangerZone';
+import { CLEAR_BOUNCES_BY_EMAIL } from './EmailBounces';
 
 const chance = new Chance();
 

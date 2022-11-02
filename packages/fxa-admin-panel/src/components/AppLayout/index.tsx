@@ -34,7 +34,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <Nav />
 
         <main className="flex-4">
-          <div className="p-4 rounded-md bg-white border border-grey-100 text-grey-900">
+          <div className="px-6 pb-6 pt-5 rounded-md bg-white border border-grey-100 text-grey-900">
             {children}
           </div>
         </main>

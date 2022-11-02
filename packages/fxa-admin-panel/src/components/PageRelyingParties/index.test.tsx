@@ -77,7 +77,7 @@ it('renders as expected with a relying party containing all fields', async () =>
   screen.getByText(MOCK_RP_ALL_FIELDS.redirectUri);
   screen.getByText(MOCK_RP_ALL_FIELDS.allowedScopes!);
   screen.getByText('1970', { exact: false });
-  expect(screen.getAllByText('Yes')).toHaveLength(3);
+  expect(screen.getAllByText('true')).toHaveLength(3);
 });
 
 it('updates notes', async () => {
@@ -145,7 +145,7 @@ it('renders as expected with a relying party containing falsy fields', async () 
       <PageRelyingParties />
     </MockedProvider>
   );
-  expect(await screen.findAllByText('No')).toHaveLength(3);
+  expect(await screen.findAllByText('false')).toHaveLength(3);
   screen.getByText('(empty string)');
   screen.getByText('NULL');
 });

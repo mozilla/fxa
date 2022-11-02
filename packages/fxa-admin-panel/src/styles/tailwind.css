@@ -1,51 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import './tables';
 
 .icon-dark path {
   fill: #0c0c0d;
 }
 
 hr {
-  @apply border-grey-50 mb-4;
+  @apply border-grey-50 my-6;
 }
 
-th {
-  @apply font-medium text-violet-900 pl-4 pr-8 text-left;
+.header-page {
+  @apply text-lg font-semibold mb-2;
+}
+
+.header-lg {
+  @apply text-lg mt-7 mb-2;
+}
+
+.result-none {
+  @apply border-l border-l-grey-300 border-dotted pl-2;
 }
 
 .result-grey {
   @apply italic text-grey-500;
-}
-
-.account-header {
-  @apply mt-0 mb-1 text-lg;
-}
-
-.account-li {
-  @apply list-none pl-0;
-}
-
-.account-li span {
-  @apply font-medium text-violet-900;
-}
-
-.account-label {
-  @apply align-top w-48;
-}
-
-.notes {
-  @apply w-96;
-}
-
-.account-border-info {
-  @apply border-l-2 border-grey-500 mb-8 pl-4;
-}
-
-.account-li .account-enabled-verified {
-  @apply font-semibold text-green-900;
-}
-
-.account-li .account-disabled-unverified {
-  @apply font-semibold text-red-600;
 }
