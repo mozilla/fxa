@@ -8,10 +8,4 @@
 
 .payment-confirmation {
   @include checkout-view();
-
-  .footer {
-    p {
-      margin-top: 11px;
-    }
-  }
 }

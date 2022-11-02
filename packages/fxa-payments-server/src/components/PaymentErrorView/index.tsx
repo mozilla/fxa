@@ -138,7 +138,11 @@ export const PaymentErrorView = ({
       );
     }
 
-    return <div className="py-0 px-7 desktop:px-24">{errorMessage}</div>;
+    return (
+      <div className="py-0 px-7 text-grey-400 desktop:px-24">
+        {errorMessage}
+      </div>
+    );
   };
 
   return error ? (
@@ -153,13 +157,16 @@ export const PaymentErrorView = ({
           <PaymentErrorMessage />
         </div>
 
-        <div className="footer" data-testid="footer">
-          {/* This error code means the subscription was created successfully, but
+        {/* This error code means the subscription was created successfully, but
           there was an error loading the information on the success screen. In this
           case, we do not want a "Try again" or "Manage subscription" button. */}
-          {error.code !== 'fxa_fetch_profile_customer_error' ? (
+        {error.code !== 'fxa_fetch_profile_customer_error' && (
+          <div className="options mb-6" data-testid="options">
             <ActionButton data-testid={'error-view-action-button'} />
-          ) : null}
+          </div>
+        )}
+
+        <div className="payment-footer" data-testid="footer">
           <PaymentLegalBlurb provider={undefined} />
           <TermsAndPrivacy
             showFXALinks={showFxaLegalFooterLinks}

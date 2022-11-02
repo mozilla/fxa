@@ -84,10 +84,13 @@ export const TermsAndPrivacy = ({
   ) : null;
 
   return (
-    <div className="legal-blurb" data-testid="terms-and-privacy-component">
-      {FXALegal}
-      <p className="legal-heading">{plan?.product_name}</p>
-      {productLegalBlurb}
+    <div data-testid="terms-and-privacy-component">
+      <div className="legal-blurb">{FXALegal}</div>
+
+      <div className="legal-blurb">
+        <p className="legal-heading">{plan?.product_name}</p>
+        {productLegalBlurb}
+      </div>
     </div>
   );
 };

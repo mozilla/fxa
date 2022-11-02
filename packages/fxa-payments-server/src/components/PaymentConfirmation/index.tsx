@@ -172,7 +172,7 @@ export const PaymentConfirmation = ({
           </div>
         )}
 
-        <div className="footer" data-testid="footer">
+        <div className="payment-footer" data-testid="footer">
           <PaymentLegalBlurb provider={payment_provider} />
           <TermsAndPrivacy
             plan={selectedPlan}

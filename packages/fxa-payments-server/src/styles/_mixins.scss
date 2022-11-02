@@ -4,7 +4,7 @@
   box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgb(158, 158, 158),
     2px 2px 2px -2px rgb(158, 158, 158);
 
-  @include max-width("tablet") {
+  @include max-width('tablet') {
     position: relative;
   }
 }
@@ -17,12 +17,12 @@
   color: rgba(12, 12, 13, 0.8);
   padding: 16px 16px 60px;
 
-  @include min-width("tablet") {
+  @include min-width('tablet') {
     grid-row: 2/3;
     margin: 0 0 32px;
   }
 
-  @include min-width("desktop") {
+  @include min-width('desktop') {
     min-width: 60%;
     padding: -1px 48px 48px;
   }
@@ -31,11 +31,6 @@
     display: flex;
     flex-direction: column;
     text-align: center;
-  }
-
-  p {
-    margin: 0;
-    color: $grey-50;
   }
 
   .options {
@@ -65,13 +60,5 @@
     .button:active {
       background: #002275;
     }
-  }
-
-  .footer {
-    border: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: 60px;
   }
 }

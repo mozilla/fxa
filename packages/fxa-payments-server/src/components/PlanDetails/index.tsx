@@ -360,7 +360,7 @@ export const PlanDetails = ({
           )}
 
           {showExpandButton && (
-            <div className="footer text-center" data-testid="footer">
+            <div className="text-center" data-testid="footer">
               {detailsHidden ? (
                 <Localized id="plan-details-show-button">
                   <button

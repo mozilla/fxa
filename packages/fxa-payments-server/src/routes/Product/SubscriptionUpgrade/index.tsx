@@ -191,8 +191,10 @@ export const SubscriptionUpgrade = ({
               </SubmitButton>
             </div>
 
-            <PaymentLegalBlurb provider={paymentProvider} />
-            <TermsAndPrivacy plan={selectedPlan} />
+            <div className="payment-footer" data-testid="footer">
+              <PaymentLegalBlurb provider={paymentProvider} />
+              <TermsAndPrivacy plan={selectedPlan} />
+            </div>
           </Form>
         </div>
         <PlanUpgradeDetails

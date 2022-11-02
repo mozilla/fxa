@@ -31,10 +31,7 @@ export const PaymentProcessing = ({
           </Localized>
         </div>
 
-        <div
-          className="border-0 flex flex-col justify-center mt-auto pt-16"
-          data-testid="footer"
-        >
+        <div className="payment-footer" data-testid="footer">
           <PaymentLegalBlurb provider={provider} />
         </div>
       </section>
