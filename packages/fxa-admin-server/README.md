@@ -127,6 +127,15 @@ yarn test:cov
 yarn test:watch
 ```
 
+## GraphQL Schema Generation
+
+The graphql schema is automatically generated. This happens on the fly and is controlled by the Graphql NestJS plugin. Simply
+starting the graphql server is enough to kick off automatic schema generation. For more info about schema generation checkout
+[this resource](https://docs.nestjs.com/graphql/quick-start).
+
+If your schema is not automatically updating, check the server output. There's a chance a Typescript compilation error is
+preventing the schema from being generated.
+
 ## License
 
 MPL-2.0
