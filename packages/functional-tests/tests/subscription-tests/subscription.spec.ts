@@ -1,9 +1,7 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('subscription test with cc and paypal', () => {
-  test.beforeEach(({}, { project }) => {
-    test.skip(project.name !== 'stage', "Only run these tests in 'stage' env");
-  });
+  test.beforeEach(() => {});
 
   test('subscribe with credit card and login to product', async ({
     pages: { relier, login, subscribe },

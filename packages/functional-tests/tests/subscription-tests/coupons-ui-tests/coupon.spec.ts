@@ -1,14 +1,11 @@
 import { test, expect } from '../../../lib/fixtures/standard';
 
 test.describe('coupon test', () => {
-  test.beforeEach(({ }, { project }) => {
+  test.beforeEach(() => {
     test.slow();
-    test.skip(project.name !== 'stage', "Only run these tests in 'stage' env");
   });
 
-  test('apply an expired coupon', async ({
-    pages: { relier, subscribe },
-  }) => {
+  test('apply an expired coupon', async ({ pages: { relier, subscribe } }) => {
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -21,9 +18,7 @@ test.describe('coupon test', () => {
     );
   });
 
-  test('apply an invalid coupon', async ({
-    pages: { relier, subscribe },
-  }) => {
+  test('apply an invalid coupon', async ({ pages: { relier, subscribe } }) => {
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -148,7 +143,7 @@ test.describe('coupon test', () => {
 
   test('subscribe with paypal and use coupon', async ({
     pages: { relier, login, subscribe },
-  }, ) => {
+  }) => {
     await relier.goto();
     await relier.clickSubscribe12Month();
 
