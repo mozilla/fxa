@@ -5,6 +5,7 @@
 'use strict';
 
 const isA = require('joi');
+const Sentry = require('@sentry/node');
 const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
 const validators = require('./routes/validators');
 const error = require('./error');
@@ -43,7 +44,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, push) => {
+module.exports = (log, db, push, pushbox) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -190,6 +191,15 @@ module.exports = (log, db, push) => {
         }
       }
     }
+
+    // No need to await and block the notifications below.  If the records
+    // aren't deleted with this call, they will be once they expire.
+    pushbox.deleteDevice(uid, deviceId).catch((err) => {
+      Sentry.withScope((scope) => {
+        scope.setContext('pushboxDeleteDevice', { uid, deviceId });
+        Sentry.captureException(err);
+      });
+    });
 
     // Notify peer devices, but dont let failure fail the whole request.
     try {

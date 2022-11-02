@@ -59,6 +59,12 @@ export class PushboxDB {
       messages,
     };
   }
+
+  async deleteDevice(x: { uid: string; deviceId: string }) {
+    await Record.query()
+      .delete()
+      .where({ user_id: x.uid, device_id: x.deviceId });
+  }
 }
 
 export default PushboxDB;

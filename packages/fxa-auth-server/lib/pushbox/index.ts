@@ -79,6 +79,12 @@ export const pushboxApi = (
       store() {
         return Promise.reject(error.featureNotEnabled());
       },
+      deleteDevice() {
+        return Promise.reject(error.featureNotEnabled());
+      },
+      deleteAccount() {
+        return Promise.reject(error.featureNotEnabled());
+      },
     };
   }
 
@@ -278,6 +284,31 @@ export const pushboxApi = (
         throw error.backendServiceFailure();
       }
       return body;
+    },
+
+    async deleteDevice(uid: string, deviceId: string) {
+      if (shouldUseDb()) {
+        const startTime = performance.now();
+        try {
+          await pushboxDb!.deleteDevice({ uid, deviceId });
+          statsd.timing(
+            'pushbox.db.delete.device.success',
+            performance.now() - startTime
+          );
+          statsd.increment('pushbox.db.delete.device', { uid, deviceId });
+        } catch (err) {
+          statsd.timing(
+            'pushbox.db.delete.device.failure',
+            performance.now() - startTime
+          );
+          log.error('pushbox.db.delete.device', { error: err });
+          throw error.unexpectedError();
+        }
+      }
+    },
+
+    async deleteAccount(uid: string) {
+      // TODO to be implemented in FXA-5772
     },
   };
 };

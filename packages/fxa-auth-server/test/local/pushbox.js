@@ -13,7 +13,7 @@ const { pushboxApi } = require('../../lib/pushbox');
 const pushboxDbModule = require('../../lib/pushbox/db');
 const error = require('../../lib/error');
 const { mockLog } = require('../mocks');
-const mockStatsD = { increment: sandbox.stub(), timing: sandbox.stub() };
+let mockStatsD;
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -62,6 +62,7 @@ describe('pushbox', () => {
     });
 
     beforeEach(() => {
+      mockStatsD = { increment: sandbox.stub(), timing: sandbox.stub() };
       stubDbModule = sandbox.createStubInstance(pushboxDbModule.PushboxDB);
       stubConstructor = sandbox
         .stub(pushboxDbModule, 'PushboxDB')
@@ -214,6 +215,48 @@ describe('pushbox', () => {
           assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
           sinon.assert.calledOnce(log.error);
           assert.equal(log.error.args[0][0], 'pushbox.db.retrieve');
+          assert.equal(
+            log.error.args[0][1]['error']['message'],
+            'db is a mess right now'
+          );
+        }
+      );
+    });
+
+    it('deletes records of a device', () => {
+      stubDbModule.deleteDevice.resolves();
+      const log = mockLog();
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
+      return pushbox.deleteDevice(mockUid, mockDeviceIds[0]).then(
+        (res) => {
+          assert.isUndefined(res);
+          assert.strictEqual(
+            mockStatsD.timing.args[0][0],
+            'pushbox.db.delete.device.success'
+          );
+          sinon.assert.calledOnceWithExactly(
+            mockStatsD.increment,
+            'pushbox.db.delete.device',
+            { uid: mockUid, deviceId: mockDeviceIds[0] }
+          );
+        },
+        (err) => {
+          assert.ok(false, err);
+        }
+      );
+    });
+
+    it('throws error when delete device fails', () => {
+      stubDbModule.deleteDevice.rejects(new Error('db is a mess right now'));
+      const log = mockLog();
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
+      return pushbox.deleteDevice(mockUid, mockDeviceIds[0]).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+          sinon.assert.calledOnce(log.error);
+          assert.equal(log.error.args[0][0], 'pushbox.db.delete.device');
           assert.equal(
             log.error.args[0][1]['error']['message'],
             'db is a mess right now'

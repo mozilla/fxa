@@ -14,7 +14,15 @@ const uuid = require('uuid');
 
 describe('lib/devices:', () => {
   describe('instantiate:', () => {
-    let log, deviceCreatedAt, deviceId, device, db, push, devices, oauthDB;
+    let log,
+      deviceCreatedAt,
+      deviceId,
+      device,
+      db,
+      push,
+      devices,
+      oauthDB,
+      pushbox;
 
     beforeEach(() => {
       log = mocks.mockLog();
@@ -30,13 +38,14 @@ describe('lib/devices:', () => {
         deviceId: deviceId,
       });
       push = mocks.mockPush();
+      pushbox = mocks.mockPushbox();
       oauthDB = {
         getRefreshToken: sinon.spy(),
         removeRefreshToken: sinon.spy(),
       };
       devices = proxyquire('../../lib/devices', {
         './oauth/db': oauthDB,
-      })(log, db, push);
+      })(log, db, push, pushbox);
     });
 
     it('returns the expected interface', () => {
@@ -881,6 +890,11 @@ describe('lib/devices:', () => {
 
         assert.equal(db.deleteDevice.callCount, 1);
         assert.ok(db.deleteDevice.calledBefore(push.notifyDeviceDisconnected));
+        assert.equal(pushbox.deleteDevice.callCount, 1);
+        assert.deepEqual(pushbox.deleteDevice.firstCall.args, [
+          request.auth.credentials.uid,
+          deviceId,
+        ]);
         assert.equal(push.notifyDeviceDisconnected.callCount, 1);
         assert.equal(
           push.notifyDeviceDisconnected.firstCall.args[0],

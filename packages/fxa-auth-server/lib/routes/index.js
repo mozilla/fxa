@@ -26,7 +26,7 @@ module.exports = function (
   const push = require('../push')(log, db, config, statsd);
   const { pushboxApi } = require('../pushbox');
   const pushbox = pushboxApi(log, config, statsd);
-  const devicesImpl = require('../devices')(log, db, push);
+  const devicesImpl = require('../devices')(log, db, push, pushbox);
   const cadReminders = require('../cad-reminders')(config, log);
   const signinUtils = require('./utils/signin')(
     log,
