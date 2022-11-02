@@ -31,9 +31,6 @@ describe('Header', () => {
 
     const { queryByTestId } = subject();
 
-    const branding = queryByTestId('branding');
-    expect(branding).toHaveAttribute('title', 'firefox');
-
     const avatar = queryByTestId('avatar');
     expect(avatar).toHaveAttribute('alt', userProfile.displayName);
   });

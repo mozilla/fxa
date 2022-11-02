@@ -3,12 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
-import Header from './index';
+import { Header, HeaderProps } from './index';
 import { Profile } from '../../store/types';
 
-const userProfile: Profile = {
+export default {
+  title: 'components/Header',
+  component: Header,
+} as Meta;
+
+const profile: Profile = {
   avatar: 'http://placekitten.com/256/256',
   displayName: 'Foxy77',
   email: 'foxy@firefox.com',
@@ -20,14 +25,17 @@ const userProfile: Profile = {
   metricsEnabled: true,
 };
 
-storiesOf('components/Header', module)
-  .add('default', () => (
+const storyWithProps = ({ profile }: HeaderProps) => {
+  const story = () => (
     <MockApp>
-      <Header {...{ profile: userProfile }} />
+      <Header profile={profile} />
     </MockApp>
-  ))
-  .add('no profile', () => (
-    <MockApp>
-      <Header />
-    </MockApp>
-  ));
+  );
+  return story;
+};
+
+export const Default = storyWithProps({
+  profile,
+});
+
+export const NoProfile = storyWithProps({});
