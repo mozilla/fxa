@@ -621,28 +621,46 @@ describe('StripeFirestore', () => {
   });
 
   describe('retrieveCustomerSubscriptions', () => {
-    it('retrieves customer subscriptions', async () => {
-      const subscriptionSnap = {
-        docs: [{ data: () => ({ ...customer.subscriptions.data[0] }) }],
-      };
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({
-          empty: false,
-          docs: [
-            {
-              ref: {
-                collection: sinon.fake.returns({
-                  get: sinon.fake.resolves(subscriptionSnap),
-                }),
+    describe('retrieves customer subscriptions', () => {
+      beforeEach(() => {
+        const subscriptionSnap = {
+          docs: [{ data: () => ({ ...customer.subscriptions.data[0] }) }],
+        };
+        customerCollectionDbRef.where = sinon.fake.returns({
+          get: sinon.fake.resolves({
+            empty: false,
+            docs: [
+              {
+                ref: {
+                  collection: sinon.fake.returns({
+                    get: sinon.fake.resolves(subscriptionSnap),
+                  }),
+                },
               },
-            },
-          ],
-        }),
+            ],
+          }),
+        });
       });
-      const subscriptions = await stripeFirestore.retrieveCustomerSubscriptions(
-        customer.id
-      );
-      assert.deepEqual(subscriptions, [customer.subscriptions.data[0]]);
+
+      it('without status filter', async () => {
+        const subscriptions =
+          await stripeFirestore.retrieveCustomerSubscriptions(customer.id);
+        assert.deepEqual(subscriptions, [customer.subscriptions.data[0]]);
+      });
+
+      it('with status filter', async () => {
+        const subscriptions =
+          await stripeFirestore.retrieveCustomerSubscriptions(customer.id, [
+            'active',
+          ]);
+        assert.deepEqual(subscriptions, [customer.subscriptions.data[0]]);
+      });
+
+      it('with empty status filter', async () => {
+        const subscriptions =
+          await stripeFirestore.retrieveCustomerSubscriptions(customer.id, []);
+        assert.deepEqual(subscriptions, []);
+      });
     });
 
     it('retrieves only active customer subscriptions', async () => {

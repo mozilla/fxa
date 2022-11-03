@@ -258,8 +258,15 @@ export class StripeFirestore {
 
   /**
    * Retrieve all the customer subscriptions from Firestore.
+   * @param customerId - The target customer
+   * @param statusFilter - Optional list of subscription statuses to filter by. Only
+   *                       subscriptions with status contained in this list will be
+   *                       returned. Defaults to ACTIVE_SUBSCRIPTION_STATUSES.
    */
-  async retrieveCustomerSubscriptions(customerId: string) {
+  async retrieveCustomerSubscriptions(
+    customerId: string,
+    statusFilter: Stripe.Subscription.Status[] = ACTIVE_SUBSCRIPTION_STATUSES
+  ) {
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', customerId)
       .get();
@@ -275,7 +282,7 @@ export class StripeFirestore {
       .get();
     return subscriptionSnap.docs
       .map((doc) => doc.data() as Stripe.Subscription)
-      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status));
+      .filter((sub) => statusFilter.includes(sub.status));
   }
 
   /**

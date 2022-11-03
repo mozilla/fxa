@@ -208,7 +208,8 @@ export abstract class StripeHelper {
       | 'subscriptions'
       | 'invoice_settings.default_payment_method'
       | 'tax'
-    )[]
+    )[],
+    statusFilter?: Stripe.Subscription.Status[]
   ): Promise<Stripe.Customer | void> {
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
@@ -218,7 +219,8 @@ export abstract class StripeHelper {
     // By default this has subscriptions expanded.
     let customer = await this.expandResource<Stripe.Customer>(
       stripeCustomerId,
-      CUSTOMER_RESOURCE
+      CUSTOMER_RESOURCE,
+      statusFilter
     );
 
     if (customer.deleted) {
@@ -468,7 +470,8 @@ export abstract class StripeHelper {
    */
   async expandResource<T>(
     resource: string | T,
-    resourceType: typeof VALID_RESOURCE_TYPES[number]
+    resourceType: typeof VALID_RESOURCE_TYPES[number],
+    statusFilter?: Stripe.Subscription.Status[]
   ): Promise<T> {
     if (typeof resource !== 'string') {
       return resource;
@@ -493,7 +496,10 @@ export abstract class StripeHelper {
           return customer;
         }
         const subscriptions =
-          await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
+          await this.stripeFirestore.retrieveCustomerSubscriptions(
+            resource,
+            statusFilter
+          );
         (customer as any).subscriptions = {
           data: subscriptions as any,
           has_more: false,

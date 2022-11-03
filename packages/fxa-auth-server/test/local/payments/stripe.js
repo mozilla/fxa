@@ -6275,7 +6275,8 @@ describe('StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
-        customer.id
+        customer.id,
+        undefined
       );
     });
 
@@ -6298,7 +6299,8 @@ describe('StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
-        customer.id
+        customer.id,
+        undefined
       );
     });
 

@@ -16,12 +16,17 @@ import {
 import { AppStoreService } from './appstore.service';
 import { PlayStoreService } from './playstore.service';
 import { StripeService } from './stripe.service';
-import { SubscriptionsService } from './subscriptions.service';
+import {
+  SubscriptionsService,
+  VALID_SUBSCRIPTION_STATUSES,
+} from './subscriptions.service';
 import { addDays, created } from './test.util';
 
 describe('Subscription Service', () => {
   // Stripe Service Mock
   const mockFetchCustomers = jest.fn();
+  const subscriptionStatusTypes = VALID_SUBSCRIPTION_STATUSES;
+
   const mockLookupLatestInvoice = jest.fn();
   const mockAllAbbrevPlans = jest.fn();
   const mockCreateManageSubscriptionLink = jest.fn();
@@ -145,7 +150,11 @@ describe('Subscription Service', () => {
     const subscriptions = await service.getSubscriptions(uid);
     expect(subscriptions).toEqual([]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
+    expect(mockFetchCustomers).toBeCalledWith(
+      uid,
+      ['subscriptions'],
+      subscriptionStatusTypes
+    );
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
@@ -213,7 +222,11 @@ describe('Subscription Service', () => {
       },
     ]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
+    expect(mockFetchCustomers).toBeCalledWith(
+      uid,
+      ['subscriptions'],
+      subscriptionStatusTypes
+    );
     expect(mockCreateManageSubscriptionLink).toBeCalledWith(customerId);
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
@@ -274,7 +287,11 @@ describe('Subscription Service', () => {
       },
     ]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
+    expect(mockFetchCustomers).toBeCalledWith(
+      uid,
+      ['subscriptions'],
+      subscriptionStatusTypes
+    );
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
@@ -377,7 +394,11 @@ describe('Subscription Service', () => {
       },
     ]);
     expect(mockAllAbbrevPlans).toBeCalledTimes(1);
-    expect(mockFetchCustomers).toBeCalledWith(uid, ['subscriptions']);
+    expect(mockFetchCustomers).toBeCalledWith(
+      uid,
+      ['subscriptions'],
+      subscriptionStatusTypes
+    );
     expect(mockAppStoreGetSubscriptions).toBeCalledWith(uid);
     expect(mockPlayStoreGetSubscriptions).toBeCalledWith(uid);
   });
