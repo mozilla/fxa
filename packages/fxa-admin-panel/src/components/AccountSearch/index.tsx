@@ -199,7 +199,7 @@ export const AccountSearch = () => {
     return filteredList.map((item) => (
       <a
         key={item}
-        className="p-2 border-b border-grey-100 block hover:bg-grey-10 focus:bg-grey-10"
+        className="p-2 border-b border-grey-100 block hover:bg-grey-10 focus:bg-grey-10 z-50"
         href="#suggestion"
         onClick={(e: any) => {
           e.preventDefault();
@@ -266,7 +266,7 @@ export const AccountSearch = () => {
           </button>
           {showSuggestion && filteredList.length > 0 && (
             <div
-              className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden"
+              className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden z-50"
               data-testid="email-suggestions"
             >
               {renderSuggestions()}

@@ -77,6 +77,12 @@ export const UNLINK_ACCOUNT = gql`
   }
 `;
 
+export const UNSUBSCRIBE_FROM_MAILING_LISTS = gql`
+  mutation unsubscribeFromMailingLists($uid: String!) {
+    unsubscribeFromMailingLists(uid: $uid)
+  }
+`;
+
 export const LinkedAccount = ({
   uid,
   authAt,
@@ -189,12 +195,35 @@ export const DangerZone = ({
       window.alert('Error in unconfirming email');
     },
   });
-
   const handleUnverify = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
     unverify({ variables: { email: email.email } });
+  };
+
+  const [unsubscribeFromMailingLists] = useMutation(
+    UNSUBSCRIBE_FROM_MAILING_LISTS,
+    {
+      onCompleted: (data) => {
+        if (data.unsubscribeFromMailingLists) {
+          window.alert(
+            "The user's email has been unsubscribed from mozilla mailing lists."
+          );
+        } else {
+          window.alert('Unsubscribing was not successful.');
+        }
+      },
+      onError: () => {
+        window.alert('Unexpected error encountered!');
+      },
+    }
+  );
+  const handleUnsubscribeFromMailingLists = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    unsubscribeFromMailingLists({ variables: { uid } });
   };
 
   const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
@@ -265,6 +294,7 @@ export const DangerZone = ({
           AdminPanelFeature.UnverifyEmail,
           AdminPanelFeature.DisableAccount,
           AdminPanelFeature.EnableAccount,
+          AdminPanelFeature.UnsubscribeFromMailingLists,
         ]}
       >
         <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
@@ -348,6 +378,24 @@ export const DangerZone = ({
           </div>
         </Guard>
       )}
+      <Guard features={[AdminPanelFeature.UnsubscribeFromMailingLists]}>
+        <h2 className="text-lg account-header">
+          Unsubscribe From Mailing Lists
+        </h2>
+        <div className="border-l-2 border-red-600 mb-4 pl-4">
+          <p className="text-base leading-6">
+            Unsubscribe user from <b>all</b> mozilla mailing lists.
+          </p>
+          <button
+            className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+            type="button"
+            data-testid="unsubscribe-from-mailing-lists"
+            onClick={handleUnsubscribeFromMailingLists}
+          >
+            Unsubscribe
+          </button>
+        </div>
+      </Guard>
     </>
   );
 };
@@ -706,6 +754,7 @@ export const Account = ({
           disabledAt: disabledAt!,
           email: primaryEmail, // only the primary for now
           onCleared: onCleared,
+          unsubscribeToken: '<USER_TOKEN>',
         }}
       />
     </section>

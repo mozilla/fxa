@@ -18,6 +18,7 @@ export enum PermissionLevel {
 }
 
 /** Enum of known features */
+
 export enum AdminPanelFeature {
   AccountSearch = 'AccountSearch',
   AccountHistory = 'AccountHistory',
@@ -32,6 +33,7 @@ export enum AdminPanelFeature {
   RelyingParties = 'RelyingParties',
   RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
   SendPasswordResetEmail = 'SendPasswordResetEmail',
+  UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
 }
 
 /** Enum of known user groups */
@@ -136,6 +138,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.SendPasswordResetEmail]: {
     name: 'Send Password Reset Email',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.UnsubscribeFromMailingLists]: {
+    name: 'Unsubscribe User From Mozilla Mailing Lists',
     level: PermissionLevel.Support,
   },
 };

@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -41,6 +42,7 @@ import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
 import { AuthClientService } from '../../backend/auth-client.service';
+import { BasketService } from '../../newsletters/basket.service';
 
 export const chance = new Chance();
 
@@ -91,6 +93,7 @@ describe('AccountResolver', () => {
     },
   };
   let authClient: any;
+  let basketService: any;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -150,7 +153,23 @@ describe('AccountResolver', () => {
       },
     };
 
+    basketService = {};
+    const MockBasket: Provider = {
+      provide: BasketService,
+      useValue: basketService,
+    };
+
+    const MockDb: Provider = {
+      provide: DatabaseService,
+      useValue: db,
+    };
+
     authClient = {};
+    const MockAuthClient = {
+      provide: AuthClientService,
+      useValue: authClient,
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
@@ -159,8 +178,9 @@ describe('AccountResolver', () => {
         MockConfig,
         MockMetricsFactory,
         MockSubscription,
-        { provide: DatabaseService, useValue: db },
-        { provide: AuthClientService, useValue: authClient },
+        MockBasket,
+        MockDb,
+        MockAuthClient,
       ],
     }).compile();
 
@@ -346,5 +366,56 @@ describe('AccountResolver', () => {
     const result = await resolver.sendPasswordResetEmail(USER_1.email);
     expect(authClient.passwordForgotSendCode).toBeCalledTimes(1);
     expect(result).toBe(true);
+  });
+
+  describe('unsubscribes from mailing lists', () => {
+    const fakeToken = '123';
+    const uid = USER_1.uid;
+    const badUid = uid.replace(/\d/g, '0');
+    const email = USER_1.email;
+
+    beforeEach(() => {
+      basketService.getUserToken = jest.fn().mockResolvedValue(fakeToken);
+      basketService.unsubscribeAll = jest.fn().mockResolvedValue(true);
+    });
+
+    it('unsubscribes successfully', async () => {
+      const result = await resolver.unsubscribeFromMailingLists(uid);
+
+      expect(basketService.getUserToken).toBeCalledWith(email);
+      expect(basketService.unsubscribeAll).toBeCalledWith(fakeToken);
+      expect(result).toBeTruthy();
+    });
+
+    it('handles bad request - unsubscribe', async () => {
+      basketService.unsubscribeAll = jest.fn().mockResolvedValue(undefined);
+
+      const result = await resolver.unsubscribeFromMailingLists(uid);
+
+      expect(basketService.getUserToken).toBeCalledWith(USER_1.email);
+      expect(basketService.unsubscribeAll).toBeCalledWith(fakeToken);
+      expect(result).toBeFalsy();
+    });
+
+    it('handles bad request - invalid basket user', async () => {
+      basketService.getUserToken = jest.fn().mockResolvedValue(undefined);
+
+      const result = await resolver.unsubscribeFromMailingLists(uid);
+
+      expect(basketService.getUserToken).toBeCalledWith(email);
+      expect(basketService.unsubscribeAll).toBeCalledTimes(0);
+      expect(result).toBeFalsy();
+    });
+
+    it('handles bad request - invalid fxa user', async () => {
+      basketService.getUserToken = jest.fn().mockResolvedValue(undefined);
+      basketService.unsubscribeAll = jest.fn().mockResolvedValue(undefined);
+
+      const result = await resolver.unsubscribeFromMailingLists(badUid);
+
+      expect(basketService.getUserToken).toBeCalledTimes(0);
+      expect(basketService.unsubscribeAll).toBeCalledTimes(0);
+      expect(result).toBeFalsy();
+    });
   });
 });

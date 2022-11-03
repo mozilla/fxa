@@ -12,6 +12,7 @@ export enum EventNames {
   DisableLogin = 'disable-login',
   AccountSearch = 'account-search',
   EditLocale = 'edit-locale',
+  UnsubscribeFromMailingLists = 'unsubscribe-from-mailing-lists',
 }
 
 /**

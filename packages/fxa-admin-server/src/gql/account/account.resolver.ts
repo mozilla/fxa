@@ -38,6 +38,7 @@ import { Email as EmailType } from '../../gql/model/emails.model';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AuthClientService } from '../../backend/auth-client.service';
 import AuthClient from 'fxa-auth-client';
+import { BasketService } from '../../newsletters/basket.service';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -89,6 +90,7 @@ export class AccountResolver {
     private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>,
     private eventLogging: EventLoggingService,
+    private basketService: BasketService,
     @Inject(AuthClientService) private authAPI: AuthClient
   ) {}
 
@@ -372,5 +374,37 @@ export class AccountResolver {
         providerId: 1,
       });
     return !!result;
+  }
+
+  @Features(AdminPanelFeature.UnsubscribeFromMailingLists)
+  @Mutation((returns) => Boolean)
+  public async unsubscribeFromMailingLists(@Args('uid') uid: string) {
+    // Look up email. This end point is protected, but using a uid would makes it harder
+    // to abuse regardless.
+    const account = await this.db.account
+      .query()
+      .select('email')
+      .where({ uid: uuidTransformer.to(uid) })
+      .first();
+
+    if (!account) {
+      return false;
+    }
+
+    // Look up user token
+    const token = await this.basketService.getUserToken(account.email);
+    if (!token) {
+      return false;
+    }
+
+    // Request that user is unsubscribed from mailing list
+    const success = await this.basketService.unsubscribeAll(token);
+
+    // Record an event if action was successful
+    if (success) {
+      this.eventLogging.onEvent(EventNames.UnsubscribeFromMailingLists);
+    }
+
+    return success;
   }
 }
