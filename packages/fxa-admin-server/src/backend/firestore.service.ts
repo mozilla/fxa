@@ -42,8 +42,9 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
 /**
  * Factory for providing access to firestore
  */
+export const FirestoreService = Symbol('FIRESTORE');
 export const FirestoreFactory: Provider<Firestore> = {
-  provide: 'FIRESTORE',
+  provide: FirestoreService,
   useFactory: (configService: ConfigService) => {
     const firestoreConfig = configService.get('authFirestore');
     if (firestoreConfig == null) {

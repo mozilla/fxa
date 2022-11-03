@@ -8,6 +8,7 @@ import {
   Totp as TotpType,
   RecoveryKeys as RecoveryKeysType,
   LinkedAccount as LinkedAccountType,
+  AccountEvent as AccountEventType,
 } from 'fxa-admin-server/src/graphql';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
@@ -105,6 +106,7 @@ export const Account = ({
   query,
   securityEvents,
   linkedAccounts,
+  accountEvents,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -348,6 +350,23 @@ export const Account = ({
         ) : (
           <p data-testid="account-security-events" className="result-none">
             This account doesn't have any account history.
+          </p>
+        )}
+
+        <h3 className="header-lg">Email History</h3>
+        {accountEvents && accountEvents.length > 0 ? (
+          <TableXHeaders rowHeaders={['Event', 'Template', 'Timestamp']}>
+            {accountEvents.map((accountEvent: AccountEventType) => (
+              <TableRowXHeader key={accountEvent.createdAt}>
+                <>{accountEvent.name}</>
+                <>{accountEvent.template}</>
+                <>{getFormattedDate(accountEvent.createdAt)}</>
+              </TableRowXHeader>
+            ))}
+          </TableXHeaders>
+        ) : (
+          <p data-testid="account-events" className="result-none">
+            This account doesn't have any email history.
           </p>
         )}
 

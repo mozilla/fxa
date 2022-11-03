@@ -42,6 +42,7 @@ import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
 import { AuthClientService } from '../../backend/auth-client.service';
+import { FirestoreService } from '../../backend/firestore.service';
 import { BasketService } from '../../newsletters/basket.service';
 
 export const chance = new Chance();
@@ -94,6 +95,7 @@ describe('AccountResolver', () => {
   };
   let authClient: any;
   let basketService: any;
+  let firestoreService: any;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -170,6 +172,37 @@ describe('AccountResolver', () => {
       useValue: authClient,
     };
 
+    // Not ideal, but we have to do this because
+    // of the nested nature of the Firestore documents
+    const get = () =>
+      Promise.resolve({
+        docs: [
+          {
+            data: () => ({
+              name: 'emailSent',
+              createdAt: Date.now(),
+              eventType: 'emailEvent',
+              template: 'recovery',
+              flowId: 'flowId',
+              service: 'service',
+            }),
+          },
+        ],
+      });
+    const limit = () => ({ get });
+    const collection = () => ({
+      orderBy: () => ({ limit }),
+      doc: () => ({ collection }),
+      limit,
+      get,
+    });
+    firestoreService = { collection };
+
+    const MockFirestoreService = {
+      provide: FirestoreService,
+      useValue: firestoreService,
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
@@ -180,6 +213,7 @@ describe('AccountResolver', () => {
         MockSubscription,
         MockBasket,
         MockDb,
+        MockFirestoreService,
         MockAuthClient,
       ],
     }).compile();
@@ -417,5 +451,16 @@ describe('AccountResolver', () => {
       expect(basketService.unsubscribeAll).toBeCalledTimes(0);
       expect(result).toBeFalsy();
     });
+  });
+
+  it('loads account events', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      true,
+      'joe'
+    )) as Account;
+    const result = await resolver.accountEvents(user);
+    expect(result).toBeDefined();
+    expect(result.length).toBe(1);
   });
 });

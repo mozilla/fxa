@@ -5,6 +5,7 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MockConfig, MockFirestoreFactory } from '../mocks';
+import { FirestoreService } from './firestore.service';
 
 describe('Firestore Service', () => {
   let service: Firestore;
@@ -14,7 +15,7 @@ describe('Firestore Service', () => {
       providers: [MockConfig, MockFirestoreFactory],
     }).compile();
 
-    service = module.get<Firestore>('FIRESTORE');
+    service = module.get<Firestore>(FirestoreService);
   });
 
   it('should be defined', () => {

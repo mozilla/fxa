@@ -108,6 +108,15 @@ enum ProviderId {
   APPLE
 }
 
+type AccountEvent {
+  name: String
+  createdAt: Float
+  eventType: String
+  template: String
+  flowId: String
+  service: String
+}
+
 type MozSubscription {
   created: Float!
   currentPeriodEnd: Float!
@@ -139,6 +148,7 @@ type Account {
   attachedClients: [AttachedClient!]
   subscriptions: [MozSubscription!]
   linkedAccounts: [LinkedAccount!]
+  accountEvents: [AccountEvent!]
 }
 
 type RelyingParty {

@@ -9,7 +9,7 @@ import {
   AppStorePurchaseManagerService,
   AppStoreService,
 } from './appstore.service';
-import { FirestoreFactory } from './firestore.service';
+import { FirestoreFactory } from '../backend/firestore.service';
 import {
   PlayStorePurchaseManagerService,
   PlayStoreService,

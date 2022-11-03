@@ -10,6 +10,7 @@ import { RecoveryKeys } from './recovery-keys.model';
 import { SecurityEvents } from './security-events.model';
 import { Totp } from './totp.model';
 import { LinkedAccount } from './linked-account.model';
+import { AccountEvent } from './account-events.model';
 import { MozSubscription } from './moz-subscription.model';
 
 @ObjectType()
@@ -58,4 +59,7 @@ export class Account {
 
   @Field((type) => [LinkedAccount], { nullable: true })
   public linkedAccounts!: LinkedAccount[];
+
+  @Field((type) => [AccountEvent], { nullable: true })
+  public accountEvents!: AccountEvent[];
 }

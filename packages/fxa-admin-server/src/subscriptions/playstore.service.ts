@@ -9,6 +9,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { PurchaseManager } from 'fxa-shared/payments/iap/google-play/purchase-manager';
 import { UserManager } from 'fxa-shared/payments/iap/google-play/user-manager';
 import { Auth, google } from 'googleapis';
+import { FirestoreService } from '../backend/firestore.service';
 
 /**
  * Extends PurchaseManager to be service like
@@ -17,7 +18,7 @@ import { Auth, google } from 'googleapis';
 export class PlayStorePurchaseManagerService extends PurchaseManager {
   constructor(
     configService: ConfigService,
-    @Inject('FIRESTORE') firestore: Firestore,
+    @Inject(FirestoreService) firestore: Firestore,
     logger: MozLoggerService
   ) {
     const prefix = `${configService.get('authFirestore.prefix')}iap-`;
@@ -53,7 +54,7 @@ export class PlayStoreUserManagerService extends UserManager {
     configService: ConfigService,
     logger: MozLoggerService,
     purchaseManager: PlayStorePurchaseManagerService,
-    @Inject('FIRESTORE') firestore: Firestore
+    @Inject(FirestoreService) firestore: Firestore
   ) {
     const prefix = `${configService.get('authFirestore.prefix')}iap-`;
     const purchasesDbRef = firestore.collection(`${prefix}play-purchases`);

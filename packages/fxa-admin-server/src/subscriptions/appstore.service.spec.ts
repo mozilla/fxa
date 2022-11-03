@@ -10,7 +10,7 @@ import {
   AppStorePurchaseManagerService,
   AppStoreService,
 } from './appstore.service';
-import { FirestoreFactory } from './firestore.service';
+import { FirestoreFactory } from '../backend/firestore.service';
 
 describe('AppStoreHelperService', () => {
   let service: AppStoreHelperService;

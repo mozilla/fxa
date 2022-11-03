@@ -97,6 +97,12 @@ const convictConf = convict({
       env: 'AUTH_FIRESTORE_PROJECT_ID',
       format: String,
     },
+    ebPrefix: {
+      default: 'fxa-eb-',
+      doc: 'Event broker Firestore collection prefix',
+      env: 'AUTH_EB_FIRESTORE_COLLECTION_PREFIX',
+      format: String,
+    },
   },
   pubsub: {
     audience: {
@@ -1953,6 +1959,14 @@ const convictConf = convict({
     },
   },
   tracing: tracingConfig,
+  accountEvents: {
+    enabled: {
+      default: true,
+      doc: 'Flag to enable account event logging. Currently only email based events',
+      env: 'ACCOUNT_EVENTS_ENABLED',
+      format: Boolean,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

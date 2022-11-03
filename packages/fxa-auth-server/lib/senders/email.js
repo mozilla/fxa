@@ -486,6 +486,15 @@ module.exports = function (log, config, bounces) {
           headers,
         });
 
+        emailUtils.logAccountEventFromMessage(
+          {
+            headers: {
+              ...headers,
+            },
+          },
+          'emailSent'
+        );
+
         return resolve(status);
       });
     });

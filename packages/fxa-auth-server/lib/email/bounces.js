@@ -144,6 +144,8 @@ module.exports = function (log, error) {
         // Log the bounced flowEvent and emailEvent metrics
         utils.logFlowEventFromMessage(log, message, 'bounced');
         utils.logEmailEventFromMessage(log, message, 'bounced', emailDomain);
+        utils.logAccountEventFromMessage(message, 'emailBounced');
+
         log.info('handleBounce', logData);
 
         /**

@@ -113,6 +113,15 @@ export interface LinkedAccount {
     enabled: boolean;
 }
 
+export interface AccountEvent {
+    name?: Nullable<string>;
+    createdAt?: Nullable<number>;
+    eventType?: Nullable<string>;
+    template?: Nullable<string>;
+    flowId?: Nullable<string>;
+    service?: Nullable<string>;
+}
+
 export interface MozSubscription {
     created: number;
     currentPeriodEnd: number;
@@ -144,6 +153,7 @@ export interface Account {
     attachedClients?: Nullable<AttachedClient[]>;
     subscriptions?: Nullable<MozSubscription[]>;
     linkedAccounts?: Nullable<LinkedAccount[]>;
+    accountEvents?: Nullable<AccountEvent[]>;
 }
 
 export interface RelyingParty {

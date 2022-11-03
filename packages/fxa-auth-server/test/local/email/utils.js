@@ -10,6 +10,8 @@ const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const { default: Container } = require('typedi');
+const { AccountEventsManager } = require('../../../lib/account-events');
 
 const amplitude = sinon.spy();
 const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
@@ -335,6 +337,74 @@ describe('email utils helpers', () => {
         origin: 'wibble',
       });
       assert.equal(log.warn.callCount, 0);
+    });
+  });
+
+  describe('logAccountEventFromMessage', () => {
+    let mockAccountEventsManager;
+    beforeEach(() => {
+      mockAccountEventsManager = {
+        recordEmailEvent: sinon.stub(),
+      };
+      Container.set(AccountEventsManager, mockAccountEventsManager);
+    });
+
+    afterEach(() => {
+      Container.reset();
+    });
+
+    it('should call account events manager from valid message', async () => {
+      emailHelpers.logAccountEventFromMessage(
+        {
+          headers: [
+            { name: 'X-Template-Name', value: 'recovery' },
+            { name: 'X-Flow-Id', value: 'flowId' },
+            { name: 'X-Uid', value: 'uid' },
+            { name: 'X-Service-Id', value: 'service' },
+          ],
+        },
+        'emailBounced'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordEmailEvent,
+        'uid',
+        {
+          template: 'recovery',
+          flowId: 'flowId',
+          service: 'service',
+        },
+        'emailBounced'
+      );
+    });
+
+    it('ignores if no uid', async () => {
+      emailHelpers.logAccountEventFromMessage(
+        {
+          headers: [
+            { name: 'X-Template-Name', value: 'recovery' },
+            { name: 'X-Flow-Id', value: 'flowId' },
+            { name: 'X-Service-Id', value: 'service' },
+          ],
+        },
+        'emailBounced'
+      );
+      sinon.assert.notCalled(mockAccountEventsManager.recordEmailEvent);
+    });
+
+    it('not called if firestore disable', async () => {
+      Container.remove(AccountEventsManager);
+      emailHelpers.logAccountEventFromMessage(
+        {
+          headers: [
+            { name: 'X-Template-Name', value: 'recovery' },
+            { name: 'X-Flow-Id', value: 'flowId' },
+            { name: 'X-Uid', value: 'uid' },
+            { name: 'X-Service-Id', value: 'service' },
+          ],
+        },
+        'emailBounced'
+      );
+      sinon.assert.notCalled(mockAccountEventsManager.recordEmailEvent);
     });
   });
 });
