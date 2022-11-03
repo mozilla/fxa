@@ -264,6 +264,49 @@ describe('pushbox', () => {
         }
       );
     });
+
+    it('deletes all records for an account', () => {
+      stubDbModule.deleteAccount.resolves();
+      const log = mockLog();
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
+      return pushbox.deleteAccount(mockUid).then(
+        (res) => {
+          assert.isUndefined(res);
+          assert.strictEqual(
+            mockStatsD.timing.args[0][0],
+            'pushbox.db.delete.account.success'
+          );
+          sinon.assert.calledOnceWithExactly(
+            mockStatsD.increment,
+            'pushbox.db.delete.account'
+          );
+        },
+        (err) => {
+          assert.ok(false, err);
+        }
+      );
+    });
+
+    it('throws error when delete account fails', () => {
+      stubDbModule.deleteAccount.rejects(
+        new Error('someone deleted the pushboxv1 table')
+      );
+      const log = mockLog();
+      const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
+      return pushbox.deleteAccount(mockUid).then(
+        () => assert.ok(false, 'should not happen'),
+        (err) => {
+          assert.ok(err);
+          assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+          sinon.assert.calledOnce(log.error);
+          assert.equal(log.error.args[0][0], 'pushbox.db.delete.account');
+          assert.equal(
+            log.error.args[0][1]['error']['message'],
+            'someone deleted the pushboxv1 table'
+          );
+        }
+      );
+    });
   });
 
   describe('using Pushbox service', () => {

@@ -96,6 +96,7 @@ const makeRoutes = function (options = {}, requireMocks) {
       push,
       verificationReminders
     );
+  const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
   return accountRoutes(
     log,
     db,
@@ -112,7 +113,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       removeUser: () => {},
       removePublicAndCanGrantTokens: () => {},
     },
-    options.stripeHelper
+    options.stripeHelper,
+    pushbox
   );
 };
 
@@ -1987,7 +1989,7 @@ describe('/account/login', () => {
   const defaultEmailAccountRecord = mockDB.accountRecord;
 
   beforeEach(() => {
-    Container.set(CapabilityService, sinon.fake);
+    Container.set(CapabilityService, sinon.fake.resolves());
   });
 
   afterEach(() => {
@@ -3678,7 +3680,8 @@ describe('/account/destroy', () => {
     mockPush,
     mockStripeHelper,
     mockPaypalHelper,
-    mockAuthModels;
+    mockAuthModels,
+    mockPushbox;
 
   beforeEach(async () => {
     mockDB = {
@@ -3711,6 +3714,7 @@ describe('/account/destroy', () => {
     mockAuthModels.deleteAllPayPalBAs = sinon.spy(async (uid) => {
       return;
     });
+    mockPushbox = { deleteAccount: sinon.fake.resolves() };
   });
 
   function buildRoute(subscriptionsEnabled = true) {
@@ -3734,6 +3738,7 @@ describe('/account/destroy', () => {
         log: mockLog,
         push: mockPush,
         stripeHelper: mockStripeHelper,
+        pushbox: mockPushbox,
       },
       { 'fxa-shared/db/models/auth': mockAuthModels }
     );
@@ -3779,7 +3784,17 @@ describe('/account/destroy', () => {
         mockAuthModels.deleteAllPayPalBAs,
         uid
       );
+      sinon.assert.calledOnceWithExactly(mockPushbox.deleteAccount, uid);
     });
+  });
+
+  it('does not fail if pushbox fails to delete', async () => {
+    mockPushbox = { deleteAccount: sinon.fake.rejects() };
+    try {
+      await runTest(buildRoute(), mockRequest);
+    } catch (err) {
+      assert.fail('no exception should have been thrown');
+    }
   });
 
   it('should fail if stripeHelper update customer fails', async () => {

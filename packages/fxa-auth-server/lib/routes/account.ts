@@ -14,6 +14,7 @@ import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import * as Sentry from '@sentry/node';
 import isA from 'joi';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
@@ -75,7 +76,8 @@ export class AccountHandler {
     private verificationReminders: any,
     private subscriptionAccountReminders: any,
     private oauth: any,
-    private stripeHelper: StripeHelper
+    private stripeHelper: StripeHelper,
+    private pushbox: any
   ) {
     this.otpUtils = require('./utils/otp')(log, config, db);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
@@ -1554,6 +1556,16 @@ export class AccountHandler {
 
     await this.oauth.removeUser(uid);
 
+    // No need to await and block the other notifications.  The pushbox records
+    // will be deleted once they expire even if they were not successfully
+    // deleted here.
+    this.pushbox.deleteAccount(uid).catch((err: Error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext('pushboxDeleteAccount', { uid });
+        Sentry.captureException(err);
+      });
+    });
+
     try {
       await this.push.notifyAccountDestroyed(uid, devices);
     } catch (err) {
@@ -1631,7 +1643,8 @@ export const accountRoutes = (
   verificationReminders: any,
   subscriptionAccountReminders: any,
   oauth: any,
-  stripeHelper: StripeHelper
+  stripeHelper: StripeHelper,
+  pushbox: any
 ) => {
   const accountHandler = new AccountHandler(
     log,
@@ -1646,7 +1659,8 @@ export const accountRoutes = (
     verificationReminders,
     subscriptionAccountReminders,
     oauth,
-    stripeHelper
+    stripeHelper,
+    pushbox
   );
   const routes = [
     {
