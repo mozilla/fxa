@@ -308,7 +308,24 @@ export const pushboxApi = (
     },
 
     async deleteAccount(uid: string) {
-      // TODO to be implemented in FXA-5772
+      if (shouldUseDb()) {
+        const startTime = performance.now();
+        try {
+          await pushboxDb!.deleteAccount(uid);
+          statsd.timing(
+            'pushbox.db.delete.account.success',
+            performance.now() - startTime
+          );
+          statsd.increment('pushbox.db.delete.account');
+        } catch (err) {
+          statsd.timing(
+            'pushbox.db.delete.account.failure',
+            performance.now() - startTime
+          );
+          log.error('pushbox.db.delete.account', { error: err });
+          throw error.unexpectedError();
+        }
+      }
     },
   };
 };
