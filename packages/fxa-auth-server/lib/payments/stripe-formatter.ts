@@ -47,9 +47,21 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
   invoices: Stripe.Invoice[]
 ): invoiceDTO.SubsequentInvoicePreview[] {
-  return invoices.map((invoice) => ({
-    subscriptionId: invoice.subscription as string,
-    period_start: invoice.period_end,
-    total: invoice.total,
-  }));
+  return invoices.map((invoice) => {
+    const invoicePreview: invoiceDTO.subsequentInvoicePreview = {
+      subscriptionId: invoice.subscription as string,
+      period_start: invoice.period_end,
+      total: invoice.total,
+    };
+
+    if (invoice.total_tax_amounts.length > 0) {
+      const tax = invoice.total_tax_amounts[0];
+      invoicePreview.tax = {
+        amount: tax.amount,
+        inclusive: tax.inclusive,
+      };
+    }
+
+    return invoicePreview;
+  });
 }

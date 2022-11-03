@@ -2113,7 +2113,6 @@ describe('StripeHelper', () => {
     });
 
     it('logs when there is an error when automatic tax is enabled', async () => {
-      // const logStub = sandbox.stub(stripeHelper.log, 'warn');
       sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .throws(new Error());
@@ -2124,6 +2123,57 @@ describe('StripeHelper', () => {
           country: 'US',
           ipAddress: '1.1.1.1',
           priceId: 'priceId',
+        });
+      } catch (e) {
+        sinon.assert.calledOnce(stripeHelper.log.warn);
+      }
+    });
+  });
+
+  describe('previewInvoiceBySubscriptionId', () => {
+    it('uses country when automatic tax is not enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(stripeHelper, 'taxRateByCountryCode').resolves();
+
+      await stripeHelper.previewInvoiceBySubscriptionId({
+        automaticTax: false,
+        subscriptionId: 'sub123',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        subscription: 'sub123',
+      });
+    });
+
+    it('uses ipAddress when automatic tax is enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+
+      await stripeHelper.previewInvoiceBySubscriptionId({
+        automaticTax: true,
+        subscriptionId: 'sub123',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        subscription: 'sub123',
+        automatic_tax: {
+          enabled: true,
+        },
+      });
+    });
+
+    it('logs when there is an error when automatic tax is enabled', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .throws(new Error());
+
+      try {
+        await stripeHelper.previewInvoiceBySubscriptionId({
+          automaticTax: true,
+          subscriptionId: 'sub123',
         });
       } catch (e) {
         sinon.assert.calledOnce(stripeHelper.log.warn);

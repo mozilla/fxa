@@ -715,11 +715,11 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledWith(
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { subscriptionId: 'sub_id1' }
+        { automaticTax: false, subscriptionId: 'sub_id1' }
       );
       sinon.assert.calledWith(
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { subscriptionId: 'sub_id2' }
+        { automaticTax: false, subscriptionId: 'sub_id2' }
       );
       assert.deepEqual(
         stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected]),
@@ -797,6 +797,35 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
       );
       assert.deepEqual(expected, actual);
+    });
+
+    it('uses stripe tax if enabled', async () => {
+      directStripeRoutesInstance.automaticTax = true;
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+        id: 'cus_id',
+        subscriptions: {
+          data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
+        },
+      });
+      VALID_REQUEST.app.geo = {};
+
+      await directStripeRoutesInstance.subsequentInvoicePreviews(VALID_REQUEST);
+
+      sinon.assert.calledTwice(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+        { automaticTax: true, subscriptionId: 'sub_id1' }
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+        { automaticTax: true, subscriptionId: 'sub_id2' }
+      );
     });
   });
 

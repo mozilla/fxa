@@ -90,6 +90,7 @@ export interface SubsequentInvoicePreview {
   subscriptionId: string;
   period_start: number;
   total: number;
+  tax?: InvoiceTax;
 }
 
 export const subsequentInvoicePreviewsSchema = joi.array().items(
@@ -97,13 +98,21 @@ export const subsequentInvoicePreviewsSchema = joi.array().items(
     subscriptionId: joi.string().required(),
     period_start: joi.number().required(),
     total: joi.number().required(),
+    tax: joi.object({
+      amount: joi.number().required(),
+      inclusive: joi.boolean().required(),
+    }),
   })
 );
 
-type subsequentInvoicePreview = {
+export type subsequentInvoicePreview = {
   subscriptionId: string;
   period_start: number;
   total: number;
+  tax?: {
+    amount: number;
+    inclusive: boolean;
+  };
 };
 
 export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;
