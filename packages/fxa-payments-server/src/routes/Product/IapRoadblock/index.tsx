@@ -80,15 +80,17 @@ export const IapRoadblock = ({
             contentProps: { mobileAppStore },
           }}
         />
-
-        <PlanDetails
-          {...{
-            profile,
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
+        <div className="payment-panel">
+          <PlanDetails
+            {...{
+              className: 'rounded-plan',
+              profile,
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+        </div>
       </div>
     </>
   );

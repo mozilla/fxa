@@ -104,14 +104,14 @@ export const Default = storyWithProps({
   showExpandButton: false,
 });
 
-export const DefaulWithInclusiveTax = storyWithProps({
+export const DefaultWithInclusiveTax = storyWithProps({
   selectedPlan,
   isMobile: false,
   showExpandButton: false,
   invoicePreview: invoicePreviewInclusiveTax,
 });
 
-export const DefaulWithExclusiveTax = storyWithProps({
+export const DefaultWithExclusiveTax = storyWithProps({
   selectedPlan,
   isMobile: false,
   showExpandButton: false,

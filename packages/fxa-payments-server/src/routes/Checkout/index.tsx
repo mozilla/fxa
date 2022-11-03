@@ -346,7 +346,7 @@ export const Checkout = ({
 
         <div
           className={classNames(
-            'checkout-payment bg-white border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none rounded-b-lg shadow-sm shadow-grey-300 text-grey-600',
+            'checkout-payment component-card border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none text-grey-600',
             {
               hidden: transactionInProgress || subscriptionError,
             }
@@ -472,14 +472,16 @@ export const Checkout = ({
         </div>
 
         {transactionInProgress && isMobile ? null : (
-          <PlanDetails
-            {...{
-              selectedPlan,
-              isMobile,
-              showExpandButton: isMobile,
-              coupon,
-            }}
-          >
+          <div className="payment-panel">
+            <PlanDetails
+              {...{
+                selectedPlan,
+                isMobile,
+                showExpandButton: isMobile,
+                coupon,
+              }}
+            />
+
             <CouponForm
               {...{
                 planId: selectedPlan.plan_id,
@@ -489,7 +491,7 @@ export const Checkout = ({
                 setCoupon,
               }}
             />
-          </PlanDetails>
+          </div>
         )}
       </div>
     </>

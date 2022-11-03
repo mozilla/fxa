@@ -34,43 +34,39 @@ export const PlanUpgradeDetails = ({
 
   return (
     <section
-      className={`plan-details-component plan-upgrade-details-component ${className}`}
+      className={`plan-upgrade-details-component mt-6 mx-4 ${className}`}
       {...{ role }}
       data-testid="plan-upgrade-details-component"
     >
-      <div className="plan-details-component-inner">
-        <p className="plan-label current-plan-label">
-          <Localized id="sub-update-current-plan-label">Current plan</Localized>
-        </p>
+      <p className="plan-label current-plan-label">
+        <Localized id="sub-update-current-plan-label">Current plan</Localized>
+      </p>
 
-        <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} />
+      <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} />
 
-        <p className="plan-label new-plan-label">
-          <Localized id="sub-update-new-plan-label">New plan</Localized>
-        </p>
+      <p className="plan-label new-plan-label">
+        <Localized id="sub-update-new-plan-label">New plan</Localized>
+      </p>
 
-        <PlanDetailsCard className="to-plan" plan={selectedPlan} />
+      <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
-        <div className="plan-details-total plan-upgrade-details-total">
-          <div className="plan-details-total-inner">
-            <Localized id="sub-update-total-label">
-              <div className="total-label">New total</div>
-            </Localized>
+      <div className="py-6 border-t-0 plan-details-item font-semibold">
+        <Localized id="sub-update-total-label">
+          <div className="total-label">New total</div>
+        </Localized>
 
-            <Localized
-              id={`plan-price-${selectedPlan.interval}`}
-              vars={{
-                amount: getLocalizedCurrency(
-                  selectedPlan.amount,
-                  selectedPlan.currency
-                ),
-                intervalCount: selectedPlan.interval_count,
-              }}
-            >
-              <div className="total-price">{totalPrice}</div>
-            </Localized>
-          </div>
-        </div>
+        <Localized
+          id={`plan-price-${selectedPlan.interval}`}
+          vars={{
+            amount: getLocalizedCurrency(
+              selectedPlan.amount,
+              selectedPlan.currency
+            ),
+            intervalCount: selectedPlan.interval_count,
+          }}
+        >
+          <div className="total-price">{totalPrice}</div>
+        </Localized>
       </div>
     </section>
   );
@@ -107,45 +103,43 @@ export const PlanDetailsCard = ({
     : '';
 
   return (
-    <div className={`plan-details-component-card ${className}`}>
-      <div className="plan-details-header">
-        <div className="flex">
-          <div
-            className="plan-details-logo-wrap"
-            style={{ ...setWebIconBackground }}
+    <div
+      className={`component-card plan-details-header px-4 rounded-t-lg ${className}`}
+    >
+      <div
+        className="plan-details-logo-wrap"
+        style={{ ...setWebIconBackground }}
+      >
+        <img
+          src={webIcon || ffLogo}
+          alt={productDetails.name || product_name}
+          data-testid="product-logo"
+          className="plan-details-icon"
+        />
+      </div>
+
+      <div className="text-start">
+        <h3
+          id="plan-details-product"
+          className="product-name plan-details-product"
+        >
+          {productDetails.name || product_name}
+        </h3>
+
+        {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
+        <p id="product-description" className="plan-details-description">
+          <Localized
+            id={`plan-price-${interval}`}
+            vars={{
+              amount: getLocalizedCurrency(amount, currency),
+              intervalCount: interval_count,
+            }}
           >
-            <img
-              src={webIcon || ffLogo}
-              alt={productDetails.name || product_name}
-              data-testid="product-logo"
-              className="w-8 h-8"
-            />
-          </div>
-
-          <div className="plan-details-heading-wrap">
-            <h3
-              id="plan-details-product"
-              className="product-name plan-details-product"
-            >
-              {productDetails.name || product_name}
-            </h3>
-
-            {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
-            <p id="product-description" className="plan-details-description">
-              <Localized
-                id={`plan-price-${interval}`}
-                vars={{
-                  amount: getLocalizedCurrency(amount, currency),
-                  intervalCount: interval_count,
-                }}
-              >
-                {planPrice}
-              </Localized>
-              &nbsp;&bull;&nbsp;
-              {productDetails.subtitle}
-            </p>
-          </div>
-        </div>
+            {planPrice}
+          </Localized>
+          &nbsp;&bull;&nbsp;
+          {productDetails.subtitle}
+        </p>
       </div>
     </div>
   );

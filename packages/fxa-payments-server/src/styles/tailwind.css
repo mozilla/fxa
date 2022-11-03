@@ -25,6 +25,10 @@
   @apply border-b border-0 border-solid border-grey-200;
 }
 
+.payment-panel {
+  @apply mx-4 tablet:mt-6 tablet:max-w-xs tablet:col-span-2 tablet:row-start-1 tablet:row-end-4;
+}
+
 /* footer copy */
 .payment-footer {
   @apply pt-14;
@@ -72,16 +76,21 @@
   @apply flex items-center justify-center gap-2 text-green-900;
 }
 
-.plan-details-component {
-  @apply my-0 mx-4 p-0;
+.component-card {
+  @apply bg-white rounded-b-lg shadow-sm shadow-grey-300;
 }
 
-.plan-details-component-card {
-  @apply bg-white rounded-t-none rounded-b-lg shadow-sm shadow-grey-300;
+.component-card.rounded-plan {
+  @apply rounded-lg tablet:mt-0;
 }
 
-.plan-details-component-inner {
-  @apply tablet:max-w-xs;
+.payment-error ~ .payment-panel,
+.payment-confirmation ~ .payment-panel {
+  @apply mt-6;
+}
+
+.payment-error ~ .payment-panel .component-card {
+  @apply rounded-t-lg;
 }
 
 .plan-details-description {
@@ -89,11 +98,11 @@
 }
 
 .plan-details-header {
-  @apply flex justify-between my-0 mx-4 py-4 px-0;
+  @apply flex gap-4 my-0 py-4;
 }
 
-.plan-details-heading-wrap {
-  @apply pl-4 text-left;
+.plan-details-icon {
+  @apply w-16 h-16 rounded-lg;
 }
 
 .plan-details-logo-wrap {
@@ -101,23 +110,19 @@
 }
 
 .plan-details-product {
-  @apply text-grey-600 text-sm leading-5 my-0 mr-1 ml-0 break-words;
+  @apply text-grey-600 text-sm leading-5 my-0 break-words;
 }
 
-.plan-details-total {
-  @apply py-6 w-full;
-}
-
-.plan-details-total-inner {
-  @apply flex items-center justify-between gap-2 text-grey-600 text-sm;
+.plan-details-item {
+  @apply flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm;
 }
 
 .total-label {
-  @apply font-semibold text-base;
+  @apply text-base;
 }
 
 .total-price {
-  @apply font-semibold overflow-hidden text-ellipsis text-lg whitespace-nowrap;
+  @apply overflow-hidden text-ellipsis text-lg whitespace-nowrap;
 }
 
 .main-content {

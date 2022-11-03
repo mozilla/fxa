@@ -326,14 +326,16 @@ export const SubscriptionCreate = ({
         </div>
 
         {transactionInProgress && isMobile ? null : (
-          <PlanDetails
-            {...{
-              selectedPlan,
-              isMobile,
-              showExpandButton: isMobile,
-              coupon: coupon,
-            }}
-          >
+          <div className="payment-panel">
+            <PlanDetails
+              {...{
+                selectedPlan,
+                isMobile,
+                showExpandButton: isMobile,
+                coupon: coupon,
+              }}
+            />
+
             <CouponForm
               {...{
                 planId: selectedPlan.plan_id,
@@ -343,7 +345,7 @@ export const SubscriptionCreate = ({
                 setCoupon,
               }}
             />
-          </PlanDetails>
+          </div>
         )}
       </div>
     </>
