@@ -733,13 +733,32 @@ export class StripeHelper extends StripeHelperBase {
    * Previews the subsequent invoice for a specific subscription
    */
   async previewInvoiceBySubscriptionId({
+    automaticTax,
     subscriptionId,
   }: {
+    automaticTax: boolean;
     subscriptionId: string;
   }) {
-    return this.stripe.invoices.retrieveUpcoming({
-      subscription: subscriptionId,
-    });
+    if (automaticTax) {
+      try {
+        return this.stripe.invoices.retrieveUpcoming({
+          subscription: subscriptionId,
+          automatic_tax: {
+            enabled: true,
+          },
+        });
+      } catch (e: any) {
+        this.log.warn('stripe.previewInvoice.automatic_tax', {
+          subscriptionId,
+        });
+
+        throw e;
+      }
+    } else {
+      return this.stripe.invoices.retrieveUpcoming({
+        subscription: subscriptionId,
+      });
+    }
   }
 
   /** Fetch a coupon with `applies_to` expanded. */

@@ -136,6 +136,7 @@ const ConfirmationDialog = ({
   customer,
   customerSubscription,
   periodEndDate,
+  total,
 }: {
   onDismiss: Function;
   onConfirm: () => void;
@@ -143,6 +144,7 @@ const ConfirmationDialog = ({
   customer: Customer;
   customerSubscription: WebSubscription;
   periodEndDate: number;
+  total?: number;
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
@@ -190,7 +192,7 @@ const ConfirmationDialog = ({
               periodEndDate={periodEndDate}
               currency={plan.currency}
               productName={plan.product_name}
-              amount={amount}
+              amount={total || amount}
               last4={last4}
               webIconURL={webIcon}
               webIconBackground={webIconBackground}

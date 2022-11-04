@@ -17,11 +17,13 @@ const ReactivateSubscriptionPanel = ({
   customerSubscription,
   customer,
   reactivateSubscription,
+  total,
 }: {
   plan: Plan;
   customerSubscription: WebSubscription;
   customer: Customer;
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
+  total?: number;
 }) => {
   const { subscription_id } = customerSubscription;
   const [
@@ -51,6 +53,7 @@ const ReactivateSubscriptionPanel = ({
             customer,
             periodEndDate: periodEndTimeStamp,
             customerSubscription,
+            total,
           }}
           onDismiss={hideReactivateConfirmation}
           onConfirm={onReactivateClick}
