@@ -16,7 +16,7 @@
 @tailwind utilities;
 
 .label-title {
-  @apply font-semibold my-3 text-base text-grey-600 text-left;
+  @apply font-semibold my-3 text-base text-grey-600 text-start;
 }
 
 /* borders */

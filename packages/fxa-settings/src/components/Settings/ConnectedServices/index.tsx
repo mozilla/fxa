@@ -227,7 +227,7 @@ export const ConnectedServices = () => {
             />
           ))}
 
-        <div className="mt-5 text-center mobileLandscape:text-left mobileLandscape:rtl:text-right">
+        <div className="mt-5 text-center mobileLandscape:text-start">
           <Localized id="cs-missing-device-help">
             <LinkExternal
               href={DEVICES_SUPPORT_URL}
@@ -302,7 +302,7 @@ export const ConnectedServices = () => {
                   setReason((event.target as HTMLInputElement).value);
                 }}
               >
-                <ul className="my-4 ltr:text-left rtl:text-right">
+                <ul className="my-4 text-start">
                   <Localized id="cs-disconnect-sync-opt-prefix">
                     The device is:
                   </Localized>
