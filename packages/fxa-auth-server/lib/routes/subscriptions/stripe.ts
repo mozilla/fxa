@@ -423,7 +423,7 @@ export class StripeHandler {
     >;
 
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = request.info.remoteAddress;
+    const ipAddress = request.app.clientAddress;
     const automaticTax = this.automaticTax;
 
     const previewInvoice = await this.stripeHelper.previewInvoice({
@@ -485,7 +485,7 @@ export class StripeHandler {
       string
     >;
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = request.info.remoteAddress;
+    const ipAddress = request.app.clientAddress;
     const automaticTax = this.automaticTax;
 
     const couponDetails = this.stripeHelper.retrieveCouponDetails({
