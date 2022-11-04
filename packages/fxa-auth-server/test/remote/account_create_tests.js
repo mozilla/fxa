@@ -126,12 +126,8 @@ describe('remote account create', function () {
   it('create account with service identifier and resume', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
-    let client = null; // eslint-disable-line no-unused-vars
     const options = { service: 'abcdef', resume: 'foo' };
     return Client.create(config.publicUrl, email, password, options)
-      .then((x) => {
-        client = x;
-      })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })

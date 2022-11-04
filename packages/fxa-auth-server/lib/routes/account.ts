@@ -465,7 +465,7 @@ export class AccountHandler {
 
     this.setMetricsFlowCompleteSignal(request, service);
 
-    let { account, password } = await this.createAccount({
+    const { account, password } = await this.createAccount({
       authPW,
       authSalt,
       email,
@@ -615,7 +615,6 @@ export class AccountHandler {
       form.uid = payload.uid;
       const account = await this.db.account(uid);
       await this.setPasswordOnStubAccount(account, authPW);
-      const metricsContext = await request.gatherMetricsContext({});
       await this.signupUtils.verifyAccount(request, account, {});
       const sessionToken = await this.createSessionToken({
         account,
@@ -637,7 +636,7 @@ export class AccountHandler {
 
       // if it errored out after verifiying the account
       // remove the uid from the list of accounts to send reminders to.
-      if (!!uid) {
+      if (uid) {
         const account = await this.db.account(uid);
         if (account.verifierSetAt > 0) {
           await this.subscriptionAccountReminders.delete(uid);
@@ -846,6 +845,87 @@ export class AccountHandler {
       }
     };
 
+    const forceTokenVerification = (request: AuthRequest, account: any) => {
+      // If there was anything suspicious about the request,
+      // we should force token verification.
+      if (request.app.isSuspiciousRequest) {
+        return 'suspect';
+      }
+      if (this.config.signinConfirmation?.forceGlobally) {
+        return 'global';
+      }
+      // If it's an email address used for testing etc,
+      // we should force token verification.
+      if (
+        this.config.signinConfirmation?.forcedEmailAddresses?.test(
+          account.primaryEmail.email
+        )
+      ) {
+        return 'email';
+      }
+
+      return false;
+    };
+
+    const skipTokenVerification = (request: AuthRequest, account: any) => {
+      // If they're logging in from an IP address on which they recently did
+      // another, successfully-verified login, then we can consider this one
+      // verified as well without going through the loop again.
+      const allowedRecency =
+        this.config.securityHistory.ipProfiling.allowedRecency || 0;
+      if (securityEventVerified && securityEventRecency < allowedRecency) {
+        this.log.info('Account.ipprofiling.seenAddress', {
+          uid: account.uid,
+        });
+        return true;
+      }
+
+      // If the account was recently created, don't make the user
+      // confirm sign-in for a configurable amount of time. This will reduce
+      // the friction of a user adding a second device.
+      const skipForNewAccounts =
+        this.config.signinConfirmation.skipForNewAccounts;
+      if (skipForNewAccounts?.enabled) {
+        const accountAge = requestNow - account.createdAt;
+        if (accountAge <= (skipForNewAccounts.maxAge as unknown as number)) {
+          this.log.info('account.signin.confirm.bypass.age', {
+            uid: account.uid,
+          });
+          return true;
+        }
+      }
+
+      // Certain accounts have the ability to *always* skip sign-in confirmation
+      // regardless of account age or device. This is for internal use where we need
+      // to guarantee the login experience.
+      const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase();
+      const alwaysSkip =
+        this.skipConfirmationForEmailAddresses?.includes(lowerCaseEmail);
+      if (alwaysSkip) {
+        this.log.info('account.signin.confirm.bypass.always', {
+          uid: account.uid,
+        });
+        return true;
+      }
+
+      return false;
+    };
+
+    const forcePasswordChange = (account: any) => {
+      // If it's an email address used for testing etc,
+      // we should force password change.
+      if (
+        this.config.forcePasswordChange?.forcedEmailAddresses?.test(
+          account.primaryEmail.email
+        )
+      ) {
+        return true;
+      }
+
+      // otw only force if account lockAt flag set
+      return accountRecord.lockedAt > 0;
+    };
+
     const createSessionToken = async () => {
       // All sessions are considered unverified by default.
       let needsVerificationId = true;
@@ -922,87 +1002,6 @@ export class AccountHandler {
       };
 
       sessionToken = await this.db.createSessionToken(sessionTokenOptions);
-    };
-
-    const forcePasswordChange = (account: any) => {
-      // If it's an email address used for testing etc,
-      // we should force password change.
-      if (
-        this.config.forcePasswordChange?.forcedEmailAddresses?.test(
-          account.primaryEmail.email
-        )
-      ) {
-        return true;
-      }
-
-      // otw only force if account lockAt flag set
-      return accountRecord.lockedAt > 0;
-    };
-
-    const forceTokenVerification = (request: AuthRequest, account: any) => {
-      // If there was anything suspicious about the request,
-      // we should force token verification.
-      if (request.app.isSuspiciousRequest) {
-        return 'suspect';
-      }
-      if (this.config.signinConfirmation?.forceGlobally) {
-        return 'global';
-      }
-      // If it's an email address used for testing etc,
-      // we should force token verification.
-      if (
-        this.config.signinConfirmation?.forcedEmailAddresses?.test(
-          account.primaryEmail.email
-        )
-      ) {
-        return 'email';
-      }
-
-      return false;
-    };
-
-    const skipTokenVerification = (request: AuthRequest, account: any) => {
-      // If they're logging in from an IP address on which they recently did
-      // another, successfully-verified login, then we can consider this one
-      // verified as well without going through the loop again.
-      const allowedRecency =
-        this.config.securityHistory.ipProfiling.allowedRecency || 0;
-      if (securityEventVerified && securityEventRecency < allowedRecency) {
-        this.log.info('Account.ipprofiling.seenAddress', {
-          uid: account.uid,
-        });
-        return true;
-      }
-
-      // If the account was recently created, don't make the user
-      // confirm sign-in for a configurable amount of time. This will reduce
-      // the friction of a user adding a second device.
-      const skipForNewAccounts =
-        this.config.signinConfirmation.skipForNewAccounts;
-      if (skipForNewAccounts?.enabled) {
-        const accountAge = requestNow - account.createdAt;
-        if (accountAge <= (skipForNewAccounts.maxAge as unknown as number)) {
-          this.log.info('account.signin.confirm.bypass.age', {
-            uid: account.uid,
-          });
-          return true;
-        }
-      }
-
-      // Certain accounts have the ability to *always* skip sign-in confirmation
-      // regardless of account age or device. This is for internal use where we need
-      // to guarantee the login experience.
-      const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase();
-      const alwaysSkip =
-        this.skipConfirmationForEmailAddresses?.includes(lowerCaseEmail);
-      if (alwaysSkip) {
-        this.log.info('account.signin.confirm.bypass.always', {
-          uid: account.uid,
-        });
-        return true;
-      }
-
-      return false;
     };
 
     const sendSigninNotifications = async () => {

@@ -1,13 +1,14 @@
 {
   "rules": {
-    "require-atomic-updates": "off"
+    "require-atomic-updates": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", {"vars": "all", "args": "none"}],
+    "no-redeclare": "off",
+    "@typescript-eslint/no-redeclare": "error"
   },
   "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"],
-  "parserOptions": {
-    "ecmaVersion": "2020",
-    "sourceType": "module"
-  },
+  "plugins": ["@typescript-eslint", "fxa"],
+  "parser": "@typescript-eslint/parser",
   "root": true,
   "ignorePatterns": [
     "dist",

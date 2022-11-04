@@ -1,18 +1,18 @@
-import { PayPalClient } from 'fxa-auth-server/lib/payments/paypal/client';
-import {
-  deleteAllPayPalBAs,
-  getAllPayPalBAByUid,
-} from 'fxa-shared/db/models/auth';
-import { Account } from 'fxa-shared/db/models/auth/account';
-import Stripe from 'stripe';
-import Container from 'typedi';
-import { promisify } from 'util';
-import { StatsD } from 'hot-shots';
-import { PayPalHelper } from '../lib/payments/paypal';
-import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
-import { StripeHelper } from '../lib/payments/stripe';
-import { reportSentryError } from '../lib/sentry';
-const config = require('../config').getProperties();
+//import { PayPalClient } from 'fxa-auth-server/lib/payments/paypal/client';
+//import {
+//deleteAllPayPalBAs,
+//getAllPayPalBAByUid,
+//} from 'fxa-shared/db/models/auth';
+//import { Account } from 'fxa-shared/db/models/auth/account';
+//import Stripe from 'stripe';
+//import Container from 'typedi';
+//import { promisify } from 'util';
+//import { StatsD } from 'hot-shots';
+//import { PayPalHelper } from '../lib/payments/paypal';
+//import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
+//import { StripeHelper } from '../lib/payments/stripe';
+//import { reportSentryError } from '../lib/sentry';
+//const config = require('../config').getProperties();
 
 // export async function retreiveUnverifiedAccounts(
 //   database: any

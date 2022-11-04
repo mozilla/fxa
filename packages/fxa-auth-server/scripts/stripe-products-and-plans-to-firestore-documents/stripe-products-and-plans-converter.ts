@@ -28,7 +28,6 @@ import {
 } from './plan-language-tags-guesser';
 import { promises as fsPromises, constants } from 'fs';
 import path from 'path';
-import { string } from 'joi';
 
 const DEFAULT_LOCALE = 'en';
 
@@ -135,7 +134,7 @@ export class StripeProductsAndPlansConverter {
       key.toLowerCase().startsWith('capabilities')
     )) {
       // Parse the key to determine if it's an 'all RP' or single RP capability
-      const [_, clientId] = oldKey.split(':');
+      const [, clientId] = oldKey.split(':');
       const newKey = clientId ?? '*';
       capabilities[newKey] = commaSeparatedListToArray(
         stripeObject.metadata![oldKey]

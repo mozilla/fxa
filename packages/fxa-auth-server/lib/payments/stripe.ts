@@ -71,7 +71,6 @@ import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import { stripeInvoiceToFirstInvoicePreviewDTO } from './stripe-formatter';
 import { generateIdempotencyKey } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
@@ -129,7 +128,7 @@ export type BillingAddressOptions = {
 };
 
 export type PaymentBillingDetails = Awaited<
-  ReturnType<StripeHelper['extractBillingDetails']>
+  ReturnType<StripeHelper['extractBillingDetails']> // eslint-disable-line no-use-before-define
 > & {
   paypal_payment_error?: PaypalPaymentError;
   billing_agreement_id?: string;
@@ -2633,7 +2632,7 @@ export class StripeHelper extends StripeHelperBase {
       return [];
     }
 
-    let formattedSubscriptions = [];
+    const formattedSubscriptions = [];
 
     for (const subscription of customer.subscriptions.data) {
       if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
@@ -3227,13 +3226,20 @@ export class StripeHelper extends StripeHelperBase {
    * Process a webhook event from Stripe and if needed, save it to Firestore.
    */
   async processWebhookEventToFirestore(event: Stripe.Event) {
-    const { type, data } = event;
+    const { type } = event;
+
+    // Stripe does not include the card_automatically_updated event
+    // despite this being a valid event for Stripe webhook registration
+    type StripeEnabledEvent =
+      | Stripe.WebhookEndpointUpdateParams.EnabledEvent
+      | 'payment_method.card_automatically_updated';
+
     // Note that we must insert before any event handled by the general
     // webhook code to ensure the object is up to date in Firestore before
     // our code handles the event.
     let handled = true;
     try {
-      switch (type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
+      switch (type as StripeEnabledEvent) {
         case 'invoice.created':
         case 'invoice.finalized':
         case 'invoice.paid':
@@ -3253,7 +3259,6 @@ export class StripeHelper extends StripeHelperBase {
           await this.processSubscriptionEventToFirestore(event);
           break;
         case 'payment_method.attached':
-        // @ts-ignore
         case 'payment_method.card_automatically_updated':
         case 'payment_method.updated':
           await this.processPaymentMethodEventToFirestore(event);

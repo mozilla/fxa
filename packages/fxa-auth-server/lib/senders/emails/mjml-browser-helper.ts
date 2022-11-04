@@ -48,7 +48,7 @@ export function transformMjIncludeTags(mjml: string): string {
 function extractMjIncludeTags(mjml: string): MjIncludeTag[] {
   let chomp = false;
   let include = '';
-  let includes = [];
+  const includes = [];
   mjml
     .replace(/<mj-include/g, ' <mj-include')
     .split(/\n|\s/g)
@@ -102,7 +102,7 @@ function parseMjIncludeTag(include: string): MjIncludeTag {
 }
 
 function toMjStyle(tag: MjIncludeTag) {
-  let { inline, path, type } = tag;
+  const { inline, path, type } = tag;
 
   if (type !== 'css') return '';
   if (!path) return '';

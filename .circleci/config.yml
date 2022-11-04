@@ -121,6 +121,27 @@ jobs:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F << parameters.package >> -X gcov
 
+  lint:
+    resource_class: medium+
+    docker:
+      - image: cimg/node:16.13
+    environment:
+      TRACING_SERVICE_NAME: ci-lint
+      TRACING_CONSOLE_EXPORTER_ENABLED: true
+    steps:
+      - base-install
+      - run:
+          name: Linting
+          command: |
+            PACKAGES=(\
+            'fxa-shared' \
+            'fxa-auth-server' \
+            )
+            for p in "${PACKAGES[@]}"; do
+              (cd packages/$p && yarn lint)
+            done
+      - jira/notify
+
   test-many:
     resource_class: medium+
     docker:
@@ -308,6 +329,12 @@ jobs:
 workflows:
   test_pull_request:
     jobs:
+      - lint:
+          filters:
+            branches:
+              ignore: main
+            tags:
+              ignore: /.*/
       - test-many:
           filters:
             branches:
@@ -395,6 +422,12 @@ workflows:
               ignore: /.*/
   test_and_deploy_tag:
     jobs:
+      - lint:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
       - test-many:
           filters:
             branches:

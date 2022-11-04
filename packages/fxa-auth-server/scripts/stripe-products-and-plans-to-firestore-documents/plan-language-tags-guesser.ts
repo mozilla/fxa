@@ -106,7 +106,7 @@ const handleEnglishPlan = (plan: Partial<Stripe.Plan>) => {
     return;
   }
 
-  let lang = findLocaleInTitle('en', plan.nickname!);
+  const lang = findLocaleInTitle('en', plan.nickname!);
 
   if (lang === 'en') {
     // the plan's en strings are different than the product's, so we save

@@ -283,7 +283,7 @@ export class StripeHandler {
     const customer = await this.stripeHelper.fetchCustomer(uid);
     const planCurrency = (await this.stripeHelper.findAbbrevPlanById(planId))
       .currency;
-    if (customer && customer.currency != planCurrency) {
+    if (customer && customer.currency !== planCurrency) {
       throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
     }
 

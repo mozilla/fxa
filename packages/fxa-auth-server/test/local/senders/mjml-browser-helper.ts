@@ -11,7 +11,7 @@ describe('converts <mj-include> to <mj-style> tag', () => {
     return mjml
       .replace(/\n/g, '')
       .replace(/\s+/g, ' ')
-      .replace(/\>\s*</g, '/><')
+      .replace(/>\s*</g, '/><')
       .trim();
   }
 

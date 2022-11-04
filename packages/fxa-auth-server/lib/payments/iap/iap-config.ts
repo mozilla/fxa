@@ -20,10 +20,10 @@ import { IapConfig } from './types';
 export function getIapPurchaseType(
   purchase: PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase
 ): Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB> {
-  if (purchase.hasOwnProperty('purchaseToken')) {
+  if ('purchaseToken' in purchase) {
     return MozillaSubscriptionTypes.IAP_GOOGLE;
   }
-  if (purchase.hasOwnProperty('originalTransactionId')) {
+  if ('originalTransactionId' in purchase) {
     return MozillaSubscriptionTypes.IAP_APPLE;
   }
   throw new Error('Purchase is not recognized as either Google or Apple IAP.');

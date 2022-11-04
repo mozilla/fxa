@@ -25,8 +25,8 @@ class Localizer {
   }
 
   protected async fetchMessages(currentLocales: string[]) {
-    let fetchedPending: Record<string, Promise<string>> = {};
-    let fetched: Record<string, string> = {};
+    const fetchedPending: Record<string, Promise<string>> = {};
+    const fetched: Record<string, string> = {};
     for (const locale of currentLocales) {
       fetchedPending[locale] = this.fetchTranslatedMessages(locale);
     }

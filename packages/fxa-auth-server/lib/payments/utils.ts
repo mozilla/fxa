@@ -4,7 +4,7 @@
 import { createHash } from 'crypto';
 
 export function generateIdempotencyKey(params: string[]) {
-  let sha = createHash('sha256');
+  const sha = createHash('sha256');
   sha.update(params.join(''));
   return sha.digest('base64url');
 }

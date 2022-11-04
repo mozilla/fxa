@@ -40,7 +40,7 @@ export function appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO(
     // TODO: Should this always be present or just for TransactionType of
     // "Auto-Renewable Subscription"? See https://developer.apple.com/forums/thread/705730
     ...(purchase.expiresDate && { expiry_time_millis: purchase.expiresDate }),
-    ...(purchase.hasOwnProperty('isInBillingRetry') && {
+    ...('isInBillingRetry' in purchase && {
       is_in_billing_retry_period: purchase.isInBillingRetry,
     }),
     price_id: purchase.price_id,
