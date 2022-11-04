@@ -661,9 +661,6 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
-      VALID_REQUEST.info = {
-        remoteAddress: '1.1.1.1',
-      };
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
       );
@@ -677,7 +674,7 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '1.1.1.1',
+          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
         }
@@ -818,10 +815,6 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
-      VALID_REQUEST.info = {
-        remoteAddress: '1.1.1.1',
-      };
-
       const actual = await directStripeRoutesInstance.retrieveCouponDetails(
         VALID_REQUEST
       );
@@ -831,7 +824,7 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '1.1.1.1',
+          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
         }
