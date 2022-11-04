@@ -4,7 +4,14 @@
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error", {"vars": "all", "args": "none"}],
     "no-redeclare": "off",
-    "@typescript-eslint/no-redeclare": "error"
+    "@typescript-eslint/no-redeclare": "error",
+    "@typescript-eslint/no-restricted-imports": ["error", {
+      "patterns": [{
+        "group": ["fxa-auth-server/**"],
+        "message": "Please use relative import instead.",
+        "allowTypeImports": true
+      }]
+    }]
   },
   "extends": ["plugin:fxa/server"],
   "plugins": ["@typescript-eslint", "fxa"],

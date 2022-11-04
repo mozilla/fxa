@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
-import { AppConfig, AuthFirestore } from 'fxa-auth-server/lib/types';
+import { AppConfig, AuthFirestore } from '../../lib/types';
 import Container from 'typedi';
 
 export class MockIapSubscriptionManager {
