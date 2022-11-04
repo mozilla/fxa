@@ -117,4 +117,10 @@ describe('pushbox db', () => {
       await pushboxDb.deleteDevice({ uid: r.uid, deviceId: r.deviceId });
     });
   });
+
+  describe('deleteAccount', () => {
+    it('deletes without error', async () => {
+      await pushboxDb.deleteAccount(r.uid);
+    });
+  });
 });

@@ -70,7 +70,8 @@ module.exports = function (
     verificationReminders,
     subscriptionAccountReminders,
     oauthRawDB,
-    stripeHelper
+    stripeHelper,
+    pushbox
   );
   const oauth = require('./oauth')(log, config, db, mailer, devicesImpl);
   const devicesSessions = require('./devices-and-sessions')(

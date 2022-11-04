@@ -1,12 +1,12 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
-test.describe('severity-1 #smoke', () => {
+test.describe('two step auth', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293446
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
-  test('add and remove totp #1293446 #1293452', async ({
+  test('add and remove totp', async ({
     credentials,
-    pages: { settings, totp },
+    pages: { settings, totp, login },
   }) => {
     await settings.goto();
     let status = await settings.totp.statusText();
@@ -21,6 +21,11 @@ test.describe('severity-1 #smoke', () => {
     await settings.waitForAlertBar();
     status = await settings.totp.statusText();
     expect(status).toEqual('Not Set');
+
+    // Login to verify no prompt for code
+    await settings.signOut();
+    await login.login(credentials.email, credentials.password);
+    expect(await login.loginHeader()).toBe(true);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293445
@@ -39,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293459
-  test('add TOTP and login #1293459', async ({
+  test('add TOTP and login', async ({
     credentials,
     pages: { login, settings, totp },
   }) => {
@@ -51,6 +56,26 @@ test.describe('severity-1 #smoke', () => {
     await login.setTotp(credentials.secret);
     const status = await settings.totp.statusText();
     expect(status).toEqual('Enabled');
+  });
+
+  test('add TOTP and confirm sync signin', async ({
+    credentials,
+    target,
+    pages: { login, settings, totp, page, connectAnotherDevice },
+  }) => {
+    await settings.goto();
+    await settings.totp.clickAdd();
+    await totp.enable(credentials);
+    await settings.signOut();
+
+    // Sync sign in
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
+      { waitUntil: 'networkidle' }
+    );
+    await login.login(credentials.email, credentials.password);
+    await login.setTotp(credentials.secret);
+    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293450
