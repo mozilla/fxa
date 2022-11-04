@@ -16,7 +16,7 @@
 @tailwind utilities;
 
 .label-title {
-  @apply font-semibold my-3 text-base text-grey-600 text-left;
+  @apply font-semibold my-3 text-base text-grey-600 text-start;
 }
 
 /* borders */
@@ -93,7 +93,7 @@
 }
 
 .plan-details-heading-wrap {
-  @apply pl-4 text-left;
+  @apply text-start;
 }
 
 .plan-details-logo-wrap {
@@ -101,7 +101,7 @@
 }
 
 .plan-details-product {
-  @apply text-grey-600 text-sm leading-5 my-0 mr-1 ml-0 break-words;
+  @apply text-grey-600 text-sm leading-5 my-0 break-words;
 }
 
 .plan-details-total {

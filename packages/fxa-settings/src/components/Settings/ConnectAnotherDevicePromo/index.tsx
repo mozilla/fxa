@@ -24,7 +24,7 @@ export function ConnectAnotherDevicePromo() {
       className="my-1 flex flex-col mobileLandscape:flex-row"
       data-testid="connect-another-device-promo"
     >
-      <div className="flex flex-col flex-1 text-center mobileLandscape:text-left mobileLandscape:rtl:text-right">
+      <div className="flex flex-col flex-1 text-center mobileLandscape:text-start">
         <Localized id="connect-another-fx-mobile">
           <p className="text-sm">Get Firefox on mobile or tablet</p>
         </Localized>

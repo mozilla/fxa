@@ -170,7 +170,7 @@ export const PlanDetails = ({
       <div className="plan-details-component-inner">
         <div className="plan-details-component-card">
           <div className="plan-details-header row-divider-grey-200">
-            <div className="flex">
+            <div className="flex gap-4">
               <div
                 className="plan-details-logo-wrap"
                 style={{ ...setWebIconBackground }}
@@ -207,7 +207,7 @@ export const PlanDetails = ({
 
           {!detailsHidden && productDetails.details && (
             <div
-              className="mt-2 pt-0 px-4 pb-px tablet:border-b-0 text-left"
+              className="mt-2 pt-0 px-4 pb-px tablet:border-b-0 text-start"
               data-testid="list"
             >
               <Localized id="plan-details-header">

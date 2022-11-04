@@ -21,11 +21,7 @@
   }
 
   &[aria-checked='true'] {
-    @apply text-left border-transparent;
-
-    [dir='rtl'] & {
-      @apply text-right;
-    }
+    @apply text-start border-transparent;
 
     .slider {
       @apply bg-blue-500;
@@ -65,11 +61,7 @@
   }
 
   &[aria-checked='false'] {
-    @apply text-right border-grey-200;
-
-    [dir='rtl'] & {
-      @apply text-left;
-    }
+    @apply text-end border-grey-200;
 
     .slider {
       @apply bg-grey-50;
