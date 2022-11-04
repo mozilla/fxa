@@ -125,3 +125,7 @@
   @apply tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto tablet:mx-3;
   @apply desktop:grid-cols-[600px_1fr];
 }
+
+.payment-button {
+  @apply cta-base-p flex-1 font-semibold rounded-md text-base;
+}

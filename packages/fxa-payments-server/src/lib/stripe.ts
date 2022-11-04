@@ -292,6 +292,19 @@ export const STRIPE_ELEMENT_STYLES = {
         'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
       fontSize: '16px',
       fontWeight: '500',
+      '::placeholder': {
+        color: '#767676',
+        fontSize: '16px',
+        fontWeight: '400',
+        height: '45px',
+        lineHeight: 'normal',
+      },
+      '::-moz-placeholder': {
+        lineHeight: '45px',
+      },
+      '&:-moz-ui-invalid': {
+        boxShadow: 'none',
+      },
     },
     invalid: {
       color: '#0c0c0d',

@@ -42,6 +42,10 @@ import {
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
+import LoadingSpinner, {
+  SpinnerType,
+} from 'fxa-react/components/LoadingSpinner';
+import LockImage from './images/lock.svg';
 
 export type StripePaymentSubmitResult = {
   stripe: Stripe;
@@ -194,7 +198,7 @@ export const PaymentForm = ({
 
   const paymentSource =
     plan && isExistingCustomer(customer) ? (
-      <div className="pricing-and-saved-payment">
+      <div className="flex items-center justify-between text-base">
         <Localized
           id={`plan-price-${plan.interval}`}
           vars={{
@@ -202,7 +206,7 @@ export const PaymentForm = ({
             intervalCount: plan.interval_count!,
           }}
         >
-          <div className="pricing"></div>
+          <p></p>
         </Localized>
         <PaymentProviderDetails customer={customer!} />
       </div>
@@ -238,11 +242,11 @@ export const PaymentForm = ({
     );
 
   const buttons = onCancel ? (
-    <div className="button-row">
+    <div className="mt-8 mb-5 flex gap-4 mobileLandscape:gap-6">
       <Localized id="payment-cancel-btn">
         <button
           data-testid="cancel"
-          className="button settings-button cancel secondary-button"
+          className="payment-button h-10 border-0 bg-grey-900/10 mobileLandscape:h-12"
           onClick={onCancel}
         >
           Cancel
@@ -254,14 +258,15 @@ export const PaymentForm = ({
       >
         <SubmitButton
           data-testid="submit"
-          className="button settings-button primary-button"
+          className="payment-button cta-primary h-10 mobileLandscape:h-12"
           name="submit"
           disabled={inProgress}
         >
           {inProgress ? (
-            <span data-testid="spinner-update" className="spinner">
-              &nbsp;
-            </span>
+            <LoadingSpinner
+              spinnerType={SpinnerType.White}
+              imageClassName="w-8 h-8 animate-spin"
+            />
           ) : submitButtonCopy ? (
             <span>{submitButtonCopy}</span>
           ) : (
@@ -271,28 +276,36 @@ export const PaymentForm = ({
       </Localized>
     </div>
   ) : (
-    <div className="button-row">
+    <div className="mb-5">
       <Localized id="payment-submit-btn">
         <SubmitButton
           data-testid="submit"
-          className="button"
+          className="payment-button cta-primary !font-bold w-full mt-8 h-12"
           name="submit"
           disabled={!allowSubmit}
         >
           {showProgressSpinner ? (
-            <span data-testid="spinner-submit" className="spinner">
-              &nbsp;
-            </span>
+            <LoadingSpinner
+              spinnerType={SpinnerType.White}
+              imageClassName="w-8 h-8 animate-spin"
+            />
           ) : (
-            <Localized
-              id={
-                submitButtonL10nId
-                  ? submitButtonL10nId
-                  : payButtonL10nId(customer)
-              }
-            >
-              <span className="lock">{submitButtonCopy}</span>
-            </Localized>
+            <div className="text-center">
+              <img
+                src={LockImage}
+                className="h-4 w-4 my-0 mx-3 relative top-0.5"
+                alt=""
+              />
+              <Localized
+                id={
+                  submitButtonL10nId
+                    ? submitButtonL10nId
+                    : payButtonL10nId(customer)
+                }
+              >
+                <span>{submitButtonCopy}</span>
+              </Localized>
+            </div>
           )}
         </SubmitButton>
       </Localized>
@@ -308,14 +321,12 @@ export const PaymentForm = ({
       {...{ onChange }}
     >
       {paymentSource}
-
       {confirm && plan && (
         <>
           <PaymentConsentCheckbox plan={plan} />
-          <hr />
+          <hr className="mt-4 tablet:mt-6" />
         </>
       )}
-
       {buttons}
     </Form>
   );

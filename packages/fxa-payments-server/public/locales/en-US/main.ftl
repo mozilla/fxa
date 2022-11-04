@@ -29,6 +29,9 @@ brand-name-firefox-logo = { -brand-name-firefox } logo
 close-aria =
   .aria-label = Close modal
 
+# Aria label for spinner image indicating data is loading
+app-loading-spinner-aria-label-loading = Loading...
+
 ## App error dialog
 
 general-error-heading = General application error

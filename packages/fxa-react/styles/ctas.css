@@ -15,53 +15,53 @@
 
   .cta-neutral {
     @apply bg-grey-10 border-grey-200;
+  }
 
-    &:active {
-      @apply border-grey-400 bg-grey-100 text-grey-400;
-    }
+  .cta-neutral:active {
+    @apply border-grey-400 bg-grey-100 text-grey-400;
+  }
 
-    &:focus,
-    &:focus-visible {
-      @apply bg-white outline outline-2 outline-offset-2 outline-blue-500;
-    }
+  .cta-neutral:focus,
+  .cta-neutral:focus-visible {
+    @apply bg-white outline outline-2 outline-offset-2 outline-blue-500;
+  }
 
-    &:disabled {
-      @apply bg-white text-grey-300 border-grey-200 cursor-not-allowed;
-    }
+  .cta-neutral:disabled {
+    @apply bg-white text-grey-300 border-grey-200 cursor-not-allowed;
   }
 
   .cta-primary {
     @apply bg-blue-500 border-blue-600 text-white;
+  }
 
-    &:active {
-      @apply bg-blue-800 border-blue-800;
-    }
+  .cta-primary:active {
+    @apply bg-blue-800 border-blue-800;
+  }
 
-    &:focus,
-    &:focus-visible {
-      @apply outline outline-2 outline-offset-2 outline-blue-500;
-    }
+  .cta-primary:focus,
+  .cta-primary:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-blue-500;
+  }
 
-    &:disabled {
-      @apply bg-blue-500/40 border-transparent text-white/50 cursor-not-allowed;
-    }
+  .cta-primary:disabled {
+    @apply bg-blue-500/40 border-transparent text-white/50 cursor-not-allowed;
   }
 
   .cta-caution {
     @apply bg-red-500 border-red-600 text-white;
+  }
 
-    &:active {
-      @apply bg-red-800 border-red-800;
-    }
+  .cta-caution:active {
+    @apply bg-red-800 border-red-800;
+  }
 
-    &:focus,
-    &:focus-visible {
-      @apply border-transparent outline-dotted outline-black;
-    }
+  .cta-caution:focus,
+  .cta-caution:focus-visible {
+    @apply border-transparent outline-dotted outline-black;
+  }
 
-    &:disabled {
-      @apply bg-red-500/40 border-transparent text-white/50 cursor-not-allowed;
-    }
+  .cta-caution:disabled {
+    @apply bg-red-500/40 border-transparent text-white/50 cursor-not-allowed;
   }
 
   .cta-base {
