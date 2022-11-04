@@ -14,8 +14,10 @@ export class RelierPage extends BaseLayout {
     return login.isVisible();
   }
 
-  isPro() {
-    return this.page.isVisible('.pro-status', { timeout: 1000 });
+  async isPro() {
+    const pro = this.page.locator('.pro-status');
+    await pro.waitFor();
+    return pro.isVisible();
   }
 
   async signOut() {
