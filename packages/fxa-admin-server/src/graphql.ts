@@ -174,6 +174,7 @@ export interface IMutation {
     sendPasswordResetEmail(email: string): boolean | Promise<boolean>;
     recordAdminSecurityEvent(name: string, uid: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
+    unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     updateNotes(notes: string, id: string): boolean | Promise<boolean>;
 }

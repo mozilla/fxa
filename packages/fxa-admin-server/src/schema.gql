@@ -169,6 +169,7 @@ type Mutation {
   sendPasswordResetEmail(email: String!): Boolean!
   recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
+  unsubscribeFromMailingLists(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!
   updateNotes(notes: String!, id: String!): Boolean!
 }

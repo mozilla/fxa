@@ -23,6 +23,7 @@ import { DatabaseService } from './database/database.service';
 import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
+import { NewslettersModule } from './newsletters/newsletters.module';
 import { BackendModule } from './backend/backend.module';
 
 const version = getVersionInfo(__dirname);
@@ -37,6 +38,7 @@ const version = getVersionInfo(__dirname);
     DatabaseModule,
     EventLoggingModule,
     SubscriptionModule,
+    NewslettersModule,
     GqlModule,
     GraphQLModule.forRootAsync({
       imports: [ConfigModule, SentryModule],

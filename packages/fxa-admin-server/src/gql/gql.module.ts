@@ -10,6 +10,7 @@ import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
 import { BackendModule } from '../backend/backend.module';
+import { NewslettersModule } from '../newsletters/newsletters.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BackendModule } from '../backend/backend.module';
     SubscriptionModule,
     EventLoggingModule,
     BackendModule,
+    NewslettersModule,
   ],
   providers: [AccountResolver, EmailBounceResolver, RelyingPartyResolver],
 })

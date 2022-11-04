@@ -524,6 +524,26 @@ const conf = convict({
     default: path.resolve(__dirname, '../config/public-key.json'),
     env: 'PUBLIC_KEY_FILE',
   },
+  newsletters: {
+    basketHost: {
+      doc: 'Host where basket api lives',
+      format: String,
+      default: 'basket.mozilla.org',
+      env: 'BASKET_HOST',
+    },
+    basketApiKey: {
+      doc: 'Api key for basket',
+      format: String,
+      default: '',
+      env: 'BASKET_API_KEY',
+    },
+    newsletterHost: {
+      doc: 'Host where newsletter api lives',
+      format: String,
+      default: 'www.mozilla.org',
+      env: 'NEWSLETTER_HOST',
+    },
+  },
 });
 
 const configDir = __dirname;

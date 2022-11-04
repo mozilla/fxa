@@ -10,6 +10,7 @@ import {
   CLEAR_BOUNCES_BY_EMAIL,
   EDIT_LOCALE,
   RECORD_ADMIN_SECURITY_EVENT,
+  UNSUBSCRIBE_FROM_MAILING_LISTS,
 } from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, AccountSearch, GET_EMAILS_LIKE } from './index';
 import {
@@ -457,5 +458,66 @@ describe('Editing user locale', () => {
     expect(alertSpy).toHaveBeenCalledWith(
       `An unexpected error was encountered. Edit unsuccessful.`
     );
+  });
+});
+
+describe('unsubscribe from mailing lists', () => {
+  class Unsubscribe {
+    static readonly ErrorMessage = 'Error unsubscribing';
+
+    static request(uid: string) {
+      return {
+        query: UNSUBSCRIBE_FROM_MAILING_LISTS,
+        variables: {
+          uid: uid,
+        },
+      };
+    }
+    static result(success: boolean) {
+      return {
+        data: { unsubscribeFromMailingLists: success },
+      };
+    }
+
+    static mock(uid: string, success: boolean) {
+      return {
+        request: this.request(uid),
+        result: this.result(success),
+      };
+    }
+  }
+
+  let alertSpy: jest.SpyInstance;
+
+  async function renderAndClickUnSubscribe(success: boolean) {
+    renderView([
+      GetAccountsByEmail.mock(testEmail, false, true),
+      Unsubscribe.mock('123', success),
+    ]);
+
+    jest.spyOn(window, 'confirm').mockImplementation(() => true);
+    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {
+      return true;
+    });
+
+    fireEvent.change(screen.getByTestId('email-input'), {
+      target: { value: testEmail },
+    });
+    fireEvent.click(screen.getByTestId('search-button'));
+    await waitFor(() => screen.getByTestId('account-section'));
+    fireEvent.click(screen.getByTestId('unsubscribe-from-mailing-lists'));
+    await waitFor(() => new Promise((r) => setTimeout(r, 100)));
+  }
+
+  it('handles unsubscribe', async () => {
+    await renderAndClickUnSubscribe(true);
+    expect(alertSpy).toBeCalledWith(
+      "The user's email has been unsubscribed from mozilla mailing lists."
+    );
+  });
+
+  it('handles unsubscribe failure', async () => {
+    await renderAndClickUnSubscribe(false);
+    expect(alertSpy).toHaveBeenCalledWith('Unsubscribing was not successful.');
   });
 });
