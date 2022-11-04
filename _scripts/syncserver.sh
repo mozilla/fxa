@@ -11,6 +11,7 @@ fi
 "${0%/*}/check-url.sh" "$HOST_ADDR:3030/.well-known/fxa-client-configuration"
 
 docker run --rm --name syncserver \
+  --net fxa \
   -p 5000:5000 \
   -e SYNCSERVER_PUBLIC_URL=http://localhost:5000 \
   -e SYNCSERVER_IDENTITY_PROVIDER=http://$HOST_ADDR:3030 \

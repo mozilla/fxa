@@ -7,7 +7,7 @@ exporters:
   logging:
     loglevel: debug
   jaeger:
-    endpoint: "jaeger.otel:14250"
+    endpoint: "jaeger.fxa:14250"
     tls:
       insecure: true
   googlecloud:

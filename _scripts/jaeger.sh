@@ -5,11 +5,8 @@ if [ "$TRACING_OTEL_EXPORTER_ENABLED" == "true" ]
 then
   echo -e "Jaeger enabled! Go to http://localhost:16686 to view traces. \n"
 
-  # Create an otel network. If it already exists and error will be shown that can be ignored
-  docker network create otel
-
   docker run --rm --name jaeger \
-    --net otel \
+    --net fxa \
     -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
     -e COLLECTOR_OTLP_ENABLED=true \
     -p 6831:6831/udp \
