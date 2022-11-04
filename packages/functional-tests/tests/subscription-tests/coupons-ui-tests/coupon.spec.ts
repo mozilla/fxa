@@ -178,7 +178,6 @@ test.describe('coupon test', () => {
     await subscribe.removeCouponCode();
 
     // Verify the discount is removed
-    expect(await subscribe.discountListPrice()).toBe(false);
     expect(await subscribe.discountLineItem()).toBe(false);
   });
 });
