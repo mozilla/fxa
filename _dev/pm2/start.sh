@@ -3,6 +3,10 @@
 DIR=$(dirname "$0")
 cd "$DIR/../.."
 
+# Make sure there is a common docker network fxa, so containers can
+# communicate with one another if needed
+_dev/pm2/create-docker-net.sh fxa
+
 pm2 start _dev/pm2/infrastructure.config.js
 
 echo "waiting for containers to start"
