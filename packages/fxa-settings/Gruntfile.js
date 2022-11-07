@@ -9,7 +9,7 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       ftl: {
-        src: ['.license.header', 'src/**/*.ftl'],
+        src: ['../fxa-shared/l10n/branding.ftl', 'src/**/*.ftl'],
         // TODO: change dest to `en` in FXA-6003
         dest: 'public/locales/en-US/settings.ftl',
       },
@@ -19,13 +19,13 @@ module.exports = function (grunt) {
       // FTL updates on our side that haven't landed yet on the l10n side. We want to test
       // against _our_ latest, and not necessarily the l10n repo's latest.
       'ftl-test': {
-        src: ['.license.header', 'src/**/*.ftl'],
+        src: ['../fxa-shared/l10n/branding.ftl', 'src/**/*.ftl'],
         dest: 'test/settings.ftl',
       },
     },
     watch: {
       ftl: {
-        files: ['src/**/*.ftl'],
+        files: ['../fxa-shared/l10n/branding.ftl', 'src/**/*.ftl'],
         tasks: ['merge-ftl'],
         options: {
           interrupt: true,

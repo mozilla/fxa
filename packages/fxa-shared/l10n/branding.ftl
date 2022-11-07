@@ -17,9 +17,12 @@
 -brand-mozilla = Mozilla
 -brand-firefox = Firefox
 
+# TODO - can only keep one of the following (pending decision from Legal)
+
 # "accounts" can be localized, "Firefox" must be treated as a brand.
 # 'Firefox accounts' refers to the service
 -product-firefox-accounts = Firefox accounts
+-product-firefox-accounts = Firefox Accounts
 
 # "account" can be localized and should be lowercase, "Firefox" must be treated as a brand.
 # This is used to refer to a user's account, e.g. "update your Firefox account ..."
@@ -27,10 +30,20 @@
 
 # This product should be treated as a brand.
 -product-firefox-cloud = Firefox Cloud
+# This product should be treated as a brand.
+-product-mozilla-vpn = Mozilla VPN
+# This product should be treated as a brand.
+-product-pocket = Pocket
+# This product should be treated as a brand.
+-product-firefox-monitor = Firefox Monitor
+# This product should be treated as a brand.
+-product-firefox-relay = Firefox Relay
 
 # Should should be treated as a brand.
 -brand-paypal = PayPal
 # Should should be treated as a brand.
 -app-store = App Store
+# Should should be treated as a brand.
+-brand-google = Google
 # Should should be treated as a brand.
 -google-play = Google Play
