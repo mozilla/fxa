@@ -22,6 +22,8 @@ brand-name-apple-app-store = App Store
 document =
   .title = Firefox Accounts
 
+brand-name-firefox-logo = { -brand-name-firefox } logo
+
 ## General aria-label
 
 close-aria =
