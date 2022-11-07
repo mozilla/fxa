@@ -47,26 +47,6 @@ body {
   }
 }
 
-.main-content {
-  display: grid;
-  grid-template-columns: calc(100vw - 24px);
-  grid-template-rows: min-content;
-  grid-column-gap: 16px;
-  margin-top: $header-height;
-  min-height: calc(100vh - #{$header-height});
-
-  @include min-width('tablet') {
-    grid-template-columns: minmax(359px, 500px) 327px;
-    grid-column-gap: 32px;
-    margin: $header-height-tablet 12px auto;
-    min-height: calc(100vh - #{$header-height-tablet});
-  }
-
-  @include min-width('desktop') {
-    grid-template-columns: 600px 343px;
-  }
-}
-
 hr {
   border: 0;
   border-top: 1px solid #e0e0e6;

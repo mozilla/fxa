@@ -119,3 +119,9 @@
 .total-price {
   @apply font-semibold overflow-hidden text-ellipsis text-lg whitespace-nowrap;
 }
+
+.main-content {
+  @apply grid grid-cols-[calc(100vw_-_1.5rem)] grid-rows-[min-content] gap-x-4 mt-16 min-h-[calc(100vh_-_4rem)];
+  @apply tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto tablet:mx-3;
+  @apply desktop:grid-cols-[600px_1fr];
+}
