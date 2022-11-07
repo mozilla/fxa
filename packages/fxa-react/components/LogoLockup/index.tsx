@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactElement } from 'react';
+import { Localized } from '@fluent/react';
 import logo from '../../images/ff-logo.svg';
 
 type LogoLockupProps = {
@@ -10,21 +11,25 @@ type LogoLockupProps = {
   className?: string;
 };
 
-export const LogoLockup = ({ children, className = '' }: LogoLockupProps) => (
-  <>
-    <img
-      src={logo}
-      data-testid="logo"
-      className="h-10 w-10 ltr:mr-4 rtl:ml-4"
-      alt="Firefox logo"
-    />
-    <h1
-      data-testid="logo-text"
-      className={`hidden tablet:inline-flex self-center text-xl ${className}`}
-    >
-      {children}
-    </h1>
-  </>
-);
+export const LogoLockup = ({ children, className = '' }: LogoLockupProps) => {
+  return (
+    <>
+      <Localized id="app-logo-alt">
+        <img
+          src={logo}
+          data-testid="logo"
+          className="h-10 w-10 ltr:mr-4 rtl:ml-4"
+          alt="Firefox logo"
+        />
+      </Localized>
+      <h1
+        data-testid="logo-text"
+        className={`hidden tablet:inline-flex self-center text-xl ${className}`}
+      >
+        {children}
+      </h1>
+    </>
+  );
+};
 
 export default LogoLockup;
