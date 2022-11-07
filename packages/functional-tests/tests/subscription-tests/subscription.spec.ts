@@ -13,7 +13,7 @@ test.describe('subscription test with cc and paypal', () => {
     await relier.clickSubscribe();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
@@ -29,10 +29,10 @@ test.describe('subscription test with cc and paypal', () => {
     await relier.clickSubscribe();
     await subscribe.setFullName();
     await subscribe.setFailedCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.clickTryAgain();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();

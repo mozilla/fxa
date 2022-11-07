@@ -60,7 +60,7 @@ test.describe('coupon test', () => {
     // Successfully subscribe
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
@@ -87,7 +87,7 @@ test.describe('coupon test', () => {
     // Successfully subscribe
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
@@ -115,7 +115,7 @@ test.describe('coupon test', () => {
     // Successfully subscribe
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();
@@ -133,7 +133,7 @@ test.describe('coupon test', () => {
     await subscribe.addCouponCode('auto10pforever');
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
-    await subscribe.clickPayNow();
+    await subscribe.clickSubscribeNow();
     await subscribe.submit();
     await relier.goto();
     await relier.clickEmailFirst();

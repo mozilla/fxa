@@ -24,8 +24,10 @@ export class SubscribePage extends BaseLayout {
     await this.page.check('input[type=checkbox]');
   }
 
-  async clickPayNow() {
-    await this.page.click('button[type=submit]');
+  async clickSubscribeNow() {
+    const pay = this.page.locator('[data-testid="submit"]');
+    await pay.waitFor();
+    await pay.click();
   }
 
   async setPayPalInfo() {
@@ -34,7 +36,7 @@ export class SubscribePage extends BaseLayout {
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    await paypalWindow.waitForLoadState('load');
+    await paypalWindow.waitForNavigation();
     await paypalWindow.fill(
       'input[type=email]',
       'qa-test-no-balance-16@personal.example.com'
@@ -47,8 +49,10 @@ export class SubscribePage extends BaseLayout {
   }
 
   async addCouponCode(code) {
-    this.page.click('[data-testid="coupon-input"]');
-    this.page.fill('[data-testid="coupon-input"]', code);
+    const input = this.page.locator('[data-testid="coupon-input"]');
+    await input.waitFor();
+    await input.click();
+    await input.fill(code);
     this.page.click('[data-testid="coupon-button"]');
   }
 
