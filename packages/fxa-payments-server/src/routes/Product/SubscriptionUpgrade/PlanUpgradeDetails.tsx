@@ -109,7 +109,7 @@ export const PlanDetailsCard = ({
   return (
     <div className={`plan-details-component-card ${className}`}>
       <div className="plan-details-header">
-        <div className="flex">
+        <div className="flex gap-4">
           <div
             className="plan-details-logo-wrap"
             style={{ ...setWebIconBackground }}
