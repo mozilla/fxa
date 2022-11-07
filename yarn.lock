@@ -24517,6 +24517,7 @@ fsevents@~2.1.1:
     "@types/helmet": 4.0.0
     "@types/jsdom": ^16.2.11
     "@types/on-headers": ^1.0.0
+    "@types/postcss-import": ^14
     "@types/react": ^17.0.14
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
@@ -24546,6 +24547,7 @@ fsevents@~2.1.1:
     on-headers: ^1.0.2
     pm2: ^5.2.2
     postcss: ^8.4.14
+    postcss-import: ^15.0.0
     prettier: ^2.3.1
     react: ^16.13.0
     react-dom: ^16.13.0

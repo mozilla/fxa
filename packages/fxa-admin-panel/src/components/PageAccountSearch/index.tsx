@@ -212,8 +212,8 @@ export const AccountSearch = () => {
   };
 
   return (
-    <div className="text-grey-900" data-testid="account-search">
-      <h2 className="text-lg font-semibold mb-2">Account Search</h2>
+    <div data-testid="account-search">
+      <h2 className="header-page">Account Search</h2>
       <p className="mb-1">
         Search for a Firefox user account by email or UID and view its details,
         including: secondary emails, email bounces, time-based one-time
@@ -308,9 +308,12 @@ const AccountSearchResult = ({
 }) => {
   if (loading)
     return (
-      <p data-testid="loading-message" className="mt-2">
-        Loading...
-      </p>
+      <>
+        <hr />
+        <p data-testid="loading-message" className="mt-2">
+          Loading...
+        </p>
+      </>
     );
   if (error) {
     return <ErrorAlert {...{ error }}></ErrorAlert>;
@@ -324,9 +327,10 @@ const AccountSearchResult = ({
     return <Account {...{ query, onCleared }} {...data.accountByUid} />;
   }
   return (
-    <p data-testid="no-account-message" className="mt-2">
-      Account not found.
-    </p>
+    <>
+      <hr />
+      <p data-testid="no-account-message">Account not found.</p>
+    </>
   );
 };
 

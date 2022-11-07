@@ -17,7 +17,7 @@ const getNavLinkClassName = (isActive: boolean) =>
 
 export const Nav = () => (
   <nav className="mb-4 desktop:mr-5 desktop:flex-1 desktop:mb-0">
-    <div className="p-4 rounded-md bg-white border border-grey-100">
+    <div className="p-3 rounded-md bg-white border border-grey-100">
       <h2 className="mb-3 uppercase text-sm tracking-wide font-normal text-grey-500">
         Navigation
       </h2>

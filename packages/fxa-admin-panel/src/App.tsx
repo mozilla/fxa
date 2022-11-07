@@ -7,8 +7,8 @@ import { UserContext } from './hooks/UserContext';
 import { GuardContext } from './hooks/GuardContext';
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import AccountSearch from './components/AccountSearch';
-import Permissions from './components/Permissions';
+import AccountSearch from './components/PageAccountSearch';
+import { PagePermissions } from './components/PagePermissions';
 import { IClientConfig, IUserInfo } from '../interfaces';
 import { AdminPanelFeature, AdminPanelGuard } from 'fxa-shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
@@ -34,7 +34,7 @@ const App = ({ config }: { config: IClientConfig }) => {
                   element={<PageRelyingParties />}
                 />
               )}
-              <Route path="/permissions" element={<Permissions />} />
+              <Route path="/permissions" element={<PagePermissions />} />
             </Routes>
           </AppLayout>
         </UserContext.Provider>

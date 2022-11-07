@@ -6,11 +6,11 @@ import React, { useState } from 'react';
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
-import { DATE_FORMAT } from '../AccountSearch/Account';
-import dateFormat from 'dateformat';
 import ErrorAlert from '../ErrorAlert';
 import { AdminPanelFeature } from '../../../../fxa-shared/guards';
 import { Guard } from '../Guard';
+import { getFormattedDate } from '../../lib/utils';
+import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
 
 const RELYING_PARTIES_SCHEMA = `
   relyingParties {
@@ -91,7 +91,7 @@ const Notes = ({ id, notes }: { id: string; notes: string }) => {
 
   const saveButtonClass = () => {
     const base =
-      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 ml-2 rounded  mt';
+      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
     const active =
       'text-red-700 hover:text-red-700 hover:border-2 hover:border-grey-10 hover:bg-grey-50';
     const inactive = 'text-grey-700 cursor-not-allowed';
@@ -102,10 +102,10 @@ const Notes = ({ id, notes }: { id: string; notes: string }) => {
   };
   const statusClass = () => {
     if (error) {
-      return `p-2  text-red-700 visible`;
+      return `text-red-700 visible`;
     }
     if (status) {
-      return `p-2 text-gray-800 visible`;
+      return `text-gray-800 visible`;
     }
     return `collapsed`;
   };
@@ -118,10 +118,10 @@ const Notes = ({ id, notes }: { id: string; notes: string }) => {
   };
 
   return (
-    <div className="notes ">
+    <>
       <textarea
         data-testid={`notes-${id}`}
-        className="w-full mt-4 mb-2 border border-grey-100"
+        className="w-96 mb-2 border border-grey-100 block"
         onChange={handleNotesChange}
         defaultValue={notes}
       />
@@ -134,11 +134,14 @@ const Notes = ({ id, notes }: { id: string; notes: string }) => {
         >
           Save
         </button>
-        <div className={statusClass()} data-testid={`notes-status-${id}`}>
+        <p
+          className={`pl-3 inline-block ${statusClass()}`}
+          data-testid={`notes-status-${id}`}
+        >
           {statusText()}
-        </div>
+        </p>
       </Guard>
-    </div>
+    </>
   );
 };
 
@@ -159,7 +162,7 @@ const Result = ({
   }
   if (data && data.relyingParties.length > 0) {
     return (
-      <>
+      <section>
         {data.relyingParties.map(
           ({
             id,
@@ -173,62 +176,53 @@ const Result = ({
             allowedScopes,
             notes,
           }) => (
-            <div key={id}>
-              <h3 className="account-header">{name}</h3>
-              <table className="account-border-info">
-                <tbody>
-                  <tr>
-                    <th>ID</th>
-                    <td>{id}</td>
-                  </tr>
-                  <tr>
-                    <th>Created At</th>
-                    <td>{dateFormat(new Date(createdAt), DATE_FORMAT)}</td>
-                  </tr>
-                  <tr>
-                    <th>Redirect URI</th>
-                    <td>{redirectUri}</td>
-                  </tr>
-                  <tr>
-                    <th className="align-top">Allowed Scopes</th>
-                    <td>
-                      <AllowedScopes {...{ allowedScopes }} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Trusted?</th>
-                    <td>{trusted ? 'Yes' : 'No'}</td>
-                  </tr>
-                  <tr>
-                    <th>Can Grant?</th>
-                    <td>{canGrant ? 'Yes' : 'No'}</td>
-                  </tr>
-                  <tr>
-                    <th>Public Client?</th>
-                    <td>{publicClient ? 'Yes' : 'No'}</td>
-                  </tr>
-                  <tr>
-                    <th>Image URI</th>
-                    <td>
-                      {imageUri ? (
-                        imageUri
-                      ) : (
-                        <span className="result-grey">(empty string)</span>
-                      )}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Notes</th>
-                    <td>
-                      <Notes {...{ id, notes: notes || '' }} />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <TableYHeaders key={id} header={name} className="table-y-headers">
+              <TableRowYHeader header="ID" children={id} />
+              <TableRowYHeader
+                header="Created At"
+                children={getFormattedDate(createdAt)}
+              />
+              <TableRowYHeader
+                header="Redirect URI"
+                children={
+                  redirectUri ? (
+                    redirectUri
+                  ) : (
+                    <span className="result-grey">(empty string)</span>
+                  )
+                }
+              />
+              <TableRowYHeader
+                header="Allowed Scopes"
+                children={<AllowedScopes {...{ allowedScopes }} />}
+              />
+              <TableRowYHeader header="Trusted" children={trusted.toString()} />
+              <TableRowYHeader
+                header="Can Grant"
+                children={canGrant.toString()}
+              />
+              <TableRowYHeader
+                header="Public Client"
+                children={publicClient.toString()}
+              />
+              <TableRowYHeader
+                header="Image URI"
+                children={
+                  imageUri ? (
+                    imageUri
+                  ) : (
+                    <span className="result-grey">(empty string)</span>
+                  )
+                }
+              />
+              <TableRowYHeader
+                header="Notes"
+                children={<Notes {...{ id, notes: notes || '' }} />}
+              />
+            </TableYHeaders>
           )
         )}
-      </>
+      </section>
     );
   }
 
@@ -269,13 +263,13 @@ export const PageRelyingParties = () => {
 
   return (
     <>
-      <h2 className="text-lg font-semibold mb-2">Relying Parties</h2>
+      <h2 className="header-page">Relying Parties</h2>
 
       <p className="mb-2">
         This page displays all FxA and SubPlat relying parties (RPs).
       </p>
 
-      <p className="mb-6">
+      <p>
         Firefox accounts integrates with Mozilla groups on request via OAuth,
         OpenID, and webhooks, allowing them to offer users authentication and/or
         authorization with their Firefox account. These groups assume an RP

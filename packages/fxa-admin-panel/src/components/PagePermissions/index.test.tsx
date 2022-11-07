@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
-import { Permissions } from './index';
+import { PagePermissions } from './index';
 import {
   AdminPanelEnv,
   AdminPanelGroup,
@@ -38,7 +38,7 @@ describe('Permissions', () => {
   let renderResult: RenderResult;
 
   beforeEach(() => {
-    renderResult = render(<Permissions />);
+    renderResult = render(<PagePermissions />);
   });
 
   function getByTestId(id: string) {
@@ -46,13 +46,13 @@ describe('Permissions', () => {
   }
 
   it('has user email', () => {
-    expect(getByTestId('permissions-user-email-val').textContent).toEqual(
+    expect(getByTestId('permissions-user-email').textContent).toEqual(
       mockConfig.user.email
     );
   });
 
   it('has user group', () => {
-    expect(getByTestId('permissions-user-group-val').textContent).toEqual(
+    expect(getByTestId('permissions-user-group').textContent).toEqual(
       mockConfig.user.group.name
     );
   });
