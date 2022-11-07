@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import AppLayout from './AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import * as Metrics from '../../lib/metrics';
 import { useAccount, useConfig, useInitialState } from '../../models';
-import { FlowContext } from '../../models/FlowContext';
 import { Redirect, Router, RouteComponentProps } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from './PageSettings';
@@ -26,8 +25,11 @@ import { HomePath } from '../../constants';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import PageAvatar from './PageAvatar';
+import { QueryParams } from '../..';
 
-export const Settings = (props: RouteComponentProps) => {
+export const Settings = ({
+  flowQueryParams,
+}: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const config = useConfig();
   const { metricsEnabled, hasPassword } = useAccount();
 
@@ -40,8 +42,6 @@ export const Settings = (props: RouteComponentProps) => {
     config.metrics.navTiming.enabled,
     config.metrics.navTiming.endpoint,
   ]);
-
-  const flowQueryParams = useContext(FlowContext);
 
   const { loading, error } = useInitialState();
   useEffect(() => {
