@@ -10,8 +10,7 @@ module.exports = function (grunt) {
     concat: {
       ftl: {
         src: ['.license.header', 'src/**/*.ftl'],
-        // TODO: change dest to `en` in FXA-6003
-        dest: 'public/locales/en-US/settings.ftl',
+        dest: 'public/locales/en/settings.ftl',
       },
 
       // We need this for tests because we pull the latest from `fxa-content-server-l10n`
