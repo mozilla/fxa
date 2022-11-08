@@ -1175,6 +1175,55 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      it('logs if the billing agreement was cancelled', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.status = 'draft';
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+          'test-ba'
+        );
+        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.rejects(
+          {
+            errno: 998,
+          }
+        );
+        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+            {},
+            invoiceCreatedEvent
+          );
+        assert.deepEqual(result, {});
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.log.error,
+          `handleInvoiceCreatedEvent - Billing agreement (id: test-ba) was cancelled.`,
+          {
+            request: {},
+            customer: {},
+          }
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
+          invoiceCreatedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
+          invoiceCreatedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA,
+          {},
+          'test-ba'
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
+          {}
+        );
+      });
+
       it('finalizes invoices for invoice subscriptions', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
         invoiceCreatedEvent.data.object.status = 'draft';

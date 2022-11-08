@@ -627,6 +627,30 @@ describe('PayPalHelper', () => {
       );
       sinon.assert.calledOnce(paypalHelper.metrics.increment);
     });
+
+    it('throws error if billing agreement status is cancelled', async () => {
+      mockStripeHelper.updateCustomerBillingAddress = sinon.fake.resolves({});
+      paypalHelper.agreementDetails = sinon.fake.resolves({
+        firstName: 'Test',
+        lastName: 'User',
+        status: 'cancelled',
+      });
+
+      try {
+        await paypalHelper.updateStripeNameFromBA(
+          mockCustomer,
+          'mock-agreement-id'
+        );
+        assert.fail('Error should throw billing agreement was cancelled.');
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('updateStripeNameFromBA', {
+            message: 'Billing agreement was cancelled.',
+          })
+        );
+      }
+    });
   });
 
   describe('processZeroInvoice', () => {

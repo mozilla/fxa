@@ -540,10 +540,24 @@ export class StripeWebhookHandler extends StripeHandler {
         this.stripeHelper.getCustomerPaypalAgreement(customer);
       // The customer needs to be updated for their name.
       if (billingAgreementId) {
-        await this.paypalHelper.updateStripeNameFromBA(
-          customer,
-          billingAgreementId
-        );
+        try {
+          await this.paypalHelper.updateStripeNameFromBA(
+            customer,
+            billingAgreementId
+          );
+        } catch (err) {
+          if (err.errno === error.ERRNO.INTERNAL_VALIDATION_ERROR) {
+            this.log.error(
+              `handleInvoiceCreatedEvent - Billing agreement (id: ${billingAgreementId}) was cancelled.`,
+              {
+                request,
+                customer,
+              }
+            );
+          } else {
+            throw err;
+          }
+        }
       }
     }
 
