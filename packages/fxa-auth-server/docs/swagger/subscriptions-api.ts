@@ -29,7 +29,7 @@ const OAUTH_SUBSCRIPTIONS_IAP_PLAYTOKEN_APPNAME_POST = {
 
 const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_TRANSACTION_POST = {
   ...TAGS_SUBSCRIPTIONS,
-  description: '🔒 oauthToken',
+  description: '/oauth/subscriptions/iap/app-store-transaction/{appName}',
   notes: [
     dedent`
       🔒 authenticated with OAuth bearer token
@@ -41,6 +41,7 @@ const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_TRANSACTION_POST = {
 
 const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_NOTIFICATION_POST = {
   ...TAGS_SUBSCRIPTIONS,
+  description: '/oauth/subscriptions/iap/app-store-notification',
   notes: [
     dedent`
       🔒 payload validated against Apple certificates
@@ -53,13 +54,7 @@ const OAUTH_SUBSCRIPTIONS_IAP_APP_STORE_NOTIFICATION_POST = {
 const OAUTH_SUBSCRIPTIONS_PLANS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/plans',
-  notes: [
-    dedent`
-      🔒 Authenticated with OAuth bearer token
-
-      Returns a list of available subscription plans.
-    `,
-  ],
+  notes: ['Returns a list of available subscription plans.'],
 };
 
 const OAUTH_SUBSCRIPTIONS_ACTIVE_GET = {
@@ -179,6 +174,7 @@ const OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST = {
 const OAUTH_SUBSCRIPTIONS_CLIENTS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/clients',
+  notes: ['🔒 Authenticated with OAuth bearer token'],
 };
 
 const OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST = {
@@ -189,6 +185,7 @@ const OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST = {
 const OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_SUBSEQUENT_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/invoice/preview-subsequent',
+  notes: ['🔒 Authenticated with OAuth bearer token'],
 };
 
 const OAUTH_SUBSCRIPTIONS_COUPON_POST = {
