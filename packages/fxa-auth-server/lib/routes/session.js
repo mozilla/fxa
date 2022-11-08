@@ -410,6 +410,7 @@ module.exports = function (
         const ip = request.app.clientAddress;
 
         request.emitMetricsEvent('session.resend_code');
+        const metricsContext = await request.gatherMetricsContext({});
 
         // Check to see if this account has a verified TOTP token. If so, then it should
         // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
@@ -444,6 +445,9 @@ module.exports = function (
           uaOSVersion: sessionToken.uaOSVersion,
           uaDeviceType: sessionToken.uaDeviceType,
           uid: sessionToken.uid,
+          flowId: metricsContext.flow_id,
+          flowBeginTime: metricsContext.flowBeginTime,
+          deviceId: metricsContext.device_id,
         };
 
         if (account.primaryEmail.isVerified) {

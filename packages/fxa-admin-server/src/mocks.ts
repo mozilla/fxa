@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Path } from 'convict';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import config, { AppConfig } from './config';
+import { FirestoreService } from './backend/firestore.service';
 
 export const mockConfigOverrides: any = {};
 export const MockConfig: Provider = {
@@ -29,7 +30,7 @@ export const MockMetricsFactory: Provider = {
 
 export const mockFirestoreCollection = jest.fn();
 export const MockFirestoreFactory: Provider = {
-  provide: 'FIRESTORE',
+  provide: FirestoreService,
   useFactory: () => {
     return {
       collection: mockFirestoreCollection,

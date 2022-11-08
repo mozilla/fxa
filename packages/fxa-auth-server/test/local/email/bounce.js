@@ -14,6 +14,7 @@ const { mockLog } = require('../../mocks');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
+const emailHelpers = require('../../../lib/email/utils/helpers');
 
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
@@ -662,5 +663,46 @@ describe('bounce messages', () => {
         assert.equal(log.info.args[1][1].email, 'test@aol.com');
         assert.equal(log.info.args[1][1].domain, 'aol.com');
       });
+  });
+
+  it('should log account email event (emailDelivered)', async () => {
+    const stub = sinon
+      .stub(emailHelpers, 'logAccountEventFromMessage')
+      .returns(Promise.resolve());
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+        bouncedRecipients: [{ emailAddress: 'test@aol.com' }],
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail',
+          },
+          {
+            name: 'X-Flow-Id',
+            value: 'someFlowId',
+          },
+          {
+            name: 'X-Flow-Begin-Time',
+            value: '1234',
+          },
+          {
+            name: 'X-Uid',
+            value: 'en',
+          },
+        ],
+      },
+    });
+
+    await mockedBounces(log, mockDB).handleBounce(mockMsg);
+    sinon.assert.calledOnceWithExactly(
+      emailHelpers.logAccountEventFromMessage,
+      mockMsg,
+      'emailBounced'
+    );
+    stub.restore();
   });
 });

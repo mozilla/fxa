@@ -9,13 +9,15 @@ const { assert } = require('chai');
 const EventEmitter = require('events').EventEmitter;
 const { mockLog } = require('../../mocks');
 const sinon = require('sinon');
+const emailHelpers = require('../../../lib/email/utils/helpers');
 const delivery = require('../../../lib/email/delivery');
 
+let sandbox;
 const mockDeliveryQueue = new EventEmitter();
 mockDeliveryQueue.start = function start() {};
 
 function mockMessage(msg) {
-  msg.del = sinon.spy();
+  msg.del = sandbox.spy();
   msg.headers = {};
   return msg;
 }
@@ -25,6 +27,14 @@ function mockedDelivery(log) {
 }
 
 describe('delivery messages', () => {
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   it('should not log an error for headers', () => {
     const log = mockLog();
     return mockedDelivery(log)
@@ -205,5 +215,50 @@ describe('delivery messages', () => {
         assert.equal(log.info.args[1][1].email, 'jane@aol.com');
         assert.equal(log.info.args[1][1].domain, 'aol.com');
       });
+  });
+
+  it('should log account email event (emailDelivered)', async () => {
+    sandbox
+      .stub(emailHelpers, 'logAccountEventFromMessage')
+      .returns(Promise.resolve());
+    const log = mockLog();
+    const mockMsg = mockMessage({
+      notificationType: 'Delivery',
+      delivery: {
+        timestamp: '2016-01-27T14:59:38.237Z',
+        recipients: ['jane@aol.com'],
+        processingTimeMillis: 546,
+        reportingMTA: 'a8-70.smtp-out.amazonses.com',
+        smtpResponse: '250 ok:  Message 64111812 accepted',
+        remoteMtaIp: '127.0.2.0',
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail',
+          },
+          {
+            name: 'X-Flow-Id',
+            value: 'someFlowId',
+          },
+          {
+            name: 'X-Flow-Begin-Time',
+            value: '1234',
+          },
+          {
+            name: 'X-Uid',
+            value: 'en',
+          },
+        ],
+      },
+    });
+
+    await mockedDelivery(log).handleDelivery(mockMsg);
+    sinon.assert.calledOnceWithExactly(
+      emailHelpers.logAccountEventFromMessage,
+      mockMsg,
+      'emailDelivered'
+    );
   });
 });

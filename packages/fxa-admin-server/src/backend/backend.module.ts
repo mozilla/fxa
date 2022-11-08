@@ -4,9 +4,10 @@
 import { Module } from '@nestjs/common';
 
 import { AuthClientFactory, AuthClientService } from './auth-client.service';
+import { FirestoreFactory, FirestoreService } from './firestore.service';
 
 @Module({
-  providers: [AuthClientFactory],
-  exports: [AuthClientService],
+  providers: [AuthClientFactory, FirestoreFactory],
+  exports: [AuthClientService, FirestoreService],
 })
 export class BackendModule {}

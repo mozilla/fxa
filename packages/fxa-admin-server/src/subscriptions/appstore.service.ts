@@ -9,6 +9,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AppStoreHelper } from 'fxa-shared/payments/iap/apple-app-store/app-store-helper';
 import { PurchaseManager } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
 import { AppConfig } from '../config';
+import { FirestoreService } from '../backend/firestore.service';
 
 /**
  * Extends AppStoreHelper to be service like
@@ -30,7 +31,7 @@ export class AppStorePurchaseManagerService extends PurchaseManager {
     appStoreHelper: AppStoreHelperService,
     configService: ConfigService<AppConfig>,
     logger: MozLoggerService,
-    @Inject('FIRESTORE') firestore: Firestore
+    @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {
       authFirestore: configService.get('authFirestore'),

@@ -107,6 +107,7 @@ class GetAccountsByEmail {
             linkedAccounts: [],
             attachedClients: [],
             subscriptions: [],
+            accountEvents: [],
           },
         },
       };
@@ -180,6 +181,15 @@ class GetAccountsByEmail {
           linkedAccounts: [],
           securityEvents: [],
           subscriptions: [],
+          accountEvents: [
+            {
+              name: 'emailSent',
+              createdAt: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
+              template: 'recovery',
+              eventType: 'emailEvent',
+              service: 'sync',
+            },
+          ],
         },
       },
     };

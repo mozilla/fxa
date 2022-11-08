@@ -25,6 +25,7 @@ import {
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { AppConfig } from '../config';
+import { FirestoreService } from '../backend/firestore.service';
 
 export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
@@ -46,7 +47,7 @@ export class StripePaymentConfigManagerService extends PaymentConfigManager {
   constructor(
     configService: ConfigService<AppConfig>,
     logger: MozLoggerService,
-    @Inject('FIRESTORE') firestore: Firestore
+    @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {
       subscriptions: configService.get('subscriptions'),
@@ -64,7 +65,7 @@ export class StripePaymentConfigManagerService extends PaymentConfigManager {
 export class StripeFirestoreService extends StripeFirestore {
   constructor(
     configService: ConfigService<AppConfig>,
-    @Inject('FIRESTORE') firestore: Firestore,
+    @Inject(FirestoreService) firestore: Firestore,
     @Inject('STRIPE') stripe: Stripe
   ) {
     const config = {

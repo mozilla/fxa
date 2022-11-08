@@ -52,6 +52,13 @@ const ACCOUNT_SCHEMA = `
     authAt
     enabled
   }
+  accountEvents {
+    name
+    service    
+    eventType
+    createdAt
+    template
+  }
   attachedClients {
     createdTime
     createdTimeFormatted

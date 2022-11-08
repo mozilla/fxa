@@ -12,6 +12,7 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { Firestore } from '@google-cloud/firestore';
 import {
   ClientFormatter,
   ConnectedServicesFactory,
@@ -35,8 +36,10 @@ import {
 import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
+import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AuthClientService } from '../../backend/auth-client.service';
+import { FirestoreService } from '../../backend/firestore.service';
 import AuthClient from 'fxa-auth-client';
 import { BasketService } from '../../newsletters/basket.service';
 
@@ -91,7 +94,8 @@ export class AccountResolver {
     private configService: ConfigService<AppConfig>,
     private eventLogging: EventLoggingService,
     private basketService: BasketService,
-    @Inject(AuthClientService) private authAPI: AuthClient
+    @Inject(AuthClientService) private authAPI: AuthClient,
+    @Inject(FirestoreService) private firestore: Firestore
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -277,6 +281,21 @@ export class AccountResolver {
       .where('uid', uidBuffer)
       .limit(10)
       .orderBy('createdAt', 'DESC');
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  @ResolveField()
+  public async accountEvents(@Root() account: Account) {
+    // Not sure the best way for admin panel to get this config from event broker config
+    const eventsDbRef = this.firestore.collection('fxa-eb-users');
+    const queryResult = await eventsDbRef
+      .doc(account.uid)
+      .collection('events')
+      .orderBy('createdAt', 'desc')
+      .limit(100)
+      .get();
+
+    return queryResult.docs.map((doc) => doc.data() as AccountEventType);
   }
 
   @Features(AdminPanelFeature.AccountSearch)

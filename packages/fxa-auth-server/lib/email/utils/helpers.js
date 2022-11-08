@@ -8,8 +8,10 @@ const ROOT_DIR = '../../..';
 
 const config = require(`${ROOT_DIR}/config`);
 const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
+const { default: Container } = require('typedi');
+const { AccountEventsManager } = require('../../account-events');
 
-let amplitude;
+let amplitude, accountEventsManager;
 
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
   let value = '';
@@ -153,6 +155,27 @@ function logAmplitudeEvent(log, message, eventInfo) {
   );
 }
 
+function logAccountEventFromMessage(message, type) {
+  // Log email metrics to Firestore
+  const templateName = getHeaderValue('X-Template-Name', message);
+  const flowId = getHeaderValue('X-Flow-Id', message);
+  const uid = getHeaderValue('X-Uid', message);
+  const service = getHeaderValue('X-Service-Id', message);
+
+  if (uid && Container.has(AccountEventsManager)) {
+    accountEventsManager = Container.get(AccountEventsManager);
+    accountEventsManager.recordEmailEvent(
+      uid,
+      {
+        template: templateName,
+        flowId,
+        service,
+      },
+      type
+    );
+  }
+}
+
 function logEmailEventFromMessage(log, message, type, emailDomain) {
   const templateName = getHeaderValue('X-Template-Name', message);
   const templateVersion = getHeaderValue('X-Template-Version', message);
@@ -241,6 +264,7 @@ module.exports = {
   logEmailEventFromMessage,
   logErrorIfHeadersAreWeirdOrMissing,
   logFlowEventFromMessage,
+  logAccountEventFromMessage,
   getHeaderValue,
   getAnonymizedEmailDomain,
 };

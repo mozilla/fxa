@@ -39,6 +39,7 @@ module.exports = function (log) {
         // Log the delivery flowEvent and emailEvent metrics if available
         utils.logFlowEventFromMessage(log, message, 'delivered');
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain);
+        utils.logAccountEventFromMessage(message, 'emailDelivered');
 
         log.info('handleDelivery', logData);
       }

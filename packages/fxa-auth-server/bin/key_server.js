@@ -28,6 +28,7 @@ const {
 } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
+const { AccountEventsManager } = require('../lib/account-events');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -58,6 +59,13 @@ async function run(config) {
     const authFirestore = setupFirestore(config);
     Container.set(AuthFirestore, authFirestore);
   }
+
+  const accountEventsManager = config.accountEvents.enabled
+    ? new AccountEventsManager()
+    : {
+        recordEmailEvent: async () => Promise.resolve(),
+      };
+  Container.set(AccountEventsManager, accountEventsManager);
 
   const redis = require('../lib/redis')(
     { ...config.redis, ...config.redis.sessionTokens },
