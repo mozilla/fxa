@@ -265,7 +265,7 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: large
+    resource_class: xlarge
     #parallelism: 4
     docker:
       - image: mcr.microsoft.com/playwright:v1.20.0-focal
