@@ -50,8 +50,7 @@ export class SubscribePage extends BaseLayout {
 
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
-    await input.waitFor();
-    await input.click();
+    await input.waitFor({ state: 'attached' });
     await input.fill(code);
     this.page.click('[data-testid="coupon-button"]');
   }
