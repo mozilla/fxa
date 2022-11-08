@@ -7,6 +7,7 @@ const {
   fetchProfile,
   fetchPlans,
   fetchCustomer,
+  fetchSubscriptionChangeEligibilityResult,
   updateSubscriptionPlan,
   cancelSubscription,
   reactivateSubscription,
@@ -48,6 +49,15 @@ export const fetchSubscriptionsRouteResources =
 export const fetchCustomerAndSubscriptions =
   () => async (dispatch: Function) => {
     await Promise.all([dispatch(fetchCustomer())]).catch(handleThunkError);
+  };
+
+export const fetchSubscriptionChangeEligibility =
+  (plan: Plan) => async (dispatch: Function) => {
+    try {
+      await dispatch(fetchSubscriptionChangeEligibilityResult(plan));
+    } catch (err) {
+      handleThunkError(err);
+    }
   };
 
 export const updateSubscriptionPlanAndRefresh =
@@ -108,6 +118,7 @@ export const sequences = {
   fetchProductRouteResources,
   fetchSubscriptionsRouteResources,
   fetchCustomerAndSubscriptions,
+  fetchSubscriptionChangeEligibility,
   updateSubscriptionPlanAndRefresh,
   cancelSubscriptionAndRefresh,
   reactivateSubscriptionAndRefresh,

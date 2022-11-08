@@ -10,6 +10,7 @@ const apiTypeToStoreMap: ApiTypeToStoreMap = {
   fetchToken: 'token',
   fetchPlans: 'plans',
   fetchSubscriptions: 'subscriptions',
+  fetchSubscriptionChangeEligibilityResult: 'subscriptionChangeEligibility',
   fetchCustomer: 'customer',
   fetchSubsequentInvoices: 'subsequentInvoices',
   updateSubscriptionPlan: 'updateSubscriptionPlan',

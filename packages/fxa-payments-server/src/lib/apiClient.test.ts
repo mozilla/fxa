@@ -37,9 +37,9 @@ import {
   apiFetchProfile,
   apiFetchPlans,
   apiFetchSubscriptions,
+  apiFetchPlanEligibility,
   apiFetchToken,
   apiFetchCustomer,
-  apiFetchPlanUpgradeEligibility,
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
@@ -234,7 +234,7 @@ describe('API requests', () => {
     });
   });
 
-  describe('apiFetchPlanUpgradeEligibility', () => {
+  describe('apiFetchPlanEligibility', () => {
     const path = (planId: string) =>
       `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`;
     it(`GET {auth-server}${path}`, async () => {
@@ -244,9 +244,7 @@ describe('API requests', () => {
           `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`
         )
         .reply(200, MOCK_PLANS[0]);
-      expect(await apiFetchPlanUpgradeEligibility(PLAN_ID)).toEqual(
-        MOCK_PLANS[0]
-      );
+      expect(await apiFetchPlanEligibility(PLAN_ID)).toEqual(MOCK_PLANS[0]);
       requestMock.done();
     });
   });

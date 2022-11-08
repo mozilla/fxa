@@ -6,6 +6,8 @@ export const selectors = {
   token: (state: State) => state.token,
   subscriptions: (state: State) => state.subscriptions,
   plans: (state: State) => state.plans,
+  subscriptionChangeEligibility: (state: State) =>
+    state.subscriptionChangeEligibility,
   subsequentInvoices: (state: State) => state.subsequentInvoices,
   customer: (state: State) => state.customer,
   updateSubscriptionPlanStatus: (state: State) => state.updateSubscriptionPlan,

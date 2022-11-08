@@ -152,6 +152,18 @@ function init() {
           },
         }}
       />
+    ))
+    .add('plan change eligibility loading', () => (
+      <ProductRoute
+        routeProps={{
+          ...MOCK_PROPS,
+          subscriptionChangeEligibility: {
+            loading: true,
+            error: null,
+            result: null,
+          },
+        }}
+      />
     ));
 }
 
@@ -261,10 +273,18 @@ const MOCK_PROPS: ProductProps = {
     loading: false,
     result: null,
   },
+  subscriptionChangeEligibility: {
+    error: null,
+    loading: false,
+    result: null,
+  },
   customerSubscriptions: [],
   plansByProductId: (_: string) => PLANS,
   fetchProductRouteResources: action('fetchProductRouteResources'),
   fetchCustomerAndSubscriptions: action('fetchProductRouteResources'),
+  fetchSubscriptionChangeEligibility: action(
+    'fetchSubscriptionChangeEligibility'
+  ),
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
   updateSubscriptionPlanStatus: {

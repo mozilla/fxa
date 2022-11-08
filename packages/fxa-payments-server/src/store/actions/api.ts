@@ -4,6 +4,7 @@ import {
   apiFetchSubscriptions,
   apiFetchToken,
   apiFetchCustomer,
+  apiFetchPlanEligibility,
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
@@ -31,6 +32,11 @@ export default {
   },
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
+  fetchSubscriptionChangeEligibilityResult: (plan: Plan) =>
+    ({
+      type: 'fetchSubscriptionChangeEligibilityResult',
+      payload: apiFetchPlanEligibility(plan.plan_id),
+    } as const),
   updateSubscriptionPlan: (
     subscriptionId: string,
     currentPlan: Plan,
