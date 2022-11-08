@@ -98,8 +98,7 @@ describe('pushbox', () => {
           );
           sinon.assert.calledOnceWithExactly(
             mockStatsD.increment,
-            'pushbox.db.store',
-            { uid: mockUid, deviceId: mockDeviceIds[0] }
+            'pushbox.db.store'
           );
           assert.equal(index, '12');
         });
@@ -236,8 +235,7 @@ describe('pushbox', () => {
           );
           sinon.assert.calledOnceWithExactly(
             mockStatsD.increment,
-            'pushbox.db.delete.device',
-            { uid: mockUid, deviceId: mockDeviceIds[0] }
+            'pushbox.db.delete.device'
           );
         },
         (err) => {
