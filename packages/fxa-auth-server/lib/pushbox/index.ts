@@ -176,11 +176,7 @@ export const pushboxApi = (
             'pushbox.db.retrieve.success',
             performance.now() - startTime
           );
-          statsd.increment('pushbox.db.retrieve', {
-            uid,
-            deviceId,
-            msgCount: result.messages.length.toString(),
-          });
+          statsd.increment('pushbox.db.retrieve');
           return {
             last: result.last,
             index: result.index,
@@ -254,7 +250,7 @@ export const pushboxApi = (
             'pushbox.db.store.success',
             performance.now() - startTime
           );
-          statsd.increment('pushbox.db.store', { uid, deviceId });
+          statsd.increment('pushbox.db.store');
           return { index: result.idx };
         } catch (err) {
           statsd.timing(
