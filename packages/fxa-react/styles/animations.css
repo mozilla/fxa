@@ -4,10 +4,10 @@
 
 .transition-standard {
   @apply transition duration-150;
+}
 
-  &:active {
-    @apply transition duration-150;
-  }
+.transition-standard:active {
+  @apply transition duration-150;
 }
 
 @media (hover: hover) {

@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, cleanup, act, fireEvent } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  act,
+  fireEvent,
+  queryByTestId,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 
@@ -68,6 +74,7 @@ it('renders all expected default fields and elements', () => {
 
   expect(container.querySelector('button.cancel')).not.toBeInTheDocument();
   expect(container.querySelector('span.spinner')).not.toBeInTheDocument();
+  expect(queryByTestId(container, 'loading-spinner')).not.toBeInTheDocument();
   expect(getByTestId('submit')).toHaveAttribute('disabled');
 
   for (let testid of ['name', 'cardElement']) {
@@ -186,7 +193,7 @@ it('renders a progress spinner when submitted, disables further submission (issu
 
   await waitForExpect(() => expect(onSubmit).toHaveBeenCalled());
 
-  expect(queryByTestId('spinner-submit')).toBeInTheDocument();
+  expect(queryByTestId('loading-spinner')).toBeInTheDocument();
   expect(getByTestId('submit')).toHaveAttribute('disabled');
 
   fireEvent.submit(getByTestId('paymentForm'));
@@ -197,7 +204,7 @@ it('renders a progress spinner when submitted, disables further submission (issu
 
 it('renders a progress spinner when inProgress = true', () => {
   const { queryByTestId } = render(<Subject {...{ inProgress: true }} />);
-  expect(queryByTestId('spinner-submit')).toBeInTheDocument();
+  expect(queryByTestId('loading-spinner')).toBeInTheDocument();
 });
 
 it('renders a progress spinner when inProgress = true and onCancel supplied', () => {
@@ -205,7 +212,7 @@ it('renders a progress spinner when inProgress = true and onCancel supplied', ()
   const { queryByTestId } = render(
     <Subject {...{ inProgress: true, onCancel }} />
   );
-  expect(queryByTestId('spinner-update')).toBeInTheDocument();
+  expect(queryByTestId('loading-spinner')).toBeInTheDocument();
 });
 
 it('includes the cancel button when onCancel supplied', () => {
