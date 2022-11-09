@@ -28,8 +28,9 @@ yarn workspaces foreach \
 
 npx pm2 ls
 
-circleci tests glob "packages/functional-tests/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
-#yarn workspace functional-tests test --grep $(cat tests-to-run.txt)
+cd packages/functional-tests/tests
+circleci tests glob "/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
+yarn workspace functional-tests test --grep $(cat tests-to-run.txt)
 echo "start troubleshooting"
 pwd
 ls -lrt
