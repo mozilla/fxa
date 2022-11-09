@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import Footer from 'fxa-react/components/Footer';
+import { PageCannotCreateAccount } from '../PageCannotCreateAccount';
 import { RouteComponentProps } from '@reach/router';
 
 export const WrapperBeta = (props: RouteComponentProps) => {
   return (
-    <>
-      <p>beta</p>
-    </>
+    <div className="flex flex-col justify-between min-h-screen">
+      <PageCannotCreateAccount path="/cannot_create_account" />
+      <Footer />
+    </div>
   );
 };
 

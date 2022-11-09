@@ -209,6 +209,62 @@ const conf = (module.exports = convict({
         format: 'int',
       },
     },
+    betaReact: {
+      simpleRoutes: {
+        default: false,
+        doc: 'Enable users visiting the simple routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_SIMPLE_ROUTES',
+      },
+      resetPassword: {
+        default: false,
+        doc: 'Enable users visiting the routes associated with reset_password behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_RESET_PASSWORD',
+      },
+      oauth: {
+        default: false,
+        doc: 'Enable users visiting the oauth routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_OAUTH',
+      },
+      signIn: {
+        default: false,
+        doc: 'Enable users visiting the signin routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_SIGNIN',
+      },
+      signUp: {
+        default: false,
+        doc: 'Enable users visiting the signup routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_SIGNUP',
+      },
+      pair: {
+        default: false,
+        doc: 'Enable users visiting the pair routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_PAIR',
+      },
+      postVerifyAddRecoveryKey: {
+        default: false,
+        doc: 'Enable users visiting the post-verify add recovery key routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY',
+      },
+      postVerifyCADviaQR: {
+        default: false,
+        doc: 'Enable users visiting the post verify CAD via QR code routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR',
+      },
+      signInVerificationViaPush: {
+        default: false,
+        doc: 'Enable users visiting the sign-in verification via push routes behind the beta url',
+        format: Boolean,
+        env: 'REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH',
+      },
+    },
   },
   flow_id_expiry: {
     default: '2 hours',

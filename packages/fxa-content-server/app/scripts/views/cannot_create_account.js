@@ -4,14 +4,22 @@
 
 import BaseView from './base';
 import CannotCreateAccountTemplate from 'templates/cannot_create_account.mustache';
+import GeneralizedReactAppExperimentMixin from './mixins/generalized-react-app-experiment-mixin';
+import Cocktail from 'cocktail';
 
 const CannotCreateAccountView = BaseView.extend({
   template: CannotCreateAccountTemplate,
   className: 'cannot-create-account',
-
   setInitialContext(context) {
     context.set('isSync', this.relier.isSync());
   },
+  beforeRender() {
+    if (this.isInGeneralizedReactAppExperimentGroup()) {
+      this.navigateAway('/beta/cannot_create_account?showNewReactApp=true');
+    }
+  },
 });
+
+Cocktail.mixin(CannotCreateAccountView, GeneralizedReactAppExperimentMixin);
 
 export default CannotCreateAccountView;
