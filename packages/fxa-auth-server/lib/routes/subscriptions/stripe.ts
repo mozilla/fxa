@@ -587,7 +587,7 @@ export class StripeHandler {
       }
 
       const taxOptions = this.automaticTax
-        ? { automatic_tax: taxSubscription }
+        ? { automaticTax: taxSubscription }
         : { taxRateId };
 
       const subscription: any =
