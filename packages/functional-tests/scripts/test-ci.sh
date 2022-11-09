@@ -31,9 +31,9 @@ npx pm2 ls
 #cd packages/functional-tests/tests
 circleci tests glob "packages/functional-tests/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
 #yarn workspace functional-tests test -grep $(cat tests-to-run.txt)
-yarn workspace functional-tests test --grep $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')
+yarn workspace functional-tests test $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')
 #echo "start troubleshooting"
 #pwd
 #ls -lrt
-cat tests-to-run.txt
+#cat tests-to-run.txt
 #echo "done troubleshooting"
