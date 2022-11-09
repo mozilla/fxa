@@ -92,6 +92,45 @@ const Router = Backbone.Router.extend({
       CompleteResetPasswordView
     ),
     'authorization(/)': createViewHandler(RedirectAuthView),
+    'beta(/)': function () {
+      // Because this directs us to a separate js app, we need to ensure navigating
+      // from the content-server app passes along flow parameters.
+      const { deviceId, flowBeginTime, flowId } =
+        this.metrics.getFlowEventMetadata();
+
+      const {
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      } = this.metrics.getFilteredData();
+
+      // Our GQL client sets the `redirect_to` param if a user attempts
+      // to navigate directly to a section in /beta
+      const searchParams = new URLSearchParams(this.window.location.search);
+
+      let endpoint = searchParams.get('redirect_to');
+      if (!endpoint) {
+        endpoint = `/beta`;
+      } else if (
+        !this.isValidRedirect(endpoint, this.config.redirectAllowlist)
+      ) {
+        throw new Error('Invalid redirect!');
+      }
+
+      const betaLink = `${endpoint}${Url.objToSearchString({
+        deviceId,
+        flowBeginTime,
+        flowId,
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      })}`;
+      this.navigateAway(betaLink);
+    },
     'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': createViewHandler(ClearStorageView),

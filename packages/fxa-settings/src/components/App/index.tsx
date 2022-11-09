@@ -7,6 +7,7 @@ import { RouteComponentProps, Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import Settings from '../Settings';
+import WrapperBeta from '../WrapperBeta';
 import { QueryParams } from '../..';
 
 export const App = ({
@@ -18,6 +19,7 @@ export const App = ({
       <Router basepath={'/'}>
         <ScrollToTop default>
           <Settings path="/settings/*" {...{ flowQueryParams }} />
+          <WrapperBeta path="/beta/*" />
         </ScrollToTop>
       </Router>
     </>
