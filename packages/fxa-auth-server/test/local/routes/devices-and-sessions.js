@@ -1695,13 +1695,13 @@ describe('/account/devices', () => {
       getRefreshTokensByUid: sinon.spy(async () => {
         return [
           {
-            refreshTokenId: Buffer.from(refreshTokenId, 'hex'),
+            tokenId: Buffer.from(refreshTokenId, 'hex'),
             lastUsedAt: new Date(now),
           },
           // This extra refreshToken should be ignored when listing devices,
           // since it doesn't have a corresponding device record.
           {
-            refreshTokenId: crypto.randomBytes(16),
+            tokenId: crypto.randomBytes(16),
             lastUsedAt: new Date(now),
           },
         ];
