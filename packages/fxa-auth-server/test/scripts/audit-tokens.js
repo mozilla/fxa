@@ -10,7 +10,6 @@ const path = require('path');
 const {
   auditRowCounts,
   auditAge,
-  auditOrphanedDeviceRows,
   auditOrphanedRows,
 } = require('../../scripts/audit-tokens');
 const mocks = require(`../../test/mocks`);
@@ -72,23 +71,6 @@ describe('scripts/audit-tokens', () => {
       assert.equal(result.percent_missing, 100);
       assert.equal(result.total_missing, 1);
       assert.equal(result.table_size, 1);
-    });
-
-    it('finds orphaned devices', async () => {
-      await auditRowCounts('fxa.sessionTokens');
-      await auditRowCounts('fxa.devices');
-      const result = await auditOrphanedDeviceRows();
-
-      assert.equal(result.total, 1);
-      assert.equal(result.table_size, 1);
-
-      assert.equal(result.total_missing_both, 1);
-      assert.equal(result.total_missing_refresh_token, 1);
-      assert.equal(result.total_missing_session_token, 1);
-
-      assert.equal(result.percent_missing_both, 100);
-      assert.equal(result.percent_missing_refresh_token, 100);
-      assert.equal(result.percent_missing_session_token, 100);
     });
   });
 

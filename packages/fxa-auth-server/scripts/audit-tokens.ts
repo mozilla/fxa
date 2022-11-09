@@ -21,6 +21,9 @@ type TargetTable = { name: string; keyCol: string };
 /** Prefixes table names with db name. */
 const toTable = (name: string, db = 'fxa') => `${db}.${name}`;
 
+/* Holds on to row counts per table. These are useful for other statistics. */
+const rowCounts: Map<string, number> = new Map();
+
 /** List of common tables */
 const tables = {
   accountCustomers: toTable('accountCustomers'),
@@ -44,13 +47,6 @@ const tables = {
   unblockCodes: toTable('unblockCodes'),
   unverifiedTokens: toTable('unverifiedTokens'),
   verificationReminders: toTable('verificationReminders'),
-  clientDevelopers: toTable('clientDevelopers', 'fxa_oauth'),
-  clients: toTable('clients', 'fxa_oauth'),
-  codes: toTable('codes', 'fxa_oauth'),
-  developers: toTable('developers', 'fxa_oauth'),
-  refreshTokens: toTable('refreshTokens', 'fxa_oauth'),
-  tokens: toTable('tokens', 'fxa_oauth'),
-  profile: toTable('profile', 'fxa_profile'),
 };
 
 //#endregion
@@ -98,20 +94,21 @@ export function logResult(name: string, query: string, result: any) {
   log.info('result', { name, result });
 
   if (program.verbose) {
-    function resultSummary() {
-      if (result) {
-        const pairs = Object.entries(result)
-          .map(([k, v]) => `\n-- ${k}: ${v}`)
-          .join('');
-
-        return `\n-- RESULT SUMMARY:\n${pairs}`;
-      }
-
-      return '-- RESULT SUMMARY: No Result';
-    }
     console.log(
       `\n-- AUDIT: ${name}\n-- QUERY:\n${query}\n${resultSummary()}\n\n\n`
     );
+  }
+
+  function resultSummary() {
+    if (result) {
+      const pairs = Object.entries(result)
+        .map(([k, v]) => `\n-- ${k}: ${v}`)
+        .join('');
+
+      return `\n-- RESULT SUMMARY:\n${pairs}`;
+    }
+
+    return '-- RESULT SUMMARY: No Result';
   }
 }
 //#endregion
@@ -171,10 +168,6 @@ async function audit(name: string, raw: string) {
     }
 
     return;
-  } else {
-    if (program.verbose) {
-      console.log('!!! ', name);
-    }
   }
 
   if (program.dry) {
@@ -196,9 +189,6 @@ async function audit(name: string, raw: string) {
   }
 }
 
-/* Holds on to row counts per table. These are useful for other statistics. */
-const rowCounts: Map<string, number> = new Map();
-
 /** Queries for current row counts. */
 export async function auditRowCounts(table: string) {
   function buildQuery(table: string) {
@@ -214,7 +204,7 @@ export async function auditRowCounts(table: string) {
 
   const name = `${table}.RowCount.`;
   const query = buildQuery(table);
-  let result = await audit(name, query);
+  const result = await audit(name, query);
 
   logResult(name, query, result);
   emitStats(name, result);
@@ -293,55 +283,6 @@ export async function auditOrphanedRows(
   return result;
 }
 
-/** Looks for devices that have been orphaned, or have a parent row which was orphaned. */
-export async function auditOrphanedDeviceRows() {
-  // Orphaned devices. A slightly more complex query that explicitly checks that
-  // neither devices > sessionTokens > account nor devices > refreshToken > client exist.
-  const query = `
-  SELECT
-    *,
-    100 * total_missing_both / total AS percent_missing_both,
-    100 * total_missing_refresh_token / total AS percent_missing_refresh_token,
-    100 * total_missing_session_token / total AS percent_missing_session_token
-  FROM
-  (
-    SELECT
-      COUNT(*) as total,
-      COUNT( IF (missing_session_token = 1 and missing_refresh_token = 1, 1, NULL)) AS total_missing_both,
-      COUNT( IF (missing_refresh_token = 1, 1, NULL)) AS total_missing_refresh_token,
-      COUNT( IF (missing_session_token = 1, 1, NULL)) AS total_missing_session_token
-    FROM
-    (
-      SELECT
-        d.id,
-        case
-          WHEN s.tokenId is NULL OR a.uid is NULL
-          THEN 1 ELSE 0 END AS missing_session_token,
-        case
-          WHEN r.token is NULL OR c.id is NULL
-          THEN 1 ELSE 0 END AS missing_refresh_token
-      FROM
-        (
-          SELECT id, sessionTokenId, refreshTokenId
-          FROM ${tables.devices}
-          ${buildLimit(tables.devices)}
-        ) as d
-        left join ${tables.sessionTokens} s on s.tokenId = d.sessionTokenId
-          left join ${tables.accounts} a on s.uid = a.uid
-        left join ${tables.refreshTokens} r on r.token = d.refreshTokenId
-          left join ${tables.clients} c on c.id = r.clientId
-    ) AS status
-  ) AS totals
-  `;
-
-  const name = `${tables.devices}.OrphanedRows.On-Many`;
-  const result = await audit(name, query);
-  decorateResultWithTableStats(tables.devices, result);
-  logResult(name, query, result);
-  emitStats(name, result);
-  return result;
-}
-
 /** Runs audits according to current cli arguments */
 async function auditAll() {
   // We always audit row counts. These queries are fast, and
@@ -352,7 +293,7 @@ async function auditAll() {
 
   // If requested audit the age distribution of rows in the table.
   if (program.auditAge) {
-    let set: any[] = [
+    const set: any[] = [
       [tables.accountCustomers, 'createdAt', 'uid'],
       [tables.accountResetTokens, 'createdAt', 'tokenId'],
       [tables.accounts, 'createdAt', 'uid'],
@@ -368,10 +309,6 @@ async function auditAll() {
       [tables.unblockCodes, 'createdAt', 'unblockCodeHash'],
       [tables.unverifiedTokens, 'tokenVerificationCodeExpiresAt', 'tokenId'],
       [tables.verificationReminders, 'createdAt', 'uid'],
-      [tables.tokens, 'createdAt', 'token'],
-      [tables.tokens, 'expiresAt', 'token'],
-      [tables.refreshTokens, 'createdAt', 'token'],
-      [tables.refreshTokens, 'lastUsedAt', 'token'],
     ];
     for (const [table, colName, colSort] of set) {
       await auditAge(table, colName, colSort);
@@ -409,29 +346,13 @@ async function auditAll() {
       );
     }
 
-    // Rows orphaned by missing oauth client
-    set = [
-      tables.clientDevelopers,
-      tables.tokens,
-      tables.codes,
-      tables.refreshTokens,
-    ];
+    set = [tables.devices];
     for (const table of set) {
       await auditOrphanedRows(
-        { name: table, keyCol: 'clientId' },
-        { name: tables.clients, keyCol: 'id' }
+        { name: table, keyCol: 'sessionTokenId' },
+        { name: tables.sessionTokens, keyCol: 'tokenId' }
       );
     }
-
-    // Rows orphaned by missing developer
-    set = [tables.clientDevelopers];
-    for (const table of set) {
-      await auditOrphanedRows(
-        { name: table, keyCol: 'developerId' },
-        { name: tables.developers, keyCol: 'developerId' }
-      );
-    }
-    await auditOrphanedDeviceRows();
   }
 }
 
