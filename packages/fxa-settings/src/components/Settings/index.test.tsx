@@ -135,7 +135,7 @@ describe('App component', () => {
       <App {...{ flowQueryParams }} />
     );
 
-    expect(getByLabelText('Loading...')).toBeInTheDocument();
+    expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
   it('renders `LoadingSpinner` component when the error message includes "Invalid token"', () => {
@@ -146,7 +146,7 @@ describe('App component', () => {
       <App {...{ flowQueryParams }} />
     );
 
-    expect(getByLabelText('Loading...')).toBeInTheDocument();
+    expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
   it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
