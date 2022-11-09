@@ -1022,7 +1022,7 @@ describe('DirectStripeRoutes', () => {
           priceId: 'Jane Doe',
           paymentMethodId: 'pm_asdf',
           promotionCode: undefined,
-          automatic_tax: true,
+          automaticTax: true,
         }
       );
     });
@@ -1044,7 +1044,7 @@ describe('DirectStripeRoutes', () => {
           priceId: 'Jane Doe',
           paymentMethodId: 'pm_asdf',
           promotionCode: undefined,
-          automatic_tax: false,
+          automaticTax: false,
         }
       );
     });
