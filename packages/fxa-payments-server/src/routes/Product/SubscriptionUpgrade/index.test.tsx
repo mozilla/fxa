@@ -15,9 +15,10 @@ import {
 import {
   MockApp,
   MOCK_PLANS,
-  setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../../lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 
 import {
   CUSTOMER,
@@ -289,7 +290,10 @@ describe('PlanDetailsCard', () => {
   });
 
   describe('Fluent Translations for Plan Billing Description', () => {
-    const bundle = setupFluentLocalizationTest('en-US');
+    let bundle: FluentBundle;
+    beforeAll(async () => {
+      bundle = await getFtlBundle('payments');
+    });
     const amount = getLocalizedCurrency(500, 'USD');
     const args = {
       amount,

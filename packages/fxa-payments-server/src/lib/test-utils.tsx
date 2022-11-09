@@ -9,9 +9,7 @@ import {
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
-import fs from 'fs';
-import path from 'path';
-import { FluentBundle, FluentResource } from '@fluent/bundle';
+import { FluentBundle } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
@@ -595,7 +593,7 @@ export const MOCK_PLANS: Plan[] = [
 
 export const MOCK_PROFILE: Profile = {
   email: 'foo@example.com',
-  locale: 'en-US,en;q=0.5',
+  locale: 'en;q=0.5',
   amrValues: ['pwd', 'email'],
   twoFactorAuthentication: false,
   uid: 'a90fef48240b49b2b6a33d333aee9b13',
@@ -691,24 +689,6 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     },
   ],
 };
-
-export function setupFluentLocalizationTest(locale: string): FluentBundle {
-  const filepath = path.join(
-    __dirname,
-    '..',
-    '..',
-    'public',
-    'locales',
-    locale,
-    'main.ftl'
-  );
-  const messages = fs.readFileSync(filepath).toString();
-  const resource = new FluentResource(messages);
-  const bundle = new FluentBundle(locale, { useIsolating: false });
-  bundle.addResource(resource);
-
-  return bundle;
-}
 
 export function getLocalizedMessage(
   bundle: FluentBundle,

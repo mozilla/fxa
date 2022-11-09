@@ -8,6 +8,10 @@
 
 # Secrets
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .keys
 public-key.json
 secret-key.json
@@ -39,6 +43,8 @@ tailwind.out.*
 # Dependencies
 **/node_modules
 **/browser_modules
+/.pnp
+.pnp.js
 
 # Logging
 *.log*
@@ -117,6 +123,8 @@ packages/fxa-customs-server/test/mocks/temp.netset
 
 # fxa-payments-server
 packages/fxa-payments-server/fxa-content-server-l10n/
+packages/fxa-payments-server/public/locales
+packages/fxa-payments-server/test
 
 # fxa-profile-server
 packages/fxa-profile-server/var

@@ -159,7 +159,7 @@ describe('App', () => {
     initialState,
     storeEnhancers,
     appPath = '/',
-    navigatorLanguages = ['en', 'en-US'],
+    navigatorLanguages = ['en'],
   }: {
     config?: Partial<Config>;
     initialState?: State;

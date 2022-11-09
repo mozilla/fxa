@@ -103,7 +103,7 @@ export const App = ({
       <Head />
       <AppLocalizationProvider
         userLocales={navigatorLanguages}
-        bundles={['main']}
+        bundles={['payments']}
       >
         <Localized id="document" attrs={{ title: true }}>
           <AppErrorBoundary>
@@ -176,8 +176,8 @@ export class AppErrorBoundary extends React.Component {
 
 export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
   const { locationReload } = useContext(AppContext);
-  const ariaLabelledBy = "general-application-error-header";
-  const ariaDescribedBy = "general-application-error-description";
+  const ariaLabelledBy = 'general-application-error-header';
+  const ariaDescribedBy = 'general-application-error-description';
   // TODO: Not displaying the actual error message to the user, just logging it.
   // Most of these errors will probably be failure to load Stripe widgets.
   return (
@@ -189,10 +189,15 @@ export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
         descId={ariaDescribedBy}
       >
         <Localized id="general-error-heading">
-          <h4 id={ariaLabelledBy} data-testid="error-loading-app">General application error</h4>
+          <h4 id={ariaLabelledBy} data-testid="error-loading-app">
+            General application error
+          </h4>
         </Localized>
         <Localized id={getErrorMessage({ code: 'api_connection_error' })}>
-          <p id={ariaDescribedBy}> Something went wrong. Please try again later.</p>
+          <p id={ariaDescribedBy}>
+            {' '}
+            Something went wrong. Please try again later.
+          </p>
         </Localized>
       </DialogMessage>
     </SettingsLayout>

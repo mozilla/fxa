@@ -32,7 +32,7 @@ export function getLocalizedCurrency(
 
 /**
  * This method is to get a default localized currency value for displaying in fallback strings in the event of a Fluent failure.
- * This returns a string that is formatted accorning to the 'en-US' locale standard to match the rest of our fallback library.
+ * This returns a string that is formatted accorning to the 'en' locale standard to match the rest of our fallback library.
  *
  * @param amountInCents
  * @param currency
@@ -44,7 +44,7 @@ export function getLocalizedCurrencyString(
   const decimal = (amountInCents || 0) / 100;
   const options = { ...baseCurrencyOptions, currency };
 
-  return new Intl.NumberFormat('en-US', options).format(decimal);
+  return new Intl.NumberFormat('en', options).format(decimal);
 }
 
 /**
@@ -97,7 +97,7 @@ export function getLocalizedDate(
 
 /**
  * This method is to get a default localized datetime value for displaying in fallback strings in the event of a Fluent failure.
- * This returns a string that is formatted accorning to the 'en-US' locale standard to match the rest of our fallback library.
+ * This returns a string that is formatted accorning to the 'en' locale standard to match the rest of our fallback library.
  *
  * @param unixSeconds
  * @param numericDate
@@ -111,7 +111,7 @@ export function getLocalizedDateString(
 
   const options = numericDate ? numericDateOptions : defaultDateOptions;
 
-  return new Intl.DateTimeFormat('en-US', options).format(date);
+  return new Intl.DateTimeFormat('en', options).format(date);
 }
 
 /**

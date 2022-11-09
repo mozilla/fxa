@@ -19,7 +19,7 @@ const profile: Profile = {
   email: 'foxy@firefox.com',
   amrValues: ['amrval'],
   avatarDefault: true,
-  locale: 'en-US',
+  locale: 'en',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
   metricsEnabled: true,

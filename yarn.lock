@@ -25307,6 +25307,10 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
+    grunt: ^1.5.3
+    grunt-cli: ^1.4.3
+    grunt-contrib-concat: ^2.1.0
+    grunt-contrib-watch: ^1.1.0
     handlebars: ^4.7.7
     helmet: ^6.0.0
     hot-shots: ^9.3.0
