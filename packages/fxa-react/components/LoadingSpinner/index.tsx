@@ -21,7 +21,7 @@ export const LoadingSpinner = ({
   const loadingAriaLabel = l10n.getString(
     'app-loading-spinner-aria-label-loading',
     null,
-    'Loading...'
+    'Loading…'
   );
   let spinnerImage;
   switch (spinnerType) {
