@@ -600,7 +600,7 @@ module.exports = (
             credentials.uid
           )) {
             // OAuth annoyingly returns buffers rather than hex strings.
-            oauthRefreshTokensById.set(hex(token.refreshTokenId), token);
+            oauthRefreshTokensById.set(hex(token.tokenId), token);
           }
         }
 
