@@ -8,7 +8,7 @@ close-aria =
   .aria-label = Close modal
 
 # Aria label for spinner image indicating data is loading
-app-loading-spinner-aria-label-loading = Loading...
+app-loading-spinner-aria-label-loading = Loading…
 
 settings-subscriptions-title = Subscriptions
 
