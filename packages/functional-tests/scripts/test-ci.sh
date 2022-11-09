@@ -29,10 +29,11 @@ yarn workspaces foreach \
 npx pm2 ls
 
 cd packages/functional-tests/tests
-circleci tests glob "/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
-yarn workspace functional-tests test --grep $(cat tests-to-run.txt)
-echo "start troubleshooting"
-pwd
-ls -lrt
+circleci tests glob "tests/**/*.spec.ts" | circleci tests split > tmp/tests-to-run.txt
+#yarn workspace functional-tests test -g $(cat tmp/tests-to-run.txt)
+yarn workspace functional-tests test --grep $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')
+#echo "start troubleshooting"
+#pwd
+#ls -lrt
 cat tests-to-run.txt
-echo "done troubleshooting"
+#echo "done troubleshooting"
