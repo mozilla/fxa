@@ -41,7 +41,6 @@ export class SubscribePage extends BaseLayout {
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    await paypalWindow.waitForLoadState('load');
     await paypalWindow.waitForNavigation();
     await paypalWindow.fill(
       'input[type=email]',
