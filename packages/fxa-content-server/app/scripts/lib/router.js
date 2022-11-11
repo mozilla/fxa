@@ -9,6 +9,7 @@ import Backbone from 'backbone';
 import CannotCreateAccountView from '../views/cannot_create_account';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import ClearStorageView from '../views/clear_storage';
+import Cocktail from 'cocktail';
 import CompleteResetPasswordView from '../views/complete_reset_password';
 import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmResetPasswordView from '../views/confirm_reset_password';
@@ -43,6 +44,7 @@ import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
+import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
@@ -82,7 +84,38 @@ function createViewModel(data) {
   return new Backbone.Model(data || {});
 }
 
-const Router = Backbone.Router.extend({
+let Router = Backbone.Router.extend({
+  initialize(options = {}) {
+    this.broker = options.broker;
+    this.config = options.config;
+    this.metrics = options.metrics;
+    this.notifier = options.notifier;
+    this.relier = options.relier;
+    this.user = options.user;
+    this.window = options.window || window;
+    this._viewModelStack = [];
+
+    this.notifier.once(
+      'view-shown',
+      this._afterFirstViewHasRendered.bind(this)
+    );
+    this.notifier.on('navigate', this.onNavigate.bind(this));
+    this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
+    this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
+
+    // If legacy signin/signup flows are disabled, this is obviously
+    // an email-first flow!
+    if (this.broker.getCapability('disableLegacySigninSignup')) {
+      this._isEmailFirstFlow = true;
+    }
+
+    this.storage = Storage.factory('sessionStorage', this.window);
+  },
+});
+
+Cocktail.mixin(Router, ReactExperimentMixin);
+
+Router = Router.extend({
   routes: {
     '(/)': createViewHandler(IndexView),
     'account_recovery_confirm_key(/)': createViewHandler(
@@ -92,7 +125,25 @@ const Router = Backbone.Router.extend({
       CompleteResetPasswordView
     ),
     'authorization(/)': createViewHandler(RedirectAuthView),
-    'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
+    'cannot_create_account(/)': function () {
+      // TODO: check for what feature flag group this route is in and check `featureFlagOn` so
+      // we don't have to check all of these at the router level. Probably turn this into some
+      // helper function. FXA-TBD
+      const showReactApp = this.config.showReactApp.simpleRoutes;
+
+      if (showReactApp && this.isInReactExperiment()) {
+        const link = `${'/cannot_create_account'}${Url.objToSearchString({
+          showReactApp,
+        })}`;
+
+        this.navigateAway(link);
+      } else {
+        // TODO: make a helper function out of this or make `createViewHandler` work
+        return getView(CannotCreateAccountView).then((View) => {
+          return this.showView(View);
+        });
+      }
+    },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': createViewHandler(ClearStorageView),
     'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
@@ -216,20 +267,16 @@ const Router = Backbone.Router.extend({
       // from the content-server app passes along flow parameters.
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();
-
       const {
         broker,
         context: ctx,
-        experiments,
         isSampledUser,
         service,
         uniqueUserId,
       } = this.metrics.getFilteredData();
-
       // Our GQL client sets the `redirect_to` param if a user attempts
       // to navigate directly to a section in settings
       const searchParams = new URLSearchParams(this.window.location.search);
-
       let endpoint = searchParams.get('redirect_to');
       if (!endpoint) {
         endpoint = `/settings`;
@@ -238,7 +285,6 @@ const Router = Backbone.Router.extend({
       ) {
         throw new Error('Invalid redirect!');
       }
-
       const settingsLink = `${endpoint}${Url.objToSearchString({
         deviceId,
         flowBeginTime,
@@ -247,7 +293,6 @@ const Router = Backbone.Router.extend({
         context: ctx,
         isSampledUser,
         service,
-        showNewReactApp: experiments.includes('generalizedReactApp'),
         uniqueUserId,
       })}`;
       this.navigateAway(settingsLink);
@@ -295,33 +340,6 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
-  },
-
-  initialize(options = {}) {
-    this.broker = options.broker;
-    this.config = options.config;
-    this.metrics = options.metrics;
-    this.notifier = options.notifier;
-    this.relier = options.relier;
-    this.user = options.user;
-    this.window = options.window || window;
-    this._viewModelStack = [];
-
-    this.notifier.once(
-      'view-shown',
-      this._afterFirstViewHasRendered.bind(this)
-    );
-    this.notifier.on('navigate', this.onNavigate.bind(this));
-    this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
-    this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
-
-    // If legacy signin/signup flows are disabled, this is obviously
-    // an email-first flow!
-    if (this.broker.getCapability('disableLegacySigninSignup')) {
-      this._isEmailFirstFlow = true;
-    }
-
-    this.storage = Storage.factory('sessionStorage', this.window);
   },
 
   onNavigate(event) {

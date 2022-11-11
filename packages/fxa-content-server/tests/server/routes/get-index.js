@@ -108,6 +108,14 @@ registerSuite('routes/get-index', {
                 sentConfig.subscriptions,
                 config.get('subscriptions')
               );
+              assert.deepEqual(
+                sentConfig.subscriptions,
+                config.get('subscriptions')
+              );
+              assert.deepEqual(
+                sentConfig.showReactApp,
+                config.get('showReactApp')
+              );
               assert.equal(
                 sentConfig.webpackPublicPath,
                 `${config.get('static_resource_url')}/${config.get(

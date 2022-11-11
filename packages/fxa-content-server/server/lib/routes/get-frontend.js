@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function () {
+
+const { simpleRoutes } = require('./react-app');
+const {
+  getFrontEndRouteDefinitions,
+} = require('./react-app/route-definitions');
+
+function getFrontEnd() {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
     'account_recovery_confirm_key',
@@ -81,16 +87,21 @@ module.exports = function () {
     'verify_primary_email',
     'verify_secondary_email',
     'would_you_like_to_sync',
-  ].join('|'); // prepare for use in a RegExp
+  ];
 
-  return {
-    method: 'get',
-    path: new RegExp('^/(' + FRONTEND_ROUTES + ')/?$'),
-    process: function (req, res, next) {
-      // setting the url to / will use the correct
-      // index.html for either dev or prod mode.
-      req.url = '/';
-      next();
-    },
-  };
+  // Remove route from list if feature flag is on and route is in list. Route definitions
+  // for the excluded routes are created separately
+  // TODO: account for other feature flags / React route lists, FXA-TBD
+  const FRONTEND_ROUTES_EXCLUDE_REACT = simpleRoutes.featureFlagOn
+    ? FRONTEND_ROUTES.filter(
+        (routeName) =>
+          !simpleRoutes.routes.find((route) => routeName === route.name)
+      )
+    : FRONTEND_ROUTES;
+
+  return getFrontEndRouteDefinitions(FRONTEND_ROUTES_EXCLUDE_REACT);
+}
+
+module.exports = {
+  default: getFrontEnd,
 };

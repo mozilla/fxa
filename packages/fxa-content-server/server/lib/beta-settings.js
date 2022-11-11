@@ -128,7 +128,7 @@ function modifyProxyRes(proxyRes, req, res) {
   });
 }
 
-const useSettingsProxy = createProxyMiddleware({
+const createSettingsProxy = createProxyMiddleware({
   target: 'http://localhost:3000',
   ws: true,
   selfHandleResponse: true, // ensure res.end is not called early
@@ -147,7 +147,7 @@ const modifySettingsStatic = function (req, res) {
 };
 
 module.exports = {
-  useSettingsProxy,
+  createSettingsProxy,
   modifySettingsStatic,
   swapBetaMeta,
   modifyProxyRes,

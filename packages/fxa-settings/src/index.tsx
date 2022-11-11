@@ -9,7 +9,6 @@ import {
   getTracingHeadersFromDocument,
   init as initTracing,
 } from 'fxa-shared/tracing/browser-tracing';
-import Settings from './components/Settings';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
@@ -35,8 +34,6 @@ export interface QueryParams extends FlowQueryParams {
 
 try {
   const flowQueryParams = searchParams(window.location.search) as QueryParams;
-
-  const { showNewReactApp } = flowQueryParams;
 
   // Populate config
   readConfigMeta((name: string) => {
@@ -64,11 +61,7 @@ try {
             bundles={['settings', 'react']}
             userLocales={navigator.languages}
           >
-            {showNewReactApp ? (
-              <App {...{ flowQueryParams }} />
-            ) : (
-              <Settings {...{ flowQueryParams }} />
-            )}
+            <App {...{ flowQueryParams }} />
           </AppLocalizationProvider>
         </AppContext.Provider>
       </AppErrorBoundary>
