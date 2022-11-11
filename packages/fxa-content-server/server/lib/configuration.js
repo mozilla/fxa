@@ -210,6 +210,62 @@ const conf = (module.exports = convict({
       },
     },
   },
+  showReactApp: {
+    simpleRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "simple" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_SIMPLE_ROUTES',
+    },
+    resetPasswordRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "reset_password" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_RESET_PASSWORD_ROUTES',
+    },
+    oauthRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of routes requiring oauth',
+      format: Boolean,
+      env: 'REACT_CONVERSION_OAUTH_ROUTES',
+    },
+    signInRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "signin" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_SIGNIN_ROUTES',
+    },
+    signUpRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "signup" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_SIGNUP_ROUTES',
+    },
+    pairRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "pair" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_PAIR_ROUTES',
+    },
+    postVerifyAddRecoveryKeyRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "post-verify add recovery key" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES',
+    },
+    postVerifyCADViaQRRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "post verify CAD via QR code" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES',
+    },
+    signInVerificationViaPushRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "signin verification via push" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES',
+    },
+  },
   flow_id_expiry: {
     default: '2 hours',
     doc: 'Time after which flow ids are considered stale',
