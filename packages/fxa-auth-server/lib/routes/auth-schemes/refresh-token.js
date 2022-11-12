@@ -55,11 +55,19 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
           return h.unauthenticated(AppError.invalidScopes(refreshToken.scope));
         }
 
+        const { ua } = request.app;
+
         const credentials = {
           uid: hex(refreshToken.userId),
           emailVerified: true,
           tokenVerified: true,
           refreshTokenId: hex(tokenId),
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uaFormFactor: ua.formFactor,
         };
 
         credentials.client = await client.getClientById(refreshToken.clientId);
