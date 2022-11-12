@@ -37,6 +37,16 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   let config;
   let db;
   let response;
+  const app = {
+    ua: {
+      browser: 'firefox',
+      browserVersion: '100',
+      os: 'iOS',
+      osVersion: '16.2',
+      deviceType: 'mobile',
+      formFactor: null,
+    },
+  };
 
   beforeEach(() => {
     config = { oauth: {} };
@@ -77,6 +87,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
         headers: {
           authorization: 'Bad Auth',
         },
+        app,
       });
       assert.fail('should have thrown');
     } catch (err) {
@@ -91,6 +102,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
         headers: {
           authorization: 'Bearer Foo',
         },
+        app,
       });
       assert.fail('should have thrown');
     } catch (err) {
@@ -106,6 +118,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           authorization:
             'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
         },
+        app,
       },
       response
     );
@@ -129,6 +142,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           authorization:
             'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
         },
+        app,
       },
       response
     );
@@ -158,6 +172,12 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       deviceCallbackPublicKey: undefined,
       deviceCallbackURL: undefined,
       deviceCreatedAt: undefined,
+      uaBrowser: app.ua.browser,
+      uaBrowserVersion: app.ua.browserVersion,
+      uaOS: app.ua.os,
+      uaOSVersion: app.ua.osVersion,
+      uaDeviceType: app.ua.deviceType,
+      uaFormFactor: app.ua.formFactor,
     });
   });
 
@@ -198,6 +218,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           authorization:
             'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
         },
+        app,
       },
       response
     );
@@ -220,6 +241,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           authorization:
             'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
         },
+        app,
       },
       response
     );
@@ -242,6 +264,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
             authorization:
               'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78',
           },
+          app,
         },
         response
       );
