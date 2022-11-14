@@ -134,7 +134,6 @@ export const SubscriptionItem = ({
                 customer,
                 customerSubscription,
                 reactivateSubscription,
-                total: total || plan.amount || undefined,
               }}
             />
           </>
