@@ -83,7 +83,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dedent": "^0.7.0",
-    "ejs": "^3.1.6",
+    "ejs": "^3.1.8",
     "email-addresses": "4.0.0",
     "emittery": "^0.13.1",
     "fxa-customs-server": "workspace:*",
