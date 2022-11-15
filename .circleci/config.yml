@@ -287,7 +287,6 @@ jobs:
 
   playwright-functional-tests:
     resource_class: large
-    parallelism: 6
     docker:
       - image: mcr.microsoft.com/playwright:v1.20.0-focal
       - image: redis
