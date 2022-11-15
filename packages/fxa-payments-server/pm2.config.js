@@ -72,5 +72,14 @@ module.exports = {
       ignore_watch: ['src/styles/tailwind.out.*'],
       time: true,
     },
+    {
+      name: 'payments-ftl',
+      script: 'yarn grunt watch-ftl',
+      cwd: __dirname,
+      filter_env: ['npm_'],
+      max_restarts: '1',
+      min_uptime: '2m',
+      time: true,
+    },
   ],
 };

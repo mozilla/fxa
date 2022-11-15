@@ -84,6 +84,10 @@ We use rescripts and yarn workspaces to manage our node packages. If you are enc
 
 This launch config currently only works for the tests under the `/src` directory in the `fxa-payments-server` package, not the `/server` directory.
 
+### L10N
+
+Strings are automatically extracted to the [`fxa-content-server-l10n` repo](https://github.com/mozilla/fxa-content-server-l10n) where they reach Pontoon for translations to occur by our l10n team and contributors. This is achieved by concatenating all of our .ftl (Fluent) files into a single `payments.ftl` file with the `merge-ftl` grunttask, and the script that runs in `fxa-content-server-l10n` on a weekly cadence. For more detailed information, check out the [ecosystem platform l10n](https://mozilla.github.io/ecosystem-platform/reference/localization) doc.
+
 ## License
 
 MPL-2.0
