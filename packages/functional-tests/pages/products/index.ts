@@ -42,10 +42,10 @@ export class SubscribePage extends BaseLayout {
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
     console.log(await paypalWindow.evaluate('location.href'));
-    //await paypalWindow.waitForLoad();
-    await paypalWindow.waitForNavigation({
-      url: /checkoutnow/,
-    });
+    await paypalWindow.waitForLoadState('networkidle');
+    // await paypalWindow.waitForNavigation({
+    //   url: /checkoutnow/,
+    // });
     console.log(await paypalWindow.evaluate('location.href'));
 
     await paypalWindow.fill(
