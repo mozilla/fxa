@@ -164,7 +164,7 @@ export function iapPurchaseToPlan(
 ) {
   return plans.find((plan) => {
     const identifiers = determineIapIdentifiers(iapType, plan);
-    return identifiers.some((id) => id === purchaseId);
+    return identifiers.some((id) => id === purchaseId.toLowerCase());
   });
 }
 

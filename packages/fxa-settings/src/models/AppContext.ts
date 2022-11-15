@@ -92,7 +92,7 @@ export function initializeAppContext() {
     config,
     account,
     alertBarInfo,
-    navigatorLanguages: navigator.languages || ['en-US', 'en'],
+    navigatorLanguages: navigator.languages || ['en'],
   } as AppContextValue;
 }
 

@@ -244,6 +244,17 @@ describe('Stripe Service', () => {
       expect(appStoreResult?.plan_id).toEqual('appstore-plan-123');
     });
 
+    it('maps iap purchase to plan ignoring case', () => {
+      const appStoreResult = iapPurchaseToPlan(
+        'PRODUCT-123',
+        'iap_apple',
+        plans
+      );
+
+      expect(appStoreResult).toBeDefined();
+      expect(appStoreResult?.plan_id).toEqual('appstore-plan-123');
+    });
+
     it('returns undefined iap purchase for unknown plan', () => {
       const result = iapPurchaseToPlan('product-123', 'iap_google', [plans[2]]);
       expect(result).toBeUndefined();
