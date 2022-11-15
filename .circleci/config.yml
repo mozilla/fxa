@@ -320,6 +320,7 @@ jobs:
     resource_class: medium
     docker:
       - image: cimg/node:16.13
+    working_directory: /mnt/ramdisk
     steps:
       - base-install
       - run:
