@@ -3,7 +3,7 @@ import { BaseLayout } from '../layout';
 export class SubscribePage extends BaseLayout {
   setFullName(name: string = 'Cave Johnson') {
     const input = this.page.locator('[data-testid="name"]');
-    input.waitFor({ state: 'visible', timeout: 1000 });
+    input.waitFor({ state: 'attached' });
     return input.fill(name);
   }
 
@@ -59,7 +59,7 @@ export class SubscribePage extends BaseLayout {
 
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
-    await input.waitFor({ state: 'visible', timeout: 1000 });
+    await input.waitFor({ state: 'attached' });
     await input.fill(code);
     this.page.click('[data-testid="coupon-button"]');
   }
