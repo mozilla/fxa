@@ -141,7 +141,7 @@ test.describe('coupon test', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test.only('subscribe with paypal and use coupon', async ({
+  test('subscribe with paypal and use coupon', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
