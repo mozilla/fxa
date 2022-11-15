@@ -2,7 +2,9 @@ import { BaseLayout } from '../layout';
 
 export class SubscribePage extends BaseLayout {
   setFullName(name: string = 'Cave Johnson') {
-    return this.page.fill('[data-testid="name"]', name);
+    const input = this.page.locator('[data-testid="name"]');
+    input.waitFor({ state: 'visible', timeout: 1000 });
+    return input.fill(name);
   }
 
   async setCreditCardInfo() {
@@ -57,7 +59,7 @@ export class SubscribePage extends BaseLayout {
 
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
-    await input.waitFor({ state: 'attached' });
+    await input.waitFor({ state: 'visible', timeout: 1000 });
     await input.fill(code);
     this.page.click('[data-testid="coupon-button"]');
   }
