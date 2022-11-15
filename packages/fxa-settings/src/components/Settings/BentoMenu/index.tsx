@@ -62,7 +62,7 @@ export const BentoMenu = () => {
                 <CloseIcon
                   width="16"
                   height="16"
-                  className="absolute top-6 right-6 mobileLandscape:hidden"
+                  className="absolute top-5 right-5 mobileLandscape:hidden"
                 />
               </button>
               <div className="mt-12 text-center p-8 pt-2 pb-2 mobileLandscape:mt-0">

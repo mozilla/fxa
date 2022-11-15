@@ -15,20 +15,11 @@ module.exports = {
         9999: '9999',
       },
       padding: {
-        7: '1.75rem',
-        11: '2.75rem',
         18: '4.5rem',
         33: '8.5rem',
       },
       margin: {
-        7: '1.75rem',
-        9: '2.25rem',
-        11: '2.75rem',
         18: '4.5rem',
-        '-18': '-4.5rem',
-      },
-      borderRadius: {
-        xl: '.75rem',
       },
       flex: {
         2: '2',
@@ -40,7 +31,6 @@ module.exports = {
         '80px': '0 0 80px',
       },
       width: {
-        7: '1.75rem',
         18: '4.5rem',
         120: '30rem',
       },
@@ -63,24 +53,9 @@ module.exports = {
         100: '25rem',
       },
       inset: {
-        '1/2': '50%',
-        '-px': '-1px',
-        '-3': '-0.75rem',
-        '-50': '-11.50rem',
-        '-52': '-13rem',
-        0.5: '0.125rem',
-        3: '0.75rem',
-        6: '1.25rem',
-        10: '2.5rem',
+        50: '11.50rem',
         55: '13.75rem',
         ten: '10%',
-        full: '100%',
-      },
-      top: {
-        2.5: '0.6rem',
-      },
-      left: {
-        3.5: '.87rem',
       },
       boxShadow: {
         // Specific-use focus shadows for input elements
@@ -91,14 +66,7 @@ module.exports = {
         'card-grey-drop': '0px 2px 14px rgba(58, 57, 68, 0.2)',
       },
       scale: {
-        80: '.8',
-        '-1': '-1',
-      },
-      backgroundOpacity: {
-        10: '0.1',
-        20: '0.2',
-        30: '0.3',
-        40: '0.4',
+        80: '0.8',
       },
       backgroundImage: {
         /* TODO: be able to reference images here, FXA-5745, this is a workaround/hack
@@ -107,9 +75,6 @@ module.exports = {
          * always be overridden but other packages without this set that use fxa-react shared
          * styles can't build without this */
         'ff-logo': 'none',
-      },
-      outline: {
-        'black-dotted': '1px dotted #000',
       },
       keyframes: {
         'fade-in': {
@@ -123,7 +88,7 @@ module.exports = {
       },
       animation: {
         'delayed-fade-in': 'fade-in 1s linear 5s forwards',
-        spin: 'rotate .8s linear infinite',
+        spin: 'rotate 0.8s linear infinite',
       },
     },
     screens: {
@@ -133,6 +98,9 @@ module.exports = {
       desktopXl: '1441px',
     },
     fontSize: {
+      // These classes must be included here
+      // To be picked up by fxa-settings' Typography design guide
+      // Even if the settings are the same as Tailwind's defaults
       xs: '12px',
       sm: '14px',
       base: '16px',
@@ -312,38 +280,43 @@ module.exports = {
     plugin(function ({ addComponents }) {
       const carets = {
         '.caret-top': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderBottom: '.75rem solid #fff',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #fff',
         },
         '.caret-top-default': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderBottom: '.75rem solid #5e5e72',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #5e5e72',
         },
         '.caret-top-error': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderBottom: '.75rem solid #E22850',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #E22850',
         },
         '.caret-bottom': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderBottom: '.75rem solid #fff',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #fff',
         },
         '.caret-bottom-default': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderTop: '.75rem solid #3D3D3D',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderTop: '0.75rem solid #3D3D3D',
         },
         '.caret-bottom-error': {
-          borderLeft: '.75rem solid transparent',
-          borderRight: '.75rem solid transparent',
-          borderTop: '.75rem solid #E22850',
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderTop: '0.75rem solid #E22850',
         },
       };
       addComponents(carets);
     }),
     tailwindcssDir(),
   ],
+  // Workaround for TW's JIT engine, to provide access to all TW classes
+  // for styling/debugging in browser DevTools (in dev mode only)
+  ...(process.env.NODE_ENV === 'development' && {
+    safelist: [{ pattern: /.*/ }],
+  }),
 };
