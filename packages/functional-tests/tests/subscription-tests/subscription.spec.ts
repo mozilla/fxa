@@ -40,7 +40,7 @@ test.describe('subscription test with cc and paypal', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test('subscribe with paypal and login to product', async ({
+  test.only('subscribe with paypal and login to product', async ({
     pages: { relier, login, subscribe },
   }, { project }) => {
     test.slow();

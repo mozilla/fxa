@@ -41,10 +41,13 @@ export class SubscribePage extends BaseLayout {
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    //await paypalWindow.waitForNavigation();
+    console.log(await paypalWindow.evaluate('location.href'));
+    //await paypalWindow.waitForLoad();
     await paypalWindow.waitForNavigation({
       url: /checkoutnow/,
     });
+    console.log(await paypalWindow.evaluate('location.href'));
+
     await paypalWindow.fill(
       'input[type=email]',
       'qa-test-no-balance-16@personal.example.com'
