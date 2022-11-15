@@ -25,16 +25,25 @@ export class SubscribePage extends BaseLayout {
   }
 
   async clickPayNow() {
-    await this.page.click('button[type=submit]');
+    const pay = this.page.locator('[data-testid="submit"]');
+    await pay.waitFor();
+    await pay.click();
   }
 
   async setPayPalInfo() {
     await this.page.check('[data-testid="confirm"]');
+    const paypalButton = this.page.locator(
+      '[data-testid="paypal-button-container"]'
+    );
+    await paypalButton.waitFor({ state: 'attached' });
     const [paypalWindow] = await Promise.all([
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    await paypalWindow.waitForLoadState('load');
+    await paypalWindow.waitForTimeout(1000);
+    await paypalWindow.waitForNavigation({
+      url: /checkoutnow/,
+    });
     await paypalWindow.fill(
       'input[type=email]',
       'qa-test-no-balance-16@personal.example.com'
@@ -47,10 +56,10 @@ export class SubscribePage extends BaseLayout {
   }
 
   async addCouponCode(code) {
-    this.page.click('[data-testid="coupon-input"]');
-    this.page.fill('[data-testid="coupon-input"]', code);
+    const input = this.page.locator('[data-testid="coupon-input"]');
+    await input.waitFor({ state: 'attached' });
+    await input.fill(code);
     this.page.click('[data-testid="coupon-button"]');
-
   }
 
   async clickTryAgain() {
@@ -66,30 +75,39 @@ export class SubscribePage extends BaseLayout {
   }
 
   async discountAppliedSuccess() {
-    const discount = this.page.locator('.coupon-header:has-text("Discount Reward Applied")');
+    const discount = this.page.locator(
+      '[data-testid="coupon-component"]:has-text("Promo Code Applied")'
+    );
     await discount.waitFor();
     return discount.isVisible();
   }
 
   async oneTimeDiscountSuccess() {
-    const discount = this.page.locator
-      ('[data-testid="coupon-success"]:has-text("Your plan will automatically renew at the list price.")');
+    const discount = this.page.locator(
+      '[data-testid="coupon-success"]:has-text("Your plan will automatically renew at the list price.")'
+    );
     await discount.waitFor();
     return discount.isVisible();
   }
 
   async discountListPrice() {
-    const listPrice = this.page.locator('.plan-details-total:has-text("List Price")');
+    const listPrice = this.page.locator(
+      '.plan-details-total-inner:has-text("List Price")'
+    );
     return listPrice.isVisible();
   }
 
   async discountLineItem() {
-    const disc = this.page.locator('.plan-details-total:has-text("Discount")');
+    const disc = this.page.locator(
+      '.plan-details-total:has-text("Promo Code")'
+    );
     return disc.isVisible();
   }
 
   async discountTextbox() {
-    const discount = this.page.locator('.coupon-header:has-text("Discount")');
+    const discount = this.page.locator(
+      '.coupon-component:has-text("Promo Code")'
+    );
     await discount.waitFor();
     return discount.isVisible();
   }

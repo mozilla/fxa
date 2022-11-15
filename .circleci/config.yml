@@ -287,6 +287,7 @@ jobs:
 
   playwright-functional-tests:
     resource_class: large
+    parallelism: 6
     docker:
       - image: mcr.microsoft.com/playwright:v1.20.0-focal
       - image: redis
@@ -329,75 +330,7 @@ jobs:
 workflows:
   test_pull_request:
     jobs:
-      - lint:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-many:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-settings-server:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-3:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-4:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-5:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
       - playwright-functional-tests:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
           filters:
             branches:
               ignore: main
