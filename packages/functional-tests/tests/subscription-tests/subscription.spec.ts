@@ -38,7 +38,8 @@ test.describe('subscription test with cc and paypal', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test('subscribe with paypal and login to product', async ({
+  // This test is flaky hence deactivating for timebeing
+  /*test('subscribe with paypal and login to product', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
@@ -49,5 +50,5 @@ test.describe('subscription test with cc and paypal', () => {
     await relier.clickEmailFirst();
     await login.submit();
     expect(await relier.isPro()).toBe(true);
-  });
+  });*/
 });
