@@ -14649,7 +14649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:3.2.4":
+"async@npm:3.2.4, async@npm:^3.0.0":
   version: 3.2.4
   resolution: "async@npm:3.2.4"
   checksum: 43d07459a4e1d09b84a20772414aa684ff4de085cbcaec6eea3c7a8f8150e8c62aa6cd4e699fe8ee93c3a5b324e777d34642531875a0817a35697522c1b02e89
@@ -14663,7 +14663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^1.4.0, async@npm:^1.5.2":
+"async@npm:^1.5.2":
   version: 1.5.2
   resolution: "async@npm:1.5.2"
   checksum: fe5d6214d8f15bd51eee5ae8ec5079b228b86d2d595f47b16369dec2e11b3ff75a567bb5f70d12d79006665fbbb7ee0a7ec0e388524eefd454ecbe651c124ebd
@@ -24761,7 +24761,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.2.2
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
-    node-zendesk: ^2.1.1
+    node-zendesk: ^2.2.0
     nodemailer: ^6.7.3
     nodemon: ^2.0.19
     npm-run-all: ^4.1.5
@@ -34862,15 +34862,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nconf@npm:0.11.3":
-  version: 0.11.3
-  resolution: "nconf@npm:0.11.3"
+"nconf@npm:0.12.0":
+  version: 0.12.0
+  resolution: "nconf@npm:0.12.0"
   dependencies:
-    async: ^1.4.0
+    async: ^3.0.0
     ini: ^2.0.0
     secure-keys: ^1.0.0
     yargs: ^16.1.1
-  checksum: 708369c9526618936872fc7db4d257dda59cb55fb9e07949afcfac7cf60cdc840027a6bdf5bf3c5703129bea23090de1aa6f6f41aec004086963706c04bf81f5
+  checksum: 70c1ce82d91149940dbe57555372c99282a9625a961915b302093b34e04ab308d978d1885224b9738a0873c064a0aa48914a7260e67ba312441fc4917221dbd8
   languageName: node
   linkType: hard
 
@@ -35358,15 +35358,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-zendesk@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "node-zendesk@npm:2.1.1"
+"node-zendesk@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "node-zendesk@npm:2.2.0"
   dependencies:
     async: 3.2.x
-    nconf: 0.11.3
+    nconf: 0.12.0
     querystring: 0.2.x
     request: 2.88.2
-  checksum: cb1f208bde28bf00c4019c724c2d5e35d818b6b5ff349ff9f14c4ca678013ce139ddd53c66cfdb2018af7cfdf80f28d93483b7d7ae4b1b6babfc69535c6ec3ff
+  checksum: 66c929dcdf4213e691be5eebae31b92e95ec2957db29592e10e355b8d0fe242ec9588589a7e1d73f0cfef664fadcdce73ce5cd5d270f9939904f7193950fab20
   languageName: node
   linkType: hard
 
