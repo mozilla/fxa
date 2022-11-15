@@ -10,7 +10,7 @@ import FormPassword from '.';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'components/FormPassword',
+  title: 'Components/Settings/FormPassword',
   component: FormPassword,
 } as Meta;
 

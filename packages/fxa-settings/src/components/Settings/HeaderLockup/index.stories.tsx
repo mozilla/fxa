@@ -18,7 +18,7 @@ const account = {
   },
 } as any;
 
-storiesOf('Components/HeaderLockup', module)
+storiesOf('Components/Settings/HeaderLockup', module)
   .add('with default avatar', () => (
     <AppContext.Provider value={mockAppContext({ account })}>
       <HeaderLockup />

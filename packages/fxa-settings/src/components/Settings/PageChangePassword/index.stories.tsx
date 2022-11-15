@@ -6,11 +6,12 @@ import React from 'react';
 import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/ChangePassword',
+  title: 'pages/Settings/ChangePassword',
   component: PageChangePassword,
-};
+} as Meta;
 
 export const Default = () => (
   <LocationProvider>

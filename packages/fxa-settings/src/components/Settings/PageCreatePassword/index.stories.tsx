@@ -9,7 +9,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/CreatePassword',
+  title: 'pages/Settings/CreatePassword',
   component: PageCreatePassword,
 } as Meta;
 

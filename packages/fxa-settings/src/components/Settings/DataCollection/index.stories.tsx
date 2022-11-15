@@ -6,6 +6,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { DataCollection } from '.';
 
-storiesOf('Components/DataCollection', module).add('default', () => (
+storiesOf('Components/Settings/DataCollection', module).add('default', () => (
   <DataCollection />
 ));

@@ -10,7 +10,7 @@ import { MOCK_LINKED_ACCOUNTS } from './mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
-storiesOf('Components/LinkedAccounts', module).add('default', () => (
+storiesOf('Components/Settings/LinkedAccounts', module).add('default', () => (
   <AppContext.Provider
     value={mockAppContext({
       account: { linkedAccounts: MOCK_LINKED_ACCOUNTS } as any,

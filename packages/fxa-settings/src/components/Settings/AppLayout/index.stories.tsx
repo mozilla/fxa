@@ -3,7 +3,7 @@ import AppLayout from './index';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'Components/AppLayout',
+  title: 'Components/Settings/AppLayout',
   component: AppLayout,
 } as Meta;
 

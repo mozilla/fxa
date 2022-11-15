@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LocationProvider } from '@reach/router';
-import { storiesOf } from '@storybook/react';
 import React from 'react';
 import { PageTwoStepAuthentication } from '.';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
 
-storiesOf('Pages/TwoStepAuthentication', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
+export default {
+  title: 'pages/Settings/TwoStepAuthentication',
+  component: PageTwoStepAuthentication,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppLayout>
       <PageTwoStepAuthentication />
     </AppLayout>
-  ));
+  </LocationProvider>
+);

@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { PageRecoveryKeyAdd } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
 
-storiesOf('Pages/RecoveryKey', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
+export default {
+  title: 'pages/Settings/RecoveryKeyAdd',
+  component: PageRecoveryKeyAdd,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppLayout>
       <PageRecoveryKeyAdd />
     </AppLayout>
-  ));
+  </LocationProvider>
+);

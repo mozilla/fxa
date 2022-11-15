@@ -13,7 +13,7 @@ import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'Components/Nav',
+  title: 'Components/Settings/Nav',
   component: Nav,
 } as Meta;
 
@@ -38,7 +38,7 @@ const configWithoutNewsletterLink = {
 const storyWithContext = (
   account: Partial<Account>,
   storyName?: string,
-  config?: Config,
+  config?: Config
 ) => {
   const context = config
     ? { account: account as Account, config: config }

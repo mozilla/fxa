@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { PageDeleteAccount } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
 
-storiesOf('Pages/DeleteAccount', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
+export default {
+  title: 'pages/Settings/DeleteAccount',
+  component: PageDeleteAccount,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppLayout>
       <PageDeleteAccount />
     </AppLayout>
-  ));
+  </LocationProvider>
+);

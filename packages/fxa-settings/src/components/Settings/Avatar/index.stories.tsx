@@ -10,7 +10,7 @@ import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'Components/Avatar',
+  title: 'Components/Settings/Avatar',
   component: Avatar,
 } as Meta;
 

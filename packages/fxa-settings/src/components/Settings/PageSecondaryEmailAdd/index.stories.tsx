@@ -4,14 +4,19 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { storiesOf } from '@storybook/react';
 import { AppLayout } from '../AppLayout';
 import { PageSecondaryEmailAdd } from '.';
+import { Meta } from '@storybook/react';
 
-storiesOf('Pages/SecondaryEmailAdd', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('Default empty', () => (
+export default {
+  title: 'pages/Settings/SecondaryEmailAdd',
+  component: PageSecondaryEmailAdd,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppLayout>
       <PageSecondaryEmailAdd />
     </AppLayout>
-  ));
+  </LocationProvider>
+);
