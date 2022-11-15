@@ -480,4 +480,46 @@ describe('PayPalClient', () => {
       assert.equal(response, searchTransactionResponse);
     });
   });
+
+  describe('PaypalClientError', () => {
+    const raw = 'blah';
+    const data = {
+      L: [
+        {
+          ERRORCODE: 10413,
+          LONGMESSAGE:
+            'The totals of the cart item amounts do not match order amounts.',
+          SEVERITYCODE: 'Warning',
+          SHORTMESSAGE:
+            'Transaction refused because of an invalid argument. See additional error messages for details.',
+        },
+        {
+          ERRORCODE: 10417,
+          LONGMESSAGE:
+            'Instruct the customer to retry the transaction using an alternative payment method from the customers PayPal wallet. The transaction did not complete with the customers selected payment method.',
+          SEVERITYCODE: 'Error',
+          SHORTMESSAGE: 'Transaction cannot complete.',
+        },
+      ],
+    };
+
+    it('handles multiple errors when one error is a warning', () => {
+      const paypalClientError = new PayPalClientError(raw, data);
+      assert.deepEqual(paypalClientError.errorCode, 10417);
+    });
+
+    it('falls back to the first error if multiple errors are found', () => {
+      const dataTwoErrors = deepCopy(data);
+      dataTwoErrors.L[0].SEVERITYCODE = 'Error';
+      const paypalClientError = new PayPalClientError(raw, dataTwoErrors);
+      assert.deepEqual(paypalClientError.errorCode, 10413);
+    });
+
+    it('takes the first response code if no errors are returned', () => {
+      const dataNoErrors = deepCopy(data);
+      dataNoErrors.L = [dataNoErrors.L.shift()];
+      const paypalClientError = new PayPalClientError(raw, dataNoErrors);
+      assert.deepEqual(paypalClientError.errorCode, 10413);
+    });
+  });
 });
