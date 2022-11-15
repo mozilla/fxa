@@ -57,3 +57,21 @@ test.describe('severity-1 #smoke', () => {
     expect(status).toEqual('Not Set');
   });
 });
+
+test.describe('password strength tests', () => {
+  test.beforeEach(async ({ target, page, pages: { login } }, { project }) => {
+    test.slow(project.name !== 'local', 'email delivery can be slow');
+    const email = login.createEmail('sync{id}');
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
+      { waitUntil: 'networkidle' }
+    );
+    await login.setEmail(email);
+    await login.submit();
+  });
+
+  test.only('submit w/o password', async ({ pages: { login } }) => {
+    //Submit without providing a password
+    await login.submitButton.click();
+  });
+});

@@ -26,6 +26,16 @@ export const selectors = {
   VPASSWORD: '#vpassword',
   SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
   NOTES_HEADER: '#notes-by-firefox',
+  BALLOON: '#password-strength-balloon',
+  MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
+  MIN_LENGTH_MET: '#password-too-short.password-strength-unmet',
+  MIN_LENGTH_UNMET: '#password-too-short.password-strength-unmet',
+  NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
+  NOT_COMMON_MET: '#password-too-common.password-strength-unmet',
+  NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
+  NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
+  NOT_EMAIL_MET: '#password-same-as-email.password-strength-unmet',
+  NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
 };
 
 export class LoginPage extends BaseLayout {
@@ -56,6 +66,16 @@ export class LoginPage extends BaseLayout {
     TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
     SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
+    BALLOON: '#password-strength-balloon',
+    MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
+    MIN_LENGTH_UNMET: '#password-same-as-email.password-strength-unmet',
+    //MIN_LENGTH_UNMET: '#password-too-common.password-strength-unmet',
+    NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
+    NOT_COMMON_MET: '#password-too-common.password-strength-unmet',
+    NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
+    NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
+    NOT_EMAIL_MET: '#password-same-as-email.password-strength-unmet',
+    NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
   };
 
   get emailHeader() {
@@ -68,6 +88,14 @@ export class LoginPage extends BaseLayout {
 
   get tooltip() {
     return this.page.locator(this.selectors.TOOLTIP);
+  }
+
+  get shortPasswordError() {
+    return this.page.locator(this.selectors.MIN_LENGTH_FAIL);
+  }
+
+  get passwordSameAsEmailError() {
+    return this.page.locator(this.selectors.MIN_LENGTH_UNMET);
   }
 
   get submitButton() {
