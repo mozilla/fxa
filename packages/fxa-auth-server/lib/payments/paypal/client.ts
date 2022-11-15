@@ -260,7 +260,15 @@ export class PayPalClientError extends Error {
   constructor(raw: string, data: NVPResponse, ...params: any) {
     super(...params);
     this.name = 'PayPalClientError';
-    this.errorCode = data.L?.length ? parseInt(data.L[0].ERRORCODE) : undefined;
+    let errors: NVPResponse['L'] = [];
+    // We can get severity "Error" or "Warning" so filter for "Error" as a priority.
+    if (data.L?.length) {
+      errors = data.L.filter((error) => error.SEVERITYCODE === 'Error');
+      if (errors.length === 0) {
+        errors = [data.L[0]];
+      }
+    }
+    this.errorCode = errors?.length ? parseInt(errors[0].ERRORCODE) : undefined;
     if (!this.message) {
       this.message = `PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details. PayPal error code: ${this.errorCode}`;
     }
