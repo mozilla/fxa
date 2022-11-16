@@ -46,7 +46,16 @@ const customizeWebpackConfig = ({ config }) => ({
           {
             test: /\.svg$/,
             use: [
-              require.resolve('@svgr/webpack'),
+              {
+                loader: require.resolve('@svgr/webpack'),
+                options: {
+                  svgoConfig: {
+                    plugins: {
+                      removeViewBox: false,
+                    },
+                  },
+                },
+              },
               {
                 loader: require.resolve('file-loader'),
                 options: { name: 'static/media/[name].[hash:8].[ext]' },
