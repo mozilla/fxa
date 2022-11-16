@@ -26,6 +26,14 @@ export const selectors = {
   VPASSWORD: '#vpassword',
   SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
   NOTES_HEADER: '#notes-by-firefox',
+  MIN_LENGTH_MET: '#password-too-short.password-strength-met',
+  MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
+  NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
+  NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
+  NOT_COMMON_MET: '#password-too-common.password-strength-met',
+  NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
+  NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
+  NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
 };
 
 export class LoginPage extends BaseLayout {
@@ -56,6 +64,14 @@ export class LoginPage extends BaseLayout {
     TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
     SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
+    MIN_LENGTH_MET: '#password-too-short.password-strength-met',
+    MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
+    NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
+    NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
+    NOT_COMMON_MET: '#password-too-common.password-strength-met',
+    NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
+    NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
+    NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   };
 
   get emailHeader() {
@@ -106,6 +122,54 @@ export class LoginPage extends BaseLayout {
       await this.setCode(recoveryCode);
       await this.submit();
     }
+  }
+
+  async minLengthFailError() {
+    const error = this.page.locator(this.selectors.MIN_LENGTH_FAIL);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async minLengthSuccess() {
+    const error = this.page.locator(this.selectors.MIN_LENGTH_MET);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notEmailUnmetError() {
+    const error = this.page.locator(this.selectors.NOT_EMAIL_UNMET);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notEmailFailError() {
+    const error = this.page.locator(this.selectors.NOT_EMAIL_FAIL);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notEmailSuccess() {
+    const error = this.page.locator(this.selectors.NOT_EMAIL_MET);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notCommonPasswordUnmetError() {
+    const error = this.page.locator(this.selectors.NOT_COMMON_UNMET);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notCommonPasswordSuccess() {
+    const error = this.page.locator(this.selectors.NOT_COMMON_MET);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
+  }
+
+  async notCommonPasswordFailError() {
+    const error = this.page.locator(this.selectors.NOT_COMMON_FAIL);
+    await error.waitFor({ state: 'visible' });
+    return error.isVisible();
   }
 
   async fillOutFirstSignUp(

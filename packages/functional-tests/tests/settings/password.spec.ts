@@ -57,3 +57,73 @@ test.describe('severity-1 #smoke', () => {
     expect(status).toEqual('Not Set');
   });
 });
+
+test.describe('password strength tests', () => {
+  test.beforeEach(async ({ target, credentials, page, pages: { login } }) => {
+    const email = login.createEmail();
+    await page.goto(target.contentServerUrl, { waitUntil: 'networkidle' });
+    credentials.email = email;
+
+    //Enter email at email first and then goto the sign up page
+    await login.setEmail(credentials.email);
+    await login.submit();
+  });
+
+  test('test different password errors and success', async ({
+    credentials,
+    pages: { login },
+  }) => {
+    //Submit without providing a password
+    await login.submitButton.click();
+
+    //Verify the error
+    expect(await login.minLengthFailError()).toBe(true);
+    expect(await login.notEmailUnmetError()).toBe(true);
+    expect(await login.notCommonPasswordUnmetError()).toBe(true);
+
+    //Submit a short password
+    await login.setPassword('p');
+    await login.submitButton.click();
+
+    //Verify the error
+    expect(await login.minLengthFailError()).toBe(true);
+    expect(await login.notEmailUnmetError()).toBe(true);
+    expect(await login.notCommonPasswordUnmetError()).toBe(true);
+
+    //Submit a common password
+    await login.setPassword('password');
+    await login.submitButton.click();
+
+    //Verify the error
+    expect(await login.minLengthSuccess()).toBe(true);
+    expect(await login.notEmailSuccess()).toBe(true);
+    expect(await login.notCommonPasswordFailError()).toBe(true);
+
+    //Submit password same as email
+    await login.setPassword(credentials.email);
+    await login.submitButton.click();
+
+    //Verify the error
+    expect(await login.minLengthSuccess()).toBe(true);
+    expect(await login.notEmailFailError()).toBe(true);
+    expect(await login.notCommonPasswordUnmetError()).toBe(true);
+
+    //Submit password same as local part of email
+    const newEmail = credentials.email.split('@')[0];
+    await login.setPassword(newEmail);
+    await login.submitButton.click();
+
+    //Verify the error
+    expect(await login.minLengthSuccess()).toBe(true);
+    expect(await login.notEmailFailError()).toBe(true);
+    expect(await login.notCommonPasswordUnmetError()).toBe(true);
+
+    //Submit a common password
+    await login.setPassword('password123123');
+
+    //Verify the success message
+    expect(await login.minLengthSuccess()).toBe(true);
+    expect(await login.notEmailSuccess()).toBe(true);
+    expect(await login.notCommonPasswordSuccess()).toBe(true);
+  });
+});
