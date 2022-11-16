@@ -422,8 +422,21 @@ export class StripeHandler {
       string
     >;
 
+    let customer;
+    if (request.auth.credentials) {
+      const { uid, email } = await handleAuth(this.db, request.auth, true);
+      await this.customs.check(request, email, 'previewInvoice');
+      try {
+        customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
+      } catch (e: any) {
+        this.log.error('previewInvoice.fetchCustomer', { error: e, uid });
+      }
+    }
+
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = request.app.clientAddress;
+    const ipAddress = request.auth.credentials
+      ? customer?.tax?.ip_address || ''
+      : request.app.clientAddress;
     const automaticTax = this.automaticTax;
 
     const previewInvoice = await this.stripeHelper.previewInvoice({
@@ -985,7 +998,11 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/invoice/preview',
       options: {
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST,
-        auth: false,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+          mode: 'try',
+        },
         response: {
           schema: invoiceDTO.firstInvoicePreviewSchema as any,
         },

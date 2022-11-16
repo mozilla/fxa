@@ -682,7 +682,7 @@ export class StripeHelper extends StripeHelperBase {
 
     if (automaticTax) {
       try {
-        return this.stripe.invoices.retrieveUpcoming({
+        return await this.stripe.invoices.retrieveUpcoming({
           automatic_tax: {
             enabled: true,
           },
@@ -713,7 +713,7 @@ export class StripeHelper extends StripeHelperBase {
         params.subscription_default_tax_rates = [taxRate.id];
       }
 
-      return this.stripe.invoices.retrieveUpcoming({
+      return await this.stripe.invoices.retrieveUpcoming({
         customer_details: {
           address: {
             country,

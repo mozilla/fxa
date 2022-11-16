@@ -670,11 +670,103 @@ describe('DirectStripeRoutes', () => {
         'previewInvoice'
       );
       sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer,
+        UID,
+        ['tax']
+      );
+      sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '127.0.0.1',
+          ipAddress: '',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
+      );
+      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+    });
+
+    it('returns the preview invoice even if fetch customer errors', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+
+      const error = new Error('test');
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.throws(error);
+
+      VALID_REQUEST.payload = {
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.previewInvoice(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        VALID_REQUEST,
+        'previewInvoice'
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.log.error,
+        'previewInvoice.fetchCustomer',
+        {
+          error,
+          uid: UID,
+        }
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.previewInvoice,
+        {
+          automaticTax: false,
+          country: 'US',
+          ipAddress: '',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
+      );
+      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+    });
+
+    it('does not call fetchCustomer if no credentials are provided, and returns invoice preview', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+
+      const request = deepCopy(VALID_REQUEST);
+      request.payload = {
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+      };
+      request.app = {
+        clientAddress: '1.1.1.1',
+        geo: {
+          location: {
+            country: 'DE',
+          },
+        },
+      };
+      request.auth.credentials = undefined;
+
+      const actual = await directStripeRoutesInstance.previewInvoice(request);
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        request,
+        'previewInvoice'
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.previewInvoice,
+        {
+          automaticTax: false,
+          country: 'DE',
+          ipAddress: '1.1.1.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
         }
