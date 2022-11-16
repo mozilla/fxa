@@ -34,7 +34,7 @@
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
     "lint-staged": "^13.0.3",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "nps": "^5.10.0",
     "pm2": "^5.2.2",
     "prettier": "^2.3.1",
