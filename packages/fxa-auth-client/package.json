@@ -19,7 +19,7 @@
     "@peculiar/webcrypto": "^1.4.0",
     "abab": "^2.0.6",
     "abort-controller": "^3.0.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "@types/assert": "^1.5.4",
