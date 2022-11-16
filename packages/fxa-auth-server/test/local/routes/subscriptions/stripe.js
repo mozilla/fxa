@@ -805,7 +805,10 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
         id: 'cus_id',
         subscriptions: {
-          data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
+          data: [
+            { id: 'sub_id1', automatic_tax: { enabled: true } },
+            { id: 'sub_id2', automatic_tax: { enabled: true } },
+          ],
         },
       });
       VALID_REQUEST.app.geo = {};

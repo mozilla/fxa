@@ -456,20 +456,16 @@ export class StripeHandler {
       return [];
     }
 
-    const subsequentInvoicePreviews = (
-      await Promise.all(
-        customer.subscriptions.data.map((sub) => {
-          if (!sub.canceled_at) {
-            return this.stripeHelper.previewInvoiceBySubscriptionId({
-              automaticTax,
-              subscriptionId: sub.id,
-            });
-          } else {
-            return Promise.resolve(null);
-          }
+    const subsequentInvoicePreviews = await Promise.all(
+      customer.subscriptions.data
+        .filter((sub) => !sub.canceled_at)
+        .map((sub) => {
+          return this.stripeHelper.previewInvoiceBySubscriptionId({
+            automaticTax: automaticTax && sub.automatic_tax.enabled,
+            subscriptionId: sub.id,
+          });
         })
-      )
-    ).filter((sub): sub is Stripe.Response<Stripe.Invoice> => sub !== null);
+    );
 
     return stripeInvoicesToSubsequentInvoicePreviewsDTO(
       subsequentInvoicePreviews

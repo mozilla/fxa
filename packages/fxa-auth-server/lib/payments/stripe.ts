@@ -741,7 +741,7 @@ export class StripeHelper extends StripeHelperBase {
   }) {
     if (automaticTax) {
       try {
-        return this.stripe.invoices.retrieveUpcoming({
+        return await this.stripe.invoices.retrieveUpcoming({
           subscription: subscriptionId,
           automatic_tax: {
             enabled: true,
@@ -755,7 +755,7 @@ export class StripeHelper extends StripeHelperBase {
         throw e;
       }
     } else {
-      return this.stripe.invoices.retrieveUpcoming({
+      return await this.stripe.invoices.retrieveUpcoming({
         subscription: subscriptionId,
       });
     }
