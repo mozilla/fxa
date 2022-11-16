@@ -1,0 +1,16 @@
+FROM dschomz/fxa-test:latest
+
+RUN npm i -g corepack --force && corepack enable && corepack prepare yarn@3.1.1 --activate
+
+# Setup the current yarn state
+COPY package.json .
+COPY yarn.lock .
+COPY .yarnrc.yml .
+
+# Copy key folders
+COPY packages packages
+COPY _scripts _scripts
+
+# Run the base install, this should be quick! Not much should have changed from
+# the base image which is built nightly.
+RUN yarn install --mode skip-build

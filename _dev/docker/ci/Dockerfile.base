@@ -1,0 +1,50 @@
+FROM node:16.3-slim as BASE
+WORKDIR /app
+
+# Important this image doesn't ships with yarn 1.x. Install 3.1.1 as specified
+# by our .yarnrc.yml file
+RUN npm i -g corepack --force && corepack enable && corepack prepare yarn@3.1.1 --activate
+
+# Setup the current yarn state
+COPY package.json .
+COPY yarn.lock .
+
+# Copy yarn configs
+COPY .yarnrc.yml .
+COPY .yarn/plugins .yarn/plugins
+COPY .yarn/releases .yarn/releases
+
+# Copy packages
+COPY packages/123done/package.json packages/123done/package.json
+COPY packages/browserid-verifier/package.json packages/browserid-verifier/package.json
+COPY packages/db-migrations/package.json packages/db-migrations/package.json
+COPY packages/fortress/package.json packages/fortress/package.json
+COPY packages/functional-tests/package.json packages/functional-tests/package.json
+COPY packages/fxa-admin-panel/package.json packages/fxa-admin-panel/package.json
+COPY packages/fxa-admin-server/package.json packages/fxa-admin-server/package.json
+COPY packages/fxa-auth-client/package.json packages/fxa-auth-client/package.json
+COPY packages/fxa-auth-server/package.json packages/fxa-auth-server/package.json
+COPY packages/fxa-content-server/package.json packages/fxa-content-server/package.json
+COPY packages/fxa-customs-server/package.json packages/fxa-customs-server/package.json
+# COPY packages/fxa-dev-launcher packages/fxa-dev-launcher
+COPY packages/fxa-event-broker/package.json packages/fxa-event-broker/package.json
+COPY packages/fxa-geodb/package.json packages/fxa-geodb/package.json
+COPY packages/fxa-graphql-api/package.json packages/fxa-graphql-api/package.json
+COPY packages/fxa-payments-server/package.json packages/fxa-payments-server/package.json
+COPY packages/fxa-profile-server/package.json packages/fxa-profile-server/package.json
+COPY packages/fxa-react/package.json packages/fxa-react/package.json
+COPY packages/fxa-settings/package.json packages/fxa-settings/package.json
+COPY packages/fxa-shared/package.json packages/fxa-shared/package.json
+COPY packages/fxa-support-panel/package.json packages/fxa-support-panel/package.json
+COPY _scripts _scripts
+
+# Run the install. Don't do post install operations. We are just after the packages.
+RUN yarn install --mode skip-build
+
+FROM node:16.3-slim as TEST
+WORKDIR /app
+
+# Copy minimal cache files from first build stage
+COPY --from=0 /app/node_modules node_modules
+COPY --from=0 /app/.yarn .yarn
+COPY --from=0 /app/packages packages
