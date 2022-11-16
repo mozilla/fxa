@@ -10,14 +10,6 @@
     // there is no header on the loading screen. Push the text down slightly.
     margin-top: 20px;
   }
-
-  &.error-warning {
-    background: $info-background-color;
-  }
-}
-
-.info {
-  @include message-box($info-background-color, $info-text-color);
 }
 
 .success {
@@ -195,39 +187,5 @@ div + .error {
   60%,
   80% {
     transform: translateX(4px);
-  }
-}
-
-// custom state indicators
-#suggest-sync,
-#suggest-account {
-  .dismiss {
-    background-image: url('/images/icon-close.svg');
-    background-size: 16px;
-    cursor: pointer;
-    display: inline-block;
-    height: 16px;
-    margin-top: -8px; // top & margin-top together work to vertically center the icon even if on two lines.
-    position: absolute;
-    text-indent: -9999px; // hide the text.
-    top: 50%;
-    width: 16px;
-    outline: none;
-  }
-
-  html[dir='ltr'] & {
-    padding-right: 32px;
-
-    .dismiss {
-      right: 8px;
-    }
-  }
-
-  html[dir='rtl'] & {
-    padding-left: 32px;
-
-    .dismiss {
-      left: 8px;
-    }
   }
 }

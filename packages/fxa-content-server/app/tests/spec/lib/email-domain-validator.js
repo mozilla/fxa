@@ -182,7 +182,7 @@ describe('lib/email-domain-validator', () => {
 
               const $tooltipEl = $(TOOLTIP_SELECTOR);
               assert.equal($tooltipEl.length, 1);
-              assert.equal($tooltipEl.text(), 'Mistyped email?✕');
+              assert.equal($tooltipEl.text(), 'Mistyped email?');
 
               $tooltipEl.find('.dismiss').click();
               assert.equal($(TOOLTIP_SELECTOR).length, 0);

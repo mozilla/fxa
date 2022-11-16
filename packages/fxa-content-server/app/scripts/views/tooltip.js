@@ -12,6 +12,8 @@ import KeyCodes from '../lib/key-codes';
 import OneVisibleOfTypeMixin from './mixins/one-visible-of-type-mixin';
 import ScreenInfo from '../lib/screen-info';
 
+const t = (msg) => msg;
+
 const PADDING_BELOW_TOOLTIP_PX = 2;
 const PADDING_ABOVE_TOOLTIP_PX = 4;
 
@@ -72,7 +74,14 @@ const Tooltip = BaseView.extend({
     this.setPosition();
 
     if (this.dismissible) {
-      this.$el.append('<span class="dismiss" tabindex="2">&#10005;</span>');
+      /// aria label for banner/tooltip dismiss button
+      const dismissAriaLabel = this.translate(t('Close'));
+      this.$el.addClass('dismiss-container');
+      // When this component is converted to React, use the shared close.svg
+      // from fxa-react for both black and white versions
+      this.$el.append(
+        `<button type="button" class="dismiss" aria-label=${dismissAriaLabel}><img src="/images/close-white.svg" alt="&#10005;" aria-hidden="true" /></button>`
+      );
     }
 
     this.bindDOMEvents();

@@ -2,6 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+.info {
+  @apply flex gap-2 items-center my-3 p-3 rounded bg-grey-50 text-black;
+}
+
+.info-text {
+  @apply grow ltr:pl-5 rtl:pr-5 text-xs font-bold;
+
+  /* REACT NOTE: probably don't need this nesting, add class in JSX instead */
+  a {
+    @apply underline;
+  }
+}
+
+.success {
+  @apply text-xs text-grey-900 bg-green-500 font-bold p-3 my-3 hidden rounded;
+
+  /* REACT NOTE: probably don't need this nesting, add class in JSX instead */
+  a {
+    @apply underline;
+  }
+}
+
 .error {
   @apply text-xs bg-red-700 font-bold p-3 my-3 hidden rounded text-white;
 
@@ -9,4 +31,12 @@
   a {
     @apply underline;
   }
+}
+
+.dismiss {
+  @apply h-3 w-3 cursor-pointer fill-current z-[6];
+}
+
+.dismiss-container {
+  @apply flex gap-2 items-center;
 }
