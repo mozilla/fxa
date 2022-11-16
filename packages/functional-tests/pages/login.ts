@@ -200,7 +200,7 @@ export class LoginPage extends BaseLayout {
   async submit() {
     return Promise.all([
       this.page.click(selectors.SUBMIT),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 

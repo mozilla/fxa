@@ -10,13 +10,13 @@ export class RelierPage extends BaseLayout {
 
   async isLoggedIn() {
     const login = this.page.locator('#loggedin');
-    await login.waitFor({ state: 'attached' });
+    await login.waitFor({ state: 'visible' });
     return login.isVisible();
   }
 
   async isPro() {
     const pro = this.page.locator('.pro-status');
-    await pro.waitFor({ state: 'attached' });
+    await pro.waitFor({ state: 'visible' });
     return pro.isVisible();
   }
 
