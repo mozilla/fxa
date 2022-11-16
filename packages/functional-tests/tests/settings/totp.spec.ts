@@ -142,7 +142,7 @@ test.describe('two step auth', () => {
       EmailType.lowRecoveryCodes,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     const newCodes = await totp.getRecoveryCodes();
     expect(newCodes.length).toEqual(recoveryCodes.length);
   });
