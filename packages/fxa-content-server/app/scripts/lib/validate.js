@@ -130,7 +130,7 @@ var Validate = {
    * @returns {Boolean}
    */
   isPromptValid(prompt) {
-    const valid = [OAuthPrompt.CONSENT, OAuthPrompt.NONE];
+    const valid = [OAuthPrompt.CONSENT, OAuthPrompt.NONE, OAuthPrompt.LOGIN];
 
     return _.contains(valid, prompt);
   },

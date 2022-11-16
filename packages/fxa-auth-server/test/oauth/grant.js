@@ -401,4 +401,16 @@ describe('generateTokens', () => {
       'https://resource.server1.com',
     ]);
   });
+
+  it('should propagate auth_time in claims', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.authAt = Date.now();
+    const result = await generateTokens(requestedGrant);
+    assert.ok(result.id_token);
+    const jwt = decodeJWT(result.id_token);
+    assert.deepEqual(
+      jwt.claims.auth_time,
+      Math.floor(requestedGrant.authAt / 1000)
+    );
+  });
 });

@@ -37,6 +37,7 @@ const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
   id_token_hint: Vat.idToken().renameTo('idTokenHint'),
   login_hint: Vat.email().renameTo('loginHint'),
+  max_age: Vat.number().min(0).renameTo('maxAge'),
   prompt: Vat.prompt(),
   redirect_uri: Vat.url()
     .allow(Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI)
@@ -88,6 +89,8 @@ var OAuthRelier = Relier.extend({
     scope: null,
     // standard oauth parameters.
     state: null,
+    // Max age since last auth
+    maxAge: null,
   }),
 
   initialize(attributes, options = {}) {
@@ -293,6 +296,18 @@ var OAuthRelier = Relier.extend({
    */
   wantsConsent() {
     return this.get('prompt') === OAuthPrompt.CONSENT;
+  },
+
+  /**
+   * Return `true` if the relier sets `prompt=login` or `maxAge=0`. Per OIDC spec,
+   * specifying `maxAge=0` should act like `prompt=login`, however the RP needs to
+   * verify the `auth_at` value in the id token to confirm that a re-authentication
+   * occurred.
+   *
+   * @returns {Boolean}
+   */
+  wantsLogin() {
+    return this.get('prompt') === OAuthPrompt.LOGIN || this.get('maxAge') === 0;
   },
 
   /**

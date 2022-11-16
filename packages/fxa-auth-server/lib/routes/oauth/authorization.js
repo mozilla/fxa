@@ -58,7 +58,7 @@ module.exports = ({ log, oauthDB, config }) => {
     }
   }
   async function generateAuthorizationCode(client, payload, grant) {
-    // Clients must use PKCE if and only if they are a pubic client.
+    // Clients must use PKCE if and only if they are a public client.
     if (client.publicClient) {
       if (!payload.code_challenge_method || !payload.code_challenge) {
         log.info('client.missingPkceParameters');
@@ -94,11 +94,11 @@ module.exports = ({ log, oauthDB, config }) => {
   }
 
   // N.B. We do not correctly implement the "implicit grant" flow from
-  // RFC6749 which defines `response_type=token`. Instead we have a
+  // RFC6749 which defines `response_type=token`. Instead, we have a
   // privileged set of clients that use `response_type=token` for something
   // approximating the "resource owner password grant" flow, using an identity
   // assertion to just directly grant tokens for their own use. Known current
-  // users of this functinality include:
+  // users of this functionality include:
   //
   //  * Firefox Desktop, for getting "profile"-scoped tokens to access profile data
   //  * Firefox for Android, for getting "profile"-scoped tokens to access profile data
@@ -279,7 +279,6 @@ module.exports = ({ log, oauthDB, config }) => {
               .optional()
               .allow(null)
               .description(DESCRIPTION.acrValues),
-
             resource: validators.resourceUrl
               .when('response_type', {
                 is: RESPONSE_TYPE_TOKEN,

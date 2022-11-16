@@ -62,6 +62,9 @@ function setupOAuthFlow(req, action, options = {}, cb) {
   if (options.prompt) {
     params.prompt = options.prompt;
   }
+  if (options.max_age >= 0) {
+    params.max_age = options.max_age;
+  }
 
   request.get(
     {
@@ -185,6 +188,23 @@ module.exports = function (app, db) {
         // and asked to sign in as that user.
         req.session.requestedLoginHint =
           req.query.email || req.query.login_hint;
+        return res.redirect(redirectUrl(params, oauthConfig));
+      }
+    );
+  });
+
+  app.get('/api/prompt_login', function (req, res) {
+    setupOAuthFlow(
+      req,
+      null,
+      { prompt: 'login', max_age: 0 },
+      function (err, params, oauthConfig) {
+        console.log('login', err, params, oauthConfig);
+
+        if (err) {
+          console.log('err', err);
+          return res.send(400, err);
+        }
         return res.redirect(redirectUrl(params, oauthConfig));
       }
     );

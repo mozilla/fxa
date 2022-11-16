@@ -26,6 +26,8 @@ Untrusted relying parties always show the prompt.
   Only applicable for authorized relying parties that are not requesting
   keys. An error is returned to the RP for all others.
   See the [prompt=none doc][#prompt-none] for more info.
+- `login` - Always prompt the user for their password and re-authenticate
+  regardless if they have signed into the browser or have a cached session.
 
 #### When to specify
 
@@ -81,42 +83,6 @@ an account.
 #### When to specify
 
 When authenticating a user
-
-### `channel`
-
-Force which Firefox release channel should be installed
-after redirecting from `/m/:signinCode`.
-
-#### Options
-
-- `beta`
-- `nightly`
-- `release`
-
-#### When to specify
-
-- /m/:signinCode
-
-### `country`
-
-Force a country to be used when testing the SMS feature.
-
-#### Options
-
-- `AT`
-- `AU`
-- `BE`
-- `DE`
-- `DE`
-- `DK`
-- `ES`
-- `FR`
-- `GB`
-- `IT`
-- `LU`
-- `NL`
-- `RO`
-- `US`
 
 ### `entrypoint`
 
