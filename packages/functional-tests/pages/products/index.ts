@@ -42,7 +42,7 @@ export class SubscribePage extends BaseLayout {
       this.page.waitForEvent('popup'),
       this.page.click('[data-testid="paypal-button-container"]'),
     ]);
-    await paypalWindow.waitForTimeout(1000);
+    //await paypalWindow.waitForTimeout(1000);
     await paypalWindow.waitForNavigation({
       url: /checkoutnow/,
     });
