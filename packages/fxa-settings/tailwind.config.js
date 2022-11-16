@@ -23,4 +23,10 @@ if (process.env.STORYBOOK_BUILD === '1') {
   config.content.push('./.storybook/design-guide/**/*.tsx');
 }
 
+config.theme.extend.backgroundImage = {
+  ...config.theme.extend.backgroundImage,
+  /* TODO: move this to `fxa-react`, FXA-5745 */
+  'ff-logo': "url('../../../fxa-react/images/ff-logo.svg')",
+};
+
 module.exports = config;

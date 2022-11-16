@@ -100,6 +100,14 @@ module.exports = {
         30: '0.3',
         40: '0.4',
       },
+      backgroundImage: {
+        /* TODO: be able to reference images here, FXA-5745, this is a workaround/hack
+         * This style lives `fxa-react` since it's used by content-server and Settings, but the
+         * BG image is set in our package TW configs since image paths can't be shared. This will
+         * always be overridden but other packages without this set that use fxa-react shared
+         * styles can't build without this */
+        'ff-logo': 'none',
+      },
       outline: {
         'black-dotted': '1px dotted #000',
       },

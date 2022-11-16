@@ -10,6 +10,7 @@ type LinkExternalProps = {
   children: React.ReactNode;
   title?: string;
   'data-testid'?: string;
+  rel?: 'noopener noreferrer' | 'author';
 };
 
 export const LinkExternal = ({
@@ -18,15 +19,16 @@ export const LinkExternal = ({
   children,
   title,
   'data-testid': testid = 'link-external',
+  rel = 'noopener noreferrer',
 }: LinkExternalProps) => (
   <a
     data-testid={testid}
     target="_blank"
-    rel="noopener noreferrer"
     {...{
       className,
       href,
       title,
+      rel,
     }}
   >
     {children}

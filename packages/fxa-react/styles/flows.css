@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Remove this component class in favor of components with TW classes directly
+ * applied after content-server no longer needs it */
+
 .card {
   @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20 mobileLandscape:shadow-card-grey-drop;
 
   &::before {
-    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10;
-    content: '';
-    background-image: inline('../images/firefox-logo.svg');
+    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''] bg-ff-logo;
   }
 
   &-header {

@@ -18,9 +18,12 @@ config.content = [
 config.theme.extend = {
   ...config.theme.extend,
   backgroundImage: {
+    ...config.theme.extend.backgroundImage,
     'check-white': 'inline("../images/icon-check-white.svg")',
     'show-password': 'inline("../images/icon-show-password.svg")',
     'hide-password': 'inline("../images/icon-show-password-closed.svg")',
+    /* TODO: move this to `fxa-react` , FXA-5745 */
+    'ff-logo': 'url("../images/firefox-logo.svg")',
   },
   content: {
     ...config.theme.extend.content,
