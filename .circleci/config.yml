@@ -8,7 +8,7 @@ executors:
   content-server-executor:
     resource_class: large
     docker:
-      - image: cimg/node:16.13-browsers
+      - image: cimg/node:18.12-browsers
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -95,7 +95,7 @@ jobs:
   test-package:
     resource_class: medium+
     docker:
-      - image: cimg/node:16.13
+      - image: cimg/node:18.12
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -124,7 +124,7 @@ jobs:
   lint:
     resource_class: medium+
     docker:
-      - image: cimg/node:16.13
+      - image: cimg/node:18.12
     environment:
       TRACING_SERVICE_NAME: ci-lint
       TRACING_CONSOLE_EXPORTER_ENABLED: true
@@ -145,7 +145,7 @@ jobs:
   test-many:
     resource_class: medium+
     docker:
-      - image: cimg/node:16.13
+      - image: cimg/node:18.12
       - image: cimg/mysql:8.0.28
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -254,7 +254,7 @@ jobs:
   deploy-packages:
     resource_class: small
     docker:
-      - image: cimg/node:16.13
+      - image: cimg/node:18.12
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -293,7 +293,7 @@ jobs:
   production-smoke-tests:
     resource_class: medium+
     docker:
-      - image: mcr.microsoft.com/playwright:v1.28.0-focal
+      - image: mcr.microsoft.com/playwright:v1.28.1-focal
     steps:
       - base-install
       - run:
@@ -311,7 +311,7 @@ jobs:
     resource_class: large
     parallelism: 5
     docker:
-      - image: mcr.microsoft.com/playwright:v1.28.0-focal
+      - image: mcr.microsoft.com/playwright:v1.28.1-focal
       - image: redis
       - image: memcached
       - image: cimg/mysql:8.0.28
@@ -342,7 +342,7 @@ jobs:
   build-and-deploy-storybooks:
     resource_class: medium
     docker:
-      - image: cimg/node:16.13
+      - image: cimg/node:18.12
     steps:
       - base-install
       - run:
