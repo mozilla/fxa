@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LocationProvider } from '@reach/router';
-import { storiesOf } from '@storybook/react';
 import React from 'react';
 import { PageDisplayName } from '.';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
 
-storiesOf('Pages/DisplayName', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
+export default {
+  title: 'pages/Settings/DisplayName',
+  component: PageDisplayName,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppLayout>
       <PageDisplayName />
     </AppLayout>
-  ));
+  </LocationProvider>
+);

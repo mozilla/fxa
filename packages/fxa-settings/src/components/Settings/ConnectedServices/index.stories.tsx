@@ -11,7 +11,7 @@ import { MOCK_SERVICES } from './mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
-storiesOf('Components/ConnectedServices', module)
+storiesOf('Components/Settings/ConnectedServices', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppContext.Provider

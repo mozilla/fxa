@@ -11,7 +11,7 @@ import { UnitRow } from '.';
 import { Modal } from '../Modal';
 import { AppContext } from 'fxa-settings/src/models';
 
-storiesOf('Components/UnitRow', module)
+storiesOf('Components/Settings/UnitRow', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('basic, with falsey headerValue', () => (
     <UnitRow header="Some header" headerValue={null} />

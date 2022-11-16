@@ -7,7 +7,7 @@ import BentoMenu from '.';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'Components/BentoMenu',
+  title: 'Components/Settings/BentoMenu',
   component: BentoMenu,
 } as Meta;
 

@@ -11,7 +11,7 @@ import { Account } from '../../../models/Account';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'components/Security',
+  title: 'Components/Settings/Security',
   component: Security,
 } as Meta;
 

@@ -3,21 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
 import { AppLayout } from '../AppLayout';
 import { WindowLocation, LocationProvider } from '@reach/router';
+
+export default {
+  title: 'pages/Settings/SecondaryEmailVerify',
+  component: PageSecondaryEmailVerify,
+} as Meta;
 
 const mockLocation = {
   state: { email: 'johndope@example.com' },
 } as unknown as WindowLocation;
 
-storiesOf('Pages/SecondaryEmailVerify', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('valid: 1234, invalid: 4444', () => {
-    return (
-      <AppLayout>
-        <PageSecondaryEmailVerify location={mockLocation} />
-      </AppLayout>
-    );
-  });
+export const Default = () => (
+  <LocationProvider>
+    <AppLayout>
+      <PageSecondaryEmailVerify location={mockLocation} />
+    </AppLayout>
+  </LocationProvider>
+);

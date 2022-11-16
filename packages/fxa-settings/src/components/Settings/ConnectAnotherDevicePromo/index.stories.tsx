@@ -7,6 +7,6 @@ import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { ConnectAnotherDevicePromo } from '.';
 
-storiesOf('Components/ConnectAnotherDevice', module)
+storiesOf('Components/Settings/ConnectAnotherDevice', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => <ConnectAnotherDevicePromo />);

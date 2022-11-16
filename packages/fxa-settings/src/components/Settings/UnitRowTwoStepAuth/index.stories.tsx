@@ -9,7 +9,7 @@ import UnitRowTwoStepAuth from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
-storiesOf('Components/UnitRowTwoStepAuth', module)
+storiesOf('Components/Settings/UnitRowTwoStepAuth', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default unset', () => (
     <AppContext.Provider

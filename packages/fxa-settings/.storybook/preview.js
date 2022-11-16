@@ -8,3 +8,11 @@ import './design-guide/design-guide.css';
 import { initializeRTL } from 'storybook-addon-rtl';
 
 initializeRTL();
+
+export const parameters = {
+  options: {
+    storySort: {
+      method: 'alphabetical',
+    },
+  },
+};

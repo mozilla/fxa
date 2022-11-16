@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
-import { storiesOf } from '@storybook/react';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';
+import { Meta } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 
 const account = {
   ...MOCK_ACCOUNT,
@@ -27,12 +27,17 @@ const account = {
     }),
 } as any;
 
-storiesOf('Pages/2faReplaceRecoveryCodes', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
+export default {
+  title: 'pages/Settings/TwoStepAuthenticationReplaceCodes',
+  component: Page2faReplaceRecoveryCodes,
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
     <AppContext.Provider value={mockAppContext({ account })}>
       <AppLayout>
         <Page2faReplaceRecoveryCodes />
       </AppLayout>
     </AppContext.Provider>
-  ));
+  </LocationProvider>
+);

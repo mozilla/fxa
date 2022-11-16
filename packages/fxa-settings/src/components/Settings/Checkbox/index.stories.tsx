@@ -7,7 +7,7 @@ import Checkbox from './index';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'Components/Checkbox',
+  title: 'Components/Settings/Checkbox',
   component: Checkbox,
 } as Meta;
 

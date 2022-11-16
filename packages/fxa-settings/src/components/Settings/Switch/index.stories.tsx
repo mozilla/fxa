@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import React, { useState } from 'react';
 import Switch from '.';
 
-storiesOf('Components/Switch', module)
+storiesOf('Components/Settings/Switch', module)
   .add('on', () => <Subject />)
   .add('loading, user switched off', () => <Subject isSubmitting />)
   .add('off', () => <Subject isOn={false} />)

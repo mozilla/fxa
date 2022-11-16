@@ -15,7 +15,7 @@ import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 
 export default {
-  title: 'components/Profile',
+  title: 'Components/Settings/Profile',
   component: Profile,
 } as Meta;
 
