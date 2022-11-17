@@ -249,6 +249,7 @@
 .pocket-external {
   display: flex;
   align-items: baseline;
+  gap: .75rem;
 
   p:first-child {
     margin-top: 0;
@@ -262,6 +263,5 @@
 .pocket-icon {
   width: 26px;
   height: 23px;
-  margin-right: 12px;
   vertical-align: text-top;
 }
