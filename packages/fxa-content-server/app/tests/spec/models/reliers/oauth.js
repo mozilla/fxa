@@ -1055,6 +1055,39 @@ describe('models/reliers/oauth', () => {
     });
   });
 
+  describe('wantsLogin', () => {
+    describe('prompt=login', () => {
+      beforeEach(() => {
+        relier.set('prompt', 'login');
+      });
+
+      it('returns true', () => {
+        assert.isTrue(relier.wantsLogin());
+      });
+    });
+
+    describe('max_age=0', () => {
+      beforeEach(() => {
+        relier.set('maxAge', 0);
+      });
+
+      it('returns true', () => {
+        assert.isTrue(relier.wantsLogin());
+      });
+    });
+
+    describe('otherwise', () => {
+      beforeEach(() => {
+        relier.unset('prompt');
+        relier.unset('maxAge');
+      });
+
+      it('returns false', () => {
+        assert.isFalse(relier.wantsLogin());
+      });
+    });
+  });
+
   describe('wantsTwoStepAuthentication', () => {
     it('return true for acrValues=AAL2', () => {
       relier.set('acrValues', 'AAL2');

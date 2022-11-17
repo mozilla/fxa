@@ -10,6 +10,7 @@ import CachedCredentialsMixin from 'views/mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import { Model } from 'backbone';
 import Relier from 'models/reliers/base';
+import OAuthRelier from 'models/reliers/oauth';
 import User from 'models/user';
 import sinon from 'sinon';
 import VerificationMethods from 'lib/verification-methods';
@@ -22,6 +23,14 @@ describe('views/mixins/cached-credentials-mixin', () => {
   let user;
   let view;
 
+  class View extends BaseView {
+    signIn() {}
+
+    getAccount() {
+      return account;
+    }
+  }
+
   beforeEach(() => {
     account = new Account({
       email: 'testuser@testuser.com',
@@ -29,14 +38,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
     });
 
     sinon.stub(account, 'accountProfile').callsFake(() => Promise.resolve({}));
-
-    class View extends BaseView {
-      signIn() {}
-
-      getAccount() {
-        return account;
-      }
-    }
 
     Cocktail.mixin(View, CachedCredentialsMixin);
 
@@ -106,6 +107,26 @@ describe('views/mixins/cached-credentials-mixin', () => {
         .callsFake(() => 'testuser@testuser.com');
 
       assert.isFalse(view.isPasswordNeededForAccount(account));
+    });
+
+    it('asks for password if the OAuth relier wants login', () => {
+      relier = new OAuthRelier();
+      user = new User();
+
+      view = new View({
+        formPrefill,
+        model,
+        relier,
+        user,
+      });
+
+      sinon.stub(relier, 'isOAuth').callsFake(() => true);
+      sinon.stub(relier, 'wantsLogin').callsFake(() => true);
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
+
+      assert.isTrue(view.isPasswordNeededForAccount(account));
     });
   });
 

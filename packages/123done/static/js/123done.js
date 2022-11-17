@@ -296,6 +296,10 @@ $(document).ready(function () {
       authenticate('prompt_none');
     });
 
+    $('button.prompt-login').click(function (ev) {
+      authenticate('prompt_login');
+    });
+
     // upon click of logout link navigator.id.logout()
     $('#logout').click(function (ev) {
       ev.preventDefault();

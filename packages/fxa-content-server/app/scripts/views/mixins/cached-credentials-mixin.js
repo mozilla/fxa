@@ -61,6 +61,11 @@ export default {
       return true;
     }
 
+    // Checks to see if relier requesting `prompt=login`
+    if (this.relier.isOAuth() && this.relier.wantsLogin()) {
+      return true;
+    }
+
     // Ask when a prefill email does not match the account email.
     const prefillEmail = this.getPrefillEmail();
     if (prefillEmail && prefillEmail !== account.get('email')) {

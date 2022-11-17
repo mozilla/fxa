@@ -196,6 +196,10 @@ export default BaseAuthenticationBroker.extend({
           oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
         }
 
+        if (relier.get('maxAge') >= 0) {
+          oauthParams.max_age = relier.get('maxAge'); //eslint-disable-line camelcase
+        }
+
         return account.createOAuthCode(
           clientId,
           relier.get('state'),

@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('two step auth', () => {
@@ -58,11 +58,9 @@ test.describe('two step auth', () => {
     expect(status).toEqual('Enabled');
   });
 
-  test('add TOTP and confirm sync signin', async ({
-    credentials,
-    target,
-    pages: { login, settings, totp, page, connectAnotherDevice },
-  }) => {
+  test('add TOTP and confirm sync signin', async ({ credentials, target }) => {
+    const { login, settings, totp, page, connectAnotherDevice } =
+      await newPagesForSync(target);
     await settings.goto();
     await settings.totp.clickAdd();
     await totp.enable(credentials);

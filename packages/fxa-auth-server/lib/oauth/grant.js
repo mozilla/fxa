@@ -196,8 +196,8 @@ async function generateIdToken(grant, accessToken) {
   // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
   // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
   // > identifiers for other audiences. In the general case, the aud value is an array of
-  // > case sensitive strings. In the common special case when there is one audience, the
-  // > aud value MAY be a single case sensitive string.
+  // > case-sensitive strings. In the common special case when there is one audience, the
+  // > aud value MAY be a single case-sensitive string.
   const audience = grant.resource ? [clientId, grant.resource] : clientId;
 
   const claims = {
@@ -214,6 +214,11 @@ async function generateIdToken(grant, accessToken) {
   if (grant.aal) {
     claims['fxa-aal'] = grant.aal;
     claims.acr = 'AAL' + grant.aal;
+  }
+  // For legacy reasons auth_time was stored as authAt in our db. It also
+  // needs to be converted to seconds.
+  if (grant.authAt) {
+    claims.auth_time = Math.floor(grant.authAt / 1000);
   }
 
   return jwt.sign(claims);

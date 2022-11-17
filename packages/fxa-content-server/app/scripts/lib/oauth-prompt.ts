@@ -9,6 +9,7 @@
 enum OAuthPrompt {
   CONSENT = 'consent',
   NONE = 'none',
+  LOGIN = 'login',
 }
 
 export default OAuthPrompt;
