@@ -56,11 +56,14 @@ containg the following fields:
 - `userAgent`
 - `account_created_at` (optional)
 - `device_id` (optional):
-    > There are two ways in which device_id field value gets populated/generated:
-    > 1. If the current flow session does not have a device_id associated with it we set it to the device_id/deviceId value found inside urlParams object.
-    > 2. If during the above process we find urlParams object to not have this attribute set, then we use uuid.v4() to generate a new unique value and assign it to deviceId flow session.
 
-    > _devide_id generation: https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/models/flow.js#L61-L69_
+  > There are two ways in which device_id field value gets populated/generated:
+  >
+  > 1. If the current flow session does not have a device_id associated with it we set it to the device_id/deviceId value found inside urlParams object.
+  > 2. If during the above process we find urlParams object to not have this attribute set, then we use uuid.v4() to generate a new unique value and assign it to deviceId flow session.
+
+  > _devide_id generation: https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/models/flow.js#L61-L69_
+
 - `service` (optional)
 
 ##### Example event
