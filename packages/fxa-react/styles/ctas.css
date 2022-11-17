@@ -57,7 +57,7 @@
 
   .cta-caution:focus,
   .cta-caution:focus-visible {
-    @apply border-transparent outline-dotted outline-black;
+    @apply border-transparent outline outline-2 outline-offset-2 outline-blue-500;
   }
 
   .cta-caution:disabled {
