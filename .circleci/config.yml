@@ -173,6 +173,7 @@ jobs:
       TRACING_SERVICE_NAME: ci-lint
       TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
+      - checkout
       - run: yarn install
 
 
