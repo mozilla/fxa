@@ -16,6 +16,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     line_items: invoice.lines.data.map((line) => ({
       amount: line.amount,
       currency: line.currency,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       id: line.price!.id,
       name: line.description || '',
     })),

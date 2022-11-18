@@ -564,6 +564,7 @@ class MysqlStore extends MysqlOAuthShared {
   getEncodingInfo() {
     var info = {};
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     var self = this;
     var qry = 'SHOW VARIABLES LIKE "%character\\_set\\_%"';
     return this._read(qry).then(function (rows) {

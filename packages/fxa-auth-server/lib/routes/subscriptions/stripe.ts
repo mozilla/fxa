@@ -754,7 +754,7 @@ export class StripeHandler {
       } else {
         Sentry.withScope((scope) => {
           scope.setContext('updateDefaultPaymentMethod', {
-            customerId: customer!.id,
+            customerId: customer?.id,
             paymentMethodId: paymentMethod?.id,
           });
           Sentry.captureMessage(

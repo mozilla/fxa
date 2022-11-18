@@ -52,7 +52,7 @@ export class AppStoreSubscriptions
   async getSubscriptions(
     uid: string
   ): Promise<AppendedAppStoreSubscriptionPurchase[]> {
-    if (!this.appleIap) {
+    if (!this.appleIap || !this.stripeHelper) {
       return [];
     }
     const allPurchases =
@@ -62,7 +62,6 @@ export class AppStoreSubscriptions
     const purchases = allPurchases.filter((purchase) =>
       purchase.isEntitlementActive()
     );
-    // @ts-ignore
     return this.stripeHelper.addPriceInfoToIapPurchases(
       purchases,
       MozillaSubscriptionTypes.IAP_APPLE

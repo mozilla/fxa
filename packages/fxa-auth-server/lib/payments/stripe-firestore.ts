@@ -68,7 +68,8 @@ export class StripeFirestore extends StripeFirestoreBase {
       await this.retrieveCustomer({ uid });
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        return this.fetchAndInsertCustomer(customer.id!);
+        if (!customer.id) throw new Error('Customer ID must be provided');
+        return this.fetchAndInsertCustomer(customer.id);
       } else {
         throw err;
       }
@@ -90,9 +91,11 @@ export class StripeFirestore extends StripeFirestoreBase {
       );
     }
 
+    if (!subscription.id) throw new Error('Subscription ID must be provided');
+
     return customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
-      .doc(subscription.id!)
+      .doc(subscription.id)
       .set(subscription);
   }
 

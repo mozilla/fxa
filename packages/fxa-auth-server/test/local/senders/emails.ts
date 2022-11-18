@@ -3015,7 +3015,7 @@ function configUrl(
     const [key, value] = param.split('=');
     out.searchParams.append(
       key,
-      value || MESSAGE[MESSAGE_PARAMS!.get(key)! as keyof typeof MESSAGE] || ''
+      value || MESSAGE[MESSAGE_PARAMS.get(key) as keyof typeof MESSAGE] || ''
     );
   }
 
@@ -3042,7 +3042,7 @@ async function setup(
   log: Record<any, any>,
   config: Record<any, any>,
   mocks: any,
-  locale: string = 'en',
+  locale = 'en',
   sender: any = null
 ) {
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
@@ -3090,7 +3090,6 @@ function applyAssertions(
   describe(`${type} - ${property}`, () => {
     assertions.forEach(({ test, expected }: Test) => {
       it(`${test} - ${expected}`, () => {
-        /* @ts-ignore */
         assert[test](target, expected, `${type}: ${property}`);
       });
     });

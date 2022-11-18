@@ -298,27 +298,31 @@ export abstract class StripeHelper {
   /**
    * Append any matching prices and related info to their corresponding IAP purchases.
    */
-  async addPriceInfoToIapPurchases(
-    purchases: PlayStoreSubscriptionPurchase[] | AppStoreSubscriptionPurchase[],
+  async addPriceInfoToIapPurchases<
+    T extends AppStoreSubscriptionPurchase | PlayStoreSubscriptionPurchase
+  >(
+    purchases: T[],
     iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>
-  ): Promise<
-    | (
-        | (PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase) &
-            IapExtraStripeInfo
-      )[]
-  > {
+  ): Promise<(T & IapExtraStripeInfo)[]> {
     const plans = await this.allAbbrevPlans();
-    const appendedPurchases = [];
+    const appendedPurchases: (T & IapExtraStripeInfo)[] = [];
     for (const plan of plans) {
       const iapIdentifiers = this.priceToIapIdentifiers(plan, iapType);
-      const iapIdentifierKey =
-        iapType === MozillaSubscriptionTypes.IAP_GOOGLE
-          ? STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE
-          : STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE;
-      // @ts-ignore
-      const matchingPurchases = purchases.filter((purchase) =>
-        iapIdentifiers.includes(purchase[iapIdentifierKey].toLowerCase())
-      );
+      const matchingPurchases = purchases.filter((purchase) => {
+        if (STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE in purchase) {
+          return iapIdentifiers.includes(
+            purchase[STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE].toLowerCase()
+          );
+        }
+
+        if (STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE in purchase) {
+          return iapIdentifiers.includes(
+            purchase[STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE].toLowerCase()
+          );
+        }
+
+        return false;
+      });
       for (const matchingPurchase of matchingPurchases) {
         appendedPurchases.push({
           ...matchingPurchase,

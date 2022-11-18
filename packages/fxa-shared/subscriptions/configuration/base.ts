@@ -44,17 +44,16 @@ const urlsSchema = joi.object({
   cancellationSurvey: joi.string().uri(),
 });
 
-export const UiContentConfigKeys = {
-  name: 'name',
-  subtitle: 'subtitle',
-  details: 'details',
-  successActionButtonLabel: 'successActionButtonLabel',
-  upgradeCTA: 'upgradeCTA',
-} as const;
-type UiContentConfigKeysT = typeof UiContentConfigKeys;
+export enum UiContentConfigKeys {
+  name = 'name',
+  subtitle = 'subtitle',
+  details = 'details',
+  successActionButtonLabel = 'successActionButtonLabel',
+  upgradeCTA = 'upgradeCTA',
+}
 export type UiContentConfig = {
-  [k in keyof Omit<UiContentConfigKeysT, 'details'>]?: string;
-} & { details?: string[] };
+  [k in Exclude<UiContentConfigKeys, UiContentConfigKeys.details>]?: string;
+} & { [UiContentConfigKeys.details]?: string[] };
 
 const uiContentSchema = joi.object({
   name: joi.string(),
