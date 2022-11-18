@@ -11,6 +11,6 @@ cd "$DIR/.."
 #     print "Updated yarn lock detected. Running yarn install!"
 #     yarn install --immutable --immutable-cache
 # if
-
+yarn install --immutable --immutable-cache
 node .circleci/modules-to-test.js | tee packages/test.list
 ./_scripts/create-version-json.sh
