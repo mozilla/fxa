@@ -363,12 +363,12 @@ jobs:
 
 workflows:
 
-  build-ci-base-image:
-    jobs:
-      - build-base-image:
-        filters:
-            branches:
-              only: ci-spike-main
+  # build-ci-base-image:
+  #   jobs:
+  #     - build-base-image:
+  #       filters:
+  #           branches:
+  #             only: ci-spike-main
 
   # build-pipeline-base-image:
   #   jobs:
