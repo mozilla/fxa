@@ -178,6 +178,7 @@ jobs:
 
 
   test-many:
+    working-directory: /fxa
     resource_class: medium+
     docker:
       - image: << pipeline.parameters.test-image >>
