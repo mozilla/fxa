@@ -30,7 +30,7 @@ export const SignInLayoutContext = React.createContext({
 
 export const SignInLayout = ({ children }: { children: ReactNode }) => {
   const [hideLogo, setHideLogo] = useState(false);
-  const mainContentClassNames = classNames('card', 'payments-card', {
+  const mainContentClassNames = classNames('payments-card', {
     'hide-logo': hideLogo,
   });
   return (
@@ -90,9 +90,7 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
         </div>
 
         <div id="fxa-settings" className="mb-12">
-          <div id="fxa-settings-content" className="card">
-            {children}
-          </div>
+          <div id="fxa-settings-content">{children}</div>
         </div>
       </div>
     </AppLayout>
