@@ -18,6 +18,7 @@ import {
 } from '../../../lib/sentry';
 import error from '../../error';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
+import { RefundType } from '../../payments/paypal/client';
 import {
   CUSTOMER_RESOURCE,
   FormattedSubscriptionForEmail,
@@ -321,19 +322,34 @@ export class StripeWebhookHandler extends StripeHandler {
     }
 
     // If the amount doesn't match the invoice we can't reverse it.
-    if (creditNote.out_of_band_amount !== invoice.amount_due) {
+    if (
+      creditNote.out_of_band_amount &&
+      creditNote.out_of_band_amount > invoice.amount_due
+    ) {
       this.log.error('handleCreditNoteEvent', {
         invoiceId: invoice.id,
-        message: 'Credit note does not match invoice amount.',
+        message: 'Credit note exceeds invoice amount.',
       });
       reportSentryError(
-        new Error(`Mismatched credit amount on invoice: ${invoice.id}.`),
+        new Error(`Credit amount exceeds invoice: ${invoice.id}.`),
         request
       );
       return;
     }
+
     try {
-      await this.paypalHelper.issueRefund(invoice, transactionId);
+      const fullRefund = creditNote.out_of_band_amount === invoice.amount_due;
+      const refundType: RefundType = fullRefund
+        ? RefundType.full
+        : RefundType.partial;
+      const amount = fullRefund ? undefined : creditNote.out_of_band_amount!;
+
+      await this.paypalHelper.issueRefund(
+        invoice,
+        transactionId,
+        refundType,
+        amount
+      );
     } catch (error) {
       if (error instanceof RefusedError) {
         await this.stripeHelper.updateInvoiceWithPaypalRefundReason(

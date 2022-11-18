@@ -12,6 +12,7 @@ const { Container } = require('typedi');
 const {
   PayPalClient,
   PayPalClientError,
+  RefundType,
 } = require('../../../lib/payments/paypal/client');
 const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
@@ -312,6 +313,7 @@ describe('PayPalHelper', () => {
     const defaultData = {
       MSGSUBID: 'in_asdf',
       TRANSACTIONID: '9EG80664Y1384290G',
+      REFUNDTYPE: 'Full',
     };
 
     it('refunds entire transaction', async () => {
@@ -321,6 +323,7 @@ describe('PayPalHelper', () => {
       const response = await paypalHelper.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
+        refundType: RefundType.full,
       });
       assert.deepEqual(response, {
         pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
@@ -375,12 +378,18 @@ describe('PayPalHelper', () => {
         refundTransactionId:
           successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
       });
-      const result = await paypalHelper.issueRefund(invoice, transactionId);
+      const result = await paypalHelper.issueRefund(
+        invoice,
+        transactionId,
+        RefundType.full
+      );
 
       assert.deepEqual(result, undefined);
       sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
         idempotencyKey: invoice.id,
         transactionId: transactionId,
+        refundType: RefundType.full,
+        amount: undefined,
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId,
@@ -401,7 +410,7 @@ describe('PayPalHelper', () => {
       paypalHelper.log = { error: sinon.fake.returns({}) };
 
       try {
-        await paypalHelper.issueRefund(invoice, transactionId);
+        await paypalHelper.issueRefund(invoice, transactionId, RefundType.full);
         assert.fail(
           'Error should throw PayPal refund transaction unsuccessful.'
         );
@@ -416,6 +425,8 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
         idempotencyKey: invoice.id,
         transactionId: transactionId,
+        refundType: RefundType.full,
+        amount: undefined,
       });
     });
   });

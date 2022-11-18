@@ -32,6 +32,7 @@ const { PayPalNotificationHandler } = proxyquire(
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
+import { RefundType } from '../../../../lib/payments/paypal/client';
 import { SUBSCRIPTIONS_RESOURCE } from '../../../../lib/payments/stripe';
 
 const ACCOUNT_LOCALE = 'en-US';
@@ -306,7 +307,8 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(
         paypalHelper.issueRefund,
         invoice,
-        validMessage.txn_id
+        validMessage.txn_id,
+        RefundType.full
       );
       sinon.assert.notCalled(stripeHelper.expandResource);
       sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
@@ -328,7 +330,8 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(
         paypalHelper.issueRefund,
         invoice,
-        validMessage.txn_id
+        validMessage.txn_id,
+        RefundType.full
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.expandResource,
@@ -477,7 +480,8 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(
         paypalHelper.issueRefund,
         invoice,
-        completedMerchantPaymentNotification.txn_id
+        completedMerchantPaymentNotification.txn_id,
+        RefundType.full
       );
     });
 
@@ -503,7 +507,8 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(
         paypalHelper.issueRefund,
         invoice,
-        completedMerchantPaymentNotification.txn_id
+        completedMerchantPaymentNotification.txn_id,
+        RefundType.full
       );
     });
   });
