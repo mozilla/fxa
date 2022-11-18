@@ -1,4 +1,4 @@
-FROM dschomz/fxa-test:latest
+FROM mozilla/fxa-circleci:ci-base-latest
 
 RUN npm i -g corepack --force && corepack enable && corepack prepare yarn@3.1.1 --activate
 

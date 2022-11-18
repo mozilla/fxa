@@ -6,7 +6,7 @@ parameters:
   # in an effort to reduce startup cost
   test-image:
     type: string
-    default: dschomz/fxa-test:slim
+    default: mozilla/fxa-circleci:ci-base-latest
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
@@ -112,6 +112,7 @@ jobs:
       - run:
           name: Build
           command: docker build . -f ./_dev/docker/ci/Dockerfile.base -t fxa-circleci-base
+
       - deploy:
           name: Push application Docker image
           command: |
@@ -134,7 +135,7 @@ jobs:
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
             docker tag fxa-circleci-pipeline mozilla/fxa-circleci:ci-pipeline-<< pipeline.number >>
-            docker push $DOCKER_USER_fxa_circleci/fxa-circleci:ci-pipeline-<< pipeline.number >>
+            docker push mozilla/fxa-circleci:ci-pipeline-<< pipeline.number >>
 
   test-package:
     resource_class: medium+
@@ -173,18 +174,8 @@ jobs:
       TRACING_SERVICE_NAME: ci-lint
       TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
-      - base-install
-      - run:
-          name: Linting
-          command: |
-            PACKAGES=(\
-            'fxa-shared' \
-            'fxa-auth-server' \
-            )
-            for p in "${PACKAGES[@]}"; do
-              (cd packages/$p && yarn lint)
-            done
-      - jira/notify
+      - run: yarn install
+
 
   test-many:
     resource_class: medium+
@@ -377,93 +368,89 @@ workflows:
       - build-base-image:
         filters:
             branches:
-              # just target specific branch for now for testing purposes
               only: ci-spike
 
-  build-pipeline-base-image:
-    jobs:
-      - build-pipeline-image:
-        filters:
-            branches:
-              # just target specific branch for now for testing purposes
-              only: ci-spike
+  # build-pipeline-base-image:
+  #   jobs:
+  #     - build-pipeline-image:
+  #       filters:
+  #           branches:
+  #             only: ci-spike
 
   test_pull_request:
     jobs:
-      - lint:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+      # - lint:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
       - test-many:
           filters:
             branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-settings-server:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-3:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-4:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-5:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - playwright-functional-tests:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+              only: ci-spike
+      # - test-settings-server:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-package:
+      #     name: test-auth-server
+      #     package: fxa-auth-server
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-0:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-1:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-2:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-3:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-4:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - test-content-server-5:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - playwright-functional-tests:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
+      # - build-and-deploy-storybooks:
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #       tags:
+      #         ignore: /.*/
 
   deploy_branch:
     jobs:

@@ -15,3 +15,6 @@ packages/*/build
 packages/fxa-auth-server/.mail_output
 packages/fxa-dev-launcher
 packages/fxa-content-server/dist
+.yarn
+!.yarn/releases
+!.yarn/plugins

@@ -1,50 +1,72 @@
-FROM node:16.3-slim as BASE
-WORKDIR /app
+FROM cimg/node:16.3 as BASE
 
-# Important this image doesn't ships with yarn 1.x. Install 3.1.1 as specified
-# by our .yarnrc.yml file
-RUN npm i -g corepack --force && corepack enable && corepack prepare yarn@3.1.1 --activate
+#RUN apt-get update && apt-get install -y \
+#    git-core
+    #\
+    #python3-setuptools \
+    #python3-dev \
+    #build-essential \
+    #zip \
+    # && rm -rf /var/lib/apt/lists/*
 
-# Setup the current yarn state
-COPY package.json .
-COPY yarn.lock .
+COPY --chown=circleci:circleci . /fxa
+WORKDIR /fxa
+RUN yarn install \
+    && cp yarn.lock yarn.lock.base \
+    && mkdir -p /fxa/packages/123done/node_modules \
+    && mkdir -p /fxa/packages/browserid-verifier/node_modules \
+    && mkdir -p /fxa/packages/db-migrations/node_modules \
+    && mkdir -p /fxa/packages/fortress/node_modules \
+    && mkdir -p /fxa/packages/functional-tests/node_modules \
+    && mkdir -p /fxa/packages/fxa-admin-panel/node_modules \
+    && mkdir -p /fxa/packages/fxa-admin-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-auth-client/node_modules \
+    && mkdir -p /fxa/packages/fxa-auth-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-content-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-customs-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-event-broker/node_modules \
+    && mkdir -p /fxa/packages/fxa-dev-launcher/node_modules \
+    && mkdir -p /fxa/packages/fxa-geodb/node_modules \
+    && mkdir -p /fxa/packages/fxa-graphql-api/node_modules \
+    && mkdir -p /fxa/packages/fxa-payments-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-profile-server/node_modules \
+    && mkdir -p /fxa/packages/fxa-react/node_modules \
+    && mkdir -p /fxa/packages/fxa-settings/node_modules \
+    && mkdir -p /fxa/packages/fxa-shared/node_modules \
+    && mkdir -p /fxa/packages/fxa-support-panel/node_modules
 
-# Copy yarn configs
-COPY .yarnrc.yml .
-COPY .yarn/plugins .yarn/plugins
-COPY .yarn/releases .yarn/releases
+FROM cimg/node:16.3
 
-# Copy packages
-COPY packages/123done/package.json packages/123done/package.json
-COPY packages/browserid-verifier/package.json packages/browserid-verifier/package.json
-COPY packages/db-migrations/package.json packages/db-migrations/package.json
-COPY packages/fortress/package.json packages/fortress/package.json
-COPY packages/functional-tests/package.json packages/functional-tests/package.json
-COPY packages/fxa-admin-panel/package.json packages/fxa-admin-panel/package.json
-COPY packages/fxa-admin-server/package.json packages/fxa-admin-server/package.json
-COPY packages/fxa-auth-client/package.json packages/fxa-auth-client/package.json
-COPY packages/fxa-auth-server/package.json packages/fxa-auth-server/package.json
-COPY packages/fxa-content-server/package.json packages/fxa-content-server/package.json
-COPY packages/fxa-customs-server/package.json packages/fxa-customs-server/package.json
-# COPY packages/fxa-dev-launcher packages/fxa-dev-launcher
-COPY packages/fxa-event-broker/package.json packages/fxa-event-broker/package.json
-COPY packages/fxa-geodb/package.json packages/fxa-geodb/package.json
-COPY packages/fxa-graphql-api/package.json packages/fxa-graphql-api/package.json
-COPY packages/fxa-payments-server/package.json packages/fxa-payments-server/package.json
-COPY packages/fxa-profile-server/package.json packages/fxa-profile-server/package.json
-COPY packages/fxa-react/package.json packages/fxa-react/package.json
-COPY packages/fxa-settings/package.json packages/fxa-settings/package.json
-COPY packages/fxa-shared/package.json packages/fxa-shared/package.json
-COPY packages/fxa-support-panel/package.json packages/fxa-support-panel/package.json
-COPY _scripts _scripts
+WORKDIR /fxa
+COPY --from=0 --chown=circleci:circleci /fxa/package.json .
+COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock .
+COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock.base .
 
-# Run the install. Don't do post install operations. We are just after the packages.
-RUN yarn install --mode skip-build
+COPY --from=0 --chown=circleci:circleci /fxa/.yarn ./.yarn
+COPY --from=0 --chown=circleci:circleci /fxa/node_modules ./node_modules
 
-FROM node:16.3-slim as TEST
-WORKDIR /app
+COPY --from=0 --chown=circleci:circleci /fxa/packages/123done/node_modules packages/123done/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/browserid-verifier/node_modules packages/browserid-verifier/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/db-migrations/node_modules packages/db-migrations/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fortress/node_modules packages/fortress/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/functional-tests/node_modules packages/functional-tests/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-panel/node_modules packages/fxa-admin-panel/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-server/node_modules packages/fxa-admin-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-client/node_modules packages/fxa-auth-client/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-server/node_modules packages/fxa-auth-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/node_modules packages/fxa-content-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-customs-server/node_modules packages/fxa-customs-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-dev-launcher/node_modules packages/fxa-dev-launcher/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-event-broker/node_modules packages/fxa-event-broker/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-geodb/node_modules packages/fxa-geodb/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-graphql-api/node_modules packages/fxa-graphql-api/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-payments-server/node_modules packages/fxa-payments-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-profile-server/node_modules packages/fxa-profile-server/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-react/node_modules packages/fxa-react/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-settings/node_modules packages/fxa-settings/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-shared/node_modules packages/fxa-shared/node_modules
+COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-support-panel/node_modules packages/fxa-support-panel/node_modules
 
-# Copy minimal cache files from first build stage
-COPY --from=0 /app/node_modules node_modules
-COPY --from=0 /app/.yarn .yarn
-COPY --from=0 /app/packages packages
+# Preserve important files delete everything else.
+# RUN yarn install && \
+#    cp yarn.lock base.yarn.lock
