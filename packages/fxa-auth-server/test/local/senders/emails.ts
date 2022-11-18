@@ -1532,6 +1532,39 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   ['subscriptionCancellationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionCancellation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionCancellation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Sorry to see you go' },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms')) },
+      { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} will be paid on 03/20/2020.` },
+      { test: 'notInclude', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"`},
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: 'Sorry to see you go' },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} will be paid on 03/20/2020.` },
+      { test: 'notInclude', expected: `billing period, which is 04/19/2020.` },
+      { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]),
+    {updateTemplateValues: x => (
+      {...x, showOutstandingBalance: true, cancelAtEnd: false})}
+  ],
+
+  ['subscriptionCancellationEmail', new Map<string, Test | any>([
     ['html', [
       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM },
       { test: 'notInclude', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },

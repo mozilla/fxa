@@ -2106,6 +2106,7 @@ module.exports = function (log, config, bounces) {
       invoiceTotalCurrency,
       serviceLastActiveDate,
       showOutstandingBalance,
+      cancelAtEnd = true,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2153,6 +2154,7 @@ module.exports = function (log, config, bounces) {
           message.acceptLanguage
         ),
         showOutstandingBalance,
+        cancelAtEnd,
       },
     });
   };

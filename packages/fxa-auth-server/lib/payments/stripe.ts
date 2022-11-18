@@ -2269,6 +2269,16 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
+   * Check if a subscription is past due
+   */
+  checkSubscriptionPastDue(subscription: Stripe.Subscription) {
+    return (
+      subscription.status === 'past_due' &&
+      subscription.collection_method === 'charge_automatically'
+    );
+  }
+
+  /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
    */
   async subscriptionsToResponse(
@@ -2299,8 +2309,7 @@ export class StripeHelper extends StripeHelperBase {
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
       // as the `expand` argument or this will not fetch the failure code/message.
       if (
-        sub.status === 'past_due' &&
-        sub.collection_method === 'charge_automatically' &&
+        this.checkSubscriptionPastDue(sub) &&
         latestInvoice &&
         latestInvoice.charge
       ) {
@@ -2541,6 +2550,7 @@ export class StripeHelper extends StripeHelperBase {
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
       tax: invoiceTaxAmountInCents,
+      status: invoiceStatus,
     } = invoice;
 
     const nextInvoiceDate = lineItem.period.end;
@@ -2586,6 +2596,7 @@ export class StripeHelper extends StripeHelperBase {
       payment_provider,
       invoiceLink,
       invoiceNumber,
+      invoiceStatus,
       invoiceTotalInCents,
       invoiceTotalCurrency,
       invoiceSubtotalInCents: showSubtotal ? invoiceSubtotalInCents : null,
