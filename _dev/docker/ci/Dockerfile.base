@@ -33,40 +33,83 @@ RUN yarn install \
     && mkdir -p /fxa/packages/fxa-react/node_modules \
     && mkdir -p /fxa/packages/fxa-settings/node_modules \
     && mkdir -p /fxa/packages/fxa-shared/node_modules \
-    && mkdir -p /fxa/packages/fxa-support-panel/node_modules
+    && mkdir -p /fxa/packages/fxa-support-panel/node_modules \
+    && mkdir -p /fxa/packages/123done/dist \
+    && mkdir -p /fxa/packages/browserid-verifier/dist \
+    && mkdir -p /fxa/packages/db-migrations/dist \
+    && mkdir -p /fxa/packages/fortress/dist \
+    && mkdir -p /fxa/packages/functional-tests/dist \
+    && mkdir -p /fxa/packages/fxa-admin-panel/dist \
+    && mkdir -p /fxa/packages/fxa-admin-server/dist \
+    && mkdir -p /fxa/packages/fxa-auth-client/dist \
+    && mkdir -p /fxa/packages/fxa-auth-server/dist \
+    && mkdir -p /fxa/packages/fxa-content-server/dist \
+    && mkdir -p /fxa/packages/fxa-customs-server/dist \
+    && mkdir -p /fxa/packages/fxa-event-broker/dist \
+    && mkdir -p /fxa/packages/fxa-dev-launcher/dist \
+    && mkdir -p /fxa/packages/fxa-geodb/dist \
+    && mkdir -p /fxa/packages/fxa-graphql-api/dist \
+    && mkdir -p /fxa/packages/fxa-payments-server/dist \
+    && mkdir -p /fxa/packages/fxa-profile-server/dist \
+    && mkdir -p /fxa/packages/fxa-react/dist \
+    && mkdir -p /fxa/packages/fxa-settings/dist \
+    && mkdir -p /fxa/packages/fxa-shared/dist \
+    && mkdir -p /fxa/packages/fxa-support-panel/dist \
+    && mkdir -p /fxa/packages/fxa-auth-server/fxa-content-server-l10n \
+    && mkdir -p /fxa/packages/fxa-content-server/fxa-content-server-l10n \
+    && mkdir -p /fxa/packages/fxa-settings/fxa-content-server-l10n
 
-FROM cimg/node:16.3
 
-WORKDIR /fxa
-COPY --from=0 --chown=circleci:circleci /fxa/package.json .
-COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock .
-COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock.base .
+# FROM cimg/node:16.3
 
-COPY --from=0 --chown=circleci:circleci /fxa/.yarn ./.yarn
-COPY --from=0 --chown=circleci:circleci /fxa/node_modules ./node_modules
-
-COPY --from=0 --chown=circleci:circleci /fxa/packages/123done/node_modules packages/123done/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/browserid-verifier/node_modules packages/browserid-verifier/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/db-migrations/node_modules packages/db-migrations/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fortress/node_modules packages/fortress/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/functional-tests/node_modules packages/functional-tests/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-panel/node_modules packages/fxa-admin-panel/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-server/node_modules packages/fxa-admin-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-client/node_modules packages/fxa-auth-client/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-server/node_modules packages/fxa-auth-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/node_modules packages/fxa-content-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-customs-server/node_modules packages/fxa-customs-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-dev-launcher/node_modules packages/fxa-dev-launcher/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-event-broker/node_modules packages/fxa-event-broker/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-geodb/node_modules packages/fxa-geodb/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-graphql-api/node_modules packages/fxa-graphql-api/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-payments-server/node_modules packages/fxa-payments-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-profile-server/node_modules packages/fxa-profile-server/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-react/node_modules packages/fxa-react/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-settings/node_modules packages/fxa-settings/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-shared/node_modules packages/fxa-shared/node_modules
-COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-support-panel/node_modules packages/fxa-support-panel/node_modules
-
-# Preserve important files delete everything else.
-# RUN yarn install && \
-#    cp yarn.lock base.yarn.lock
+# WORKDIR /fxa
+# COPY --from=0 --chown=circleci:circleci /fxa/package.json .
+# COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock .
+# COPY --from=0 --chown=circleci:circleci /fxa/yarn.lock.base .
+# COPY --from=0 --chown=circleci:circleci /fxa/.yarn ./.yarn
+# COPY --from=0 --chown=circleci:circleci /fxa/node_modules ./node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/123done/dist packages/123done/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/browserid-verifier/dist packages/browserid-verifier/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/db-migrations/dist packages/db-migrations/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fortress/dist packages/fortress/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/functional-tests/dist packages/functional-tests/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-panel/dist packages/fxa-admin-panel/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-server/dist packages/fxa-admin-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-client/dist packages/fxa-auth-client/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-server/dist packages/fxa-auth-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/dist packages/fxa-content-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-customs-server/dist packages/fxa-customs-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-dev-launcher/dist packages/fxa-dev-launcher/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-event-broker/dist packages/fxa-event-broker/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-geodb/dist packages/fxa-geodb/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-graphql-api/dist packages/fxa-graphql-api/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-payments-server/dist packages/fxa-payments-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-profile-server/dist packages/fxa-profile-server/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-react/dist packages/fxa-react/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-settings/dist packages/fxa-settings/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-shared/dist packages/fxa-shared/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-support-panel/dist packages/fxa-support-panel/dist
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/123done/node_modules packages/123done/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/browserid-verifier/node_modules packages/browserid-verifier/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/db-migrations/node_modules packages/db-migrations/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fortress/node_modules packages/fortress/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/functional-tests/node_modules packages/functional-tests/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-panel/node_modules packages/fxa-admin-panel/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-admin-server/node_modules packages/fxa-admin-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-client/node_modules packages/fxa-auth-client/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-server/node_modules packages/fxa-auth-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/node_modules packages/fxa-content-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-customs-server/node_modules packages/fxa-customs-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-dev-launcher/node_modules packages/fxa-dev-launcher/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-event-broker/node_modules packages/fxa-event-broker/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-geodb/node_modules packages/fxa-geodb/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-graphql-api/node_modules packages/fxa-graphql-api/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-payments-server/node_modules packages/fxa-payments-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-profile-server/node_modules packages/fxa-profile-server/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-react/node_modules packages/fxa-react/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-settings/node_modules packages/fxa-settings/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-shared/node_modules packages/fxa-shared/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-support-panel/node_modules packages/fxa-support-panel/node_modules
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-auth-server/fxa-content-server-l10n packages/fxa-auth-server/fxa-content-server-l10n
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/fxa-content-server-l10n packages/fxa-content-server/fxa-content-server-l10n
+# COPY --from=0 --chown=circleci:circleci /fxa/packages/fxa-content-server/fxa-content-server-l10n packages/fxa-content-server/fxa-content-server-l10n
