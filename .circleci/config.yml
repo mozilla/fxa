@@ -112,7 +112,6 @@ jobs:
       - run:
           name: Build
           command: docker build . -f ./_dev/docker/ci/Dockerfile.base -t fxa-circleci-base
-
       - deploy:
           name: Push application Docker image
           command: |
@@ -368,7 +367,7 @@ workflows:
       - build-base-image:
         filters:
             branches:
-              only: ci-spike
+              only: ci-spike-main
 
   # build-pipeline-base-image:
   #   jobs:
