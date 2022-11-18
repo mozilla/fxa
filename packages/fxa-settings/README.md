@@ -439,6 +439,8 @@ All previous instances will still use `font-bold mr-2`.
 
 ### Working with SVGs
 
+#### Inlined SVGs
+
 Create React App allows us to use SVGs in a variety of ways, right out of the box. We prefer to inline our SVGs where we can:
 
 ```javascript
@@ -461,28 +463,31 @@ import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 </button>
 ```
 
-Other ways to use SVGs:
+You can also inline background-images like so, assuming `post-css/assets` is installed and in the `postcss.config.js`:
+
+```css
+background-image: inline('/path-to-image.svg');
+```
+
+To do this with Tailwind, you'll need to add a class to the `backgroundImage` object in the Tailwind config file. Check config files for examples.
+
+#### Non-inlined SVGs
+
+Sometimes it makes sense to let a network request fetch SVGs that are heavy/large and are used across multiple pages for faster rendering after the initial request. While our builds bust our asset caches, if an SVG persists from page to page, it can be more performant to download the image once and let the browser cache it for use across multiple pages, at least until the next release. The Mozilla and Firefox logo are good examples of this.
+
+This can be done with either an image `src` or a background-image with `url`.
 
 ```javascript
 // As an image source:
 import logoUrl from './logo.svg';
 const LogoImage = () => <img src={logoUrl} alt="Logo" />;
-
-// As a background-image (inline style)
-import logoUrl from './logo.svg';
-const LogoImage = () => (
-  <div
-    style={{ backgroundImage: `url(${logoUrl})` }}
-    role="img"
-    aria-label="logo"
-  ></div>
-);
-
-// As a background-image (external style)
-// Just reference it in CSS, the loader will find it
-// .logo { background-image: url('logo.svg'); }
-const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
 ```
+
+```css
+background-image: url('/path-to-image.svg');
+```
+
+To use a background-image with Tailwind, you'll need to add a class to the `backgroundImage` object in the Tailwind config file. Check config files for examples.
 
 ### Metrics
 
