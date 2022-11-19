@@ -37,14 +37,29 @@ executors:
 commands:
 
 
+  pre-install:
+    steps:
+      - checkout
+      - save_cache:
+          key: fxa-git-{{ .Branch }}
+          paths:
+            - ./
 
   base-install:
     steps:
       - restore_cache:
-          key: fxa-git-{{ .BuildNum }}
+          key: fxa-git-{{ .Branch }}
           paths:
             - ./
+      - restore_cache:
+          key: fxa-base-install-{{ checksum "yarn.lock" }}
+          paths:
+            - ./yarn/cache
       - run: ./.circleci/base-install.sh
+      - save_cache:
+          key: fxa-base-install-{{ checksum "yarn.lock" }}
+          paths:
+            - ./yarn/cache
       # - save_cache:
       #     key: fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
       #     paths:
@@ -105,11 +120,7 @@ jobs:
     docker:
       - image: cimg/node:16.13
     steps:
-      - checkout
-      - save_cache:
-          key: fxa-git-{{ .BuildNum }}
-          paths:
-            - ./
+      - pre-install
 
   build-base-image:
     docker:
