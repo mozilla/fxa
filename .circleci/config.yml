@@ -178,19 +178,21 @@ jobs:
 
 
   test-many:
-    working-directory: /fxa
+    working_directory: /fxa
     resource_class: medium+
     docker:
       - image: << pipeline.parameters.test-image >>
-      - image: cimg/mysql:8.0.28
-        command: --default-authentication-plugin=mysql_native_password
-      - image: jdlk7/firestore-emulator
-      - image: memcached
-      - image: redis
+      # - image: cimg/mysql:8.0.28
+      #   command: --default-authentication-plugin=mysql_native_password
+      # - image: jdlk7/firestore-emulator
+      # - image: memcached
+      # - image: redis
     environment:
       TRACING_SERVICE_NAME: ci-test-many
       TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
+      - run: pwd
+      - run: du -sh *
       - base-install
       - run:
           name: Compiling back-end Typescript services...
