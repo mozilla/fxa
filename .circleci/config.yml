@@ -36,15 +36,14 @@ executors:
 
 commands:
 
+
+
   base-install:
     steps:
-      - checkout
-      # - restore_cache:
-      #     keys:
-      #       # prefer the exact hash
-      #       - fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
-      #       # any cache to start with is better than nothing
-      #       - fxa-yarn-cache-4-
+      - restore_cache:
+          key: fxa-git-{{ .BuildNum }}
+          paths:
+            - ./
       - run: ./.circleci/base-install.sh
       # - save_cache:
       #     key: fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
@@ -101,6 +100,16 @@ commands:
           path: artifacts/tests
 
 jobs:
+
+  git-cache:
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - checkout
+      - save_cache:
+          key: fxa-git-{{ .BuildNum }}
+          paths:
+            - ./
 
   build-base-image:
     docker:
@@ -191,8 +200,6 @@ jobs:
       TRACING_SERVICE_NAME: ci-test-many
       TRACING_CONSOLE_EXPORTER_ENABLED: true
     steps:
-      - run: pwd
-      - run: du -sh *
       - base-install
       - run:
           name: Compiling back-end Typescript services...
@@ -220,12 +227,12 @@ jobs:
             for p in "${PACKAGES[@]}"; do
               ./.circleci/test-package.sh $p
             done
-      - run:
-          name: Reporting code coverage...
-          command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
-      - store_artifacts:
-          path: artifacts
-      - jira/notify
+      # - run:
+      #     name: Reporting code coverage...
+      #     command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      # - store_artifacts:
+      #     path: artifacts
+      # - jira/notify
 
   test-settings-server:
     executor: content-server-executor
@@ -388,10 +395,15 @@ workflows:
       #         ignore: main
       #       tags:
       #         ignore: /.*/
-      - test-many:
+      - git-cache:
           filters:
             branches:
               only: ci-spike
+
+      - test-many:
+          requires:
+            - git-cache
+
       # - test-settings-server:
       #     filters:
       #       branches:
