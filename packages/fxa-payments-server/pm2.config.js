@@ -41,6 +41,7 @@ module.exports = {
         NODE_ENV: 'development',
         PUBLIC_URL: 'http://localhost:3031',
         BROWSER: 'NONE',
+        HOST: 'http://127.0.0.1', // Temp change to test
         PORT: '3032',
         PATH,
       },
