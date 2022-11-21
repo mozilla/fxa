@@ -83,7 +83,7 @@ export const GetDataTrio = ({
           )}
           download={`${primaryEmail.email} ${contentType}.txt`}
           data-testid="databutton-download"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-dotted active:outline-black focus:outline-dotted focus:outline-black hover:bg-grey-50"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
           onClick={() => onAction?.('download')}
         >
           <DownloadIcon
@@ -104,7 +104,7 @@ export const GetDataTrio = ({
             onAction?.('copy');
           }}
           data-testid="databutton-copy"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-dotted active:outline-black focus:outline-dotted focus:outline-black hover:bg-grey-50"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
         >
           <CopyIcon
             width="21"
@@ -126,7 +126,7 @@ export const GetDataTrio = ({
             onAction?.('print');
           }}
           data-testid="databutton-print"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-dotted active:outline-black focus:outline-dotted focus:outline-black hover:bg-grey-50"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
         >
           <PrintIcon
             height="24"
