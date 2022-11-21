@@ -28,8 +28,8 @@ yarn workspaces foreach \
 
 npx pm2 ls
 
-#yarn workspace functional-tests test
+yarn workspace functional-tests test
 
 #Splitting tests and running in 6 different machines parallelly
-circleci tests glob "packages/functional-tests/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
-yarn workspace functional-tests test $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')
+#circleci tests glob "packages/functional-tests/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
+#yarn workspace functional-tests test $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')
