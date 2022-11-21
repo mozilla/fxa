@@ -299,6 +299,9 @@ jobs:
       NODE_ENV: dev
       TRACING_SERVICE_NAME: ci-playwright-functional-tests
       TRACING_CONSOLE_EXPORTER_ENABLED: true
+      SUBSCRIPTIONS_PAYPAL_ENABLED: true
+      PAYPAL_SANDBOX: true
+      PROXY_STATIC_RESOURCES_FROM: http://127.0.0.1:3032
     steps:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat
