@@ -301,7 +301,7 @@ jobs:
       TRACING_CONSOLE_EXPORTER_ENABLED: true
       SUBSCRIPTIONS_PAYPAL_ENABLED: true
       PAYPAL_SANDBOX: true
-      PROXY_STATIC_RESOURCES_FROM: http://127.0.0.1:3032
+      # PROXY_STATIC_RESOURCES_FROM: http://127.0.0.1:3032
     steps:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat
@@ -309,6 +309,11 @@ jobs:
       - run:
           name: Install playwright
           command: npx playwright install --with-deps
+      - run:
+          name: Add localhost
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            cat /etc/hosts
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
