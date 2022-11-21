@@ -35,15 +35,17 @@ export const SubscriptionChangeRoadblock = ({
             plan: selectedPlan,
           }}
         />
-
-        <PlanDetails
-          {...{
-            profile,
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
+        <div className="payment-panel">
+          <PlanDetails
+            {...{
+              className: 'rounded-plan',
+              profile,
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+        </div>
       </div>
     </>
   );

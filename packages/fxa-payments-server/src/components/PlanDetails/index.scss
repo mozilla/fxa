@@ -1,22 +1,6 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
-.payment-error ~ .plan-details-component,
-.payment-confirmation + .plan-details-component {
-  margin: 16px 16px 32px;
-
-  @include max-width('tablet') {
-    grid-row: 3/4;
-  }
-}
-
-.plan-details-component {
-  @include min-width('tablet') {
-    height: 0px;
-  }
-
-
-  /* can be removed once '@tailwind base' is enabled */
-  .up-arrow::before {
-    transform: rotate(180deg);
-  }
+/* can be removed once '@tailwind base' is enabled */
+.up-arrow::before {
+  transform: rotate(180deg);
 }

@@ -60,14 +60,18 @@ export const SubscriptionSuccess = ({
             coupon,
           }}
         />
-        <PlanDetails
-          {...{
-            selectedPlan: plan,
-            isMobile,
-            showExpandButton: isMobile,
-            coupon: coupon,
-          }}
-        >
+
+        <div className="payment-panel">
+          <PlanDetails
+            {...{
+              className: 'rounded-plan',
+              selectedPlan: plan,
+              isMobile,
+              showExpandButton: isMobile,
+              coupon: coupon,
+            }}
+          />
+
           {coupon ? (
             <CouponForm
               readOnly={true}
@@ -76,7 +80,7 @@ export const SubscriptionSuccess = ({
               {...{ planId: plan.plan_id, coupon }}
             />
           ) : null}
-        </PlanDetails>
+        </div>
       </div>
     </>
   );

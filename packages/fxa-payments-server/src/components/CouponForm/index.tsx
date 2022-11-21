@@ -170,7 +170,7 @@ export const CouponForm = ({
 
   return (
     <div
-      className="p-4 text-base mt-6 w-full bg-white rounded-lg shadow-sm shadow-grey-300 tablet:my-8 tablet:max-w-xs coupon-component"
+      className="component-card mt-6 p-4 rounded-t-lg text-base tablet:my-8 coupon-component"
       data-testid="coupon-component"
     >
       <h4 className="m-0 mb-4">
