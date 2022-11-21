@@ -7,8 +7,8 @@ import chaiAsPromised from 'chai-as-promised';
 import Renderer, {
   flattenNestedObjects,
   splitPlainTextLine,
-} from '../../../lib/senders/renderer';
-import { NodeRendererBindings } from '../../../lib/senders/renderer/bindings-node';
+} from 'fxa-shared/senders/renderer';
+import { NodeRendererBindings } from 'fxa-shared/senders/renderer/bindings-node';
 
 chai.use(chaiAsPromised);
 

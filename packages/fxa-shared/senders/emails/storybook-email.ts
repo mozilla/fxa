@@ -10,7 +10,7 @@ import { Story } from '@storybook/html';
 import Renderer from '../renderer';
 import { BrowserRendererBindings } from '../renderer/bindings-browser';
 
-interface StorybookEmailArgs {
+export interface StorybookEmailArgs {
   partial?: string;
   template: string;
   layout: string;

@@ -10,10 +10,11 @@ export default {
   title: 'FxA Emails/Templates/cadReminderSecond',
 } as Meta;
 
+// @ts-ignore
 const createStory = storyWithProps(
   'cadReminderSecond',
   'Sent 72 hours after a user clicks "send me a reminder" on the connect another device page.',
-  cadReminderFirst.CadReminderDefault.args.variables
+  cadReminderFirst?.CadReminderDefault?.args?.variables // @ts-ignore
 );
 
 export const CadReminderDefault = createStory();

@@ -47,7 +47,7 @@ export async function setupProcessingTaskObjects(processName: string) {
   const profile = require('../profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
 
-  const senders = await require('../senders')(
+  const senders = await require('fxa-shared/senders')(
     log,
     config,
     { check: () => Promise.resolve() },

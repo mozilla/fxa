@@ -4,7 +4,7 @@
 
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { RendererBindings, TemplateContext, RendererContext } from './bindings';
-import Localizer, { FtlIdMsg } from '../../l10n';
+import Localizer, { FtlIdMsg } from '../l10n';
 
 const RTL_LOCALES = [
   'ar',

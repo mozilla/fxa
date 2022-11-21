@@ -48,7 +48,7 @@ export function transformMjIncludeTags(mjml: string): string {
 function extractMjIncludeTags(mjml: string): MjIncludeTag[] {
   let chomp = false;
   let include = '';
-  const includes = [];
+  const includes = [] as any[];
   mjml
     .replace(/<mj-include/g, ' <mj-include')
     .split(/\n|\s/g)
@@ -96,9 +96,9 @@ function parseMjIncludeTag(include: string): MjIncludeTag {
 
   // Convert relative paths. The requests will now be made to the root
   // of the webserver.
-  res.path = res.path.replace(/\.\//, '/');
+  res.path = res?.path?.replace(/\.\//, '/');
 
-  return res;
+  return res as MjIncludeTag;
 }
 
 function toMjStyle(tag: MjIncludeTag) {

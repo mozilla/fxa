@@ -15,14 +15,14 @@ import {
   MOCK_LOCATION_CITY_COUNTRY,
   MOCK_LOCATION_COUNTRY,
   MOCK_LOCATION_STATE_COUNTRY,
-} from '../../../lib/senders/emails/partials/userLocation/mocks';
+} from 'fxa-shared/senders/emails/partials/userLocation/mocks';
 import {
   MOCK_DEVICE_ALL,
   MOCK_DEVICE_BROWSER,
   MOCK_DEVICE_BROWSER_OS,
   MOCK_DEVICE_OS,
   MOCK_DEVICE_OS_VERSION,
-} from '../../../lib/senders/emails/partials/userDevice/mocks';
+} from 'fxa-shared/senders/emails/partials/userDevice/mocks';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).getProperties();

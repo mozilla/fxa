@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import { transformMjIncludeTags } from '../../../lib/senders/emails/mjml-browser-helper';
+import { transformMjIncludeTags } from 'fxa-shared/senders/emails/mjml-browser-helper';
 
 describe('converts <mj-include> to <mj-style> tag', () => {
   function compact(mjml: string) {

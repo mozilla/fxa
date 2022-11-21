@@ -6,8 +6,8 @@
 // instead of NodeJS for DOM typings support
 /* eslint-env browser */
 
-import { ILocalizerBindings } from '../../l10n/interfaces/ILocalizerBindings';
-import { LocalizerOpts } from '../../l10n/models/LocalizerOpts';
+import { ILocalizerBindings } from 'fxa-shared/senders/l10n/interfaces/ILocalizerBindings';
+import { LocalizerOpts } from '../l10n/models/LocalizerOpts';
 
 // Supporting Types
 export type EjsOpts = {

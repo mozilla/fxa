@@ -9,6 +9,7 @@
 import { RendererBindings, RendererOpts, TemplateContext } from './bindings';
 
 // When rendering templates in storybook, use the mjml-browser implementation
+// @ts-ignore
 import mjml2html from 'mjml-browser';
 
 /**
@@ -17,7 +18,7 @@ import mjml2html from 'mjml-browser';
  * automically pulled in by the install-ejs.sh script and is invoked before
  * storybook starts up.
  */
-import ejs from '../../../vendor/ejs';
+import ejs from 'ejs';
 import { transformMjIncludeTags } from '../emails/mjml-browser-helper';
 
 /**
@@ -85,6 +86,7 @@ export class BrowserRendererBindings extends RendererBindings {
     // Work around the fact that mjml-browser doesn't support mj-include tags
     mjml = transformMjIncludeTags(mjml);
     // Re-render to pull in css files
+    // @ts-ignore
     mjml = this.renderEjs(mjml, {});
     return mjml2html(mjml, this.opts.mjml).html;
   }

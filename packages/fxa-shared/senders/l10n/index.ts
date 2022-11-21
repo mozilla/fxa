@@ -4,9 +4,9 @@
 
 import { DOMLocalization, Localization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { parseAcceptLanguage } from 'fxa-shared/l10n/parseAcceptLanguage';
+import { parseAcceptLanguage } from '../../l10n/parseAcceptLanguage';
 import { ILocalizerBindings } from './interfaces/ILocalizerBindings';
-import { determineLocale } from 'fxa-shared/l10n/determineLocale';
+import { determineLocale } from '../../l10n/determineLocale';
 
 export interface FtlIdMsg {
   id: string;

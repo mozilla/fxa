@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const emailUtils = require('../email/utils/helpers');
+// const emailUtils = require('fxa-auth-server/lib/email/utils/helpers');
 const moment = require('moment-timezone');
 const AWS = require('aws-sdk');
 const nodemailer = require('nodemailer');
-const safeUserAgent = require('../userAgent/safe');
+// import { safeUserAgent } from 'fxa-auth-server/lib/userAgent/safe';
 const url = require('url');
 const { URL } = url;
-const {
+import {
   localizedPlanConfig,
-} = require('fxa-shared/subscriptions/configuration/utils');
-const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
+} from '../subscriptions/configuration/utils';
+const { productDetailsFromPlan } = require('../subscriptions/metadata');
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
-const { determineLocale } = require('fxa-shared/l10n/determineLocale');
+const { determineLocale } = require('../l10n/determineLocale');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
 
@@ -28,242 +26,234 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-module.exports = function (log, config, bounces) {
-  const oauthClientInfo = require('./oauth_client_info')(log, config);
-  const verificationReminders = require('../verification-reminders')(
-    log,
-    config
+// Email template to UTM campaign map, each of these should be unique and
+// map to exactly one email template.
+const templateNameToCampaignMap = {
+  subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
+  subscriptionReactivation: 'subscription-reactivation',
+  subscriptionRenewalReminder: 'subscription-renewal-reminder',
+  subscriptionUpgrade: 'subscription-upgrade',
+  subscriptionDowngrade: 'subscription-downgrade',
+  subscriptionPaymentExpired: 'subscription-payment-expired',
+  subscriptionsPaymentExpired: 'subscriptions-payment-expired',
+  subscriptionPaymentProviderCancelled:
+    'subscription-payment-provider-cancelled',
+  subscriptionsPaymentProviderCancelled:
+    'subscriptions-payment-provider-cancelled',
+  subscriptionPaymentFailed: 'subscription-payment-failed',
+  subscriptionAccountDeletion: 'subscription-account-deletion',
+  subscriptionCancellation: 'subscription-cancellation',
+  subscriptionFailedPaymentsCancellation:
+    'subscription-failed-payments-cancellation',
+  subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
+  subscriptionFirstInvoice: 'subscription-first-invoice',
+  downloadSubscription: 'new-subscription',
+  fraudulentAccountDeletion: 'account-deletion',
+  lowRecoveryCodes: 'low-recovery-codes',
+  newDeviceLogin: 'new-device-signin',
+  passwordChangeRequired: 'password-change-required',
+  passwordChanged: 'password-changed-success',
+  passwordReset: 'password-reset-success',
+  passwordResetAccountRecovery: 'password-reset-account-recovery-success',
+  postAddLinkedAccount: 'account-linked',
+  postRemoveSecondary: 'account-email-removed',
+  postVerify: 'account-verified',
+  postChangePrimary: 'account-email-changed',
+  postVerifySecondary: 'account-email-verified',
+  postAddTwoStepAuthentication: 'account-two-step-enabled',
+  postRemoveTwoStepAuthentication: 'account-two-step-disabled',
+  postConsumeRecoveryCode: 'account-consume-recovery-code',
+  postNewRecoveryCodes: 'account-replace-recovery-codes',
+  postAddAccountRecovery: 'account-recovery-generated',
+  postRemoveAccountRecovery: 'account-recovery-removed',
+  recovery: 'forgot-password',
+  unblockCode: 'new-unblock',
+  verify: 'welcome',
+  verifyShortCode: 'welcome',
+  verifyLogin: 'new-signin',
+  verifyLoginCode: 'new-signin-verify-code',
+  verifyPrimary: 'welcome-primary',
+  verifySecondaryCode: 'welcome-secondary',
+};
+
+// Email template to UTM content, this is typically the main call out link/button
+// in template.
+// Please create a DB migration to add the new templates into `emailTypes`
+// when you add new templates.
+const templateNameToContentMap = {
+  subscriptionAccountFinishSetup: 'subscriptions',
+  subscriptionReactivation: 'subscriptions',
+  subscriptionRenewalReminder: 'subscriptions',
+  subscriptionUpgrade: 'subscriptions',
+  subscriptionDowngrade: 'subscriptions',
+  subscriptionPaymentExpired: 'subscriptions',
+  subscriptionsPaymentExpired: 'subscriptions',
+  subscriptionPaymentProviderCancelled: 'subscriptions',
+  subscriptionsPaymentProviderCancelled: 'subscriptions',
+  subscriptionPaymentFailed: 'subscriptions',
+  subscriptionAccountDeletion: 'subscriptions',
+  subscriptionCancellation: 'subscriptions',
+  subscriptionFailedPaymentsCancellation: 'subscriptions',
+  subscriptionSubsequentInvoice: 'subscriptions',
+  subscriptionFirstInvoice: 'subscriptions',
+  downloadSubscription: 'subscriptions',
+  fraudulentAccountDeletion: 'manage-account',
+  lowRecoveryCodes: 'recovery-codes',
+  newDeviceLogin: 'manage-account',
+  passwordChanged: 'password-change',
+  passwordChangeRequired: 'password-change',
+  passwordReset: 'password-reset',
+  passwordResetAccountRecovery: 'create-recovery-key',
+  postAddLinkedAccount: 'manage-account',
+  postRemoveSecondary: 'account-email-removed',
+  postVerify: 'connect-device',
+  postChangePrimary: 'account-email-changed',
+  postVerifySecondary: 'manage-account',
+  postAddTwoStepAuthentication: 'manage-account',
+  postRemoveTwoStepAuthentication: 'manage-account',
+  postConsumeRecoveryCode: 'manage-account',
+  postNewRecoveryCodes: 'manage-account',
+  postAddAccountRecovery: 'manage-account',
+  postRemoveAccountRecovery: 'manage-account',
+  recovery: 'reset-password',
+  unblockCode: 'unblock-code',
+  verify: 'activate',
+  verifyShortCode: 'activate',
+  verifyLogin: 'confirm-signin',
+  verifyLoginCode: 'new-signin-verify-code',
+  verifyPrimary: 'activate',
+  verifySecondaryCode: 'activate',
+};
+
+function extend(target, source) {
+  for (const key in source) {
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+// TODO: can this be modified/removed? FXA-4761 / #12259
+function linkAttributes(url) {
+  // Not very nice to have presentation code in here, but this is to help l10n
+  // contributors not deal with extraneous noise in strings.
+  return `href="${url}" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"`;
+}
+
+const baseCurrencyOptions = {
+  style: 'currency',
+  currencyDisplay: 'symbol',
+};
+
+
+/**
+ * This returns a string that is formatted according to the given locale.
+ *
+ * Borrowed from fxa-payments-server/src/lib/formats.ts
+ * TODO: Would be nice to share this if/when TypeScript conversion reaches here.
+ *
+ * @param {number} amountInCents
+ * @param {string} currency
+ * @param {string} locale
+ */
+function getLocalizedCurrencyString(
+  amountInCents,
+  currency = 'usd',
+  locale = 'en-US',
+) {
+  const decimal = amountInCents / 100;
+  const options = { ...baseCurrencyOptions, currency };
+
+  try {
+    return new Intl.NumberFormat(locale, options).format(decimal);
+  } catch (e) {
+    // The exception could be a verror wrapped one.
+    const cause = e.cause ? e.cause() : e;
+    // If the language tag is not something Intl can handle, use 'en-US'.
+    if (cause.message.endsWith('Incorrect locale information provided')) {
+      return getLocalizedCurrencyString(amountInCents, currency, 'en-US');
+    }
+    throw e;
+  }
+}
+
+function sesMessageTagsHeaderValue(templateName, serviceName) {
+  return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
+}
+
+function constructLocalTimeString(timeZone, locale) {
+  // if no timeZone is passed, use DEFAULT_TIMEZONE
+  moment.tz.setDefault(DEFAULT_TIMEZONE);
+  // if no locale is passed, use DEFAULT_LOCALE
+  locale = locale || DEFAULT_LOCALE;
+  moment.locale(locale);
+  let timeMoment = moment();
+  if (timeZone) {
+    timeMoment = timeMoment.tz(timeZone);
+  }
+  // return a locale-specific time
+  // if date or time is passed, return it as the current date or time
+  const timeNow = timeMoment.format('LTS (z)');
+  const dateNow = timeMoment.format('dddd, ll');
+  return [timeNow, dateNow];
+}
+
+function constructLocalDateString(timeZone, locale, date) {
+  // if no timeZone is passed, use DEFAULT_TIMEZONE
+  moment.tz.setDefault(DEFAULT_TIMEZONE);
+  // if no locale is passed, use DEFAULT_LOCALE
+  locale = locale || DEFAULT_LOCALE;
+  moment.locale(locale);
+  let time = moment(date);
+  if (timeZone) {
+    time = time.tz(timeZone);
+  }
+  // return a locale-specific date
+  return time.format('L');
+}
+
+// These are brand names, so they probably don't need l10n.
+const CARD_TYPE_TO_TEXT = {
+  amex: 'American Express',
+  diners: 'Diners Club',
+  discover: 'Discover',
+  jcb: 'JCB',
+  mastercard: 'MasterCard',
+  unionpay: 'UnionPay',
+  visa: 'Visa',
+  unknown: 'Unknown',
+};
+
+function cardTypeToText(cardType) {
+  if (typeof cardType !== 'string') {
+    return null;
+  }
+  return (
+    CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
   );
+}
 
-  const cadReminders = require('../cad-reminders')(config, log);
-  const subscriptionAccountReminders =
-    require('../subscription-account-reminders')(log, config);
-
-  const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
-
-  // Email template to UTM campaign map, each of these should be unique and
-  // map to exactly one email template.
-  const templateNameToCampaignMap = {
-    subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
-    subscriptionReactivation: 'subscription-reactivation',
-    subscriptionRenewalReminder: 'subscription-renewal-reminder',
-    subscriptionUpgrade: 'subscription-upgrade',
-    subscriptionDowngrade: 'subscription-downgrade',
-    subscriptionPaymentExpired: 'subscription-payment-expired',
-    subscriptionsPaymentExpired: 'subscriptions-payment-expired',
-    subscriptionPaymentProviderCancelled:
-      'subscription-payment-provider-cancelled',
-    subscriptionsPaymentProviderCancelled:
-      'subscriptions-payment-provider-cancelled',
-    subscriptionPaymentFailed: 'subscription-payment-failed',
-    subscriptionAccountDeletion: 'subscription-account-deletion',
-    subscriptionCancellation: 'subscription-cancellation',
-    subscriptionFailedPaymentsCancellation:
-      'subscription-failed-payments-cancellation',
-    subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
-    subscriptionFirstInvoice: 'subscription-first-invoice',
-    downloadSubscription: 'new-subscription',
-    fraudulentAccountDeletion: 'account-deletion',
-    lowRecoveryCodes: 'low-recovery-codes',
-    newDeviceLogin: 'new-device-signin',
-    passwordChangeRequired: 'password-change-required',
-    passwordChanged: 'password-changed-success',
-    passwordReset: 'password-reset-success',
-    passwordResetAccountRecovery: 'password-reset-account-recovery-success',
-    postAddLinkedAccount: 'account-linked',
-    postRemoveSecondary: 'account-email-removed',
-    postVerify: 'account-verified',
-    postChangePrimary: 'account-email-changed',
-    postVerifySecondary: 'account-email-verified',
-    postAddTwoStepAuthentication: 'account-two-step-enabled',
-    postRemoveTwoStepAuthentication: 'account-two-step-disabled',
-    postConsumeRecoveryCode: 'account-consume-recovery-code',
-    postNewRecoveryCodes: 'account-replace-recovery-codes',
-    postAddAccountRecovery: 'account-recovery-generated',
-    postRemoveAccountRecovery: 'account-recovery-removed',
-    recovery: 'forgot-password',
-    unblockCode: 'new-unblock',
-    verify: 'welcome',
-    verifyShortCode: 'welcome',
-    verifyLogin: 'new-signin',
-    verifyLoginCode: 'new-signin-verify-code',
-    verifyPrimary: 'welcome-primary',
-    verifySecondaryCode: 'welcome-secondary',
-  };
-
-  // Email template to UTM content, this is typically the main call out link/button
-  // in template.
-  // Please create a DB migration to add the new templates into `emailTypes`
-  // when you add new templates.
-  const templateNameToContentMap = {
-    subscriptionAccountFinishSetup: 'subscriptions',
-    subscriptionReactivation: 'subscriptions',
-    subscriptionRenewalReminder: 'subscriptions',
-    subscriptionUpgrade: 'subscriptions',
-    subscriptionDowngrade: 'subscriptions',
-    subscriptionPaymentExpired: 'subscriptions',
-    subscriptionsPaymentExpired: 'subscriptions',
-    subscriptionPaymentProviderCancelled: 'subscriptions',
-    subscriptionsPaymentProviderCancelled: 'subscriptions',
-    subscriptionPaymentFailed: 'subscriptions',
-    subscriptionAccountDeletion: 'subscriptions',
-    subscriptionCancellation: 'subscriptions',
-    subscriptionFailedPaymentsCancellation: 'subscriptions',
-    subscriptionSubsequentInvoice: 'subscriptions',
-    subscriptionFirstInvoice: 'subscriptions',
-    downloadSubscription: 'subscriptions',
-    fraudulentAccountDeletion: 'manage-account',
-    lowRecoveryCodes: 'recovery-codes',
-    newDeviceLogin: 'manage-account',
-    passwordChanged: 'password-change',
-    passwordChangeRequired: 'password-change',
-    passwordReset: 'password-reset',
-    passwordResetAccountRecovery: 'create-recovery-key',
-    postAddLinkedAccount: 'manage-account',
-    postRemoveSecondary: 'account-email-removed',
-    postVerify: 'connect-device',
-    postChangePrimary: 'account-email-changed',
-    postVerifySecondary: 'manage-account',
-    postAddTwoStepAuthentication: 'manage-account',
-    postRemoveTwoStepAuthentication: 'manage-account',
-    postConsumeRecoveryCode: 'manage-account',
-    postNewRecoveryCodes: 'manage-account',
-    postAddAccountRecovery: 'manage-account',
-    postRemoveAccountRecovery: 'manage-account',
-    recovery: 'reset-password',
-    unblockCode: 'unblock-code',
-    verify: 'activate',
-    verifyShortCode: 'activate',
-    verifyLogin: 'confirm-signin',
-    verifyLoginCode: 'new-signin-verify-code',
-    verifyPrimary: 'activate',
-    verifySecondaryCode: 'activate',
-  };
-
-  function extend(target, source) {
-    for (const key in source) {
-      target[key] = source[key];
-    }
-
-    return target;
-  }
-
-  // TODO: can this be modified/removed? FXA-4761 / #12259
-  function linkAttributes(url) {
-    // Not very nice to have presentation code in here, but this is to help l10n
-    // contributors not deal with extraneous noise in strings.
-    return `href="${url}" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"`;
-  }
-
-  function constructLocalTimeString(timeZone, locale) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
-    // if no locale is passed, use DEFAULT_LOCALE
-    locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let timeMoment = moment();
-    if (timeZone) {
-      timeMoment = timeMoment.tz(timeZone);
-    }
-    // return a locale-specific time
-    // if date or time is passed, return it as the current date or time
-    const timeNow = timeMoment.format('LTS (z)');
-    const dateNow = timeMoment.format('dddd, ll');
-    return [timeNow, dateNow];
-  }
-
-  function constructLocalDateString(timeZone, locale, date) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
-    // if no locale is passed, use DEFAULT_LOCALE
-    locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let time = moment(date);
-    if (timeZone) {
-      time = time.tz(timeZone);
-    }
-    // return a locale-specific date
-    return time.format('L');
-  }
-
-  // Borrowed from fxa-payments-server/src/lib/formats.ts
-  // TODO: Would be nice to share this if/when TypeScript conversion reaches here.
-  const baseCurrencyOptions = {
-    style: 'currency',
-    currencyDisplay: 'symbol',
-  };
-
-  /**
-   * This returns a string that is formatted according to the given locale.
-   *
-   * Borrowed from fxa-payments-server/src/lib/formats.ts
-   * TODO: Would be nice to share this if/when TypeScript conversion reaches here.
-   *
-   * @param {number} amountInCents
-   * @param {string} currency
-   * @param {string} locale
-   */
-  function getLocalizedCurrencyString(
-    amountInCents,
-    currency = 'usd',
-    locale = 'en-US'
-  ) {
-    const decimal = amountInCents / 100;
-    const options = { ...baseCurrencyOptions, currency };
-
-    try {
-      return new Intl.NumberFormat(locale, options).format(decimal);
-    } catch (e) {
-      // The exception could be a verror wrapped one.
-      const cause = e.cause ? e.cause() : e;
-      // If the language tag is not something Intl can handle, use 'en-US'.
-      if (cause.message.endsWith('Incorrect locale information provided')) {
-        return getLocalizedCurrencyString(amountInCents, currency, 'en-US');
-      }
-      throw e;
-    }
-  }
-
-  function sesMessageTagsHeaderValue(templateName, serviceName) {
-    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
-  }
-
-  // These are brand names, so they probably don't need l10n.
-  const CARD_TYPE_TO_TEXT = {
-    amex: 'American Express',
-    diners: 'Diners Club',
-    discover: 'Discover',
-    jcb: 'JCB',
-    mastercard: 'MasterCard',
-    unionpay: 'UnionPay',
-    visa: 'Visa',
-    unknown: 'Unknown',
-  };
-
-  function cardTypeToText(cardType) {
-    if (typeof cardType !== 'string') {
-      return null;
-    }
-    return (
-      CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
-    );
-  }
-
-  function Mailer(mailerConfig, sender) {
+export default class Mailer {
+  constructor(log, config, bounces, sender) {
+    this.log = log;
+    this.config = config;
+    this.bounces = bounces;
+    
+    this.mailerConfig = this.config.smtp;
     let options = {
-      host: mailerConfig.host,
-      secure: mailerConfig.secure,
-      ignoreTLS: !mailerConfig.secure,
-      port: mailerConfig.port,
-      pool: mailerConfig.pool,
-      maxConnections: mailerConfig.maxConnections,
-      maxMessages: mailerConfig.maxMessages,
+      host: this.mailerConfig.host,
+      secure: this.mailerConfig.secure,
+      ignoreTLS: !this.mailerConfig.secure,
+      port: this.mailerConfig.port,
+      pool: this.mailerConfig.pool,
+      maxConnections: this.mailerConfig.maxConnections,
+      maxMessages: this.mailerConfig.maxMessages,
     };
 
-    if (mailerConfig.user && mailerConfig.password) {
+    if (this.mailerConfig.user && this.mailerConfig.password) {
       options.auth = {
-        user: mailerConfig.user,
-        pass: mailerConfig.password,
+        user: this.mailerConfig.user,
+        pass: this.mailerConfig.password,
       };
     } else {
       const ses = new AWS.SES({ apiVersion: '2010-12-01' });
@@ -273,109 +263,113 @@ module.exports = function (log, config, bounces) {
         maxConnections: 10,
       };
     }
-
-    this.accountSettingsUrl = mailerConfig.accountSettingsUrl;
-    this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl;
-    this.androidUrl = mailerConfig.androidUrl;
-    this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
-    this.accountFinishSetupUrl = mailerConfig.accountFinishSetupUrl;
-    this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl;
-    this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl;
-    this.iosUrl = mailerConfig.iosUrl;
-    this.iosAdjustUrl = mailerConfig.iosAdjustUrl;
+    
+    this.sender = sender;
+    this.accountSettingsUrl = this.mailerConfig.accountSettingsUrl;
+    this.accountRecoveryCodesUrl = this.mailerConfig.accountRecoveryCodesUrl;
+    this.androidUrl = this.mailerConfig.androidUrl;
+    this.createAccountRecoveryUrl = this.mailerConfig.createAccountRecoveryUrl;
+    this.accountFinishSetupUrl = this.mailerConfig.accountFinishSetupUrl;
+    this.initiatePasswordChangeUrl = this.mailerConfig.initiatePasswordChangeUrl;
+    this.initiatePasswordResetUrl = this.mailerConfig.initiatePasswordResetUrl;
+    this.iosUrl = this.mailerConfig.iosUrl;
+    this.iosAdjustUrl = this.mailerConfig.iosAdjustUrl;
     this.mailer = sender || nodemailer.createTransport(options);
-    this.passwordManagerInfoUrl = mailerConfig.passwordManagerInfoUrl;
-    this.passwordResetUrl = mailerConfig.passwordResetUrl;
+    this.passwordManagerInfoUrl = this.mailerConfig.passwordManagerInfoUrl;
+    this.passwordResetUrl = this.mailerConfig.passwordResetUrl;
     this.prependVerificationSubdomain =
-      mailerConfig.prependVerificationSubdomain;
-    this.privacyUrl = mailerConfig.privacyUrl;
-    this.reportSignInUrl = mailerConfig.reportSignInUrl;
-    this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
-    this.sender = mailerConfig.sender;
-    this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
-    this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
-    this.subscriptionSupportUrl = mailerConfig.subscriptionSupportUrl;
-    this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
-    this.supportUrl = mailerConfig.supportUrl;
-    this.syncUrl = mailerConfig.syncUrl;
-    this.verificationUrl = mailerConfig.verificationUrl;
-    this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
-    this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
+      this.mailerConfig.prependVerificationSubdomain;
+    this.privacyUrl = this.mailerConfig.privacyUrl;
+    this.reportSignInUrl = this.mailerConfig.reportSignInUrl;
+    this.revokeAccountRecoveryUrl = this.mailerConfig.revokeAccountRecoveryUrl;
+    this.sender = this.mailerConfig.sender;
+    this.sesConfigurationSet = this.mailerConfig.sesConfigurationSet;
+    this.subscriptionSettingsUrl = this.mailerConfig.subscriptionSettingsUrl;
+    this.subscriptionSupportUrl = this.mailerConfig.subscriptionSupportUrl;
+    this.subscriptionTermsUrl = this.mailerConfig.subscriptionTermsUrl;
+    this.supportUrl = this.mailerConfig.supportUrl;
+    this.syncUrl = this.mailerConfig.syncUrl;
+    this.verificationUrl = this.mailerConfig.verificationUrl;
+    this.verifyLoginUrl = this.mailerConfig.verifyLoginUrl;
+    this.verifyPrimaryEmailUrl = this.mailerConfig.verifyPrimaryEmailUrl;
     this.renderer = new Renderer(new NodeRendererBindings());
     this.metricsEnabled = true;
   }
 
-  Mailer.prototype.stop = function () {
+  stop() {
     this.mailer.close();
   };
 
-  Mailer.prototype._supportLinkAttributes = function (templateName) {
+  _supportLinkAttributes(templateName) {
     return linkAttributes(this.createSupportLink(templateName));
   };
 
-  Mailer.prototype._passwordResetLinkAttributes = function (
+  _passwordResetLinkAttributes(
     email,
     templateName,
-    emailToHashWith
+    emailToHashWith,
   ) {
     return linkAttributes(
-      this.createPasswordResetLink(email, templateName, emailToHashWith)
+      this.createPasswordResetLink(email, templateName, emailToHashWith),
     );
   };
 
-  Mailer.prototype._passwordChangeLinkAttributes = function (
+  _passwordChangeLinkAttributes(
     email,
-    templateName
+    templateName,
   ) {
     return linkAttributes(this.createPasswordChangeLink(email, templateName));
   };
 
-  Mailer.prototype._formatUserAgentInfo = function (message) {
-    const uaBrowser = safeUserAgent.name(message.uaBrowser);
-    const uaOS = safeUserAgent.name(message.uaOS);
-    const uaOSVersion = safeUserAgent.version(message.uaOSVersion);
-
-    return !uaBrowser && !uaOS
-      ? null
-      : {
-          uaBrowser,
-          uaOS,
-          uaOSVersion,
-        };
+  _formatUserAgentInfo(message) {
+    return null;
+    // const uaBrowser = safeUserAgent.name(message.uaBrowser);
+    // const uaOS = safeUserAgent.name(message.uaOS);
+    // const uaOSVersion = safeUserAgent.version(message.uaOSVersion);
+    //
+    // return !uaBrowser && !uaOS
+    //   ? null
+    //   : {
+    //       uaBrowser,
+    //       uaOS,
+    //       uaOSVersion,
+    //     };
   };
 
-  Mailer.prototype._constructLocalTimeString = function (
-    timeZone,
-    acceptLanguage
-  ) {
-    return constructLocalTimeString(timeZone, acceptLanguage);
-  };
-
-  Mailer.prototype._constructLocalDateString = function (
+  _constructLocalTimeString(
     timeZone,
     acceptLanguage,
-    date
   ) {
-    return constructLocalDateString(
-      timeZone,
-      determineLocale(acceptLanguage),
-      date
-    );
+    // return constructLocalTimeString(timeZone, acceptLanguage);
+    return ['', ''];
   };
 
-  Mailer.prototype._getLocalizedCurrencyString = function (
+  _constructLocalDateString(
+    timeZone,
+    acceptLanguage,
+    date,
+  ) {
+    return ['', ''];
+    // return constructLocalDateString(
+    //   timeZone,
+    //   determineLocale(acceptLanguage),
+    //   date
+    // );
+  };
+
+  _getLocalizedCurrencyString(
     amountInCents,
     currency,
-    acceptLanguage
+    acceptLanguage,
   ) {
     return getLocalizedCurrencyString(
       amountInCents,
       currency,
-      determineLocale(acceptLanguage)
+      determineLocale(acceptLanguage),
     );
   };
 
-  Mailer.prototype.localize = async function (message) {
+  async localize(message) {
     message.layout = message.layout || 'fxa';
     const { html, text, subject } = await this.renderer.renderEmail(message);
 
@@ -387,8 +381,8 @@ module.exports = function (log, config, bounces) {
     };
   };
 
-  Mailer.prototype.send = async function (message) {
-    log.trace(`mailer.${message.template}`, {
+  async send(message) {
+    this.log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
     });
@@ -397,7 +391,7 @@ module.exports = function (log, config, bounces) {
     const template = message.template;
     let templateVersion = TEMPLATE_VERSIONS[template];
     if (!templateVersion) {
-      log.error('emailTemplateVersion.missing', { template });
+      this.log.error('emailTemplateVersion.missing', { template });
       templateVersion = 1;
     }
     message.templateVersion = templateVersion;
@@ -417,9 +411,9 @@ module.exports = function (log, config, bounces) {
     const to = message.email;
 
     try {
-      await bounces.check(to, template);
+      await this.bounces.check(to, template);
     } catch (err) {
-      log.error('email.bounce.limit', {
+      this.log.error('email.bounce.limit', {
         err: err.message,
         errno: err.errno,
         to,
@@ -435,11 +429,11 @@ module.exports = function (log, config, bounces) {
       headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
         message.metricsTemplate || template,
-        'fxa-auth-server'
+        'fxa-auth-server',
       );
     }
 
-    log.debug('mailer.send', {
+    this.log.debug('mailer.send', {
       email: to,
       template,
       headers: Object.keys(headers).join(','),
@@ -463,7 +457,7 @@ module.exports = function (log, config, bounces) {
     await new Promise((resolve, reject) => {
       this.mailer.sendMail(emailConfig, (err, status) => {
         if (err) {
-          log.error('mailer.send.error', {
+          this.log.error('mailer.send.error', {
             err: err.message,
             code: err.code,
             errno: err.errno,
@@ -475,33 +469,33 @@ module.exports = function (log, config, bounces) {
           return reject(err);
         }
 
-        log.debug('mailer.send.1', {
+        this.log.debug('mailer.send.1', {
           status: status && status.message,
           id: status && status.messageId,
           to: emailConfig && emailConfig.to,
         });
 
-        emailUtils.logEmailEventSent(log, {
-          ...message,
-          headers,
-        });
-
-        emailUtils.logAccountEventFromMessage(
-          {
-            headers: {
-              ...headers,
-            },
-          },
-          'emailSent'
-        );
+        // emailUtils.logEmailEventSent(log, {
+        //   ...message,
+        //   headers,
+        // });
+        //
+        // emailUtils.logAccountEventFromMessage(
+        //   {
+        //     headers: {
+        //       ...headers,
+        //     },
+        //   },
+        //   'emailSent'
+        // );
 
         return resolve(status);
       });
     });
   };
 
-  Mailer.prototype.verifyEmail = async function (message) {
-    log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
+  async verifyEmail(message) {
+    this.log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
     const templateName = 'verify';
     const query = {
@@ -511,7 +505,7 @@ module.exports = function (log, config, bounces) {
 
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     if (message.service) {
@@ -531,7 +525,7 @@ module.exports = function (log, config, bounces) {
       this.verificationUrl,
       message,
       query,
-      templateName
+      templateName,
     );
 
     const headers = {
@@ -565,8 +559,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifyShortCodeEmail = async function (message) {
-    log.trace('mailer.verifyShortCodeEmail', {
+  async verifyShortCodeEmail (message) {
+    this.log.trace('mailer.verifyShortCodeEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -578,11 +572,11 @@ module.exports = function (log, config, bounces) {
       this.verificationUrl,
       message,
       {},
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -610,119 +604,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  verificationReminders.keys.forEach((key, index) => {
-    // Template names are generated in the form `verificationReminderFirstEmail`,
-    // where `First` is the key derived from config, with an initial capital letter.
-    const template = `verificationReminder${key[0].toUpperCase()}${key.substr(
-      1
-    )}`;
-
-    templateNameToCampaignMap[template] = `${key}-verification-reminder`;
-    templateNameToContentMap[template] = 'confirm-email';
-
-    Mailer.prototype[`${template}Email`] = async function (message) {
-      const { code, email, uid } = message;
-
-      log.trace(`mailer.${template}`, { code, email, uid });
-
-      const query = { code, reminder: key, uid };
-      const links = this._generateLinks(
-        this.verificationUrl,
-        message,
-        query,
-        template
-      );
-      const headers = {
-        'X-Link': links.link,
-        'X-Verify-Code': code,
-      };
-
-      return this.send({
-        ...message,
-        headers,
-        template,
-        templateValues: {
-          email,
-          link: links.link,
-          oneClickLink: links.oneClickLink,
-          privacyUrl: links.privacyUrl,
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-      });
-    };
-  });
-
-  subscriptionAccountReminders.keys.forEach((key, index) => {
-    // Template names are generated in the form `verificationReminderFirstEmail`,
-    // where `First` is the key derived from config, with an initial capital letter.
-    const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
-      1
-    )}`;
-
-    templateNameToCampaignMap[
-      template
-    ] = `${key}-subscription-account-reminder`;
-    templateNameToContentMap[template] = 'subscription-account-create-email';
-
-    Mailer.prototype[`${template}Email`] = async function (message) {
-      const {
-        email,
-        uid,
-        productId,
-        productName,
-        token,
-        flowId,
-        flowBeginTime,
-        deviceId,
-        accountVerified,
-      } = message;
-
-      log.trace(`mailer.${template}`, { email, uid });
-
-      const query = {
-        email,
-        product_name: productName,
-        token,
-        product_id: productId,
-        flowId,
-        flowBeginTime,
-        deviceId,
-      };
-
-      const links = this._generateLinks(
-        this.accountFinishSetupUrl,
-        message,
-        query,
-        template
-      );
-      const headers = {
-        'X-Link': links.link,
-      };
-
-      if (!accountVerified) {
-        return this.send({
-          ...message,
-          headers,
-          layout: 'subscription',
-          template,
-          templateValues: {
-            email,
-            ...links,
-            oneClickLink: links.oneClickLink,
-            privacyUrl: links.privacyUrl,
-            termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
-            supportUrl: links.supportUrl,
-            supportLinkAttributes: links.supportLinkAttributes,
-            reminderShortForm: true,
-          },
-        });
-      }
-    };
-  });
-
-  Mailer.prototype.unblockCodeEmail = function (message) {
-    log.trace('mailer.unblockCodeEmail', {
+  unblockCodeEmail(message) {
+    this.log.trace('mailer.unblockCodeEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -737,7 +620,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateLinks(null, message, query, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -764,8 +647,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifyLoginEmail = function (message) {
-    log.trace('mailer.verifyLoginEmail', {
+  verifyLoginEmail(message) {
+    this.log.trace('mailer.verifyLoginEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -790,7 +673,7 @@ module.exports = function (log, config, bounces) {
       this.verifyLoginUrl,
       message,
       query,
-      templateName
+      templateName,
     );
 
     const headers = {
@@ -802,7 +685,7 @@ module.exports = function (log, config, bounces) {
       const clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage
+        message.acceptLanguage,
       );
 
       return this.send({
@@ -829,8 +712,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifyLoginCodeEmail = async function (message) {
-    log.trace('mailer.verifyLoginCodeEmail', {
+  async verifyLoginCodeEmail(message) {
+    this.log.trace('mailer.verifyLoginCodeEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -855,11 +738,11 @@ module.exports = function (log, config, bounces) {
       this.verifyLoginUrl,
       message,
       query,
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -891,8 +774,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifyPrimaryEmail = function (message) {
-    log.trace('mailer.verifyPrimaryEmail', {
+  verifyPrimaryEmail(message) {
+    this.log.trace('mailer.verifyPrimaryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -919,11 +802,11 @@ module.exports = function (log, config, bounces) {
       this.verifyPrimaryEmailUrl,
       message,
       query,
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -953,8 +836,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifySecondaryCodeEmail = function (message) {
-    log.trace('mailer.verifySecondaryCodeEmail', {
+  verifySecondaryCodeEmail(message) {
+    this.log.trace('mailer.verifySecondaryCodeEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -963,7 +846,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateLinks(undefined, message, {}, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -992,7 +875,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.recoveryEmail = function (message) {
+  recoveryEmail(message) {
     const templateName = 'recovery';
     const query = {
       uid: message.uid,
@@ -1017,11 +900,11 @@ module.exports = function (log, config, bounces) {
       this.passwordResetUrl,
       message,
       query,
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1049,18 +932,18 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.passwordChangedEmail = function (message) {
+  passwordChangedEmail(message) {
     const templateName = 'passwordChanged';
 
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
       {},
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1086,13 +969,13 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.passwordChangeRequiredEmail = function (message) {
+  passwordChangeRequiredEmail(message) {
     const templateName = 'passwordChangeRequired';
     const links = this._generateLinks(
       this.initiatePasswordChangeUrl,
       message,
       {},
-      templateName
+      templateName,
     );
 
     const headers = {
@@ -1112,13 +995,13 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.passwordResetEmail = function (message) {
+  passwordResetEmail(message) {
     const templateName = 'passwordReset';
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
       {},
-      templateName
+      templateName,
     );
 
     const headers = {
@@ -1139,8 +1022,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postAddLinkedAccountEmail = function (message) {
-    log.trace('mailer.postAddLinkedAccountEmail', {
+  postAddLinkedAccountEmail(message) {
+    this.log.trace('mailer.postAddLinkedAccountEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1150,7 +1033,7 @@ module.exports = function (log, config, bounces) {
 
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1179,8 +1062,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.newDeviceLoginEmail = function (message) {
-    log.trace('mailer.newDeviceLoginEmail', {
+  newDeviceLoginEmail(message) {
+    this.log.trace('mailer.newDeviceLoginEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1195,7 +1078,7 @@ module.exports = function (log, config, bounces) {
       const clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage
+        message.acceptLanguage,
       );
 
       return this.send({
@@ -1220,8 +1103,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postVerifyEmail = function (message) {
-    log.trace('mailer.postVerifyEmail', {
+  postVerifyEmail(message) {
+    this.log.trace('mailer.postVerifyEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1233,7 +1116,7 @@ module.exports = function (log, config, bounces) {
       this.syncUrl,
       message,
       query,
-      templateName
+      templateName,
     );
 
     const headers = {
@@ -1249,8 +1132,8 @@ module.exports = function (log, config, bounces) {
         androidLinkAttributes: linkAttributes(links.androidLink),
         androidUrl: links.androidLink,
         cadLinkAttributes: linkAttributes(links.link),
-        desktopLink: config.smtp.firefoxDesktopUrl,
-        desktopLinkAttributes: linkAttributes(config.smtp.firefoxDesktopUrl),
+        desktopLink: this.config.smtp.firefoxDesktopUrl,
+        desktopLinkAttributes: linkAttributes(this.config.smtp.firefoxDesktopUrl),
         iosLinkAttributes: linkAttributes(links.iosLink),
         iosUrl: links.iosLink,
         link: links.link,
@@ -1263,8 +1146,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postVerifySecondaryEmail = function (message) {
-    log.trace('mailer.postVerifySecondaryEmail', {
+  postVerifySecondaryEmail(message) {
+    this.log.trace('mailer.postVerifySecondaryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1294,8 +1177,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postChangePrimaryEmail = function (message) {
-    log.trace('mailer.postChangePrimaryEmail', {
+  postChangePrimaryEmail(message) {
+    this.log.trace('mailer.postChangePrimaryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1325,8 +1208,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postRemoveSecondaryEmail = function (message) {
-    log.trace('mailer.postRemoveSecondaryEmail', {
+  postRemoveSecondaryEmail(message) {
+    this.log.trace('mailer.postRemoveSecondaryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1354,8 +1237,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postAddTwoStepAuthenticationEmail = function (message) {
-    log.trace('mailer.postAddTwoStepAuthenticationEmail', {
+  postAddTwoStepAuthenticationEmail(message) {
+    this.log.trace('mailer.postAddTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1364,7 +1247,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1394,8 +1277,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
-    log.trace('mailer.postRemoveTwoStepAuthenticationEmail', {
+  postRemoveTwoStepAuthenticationEmail(message) {
+    this.log.trace('mailer.postRemoveTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1404,7 +1287,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1434,8 +1317,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postNewRecoveryCodesEmail = function (message) {
-    log.trace('mailer.postNewRecoveryCodesEmail', {
+  postNewRecoveryCodesEmail(message) {
+    this.log.trace('mailer.postNewRecoveryCodesEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1444,7 +1327,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1474,8 +1357,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postConsumeRecoveryCodeEmail = function (message) {
-    log.trace('mailer.postConsumeRecoveryCodeEmail', {
+  postConsumeRecoveryCodeEmail(message) {
+    this.log.trace('mailer.postConsumeRecoveryCodeEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1484,7 +1367,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1515,10 +1398,10 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.lowRecoveryCodesEmail = function (message) {
+  lowRecoveryCodesEmail(message) {
     const { numberRemaining } = message;
 
-    log.trace('mailer.lowRecoveryCodesEmail', {
+    this.log.trace('mailer.lowRecoveryCodesEmail', {
       email: message.email,
       uid: message.uid,
       numberRemaining,
@@ -1550,8 +1433,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postAddAccountRecoveryEmail = function (message) {
-    log.trace('mailer.postAddAccountRecoveryEmail', {
+  postAddAccountRecoveryEmail(message) {
+    this.log.trace('mailer.postAddAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1560,7 +1443,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1585,7 +1468,7 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
         revokeAccountRecoveryLinkAttributes:
-          links.revokeAccountRecoveryLinkAttributes,
+        links.revokeAccountRecoveryLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1593,8 +1476,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.postRemoveAccountRecoveryEmail = function (message) {
-    log.trace('mailer.postRemoveAccountRecoveryEmail', {
+  postRemoveAccountRecoveryEmail(message) {
+    this.log.trace('mailer.postRemoveAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1603,7 +1486,7 @@ module.exports = function (log, config, bounces) {
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1633,8 +1516,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.passwordResetAccountRecoveryEmail = function (message) {
-    log.trace('mailer.passwordResetAccountRecoveryEmail', {
+  passwordResetAccountRecoveryEmail(message) {
+    this.log.trace('mailer.passwordResetAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
     });
@@ -1642,11 +1525,11 @@ module.exports = function (log, config, bounces) {
     const templateName = 'passwordResetAccountRecovery';
     const links = this._generateCreateAccountRecoveryLinks(
       message,
-      templateName
+      templateName,
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
     );
 
     const headers = {
@@ -1677,8 +1560,8 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
-    message
+  async subscriptionAccountFinishSetupEmail(
+    message,
   ) {
     const {
       email,
@@ -1697,9 +1580,9 @@ module.exports = function (log, config, bounces) {
       deviceId,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
 
-    log.trace('mailer.subscriptionAccountFinishSetupEmail', {
+    this.log.trace('mailer.subscriptionAccountFinishSetupEmail', {
       enabled,
       email,
       productId,
@@ -1724,7 +1607,7 @@ module.exports = function (log, config, bounces) {
       this.accountFinishSetupUrl,
       message,
       query,
-      template
+      template,
     );
     const headers = {
       'X-Link': links.link,
@@ -1744,18 +1627,18 @@ module.exports = function (log, config, bounces) {
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
         ),
         isFinishSetup: true,
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
         ),
         icon: planEmailIconURL,
         product: productName,
@@ -1763,7 +1646,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionUpgradeEmail = async function (message) {
+  async subscriptionUpgradeEmail(message) {
     const {
       email,
       uid,
@@ -1783,8 +1666,8 @@ module.exports = function (log, config, bounces) {
       productPaymentCycleOld,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionUpgrade', { enabled, email, productId, uid });
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionUpgrade', { enabled, email, productId, uid });
     if (!enabled) {
       return;
     }
@@ -1810,17 +1693,17 @@ module.exports = function (log, config, bounces) {
         paymentAmountOld: this._getLocalizedCurrencyString(
           paymentAmountOldInCents,
           paymentAmountOldCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         paymentAmountNew: this._getLocalizedCurrencyString(
           paymentAmountNewInCents,
           paymentAmountNewCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         paymentProrated: this._getLocalizedCurrencyString(
           paymentProratedInCents,
           paymentProratedCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         productPaymentCycleNew,
         productPaymentCycleOld,
@@ -1829,7 +1712,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionDowngradeEmail = async function (message) {
+  subscriptionDowngradeEmail(message) {
     const {
       email,
       uid,
@@ -1849,8 +1732,8 @@ module.exports = function (log, config, bounces) {
       productPaymentCycleOld,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionDowngrade', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionDowngrade', {
       enabled,
       email,
       productId,
@@ -1881,17 +1764,17 @@ module.exports = function (log, config, bounces) {
         paymentAmountOld: this._getLocalizedCurrencyString(
           paymentAmountOldInCents,
           paymentAmountOldCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         paymentAmountNew: this._getLocalizedCurrencyString(
           paymentAmountNewInCents,
           paymentAmountNewCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         paymentProrated: this._getLocalizedCurrencyString(
           paymentProratedInCents,
           paymentProratedCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         productPaymentCycleNew,
         productPaymentCycleOld,
@@ -1900,11 +1783,11 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
+  subscriptionPaymentExpiredEmail(message) {
     const { email, uid, subscriptions } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionPaymentExpired', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionPaymentExpired', {
       enabled,
       email,
       uid,
@@ -1928,7 +1811,7 @@ module.exports = function (log, config, bounces) {
           product_id: subscriptions[0].productId,
           uid,
         },
-        template
+        template,
       );
     } else {
       template = 'subscriptionsPaymentExpired';
@@ -1950,13 +1833,13 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionPaymentProviderCancelledEmail = async function (
-    message
+  subscriptionPaymentProviderCancelledEmail(
+    message,
   ) {
     const { email, uid, subscriptions } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionPaymentProviderCancelled', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionPaymentProviderCancelled', {
       enabled,
       email,
       uid,
@@ -1980,7 +1863,7 @@ module.exports = function (log, config, bounces) {
           product_id: subscriptions[0].productId,
           uid,
         },
-        template
+        template,
       );
     } else {
       template = 'subscriptionsPaymentProviderCancelled';
@@ -2002,12 +1885,12 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
+  subscriptionPaymentFailedEmail(message) {
     const { email, uid, productId, planId, planEmailIconURL, productName } =
       message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionPaymentFailed', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionPaymentFailed', {
       enabled,
       email,
       productId,
@@ -2038,7 +1921,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountDeletionEmail = async function (message) {
+  subscriptionAccountDeletionEmail(message) {
     const {
       email,
       uid,
@@ -2051,8 +1934,8 @@ module.exports = function (log, config, bounces) {
       invoiceTotalCurrency,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionAccountDeletion', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionAccountDeletion', {
       enabled,
       email,
       productId,
@@ -2081,19 +1964,19 @@ module.exports = function (log, config, bounces) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
         ),
         icon: planEmailIconURL,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
       },
     });
   };
 
-  Mailer.prototype.subscriptionCancellationEmail = async function (message) {
+  subscriptionCancellationEmail(message) {
     const {
       email,
       uid,
@@ -2108,8 +1991,8 @@ module.exports = function (log, config, bounces) {
       showOutstandingBalance,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionCancellation', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionCancellation', {
       enabled,
       email,
       productId,
@@ -2138,32 +2021,32 @@ module.exports = function (log, config, bounces) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
         ),
         serviceLastActiveDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          serviceLastActiveDate
+          serviceLastActiveDate,
         ),
         icon: planEmailIconURL,
         productName,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         showOutstandingBalance,
       },
     });
   };
 
-  Mailer.prototype.subscriptionFailedPaymentsCancellationEmail =
-    async function (message) {
+  subscriptionFailedPaymentsCancellationEmail =
+    async function(message) {
       const { email, uid, productId, planId, planEmailIconURL, productName } =
         message;
 
-      const enabled = config.subscriptions.transactionalEmails.enabled;
-      log.trace('mailer.subscriptionFailedPaymentsCancellation', {
+      const enabled = this.config.subscriptions.transactionalEmails.enabled;
+      this.log.trace('mailer.subscriptionFailedPaymentsCancellation', {
         enabled,
         email,
         productId,
@@ -2194,7 +2077,7 @@ module.exports = function (log, config, bounces) {
       });
     };
 
-  Mailer.prototype.subscriptionReactivationEmail = async function (message) {
+  subscriptionReactivationEmail(message) {
     const {
       email,
       uid,
@@ -2210,8 +2093,8 @@ module.exports = function (log, config, bounces) {
       payment_provider,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionReactivation', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionReactivation', {
       enabled,
       email,
       productId,
@@ -2238,14 +2121,14 @@ module.exports = function (log, config, bounces) {
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
         ),
         icon: planEmailIconURL,
         productName,
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         payment_provider,
         cardType: cardTypeToText(cardType),
@@ -2255,11 +2138,11 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
+  subscriptionRenewalReminderEmail(message) {
     const { email, uid, subscription } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionRenewalReminderEmail', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionRenewalReminderEmail', {
       enabled,
       email,
       uid,
@@ -2279,7 +2162,7 @@ module.exports = function (log, config, bounces) {
         product_id: subscription.productId,
         uid,
       },
-      template
+      template,
     );
 
     return this.send({
@@ -2298,14 +2181,14 @@ module.exports = function (log, config, bounces) {
         invoiceTotal: this._getLocalizedCurrencyString(
           message.invoiceTotalInCents,
           message.invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
       },
     });
   };
 
-  Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function (
-    message
+  subscriptionSubsequentInvoiceEmail(
+    message,
   ) {
     const {
       email,
@@ -2334,8 +2217,8 @@ module.exports = function (log, config, bounces) {
       discountDuration,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionSubsequentInvoice', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionSubsequentInvoice', {
       enabled,
       email,
       productId,
@@ -2357,7 +2240,7 @@ module.exports = function (log, config, bounces) {
       paymentProrated = this._getLocalizedCurrencyString(
         paymentProratedInCents,
         paymentProratedCurrency,
-        message.acceptLanguage
+        message.acceptLanguage,
       );
     }
 
@@ -2373,12 +2256,12 @@ module.exports = function (log, config, bounces) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
         ),
         icon: planEmailIconURL,
         productName,
@@ -2388,28 +2271,28 @@ module.exports = function (log, config, bounces) {
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
             invoiceSubtotalInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         invoiceTaxAmount:
           invoiceTaxAmountInCents &&
           this._getLocalizedCurrencyString(
             invoiceTaxAmountInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         invoiceDiscountAmount:
           invoiceDiscountAmountInCents &&
           this._getLocalizedCurrencyString(
             invoiceDiscountAmountInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         payment_provider,
         cardType: cardTypeToText(cardType),
@@ -2425,7 +2308,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionFirstInvoiceEmail = async function (message) {
+  subscriptionFirstInvoiceEmail(message) {
     const {
       email,
       uid,
@@ -2451,8 +2334,8 @@ module.exports = function (log, config, bounces) {
       discountDuration,
     } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionFirstInvoice', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.subscriptionFirstInvoice', {
       enabled,
       email,
       productId,
@@ -2478,12 +2361,12 @@ module.exports = function (log, config, bounces) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
         ),
         icon: planEmailIconURL,
         productName,
@@ -2493,28 +2376,28 @@ module.exports = function (log, config, bounces) {
         invoiceTotal: this._getLocalizedCurrencyString(
           invoiceTotalInCents,
           invoiceTotalCurrency,
-          message.acceptLanguage
+          message.acceptLanguage,
         ),
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
             invoiceSubtotalInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         invoiceTaxAmount:
           invoiceTaxAmountInCents &&
           this._getLocalizedCurrencyString(
             invoiceTaxAmountInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         invoiceDiscountAmount:
           invoiceDiscountAmountInCents &&
           this._getLocalizedCurrencyString(
             invoiceDiscountAmountInCents,
             invoiceTotalCurrency,
-            message.acceptLanguage
+            message.acceptLanguage,
           ),
         payment_provider,
         cardType: cardTypeToText(cardType),
@@ -2529,7 +2412,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.downloadSubscriptionEmail = async function (message) {
+  downloadSubscriptionEmail(message) {
     const {
       email,
       productId,
@@ -2542,7 +2425,7 @@ module.exports = function (log, config, bounces) {
       playStoreLink,
     } = message;
 
-    log.trace('mailer.downloadSubscription', { email, productId, uid });
+    this.log.trace('mailer.downloadSubscription', { email, productId, uid });
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
@@ -2552,7 +2435,7 @@ module.exports = function (log, config, bounces) {
       query,
       template,
       appStoreLink,
-      playStoreLink
+      playStoreLink,
     );
 
     const headers = {
@@ -2574,11 +2457,11 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.fraudulentAccountDeletionEmail = async function (message) {
+  fraudulentAccountDeletionEmail(message) {
     const { email, uid } = message;
 
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.fraudulentAccountDeletion', {
+    const enabled = this.config.subscriptions.transactionalEmails.enabled;
+    this.log.trace('mailer.fraudulentAccountDeletion', {
       enabled,
       email,
       uid,
@@ -2607,58 +2490,11 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  cadReminders.keys.forEach((key, index) => {
-    // Template names are generated in the form `cadReminderFirstEmail`,
-    // where `First` is the key derived from config, with an initial capital letter.
-    const template = `cadReminder${key[0].toUpperCase()}${key.substr(1)}`;
-
-    const query = {};
-
-    templateNameToCampaignMap[template] = `cad-reminder-${key}`;
-    templateNameToContentMap[template] = 'connect-device';
-
-    Mailer.prototype[`${template}Email`] = async function (message) {
-      const { code, email, uid } = message;
-
-      log.trace(`mailer.${template}`, { code, email, uid });
-
-      const links = this._generateLinks(this.syncUrl, message, query, template);
-      const headers = {
-        'X-Link': links.link,
-      };
-
-      return this.send({
-        ...message,
-        headers,
-        template,
-        templateValues: {
-          androidLinkAttributes: linkAttributes(links.androidLink),
-          androidUrl: links.androidLink,
-          cadLinkAttributes: linkAttributes(links.link),
-          iosLinkAttributes: linkAttributes(links.iosLink),
-          iosUrl: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          productName: 'Firefox',
-          style: message.style,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-        },
-      });
-    };
-  });
-
-  Mailer.prototype._legalDocsRedirectUrl = function (url) {
-    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURIComponent(
-      url
-    )}`;
-  };
-
-  Mailer.prototype._generateUTMLink = function (
+  _generateUTMLink(
     link,
     query,
     templateName,
-    content
+    content,
   ) {
     const parsedLink = new URL(link);
 
@@ -2690,15 +2526,16 @@ module.exports = function (log, config, bounces) {
     }
 
     return parsedLink.toString();
-  };
+  }
 
-  Mailer.prototype._generateLinks = function (
+
+  _generateLinks(
     primaryLink,
     message,
     query,
     templateName,
     appStoreLink,
-    playStoreLink
+    playStoreLink,
   ) {
     const { email, uid, metricsEnabled } = message;
     // set this to avoid passing `metricsEnabled` around to all link functions
@@ -2711,14 +2548,14 @@ module.exports = function (log, config, bounces) {
       const urls = {};
 
       if (
-        config.subscriptions.productConfigsFirestore.enabled &&
+        this.config.subscriptions.productConfigsFirestore.enabled &&
         message.planConfig
       ) {
         // we are not using `determineLocale` because the product config might support more locales than the FxA supported locales list
         const locales = message.acceptLanguage ? [message.acceptLanguage] : [];
         const localizedConfigs = localizedPlanConfig(
           message.planConfig,
-          locales
+          locales,
         );
 
         // the ToS and Privacy Notice URLs are actually not localized in the product config; the redirect endpoint on the payments server does that.  but we do need it in the urls object so we can overwrite the metadata ones with the Firestore ones.
@@ -2747,7 +2584,7 @@ module.exports = function (log, config, bounces) {
             product_metadata:
               message.productMetadata || message.subscription?.productMetadata,
           },
-          determineLocale(message.acceptLanguage)
+          determineLocale(message.acceptLanguage),
         ),
         cancellationSurveyUrl,
         ...urls,
@@ -2771,7 +2608,7 @@ module.exports = function (log, config, bounces) {
         primaryLink,
         query,
         templateName,
-        utmContent
+        utmContent,
       );
     }
 
@@ -2780,7 +2617,7 @@ module.exports = function (log, config, bounces) {
         appStoreLink,
         query,
         templateName,
-        utmContent
+        utmContent,
       );
     }
 
@@ -2789,7 +2626,7 @@ module.exports = function (log, config, bounces) {
         playStoreLink,
         query,
         templateName,
-        utmContent
+        utmContent,
       );
     }
 
@@ -2801,57 +2638,57 @@ module.exports = function (log, config, bounces) {
       this.subscriptionSupportUrl,
       {},
       templateName,
-      'subscription-support'
+      'subscription-support',
     );
 
     links['passwordChangeLink'] = this.createPasswordChangeLink(
       email,
-      templateName
+      templateName,
     );
     links['passwordChangeLinkAttributes'] = this._passwordChangeLinkAttributes(
       email,
-      templateName
+      templateName,
     );
 
     links['resetLink'] = this.createPasswordResetLink(
       email,
       templateName,
-      query.emailToHashWith
+      query.emailToHashWith,
     );
     links['resetLinkAttributes'] = this._passwordResetLinkAttributes(
       email,
       templateName,
-      query.emailToHashWith
+      query.emailToHashWith,
     );
 
     links['androidLink'] = this._generateUTMLink(
       this.androidUrl,
       query,
       templateName,
-      'connect-android'
+      'connect-android',
     );
     links['iosLink'] = this._generateUTMLink(
       this.iosUrl,
       query,
       templateName,
-      'connect-ios'
+      'connect-ios',
     );
 
     links['passwordManagerInfoUrl'] = this._generateUTMLink(
       this.passwordManagerInfoUrl,
       query,
       templateName,
-      'password-info'
+      'password-info',
     );
 
     links['reportSignInLink'] = this.createReportSignInLink(
       templateName,
-      query
+      query,
     );
     links['reportSignInLinkAttributes'] = this._reportSignInLinkAttributes(
       email,
       templateName,
-      query
+      query,
     );
 
     links['revokeAccountRecoveryLink'] =
@@ -2866,7 +2703,7 @@ module.exports = function (log, config, bounces) {
       this.accountSettingsUrl,
       { ...query, email, uid },
       templateName,
-      'account-settings'
+      'account-settings',
     );
     links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
 
@@ -2874,39 +2711,25 @@ module.exports = function (log, config, bounces) {
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
-    links.subscriptionTermsUrl = this._legalDocsRedirectUrl(
-      this._generateUTMLink(
-        termsOfServiceDownloadURL,
-        {},
-        templateName,
-        'subscription-terms'
-      )
-    );
-    links.subscriptionPrivacyUrl = this._legalDocsRedirectUrl(
-      this._generateUTMLink(
-        privacyNoticeDownloadURL,
-        {},
-        templateName,
-        'subscription-privacy'
-      )
-    );
+    links.subscriptionTermsUrl = "";
+    links.subscriptionPrivacyUrl = "";
     links.cancelSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
       { ...query, email, uid },
       templateName,
-      'cancel-subscription'
+      'cancel-subscription',
     );
     links.reactivateSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
       { ...query, email, uid },
       templateName,
-      'reactivate-subscription'
+      'reactivate-subscription',
     );
     links.updateBillingUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
       { ...query, email, uid },
       templateName,
-      'update-billing'
+      'update-billing',
     );
 
     const queryOneClick = extend(query, { one_click: true });
@@ -2915,17 +2738,18 @@ module.exports = function (log, config, bounces) {
         primaryLink,
         queryOneClick,
         templateName,
-        `${utmContent}-oneclick`
+        `${utmContent}-oneclick`,
       );
     }
 
     return links;
-  };
+  }
+  ;
 
-  Mailer.prototype._generateSettingLinks = function (
+  _generateSettingLinks(
     message,
     templateName,
-    link = this.accountSettingsUrl
+    link = this.accountSettingsUrl,
   ) {
     // Generate all possible links where the primary link is `accountSettingsUrl`.
     const query = {};
@@ -2937,11 +2761,11 @@ module.exports = function (log, config, bounces) {
     }
 
     return this._generateLinks(link, message, query, templateName);
-  };
+  }
 
-  Mailer.prototype._generateLowRecoveryCodesLinks = function (
+  _generateLowRecoveryCodesLinks(
     message,
-    templateName
+    templateName,
   ) {
     // Generate all possible links where the primary link is `accountRecoveryCodesUrl`.
     const query = { low_recovery_codes: true };
@@ -2956,13 +2780,13 @@ module.exports = function (log, config, bounces) {
       this.accountRecoveryCodesUrl,
       message,
       query,
-      templateName
+      templateName,
     );
-  };
+  }
 
-  Mailer.prototype._generateCreateAccountRecoveryLinks = function (
+  _generateCreateAccountRecoveryLinks(
     message,
-    templateName
+    templateName,
   ) {
     // Generate all possible links where the primary link is `createAccountRecoveryUrl`.
     const query = {};
@@ -2977,14 +2801,14 @@ module.exports = function (log, config, bounces) {
       this.createAccountRecoveryUrl,
       message,
       query,
-      templateName
+      templateName,
     );
-  };
+  }
 
-  Mailer.prototype.createPasswordResetLink = function (
+  createPasswordResetLink(
     email,
     templateName,
-    emailToHashWith
+    emailToHashWith,
   ) {
     // Default `reset_password_confirm` to false, to show warnings about
     // resetting password and sync data
@@ -2998,22 +2822,22 @@ module.exports = function (log, config, bounces) {
       this.initiatePasswordResetUrl,
       query,
       templateName,
-      'reset-password'
+      'reset-password',
     );
-  };
+  }
 
-  Mailer.prototype.createPasswordChangeLink = function (email, templateName) {
+  createPasswordChangeLink(email, templateName) {
     const query = { email: email };
 
     return this._generateUTMLink(
       this.initiatePasswordChangeUrl,
       query,
       templateName,
-      'change-password'
+      'change-password',
     );
-  };
+  }
 
-  Mailer.prototype.createReportSignInLink = function (templateName, data) {
+  createReportSignInLink(templateName, data) {
     const query = {
       uid: data.uid,
       unblockCode: data.unblockCode,
@@ -3022,51 +2846,49 @@ module.exports = function (log, config, bounces) {
       this.reportSignInUrl,
       query,
       templateName,
-      'report'
+      'report',
     );
-  };
+  }
 
-  Mailer.prototype._reportSignInLinkAttributes = function (
+  _reportSignInLinkAttributes(
     email,
     templateName,
-    query
+    query,
   ) {
     return linkAttributes(this.createReportSignInLink(templateName, query));
-  };
+  }
 
-  Mailer.prototype.createSupportLink = function (templateName) {
+  createSupportLink(templateName) {
     return this._generateUTMLink(this.supportUrl, {}, templateName, 'support');
-  };
+  }
 
-  Mailer.prototype.createPrivacyLink = function (templateName) {
+  createPrivacyLink(templateName) {
     return this._generateUTMLink(this.privacyUrl, {}, templateName, 'privacy');
-  };
+  }
 
-  Mailer.prototype.createRevokeAccountRecoveryLink = function (templateName) {
+  createRevokeAccountRecoveryLink(templateName) {
     return this._generateUTMLink(
       this.revokeAccountRecoveryUrl,
       {},
       templateName,
-      'report'
+      'report',
     );
-  };
+  }
 
-  Mailer.prototype._revokeAccountRecoveryLinkAttributes = function (
-    templateName
+  _revokeAccountRecoveryLinkAttributes(
+    templateName,
   ) {
     return linkAttributes(this.createRevokeAccountRecoveryLink(templateName));
-  };
+  }
 
-  Mailer.prototype.createAccountRecoveryLink = function (templateName) {
+  createAccountRecoveryLink(templateName) {
     return this._generateUTMLink(
       this.createAccountRecoveryUrl,
       {},
-      templateName
+      templateName,
     );
-  };
-
-  return Mailer;
-};
+  }
+}
 
 function optionalHeader(key, value) {
   if (value) {

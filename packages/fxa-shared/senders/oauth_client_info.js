@@ -5,7 +5,10 @@
 'use strict';
 
 const Keyv = require('keyv');
-const client = require('../oauth/client');
+// const client = require('fxa-auth-server/lib/oauth/client');
+const client = {
+  getClientById: () => null
+}
 
 module.exports = (log, config) => {
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL;

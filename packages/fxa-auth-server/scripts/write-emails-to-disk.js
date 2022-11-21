@@ -21,7 +21,7 @@
 process.env.NODE_ENV = 'dev';
 
 const config = require('../config').getProperties();
-const createSenders = require('../lib/senders');
+const createSenders = require('fxa-shared/senders');
 const fs = require('fs');
 const log = require('../lib/log')({});
 const path = require('path');

@@ -6,7 +6,8 @@
     "experimentalDecorators": true,
     "composite": true,
     "outDir": "./dist",
-    "types": ["mocha", "mozlog", "jest", "node"]
+    "skipLibCheck": true,
+    "types": ["mocha", "mozlog", "jest", "node"],
   },
   "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
   "exclude": ["dist", "node_modules", "**/*.spec.ts"]

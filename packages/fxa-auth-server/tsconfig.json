@@ -12,6 +12,6 @@
   "include": [
     "bin/*",
     "scripts/*.ts",
-    "lib/senders/emails/templates/*/includes.ts"
+    "../fxa-shared/senders/emails/templates/*/includes.ts"
   ]
 }

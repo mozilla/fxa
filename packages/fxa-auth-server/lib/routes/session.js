@@ -9,9 +9,9 @@ const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
-const Localizer = require('../l10n').default;
+const Localizer = require('../../../fxa-shared/senders/l10n').default;
 const NodeRendererBindings =
-  require('../senders/renderer/bindings-node').default;
+  require('fxa-shared/senders/renderer/bindings-node').default;
 const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;

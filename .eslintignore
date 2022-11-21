@@ -1,1 +1,2 @@
 packages/fxa-auth-server/bin/ejs.js
+packages/fxa-shared/senders/vendor/ejs.js

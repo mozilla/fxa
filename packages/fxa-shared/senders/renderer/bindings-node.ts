@@ -21,6 +21,7 @@ export class NodeRendererBindings extends RendererBindings {
     super();
 
     // Backfill options with (email) defaults
+    console.log("__dirname", __dirname);
     this.opts = Object.assign(
       {
         templates: {
@@ -43,7 +44,7 @@ export class NodeRendererBindings extends RendererBindings {
           },
         },
         translations: {
-          basePath: join(__dirname, '../../../public/locales'),
+          basePath: join(__dirname, '../public/locales'),
         },
       },
       opts

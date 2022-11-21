@@ -2,23 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import Mailer from './email';
 
-const createMailer = require('./email');
-
-module.exports = async (
+export default async function (
   log,
   config,
   bounces,
   statsd,
   sender // This is only used in tests
-) => {
+) {
   const defaultLanguage = config.i18n.defaultLanguage;
-  const Mailer = createMailer(log, config, bounces);
 
   async function createSenders() {
     return {
-      email: new Mailer(config.smtp, sender),
+      email: new Mailer(log, config, bounces, sender),
     };
   }
 
@@ -44,13 +41,11 @@ module.exports = async (
 
   // Most of the mailer methods follow a standard pattern that we can wrap procedurally
   // to set common options like acceptLanguage, ccEmails, email and uid...
-  senders.email = Object.entries(Mailer.prototype)
-    .filter(
-      ([name, fn]) =>
-        typeof fn === 'function' && name[0] !== '_' && name.endsWith('Email')
-    )
-    .reduce(
-      (wrappedMailer, [name]) => {
+  senders.email = Object.getOwnPropertyNames(Object.getPrototypeOf(mailer))
+    .filter((name) => {
+        return name[0] !== '_' && name.endsWith('Email')
+      })
+    .reduce((wrappedMailer, name) => {
         const wrappedName = `send${name[0].toUpperCase()}${name.substr(1)}`;
 
         wrappedMailer[wrappedName] = (emails, account, options = {}) => {
