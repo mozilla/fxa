@@ -312,7 +312,7 @@ jobs:
       - run:
           name: Add localhost
           command: |
-            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            tee -a /etc/hosts \<<<'127.0.0.1 localhost'
             cat /etc/hosts
       - run:
           name: Running playwright tests
