@@ -57,7 +57,7 @@
     "express": "^4.17.2",
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
-    "google-auth-library": "^8.6.0",
+    "google-auth-library": "^8.7.0",
     "graphql": "^15.6.1",
     "hot-shots": "^9.3.0",
     "joi": "17.4.0",
