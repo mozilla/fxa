@@ -26,7 +26,7 @@
 }
 
 .payment-panel {
-  @apply mx-4 tablet:mt-6 tablet:max-w-xs tablet:col-span-2 tablet:row-start-1 tablet:row-end-4;
+  @apply mb-6 tablet:mt-6 tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
 }
 
 /* footer copy */
@@ -52,7 +52,9 @@
 
 /* shared styles used in Checkout and SubscriptionCreate*/
 .pay-with-heading {
-  @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mt-0 mx-0 mb-6 text-center text-grey-400 w-full;
+  @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mx-0 mb-6 text-center text-grey-400 w-full;
+  @apply before:content-[''] before:border-b before:border-0 before:border-solid before:border-grey-200;
+  @apply after:content-[''] after:border-b after:border-0 after:border-solid after:border-grey-200;
 }
 
 .step-header {
@@ -126,9 +128,8 @@
 }
 
 .main-content {
-  @apply grid grid-cols-[calc(100vw_-_1.5rem)] grid-rows-[min-content] gap-x-4 mt-16 min-h-[calc(100vh_-_4rem)];
-  @apply tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto tablet:mx-3;
-  @apply desktop:grid-cols-[600px_1fr];
+  @apply grid mt-16 mx-6;
+  @apply tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:gap-x-12 tablet:mt-[80px] tablet:mb-auto tablet:mx-3;
 }
 
 .payment-button {

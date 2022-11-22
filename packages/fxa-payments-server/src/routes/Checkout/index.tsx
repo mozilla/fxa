@@ -34,7 +34,6 @@ import { Customer, Profile } from '../../store/types';
 
 import AcceptedCards from '../Product/AcceptedCards';
 
-import './index.scss';
 import PaymentForm, {
   StripePaymentSubmitResult,
   StripePaymentUpdateResult,
@@ -344,9 +343,32 @@ export const Checkout = ({
           })}
         />
 
+        {transactionInProgress && isMobile ? null : (
+          <div className="payment-panel">
+            <PlanDetails
+              {...{
+                selectedPlan,
+                isMobile,
+                showExpandButton: isMobile,
+                coupon,
+              }}
+            />
+
+            <CouponForm
+              {...{
+                planId: selectedPlan.plan_id,
+                readOnly: false,
+                subscriptionInProgress: inProgress || transactionInProgress,
+                coupon,
+                setCoupon,
+              }}
+            />
+          </div>
+        )}
+
         <div
           className={classNames(
-            'checkout-payment component-card border-t-0 pt-4 px-4 pb-14 row-start-2 row-end-3 rounded-t-none text-grey-600',
+            'component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:min-h-0 tablet:rounded-t-none desktop:pt-4 desktop:px-12 desktop:pb-12',
             {
               hidden: transactionInProgress || subscriptionError,
             }
@@ -371,7 +393,7 @@ export const Checkout = ({
             }
           />
 
-          <hr />
+          <hr className="mx-auto w-full" />
 
           <PaymentMethodHeader
             plan={selectedPlan}
@@ -470,29 +492,6 @@ export const Checkout = ({
             />
           </div>
         </div>
-
-        {transactionInProgress && isMobile ? null : (
-          <div className="payment-panel">
-            <PlanDetails
-              {...{
-                selectedPlan,
-                isMobile,
-                showExpandButton: isMobile,
-                coupon,
-              }}
-            />
-
-            <CouponForm
-              {...{
-                planId: selectedPlan.plan_id,
-                readOnly: false,
-                subscriptionInProgress: inProgress || transactionInProgress,
-                coupon,
-                setCoupon,
-              }}
-            />
-          </div>
-        )}
       </div>
     </>
   );

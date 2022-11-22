@@ -110,7 +110,9 @@ export const NewUserEmailForm = ({
           </a>
         </p>
       </Localized>
-      <hr />
+
+      <hr className="mx-auto w-full" />
+
       <Localized id="new-user-email" attrs={{ label: true }}>
         <Input
           type="text"
