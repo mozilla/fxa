@@ -368,7 +368,7 @@ export const Checkout = ({
 
         <div
           className={classNames(
-            'component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:min-h-0 tablet:rounded-t-none desktop:pt-4 desktop:px-12 desktop:pb-12',
+            'component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12',
             {
               hidden: transactionInProgress || subscriptionError,
             }
