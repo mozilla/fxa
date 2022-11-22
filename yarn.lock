@@ -24768,7 +24768,7 @@ fsevents@~2.1.1:
     hot-shots: ^9.3.0
     i18n-iso-countries: ^7.5.0
     ioredis: ^4.28.2
-    joi: 17.4.0
+    joi: 17.6.4
     jose: ^4.10.0
     jsdom: ^20.0.0
     jsonwebtoken: ^8.5.1
@@ -24943,7 +24943,7 @@ fsevents@~2.1.1:
     i18n-abide: 0.0.26
     install: 0.13.0
     intern: ^4.10.1
-    joi: 17.4.0
+    joi: 17.6.4
     jquery: 3.6.0
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: 1.0.2
@@ -25128,7 +25128,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     hot-shots: ^9.3.0
     jest: 27.5.1
-    joi: 17.4.0
+    joi: 17.6.4
     jwks-rsa: ^3.0.0
     mozlog: ^3.0.2
     nock: ^13.2.2
@@ -25351,7 +25351,7 @@ fsevents@~2.1.1:
     hot-shots: ^9.3.0
     intl: 1.2.5
     jest: 27.5.1
-    joi: 17.4.0
+    joi: 17.6.4
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     morgan: ^1.10.0
     mozlog: ^3.0.2
@@ -25416,7 +25416,7 @@ fsevents@~2.1.1:
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     insist: 1.0.1
-    joi: 17.4.0
+    joi: 17.6.4
     lodash: ^4.17.21
     mocha: ^10.0.0
     mocha-text-cov: 0.1.1
@@ -25658,7 +25658,7 @@ fsevents@~2.1.1:
     ioredis: ^4.28.2
     ip: ^1.1.8
     jest: 27.5.1
-    joi: 17.4.0
+    joi: 17.6.4
     js-md5: ^0.7.3
     jsdom: 20.0.0
     jsdom-global: 3.0.2
@@ -31260,7 +31260,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:17.4.0, joi@npm:17.x.x":
+"joi@npm:17.6.4":
+  version: 17.6.4
+  resolution: "joi@npm:17.6.4"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+    "@sideway/address": ^4.1.3
+    "@sideway/formula": ^3.0.0
+    "@sideway/pinpoint": ^2.0.0
+  checksum: f16243618f8c861bdcb7ccfdef7501d04e5c8ff93c4083a0ec907230c7bf427189c5894431f345d089a986f8e4b9efca8cc42e32663ded4d4f38edde6fda5315
+  languageName: node
+  linkType: hard
+
+"joi@npm:17.x.x":
   version: 17.4.0
   resolution: "joi@npm:17.4.0"
   dependencies:
