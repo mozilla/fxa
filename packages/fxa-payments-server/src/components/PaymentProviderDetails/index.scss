@@ -1,19 +1,12 @@
 .c-card {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .c-card::before {
   height: 27px;
   width: 40px;
-
-  html[dir='ltr'] & {
-    margin-right: 8px;
-  }
-
-  html[dir='rtl'] & {
-    margin-left: 8px;
-  }
 }
 
 .c-card::before,
@@ -85,6 +78,6 @@
 
 .stack-card-details > p.c-card,
 .stack-card-details > .c-card::before {
-  margin-bottom: .55em;
-  margin-block-end: .55em;
+  margin-bottom: 0.55em;
+  margin-block-end: 0.55em;
 }

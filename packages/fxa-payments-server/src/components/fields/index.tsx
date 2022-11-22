@@ -96,7 +96,7 @@ export const Field = ({
         {label && (
           <span
             data-testid="input-label-text"
-            className="font-medium text-sm text-grey-400 block mb-2 text-left"
+            className="font-medium text-sm text-grey-400 block mb-2 text-start"
           >
             {label}
           </span>

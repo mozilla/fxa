@@ -34,6 +34,7 @@
 }
 
 .breadcrumbs {
+  display:flex;
   margin-top: 0;
   padding-left: 32px;
   width: 100%;
@@ -45,7 +46,6 @@
   }
 
   li {
-    float: left;
     list-style: none;
     margin: 0;
     padding: 0;

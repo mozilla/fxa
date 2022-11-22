@@ -96,7 +96,7 @@ export const NewUserEmailForm = ({
         }}
       >
         <p
-          className="font-normal -mt-2 ml-6 text-grey-400"
+          className="font-normal -mt-2 text-grey-400"
           data-testid="sign-in-copy"
         >
           Already have a Firefox account?{' '}

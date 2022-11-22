@@ -184,12 +184,12 @@ export const CouponForm = ({
       </h4>
       {hasCoupon ? (
         <div
-          className="flex justify-between items-center"
+          className="flex gap-4 justify-between items-center"
           data-testid="coupon-hascoupon"
         >
-          <div>{promotionCode}</div>
+          <div className="break-all">{promotionCode}</div>
           {readOnly ? null : (
-            <div className="ml-4">
+            <div>
               <button
                 className="button"
                 onClick={removeCoupon}
@@ -203,7 +203,7 @@ export const CouponForm = ({
         </div>
       ) : (
         <form
-          className="flex justify-between items-center"
+          className="flex gap-4 justify-between items-center"
           onSubmit={onSubmit}
           onChange={onChange}
           data-testid="coupon-form"
@@ -226,7 +226,7 @@ export const CouponForm = ({
             </Localized>
           </div>
 
-          <div className="ml-4">
+          <div>
             <button
               name="apply"
               className="button"

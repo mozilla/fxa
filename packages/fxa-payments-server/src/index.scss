@@ -107,7 +107,7 @@ hr {
     font-size: 13px;
     font-weight: 500;
     margin-bottom: 7px;
-    text-align: left;
+    text-align: start;
   }
 
   .label-text.checkbox {
@@ -130,10 +130,10 @@ hr {
   label {
     display: flex;
     align-items: center;
+    gap: 1rem;
 
     input[type='checkbox'] {
       flex: 0 0 18px;
-      margin-right: 16px;
       transform: scale(1.5);
 
       &:checked {
