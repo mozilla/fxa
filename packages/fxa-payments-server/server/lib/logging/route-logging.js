@@ -7,9 +7,10 @@
 const logger = require('./log')('server.requests');
 const morgan = require('morgan');
 const config = require('../../config');
-const remoteAddress = require('fxa-shared/express/remote-address')(
-  config.get('clientAddressDepth')
-);
+const remoteAddress =
+  require('fxa-shared/express/remote-address').remoteAddress(
+    config.get('clientAddressDepth')
+  );
 
 const { enabled, format } = config.get('logging.routes');
 

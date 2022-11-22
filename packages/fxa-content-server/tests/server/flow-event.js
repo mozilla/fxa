@@ -50,7 +50,7 @@ registerSuite('flow-event', {
       './amplitude': mocks.amplitude,
       './configuration': mocks.config,
       './flow-metrics': mocks.flowMetrics,
-      'fxa-shared/express/geo-locate': mocks.geolocate,
+      'fxa-shared/express/geo-locate': { geolocate: mocks.geolocate },
       './statsd': mocks.statsd,
     }).metricsRequest;
   },

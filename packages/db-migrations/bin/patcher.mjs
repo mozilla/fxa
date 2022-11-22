@@ -8,7 +8,7 @@ import path from 'path';
 import mysql from 'mysql';
 import patcher from 'mysql-patcher';
 import convict from 'convict';
-import { makeMySQLConfig } from 'fxa-shared/db/config.js';
+import { makeMySQLConfig } from 'fxa-shared/db/config';
 const patch = promisify(patcher.patch);
 
 const conf = convict({

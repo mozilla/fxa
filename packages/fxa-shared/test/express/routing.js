@@ -34,7 +34,7 @@ describe('express/routing:', () => {
 
     routingFactory = proxyquire('../../express/routing', {
       celebrate: celebrateMock,
-      './cors': () => corsHandler,
+      './cors': { default: () => corsHandler },
     });
 
     appMock = {
@@ -49,7 +49,7 @@ describe('express/routing:', () => {
       error: sinon.spy(),
     };
 
-    routing = routingFactory(appMock, loggerMock);
+    routing = routingFactory.default(appMock, loggerMock);
   });
 
   it('exposes the correct interface', () => {

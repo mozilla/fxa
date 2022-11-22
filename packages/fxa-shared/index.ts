@@ -6,6 +6,7 @@ import * as invoice from './dto/auth/payments/invoice';
 import * as emailHelpers from './email/helpers';
 import popularDomains from './email/popularDomains.json';
 import BaseGroupingRule from './experiments/base';
+import express from './express';
 import featureFlags from './feature-flags';
 import { localizeTimestamp } from './l10n/localizeTimestamp';
 import supportedLanguages from './l10n/supportedLanguages.json';
@@ -29,6 +30,7 @@ module.exports = {
   experiments: {
     BaseGroupingRule,
   },
+  express,
   featureFlags,
   l10n: {
     localizeTimestamp,

@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 const MAX_DATA_LENGTH = 100;
-const VERSION = 1;
-const PERFORMANCE_TIMINGS = [
+export const VERSION = 1;
+export const PERFORMANCE_TIMINGS = [
   // These timings are only an approximation, to be used as extra signals
   // when looking for correlations in the flow data. They're not perfect
   // representations, for instance:
@@ -37,7 +35,7 @@ const PERFORMANCE_TIMINGS = [
   },
 ];
 
-function limitLength(data) {
+export function limitLength(data: string) {
   if (data && data.length > MAX_DATA_LENGTH) {
     return data.substr(0, MAX_DATA_LENGTH);
   }
@@ -45,7 +43,11 @@ function limitLength(data) {
   return data;
 }
 
-function isValidTime(time, requestReceivedTime, expiry) {
+export function isValidTime(
+  time: any,
+  requestReceivedTime: number,
+  expiry: number
+) {
   if (typeof time !== 'number') {
     return false;
   }
@@ -58,9 +60,4 @@ function isValidTime(time, requestReceivedTime, expiry) {
   return true;
 }
 
-module.exports = {
-  VERSION,
-  PERFORMANCE_TIMINGS,
-  limitLength,
-  isValidTime,
-};
+export default { VERSION, PERFORMANCE_TIMINGS, limitLength, isValidTime };

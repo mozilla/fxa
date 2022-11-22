@@ -15,7 +15,7 @@ describe('metrics/amplitude:', () => {
   let amplitude;
 
   before(() => {
-    amplitude = require('../../metrics/amplitude');
+    amplitude = require('../../metrics/amplitude').amplitude;
   });
 
   it('exports the event groups', () => {

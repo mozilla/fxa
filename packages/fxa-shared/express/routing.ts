@@ -2,8 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-module.exports = (app, logger) => {
-  const cors = require('./cors');
+import express from 'express';
+import Logger from '../lib/logger';
+import cors from './cors';
+
+type RouteMethod =
+  | 'all'
+  | 'get'
+  | 'post'
+  | 'put'
+  | 'delete'
+  | 'patch'
+  | 'options'
+  | 'head';
+type RouteDefinition = {
+  method: RouteMethod;
+  path: string | RegExp;
+  process: Function;
+  cors?: any;
+  preProcess?: Function;
+  validate?: Object;
+};
+
+export const routing = (app: express.Express, logger: Logger) => {
   const {
     celebrate,
     isCelebrateError: isValidationError,
@@ -26,7 +47,7 @@ module.exports = (app, logger) => {
      *  @param {Object} [routeDefinition.validate] declare JOI validation.
      *   Follows [celebrate](https://www.npmjs.com/package/celebrate) conventions.
      */
-    addRoute(routeDefinition) {
+    addRoute(routeDefinition: RouteDefinition) {
       if (!isValidRouteDefinition(routeDefinition)) {
         logger.error('route definition invalid: ', routeDefinition);
         throw new Error('Invalid route definition');
@@ -45,7 +66,10 @@ module.exports = (app, logger) => {
             : undefined;
         // Enable the pre-flight OPTIONS request
         const corsHandler = cors(corsConfig);
-        app.options(routeDefinition.path, corsHandler);
+        app.options(
+          routeDefinition.path as string,
+          corsHandler as express.RequestHandler
+        );
         routeHandlers.push(corsHandler);
       }
 
@@ -63,10 +87,18 @@ module.exports = (app, logger) => {
       }
 
       routeHandlers.push(routeDefinition.process);
-      app[routeDefinition.method](routeDefinition.path, ...routeHandlers);
+      app[routeDefinition.method as RouteMethod](
+        routeDefinition.path as string,
+        ...routeHandlers
+      );
     },
 
-    validationErrorHandler(err, req, res, next) {
+    validationErrorHandler(
+      err: Error,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) {
       if (err && isValidationError(err)) {
         logger.error('validation.failed', {
           err,
@@ -81,7 +113,9 @@ module.exports = (app, logger) => {
     },
   };
 
-  function isValidRouteDefinition(route) {
+  function isValidRouteDefinition(route: { [key: string]: unknown }) {
     return !!route.method && route.path && route.process;
   }
 };
+
+export default routing;

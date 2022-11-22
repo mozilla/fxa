@@ -2,9 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import Ajv from 'ajv';
+import { ParsedUserAgentProperties, ParsedUa, ParsedOs } from './user-agent';
+import { Location } from '../connected-services/models/Location';
 
-const Ajv = require('ajv');
+type AmplitudeEventGroup = typeof GROUPS;
+type AmplitudeEventGroupKey = keyof AmplitudeEventGroup;
+type AmplitudeEventFuzzyEventGroupMapFn = (category: string) => string;
+type AmplitudeEventFuzzyEventNameMapFn = (
+  category: string,
+  target: string
+) => string;
+type EventData = { [key: string]: any };
+
 const ajv = new Ajv();
 const amplitudeSchema = require('./amplitude-event.1.schema.json');
 const validateAmplitudeEvent = ajv.compile(amplitudeSchema);
@@ -72,11 +82,17 @@ const EVENT_PROPERTIES = {
 
 function NOP() {}
 
-function mapConnectDeviceFlow(eventType, eventCategory, eventTarget) {
+function mapConnectDeviceFlow(
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string
+) {
+  // @ts-ignore
   const connect_device_flow = CONNECT_DEVICE_FLOWS[eventCategory];
 
   if (connect_device_flow) {
-    const result = { connect_device_flow };
+    const result: { connect_device_flow: string; connect_device_os?: string } =
+      { connect_device_flow };
 
     if (eventTarget) {
       result.connect_device_os = eventTarget;
@@ -84,13 +100,20 @@ function mapConnectDeviceFlow(eventType, eventCategory, eventTarget) {
 
     return result;
   }
+
+  return;
 }
 
-function mapEmailType(eventType, eventCategory, eventTarget, data) {
+function mapEmailType(
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string,
+  data: EventData
+) {
   const email_type = data.emailTypes[eventCategory];
 
   if (email_type) {
-    const result = {
+    const result: { [key: string]: string } = {
       email_type,
       email_provider: data.emailDomain,
     };
@@ -103,41 +126,47 @@ function mapEmailType(eventType, eventCategory, eventTarget, data) {
 
     return result;
   }
+
+  return;
 }
 
-function mapSettingsEventProperties(...args) {
+function mapSettingsEventProperties(...args: [string, string]) {
   return {
     ...mapDisconnectReason(...args),
   };
 }
 
-function mapDisconnectReason(eventType, eventCategory) {
+function mapDisconnectReason(eventType: string, eventCategory: string) {
   if (eventType === 'disconnect_device' && eventCategory) {
     return { reason: eventCategory };
   }
+
+  return;
 }
 
 function mapDomainValidationResult(
-  eventType,
-  eventCategory,
-  eventTarget,
-  data
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string,
+  data: EventData
 ) {
   // This function is called for all fxa_reg event types, only add the event
   // properties for the results pertaining to domain_validation_result.
   if (eventType === 'domain_validation_result' && eventCategory) {
     return { validation_result: eventCategory };
   }
+
+  return;
 }
 
 function mapSubscriptionUpgradeEventProperties(
-  eventType,
-  eventCategory,
-  eventTarget,
-  data
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string,
+  data: EventData
 ) {
   if (data) {
-    const properties = {};
+    const properties: { [key: string]: string } = {};
 
     if (data.previousPlanId) {
       properties['previous_plan_id'] = data.previousPlanId;
@@ -149,16 +178,18 @@ function mapSubscriptionUpgradeEventProperties(
 
     return properties;
   }
+
+  return;
 }
 
 function mapSubscriptionPaymentEventProperties(
-  eventType,
-  eventCategory,
-  eventTarget,
-  data
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string,
+  data: EventData
 ) {
   if (data) {
-    const properties = {};
+    const properties: { [key: string]: string } = {};
 
     if (data.sourceCountry) {
       properties['source_country'] = data.sourceCountry;
@@ -174,9 +205,11 @@ function mapSubscriptionPaymentEventProperties(
 
     return properties;
   }
+
+  return undefined;
 }
 
-function validate(event) {
+function validate(event: { [key: string]: any }) {
   if (!validateAmplitudeEvent(event)) {
     throw new Error(
       `Invalid data: ${ajv.errorsText(validateAmplitudeEvent.errors, {
@@ -187,7 +220,7 @@ function validate(event) {
   return true;
 }
 
-module.exports = {
+export const amplitude = {
   EVENT_PROPERTIES,
   GROUPS,
   mapBrowser,
@@ -227,7 +260,23 @@ module.exports = {
    *
    * @returns {Function}      The mapper function.
    */
-  initialize(services, events, fuzzyEvents) {
+  initialize(
+    services: { [key: string]: string },
+    events: {
+      [key: string]: {
+        group: AmplitudeEventGroupKey | Function;
+        event: string | AmplitudeEventFuzzyEventNameMapFn;
+        minimal?: boolean;
+      };
+    },
+    fuzzyEvents: Map<
+      RegExp,
+      {
+        group: AmplitudeEventGroupKey | AmplitudeEventFuzzyEventGroupMapFn;
+        event: string | AmplitudeEventFuzzyEventNameMapFn;
+      }
+    >
+  ) {
     /**
      * Map from a source event and it's associated data to an amplitude event.
      *
@@ -242,7 +291,7 @@ module.exports = {
      *                            numerous to list here, but may be discerned with
      *                            ease by perusing the code.
      */
-    return (event, data) => {
+    return (event: { [key: string]: any }, data: EventData) => {
       if (!event || !data) {
         return;
       }
@@ -288,6 +337,7 @@ module.exports = {
 
         let version;
         try {
+          // @ts-ignore
           version = /([0-9]+)\.([0-9]+)$/.exec(data.version)[0];
         } catch (err) {}
 
@@ -317,22 +367,28 @@ module.exports = {
           device_model: data.formFactor,
           event_properties: mapEventProperties(
             eventType,
-            eventGroup,
-            eventCategory,
-            eventTarget,
+            eventGroup as string,
+            eventCategory as string,
+            eventTarget as string,
             data
           ),
-          user_properties: mapUserProperties(eventGroup, eventCategory, data),
+          user_properties: mapUserProperties(
+            eventGroup as string,
+            eventCategory as string,
+            data
+          ),
         });
       }
+
+      return;
     };
 
     function mapEventProperties(
-      eventType,
-      eventGroup,
-      eventCategory,
-      eventTarget,
-      data
+      eventType: string,
+      eventGroup: string,
+      eventCategory: string,
+      eventTarget: string,
+      data: EventData
     ) {
       const { serviceName, clientId } = getServiceNameAndClientId(data);
 
@@ -356,7 +412,7 @@ module.exports = {
       );
     }
 
-    function getServiceNameAndClientId(data) {
+    function getServiceNameAndClientId(data: EventData) {
       let serviceName, clientId;
 
       const { service } = data;
@@ -372,7 +428,11 @@ module.exports = {
       return { serviceName, clientId };
     }
 
-    function mapUserProperties(eventGroup, eventCategory, data) {
+    function mapUserProperties(
+      eventGroup: string,
+      eventCategory: string,
+      data: EventData
+    ) {
       return Object.assign(
         pruneUnsetValues({
           entrypoint: data.entrypoint,
@@ -395,7 +455,7 @@ module.exports = {
       );
     }
 
-    function mapAppendProperties(data) {
+    function mapAppendProperties(data: EventData) {
       const servicesUsed = mapServicesUsed(data);
       const experiments = mapExperiments(data);
       const userPreferences = mapUserPreferences(data);
@@ -410,9 +470,11 @@ module.exports = {
           ),
         };
       }
+
+      return;
     }
 
-    function mapServicesUsed(data) {
+    function mapServicesUsed(data: EventData) {
       const { serviceName } = getServiceNameAndClientId(data);
 
       if (serviceName) {
@@ -420,12 +482,14 @@ module.exports = {
           fxa_services_used: serviceName,
         };
       }
+
+      return;
     }
   },
 };
 
-function pruneUnsetValues(data) {
-  const result = {};
+function pruneUnsetValues(data: EventData) {
+  const result: Partial<EventData> = {};
 
   Object.keys(data).forEach((key) => {
     const value = data[key];
@@ -438,7 +502,7 @@ function pruneUnsetValues(data) {
   return result;
 }
 
-function mapExperiments(data) {
+function mapExperiments(data: EventData) {
   const { experiments } = data;
 
   if (Array.isArray(experiments) && experiments.length > 0) {
@@ -448,9 +512,11 @@ function mapExperiments(data) {
       ),
     };
   }
+
+  return;
 }
 
-function mapUserPreferences(data) {
+function mapUserPreferences(data: EventData) {
   const { userPreferences } = data;
 
   // Don't send user preferences metric if there are none!
@@ -458,7 +524,7 @@ function mapUserPreferences(data) {
     return;
   }
 
-  const formattedUserPreferences = {};
+  const formattedUserPreferences: { [key: string]: any } = {};
   for (const pref in userPreferences) {
     formattedUserPreferences[toSnakeCase(pref)] = userPreferences[pref];
   }
@@ -466,7 +532,7 @@ function mapUserPreferences(data) {
   return formattedUserPreferences;
 }
 
-function toSnakeCase(string) {
+function toSnakeCase(string: string) {
   return string
     .replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
     .replace(/([A-Z])/g, (c) => c.toLowerCase())
@@ -474,79 +540,102 @@ function toSnakeCase(string) {
     .replace(/-/g, '_');
 }
 
-function mapSyncDevices(data) {
+function mapSyncDevices(data: EventData) {
   const { devices } = data;
 
   if (Array.isArray(devices)) {
     return {
       sync_device_count: devices.length,
-      sync_active_devices_day: countDevices(devices, DAY),
-      sync_active_devices_week: countDevices(devices, WEEK),
-      sync_active_devices_month: countDevices(devices, FOUR_WEEKS),
+      sync_active_devices_day: countDevices(
+        devices as [{ [key: string]: any }],
+        DAY
+      ),
+      sync_active_devices_week: countDevices(
+        devices as [{ [key: string]: any }],
+        WEEK
+      ),
+      sync_active_devices_month: countDevices(
+        devices as [{ [key: string]: any }],
+        FOUR_WEEKS
+      ),
     };
   }
+
+  return;
 }
 
-function countDevices(devices, period) {
+function countDevices(devices: [{ [key: string]: any }], period: number) {
   return devices.filter(
     (device) => device.lastAccessTime >= Date.now() - period
   ).length;
 }
 
-function mapSyncEngines(data) {
+function mapSyncEngines(data: EventData) {
   const { syncEngines: sync_engines } = data;
 
   if (Array.isArray(sync_engines) && sync_engines.length > 0) {
     return { sync_engines };
   }
+
+  return;
 }
 
-function mapNewsletters(data) {
+function mapNewsletters(data: EventData) {
   let { newsletters } = data;
   if (newsletters) {
-    newsletters = newsletters.map((newsletter) => {
+    newsletters = newsletters.map((newsletter: string) => {
       return toSnakeCase(newsletter);
     });
     return { newsletters, newsletter_state: 'subscribed' };
   }
+
+  return;
 }
 
-function mapBrowser(userAgent) {
+function mapBrowser(userAgent: ParsedUserAgentProperties) {
   return mapUserAgentProperties(userAgent, 'ua', 'browser', 'browserVersion');
 }
 
-function mapOs(userAgent) {
+function mapOs(userAgent: ParsedUserAgentProperties) {
   return mapUserAgentProperties(userAgent, 'os', 'os', 'osVersion');
 }
 
 function mapUserAgentProperties(
-  userAgent,
-  key,
-  familyProperty,
-  versionProperty
+  userAgent: ParsedUserAgentProperties,
+  key: keyof ParsedUserAgentProperties,
+  familyProperty: string,
+  versionProperty: string
 ) {
   const group = userAgent[key];
   const { family } = group;
   if (family && family !== 'Other') {
     return {
       [familyProperty]: family,
-      [versionProperty]: group.toVersionString(),
+      [versionProperty]: (group as ParsedUa | ParsedOs).toVersionString(),
     };
   }
+
+  return;
 }
 
-function mapFormFactor(userAgent) {
+function mapFormFactor(userAgent: ParsedUserAgentProperties) {
   const { brand, family: formFactor } = userAgent.device;
   if (brand && formFactor && brand !== 'Generic') {
     return { formFactor };
   }
+
+  return;
 }
 
-function mapLocation(location) {
+function mapLocation(location: Location) {
   if (location && (location.country || location.state)) {
     return {
       country: location.country,
       region: location.state,
     };
   }
+
+  return;
 }
+
+export default amplitude;

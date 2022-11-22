@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const remoteAddress = require('../../express/remote-address')(3);
+const remoteAddress = require('../../express/remote-address').remoteAddress(3);
 
 describe('remote-address', () => {
   it('has the correct interface', () => {
