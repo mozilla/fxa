@@ -137,7 +137,7 @@ export function init(opts: TracingOpts, logger: ILogger) {
   return nodeTracing;
 }
 
-/** Resets the current tracing instance. Use only for testing purposes. */
+/** Get the current instance of the node tracing provider. */
 export function getCurrent() {
   return nodeTracing;
 }

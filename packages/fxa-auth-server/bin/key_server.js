@@ -51,7 +51,7 @@ async function run(config) {
   const log = require('../lib/log')({
     ...config.log,
     statsd,
-    nodeTracer: TracingProvider.nodeTracing,
+    nodeTracer: TracingProvider.getCurrent(),
   });
   Container.set(AuthLogger, log);
 
