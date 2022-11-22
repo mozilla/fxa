@@ -3,20 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { Localized } from '@fluent/react';
 
 const AppErrorDialog = ({ error }: { error: Error }) => {
   return (
     <div className="bg-grey-20 flex items-center flex-col justify-center h-screen">
       <div className="text-center max-w-lg">
-        <h2
-          className="text-grey-900 font-header text-lg font-bold mb-3"
-          data-testid="error-loading-app"
-        >
-          General application error
-        </h2>
-        <p className="text-grey-400">
-          Something went wrong. Please try again later.
-        </p>
+        <Localized id="app-general-err-heading">
+          <h2
+            className="text-grey-900 font-header text-lg font-bold mb-3"
+            data-testid="error-loading-app"
+          >
+            General application error
+          </h2>
+        </Localized>
+        <Localized id="app-general-err-message">
+          <p className="text-grey-400">
+            Something went wrong. Please try again later.
+          </p>
+        </Localized>
       </div>
     </div>
   );

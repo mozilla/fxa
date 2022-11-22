@@ -7,9 +7,6 @@ document =
 close-aria =
   .aria-label = Close modal
 
-# Aria label for spinner image indicating data is loading
-app-loading-spinner-aria-label-loading = Loading…
-
 settings-subscriptions-title = Subscriptions
 
 # Title of container where a user can input a coupon code to get a discount on a subscription.

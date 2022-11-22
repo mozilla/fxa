@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { Localized } from '@fluent/react';
 
 type LinkExternalProps = {
   className?: string;
@@ -32,7 +33,9 @@ export const LinkExternal = ({
     }}
   >
     {children}
-    <span className="sr-only">Opens in new window</span>
+    <Localized id="link-sr-new-window">
+      <span className="sr-only">Opens in new window</span>
+    </Localized>
   </a>
 );
 
