@@ -220,6 +220,7 @@ export class PayPalHandler extends StripeWebhookHandler {
         token,
         currency,
         location: request.app.geo.location,
+        taxSubscription,
       });
 
     // TODO: Remove the following in FXA-6091
@@ -235,7 +236,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     }
 
     const taxOptions = this.automaticTax
-      ? { automatic_tax: taxSubscription }
+      ? { automaticTax: taxSubscription }
       : { taxRateId };
 
     let subscription;
@@ -321,7 +322,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     }
 
     const taxOptions = this.automaticTax
-      ? { automatic_tax: taxSubscription }
+      ? { automaticTax: taxSubscription }
       : { taxRateId };
 
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
@@ -391,12 +392,16 @@ export class PayPalHandler extends StripeWebhookHandler {
       });
     }
 
+    const taxSubscription =
+      this.automaticTax && customer.tax?.automatic_tax === 'supported';
+
     const { token } = request.payload as Record<string, string>;
     const { agreementId } = await this.createAndVerifyBillingAgreement({
       uid,
       token,
       currency: customer.currency,
       location: request.app.geo.location,
+      taxSubscription,
     });
 
     await this.stripeHelper.updateCustomerPaypalAgreement(
@@ -462,6 +467,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       country: string;
       countryCode: string;
     };
+    taxSubscription: boolean;
   }) {
     const { uid, token, currency } = options;
     // Create PayPal billing agreement
@@ -474,34 +480,38 @@ export class PayPalHandler extends StripeWebhookHandler {
     });
 
     // copy bill to address information to Customer
-    const accountCustomer = await getAccountCustomerByUid(uid);
-    if (accountCustomer.stripeCustomerId) {
-      const locationDetails = {} as any;
-      if (agreementDetails.countryCode === options.location?.countryCode) {
-        // Record the state (short name) if needed
-        const state = options.location?.state;
-        const country = Object.keys(COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP).find(
-          (key) =>
-            COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP[key] ===
-            agreementDetails.countryCode
-        );
-        if (country && stateNames[country][state]) {
-          locationDetails.state = stateNames[country][state];
+    if (!options.taxSubscription) {
+      const accountCustomer = await getAccountCustomerByUid(uid);
+      if (accountCustomer.stripeCustomerId) {
+        const locationDetails = {} as any;
+        if (agreementDetails.countryCode === options.location?.countryCode) {
+          // Record the state (short name) if needed
+          const state = options.location?.state;
+          const country = Object.keys(
+            COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP
+          ).find(
+            (key) =>
+              COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP[key] ===
+              agreementDetails.countryCode
+          );
+          if (country && stateNames[country][state]) {
+            locationDetails.state = stateNames[country][state];
+          }
         }
+        this.stripeHelper.updateCustomerBillingAddress({
+          customerId: accountCustomer.stripeCustomerId,
+          options: {
+            city: agreementDetails.city,
+            country: agreementDetails.countryCode,
+            line1: agreementDetails.street,
+            line2: agreementDetails.street2,
+            postalCode: agreementDetails.zip,
+            state: agreementDetails.state,
+            ...locationDetails,
+          },
+          name: `${agreementDetails.firstName} ${agreementDetails.lastName}`,
+        });
       }
-      this.stripeHelper.updateCustomerBillingAddress({
-        customerId: accountCustomer.stripeCustomerId,
-        options: {
-          city: agreementDetails.city,
-          country: agreementDetails.countryCode,
-          line1: agreementDetails.street,
-          line2: agreementDetails.street2,
-          postalCode: agreementDetails.zip,
-          state: agreementDetails.state,
-          ...locationDetails,
-        },
-        name: `${agreementDetails.firstName} ${agreementDetails.lastName}`,
-      });
     }
 
     // Verify sourceCountry and plan currency are a valid combination.

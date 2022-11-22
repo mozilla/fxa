@@ -679,7 +679,49 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '',
+          ipAddress: '127.0.0.1',
+          promotionCode: 'promotionCode',
+          priceId: 'priceId',
+        }
+      );
+      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+    });
+
+    it('returns the preview invoice when Stripe tax is enabled', async () => {
+      directStripeRoutesInstance.automaticTax = true;
+      const mockCustomer = deepCopy(customerFixture);
+      mockCustomer.tax = {
+        automatic_tax: 'supported',
+      };
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+        mockCustomer
+      );
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      VALID_REQUEST.payload = {
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+      const actual = await directStripeRoutesInstance.previewInvoice(
+        VALID_REQUEST
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        VALID_REQUEST,
+        'previewInvoice'
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer,
+        UID,
+        ['tax']
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.previewInvoice,
+        {
+          automaticTax: true,
+          country: 'US',
+          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
         }
@@ -723,7 +765,7 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '',
+          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
         }

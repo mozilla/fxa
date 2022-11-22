@@ -434,10 +434,10 @@ export class StripeHandler {
     }
 
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = request.auth.credentials
-      ? customer?.tax?.ip_address || ''
-      : request.app.clientAddress;
-    const automaticTax = this.automaticTax;
+    const ipAddress = customer?.tax?.ip_address || request.app.clientAddress;
+    const isCustomerTaxed =
+      !customer || customer.tax?.automatic_tax === 'supported';
+    const automaticTax = this.automaticTax && isCustomerTaxed;
 
     const previewInvoice = await this.stripeHelper.previewInvoice({
       automaticTax,
