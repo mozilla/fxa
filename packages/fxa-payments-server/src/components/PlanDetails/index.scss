@@ -1,6 +1,6 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
 /* can be removed once '@tailwind base' is enabled */
-.up-arrow::before {
+.up-arrow {
   transform: rotate(180deg);
 }

@@ -17,6 +17,7 @@ import { AppContext } from '../../lib/AppContext';
 // happy
 import ffLogo from '../../images/firefox-logo.svg';
 import infoLogo from './images/Information.svg';
+import arrowIcon from './images/chevron.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
@@ -357,29 +358,33 @@ export const PlanDetails = ({
       )}
 
       {showExpandButton && (
-        <div className="text-center" data-testid="footer">
+        <div data-testid="footer-accordion-button">
           {detailsHidden ? (
-            <Localized id="plan-details-show-button">
-              <button
-                data-testid="button"
-                className="accordion-btn arrow"
-                aria-expanded={!detailsHidden}
-                onClick={() => setDetailsState(false)}
-              >
-                Show details
-              </button>
-            </Localized>
+            <div
+              aria-expanded={!detailsHidden}
+              className="accordion-btn"
+              data-testid="button"
+              onClick={() => setDetailsState(false)}
+              role="button"
+            >
+              <img src={arrowIcon} alt="" />
+              <Localized id="plan-details-show-button">
+                <div>Show details</div>
+              </Localized>
+            </div>
           ) : (
-            <Localized id="plan-details-hide-button">
-              <button
-                data-testid="button"
-                className="accordion-btn arrow before:rotate-180 up-arrow"
-                aria-expanded={!detailsHidden}
-                onClick={() => setDetailsState(true)}
-              >
-                Hide details
-              </button>
-            </Localized>
+            <div
+              aria-expanded={!detailsHidden}
+              className="accordion-btn"
+              data-testid="button"
+              onClick={() => setDetailsState(true)}
+              role="button"
+            >
+              <img src={arrowIcon} className="up-arrow" alt="" />
+              <Localized id="plan-details-hide-button">
+                <div>Hide details</div>
+              </Localized>
+            </div>
           )}
         </div>
       )}

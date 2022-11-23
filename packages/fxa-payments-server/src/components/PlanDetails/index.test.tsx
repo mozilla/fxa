@@ -101,7 +101,7 @@ describe('PlanDetails', () => {
       queryByText(selectedPlan.plan_metadata!['product:subtitle'])
     ).toBeInTheDocument();
 
-    const footer = queryByTestId('footer');
+    const footer = queryByTestId('footer-accordion-button');
     expect(footer).toBeVisible();
 
     expect(queryByTestId('list')).not.toBeTruthy();
