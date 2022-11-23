@@ -23,7 +23,6 @@ const webpackConfig = {
       'jquery',
       'js-md5',
       'modal',
-      'speed-trap',
       'ua-parser-js',
       'uuid',
       'vat',

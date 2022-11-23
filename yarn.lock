@@ -25050,7 +25050,6 @@ fsevents@~2.1.1:
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
     source-map-loader: ^1.1.1
-    speed-trap: 0.0.10
     tailwindcss: ^3.2.0
     thread-loader: ^3.0.4
     time-grunt: 2.0.0
@@ -43301,13 +43300,6 @@ resolve@^2.0.0-next.3:
     select-hose: ^2.0.0
     spdy-transport: ^3.0.0
   checksum: 2c739d0ff6f56ad36d2d754d0261d5ec358457bea7cbf77b1b05b0c6464f2ce65b85f196305f50b7bd9120723eb94bae9933466f28e67e5cd8cde4e27f1d75f8
-  languageName: node
-  linkType: hard
-
-"speed-trap@npm:0.0.10":
-  version: 0.0.10
-  resolution: "speed-trap@npm:0.0.10"
-  checksum: 655059197eb2c741695a92b73ee017d66a624912596b5a7338dba79103cc78af5637dd3678ea043483e8a2e4470baf3a53b2ada99acd9092fe92feb026bf943e
   languageName: node
   linkType: hard
 

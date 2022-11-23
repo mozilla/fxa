@@ -23,7 +23,7 @@ import Duration from 'duration';
 import Environment from './environment';
 import FlowModel from '../models/flow';
 import NotifierMixin from './channels/notifier-mixin';
-import speedTrap from 'speed-trap';
+import speedTrap from 'fxa-shared/speed-trap';
 import Strings from './strings';
 import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
