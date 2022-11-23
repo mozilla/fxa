@@ -230,6 +230,24 @@ jobs:
       - test-content-server-part:
           index: 5
 
+  deploy-fxa-ci-image:
+    resource_class: small
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build docker fxa ci image
+          command: docker build . -f ./_dev/docker/ci/Dockerfile -t fxa-circleci
+      - deploy:
+          name: Push fxa ci image
+          command: |
+            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
+            docker tag fxa-circleci mozilla/fxa-circleci:ci-latest
+            docker push mozilla/fxa-circleci:ci-latest
+
   deploy-packages:
     resource_class: small
     docker:
@@ -414,6 +432,16 @@ workflows:
                 - /^dockerpush.*/
             tags:
               ignore: /.*/
+
+      - deploy-fxa-ci-image:
+          filters:
+            branches:
+              only:
+                - main
+                - FXA-6260
+            tags:
+              ignore: /.*/
+
       - build-and-deploy-storybooks:
           filters:
             branches:
