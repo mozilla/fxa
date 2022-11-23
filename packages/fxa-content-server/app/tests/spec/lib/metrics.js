@@ -972,6 +972,22 @@ describe('lib/metrics', () => {
 
       assert.isTrue(metrics.flush.calledOnceWith(true));
     });
+
+    it('flushes on window visibilitychange', () => {
+      sinon.stub(metrics, 'flush');
+      metrics.logEvent('wibble');
+      $(windowMock).trigger('visibilitychange');
+
+      assert.isTrue(metrics.flush.calledOnceWith(true));
+    });
+
+    it('flushes on window pagehide', () => {
+      sinon.stub(metrics, 'flush');
+      metrics.logEvent('wibble');
+      $(windowMock).trigger('pagehide');
+
+      assert.isTrue(metrics.flush.calledOnceWith(true));
+    });
   });
 
   describe('inactivity timeout', () => {

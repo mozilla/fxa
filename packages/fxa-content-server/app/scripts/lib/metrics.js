@@ -208,11 +208,12 @@ _.extend(Metrics.prototype, Backbone.Events, {
   initialize() {
     this._flush = () => this.flush(true);
     $(this._window).on('unload', this._flush);
-    // iOS will not send events once the window is in the background,
-    // meaning the `unload` handler is ineffective. Send events on blur
-    // instead, so events are not lost when a user goes to verify their
-    // email.
+    // The latest Safari/iOS do not always handle `unload` events, and it is now
+    // recommended to use `visibilitychange` and `pagehide`.
+    // Ref: https://www.ctrl.blog/entry/safari-beacon-issues.html
     $(this._window).on('blur', this._flush);
+    $(this._window).on('visibilitychange', this._flush);
+    $(this._window).on('pagehide', this._flush);
 
     // Set the initial inactivity timeout to clear navigation timing data.
     this._resetInactivityFlushTimeout();
@@ -223,6 +224,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
   destroy() {
     $(this._window).off('unload', this._flush);
     $(this._window).off('blur', this._flush);
+    $(this._window).off('visibilitychange', this._flush);
+    $(this._window).off('pagehide', this._flush);
     this._clearInactivityFlushTimeout();
   },
 
