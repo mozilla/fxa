@@ -9,6 +9,7 @@ import noc from 'nock';
 import { AuthServerErrno } from '../../lib/errors';
 
 import {
+  PLAN_ID,
   PRODUCT_ID,
   PRODUCT_REDIRECT_URLS,
   MOCK_PLANS,
@@ -106,44 +107,12 @@ describe('routes/Product', () => {
     );
   };
 
-  const initApiMocks = (displayName?: string) => [
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(
-        200,
-        { ...MOCK_PROFILE, displayName },
-        { 'Access-Control-Allow-Origin': '*' }
-      ),
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
-  ];
-
   const initSubscribedApiMocks = ({
     mockProfile = MOCK_PROFILE,
     mockPlans = MOCK_PLANS,
     mockCustomer = MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-  } = {}) => [
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, mockProfile, { 'Access-Control-Allow-Origin': '*' }),
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, mockPlans, { 'Access-Control-Allow-Origin': '*' }),
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, mockCustomer, {
-        'Access-Control-Allow-Origin': '*',
-      }),
-  ];
-
-  const initSubscribedIapApiMocks = ({
-    mockProfile = MOCK_PROFILE,
-    mockPlans = MOCK_PLANS,
-    mockCustomer = MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+    planId = PLAN_ID,
+    planEligibility = 'invalid',
   } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
@@ -159,14 +128,44 @@ describe('routes/Product', () => {
     nock(authServer)
       .persist()
       .get(
-        '/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/nextlevel'
+        `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`
       )
-      .reply(200, { eligibility: 'blocked_iap' }),
+      .reply(
+        200,
+        { eligibility: planEligibility },
+        { 'Access-Control-Allow-Origin': '*' }
+      ),
   ];
 
   it('renders with product ID and display name', async () => {
     const displayName = 'Foo Barson';
-    const apiMocks = initApiMocks(displayName);
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(
+          200,
+          { ...MOCK_PROFILE, displayName },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'create' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+    ];
     const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
 
     await findAllByText('Set up your subscription');
@@ -178,7 +177,23 @@ describe('routes/Product', () => {
   });
 
   it('displays an error with invalid product ID', async () => {
-    const apiMocks = initApiMocks();
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(
+          200,
+          { ...MOCK_PROFILE },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+    ];
     const { findByTestId, queryByTestId } = render(
       <Subject productId="bad_product" />
     );
@@ -200,6 +215,16 @@ describe('routes/Product', () => {
           '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
         )
         .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'invalid' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
     ];
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-profile');
@@ -256,6 +281,16 @@ describe('routes/Product', () => {
           '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
         )
         .reply(400, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'invalid' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
     ];
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-customer');
@@ -278,6 +313,16 @@ describe('routes/Product', () => {
         .reply(
           404,
           { errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'create' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
     ];
@@ -304,6 +349,16 @@ describe('routes/Product', () => {
           { ...MOCK_CUSTOMER, subscriptions: [] },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'create' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
     ];
     const { findAllByText } = render(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
@@ -312,7 +367,10 @@ describe('routes/Product', () => {
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
-    const apiMocks = initSubscribedApiMocks();
+    const apiMocks = initSubscribedApiMocks({
+      planId: 'plan_upgrade',
+      planEligibility: 'upgrade',
+    });
     const { findByTestId } = render(
       <Subject
         {...{
@@ -332,7 +390,10 @@ describe('routes/Product', () => {
   });
 
   it('does not offer upgrade if another plan in the same product set does not have product order', async () => {
-    const apiMocks = initSubscribedApiMocks();
+    const apiMocks = initSubscribedApiMocks({
+      planId: 'plan_no_upgrade',
+      planEligibility: 'create',
+    });
     const { findAllByText, queryByTestId } = render(
       <Subject
         {...{
@@ -352,7 +413,7 @@ describe('routes/Product', () => {
   });
 
   it('does not allow a downgrade', async () => {
-    const apiMocks = initSubscribedApiMocks();
+    const apiMocks = initSubscribedApiMocks({ planId: 'plan_no_downgrade' });
     const { findByTestId } = render(
       <Subject
         {...{
@@ -372,7 +433,7 @@ describe('routes/Product', () => {
   });
 
   it('displays roadblock for a different plan of the same product with no upgrade path', async () => {
-    const apiMocks = initSubscribedApiMocks();
+    const apiMocks = initSubscribedApiMocks({ planId: 'nextlevel' });
     const { findByTestId } = render(
       <Subject
         {...{
@@ -392,7 +453,7 @@ describe('routes/Product', () => {
   });
 
   it('displays roadblock for an IAP subscribed product', async () => {
-    const apiMocks = initSubscribedIapApiMocks({
+    const apiMocks = initSubscribedApiMocks({
       mockCustomer: {
         ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
         subscriptions: [
@@ -408,6 +469,8 @@ describe('routes/Product', () => {
           },
         ],
       },
+      planId: 'nextlevel',
+      planEligibility: 'blocked_iap',
     });
     const { findByTestId } = render(
       <Subject

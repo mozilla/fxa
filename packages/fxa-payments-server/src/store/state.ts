@@ -11,6 +11,7 @@ import {
   CreateSubscriptionError,
   UpdateSubscriptionPlanResult,
   CancelSubscriptionResult,
+  PlanEligibility,
 } from './types';
 
 import { actions, ActionPayload } from './actions';
@@ -21,6 +22,10 @@ export const defaultState = {
   plans: uninitializedFetch<Array<Plan>, APIError>(),
   profile: uninitializedFetch<Profile, APIError>(),
   subscriptions: uninitializedFetch<Array<Subscription>>(),
+  subscriptionChangeEligibility: uninitializedFetch<
+    PlanEligibility,
+    APIError
+  >(),
   subsequentInvoices: uninitializedFetch<
     Array<SubsequentInvoicePreview>,
     APIError

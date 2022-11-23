@@ -1,5 +1,12 @@
 import { Config, defaultConfig } from './config';
-import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
+import {
+  Plan,
+  Profile,
+  Customer,
+  Subscription,
+  Token,
+  PlanEligibility,
+} from '../store/types';
 import * as Amplitude from './amplitude';
 import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
@@ -149,7 +156,9 @@ export async function apiFetchCustomer(): Promise<Customer> {
   );
 }
 
-export async function apiFetchPlanUpgradeEligibility(planId: string) {
+export async function apiFetchPlanEligibility(
+  planId: string
+): Promise<PlanEligibility> {
   return apiFetch(
     'GET',
     `${config.servers.auth.url}/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${planId}`

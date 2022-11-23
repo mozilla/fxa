@@ -1,6 +1,7 @@
 import {
   MozillaSubscription,
   PaypalPaymentError,
+  SubscriptionEligibilityResult,
 } from 'fxa-shared/subscriptions/types';
 import { Stripe } from 'stripe';
 import { PaymentProvider } from '../lib/PaymentProvider';
@@ -16,6 +17,7 @@ export type {
   ProductDetailsStringProperty,
   ProductDetailsListProperty,
   ProductDetails,
+  SubscriptionEligibilityResult,
 } from 'fxa-shared/subscriptions/types';
 
 export type FetchStateUninitialized = {
@@ -88,6 +90,10 @@ export type Customer = {
   payment_type?: string;
   paypal_payment_error?: PaypalPaymentError;
   subscriptions: Array<MozillaSubscription>;
+};
+
+export type PlanEligibility = {
+  eligibility: SubscriptionEligibilityResult;
 };
 
 export interface CreateSubscriptionResult {

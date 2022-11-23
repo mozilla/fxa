@@ -15,7 +15,6 @@ import { selectors, SelectorReturns } from '../../store/selectors';
 import { Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/stripe';
-import { apiFetchPlanUpgradeEligibility } from '../../lib/apiClient';
 
 import '../Product/index.scss';
 
@@ -118,6 +117,7 @@ export type ProductProps = {
   profile: SelectorReturns['profile'];
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
+  subscriptionChangeEligibility: SelectorReturns['subscriptionChangeEligibility'];
   customerSubscriptions: SelectorReturns['customerSubscriptions'];
   plansByProductId: SelectorReturns['plansByProductId'];
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
@@ -125,16 +125,19 @@ export type ProductProps = {
   resetUpdateSubscriptionPlan: ActionFunctions['resetUpdateSubscriptionPlan'];
   fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
   fetchCustomerAndSubscriptions: SequenceFunctions['fetchCustomerAndSubscriptions'];
+  fetchSubscriptionChangeEligibility: SequenceFunctions['fetchSubscriptionChangeEligibility'];
 };
 
 export const Product = ({
   profile,
   plans,
   customer,
+  subscriptionChangeEligibility,
   customerSubscriptions,
   plansByProductId,
   fetchProductRouteResources,
   fetchCustomerAndSubscriptions,
+  fetchSubscriptionChangeEligibility,
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
@@ -176,25 +179,14 @@ export const Product = ({
 
   const [coupon, setCoupon] = useState<CouponDetails>();
 
-  const [planUpgradeEligibility, setPlanUpgradeEligibility] =
-    useState('invalid');
-
   // Fetch plan update eligibility
   useEffect(() => {
     (async () => {
-      if (selectedPlan) {
-        try {
-          const planUpgradeDetails = await apiFetchPlanUpgradeEligibility(
-            selectedPlan.plan_id
-          );
-          const eligibilityResult = await planUpgradeDetails.eligibility;
-          setPlanUpgradeEligibility(eligibilityResult);
-        } catch (err) {
-          setPlanUpgradeEligibility('invalid');
-        }
+      if (selectedPlan && selectedPlan.active) {
+        fetchSubscriptionChangeEligibility(selectedPlan);
       }
     })();
-  }, [selectedPlan]);
+  }, [selectedPlan, fetchSubscriptionChangeEligibility]);
 
   // Please read the comment in `fetchProfileAndCustomer` in Checkout/index.tsx
   // regarding a possible race condition first.  The workaround here is to
@@ -212,7 +204,13 @@ export const Product = ({
   const delayedFetchCustomerAndSubscriptions = () =>
     setTimeout(fetchCustomerAndSubscriptions, 500);
 
-  if (!accessToken || customer.loading || plans.loading || profile.loading) {
+  if (
+    !accessToken ||
+    customer.loading ||
+    plans.loading ||
+    subscriptionChangeEligibility.loading ||
+    profile.loading
+  ) {
     return <LoadingOverlay isLoading={true} />;
   }
 
@@ -256,7 +254,7 @@ export const Product = ({
   }
 
   // Only check for upgrade or existing subscription if we have a customer.
-  if (customer.result) {
+  if (customer.result && subscriptionChangeEligibility.result !== null) {
     const iapSubscription = findCustomerIapSubscriptionByProductId(
       customerSubscriptions,
       productId
@@ -275,7 +273,7 @@ export const Product = ({
     // if desired product is already subscribed to, show iap already subscribed error
     // else, product is not subscribed to, but on same product set/might be eligible for upgrade
     // show iap upgrade contact support error messaging
-    if (planUpgradeEligibility === 'blocked_iap') {
+    if (subscriptionChangeEligibility.result.eligibility === 'blocked_iap') {
       // Get plan customer is blocked on
       const currentPlan = () => {
         if (selectedPlan.product_metadata !== null) {
@@ -436,6 +434,8 @@ export const Product = ({
 export default connect(
   (state: State) => ({
     customer: selectors.customer(state),
+    subscriptionChangeEligibility:
+      selectors.subscriptionChangeEligibility(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
     profile: selectors.profile(state),
     plans: selectors.plans(state),
@@ -445,6 +445,8 @@ export default connect(
   {
     fetchProductRouteResources: sequences.fetchProductRouteResources,
     fetchCustomerAndSubscriptions: sequences.fetchCustomerAndSubscriptions,
+    fetchSubscriptionChangeEligibility:
+      sequences.fetchSubscriptionChangeEligibility,
     updateSubscriptionPlanAndRefresh:
       sequences.updateSubscriptionPlanAndRefresh,
     resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,
