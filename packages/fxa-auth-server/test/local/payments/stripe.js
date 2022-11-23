@@ -4860,6 +4860,29 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('checkSubscriptionPastDue', () => {
+    const subscription = {
+      status: 'past_due',
+      collection_method: 'charge_automatically',
+    };
+    it('return true for a subscription past due', () => {
+      assert.isTrue(stripeHelper.checkSubscriptionPastDue(subscription));
+    });
+
+    it('return false for a subscription not past due', () => {
+      assert.isFalse(
+        stripeHelper.checkSubscriptionPastDue({
+          ...subscription,
+          status: 'active',
+        })
+      );
+    });
+
+    it('return false for an invalid subscription', () => {
+      assert.isFalse(stripeHelper.checkSubscriptionPastDue({}));
+    });
+  });
+
   describe('extract details for billing emails', () => {
     const uid = '1234abcd';
     const email = 'test+20200324@example.com';
@@ -5103,6 +5126,7 @@ describe('StripeHelper', () => {
         invoiceLink:
           'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
         invoiceNumber: 'AAF2CECC-0001',
+        invoiceStatus: 'paid',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
         invoiceSubtotalInCents: null,
@@ -5330,7 +5354,7 @@ describe('StripeHelper', () => {
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
-        assert.deepEqual(result, expected);
+        assert.deepEqual(result, { ...expected, invoiceStatus: 'draft' });
       });
 
       it('throws an exception for deleted customer', async () => {

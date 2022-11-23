@@ -2183,6 +2183,8 @@ describe('StripeWebhookHandler', () => {
           accountFound: true,
           subscriptionAlreadyCancelled: false,
           involuntaryCancellation: false,
+          immediateCancellation: false,
+          hasOutstandingBalance: false,
         }
       ) =>
       async () => {
@@ -2196,6 +2198,12 @@ describe('StripeWebhookHandler', () => {
           !options.subscriptionAlreadyCancelled &&
           !options.involuntaryCancellation;
 
+        const shouldSendCancellationEmail = () =>
+          options.accountFound &&
+          !options.subscriptionAlreadyCancelled &&
+          !options.involuntaryCancellation &&
+          options.immediateCancellation;
+
         const deletedEvent = deepCopy(subscriptionDeleted);
         const subscription = deletedEvent.data.object;
 
@@ -2204,12 +2212,20 @@ describe('StripeWebhookHandler', () => {
             cancelled_for_customer_at: moment().unix(),
           };
         }
+        StripeWebhookHandlerInstance.stripeHelper.checkSubscriptionPastDue.returns(
+          options.involuntaryCancellation
+        );
 
         const mockInvoiceDetails = {
           uid: '1234',
           test: 'fake',
           email: 'test@example.com',
         };
+        if (options.hasOutstandingBalance) {
+          mockInvoiceDetails.invoiceStatus = 'draft';
+        } else {
+          mockInvoiceDetails.invoiceStatus = 'paid';
+        }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails
         );
@@ -2272,6 +2288,26 @@ describe('StripeWebhookHandler', () => {
               .sendSubscriptionAccountDeletionEmail
           );
         }
+
+        if (shouldSendCancellationEmail()) {
+          assert.calledWith(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionCancellationEmail,
+            mockAccount.emails,
+            mockAccount,
+            {
+              acceptLanguage: mockAccount.locale,
+              ...mockInvoiceDetails,
+              showOutstandingBalance: options.hasOutstandingBalance,
+              cancelAtEnd: subscription.cancel_at_period_end,
+            }
+          );
+        } else {
+          assert.notCalled(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionCancellationEmail
+          );
+        }
       };
 
     it(
@@ -2307,6 +2343,28 @@ describe('StripeWebhookHandler', () => {
         accountFound: true,
         subscriptionAlreadyCancelled: false,
         involuntaryCancellation: true,
+      })
+    );
+
+    it(
+      'sends a subscription cancellation email on immediate subscription cancellation',
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: true,
+        subscriptionAlreadyCancelled: false,
+        involuntaryCancellation: false,
+        immediateCancellation: true,
+        hasOutstandingBalance: false,
+      })
+    );
+
+    it(
+      'sends a subscription cancellation email on immediate subscription cancellation, showing outstanding balance',
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: true,
+        subscriptionAlreadyCancelled: false,
+        involuntaryCancellation: false,
+        immediateCancellation: true,
+        hasOutstandingBalance: true,
       })
     );
   });

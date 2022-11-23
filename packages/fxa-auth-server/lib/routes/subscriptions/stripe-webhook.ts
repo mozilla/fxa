@@ -1013,23 +1013,40 @@ export class StripeWebhookHandler extends StripeHandler {
       // Subscription already cancelled, should have triggered an email earlier
       return invoiceDetails;
     }
-    const { uid, email } = invoiceDetails;
+    const { uid, email, invoiceStatus } = invoiceDetails;
 
     let account;
     try {
       // If the user's account has not been deleted, we should have already
       // sent email at subscription update when cancel_at_period_end = true,
       // _or_ the cancellation is from Stripe due to failed retries or the
-      // PayPal processor, which we'll handle here.
+      // PayPal processor, or the subscription was cancelled immediately
+      // which we'll handle here.
       account = await this.db.account(uid);
-      await this.mailer.sendSubscriptionFailedPaymentsCancellationEmail(
-        account.emails,
-        account,
-        {
-          acceptLanguage: account.locale,
-          ...invoiceDetails,
-        }
-      );
+      if (this.stripeHelper.checkSubscriptionPastDue(subscription)) {
+        await this.mailer.sendSubscriptionFailedPaymentsCancellationEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage: account.locale,
+            ...invoiceDetails,
+          }
+        );
+      } else if (!subscription.cancel_at_period_end) {
+        // If invoice is open or draft, assume there is an oustanding balance
+        const showOutstandingBalance =
+          invoiceStatus && ['open', 'draft'].includes(invoiceStatus);
+        await this.mailer.sendSubscriptionCancellationEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage: account.locale,
+            ...invoiceDetails,
+            showOutstandingBalance,
+            cancelAtEnd: subscription.cancel_at_period_end,
+          }
+        );
+      }
     } catch (err) {
       // Has the user's account been deleted?
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
