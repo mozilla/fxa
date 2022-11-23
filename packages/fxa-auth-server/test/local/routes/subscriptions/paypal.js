@@ -382,7 +382,9 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processInvoice);
+      }
 
+      function assertBillingUpdate() {
         sinon.assert.calledOnceWithExactly(
           authDbModule.getAccountCustomerByUid,
           UID
@@ -402,6 +404,11 @@ describe('subscriptions payPalRoutes', () => {
             name: 'Test User',
           }
         );
+      }
+
+      function assertNoBillingUpdate() {
+        sinon.assert.notCalled(authDbModule.getAccountCustomerByUid);
+        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
       }
 
       function assertTaxId() {
@@ -429,6 +436,7 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token },
         });
         assertChargedSuccessfully(actual);
+        assertBillingUpdate();
         assertTaxId();
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
@@ -460,6 +468,9 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token },
         });
         assertChargedSuccessfully(actual);
+        // Billing should not be updated for automatic tax since we use IP address
+        // for taxable location
+        assertNoBillingUpdate();
         assertAutomaticTax();
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
@@ -469,7 +480,7 @@ describe('subscriptions payPalRoutes', () => {
             priceId: undefined,
             promotionCode: undefined,
             subIdempotencyKey: undefined,
-            automatic_tax: true,
+            automaticTax: true,
           }
         );
       });
@@ -487,6 +498,7 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token, promotionCode: 'test-promo' },
         });
         assertChargedSuccessfully(actual);
+        assertBillingUpdate();
         sinon.assert.calledWithExactly(
           stripeHelper.findValidPromoCode,
           'test-promo',
@@ -521,6 +533,7 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token },
         });
         assertChargedSuccessfully(actual);
+        assertBillingUpdate();
         assertAutomaticTax();
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
@@ -530,7 +543,7 @@ describe('subscriptions payPalRoutes', () => {
             priceId: undefined,
             promotionCode: undefined,
             subIdempotencyKey: undefined,
-            automatic_tax: false,
+            automaticTax: false,
           }
         );
       });
