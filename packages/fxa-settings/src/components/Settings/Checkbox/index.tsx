@@ -20,7 +20,7 @@ export const Checkbox = ({
   onChange,
   prefixDataTestId,
 }: CheckboxProps) => {
-  const [focussed, setFocussed] = useState<boolean>(false);
+  const [focused, setFocussed] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(defaultChecked === true);
   const [hovered, setHovered] = useState<boolean>(false);
 
@@ -74,10 +74,10 @@ export const Checkbox = ({
               : `cursor-pointer ${
                   checked
                     ? `border-blue-500 text-blue-500 ${
-                        focussed ? 'shadow-input-blue-focus' : ''
+                        focused ? 'shadow-input-blue-focus' : ''
                       }`
                     : `border-grey-400 text-grey-400 ${
-                        focussed ? 'shadow-input-grey-focus' : ''
+                        focused ? 'shadow-input-grey-focus' : ''
                       }`
                 }`
           }`}

@@ -3,12 +3,15 @@ import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { HomePath } from '../../../constants';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { AuthUiErrorNos, composeAuthUiErrorTranslationId } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import {
+  AuthUiErrorNos,
+  composeAuthUiErrorTranslationId,
+} from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');

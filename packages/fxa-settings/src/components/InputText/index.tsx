@@ -29,6 +29,9 @@ export type InputTextProps = {
   autoFocus?: boolean;
   maxLength?: number;
   pattern?: string;
+  anchorStart?: boolean;
+  spellCheck?: boolean;
+  autoComplete?: string;
 };
 
 export const InputText = ({
@@ -48,12 +51,15 @@ export const InputText = ({
   autoFocus,
   maxLength,
   pattern,
+  anchorStart,
+  spellCheck,
+  autoComplete,
 }: InputTextProps) => {
-  const [focussed, setFocussed] = useState<boolean>(false);
+  const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
 
   const onFocus = useCallback(() => {
-    setFocussed(true);
+    setFocused(true);
     if (onFocusCb) {
       onFocusCb();
     }
@@ -64,7 +70,7 @@ export const InputText = ({
 
   const onBlur = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     checkHasContent(event);
-    setFocussed(false);
+    setFocused(false);
   }, []);
 
   const textFieldChange = useCallback(
@@ -81,11 +87,13 @@ export const InputText = ({
 
   return (
     <label
-      className={`flex items-center rounded transition-all duration-100 ease-in-out border relative
-      ${
-        focussed ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200'
-      }
-      ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'} ${className}`}
+      className={classNames(
+        'flex items-center rounded transition-all duration-100 ease-in-out border relative',
+        focused ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200',
+        disabled ? 'border-grey-100 bg-grey-10' : 'bg-white',
+        errorText ? 'border-red-700 shadow-input-red-focus' : '',
+        className
+      )}
       data-testid={formatDataTestId('input-container')}
     >
       <span className="block flex-auto">
@@ -93,7 +101,7 @@ export const InputText = ({
           className={classNames(
             'px-3 w-full cursor-text absolute text-sm origin-top-left transition-all duration-100 ease-in-out truncate font-body',
             disabled ? 'text-grey-300' : 'text-grey-900',
-            hasContent || focussed
+            hasContent || focused
               ? 'transform scale-80 mt-1 ml-1 -left-px'
               : 'mt-3 pt-px'
           )}
@@ -118,11 +126,18 @@ export const InputText = ({
             autoFocus,
             maxLength,
             pattern,
+            spellCheck,
+            autoComplete,
           }}
         />
       </span>
       {errorText && (
-        <Tooltip type="error" className="-mb-px" message={errorText} />
+        <Tooltip
+          type="error"
+          anchorStart={anchorStart}
+          className="-mb-px"
+          message={errorText}
+        />
       )}
       {children}
     </label>

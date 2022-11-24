@@ -11,7 +11,7 @@ export type PositionType = 'top' | 'bottom';
 type TooltipProps = {
   message: string;
   type?: TooltipType;
-  anchorLeft?: boolean;
+  anchorStart?: boolean;
   className?: string;
   position?: PositionType;
   prefixDataTestId?: string;
@@ -36,7 +36,7 @@ export const Tooltip = ({
   message,
   className,
   type = 'default',
-  anchorLeft = false,
+  anchorStart = false,
   position = 'top',
   prefixDataTestId,
 }: TooltipProps) => {
@@ -50,14 +50,14 @@ export const Tooltip = ({
       title={message}
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white
-         p-3 rounded text-xs left-0 font-header font-bold
+         p-3 rounded text-xs font-header font-bold
           shadow-tooltip-grey-drop
          `,
         type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,
         {
-          'left-1/2 transform -translate-x-1/2': !anchorLeft,
-          'left-0': anchorLeft,
+          'ltr:left-1/2 transform -translate-x-1/2': !anchorStart,
+          'ltr:left-0 rtl:right-0': anchorStart,
           'bottom-full': position === 'top',
           'top-full': position === 'bottom',
         }
@@ -65,8 +65,8 @@ export const Tooltip = ({
     >
       <span
         className={classNames('absolute', caretClass(type, position), {
-          'left-1/2 transform -translate-x-1/2': !anchorLeft,
-          'left-ten': anchorLeft,
+          'left-1/2 transform -translate-x-1/2': !anchorStart,
+          'ltr:left-ten rtl:right-ten w-auto': anchorStart,
           'top-full': position === 'top',
           'bottom-full': position === 'bottom',
         })}

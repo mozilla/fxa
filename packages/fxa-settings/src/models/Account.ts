@@ -404,6 +404,13 @@ export class Account implements AccountData {
     });
   }
 
+  // TODO reset password function
+  resetPassword(email: string) {
+    // check if email is linked to existing account
+    // if account exists, send reset password link by email
+    // handle error - if email unknown, return "Unknown account" error with sign in link
+  }
+
   async setDisplayName(displayName: string) {
     await this.withLoadingStatus(
       this.apolloClient.mutate({

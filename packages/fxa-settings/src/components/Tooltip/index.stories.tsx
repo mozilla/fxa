@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Tooltip from './index';
 
-storiesOf('Components/Settings/Tooltip', module)
+storiesOf('Components/Tooltip', module)
   .add('default', () => (
     <div className="p-20 max-w-md">
       <div className="mb-3">
@@ -53,7 +53,7 @@ storiesOf('Components/Settings/Tooltip', module)
           <Tooltip
             message="My tooltip message here"
             position="bottom"
-            anchorLeft={true}
+            anchorStart={true}
             className="mt-2"
           />
         </div>
