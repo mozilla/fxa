@@ -61,7 +61,12 @@
 
 /* shared styles used in PlanDetails and PlanUpgradeDetails */
 .accordion-btn {
-  @apply cursor-pointer flex justify-center leading-5 py-4 outline-none text-blue-500 focus:border focus:border-solid focus:border-blue-400 focus:shadow-none;
+  /* if we can make the button span the full width for better a11y,
+     remove the line directly below and uncomment the line below it;
+     else use uncommented code as is to match what's currently on prod
+  */
+  @apply cursor-pointer flex justify-center leading-4 py-4 pr-3 text-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 border-0 bg-transparent;
+  /* @apply cursor-pointer flex justify-center content-center w-full leading-4 py-4 pr-3 text-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 border-0 bg-transparent; */
 }
 
 .coupon-info {
