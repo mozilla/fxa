@@ -26,7 +26,7 @@ fi
 backup_ifs="$IFS"
 
 get_realpath_missing() {
-    if hash -- realpath 2>/dev/null; then
+    if hash -- realpath -m 2>/dev/null; then
         realpath -m "$1"
         return
     fi
