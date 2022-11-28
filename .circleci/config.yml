@@ -234,9 +234,12 @@ jobs:
     resource_class: small
     docker:
       - image: cimg/node:16.13
+    environment:
+      DOCKER_BUILDKIT: 1
     steps:
       - checkout
       - setup_remote_docker:
+          version: 18.09.3
           docker_layer_caching: true
       - run:
           name: Build docker fxa ci image
@@ -258,6 +261,7 @@ jobs:
       - base-install
       - setup_remote_docker:
           version: 18.09.3
+          docker_layer_caching: true
       - run:
           name: Build docker images
           command: ./.circleci/build-all.sh
@@ -439,7 +443,6 @@ workflows:
             branches:
               only:
                 - main
-                - FXA-6260
             tags:
               ignore: /.*/
 
