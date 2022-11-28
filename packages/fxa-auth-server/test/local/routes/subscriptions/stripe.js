@@ -1092,10 +1092,10 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.notCalled(
         directStripeRoutesInstance.stripeHelper.taxRateByCountryCode
       );
-      sinon.assert.notCalled(
+      sinon.assert.calledOnce(
         directStripeRoutesInstance.stripeHelper.customerTaxId
       );
-      sinon.assert.notCalled(
+      sinon.assert.calledOnce(
         directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
       );
       sinon.assert.notCalled(

@@ -585,10 +585,11 @@ export class StripeHandler {
             paymentMethodCountry
           );
         }
+        if (!this.stripeHelper.customerTaxId(customer)) {
+          await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
+        }
+
         if (!this.automaticTax && paymentMethodCountry) {
-          if (!this.stripeHelper.customerTaxId(customer)) {
-            await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
-          }
           taxRateId = (
             await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
           )?.id;
