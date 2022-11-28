@@ -25063,7 +25063,7 @@ fsevents@~2.1.1:
     webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
     webpack-cli: ^4.10.0
-    webpack-dev-middleware: ^5.3.3
+    webpack-dev-middleware: ^6.0.1
     xmlhttprequest: ^1.8.0
     yargs: ^17.0.1
   languageName: unknown
@@ -33555,12 +33555,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"memfs@npm:^3.4.3":
-  version: 3.4.7
-  resolution: "memfs@npm:3.4.7"
+"memfs@npm:^3.4.12":
+  version: 3.4.12
+  resolution: "memfs@npm:3.4.12"
   dependencies:
     fs-monkey: ^1.0.3
-  checksum: fab88266dc576dc4999e38bdf531d703fb798affac2e0dd3fc17470878486844027b2766008ba80c0103b443f52cf9068a5c00f4e1ecf04106f4b29c11855822
+  checksum: dab8dec1ae0b2a92e4d563ac86846047cd7aeb17cde4ad51da85cff6e580c32d12b886354527788e36eb75f733dd8edbaf174476b7cea73fed9c5a0e45a6b428
   languageName: node
   linkType: hard
 
@@ -47331,18 +47331,18 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webpack-dev-middleware@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "webpack-dev-middleware@npm:5.3.3"
+"webpack-dev-middleware@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "webpack-dev-middleware@npm:6.0.1"
   dependencies:
     colorette: ^2.0.10
-    memfs: ^3.4.3
+    memfs: ^3.4.12
     mime-types: ^2.1.31
     range-parser: ^1.2.1
     schema-utils: ^4.0.0
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: dd332cc6da61222c43d25e5a2155e23147b777ff32fdf1f1a0a8777020c072fbcef7756360ce2a13939c3f534c06b4992a4d659318c4a7fe2c0530b52a8a6621
+    webpack: ^5.0.0
+  checksum: eeda09cf4a1fdb09ee95f96ab657b0fb8d32c56f4d20c7f4499457a015c703f243711fda0b5bc0d103ff9e7c7b9b60568210a4c0fbd6d02361d09d2387cd723a
   languageName: node
   linkType: hard
 
