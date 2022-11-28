@@ -304,7 +304,7 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: large
+    resource_class: xlarge
     parallelism: 5
     docker:
       - image: mcr.microsoft.com/playwright:v1.20.0-focal
@@ -317,6 +317,8 @@ jobs:
       NODE_ENV: dev
       TRACING_SERVICE_NAME: ci-playwright-functional-tests
       TRACING_CONSOLE_EXPORTER_ENABLED: true
+      SUBSCRIPTIONS_PAYPAL_ENABLED: true
+      PAYPAL_SANDBOX: true
     steps:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat
@@ -324,6 +326,11 @@ jobs:
       - run:
           name: Install playwright
           command: npx playwright install --with-deps
+      - run:
+          name: Add localhost
+          command: |
+            tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            cat /etc/hosts
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh

@@ -62,7 +62,7 @@ export abstract class SettingsLayout extends BaseLayout {
     await this.clickAvatarIcon();
     await Promise.all([
       this.clickSignOut(),
-      this.page.waitForURL(this.target.baseUrl, { waitUntil: 'networkidle' }),
+      this.page.waitForURL(this.target.baseUrl, { waitUntil: 'load' }),
     ]);
   }
 }
