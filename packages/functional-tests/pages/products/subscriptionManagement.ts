@@ -34,9 +34,7 @@ export class SubscriptionManagementPage extends BaseLayout {
 
   getResubscriptionPrice() {
     return this.page
-      .locator(
-        '//html/body/div/div/div/div[2]/div/div/div/div/section[3]/div/div/div/div[1]/div[1]'
-      )
+      .locator('[data-testid="price-details-standalone"]')
       .textContent();
   }
 }

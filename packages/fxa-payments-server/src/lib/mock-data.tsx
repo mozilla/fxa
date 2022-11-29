@@ -277,7 +277,9 @@ export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
     },
   ],
   subtotal: 500,
+  subtotal_excluding_tax: null,
   total: 500,
+  total_excluding_tax: null,
 };
 
 export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
@@ -290,7 +292,9 @@ export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
     },
   ],
   subtotal: 500,
+  subtotal_excluding_tax: null,
   total: 450,
+  total_excluding_tax: null,
   discount: {
     amount: 50,
     amount_off: null,
@@ -345,7 +349,9 @@ export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: FirstInvoicePreview = {
     },
   ],
   subtotal: 500,
+  subtotal_excluding_tax: null,
   total: 0,
+  total_excluding_tax: null,
   discount: {
     amount: 500,
     amount_off: null,
@@ -363,7 +369,9 @@ export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: FirstInvoicePreview = {
     },
   ],
   subtotal: 500,
+  subtotal_excluding_tax: null,
   total: 25,
+  total_excluding_tax: null,
   discount: {
     amount: 475,
     amount_off: 475,

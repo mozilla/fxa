@@ -418,7 +418,7 @@ export async function apiRetryInvoice(params: {
 
 export async function apiInvoicePreview(params: {
   priceId: string;
-  promotionCode: string;
+  promotionCode?: string;
 }): Promise<FirstInvoicePreview> {
   return apiFetch(
     'POST',

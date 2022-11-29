@@ -20,6 +20,8 @@ sub-customer-error =
 sub-invoice-error =
   .title = Problem loading invoices
 sub-billing-update-success = Your billing information has been updated successfully
+sub-invoice-previews-error-title = Problem loading invoice previews
+sub-invoice-previews-error-text = Could not load invoice previews
 
 ## Routes - Subscription - ActionButton
 
@@ -27,9 +29,13 @@ pay-update-change-btn = Change
 pay-update-manage-btn = Manage
 
 ## Routes - Subscriptions - Cancel and IapItem
+## $priceAmount (Number) - The amount billed. It will be formatted as currency.
+## $taxAmount (Number) - The tax added on, not included in amount. It will be formatted as currency.
 ## $date (Date) - The date for the next time a charge will occur.
 
 sub-next-bill = Next billed on { $date }
+sub-next-bill-no-tax = Your next bill of <strong>{ $priceAmount }</strong> is due <strong>{ $date }</strong>
+sub-next-bill-tax = Your next bill of <strong>{ $priceAmount } + { $taxAmount }</strong> tax is due <strong>{ $date }</strong>
 sub-expires-on = Expires on { $date }
 
 ## Routes - Subscription - PaymentUpdate
@@ -47,6 +53,8 @@ sub-route-funding-source-payment-alert = Invalid payment information; there is a
 sub-item-no-such-plan = No such plan for this subscription.
 invoice-not-found = Subsequent invoice not found
 sub-item-no-such-subsequent-invoice = Subsequent invoice not found for this subscription.
+sub-invoice-preview-error-title = Invoice preview not found
+sub-invoice-preview-error-text = Invoice preview not found for this subscription
 
 ## Routes - Subscriptions - Pocket Subscription
 

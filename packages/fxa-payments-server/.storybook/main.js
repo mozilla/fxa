@@ -14,5 +14,8 @@ module.exports = {
         },
       },
     },
+    {
+      name: 'storybook-addon-mock/register',
+    },
   ],
 };

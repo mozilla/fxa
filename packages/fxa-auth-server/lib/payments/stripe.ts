@@ -1002,6 +1002,7 @@ export class StripeHelper extends StripeHelperBase {
             couponDetails.discountAmount = total_discount_amounts[0].amount;
           }
         } catch (err) {
+          console.log('REINO');
           if (
             err instanceof error &&
             err.errno === error.ERRNO.INVALID_PROMOTION_CODE
@@ -1019,6 +1020,8 @@ export class StripeHelper extends StripeHelperBase {
           }
         }
       }
+
+      console.log({ couponDetails, verifiedPromotionAndCoupon });
 
       return {
         ...couponDetails,

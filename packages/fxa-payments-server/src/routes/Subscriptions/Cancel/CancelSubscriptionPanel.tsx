@@ -7,7 +7,7 @@ import { Localized } from '@fluent/react';
 import {
   getLocalizedDate,
   getLocalizedDateString,
-  formatPlanPricing,
+  formatPriceAmount,
   getLocalizedCurrency,
 } from '../../../lib/formats';
 import { useCheckboxState } from '../../../lib/hooks';
@@ -20,6 +20,82 @@ import * as Amplitude from '../../../lib/amplitude';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import AppContext from '../../../lib/AppContext';
+import { PriceDetails } from '../../../components/PriceDetails';
+import {
+  FirstInvoicePreview,
+  SubsequentInvoicePreview,
+} from 'fxa-shared/dto/auth/payments/invoice';
+
+const getIntervalPriceDetailsData = (invoicePreview: FirstInvoicePreview) => {
+  const showInvoicePreviewTax = invoicePreview.tax
+    ? !invoicePreview.tax.inclusive
+    : false;
+
+  const invoicePreviewDisplayTotal =
+    showInvoicePreviewTax && invoicePreview.total_excluding_tax
+      ? invoicePreview.total_excluding_tax
+      : invoicePreview.total;
+
+  return {
+    showInvoicePreviewTax,
+    invoicePreviewDisplayTotal,
+    taxAmount: invoicePreview.tax?.amount,
+  };
+};
+
+const getNextBillData = (
+  plan: Plan,
+  subsequentInvoice: SubsequentInvoicePreview
+) => {
+  const {
+    total: subsequentInvoiceTotal,
+    total_excluding_tax: subsequentInvoiceTotalExcludingTax,
+    period_start: subsequentInvoiceDate,
+    tax: subsequentInvoiceTax,
+  } = subsequentInvoice;
+
+  const showSubsequentInvoiceTax = subsequentInvoiceTax
+    ? !subsequentInvoiceTax.inclusive
+    : false;
+  const subsequentInvoiceDisplayTotal =
+    showSubsequentInvoiceTax && subsequentInvoiceTotalExcludingTax
+      ? subsequentInvoiceTotalExcludingTax
+      : subsequentInvoiceTotal;
+
+  const nextBillL10nId = showSubsequentInvoiceTax
+    ? 'sub-next-bill-tax'
+    : 'sub-next-bill-no-tax';
+  const nextBillAmount = formatPriceAmount(
+    subsequentInvoiceDisplayTotal,
+    plan.currency,
+    showSubsequentInvoiceTax,
+    subsequentInvoiceTax?.amount || null
+  );
+  const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
+  const nextBillL10nVarsDefault = {
+    priceAmount: getLocalizedCurrency(
+      subsequentInvoiceDisplayTotal,
+      plan.currency
+    ),
+    date: nextBillDate,
+  };
+  const nextBillL10nVars = showSubsequentInvoiceTax
+    ? {
+        ...nextBillL10nVarsDefault,
+        taxAmount: getLocalizedCurrency(
+          subsequentInvoiceTax?.amount || 0,
+          plan.currency
+        ),
+      }
+    : nextBillL10nVarsDefault;
+
+  return {
+    nextBillL10nId,
+    nextBillAmount,
+    nextBillDate,
+    nextBillL10nVars,
+  };
+};
 
 export type CancelSubscriptionPanelProps = {
   plan: Plan;
@@ -28,8 +104,8 @@ export type CancelSubscriptionPanelProps = {
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   paymentProvider: PaymentProvider | undefined;
   promotionCode: string | undefined;
-  subsequentInvoiceAmount: number;
-  subsequentInvoiceDate: number;
+  subsequentInvoice: SubsequentInvoicePreview;
+  invoicePreview: FirstInvoicePreview;
 };
 
 const CancelSubscriptionPanel = ({
@@ -39,8 +115,8 @@ const CancelSubscriptionPanel = ({
   cancelSubscriptionStatus,
   paymentProvider,
   promotionCode,
-  subsequentInvoiceAmount,
-  subsequentInvoiceDate,
+  subsequentInvoice,
+  invoicePreview,
 }: CancelSubscriptionPanelProps) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
@@ -117,14 +193,10 @@ const CancelSubscriptionPanel = ({
     [onConfirmationChanged, engage]
   );
 
-  const planPricing = formatPlanPricing(
-    subsequentInvoiceAmount,
-    plan.currency,
-    plan.interval,
-    plan.interval_count
-  );
-  const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
-  const nextBill = `Next billed on ${nextBillDate}`;
+  const intervalPriceDetailsData = getIntervalPriceDetailsData(invoicePreview);
+  const { nextBillL10nId, nextBillAmount, nextBillDate, nextBillL10nVars } =
+    getNextBillData(plan, subsequentInvoice);
+
   const { upgradeCTA } = uiContentFromProductConfig(
     plan,
     navigatorLanguages,
@@ -138,20 +210,28 @@ const CancelSubscriptionPanel = ({
           <>
             <div className="with-settings-button">
               <div className="price-details" data-testid="price-details">
+                <PriceDetails
+                  total={intervalPriceDetailsData.invoicePreviewDisplayTotal}
+                  tax={intervalPriceDetailsData.taxAmount}
+                  showTax={intervalPriceDetailsData.showInvoicePreviewTax}
+                  currency={plan.currency}
+                  interval={plan.interval}
+                  intervalCount={plan.interval_count}
+                  className="price-details plan-pricing"
+                  dataTestId="price-details-standalone"
+                />
                 <Localized
-                  id={`sub-plan-price-${plan.interval}`}
-                  vars={{
-                    amount: getLocalizedCurrency(
-                      subsequentInvoiceAmount,
-                      plan.currency
-                    ),
-                    intervalCount: plan.interval_count,
+                  id={nextBillL10nId}
+                  vars={nextBillL10nVars}
+                  elems={{
+                    strong: <span className="font-semibold"></span>,
                   }}
                 >
-                  <div className="plan-pricing">{planPricing}</div>
-                </Localized>
-                <Localized id="sub-next-bill" vars={{ date: nextBillDate }}>
-                  <div>{nextBill}</div>
+                  <div data-testid="sub-next-bill">
+                    Your next bill of{' '}
+                    <span className="font-semibold">{nextBillAmount}</span> is
+                    due <span className="font-semibold">{nextBillDate}</span>
+                  </div>
                 </Localized>
               </div>
               <div className="action">

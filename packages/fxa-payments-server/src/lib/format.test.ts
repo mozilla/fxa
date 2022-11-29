@@ -1,4 +1,5 @@
 import {
+  formatPriceAmount,
   getLocalizedCurrency,
   getLocalizedCurrencyString,
   getLocalizedDate,
@@ -38,6 +39,29 @@ describe('format.ts', () => {
       it('returns a correctly formatted currency string given a null amount', () => {
         const expected = '$0.00';
         const actual = getLocalizedCurrencyString(null, 'USD');
+
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    describe('formatPriceAmount', () => {
+      it('returns without tax', () => {
+        const expected = '$1.00';
+        const actual = formatPriceAmount(100, 'USD', false, null);
+
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns with tax', () => {
+        const expected = '$1.00 + $0.40 tax';
+        const actual = formatPriceAmount(100, 'USD', true, 40);
+
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns with tax, even though none is provided', () => {
+        const expected = '$1.00 + $0.00 tax';
+        const actual = formatPriceAmount(100, 'USD', true, null);
 
         expect(actual).toEqual(expected);
       });

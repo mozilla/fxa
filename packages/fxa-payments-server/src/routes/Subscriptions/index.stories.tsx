@@ -21,6 +21,8 @@ import {
   MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import withMock from 'storybook-addon-mock';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 function init() {
   setupVariantStories('routes/Subscriptions', {
@@ -36,6 +38,7 @@ function setupVariantStories(
   const SubscriptionsRoute = subscriptionsRouteWithBaseProps(baseRouteProps);
 
   storiesOf(namePrefix, module)
+    .addDecorator(withMock)
     .add('loading', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -44,20 +47,98 @@ function setupVariantStories(
       />
     ))
     .add('no subscription', () => <SubscriptionsRoute />)
-    .add('subscribed with web subscription', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-        }}
-      />
-    ))
-    .add('subscribed with web subscription with coupon', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-        }}
-      />
-    ))
+    .add(
+      'subscribed with web subscription',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'subscribed with web subscription with coupon',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'subscribed with web subscription with exclusive tax',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+            subsequentInvoices: {
+              error: null,
+              loading: false,
+              result: [
+                {
+                  subscriptionId: 'sub_5551212',
+                  period_start: 1,
+                  subtotal: 2000,
+                  subtotal_excluding_tax: 2000,
+                  total: 2300,
+                  total_excluding_tax: 2000,
+                  tax: {
+                    amount: 300,
+                    inclusive: false,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(
+          MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE
+        ),
+      }
+    )
+    .add(
+      'subscribed with web subscription with inclusive tax',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+            subsequentInvoices: {
+              error: null,
+              loading: false,
+              result: [
+                {
+                  subscriptionId: 'sub_5551212',
+                  period_start: 1,
+                  subtotal: 2000,
+                  subtotal_excluding_tax: 1700,
+                  total: 2000,
+                  total_excluding_tax: 1700,
+                  tax: {
+                    amount: 300,
+                    inclusive: true,
+                  },
+                },
+              ],
+            },
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(
+          MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE
+        ),
+      }
+    )
     .add('subscribed with Google IAP', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -86,86 +167,116 @@ function setupVariantStories(
         }}
       />
     ))
-    .add('subscribed with Google IAP and web subscription', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedIapProps,
-          customerSubscriptions: [
-            ...customerSubscriptions,
-            ...subscribedIapProps.customerSubscriptions,
-          ],
-        }}
-      />
-    ))
-    .add('subscribed with upgrade offer', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-          plans: {
-            error: null,
-            loading: false,
-            result: [
-              {
-                ...PLANS[0],
-                product_name: 'Upgradable Product',
-                plan_metadata: null,
-                product_metadata: {
-                  upgradeCTA: `
+    .add(
+      'subscribed with Google IAP and web subscription',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedIapProps,
+            customerSubscriptions: [
+              ...customerSubscriptions,
+              ...subscribedIapProps.customerSubscriptions,
+            ],
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'subscribed with upgrade offer',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+            plans: {
+              error: null,
+              loading: false,
+              result: [
+                {
+                  ...PLANS[0],
+                  product_name: 'Upgradable Product',
+                  plan_metadata: null,
+                  product_metadata: {
+                    upgradeCTA: `
                   Interested in better features?
                   Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
                 `,
+                  },
                 },
+              ],
+            },
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'cancelled',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...cancelledProps,
+            resetCancelSubscription: linkTo(
+              'routes/Subscriptions',
+              'reactivation'
+            ),
+            cancelSubscriptionStatus: {
+              loading: false,
+              error: null,
+              result: {
+                subscriptionId: 'sub_5551212',
               },
-            ],
-          },
-        }}
-      />
-    ))
-    .add('cancelled', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...cancelledProps,
-          resetCancelSubscription: linkTo(
-            'routes/Subscriptions',
-            'reactivation'
-          ),
-          cancelSubscriptionStatus: {
-            loading: false,
-            error: null,
-            result: {
-              subscriptionId: 'sub_5551212',
             },
-          },
-        }}
-      />
-    ))
-    .add('reactivation', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...cancelledProps,
-          reactivateSubscription: linkToReactivationConfirmation,
-        }}
-      />
-    ))
-    .add('reactivation confirmation', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-          reactivateSubscriptionStatus: {
-            loading: false,
-            error: null,
-            result: {
-              subscriptionId: 'sub_5551212',
-              plan: PLANS[0],
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'reactivation',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...cancelledProps,
+            reactivateSubscription: linkToReactivationConfirmation,
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    )
+    .add(
+      'reactivation confirmation',
+      () => (
+        <SubscriptionsRoute
+          routeProps={{
+            ...subscribedProps,
+            reactivateSubscriptionStatus: {
+              loading: false,
+              error: null,
+              result: {
+                subscriptionId: 'sub_5551212',
+                plan: PLANS[0],
+              },
             },
-          },
-          resetReactivateSubscription: linkTo(
-            'routes/Subscriptions',
-            'subscribed'
-          ),
-        }}
-      />
-    ));
+            resetReactivateSubscription: linkTo(
+              'routes/Subscriptions',
+              'subscribed'
+            ),
+          }}
+        />
+      ),
+      {
+        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
+      }
+    );
 
   storiesOf(`${namePrefix}/errors`, module)
     .add('profile', () => (
@@ -372,6 +483,9 @@ const subscribedProps: SubscriptionsProps = {
         subscriptionId: 'sub_5551212',
         period_start: 1,
         total: 100,
+        total_excluding_tax: null,
+        subtotal: 100,
+        subtotal_excluding_tax: null,
       },
     ],
   },
@@ -453,6 +567,89 @@ const subscribedIapPropsAppleNoExpiry = {
     },
   ] as IapSubscription[],
 };
+
+export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: null,
+  subtotal: 2000,
+  subtotal_excluding_tax: null,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+};
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
+  total: 2300,
+  total_excluding_tax: 2000,
+  subtotal: 2000,
+  subtotal_excluding_tax: 2000,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+  tax: {
+    amount: 300,
+    inclusive: false,
+  },
+};
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: 1700,
+  subtotal: 2000,
+  subtotal_excluding_tax: 1700,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+  tax: {
+    amount: 300,
+    inclusive: true,
+  },
+};
+
+const getPreviewInvoiceMockData = (response: FirstInvoicePreview) => [
+  {
+    url: '/v1/oauth/subscriptions/invoice/preview',
+    method: 'POST',
+    status: 200,
+    response,
+  },
+];
+
+const previewInvoiceMockData = [
+  {
+    url: '/v1/oauth/subscriptions/invoice/preview',
+    method: 'POST',
+    status: 200,
+    response: {
+      line_items: [
+        {
+          amount: 1000,
+          currency: 'USD',
+          id: 'plan_123',
+          name: 'Plan 123',
+        },
+      ],
+      subtotal: 1000,
+      total: 1000,
+    },
+  },
+];
+
 // TODO: Move to some shared lib?
 const wait = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay));

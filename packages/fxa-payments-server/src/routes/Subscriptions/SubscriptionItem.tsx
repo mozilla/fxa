@@ -16,7 +16,10 @@ import CancelSubscriptionPanel from './Cancel/CancelSubscriptionPanel';
 import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  SubsequentInvoicePreview,
+} from 'fxa-shared/dto/auth/payments/invoice';
 
 export type SubscriptionItemProps = {
   customerSubscription: WebSubscription;
@@ -26,6 +29,7 @@ export type SubscriptionItemProps = {
   customer: Customer;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   subsequentInvoice: SubsequentInvoicePreview | undefined;
+  invoicePreview: FirstInvoicePreview | undefined;
 };
 
 export const SubscriptionItem = ({
@@ -36,10 +40,11 @@ export const SubscriptionItem = ({
   plan,
   customerSubscription,
   subsequentInvoice,
+  invoicePreview,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
-  const total = subsequentInvoice && subsequentInvoice.total;
-  const period_start = subsequentInvoice && subsequentInvoice.period_start;
+  const total = subsequentInvoice?.total;
+  const period_start = subsequentInvoice?.period_start;
 
   const paymentProvider: PaymentProvider | undefined =
     customer?.payment_provider;
@@ -104,6 +109,33 @@ export const SubscriptionItem = ({
     );
   }
 
+  if (!invoicePreview) {
+    const ariaLabelledBy = 'invoice-preview-not-found-header';
+    const ariaDescribedBy = 'invoice-preview-not-found-description';
+    return (
+      <DialogMessage
+        className="dialog-error"
+        onDismiss={locationReload}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+      >
+        <Localized id="sub-invoice-preview-error-title">
+          <h4
+            id={ariaLabelledBy}
+            data-testid="error-subhub-missing-invoice-preview"
+          >
+            Invoice preview not found
+          </h4>
+        </Localized>
+        <Localized id="sub-invoice-preview-error-text">
+          <p id={ariaDescribedBy}>
+            Invoice preview not found for this subscription
+          </p>
+        </Localized>
+      </DialogMessage>
+    );
+  }
+
   return (
     <section className="settings-unit" aria-labelledby={labelId}>
       <div className="subscription" data-testid="subscription-item">
@@ -122,8 +154,8 @@ export const SubscriptionItem = ({
               plan,
               paymentProvider,
               promotionCode,
-              subsequentInvoiceAmount: total,
-              subsequentInvoiceDate: period_start,
+              subsequentInvoice,
+              invoicePreview,
             }}
           />
         ) : (
