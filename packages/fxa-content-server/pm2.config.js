@@ -14,7 +14,7 @@ module.exports = {
       script: 'node --inspect=9130 server/bin/fxa-content-server.js',
       cwd: __dirname,
       env: {
-        NODE_ENV: 'development',
+        NODE_ENV: 'production',
         CONFIG_FILES: 'server/config/local.json',
         PORT: 3030,
         PATH,
@@ -22,10 +22,15 @@ module.exports = {
         SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,
         TRACING_SERVICE_NAME: 'fxa-content-server',
         TRACING_CLIENT_NAME: 'fxa-content-client',
+        STATIC_DIRECTORY: 'dist',
+        PAGE_TEMPLATE_SUBDIRECTORY: 'dist',
       },
+      // eslint-disable-next-line camelcase
       filter_env: ['npm_'],
       watch: ['server'],
+      // eslint-disable-next-line camelcase
       max_restarts: '1',
+      // eslint-disable-next-line camelcase
       min_uptime: '2m',
       time: true,
     },
@@ -36,6 +41,7 @@ module.exports = {
       env: {
         PATH,
       },
+      // eslint-disable-next-line camelcase
       filter_env: ['npm_'],
       autorestart: false,
       watch: [

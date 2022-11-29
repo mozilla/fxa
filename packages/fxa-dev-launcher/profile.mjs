@@ -1,6 +1,14 @@
 import chalk from "chalk";
 
 const CONFIGS = {
+  ngrok: {
+    auth: "https://a0da-98-97-181-237.ngrok.io/auth/v1",
+    content: "https://a0da-98-97-181-237.ngrok.io",
+    token: "https://a0da-98-97-181-237.ngrok.io/token_service/token/1.0/sync/1.5",
+    loop: "https://a0da-98-97-181-237.ngrok.io",
+    oauth: "https://a0da-98-97-181-237.ngrok.io/oauth/v1",
+    profile: "https://a0da-98-97-181-237.ngrok.io/profile/v1"
+  },
   local: {
     auth: "http://localhost:9000/v1",
     content: "http://localhost:3030/",

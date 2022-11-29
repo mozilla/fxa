@@ -26,6 +26,7 @@ module.exports = {
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_GRAPHQL_API,
         TRACING_SERVICE_NAME: 'fxa-graphql-api',
+        AUTH_SERVER_URL: 'https://a0da-98-97-181-237.ngrok.io/auth/v1',
       },
       filter_env: ['npm_'],
       watch: ['src'],

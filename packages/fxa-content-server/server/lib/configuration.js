@@ -549,7 +549,7 @@ const conf = (module.exports = convict({
   redirect_check: {
     allow_list: {
       default:
-        '*.mozilla.org,*.mozilla.com,*.mozaws.net,*.mozgcp.net,*.firefox.com,firefox.com,localhost'.split(
+        '*.ngrok.io,*.mozilla.org,*.mozilla.com,*.mozaws.net,*.mozgcp.net,*.firefox.com,firefox.com,localhost'.split(
           ','
         ),
       doc: `A comma separated list of hostname rules to let through on redirects. Rules support wildcards.
