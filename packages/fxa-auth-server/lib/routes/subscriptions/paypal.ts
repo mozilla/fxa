@@ -351,7 +351,8 @@ export class PayPalHandler extends StripeWebhookHandler {
     }
 
     return {
-      sourceCountry: customer.address?.country,
+      sourceCountry:
+        customer.tax?.location?.country || customer.address?.country,
       subscription: subscription,
     };
   }
