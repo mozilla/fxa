@@ -7272,6 +7272,24 @@ describe('StripeHelper', () => {
         );
         assert.isEmpty(result);
       });
+
+      it('returns the first matching plan if more than one matches a purchase', async () => {
+        mockAllAbbrevPlans.push({
+          ...mockPrice,
+          plan_id: 'plan_same_apple_config',
+        });
+        const result = await stripeHelper.addPriceInfoToIapPurchases(
+          [mockAppStorePurchase],
+          MozillaSubscriptionTypes.IAP_APPLE
+        );
+        const expected = {
+          ...mockAppStorePurchase,
+          price_id: priceId,
+          product_id: productId,
+          product_name: productName,
+        };
+        assert.deepEqual([expected], result);
+      });
     });
   });
 

@@ -308,13 +308,18 @@ export abstract class StripeHelper {
       )[]
   > {
     const plans = await this.allAbbrevPlans();
+    const iapIdentifierKey =
+      iapType === MozillaSubscriptionTypes.IAP_GOOGLE
+        ? STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE
+        : STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE;
     const appendedPurchases = [];
     for (const plan of plans) {
+      // There may be more than one plan with matching config; in that case,
+      // take the first one for each IAP purchase.
+      if (appendedPurchases.length === purchases.length) {
+        break;
+      }
       const iapIdentifiers = this.priceToIapIdentifiers(plan, iapType);
-      const iapIdentifierKey =
-        iapType === MozillaSubscriptionTypes.IAP_GOOGLE
-          ? STRIPE_PRICE_ID_TO_IAP_ANALOG.PLAY_STORE
-          : STRIPE_PRICE_ID_TO_IAP_ANALOG.APP_STORE;
       // @ts-ignore
       const matchingPurchases = purchases.filter((purchase) =>
         iapIdentifiers.includes(purchase[iapIdentifierKey].toLowerCase())
