@@ -59,14 +59,8 @@
   @apply mt-10 text-lg;
 }
 
-/* shared styles used in PlanDetails and PlanUpgradeDetails */
 .accordion-btn {
-  /* if we can make the button span the full width for better a11y,
-     remove the line directly below and uncomment the line below it;
-     else use uncommented code as is to match what's currently on prod
-  */
-  @apply cursor-pointer flex justify-center leading-4 py-4 pr-3 text-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 border-0 bg-transparent;
-  /* @apply cursor-pointer flex justify-center content-center w-full leading-4 py-4 pr-3 text-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 border-0 bg-transparent; */
+  @apply bg-transparent border-0 cursor-pointer flex justify-center py-4 text-blue-500 w-full focus:outline focus:outline-2 focus:outline-blue-400;
 }
 
 .coupon-info {
@@ -94,6 +88,7 @@
   @apply rounded-t-lg;
 }
 
+/* shared styles used in PlanDetails and PlanUpgradeDetails */
 .plan-details-description {
   @apply text-grey-400 mt-1 mb-0;
 }

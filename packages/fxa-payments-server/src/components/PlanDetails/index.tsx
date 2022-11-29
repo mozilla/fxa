@@ -357,49 +357,28 @@ export const PlanDetails = ({
         </>
       )}
 
-      {showExpandButton && (
-        // if we can make the button span the full width for better a11y,
-        // remove code between start and end comments in both places and
-        // remove "footer-accordion-button" from test;
-        // else keep code as is below to restore focus ring and match prod
-
-        // start
-        <div
-          className="w-full flex justify-center content-center"
-          data-testid="footer-accordion-button"
-        >
-          {
-            // end
-            detailsHidden ? (
-              <button
-                aria-expanded={!detailsHidden}
-                className="accordion-btn"
-                data-testid="button"
-                onClick={() => setDetailsState(false)}
-              >
-                <img src={arrowIcon} alt="" />
-                <Localized id="plan-details-show-button">
-                  Show details
-                </Localized>
-              </button>
-            ) : (
-              <button
-                aria-expanded={!detailsHidden}
-                className="accordion-btn"
-                data-testid="button"
-                onClick={() => setDetailsState(true)}
-              >
-                <img src={arrowIcon} className="up-arrow" alt="" />
-                <Localized id="plan-details-hide-button">
-                  Hide details
-                </Localized>
-              </button>
-            )
-            // start
-          }
-        </div>
-        // end
-      )}
+      {showExpandButton &&
+        (detailsHidden ? (
+          <button
+            aria-expanded={!detailsHidden}
+            className="accordion-btn"
+            data-testid="footer-accordion-button"
+            onClick={() => setDetailsState(false)}
+          >
+            <img src={arrowIcon} alt="" />
+            <Localized id="plan-details-show-button">Show details</Localized>
+          </button>
+        ) : (
+          <button
+            aria-expanded={!detailsHidden}
+            className="accordion-btn"
+            data-testid="footer-accordion-button"
+            onClick={() => setDetailsState(true)}
+          >
+            <img src={arrowIcon} className="up-arrow" alt="" />
+            <Localized id="plan-details-hide-button">Hide details</Localized>
+          </button>
+        ))}
     </div>
   );
 };

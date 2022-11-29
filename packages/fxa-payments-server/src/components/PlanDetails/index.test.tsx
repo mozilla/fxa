@@ -255,7 +255,7 @@ describe('PlanDetails', () => {
 
     const { getByTestId, queryByTestId, queryByText } = subject();
 
-    fireEvent.click(getByTestId('button'));
+    fireEvent.click(getByTestId('footer-accordion-button'));
 
     expect(queryByTestId('list')).toBeVisible();
 
@@ -264,7 +264,7 @@ describe('PlanDetails', () => {
       expect(queryByText(item)).toBeInTheDocument();
     }
 
-    fireEvent.click(getByTestId('button'));
+    fireEvent.click(getByTestId('footer-accordion-button'));
 
     expect(queryByTestId('list')).not.toBeTruthy();
   });
