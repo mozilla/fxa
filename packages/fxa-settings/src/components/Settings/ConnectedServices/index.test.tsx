@@ -168,7 +168,7 @@ describe('Connected Services', () => {
     await getIconAndServiceLink('Firefox Private Network', 'fpn-icon').then(
       (result) => {
         expect(result.icon).toBeTruthy();
-        expect(result.link).toHaveAttribute('href', 'https://vpn.mozilla.com/');
+        expect(result.link).toHaveAttribute('href', 'https://vpn.mozilla.org/');
       }
     );
   });
