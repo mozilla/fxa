@@ -92,7 +92,7 @@ export class SettingsPage extends SettingsLayout {
   async clickEmailPreferences() {
     const [emailPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      this.page.click('[data-testid=nav-link-newsletters]'),
+      this.page.locator('[data-testid=nav-link-newsletters]').click(),
     ]);
     return emailPage;
   }

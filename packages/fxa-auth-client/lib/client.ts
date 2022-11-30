@@ -58,6 +58,16 @@ function langHeader(lang?: string) {
   );
 }
 
+function createHeaders(
+  headers: Headers = new Headers(),
+  options: Record<string, any> & { lang?: string }
+) {
+  if (options.lang) {
+    headers.set('Accept-Language', options.lang);
+  }
+  return headers;
+}
+
 function pathWithKeys(path: string, keys?: boolean) {
   return `${path}${keys ? '?keys=true' : ''}`;
 }
@@ -370,7 +380,8 @@ export default class AuthClient {
       resume?: string;
       lang?: string;
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -381,7 +392,7 @@ export default class AuthClient {
       'POST',
       '/password/forgot/send_code',
       payload,
-      langHeader(options.lang)
+      createHeaders(headers, options)
     );
   }
 
@@ -393,7 +404,8 @@ export default class AuthClient {
       redirectTo?: string;
       resume?: string;
       lang?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -406,7 +418,7 @@ export default class AuthClient {
       passwordForgotToken,
       tokenType.passwordForgotToken,
       payload,
-      langHeader(options.lang)
+      createHeaders(headers, options)
     );
   }
 
@@ -415,7 +427,8 @@ export default class AuthClient {
     passwordForgotToken: hexstring,
     options: {
       accountResetWithoutRecoveryKey?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payload = {
       code,
@@ -426,16 +439,22 @@ export default class AuthClient {
       '/password/forgot/verify_code',
       passwordForgotToken,
       tokenType.passwordForgotToken,
-      payload
+      payload,
+      headers
     );
   }
 
-  async passwordForgotStatus(passwordForgotToken: string) {
+  async passwordForgotStatus(
+    passwordForgotToken: string,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
-      tokenType.passwordForgotToken
+      tokenType.passwordForgotToken,
+      undefined,
+      headers
     );
   }
 
@@ -446,7 +465,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const credentials = await crypto.getCredentials(email, newPassword);
     const payloadOptions = ({ keys, ...rest }: any) => rest;
@@ -459,7 +479,8 @@ export default class AuthClient {
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
       tokenType.accountResetToken,
-      payload
+      payload,
+      headers
     );
     if (options.keys && accountData.keyFetchToken) {
       accountData.unwrapBKey = credentials.unwrapBKey;

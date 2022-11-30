@@ -15,3 +15,9 @@ export { VerifySessionInput } from './verify-session';
 export { DeleteRecoveryKeyInput } from './delete-recovery-key';
 export { DestroySessionInput } from './destroy-session';
 export { CreatePassword } from './create-password';
+export {
+  PasswordForgotSendCodeInput,
+  PasswordForgotVerifyCodeInput,
+  PasswordForgotCodeStatusInput,
+  AccountResetInput,
+} from './password-forgot';

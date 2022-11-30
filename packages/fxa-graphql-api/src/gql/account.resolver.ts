@@ -31,7 +31,7 @@ import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AppConfig } from '../config';
-import { GqlSessionToken, GqlUserId } from '../decorators';
+import { GqlSessionToken, GqlUserId, GqlXHeaders } from '../decorators';
 import {
   AttachedClientDisconnectInput,
   ChangeRecoveryCodesInput,
@@ -46,6 +46,10 @@ import {
   VerifySessionInput,
   VerifyTotpInput,
   CreatePassword,
+  PasswordForgotSendCodeInput,
+  PasswordForgotVerifyCodeInput,
+  PasswordForgotCodeStatusInput,
+  AccountResetInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -56,6 +60,10 @@ import {
   UpdateAvatarPayload,
   UpdateDisplayNamePayload,
   VerifyTotpPayload,
+  PasswordForgotSendCodePayload,
+  PasswordForgotVerifyCodePayload,
+  PasswordForgotCodeStatusPayload,
+  AccountResetPayload,
 } from './dto/payload';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
@@ -417,6 +425,65 @@ export class AccountResolver {
     }
 
     return Account.findByUid(uid, options);
+  }
+
+  @Mutation((returns) => PasswordForgotSendCodePayload, {
+    description: 'Send a password reset email.',
+  })
+  @CatchGatewayError
+  public async passwordForgotSendCode(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => PasswordForgotSendCodeInput })
+    input: PasswordForgotSendCodeInput
+  ) {
+    return this.authAPI.passwordForgotSendCode(input.email, input, headers);
+  }
+
+  @Mutation((returns) => PasswordForgotVerifyCodePayload, {
+    description: 'Verify password forgot token, returns account reset token',
+  })
+  @CatchGatewayError
+  public async passwordForgotVerifyCode(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => PasswordForgotVerifyCodeInput })
+    input: PasswordForgotVerifyCodeInput
+  ) {
+    return this.authAPI.passwordForgotVerifyCode(
+      input.code,
+      input.token,
+      {},
+      headers
+    );
+  }
+
+  @Mutation((returns) => PasswordForgotCodeStatusPayload, {
+    description: 'Verify password forgot token, returns account reset token',
+  })
+  @CatchGatewayError
+  public async passwordForgotCodeStatus(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => PasswordForgotCodeStatusInput })
+    input: PasswordForgotCodeStatusInput
+  ) {
+    return this.authAPI.passwordForgotStatus(input.token, headers);
+  }
+
+  @Mutation((returns) => AccountResetPayload, {
+    description: 'Resets an account',
+  })
+  @CatchGatewayError
+  public async accountReset(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => AccountResetInput })
+    input: AccountResetInput
+  ) {
+    return this.authAPI.accountReset(
+      input.email,
+      input.newPassword,
+      input.accountResetToken,
+      input.options,
+      headers
+    );
   }
 
   @ResolveField()

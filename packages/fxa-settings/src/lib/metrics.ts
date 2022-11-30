@@ -290,8 +290,8 @@ export function logEvents(
     const now = Date.now();
     // This is ok for now because there is no batching. But each event should
     // have its own offset.
-    const eventOffset = now - configurableProperties.startTime;
-    const duration = now - configurableProperties.startTime;
+    const eventOffset = Math.ceil(now - configurableProperties.startTime);
+    const duration = Math.ceil(now - configurableProperties.startTime);
     // Amplitude events emitted from new Settings should have this property.
     eventProperties['settingsVersion'] = 'new';
 

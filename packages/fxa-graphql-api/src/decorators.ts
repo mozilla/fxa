@@ -34,3 +34,14 @@ export const GqlUserState = createParamDecorator(
     return (ctx.req?.user as SessionTokenResult).session.state;
   }
 );
+
+/**
+ * Extracts headers to be sent to auth-server
+ */
+export const GqlXHeaders = createParamDecorator(
+  (data: unknown, context: ExecutionContext): Headers => {
+    const ctx = GqlExecutionContext.create(context).getContext();
+    const headers = ctx.req?.headers;
+    return new Headers(headers);
+  }
+);

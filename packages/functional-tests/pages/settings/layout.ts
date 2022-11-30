@@ -37,7 +37,7 @@ export abstract class SettingsLayout extends BaseLayout {
   async clickHelp() {
     const [helpPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      this.page.click('[data-testid=header-sumo-link]'),
+      this.page.locator('[data-testid=header-sumo-link]').click(),
     ]);
     return helpPage;
   }
