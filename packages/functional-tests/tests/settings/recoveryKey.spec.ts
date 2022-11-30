@@ -167,7 +167,7 @@ test.describe('recovery key test', () => {
       EmailType.recovery,
       EmailHeader.link
     );
-    await page.goto(link2, { waitUntil: 'networkidle' });
+    await page.goto(link2, { waitUntil: 'load' });
 
     // Verify reset link expired
     expect(await login.resetPasswordLinkExpriredHeader()).toBe(true);

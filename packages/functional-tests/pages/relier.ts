@@ -10,12 +10,14 @@ export class RelierPage extends BaseLayout {
 
   async isLoggedIn() {
     const login = this.page.locator('#loggedin');
-    await login.waitFor();
+    await login.waitFor({ state: 'visible' });
     return login.isVisible();
   }
 
-  isPro() {
-    return this.page.isVisible('.pro-status', { timeout: 1000 });
+  async isPro() {
+    const pro = this.page.locator('.pro-status');
+    await pro.waitFor({ state: 'visible' });
+    return pro.isVisible();
   }
 
   async signOut() {

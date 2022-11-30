@@ -14,7 +14,7 @@ const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   outputDir: path.resolve(__dirname, '../../artifacts/functional'),
   forbidOnly: CI,
-  retries: CI ? 1 : 0,
+  retries: CI ? 2 : 0,
   testDir: 'tests',
   use: {
     viewport: { width: 1280, height: 720 },
@@ -67,7 +67,7 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
       ]
     : 'list',
   workers: CI ? 2 : undefined,
-  maxFailures: CI ? 2 : 0,
+  maxFailures: CI ? 3 : 0,
 };
 
 export default config;
