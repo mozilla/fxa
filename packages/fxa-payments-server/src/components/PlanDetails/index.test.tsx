@@ -101,7 +101,7 @@ describe('PlanDetails', () => {
       queryByText(selectedPlan.plan_metadata!['product:subtitle'])
     ).toBeInTheDocument();
 
-    const footer = queryByTestId('footer-accordion-button');
+    const footer = queryByTestId('accordion-button');
     expect(footer).toBeVisible();
 
     expect(queryByTestId('list')).not.toBeTruthy();
@@ -255,7 +255,7 @@ describe('PlanDetails', () => {
 
     const { getByTestId, queryByTestId, queryByText } = subject();
 
-    fireEvent.click(getByTestId('footer-accordion-button'));
+    fireEvent.click(getByTestId('accordion-button'));
 
     expect(queryByTestId('list')).toBeVisible();
 
@@ -264,7 +264,7 @@ describe('PlanDetails', () => {
       expect(queryByText(item)).toBeInTheDocument();
     }
 
-    fireEvent.click(getByTestId('footer-accordion-button'));
+    fireEvent.click(getByTestId('accordion-button'));
 
     expect(queryByTestId('list')).not.toBeTruthy();
   });

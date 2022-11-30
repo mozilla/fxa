@@ -17,7 +17,6 @@ import { AppContext } from '../../lib/AppContext';
 // happy
 import ffLogo from '../../images/firefox-logo.svg';
 import infoLogo from './images/Information.svg';
-import arrowIcon from './images/chevron.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
@@ -357,28 +356,33 @@ export const PlanDetails = ({
         </>
       )}
 
-      {showExpandButton &&
-        (detailsHidden ? (
-          <button
-            aria-expanded={!detailsHidden}
-            className="accordion-btn"
-            data-testid="footer-accordion-button"
-            onClick={() => setDetailsState(false)}
-          >
-            <img src={arrowIcon} alt="" />
-            <Localized id="plan-details-show-button">Show details</Localized>
-          </button>
-        ) : (
-          <button
-            aria-expanded={!detailsHidden}
-            className="accordion-btn"
-            data-testid="footer-accordion-button"
-            onClick={() => setDetailsState(true)}
-          >
-            <img src={arrowIcon} className="up-arrow" alt="" />
-            <Localized id="plan-details-hide-button">Hide details</Localized>
-          </button>
-        ))}
+      {showExpandButton && (
+        <div className="flex justify-center" data-testid="accordion-button">
+          {detailsHidden ? (
+            <Localized id="plan-details-show-button">
+              <button
+                data-testid="button"
+                className="accordion-btn arrow"
+                aria-expanded={!detailsHidden}
+                onClick={() => setDetailsState(false)}
+              >
+                Show details
+              </button>
+            </Localized>
+          ) : (
+            <Localized id="plan-details-hide-button">
+              <button
+                data-testid="button"
+                className="accordion-btn arrow before:rotate-180 up-arrow"
+                aria-expanded={!detailsHidden}
+                onClick={() => setDetailsState(true)}
+              >
+                Hide details
+              </button>
+            </Localized>
+          )}
+        </div>
+      )}
     </div>
   );
 };
