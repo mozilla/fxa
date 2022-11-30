@@ -6308,17 +6308,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/exporter-jaeger@npm:^1.7.0":
-  version: 1.7.0
-  resolution: "@opentelemetry/exporter-jaeger@npm:1.7.0"
+"@opentelemetry/core@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/core@npm:1.8.0"
   dependencies:
-    "@opentelemetry/core": 1.7.0
-    "@opentelemetry/sdk-trace-base": 1.7.0
-    "@opentelemetry/semantic-conventions": 1.7.0
+    "@opentelemetry/semantic-conventions": 1.8.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.4.0"
+  checksum: 09cd58ec764f97b175af47fbaff335f06a31914fcb59b30c4f96f6ba69391ce4e59e3da46a95fd15a7d0e8fc5c638195aba95ca1a916127207481f1283991c97
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/exporter-jaeger@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/exporter-jaeger@npm:1.8.0"
+  dependencies:
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/sdk-trace-base": 1.8.0
+    "@opentelemetry/semantic-conventions": 1.8.0
     jaeger-client: ^3.15.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-  checksum: 75446d5ccfa9877d3cc6b71c291ebdee53aa4c08fedbe4129148f643a92f550e0b168fd3d22a6cd17c34f8224a196e73965fff0153cd1a5108dae660e80fc05c
+  checksum: 83d625deaa2689458fc496050bf1bc6dec03349adb7275447111da8898b44bdc5361ac1286d052caba9c3bbce8f93600c52c2a0626e788f6d2d17b49d23cebc2
   languageName: node
   linkType: hard
 
@@ -6931,6 +6942,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/resources@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/resources@npm:1.8.0"
+  dependencies:
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/semantic-conventions": 1.8.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.4.0"
+  checksum: eeea7864c486d31679dbae3c31e9badf277ece24ba8bd063e2bcc34b2d7240f543678b8106743aff30c6b0f028f2bed286d64cfd7b5cde6f9a0f6a9271a3fce1
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/sdk-metrics@npm:0.33.0":
   version: 0.33.0
   resolution: "@opentelemetry/sdk-metrics@npm:0.33.0"
@@ -6955,6 +6978,19 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.3.0"
   checksum: f6ebfe1614d481ab11f4ebca4ae45ae92790e9b27a6b30cdeedf968918ac85e6d5cd695dd26ba3d0db0e665830a9c73ed25b4bd286c019c4adf084a05776bb9c
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/sdk-trace-base@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/sdk-trace-base@npm:1.8.0"
+  dependencies:
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/resources": 1.8.0
+    "@opentelemetry/semantic-conventions": 1.8.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.4.0"
+  checksum: a6139f18fa974e264c50e28ee7ec518a4d2fea96e2e61d1e925b9381212890eec49c0684dfdb9fadcc81615578e637354e4ebfc331d0262912325de33d488c57
   languageName: node
   linkType: hard
 
@@ -6998,6 +7034,13 @@ __metadata:
   version: 1.7.0
   resolution: "@opentelemetry/semantic-conventions@npm:1.7.0"
   checksum: 5214501648a002cc92fc6ad2296be8fa95b1803b360fc7732222e74a7f3743f3f72952740bed18ea9207741e450f3a32bf11752d732dc83f8770681eb8a6656b
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/semantic-conventions@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/semantic-conventions@npm:1.8.0"
+  checksum: df30ad9486b6c611c4110fab80815301a7cc9cb320983d6c5792a1b411dc4e4f04c489b2abfdea0da7f7bbb27b9f3c456764ba07f23432900a9bbcbc5f98ff58
   languageName: node
   linkType: hard
 
@@ -25662,7 +25705,7 @@ fsevents@~2.1.1:
     "@opentelemetry/auto-instrumentations-node": ^0.33.1
     "@opentelemetry/context-zone": ^1.7.0
     "@opentelemetry/context-zone-peer-dep": ^1.7.0
-    "@opentelemetry/exporter-jaeger": ^1.7.0
+    "@opentelemetry/exporter-jaeger": ^1.8.0
     "@opentelemetry/exporter-trace-otlp-http": ^0.33.0
     "@opentelemetry/instrumentation-document-load": ^0.30.0
     "@opentelemetry/instrumentation-fetch": ^0.33.0
