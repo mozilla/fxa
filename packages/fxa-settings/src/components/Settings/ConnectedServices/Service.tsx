@@ -57,7 +57,7 @@ export function Service({
       Icon = <LockwiseIcon data-testid="lockwise-icon" />;
       break;
     case 'Firefox Private Network':
-      serviceLink = 'https://vpn.mozilla.com/';
+      serviceLink = 'https://vpn.mozilla.org/';
       Icon = <FPNIcon data-testid="fpn-icon" />;
       break;
     case 'Firefox Relay':
