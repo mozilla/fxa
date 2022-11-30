@@ -16,8 +16,9 @@ import relayIcon from './relay.svg';
 import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
-import { Localized, useLocalization } from '@fluent/react';
+import { Localized } from '@fluent/react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -27,10 +28,10 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 ltr:pr-1 rtl:pl-1';
-  const { l10n } = useLocalization();
-  const bentoMenuTitle = l10n.getString(
+  const ftlMsgResolver = useFtlMsgResolver();
+
+  const bentoMenuTitle = ftlMsgResolver.getMsg(
     'bento-menu-title',
-    null,
     'Firefox Bento Menu'
   );
 

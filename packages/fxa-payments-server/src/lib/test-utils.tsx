@@ -697,7 +697,7 @@ export function getLocalizedMessage(
 ): string {
   let localizedMessage = bundle.getMessage(msgId);
   if (localizedMessage === undefined || localizedMessage.value === null) {
-    throw Error(`unable to locate fluent message with id: ${msgId}`);
+    throw new Error(`unable to locate fluent message with id: ${msgId}`);
   }
 
   return bundle.formatPattern(localizedMessage.value, { ...args });
