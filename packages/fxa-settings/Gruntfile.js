@@ -5,11 +5,7 @@
 'use strict';
 
 module.exports = function (grunt) {
-  const srcPaths = [
-    '.license.header',
-    'src/**/*.ftl',
-    '../fxa-react/components/**/*.ftl',
-  ];
+  const srcPaths = ['.license.header', 'src/**/*.ftl'];
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),

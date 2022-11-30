@@ -61,7 +61,7 @@ try {
         <AppContext.Provider value={appContext}>
           <AppLocalizationProvider
             baseDir="/settings/locales"
-            bundles={['settings']}
+            bundles={['settings', 'react']}
             userLocales={navigator.languages}
           >
             {showNewReactApp ? (

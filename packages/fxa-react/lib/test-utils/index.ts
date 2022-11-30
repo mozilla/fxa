@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { checkMessage } from '../utils';
 
-type PackageName = 'settings' | 'payments' | null;
+type PackageName = 'settings' | 'payments' | 'react' | null;
 
 function getFtlPath(packageName: string | null, locale: string) {
   let ftlPath: string;
@@ -63,6 +63,32 @@ function getFtlPath(packageName: string | null, locale: string) {
           'locales',
           locale,
           'payments.ftl'
+        );
+      }
+      break;
+    case 'react':
+      if (locale === 'en') {
+        ftlPath = path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'fxa-react',
+          'test',
+          'react.ftl'
+        );
+      } else {
+        // TODO: Not currently used, but probably want to add one translation test
+        ftlPath = path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'fxa-react',
+          'public',
+          'locales',
+          locale,
+          'react.ftl'
         );
       }
       break;
