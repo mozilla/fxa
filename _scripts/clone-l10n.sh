@@ -131,16 +131,24 @@ copy_ftl() {
 PAYMENTS="fxa-payments-server"
 SETTINGS="fxa-settings"
 AUTH="fxa-auth-server"
+REACT="fxa-react"
 
-# Copy .ftl files for payments, settings, and auth (emails)
+# Copy .ftl files for payments, settings, auth (emails),
+# and react (shared react components)
 case "$MODULE" in
     "$PAYMENTS")
         copy_ftl "payments"
+        copy_ftl "react"
         ;;
     "$SETTINGS")
         copy_ftl "settings"
+        copy_ftl "react"
         ;;
     "$AUTH")
         copy_ftl "auth"
+        copy_ftl "branding"
+        ;;
+    "$REACT")
+        copy_ftl "react"
         ;;
 esac

@@ -5,21 +5,12 @@
 'use strict';
 
 module.exports = function (grunt) {
-  const srcPaths = [
-    // 'src/branding.ftl' is temporary
-    // and will be replaced with '../fxa-shared/lib/l10n/branding.ftl'
-    // in a later ticket - will require coordination with l10n to resolve
-    // conflicting IDs for identical terms.
-    'src/branding.ftl',
-    'src/**/*.ftl',
-  ];
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       ftl: {
-        src: srcPaths,
-        dest: 'public/locales/en/payments.ftl',
+        src: 'components/**/*.ftl',
+        dest: 'public/locales/en/react.ftl',
       },
 
       // We need this for tests because we pull the latest from `fxa-content-server-l10n`
@@ -27,13 +18,13 @@ module.exports = function (grunt) {
       // FTL updates on our side that haven't landed yet on the l10n side. We want to test
       // against _our_ latest, and not necessarily the l10n repo's latest.
       'ftl-test': {
-        src: srcPaths,
-        dest: 'test/payments.ftl',
+        src: 'components/**/*.ftl',
+        dest: 'test/react.ftl',
       },
     },
     watch: {
       ftl: {
-        files: srcPaths,
+        files: 'components/**/*.ftl',
         tasks: ['merge-ftl'],
         options: {
           interrupt: true,

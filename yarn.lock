@@ -25645,6 +25645,10 @@ fsevents@~2.1.1:
     fetch-mock: ^9.11.0
     file-loader: ^4.3.0
     fxa-shared: "workspace:*"
+    grunt: ^1.5.3
+    grunt-cli: ^1.4.3
+    grunt-contrib-concat: ^2.1.0
+    grunt-contrib-watch: ^1.1.0
     identity-obj-proxy: ^3.0.0
     jest: 27.5.1
     jest-environment-jsdom: ^27.5.1
