@@ -6,10 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import CouponForm, {
-  checkPromotionCode,
-  CouponErrorMessageType,
-} from './index';
+import { CouponForm, checkPromotionCode } from './index';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import {
@@ -19,6 +16,10 @@ import {
   COUPON_DETAILS_VALID,
   SELECTED_PLAN,
 } from '../../lib/mock-data';
+import {
+  getFallbackTextByFluentId,
+  CouponErrorMessageType,
+} from '../../lib/errors';
 
 import {
   coupon_REJECTED,
@@ -124,8 +125,13 @@ describe('CouponForm', () => {
       };
 
       const { queryByTestId, getByTestId } = subject();
-      fireEvent.change(getByTestId('coupon-input'), { target: { value: 'a' } });
-      fireEvent.click(getByTestId('coupon-button'));
+
+      await waitFor(() => {
+        fireEvent.change(getByTestId('coupon-input'), {
+          target: { value: 'a' },
+        });
+        fireEvent.click(getByTestId('coupon-button'));
+      });
 
       await waitFor(() => {
         expect(queryByTestId('coupon-error')).toBeInTheDocument();
@@ -134,12 +140,16 @@ describe('CouponForm', () => {
 
       const couponError = getByTestId('coupon-error');
 
-      expect(couponError).toHaveTextContent(CouponErrorMessageType.Invalid);
+      expect(couponError).toHaveTextContent(
+        getFallbackTextByFluentId(CouponErrorMessageType.Invalid)
+      );
 
-      fireEvent.change(getByTestId('coupon-input'), {
-        target: { value: 'again' },
+      await waitFor(() => {
+        fireEvent.change(getByTestId('coupon-input'), {
+          target: { value: 'again' },
+        });
+        fireEvent.click(getByTestId('coupon-button'));
       });
-      fireEvent.click(getByTestId('coupon-button'));
 
       await waitFor(() => {
         expect(queryByTestId('coupon-error')).toBeInTheDocument();

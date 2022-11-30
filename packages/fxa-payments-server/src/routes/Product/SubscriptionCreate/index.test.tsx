@@ -39,6 +39,7 @@ import {
   mockStripeElementOnChangeFns,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
+import { getFallbackTextByFluentId } from '../../../lib/errors';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -909,7 +910,9 @@ describe('routes/Product/SubscriptionCreate', () => {
         code: 'card_declined',
       });
       await commonSetup();
-      expect(screen.getByText('card-error')).toBeInTheDocument();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('card-error'))
+      ).toBeInTheDocument();
     });
 
     it('reports incorrect cvc', async () => {
@@ -917,7 +920,9 @@ describe('routes/Product/SubscriptionCreate', () => {
         code: 'incorrect_cvc',
       });
       await commonSetup();
-      expect(screen.getByText('card-error')).toBeInTheDocument();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('card-error'))
+      ).toBeInTheDocument();
     });
 
     it('reports expired card', async () => {
@@ -925,7 +930,9 @@ describe('routes/Product/SubscriptionCreate', () => {
         code: 'expired_card',
       });
       await commonSetup();
-      expect(screen.getByText('expired-card-error')).toBeInTheDocument();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('expired-card-error'))
+      ).toBeInTheDocument();
     });
 
     it('reports processing errors', async () => {
@@ -933,7 +940,9 @@ describe('routes/Product/SubscriptionCreate', () => {
         code: 'processing_error',
       });
       await commonSetup();
-      expect(screen.getByText('payment-error-1')).toBeInTheDocument();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('payment-error-1'))
+      ).toBeInTheDocument();
     });
 
     it('reports stolen card error', async () => {
@@ -941,7 +950,9 @@ describe('routes/Product/SubscriptionCreate', () => {
         code: 'stolen_card',
       });
       await commonSetup();
-      expect(screen.getByText('payment-error-2')).toBeInTheDocument();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('payment-error-2'))
+      ).toBeInTheDocument();
     });
   });
 });

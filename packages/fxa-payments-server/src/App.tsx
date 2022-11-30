@@ -13,7 +13,7 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import sentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config } from './lib/config';
-import { getErrorMessage } from './lib/errors';
+import { getErrorMessageId } from './lib/errors';
 import { Store } from './store';
 import { AppContext, AppContextType } from './lib/AppContext';
 
@@ -193,7 +193,7 @@ export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
             General application error
           </h4>
         </Localized>
-        <Localized id={getErrorMessage({ code: 'api_connection_error' })}>
+        <Localized id={getErrorMessageId({ code: 'api_connection_error' })}>
           <p id={ariaDescribedBy}>
             {' '}
             Something went wrong. Please try again later.

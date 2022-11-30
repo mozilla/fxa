@@ -45,7 +45,7 @@ import {
 
 import { FXA_NEWSLETTER_SIGNUP_ERROR } from '../../lib/newsletter';
 import { FXA_SIGNUP_ERROR } from '../../lib/account';
-import { getErrorMessage } from '../../lib/errors';
+import { getErrorMessageId, getFallbackTextByFluentId } from '../../lib/errors';
 
 import {
   updateAPIClientToken,
@@ -324,7 +324,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(FXA_SIGNUP_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(FXA_SIGNUP_ERROR))
       );
     });
 
@@ -355,7 +355,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_STRIPE_CARD_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(MOCK_STRIPE_CARD_ERROR))
       );
     });
 
@@ -385,7 +385,9 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+        getFallbackTextByFluentId(
+          getErrorMessageId(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+        )
       );
     });
 
@@ -415,7 +417,9 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+        getFallbackTextByFluentId(
+          getErrorMessageId(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+        )
       );
     });
 
@@ -438,7 +442,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_CURRENCY_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(MOCK_CURRENCY_ERROR))
       );
     });
 
@@ -593,7 +597,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(FXA_SIGNUP_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(FXA_SIGNUP_ERROR))
       );
     });
 
@@ -629,7 +633,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(MOCK_GENERAL_PAYPAL_ERROR))
       );
     });
 
@@ -659,7 +663,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(MOCK_GENERAL_PAYPAL_ERROR))
       );
     });
 
@@ -689,7 +693,7 @@ describe('routes/Checkout', () => {
       const paymentErrorComponent = screen.getByTestId('payment-error');
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
-        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+        getFallbackTextByFluentId(getErrorMessageId(MOCK_GENERAL_PAYPAL_ERROR))
       );
     });
     describe('newsletter', () => {

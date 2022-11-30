@@ -10,7 +10,7 @@ import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 
 import { useNonce, usePaypalButtonSetup } from '../../lib/hooks';
-import { getErrorMessage } from '../../lib/errors';
+import { getFallbackTextByFluentId, getErrorMessageId } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { Customer, Plan } from '../../store/types';
 
@@ -302,9 +302,9 @@ export const PaymentUpdateForm = ({
           <>
             <ErrorMessage isVisible={!!paymentError}>
               {paymentError && (
-                <Localized id={getErrorMessage(paymentError)}>
+                <Localized id={getErrorMessageId(paymentError)}>
                   <p data-testid="error-payment-submission">
-                    {getErrorMessage(paymentError)}
+                    {getFallbackTextByFluentId(getErrorMessageId(paymentError))}
                   </p>
                 </Localized>
               )}

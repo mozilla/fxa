@@ -17,6 +17,13 @@ const AuthServerErrno = {
   REJECTED_CUSTOMER_UPDATE: 181,
 };
 
+export enum CouponErrorMessageType {
+  Expired = 'coupon-error-expired',
+  LimitReached = 'coupon-error-limit-reached',
+  Invalid = 'coupon-error-invalid',
+  Generic = 'coupon-error-generic',
+}
+
 /*
  * Todos:
  * - handle General SubHub subscription creation failure on submit
@@ -34,11 +41,11 @@ const FXA_NEWSLETTER_SIGNUP_ERROR = 'newsletter-signup-error';
 const FXA_POST_PASSWORDLESS_SUB_ERROR = 'fxa-post-passwordless-sub-error';
 
 /*
- * errorToErrorMessageMap - the keys are lookups, that
- * are assembled in getErrorMessage. The values are strings
+ * errorToErrorMessageIdMap - the keys are lookups, that
+ * are assembled in getErrorMessageId. The values are strings
  * that correspond to ftl strings.
  */
-const errorToErrorMessageMap: { [key: string]: string } = {
+const errorToErrorMessageIdMap: { [key: string]: string } = {
   expired_card: 'expired-card-error',
   insufficient_funds: 'insufficient-funds-error',
   withdrawal_count_limit_exceeded: 'withdrawal-count-limit-exceeded-error',
@@ -138,37 +145,96 @@ const signupErrors = ['fxa_account_signup_error'];
 const newsletterSignupErrors = ['fxa_newsletter_signup_error'];
 const postSuccessSubErrors = ['fxa_fetch_profile_customer_error'];
 
-cardErrors.forEach((k) => (errorToErrorMessageMap[k] = CARD_ERROR));
-basicErrors.forEach((k) => (errorToErrorMessageMap[k] = BASIC_ERROR));
-paymentErrors1.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_1));
-paymentErrors2.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_2));
-paymentErrors3.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_3));
-signupErrors.forEach((k) => (errorToErrorMessageMap[k] = FXA_SIGNUP_ERROR));
+cardErrors.forEach((k) => (errorToErrorMessageIdMap[k] = CARD_ERROR));
+basicErrors.forEach((k) => (errorToErrorMessageIdMap[k] = BASIC_ERROR));
+paymentErrors1.forEach((k) => (errorToErrorMessageIdMap[k] = PAYMENT_ERROR_1));
+paymentErrors2.forEach((k) => (errorToErrorMessageIdMap[k] = PAYMENT_ERROR_2));
+paymentErrors3.forEach((k) => (errorToErrorMessageIdMap[k] = PAYMENT_ERROR_3));
+signupErrors.forEach((k) => (errorToErrorMessageIdMap[k] = FXA_SIGNUP_ERROR));
 newsletterSignupErrors.forEach(
-  (k) => (errorToErrorMessageMap[k] = FXA_NEWSLETTER_SIGNUP_ERROR)
+  (k) => (errorToErrorMessageIdMap[k] = FXA_NEWSLETTER_SIGNUP_ERROR)
 );
 postSuccessSubErrors.forEach(
-  (k) => (errorToErrorMessageMap[k] = FXA_POST_PASSWORDLESS_SUB_ERROR)
+  (k) => (errorToErrorMessageIdMap[k] = FXA_POST_PASSWORDLESS_SUB_ERROR)
 );
 
-function getErrorMessage(error: undefined | StripeError | GeneralError) {
+// dictionary of fluentIds and corresponding human-readable error messages
+const fallbackErrorMessage: { [key: string]: string } = {
+  // specific error messages
+  'expired-card-error':
+    'It looks like your credit card has expired. Try another card.',
+  'insufficient-funds-error':
+    'It looks like your card has insufficient funds. Try another card.',
+  'withdrawal-count-limit-exceeded-error':
+    'It looks like this transaction will put you over your credit limit. Try another card.',
+  'charge-exceeds-source-limit':
+    'It looks like this transaction will put you over your daily credit limit. Try another card or in 24 hours.',
+  'instant-payouts-unsupported':
+    'It looks like your debit card isn’t setup for instant payments. Try another debit or credit card.',
+  'duplicate-transaction':
+    'Hmm. Looks like an identical transaction was just sent. Check your payment history.',
+  'coupon-expired': 'It looks like that promo code has expired.',
+  'country-currency-mismatch':
+    'The currency of this subscription is not valid for the country associated with your payment.',
+  'currency-currency-mismatch': 'Sorry. You can’t switch between currencies.',
+  'no-subscription-change': 'Sorry. You can’t change your subscription plan.',
+  'iap-already-subscribed':
+    'You’re already subscribed through the { $mobileAppStore }.',
+
+  // generic messages for groups of similar errors
+  'card-error':
+    'Your transaction could not be processed. Please verify your credit card information and try again.',
+  'basic-error-message': 'Something went wrong. Please try again later.',
+  'payment-error-1':
+    'Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.',
+  'payment-error-2':
+    'Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.',
+  'payment-error-3b':
+    'An unexpected error has occurred while processing your payment, please try again.',
+  'fxa-account-signup-error-2':
+    'A system error caused your { $productName } sign-up to fail. Your payment method has not been charged. Please try again.',
+  'newsletter-signup-error':
+    'You’re not signed up for product update emails. You can try again in your account settings.',
+  'fxa-post-passwordless-sub-error':
+    'Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.',
+
+  // coupon error messages
+  'coupon-error-expired': 'The code you entered has expired.',
+  'coupon-error-limit-reached': 'The code you entered has reached its limit.',
+  'coupon-error-invalid': 'The code you entered is invalid.',
+  'coupon-error-generic':
+    'An error occurred processing the code. Please try again.',
+};
+
+function getErrorMessageId(error: undefined | StripeError | GeneralError) {
   if (!error) {
     return BASIC_ERROR;
   }
   let lookup = 'UNKNOWN';
   // Handle case where we need to lookup by message (e.g. currency error)
-  if (error.message && errorToErrorMessageMap[error.message]) {
+  if (error.message && errorToErrorMessageIdMap[error.message]) {
     lookup = error.message;
-  } else if (error.code && errorToErrorMessageMap[error.code]) {
+  } else if (error.code && errorToErrorMessageIdMap[error.code]) {
     lookup = error.code;
   }
-  return errorToErrorMessageMap[lookup];
+  return errorToErrorMessageIdMap[lookup];
 }
+
+// takes in a fluentId and returns the corresponding human-readable error message
+// if no key is provided or it cannot be found in the dictionary, return basic error message
+const getFallbackTextByFluentId = (key?: string) => {
+  if (!key || !fallbackErrorMessage[key]) {
+    return fallbackErrorMessage['basic-error-message'];
+  }
+
+  return fallbackErrorMessage[key];
+};
 
 // BASIC_ERROR and PAYMENT_ERROR_1 are exported for errors.test.tsx
 export {
   AuthServerErrno,
-  getErrorMessage,
+  getErrorMessageId,
+  getFallbackTextByFluentId,
   BASIC_ERROR,
   PAYMENT_ERROR_1,
   PAYMENT_ERROR_2,

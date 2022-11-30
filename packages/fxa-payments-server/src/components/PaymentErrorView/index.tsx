@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import { StripeError } from '@stripe/stripe-js';
 
-import { getErrorMessage, GeneralError } from '../../lib/errors';
+import {
+  getErrorMessageId,
+  GeneralError,
+  getFallbackTextByFluentId,
+} from '../../lib/errors';
 import errorIcon from '../../images/error.svg';
 import SubscriptionTitle, { SubscriptionTitleType } from '../SubscriptionTitle';
 import TermsAndPrivacy from '../TermsAndPrivacy';
@@ -116,13 +120,13 @@ export const PaymentErrorView = ({
     const l10nIds: string[] = [];
     const errorMessage: any[] = [];
 
-    getErrorMessage(error) === 'iap-upgrade-contact-support'
+    getErrorMessageId(error) === 'iap-upgrade-contact-support'
       ? l10nIds.push(
           'iap-upgrade-already-subscribed',
           'iap-upgrade-no-bundle-support',
           'iap-upgrade-contact-support'
         )
-      : l10nIds.push(getErrorMessage(error));
+      : l10nIds.push(getErrorMessageId(error));
 
     for (const [idx, l10nId] of l10nIds.entries()) {
       errorMessage.push(
@@ -132,7 +136,7 @@ export const PaymentErrorView = ({
           vars={{ productName, ...contentProps }}
         >
           <p className="mb-4" data-testid="error-payment-submission">
-            {l10nId}
+            {getFallbackTextByFluentId(l10nId)}
           </p>
         </Localized>
       );

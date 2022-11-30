@@ -21,6 +21,7 @@ import { CUSTOMER, FILTERED_SETUP_INTENT, PLAN } from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
 import { defaultConfig } from '../../lib/config';
+import { getFallbackTextByFluentId } from '../../lib/errors';
 import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
@@ -103,12 +104,16 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
 
   it('renders valid expiration date', async () => {
     render(<Subject />);
-    expect(screen.queryByTestId('card-expiration-date')).toHaveTextContent('Expires February 2099');
+    expect(screen.queryByTestId('card-expiration-date')).toHaveTextContent(
+      'Expires February 2099'
+    );
   });
 
   it('does not render expiration date if date is invalid', async () => {
-    render(<Subject customer={{...CUSTOMER, exp_month: undefined}} />);
-    expect(screen.queryByTestId('card-expiration-date')).not.toBeInTheDocument();
+    render(<Subject customer={{ ...CUSTOMER, exp_month: undefined }} />);
+    expect(
+      screen.queryByTestId('card-expiration-date')
+    ).not.toBeInTheDocument();
   });
 
   it('reveals the payment update form on clicking Change button', async () => {
@@ -369,7 +374,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('basic-error-message')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('basic-error-message'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).not.toHaveBeenCalled();
@@ -391,7 +398,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('basic-error-message')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('basic-error-message'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).toHaveBeenCalledWith(
@@ -415,7 +424,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('expired-card-error')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('expired-card-error'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).toHaveBeenCalledWith(
@@ -437,7 +448,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('basic-error-message')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('basic-error-message'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).toHaveBeenCalledWith(
@@ -461,7 +474,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('basic-error-message')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('basic-error-message'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).toHaveBeenCalledWith(
@@ -485,7 +500,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
-    expect(screen.getByText('basic-error-message')).toBeInTheDocument();
+    expect(
+      screen.getByText(getFallbackTextByFluentId('basic-error-message'))
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
     expect(apiClientOverrides.apiCreateSetupIntent).toHaveBeenCalledTimes(1);
     expect(stripeOverride.confirmCardSetup).toHaveBeenCalledWith(
