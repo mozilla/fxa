@@ -103,7 +103,7 @@ export const App = ({
       <Head />
       <AppLocalizationProvider
         userLocales={navigatorLanguages}
-        bundles={['payments']}
+        bundles={['payments', 'react']}
       >
         <Localized id="document" attrs={{ title: true }}>
           <AppErrorBoundary>
