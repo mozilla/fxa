@@ -59,6 +59,7 @@
   @apply mt-10 text-lg;
 }
 
+/* shared styles used in PlanDetails and PlanUpgradeDetails */
 .accordion-btn {
   @apply bg-transparent border-transparent cursor-pointer text-blue-500 leading-5 my-2 py-2 pr-2 pl-6 relative focus:border focus:border-solid focus:border-blue-400 focus:py-2 focus:pr-4 focus:pl-10 focus:shadow-none;
 }
@@ -92,7 +93,6 @@
   @apply rounded-t-lg;
 }
 
-/* shared styles used in PlanDetails and PlanUpgradeDetails */
 .plan-details-description {
   @apply text-grey-400 mt-1 mb-0;
 }
