@@ -4,7 +4,11 @@ test.describe('OAuth force auth', () => {
   test('with a registered email', async ({
     credentials,
     pages: { login, relier },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name == 'production',
+      'disabling until 123done is setup in prod'
+    );
     await relier.goto(`email=${credentials.email}`);
     await relier.clickForceAuth();
 
@@ -43,7 +47,7 @@ test.describe('OAuth force auth', () => {
     const blockedEmail = `blocked${Date.now()}@restmail.net`;
     await relier.goto(`email=${blockedEmail}`);
     await relier.clickForceAuth();
-    
+
     await expect(await login.getPrefilledEmail()).toMatch(blockedEmail);
     await login.setAge('21');
     await login.setNewPassword(credentials.password);
