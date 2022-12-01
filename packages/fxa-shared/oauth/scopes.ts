@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import { URL } from 'url';
 
-const { URL } = require('url');
+type Coerceable = ScopeSet | string[] | string;
 
 // These character ranges are from the OAuth RFC,
 // https://tools.ietf.org/html/rfc6749#section-3.3
@@ -75,7 +75,10 @@ const VALID_FRAGMENT_VALUE = /^#[a-zA-Z0-9_]+$/;
  *
  */
 class ScopeSet {
-  constructor(scopes = []) {
+  private _scopesToImplicants: { [key: string]: Set<string> };
+  private _implicantsToScopes: { [key: string]: Set<string> };
+
+  constructor(scopes: string[] = []) {
     // To support efficient lookups, we store the set of scopes and
     // their fully-expanded set of implicants in a bi-directional mapping.
     //
@@ -103,7 +106,7 @@ class ScopeSet {
    * Check whether this `ScopeSet` contains the given scope.
    *
    */
-  _hasScope(scope) {
+  _hasScope(scope: string) {
     return scope in this._scopesToImplicants;
   }
 
@@ -111,7 +114,7 @@ class ScopeSet {
    * Check whether this `ScopeSet` contains one of the given scopes.
    *
    */
-  _hasSomeScope(scopes) {
+  _hasSomeScope(scopes: Set<string>) {
     for (const scope of scopes) {
       if (this._hasScope(scope)) {
         return true;
@@ -125,7 +128,7 @@ class ScopeSet {
    * the given scope.
    *
    */
-  _hasImplicant(scope) {
+  _hasImplicant(scope: string) {
     return scope in this._implicantsToScopes;
   }
 
@@ -134,7 +137,7 @@ class ScopeSet {
    * one of the given scopes.
    *
    */
-  _hasSomeImplicant(scopes) {
+  _hasSomeImplicant(scopes: string[]) {
     for (const scope of scopes) {
       if (scope in this._implicantsToScopes) {
         return true;
@@ -148,7 +151,7 @@ class ScopeSet {
    * corresponding sets of implicants.
    *
    */
-  _iterScopes(cb) {
+  _iterScopes(cb: (scope: string, implicants: Set<string>) => void) {
     for (const scope in this._scopesToImplicants) {
       cb(scope, this._scopesToImplicants[scope]);
     }
@@ -159,7 +162,7 @@ class ScopeSet {
    * corresponding sets of implied scopes.
    *
    */
-  _iterImplicants(cb) {
+  _iterImplicants(cb: (implicant: string, scopes: Set<string>) => void) {
     for (const implicant in this._implicantsToScopes) {
       cb(implicant, this._implicantsToScopes[implicant]);
     }
@@ -170,7 +173,7 @@ class ScopeSet {
    * the given scope.
    *
    */
-  _iterImpliedScopes(implicant, cb) {
+  _iterImpliedScopes(implicant: string, cb: (s: string) => void) {
     const impliedScopes = this._implicantsToScopes[implicant];
     if (impliedScopes) {
       for (const impliedScope of impliedScopes) {
@@ -185,7 +188,7 @@ class ScopeSet {
    * at the first successful match.
    *
    */
-  _searchScopes(cb) {
+  _searchScopes(cb: (scope: string, implicants: Set<string>) => boolean) {
     for (const scope in this._scopesToImplicants) {
       if (cb(scope, this._scopesToImplicants[scope])) {
         return true;
@@ -200,7 +203,7 @@ class ScopeSet {
    * at the first successful match.
    *
    */
-  _searchImplicants(cb) {
+  _searchImplicants(cb: (implicant: string, scopes: Set<string>) => boolean) {
     for (const implicant in this._implicantsToScopes) {
       if (cb(implicant, this._implicantsToScopes[implicant])) {
         return true;
@@ -216,7 +219,7 @@ class ScopeSet {
    * order to keep memory usage down and simplify further handling.
    *
    */
-  _addScope(scope, implicants) {
+  _addScope(scope: string, implicants: Set<string>) {
     // If the scope is already implied by something in this `ScopeSet`,
     // then we can safely ignore it.
     if (this._hasSomeScope(implicants)) {
@@ -244,7 +247,7 @@ class ScopeSet {
    * scopes and their implicants.
    *
    */
-  _removeScope(scope) {
+  _removeScope(scope: string) {
     const implicants = this._scopesToImplicants[scope];
     for (const implicant of implicants) {
       const impliedScopes = this._implicantsToScopes[implicant];
@@ -307,8 +310,8 @@ class ScopeSet {
    * quadratic" performance traps.
    *
    */
-  add(other) {
-    other = coerce(other)._iterScopes((scope, implicants) => {
+  add(other: Coerceable) {
+    coerce(other)._iterScopes((scope, implicants) => {
       this._addScope(scope, implicants);
     });
   }
@@ -322,7 +325,7 @@ class ScopeSet {
    * than `B`.
    *
    */
-  contains(other) {
+  contains(other: Coerceable) {
     return !coerce(other)._searchScopes((scope, implicants) => {
       return !this._hasSomeScope(implicants);
     });
@@ -336,14 +339,14 @@ class ScopeSet {
    * some scope value in `A` that is implied by a scope value in `B`.
    *
    */
-  intersects(other) {
+  intersects(other: Parameters<typeof coerce>[number]) {
     other = coerce(other);
     return (
       other._searchImplicants((implicant) => {
         return this._hasScope(implicant);
       }) ||
       this._searchImplicants((implicant) => {
-        return other._hasScope(implicant);
+        return (other as ScopeSet)._hasScope(implicant);
       })
     );
   }
@@ -375,11 +378,11 @@ class ScopeSet {
    * directly a member of `A`, it will not appear in the result.
    *
    */
-  filtered(other) {
+  filtered(other: Coerceable) {
     other = coerce(other);
     const result = new ScopeSet();
     this._iterScopes((scope, implicants) => {
-      if (other._hasSomeScope(implicants)) {
+      if ((other as ScopeSet)._hasSomeScope(implicants)) {
         result._addScope(scope, implicants);
       }
     });
@@ -396,11 +399,11 @@ class ScopeSet {
    * `A.filtered(B)`. It returns a new `ScopeSet` object.
    *
    */
-  difference(other) {
+  difference(other: Coerceable) {
     other = coerce(other);
     const result = new ScopeSet();
     this._iterScopes((scope, implicants) => {
-      if (!other._hasSomeScope(implicants)) {
+      if (!(other as ScopeSet)._hasSomeScope(implicants)) {
         result._addScope(scope, implicants);
       }
     });
@@ -415,7 +418,7 @@ class ScopeSet {
    * either `A` or `B` (or both).  It returns a new `ScopeSet` object.
    *
    */
-  union(other) {
+  union(other: Coerceable) {
     other = coerce(other);
     const result = new ScopeSet();
     this._iterScopes((scope, implicants) => {
@@ -433,7 +436,7 @@ class ScopeSet {
  * kinds of input data into a `ScopeSet` instance.
  *
  */
-function coerce(scopes) {
+function coerce(scopes: Coerceable) {
   if (scopes instanceof ScopeSet) {
     return scopes;
   }
@@ -452,7 +455,7 @@ function coerce(scopes) {
  * An iterator yielding all implicants of the given scope value.
  *
  */
-function getImplicantValues(value) {
+function getImplicantValues(value: string) {
   if (value.startsWith('https:')) {
     return getImplicantValuesForURLScope(value);
   } else {
@@ -478,7 +481,7 @@ function getImplicantValues(value) {
  * only "write" scopes can imply other "write" scopes.
  *
  */
-function* getImplicantValuesForShortScope(value) {
+function* getImplicantValuesForShortScope(value: string) {
   if (!VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
@@ -522,7 +525,7 @@ function* getImplicantValuesForShortScope(value) {
  * URL is a child of another.
  *
  */
-function* getImplicantValuesForURLScope(value) {
+function* getImplicantValuesForURLScope(value: string) {
   if (!VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
@@ -532,7 +535,7 @@ function* getImplicantValuesForURLScope(value) {
     throw new Error('Invalid scope value: ' + value);
   }
   // No credentials or query params are allowed.
-  if (url.username || url.password || url.query) {
+  if (url.username || url.password || url.search) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The pathname must be non-empty and not end in a slash.
@@ -561,12 +564,12 @@ function* getImplicantValuesForURLScope(value) {
   }
 }
 
-module.exports = {
+export const scopeSetHelpers = {
   /**
    * Parse a list of strings into a Scope object.
    *
    */
-  fromArray(scopesArray) {
+  fromArray(scopesArray: string[]) {
     return new ScopeSet(scopesArray);
   },
 
@@ -578,7 +581,7 @@ module.exports = {
    * case-sensitive strings identifying individual scope values.
    *
    */
-  fromString(scopesString) {
+  fromString(scopesString: string) {
     // Split the string by one or more space characters.
     return new ScopeSet(
       scopesString.split(/ +/).filter((scopeString) => {
@@ -597,7 +600,9 @@ module.exports = {
    * characters in the scopes will be expanded.
    *
    */
-  fromURLEncodedString(encodedScopesString) {
+  fromURLEncodedString(
+    encodedScopesString: ReturnType<typeof encodeURIComponent>
+  ) {
     // Split the string by a literal plus character.
     return new ScopeSet(
       encodedScopesString
@@ -611,3 +616,5 @@ module.exports = {
     );
   },
 };
+
+export default scopeSetHelpers;

@@ -10,20 +10,17 @@ const flowMetrics = require('./flow-metrics');
 const log = require('./logging/log')('server.flow-event');
 const geodbConfig = config.get('geodb');
 const geodb = require('fxa-geodb')(geodbConfig);
-const remoteAddress = require('fxa-shared/express/remote-address')(
-  config.get('clientAddressDepth')
-);
-const geolocate = require('fxa-shared/express/geo-locate')(geodb)(
+const remoteAddress =
+  require('fxa-shared/express/remote-address').remoteAddress(
+    config.get('clientAddressDepth')
+  );
+const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
   remoteAddress
 )(log);
 const os = require('os');
 const statsd = require('./statsd');
-const {
-  VERSION,
-  PERFORMANCE_TIMINGS,
-  limitLength,
-  isValidTime,
-} = require('fxa-shared').metrics.flowPerformance;
+const { VERSION, PERFORMANCE_TIMINGS, limitLength, isValidTime } =
+  require('fxa-shared').metrics.flowPerformance;
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];

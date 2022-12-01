@@ -10,9 +10,10 @@
 const logger = require('./log')('server.requests');
 const morgan = require('morgan');
 const config = require('../configuration').getProperties();
-const remoteAddress = require('fxa-shared/express/remote-address')(
-  config.clientAddressDepth
-);
+const remoteAddress =
+  require('fxa-shared/express/remote-address').remoteAddress(
+    config.clientAddressDepth
+  );
 
 /**
  * Enhances connect logger middleware - custom formats.

@@ -52,7 +52,7 @@
     }
   },
   "lint-staged": {
-    "*.js": [
+    "packages/!(fxa-payments-server)/**/*.js": [
       "prettier --config _dev/.prettierrc --write",
       "eslint"
     ],

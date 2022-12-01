@@ -7,7 +7,7 @@ import mysql from 'mysql';
 
 import { AccessToken as AccessToken } from '../db/models/auth/access-token';
 import { ILogger } from '../log';
-import * as ScopeSet from '../oauth/scopes';
+import ScopeSet from '../oauth/scopes';
 
 // TODO: Improve types. Ported form javascript...
 const buf = require('buf').hex;

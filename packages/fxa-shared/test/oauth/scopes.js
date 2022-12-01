@@ -10,7 +10,7 @@ describe('oauth/scopes:', () => {
   let scopes;
 
   before(() => {
-    scopes = require('../../oauth/scopes');
+    scopes = require('../../oauth/scopes').default;
   });
 
   describe('valid implications', () => {

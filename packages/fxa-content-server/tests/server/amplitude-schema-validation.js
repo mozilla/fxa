@@ -38,7 +38,12 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
     },
   },
   './logging/log': () => logger,
-  'fxa-shared/metrics/amplitude': { validate: schemaValidatorStub },
+  'fxa-shared/metrics/amplitude': {
+    amplitude: {
+      ...require('fxa-shared/metrics/amplitude').amplitude,
+      validate: schemaValidatorStub,
+    },
+  },
   '@sentry/node': mockSentry,
 });
 const Sentry = require('@sentry/node');

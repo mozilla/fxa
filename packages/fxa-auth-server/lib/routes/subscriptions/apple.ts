@@ -101,7 +101,7 @@ export class AppleIapHandler {
       // once VPN migration is complete (FXA-5848).
       'profile:subscriptions',
     ];
-    const scope = ScopeSet.fromArray(auth.credentials.scope);
+    const scope = ScopeSet.fromArray(auth.credentials.scope!);
     if (!scopes.some((requiredScope) => scope.contains(requiredScope))) {
       throw error.invalidScopes();
     }
