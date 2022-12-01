@@ -5,7 +5,7 @@ import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { useMatchMedia } from '../../lib/hooks';
+import { useFetchInvoicePreview, useMatchMedia } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
 
 import { State } from '../../store/state';
@@ -38,6 +38,7 @@ import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
+import DialogMessage from '../../components/DialogMessage';
 
 type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
@@ -178,6 +179,10 @@ export const Product = ({
   );
 
   const [coupon, setCoupon] = useState<CouponDetails>();
+  const invoicePreview = useFetchInvoicePreview(
+    selectedPlan?.plan_id,
+    customerSubscriptions
+  );
 
   // Fetch plan update eligibility
   useEffect(() => {
@@ -209,7 +214,8 @@ export const Product = ({
     customer.loading ||
     plans.loading ||
     subscriptionChangeEligibility.loading ||
-    profile.loading
+    profile.loading ||
+    invoicePreview.loading
   ) {
     return <LoadingOverlay isLoading={true} />;
   }
@@ -337,6 +343,28 @@ export const Product = ({
       selectedPlan
     );
 
+    if (invoicePreview.error || !invoicePreview.result) {
+      const ariaLabelledBy = 'product-invoice-preview-error-title';
+      const ariaDescribedBy = 'product-invoice-preview-error-text';
+      return (
+        <DialogMessage
+          className="dialog-error"
+          onDismiss={locationReload}
+          headerId={ariaLabelledBy}
+          descId={ariaDescribedBy}
+        >
+          <Localized id="product-invoice-preview-error-title">
+            <h4 id={ariaLabelledBy} data-testid="product-invoice-preview-error">
+              Problem loading invoice preview
+            </h4>
+          </Localized>
+          <Localized id="product-invoice-preview-error-text">
+            <p id={ariaDescribedBy}>Could not load invoice preview</p>
+          </Localized>
+        </DialogMessage>
+      );
+    }
+
     // Do we already have a subscription to the product in the selected plan?
     if (alreadySubscribedToSelectedPlan) {
       return (
@@ -410,6 +438,7 @@ export const Product = ({
             updateSubscriptionPlanAndRefresh,
             resetUpdateSubscriptionPlan,
             updateSubscriptionPlanStatus,
+            invoicePreview: invoicePreview.result,
           }}
         />
       );

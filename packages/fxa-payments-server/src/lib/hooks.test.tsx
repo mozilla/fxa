@@ -3,19 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import '@testing-library/jest-dom/extend-expect';
 
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+  waitForElementToBeRemoved,
+  screen,
+} from '@testing-library/react';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import { Plan, WebSubscription } from 'fxa-shared/subscriptions/types';
+import {
+  MozillaSubscription,
+  Plan,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 import React from 'react';
 
 import {
   CouponInfoBoxMessageType,
+  getPromotionCodeForPrice,
   useCheckboxState,
+  useFetchInvoicePreview,
   useHandleConfirmationDialog,
   useInfoBoxMessage,
   useNonce,
 } from './hooks';
-import { COUPON_DETAILS_VALID, CUSTOMER, SELECTED_PLAN } from './mock-data';
+import {
+  COUPON_DETAILS_VALID,
+  CUSTOMER,
+  IAP_CUSTOMER,
+  SELECTED_PLAN,
+} from './mock-data';
 
 // eslint-disable-next-line import/first
 import { apiInvoicePreview } from '../lib/apiClient';
@@ -335,6 +353,187 @@ describe('useHandleConfirmationDialog', () => {
 
     const amount = getByTestId('amount').textContent;
     expect(amount).toEqual('100');
+    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('getPromotionCodeForPrice', () => {
+  const PROMOTION_CODE = 'CODE10';
+  const customerSubscriptions = CUSTOMER.subscriptions;
+  const customerSubscriptionsWithPromotionCode: MozillaSubscription[] = [
+    {
+      ...CUSTOMER.subscriptions[0],
+      promotion_code: PROMOTION_CODE,
+      promotion_duration: 'forever',
+    } as WebSubscription,
+  ];
+  const customerSubscriptionsIAP = IAP_CUSTOMER.subscriptions;
+  const PLAN_ID = (CUSTOMER.subscriptions[0] as WebSubscription).plan_id;
+
+  it('returns promotionCode if priceId matchs customerSubscriptions', () => {
+    const actual = getPromotionCodeForPrice(
+      PLAN_ID,
+      customerSubscriptionsWithPromotionCode
+    );
+    const expected = PROMOTION_CODE;
+    expect(actual).toBe(expected);
+  });
+
+  it('returns undefined if priceId doesnt match customerSubscriptions', () => {
+    const actual = getPromotionCodeForPrice(
+      'plan_random',
+      customerSubscriptionsWithPromotionCode
+    );
+    expect(actual).toBeUndefined();
+  });
+
+  it('returns undefined if customerSubscriptions doesnt have promotion code', () => {
+    const actual = getPromotionCodeForPrice(PLAN_ID, customerSubscriptions);
+    expect(actual).toBeUndefined();
+  });
+
+  it('returns undefined if customerSubscriptions only has non web subs', () => {
+    const actual = getPromotionCodeForPrice(PLAN_ID, customerSubscriptionsIAP);
+    expect(actual).toBeUndefined();
+  });
+
+  it('returns undefined if priceId and customerSubscriptions are null', () => {
+    const actual = getPromotionCodeForPrice(undefined, null);
+    expect(actual).toBeUndefined();
+  });
+
+  it('returns undefined if priceId is undefined', () => {
+    const actual = getPromotionCodeForPrice(undefined, customerSubscriptions);
+    expect(actual).toBeUndefined();
+  });
+
+  it('returns undefined if customerSubscriptions is null', () => {
+    const actual = getPromotionCodeForPrice(PLAN_ID, null);
+    expect(actual).toBeUndefined();
+  });
+});
+
+describe('useFetchInvoicePreview', () => {
+  const PROMOTION_CODE = 'CODE10';
+  const customerSubscriptions = CUSTOMER.subscriptions;
+  const customerSubscriptionsWithPromotionCode: MozillaSubscription[] = [
+    {
+      ...CUSTOMER.subscriptions[0],
+      promotion_code: PROMOTION_CODE,
+      promotion_duration: 'forever',
+    } as WebSubscription,
+  ];
+  const PLAN_ID = (CUSTOMER.subscriptions[0] as WebSubscription).plan_id;
+
+  const Subject = ({
+    planId,
+    customerSubscriptions,
+  }: {
+    planId?: string;
+    customerSubscriptions?: MozillaSubscription[];
+  }) => {
+    const { loading, error, result } = useFetchInvoicePreview(
+      planId,
+      customerSubscriptions
+    );
+
+    if (loading) {
+      return <span data-testid="loading">loading</span>;
+    }
+    if (error) {
+      return <span data-testid="error">error</span>;
+    }
+    if (!result) {
+      return <span data-testid="no-invoice">No invoice</span>;
+    }
+    if (result) {
+      return <span data-testid="total">{result.total}</span>;
+    }
+
+    return <span data-testid="default">default</span>;
+  };
+
+  beforeEach(() => {
+    (apiInvoicePreview as jest.Mock)
+      .mockClear()
+      .mockResolvedValue({ total: 100 });
+  });
+
+  it('returns invoicePreview no subscriptions', async () => {
+    const { queryByTestId } = render(<Subject planId={PLAN_ID} />);
+
+    await waitFor(() => {
+      expect(queryByTestId('loading')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(queryByTestId('total')).toBeInTheDocument();
+    });
+
+    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+    expect(apiInvoicePreview).toHaveBeenCalledWith({ priceId: PLAN_ID });
+  });
+
+  it('returns invoicePreview no promotionCode', async () => {
+    const { queryByTestId } = render(
+      <Subject planId={PLAN_ID} customerSubscriptions={customerSubscriptions} />
+    );
+
+    await waitFor(() => {
+      expect(queryByTestId('loading')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(queryByTestId('total')).toBeInTheDocument();
+    });
+
+    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+    expect(apiInvoicePreview).toHaveBeenCalledWith({ priceId: PLAN_ID });
+  });
+
+  it('returns invoicePreview with promotionCode', async () => {
+    const { queryByTestId } = render(
+      <Subject
+        planId={PLAN_ID}
+        customerSubscriptions={customerSubscriptionsWithPromotionCode}
+      />
+    );
+
+    await waitFor(() => {
+      expect(queryByTestId('loading')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(queryByTestId('total')).toBeInTheDocument();
+    });
+
+    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+    expect(apiInvoicePreview).toHaveBeenCalledWith({
+      priceId: PLAN_ID,
+      promotionCode: PROMOTION_CODE,
+    });
+  });
+
+  it('empty planId', async () => {
+    const { queryByTestId } = render(<Subject />);
+
+    await waitFor(() => {
+      expect(queryByTestId('no-invoice')).toBeInTheDocument();
+    });
+
+    expect(apiInvoicePreview).toHaveBeenCalledTimes(0);
+  });
+
+  it('invoicePreview throws error', async () => {
+    (apiInvoicePreview as jest.Mock).mockClear().mockRejectedValue({});
+    const { queryByTestId } = render(
+      <Subject planId={PLAN_ID} customerSubscriptions={customerSubscriptions} />
+    );
+
+    await waitFor(() => {
+      expect(queryByTestId('loading')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(queryByTestId('error')).toBeInTheDocument();
+    });
+
     expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
   });
 });

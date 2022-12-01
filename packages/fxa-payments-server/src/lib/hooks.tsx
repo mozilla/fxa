@@ -17,8 +17,14 @@ import {
   couponOnSubsequentInvoice,
   incDateByMonth,
 } from './coupon';
-import { Plan, WebSubscription } from 'fxa-shared/subscriptions/types';
+import {
+  MozillaSubscription,
+  MozillaSubscriptionTypes,
+  Plan,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 import { apiInvoicePreview } from './apiClient';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
@@ -213,4 +219,95 @@ export function useHandleConfirmationDialog(
   }, [customerSubscription, plan]);
 
   return { loading, error, amount };
+}
+
+/**
+ * Type guard function to check if a MozillaSubscription is a WebSubscription
+ */
+const isWebSubscription = (sub: MozillaSubscription): sub is WebSubscription =>
+  sub._subscription_type === MozillaSubscriptionTypes.WEB;
+
+/**
+ * Get the promotion code used on an existing WebSubscription using Price ID
+ */
+export function getPromotionCodeForPrice(
+  priceId?: string,
+  customerSubscriptions?: MozillaSubscription[] | null
+) {
+  const webSubscriptionForPlan =
+    customerSubscriptions &&
+    customerSubscriptions
+      .filter(isWebSubscription)
+      .find((sub) => sub.plan_id === priceId);
+
+  const usePromotionCode =
+    webSubscriptionForPlan &&
+    couponOnSubsequentInvoice(
+      webSubscriptionForPlan.current_period_end,
+      webSubscriptionForPlan.promotion_end,
+      webSubscriptionForPlan.promotion_duration
+    );
+
+  return usePromotionCode ? webSubscriptionForPlan.promotion_code : undefined;
+}
+
+/**
+ * Custom Hook to fetch invoice preview for priceId
+ * @param priceId
+ * @param customerSubscriptions
+ * @returns
+ */
+export function useFetchInvoicePreview(
+  priceId?: string,
+  customerSubscriptions?: MozillaSubscription[] | null
+) {
+  const [invoicePreview, setInvoicePreview] = useState<{
+    loading: boolean;
+    error: boolean;
+    result?: FirstInvoicePreview;
+  }>({ loading: false, error: false, result: undefined });
+
+  useEffect(() => {
+    const getSubscriptionPrice = async () => {
+      if (!priceId) {
+        return setInvoicePreview({
+          loading: false,
+          error: false,
+          result: undefined,
+        });
+      }
+
+      const promotionCode = getPromotionCodeForPrice(
+        priceId,
+        customerSubscriptions
+      );
+
+      try {
+        setInvoicePreview({
+          loading: true,
+          error: false,
+          result: undefined,
+        });
+        const preview = await apiInvoicePreview({
+          priceId,
+          promotionCode,
+        });
+        setInvoicePreview({
+          loading: false,
+          error: false,
+          result: preview,
+        });
+      } catch (err) {
+        setInvoicePreview({
+          loading: false,
+          error: true,
+          result: undefined,
+        });
+      }
+    };
+
+    getSubscriptionPrice();
+  }, [priceId, customerSubscriptions]);
+
+  return invoicePreview;
 }

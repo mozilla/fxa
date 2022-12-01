@@ -1,101 +1,29 @@
 import React from 'react';
+
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
-import { storiesOf } from '@storybook/react';
-import { APIError } from '../../../lib/apiClient';
+import { Meta } from '@storybook/react';
+
 import MockApp from '../../../../.storybook/components/MockApp';
-import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
-
 import { SignInLayout } from '../../../components/AppLayout';
+import { SubscriptionUpgrade, SubscriptionUpgradeProps } from './index';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
+import { APIError } from '../../../lib/apiClient';
+import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
 import {
   CUSTOMER,
-  PAYPAL_CUSTOMER,
   SELECTED_PLAN,
   UPGRADE_FROM_PLAN,
   PROFILE,
 } from '../../../lib/mock-data';
 
-import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
-function init() {
-  storiesOf('routes/Product/SubscriptionUpgrade', module)
-    .add('upgrade offer - Visa', () => (
-      <SubscriptionUpgradeView
-        props={{
-          ...MOCK_PROPS,
-          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
-        }}
-      />
-    ))
-    .add('upgrade offer - PayPal', () => (
-      <SubscriptionUpgradeView
-        props={{
-          ...MOCK_PROPS_PAYPAL,
-          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
-        }}
-      />
-    ))
-    .add('upgrade offer localized to xx-pirate', () => (
-      <SubscriptionUpgradeView
-        appContextValue={{
-          ...defaultAppContext,
-          navigatorLanguages: ['xx-pirate'],
-        }}
-        props={{
-          ...MOCK_PROPS,
-          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
-        }}
-      />
-    ))
-    .add('submitting', () => (
-      <SubscriptionUpgradeView
-        props={{
-          ...MOCK_PROPS,
-          updateSubscriptionPlanStatus: {
-            loading: true,
-            result: null,
-            error: null,
-          },
-        }}
-      />
-    ));
-
-  storiesOf('routes/Product/SubscriptionUpgrade/failures', module).add(
-    'internal server error',
-    () => (
-      <SubscriptionUpgradeView
-        props={{
-          ...MOCK_PROPS,
-          updateSubscriptionPlanStatus: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              statusCode: 500,
-              message: 'Internal Server Error',
-            }),
-          },
-          resetUpdateSubscriptionPlan: linkToUpgradeOffer,
-        }}
-      />
-    )
-  );
-}
-
-const SubscriptionUpgradeView = ({
-  props = MOCK_PROPS,
-  appContextValue = defaultAppContext,
-}: {
-  props?: SubscriptionUpgradeProps;
-  appContextValue?: AppContextType;
-}) => (
-  <MockApp appContextValue={appContextValue}>
-    <SignInLayout>
-      <SubscriptionUpgrade {...props} />
-    </SignInLayout>
-  </MockApp>
-);
+export default {
+  title: 'routes/Product/SubscriptionUpgrade',
+  component: SubscriptionUpgrade,
+} as Meta;
 
 const linkToUpgradeSuccess = linkTo('routes/Product', 'success');
 
@@ -103,6 +31,44 @@ const linkToUpgradeOffer = linkTo(
   'routes/Product/SubscriptionUpgrade',
   'upgrade offer'
 );
+
+const invoicePreviewNoTax: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: null,
+  subtotal: 2000,
+  subtotal_excluding_tax: null,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: SELECTED_PLAN.plan_id,
+      name: 'first invoice',
+    },
+  ],
+};
+
+const invoicePreviewInclusiveTax: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 2999,
+  subtotal_excluding_tax: 2804,
+  total: 2999,
+  total_excluding_tax: 2804,
+  tax: {
+    amount: 195,
+    inclusive: true,
+  },
+};
+const invoicePreviewExclusiveTax: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 2999,
+  subtotal_excluding_tax: 2999,
+  total: 3194,
+  total_excluding_tax: 2999,
+  tax: {
+    amount: 195,
+    inclusive: false,
+  },
+};
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
   isMobile: false,
@@ -116,13 +82,101 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
     loading: false,
     result: null,
   },
+  invoicePreview: invoicePreviewNoTax,
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
 };
 
-const MOCK_PROPS_PAYPAL: SubscriptionUpgradeProps = {
-  ...MOCK_PROPS,
-  customer: PAYPAL_CUSTOMER,
+const storyWithContext = ({
+  props = MOCK_PROPS,
+  appContextValue = defaultAppContext,
+}: {
+  props?: SubscriptionUpgradeProps;
+  appContextValue?: AppContextType;
+}) => {
+  const story = () => (
+    <MockApp appContextValue={appContextValue}>
+      <SignInLayout>
+        <SubscriptionUpgrade {...props} />
+      </SignInLayout>
+    </MockApp>
+  );
+
+  return story;
 };
 
-init();
+export const Default = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+  },
+});
+
+export const DefaultWithInclusiveTax = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    invoicePreview: invoicePreviewInclusiveTax,
+    updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    navigatorLanguages: ['xx-pirate'],
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: { useStripeAutomaticTax: true },
+    },
+  },
+});
+
+export const DefaultWithExclusiveTax = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    invoicePreview: invoicePreviewExclusiveTax,
+    updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    navigatorLanguages: ['xx-pirate'],
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: { useStripeAutomaticTax: true },
+    },
+  },
+});
+
+export const LocalizedToPirate = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    navigatorLanguages: ['xx-pirate'],
+  },
+});
+
+export const Submitting = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    updateSubscriptionPlanStatus: {
+      loading: true,
+      result: null,
+      error: null,
+    },
+  },
+});
+
+export const InternalServerError = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    updateSubscriptionPlanStatus: {
+      loading: false,
+      result: null,
+      error: new APIError({
+        statusCode: 500,
+        message: 'Internal Server Error',
+      }),
+    },
+    resetUpdateSubscriptionPlan: linkToUpgradeOffer,
+  },
+});

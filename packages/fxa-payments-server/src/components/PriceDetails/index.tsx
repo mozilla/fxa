@@ -7,17 +7,6 @@ import {
 } from '../../lib/formats';
 import Stripe from 'stripe';
 
-export type PriceDetailsProps = {
-  total: number;
-  currency: string;
-  tax?: number;
-  showTax?: boolean;
-  interval?: Stripe.Plan.Interval;
-  intervalCount?: number;
-  className?: string;
-  dataTestId?: string;
-};
-
 const NoInterval = ({
   total,
   currency,
@@ -124,6 +113,17 @@ const Interval = ({
       </span>
     </Localized>
   );
+};
+
+export type PriceDetailsProps = {
+  total: number;
+  currency: string;
+  tax?: number;
+  showTax?: boolean;
+  interval?: Stripe.Plan.Interval;
+  intervalCount?: number;
+  className?: string;
+  dataTestId?: string;
 };
 
 export const PriceDetails = (props: PriceDetailsProps) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { APIError } from '../../../lib/apiClient';
@@ -16,9 +16,11 @@ import {
   MockApp,
   MOCK_PLANS,
   getLocalizedMessage,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
+  MOCK_PREVIEW_INVOICE_NO_TAX,
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
-import { FluentBundle } from '@fluent/bundle';
+import { FluentBundle, FluentNumber } from '@fluent/bundle';
 
 import {
   CUSTOMER,
@@ -31,18 +33,28 @@ import { SignInLayout } from '../../../components/AppLayout';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 import { getLocalizedCurrency } from '../../../lib/formats';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE } from '../../Subscriptions/index.stories';
+import { updateConfig } from '../../../lib/config';
 
 jest.mock('../../../lib/sentry');
 jest.mock('../../../lib/amplitude');
 
+const customerWebSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
+
 describe('routes/Product/SubscriptionUpgrade', () => {
   afterEach(() => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: false,
+      },
+    });
     jest.clearAllMocks();
     return cleanup();
   });
 
   it('renders as expected', async () => {
-    const { findByTestId, container } = render(<Subject />);
+    const { findByTestId, queryByTestId, container } = render(<Subject />);
     await findByTestId('subscription-upgrade');
 
     // Could do some more content-based tests here, but basically just a
@@ -55,7 +67,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
       '.from-plan #product-description'
     ) as Element;
     expect(fromDesc.textContent).toContain(
-      UPGRADE_FROM_PLAN.product_metadata['product:subtitle']
+      UPGRADE_FROM_PLAN.product_metadata?.['product:subtitle']
     );
     const toName = container.querySelector('.to-plan .product-name') as Element;
     expect(toName.textContent).toEqual(SELECTED_PLAN.product_name);
@@ -63,8 +75,50 @@ describe('routes/Product/SubscriptionUpgrade', () => {
       '.to-plan #product-description'
     ) as Element;
     expect(toDesc.textContent).toContain(
-      SELECTED_PLAN.product_metadata['product:subtitle']
+      SELECTED_PLAN.product_metadata?.['product:subtitle']
     );
+    expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
+    expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+  });
+
+  it('renders as expected for inclusive tax', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    const { findByTestId, queryByTestId } = render(
+      <Subject
+        props={{
+          invoicePreview: MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
+        }}
+      />
+    );
+    await findByTestId('subscription-upgrade');
+
+    expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
+    expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+    expect(queryByTestId('total-price')).toHaveTextContent('$20.00 monthly');
+  });
+
+  it('renders as expected for exclusive tax', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    const { findByTestId, queryByTestId } = render(
+      <Subject
+        props={{
+          invoicePreview: MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
+        }}
+      />
+    );
+    await findByTestId('subscription-upgrade');
+
+    expect(queryByTestId('plan-upgrade-subtotal')).toHaveTextContent('$20.00');
+    expect(queryByTestId('plan-upgrade-tax-amount')).toHaveTextContent('$3.00');
+    expect(queryByTestId('total-price')).toHaveTextContent('$23.00 monthly');
   });
 
   it('can be submitted after confirmation is checked', async () => {
@@ -87,7 +141,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     expect(getByTestId('submit')).not.toHaveAttribute('disabled');
     fireEvent.click(getByTestId('submit'));
     expect(updateSubscriptionPlanAndRefresh).toBeCalledWith(
-      CUSTOMER.subscriptions[0].subscription_id,
+      customerWebSubscription.subscription_id,
       UPGRADE_FROM_PLAN,
       SELECTED_PLAN,
       CUSTOMER.payment_provider
@@ -143,10 +197,10 @@ describe('routes/Product/SubscriptionUpgrade', () => {
 });
 
 describe('PlanDetailsCard', () => {
-  const dayBasedId = 'plan-price-interval-day';
-  const weekBasedId = 'plan-price-interval-week';
-  const monthBasedId = 'plan-price-interval-month';
-  const yearBasedId = 'plan-price-interval-year';
+  const dayBasedId = 'price-details-no-tax-day';
+  const weekBasedId = 'price-details-no-tax-week';
+  const monthBasedId = 'price-details-no-tax-month';
+  const yearBasedId = 'price-details-no-tax-year';
 
   const findMockPlan = (planId: string): Plan => {
     const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
@@ -167,13 +221,12 @@ describe('PlanDetailsCard', () => {
       });
       const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-      expect(planPriceComponent.props.vars.amount).toStrictEqual(
-        expectedAmount
-      );
+      expect(
+        planPriceComponent.props.vars.priceAmount
+      ).toStrictEqual<FluentNumber>(expectedAmount);
       expect(planPriceComponent.props.vars.intervalCount).toBe(
         plan.interval_count
       );
-      expect(planPriceComponent.props.children).toBe(expectedMsg);
     }
 
     it('displays product:name when present instead of product_name', () => {
@@ -294,9 +347,9 @@ describe('PlanDetailsCard', () => {
     beforeAll(async () => {
       bundle = await getFtlBundle('payments');
     });
-    const amount = getLocalizedCurrency(500, 'USD');
+    const priceAmount = getLocalizedCurrency(500, 'USD');
     const args = {
-      amount,
+      priceAmount,
     };
 
     describe('When message id is plan-price-interval-day', () => {
@@ -400,7 +453,8 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
   profile: PROFILE,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,
-  upgradeFromSubscription: CUSTOMER.subscriptions[0],
+  upgradeFromSubscription: customerWebSubscription as WebSubscription,
+  invoicePreview: MOCK_PREVIEW_INVOICE_NO_TAX,
   updateSubscriptionPlanStatus: {
     error: null,
     loading: false,
