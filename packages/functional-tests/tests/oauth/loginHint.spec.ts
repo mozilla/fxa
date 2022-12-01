@@ -5,7 +5,11 @@ const PASSWORD = 'passwordzxcv';
 test.describe('OAuth `login_hint` and `email` param', () => {
   test('email specified by relier, invalid', async ({
     pages: { login, relier },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name == 'production',
+      'disabling until 123done is setup in prod'
+    );
     const invalidEmail = 'invalid@';
     await relier.goto(`email=${invalidEmail}`);
     await relier.clickEmailFirst();
