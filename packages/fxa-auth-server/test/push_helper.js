@@ -37,7 +37,6 @@ function PushManager(options) {
  * @returns {Promise}
  */
 PushManager.prototype.getSubscription = function getSubscription() {
-  const self = this;
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(this.server);
 
@@ -59,19 +58,19 @@ PushManager.prototype.getSubscription = function getSubscription() {
     }
 
     const handlers = {
-      hello: function () {
+      hello: () => {
         send({
           messageType: 'register',
-          channelID: self.channelId,
+          channelID: this.channelId,
         });
       },
-      register: function (data) {
+      register: (data) => {
         resolve({
           endpoint: data.pushEndpoint,
         });
         ws.close();
       },
-      '': function (data) {
+      '': (data) => {
         onError(new Error(`Unexpected ws message: ${JSON.stringify(data)}`));
       },
     };

@@ -52,7 +52,7 @@ export class PlaySubscriptions
   async getSubscriptions(
     uid: string
   ): Promise<AppendedPlayStoreSubscriptionPurchase[]> {
-    if (!this.playBilling) {
+    if (!this.playBilling || !this.stripeHelper) {
       return [];
     }
     const allPurchases =
@@ -60,7 +60,6 @@ export class PlaySubscriptions
     const purchases = allPurchases.filter((purchase) =>
       purchase.isEntitlementActive()
     );
-    // @ts-ignore
     return this.stripeHelper.addPriceInfoToIapPurchases(
       purchases,
       MozillaSubscriptionTypes.IAP_GOOGLE

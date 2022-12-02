@@ -1,17 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Firestore } from '@google-cloud/firestore';
+import { Firestore, Settings } from '@google-cloud/firestore';
 import * as grpc from '@grpc/grpc-js';
 
 import { ConfigType } from '../config';
 
 export function setupFirestore(config: ConfigType) {
-  const fsConfig = Object.assign({}, config.authFirestore);
+  const fsConfig = Object.assign({}, config.authFirestore) as Settings;
   // keyFilename takes precedence over credentials
   if (fsConfig.keyFilename) {
     /* istanbul ignore next */
-    // @ts-ignore
     delete fsConfig.credentials;
   }
 

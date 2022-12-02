@@ -466,6 +466,7 @@ export class PayPalHelper {
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
     const idempotencyKey = this.generateIdempotencyKey(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       invoice.id!,
       paymentAttempt
     );
@@ -474,6 +475,7 @@ export class PayPalHelper {
       this.chargeCustomer({
         amountInCents: invoice.amount_due,
         billingAgreementId: agreementId,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         invoiceNumber: invoice.id!,
         currencyCode: invoice.currency,
         idempotencyKey,
@@ -568,6 +570,7 @@ export class PayPalHelper {
 
   public async issueRefund(invoice: Stripe.Invoice, transactionId: string) {
     const refundResponse = await this.refundTransaction({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       idempotencyKey: invoice.id!,
       transactionId: transactionId,
     });

@@ -101,6 +101,7 @@ module.exports = (log, config) => {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const request = this;
 
       if (data && data.uid && request.auth && request.auth.artifacts) {
@@ -151,6 +152,7 @@ module.exports = (log, config) => {
      * @returns {Promise}
      */
     emitRouteFlowEvent(response) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const request = this;
       const path = request.path.replace(PATH_PREFIX, '');
       let status = response.statusCode || response.output.statusCode;

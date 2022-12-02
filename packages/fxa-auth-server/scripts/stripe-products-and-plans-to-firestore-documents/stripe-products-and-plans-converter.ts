@@ -137,7 +137,7 @@ export class StripeProductsAndPlansConverter {
       const [, clientId] = oldKey.split(':');
       const newKey = clientId ?? '*';
       capabilities[newKey] = commaSeparatedListToArray(
-        stripeObject.metadata![oldKey]
+        stripeObject.metadata[oldKey]
       );
     }
     return capabilities;
@@ -199,24 +199,24 @@ export class StripeProductsAndPlansConverter {
     if (!stripeObject.metadata) {
       return uiContentConfig;
     }
-    for (const key of Object.values(UiContentConfigKeys)) {
-      let value;
-      if (key === 'details') {
+    for (const _key in UiContentConfigKeys) {
+      const key = _key as keyof typeof UiContentConfigKeys;
+
+      if (key === UiContentConfigKeys.details) {
         const metadataKeyPrefix = `product:${key}`;
-        value = this.getArrayOfStringsFromMetadataKeys(
+        const value = this.getArrayOfStringsFromMetadataKeys(
           stripeObject.metadata,
           metadataKeyPrefix
         );
         if (value.length > 0) {
           uiContentConfig[key] = value;
         }
-        continue;
-      }
-      value =
-        stripeObject.metadata[key] ?? stripeObject.metadata[`product:${key}`];
-      if (value) {
-        // @ts-ignore We need to be able to assign values to all keys
-        uiContentConfig[key] = value;
+      } else {
+        const value =
+          stripeObject.metadata[key] ?? stripeObject.metadata[`product:${key}`];
+        if (value) {
+          uiContentConfig[key] = value;
+        }
       }
     }
     return uiContentConfig;
@@ -338,8 +338,7 @@ export class StripeProductsAndPlansConverter {
     ) {
       planConfig.uiContent = this.uiContentMetadataToUiContentConfig(plan);
     }
-    // @ts-ignore `includes` doesn't allow SearchElement to be any `string`
-    if (metadataKeys.some((key) => StyleConfigKeys.includes(key))) {
+    if (metadataKeys.some((key) => StyleConfigKeys.includes(key as any))) {
       planConfig.styles = this.stylesMetadataToStyleConfig(plan);
     }
     if (metadataKeys.some((key) => key.toLowerCase().startsWith('support'))) {
@@ -373,7 +372,7 @@ export class StripeProductsAndPlansConverter {
     productConfig: ProductConfig,
     existingProductConfigId: string | null,
     productConfigPath: string,
-    withLog: boolean = true
+    withLog = true
   ) {
     await this.paymentConfigManager.validateProductConfig(productConfig);
     await fsPromises.writeFile(

@@ -17,8 +17,8 @@ import { ConfigType } from '../config';
 
 export interface AuthApp extends RequestApplicationState {
   devices: Promise<any>;
-  locale: String;
-  acceptLanguage: String;
+  locale: string;
+  acceptLanguage: string;
   clientAddress: string;
   metricsContext: any;
   accountRecreated: boolean;

@@ -28,7 +28,6 @@ function TestServer(config, printLogs, options = {}) {
   }
   this.options = options;
 
-  currentServer = this;
   if (printLogs === undefined) {
     // Issue where debugger does not attach if
     // child process output is not piped to console

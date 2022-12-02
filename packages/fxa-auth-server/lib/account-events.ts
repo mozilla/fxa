@@ -64,19 +64,11 @@ export class AccountEventsManager {
 
       // Firestore can be configured to ignore undefined keys, but we do it here
       // since it is a global config
-      const filteredEmailEvent = {};
-      Object.keys(emailEvent).forEach((key) => {
-        // @ts-ignore
-        if (emailEvent[key]) {
-          // @ts-ignore
-          filteredEmailEvent[key] = emailEvent[key];
-        }
-      });
+      for (const [key, value] of Object.entries(emailEvent)) {
+        if (!value) delete emailEvent[key as keyof typeof emailEvent];
+      }
 
-      await this.usersDbRef
-        .doc(uid)
-        .collection('events')
-        .add(filteredEmailEvent);
+      await this.usersDbRef.doc(uid).collection('events').add(emailEvent);
       this.statsd.increment('accountEvents.recordEmailEvent.write');
     } catch (err) {
       // Failing to write to events shouldn't break anything

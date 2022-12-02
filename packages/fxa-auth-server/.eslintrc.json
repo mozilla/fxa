@@ -11,9 +11,12 @@
         "message": "Please use relative import instead.",
         "allowTypeImports": true
       }]
-    }]
+    }],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-empty-function": "off"
   },
-  "extends": ["plugin:fxa/server"],
+  "extends": ["plugin:@typescript-eslint/recommended", "plugin:fxa/server", "prettier"],
   "plugins": ["@typescript-eslint", "fxa"],
   "parser": "@typescript-eslint/parser",
   "root": true,

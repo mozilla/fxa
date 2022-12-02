@@ -96,7 +96,8 @@ const formatLanguageTag = (tag: string) =>
 // level.  But maybe this plan offers some different features or
 // benefits, or, it's locale specific.
 const handleEnglishPlan = (plan: Partial<Stripe.Plan>) => {
-  const planDetails = getMetadataProductDetails(plan.metadata!);
+  if (!plan.metadata) throw new Error('Plan metadata is required');
+  const planDetails = getMetadataProductDetails(plan.metadata);
   const productDetails = getMetadataProductDetails(
     (plan.product as Stripe.Product).metadata
   );
@@ -106,7 +107,8 @@ const handleEnglishPlan = (plan: Partial<Stripe.Plan>) => {
     return;
   }
 
-  const lang = findLocaleInTitle('en', plan.nickname!);
+  if (!plan.nickname) throw new Error('Plan nickname is required');
+  const lang = findLocaleInTitle('en', plan.nickname);
 
   if (lang === 'en') {
     // the plan's en strings are different than the product's, so we save
@@ -128,7 +130,8 @@ export const getLanguageTagFromPlanMetadata = async (
   locales: string[]
 ) => {
   initLocales(locales);
-  const planDetails = getMetadataProductDetails(plan.metadata!);
+  if (!plan.metadata) throw new Error('Plan metadata is required');
+  const planDetails = getMetadataProductDetails(plan.metadata);
 
   if (planDetails) {
     const detectionResult = await translate.detect(planDetails);
@@ -141,7 +144,8 @@ export const getLanguageTagFromPlanMetadata = async (
       return handleEnglishPlan(plan);
     }
 
-    let lang = findLocaleInTitle(detectionResult[0].language, plan.nickname!);
+    if (!plan.nickname) throw new Error('Plan nickname is required');
+    let lang = findLocaleInTitle(detectionResult[0].language, plan.nickname);
 
     // no subtag, extra step of checking currency
     if (!lang.includes('-')) {

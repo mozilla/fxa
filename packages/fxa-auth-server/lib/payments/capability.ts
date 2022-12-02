@@ -246,7 +246,7 @@ export class CapabilityService {
   public async getPlanEligibility(
     uid: string,
     targetPlanId: string,
-    useFirestoreProductConfigs: boolean = false
+    useFirestoreProductConfigs = false
   ) {
     const allPlans = await this.stripeHelper.allAbbrevPlans();
 
@@ -538,13 +538,12 @@ export class CapabilityService {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
-    if (!customer || !customer.subscriptions!.data) {
+    const subscriptions = customer?.subscriptions?.data;
+    if (!subscriptions) {
       return [];
     }
-    const subscribedPrices = customer
-      .subscriptions!.data.filter((sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
-      )
+    const subscribedPrices = subscriptions
+      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
       .flatMap((sub) => sub.items.data)
       .map(({ price: { id: priceId } }) => priceId as string);
     return subscribedPrices;
@@ -594,7 +593,9 @@ export class CapabilityService {
       if (!subscribedPrices.includes(plan.stripePriceId ?? '')) {
         continue;
       }
-      const mergedConfig = this.paymentConfigManager!.getMergedConfig(plan);
+      if (!this.paymentConfigManager)
+        throw new Error('paymentConfigManager is not initialized');
+      const mergedConfig = this.paymentConfigManager.getMergedConfig(plan);
 
       // Add the capabilities for this price
       for (const [clientId, capabilities] of Object.entries(
