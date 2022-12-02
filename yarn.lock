@@ -6496,17 +6496,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-fetch@npm:^0.33.0":
-  version: 0.33.0
-  resolution: "@opentelemetry/instrumentation-fetch@npm:0.33.0"
+"@opentelemetry/instrumentation-fetch@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@opentelemetry/instrumentation-fetch@npm:0.34.0"
   dependencies:
-    "@opentelemetry/core": 1.7.0
-    "@opentelemetry/instrumentation": 0.33.0
-    "@opentelemetry/sdk-trace-web": 1.7.0
-    "@opentelemetry/semantic-conventions": 1.7.0
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/instrumentation": 0.34.0
+    "@opentelemetry/sdk-trace-web": 1.8.0
+    "@opentelemetry/semantic-conventions": 1.8.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-  checksum: 2c0728ee724280fee1ef485fda574e281702725aa080574d1d5257b7e5cf42d5ac87bb8d466914fd8e1c6e343c05a13df9a7348fc8ca6c5d7155f5fc7c8145c7
+  checksum: a6a7a77ea8ffc8fabb0ec27816806a773fb7c4eb155fd46c3eb006ec4fce212de0482d1f41cc878ab589b427cc870e845894085e9a28fdccd6f5a2ee289fdaae
   languageName: node
   linkType: hard
 
@@ -6845,7 +6845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation@npm:^0.34.0":
+"@opentelemetry/instrumentation@npm:0.34.0, @opentelemetry/instrumentation@npm:^0.34.0":
   version: 0.34.0
   resolution: "@opentelemetry/instrumentation@npm:0.34.0"
   dependencies:
@@ -7036,7 +7036,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-trace-web@npm:^1.8.0":
+"@opentelemetry/sdk-trace-web@npm:1.8.0, @opentelemetry/sdk-trace-web@npm:^1.8.0":
   version: 1.8.0
   resolution: "@opentelemetry/sdk-trace-web@npm:1.8.0"
   dependencies:
@@ -25734,7 +25734,7 @@ fsevents@~2.1.1:
     "@opentelemetry/exporter-jaeger": ^1.8.0
     "@opentelemetry/exporter-trace-otlp-http": ^0.33.0
     "@opentelemetry/instrumentation-document-load": ^0.31.0
-    "@opentelemetry/instrumentation-fetch": ^0.33.0
+    "@opentelemetry/instrumentation-fetch": ^0.34.0
     "@opentelemetry/instrumentation-user-interaction": ^0.31.0
     "@opentelemetry/instrumentation-xml-http-request": ^0.33.0
     "@opentelemetry/plugin-react-load": ^0.28.0
