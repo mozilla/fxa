@@ -7,7 +7,7 @@ test.describe('OAuth `login_hint` and `email` param', () => {
     pages: { login, relier },
   }, { project }) => {
     test.skip(
-      project.name == 'production',
+      project.name === 'production',
       'disabling until 123done is setup in prod'
     );
     const invalidEmail = 'invalid@';
