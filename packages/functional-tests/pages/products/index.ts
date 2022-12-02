@@ -40,7 +40,7 @@ export class SubscribePage extends BaseLayout {
     await paypalButton.waitFor({ state: 'attached' });
     const [paypalWindow] = await Promise.all([
       this.page.waitForEvent('popup'),
-      this.page.click('[data-testid="paypal-button-container"]'),
+      this.page.locator('[data-testid="paypal-button-container"]').click(),
     ]);
     await paypalWindow.waitForLoadState('load');
     await paypalWindow.waitForNavigation({

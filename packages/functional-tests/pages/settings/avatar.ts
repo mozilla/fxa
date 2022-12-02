@@ -6,7 +6,7 @@ export class AvatarPage extends SettingsLayout {
   async clickAddPhoto() {
     const [filechooser] = await Promise.all([
       this.page.waitForEvent('filechooser'),
-      this.page.click('[data-testid=add-photo-btn]'),
+      this.page.locator('[data-testid=add-photo-btn]').click(),
     ]);
     return filechooser;
   }
