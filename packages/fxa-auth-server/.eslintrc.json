@@ -4,6 +4,7 @@
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error", {"vars": "all", "args": "none"}],
     "no-redeclare": "off",
+    "@typescript-eslint/no-non-null-assertion": "error",
     "@typescript-eslint/no-redeclare": "error",
     "@typescript-eslint/no-restricted-imports": ["error", {
       "patterns": [{
