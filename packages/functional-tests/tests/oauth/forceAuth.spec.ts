@@ -6,7 +6,7 @@ test.describe('OAuth force auth', () => {
     pages: { login, relier },
   }, { project }) => {
     test.skip(
-      project.name == 'production',
+      project.name === 'production',
       'disabling until 123done is setup in prod'
     );
     await relier.goto(`email=${credentials.email}`);
