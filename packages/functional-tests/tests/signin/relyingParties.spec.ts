@@ -36,7 +36,6 @@ test.describe('severity-1 #smoke', () => {
     pages: { relier, login, settings },
     target,
   }, { project }) => {
-    test.skip(project.name === 'production', 'no 123done in production');
     await relier.goto();
     await relier.clickEmailFirst();
 
