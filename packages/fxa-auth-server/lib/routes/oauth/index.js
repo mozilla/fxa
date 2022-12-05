@@ -1,6 +1,6 @@
 const oauthDB = require('../../oauth/db');
 
-module.exports = (log, config, db, mailer, devices) => {
+module.exports = (log, config, db, mailer, devices, statsd) => {
   const routes = [
     require('./authorization')({ log, oauthDB, config }),
     require('./authorized-clients/destroy')({ oauthDB }),
@@ -10,7 +10,7 @@ module.exports = (log, config, db, mailer, devices) => {
     require('./id_token_verify')(),
     require('./introspect')({ oauthDB }),
     require('./jwks')(),
-    require('./key_data')({ log, oauthDB }),
+    require('./key_data')({ log, oauthDB, statsd }),
     require('./token')({ log, oauthDB, db, mailer, devices }),
     require('./verify')({ log }),
   ].flat();

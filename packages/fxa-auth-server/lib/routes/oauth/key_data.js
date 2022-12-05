@@ -38,7 +38,7 @@ function checkDisabledClientId(payload) {
   }
 }
 
-module.exports = ({ log, oauthDB }) => {
+module.exports = ({ log, oauthDB, statsd }) => {
   async function keyDataHandler(req) {
     const claims = await verifyAssertion(req.payload.assertion);
 
@@ -154,6 +154,9 @@ module.exports = ({ log, oauthDB }) => {
         checkDisabledClientId(req.payload);
         const sessionToken = req.auth.credentials;
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
+        statsd.increment('oauth.rp.scoped-keys-metadata', {
+          clientId: req.payload.client_id,
+        });
         try {
           return await keyDataHandler(req);
         } catch (err) {
