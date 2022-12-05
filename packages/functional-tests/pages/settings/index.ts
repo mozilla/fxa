@@ -60,7 +60,7 @@ export class SettingsPage extends SettingsLayout {
 
   clickDeleteAccount() {
     return Promise.all([
-      this.page.click('[data-testid=settings-delete-account]'),
+      this.page.locator('[data-testid=settings-delete-account]').click(),
       this.page.waitForNavigation(),
     ]);
   }
@@ -99,7 +99,7 @@ export class SettingsPage extends SettingsLayout {
 
   clickPaidSubscriptions() {
     return Promise.all([
-      this.page.click('[data-testid=nav-link-subscriptions]'),
+      this.page.locator('[data-testid=nav-link-subscriptions]').click(),
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
     ]);
   }

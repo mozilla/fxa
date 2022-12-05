@@ -47,11 +47,13 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   clickAvatarIcon() {
-    return this.page.click('[data-testid=drop-down-avatar-menu-toggle]');
+    return this.page
+      .locator('[data-testid=drop-down-avatar-menu-toggle]')
+      .click();
   }
 
   clickSignOut() {
-    return this.page.click('[data-testid=avatar-menu-sign-out]');
+    return this.page.locator('[data-testid=avatar-menu-sign-out]').click();
   }
 
   clickSignIn() {

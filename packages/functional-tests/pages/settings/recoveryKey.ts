@@ -28,17 +28,16 @@ export class RecoveryKeyPage extends SettingsLayout {
     return this.page.click('.lost-recovery-key');
   }
 
-
   submit() {
     return Promise.all([
-      this.page.click('button[type=submit]'),
+      this.page.locator('button[type=submit]').click(),
       this.page.waitForResponse(/recoveryKey$/),
     ]);
   }
 
   clickClose() {
     return Promise.all([
-      this.page.click('[data-testid=close-button]'),
+      this.page.locator('[data-testid=close-button]').click(),
       this.page.waitForNavigation(),
     ]);
   }
