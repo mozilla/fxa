@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import MockApp from '../../../.storybook/components/MockApp';
+import MockApp, {
+  defaultAppContextValue,
+} from '../../../.storybook/components/MockApp';
 import PlanDetails, { PlanDetailsProps } from './index';
 import { Profile } from '../../store/types';
+import { Config } from '../../lib/config';
 import { COUPON_DETAILS_VALID } from '../../lib/mock-data';
 import { Meta } from '@storybook/react';
 import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
@@ -54,12 +57,6 @@ const selectedPlan = {
   },
 };
 
-const invoicePreviewNoTax: FirstInvoicePreview = {
-  subtotal: 935,
-  total: 935,
-  line_items: [],
-};
-
 const invoicePreviewInclusiveTax: FirstInvoicePreview = {
   line_items: [],
   subtotal: 885,
@@ -69,6 +66,7 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
     inclusive: true,
   },
 };
+
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   line_items: [],
   subtotal: 935,
@@ -79,18 +77,29 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   },
 };
 
-const storyWithProps = (
-  plan: PlanDetailsProps,
-  languages?: readonly string[],
-  invoicePreview?: FirstInvoicePreview
-) => {
+const storyWithContext = ({
+  plan = {
+    selectedPlan: selectedPlan,
+  },
+  languages,
+  config = defaultAppContextValue.config,
+}: {
+  plan?: PlanDetailsProps;
+  languages?: readonly string[];
+  config?: Config;
+}) => {
   const story = () => (
-    <MockApp languages={languages}>
+    <MockApp
+      languages={languages}
+      appContextValue={{
+        ...defaultAppContextValue,
+        config,
+      }}
+    >
       <PlanDetails
         {...{
           ...plan,
           profile: userProfile,
-          invoicePreview: invoicePreview || invoicePreviewNoTax,
         }}
       />
     </MockApp>
@@ -98,70 +107,70 @@ const storyWithProps = (
   return story;
 };
 
-export const Default = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-});
+export const Default = storyWithContext({});
 
-export const DefaultWithInclusiveTax = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-  invoicePreview: invoicePreviewInclusiveTax,
-});
-
-export const DefaultWithExclusiveTax = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-  invoicePreview: invoicePreviewExclusiveTax,
-});
-
-export const LocalizedToPirate = storyWithProps(
-  {
-    selectedPlan,
-    isMobile: false,
-    showExpandButton: false,
+export const WithInclusiveTax = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    invoicePreview: invoicePreviewInclusiveTax,
   },
-  ['xx-pirate']
-);
-
-export const WithExpandedButton = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: true,
+  config: {
+    ...defaultAppContextValue.config,
+    featureFlags: { useStripeAutomaticTax: true },
+  },
 });
 
-export const WithCouponTypeForever = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-  coupon: { ...COUPON_DETAILS_VALID, type: 'forever' },
+export const WithExclusiveTax = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    invoicePreview: invoicePreviewExclusiveTax,
+  },
+  config: {
+    ...defaultAppContextValue.config,
+    featureFlags: { useStripeAutomaticTax: true },
+  },
 });
 
-export const WithCouponTypeOnce = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-  coupon: { ...COUPON_DETAILS_VALID, type: 'once' },
+export const LocalizedToPirate = storyWithContext({
+  languages: ['xx-pirate'],
+});
+
+export const WithExpandedButton = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    showExpandButton: true,
+  },
+});
+
+export const WithCouponTypeForever = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    coupon: { ...COUPON_DETAILS_VALID, type: 'forever' },
+  },
+});
+
+export const WithCouponTypeOnce = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    coupon: { ...COUPON_DETAILS_VALID, type: 'once' },
+  },
 });
 
 export const WithCouponTypeRepeatingPlanIntervalGreaterThanCouponDuration =
-  storyWithProps({
-    selectedPlan: { ...selectedPlan, interval_count: 6 },
-    isMobile: false,
-    showExpandButton: false,
-    coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
+  storyWithContext({
+    plan: {
+      selectedPlan: { ...selectedPlan, interval_count: 6 },
+      coupon: { ...COUPON_DETAILS_VALID, type: 'repeating' },
+    },
   });
 
-export const WithCouponTypeRepeating = storyWithProps({
-  selectedPlan,
-  isMobile: false,
-  showExpandButton: false,
-  coupon: {
-    ...COUPON_DETAILS_VALID,
-    durationInMonths: 3,
-    type: 'repeating',
+export const WithCouponTypeRepeating = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    coupon: {
+      ...COUPON_DETAILS_VALID,
+      durationInMonths: 3,
+      type: 'repeating',
+    },
   },
 });
