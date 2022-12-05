@@ -129,6 +129,16 @@ const EVENTS = {
     event: 'recovery_key_confirm_password_success',
   },
 
+  // Reset password confirmation
+  'screen.settings.reset-password-confirmed': {
+    group: GROUPS.settings,
+    event: 'reset_password_confirmed_view',
+  },
+  'flow.settings.reset-password-confirmed.continue': {
+    group: GROUPS.settings,
+    event: 'reset_password_confirmed_continue',
+  },
+
   // Save account recovery key
   'screen.save-recovery-key': {
     group: GROUPS.activity,
