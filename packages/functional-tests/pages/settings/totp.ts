@@ -43,7 +43,7 @@ export class TotpPage extends SettingsLayout {
 
   clickClose() {
     return Promise.all([
-      this.page.click('[data-testid=close-button]'),
+      this.page.locator('[data-testid=close-button]').click(),
       this.page.waitForNavigation(),
     ]);
   }

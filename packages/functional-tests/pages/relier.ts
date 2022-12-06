@@ -29,14 +29,14 @@ export class RelierPage extends BaseLayout {
 
   clickEmailFirst() {
     return Promise.all([
-      this.page.click('button.email-first-button'),
+      this.page.locator('button.email-first-button').click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   clickForceAuth() {
     return Promise.all([
-      this.page.click('button.force-auth'),
+      this.page.locator('button.force-auth').click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
