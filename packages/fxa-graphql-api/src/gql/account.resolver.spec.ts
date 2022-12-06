@@ -526,5 +526,36 @@ describe('AccountResolver', () => {
         });
       });
     });
+
+    describe('signIn', () => {
+      it('calls auth-client and proxy the result', async () => {
+        const now = Date.now();
+        const headers = new Headers();
+        const mockRespPayload = {
+          clientMutationId: 'testid',
+          uid: '1337',
+          sessionToken: '2048',
+          verified: true,
+          authAt: now,
+          metricsEnabled: true,
+        };
+        authClient.signInWithAuthPW = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+        const result = await resolver.signIn(headers, {
+          authPW: '00000000',
+          email: 'testo@example.xyz',
+          options: {},
+        });
+        expect(authClient.signInWithAuthPW).toBeCalledTimes(1);
+        expect(authClient.signInWithAuthPW).toBeCalledWith(
+          '00000000',
+          'testo@example.xyz',
+          {},
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
   });
 });

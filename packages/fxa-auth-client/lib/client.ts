@@ -23,6 +23,31 @@ enum AUTH_PROVIDER {
   APPLE = 'apple',
 }
 
+export type SignInOptions = {
+  keys?: boolean;
+  skipCaseError?: boolean;
+  service?: string;
+  reason?: string;
+  redirectTo?: string;
+  resume?: string;
+  originalLoginEmail?: string;
+  verificationMethod?: string;
+  unblockCode?: string;
+  metricsContext?: MetricsContext;
+};
+
+export type SignedInAccountData = {
+  uid: hexstring;
+  sessionToken: hexstring;
+  verified: boolean;
+  authAt: number;
+  metricsEnabled: boolean;
+  keyFetchToken?: hexstring;
+  verificationMethod?: string;
+  verificationReason?: string;
+  unwrapBKey?: hexstring;
+};
+
 export type AuthServerError = Error & {
   error?: string;
   errno?: number;
@@ -269,45 +294,22 @@ export default class AuthClient {
     return accountData;
   }
 
+  /**
+   * Used for authentication on clients with direct access to the plaintext
+   * password.
+   */
   async signIn(
     email: string,
     password: string,
-    options: {
-      keys?: boolean;
-      skipCaseError?: boolean;
-      service?: string;
-      reason?: string;
-      redirectTo?: string;
-      resume?: string;
-      originalLoginEmail?: string;
-      verificationMethod?: string;
-      unblockCode?: string;
-      metricsContext?: MetricsContext;
-    } = {}
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    verified: boolean;
-    authAt: number;
-    metricsEnabled: boolean;
-    keyFetchToken?: hexstring;
-    verificationMethod?: string;
-    verificationReason?: string;
-    unwrapBKey?: hexstring;
-  }> {
+    options: SignInOptions = {}
+  ): Promise<SignedInAccountData> {
     const credentials = await crypto.getCredentials(email, password);
-    const payloadOptions = ({ keys, ...rest }: any) => rest;
-    const payload = {
-      email,
-      authPW: credentials.authPW,
-      ...payloadOptions(options),
-    };
     try {
-      const accountData = await this.request(
-        'POST',
-        pathWithKeys('/account/login', options.keys),
-        payload
-      );
+      const accountData = (await this.signInWithAuthPW(
+        email,
+        credentials.authPW,
+        options
+      )) as SignedInAccountData;
       if (options.keys) {
         accountData.unwrapBKey = credentials.unwrapBKey;
       }
@@ -327,6 +329,32 @@ export default class AuthClient {
         throw error;
       }
     }
+  }
+
+  /**
+   * This function is intended for a service that will proxy the authentication
+   * request.  When authenticating from a client with access to the plaintext
+   * password, use `signIn` above, which has additional error handling.
+   */
+  async signInWithAuthPW(
+    email: string,
+    authPW: string,
+    options: Omit<SignInOptions, 'skipCaseError' | 'originalLoginEmail'> = {},
+    headers: Headers = new Headers()
+  ): Promise<Omit<SignedInAccountData, 'unwrapBKey'>> {
+    const payloadOptions = ({ keys, ...rest }: any) => rest;
+    const payload = {
+      email,
+      authPW,
+      ...payloadOptions(options),
+    };
+    const accountData = await this.request(
+      'POST',
+      pathWithKeys('/account/login', options.keys),
+      payload,
+      headers
+    );
+    return accountData;
   }
 
   async verifyCode(

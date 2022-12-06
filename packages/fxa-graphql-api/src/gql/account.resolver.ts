@@ -53,6 +53,7 @@ import {
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
+import { SignInInput } from './dto/input/sign-in';
 import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
@@ -65,6 +66,7 @@ import {
   PasswordForgotCodeStatusPayload,
   AccountResetPayload,
 } from './dto/payload';
+import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 
@@ -484,6 +486,27 @@ export class AccountResolver {
       input.options,
       headers
     );
+  }
+
+  @Mutation((returns) => SignedInAccountPayload, {
+    description: 'Call auth-server to sign in an account',
+  })
+  @CatchGatewayError
+  public async signIn(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => SignInInput })
+    input: SignInInput
+  ): Promise<SignedInAccountPayload> {
+    const result = await this.authAPI.signInWithAuthPW(
+      input.authPW,
+      input.email,
+      input.options,
+      headers
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
   }
 
   @ResolveField()
