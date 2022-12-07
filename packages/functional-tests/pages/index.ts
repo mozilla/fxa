@@ -37,6 +37,6 @@ export function create(page: Page, target: BaseTarget) {
     signinTokenCode: new SigninTokenCodePage(page, target),
     subscribe: new SubscribePage(page, target),
     totp: new TotpPage(page, target),
-    subscriptionManagement: new SubsciptionManagementPage(page, target),
+    subscriptionManagement: new SubscriptionManagementPage(page, target),
   };
 }
