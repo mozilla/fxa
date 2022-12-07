@@ -164,7 +164,7 @@
     "cldr-localenames-full": "42.0.0",
     "cors": "^2.8.5",
     "db-migrations": "workspace:*",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",

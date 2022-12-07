@@ -42,7 +42,25 @@ describe('SubscriptionPurchase', () => {
   const decodedRenewalInfo = deepCopy(renewalInfo);
   const verifiedAt = Date.now();
   describe('fromApiResponse', () => {
-    it('parses active subscription correctly', () => {
+    const expected = {
+      autoRenewStatus,
+      bundleId,
+      originalTransactionId,
+      productId,
+      status,
+      type,
+      verifiedAt,
+      expirationIntent,
+      expiresDate,
+      isInBillingRetry,
+      environment,
+      inAppOwnershipType,
+      originalPurchaseDate,
+      autoRenewProductId,
+      purchaseDate,
+    };
+
+    it('parses an active subscription correctly', () => {
       const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
@@ -67,39 +85,43 @@ describe('SubscriptionPurchase', () => {
           `Required key, ${key}, is in API response and SubscriptionPurchase`
         );
       });
-      const expected = {
-        autoRenewStatus,
-        bundleId,
-        originalTransactionId,
-        productId,
-        status,
-        type,
-        verifiedAt,
-        expirationIntent,
-        expiresDate,
-        isInBillingRetry,
-        environment,
-        inAppOwnershipType,
-        originalPurchaseDate,
-        autoRenewProductId,
-        purchaseDate,
-      };
       assert.deepEqual(expected, subscription);
     });
 
-    it('parses trial subscription correctly', () => {
+    it('parses a free trial subscription correctly', () => {
       const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        decodedTransactionInfo,
-        { ...decodedRenewalInfo, offerType: OfferType.Introductory },
+        // https://developer.apple.com/documentation/appstoreserverapi/offeridentifier/
+        // > The offerIdentifier applies only when the offerType has a value of 2 or 3.
+        { ...decodedTransactionInfo, offerType: OfferType.Introductory },
+        decodedRenewalInfo,
         originalTransactionId,
         verifiedAt
       );
       assert.isTrue(subscription.isFreeTrial());
     });
 
-    it('parses test purchase correctly', () => {
+    it('parses a subscription with other offer types correctly', () => {
+      const expectedWithOtherOffer = deepCopy(expected);
+      expectedWithOtherOffer.renewalOfferType = OfferType.Promotional;
+      expectedWithOtherOffer.renewalOfferIdentifier = 'WOW123';
+      const actual = AppStoreSubscriptionPurchase.fromApiResponse(
+        apiResponse,
+        status,
+        decodedTransactionInfo,
+        {
+          ...decodedRenewalInfo,
+          offerType: OfferType.Promotional,
+          offerIdentifier: 'WOW123',
+        },
+        originalTransactionId,
+        verifiedAt
+      );
+      assert.deepEqual(actual, expectedWithOtherOffer);
+    });
+
+    it('parses a test purchase correctly', () => {
       const subscription = AppStoreSubscriptionPurchase.fromApiResponse(
         { ...apiResponse, environment: Environment.Sandbox },
         status,
@@ -145,15 +167,15 @@ describe('SubscriptionPurchase', () => {
       // The firestore object will not have its internal keys copied, only keys
       // not on the purchase already are copied over. The subscription does not
       // have a offerType key, so we will rely on the merge copying it over.
-      const testRenewalInfo = {
-        ...decodedRenewalInfo,
+      const freeTrialDecodedTransactionInfo = {
+        ...decodedTransactionInfo,
         offerType: OfferType.Introductory,
       };
       const testSubscription = AppStoreSubscriptionPurchase.fromApiResponse(
         apiResponse,
         status,
-        decodedTransactionInfo,
-        testRenewalInfo, // decoded from apiResponse
+        freeTrialDecodedTransactionInfo,
+        decodedRenewalInfo,
         originalTransactionId,
         verifiedAt
       );

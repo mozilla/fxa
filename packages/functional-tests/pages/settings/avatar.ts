@@ -29,7 +29,7 @@ export class AvatarPage extends SettingsLayout {
 
   clickSave() {
     return Promise.all([
-      this.page.click('[data-testid=save-button]'),
+      this.page.locator('[data-testid=save-button]').click(),
       this.page.waitForNavigation(),
     ]);
   }

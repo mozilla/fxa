@@ -38,7 +38,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dateformat": "^4.6.3",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "express-http-proxy": "^1.6.3",
     "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
