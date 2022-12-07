@@ -18,6 +18,7 @@ import {
   PayPalClient,
   PayPalClientError,
   RefundTransactionOptions,
+  RefundType,
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
@@ -568,11 +569,18 @@ export class PayPalHelper {
     };
   }
 
-  public async issueRefund(invoice: Stripe.Invoice, transactionId: string) {
+  public async issueRefund(
+    invoice: Stripe.Invoice,
+    transactionId: string,
+    refundType: RefundType,
+    amount?: number
+  ) {
     const refundResponse = await this.refundTransaction({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       idempotencyKey: invoice.id!,
       transactionId: transactionId,
+      refundType: refundType,
+      amount: amount,
     });
     const success = ['instant', 'delayed'];
     if (success.includes(refundResponse.refundStatus.toLowerCase())) {

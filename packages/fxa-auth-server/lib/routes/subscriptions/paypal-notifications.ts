@@ -12,7 +12,11 @@ import Stripe from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal/client';
+import {
+  IpnMerchPmtType,
+  isIpnMerchPmt,
+  RefundType,
+} from '../../payments/paypal/client';
 import { StripeHelper, SUBSCRIPTIONS_RESOURCE } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -59,7 +63,11 @@ export class PayPalNotificationHandler extends PayPalHandler {
             );
 
       if (subscription?.status === 'canceled') {
-        return this.paypalHelper.issueRefund(invoice, message.txn_id);
+        return this.paypalHelper.issueRefund(
+          invoice,
+          message.txn_id,
+          RefundType.full
+        );
       }
     }
 
@@ -91,7 +99,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
       ) {
         // we need to refund the user since the invoice was cancelled
         // but payment was processed
-        this.paypalHelper.issueRefund(invoice, message.txn_id);
+        this.paypalHelper.issueRefund(invoice, message.txn_id, RefundType.full);
       }
       // nothing to do since the invoice is already at its final status
       return;

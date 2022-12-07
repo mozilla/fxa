@@ -19,6 +19,7 @@ const {
   PAYPAL_SANDBOX_API,
   PAYPAL_LIVE_API,
   PLACEHOLDER_URL,
+  RefundType,
 } = require('../../../lib/payments/paypal/client');
 
 const ERROR_RESPONSE =
@@ -441,6 +442,7 @@ describe('PayPalClient', () => {
     const defaultData = {
       MSGSUBID: 'in_asdf',
       TRANSACTIONID: '9EG80664Y1384290G',
+      REFUNDTYPE: 'Full',
     };
 
     it('calls api with correct method and data', async () => {
@@ -450,6 +452,7 @@ describe('PayPalClient', () => {
       await client.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
+        refundType: RefundType.full,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,

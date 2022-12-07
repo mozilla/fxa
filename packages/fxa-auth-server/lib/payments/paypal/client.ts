@@ -185,9 +185,16 @@ export type DoReferenceTransactionOptions = {
   ipaddress?: string;
 };
 
+export enum RefundType {
+  full = 'Full',
+  partial = 'Partial',
+}
+
 export type RefundTransactionOptions = {
   idempotencyKey: string;
   transactionId: string;
+  refundType: RefundType;
+  amount?: number;
 };
 
 export type BAUpdateOptions = {
@@ -484,10 +491,21 @@ export class PayPalClient {
   public async refundTransaction(
     options: RefundTransactionOptions
   ): Promise<NVPRefundTransactionResponse> {
-    const data = {
+    const data: {
+      TRANSACTIONID: string;
+      MSGSUBID: string;
+      REFUNDTYPE: string;
+      AMT?: string;
+    } = {
       TRANSACTIONID: options.transactionId,
       MSGSUBID: options.idempotencyKey,
+      REFUNDTYPE: options.refundType,
     };
+
+    if (options.refundType === RefundType.partial) {
+      data.AMT = options.amount!.toString();
+    }
+
     return this.doRequest<NVPRefundTransactionResponse>(
       'RefundTransaction',
       data
