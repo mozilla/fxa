@@ -97,10 +97,11 @@ export class SettingsPage extends SettingsLayout {
     return emailPage;
   }
 
-  clickPaidSubscriptions() {
-    return Promise.all([
+  async clickPaidSubscriptions() {
+    const [subscriptionPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
       this.page.locator('[data-testid=nav-link-subscriptions]').click(),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
     ]);
+    return subscriptionPage;
   }
 }
