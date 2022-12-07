@@ -9,6 +9,9 @@ export const META_CONFIG = 'fxa-config';
 
 export interface Config {
   env: string;
+  l10n: {
+    strict: boolean;
+  };
   marketingEmailPreferencesUrl: string;
   metrics: {
     navTiming: {
@@ -49,6 +52,9 @@ export interface Config {
 export function getDefault() {
   return {
     env: 'development',
+    l10n: {
+      strict: true,
+    },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
       navTiming: { enabled: false, endpoint: '/check-your-metrics-config' },

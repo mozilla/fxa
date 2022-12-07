@@ -4,6 +4,8 @@ import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { getDefault } from '../lib/config';
+import { useLocalization } from '@fluent/react';
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -14,7 +16,7 @@ export function useAccount() {
 }
 
 export function useSession() {
-  const ref = useRef(({} as unknown) as Session);
+  const ref = useRef({} as unknown as Session);
   const { apolloClient, session } = useContext(AppContext);
   if (session) {
     return session;
@@ -73,4 +75,10 @@ export function useAlertBar() {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
   return alertBarInfo;
+}
+
+export function useFtlMsgResolver() {
+  const config = useConfig();
+  const { l10n } = useLocalization();
+  return new FtlMsgResolver(l10n, config.l10n.strict);
 }

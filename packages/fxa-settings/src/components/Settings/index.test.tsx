@@ -314,6 +314,7 @@ describe('App component', () => {
       } as unknown as Account;
 
       const config = {
+        l10n: { strict: true },
         metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
       } as Config;
 
