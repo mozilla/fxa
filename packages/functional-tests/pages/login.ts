@@ -281,6 +281,10 @@ export class LoginPage extends BaseLayout {
     });
   }
 
+  async clickSignIn() {
+    return this.page.locator(this.selectors.SUBMIT_USER_SIGNED_IN).click();
+  }
+
   async isSyncConnectedHeader() {
     return this.page.isVisible(selectors.SYNC_CONNECTED_HEADER, {
       timeout: 100,

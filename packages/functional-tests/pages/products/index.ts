@@ -104,6 +104,10 @@ export class SubscribePage extends BaseLayout {
     return disc.isVisible();
   }
 
+  getTotalPrice() {
+    return this.page.locator('[data-testid="total-price"]').textContent();
+  }
+
   async discountTextbox() {
     const discount = this.page.locator(
       '.coupon-component:has-text("Promo Code")'

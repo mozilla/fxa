@@ -16,6 +16,7 @@ import { SignInPage } from './signin';
 import { SigninTokenCodePage } from './signinTokenCode';
 import { SubscribePage } from './products';
 import { TotpPage } from './settings/totp';
+import { SubsciptionManagementPage } from './products/subscriptionManagement';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -36,5 +37,6 @@ export function create(page: Page, target: BaseTarget) {
     signinTokenCode: new SigninTokenCodePage(page, target),
     subscribe: new SubscribePage(page, target),
     totp: new TotpPage(page, target),
+    subscriptionManagement: new SubsciptionManagementPage(page, target),
   };
 }
