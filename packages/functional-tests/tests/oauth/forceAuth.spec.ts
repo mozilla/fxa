@@ -4,11 +4,7 @@ test.describe('OAuth force auth', () => {
   test('with a registered email', async ({
     credentials,
     pages: { login, relier },
-  }, { project }) => {
-    test.skip(
-      project.name === 'production',
-      'disabling until 123done is setup in prod'
-    );
+  }) => {
     await relier.goto(`email=${credentials.email}`);
     await relier.clickForceAuth();
 
