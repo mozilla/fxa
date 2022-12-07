@@ -1,6 +1,6 @@
 import { BaseLayout } from '../layout';
 
-export class SubsciptionManagementPage extends BaseLayout {
+export class SubscriptionManagementPage extends BaseLayout {
   readonly path = '/subscription';
 
   async cancelSubscription() {
