@@ -342,6 +342,7 @@ export class StripeWebhookHandler extends StripeHandler {
       const refundType: RefundType = fullRefund
         ? RefundType.full
         : RefundType.partial;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const amount = fullRefund ? undefined : creditNote.out_of_band_amount!;
 
       await this.paypalHelper.issueRefund(
