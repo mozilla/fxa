@@ -16,7 +16,7 @@ import { SignInPage } from './signin';
 import { SigninTokenCodePage } from './signinTokenCode';
 import { SubscribePage } from './products';
 import { TotpPage } from './settings/totp';
-import { SubsciptionManagementPage } from './products/subscriptionManagement';
+import { SubscriptionManagementPage } from './products/subscriptionManagement';
 
 export function create(page: Page, target: BaseTarget) {
   return {
