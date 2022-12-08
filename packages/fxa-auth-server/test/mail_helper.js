@@ -66,8 +66,8 @@ module.exports = (printLogs) => {
             console.log(`Notification email: ${template}`);
           } else {
             console.error('\x1B[31mNo verify code match\x1B[39m');
-            console.error(mail);
           }
+          console.error(mail);
           if (users[name]) {
             users[name].push(mail);
           } else {

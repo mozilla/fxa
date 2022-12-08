@@ -104,6 +104,8 @@ export class AppStoreSubscriptionPurchase {
   private offerType?: OfferType;
   private offerIdentifier?: string;
   private purchaseDate?: number;
+  private renewalOfferType?: OfferType;
+  private renewalOfferIdentifier?: string;
   private revocationDate?: number;
   private revocationReason?: number;
 
@@ -151,11 +153,20 @@ export class AppStoreSubscriptionPurchase {
     if (transactionInfo.hasOwnProperty('isUpgraded')) {
       purchase.isUpgraded = transactionInfo.isUpgraded;
     }
+    // Some offers (like introductory free trials) only apply to the current
+    // billing period. In these cases, the offerType and (if applicable)
+    // offerIdentifier would only be on transactionInfo, not renewalInfo.
+    if (transactionInfo.offerIdentifier) {
+      purchase.offerIdentifier = transactionInfo.offerIdentifier;
+    }
+    if (transactionInfo.offerType) {
+      purchase.offerType = transactionInfo.offerType;
+    }
     if (renewalInfo.offerIdentifier) {
-      purchase.offerIdentifier = renewalInfo.offerIdentifier;
+      purchase.renewalOfferIdentifier = renewalInfo.offerIdentifier;
     }
     if (renewalInfo.offerType) {
-      purchase.offerType = renewalInfo.offerType;
+      purchase.renewalOfferType = renewalInfo.offerType;
     }
     if (transactionInfo.purchaseDate) {
       purchase.purchaseDate = transactionInfo.purchaseDate;

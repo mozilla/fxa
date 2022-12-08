@@ -6,7 +6,7 @@ export class DataTrioComponent {
   async clickDownload() {
     const [download] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('[data-testid=databutton-download]'),
+      this.page.locator('[data-testid=databutton-download]').click(),
     ]);
     return download;
   }
@@ -34,7 +34,7 @@ export class DataTrioComponent {
     });
     const [printPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      this.page.click('[data-testid=databutton-print]'),
+      this.page.locator('[data-testid=databutton-print]').click(),
     ]);
     //@ts-ignore window.printed
     const printed = await printPage.evaluate(() => window.printed);

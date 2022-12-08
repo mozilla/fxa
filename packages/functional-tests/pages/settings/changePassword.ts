@@ -39,8 +39,9 @@ export class ChangePasswordPage extends SettingsLayout {
   }
 
   async validPasswordLength() {
-    const error = this.page.locator('[data-testid=change-password-length]',
-      { has: this.page.locator('[data-testid=icon-unset]') });
+    const error = this.page.locator('[data-testid=change-password-length]', {
+      has: this.page.locator('[data-testid=icon-unset]'),
+    });
     error.locator(':scope', { hasText: 'At least 8 characters' });
     await error.waitFor();
     return error.isVisible();
@@ -79,7 +80,7 @@ export class ChangePasswordPage extends SettingsLayout {
 
   submit() {
     return Promise.all([
-      this.page.click('button[type=submit]'),
+      this.page.locator('button[type=submit]').click(),
       this.page.waitForNavigation(),
     ]);
   }

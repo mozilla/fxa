@@ -43,7 +43,7 @@ test.describe('OAuth force auth', () => {
     const blockedEmail = `blocked${Date.now()}@restmail.net`;
     await relier.goto(`email=${blockedEmail}`);
     await relier.clickForceAuth();
-    
+
     await expect(await login.getPrefilledEmail()).toMatch(blockedEmail);
     await login.setAge('21');
     await login.setNewPassword(credentials.password);

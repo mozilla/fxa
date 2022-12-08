@@ -262,14 +262,14 @@ export class LoginPage extends BaseLayout {
 
   async submit() {
     return Promise.all([
-      this.page.click(selectors.SUBMIT),
+      this.page.locator(selectors.SUBMIT).click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   async clickForgotPassword() {
     return Promise.all([
-      this.page.click(selectors.LINK_RESET_PASSWORD),
+      this.page.locator(selectors.LINK_RESET_PASSWORD).click(),
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
     ]);
   }
@@ -278,6 +278,10 @@ export class LoginPage extends BaseLayout {
     return this.page.isVisible(selectors.SIGNIN_HEADER, {
       timeout: 100,
     });
+  }
+
+  async clickSignIn() {
+    return this.page.locator(this.selectors.SUBMIT_USER_SIGNED_IN).click();
   }
 
   async isSyncConnectedHeader() {
@@ -326,7 +330,7 @@ export class LoginPage extends BaseLayout {
 
   async clickDontHaveRecoveryKey() {
     return Promise.all([
-      this.page.click(selectors.LINK_LOST_RECOVERY_KEY),
+      this.page.locator(selectors.LINK_LOST_RECOVERY_KEY).click(),
       this.page.waitForNavigation(),
     ]);
   }

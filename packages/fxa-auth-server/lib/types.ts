@@ -17,8 +17,8 @@ import { ConfigType } from '../config';
 
 export interface AuthApp extends RequestApplicationState {
   devices: Promise<any>;
-  locale: String;
-  acceptLanguage: String;
+  locale: string;
+  acceptLanguage: string;
   clientAddress: string;
   metricsContext: any;
   accountRecreated: boolean;
@@ -44,6 +44,11 @@ export interface AuthApp extends RequestApplicationState {
 }
 
 export interface AuthRequest extends Request {
+  auth: Request['auth'] & {
+    // AuthRequest will always have scopes present provided by
+    // the auth-oauth scheme
+    credentials: Request['auth']['credentials'] & { scope: string[] };
+  };
   // eslint-disable-next-line no-use-before-define
   log: AuthLogger;
   app: AuthApp;

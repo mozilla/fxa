@@ -60,7 +60,7 @@ export class SettingsPage extends SettingsLayout {
 
   clickDeleteAccount() {
     return Promise.all([
-      this.page.click('[data-testid=settings-delete-account]'),
+      this.page.locator('[data-testid=settings-delete-account]').click(),
       this.page.waitForNavigation(),
     ]);
   }
@@ -92,15 +92,16 @@ export class SettingsPage extends SettingsLayout {
   async clickEmailPreferences() {
     const [emailPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      this.page.click('[data-testid=nav-link-newsletters]'),
+      this.page.locator('[data-testid=nav-link-newsletters]').click(),
     ]);
     return emailPage;
   }
 
-  clickPaidSubscriptions() {
-    return Promise.all([
-      this.page.click('[data-testid=nav-link-subscriptions]'),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
+  async clickPaidSubscriptions() {
+    const [subscriptionPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      this.page.locator('[data-testid=nav-link-subscriptions]').click(),
     ]);
+    return subscriptionPage;
   }
 }

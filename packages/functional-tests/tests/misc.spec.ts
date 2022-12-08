@@ -19,7 +19,6 @@ test.describe('severity-1', () => {
     credentials,
     pages: { page, relier, login },
   }, { project }) => {
-    test.skip(project.name === 'production', 'no 123done relier in prod');
     await relier.goto('prompt=consent');
     await relier.clickEmailFirst();
     await login.login(credentials.email, credentials.password);

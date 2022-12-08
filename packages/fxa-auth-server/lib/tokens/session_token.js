@@ -43,7 +43,7 @@ module.exports = (log, Token, config) => {
       // Tokens are considered verified if no tokenVerificationId exists
       this.tokenVerificationId = details.tokenVerificationId || null;
       this.tokenVerified = this.tokenVerificationId ? false : true;
-      
+
       this.verificationMethod = details.verificationMethod || null;
       this.verificationMethodValue = VERIFICATION_METHODS.get(
         this.verificationMethod
@@ -90,9 +90,8 @@ module.exports = (log, Token, config) => {
       // of the original sessionToken. If we set createdAt to the
       // current time, we would falsely report the new session's
       // `lastAuthAt` value as the current timestamp.
-      const origSessionToken = this;
       return {
-        ...origSessionToken,
+        ...this,
         ...newVerificationState,
       };
     }

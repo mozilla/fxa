@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import path from 'path';
-import fs from 'fs';
 import { FluentBundle, FluentResource, FluentVariable } from '@fluent/bundle';
-import { Pattern } from '@fluent/bundle/esm/ast';
 import { queries, Screen } from '@testing-library/react';
+import fs from 'fs';
+import path from 'path';
+import { checkMessage } from '../utils';
 
 type PackageName = 'settings' | 'payments' | null;
 
-// Testing locales other than the default will load bundles from the l10n repo.
-async function getFtlFromPackage(packageName: PackageName, locale: string) {
+function getFtlPath(packageName: string | null, locale: string) {
   let ftlPath: string;
 
   switch (packageName) {
@@ -71,7 +70,7 @@ async function getFtlFromPackage(packageName: PackageName, locale: string) {
       ftlPath = path.join(__dirname, 'test.ftl');
       break;
   }
-  return fs.promises.readFile(ftlPath, 'utf8');
+  return ftlPath;
 }
 
 /**
@@ -81,40 +80,29 @@ async function getFtlFromPackage(packageName: PackageName, locale: string) {
  * locales pull from the cloned l10n repo in `public`.
  */
 export async function getFtlBundle(packageName: PackageName, locale = 'en') {
-  const messages = await getFtlFromPackage(packageName, locale);
+  const path = getFtlPath(packageName, locale);
+  const messages = await fs.promises.readFile(path, 'utf-8');
+  return _createFtlBundle(messages, locale);
+}
+
+/**
+ * Get the specified FTL file/bundle synchronously. Note, this should be avoided. Using the asynchronous version, getFtlBundle, is preferred.
+ * @param packageName Which package to load the bundle for
+ * @param locale Which locale FTL bundle to load. 'en' will load `test/[name].ftl` and other
+ * locales pull from the cloned l10n repo in `public`.
+ * @returns
+ */
+export function getFtlBundleSync(packageName: PackageName, locale = 'en') {
+  const path = getFtlPath(packageName, locale);
+  const messages = fs.readFileSync(path, 'utf-8');
+  return _createFtlBundle(messages, locale);
+}
+
+function _createFtlBundle(messages: string, locale: string) {
   const resource = new FluentResource(messages);
   const bundle = new FluentBundle(locale, { useIsolating: false });
   bundle.addResource(resource);
   return bundle;
-}
-
-function testMessage(
-  bundle: FluentBundle,
-  pattern: Pattern,
-  fallbackText: string | null,
-  ftlArgs?: Record<string, FluentVariable>
-) {
-  const ftlMsg = bundle.formatPattern(pattern, ftlArgs);
-
-  // We allow for .includes because fallback text comes from `textContent` within the
-  // `FtlMsg` wrapper which may contain more than one component and string
-  if (!fallbackText?.includes(ftlMsg)) {
-    throw Error(
-      `Fallback text does not match Fluent message.\nFallback text: ${fallbackText}\nFluent message: ${ftlMsg}`
-    );
-  }
-
-  if (ftlMsg.includes("'")) {
-    throw Error(
-      `Fluent message contains a straight apostrophe (') and must be updated to its curly equivalent (’). Fluent message: ${ftlMsg}`
-    );
-  }
-
-  if (ftlMsg.includes('"')) {
-    throw Error(
-      `Fluent message contains a straight quote (") and must be updated to its curly equivalent (“”). Fluent message: ${ftlMsg}`
-    );
-  }
 }
 
 /**
@@ -152,25 +140,13 @@ export function testL10n(
   const fallbackText = ftlMsgMock.textContent;
   const ftlBundleMsg = bundle.getMessage(ftlId);
 
-  // nested attributes can happen when we define something like:
-  // `profile-picture =
-  //   .header = Picture`
-  const nestedAttrValues = Object.values(ftlBundleMsg?.attributes || {});
-
-  if (
-    ftlBundleMsg === undefined ||
-    (ftlBundleMsg.value === null && nestedAttrValues.length === 0)
-  ) {
-    throw Error(`Could not retrieve Fluent message tied to ID: ${ftlId}`);
+  if (!ftlBundleMsg) {
+    throw new Error(`Could not retrieve Fluent message tied to ID: ${ftlId}`);
   }
 
-  if (ftlBundleMsg.value) {
-    testMessage(bundle, ftlBundleMsg.value, fallbackText, ftlArgs);
+  if (!fallbackText) {
+    throw new Error('No fallback text exists. Fallback text required!');
   }
 
-  if (nestedAttrValues) {
-    nestedAttrValues.forEach((nestedAttrValue) =>
-      testMessage(bundle, nestedAttrValue, fallbackText, ftlArgs)
-    );
-  }
+  checkMessage(bundle, ftlBundleMsg, fallbackText, ftlArgs);
 }

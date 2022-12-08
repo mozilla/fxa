@@ -37,7 +37,7 @@ export abstract class SettingsLayout extends BaseLayout {
   async clickHelp() {
     const [helpPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      this.page.click('[data-testid=header-sumo-link]'),
+      this.page.locator('[data-testid=header-sumo-link]').click(),
     ]);
     return helpPage;
   }
@@ -47,11 +47,13 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   clickAvatarIcon() {
-    return this.page.click('[data-testid=drop-down-avatar-menu-toggle]');
+    return this.page
+      .locator('[data-testid=drop-down-avatar-menu-toggle]')
+      .click();
   }
 
   clickSignOut() {
-    return this.page.click('[data-testid=avatar-menu-sign-out]');
+    return this.page.locator('[data-testid=avatar-menu-sign-out]').click();
   }
 
   clickSignIn() {

@@ -24,7 +24,7 @@ const MOCK_JWT =
   '001122334455.66778899aabbccddeeff00112233445566778899.aabbccddeeff';
 
 describe('/oauth/ routes', () => {
-  let mockDB, mockLog, mockConfig, sessionToken;
+  let mockDB, mockLog, mockConfig, sessionToken, mockStatsD;
 
   async function loadAndCallRoute(path, request) {
     const routes = require('../../../lib/routes/oauth')(
@@ -32,20 +32,18 @@ describe('/oauth/ routes', () => {
       mockConfig,
       mockDB,
       {},
-      {}
+      {},
+      mockStatsD
     );
     const route = await getRoute(routes, path);
     if (route.config.validate.payload) {
       const validationSchema = route.config.validate.payload;
       // eslint-disable-next-line require-atomic-updates
-      request.payload = await validationSchema.validateAsync(
-        request.payload,
-        {
-          context: {
-            headers: request.headers || {},
-          },
-        }
-      );
+      request.payload = await validationSchema.validateAsync(request.payload, {
+        context: {
+          headers: request.headers || {},
+        },
+      });
     }
     const response = await route.handler(request);
     if (response instanceof Error) {
@@ -211,6 +209,30 @@ describe('/oauth/ routes', () => {
       } catch (err) {
         assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID);
       }
+    });
+  });
+
+  describe('/account/scoped-key-data', () => {
+    it('increments statsd count', async () => {
+      mockStatsD = { increment: sinon.stub() };
+      sessionToken = await mockSessionToken({ verifierSetAt: 123 });
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: 'testo profile',
+        },
+      });
+      try {
+        await loadAndCallRoute('/account/scoped-key-data', mockRequest);
+      } catch (err) {
+        // no op the statsd call happens before key handler
+      }
+      assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'oauth.rp.scoped-keys-metadata',
+        { clientId: MOCK_CLIENT_ID }
+      );
     });
   });
 });

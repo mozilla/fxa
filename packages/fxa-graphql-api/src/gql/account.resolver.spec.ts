@@ -423,12 +423,138 @@ describe('AccountResolver', () => {
         const result = await resolver.createPassword('token', {
           email: 'howdy@yo.com',
           password: 'passwordzxcv',
-          clientMutationId: 'testid'
+          clientMutationId: 'testid',
         });
         expect(authClient.createPassword).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
+      });
+    });
+
+    describe('passwordForgotSendCode', () => {
+      it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        authClient.passwordForgotSendCode = jest.fn().mockResolvedValue({
+          clientMutationId: 'testid',
+          passwordForgotToken: 'cooltokenyo',
+        });
+        const result = await resolver.passwordForgotSendCode(headers, {
+          email: 'howdy@yo.com',
+        });
+        expect(authClient.passwordForgotSendCode).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+          passwordForgotToken: 'cooltokenyo',
+        });
+      });
+    });
+
+    describe('passwordForgotVerifyCode', () => {
+      it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        authClient.passwordForgotVerifyCode = jest.fn().mockResolvedValue({
+          clientMutationId: 'testid',
+          accountResetToken: 'cooltokenyo',
+        });
+        const result = await resolver.passwordForgotVerifyCode(headers, {
+          token: 'passwordforgottoken',
+          code: 'code',
+        });
+        expect(authClient.passwordForgotVerifyCode).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+          accountResetToken: 'cooltokenyo',
+        });
+      });
+    });
+
+    describe('passwordForgotCodeStatus', () => {
+      it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        authClient.passwordForgotStatus = jest.fn().mockResolvedValue({
+          clientMutationId: 'testid',
+          tries: 1,
+          ttl: 2,
+        });
+        const result = await resolver.passwordForgotCodeStatus(headers, {
+          token: 'passwordforgottoken',
+        });
+        expect(authClient.passwordForgotStatus).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+          tries: 1,
+          ttl: 2,
+        });
+      });
+    });
+
+    describe('accountReset', () => {
+      it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const now = Date.now();
+        authClient.accountReset = jest.fn().mockResolvedValue({
+          clientMutationId: 'testid',
+          uid: 'uid',
+          verified: true,
+          sessionToken: 'sessionToken',
+          authAt: now,
+          keyFetchToken: 'keyFetchToken',
+        });
+        const result = await resolver.accountReset(headers, {
+          email: 'up@dog.com',
+          newPassword: 'password',
+          accountResetToken: 'token',
+          options: {},
+        });
+        expect(authClient.accountReset).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+          uid: 'uid',
+          verified: true,
+          sessionToken: 'sessionToken',
+          authAt: now,
+          keyFetchToken: 'keyFetchToken',
+        });
+      });
+    });
+
+    describe('signIn', () => {
+      it('calls auth-client and proxy the result', async () => {
+        const now = Date.now();
+        const headers = new Headers();
+        const mockRespPayload = {
+          clientMutationId: 'testid',
+          uid: '1337',
+          sessionToken: '2048',
+          verified: true,
+          authAt: now,
+          metricsEnabled: true,
+        };
+        authClient.signInWithAuthPW = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+        const result = await resolver.signIn(headers, {
+          authPW: '00000000',
+          email: 'testo@example.xyz',
+          options: {},
+        });
+        expect(authClient.signInWithAuthPW).toBeCalledTimes(1);
+        expect(authClient.signInWithAuthPW).toBeCalledWith(
+          '00000000',
+          'testo@example.xyz',
+          {},
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
       });
     });
   });

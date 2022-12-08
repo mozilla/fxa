@@ -14,7 +14,7 @@ export class SecondaryEmailPage extends SettingsLayout {
 
   submit() {
     return Promise.all([
-      this.page.click('button[type=submit]'),
+      this.page.locator('button[type=submit]').click(),
       this.page.waitForNavigation(),
     ]);
   }

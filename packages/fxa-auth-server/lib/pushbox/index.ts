@@ -172,7 +172,11 @@ export const pushboxApi = (
       if (shouldUseDb()) {
         const startTime = performance.now();
         try {
-          const result = await pushboxDb!.retrieve({
+          if (!pushboxDb)
+            throw new Error(
+              'directDbAccessPercentage is disabled and pushboxDb is not available'
+            );
+          const result = await pushboxDb.retrieve({
             uid,
             deviceId,
             limit,
@@ -201,9 +205,7 @@ export const pushboxApi = (
         }
       }
 
-      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
-      // removing this since we want to move over to direct db calls
-      const body = await api.retrieve(uid, deviceId, query);
+      const body = await (api as any).retrieve(uid, deviceId, query);
       log.debug('pushbox.retrieve.response', { body: body });
       if (body.error) {
         log.error('pushbox.retrieve', {
@@ -245,7 +247,11 @@ export const pushboxApi = (
       if (shouldUseDb()) {
         const startTime = performance.now();
         try {
-          const result = await pushboxDb!.store({
+          if (!pushboxDb)
+            throw new Error(
+              'directDbAccessPercentage is disabled and pushboxDb is not available'
+            );
+          const result = await pushboxDb.store({
             uid,
             deviceId,
             data: encodeForStorage(data),
@@ -268,9 +274,7 @@ export const pushboxApi = (
         }
       }
 
-      // @ts-ignore createBackendServiceAPI is pretty dynamic, and we'll be
-      // removing this since we want to move over to direct db calls
-      const body = await api.store(uid, deviceId, {
+      const body = await (api as any).store(uid, deviceId, {
         data: encodeForStorage(data),
         ttl,
       });
@@ -286,7 +290,11 @@ export const pushboxApi = (
       if (shouldUseDb()) {
         const startTime = performance.now();
         try {
-          await pushboxDb!.deleteDevice({ uid, deviceId });
+          if (!pushboxDb)
+            throw new Error(
+              'directDbAccessPercentage is disabled and pushboxDb is not available'
+            );
+          await pushboxDb.deleteDevice({ uid, deviceId });
           statsd.timing(
             'pushbox.db.delete.device.success',
             performance.now() - startTime
@@ -307,7 +315,11 @@ export const pushboxApi = (
       if (shouldUseDb()) {
         const startTime = performance.now();
         try {
-          await pushboxDb!.deleteAccount(uid);
+          if (!pushboxDb)
+            throw new Error(
+              'directDbAccessPercentage is disabled and pushboxDb is not available'
+            );
+          await pushboxDb.deleteAccount(uid);
           statsd.timing(
             'pushbox.db.delete.account.success',
             performance.now() - startTime

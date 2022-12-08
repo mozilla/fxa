@@ -8,7 +8,7 @@ import stripe from 'stripe';
 import Container from 'typedi';
 
 import { CurrencyHelper } from '../lib/payments/currencies';
-import { PayPalClient } from '../lib/payments/paypal/client';
+import { PayPalClient, RefundType } from '../lib/payments/paypal/client';
 import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { STRIPE_INVOICE_METADATA, StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';
@@ -47,8 +47,8 @@ class PayPalFixer {
       created: { gt: startDate },
     })) {
       if (
-        !invoice.metadata![STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID] ||
-        invoice.metadata![
+        !invoice.metadata?.[STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID] ||
+        invoice.metadata?.[
           STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID
         ] ||
         invoice.post_payment_credit_notes_amount === 0
@@ -70,6 +70,7 @@ class PayPalFixer {
     const zeroAmount = Math.abs(customer.balance);
     await this.stripe.customers.createBalanceTransaction(customer.id, {
       amount: zeroAmount,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       currency: customer.currency!,
     });
   }
@@ -81,8 +82,10 @@ class PayPalFixer {
       return;
     }
     const refundResponse = await this.paypalHelper.refundTransaction({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       idempotencyKey: invoice.id!,
       transactionId: transactionId,
+      refundType: RefundType.full,
     });
     const success = ['instant', 'delayed'];
     if (success.includes(refundResponse.refundStatus.toLowerCase())) {

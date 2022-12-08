@@ -73,7 +73,14 @@ module.exports = function (
     stripeHelper,
     pushbox
   );
-  const oauth = require('./oauth')(log, config, db, mailer, devicesImpl);
+  const oauth = require('./oauth')(
+    log,
+    config,
+    db,
+    mailer,
+    devicesImpl,
+    statsd
+  );
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,

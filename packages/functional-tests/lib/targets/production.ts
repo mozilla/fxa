@@ -5,7 +5,7 @@ export class ProductionTarget extends RemoteTarget {
   static readonly target = 'production';
   readonly name: TargetName = ProductionTarget.target;
   readonly contentServerUrl = 'https://accounts.firefox.com';
-  readonly relierUrl = 'https://123done.org';
+  readonly relierUrl = 'https://production-123done.herokuapp.com/';
 
   constructor() {
     super('https://api.accounts.firefox.com');

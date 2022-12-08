@@ -48,6 +48,7 @@ const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { asyncIterable } = require('../../../mocks');
 const { RefusedError } = require('../../../../lib/payments/paypal/error');
+const { RefundType } = require('../../../../lib/payments/paypal/client');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
@@ -1444,7 +1445,9 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('logs an error if the amount doesnt match the invoice amount', async () => {
-        StripeWebhookHandlerInstance.paypalHelper = {};
+        StripeWebhookHandlerInstance.paypalHelper = {
+          issueRefund: sinon.fake.resolves(),
+        };
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 900;
@@ -1468,12 +1471,11 @@ describe('StripeWebhookHandler', () => {
           1
         );
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.log.error,
-          'handleCreditNoteEvent',
-          {
-            invoiceId: invoice.id,
-            message: 'Credit note does not match invoice amount.',
-          }
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
+          invoice,
+          'tx-1234',
+          RefundType.partial,
+          500
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper
@@ -1516,7 +1518,9 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
-          'tx-1234'
+          'tx-1234',
+          RefundType.full,
+          undefined
         );
       });
 
@@ -1562,7 +1566,9 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
-          'tx-1234'
+          'tx-1234',
+          RefundType.full,
+          undefined
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper

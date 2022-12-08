@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.246.1",
+  "version": "1.247.1",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -46,7 +46,7 @@
     "convict": "^6.2.3",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
     "googleapis": "^109.0.1",
@@ -59,7 +59,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.7",
     "stripe": "^10.7.0",
-    "ts-morph": "^16.0.0",
+    "ts-morph": "^17.0.1",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
@@ -79,7 +79,7 @@
     "pm2": "^5.2.2",
     "supertest": "^6.3.0",
     "ts-jest": "^29.0.0",
-    "typescript": "^4.8.2",
+    "typescript": "^4.9.3",
     "yargs": "^17.0.1"
   },
   "jest": {

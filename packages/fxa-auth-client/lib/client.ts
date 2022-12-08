@@ -23,6 +23,31 @@ enum AUTH_PROVIDER {
   APPLE = 'apple',
 }
 
+export type SignInOptions = {
+  keys?: boolean;
+  skipCaseError?: boolean;
+  service?: string;
+  reason?: string;
+  redirectTo?: string;
+  resume?: string;
+  originalLoginEmail?: string;
+  verificationMethod?: string;
+  unblockCode?: string;
+  metricsContext?: MetricsContext;
+};
+
+export type SignedInAccountData = {
+  uid: hexstring;
+  sessionToken: hexstring;
+  verified: boolean;
+  authAt: number;
+  metricsEnabled: boolean;
+  keyFetchToken?: hexstring;
+  verificationMethod?: string;
+  verificationReason?: string;
+  unwrapBKey?: hexstring;
+};
+
 export type AuthServerError = Error & {
   error?: string;
   errno?: number;
@@ -56,6 +81,16 @@ function langHeader(lang?: string) {
         }
       : {}
   );
+}
+
+function createHeaders(
+  headers: Headers = new Headers(),
+  options: Record<string, any> & { lang?: string }
+) {
+  if (options.lang) {
+    headers.set('Accept-Language', options.lang);
+  }
+  return headers;
 }
 
 function pathWithKeys(path: string, keys?: boolean) {
@@ -259,45 +294,22 @@ export default class AuthClient {
     return accountData;
   }
 
+  /**
+   * Used for authentication on clients with direct access to the plaintext
+   * password.
+   */
   async signIn(
     email: string,
     password: string,
-    options: {
-      keys?: boolean;
-      skipCaseError?: boolean;
-      service?: string;
-      reason?: string;
-      redirectTo?: string;
-      resume?: string;
-      originalLoginEmail?: string;
-      verificationMethod?: string;
-      unblockCode?: string;
-      metricsContext?: MetricsContext;
-    } = {}
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    verified: boolean;
-    authAt: number;
-    metricsEnabled: boolean;
-    keyFetchToken?: hexstring;
-    verificationMethod?: string;
-    verificationReason?: string;
-    unwrapBKey?: hexstring;
-  }> {
+    options: SignInOptions = {}
+  ): Promise<SignedInAccountData> {
     const credentials = await crypto.getCredentials(email, password);
-    const payloadOptions = ({ keys, ...rest }: any) => rest;
-    const payload = {
-      email,
-      authPW: credentials.authPW,
-      ...payloadOptions(options),
-    };
     try {
-      const accountData = await this.request(
-        'POST',
-        pathWithKeys('/account/login', options.keys),
-        payload
-      );
+      const accountData = (await this.signInWithAuthPW(
+        email,
+        credentials.authPW,
+        options
+      )) as SignedInAccountData;
       if (options.keys) {
         accountData.unwrapBKey = credentials.unwrapBKey;
       }
@@ -317,6 +329,32 @@ export default class AuthClient {
         throw error;
       }
     }
+  }
+
+  /**
+   * This function is intended for a service that will proxy the authentication
+   * request.  When authenticating from a client with access to the plaintext
+   * password, use `signIn` above, which has additional error handling.
+   */
+  async signInWithAuthPW(
+    email: string,
+    authPW: string,
+    options: Omit<SignInOptions, 'skipCaseError' | 'originalLoginEmail'> = {},
+    headers: Headers = new Headers()
+  ): Promise<Omit<SignedInAccountData, 'unwrapBKey'>> {
+    const payloadOptions = ({ keys, ...rest }: any) => rest;
+    const payload = {
+      email,
+      authPW,
+      ...payloadOptions(options),
+    };
+    const accountData = await this.request(
+      'POST',
+      pathWithKeys('/account/login', options.keys),
+      payload,
+      headers
+    );
+    return accountData;
   }
 
   async verifyCode(
@@ -370,7 +408,8 @@ export default class AuthClient {
       resume?: string;
       lang?: string;
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -381,7 +420,7 @@ export default class AuthClient {
       'POST',
       '/password/forgot/send_code',
       payload,
-      langHeader(options.lang)
+      createHeaders(headers, options)
     );
   }
 
@@ -393,7 +432,8 @@ export default class AuthClient {
       redirectTo?: string;
       resume?: string;
       lang?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -406,7 +446,7 @@ export default class AuthClient {
       passwordForgotToken,
       tokenType.passwordForgotToken,
       payload,
-      langHeader(options.lang)
+      createHeaders(headers, options)
     );
   }
 
@@ -415,7 +455,8 @@ export default class AuthClient {
     passwordForgotToken: hexstring,
     options: {
       accountResetWithoutRecoveryKey?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payload = {
       code,
@@ -426,16 +467,22 @@ export default class AuthClient {
       '/password/forgot/verify_code',
       passwordForgotToken,
       tokenType.passwordForgotToken,
-      payload
+      payload,
+      headers
     );
   }
 
-  async passwordForgotStatus(passwordForgotToken: string) {
+  async passwordForgotStatus(
+    passwordForgotToken: string,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
-      tokenType.passwordForgotToken
+      tokenType.passwordForgotToken,
+      undefined,
+      headers
     );
   }
 
@@ -446,7 +493,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const credentials = await crypto.getCredentials(email, newPassword);
     const payloadOptions = ({ keys, ...rest }: any) => rest;
@@ -459,7 +507,8 @@ export default class AuthClient {
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
       tokenType.accountResetToken,
-      payload
+      payload,
+      headers
     );
     if (options.keys && accountData.keyFetchToken) {
       accountData.unwrapBKey = credentials.unwrapBKey;

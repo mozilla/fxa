@@ -6,7 +6,7 @@ export class UnitRow {
 
   protected clickCta() {
     return Promise.all([
-      this.page.click(`[data-testid=${this.id}-unit-row-route]`),
+      this.page.locator(`[data-testid=${this.id}-unit-row-route]`).click(),
       this.page.waitForNavigation(),
     ]);
   }

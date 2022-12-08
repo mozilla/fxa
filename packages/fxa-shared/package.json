@@ -1,6 +1,6 @@
 {
   "name": "fxa-shared",
-  "version": "1.246.1",
+  "version": "1.247.1",
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "exports": {
@@ -123,7 +123,7 @@
     "ts-jest": "^29.0.0",
     "ts-loader": "^8.4.0",
     "tsconfig-paths": "^4.1.0",
-    "typescript": "^4.8.2",
+    "typescript": "^4.9.3",
     "underscore": "^1.13.1",
     "uuid": "^9.0.0"
   },
@@ -142,7 +142,7 @@
     "@opentelemetry/exporter-jaeger": "^1.8.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.33.0",
     "@opentelemetry/instrumentation-document-load": "^0.31.0",
-    "@opentelemetry/instrumentation-fetch": "^0.33.0",
+    "@opentelemetry/instrumentation-fetch": "^0.34.0",
     "@opentelemetry/instrumentation-user-interaction": "^0.31.0",
     "@opentelemetry/instrumentation-xml-http-request": "^0.33.0",
     "@opentelemetry/plugin-react-load": "^0.28.0",
@@ -164,7 +164,7 @@
     "cldr-localenames-full": "42.0.0",
     "cors": "^2.8.5",
     "db-migrations": "workspace:*",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",

@@ -11,7 +11,7 @@ import { SentEmailParams, Plan } from 'fxa-shared/subscriptions/types';
 import { StripeHelper } from './stripe';
 import { SentEmail } from 'fxa-shared/db/models/auth';
 
-export const EMAIL_TYPE: string = 'subscriptionRenewalReminder';
+export const EMAIL_TYPE = 'subscriptionRenewalReminder';
 
 // Translate dict from Stripe.Plan.interval to corresponding Duration properties
 const planIntervalsToDuration = {
@@ -48,7 +48,7 @@ export class SubscriptionReminders {
    * For all possible plan.intervals, determine if the plan is sufficiently
    * long based on planLength.
    */
-  private isEligiblePlan(plan: Plan): Boolean {
+  private isEligiblePlan(plan: Plan): boolean {
     const selectedPlanDuration = Duration.fromObject({
       [planIntervalsToDuration[plan.interval]]: plan.interval_count,
     });
@@ -96,7 +96,7 @@ export class SubscriptionReminders {
   async sendSubscriptionRenewalReminderEmail(
     subscription: Stripe.Subscription,
     planId: string
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
     const { customer } = subscription;
     if (typeof customer === 'string' || customer?.deleted) {
       return false;

@@ -19,6 +19,11 @@ import {
 } from 'fxa-shared/db/models/auth';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import {
+  getIapPurchaseType,
+  isAppStoreSubscriptionPurchase,
+  isPlayStoreSubscriptionPurchase,
+} from 'fxa-shared/payments/iap/util';
+import {
   CHARGES_RESOURCE,
   CUSTOMER_RESOURCE,
   INVOICES_RESOURCE,
@@ -69,18 +74,11 @@ import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
-import { getIapPurchaseType } from './iap/iap-config';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import { generateIdempotencyKey } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
-
-// The values here are the Google Play Store or Apple App Store analogs to a Stripe Plan ID
-export const IAP_TYPE_TO_IAP_SUBSCRIPTION_PURCHASE_KEYS = {
-  [MozillaSubscriptionTypes.IAP_GOOGLE]: 'sku',
-  [MozillaSubscriptionTypes.IAP_APPLE]: 'productId',
-};
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
@@ -1160,7 +1158,8 @@ export class StripeHelper extends StripeHelperBase {
    * Finalizes an invoice and marks auto_advance as false.
    */
   async finalizeInvoice(invoice: Stripe.Invoice) {
-    return this.stripe.invoices.finalizeInvoice(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.finalizeInvoice(invoice.id, {
       auto_advance: false,
     });
   }
@@ -1188,7 +1187,8 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     transactionId: string
   ) {
-    return this.stripe.invoices.update(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID]: transactionId,
       },
@@ -1202,7 +1202,8 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     transactionId: string
   ) {
-    return this.stripe.invoices.update(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID]: transactionId,
       },
@@ -1216,7 +1217,8 @@ export class StripeHelper extends StripeHelperBase {
     invoice: Stripe.Invoice,
     reason: string
   ) {
-    return this.stripe.invoices.update(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_REASON]: reason,
       },
@@ -1253,7 +1255,8 @@ export class StripeHelper extends StripeHelperBase {
    */
   async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
     const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
-    return this.stripe.invoices.update(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS]: setAttempt.toString(),
       },
@@ -1279,7 +1282,8 @@ export class StripeHelper extends StripeHelperBase {
     if (emailTypes.includes(emailType)) {
       return;
     }
-    return this.stripe.invoices.update(invoice.id!, {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.update(invoice.id, {
       metadata: {
         [STRIPE_INVOICE_METADATA.EMAIL_SENT]: [...emailTypes, emailType].join(
           ':'
@@ -1292,8 +1296,9 @@ export class StripeHelper extends StripeHelperBase {
    * Pays an invoice out of band.
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
     try {
-      return await this.stripe.invoices.pay(invoice.id!, {
+      return await this.stripe.invoices.pay(invoice.id, {
         paid_out_of_band: true,
       });
     } catch (err) {
@@ -1472,7 +1477,8 @@ export class StripeHelper extends StripeHelperBase {
    * Updates the invoice to uncollectible
    */
   markUncollectible(invoice: Stripe.Invoice) {
-    return this.stripe.invoices.markUncollectible(invoice.id!);
+    if (!invoice.id) throw new Error('Invoice ID must be provided');
+    return this.stripe.invoices.markUncollectible(invoice.id);
   }
 
   /**
@@ -1571,7 +1577,7 @@ export class StripeHelper extends StripeHelperBase {
   /**
    * Returns true if the FxA account with uid has an active subscription.
    */
-  async hasActiveSubscription(uid: string): Promise<Boolean> {
+  async hasActiveSubscription(uid: string): Promise<boolean> {
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
       return false;
@@ -1595,13 +1601,15 @@ export class StripeHelper extends StripeHelperBase {
     const invoices = customer.subscriptions?.data
       .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
       .map((sub) => sub.latest_invoice)
-      .filter((invoice) => invoice !== null);
+      .filter(
+        (invoice): invoice is Stripe.Invoice | 'string' => invoice !== null
+      );
     if (!invoices?.length) {
       return [];
     }
     return Promise.all(
       invoices.map((invoice) =>
-        this.expandResource<Stripe.Invoice>(invoice!, INVOICES_RESOURCE)
+        this.expandResource<Stripe.Invoice>(invoice, INVOICES_RESOURCE)
       )
     );
   }
@@ -1754,13 +1762,20 @@ export class StripeHelper extends StripeHelperBase {
     purchases: (PlayStoreSubscriptionPurchase | AppStoreSubscriptionPurchase)[]
   ) {
     const prices = await this.allAbbrevPlans();
+    const purchasedIds = purchases.map((purchase) => {
+      if (isAppStoreSubscriptionPurchase(purchase)) {
+        return purchase.productId.toLowerCase();
+      }
+
+      if (isPlayStoreSubscriptionPurchase(purchase)) {
+        return purchase.sku.toLowerCase();
+      }
+
+      throw new Error(
+        'Purchase is not recognized as either Google or Apple IAP.'
+      );
+    });
     const iapType = getIapPurchaseType(purchases[0]);
-    // @ts-ignore
-    const key = IAP_TYPE_TO_IAP_SUBSCRIPTION_PURCHASE_KEYS[iapType];
-    const purchasedIds = purchases.map((purchase) =>
-      // @ts-ignore Depending on iapType, purchase will definitely have the `key`
-      purchase[key].toLowerCase()
-    );
     const purchasedPrices = [];
     for (const price of prices) {
       const purchaseIds = this.priceToIapIdentifiers(price, iapType);
@@ -1780,7 +1795,7 @@ export class StripeHelper extends StripeHelperBase {
   async *findActiveSubscriptionsByPlanId(
     planId: string,
     currentPeriodEnd: Stripe.RangeQueryParam,
-    limit: number = 50
+    limit = 50
   ) {
     const params: Stripe.SubscriptionListParams = {
       price: planId,
@@ -2246,12 +2261,12 @@ export class StripeHelper extends StripeHelperBase {
       const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
         // CustomerSource doesn't quite overlap with PaymentMethod, but in our
         // situation, the missing type isn't one we let our customers use.
-        // @ts-ignore
-        customer.default_source,
+        customer.default_source as unknown as Stripe.PaymentMethod,
         PAYMENT_METHOD_RESOURCE
       );
-      const { brand, exp_month, exp_year, funding, last4 } =
-        paymentMethod.card!;
+      if (!paymentMethod.card)
+        throw new Error('Card must be present on payment method');
+      const { brand, exp_month, exp_year, funding, last4 } = paymentMethod.card;
       return {
         billing_name: customer.name,
         payment_provider: paymentProvider,
@@ -2324,12 +2339,19 @@ export class StripeHelper extends StripeHelperBase {
         }
       }
 
-      const { discount } = sub!;
+      const { discount } = sub;
 
-      // @ts-ignore
-      const product = products.find((p) => p.product_id === sub.plan.product);
+      // This type inconsistency runs quite deep, but plan does exist on the subscription here
+      // for all current use-cases.
+      const plan = (sub as any).plan as Stripe.Plan;
 
-      const { product_id, product_name } = product!;
+      const product = products.find((p) => p.product_id === plan.product);
+      if (!product)
+        throw new Error(
+          `Matching product for subscription ${sub.id} not found`
+        );
+
+      const { product_id, product_name } = product;
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
@@ -2341,9 +2363,9 @@ export class StripeHelper extends StripeHelperBase {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         latest_invoice: latestInvoice!.number!,
-        // @ts-ignore
-        plan_id: sub.plan.id,
+        plan_id: plan.id,
         product_name,
         product_id,
         status: sub.status,
@@ -2501,13 +2523,12 @@ export class StripeHelper extends StripeHelperBase {
     }
 
     if (
+      invoice.id &&
       !invoice.discount &&
       !!invoice.discounts?.length &&
       invoice.discounts.length === 1
     ) {
-      const invoiceWithDiscount = await this.getInvoiceWithDiscount(
-        invoice.id!
-      );
+      const invoiceWithDiscount = await this.getInvoiceWithDiscount(invoice.id);
       const discount = invoiceWithDiscount.discounts?.pop() as Stripe.Discount;
       discountType = discount.coupon.duration;
       discountDuration = discount.coupon.duration_in_months;
@@ -3063,7 +3084,8 @@ export class StripeHelper extends StripeHelperBase {
           customer.default_source,
           PAYMENT_METHOD_RESOURCE
         );
-        ({ last4: lastFour, brand: cardType, country } = pm.card!);
+        if (!pm.card) throw new Error('Card must be present on payment method');
+        ({ last4: lastFour, brand: cardType, country } = pm.card);
 
         if (pm.billing_details.address)
           ({ postal_code: postalCode } = pm.billing_details.address);
@@ -3191,9 +3213,10 @@ export class StripeHelper extends StripeHelperBase {
    * Process a invoice event that needs to be saved to Firestore.
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
-    const invoice = await this.stripe.invoices.retrieve(
-      (event.data.object as Stripe.Invoice).id!
-    );
+    const invoiceId = (event.data.object as Stripe.Invoice).id;
+    if (!invoiceId) throw new Error('Invoice ID must be specified');
+
+    const invoice = await this.stripe.invoices.retrieve(invoiceId);
 
     try {
       await this.stripeFirestore.insertInvoiceRecord(invoice);
@@ -3323,9 +3346,8 @@ export class StripeHelper extends StripeHelperBase {
    * or Stripe fetch
    */
   async expandAbbrevProductForPlan(plan: Stripe.Plan): Promise<AbbrevProduct> {
-    // @ts-ignore
-    const checkDeletedProduct = (product) => {
-      if (product.deleted === true) {
+    const checkDeletedProduct = (product: Stripe.Product) => {
+      if ((product.deleted as unknown as boolean) === true) {
         throw error.unknownSubscriptionPlan(plan.id);
       }
       return this.abbrevProductFromStripeProduct(product);

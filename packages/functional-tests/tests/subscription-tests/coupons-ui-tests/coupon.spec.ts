@@ -180,4 +180,41 @@ test.describe('coupon test', () => {
     // Verify the discount is removed
     expect(await subscribe.discountLineItem()).toBe(false);
   });
+
+  test('resubscribe successfully with the same coupon after canceling', async ({
+    page,
+    pages: { relier, subscribe, login, settings, subscriptionManagement },
+  }) => {
+    await relier.goto();
+    await relier.clickSubscribe6Month();
+
+    // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
+    await subscribe.addCouponCode('auto10pforever');
+
+    // Verify the coupon is applied successfully
+    expect(await subscribe.discountAppliedSuccess()).toBe(true);
+
+    const total = await subscribe.getTotalPrice();
+
+    //Subscribe successfully
+    await subscribe.setFullName();
+    await subscribe.setCreditCardInfo();
+    await subscribe.clickPayNow();
+    await subscribe.submit();
+
+    //Login to FxA account
+    await login.goto();
+    await login.clickSignIn();
+    const subscriptionPage = await settings.clickPaidSubscriptions();
+    subscriptionManagement.page = subscriptionPage;
+
+    //Cancel subscription
+    await subscriptionManagement.cancelSubscription();
+    await subscriptionManagement.resubscribe();
+
+    //Verify that the resubscription has the same coupon applied
+    expect(await subscriptionManagement.getResubscriptionPrice()).toEqual(
+      total
+    );
+  });
 });

@@ -28,7 +28,7 @@ import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export type PlanDetailsProps = {
   selectedPlan: Plan;
-  isMobile: boolean;
+  isMobile?: boolean;
   showExpandButton?: boolean;
   className?: string;
   coupon?: CouponDetails;
@@ -38,7 +38,7 @@ export type PlanDetailsProps = {
 export const PlanDetails = ({
   className = '',
   selectedPlan,
-  isMobile,
+  isMobile = false,
   showExpandButton = false,
   coupon,
   invoicePreview,
