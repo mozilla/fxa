@@ -7,6 +7,7 @@ export const selectors = {
   DATA_TESTID: '[data-testid=logo]',
   EMAIL: 'input[type=email]',
   EMAIL_PREFILLED: '#prefillEmail',
+  EMAIL_HEADER: '#fxa-enter-email-header',
   ERROR: '.error',
   LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
   LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
@@ -14,14 +15,17 @@ export const selectors = {
   LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
   NUMBER_INPUT: 'input[type=number]',
   PASSWORD: '#password',
-  PASSWORD_INPUT: 'input[type=password]',
+  PASSWORD_HEADER: '#fxa-signin-password-header',
   PERMISSIONS_HEADER: '#fxa-permissions-header',
+  PASSWORD_MASK_INPUT: '#password[type=password]',
+  PASSWORD_TEXT_INPUT: '#password[type=text]',
+  SHOW_PASSWORD: '#password ~ [for="show-password"]',
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   SIGNIN_HEADER: '#fxa-signin-header',
   SUBMIT: 'button[type=submit]',
   SUBMIT_USER_SIGNED_IN: '#use-logged-in',
-  TEXT_INPUT: 'input[type=text]',
+  RECOVERY_KEY_TEXT_INPUT: 'input[type=text]',
   TOOLTIP: '.tooltip',
   VPASSWORD: '#vpassword',
   SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
@@ -39,55 +43,20 @@ export const selectors = {
 export class LoginPage extends BaseLayout {
   readonly path = '';
 
-  readonly selectors = {
-    AGE: '#age',
-    DATA_TESTID: '[data-testid=logo]',
-    EMAIL: 'input[type=email]',
-    EMAIL_PREFILLED: '#prefillEmail',
-    EMAIL_HEADER: '#fxa-enter-email-header',
-    ERROR: '.error',
-    LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
-    LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
-    LINK_USE_DIFFERENT: '#use-different',
-    LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
-    NUMBER_INPUT: 'input[type=number]',
-    PASSWORD: '#password',
-    PASSWORD_HEADER: '#fxa-signin-password-header',
-    PASSWORD_INPUT: 'input[type=password]',
-    PERMISSIONS_HEADER: '#fxa-permissions-header',
-    RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
-    RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
-    SIGNIN_HEADER: '#fxa-signin-header',
-    SUBMIT: 'button[type=submit]',
-    SUBMIT_USER_SIGNED_IN: '#use-logged-in',
-    TEXT_INPUT: 'input[type=text]',
-    TOOLTIP: '.tooltip',
-    VPASSWORD: '#vpassword',
-    SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
-    MIN_LENGTH_MET: '#password-too-short.password-strength-met',
-    MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
-    NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
-    NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
-    NOT_COMMON_MET: '#password-too-common.password-strength-met',
-    NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
-    NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
-    NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
-  };
-
   get emailHeader() {
-    return this.page.locator(this.selectors.EMAIL_HEADER);
+    return this.page.locator(selectors.EMAIL_HEADER);
   }
 
   get passwordHeader() {
-    return this.page.locator(this.selectors.PASSWORD_HEADER);
+    return this.page.locator(selectors.PASSWORD_HEADER);
   }
 
   get tooltip() {
-    return this.page.locator(this.selectors.TOOLTIP);
+    return this.page.locator(selectors.TOOLTIP);
   }
 
   get submitButton() {
-    return this.page.locator(this.selectors.SUBMIT);
+    return this.page.locator(selectors.SUBMIT);
   }
 
   async fillOutEmailFirstSignIn(email, password) {
@@ -125,49 +94,49 @@ export class LoginPage extends BaseLayout {
   }
 
   async minLengthFailError() {
-    const error = this.page.locator(this.selectors.MIN_LENGTH_FAIL);
+    const error = this.page.locator(selectors.MIN_LENGTH_FAIL);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async minLengthSuccess() {
-    const error = this.page.locator(this.selectors.MIN_LENGTH_MET);
+    const error = this.page.locator(selectors.MIN_LENGTH_MET);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notEmailUnmetError() {
-    const error = this.page.locator(this.selectors.NOT_EMAIL_UNMET);
+    const error = this.page.locator(selectors.NOT_EMAIL_UNMET);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notEmailFailError() {
-    const error = this.page.locator(this.selectors.NOT_EMAIL_FAIL);
+    const error = this.page.locator(selectors.NOT_EMAIL_FAIL);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notEmailSuccess() {
-    const error = this.page.locator(this.selectors.NOT_EMAIL_MET);
+    const error = this.page.locator(selectors.NOT_EMAIL_MET);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notCommonPasswordUnmetError() {
-    const error = this.page.locator(this.selectors.NOT_COMMON_UNMET);
+    const error = this.page.locator(selectors.NOT_COMMON_UNMET);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notCommonPasswordSuccess() {
-    const error = this.page.locator(this.selectors.NOT_COMMON_MET);
+    const error = this.page.locator(selectors.NOT_COMMON_MET);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
 
   async notCommonPasswordFailError() {
-    const error = this.page.locator(this.selectors.NOT_COMMON_FAIL);
+    const error = this.page.locator(selectors.NOT_COMMON_FAIL);
     await error.waitFor({ state: 'visible' });
     return error.isVisible();
   }
@@ -224,7 +193,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async setCode(code: string) {
-    return this.page.fill(selectors.TEXT_INPUT, code);
+    return this.page.fill(selectors.RECOVERY_KEY_TEXT_INPUT, code);
   }
 
   async loginHeader() {
@@ -237,6 +206,36 @@ export class LoginPage extends BaseLayout {
     const error = this.page.locator(selectors.ERROR);
     await error.waitFor();
     return error.textContent();
+  }
+
+  async showPasswordMouseAction() {
+    await this.page.locator(selectors.PASSWORD).type('password');
+    await this.page.locator(selectors.SHOW_PASSWORD).hover();
+    await this.page.mouse.down();
+  }
+
+  async showPassword() {
+    return this.page.locator(selectors.SHOW_PASSWORD).isVisible();
+  }
+
+  async textInputForPassword() {
+    //This function is for when the password input field changes to a text field
+    //after clicking the 'show password' button
+    const pass = this.page.locator(selectors.PASSWORD_TEXT_INPUT);
+    await pass.waitFor({
+      state: 'visible',
+    });
+    return pass.isVisible();
+  }
+
+  async maskPasswordInputForPassword() {
+    //This function is for when the password text field changes to a password field with masking
+    //after clicking the 'show password' button
+    const pass = this.page.locator(selectors.PASSWORD_MASK_INPUT);
+    await pass.waitFor({
+      state: 'visible',
+    });
+    return pass.isVisible();
   }
 
   async getUseDifferentAccountLink() {
@@ -282,7 +281,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async clickSignIn() {
-    return this.page.locator(this.selectors.SUBMIT_USER_SIGNED_IN).click();
+    return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
   }
 
   async isSyncConnectedHeader() {
@@ -337,7 +336,7 @@ export class LoginPage extends BaseLayout {
   }
 
   setRecoveryKey(key: string) {
-    return this.page.fill(selectors.TEXT_INPUT, key);
+    return this.page.fill(selectors.RECOVERY_KEY_TEXT_INPUT, key);
   }
 
   setAge(age: string) {
