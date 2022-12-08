@@ -503,6 +503,7 @@ export class PayPalClient {
     };
 
     if (options.refundType === RefundType.partial) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       data.AMT = options.amount!.toString();
     }
 
