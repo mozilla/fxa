@@ -134,7 +134,7 @@ export const InputText = ({
       {errorText && (
         <Tooltip
           type="error"
-          anchorStart={anchorStart}
+          {...{ anchorStart }}
           className="-mb-px"
           message={errorText}
         />

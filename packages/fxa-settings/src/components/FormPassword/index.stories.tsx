@@ -5,7 +5,7 @@
 import React from 'react';
 import { Subject } from './mocks';
 import { LocationProvider } from '@reach/router';
-import AppLayout from '../AppLayout';
+import AppLayout from '../Settings/AppLayout';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
 

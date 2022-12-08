@@ -12,8 +12,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
 import PasswordValidator from './PasswordValidator';
 import { useNavigate } from '@reach/router';
-import { HomePath } from '../../../constants';
-import { logViewEvent, settingsViewName } from '../../../lib/metrics';
+import { HomePath } from '../../constants';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];

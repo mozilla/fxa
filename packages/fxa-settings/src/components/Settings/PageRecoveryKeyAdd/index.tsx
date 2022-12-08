@@ -13,7 +13,7 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import DataBlock from '../DataBlock';
 import FlowContainer from '../FlowContainer';
-import InputPassword from '../InputPassword';
+import InputPassword from '../../InputPassword';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 type FormData = {

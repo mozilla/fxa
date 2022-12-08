@@ -14,7 +14,7 @@ import {
 } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import FlowContainer from '../FlowContainer';
-import FormPassword from '../FormPassword';
+import FormPassword from '../../FormPassword';
 
 type FormData = {
   newPassword: string;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { typeByTestIdFn } from '../../../lib/test-utils';
+import { typeByTestIdFn } from '../../lib/test-utils';
 import { screen, render } from '@testing-library/react';
 import { Subject } from './mocks';
 
