@@ -53,7 +53,7 @@ export function getDefault() {
   return {
     env: 'development',
     l10n: {
-      strict: true,
+      strict: 'mergeconflict!',
     },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
