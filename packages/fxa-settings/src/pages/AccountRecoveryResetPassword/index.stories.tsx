@@ -26,11 +26,11 @@ const storyWithProps = (props: AccountRecoveryResetPasswordProps) => {
   return story;
 };
 
-export const WithBrokenLink = storyWithProps({ linkStatus: 'broken' });
+export const WithValidLink = storyWithProps({ linkStatus: 'valid' });
+
+export const WithBrokenLink = storyWithProps({ linkStatus: 'damaged' });
 
 export const WithExpiredLink = storyWithProps({ linkStatus: 'expired' });
-
-export const WithValidLink = storyWithProps({ linkStatus: 'valid' });
 
 export const CanGoBack = storyWithProps({
   canGoBack: true,

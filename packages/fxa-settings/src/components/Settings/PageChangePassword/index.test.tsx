@@ -19,7 +19,7 @@ import {
   inputCurrentPassword,
   inputNewPassword,
   inputVerifyPassword,
-} from '../FormPassword/index.test';
+} from '../../FormPassword/index.test';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

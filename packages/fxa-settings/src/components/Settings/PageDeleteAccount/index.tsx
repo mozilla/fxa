@@ -6,7 +6,7 @@ import React, { useCallback, useState, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAccount, useAlertBar } from '../../../models';
-import InputPassword from '../InputPassword';
+import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { HomePath, MonitorLink, ROOTPATH, VPNLink } from '../../../constants';
@@ -14,17 +14,24 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
-import { AuthUiErrors, composeAuthUiErrorTranslationId } from '../../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from '../../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
 };
 
 const checkboxLabels: Record<string, string> = {
-  'delete-account-chk-box-1-v2': 'Any paid subscriptions you have will be canceled (Except Pocket)',
-  'delete-account-chk-box-2': 'You may lose saved information and features within Mozilla products',
-  'delete-account-chk-box-3': 'Reactivating with this email may not restore your saved information',
-  'delete-account-chk-box-4': 'Any extensions and themes that you published to addons.mozilla.org will be deleted',
+  'delete-account-chk-box-1-v2':
+    'Any paid subscriptions you have will be canceled (Except Pocket)',
+  'delete-account-chk-box-2':
+    'You may lose saved information and features within Mozilla products',
+  'delete-account-chk-box-3':
+    'Reactivating with this email may not restore your saved information',
+  'delete-account-chk-box-4':
+    'Any extensions and themes that you published to addons.mozilla.org will be deleted',
 };
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
@@ -148,7 +155,11 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                     <Localized id={label} attrs={{ label: true }}>
                       <Checkbox
                         data-testid="required-confirm"
-                        label={l10n.getString(label, null, checkboxLabels[label])}
+                        label={l10n.getString(
+                          label,
+                          null,
+                          checkboxLabels[label]
+                        )}
                         onChange={handleConfirmChange(label)}
                       />
                     </Localized>
