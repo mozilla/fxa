@@ -39,9 +39,11 @@ async function createFluentBundleGenerator(
   const fetched = await Promise.all(
     currentLocales
       .filter((l) => !EN_GB_LOCALES.includes(l))
-      .map(async (locale) => {
-        return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
-      })
+      .map((locale) =>
+        (async () => ({
+          [locale]: await fetchAllMessages(baseDir, locale, bundles),
+        }))()
+      )
   );
 
   const mergedBundle = fetched.reduce((obj, cur) => Object.assign(obj, cur));
