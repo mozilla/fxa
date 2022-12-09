@@ -4,6 +4,7 @@
 import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import AuthClient from 'fxa-auth-client';
+import { SessionVerifiedState } from 'fxa-shared/db/models/auth/session-token';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
@@ -12,7 +13,7 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { GqlSessionToken, GqlUserId, GqlUserState } from '../decorators';
 import { DestroySessionInput } from './dto/input';
 import { BasicPayload } from './dto/payload';
-import { Session as SessionType } from './model/session';
+import { Session as SessionType, SessionStatus } from './model/session';
 
 @Resolver((of: any) => SessionType)
 export class SessionResolver {
@@ -43,5 +44,14 @@ export class SessionResolver {
     return {
       verified: state === 'verified',
     } as SessionType;
+  }
+
+  @Query((returns) => SessionStatus)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  public sessionStatus(
+    @GqlUserId() uid: hexstring,
+    @GqlUserState() state: SessionVerifiedState
+  ): SessionStatus {
+    return { state, uid };
   }
 }
