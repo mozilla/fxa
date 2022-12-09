@@ -7,6 +7,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import { Account } from 'fxa-shared/db/models/auth/account';
 import { knex, Knex } from 'knex';
 import path from 'path';
+import { deriveHawkCredentials } from 'fxa-auth-client';
 
 export type AccountIsh = Pick<
   Account,
@@ -28,6 +29,10 @@ export const linkedAccountsTable = fs.readFileSync(
   path.join(thisDir, './linked-accounts.sql'),
   'utf8'
 );
+export const sessionsTable = fs.readFileSync(
+  path.join(thisDir, './sessions.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();
@@ -44,6 +49,19 @@ export function randomAccount() {
     verifierVersion: 0,
     verifyHash: '00',
     wrapWrapKb: '00',
+  };
+}
+
+export async function randomSession(
+  account: AccountIsh,
+  tokenId: string = '00000000000000000000000000000000'
+) {
+  const { id } = await deriveHawkCredentials(tokenId, 'sessionToken');
+  return {
+    tokenId: id,
+    tokenData: '00000000000000000000000000000000',
+    createdAt: chance.timestamp(),
+    uid: account.uid,
   };
 }
 
@@ -87,6 +105,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
   await instance.raw(accountTable);
   await instance.raw(emailsTable);
   await instance.raw(linkedAccountsTable);
+  await instance.raw(sessionsTable);
 
   /* Debugging Assistance
    knex.on('query', (data) => {

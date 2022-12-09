@@ -4,17 +4,23 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account, SessionToken } from 'fxa-shared/db/models/auth';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { Knex } from 'knex';
 
-import { randomAccount, testDatabaseSetup } from '../../test/helpers';
+import {
+  chance,
+  randomAccount,
+  randomSession,
+  testDatabaseSetup,
+} from '../../test/helpers';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
 
-const USER_1 = randomAccount();
+let USER_1: any;
+let SESSION_1: any;
 
 describe('AccountResolver', () => {
   let resolver: AccountResolver;
@@ -25,8 +31,11 @@ describe('AccountResolver', () => {
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
+    USER_1 = randomAccount();
+    SESSION_1 = await randomSession(USER_1);
     // Load the users in
     await (Account as any).query().insertGraph({ ...USER_1 });
+    await (SessionToken as any).query().insertGraph({ ...SESSION_1 });
   });
 
   beforeEach(async () => {
@@ -555,6 +564,38 @@ describe('AccountResolver', () => {
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
+    describe('accountStatus', () => {
+      it('returns true with valid session token', async () => {
+        const result = await resolver.accountStatus({
+          token: '00000000000000000000000000000000',
+        });
+        expect(result.exists).toEqual(true);
+      });
+
+      it('returns false with invalid session token', async () => {
+        const invalidTokenId = chance.guid({ version: 4 }).replace(/-/g, '');
+        const result = await resolver.accountStatus({
+          token: invalidTokenId,
+        });
+        expect(result.exists).toEqual(false);
+      });
+
+      it('return true with valid uid', async () => {
+        const result = await resolver.accountStatus({
+          uid: USER_1.uid,
+        });
+        expect(result.exists).toEqual(true);
+      });
+
+      it('returns false with invalid uid', async () => {
+        const fakeAccount = randomAccount();
+        const result = await resolver.accountStatus({
+          uid: fakeAccount.uid,
+        });
+        expect(result.exists).toEqual(false);
       });
     });
   });

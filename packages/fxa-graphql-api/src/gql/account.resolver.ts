@@ -12,8 +12,12 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import AuthClient from 'fxa-auth-client';
-import { Account, AccountOptions } from 'fxa-shared/db/models/auth';
+import AuthClient, { deriveHawkCredentials } from 'fxa-auth-client';
+import {
+  Account,
+  AccountOptions,
+  SessionToken,
+} from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import {
@@ -50,6 +54,7 @@ import {
   PasswordForgotVerifyCodeInput,
   PasswordForgotCodeStatusInput,
   AccountResetInput,
+  AccountStatusInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -65,10 +70,12 @@ import {
   PasswordForgotVerifyCodePayload,
   PasswordForgotCodeStatusPayload,
   AccountResetPayload,
+  AccountStatusPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -507,6 +514,34 @@ export class AccountResolver {
       clientMutationId: input.clientMutationId,
       ...result,
     };
+  }
+
+  @Query((returns) => AccountStatusPayload, {
+    description:
+      'Check the status of an account using session token or uid. ' +
+      'This query is equivalent to the GET /account/status endpoint in auth-server.',
+  })
+  @CatchGatewayError
+  public async accountStatus(
+    @Args('input', { type: () => AccountStatusInput })
+    input: AccountStatusInput
+  ): Promise<AccountStatusPayload> {
+    if (input.token) {
+      const { id } = await deriveHawkCredentials(input.token, 'sessionToken');
+      const sessionToken = await SessionToken.query()
+        .select('uid')
+        .where('tokenId', uuidTransformer.to(id))
+        .first();
+
+      return { exists: !!sessionToken };
+    }
+
+    if (input.uid) {
+      const account = await Account.findByUid(input.uid);
+      return { exists: !!account };
+    }
+
+    return { exists: false };
   }
 
   @ResolveField()
