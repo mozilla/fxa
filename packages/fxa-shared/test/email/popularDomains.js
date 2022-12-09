@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 
-describe('email/popularDomains:', () => {
+describe('#unit - email/popularDomains:', () => {
   let popularDomains;
 
   before(() => {

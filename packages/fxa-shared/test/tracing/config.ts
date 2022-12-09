@@ -9,7 +9,7 @@ import {
   checkServiceName,
 } from '../../tracing/config';
 
-describe('tracing config', () => {
+describe('#unit - tracing config', () => {
   it('checks for client name', () => {
     expect(() => checkClientName({ clientName: '' })).throws();
   });

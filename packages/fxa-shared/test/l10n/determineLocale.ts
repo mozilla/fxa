@@ -5,7 +5,7 @@
 import { expect } from 'chai';
 import { determineLocale } from '../../l10n/determineLocale';
 
-describe('l10n/determineLocale:', () => {
+describe('#unit - l10n/determineLocale:', () => {
   it('finds a locale', () => {
     expect(determineLocale('en')).to.eq('en');
   });

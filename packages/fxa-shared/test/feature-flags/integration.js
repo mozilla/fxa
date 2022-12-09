@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const initialise = require('fxa-shared/feature-flags').default;
 
-describe('featureFlags integration:', () => {
+describe('#integration - featureFlags integration:', () => {
   let config, log, featureFlags;
 
   before(() => {

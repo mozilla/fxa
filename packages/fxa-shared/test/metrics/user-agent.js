@@ -6,7 +6,7 @@
 
 const assert = require('chai').assert;
 
-describe('metrics/user-agent:', () => {
+describe('#unit - metrics/user-agent:', () => {
   let userAgent;
 
   before(() => {

@@ -18,7 +18,7 @@ import sinon from 'sinon';
 import { FxaGcpTraceExporter } from '../../tracing/exporters/fxa-gcp';
 import { TracingPiiFilter } from '../../tracing/pii-filters';
 
-describe('scrubs pii', () => {
+describe('#unit - scrubs pii', () => {
   const sandbox = sinon.createSandbox();
 
   // Dummy ReadableSpan for testing

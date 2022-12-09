@@ -7,9 +7,7 @@ const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const Server = require('./lib/server');
 
-const db = require('../lib/db');
-
-describe('server', function () {
+describe('#unit - server', function () {
   let testServer;
 
   before(async function () {
@@ -64,8 +62,4 @@ describe('server', function () {
       });
     });
   });
-});
-
-after(() => {
-  return db._teardown();
 });

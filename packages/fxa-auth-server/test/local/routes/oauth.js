@@ -181,7 +181,7 @@ describe('/oauth/ routes', () => {
     });
   });
 
-  describe('/oauth/destroy', () => {
+  describe('#integration - /oauth/destroy', () => {
     it('errors if no client_id is provided', async () => {
       const mockRequest = mocks.mockRequest({
         payload: {

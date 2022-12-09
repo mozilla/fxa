@@ -17,7 +17,7 @@ jest.mock('fxa-shared/db/models/auth/session-token', () => mockSession);
 
 import { SessionTokenStrategy } from './session-token.strategy';
 
-describe('SessionTokenStrategy', () => {
+describe('#unit - SessionTokenStrategy', () => {
   let strategy: SessionTokenStrategy;
 
   beforeEach(async () => {

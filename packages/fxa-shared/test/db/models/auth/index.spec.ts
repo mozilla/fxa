@@ -30,7 +30,7 @@ import { chance, randomAccount, randomEmail } from './helpers';
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 
-describe('auth', () => {
+describe('#integration - auth', () => {
   let knex: Knex;
 
   before(async () => {

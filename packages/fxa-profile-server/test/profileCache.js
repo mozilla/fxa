@@ -42,7 +42,7 @@ const MOZILLA_EMAIL = '!user@mozilla.com';
 const PROFILE_CHANGED_AT = Date.now();
 const PROFILE_CHANGED_AT_LATER_TIME = PROFILE_CHANGED_AT + 1000;
 
-describe('profile cache', function () {
+describe('#integration - profile cache', function () {
   let Server;
   let mock;
 

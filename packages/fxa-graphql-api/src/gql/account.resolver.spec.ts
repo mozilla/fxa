@@ -16,7 +16,7 @@ import { AccountResolver } from './account.resolver';
 
 const USER_1 = randomAccount();
 
-describe('AccountResolver', () => {
+describe('#integration - AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
   let knex: Knex;

@@ -17,7 +17,7 @@ const baseClients = [
   },
 ];
 
-describe('ClientCapabilityService', () => {
+describe('#unit - ClientCapabilityService', () => {
   let service: ClientCapabilityService;
   let log: any;
 

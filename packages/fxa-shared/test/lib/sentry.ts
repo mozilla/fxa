@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/browser';
 import sentryMetrics, { _Sentry } from '../../lib/sentry';
 import { SentryConfigOpts } from '../../sentry';
 const sinon = require('sinon');
+const sandbox = sinon.createSandbox();
 
 const config: SentryConfigOpts = {
   release: 'v0.0.0',
@@ -18,14 +19,14 @@ const config: SentryConfigOpts = {
   },
 };
 
-describe('lib/sentry', () => {
+describe('#unit - lib/sentry', () => {
   before(() => {
     // Reduce console log noise in test output
-    sinon.spy(console, 'error');
+    sandbox.spy(console, 'error');
   });
 
   after(() => {
-    (globalThis.window.console.error as sinon.SinonSpy).restore();
+    sandbox.restore();
   });
 
   describe('init', () => {
@@ -39,7 +40,9 @@ describe('lib/sentry', () => {
   });
 
   describe('beforeSend', () => {
-    sentryMetrics.configure(config);
+    before(() => {
+      sentryMetrics.configure(config);
+    });
 
     it('works without request url', () => {
       const data = {

@@ -48,7 +48,7 @@ const sessionToken = {
   id: 'token1',
 };
 
-describe('Redis', () => {
+describe('#integration - Redis', () => {
   after(async () => {
     await redis.del(uid);
     await redis.close();

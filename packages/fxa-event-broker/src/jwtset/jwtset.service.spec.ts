@@ -37,7 +37,7 @@ const TEST_CLIENT_ID = 'abc1234';
 const PUBLIC_JWT = jwtool.JWK.fromObject(TEST_PUBLIC_KEY);
 const CHANGE_TIME = Date.now();
 
-describe('JwtsetService', () => {
+describe('#unit - JwtsetService', () => {
   let service: JwtsetService;
 
   beforeEach(async () => {

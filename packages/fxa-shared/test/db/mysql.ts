@@ -88,7 +88,7 @@ class MySqlStoreTest extends MysqlStoreShared {
   }
 }
 
-describe('mysql', function () {
+describe('#integration - mysql', function () {
   this.timeout(-1);
   let events: MysqlStoreTestEvents;
   let mysql: MySqlStoreTest;

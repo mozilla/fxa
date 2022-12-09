@@ -14,7 +14,7 @@ import {
   IConnectedServicesFactoryBindings,
 } from '../../connected-services';
 
-describe('connected-services/factories', () => {
+describe('#unit - connected-services/factories', () => {
   describe('authorized clients', () => {
     class Bindings implements IAuthorizedClientsBindings {
       async getRefreshTokensByUid(uid: string) {

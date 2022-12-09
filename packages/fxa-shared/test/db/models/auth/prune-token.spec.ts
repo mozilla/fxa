@@ -17,7 +17,7 @@ import crypto from 'crypto';
 const toRandomBuff = (size) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
 
-describe('PruneTokens', () => {
+describe('#integration - PruneTokens', () => {
   const sandbox = sinon.createSandbox();
   const pruneInterval = 50;
   const maxJitter = 101;

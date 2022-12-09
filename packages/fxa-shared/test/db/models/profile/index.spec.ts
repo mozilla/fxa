@@ -26,7 +26,7 @@ import {
 const PROFILE_1 = randomProfile();
 const PROFILE_2 = randomProfile();
 
-describe('auth', () => {
+describe('#integration - auth', () => {
   let knex: Knex;
   let avatar: Avatar;
 

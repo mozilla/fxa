@@ -34,7 +34,7 @@ describe('maxmind-db-downloader', function () {
     maxmindDbDownloader.stop();
   });
 
-  describe('createTargetDir', function () {
+  describe('#unit - createTargetDir', function () {
     it('creates the specified directory', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       assert.equal(
@@ -52,9 +52,8 @@ describe('maxmind-db-downloader', function () {
       // when mkdirp is called on existing directory, it
       // does nothing, and returns null
       maxmindDbDownloader.createTargetDir('test-db');
-      var duplicateTargetDirPath = maxmindDbDownloader.createTargetDir(
-        'test-db'
-      );
+      var duplicateTargetDirPath =
+        maxmindDbDownloader.createTargetDir('test-db');
       assert.isNull(duplicateTargetDirPath, 'Nothing was created');
       assert.isTrue(
         fs.statSync(expectedTargetDirPath).isDirectory(),
@@ -63,7 +62,7 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('setupDownloadList', function () {
+  describe('#unit - setupDownloadList', function () {
     it('sets up the download list from sources.json', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
@@ -79,7 +78,7 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('downloadAll', function () {
+  describe('#unit - downloadAll', function () {
     it('calls Promise.all with a promise array', function () {
       sinon.spy(Promise, 'all');
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
@@ -93,7 +92,7 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('setupAutoUpdate', function () {
+  describe('#integration - setupAutoUpdate', function () {
     it('auto update calls downloadAll correctly', function (done) {
       // test takes slightly over 5 seconds, set
       // timeout to 6 seconds to ensure that we don't

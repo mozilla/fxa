@@ -33,7 +33,7 @@ const validSchemaValidation = {
   cdnUrlRegex: '^https://',
 };
 
-describe('PlanConfig', () => {
+describe('#unit - PlanConfig', () => {
   it('loads an object from firestore', () => {
     const planConfig = PlanConfig.fromFirestoreObject(
       firestoreObject,

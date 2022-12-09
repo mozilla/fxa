@@ -7,7 +7,7 @@ const uuid = require('uuid');
 const { assert } = require('chai');
 import BaseExperiment from '../../experiments/base';
 
-describe('experiments/base', () => {
+describe('#unit - experiments/base', () => {
   let experiment;
 
   const ITERATIONS = 1000;

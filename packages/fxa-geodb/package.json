@@ -11,6 +11,8 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "mocha",
+    "test:unit": "mocha --grep '#unit' ",
+    "test:integration": "mocha --grep '#integration' ",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {

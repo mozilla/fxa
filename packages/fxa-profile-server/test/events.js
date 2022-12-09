@@ -29,7 +29,7 @@ const SIZE_SUFFIXES = Object.keys(SIZES).map(function (val) {
   return '_' + val;
 });
 
-describe('events', function () {
+describe('#integration - events', function () {
   let Server;
   let mock;
   let events;

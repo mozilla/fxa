@@ -1204,7 +1204,7 @@ describe('/account/create', () => {
   });
 });
 
-describe('/account/stub', () => {
+describe('#integration - /account/stub', () => {
   function setup(extraConfig) {
     const config = {
       securityHistory: {

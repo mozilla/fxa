@@ -9,7 +9,7 @@ import { AuthClientService } from './auth-client.service';
 import { ProfileClientService } from './profile-client.service';
 import { ConfigService } from '@nestjs/config';
 
-describe('ProfileClientService', () => {
+describe('#unit - ProfileClientService', () => {
   let service: ProfileClientService;
   let authClient: any;
   const profileUrl = 'https://test.com';

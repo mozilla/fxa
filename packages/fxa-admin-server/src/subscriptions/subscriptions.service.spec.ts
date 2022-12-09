@@ -22,7 +22,7 @@ import {
 } from './subscriptions.service';
 import { addDays, created } from './test.util';
 
-describe('Subscription Service', () => {
+describe('#unit - Subscription Service', () => {
   // Stripe Service Mock
   const mockFetchCustomers = jest.fn();
   const subscriptionStatusTypes = VALID_SUBSCRIPTION_STATUSES;

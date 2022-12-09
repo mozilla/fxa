@@ -66,7 +66,7 @@ const createValidPasswordMessage = (): string => {
   ).toString('base64');
 };
 
-describe('PubsubProxy Controller', () => {
+describe('#unit - PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
   let logger: any;

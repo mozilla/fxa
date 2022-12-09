@@ -27,7 +27,7 @@ const MOCK_RP = {
   allowedScopes: 'https://identity.mozilla.com/apps/send',
   notes: null,
 };
-describe('RelyingPartyResolver', () => {
+describe('#integration - RelyingPartyResolver', () => {
   let knex: Knex;
   let db = {
     relyingParty: RelyingParty,

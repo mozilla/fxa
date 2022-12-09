@@ -12,7 +12,7 @@ import { DatabaseService } from './database.service';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import { Knex } from 'knex';
 
-describe('DatabaseService', () => {
+describe('#integration - DatabaseService', () => {
   let service: DatabaseService;
   let logger: any;
   let knex: Knex;

@@ -64,7 +64,7 @@ const EMAIL_2 = randomEmail({
   email: USER_2.email.replace('@', '+01@'),
 });
 
-describe('AccountResolver', () => {
+describe('#integration - AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
   let knex: Knex;
