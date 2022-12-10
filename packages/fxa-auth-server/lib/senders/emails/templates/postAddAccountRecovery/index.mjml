@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postAddAccountRecovery-title-2">You created a new account recovery key</span>
+      <span data-l10n-id="postAddAccountRecovery-title2">You created a new account recovery key</span>
     </mj-text>
 
     <mj-text css-class="text-body">
