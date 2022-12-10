@@ -54,6 +54,7 @@ import {
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
 import { SignInInput } from './dto/input/sign-in';
+import { SignUpInput } from './dto/input/sign-up';
 import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
@@ -67,6 +68,7 @@ import {
   AccountResetPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
+import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 
@@ -488,6 +490,27 @@ export class AccountResolver {
     );
   }
 
+  @Mutation((returns) => SignedUpAccountPayload, {
+    description: 'Call auth-server to sign up an account',
+  })
+  @CatchGatewayError
+  public async SignUp(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => SignUpInput })
+    input: SignUpInput
+  ): Promise<SignedUpAccountPayload> {
+    const result = await this.authAPI.signUpWithAuthPW(
+      input.email,
+      input.authPW,
+      input.options,
+      headers
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
+  }
+
   @Mutation((returns) => SignedInAccountPayload, {
     description: 'Call auth-server to sign in an account',
   })
@@ -498,8 +521,8 @@ export class AccountResolver {
     input: SignInInput
   ): Promise<SignedInAccountPayload> {
     const result = await this.authAPI.signInWithAuthPW(
-      input.authPW,
       input.email,
+      input.authPW,
       input.options,
       headers
     );
