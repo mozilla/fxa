@@ -527,6 +527,36 @@ describe('AccountResolver', () => {
       });
     });
 
+    describe('signUp', () => {
+      it('calls auth-client and proxy the result', async () => {
+        const now = Date.now();
+        const headers = new Headers();
+        const mockRespPayload = {
+          clientMutationId: 'testid',
+          uid: '1337',
+          sessionToken: '2048',
+          verified: true,
+          authAt: now,
+        };
+        authClient.signUpWithAuthPW = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+        const result = await resolver.SignUp(headers, {
+          authPW: '00000000',
+          email: 'testo@example.xyz',
+          options: { service: 'testo-co' },
+        });
+        expect(authClient.signUpWithAuthPW).toBeCalledTimes(1);
+        expect(authClient.signUpWithAuthPW).toBeCalledWith(
+          'testo@example.xyz',
+          '00000000',
+          { service: 'testo-co' },
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
     describe('signIn', () => {
       it('calls auth-client and proxy the result', async () => {
         const now = Date.now();
@@ -545,13 +575,13 @@ describe('AccountResolver', () => {
         const result = await resolver.signIn(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
-          options: {},
+          options: { service: 'testo-co' },
         });
         expect(authClient.signInWithAuthPW).toBeCalledTimes(1);
         expect(authClient.signInWithAuthPW).toBeCalledWith(
-          '00000000',
           'testo@example.xyz',
-          {},
+          '00000000',
+          { service: 'testo-co' },
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);

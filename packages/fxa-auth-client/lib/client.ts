@@ -23,6 +23,29 @@ enum AUTH_PROVIDER {
   APPLE = 'apple',
 }
 
+export type BoolString = 'true' | 'false' | 'yes' | 'no';
+
+export type SignUpOptions = {
+  keys?: boolean;
+  service?: string;
+  redirectTo?: string;
+  preVerified?: BoolString;
+  resume?: string;
+  lang?: string;
+  style?: string;
+  verificationMethod?: string;
+  metricsContext?: MetricsContext;
+};
+
+export type SignedUpAccountData = {
+  uid: hexstring;
+  sessionToken: hexstring;
+  keyFetchToken?: hexstring;
+  authAt: number;
+  verificationMethod?: string;
+  unwrapBKey?: hexstring;
+};
+
 export type SignInOptions = {
   keys?: boolean;
   skipCaseError?: boolean;
@@ -254,43 +277,50 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Used for sign up on clients with direct access to the plaintext password.
+   */
   async signUp(
     email: string,
     password: string,
-    options: {
-      keys?: boolean;
-      service?: string;
-      redirectTo?: string;
-      preVerified?: string;
-      resume?: string;
-      lang?: string;
-      style?: string;
-      verificationMethod?: string;
-      metricsContext?: MetricsContext;
-    } = {}
-  ): Promise<{
-    uid: hexstring;
-    authAt: number;
-    sessionToken: hexstring;
-    keyFetchToken?: hexstring;
-    verificationMethod?: VerificationMethod;
-  }> {
+    options: SignUpOptions = {}
+  ): Promise<SignedUpAccountData> {
     const credentials = await crypto.getCredentials(email, password);
+    const accountData = (await this.signUpWithAuthPW(
+      email,
+      credentials.authPW,
+      options,
+      langHeader(options.lang)
+    )) as SignedUpAccountData;
+    if (options.keys) {
+      accountData.unwrapBKey = credentials.unwrapBKey;
+    }
+    return accountData;
+  }
+
+  /**
+   * This function is intended for a service that will proxy the sign-up
+   * request.  When signing up from a client with access to the plaintext
+   * password, use `signUp` above.
+   */
+  async signUpWithAuthPW(
+    email: string,
+    authPW: string,
+    options: SignUpOptions,
+    headers: Headers = new Headers()
+  ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
     const payloadOptions = ({ keys, lang, ...rest }: any) => rest;
     const payload = {
       email,
-      authPW: credentials.authPW,
+      authPW,
       ...payloadOptions(options),
     };
     const accountData = await this.request(
       'POST',
       pathWithKeys('/account/create', options.keys),
       payload,
-      langHeader(options.lang)
+      headers
     );
-    if (options.keys) {
-      accountData.unwrapBKey = credentials.unwrapBKey;
-    }
     return accountData;
   }
 
