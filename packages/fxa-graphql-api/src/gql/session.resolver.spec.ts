@@ -55,4 +55,9 @@ describe('AccountResolver', () => {
     const result = resolver.session('uid', 'verified');
     expect(result).toStrictEqual({ verified: true });
   });
+
+  it('returns the session status', () => {
+    const result = resolver.sessionStatus('42420000', 'verified');
+    expect(result).toStrictEqual({ state: 'verified', uid: '42420000' });
+  });
 });
