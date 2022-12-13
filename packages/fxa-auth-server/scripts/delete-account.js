@@ -78,6 +78,8 @@ DB.connect(config).then(async (db) => {
 
   const push = require('../lib/push')(log, db, config);
   const oauthDB = require('../lib/oauth/db');
+  const { pushboxApi } = require('../lib/pushbox');
+  const pushbox = pushboxApi(log, config, statsd);
 
   const verificationReminders = require('../lib/verification-reminders')(
     log,
@@ -127,7 +129,8 @@ DB.connect(config).then(async (db) => {
       verificationReminders,
       subscriptionAccountReminders,
       oauthDB,
-      stripeHelper
+      stripeHelper,
+      pushbox
     )
     .find((r) => r.path === '/account/destroy');
 
