@@ -8,7 +8,11 @@ import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 
 import PlanDetails from './index';
-import { getLocalizedCurrency } from '../../lib/formats';
+import {
+  formatPlanPricing,
+  getLocalizedCurrency,
+  getLocalizedCurrencyString,
+} from '../../lib/formats';
 import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
@@ -17,6 +21,18 @@ import { Plan } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Profile } from '../../store/types';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
+import { apiInvoicePreview } from '../../lib/apiClient';
+import {
+  INVOICE_PREVIEW_EXCLUSIVE_TAX,
+  INVOICE_PREVIEW_INCLUSIVE_TAX,
+} from '../../lib/mock-data';
+
+jest.mock('../../lib/apiClient', () => {
+  return {
+    ...jest.requireActual('../../lib/apiClient'),
+    apiInvoicePreview: jest.fn(),
+  };
+});
 
 const userProfile: Profile = {
   avatar: './avatar.svg',
@@ -31,6 +47,7 @@ const userProfile: Profile = {
 };
 
 const selectedPlan: Plan = {
+  active: true,
   plan_id: 'planId',
   plan_name: 'Pro level',
   product_id: 'fpnID',
@@ -48,11 +65,15 @@ const selectedPlan: Plan = {
   product_metadata: null,
 };
 
-const selectedPlanWithConfig = {
+const selectedPlanWithConfig: Plan = {
   ...selectedPlan,
   configuration: {
     urls: {
       webIcon: 'https://webicon',
+      successActionButton: '',
+      privacyNotice: '',
+      termsOfService: '',
+      termsOfServiceDownload: '',
     },
     uiContent: {
       subtitle: 'VPN subtitle',
@@ -67,20 +88,27 @@ const selectedPlanWithConfig = {
         },
       },
     },
+    support: {},
+    styles: {},
   },
 };
+
+beforeEach(() => {
+  (apiInvoicePreview as jest.Mock).mockClear();
+});
 
 afterEach(() => {
   updateConfig({
     featureFlags: {
       useFirestoreProductConfigs: false,
+      useStripeAutomaticTax: false,
     },
   });
   cleanup();
 });
 
 describe('PlanDetails', () => {
-  it('renders as expected', () => {
+  it('renders as expected without tax', () => {
     const subject = () => {
       return render(
         <PlanDetails
@@ -107,6 +135,88 @@ describe('PlanDetails', () => {
     expect(queryByTestId('list')).not.toBeTruthy();
   });
 
+  it('renders as expected with inclusive tax', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    (apiInvoicePreview as jest.Mock)
+      .mockClear()
+      .mockResolvedValue(INVOICE_PREVIEW_INCLUSIVE_TAX);
+    const props = {
+      ...{
+        profile: userProfile,
+        showExpandButton: false,
+        isMobile: false,
+        selectedPlan,
+      },
+    };
+    const subject = () => {
+      return render(<PlanDetails {...props} />);
+    };
+
+    const { queryByTestId } = subject();
+
+    const formattedExpectedAmount = formatPlanPricing(
+      INVOICE_PREVIEW_INCLUSIVE_TAX.total,
+      selectedPlan.currency,
+      selectedPlan.interval,
+      selectedPlan.interval_count
+    );
+
+    await waitFor(() => {
+      const totalPriceComponent = queryByTestId('total-price');
+      expect(totalPriceComponent).toBeInTheDocument();
+      expect(totalPriceComponent?.innerHTML).toContain(formattedExpectedAmount);
+      expect(queryByTestId('tax-amount')).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders as expected with exclusive tax', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    (apiInvoicePreview as jest.Mock)
+      .mockClear()
+      .mockResolvedValue(INVOICE_PREVIEW_EXCLUSIVE_TAX);
+    const props = {
+      ...{
+        profile: userProfile,
+        showExpandButton: false,
+        isMobile: false,
+        selectedPlan,
+      },
+    };
+    const subject = () => {
+      return render(<PlanDetails {...props} />);
+    };
+
+    const { queryByTestId } = subject();
+
+    const formattedExpectedAmount = formatPlanPricing(
+      INVOICE_PREVIEW_EXCLUSIVE_TAX.total,
+      selectedPlan.currency,
+      selectedPlan.interval,
+      selectedPlan.interval_count
+    );
+    const expectedTaxAmount = getLocalizedCurrencyString(
+      INVOICE_PREVIEW_EXCLUSIVE_TAX.tax?.amount!,
+      selectedPlan.currency
+    );
+
+    await waitFor(() => {
+      const totalPriceComponent = queryByTestId('total-price');
+      expect(totalPriceComponent).toBeInTheDocument();
+      expect(totalPriceComponent?.innerHTML).toContain(formattedExpectedAmount);
+      const taxAmount = queryByTestId('tax-amount');
+      expect(taxAmount).toBeInTheDocument();
+      expect(taxAmount?.innerHTML).toContain(expectedTaxAmount);
+    });
+  });
+
   it('renders as expected using firestore config', () => {
     updateConfig({
       featureFlags: {
@@ -130,10 +240,10 @@ describe('PlanDetails', () => {
     const productLogo = queryByTestId('product-logo');
     expect(productLogo).toHaveAttribute(
       'src',
-      selectedPlanWithConfig.configuration.urls.webIcon
+      selectedPlanWithConfig.configuration?.urls.webIcon
     );
     expect(
-      queryByText(selectedPlanWithConfig.configuration.uiContent.subtitle)
+      queryByText(selectedPlanWithConfig.configuration?.uiContent.subtitle!)
     ).toBeInTheDocument();
   });
 
@@ -164,11 +274,12 @@ describe('PlanDetails', () => {
     const productLogo = queryByTestId('product-logo');
     expect(productLogo).toHaveAttribute(
       'src',
-      selectedPlanWithConfig.configuration.locales['fy-NL'].urls.webIcon
+      selectedPlanWithConfig.configuration?.locales['fy-NL']?.urls?.webIcon
     );
     expect(
       queryByText(
-        selectedPlanWithConfig.configuration.locales['fy-NL'].uiContent.subtitle
+        selectedPlanWithConfig.configuration?.locales['fy-NL']?.uiContent
+          ?.subtitle!
       )
     ).toBeInTheDocument();
   });
@@ -360,17 +471,24 @@ describe('PlanDetails', () => {
 
       const { queryByTestId } = subject();
 
-      const expectedAmount = getLocalizedCurrency(
+      const totalAmount =
         selectedPlan.amount && coupon.discountAmount
           ? selectedPlan.amount - coupon.discountAmount
-          : selectedPlan.amount,
-        selectedPlan.currency
+          : selectedPlan.amount;
+
+      const formattedExpectedAmount = formatPlanPricing(
+        totalAmount,
+        selectedPlan.currency,
+        selectedPlan.interval,
+        selectedPlan.interval_count
       );
 
       await waitFor(() => {
         const totalPriceComponent = queryByTestId('total-price');
         expect(totalPriceComponent).toBeInTheDocument();
-        expect(totalPriceComponent?.innerHTML).toContain(expectedAmount.value);
+        expect(totalPriceComponent?.innerHTML).toContain(
+          formattedExpectedAmount
+        );
       });
     });
 

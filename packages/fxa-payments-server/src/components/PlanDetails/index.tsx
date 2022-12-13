@@ -49,11 +49,14 @@ export const PlanDetails = ({
     selectedPlan;
 
   const [loading, setLoading] = useState(true);
-  const [taxAmount, setTaxAmount] = useState(0);
-  const [discountAmount, setDiscountAmount] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [subTotal, setSubTotal] = useState(0);
-  const [totalPrice, setTotalPrice] = useState('');
+  const [priceAmounts, setPriceAmounts] = useState({
+    taxAmount: 0,
+    taxInclusive: true,
+    discountAmount: 0,
+    totalAmount: 0,
+    subTotal: 0,
+    totalPrice: '',
+  });
   const invoice = useRef(invoicePreview);
 
   const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
@@ -85,23 +88,24 @@ export const PlanDetails = ({
       setLoading(true);
 
       const fallBack = () => {
-        setSubTotal(amount!);
-        if (coupon && coupon.discountAmount && amount) {
-          setDiscountAmount(coupon.discountAmount);
-          setTotalAmount(amount - coupon.discountAmount);
-        } else {
-          setDiscountAmount(0);
-          setTotalAmount(amount!);
-        }
-
+        const discountAmount = coupon?.discountAmount || 0;
+        const totalAmount = amount! - discountAmount;
         const price = formatPlanPricing(
-          totalAmount as unknown as number,
+          totalAmount! as unknown as number,
           currency,
           interval,
           interval_count
         );
 
-        setTotalPrice(price);
+        setPriceAmounts({
+          taxAmount: 0,
+          taxInclusive: true,
+          discountAmount,
+          totalAmount,
+          subTotal: amount!,
+          totalPrice: price,
+        });
+
         setLoading(false);
       };
 
@@ -118,29 +122,26 @@ export const PlanDetails = ({
           });
         }
 
-        setSubTotal(invoice.current!.subtotal);
-        setTotalAmount(invoice.current!.total);
-
-        if (invoice.current!.tax && invoice.current?.tax.amount) {
-          setTaxAmount(invoice.current!.tax.amount);
-        } else {
-          setTaxAmount(0);
+        if (!invoice.current) {
+          throw new Error('Could not retrieve Invoice Preview');
         }
-
-        if (invoice.current!.discount) {
-          setDiscountAmount(invoice.current!.discount.amount);
-        } else {
-          setDiscountAmount(0);
-        }
+        const latestInvoicePreview = invoice.current;
 
         const price = formatPlanPricing(
-          totalAmount as unknown as number,
+          latestInvoicePreview.total as unknown as number,
           currency,
           interval,
           interval_count
         );
 
-        setTotalPrice(price);
+        setPriceAmounts({
+          taxAmount: latestInvoicePreview.tax?.amount || 0,
+          taxInclusive: !latestInvoicePreview.tax?.inclusive,
+          discountAmount: latestInvoicePreview.discount?.amount || 0,
+          totalAmount: latestInvoicePreview.total,
+          subTotal: latestInvoicePreview.subtotal,
+          totalPrice: price,
+        });
         setLoading(false);
       } catch (e: any) {
         // gracefully fail/set the state according to the data we have
@@ -156,7 +157,6 @@ export const PlanDetails = ({
     interval,
     interval_count,
     selectedPlan.plan_id,
-    totalAmount,
     invoicePreview,
   ]);
 
@@ -223,7 +223,7 @@ export const PlanDetails = ({
           ) : (
             <>
               <div className="row-divider-grey-200 py-6">
-                {!!subTotal && (
+                {!!priceAmounts.subTotal && (
                   <div className="plan-details-item">
                     <Localized id="plan-details-list-price">
                       <div>List Price</div>
@@ -233,18 +233,24 @@ export const PlanDetails = ({
                       id={`list-price`}
                       attrs={{ title: true }}
                       vars={{
-                        amount: getLocalizedCurrency(subTotal, currency),
+                        amount: getLocalizedCurrency(
+                          priceAmounts.subTotal,
+                          currency
+                        ),
                         intervalCount: interval_count,
                       }}
                     >
                       <div>
-                        {getLocalizedCurrencyString(subTotal, currency)}
+                        {getLocalizedCurrencyString(
+                          priceAmounts.subTotal,
+                          currency
+                        )}
                       </div>
                     </Localized>
                   </div>
                 )}
 
-                {!!taxAmount && (
+                {!!priceAmounts.taxAmount && priceAmounts.taxInclusive && (
                   <div className="plan-details-item">
                     <Localized id="plan-details-tax">
                       <div>Taxes and Fees</div>
@@ -254,18 +260,24 @@ export const PlanDetails = ({
                       id={`tax`}
                       attrs={{ title: true }}
                       vars={{
-                        amount: getLocalizedCurrency(taxAmount, currency),
+                        amount: getLocalizedCurrency(
+                          priceAmounts.taxAmount,
+                          currency
+                        ),
                         intervalCount: interval_count,
                       }}
                     >
-                      <div>
-                        {getLocalizedCurrencyString(taxAmount, currency)}
+                      <div data-testid="tax-amount">
+                        {getLocalizedCurrencyString(
+                          priceAmounts.taxAmount,
+                          currency
+                        )}
                       </div>
                     </Localized>
                   </div>
                 )}
 
-                {!!discountAmount && (
+                {!!priceAmounts.discountAmount && (
                   <div className="plan-details-item">
                     <Localized id="coupon-promo-code">
                       <div>Promo Code</div>
@@ -275,13 +287,16 @@ export const PlanDetails = ({
                       id={`coupon-amount`}
                       attrs={{ title: true }}
                       vars={{
-                        amount: getLocalizedCurrency(discountAmount, currency),
+                        amount: getLocalizedCurrency(
+                          priceAmounts.discountAmount,
+                          currency
+                        ),
                         intervalCount: interval_count,
                       }}
                     >
                       <div>
                         {`- ${getLocalizedCurrencyString(
-                          discountAmount,
+                          priceAmounts.discountAmount,
                           currency
                         )}`}
                       </div>
@@ -291,7 +306,7 @@ export const PlanDetails = ({
               </div>
 
               <div className="pt-4 pb-6">
-                {!!totalAmount && (
+                {!!priceAmounts.totalAmount && (
                   <div className="plan-details-item font-semibold">
                     <Localized id="plan-details-total-label">
                       <div className="total-label">Total</div>
@@ -302,17 +317,20 @@ export const PlanDetails = ({
                       data-testid="plan-price-total"
                       attrs={{ title: true }}
                       vars={{
-                        amount: getLocalizedCurrency(totalAmount, currency),
+                        amount: getLocalizedCurrency(
+                          priceAmounts.totalAmount,
+                          currency
+                        ),
                         intervalCount: interval_count,
                       }}
                     >
                       <div
                         className="total-price"
-                        title={totalPrice}
+                        title={priceAmounts.totalPrice}
                         data-testid="total-price"
                         id="total-price"
                       >
-                        {totalPrice}
+                        {priceAmounts.totalPrice}
                       </div>
                     </Localized>
                   </div>

@@ -378,3 +378,41 @@ export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: FirstInvoicePreview = {
     percent_off: null,
   },
 };
+
+export const INVOICE_PREVIEW_INCLUSIVE_TAX: FirstInvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  subtotal_excluding_tax: 377,
+  total: 500,
+  total_excluding_tax: 377,
+  tax: {
+    amount: 123,
+    inclusive: true,
+  },
+};
+
+export const INVOICE_PREVIEW_EXCLUSIVE_TAX: FirstInvoicePreview = {
+  line_items: [
+    {
+      amount: 500,
+      currency: 'usd',
+      id: 'plan_GqM9N64ksvxaVk',
+      name: '1 x 123Done Pro (at $5.00 / month)',
+    },
+  ],
+  subtotal: 500,
+  subtotal_excluding_tax: 500,
+  total: 623,
+  total_excluding_tax: 500,
+  tax: {
+    amount: 123,
+    inclusive: false,
+  },
+};
