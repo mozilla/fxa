@@ -58,6 +58,7 @@ import {
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
+import { RejectUnblockCodeInput } from './dto/input/reject-unblock-code';
 import { SignInInput } from './dto/input/sign-in';
 import { SignUpInput } from './dto/input/sign-up';
 import {
@@ -565,6 +566,28 @@ export class AccountResolver {
     }
 
     return { exists: false };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description:
+      'Used to reject and report unblock codes that were not requested by the user.',
+  })
+  @CatchGatewayError
+  public async rejectUnblockCode(
+    @Args('input', { type: () => RejectUnblockCodeInput })
+    input: RejectUnblockCodeInput
+  ): Promise<BasicPayload> {
+    await Account.consumeUnblockCode(
+      input.uid,
+      input.unblockCode.toUpperCase()
+    );
+    this.log.info('account.login.rejectedUnblockCode', {
+      uid: input.uid,
+      unblockCode: input.unblockCode,
+    });
+    return {
+      clientMutationId: input.clientMutationId,
+    };
   }
 
   @ResolveField()
