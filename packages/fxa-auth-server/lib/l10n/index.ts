@@ -94,13 +94,21 @@ class Localizer {
    * @param locale Locale to use, defaults to en.
    */
   protected async fetchTranslatedMessages(locale?: string) {
+    const results: string[] = [];
+
     // Note: 'en' auth.ftl only exists for browser bindings / Storybook. The fallback
     // English strings within the templates are tested and are shown in other envs
-    const path = `${this.bindings.opts.translations.basePath}/${
+    const authPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/auth.ftl`;
+    results.push(await this.bindings.fetchResource(authPath));
 
-    return this.bindings.fetchResource(path);
+    const brandingPath = `${this.bindings.opts.translations.basePath}/${
+      locale || 'en'
+    }/branding.ftl`;
+    results.push(await this.bindings.fetchResource(brandingPath));
+
+    return results.join('\n\n\n');
   }
 
   async localizeStrings(

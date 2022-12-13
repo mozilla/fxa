@@ -132,8 +132,12 @@ packages/fxa-profile-server/BUCKET_NAME
 
 # fxa-react
 packages/fxa-react/**/*.js
+!packages/fxa-react/**/gruntfile.js
 packages/fxa-react/**/*.d.ts
 !packages/fxa-react/pm2.config.js
+packages/fxa-react/fxa-content-server-l10n/
+packages/fxa-react/public/locales
+packages/fxa-react/test/
 
 # fxa-settings
 packages/fxa-settings/fxa-content-server-l10n/

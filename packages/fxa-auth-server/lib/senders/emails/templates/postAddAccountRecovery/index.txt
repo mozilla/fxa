@@ -1,4 +1,4 @@
-postAddAccountRecovery-title-2 = "You created a new account recovery key"
+postAddAccountRecovery-title2 = "You created a new account recovery key"
 
 postAddAccountRecovery-description-2 = "A new key was created from:"
 

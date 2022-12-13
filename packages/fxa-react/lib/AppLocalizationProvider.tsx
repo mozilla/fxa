@@ -76,7 +76,7 @@ type Props = {
 export default class AppLocalizationProvider extends Component<Props, State> {
   static defaultProps: Props = {
     baseDir: '/locales',
-    userLocales: ['en-US'],
+    userLocales: ['en'],
     bundles: ['main'],
     children: React.createElement('div'),
   };
