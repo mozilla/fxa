@@ -24750,7 +24750,7 @@ fsevents@~2.1.1:
     on-headers: ^1.0.2
     pm2: ^5.2.2
     postcss: ^8.4.14
-    postcss-import: ^15.0.0
+    postcss-import: ^15.1.0
     prettier: ^2.3.1
     react: ^16.13.0
     react-dom: ^16.13.0
@@ -25139,7 +25139,7 @@ fsevents@~2.1.1:
     postcss: ^8.4.14
     postcss-assets: ^6.0.0
     postcss-cli: 7.1.1
-    postcss-import: ^15.0.0
+    postcss-import: ^15.1.0
     postcss-loader: 4.2.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -25531,7 +25531,7 @@ fsevents@~2.1.1:
     photon-colors: 1.0.3
     pm2: ^5.2.2
     postcss: ^8.4.14
-    postcss-import: 15.0.0
+    postcss-import: 15.1.0
     prettier: ^2.3.1
     react: ^16.12.0
     react-dom: ^16.12.0
@@ -25653,7 +25653,7 @@ fsevents@~2.1.1:
     jest: 27.5.1
     jest-environment-jsdom: ^27.5.1
     pm2: ^5.2.2
-    postcss-import: ^15.0.0
+    postcss-import: ^15.1.0
     prettier: ^2.3.1
     react: ^16.13.1
     react-dom: ^16.13.1
@@ -25735,7 +25735,7 @@ fsevents@~2.1.1:
     pm2: ^5.2.2
     postcss: ^8.4.14
     postcss-assets: ^6.0.0
-    postcss-import: ^15.0.0
+    postcss-import: ^15.1.0
     react: ^16.13.1
     react-async-hook: ^4.0.0
     react-dom: ^16.13.1
@@ -38125,16 +38125,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss-import@npm:15.0.0, postcss-import@npm:^15.0.0":
-  version: 15.0.0
-  resolution: "postcss-import@npm:15.0.0"
+"postcss-import@npm:15.1.0, postcss-import@npm:^15.1.0":
+  version: 15.1.0
+  resolution: "postcss-import@npm:15.1.0"
   dependencies:
     postcss-value-parser: ^4.0.0
     read-cache: ^1.0.0
     resolve: ^1.1.7
   peerDependencies:
     postcss: ^8.0.0
-  checksum: e5048072514f33520348c0c5aaedb5db92da72188e72a7367c26a8d851b9cf92e56aeda30d9c7b4ed1a34f84a58959da1b4b27b4aa23d41fc0ce36efe00bf1d1
+  checksum: 7bd04bd8f0235429009d0022cbf00faebc885de1d017f6d12ccb1b021265882efc9302006ba700af6cab24c46bfa2f3bc590be3f9aee89d064944f171b04e2a3
   languageName: node
   linkType: hard
 
