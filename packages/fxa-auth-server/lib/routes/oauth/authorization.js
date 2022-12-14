@@ -126,14 +126,26 @@ module.exports = ({ log, oauthDB, config }) => {
   }
 
   function validateClientDetails(client, payload) {
-    // Clients must use a single specific redirect_uri,
-    // but they're allowed to not provide one and have us fill it in automatically.
-    payload.redirect_uri = payload.redirect_uri || client.redirectUri;
-    if (payload.redirect_uri !== client.redirectUri) {
-      log.debug('redirect.mismatch', {
-        param: payload.redirect_uri,
-        registered: client.redirectUri,
-      });
+    if (!payload.redirect_uri && !client.redirectUri) {
+      throw OauthError.incorrectRedirect();
+    }
+
+    // Starting in train-248, FxA added the ability for an OAuth client to support
+    // multiple redirect uris (comma separated list). The authorization flow redirect uri
+    // must match one of these exactly. Pattern matching is not supported.
+    const redirectUris = client.redirectUri.split(',');
+
+    // Authorization flow must use a single specific redirect_uri,
+    // but allowed to not provide one and have us fill it in automatically.
+    payload.redirect_uri = payload.redirect_uri || redirectUris[0];
+
+    const validUri = redirectUris.some((uri) => {
+      if (uri === payload.redirect_uri) {
+        return true;
+      }
+    });
+
+    if (!validUri) {
       if (
         config.oauthServer.localRedirects &&
         isLocalHost(payload.redirect_uri)
@@ -142,6 +154,11 @@ module.exports = ({ log, oauthDB, config }) => {
       } else {
         throw OauthError.incorrectRedirect(payload.redirect_uri);
       }
+    } else {
+      log.debug('redirect.mismatch', {
+        param: payload.redirect_uri,
+        registered: client.redirectUri,
+      });
     }
   }
 
