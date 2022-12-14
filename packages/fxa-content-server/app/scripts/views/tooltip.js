@@ -80,7 +80,7 @@ const Tooltip = BaseView.extend({
       // When this component is converted to React, use the shared close.svg
       // from fxa-react for both black and white versions
       this.$el.append(
-        `<button type="button" class="dismiss" aria-label=${dismissAriaLabel}><img src="/images/close-white.svg" alt="&#10005;" aria-hidden="true" /></button>`
+        `<button type="button" class="dismiss bg-close-white" aria-label=${dismissAriaLabel}></button>`
       );
     }
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .info {
-  @apply flex gap-2 items-center my-3 p-3 rounded bg-grey-50 text-black;
+  @apply flex gap-2 items-center mb-5 p-3 rounded bg-grey-50 text-black;
 }
 
 .info-text {
@@ -34,7 +34,7 @@
 }
 
 .dismiss {
-  @apply h-3 w-3 cursor-pointer fill-current z-[6];
+  @apply bg-contain h-3 w-3;
 }
 
 .dismiss-container {
