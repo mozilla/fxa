@@ -13,7 +13,7 @@ const CLIENT_ID = config.oauthServer.clients.find(
   (client) => client.trusted && client.canGrant && client.publicClient
 ).id;
 
-describe('fetch user profile data', function () {
+describe('#integration - fetch user profile data', function () {
   this.timeout(15000);
 
   let server, client, email, password;

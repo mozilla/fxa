@@ -43,7 +43,7 @@ const redis = require('../../lib/redis')(
   mocks.mockLog()
 );
 
-describe('scripts/prune-tokens', () => {
+describe('#integration - scripts/prune-tokens', () => {
   let db;
 
   const toRandomBuff = (size) =>

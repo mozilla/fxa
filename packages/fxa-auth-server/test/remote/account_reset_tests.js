@@ -12,7 +12,7 @@ const jwtool = require('fxa-jwtool');
 
 const config = require('../../config').getProperties();
 
-describe('remote account reset', function () {
+describe('#integration - remote account reset', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = true;
@@ -177,8 +177,7 @@ describe('remote account reset', function () {
     const duration = 1000 * 60 * 60 * 24; // 24 hours
     const publicKey = {
       algorithm: 'RS',
-      n:
-        '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+      n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
       e: '65537',
     };
 
@@ -190,16 +189,18 @@ describe('remote account reset', function () {
       { keys: true }
     );
 
-    const cert1 = jwtool.unverify(await client.sign(publicKey, duration))
-      .payload;
+    const cert1 = jwtool.unverify(
+      await client.sign(publicKey, duration)
+    ).payload;
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);
     await resetPassword(client, code, newPassword);
     await server.mailbox.waitForEmail(email);
 
-    const cert2 = jwtool.unverify(await client.sign(publicKey, duration))
-      .payload;
+    const cert2 = jwtool.unverify(
+      await client.sign(publicKey, duration)
+    ).payload;
 
     assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
     assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);

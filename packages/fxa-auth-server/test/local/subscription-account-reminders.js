@@ -15,7 +15,7 @@ const { assert } = require('chai');
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const mocks = require('../mocks');
 
-describe('#integration - lib/subscription-account-reminders:', () => {
+describe('#integration - lib/subscription-account-reminders', () => {
   let log, mockConfig, redis, subscriptionAccountReminders;
 
   beforeEach(() => {

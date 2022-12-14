@@ -58,13 +58,6 @@ const DB = require('../../lib/db')(
   UnblockCode
 );
 
-const redis = require('ioredis').createClient({
-  host: config.redis.host,
-  port: config.redis.port,
-  prefix: config.redis.sessionTokens.prefix,
-  enable_offline_queue: false,
-});
-
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
   'hex'
@@ -76,10 +69,18 @@ const zeroBuffer32 = Buffer.from(
 
 let account, secondEmail;
 
-describe('remote db', function () {
+describe('#integration - remote db', function () {
   this.timeout(20000);
-  let dbServer, db;
+  let dbServer, db, redis;
+
   before(() => {
+    redis = require('ioredis').createClient({
+      host: config.redis.host,
+      port: config.redis.port,
+      prefix: config.redis.sessionTokens.prefix,
+      enable_offline_queue: false,
+    });
+
     return TestServer.start(config)
       .then((s) => {
         dbServer = s;

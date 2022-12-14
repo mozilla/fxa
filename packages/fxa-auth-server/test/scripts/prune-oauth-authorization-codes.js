@@ -17,7 +17,7 @@ const execOptions = {
   cwd,
 };
 
-describe('scripts/prune-oauth-authorization-codes:', () => {
+describe('#integration - scripts/prune-oauth-authorization-codes:', () => {
   it('does not fail with no argument', () => {
     return execAsync(
       'node -r esbuild-register scripts/prune-oauth-authorization-codes',

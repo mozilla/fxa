@@ -3120,9 +3120,7 @@ function applyAssertions(
     assertions = [assertions];
   }
 
-  const testType =
-    type === 'subscriptionCancellationEmail' ? '#integration - ' : '';
-  describe(`${testType}${type} - ${property}`, () => {
+  describe(`${type} - ${property}`, () => {
     assertions.forEach(({ test, expected }: Test) => {
       it(`${test} - ${expected}`, () => {
         assert[test](target, expected, `${type}: ${property}`);

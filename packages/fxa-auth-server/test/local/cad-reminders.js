@@ -15,7 +15,7 @@ const { assert } = require('chai');
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const mocks = require('../mocks');
 
-describe('#integration - lib/cad-reminders', () => {
+describe('lib/cad-reminders', () => {
   let log, mockConfig, redis, cadReminders;
 
   beforeEach(() => {
@@ -72,7 +72,7 @@ describe('#integration - lib/cad-reminders', () => {
     assert.lengthOf(cadReminders.close, 0);
   });
 
-  describe('create', () => {
+  describe('#integration - create', () => {
     let before, createResult;
 
     beforeEach(async () => {

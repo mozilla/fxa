@@ -10,7 +10,7 @@ const Client = require('../client')();
 
 const config = require('../../config').getProperties();
 
-describe('remote account destroy', function () {
+describe('#integration - remote account destroy', function () {
   this.timeout(15000);
   let server;
 

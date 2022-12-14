@@ -23,7 +23,7 @@ const JWT_ACCESS_TOKEN_SECRET =
 
 const { decodeJWT } = testUtils;
 
-describe('/oauth/ routes', function () {
+describe('#integration - /oauth/ routes', function () {
   this.timeout(15000);
   let client;
   let email;

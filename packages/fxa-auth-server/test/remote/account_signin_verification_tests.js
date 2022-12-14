@@ -21,7 +21,7 @@ const publicKey = {
 
 const mocks = require('../mocks');
 
-describe('remote account signin verification', function () {
+describe('#integration - remote account signin verification', function () {
   this.timeout(30000);
   let server;
   before(() => {

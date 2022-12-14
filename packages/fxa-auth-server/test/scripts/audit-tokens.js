@@ -21,7 +21,7 @@ const { clearDb, scaffoldDb, connectToDb } = require('./db-helpers');
 const exec = util.promisify(require('node:child_process').exec);
 const cwd = path.resolve(__dirname, '../..');
 
-describe('scripts/audit-tokens', () => {
+describe('#integration - scripts/audit-tokens', () => {
   const uid = 'f9916686c226415abd06ae550f073cea';
   const email = 'user1@test.com';
   const createdAt = new Date('2022-10').getTime();

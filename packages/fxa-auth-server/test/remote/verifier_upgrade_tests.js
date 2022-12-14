@@ -33,7 +33,7 @@ const {
 
 let client, db, server;
 
-describe('remote verifier upgrade', function () {
+describe('#integration - remote verifier upgrade', function () {
   this.timeout(30000);
 
   before(async () => {

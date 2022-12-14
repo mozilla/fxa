@@ -1204,7 +1204,7 @@ describe('/account/create', () => {
   });
 });
 
-describe('#integration - /account/stub', () => {
+describe('/account/stub', () => {
   function setup(extraConfig) {
     const config = {
       securityHistory: {
@@ -1301,7 +1301,7 @@ describe('#integration - /account/stub', () => {
     };
   }
 
-  it('creates an account', () => {
+  it('#integration - creates an account', () => {
     const { route, mockRequest, uid } = setup();
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.uid, uid);

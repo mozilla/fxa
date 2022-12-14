@@ -13,7 +13,7 @@
     "delete": "pm2 delete pm2.config.js",
     "test": "scripts/test-local.sh",
     "test:unit": "node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#unit' ",
-    "test:unit": "node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' ",
+    "test:integration": "node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' ",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {

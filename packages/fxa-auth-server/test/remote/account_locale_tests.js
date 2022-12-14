@@ -17,7 +17,7 @@ const key = {
   e: '65537',
 };
 
-describe('remote account locale', function () {
+describe('#integration - remote account locale', function () {
   this.timeout(15000);
   let server;
 

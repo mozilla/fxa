@@ -38,7 +38,7 @@ const r = {
 };
 let insertIdx;
 
-describe('pushbox db', () => {
+describe('#integration - pushbox db', () => {
   afterEach(() => {
     sandbox.restore();
   });

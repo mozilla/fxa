@@ -10,7 +10,7 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').getProperties();
 
-describe('remote recovery email resend code', function () {
+describe('#integration - remote recovery email resend code', function () {
   this.timeout(15000);
   let server;
   before(() => {
