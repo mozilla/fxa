@@ -139,10 +139,7 @@ test.describe('OAuth signin', () => {
 
   test('verified, blocked', async ({ target, pages: { login, relier } }) => {
     const blockedEmail = login.createEmail('blocked{id}');
-    await target.auth.signUp(blockedEmail, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    await target.createAccount(blockedEmail, PASSWORD);
 
     await relier.goto();
     await relier.clickEmailFirst();
@@ -157,10 +154,7 @@ test.describe('OAuth signin', () => {
     pages: { login, relier },
   }) => {
     const blockedEmail = login.createEmail('blocked{id}');
-    await target.auth.signUp(blockedEmail, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    await target.createAccount(blockedEmail, PASSWORD);
 
     await relier.goto();
     await relier.clickEmailFirst();

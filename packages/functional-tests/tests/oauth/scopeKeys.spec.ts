@@ -11,10 +11,7 @@ test.describe('OAuth scopeKeys', () => {
     pages: { login },
   }) => {
     const email = login.createEmail('sync{id}');
-    await target.auth.signUp(email, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    await target.createAccount(email, PASSWORD);
 
     const query = new URLSearchParams({
       client_id: '7f368c6886429f19', // eslint-disable-line camelcase
