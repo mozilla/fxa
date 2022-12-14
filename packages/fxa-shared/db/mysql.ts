@@ -9,6 +9,11 @@ import { AccessToken as AccessToken } from '../db/models/auth/access-token';
 import { ILogger } from '../log';
 import ScopeSet from '../oauth/scopes';
 
+type Millisecond = number;
+interface DbPoolConfig extends mysql.PoolConfig {
+  idleLimitMs: number;
+}
+
 // TODO: Improve types. Ported form javascript...
 const buf = require('buf').hex;
 
@@ -126,9 +131,10 @@ export interface IMysqlStoreSharedEvents {
 export class MysqlStoreShared {
   protected _pool: mysql.Pool;
   protected readonly _uid: string;
+  protected readonly _fxa_idle_limit: Millisecond;
 
   constructor(
-    options: mysql.PoolConfig,
+    options: DbPoolConfig,
     protected readonly events?: IMysqlStoreSharedEvents,
     protected readonly log?: ILogger,
     protected readonly metrics?: StatsD
@@ -145,6 +151,7 @@ export class MysqlStoreShared {
       return next();
     };
     this._pool = mysql.createPool(options);
+    this._fxa_idle_limit = options.idleLimitMs;
     this.metrics?.increment('mysql.pool_creation');
 
     // Tag with uid to keep instances seperate
@@ -233,11 +240,12 @@ export class MysqlStoreShared {
   }
 
   protected _getConnection() {
-    var pool = this._pool;
-    var events = this.events;
-    var log = this.log;
-    var metrics = this.metrics;
-    var uid = this._uid;
+    const pool = this._pool;
+    const events = this.events;
+    const log = this.log;
+    const metrics = this.metrics;
+    const uid = this._uid;
+    const idleLimit = this._fxa_idle_limit;
 
     return new Promise(function (resolve, reject) {
       pool.getConnection(function (err: any, conn: any) {
@@ -250,6 +258,27 @@ export class MysqlStoreShared {
           });
           return reject(err);
         }
+
+        // The mysql module's connection pool never closes any of its
+        // connections.  There's at least one open contributor PR
+        // (https://github.com/mysqljs/mysql/pull/2218) on the
+        // module's repo for the feature, but not much activity.
+        if (conn._fxa_idle_timeout) {
+          clearTimeout(conn._fxa_idle_timeout);
+        }
+
+        conn._fxa_idle_timeout = setTimeout(() => {
+          try {
+            (pool as any)._purgeConnection(conn);
+            metrics?.increment('mysql.close_idle_connection');
+          } catch (err) {
+            log?.error('MysqlStoreShared', {
+              msg: 'MysqlStoreShared: Failed to close idle connection.',
+              err,
+            });
+            metrics?.increment('mysql.error.close_idle_connection');
+          }
+        }, idleLimit);
 
         if (conn._fxa_initialized) {
           return resolve(conn);
@@ -359,7 +388,7 @@ export class MysqlStoreShared {
 
 export class MysqlOAuthShared extends MysqlStoreShared {
   constructor(
-    options: mysql.PoolConfig,
+    options: DbPoolConfig,
     events?: IMysqlStoreSharedEvents,
     log?: ILogger,
     metrics?: StatsD
