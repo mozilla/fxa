@@ -79,7 +79,7 @@ export const PaymentConfirmation = ({
     <>
       <SubscriptionTitle screenType="success" />
       <section
-        className="mb-auto mx-4 tablet:m-0 payment-confirmation"
+        className="mb-auto tablet:m-0 payment-confirmation"
         data-testid="payment-confirmation"
       >
         <header className="flex flex-col justify-center items-center row-divider-grey-200 text-center pb-8 mt-5 desktop:mt-2">

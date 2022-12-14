@@ -35,7 +35,7 @@ export const SubscriptionTitle = ({
 
   return (
     <div
-      className={`subscription-title bg-white shadow-sm shadow-grey-300 text-center mt-0 mx-4 mb-auto pt-5 px-4 pb-px border-y-auto row-start-1 row-end-2 tablet:mx-0 ${className}`}
+      className={`subscription-title bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px border-y-auto tablet:mx-0 ${className}`}
       data-testid={`subscription-${screenType}-title`}
     >
       <Localized id={`subscription-${screenType}-title`}>

@@ -34,7 +34,7 @@ export const PlanUpgradeDetails = ({
 
   return (
     <section
-      className={`plan-upgrade-details-component mt-6 mx-4 ${className}`}
+      className={`plan-upgrade-details-component pt-6 tablet:pt-0 ${className}`}
       {...{ role }}
       data-testid="plan-upgrade-details-component"
     >

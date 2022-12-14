@@ -230,10 +230,37 @@ export const SubscriptionCreate = ({
             hidden: transactionInProgress || subscriptionError,
           })}
         />
+
+        {transactionInProgress && isMobile ? null : (
+          <div className="payment-panel">
+            <PlanDetails
+              {...{
+                selectedPlan,
+                isMobile,
+                showExpandButton: isMobile,
+                coupon: coupon,
+              }}
+            />
+
+            <CouponForm
+              {...{
+                planId: selectedPlan.plan_id,
+                readOnly: false,
+                subscriptionInProgress: inProgress || transactionInProgress,
+                coupon,
+                setCoupon,
+              }}
+            />
+          </div>
+        )}
+
         <div
-          className={classNames('product-payment', {
-            hidden: transactionInProgress || subscriptionError,
-          })}
+          className={classNames(
+            'product-payment rounded-lg tablet:rounded-t-none',
+            {
+              hidden: transactionInProgress || subscriptionError,
+            }
+          )}
           data-testid="subscription-create"
         >
           <PaymentMethodHeader
@@ -324,29 +351,6 @@ export const SubscriptionCreate = ({
             {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
           </div>
         </div>
-
-        {transactionInProgress && isMobile ? null : (
-          <div className="payment-panel">
-            <PlanDetails
-              {...{
-                selectedPlan,
-                isMobile,
-                showExpandButton: isMobile,
-                coupon: coupon,
-              }}
-            />
-
-            <CouponForm
-              {...{
-                planId: selectedPlan.plan_id,
-                readOnly: false,
-                subscriptionInProgress: inProgress || transactionInProgress,
-                coupon,
-                setCoupon,
-              }}
-            />
-          </div>
-        )}
       </div>
     </>
   );

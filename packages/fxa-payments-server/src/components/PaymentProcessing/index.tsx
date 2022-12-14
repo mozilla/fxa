@@ -21,7 +21,7 @@ export const PaymentProcessing = ({
     <>
       <SubscriptionTitle screenType="processing" className={className} />
       <section
-        className={`payment-processing flex flex-col mx-4 ${className}`}
+        className={`payment-processing flex flex-col ${className}`}
         data-testid="payment-processing"
       >
         <div className="flex flex-col text-center">

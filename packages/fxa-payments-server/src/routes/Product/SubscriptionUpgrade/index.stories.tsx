@@ -10,6 +10,7 @@ import { SignInLayout } from '../../../components/AppLayout';
 
 import {
   CUSTOMER,
+  PAYPAL_CUSTOMER,
   SELECTED_PLAN,
   UPGRADE_FROM_PLAN,
   PROFILE,
@@ -20,10 +21,18 @@ import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 function init() {
   storiesOf('routes/Product/SubscriptionUpgrade', module)
-    .add('upgrade offer', () => (
+    .add('upgrade offer - Visa', () => (
       <SubscriptionUpgradeView
         props={{
           ...MOCK_PROPS,
+          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+        }}
+      />
+    ))
+    .add('upgrade offer - PayPal', () => (
+      <SubscriptionUpgradeView
+        props={{
+          ...MOCK_PROPS_PAYPAL,
           updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
         }}
       />
@@ -109,6 +118,11 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
   },
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
+};
+
+const MOCK_PROPS_PAYPAL: SubscriptionUpgradeProps = {
+  ...MOCK_PROPS,
+  customer: PAYPAL_CUSTOMER,
 };
 
 init();

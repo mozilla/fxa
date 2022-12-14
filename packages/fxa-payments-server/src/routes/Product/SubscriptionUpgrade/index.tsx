@@ -120,8 +120,20 @@ export const SubscriptionUpgrade = ({
       )}
       <Header {...{ profile }} />
       <div className="main-content">
+        <div className="payment-panel">
+          <PlanUpgradeDetails
+            {...{
+              profile,
+              selectedPlan,
+              upgradeFromPlan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+        </div>
+
         <div
-          className="product-payment product-upgrade"
+          className="product-payment product-upgrade rounded-lg tablet:rounded-t-none"
           data-testid="subscription-upgrade"
         >
           {!isMobile ? (
@@ -197,15 +209,6 @@ export const SubscriptionUpgrade = ({
             </div>
           </Form>
         </div>
-        <PlanUpgradeDetails
-          {...{
-            profile,
-            selectedPlan,
-            upgradeFromPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
         {mobileUpdateHeading}
       </div>
     </>
