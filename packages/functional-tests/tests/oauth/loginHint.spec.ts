@@ -69,16 +69,10 @@ test.describe('OAuth `login_hint` and `email` param', () => {
     pages: { login, relier },
   }) => {
     const email = login.createEmail();
-    await target.auth.signUp(email, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    await target.createAccount(email, PASSWORD);
 
     const loginHintEmail = login.createEmail();
-    await target.auth.signUp(loginHintEmail, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    await target.createAccount(loginHintEmail, PASSWORD);
 
     // Create a cached login
     await relier.goto();
