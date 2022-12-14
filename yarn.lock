@@ -6360,18 +6360,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/exporter-trace-otlp-http@npm:^0.33.0":
-  version: 0.33.0
-  resolution: "@opentelemetry/exporter-trace-otlp-http@npm:0.33.0"
+"@opentelemetry/exporter-trace-otlp-http@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@opentelemetry/exporter-trace-otlp-http@npm:0.34.0"
   dependencies:
-    "@opentelemetry/core": 1.7.0
-    "@opentelemetry/otlp-exporter-base": 0.33.0
-    "@opentelemetry/otlp-transformer": 0.33.0
-    "@opentelemetry/resources": 1.7.0
-    "@opentelemetry/sdk-trace-base": 1.7.0
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/otlp-exporter-base": 0.34.0
+    "@opentelemetry/otlp-transformer": 0.34.0
+    "@opentelemetry/resources": 1.8.0
+    "@opentelemetry/sdk-trace-base": 1.8.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-  checksum: 6e00e52852b74b1a6c733638be9fa3b732dbebb00aba220119ed2973a9713d06487b87cd12d7fa830a44e8f3e58bbbaaa2be6242bce309e3e52a266b4efc3123
+  checksum: 1a5cd1d42df47af713c01069fed81fa0b3188ffce35ce03c90a748583088154f609554dd354995c959edad394431a70f2e5fd7406d3c0ee9a0f623befb485e55
   languageName: node
   linkType: hard
 
@@ -6885,29 +6885,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/otlp-exporter-base@npm:0.33.0":
-  version: 0.33.0
-  resolution: "@opentelemetry/otlp-exporter-base@npm:0.33.0"
+"@opentelemetry/otlp-exporter-base@npm:0.34.0":
+  version: 0.34.0
+  resolution: "@opentelemetry/otlp-exporter-base@npm:0.34.0"
   dependencies:
-    "@opentelemetry/core": 1.7.0
+    "@opentelemetry/core": 1.8.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-  checksum: 22c3cf6234b992e74b19ba6189a12cf682c9f54d273f9ab64e3ffbe33d1d2c49a93718a07825a69bfc162ded1fdef19a51ecbe55509886dab77c3e1390d3ccc7
+  checksum: 8335da691c192710dcd7ddc97928aff7dafc58a32c2308ed687b3dfff12a2d242d7c92c6baaf07ae87b75047588b028fa2a3f77d1ea0e93c83e8c5cd8637405f
   languageName: node
   linkType: hard
 
-"@opentelemetry/otlp-transformer@npm:0.33.0":
-  version: 0.33.0
-  resolution: "@opentelemetry/otlp-transformer@npm:0.33.0"
+"@opentelemetry/otlp-transformer@npm:0.34.0":
+  version: 0.34.0
+  resolution: "@opentelemetry/otlp-transformer@npm:0.34.0"
   dependencies:
-    "@opentelemetry/api-metrics": 0.33.0
-    "@opentelemetry/core": 1.7.0
-    "@opentelemetry/resources": 1.7.0
-    "@opentelemetry/sdk-metrics": 0.33.0
-    "@opentelemetry/sdk-trace-base": 1.7.0
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/resources": 1.8.0
+    "@opentelemetry/sdk-metrics": 1.8.0
+    "@opentelemetry/sdk-trace-base": 1.8.0
   peerDependencies:
-    "@opentelemetry/api": ">=1.0.0 <1.3.0"
-  checksum: f2a68957588a5bf7de3974dd210440dc64f29dd93c3f6f79c2e0cf69d3e487432cfec6d2c14752d7ba007f93140a23f8ea39135451e7bf455789b4a2d8ad84d1
+    "@opentelemetry/api": ">=1.3.0 <1.4.0"
+  checksum: c80025e311818a8cbfdaf41ef61a7b8c7bfee27504f08a77e09166ae9051488d449be3c59186d42f7efbb91f043fd5877063be403f20bef5c9914827c19dc707
   languageName: node
   linkType: hard
 
@@ -6994,17 +6993,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-metrics@npm:0.33.0":
-  version: 0.33.0
-  resolution: "@opentelemetry/sdk-metrics@npm:0.33.0"
+"@opentelemetry/sdk-metrics@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/sdk-metrics@npm:1.8.0"
   dependencies:
-    "@opentelemetry/api-metrics": 0.33.0
-    "@opentelemetry/core": 1.7.0
-    "@opentelemetry/resources": 1.7.0
+    "@opentelemetry/core": 1.8.0
+    "@opentelemetry/resources": 1.8.0
     lodash.merge: 4.6.2
   peerDependencies:
-    "@opentelemetry/api": ^1.0.0
-  checksum: 2c99c7ece4e545a3da0280e8dc9699458fdbb5c2bf9bcf09a9524612a844b28516d864ab1e0b5bedd12f9cccfc5d4f01663686538e8144b4d0185d2f8a581f0e
+    "@opentelemetry/api": ">=1.3.0 <1.4.0"
+  checksum: 8dfb82e70b14fe2e95ce3f3d0b18e42981bfabe64c63b7f8c429aed197815356836a0350ad5cf38696f561c616ff5572f2ca63f4f968ae1367ed7180f730cad7
   languageName: node
   linkType: hard
 
@@ -25771,7 +25769,7 @@ fsevents@~2.1.1:
     "@opentelemetry/context-zone": ^1.7.0
     "@opentelemetry/context-zone-peer-dep": ^1.7.0
     "@opentelemetry/exporter-jaeger": ^1.8.0
-    "@opentelemetry/exporter-trace-otlp-http": ^0.33.0
+    "@opentelemetry/exporter-trace-otlp-http": ^0.34.0
     "@opentelemetry/instrumentation-document-load": ^0.31.0
     "@opentelemetry/instrumentation-fetch": ^0.34.0
     "@opentelemetry/instrumentation-user-interaction": ^0.31.0
