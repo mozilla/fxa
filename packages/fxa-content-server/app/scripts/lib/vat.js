@@ -44,6 +44,10 @@ Vat.register(
   'verificationRedirect',
   Vat.string().test(Validate.isVerificationRedirectValid)
 );
+Vat.register(
+  'redirectUri',
+  Vat.string().required().test(Validate.isRedirectUriValid)
+);
 
 // depends on hex, must come afterwards
 Vat.register('clientId', Vat.hex());

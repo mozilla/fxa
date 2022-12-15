@@ -44,6 +44,8 @@ describe('models/reliers/oauth', () => {
   var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
   var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
   var SERVER_REDIRECT_URI = 'http://localhost:8080/api/oauth';
+  var SERVER_REDIRECT_URIS =
+    'http://localhost:8080/api/oauth,https://www.mozilla.org';
   var SERVICE = 'service';
   var SERVICE_NAME = '123Done';
   var STATE = 'fakestatetoken';
@@ -179,6 +181,22 @@ describe('models/reliers/oauth', () => {
         return relier.fetch().then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
           assert.equal(err.param, 'code_challenge_method');
+        });
+      });
+
+      it('throws if incorrect `redirectUri` is specified', () => {
+        windowMock.location.search = toSearchString({
+          access_type: ACCESS_TYPE,
+          action: ACTION,
+          client_id: CLIENT_ID,
+          prompt: PROMPT,
+          redirect_uri: 'http://www.notvalidclienturl.com',
+          scope: SCOPE,
+          state: STATE,
+        });
+
+        return relier.fetch().then(assert.fail, (err) => {
+          assert.isTrue(OAuthErrors.is(err, 'INCORRECT_REDIRECT'));
         });
       });
     });
@@ -403,7 +421,12 @@ describe('models/reliers/oauth', () => {
         const invalidValues = ['', ' ', 'invalid'];
         testInvalidQueryParams('prompt', invalidValues);
 
-        const validValues = [undefined, OAuthPrompt.CONSENT, OAuthPrompt.NONE];
+        const validValues = [
+          undefined,
+          OAuthPrompt.CONSENT,
+          OAuthPrompt.NONE,
+          OAuthPrompt.LOGIN,
+        ];
         testValidQueryParams('prompt', validValues, 'prompt', validValues);
       });
 
@@ -575,7 +598,7 @@ describe('models/reliers/oauth', () => {
           testMissingClientInfoValue('redirect_uri');
         });
 
-        var invalidClientInfoValues = ['', ' '];
+        var invalidClientInfoValues = ['', ' ', ',', 'http://moz.org,'];
         testInvalidClientInfoValues('redirect_uri', invalidClientInfoValues);
       });
 
@@ -1242,7 +1265,7 @@ describe('models/reliers/oauth', () => {
       var clientInfo = {
         id: CLIENT_ID,
         name: SERVICE_NAME,
-        redirect_uri: SERVER_REDIRECT_URI,
+        redirect_uri: SERVER_REDIRECT_URIS,
         trusted: isTrusted,
       };
 
@@ -1260,7 +1283,6 @@ describe('models/reliers/oauth', () => {
 
   function fetchExpectError(params) {
     windowMock.location.search = toSearchString(params);
-
     return relier.fetch().then(assert.fail, function (_err) {
       err = _err;
     });

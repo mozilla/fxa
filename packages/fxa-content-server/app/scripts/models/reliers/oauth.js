@@ -21,7 +21,9 @@ const CLIENT_INFO_SCHEMA = {
   id: Vat.hex().required().renameTo('clientId'),
   image_uri: Vat.url().allow('').renameTo('imageUri'),
   name: Vat.string().required().min(1).renameTo('serviceName'),
-  redirect_uri: Vat.url().required().renameTo('redirectUri'),
+
+  // This can be a single uri or comma separated list
+  redirect_uri: Vat.redirectUri().renameTo('redirectUri'),
   trusted: Vat.boolean().required(),
 };
 
@@ -246,8 +248,8 @@ var OAuthRelier = Relier.extend({
          *
          * Verification (email) flows do not have a redirect uri, nothing to validate
          */
-        if (!isCorrectRedirect(this.get('redirectUri'), result.redirectUri)) {
-          // if provided redirect uri doesn't match with client info then throw
+        if (!isCorrectRedirect(this.get('redirectUri'), result)) {
+          // if provided redirect uri doesn't match with any client redirectUri then throw
           throw OAuthErrors.toError('INCORRECT_REDIRECT');
         }
 
@@ -270,12 +272,28 @@ var OAuthRelier = Relier.extend({
       }
     );
 
-    function isCorrectRedirect(queryRedirectUri, resultRedirectUri) {
+    function isCorrectRedirect(queryRedirectUri, client) {
+      // If RP doesn't specify redirectUri, we default to the first redirectUri
+      // for the client
+      const redirectUris = client.redirectUri.split(',');
       if (!queryRedirectUri) {
+        client.redirectUri = redirectUris[0];
         return true;
-      } else if (queryRedirectUri === resultRedirectUri) {
+      }
+
+      const hasRedirectUri = redirectUris.some((uri) => {
+        if (queryRedirectUri === uri) {
+          return true;
+        }
+      });
+      if (hasRedirectUri) {
+        client.redirectUri = queryRedirectUri;
         return true;
-      } else if (
+      }
+
+      // Pairing has a special redirectUri that deep links into the specific
+      // mobile app
+      if (
         queryRedirectUri === Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
       ) {
         return true;

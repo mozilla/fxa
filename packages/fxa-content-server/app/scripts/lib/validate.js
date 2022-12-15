@@ -235,6 +235,21 @@ var Validate = {
   },
 
   /**
+   * Check whether `redirectUri` string contains only valid uris.
+   * Clients can specify a comma separated list and this checks to see
+   * if each is a valid uri.
+   *
+   * @param {String} redirectUrisStr
+   * @returns {Boolean}
+   */
+  isRedirectUriValid(redirectUrisStr) {
+    const redirectUris = redirectUrisStr.split(',');
+    return redirectUris.every((value) => {
+      return urlRegEx.test(value);
+    });
+  },
+
+  /**
    * Check whether `newsletters` contains only valid newsletter slugs.
    *
    * @param {String[]} newsletters

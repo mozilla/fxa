@@ -297,4 +297,26 @@ describe('lib/validate', function () {
       assert.isTrue(Validate.isUtmValid('marketing-snippet'));
     });
   });
+
+  describe('isRedirectUriValid', () => {
+    it('returns false if any redirect uri is not valid', () => {
+      const testString = 'https://localhost,http://';
+      assert.isFalse(Validate.isRedirectUriValid(testString));
+    });
+
+    it('returns false for invalid uri', () => {
+      const testString = 'c';
+      assert.isFalse(Validate.isRedirectUriValid(testString));
+    });
+
+    it('returns true for valid uris', () => {
+      const testString = 'https://localhost,http://mozilla.org';
+      assert.isTrue(Validate.isRedirectUriValid(testString));
+    });
+
+    it('returns true for single valid uri', () => {
+      const testString = 'https://localhost';
+      assert.isTrue(Validate.isRedirectUriValid(testString));
+    });
+  });
 });
