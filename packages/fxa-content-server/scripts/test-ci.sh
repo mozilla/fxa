@@ -19,6 +19,7 @@ mkdir -p config
 cp ../version.json ./
 cp ../version.json config
 
+# TODO: Move this to build-lint phase
 yarn lint
 
 cd ../../

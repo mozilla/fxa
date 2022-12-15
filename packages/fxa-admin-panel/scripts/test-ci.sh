@@ -2,4 +2,4 @@
 
 yarn workspaces focus fxa-admin-panel
 yarn build
-yarn test
+NODE_ENV=test yarn test

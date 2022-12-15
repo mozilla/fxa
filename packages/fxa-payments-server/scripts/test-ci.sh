@@ -2,4 +2,4 @@
 
 yarn workspaces focus fxa-payments-server
 yarn build
-yarn test
+NODE_ENV=test yarn test

@@ -1,4 +1,4 @@
 #!/bin/bash -ex
 
 yarn workspaces focus fxa-react
-CI=yes yarn test
+CI=yes NODE_ENV=test yarn test

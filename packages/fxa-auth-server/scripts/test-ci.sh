@@ -17,7 +17,15 @@ node -r esbuild-register ./scripts/oauth_gen_keys.js
 ../../_scripts/check-url.sh localhost:9090
 node ../db-migrations/bin/patcher.mjs
 
+# Make sure we have a fresh version of l10n files... This is just a sanity check. It shouldn't be needed...
+# rm -rf public
+# yarn run postinstall
+
+# Migrate current strings
+yarn run merge-ftl
 yarn run merge-ftl:test
+
+# Process sass for rendering of email templates
 yarn run emails-scss
 
 TESTS=(local oauth remote scripts)
