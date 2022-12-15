@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').getProperties();
 
-describe('remote recovery email verify', function () {
+describe('#integration - remote recovery email verify', function () {
   this.timeout(15000);
   let server;
   before(() => {

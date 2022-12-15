@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const base64url = require('base64url');
 const mocks = require('../mocks');
 
-describe('remote device', function () {
+describe('#integration - remote device', function () {
   this.timeout(15000);
   let server;
   before(() => {

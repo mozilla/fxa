@@ -78,7 +78,7 @@ describe('remote misc', function () {
       });
   });
 
-  it('/__heartbeat__ returns a 200 OK', () => {
+  it('#integration - /__heartbeat__ returns a 200 OK', () => {
     return superagent.get(`${config.publicUrl}/__heartbeat__`).then((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
@@ -136,7 +136,7 @@ describe('remote misc', function () {
       });
   });
 
-  it('timestamp header', () => {
+  it('#integration - timestamp header', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let url = null;
@@ -235,7 +235,7 @@ describe('remote misc', function () {
     });
   });
 
-  it('fail on hawk payload mismatch', () => {
+  it('#integration - fail on hawk payload mismatch', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let url = null;

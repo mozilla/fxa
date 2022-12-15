@@ -30,7 +30,8 @@ const argv = [
   MOCHA_BIN,
 ];
 
-const p = spawn(bin, argv.concat(process.argv.slice(2)), {
+const arg = argv.concat(process.argv.slice(2));
+const p = spawn(bin, arg, {
   stdio: 'inherit',
   env: process.env,
 });

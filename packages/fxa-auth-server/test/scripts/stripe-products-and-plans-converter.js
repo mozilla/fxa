@@ -522,7 +522,7 @@ describe('StripeProductsAndPlansConverter', () => {
     });
   });
 
-  describe('convert', async () => {
+  describe('#integration - convert', async () => {
     let converter;
     let paymentConfigManager;
     let productConfigDbRef;

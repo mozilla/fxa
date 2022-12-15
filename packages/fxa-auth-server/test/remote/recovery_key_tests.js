@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const jwtool = require('fxa-jwtool');
 
-describe('remote recovery keys', function () {
+describe('#integration - remote recovery keys', function () {
   this.timeout(10000);
 
   let server, client, email;

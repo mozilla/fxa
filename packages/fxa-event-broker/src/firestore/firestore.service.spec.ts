@@ -14,7 +14,7 @@ const TEST_TIMEOUT = 1000 * 30;
 // Set the env var to use the emulator
 process.env.FIRESTORE_EMULATOR_HOST = 'localhost:9090';
 
-describe('FirestoreService', () => {
+describe('#integration - FirestoreService', () => {
   let fs: Firestore;
   let service: FirestoreService;
   let uid1: string;

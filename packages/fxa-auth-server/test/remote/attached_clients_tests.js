@@ -16,7 +16,7 @@ const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
-describe('attached clients listing', function () {
+describe('#integration - attached clients listing', function () {
   this.timeout(15000);
   let server, oauthServerDb;
   before(async () => {

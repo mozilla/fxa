@@ -40,7 +40,7 @@ const validSchemaValidation = {
   cdnUrlRegex: '^https://',
 };
 
-describe('ProductConfig', () => {
+describe('#unit - ProductConfig', () => {
   it('loads an object from firestore', () => {
     const prodConfig = ProductConfig.fromFirestoreObject(
       firestoreObject,

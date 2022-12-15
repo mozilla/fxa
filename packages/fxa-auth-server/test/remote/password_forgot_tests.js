@@ -14,7 +14,7 @@ const base64url = require('base64url');
 const config = require('../../config').getProperties();
 const mocks = require('../mocks');
 
-describe('remote password forgot', function () {
+describe('#integration - remote password forgot', function () {
   this.timeout(15000);
   let server;
   before(() => {

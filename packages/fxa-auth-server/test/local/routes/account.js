@@ -1301,7 +1301,7 @@ describe('/account/stub', () => {
     };
   }
 
-  it('creates an account', () => {
+  it('#integration - creates an account', () => {
     const { route, mockRequest, uid } = setup();
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.uid, uid);

@@ -76,7 +76,7 @@ const execOptions = {
   },
 };
 
-describe('scripts/bulk-mailer', function () {
+describe('#integration - scripts/bulk-mailer', function () {
   this.timeout(10000);
 
   let db, server;
@@ -219,7 +219,6 @@ describe('scripts/bulk-mailer', function () {
         assert.include(test2Text, 'Has cambiado la contraseña correctamente');
       });
   });
-
 
   it('succeeds with valid input file and method, writing emails to stdout', () => {
     return cp

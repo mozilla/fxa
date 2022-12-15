@@ -18,7 +18,7 @@ function getSessionTokenId(sessionTokenHex) {
   });
 }
 
-describe('remote password change', function () {
+describe('#integration - remote password change', function () {
   this.timeout(15000);
   let server;
   before(() => {

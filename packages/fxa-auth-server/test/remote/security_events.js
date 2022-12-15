@@ -15,7 +15,7 @@ function resetPassword(client, code, newPassword, options) {
   });
 }
 
-describe('remote securityEvents', () => {
+describe('#integration - remote securityEvents', () => {
   let server;
 
   before(function () {

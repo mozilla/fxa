@@ -18,7 +18,7 @@ function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
 }
 
-describe('db', function () {
+describe('#integration - db', function () {
   before(async () => {
     // some other tests are not cleaning up their authorization codes
     await db.pruneAuthorizationCodes(1);

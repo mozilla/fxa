@@ -23,7 +23,7 @@ const execOptions = {
   },
 };
 
-describe('scripts/verification-reminders:', () => {
+describe('#integration - scripts/verification-reminders:', () => {
   it('does not fail', function () {
     this.timeout(20000);
     return execAsync(

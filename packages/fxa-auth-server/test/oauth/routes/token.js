@@ -178,7 +178,7 @@ describe('/token POST', function () {
     });
   });
 
-  describe('config handling', () => {
+  describe('#integration - config handling', () => {
     const request = {
       headers: {},
       payload: {

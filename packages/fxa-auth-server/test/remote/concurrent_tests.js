@@ -10,7 +10,7 @@ const Client = require('../client')();
 
 const config = require('../../config').getProperties();
 
-describe('remote concurrect', function () {
+describe('#integration - remote concurrent', function () {
   this.timeout(15000);
   let server;
   before(() => {

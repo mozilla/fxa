@@ -155,7 +155,7 @@ const PLAN_WITH_CONFIGURATION: Plan = {
 const missingPlanConfigMessage = (planId: string) =>
   `Plan configuration for ${planId} not found.`;
 
-describe('product configuration util functions', () => {
+describe('#unit - product configuration util functions', () => {
   const productCapabilities = {
     '*': ['product', 'plan'],
     abc123: ['product'],

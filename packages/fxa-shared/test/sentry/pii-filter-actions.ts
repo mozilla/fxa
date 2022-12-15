@@ -13,7 +13,7 @@ import {
   BreadthFilter,
 } from '../../sentry/pii-filter-actions';
 
-describe('pii-filter-actions', () => {
+describe('#unit - pii-filter-actions', () => {
   describe('DepthFilter', () => {
     it('truncates objects', () => {
       const filter = new DepthFilter(1);

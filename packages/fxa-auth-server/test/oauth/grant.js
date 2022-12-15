@@ -63,7 +63,7 @@ describe('validateRequestedGrant', () => {
     }).validateRequestedGrant;
   });
 
-  it('should return validated grant data', async () => {
+  it('#integration - should return validated grant data', async () => {
     const scope = ScopeSet.fromArray(['profile']);
     const grant = await validateRequestedGrant(CLAIMS, CLIENT, { scope });
     assert.deepEqual(grant, {
@@ -139,7 +139,7 @@ describe('validateRequestedGrant', () => {
     assert.equal(grant.aal, 2);
   });
 
-  it('should reject disallowed scopes for untrusted clients', async () => {
+  it('#integration - should reject disallowed scopes for untrusted clients', async () => {
     const requestedGrant = {
       scope: ScopeSet.fromArray(['profile']),
     };
@@ -162,7 +162,7 @@ describe('validateRequestedGrant', () => {
     );
   });
 
-  it('should allow restricted set of scopes for untrusted clients', async () => {
+  it('#integration - should allow restricted set of scopes for untrusted clients', async () => {
     const requestedGrant = {
       scope: ScopeSet.fromArray(['profile:uid', 'profile:email']),
     };

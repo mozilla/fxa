@@ -31,7 +31,7 @@ const KEYS = {
   previous: 'config.previous',
 };
 
-describe('scripts/email-config:', () => {
+describe('#integration - scripts/email-config:', () => {
   let current, previous;
 
   beforeEach(() => {

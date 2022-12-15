@@ -23,6 +23,8 @@
     "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-css && start-storybook -p 6007 --no-version-updates",
     "test": "yarn merge-ftl:test && jest --runInBand --env=jest-environment-jsdom",
+    "test:unit": "yarn test",
+    "test:integration": "echo 'No integration tests present!'",
     "merge-ftl": "grunt merge-ftl",
     "merge-ftl:test": "grunt merge-ftl:test",
     "watch-ftl": "grunt watch-ftl"

@@ -86,7 +86,7 @@ const planConfig = {
   uiContent: {},
 };
 
-describe('PaymentConfigManager', () => {
+describe('#integration - PaymentConfigManager', () => {
   let paymentConfigManager;
   let testProductId;
   let testPlanId;

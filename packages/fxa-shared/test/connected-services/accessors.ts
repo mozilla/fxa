@@ -13,7 +13,7 @@ import {
   ISessionTokensCache,
 } from '../../connected-services';
 
-describe('connected-services/accessors', () => {
+describe('#unit - connected-services/accessors', () => {
   class TestDbStore implements IConnectedServicesDbStore {
     async getRefreshTokensByUid(uid: string): Promise<any> {
       return [{ tokenId: '1234' }];

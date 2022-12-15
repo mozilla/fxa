@@ -96,7 +96,7 @@ function assertProduct(item?: DeepPartial<Stripe.Product>) {
   assert.hasAllKeys(item, ['id', 'active', 'description', 'metadata', 'name']);
 }
 
-describe('stripe', () => {
+describe('#unit - stripe', () => {
   describe('filterCustomer', () => {
     it('filters recursively', () => {
       const result = filterCustomer(customer1WithSubscription);

@@ -46,6 +46,8 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "npm run lint",
+    "test:unit": "echo 'No unit tests present!'",
+    "test:integration": "echo 'No integration tests present!' ",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   }
 }

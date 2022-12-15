@@ -9,7 +9,8 @@ rm -rf .nyc_output
 if [ -z "$NODE_ENV" ]; then export NODE_ENV=dev; fi;
 if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
 if [ -z "$FIRESTORE_EMULATOR_HOST" ]; then export FIRESTORE_EMULATOR_HOST="localhost:9090"; fi;
-
+if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
+if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep #integration "; fi;
 
 DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit"
 
@@ -28,17 +29,17 @@ fi
 GLOB=$*
 if [ -z "$GLOB" ]; then
   echo "Local tests"
-  mocha $DEFAULT_ARGS test/local
+  mocha $DEFAULT_ARGS $GREP_TESTS test/local
 
   echo "Oauth tests"
-  mocha $DEFAULT_ARGS test/oauth
+  mocha $DEFAULT_ARGS $GREP_TESTS test/oauth
 
   echo "Remote tests"
-  mocha $DEFAULT_ARGS test/remote
+  mocha $DEFAULT_ARGS $GREP_TESTS test/remote
 
   echo "Script tests"
-  mocha $DEFAULT_ARGS test/scripts
+  mocha $DEFAULT_ARGS $GREP_TESTS test/scripts
 
 else
-  mocha $DEFAULT_ARGS $GLOB
+  mocha $DEFAULT_ARGS $GLOB $GREP_TESTS
 fi

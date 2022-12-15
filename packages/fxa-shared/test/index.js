@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 
-describe('index:', () => {
+describe('#unit - index:', () => {
   let index;
 
   before(() => {

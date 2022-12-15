@@ -236,7 +236,7 @@ const mockConfigCollection = (configDocs) => ({
   onSnapshot: () => {},
 });
 
-describe('StripeHelper', () => {
+describe('#integration - StripeHelper', () => {
   /** @type StripeHelper */
   let stripeHelper;
   /** @type sinon.SinonSandbox */

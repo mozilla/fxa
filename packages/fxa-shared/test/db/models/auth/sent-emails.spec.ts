@@ -11,7 +11,7 @@ import { EmailType, SentEmail } from '../../../../db/models/auth';
 import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
 import { randomAccount } from '../../../../test/db/models/auth/helpers';
 
-describe('SentEmail', () => {
+describe('#integration - SentEmail', () => {
   const emailType = 'subscriptionPaymentFailed';
   const emailParams = {
     subscriptionId: 'sub_bigtime',

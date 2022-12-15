@@ -11,7 +11,7 @@ import jsdom from 'jsdom';
 
 proxyquire.noCallThru();
 
-describe('browser-tracing', () => {
+describe('#unit - browser-tracing', () => {
   const sandbox = sinon.createSandbox();
   const provider = new BasicTracerProvider();
   const ctxMgr = new StackContextManager();

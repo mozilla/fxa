@@ -16,7 +16,9 @@
     "delete": "pm2 delete pm2.config.js",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
-    "test": "CI=true npm-run-all test:frontend test:server"
+    "test": "CI=true npm-run-all test:frontend test:server",
+    "test:unit": "test",
+    "test:integration": "echo 'No integration tests present!'"
   },
   "browserslist": {
     "production": [

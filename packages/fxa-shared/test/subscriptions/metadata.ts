@@ -93,7 +93,7 @@ const PLAN_WITH_METADATA = {
   },
 };
 
-describe('subscriptions/metadata', () => {
+describe('#unit - subscriptions/metadata', () => {
   describe('metadataFromPlan', () => {
     it('produces default null values', () => {
       expect(metadataFromPlan(PLAN)).to.deep.equal(NULL_METADATA);

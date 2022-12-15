@@ -72,7 +72,7 @@ describe('lib/cad-reminders', () => {
     assert.lengthOf(cadReminders.close, 0);
   });
 
-  describe('create', () => {
+  describe('#integration - create', () => {
     let before, createResult;
 
     beforeEach(async () => {

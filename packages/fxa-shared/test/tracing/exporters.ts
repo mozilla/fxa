@@ -17,7 +17,7 @@ import { TracingOpts } from '../../tracing/config';
 import { addExporter } from '../../tracing/exporters/exporters';
 import { checkDuration } from '../../tracing/exporters/util';
 
-describe('tracing exports', () => {
+describe('#unit - tracing exports', () => {
   const sandbox = sinon.createSandbox();
   const provider = new BasicTracerProvider();
   const addSpanProcessorSpy = sandbox.spy(provider, 'addSpanProcessor');

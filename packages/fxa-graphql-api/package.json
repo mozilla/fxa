@@ -13,6 +13,8 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
+    "test:unit": "jest --runInBand -t '#unit'",
+    "test:integration": "jest --runInBand -t '#integration' && yarn test:e2e",
     "test": "jest --runInBand && yarn test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

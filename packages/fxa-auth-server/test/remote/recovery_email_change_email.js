@@ -12,7 +12,7 @@ let config, server, client, email, secondEmail;
 const password = 'allyourbasearebelongtous',
   newPassword = 'newpassword';
 
-describe('remote change email', function () {
+describe('#integration - remote change email', function () {
   this.timeout(30000);
 
   before(() => {

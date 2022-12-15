@@ -11,6 +11,7 @@ const cp = require('child_process');
 const os = require('os');
 const path = require('path');
 const util = require('util');
+
 const Redis = require('ioredis');
 
 const exec = util.promisify(cp.exec);
@@ -18,12 +19,6 @@ cp.execAsync = async function () {
   const { stdout } = await exec(...arguments);
   return stdout;
 };
-
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
-  keyPrefix: 'featureFlags:',
-});
 
 const KEYS = {
   current: 'current',
@@ -33,8 +28,16 @@ const SCRIPT = `node scripts${path.sep}feature-flags`;
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 
-describe('scripts/feature-flags:', () => {
-  let current, previous;
+describe('#integration - scripts/feature-flags:', () => {
+  let current, previous, redis;
+
+  before(async () => {
+    redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      keyPrefix: 'featureFlags:',
+    });
+  });
 
   beforeEach(async () => {
     current = await redis.get(KEYS.current);

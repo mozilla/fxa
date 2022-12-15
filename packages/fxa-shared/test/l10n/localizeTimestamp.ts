@@ -5,7 +5,7 @@
 import { assert } from 'chai';
 import { localizeTimestamp } from '../../l10n/localizeTimestamp';
 
-describe('l10n/localizeTimestamp:', () => {
+describe('#unit - l10n/localizeTimestamp:', () => {
   describe('call with supported language:', () => {
     let format: any;
 

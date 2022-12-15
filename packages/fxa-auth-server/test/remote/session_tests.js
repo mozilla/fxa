@@ -17,7 +17,7 @@ const publicKey = {
   e: '65537',
 };
 
-describe('remote session', function () {
+describe('#integration - remote session', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = false;

@@ -11,7 +11,7 @@ const Client = require('../client')();
 const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
 
-describe('remote backup authentication codes', function () {
+describe('#integration - remote backup authentication codes', function () {
   let server, client, email, recoveryCodes;
   const recoveryCodeCount = 9;
   const password = 'pssssst';

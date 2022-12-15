@@ -24,7 +24,7 @@ import {
   validateStripePlan,
 } from './stripe.service';
 
-describe('Stripe Factory', () => {
+describe('#unit - Stripe Factory', () => {
   let service: Stripe;
 
   beforeEach(async () => {
@@ -40,7 +40,7 @@ describe('Stripe Factory', () => {
   });
 });
 
-describe('PaymentConfigManagerService', () => {
+describe('#unit - PaymentConfigManagerService', () => {
   let service: StripePaymentConfigManagerService;
 
   beforeEach(async () => {
@@ -70,7 +70,7 @@ describe('PaymentConfigManagerService', () => {
   });
 });
 
-describe('StripeFirestoreService', () => {
+describe('#unit - StripeFirestoreService', () => {
   let service: StripeFirestoreService;
 
   beforeEach(async () => {
@@ -91,7 +91,7 @@ describe('StripeFirestoreService', () => {
   });
 });
 
-describe('Stripe Service', () => {
+describe('#unit - Stripe Service', () => {
   let service: StripeService;
 
   const mockLookupLatestInvoice = jest.fn();

@@ -3,5 +3,6 @@
   "plugins": ["fxa"],
   "env": {
     "mocha": true
-  }
+  },
+  "root": true
 }

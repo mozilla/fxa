@@ -19,7 +19,7 @@ function fail() {
   throw new Error();
 }
 
-describe('remote token expiry', function () {
+describe('#integration - remote token expiry', function () {
   this.timeout(15000);
   let server, config;
   before(() => {

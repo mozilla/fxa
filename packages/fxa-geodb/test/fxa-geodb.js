@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const DEFAULTS = require('../lib/defaults');
 const ERRORS = require('../lib/errors');
 
-describe('fxa-geodb', () => {
+describe('#unit - fxa-geodb', () => {
   'use strict';
 
   let geoDb;

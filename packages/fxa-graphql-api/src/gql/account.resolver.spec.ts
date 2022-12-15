@@ -22,7 +22,7 @@ import { AccountResolver } from './account.resolver';
 let USER_1: any;
 let SESSION_1: any;
 
-describe('AccountResolver', () => {
+describe('#integration - AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
   let knex: Knex;

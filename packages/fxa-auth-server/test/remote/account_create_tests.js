@@ -52,7 +52,7 @@ describe('remote account create', function () {
     return server;
   });
 
-  it('unverified account fail when getting keys', () => {
+  it('#integration - unverified account fail when getting keys', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
@@ -79,7 +79,7 @@ describe('remote account create', function () {
       );
   });
 
-  it('create and verify sync account', () => {
+  it('#integration - create and verify sync account', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
@@ -123,7 +123,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('create account with service identifier and resume', () => {
+  it('#integration - create account with service identifier and resume', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const options = { service: 'abcdef', resume: 'foo' };
@@ -137,7 +137,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('create account allows localization of emails', () => {
+  it('#integration - create account allows localization of emails', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
@@ -173,7 +173,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('Unknown account should not exist', () => {
+  it('#integration - Unknown account should not exist', () => {
     const client = new Client(config.publicUrl);
     client.email = server.uniqueEmail();
     client.authPW = crypto.randomBytes(32);
@@ -187,7 +187,7 @@ describe('remote account create', function () {
     );
   });
 
-  it('/account/create works with proper data', () => {
+  it('#integration - /account/create works with proper data', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
     let client;
@@ -209,7 +209,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('/account/create returns a sessionToken', () => {
+  it('#integration - /account/create returns a sessionToken', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
     const client = new Client(config.publicUrl);
@@ -225,7 +225,7 @@ describe('remote account create', function () {
     });
   });
 
-  it('/account/create returns a keyFetchToken when keys=true', () => {
+  it('#integration - /account/create returns a keyFetchToken when keys=true', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
     const client = new Client(config.publicUrl);
@@ -239,7 +239,7 @@ describe('remote account create', function () {
     });
   });
 
-  it('signup with same email, different case', () => {
+  it('#integration - signup with same email, different case', () => {
     const email = server.uniqueEmail();
     const email2 = email.toUpperCase();
     const password = 'abcdef';
@@ -263,7 +263,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('re-signup against an unverified email', () => {
+  it('#integration - re-signup against an unverified email', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
     return Client.create(config.publicUrl, email, password)
@@ -329,7 +329,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('valid metricsContext', () => {
+  it('#integration - valid metricsContext', () => {
     const api = new Client.Api(config.publicUrl);
     const email = server.uniqueEmail();
     const authPW =
@@ -349,7 +349,7 @@ describe('remote account create', function () {
     return api.accountCreate(email, authPW, options);
   });
 
-  it('empty metricsContext', () => {
+  it('#integration - empty metricsContext', () => {
     const api = new Client.Api(config.publicUrl);
     const email = server.uniqueEmail();
     const authPW =
@@ -536,7 +536,7 @@ describe('remote account create', function () {
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
-  it('create account with service query parameter', () => {
+  it('#integration - create account with service query parameter', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
       serviceQuery: 'bar',
@@ -553,7 +553,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('account creation works with unicode email address', () => {
+  it('#integration - account creation works with unicode email address', () => {
     const email = server.uniqueUnicodeEmail();
     return Client.create(config.publicUrl, email, 'foo')
       .then((client) => {
@@ -600,7 +600,7 @@ describe('remote account create', function () {
     );
   });
 
-  it('account creation works with maximal metricsContext metadata', () => {
+  it('#integration - account creation works with maximal metricsContext metadata', () => {
     const email = server.uniqueEmail();
     const opts = {
       metricsContext: mocks.generateMetricsContext(),
@@ -624,7 +624,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('account creation works with empty metricsContext metadata', () => {
+  it('#integration - account creation works with empty metricsContext metadata', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
       metricsContext: {},
@@ -666,7 +666,7 @@ describe('remote account create', function () {
     );
   });
 
-  it('create account for non-sync service, gets generic sign-up email and does not get post-verify email', () => {
+  it('#integration - create account for non-sync service, gets generic sign-up email and does not get post-verify email', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
@@ -705,7 +705,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('create account for unspecified service does not get create sync email and no post-verify email', () => {
+  it('#integration - create account for unspecified service does not get create sync email and no post-verify email', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
@@ -744,7 +744,7 @@ describe('remote account create', function () {
       });
   });
 
-  it('create account and subscribe to newsletters', () => {
+  it('#integration - create account and subscribe to newsletters', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;

@@ -185,7 +185,7 @@ function basicAuthHeader(clientId, secret) {
   return 'Basic ' + Buffer.from(clientId + ':' + secret).toString('base64');
 }
 
-describe('/v1', function () {
+describe('#integration - /v1', function () {
   const VERIFY_FAILURE = '{"status": "failure"}';
   let sandbox;
 

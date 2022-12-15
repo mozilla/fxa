@@ -32,7 +32,7 @@ const PLAN_ID = 'allDoneProMonthly';
 const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
-describe('remote subscriptions:', function () {
+describe('#integration - remote subscriptions:', function () {
   this.timeout(10000);
 
   before(async () => {

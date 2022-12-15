@@ -20,6 +20,8 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "scripts/test-local.sh",
+    "test:unit": "tap test/local --no-coverage --jobs=1",
+    "test:integration": "tap test/remote test/scripts --no-coverage --jobs=1",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {

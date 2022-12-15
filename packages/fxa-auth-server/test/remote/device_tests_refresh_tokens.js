@@ -32,7 +32,7 @@ const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const UNKNOWN_REFRESH_TOKEN =
   'B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78';
 
-describe('remote device with refresh tokens', function () {
+describe('#integration - remote device with refresh tokens', function () {
   this.timeout(15000);
   let client;
   let db;

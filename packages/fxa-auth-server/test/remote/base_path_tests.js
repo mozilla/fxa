@@ -46,7 +46,7 @@ describe('remote base path', function () {
     };
   }
 
-  it('alternate base path', () => {
+  it('#integration - alternate base path', () => {
     const email = `${Math.random()}@example.com`;
     const password = 'ok';
     // if this doesn't crash, we're all good

@@ -10,7 +10,7 @@ import { MozLoggerService } from '../logger/logger.service';
 import { SENTRY_CONFIG } from './sentry.constants';
 import { SentryService } from './sentry.service';
 
-describe('SentryService', () => {
+describe('#unit - SentryService', () => {
   let service: SentryService;
 
   beforeEach(async () => {

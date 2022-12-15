@@ -5,7 +5,7 @@
 import { Guard, Permissions, Groups } from '../../guards';
 import { expect } from 'chai';
 
-describe('support agents', () => {
+describe('#unit - support agents', () => {
   describe('Guard', () => {
     class TestGuard extends Guard<string, string> {
       protected envToNum(env?: string): number {

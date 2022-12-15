@@ -75,7 +75,7 @@ const updateStubMessage = (message: any) => {
   };
 };
 
-describe('QueueworkerService', () => {
+describe('#unit - QueueworkerService', () => {
   let service: QueueworkerService;
   let firestore: any;
   let logger: any;

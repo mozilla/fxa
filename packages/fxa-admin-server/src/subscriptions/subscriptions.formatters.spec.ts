@@ -11,7 +11,7 @@ import {
 } from './subscriptions.formatters';
 import { addDays, created } from './test.util';
 
-describe('MozSubscriptionFormatters', () => {
+describe('#unit - MozSubscriptionFormatters', () => {
   describe('Stripe Formatter', () => {
     it('formats', () => {
       const formatted = StripeFormatter.toMozSubscription(

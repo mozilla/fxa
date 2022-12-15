@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { SentryInterceptor } from './sentry.interceptor';
 
-describe('SentryInterceptor', () => {
+describe('#unit - SentryInterceptor', () => {
   it('should be defined', () => {
     expect(new SentryInterceptor()).toBeDefined();
   });

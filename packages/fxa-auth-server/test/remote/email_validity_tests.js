@@ -47,7 +47,7 @@ describe('remote email validity', function () {
     return Promise.all(emails);
   });
 
-  it('/account/create with a variety of unusual but valid email addresses', () => {
+  it('#integration - /account/create with a variety of unusual but valid email addresses', () => {
     const pwd = '123456';
 
     const emails = [

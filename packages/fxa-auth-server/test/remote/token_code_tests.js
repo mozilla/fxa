@@ -17,7 +17,7 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-describe('remote tokenCodes', function () {
+describe('#integration - remote tokenCodes', function () {
   let server, client, email, code;
   const password = 'pssssst';
 

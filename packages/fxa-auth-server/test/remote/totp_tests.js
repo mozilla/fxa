@@ -18,7 +18,7 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-describe('remote totp', function () {
+describe('#integration - remote totp', function () {
   let server, client, email, totpToken, authenticator;
   const password = 'pssssst';
   const metricsContext = {

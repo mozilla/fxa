@@ -196,7 +196,7 @@ describe('/oauth/ routes', () => {
       }
     });
 
-    it('does not try more token types if client credentials are invalid', async () => {
+    it('#integration -does not try more token types if client credentials are invalid', async () => {
       const mockRequest = mocks.mockRequest({
         payload: {
           client_id: '0000000000000000',

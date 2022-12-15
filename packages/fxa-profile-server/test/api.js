@@ -52,7 +52,7 @@ const SIZE_SUFFIXES = Object.keys(SIZES).map(function (val) {
 const GRAVATAR =
   'https://secure.gravatar.com/avatar/00000000000000000000000000000000';
 
-describe('api', function () {
+describe('#integration - api', function () {
   let Server;
   let mock;
 

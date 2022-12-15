@@ -12,7 +12,7 @@ const ERRNO = require('../../lib/error').ERRNO;
 let config, server, client, email;
 const password = 'allyourbasearebelongtous';
 
-describe('remote emails', function () {
+describe('#integration - remote emails', function () {
   this.timeout(30000);
 
   before(() => {

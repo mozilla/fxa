@@ -18,6 +18,7 @@
     "test:frontend": "yarn merge-ftl:test && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false",
     "test:frontend:watch": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
+    "test:unit": "yarn test",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "NODE_ENV=production npm run build-css && build-storybook && cp -r public/images storybook-static/",

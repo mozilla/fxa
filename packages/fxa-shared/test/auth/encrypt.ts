@@ -5,7 +5,7 @@ import { assert } from 'chai';
 
 import { hash, hex } from '../../auth';
 
-describe('auth/encrypt', () => {
+describe('#unit - auth/encrypt', () => {
   it('converts to hex', () => {
     const val = hex('ff');
 

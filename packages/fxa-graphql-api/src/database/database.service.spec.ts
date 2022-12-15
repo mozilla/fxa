@@ -8,10 +8,8 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Profile } from 'fxa-shared/db/models/profile';
-import { StatsD } from 'hot-shots';
 
-describe('DatabaseService', () => {
+describe('#integration - DatabaseService', () => {
   let service: DatabaseService;
   let logger: any;
 
