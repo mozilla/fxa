@@ -13,6 +13,8 @@ config.content = [
   './app/scripts/views/form.js',
   // for 'opacity-0 opacity-100' classes
   './app/scripts/views/password_strength/password_strength_balloon.js',
+  // for 'bg-close-white' class
+  './app/scripts/views/tooltip.js',
 ];
 
 config.theme.extend = {
@@ -22,6 +24,9 @@ config.theme.extend = {
     'check-white': 'inline("../images/icon-check-white.svg")',
     'show-password': 'inline("../images/icon-show-password.svg")',
     'hide-password': 'inline("../images/icon-show-password-closed.svg")',
+    // TODO: Use 'close' SVGs from 'fxa-react' once using React
+    'close-black': 'inline("../images/close.svg")',
+    'close-white': 'inline("../images/close-white.svg")',
     /* TODO: move this to `fxa-react`, FXA-5745 */
     /* If adding a background-image in content-server, you must refer to "/images" instead of
      * "../images" because our cache bust build step won't find and replace it in `usemin:css` */
