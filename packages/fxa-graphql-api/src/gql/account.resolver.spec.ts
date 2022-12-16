@@ -628,5 +628,20 @@ describe('#integration - AccountResolver', () => {
         expect(result.exists).toEqual(false);
       });
     });
+
+    describe('rejectUnblockCode', () => {
+      it('calls the db to consume the unblock code', async () => {
+        const spy = jest
+          .spyOn(Account, 'consumeUnblockCode')
+          .mockResolvedValue({});
+        await resolver.rejectUnblockCode({
+          uid: '1337',
+          unblockCode: 'oops',
+        });
+        expect(Account.consumeUnblockCode).toBeCalledTimes(1);
+        expect(Account.consumeUnblockCode).toBeCalledWith('1337', 'OOPS');
+        spy.mockRestore();
+      });
+    });
   });
 });
