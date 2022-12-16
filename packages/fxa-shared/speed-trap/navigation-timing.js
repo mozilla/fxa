@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const NAVIGATION_TIMING_FIELDS = {
+
   navigationStart: undefined,
   unloadEventStart: undefined,
   unloadEventEnd: undefined,
@@ -38,7 +39,8 @@ if (!navigationTiming) {
   navigationTiming = Object.create(NAVIGATION_TIMING_FIELDS);
 }
 
-var navigationStart = navigationTiming.navigationStart || Date.now();
+// Note: Do not use Date.now(); That timestamp does not use the monotonic clock
+var navigationStart = navigationTiming.navigationStart;
 
 class NavigationTiming {
   init(options) {
