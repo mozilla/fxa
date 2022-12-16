@@ -4,6 +4,8 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 
@@ -14,10 +16,18 @@ jest.mock('../../lib/metrics', () => ({
 
 describe('Ready', () => {
   const customServiceName = 'Example Service';
-  const viewName = 'example-view';
+  const viewName = 'reset-password-confirmed';
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('settings');
+  });
 
   it('renders as expected with default values', () => {
-    render(<Ready viewName={viewName} />);
+    render(<Ready {...{ viewName }} />);
+    const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
+    testL10n(ftlMsgMock, bundle, {
+      serviceName: 'Account Settings',
+    });
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -33,9 +43,8 @@ describe('Ready', () => {
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
-  // it renders as expected with a custom service name.
   it('renders as expected when given a service name', () => {
-    render(<Ready viewName={viewName} serviceName={customServiceName} />);
+    render(<Ready {...{ viewName }} serviceName={customServiceName} />);
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -51,10 +60,25 @@ describe('Ready', () => {
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
+  it('renders as expected when page is viewed by a logged out user', () => {
+    render(<Ready isSignedIn={false} {...{ viewName }} />);
+
+    const passwordResetConfirmation = screen.getByText(
+      'Your password has been reset'
+    );
+    const serviceAvailabilityConfirmation = screen.getByText(
+      'Your account is ready!'
+    );
+    expect(passwordResetConfirmation).toBeInTheDocument();
+    expect(serviceAvailabilityConfirmation).toBeInTheDocument();
+  });
+
   it('renders as expected when given a service name and relier continue action', () => {
     render(
       <Ready
-        viewName={viewName}
+        {...{
+          viewName,
+        }}
         serviceName={customServiceName}
         continueHandler={() => {
           console.log('beepboop');
@@ -76,21 +100,21 @@ describe('Ready', () => {
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
-  it('emits a metrics event on render', async () => {
+  it('emits a metrics event on render', () => {
     render(<Ready viewName={viewName} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, {
       entrypoint_variation: 'react',
     });
   });
 
-  it('emits a metrics event when a user clicks `Continue`', async () => {
+  it('emits a metrics event when a user clicks `Continue`', () => {
     render(
       <Ready
-        viewName={viewName}
-        serviceName={customServiceName}
         continueHandler={() => {
           console.log('beepboop');
         }}
+        serviceName={customServiceName}
+        {...{ viewName }}
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
