@@ -46,10 +46,10 @@ npx pm2 ls
 
 cd packages/fxa-content-server
 
-test_suite circle 6
+test_suite circle 3
 
-# node 5 currently has the least work to do in the above tests
-if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
+# The last node currently has the least work to do in the above tests
+if [[ "${CIRCLE_NODE_INDEX}" == "2" ]]; then
   node tests/intern.js --suites='server' --output='../../artifacts/tests/server-results.xml'
   node tests/intern.js --suites='pairing' --output='../../artifacts/tests/pairing-results.xml'
 fi
