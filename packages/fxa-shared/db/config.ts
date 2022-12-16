@@ -60,6 +60,11 @@ export function makeMySQLConfig(envPrefix: string, database: string) {
       default: 30000,
       env: envPrefix + '_MYSQL_ACQUIRE_TIMEOUT',
     },
+    idleLimitMs: {
+      doc: 'The number of milliseconds a connection can be idle before it is closed',
+      default: 60000,
+      env: envPrefix + '_MYSQL_IDLE_LIMIT_MS',
+    },
   };
 }
 

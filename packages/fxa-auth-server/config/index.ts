@@ -1268,6 +1268,12 @@ const convictConf = convict({
         default: 0,
         env: 'MYSQL_QUEUE_LIMIT',
       },
+      idleLimitMs: {
+        doc: 'The number of milliseconds a connection can be idle before it is closed.',
+        format: Number,
+        default: 10000,
+        env: 'MYSQL_IDLE_LIMIT_MS',
+      },
       timezone: {
         default: 'Z',
         doc: 'The timezone configured on the MySQL server. This is used to type cast server date/time values to JavaScript `Date` object. Can be `local`, `Z`, or an offset in the form of or an offset in the form +HH:MM or -HH:MM.',

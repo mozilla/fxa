@@ -1,9 +1,13 @@
 import { assert } from 'chai';
+import { StatsD } from 'hot-shots';
+import { Connection } from 'mysql';
+import sinon from 'sinon';
 import { IMysqlStoreSharedEvents, MysqlStoreShared } from '../../db/mysql';
 import { defaultOpts, testDatabaseSetup } from './helpers';
 
 const dbOpts = Object.assign({}, defaultOpts.testDbConfig, {
   connectionLimit: 20,
+  idleLimitMs: 1000,
 });
 
 type TestStats = {
@@ -20,6 +24,9 @@ type TestStats = {
     initializeError: number;
   };
 };
+
+const sandbox = sinon.createSandbox();
+const statsdStub = { increment: sandbox.stub() };
 
 class MysqlStoreTestEvents implements IMysqlStoreSharedEvents {
   /**
@@ -75,8 +82,13 @@ class MysqlStoreTestEvents implements IMysqlStoreSharedEvents {
  * for tracking creation management of connections.
  */
 class MySqlStoreTest extends MysqlStoreShared {
-  constructor(events: IMysqlStoreSharedEvents) {
-    super(dbOpts, events);
+  constructor(
+    options = dbOpts,
+    events: IMysqlStoreSharedEvents = new MysqlStoreTestEvents(),
+    log = undefined,
+    metrics = statsdStub
+  ) {
+    super(options, events, undefined, metrics as unknown as StatsD);
   }
 
   getConnection() {
@@ -98,13 +110,17 @@ describe('#integration - mysql', function () {
     const knex = await testDatabaseSetup(defaultOpts);
     await knex.destroy();
     events = new MysqlStoreTestEvents();
-    mysql = new MySqlStoreTest(events);
-    mysql2 = new MySqlStoreTest(events);
+    mysql = new MySqlStoreTest(dbOpts, events);
+    mysql2 = new MySqlStoreTest(dbOpts, events);
   });
 
   after(async () => {
     await mysql.close();
     await mysql2.close();
+  });
+
+  beforeEach(() => {
+    sandbox.reset();
   });
 
   it('releases connections ', async () => {
@@ -142,5 +158,24 @@ describe('#integration - mysql', function () {
       Object.keys(events.stats.pool.threadIds).length,
       dbOpts.connectionLimit * 2
     );
+  });
+
+  it('closes connections after idling', async () => {
+    // pass a lower idle limit config value
+    mysql = new MySqlStoreTest({ ...dbOpts, idleLimitMs: 10 });
+    const conn1 = await mysql.getConnection();
+    const conn2 = await mysql.getConnection();
+    assert.notEqual((conn1 as Connection).state, 'disconnected');
+    assert.notEqual((conn2 as Connection).state, 'disconnected');
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    const closeConnCount = statsdStub.increment.args.filter(
+      (x) => x[0] === 'mysql.close_idle_connection'
+    ).length;
+    assert.equal(closeConnCount, 2);
+    assert.equal((conn1 as Connection).state, 'disconnected');
+    assert.equal((conn2 as Connection).state, 'disconnected');
   });
 });
