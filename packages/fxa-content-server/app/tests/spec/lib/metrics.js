@@ -15,6 +15,7 @@ import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 import SubscriptionModel from 'models/subscription';
 import WindowMock from '../../mocks/window';
+import { getFallbackPerformanceApi, getRealPerformanceApi } from 'fxa-shared/speed-trap/performance-factory';
 
 const FLOW_ID =
   '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
@@ -23,13 +24,23 @@ const MARKETING_CAMPAIGN = 'campaign1';
 const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
 const BAD_METRIC_ERROR_PREFIX = 'Bad metric encountered:';
 
-describe('lib/metrics', () => {
+
+const performanceApis = [
+  { name: 'real', api: getRealPerformanceApi() },
+  { name: 'fallback', api: getFallbackPerformanceApi() }
+]
+
+for (const performanceApi of performanceApis) {
+
+
+describe('lib/metrics/' + performanceApi.name, () => {
   let environment;
   let metrics;
   let notifier;
   let sentryMock;
   let windowMock;
   let xhr;
+  let startTime;
 
   function createMetrics(options = {}) {
     environment = new Environment(windowMock);
@@ -45,6 +56,7 @@ describe('lib/metrics', () => {
 
     metrics = new Metrics(
       _.defaults(options, {
+        performance: performanceApi.api,
         brokerType: 'fx-desktop-v3',
         clientHeight: 966,
         clientWidth: 1033,
@@ -62,7 +74,6 @@ describe('lib/metrics', () => {
         screenWidth: 1600,
         sentryMetrics: sentryMock,
         service: 'sync',
-        startTime: 1439233336187,
         uid: '0ae7fe2b244f4a789857dff3ae263927',
         uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
         utmCampaign: 'utm_campaign',
@@ -74,6 +85,9 @@ describe('lib/metrics', () => {
         xhr,
       })
     );
+
+    // Peak at start time.
+    startTime = metrics._startTime;
     sinon.spy(metrics, '_initializeSubscriptionModel');
   }
 
@@ -330,7 +344,7 @@ describe('lib/metrics', () => {
       assert.equal(filteredData.screen.clientWidth, 1033);
       assert.equal(filteredData.screen.clientHeight, 966);
       assert.equal(filteredData.service, 'sync');
-      assert.equal(filteredData.startTime, 1439233336187);
+      assert.equal(filteredData.startTime, startTime);
       assert.deepEqual(filteredData.syncEngines, []);
 
       assert.equal(filteredData.uid, '0ae7fe2b244f4a789857dff3ae263927');
@@ -1121,3 +1135,5 @@ describe('lib/metrics', () => {
     });
   });
 });
+
+}

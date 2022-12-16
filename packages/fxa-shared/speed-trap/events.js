@@ -4,14 +4,20 @@
 
 class Events {
   init(options) {
+
+    if (!options || !options.performance) {
+      throw new Error('options.performance is required!')
+    }
+
+    this.performance = options.performance;
+    this.baseTime = options.performance.timing.timeOrigin;
     this.events = [];
-    this.baseTime = options.baseTime;
   }
 
   capture(name) {
     this.events.push({
       type: name,
-      offset: Date.now() - this.baseTime,
+      offset: this.performance.now(),
     });
   }
 

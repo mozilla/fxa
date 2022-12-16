@@ -5,24 +5,25 @@ import guid from './guid';
 import NavigationTiming from './navigation-timing';
 import Timers from './timers';
 import Events from './events';
+import { getPerformanceApi } from './performance-factory';
 
 var SpeedTrap = {
   init: function (options) {
     options = options || {};
-    this.navigationTiming = Object.create(NavigationTiming);
-    this.navigationTiming.init(options);
 
-    this.baseTime = this.navigationTiming.get().navigationStart || Date.now();
+    // This will provide thew browser's performance API, or a fallback version which has
+    // reduced functionality. It can also be passed in as option for testing purposes.
+    this.performance = options.performance || getPerformanceApi();
+    this.baseTime = this.performance.timeOrigin;
+
+    this.navigationTiming = Object.create(NavigationTiming);
+    this.navigationTiming.init({performance: this.performance});
 
     this.timers = Object.create(Timers);
-    this.timers.init({
-      baseTime: this.baseTime,
-    });
+    this.timers.init({performance: this.performance});
 
     this.events = Object.create(Events);
-    this.events.init({
-      baseTime: this.baseTime,
-    });
+    this.events.init({performance: this.performance});
 
     this.uuid = guid();
 
@@ -92,11 +93,32 @@ var SpeedTrap = {
 
     return {
       uuid: this.uuid,
-      duration: Date.now() - this.baseTime,
+      duration: this.performance.now(),
       timers: this.timers.get(),
       events: this.events.get(),
     };
   },
+
+  /**
+   * Return the current time using speed trap's clock. If the performance api is available
+   * its monotonic clock will be used. Otherwise Date.now(). Note that Date.now() is susceptible
+   * to edge cases were a machine sleeps during a load operation. Also note that, performance.now()
+   * will likely differ from Date.now() and is not expected to be the current time.
+   */
+  now: function() {
+    return this.performance.timeOrigin + this.performance.now();
+  },
+
+  /**
+   * Legacy browsers can end up in suspect states when a machine is put into sleep mode during
+   * metrics collection. This flag indicates the machine is in an invalid state.
+   */
+  isInSuspectState: function () {
+    if (this.performance.unreliable === true) {
+      return this.performance.isInSuspectState();
+    }
+    return false;
+  }
 };
 
 export default Object.create(SpeedTrap);

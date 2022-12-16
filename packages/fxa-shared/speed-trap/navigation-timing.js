@@ -2,51 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const NAVIGATION_TIMING_FIELDS = {
-
-  navigationStart: undefined,
-  unloadEventStart: undefined,
-  unloadEventEnd: undefined,
-  redirectStart: undefined,
-  redirectEnd: undefined,
-  fetchStart: undefined,
-  domainLookupStart: undefined,
-  domainLookupEnd: undefined,
-  connectStart: undefined,
-  connectEnd: undefined,
-  secureConnectionStart: undefined,
-  requestStart: undefined,
-  responseStart: undefined,
-  responseEnd: undefined,
-  domLoading: undefined,
-  domInteractive: undefined,
-  domContentLoadedEventStart: undefined,
-  domContentLoadedEventEnd: undefined,
-  domComplete: undefined,
-  loadEventStart: undefined,
-  loadEventEnd: undefined,
-};
-
-var navigationTiming;
-try {
-  // eslint-disable-next-line no-undef
-  navigationTiming = window.performance.timing;
-} catch (e) {
-  // NOOP
-}
-
-if (!navigationTiming) {
-  navigationTiming = Object.create(NAVIGATION_TIMING_FIELDS);
-}
-
-// Note: Do not use Date.now(); That timestamp does not use the monotonic clock
-var navigationStart = navigationTiming.navigationStart;
+import NAVIGATION_TIMING_FIELDS from './navigation-timing';
 
 class NavigationTiming {
-  init(options) {
-    options = options || {};
-    this.navigationTiming = options.navigationTiming || navigationTiming;
-    this.baseTime = navigationStart;
+  init(opts) {
+
+    // A performance api must be provided
+    if (!opts || !opts.performance) {
+      throw new Error('opts.performance is required!')
+    }
+
+
+    this.performance = opts.performance;
+
+    // TODO: Upgrade to performance api v2
+    this.navigationTiming = opts.performance.timing;
   }
 
   get() {
@@ -54,19 +24,33 @@ class NavigationTiming {
   }
 
   diff() {
-    var diff = {};
-    var baseTime = this.baseTime;
+    const diff = {};
+    const baseTime = this.performance.timeOrigin;
 
-    for (var key in NAVIGATION_TIMING_FIELDS) {
-      var timing = this.navigationTiming[key];
-
-      if (timing >= baseTime) {
-        diff[key] = timing - baseTime;
-      } else {
+    if (this.performance.unreliable === true) {
+      for (const key in NAVIGATION_TIMING_FIELDS) {
         diff[key] = null;
       }
+
+      return diff;
     }
-    return diff;
+    else {
+      for (const key in NAVIGATION_TIMING_FIELDS) {
+        const timing = this.navigationTiming[key];
+        const delta = timing - baseTime;
+
+        if (timing === 0) {
+          // A time value of 0 for certain fields indicates a non-applicable value. Set to null.
+          diff[key] = null;
+        }
+        else if (delta < 0) {
+          // We shouldn't see any negative values. If we do something went super wrong.
+          // We will set the value to -1 to ensure a sentry error is captured.
+          diff[key] = -1;
+        }
+      }
+      return diff;
+    }
   }
 }
 

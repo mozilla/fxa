@@ -145,10 +145,16 @@ function marshallEmailDomain(email) {
 }
 
 function Metrics(options = {}) {
-  this._speedTrap = new SpeedTrap();
+
+  // Supplying a custom start time is a good way to create invalid metrics. We
+  // are deprecating this option.
+  if (options.startTime !== undefined) {
+    throw new Error('Supplying an external start time is no longer supported!');
+  }
+
+  this._speedTrap = new SpeedTrap(options);
   this._speedTrap.init();
 
-  // `timers` and `events` are part of the public API
   this.timers = this._speedTrap.timers;
   this.events = this._speedTrap.events;
 
@@ -184,9 +190,7 @@ function Metrics(options = {}) {
   this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
   this._sentryMetrics = options.sentryMetrics;
   this._service = options.service || NOT_REPORTED_VALUE;
-  // if navigationTiming is supported, the baseTime will be from
-  // navigationTiming.navigationStart, otherwise Date.now().
-  this._startTime = options.startTime || this._speedTrap.baseTime;
+  this._startTime = this._speedTrap.baseTime;
   this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
   this._metricsEnabled = options.metricsEnabled ?? true;
@@ -448,7 +452,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
       flowBeginTime: flowData.flowBeginTime,
       flowId: flowData.flowId,
-      flushTime: Date.now(),
+      flushTime: this._speedTrap.now(),
       initialView: this._initialViewName,
       isSampledUser: this._isSampledUser,
       lang: this._lang,
@@ -529,6 +533,17 @@ _.extend(Metrics.prototype, Backbone.Events, {
     if (!this._metricsEnabled) {
       return Promise.resolve(true);
     }
+
+    // This case will only be hit for legacy browsers that
+    // don't support the performance API and went into sleep
+    // state. During metrics collection. In these cases the
+    // metrics generated are not reliable and should not be
+    // reported.
+    if (this._speedTrap.isInSuspectState()) {
+      console.log('suspect state detected!!!')
+      return Promise.resolve()
+    }
+
     const url = `${this._collector}/metrics`;
     const payload = JSON.stringify(data);
 
