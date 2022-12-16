@@ -14,10 +14,10 @@ jest.mock('../../lib/metrics', () => ({
 
 describe('Ready', () => {
   const customServiceName = 'Example Service';
-  const viewName = 'example-view';
+  const viewName = 'reset-password-verified';
 
   it('renders as expected with default values', () => {
-    render(<Ready viewName={viewName} />);
+    render(<Ready {...{ viewName }} />);
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -35,7 +35,7 @@ describe('Ready', () => {
 
   // it renders as expected with a custom service name.
   it('renders as expected when given a service name', () => {
-    render(<Ready viewName={viewName} serviceName={customServiceName} />);
+    render(<Ready {...{ viewName }} serviceName={customServiceName} />);
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -54,7 +54,9 @@ describe('Ready', () => {
   it('renders as expected when given a service name and relier continue action', () => {
     render(
       <Ready
-        viewName={viewName}
+        {...{
+          viewName,
+        }}
         serviceName={customServiceName}
         continueHandler={() => {
           console.log('beepboop');
@@ -86,7 +88,7 @@ describe('Ready', () => {
   it('emits a metrics event when a user clicks `Continue`', async () => {
     render(
       <Ready
-        viewName={viewName}
+        {...{ viewName }}
         serviceName={customServiceName}
         continueHandler={() => {
           console.log('beepboop');
