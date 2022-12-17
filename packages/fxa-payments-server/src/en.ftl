@@ -16,7 +16,7 @@ coupon-promo-code = Promo Code
 ## $amount (Number) - The amount billed. It will be formatted as currency.
 
 # $intervalCount (Number) - The interval between payments, in days.
-plan-price-day = { $intervalCount ->
+plan-price-interval-day = { $intervalCount ->
   [one] { $amount } daily
   *[other] { $amount } every { $intervalCount } days
 }
@@ -25,7 +25,7 @@ plan-price-day = { $intervalCount ->
     *[other] { $amount } every { $intervalCount } days
   }
 # $intervalCount (Number) - The interval between payments, in weeks.
-plan-price-week = { $intervalCount ->
+plan-price-interval-week = { $intervalCount ->
   [one] { $amount } weekly
   *[other] { $amount } every { $intervalCount } weeks
 }
@@ -34,7 +34,7 @@ plan-price-week = { $intervalCount ->
     *[other] { $amount } every { $intervalCount } weeks
   }
 # $intervalCount (Number) - The interval between payments, in months.
-plan-price-month = { $intervalCount ->
+plan-price-interval-month = { $intervalCount ->
   [one] { $amount } monthly
   *[other] { $amount } every { $intervalCount } months
 }
@@ -43,7 +43,7 @@ plan-price-month = { $intervalCount ->
     *[other] { $amount } every { $intervalCount } months
   }
 # $intervalCount (Number) - The interval between payments, in years.
-plan-price-year = { $intervalCount ->
+plan-price-interval-year = { $intervalCount ->
   [one] { $amount } yearly
   *[other] { $amount } every { $intervalCount } years
 }

@@ -186,7 +186,7 @@ export const PlanDetails = ({
 
           <p className="plan-details-description">
             <Localized
-              id={`plan-price-${interval}`}
+              id={`plan-price-interval-${interval}`}
               vars={{
                 amount: getLocalizedCurrency(amount, currency),
                 intervalCount: interval_count,
@@ -298,7 +298,7 @@ export const PlanDetails = ({
                     </Localized>
 
                     <Localized
-                      id={`plan-price-${interval}`}
+                      id={`plan-price-interval-${interval}`}
                       data-testid="plan-price-total"
                       attrs={{ title: true }}
                       vars={{

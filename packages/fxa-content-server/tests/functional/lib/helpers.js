@@ -2782,7 +2782,7 @@ const subscribeToTestProductWithPasswordlessAccount = thenify(function (
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
   return this.parent
     .then(
-      type('input[data-testid=new-user-email]', email, {
+      type('input[data-testid=new-user-enter-email]', email, {
         forceTypingText: true,
       })
     )

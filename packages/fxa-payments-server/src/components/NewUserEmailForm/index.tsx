@@ -113,12 +113,12 @@ export const NewUserEmailForm = ({
 
       <hr className="mx-auto w-full" />
 
-      <Localized id="new-user-email" attrs={{ label: true }}>
+      <Localized id="new-user-enter-email" attrs={{ label: true }}>
         <Input
           type="text"
-          name="new-user-email"
+          name="new-user-enter-email"
           label="Enter your email"
-          data-testid="new-user-email"
+          data-testid="new-user-enter-email"
           required
           spellCheck={false}
           onValidatePromise={(value: string, focused: boolean) =>

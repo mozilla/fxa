@@ -4,7 +4,7 @@ new-user-sign-in-link = Already have a { -brand-name-firefox } account? <a>Sign 
 # "Required" to indicate that the user must use the checkbox below this text to
 # agree to a payment method's terms of service and privacy notice in order to
 # continue.
-new-user-email =
+new-user-enter-email =
   .label = Enter your email
 new-user-confirm-email =
   .label = Confirm your email

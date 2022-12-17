@@ -143,10 +143,10 @@ describe('routes/Product/SubscriptionUpgrade', () => {
 });
 
 describe('PlanDetailsCard', () => {
-  const dayBasedId = 'plan-price-day';
-  const weekBasedId = 'plan-price-week';
-  const monthBasedId = 'plan-price-month';
-  const yearBasedId = 'plan-price-year';
+  const dayBasedId = 'plan-price-interval-day';
+  const weekBasedId = 'plan-price-interval-week';
+  const monthBasedId = 'plan-price-interval-month';
+  const yearBasedId = 'plan-price-interval-year';
 
   const findMockPlan = (planId: string): Plan => {
     const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
@@ -299,7 +299,7 @@ describe('PlanDetailsCard', () => {
       amount,
     };
 
-    describe('When message id is plan-price-day', () => {
+    describe('When message id is plan-price-interval-day', () => {
       const msgId = dayBasedId;
       it('Handles an interval count of 1', () => {
         const expected = '$5.00 daily';
@@ -320,7 +320,7 @@ describe('PlanDetailsCard', () => {
       });
     });
 
-    describe('When message id is plan-price-week', () => {
+    describe('When message id is plan-price-interval-week', () => {
       const msgId = weekBasedId;
       it('Handles an interval count of 1', () => {
         const expected = '$5.00 weekly';
@@ -341,7 +341,7 @@ describe('PlanDetailsCard', () => {
       });
     });
 
-    describe('When message id is plan-price-month', () => {
+    describe('When message id is plan-price-interval-month', () => {
       const msgId = monthBasedId;
       it('Handles an interval count of 1', () => {
         const expected = '$5.00 monthly';
@@ -362,7 +362,7 @@ describe('PlanDetailsCard', () => {
       });
     });
 
-    describe('When message id is plan-price-year', () => {
+    describe('When message id is plan-price-interval-year', () => {
       const msgId = yearBasedId;
       it('Handles an interval count of 1', () => {
         const expected = '$5.00 yearly';
