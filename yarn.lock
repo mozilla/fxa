@@ -24926,7 +24926,7 @@ fsevents@~2.1.1:
     mocha: ^10.0.0
     node-fetch: ^2.6.7
     typescript: ^4.9.3
-    webcrypto-liner: "https://github.com/dschom/webcrypto-liner.git#aba1a4d2049f4827d1feb2942bac42a252ae8546"
+    webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#30d4ecdfbbe33535ad43f31bf3f0407edce543a3"
   languageName: unknown
   linkType: soft
 
@@ -25053,7 +25053,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.2.2
-    node-uap: "https://github.com/dschom/node-uap.git#1e0a696e4ad351fdc7dad2b704af2102467cf958"
+    node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     node-zendesk: ^2.2.0
     nodemailer: ^6.7.3
     nodemon: ^2.0.19
@@ -25254,7 +25254,7 @@ fsevents@~2.1.1:
     upng-js: 2.1.0
     url-loader: 4.1.1
     verror: 1.10.1
-    webcrypto-liner: "https://github.com/dschom/webcrypto-liner.git#aba1a4d2049f4827d1feb2942bac42a252ae8546"
+    webcrypto-liner: "https://github.com/mozilla-fxa/webcrypto-liner.git#30d4ecdfbbe33535ad43f31bf3f0407edce543a3"
     webpack: ^4.41.2
     webpack-cli: ^4.10.0
     webpack-dev-middleware: ^5.3.3
@@ -25934,7 +25934,7 @@ fsevents@~2.1.1:
     moment: ^2.29.4
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    node-uap: "https://github.com/dschom/node-uap.git#1e0a696e4ad351fdc7dad2b704af2102467cf958"
+    node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     nyc: ^15.1.0
     objection: ^2.2.17
     pm2: ^5.2.2
@@ -35703,9 +35703,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-uap@https://github.com/dschom/node-uap.git#1e0a696e4ad351fdc7dad2b704af2102467cf958":
+"node-uap@https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574":
   version: 0.0.3
-  resolution: "node-uap@https://github.com/dschom/node-uap.git#commit=1e0a696e4ad351fdc7dad2b704af2102467cf958"
+  resolution: "node-uap@https://github.com/mozilla-fxa/node-uap.git#commit=494714db3e65a4dbfae772f536c8697269174574"
   dependencies:
     array.prototype.find: 2.0.0
     uap-core: "https://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
@@ -47586,9 +47586,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webcrypto-liner@https://github.com/dschom/webcrypto-liner.git#aba1a4d2049f4827d1feb2942bac42a252ae8546":
+"webcrypto-liner@https://github.com/mozilla-fxa/webcrypto-liner.git#30d4ecdfbbe33535ad43f31bf3f0407edce543a3":
   version: 0.1.36
-  resolution: "webcrypto-liner@https://github.com/dschom/webcrypto-liner.git#commit=aba1a4d2049f4827d1feb2942bac42a252ae8546"
+  resolution: "webcrypto-liner@https://github.com/mozilla-fxa/webcrypto-liner.git#commit=30d4ecdfbbe33535ad43f31bf3f0407edce543a3"
   dependencies:
     "@dannycoates/elliptic": ^6.4.2
     asmcrypto.js: ^0.22.0
