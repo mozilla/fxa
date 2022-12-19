@@ -5,7 +5,7 @@
 import { Localized } from '@fluent/react';
 import React, { useState } from 'react';
 import GetDataTrio, { DownloadContentType } from '../GetDataTrio';
-import { Tooltip } from '../Tooltip';
+import { Tooltip } from '../../Tooltip';
 
 const actionTypeToNotification = {
   download: 'Downloaded',

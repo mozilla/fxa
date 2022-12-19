@@ -6,7 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import { HomePath } from '../../../constants';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';

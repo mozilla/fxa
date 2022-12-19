@@ -5,11 +5,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import { ApolloError } from '@apollo/client';
 import { useAccount, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
-import { AuthUiErrors, composeAuthUiErrorTranslationId } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type ModalProps = {
   onDismiss: () => void;

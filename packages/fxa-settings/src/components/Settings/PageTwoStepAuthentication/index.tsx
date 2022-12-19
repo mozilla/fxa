@@ -5,7 +5,7 @@
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';

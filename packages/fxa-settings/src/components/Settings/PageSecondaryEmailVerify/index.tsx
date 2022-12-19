@@ -4,11 +4,14 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
-import { AuthUiErrors, composeAuthUiErrorTranslationId } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type FormData = {
   verificationCode: string;

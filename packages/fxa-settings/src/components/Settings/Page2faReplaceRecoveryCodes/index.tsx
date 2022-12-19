@@ -8,9 +8,14 @@ import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
-import InputText from '../InputText';
+import InputText from '../../InputText';
 import { HomePath } from '../../../constants';
-import { useAccount, useAlertBar, useConfig, useSession } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useConfig,
+  useSession,
+} from '../../../models';
 import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { copyRecoveryCodes } from '../../../lib/totp';
@@ -142,7 +147,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   value={recoveryCodes}
                   separator=" "
                   onCopy={copyRecoveryCodes}
-                  contentType="Firefox backup authentication codes" />
+                  contentType="Firefox backup authentication codes"
+                />
               ) : (
                 <LoadingSpinner />
               )}

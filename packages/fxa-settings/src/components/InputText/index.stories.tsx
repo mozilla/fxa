@@ -4,9 +4,9 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import InputText from './index';
+import InputText from '.';
 
-storiesOf('Components/Settings/InputText', module)
+storiesOf('Components/InputText', module)
   .add('type text (default)', () => (
     <div className="p-10 pt-16 max-w-lg">
       <div className="mb-3">
