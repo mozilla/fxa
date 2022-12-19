@@ -12,7 +12,9 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 ): invoiceDTO.FirstInvoicePreview {
   const invoicePreview: invoiceDTO.firstInvoicePreviewSchema = {
     subtotal: invoice.subtotal,
+    subtotal_excluding_tax: invoice.subtotal_excluding_tax,
     total: invoice.total,
+    total_excluding_tax: invoice.total_excluding_tax,
     line_items: invoice.lines.data.map((line) => ({
       amount: line.amount,
       currency: line.currency,
@@ -52,7 +54,10 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
     const invoicePreview: invoiceDTO.subsequentInvoicePreview = {
       subscriptionId: invoice.subscription as string,
       period_start: invoice.period_end,
+      subtotal: invoice.subtotal,
+      subtotal_excluding_tax: invoice.subtotal_excluding_tax,
       total: invoice.total,
+      total_excluding_tax: invoice.total_excluding_tax,
     };
 
     if (invoice.total_tax_amounts.length > 0) {

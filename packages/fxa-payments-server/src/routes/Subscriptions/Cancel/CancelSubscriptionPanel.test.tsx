@@ -15,10 +15,16 @@ import {
   MOCK_PLANS,
   MOCK_CUSTOMER,
   MOCK_SUBSEQUENT_INVOICES,
+  MOCK_PREVIEW_INVOICE_NO_TAX,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
 } from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
   formatPlanPricing,
+  formatPriceAmount,
   getLocalizedDateString,
 } from 'fxa-payments-server/src/lib/formats';
 import { defaultState } from 'fxa-payments-server/src/store/state';
@@ -26,6 +32,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import { updateConfig } from '../../../lib/config';
 import AppContext, { defaultAppContext } from '../../../lib/AppContext';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 jest.mock('../../../lib/amplitude');
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
@@ -39,13 +46,15 @@ const findMockPlan = (planId: string): Plan => {
 };
 
 describe('CancelSubscriptionPanel', () => {
-  const subscription = MOCK_CUSTOMER.subscriptions[0];
+  const subscription = MOCK_CUSTOMER.subscriptions[0] as WebSubscription;
   const baseProps = {
     customerSubscription: subscription,
     cancelSubscription: jest.fn().mockResolvedValue(null),
     cancelSubscriptionStatus: defaultState.cancelSubscription,
-    subsequentInvoiceAmount: MOCK_SUBSEQUENT_INVOICES[0].total,
-    subsequentInvoiceDate: MOCK_SUBSEQUENT_INVOICES[0].period_start,
+    subsequentInvoice: MOCK_SUBSEQUENT_INVOICES[0],
+    invoicePreview: MOCK_PREVIEW_INVOICE_NO_TAX,
+    promotionCode: undefined,
+    paymentProvider: undefined,
   };
 
   afterEach(() => {
@@ -64,20 +73,27 @@ describe('CancelSubscriptionPanel', () => {
           render(<CancelSubscriptionPanel {...props} />);
 
           const planPrice = formatPlanPricing(
-            props.subsequentInvoiceAmount,
+            props.invoicePreview.total,
             props.plan.currency,
             props.plan.interval,
             props.plan.interval_count
           );
           const nextBillDate = getLocalizedDateString(
-            baseProps.subsequentInvoiceDate,
+            props.subsequentInvoice.period_start,
             true
           );
-          const nextBill = `Next billed on ${nextBillDate}`;
+
+          const nextBillAmount = formatPriceAmount(
+            props.subsequentInvoice.total,
+            props.plan.currency,
+            false,
+            0
+          );
+          const nextBill = `Your next bill of ${nextBillAmount} is due ${nextBillDate}`;
 
           expect(queryByTestId('price-details')).toBeInTheDocument();
           expect(queryByText(planPrice)).toBeInTheDocument();
-          expect(queryByText(nextBill)).toBeInTheDocument();
+          expect(queryByTestId('sub-next-bill')).toHaveTextContent(nextBill);
           expect(
             queryByTestId('reveal-cancel-subscription-button')
           ).toBeInTheDocument();
@@ -196,11 +212,11 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing info with interval of 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `sub-plan-price-day = { $intervalCount ->
-            [one] { $amount } fooly
-            *[other] { $amount } barly { $intervalCount } 24hrs
+          `price-details-no-tax-day = { $intervalCount ->
+            [one] { $priceAmount } fooly
+            *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
-          'sub-next-bill = quuz { $date }',
+          'sub-next-bill-no-tax = quuz { $date }',
           'payment-cancel-btn = blee',
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
@@ -209,11 +225,14 @@ describe('CancelSubscriptionPanel', () => {
             <CancelSubscriptionPanel
               {...baseProps}
               plan={plan}
-              subsequentInvoiceDate={1568408388.815}
+              subsequentInvoice={{
+                ...MOCK_SUBSEQUENT_INVOICES[0],
+                period_start: 1568408388.815,
+              }}
             />
           </LocalizationProvider>
         );
-        expect(queryByText('$5.00 fooly')).toBeInTheDocument();
+        expect(queryByText('$20.00 fooly')).toBeInTheDocument();
         expect(queryByText('quuz 09/13/2019')).toBeInTheDocument();
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -221,9 +240,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `sub-plan-price-day = { $intervalCount ->
-            [one] { $amount } fooly
-            *[other] { $amount } barly { $intervalCount } 24hrs
+          `price-details-no-tax-day = { $intervalCount ->
+            [one] { $priceAmount } fooly
+            *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
@@ -233,7 +252,191 @@ describe('CancelSubscriptionPanel', () => {
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );
-        expect(queryByText('$5.00 barly 8 24hrs')).toBeInTheDocument();
+        expect(queryByText('$20.00 barly 8 24hrs')).toBeInTheDocument();
+      });
+
+      it('displays the correct pricing and exclusive tax info with interval of 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-tax-day = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax fooly
+            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          }`,
+          'payment-cancel-btn = blee',
+          `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
+          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = findMockPlan('plan_daily');
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={{
+                ...MOCK_SUBSEQUENT_INVOICES[2],
+                period_start: 1568408388.815,
+              }}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$20.00 + $3.00 tax fooly'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $5.00 + $1.23 taxes is due due 09/13/2019'
+        );
+        expect(queryByText('blee')).toBeInTheDocument();
+      });
+
+      it('displays the correct pricing and exclusive tax info with interval > 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-tax-day = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax fooly
+            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          }`,
+          `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
+          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
+
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[2]}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$20.00 + $3.00 tax barly 8 24hrs'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $5.00 + $1.23 taxes is due due 08/14/2019'
+        );
+      });
+
+      it('displays the correct pricing and exclusive tax with discount info with interval > 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-tax-day = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax fooly
+            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          }`,
+          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
+
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[4]}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$19.50 + $3.00 tax barly 8 24hrs'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $4.50 + $1.23 taxes is due due 08/14/2019'
+        );
+      });
+
+      it('displays the correct pricing and inclusive tax info with interval of 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-no-tax-day = { $intervalCount ->
+            [one] { $priceAmount } fooly
+            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          }`,
+          'payment-cancel-btn = blee',
+          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = findMockPlan('plan_daily');
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={{
+                ...MOCK_SUBSEQUENT_INVOICES[3],
+                period_start: 1568408388.815,
+              }}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$20.00 fooly'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $5.00 prices is due due 09/13/2019'
+        );
+        expect(queryByText('blee')).toBeInTheDocument();
+      });
+
+      it('displays the correct pricing and inclusive tax info with interval > 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-no-tax-day = { $intervalCount ->
+            [one] { $priceAmount } fooly
+            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          }`,
+          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
+
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[3]}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$20.00 barly 8 24hrs'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $5.00 prices is due due 08/14/2019'
+        );
+      });
+
+      it('displays the correct pricing and inclusive tax with discount info with interval > 1', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-no-tax-day = { $intervalCount ->
+            [one] { $priceAmount } fooly
+            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          }`,
+          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
+
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[5]}
+              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$19.50 barly 8 24hrs'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $4.50 prices is due due 08/14/2019'
+        );
       });
 
       it('displays the correct cancellation info', () => {

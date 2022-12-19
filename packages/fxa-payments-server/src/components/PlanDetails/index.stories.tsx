@@ -59,8 +59,10 @@ const selectedPlan = {
 
 const invoicePreviewInclusiveTax: FirstInvoicePreview = {
   line_items: [],
-  subtotal: 885,
+  subtotal: 935,
+  subtotal_excluding_tax: 885,
   total: 935,
+  total_excluding_tax: 885,
   tax: {
     amount: 50,
     inclusive: true,
@@ -70,7 +72,9 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   line_items: [],
   subtotal: 935,
+  subtotal_excluding_tax: 935,
   total: 985,
+  total_excluding_tax: 935,
   tax: {
     amount: 50,
     inclusive: false,

@@ -17,9 +17,13 @@ import { Customer, Plan, Profile, Token } from '../../src/store/types';
 import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
+  WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import { MemoryRouter } from 'react-router-dom';
-import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  SubsequentInvoicePreview,
+} from 'fxa-shared/dto/auth/payments/invoice';
 
 declare global {
   namespace NodeJS {
@@ -617,12 +621,70 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   {
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: null,
     total: 500,
+    total_excluding_tax: null,
   },
   {
     subscriptionId: 'sub0.21234123424',
     period_start: 1565816388.815,
+    subtotal: 0,
+    subtotal_excluding_tax: null,
     total: 0,
+    total_excluding_tax: null,
+  },
+  // 2 - With Exclusive tax
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: 500,
+    total: 623,
+    total_excluding_tax: 500,
+    tax: {
+      amount: 123,
+      inclusive: false,
+    },
+  },
+  // 3 - With Inclusive tax
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: 377,
+    total: 500,
+    total_excluding_tax: 377,
+    tax: {
+      amount: 123,
+      inclusive: true,
+    },
+  },
+  // 4 - With Exclusive tax and Discount
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: 500,
+    total: 573,
+    total_excluding_tax: 450,
+    tax: {
+      amount: 123,
+      inclusive: false,
+    },
+  },
+  // 5 - With Inclusive tax and Discount
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: 377,
+    total: 450,
+    total_excluding_tax: 327,
+    tax: {
+      amount: 123,
+      inclusive: true,
+    },
   },
 ];
 
@@ -689,6 +751,128 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     },
   ],
 };
+
+const customerWebSubscriptionPlanId = (
+  MOCK_CUSTOMER.subscriptions[0] as WebSubscription
+).plan_id;
+
+export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: null,
+  subtotal: 2000,
+  subtotal_excluding_tax: null,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: customerWebSubscriptionPlanId,
+      name: 'first invoice',
+    },
+  ],
+};
+
+export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: null,
+  subtotal: 2000,
+  subtotal_excluding_tax: null,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+};
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
+  total: 2300,
+  total_excluding_tax: 2000,
+  subtotal: 2000,
+  subtotal_excluding_tax: 2000,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: customerWebSubscriptionPlanId,
+      name: 'first invoice',
+    },
+  ],
+  tax: {
+    amount: 300,
+    inclusive: false,
+  },
+};
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
+  total: 2000,
+  total_excluding_tax: 1700,
+  subtotal: 2000,
+  subtotal_excluding_tax: 1700,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: customerWebSubscriptionPlanId,
+      name: 'first invoice',
+    },
+  ],
+  tax: {
+    amount: 300,
+    inclusive: true,
+  },
+};
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePreview =
+  {
+    total: 1950,
+    total_excluding_tax: 1650,
+    subtotal: 2000,
+    subtotal_excluding_tax: 1700,
+    line_items: [
+      {
+        amount: 2000,
+        currency: 'USD',
+        id: customerWebSubscriptionPlanId,
+        name: 'first invoice',
+      },
+    ],
+    tax: {
+      amount: 300,
+      inclusive: true,
+    },
+    discount: {
+      amount: 50,
+      amount_off: 50,
+      percent_off: null,
+    },
+  };
+
+export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePreview =
+  {
+    total: 2250,
+    total_excluding_tax: 1950,
+    subtotal: 2000,
+    subtotal_excluding_tax: 2000,
+    line_items: [
+      {
+        amount: 2000,
+        currency: 'USD',
+        id: customerWebSubscriptionPlanId,
+        name: 'first invoice',
+      },
+    ],
+    tax: {
+      amount: 300,
+      inclusive: false,
+    },
+    discount: {
+      amount: 50,
+      amount_off: 50,
+      percent_off: null,
+    },
+  };
 
 export function getLocalizedMessage(
   bundle: FluentBundle,

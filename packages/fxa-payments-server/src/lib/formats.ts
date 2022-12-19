@@ -118,23 +118,43 @@ export function getLocalizedDateString(
  * The following functions are for creating fallback text for Subscription Intervals
  */
 
+export function formatPriceAmount(
+  amount: number | null,
+  currency: string,
+  showTax: boolean,
+  tax: number | null
+) {
+  return showTax
+    ? `${getLocalizedCurrencyString(
+        amount,
+        currency
+      )} + ${getLocalizedCurrencyString(tax, currency)} tax`
+    : getLocalizedCurrencyString(amount, currency);
+}
+
 /**
  * This is the base formatting to describe a plan's pricing:
  * Examples:
  *   '$2.00 daily'
  *   '$2.00 every 6 days'
+ *   '$2.00 + $0.45 tax daily'
+ *   '$2.00 + $0.45 tax every 6 days'
  * @param amount
  * @param currency
  * @param interval
  * @param intervalCount
+ * @param showTax
+ * @param tax
  */
 export function formatPlanPricing(
   amount: number | null,
   currency: string,
   interval: PlanInterval,
-  intervalCount: number
+  intervalCount: number,
+  showTax: boolean = false,
+  tax: number = 0
 ): string {
-  const formattedAmount = getLocalizedCurrencyString(amount, currency);
+  const formattedAmount = formatPriceAmount(amount, currency, showTax, tax);
   switch (interval) {
     case 'day':
       if (intervalCount === 1) return `${formattedAmount} daily`;

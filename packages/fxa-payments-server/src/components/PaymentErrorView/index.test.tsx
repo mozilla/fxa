@@ -27,7 +27,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('renders as expected', () => {
-    const { queryByTestId, queryByAltText } = render(
+    const { queryByTestId } = render(
       <PaymentErrorView
         actionFn={() => {}}
         error={{ code: 'general-paypal-error' }}
