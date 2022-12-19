@@ -136,7 +136,7 @@
     "ua-parser-js": "1.0.2",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
-    "webcrypto-liner": "https://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb",
+    "webcrypto-liner": "https://github.com/mozilla-fxa/webcrypto-liner.git#30d4ecdfbbe33535ad43f31bf3f0407edce543a3",
     "webpack": "^4.41.2",
     "webpack-cli": "^4.10.0"
   },

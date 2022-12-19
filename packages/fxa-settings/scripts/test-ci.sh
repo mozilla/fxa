@@ -4,8 +4,9 @@ DIR=$(dirname "$0")
 
 cd "$DIR/.."
 
+# yarn workspaces focus fxa-settings
 yarn build
-SKIP_PREFLIGHT_CHECK=true yarn test --coverage --watchAll=false
+NODE_ENV=test SKIP_PREFLIGHT_CHECK=true yarn test --coverage --watchAll=false
 
 mkdir -p config
 

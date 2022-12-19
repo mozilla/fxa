@@ -69,6 +69,7 @@ Thumbs.db
 
 # Yarn
 .yarn/cache
+.yarn/berry
 .yarn/build-state.yml
 .yarn/install-state.gz
 
@@ -143,3 +144,7 @@ packages/fxa-react/test/
 packages/fxa-settings/fxa-content-server-l10n/
 packages/fxa-settings/public/locales
 packages/fxa-settings/test/
+
+Library
+.node
+process.yml

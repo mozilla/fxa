@@ -1,0 +1,8 @@
+.vscode
+.DS_Store
+node_modules
+_dev/docker
+packages/fxa-auth-server/.mail_output
+**/docs
+!packages/fxa-auth-server/docs/swagger
+!packages/fxa-customs-server/docs/swagger

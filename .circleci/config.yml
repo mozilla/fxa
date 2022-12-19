@@ -1,48 +1,138 @@
 version: 2.1
 
+parameters:
+  docker-repo:
+    type: string
+    default: mozilla/fxa-circleci
+
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
   jira: circleci/jira@1.3.1
 
 executors:
-  content-server-executor:
-    resource_class: large
+
+  # For creating docker builds
+  docker-build-executor:
+    parameters:
+      resource_class:
+        type: string
+        default: medium
+      image:
+        type: string
+        default: cimg/node:16.13
+    resource_class: << parameters.resource_class >>
     docker:
-      - image: cimg/node:16.13-browsers
+      - image: << parameters.image >>
+    environment:
+      DOCKER_BUILDKIT: 1
+      BUILDKIT_PROGRESS: plain
+      # Note, the global cache is enabled, because otherwise two caches are created, one in .yarn/berry and one in .yarn/cache.
+      # Turning this on results in a single cache - .yarn/berry
+      YARN_ENABLE_GLOBAL_CACHE: true
+      # Enabling hard links saves about 1.2 GB of space in the image.
+      YARN_NM_MODE: hardlinks-global
+
+  # For any thing that does need context, ie linting, building, unit testing, etc...
+  default-executor:
+    parameters:
+      resource_class:
+        type: string
+        default: medium
+    resource_class: << parameters.resource_class >>
+    docker:
+      - image: << pipeline.parameters.docker-repo >>:ci-base-latest
+    environment:
+      NODE_ENV: development
+      FIRESTORE_EMULATOR_HOST: localhost:9090
+
+  # For anything that needs a full stack to run
+  fullstack-executor:
+    parameters:
+      resource_class:
+        type: string
+        default: medium+
+    resource_class: << parameters.resource_class >>
+    docker:
+      - image: << pipeline.parameters.docker-repo >>:ci-base-latest
+      - image: cimg/mysql:8.0.28
+        command: --default-authentication-plugin=mysql_native_password
+      - image: jdlk7/firestore-emulator
+      - image: memcached
+      - image: redis
+    environment:
+      NODE_ENV: development
+      FIRESTORE_EMULATOR_HOST: localhost:9090
+
+  # For anything that needs a full stack to run and needs browsers available for
+  # ui test automation
+  functional-test-executor:
+    parameters:
+      resource_class:
+        type: string
+        default: xlarge
+    resource_class: << parameters.resource_class >>
+    docker:
+      - image: << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
       - image: redis
       - image: memcached
       - image: pafortin/goaws
       - image: cimg/mysql:8.0.28
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
-        environment:
-          NODE_ENV: dev
-          FXA_EMAIL_ENV: dev
-          FXA_EMAIL_LOG_LEVEL: debug
-          RUST_BACKTRACE: 1
-          AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
-          TRACING_SERVICE_NAME: ci-content-server-executor
-          TRACING_CONSOLE_EXPORTER_ENABLED: true
     environment:
+      NODE_ENV: development
+      FXA_EMAIL_ENV: development
+      FXA_EMAIL_LOG_LEVEL: debug
+      RUST_BACKTRACE: 1
+      AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
+      # Needed for sub plat playwright tests
+      SUBSCRIPTIONS_PAYPAL_ENABLED: true
+      PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
 commands:
-  base-install:
+
+  # Note: Cloning this way allows us to run a git fetch later on download the road. This type of
+  # clone operation will result in a .git/config with no user attached that is using a
+  # https://github.com/mozilla/fxa for the remote origin.
+  git-clone:
     steps:
-      - checkout
+      - run: git clone https://github.com/mozilla/fxa .
+      - run: git checkout << pipeline.git.revision >>
+
+  # Note: Since we use a pre-populated base image that has a .git folder already present (see
+  # comment above), running a fetch and checkout saves a considerable amount of time  when compared
+  # to a circleci `- checkout` command.
+  git-checkout:
+    steps:
+      - run: git fetch
+      - run: git checkout << pipeline.git.revision >>
+
+  # Note: We no longer cache in step. As long as packages used in the branch aren't that different
+  # from the packages used in main, which is generally the case, we shouldn't see large install
+  # times, since the base image will have everything cached.
+  provision:
+    steps:
+      - run: ./.circleci/base-install.sh
+      - run: node .circleci/modules-to-test.js | tee packages/test.list
+      - run: ./_scripts/create-version-json.sh
+
+  cache-save-yarn:
+    steps:
+      - save_cache:
+          key: fxa-yarn-07-{{ checksum "yarn.lock" }}
+          paths:
+            - /home/circleci/.yarn/berry
+            - /home/circleci/project/.yarn/build-state.yml
+            - /home/circleci/project/.yarn/install-state.gzs
+
+  cache-restore-yarn:
+    steps:
       - restore_cache:
           keys:
-            # prefer the exact hash
-            - fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
-            # any cache to start with is better than nothing
-            - fxa-yarn-cache-4-
-      - run: ./.circleci/base-install.sh
-      - save_cache:
-          key: fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
-          paths:
-            - .yarn/cache
-            - .yarn/build-state.yml
-            - .yarn/install-state.gz
+            - fxa-yarn-07-{{ checksum "yarn.lock" }}
+            - fxa-yarn-07-
+
   test-content-server-part:
     parameters:
       index:
@@ -52,11 +142,9 @@ commands:
         type: integer
         default: 6
     steps:
-      - browser-tools/install-firefox:
-          version: 102.4.0esr
-      - browser-tools/install-geckodriver:
-          version: v0.32.0
-      - base-install
+      - git-checkout
+      - provision
+      - wait-for-infrastructure
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -74,11 +162,7 @@ commands:
 
   test-settings-server:
     steps:
-      - browser-tools/install-firefox:
-          version: 102.4.0esr
-      - browser-tools/install-geckodriver:
-          version: v0.32.0
-      - base-install
+      - provision
       - run:
           name: Running test...
           command: ./.circleci/test-package.sh fxa-settings
@@ -91,27 +175,98 @@ commands:
       - store_test_results:
           path: artifacts/tests
 
+  wait-for-infrastructure:
+    steps:
+      - run:
+          name: Wait for MySQL DB
+          command: ./_scripts/check-mysql.sh
+
 jobs:
+
+  deploy-packages:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - cache-restore-yarn
+      - provision
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build docker images
+          command: ./.circleci/build-all.sh
+          no_output_timeout: 1h
+      - run:
+          name: Push to docker hub
+          command: ./.circleci/deploy-all.sh
+      - store_artifacts:
+          path: artifacts
+
+  # This deploys a base image of fxa that is useful for CI testing. Think of this image as
+  # the last known good state of fxa. The image is designed to come with everything required
+  # to spin up tests pipelines quickly.
+  deploy-fxa-ci-image:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - git-clone
+      - cache-restore-yarn
+      - run:
+          name: Build docker fxa ci image
+          command: docker build . -f ./_dev/docker/ci-base/Dockerfile -t ci-base-latest
+      - deploy:
+          name: Push fxa ci image
+          command: |
+            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
+            docker tag ci-base-latest << pipeline.parameters.docker-repo >>:ci-base-latest
+            docker push << pipeline.parameters.docker-repo >>:ci-base-latest
+
+  # This deploys another base image. It's built on top of the image produced above. This
+  # image has all the libraries needed for running UI tests automation in headless browsers.
+  deploy-fxa-ci-browser-image:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - browser-tools/install-firefox:
+          version: 102.4.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.32.0
+      - git-clone
+      - cache-restore-yarn
+      # Copies the browsers the browsers that were installed above into a location accessible to the
+      # docker build.
+      - run: mkdir -p /home/circleci/project/install
+      - run: cp -r /usr/local/bin/firefox* /home/circleci/project/install/.
+      - run: cp -r /usr/local/bin/gecko* /home/circleci/project/install/.
+      - run:
+          name: Build docker fxa ci image
+          command: docker build . -f ./_dev/docker/ci-browsers/Dockerfile -t ci-base-browsers-latest
+      - deploy:
+          name: Push fxa ci image
+          command: |
+            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
+            docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
+            docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
+
   test-package:
-    resource_class: medium+
-    docker:
-      - image: cimg/node:16.13
-      - image: redis
-      - image: memcached
-      - image: pafortin/goaws
-      - image: cimg/mysql:8.0.28
-        command: --default-authentication-plugin=mysql_native_password
-      - image: jdlk7/firestore-emulator
-    environment:
-      NODE_ENV: dev
-      FIRESTORE_EMULATOR_HOST: localhost:9090
-      TRACING_SERVICE_NAME: ci-test-package
-      TRACING_CONSOLE_EXPORTER_ENABLED: true
+    executor: fullstack-executor
     parameters:
       package:
         type: string
     steps:
-      - base-install
+      - git-checkout
+      - provision
+      - wait-for-infrastructure
       - run:
           name: Testing << parameters.package >>
           command: ./.circleci/test-package.sh << parameters.package >>
@@ -122,14 +277,9 @@ jobs:
           command: bash <(curl -s https://codecov.io/bash) -F << parameters.package >> -X gcov
 
   lint:
-    resource_class: medium+
-    docker:
-      - image: cimg/node:16.13
-    environment:
-      TRACING_SERVICE_NAME: ci-lint
-      TRACING_CONSOLE_EXPORTER_ENABLED: true
+    executor: default-executor
     steps:
-      - base-install
+      - git-checkout
       - run:
           name: Linting
           command: |
@@ -143,22 +293,11 @@ jobs:
       - jira/notify
 
   test-many:
-    resource_class: medium+
-    docker:
-      - image: cimg/node:16.13
-      - image: cimg/mysql:8.0.28
-        command: --default-authentication-plugin=mysql_native_password
-      - image: jdlk7/firestore-emulator
-      - image: memcached
-      - image: redis
-    environment:
-      TRACING_SERVICE_NAME: ci-test-many
-      TRACING_CONSOLE_EXPORTER_ENABLED: true
+    executor: fullstack-executor
     steps:
-      - base-install
-      - run:
-          name: Compiling back-end Typescript services...
-          command: ./_scripts/compile-backend-ts-services.sh
+      - git-checkout
+      - provision
+      - wait-for-infrastructure
       - run:
           name: Testing...
           command: |
@@ -190,96 +329,59 @@ jobs:
       - jira/notify
 
   test-settings-server:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
+      - git-checkout
+      - provision
+      - wait-for-infrastructure
       - test-settings-server
 
   test-content-server-0:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 0
 
   test-content-server-1:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 1
 
   test-content-server-2:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 2
 
   test-content-server-3:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 3
 
   test-content-server-4:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 4
 
   test-content-server-5:
-    executor: content-server-executor
+    executor: functional-test-executor
     steps:
       - test-content-server-part:
           index: 5
 
-  deploy-fxa-ci-image:
-    resource_class: small
-    docker:
-      - image: cimg/node:16.13
-    environment:
-      DOCKER_BUILDKIT: 1
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 18.09.3
-          docker_layer_caching: true
-      - run:
-          name: Build docker fxa ci image
-          command: docker build . -f ./_dev/docker/ci/Dockerfile -t fxa-circleci
-      - deploy:
-          name: Push fxa ci image
-          command: |
-            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            docker tag fxa-circleci mozilla/fxa-circleci:ci-latest
-            docker push mozilla/fxa-circleci:ci-latest
-
-  deploy-packages:
-    resource_class: small
-    docker:
-      - image: cimg/node:16.13
-    environment:
-      DOCKER_BUILDKIT: 1
-    steps:
-      - base-install
-      - setup_remote_docker:
-          version: 18.09.3
-          docker_layer_caching: true
-      - run:
-          name: Build docker images
-          command: ./.circleci/build-all.sh
-          no_output_timeout: 1h
-      - run:
-          name: Push to docker hub
-          command: ./.circleci/deploy-all.sh
-      - store_artifacts:
-          path: artifacts
-
   # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
-    resource_class: large
-    docker:
-      # using the old image until we know why the orb is broken with manual jobs
-      - image: mozilla/fxa-circleci
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
     steps:
-      - base-install
+      - git-checkout
+      - provision
+      - wait-for-infrastructure
       - run:
           name: Running test section against a remote target
           command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
@@ -291,14 +393,10 @@ jobs:
 
   # This job is manually triggered for now. see .circleci/README.md
   production-smoke-tests:
-    resource_class: medium+
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.28.0-focal
+    executor: default-executor
     steps:
-      - base-install
-      - run:
-          name: Install playwright
-          command: npx playwright install --with-deps
+      - git-checkout
+      - provision
       - run:
           name: Running smoke tests
           command: yarn workspace functional-tests test-production
@@ -308,33 +406,17 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: xlarge
+    executor: functional-test-executor
     parallelism: 5
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.28.0-focal
-      - image: redis
-      - image: memcached
-      - image: cimg/mysql:8.0.28
-        command: --default-authentication-plugin=mysql_native_password
-      - image: jdlk7/firestore-emulator
-    environment:
-      NODE_ENV: dev
-      TRACING_SERVICE_NAME: ci-playwright-functional-tests
-      TRACING_CONSOLE_EXPORTER_ENABLED: true
-      SUBSCRIPTIONS_PAYPAL_ENABLED: true
-      PAYPAL_SANDBOX: true
     steps:
-      # needed by check-mysql.sh
-      - run: apt-get update && apt-get install -y netcat
-      - base-install
-      - run:
-          name: Install playwright
-          command: npx playwright install --with-deps
+      - git-checkout
+      - provision
       - run:
           name: Add localhost
           command: |
-            tee -a /etc/hosts \<<<'127.0.0.1 localhost'
-            cat /etc/hosts
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
@@ -347,16 +429,22 @@ jobs:
           path: artifacts/tests
 
   build-and-deploy-storybooks:
-    resource_class: medium
-    docker:
-      - image: cimg/node:16.13
+    executor: default-executor
     steps:
-      - base-install
+      - git-checkout
+      - provision
       - run:
           name: Build and deploy Storybooks
           command: npx github:mozilla-fxa/storybook-gcp-publisher
 
+  update-yarn-cache:
+    executor: default-executor
+    steps:
+      - cache-save-yarn
+
+
 workflows:
+
   test_pull_request:
     jobs:
       - lint:
@@ -365,18 +453,21 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+
       - test-many:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+
       - test-settings-server:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+
       - test-package:
           name: test-auth-server
           package: fxa-auth-server
@@ -385,6 +476,7 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+
       - test-content-server-0:
           filters:
             branches:
@@ -421,21 +513,25 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+
       - playwright-functional-tests:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+
       - build-and-deploy-storybooks:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+
   deploy_branch:
     jobs:
       - deploy-packages:
+          executor: docker-build-executor
           filters:
             branches:
               only:
@@ -446,6 +542,20 @@ workflows:
               ignore: /.*/
 
       - deploy-fxa-ci-image:
+          executor: docker-build-executor
+          filters:
+            branches:
+              only:
+                - main
+            tags:
+              ignore: /.*/
+
+      - deploy-fxa-ci-browser-image:
+          requires:
+            - deploy-fxa-ci-image
+          executor:
+            name: docker-build-executor
+            image: cimg/node:16.13-browsers
           filters:
             branches:
               only:
@@ -454,11 +564,15 @@ workflows:
               ignore: /.*/
 
       - build-and-deploy-storybooks:
-          filters:
-            branches:
-              only: main
-            tags:
-              ignore: /.*/
+          requires:
+            - deploy-fxa-ci-image
+
+      # Once the base image is deployed, go ahead and cache the yarn's state. This will save
+      # us some time on the next build
+      - update-yarn-cache:
+          requires:
+            - deploy-fxa-ci-image
+
   test_and_deploy_tag:
     jobs:
       - lint:
@@ -518,6 +632,7 @@ workflows:
             tags:
               only: /.*/
       - deploy-packages:
+          executor: docker-build-executor
           filters:
             branches:
               ignore: /.*/
