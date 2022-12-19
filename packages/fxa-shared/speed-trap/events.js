@@ -5,13 +5,17 @@
 class Events {
   init(options) {
     this.events = [];
-    this.baseTime = options.baseTime;
+
+    if (!options || !options.performance) {
+      throw new Error('options.performance is required!')
+    }
+    this.performance = options.performance;
   }
 
   capture(name) {
     this.events.push({
       type: name,
-      offset: Date.now() - this.baseTime,
+      offset: this.performance.now(),
     });
   }
 
