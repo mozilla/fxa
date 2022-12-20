@@ -187,7 +187,6 @@ function logFlowEvent(event, data, request) {
       op: 'flowEvent',
       pid: process.pid,
       region: location && location.state,
-      time: new Date(event.time).toISOString(),
       userAgent: request.headers['user-agent'],
       v: VERSION,
     },

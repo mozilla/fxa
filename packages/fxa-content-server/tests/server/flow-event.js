@@ -165,7 +165,6 @@ registerSuite('flow-event', {
             pid: process.pid,
             region: 'California',
             service: '1234567890abcdef',
-            time: new Date(mocks.time - 1000).toISOString(),
             userAgent: mocks.request.headers['user-agent'],
             utm_campaign: '.-Mock%20utm_campaign',
             utm_content: '.-Mock%20utm_content',
@@ -178,41 +177,33 @@ registerSuite('flow-event', {
 
         'second call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[1][0]);
-          assert.lengthOf(Object.keys(arg), 19);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.view');
           assert.equal(arg.flow_time, 5);
-          assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
         },
 
         'third call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[2][0]);
-          assert.lengthOf(Object.keys(arg), 19);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-now');
-          assert.equal(arg.time, new Date(mocks.time).toISOString());
         },
 
         'fourth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.lengthOf(Object.keys(arg), 19);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-oldest');
-          assert.equal(
-            arg.time,
-            new Date(mocks.time - config.flow_id_expiry).toISOString()
-          );
         },
 
         'fifth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[4][0]);
           assert.equal(arg.event, 'flow.timing.foo');
           assert.equal(arg.flow_time, 1);
-          assert.equal(arg.time, new Date(mocks.time - 500).toISOString());
         },
 
         'sixth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[5][0]);
           assert.equal(arg.event, 'flow.timing.bar.baz');
           assert.equal(arg.flow_time, 2);
-          assert.equal(arg.time, new Date(mocks.time - 500).toISOString());
         },
 
         'amplitude was called seven times': () => {
@@ -310,37 +301,24 @@ registerSuite('flow-event', {
         'first call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[0][0]);
           assert.equal(arg.event, 'flow.performance.signup');
-          assert.equal(arg.time, new Date(mocks.time).toISOString());
           assert.equal(arg.flow_time, 2000);
         },
 
         'second call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[1][0]);
           assert.equal(arg.event, 'flow.performance.signup.network');
-          assert.equal(
-            arg.time,
-            new Date(mocks.time - 2000 + 300).toISOString()
-          );
           assert.equal(arg.flow_time, 300);
         },
 
         'third call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[2][0]);
           assert.equal(arg.event, 'flow.performance.signup.server');
-          assert.equal(
-            arg.time,
-            new Date(mocks.time - 2000 + 100).toISOString()
-          );
           assert.equal(arg.flow_time, 100);
         },
 
         'fourth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[3][0]);
           assert.equal(arg.event, 'flow.performance.signup.client');
-          assert.equal(
-            arg.time,
-            new Date(mocks.time - 2000 + 200).toISOString()
-          );
           assert.equal(arg.flow_time, 200);
         },
 
@@ -959,7 +937,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 18);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_campaign); //eslint-disable-line camelcase
         },
       },
@@ -979,7 +957,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 18);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_content); //eslint-disable-line camelcase
         },
       },
@@ -999,7 +977,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 18);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_medium); //eslint-disable-line camelcase
         },
       },
@@ -1019,7 +997,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 18);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
         },
       },
