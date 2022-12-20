@@ -556,11 +556,30 @@ export default class AuthClient {
     verified: boolean;
   }> {
     const credentials = await crypto.getCredentials(email, newPassword);
+    return this.finishSetupWithAuthPW(token, credentials.authPW);
+  }
+
+  /**
+   * This function is intended for a service that will proxy the finish setup
+   * (setting a password of a stub account) request.  When setting a password
+   * from a client with access to the plaintext password, use `finishSetup`
+   * above.
+   */
+  async finishSetupWithAuthPW(
+    token: string,
+    authPW: string,
+    headers: Headers = new Headers()
+  ) {
     const payload = {
       token,
-      authPW: credentials.authPW,
+      authPW,
     };
-    return await this.request('POST', '/account/finish_setup', payload);
+    return await this.request(
+      'POST',
+      '/account/finish_setup',
+      payload,
+      headers
+    );
   }
 
   async verifyAccountThirdParty(

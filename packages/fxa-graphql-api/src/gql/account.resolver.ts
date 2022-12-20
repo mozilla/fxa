@@ -79,6 +79,8 @@ import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { FinishedSetupAccountPayload } from './dto/payload/finished-setup-account';
+import { FinishSetupInput } from './dto/input/finish-setup';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -511,6 +513,26 @@ export class AccountResolver {
       input.email,
       input.authPW,
       input.options,
+      headers
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
+  }
+
+  @Mutation((returns) => FinishedSetupAccountPayload, {
+    description: 'Call auth-server to finish signing up a "stub" account',
+  })
+  @CatchGatewayError
+  public async finishSetup(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => FinishSetupInput })
+    input: FinishSetupInput
+  ): Promise<FinishedSetupAccountPayload> {
+    const result = await this.authAPI.finishSetupWithAuthPW(
+      input.token,
+      input.authPW,
       headers
     );
     return {
