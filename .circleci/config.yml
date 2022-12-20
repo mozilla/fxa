@@ -412,6 +412,15 @@ jobs:
       - git-checkout
       - provision
       - run:
+          name: Ensure playwright install
+          # The base install script always skips playwright browser installs in an attempt
+          # to be more efficient. When the lockfile has drifted, we may need to install
+          # playwright again in order to ensure the expected browser version is present. If
+          # the expected version is present, this should be pretty fast. If it is not it will
+          # take a moment to install the browsers.
+          command: |
+            if ! cmp --silent yarn.lock yarn.lock.base; then npx playwright install; fi;
+      - run:
           name: Add localhost
           command: |
             sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
@@ -556,12 +565,6 @@ workflows:
           executor:
             name: docker-build-executor
             image: cimg/node:16.13-browsers
-          filters:
-            branches:
-              only:
-                - main
-            tags:
-              ignore: /.*/
 
       - build-and-deploy-storybooks:
           requires:
