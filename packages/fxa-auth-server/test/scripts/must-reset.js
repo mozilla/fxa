@@ -22,6 +22,7 @@ const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
 const TestServer = require('../test_server');
+const crypto = require('crypto');
 
 const twoBuffer16 = Buffer.from(
   '22222222222222222222222222222222',
@@ -48,12 +49,14 @@ function createAccount(email, uid) {
 }
 
 const account1Mock = createAccount(
-  'user1@test.com',
-  'f9916686c226415abd06ae550f073cec'
+  `user${Math.random()}@test.com`,
+  `${crypto.randomUUID().replaceAll('-','')}`,
+  'en'
 );
 const account2Mock = createAccount(
-  'user2@test.com',
-  'f9916686c226415abd06ae550f073ced'
+  `user${Math.random()}@test.com`,
+  `${crypto.randomUUID().replaceAll('-','')}`,
+  'es'
 );
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);

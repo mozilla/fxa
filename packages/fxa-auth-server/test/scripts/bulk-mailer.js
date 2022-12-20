@@ -13,6 +13,7 @@ const fs = require('fs');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const path = require('path');
 const rimraf = require('rimraf');
+const crypto = require('crypto');
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 cp.execAsync = promisify(cp.exec);
@@ -54,13 +55,13 @@ function createAccount(email, uid, locale = 'en') {
 }
 
 const account1Mock = createAccount(
-  'user1@test.com',
-  'f9916686c226415abd06ae550f073cec',
+  `user${Math.random()}@test.com`,
+  `${crypto.randomUUID().replaceAll('-','')}`,
   'en'
 );
 const account2Mock = createAccount(
-  'user2@test.com',
-  'f9916686c226415abd06ae550f073ced',
+  `user${Math.random()}@test.com`,
+  `${crypto.randomUUID().replaceAll('-','')}`,
   'es'
 );
 
