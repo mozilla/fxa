@@ -10,9 +10,17 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
-import { GqlSessionToken, GqlUserId, GqlUserState } from '../decorators';
+import {
+  GqlSessionToken,
+  GqlUserId,
+  GqlUserState,
+  GqlXHeaders,
+} from '../decorators';
 import { DestroySessionInput } from './dto/input';
+import { SessionReauthInput } from './dto/input/session-reauth';
 import { BasicPayload } from './dto/payload';
+import { SessionReauthedAccountPlayload } from './dto/payload/signed-in-account';
+import { CatchGatewayError } from './lib/error';
 import { Session as SessionType, SessionStatus } from './model/session';
 
 @Resolver((of: any) => SessionType)
@@ -53,5 +61,26 @@ export class SessionResolver {
     @GqlUserState() state: SessionVerifiedState
   ): SessionStatus {
     return { state, uid };
+  }
+
+  @Mutation((returns) => SessionReauthedAccountPlayload, {
+    description: 'Re-authenticate an existing session token.',
+  })
+  @CatchGatewayError
+  public async reauthSession(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => SessionReauthInput }) input: SessionReauthInput
+  ): Promise<SessionReauthedAccountPlayload> {
+    const result = await this.authAPI.sessionReauthWithAuthPW(
+      input.sessionToken,
+      input.email,
+      input.authPW,
+      input.options,
+      headers
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
   }
 }
