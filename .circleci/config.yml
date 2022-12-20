@@ -547,6 +547,7 @@ workflows:
             branches:
               only:
                 - main
+                - fix-ci-browser-base-image
             tags:
               ignore: /.*/
 
@@ -560,6 +561,7 @@ workflows:
             branches:
               only:
                 - main
+                - fix-ci-browser-base-image
             tags:
               ignore: /.*/
 

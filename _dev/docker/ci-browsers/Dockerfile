@@ -7,7 +7,8 @@ ENV FXA_AUTO_INSTALL=0
 
 # Install playwright browsers
 # One of the biggest culprits of slow install times is playwright since it downloads browser binaries
-RUN yarn global add playwright; \
+RUN cd /home/circleci; \
+    npx playwright install; \
     rm -rf /home/circleci/.cache/ms-playwright/webkit*; \
     rm -rf /home/circleci/.cache/ms-playwright/chromium*;
 
