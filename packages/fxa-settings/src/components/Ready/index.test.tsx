@@ -14,8 +14,7 @@ jest.mock('../../lib/metrics', () => ({
 
 describe('Ready', () => {
   const customServiceName = 'Example Service';
-  const viewName = 'example.my-page';
-  const actionName = 'my_page';
+  const viewName = 'example-view';
 
   it('renders as expected with default values', () => {
     render(<Ready viewName={viewName} />);
@@ -27,7 +26,8 @@ describe('Ready', () => {
       'You’re now ready to use Account Settings'
     );
     const passwordResetContinueButton = screen.queryByText('Continue');
-
+    // Calling `getByText` will fail if the first two elements aren't in the document,
+    // but we test anyway to make the intention of the test explicit
     expect(passwordResetContinueButton).not.toBeInTheDocument();
     expect(passwordResetConfirmation).toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
@@ -44,7 +44,8 @@ describe('Ready', () => {
       `You’re now ready to use ${customServiceName}`
     );
     const passwordResetContinueButton = screen.queryByText('Continue');
-
+    // Calling `getByText` will fail if these elements aren't in the document,
+    // but we test anyway to make the intention of the test explicit
     expect(passwordResetContinueButton).not.toBeInTheDocument();
     expect(passwordResetConfirmation).toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
@@ -68,7 +69,8 @@ describe('Ready', () => {
       `You’re now ready to use ${customServiceName}`
     );
     const passwordResetContinueButton = screen.getByText('Continue');
-
+    // Calling `getByText` would fail if these elements weren't in the document,
+    // but we test anyway to make the intention of the test explicit
     expect(passwordResetContinueButton).toBeInTheDocument();
     expect(passwordResetConfirmation).toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
@@ -85,7 +87,6 @@ describe('Ready', () => {
     render(
       <Ready
         viewName={viewName}
-        baseActionName={actionName}
         serviceName={customServiceName}
         continueHandler={() => {
           console.log('beepboop');
@@ -93,8 +94,8 @@ describe('Ready', () => {
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
-    const clickViewName = `${viewName}.continue`;
-    const fullActionName = `${actionName}_continue`;
+    const clickViewName = `${viewName}`;
+    const fullActionName = `${viewName}.continue`;
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(clickViewName, fullActionName, {
       entrypoint_variation: 'react',

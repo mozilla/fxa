@@ -11,13 +11,11 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 type ReadyProps = {
   serviceName?: string;
   continueHandler?: Function;
-  baseActionName?: string;
   viewName: string;
 };
 
 const Ready = ({
   serviceName = 'Account Settings',
-  baseActionName,
   continueHandler,
   viewName,
 }: ReadyProps & RouteComponentProps) => {
@@ -29,7 +27,7 @@ const Ready = ({
     <>
       <div className="mb-4">
         <Localized id="ready-confirmation">
-          <h1 className="text-xl mb-2">Your password has been reset</h1>
+          <h1 className="card-header">Your password has been reset</h1>
         </Localized>
       </div>
       <div className="flex justify-center mx-auto">
@@ -48,9 +46,8 @@ const Ready = ({
               type="submit"
               className="cta-primary cta-base-p font-bold mx-2 flex-1"
               onClick={(e) => {
-                const logViewName = `${viewName}.continue`;
-                const logActionName = `${baseActionName}_continue`;
-                logViewEvent(logViewName, logActionName, {
+                const eventName = `${viewName}.continue`;
+                logViewEvent(viewName, eventName, {
                   entrypoint_variation: 'react',
                 });
                 continueHandler(e);

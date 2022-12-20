@@ -16,17 +16,9 @@ const ResetPasswordConfirmed = ({
   serviceName,
 }: ResetPasswordConfirmedProps & RouteComponentProps) => {
   // This is pretty ridiculously barebones, but the content in here gets expanded on other, similar views.
-  const viewName = 'settings.reset-password-confirmed';
-  const baseActionName = 'reset_password_confirmed';
+  const viewName = 'reset-password-confirmed';
 
-  return (
-    <Ready
-      continueHandler={continueHandler}
-      viewName={viewName}
-      baseActionName={baseActionName}
-      serviceName={serviceName}
-    />
-  );
+  return <Ready {...{ continueHandler, viewName, serviceName }} />;
 };
 
 export default ResetPasswordConfirmed;

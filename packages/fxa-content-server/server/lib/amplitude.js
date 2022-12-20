@@ -130,13 +130,27 @@ const EVENTS = {
   },
 
   // Reset password confirmation
-  'screen.settings.reset-password-confirmed': {
-    group: GROUPS.settings,
+  'screen.reset-password-confirmed': {
+    group: GROUPS.login,
     event: 'reset_password_confirmed_view',
   },
-  'flow.settings.reset-password-confirmed.continue': {
-    group: GROUPS.settings,
+  'flow.reset-password-confirmed.continue': {
+    group: GROUPS.login,
     event: 'reset_password_confirmed_continue',
+  },
+
+  // Reset password with recovery key verified
+  'screen.reset-password-with-recovery-key-verified': {
+    group: GROUPS.login,
+    event: 'reset_password_with_recovery_key_verified_view',
+  },
+  'flow.reset-password-with-recovery-key-verified.generate-new-key': {
+    group: GROUPS.login,
+    event: 'reset_password_with_recovery_key_verified_generate_new_key',
+  },
+  'flow.reset-password-with-recovery-key-verified.continue-to-account': {
+    group: GROUPS.login,
+    event: 'reset_password_with_recovery_key_verified_continue_to_account',
   },
 
   // Save account recovery key

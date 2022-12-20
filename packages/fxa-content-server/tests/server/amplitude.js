@@ -2040,6 +2040,32 @@ registerSuite('amplitude', {
       assert.equal(arg.event_properties.email_type, 'login');
     },
 
+    'screen.reset-password-with-recovery-key-verified': () => {
+      createAmplitudeEvent('screen.reset-password-with-recovery-key-verified');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - reset_password_with_recovery_key_verified_view'
+      );
+    },
+    'flow.reset-password-with-recovery-key-verified.generate-new-key': () => {
+      createAmplitudeEvent(
+        'flow.reset-password-with-recovery-key-verified.generate-new-key'
+      );
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - reset_password_with_recovery_key_verified_generate_new_key'
+      );
+    },
+    'flow.reset-password-with-recovery-key-verified.continue-to-account':
+      () => {
+        createAmplitudeEvent(
+          'flow.reset-password-with-recovery-key-verified.continue-to-account'
+        );
+        assert.equal(
+          logger.info.args[0][1].event_type,
+          'fxa_login - reset_password_with_recovery_key_verified_continue_to_account'
+        );
+      },
     'verify-email.verification.clicked': () => {
       amplitude(
         {

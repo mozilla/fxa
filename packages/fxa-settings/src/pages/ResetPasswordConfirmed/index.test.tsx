@@ -15,7 +15,8 @@ jest.mock('../../lib/metrics', () => ({
 describe('ResetPasswordConfirmed', () => {
   it('renders Ready component as expected', () => {
     render(<ResetPasswordConfirmed />);
-
+    // Calling `getByText` will fail if these elements aren't in the document,
+    // but we test anyway to make the intention of the test explicit
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
     );
@@ -23,23 +24,19 @@ describe('ResetPasswordConfirmed', () => {
       'You’re now ready to use Account Settings'
     );
     const passwordResetContinueButton = screen.queryByText('Continue');
-
     expect(passwordResetContinueButton).not.toBeInTheDocument();
     expect(passwordResetConfirmation).toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
-  it('emits the expected metrics on render', async () => {
+  it('emits the expected metrics on render', () => {
     render(<ResetPasswordConfirmed />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(
-      'settings.reset-password-confirmed',
-      {
-        entrypoint_variation: 'react',
-      }
-    );
+    expect(usePageViewEvent).toHaveBeenCalledWith('reset-password-confirmed', {
+      entrypoint_variation: 'react',
+    });
   });
 
-  it('emits the expected metrics when a user clicks `Continue`', async () => {
+  it('emits the expected metrics when a user clicks `Continue`', () => {
     render(
       <ResetPasswordConfirmed
         continueHandler={() => {
@@ -51,8 +48,8 @@ describe('ResetPasswordConfirmed', () => {
 
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'settings.reset-password-confirmed.continue',
-      'reset_password_confirmed_continue',
+      'reset-password-confirmed',
+      'reset-password-confirmed.continue',
       {
         entrypoint_variation: 'react',
       }
