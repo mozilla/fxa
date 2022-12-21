@@ -60,4 +60,34 @@ describe('#unit - AccountResolver', () => {
     const result = resolver.sessionStatus('42420000', 'verified');
     expect(result).toStrictEqual({ state: 'verified', uid: '42420000' });
   });
+
+  it('reauthenticates a given session with auth-client', async () => {
+    const headers = new Headers();
+    const now = Date.now();
+    const mockRespPayload = {
+      clientMutationId: 'testid',
+      uid: '1337',
+      verified: true,
+      authAt: now,
+      metricsEnabled: true,
+    };
+    authClient.sessionReauthWithAuthPW = jest
+      .fn()
+      .mockResolvedValue(mockRespPayload);
+    const result = await resolver.reauthSession(headers, {
+      sessionToken: 'goodtoken',
+      authPW: '00000000',
+      email: 'testo@example.xyz',
+      options: { service: 'testo-co' },
+    });
+    expect(authClient.sessionReauthWithAuthPW).toBeCalledTimes(1);
+    expect(authClient.sessionReauthWithAuthPW).toBeCalledWith(
+      'goodtoken',
+      'testo@example.xyz',
+      '00000000',
+      { service: 'testo-co' },
+      headers
+    );
+    expect(result).toStrictEqual(mockRespPayload);
+  });
 });

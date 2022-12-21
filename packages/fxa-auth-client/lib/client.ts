@@ -71,6 +71,12 @@ export type SignedInAccountData = {
   unwrapBKey?: hexstring;
 };
 
+export type SessionReauthOptions = SignInOptions;
+export type SessionReauthedAccountData = Omit<
+  SignedInAccountData,
+  'sessionToken'
+>;
+
 export type AuthServerError = Error & {
   error?: string;
   errno?: number;
@@ -745,39 +751,15 @@ export default class AuthClient {
     sessionToken: hexstring,
     email: string,
     password: string,
-    options: {
-      keys?: boolean;
-      skipCaseError?: boolean;
-      service?: string;
-      reason?: string;
-      redirectTo?: string;
-      resume?: string;
-      originalLoginEmail?: string;
-      verificationMethod?: string;
-      metricsContext?: MetricsContext;
-    } = {}
-  ): Promise<{
-    uid: string;
-    verified: boolean;
-    authAt: number;
-    metricsEnabled: boolean;
-    verificationMethod?: string;
-    verificationReason?: string;
-    keyFetchToken?: hexstring;
-    unwrapBKey?: hexstring;
-  }> {
+    options: SessionReauthOptions = {}
+  ): Promise<SessionReauthedAccountData> {
     const credentials = await crypto.getCredentials(email, password);
-    const payloadOptions = ({ keys, ...rest }: any) => rest;
-    const payload = {
-      email,
-      authPW: credentials.authPW,
-      ...payloadOptions(options),
-    };
     try {
-      const accountData = await this.sessionPost(
-        pathWithKeys('/session/reauth', options.keys),
+      const accountData = await this.sessionReauthWithAuthPW(
         sessionToken,
-        payload
+        email,
+        credentials.authPW,
+        options
       );
       if (options.keys) {
         accountData.unwrapBKey = credentials.unwrapBKey;
@@ -798,6 +780,28 @@ export default class AuthClient {
         throw error;
       }
     }
+  }
+
+  async sessionReauthWithAuthPW(
+    sessionToken: hexstring,
+    email: string,
+    authPW: string,
+    options: Omit<SessionReauthOptions, 'skipCaseError'> = {},
+    headers: Headers = new Headers()
+  ): Promise<SessionReauthedAccountData> {
+    const payloadOptions = ({ keys, ...rest }: any) => rest;
+    const payload = {
+      email,
+      authPW,
+      ...payloadOptions(options),
+    };
+    const accountData = await this.sessionPost(
+      pathWithKeys('/session/reauth', options.keys),
+      sessionToken,
+      payload,
+      headers
+    );
+    return accountData;
   }
 
   async certificateSign(
