@@ -361,8 +361,6 @@ workflows:
     jobs:
       - lint:
           filters:
-            branches:
-              ignore: main
             tags:
               ignore: /.*/
       - test-many:
