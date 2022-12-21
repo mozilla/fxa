@@ -669,5 +669,28 @@ describe('#integration - AccountResolver', () => {
         spy.mockRestore();
       });
     });
+
+    describe('emailVerifyCode', () => {
+      it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        authClient.verifyCode = jest.fn().mockResolvedValue({
+          uid: 'cooltokenyo',
+          code: 'coolcode',
+          options: { service: 'sync' }
+        });
+        const result = await resolver.emailVerifyCode(headers, {
+          uid: 'cooltokenyo',
+          code: 'coolcode',
+          service: 'sync',
+          clientMutationId: 'testid',
+        });
+        expect(authClient.verifyCode).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid'
+        });
+      });
+    });
   });
 });

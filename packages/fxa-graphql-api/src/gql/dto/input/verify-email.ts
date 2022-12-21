@@ -17,3 +17,21 @@ export class VerifyEmailInput {
   @Field({ description: 'The code to check' })
   public code!: string;
 }
+
+@InputType()
+export class VerifyEmailCodeInput {
+  @Field({
+    description: 'A unique identifier for the client performing the mutation.',
+    nullable: true,
+  })
+  public clientMutationId?: string;
+
+  @Field({ description: 'The code to check' })
+  public code!: string;
+
+  @Field({ description: 'Account uid' })
+  public uid!: string;
+
+  @Field({ nullable: true })
+  public service?: string;
+}

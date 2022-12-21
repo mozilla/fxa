@@ -403,13 +403,16 @@ export default class AuthClient {
       marketingOptIn?: boolean;
       newsletters?: string[];
       style?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.request('POST', '/recovery_email/verify_code', {
-      uid,
-      code,
-      ...options,
-    });
+    return this.request('POST', '/recovery_email/verify_code',
+     {
+       uid,
+       code,
+       ...options,
+     },
+     headers);
   }
 
   async recoveryEmailStatus(sessionToken: hexstring) {

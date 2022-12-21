@@ -20,7 +20,7 @@ export { SendSessionVerificationInput } from './send-session-verification';
 export { SignInInput } from './sign-in';
 export { UpdateAvatarInput } from './update-avatar';
 export { UpdateDisplayNameInput } from './update-display-name';
-export { VerifyEmailInput } from './verify-email';
+export { VerifyEmailInput, VerifyEmailCodeInput } from './verify-email';
 export { VerifySessionInput } from './verify-session';
 export { VerifyTotpInput } from './verify-totp';
 export { AccountStatusInput } from './account-status';
