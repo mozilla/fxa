@@ -127,6 +127,7 @@ commands:
       - run: ./.circleci/base-install.sh
       - run: node .circleci/modules-to-test.js | tee packages/test.list
       - run: ./_scripts/create-version-json.sh
+      - run: ./_scripts/compile-backend-ts-services.sh
 
   cache-save-yarn:
     steps:
