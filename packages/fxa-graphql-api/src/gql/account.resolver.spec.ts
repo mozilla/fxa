@@ -566,6 +566,32 @@ describe('#integration - AccountResolver', () => {
       });
     });
 
+    describe('finishSetup', () => {
+      it('calls auth-client and proxy the result', async () => {
+        const headers = new Headers();
+        const mockRespPayload = {
+          clientMutationId: 'testid',
+          uid: '1337',
+          sessionToken: '2048',
+          verified: true,
+        };
+        authClient.finishSetupWithAuthPW = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+        const result = await resolver.finishSetup(headers, {
+          token: 'jwttothemax',
+          authPW: '00000000',
+        });
+        expect(authClient.finishSetupWithAuthPW).toBeCalledTimes(1);
+        expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
+          'jwttothemax',
+          '00000000',
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
     describe('signIn', () => {
       it('calls auth-client and proxy the result', async () => {
         const now = Date.now();
