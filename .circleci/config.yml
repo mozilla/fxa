@@ -90,6 +90,17 @@ executors:
       PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
+  # For anything that needs browsers for ui automation, but doesn't need a full stack.
+  # Perfect running smoke tests deployed code.
+  smoke-test-executor:
+    parameters:
+      resource_class:
+          type: string
+          default: medium+
+    resource_class: << parameters.resource_class >>
+    docker:
+      - image: << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
+
 commands:
 
   # Note: Cloning this way allows us to run a git fetch later on download the road. This type of
@@ -151,6 +162,30 @@ commands:
             CIRCLE_NODE_INDEX: << parameters.index >>
             CIRCLE_NODE_TOTAL: << parameters.total >>
           command: ./.circleci/test-package.sh fxa-content-server
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: artifacts/tests
+
+  test-content-server-remote-part:
+    parameters:
+      index:
+        type: integer
+      total:
+        type: integer
+    steps:
+      - git-checkout
+      - provision
+      - run:
+          name: Running test section << parameters.index >> of << parameters.total >>
+          environment:
+            CIRCLE_NODE_INDEX: << parameters.index >>
+            CIRCLE_NODE_TOTAL: << parameters.total >>
+          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
@@ -384,16 +419,36 @@ jobs:
       - wait-for-infrastructure
       - run:
           name: Running test section against a remote target
-          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
+          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh 3
       - store_artifacts:
           path: ~/screenshots
           destination: screenshots
       - store_test_results:
           path: artifacts/tests
 
+  # These jobs are manually triggered for now. see .circleci/README.md
+  test-content-server-remote-part-0:
+    executor: smoke-test-executor
+    steps:
+      - test-content-server-remote-part:
+          index: 0
+          total: 3
+  test-content-server-remote-part-1:
+    executor: smoke-test-executor
+    steps:
+      - test-content-server-remote-part:
+          index: 1
+          total: 3
+  test-content-server-remote-part-2:
+    executor: smoke-test-executor
+    steps:
+      - test-content-server-remote-part:
+          index: 2
+          total: 3
+
   # This job is manually triggered for now. see .circleci/README.md
   production-smoke-tests:
-    executor: default-executor
+    executor: smoke-test-executor
     steps:
       - git-checkout
       - provision
@@ -527,6 +582,30 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+
+  # This workflow can be useful if we want to run test changes in our functional tests
+  # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
+  smoke_test:
+    jobs:
+      - request-smoke-testing:
+          type: approval
+          filters:
+            branches:
+              only: /^run-smoke-tests-/
+            tags:
+              ignore: /.*/
+      - production-smoke-tests:
+          requires:
+            - request-smoke-testing
+      - test-content-server-remote-part-0:
+          requires:
+            - request-smoke-testing
+      - test-content-server-remote-part-1:
+          requires:
+            - request-smoke-testing
+      - test-content-server-remote-part-2:
+          requires:
+            - request-smoke-testing
 
   deploy_branch:
     jobs:
