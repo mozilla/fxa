@@ -95,10 +95,7 @@ const config = {
   tunnelOptions: {
     drivers: [
       {
-        name: 'firefox',
-
-        // Pulls from https://github.com/mozilla/geckodriver/releases/
-        version: '0.29.1',
+        name: 'firefox'
       },
     ],
   },
@@ -159,6 +156,20 @@ if (args.unit) {
   config.functionalSuites.unshift('tests/functional/mocha.js');
 }
 
+if (args.groups !== undefined && args.groupIndex !== undefined) {
+  const index = args.groupIndex;
+  const groups = args.groups;
+  const groupSize = Math.ceil(config.functionalSuites.length / groups);
+  const originalSuiteSize = config.functionalSuites.length;
+  const targeted = config.functionalSuites.splice(groupSize*index, groupSize);
+
+  console.log(`Running group ${args.groupIndex+1} of ${args.groups}.`);
+  console.log(`Running ${targeted.length} of ${originalSuiteSize} tests suites.`);
+
+  // Target a 'block' of tests to run
+  config.functionalSuites = targeted;
+}
+
 config.capabilities = {};
 config.capabilities['moz:firefoxOptions'] = {};
 // to create a profile, give it the `config` option.
@@ -188,7 +199,10 @@ intern.on('testEnd', (test) => {
 
 intern.on('afterRun', () => {
   if (failed.length) {
-    fs.writeFileSync('rerun.txt', failed.map((f) => f.name).join('|'));
+    // This text output is used later to target tests to rerun. The value
+    // is essentially just a big regex. Note that that the postfixed $
+    // helps the regex be more precisely.
+    fs.writeFileSync('rerun.txt', failed.map((f) => `${f.name}$`).join('|'));
   }
 });
 

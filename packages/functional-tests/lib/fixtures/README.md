@@ -4,7 +4,7 @@ Fixtures make writing tests nicer so that they have less boilerplate.
 
 ## Standard
 
-The standard fixure provides
+The standard fixture provides
 
 - `target`: the [Target](../targets/README.md) object
 - `credentials`: provides the `email` and `password` of a fresh account created and logged in for each test
