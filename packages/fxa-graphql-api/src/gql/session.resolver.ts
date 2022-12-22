@@ -17,6 +17,7 @@ import {
   GqlXHeaders,
 } from '../decorators';
 import { DestroySessionInput } from './dto/input';
+import { BasicMutationInput } from './dto/input/basic-mutation';
 import { SessionReauthInput } from './dto/input/session-reauth';
 import { BasicPayload } from './dto/payload';
 import { SessionReauthedAccountPlayload } from './dto/payload/signed-in-account';
@@ -81,6 +82,22 @@ export class SessionResolver {
     return {
       clientMutationId: input.clientMutationId,
       ...result,
+    };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Resend a verify code.',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async resendVerifyCode(
+    @GqlSessionToken() token: string,
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => BasicMutationInput }) input: BasicMutationInput
+  ): Promise<BasicPayload> {
+    await this.authAPI.sessionResendVerifyCode(token, headers);
+    return {
+      clientMutationId: input.clientMutationId,
     };
   }
 }

@@ -743,8 +743,11 @@ export default class AuthClient {
     });
   }
 
-  async sessionResendVerifyCode(sessionToken: hexstring): Promise<{}> {
-    return this.sessionPost('/session/resend_code', sessionToken, {});
+  async sessionResendVerifyCode(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ): Promise<{}> {
+    return this.sessionPost('/session/resend_code', sessionToken, {}, headers);
   }
 
   async sessionReauth(
