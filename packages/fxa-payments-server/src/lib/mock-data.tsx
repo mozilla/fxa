@@ -392,10 +392,13 @@ export const INVOICE_PREVIEW_INCLUSIVE_TAX: FirstInvoicePreview = {
   subtotal_excluding_tax: 377,
   total: 500,
   total_excluding_tax: 377,
-  tax: {
-    amount: 123,
-    inclusive: true,
-  },
+  tax: [
+    {
+      amount: 123,
+      inclusive: true,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 export const INVOICE_PREVIEW_EXCLUSIVE_TAX: FirstInvoicePreview = {
@@ -411,8 +414,11 @@ export const INVOICE_PREVIEW_EXCLUSIVE_TAX: FirstInvoicePreview = {
   subtotal_excluding_tax: 500,
   total: 623,
   total_excluding_tax: 500,
-  tax: {
-    amount: 123,
-    inclusive: false,
-  },
+  tax: [
+    {
+      amount: 123,
+      inclusive: false,
+      display_name: 'Sales Tax',
+    },
+  ],
 };

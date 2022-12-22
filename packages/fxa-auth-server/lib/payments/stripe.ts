@@ -694,6 +694,7 @@ export class StripeHelper extends StripeHelperBase {
               price: priceId,
             },
           ],
+          expand: ['total_tax_amounts.tax_rate'],
           ...params,
         });
       } catch (e: any) {

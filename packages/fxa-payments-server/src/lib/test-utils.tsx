@@ -642,10 +642,13 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     subtotal_excluding_tax: 500,
     total: 623,
     total_excluding_tax: 500,
-    tax: {
-      amount: 123,
-      inclusive: false,
-    },
+    tax: [
+      {
+        amount: 123,
+        inclusive: false,
+        display_name: 'Sales Tax',
+      },
+    ],
   },
   // 3 - With Inclusive tax
   {
@@ -655,10 +658,13 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     subtotal_excluding_tax: 377,
     total: 500,
     total_excluding_tax: 377,
-    tax: {
-      amount: 123,
-      inclusive: true,
-    },
+    tax: [
+      {
+        amount: 123,
+        inclusive: true,
+        display_name: 'Sales Tax',
+      },
+    ],
   },
   // 4 - With Exclusive tax and Discount
   {
@@ -668,10 +674,13 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     subtotal_excluding_tax: 500,
     total: 573,
     total_excluding_tax: 450,
-    tax: {
-      amount: 123,
-      inclusive: false,
-    },
+    tax: [
+      {
+        amount: 123,
+        inclusive: false,
+        display_name: 'Sales Tax',
+      },
+    ],
   },
   // 5 - With Inclusive tax and Discount
   {
@@ -681,10 +690,13 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     subtotal_excluding_tax: 377,
     total: 450,
     total_excluding_tax: 327,
-    tax: {
-      amount: 123,
-      inclusive: true,
-    },
+    tax: [
+      {
+        amount: 123,
+        inclusive: true,
+        display_name: 'Sales Tax',
+      },
+    ],
   },
 ];
 
@@ -799,10 +811,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
       name: 'first invoice',
     },
   ],
-  tax: {
-    amount: 300,
-    inclusive: false,
-  },
+  tax: [
+    {
+      amount: 300,
+      inclusive: false,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
@@ -818,10 +833,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
       name: 'first invoice',
     },
   ],
-  tax: {
-    amount: 300,
-    inclusive: true,
-  },
+  tax: [
+    {
+      amount: 300,
+      inclusive: true,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePreview =
@@ -838,10 +856,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePrevi
         name: 'first invoice',
       },
     ],
-    tax: {
-      amount: 300,
-      inclusive: true,
-    },
+    tax: [
+      {
+        amount: 300,
+        inclusive: true,
+        display_name: 'Sales Tax',
+      },
+    ],
     discount: {
       amount: 50,
       amount_off: 50,
@@ -863,10 +884,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePrevi
         name: 'first invoice',
       },
     ],
-    tax: {
-      amount: 300,
-      inclusive: false,
-    },
+    tax: [
+      {
+        amount: 300,
+        inclusive: false,
+        display_name: 'Sales Tax',
+      },
+    ],
     discount: {
       amount: 50,
       amount_off: 50,

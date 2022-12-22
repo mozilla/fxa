@@ -24,7 +24,10 @@ import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useInfoBoxMessage } from '../../lib/hooks';
 import { apiInvoicePreview } from '../../lib/apiClient';
 import { LoadingSpinner } from '../LoadingSpinner';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  InvoiceTax,
+} from 'fxa-shared/dto/auth/payments/invoice';
 
 export type PlanDetailsProps = {
   selectedPlan: Plan;
@@ -49,9 +52,14 @@ export const PlanDetails = ({
     selectedPlan;
 
   const [loading, setLoading] = useState(true);
-  const [priceAmounts, setPriceAmounts] = useState({
-    taxAmount: 0,
-    taxInclusive: true,
+  const [priceAmounts, setPriceAmounts] = useState<{
+    taxRates: InvoiceTax[];
+    discountAmount: number;
+    totalAmount: number;
+    subTotal: number;
+    totalPrice: string;
+  }>({
+    taxRates: [],
     discountAmount: 0,
     totalAmount: 0,
     subTotal: 0,
@@ -83,6 +91,10 @@ export const PlanDetails = ({
     interval_count
   );
 
+  const exclusiveTaxRates = priceAmounts.taxRates.filter(
+    (taxRate) => !taxRate.inclusive
+  );
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -98,8 +110,7 @@ export const PlanDetails = ({
         );
 
         setPriceAmounts({
-          taxAmount: 0,
-          taxInclusive: true,
+          taxRates: [],
           discountAmount,
           totalAmount,
           subTotal: amount!,
@@ -135,8 +146,7 @@ export const PlanDetails = ({
         );
 
         setPriceAmounts({
-          taxAmount: latestInvoicePreview.tax?.amount || 0,
-          taxInclusive: !latestInvoicePreview.tax?.inclusive,
+          taxRates: latestInvoicePreview.tax || [],
           discountAmount: latestInvoicePreview.discount?.amount || 0,
           totalAmount: latestInvoicePreview.total,
           subTotal: latestInvoicePreview.subtotal,
@@ -250,7 +260,7 @@ export const PlanDetails = ({
                   </div>
                 )}
 
-                {!!priceAmounts.taxAmount && priceAmounts.taxInclusive && (
+                {exclusiveTaxRates.length === 1 && (
                   <div className="plan-details-item">
                     <Localized id="plan-details-tax">
                       <div>Taxes and Fees</div>
@@ -261,7 +271,7 @@ export const PlanDetails = ({
                       attrs={{ title: true }}
                       vars={{
                         amount: getLocalizedCurrency(
-                          priceAmounts.taxAmount,
+                          exclusiveTaxRates[0].amount,
                           currency
                         ),
                         intervalCount: interval_count,
@@ -269,13 +279,37 @@ export const PlanDetails = ({
                     >
                       <div data-testid="tax-amount">
                         {getLocalizedCurrencyString(
-                          priceAmounts.taxAmount,
+                          exclusiveTaxRates[0].amount,
                           currency
                         )}
                       </div>
                     </Localized>
                   </div>
                 )}
+
+                {exclusiveTaxRates.length > 1 &&
+                  exclusiveTaxRates.map((taxRate, idx) => (
+                    <div className="plan-details-item">
+                      <div>{taxRate.display_name}</div>
+
+                      <Localized
+                        id={`tax`}
+                        key={idx}
+                        attrs={{ title: true }}
+                        vars={{
+                          amount: getLocalizedCurrency(
+                            taxRate.amount,
+                            currency
+                          ),
+                          intervalCount: interval_count,
+                        }}
+                      >
+                        <div>
+                          {getLocalizedCurrencyString(taxRate.amount, currency)}
+                        </div>
+                      </Localized>
+                    </div>
+                  ))}
 
                 {!!priceAmounts.discountAmount && (
                   <div className="plan-details-item">

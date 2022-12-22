@@ -26,20 +26,27 @@ import {
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 
-const getIntervalPriceDetailsData = (invoicePreview: FirstInvoicePreview) => {
-  const showInvoicePreviewTax = invoicePreview.tax
-    ? !invoicePreview.tax.inclusive
-    : false;
+const getIntervalPriceDetailsData = (
+  invoicePreview: FirstInvoicePreview | SubsequentInvoicePreview
+) => {
+  const exclusiveTaxRates =
+    invoicePreview.tax?.filter((taxRate) => !taxRate.inclusive) || [];
+  const showInvoicePreviewTax = !!exclusiveTaxRates.length;
 
   const invoicePreviewDisplayTotal =
     showInvoicePreviewTax && invoicePreview.total_excluding_tax
       ? invoicePreview.total_excluding_tax
       : invoicePreview.total;
 
+  const taxAmount = exclusiveTaxRates.reduce(
+    (total, taxRate) => total + taxRate.amount,
+    0
+  );
+
   return {
     showInvoicePreviewTax,
     invoicePreviewDisplayTotal,
-    taxAmount: invoicePreview.tax?.amount,
+    taxAmount,
   };
 };
 
@@ -47,45 +54,32 @@ const getNextBillData = (
   plan: Plan,
   subsequentInvoice: SubsequentInvoicePreview
 ) => {
-  const {
-    total: subsequentInvoiceTotal,
-    total_excluding_tax: subsequentInvoiceTotalExcludingTax,
-    period_start: subsequentInvoiceDate,
-    tax: subsequentInvoiceTax,
-  } = subsequentInvoice;
+  const { period_start: subsequentInvoiceDate } = subsequentInvoice;
 
-  const showSubsequentInvoiceTax = subsequentInvoiceTax
-    ? !subsequentInvoiceTax.inclusive
-    : false;
-  const subsequentInvoiceDisplayTotal =
-    showSubsequentInvoiceTax && subsequentInvoiceTotalExcludingTax
-      ? subsequentInvoiceTotalExcludingTax
-      : subsequentInvoiceTotal;
+  const { showInvoicePreviewTax, invoicePreviewDisplayTotal, taxAmount } =
+    getIntervalPriceDetailsData(subsequentInvoice);
 
-  const nextBillL10nId = showSubsequentInvoiceTax
+  const nextBillL10nId = showInvoicePreviewTax
     ? 'sub-next-bill-tax'
     : 'sub-next-bill-no-tax';
   const nextBillAmount = formatPriceAmount(
-    subsequentInvoiceDisplayTotal,
+    invoicePreviewDisplayTotal,
     plan.currency,
-    showSubsequentInvoiceTax,
-    subsequentInvoiceTax?.amount || null
+    showInvoicePreviewTax,
+    taxAmount || null
   );
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBillL10nVarsDefault = {
     priceAmount: getLocalizedCurrency(
-      subsequentInvoiceDisplayTotal,
+      invoicePreviewDisplayTotal,
       plan.currency
     ),
     date: nextBillDate,
   };
-  const nextBillL10nVars = showSubsequentInvoiceTax
+  const nextBillL10nVars = showInvoicePreviewTax
     ? {
         ...nextBillL10nVarsDefault,
-        taxAmount: getLocalizedCurrency(
-          subsequentInvoiceTax?.amount || 0,
-          plan.currency
-        ),
+        taxAmount: getLocalizedCurrency(taxAmount, plan.currency),
       }
     : nextBillL10nVarsDefault;
 

@@ -63,10 +63,12 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
   subtotal_excluding_tax: 885,
   total: 935,
   total_excluding_tax: 885,
-  tax: {
-    amount: 50,
-    inclusive: true,
-  },
+  tax: [
+    {
+      amount: 50,
+      inclusive: true,
+    },
+  ],
 };
 
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
@@ -75,10 +77,32 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   subtotal_excluding_tax: 935,
   total: 985,
   total_excluding_tax: 935,
-  tax: {
-    amount: 50,
-    inclusive: false,
-  },
+  tax: [
+    {
+      amount: 50,
+      inclusive: false,
+    },
+  ],
+};
+
+const invoicePreviewExclusiveMultipleTax: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 935,
+  subtotal_excluding_tax: 935,
+  total: 985,
+  total_excluding_tax: 935,
+  tax: [
+    {
+      amount: 50,
+      inclusive: false,
+      display_name: 'GST',
+    },
+    {
+      amount: 75,
+      inclusive: false,
+      display_name: 'PST',
+    },
+  ],
 };
 
 const storyWithContext = ({
@@ -128,6 +152,17 @@ export const WithExclusiveTax = storyWithContext({
   plan: {
     selectedPlan: selectedPlan,
     invoicePreview: invoicePreviewExclusiveTax,
+  },
+  config: {
+    ...defaultAppContextValue.config,
+    featureFlags: { useStripeAutomaticTax: true },
+  },
+});
+
+export const WithMultipleExclusiveTax = storyWithContext({
+  plan: {
+    selectedPlan: selectedPlan,
+    invoicePreview: invoicePreviewExclusiveMultipleTax,
   },
   config: {
     ...defaultAppContextValue.config,
