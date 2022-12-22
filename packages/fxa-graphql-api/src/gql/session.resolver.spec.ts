@@ -108,4 +108,26 @@ describe('#unit - AccountResolver', () => {
       clientMutationId: 'testid',
     });
   });
+
+ it('verifies a OTP code', async () => {
+  const token = 'totallylegit';
+  const headers = new Headers();
+  const mockRespPayload = {};
+  authClient.sessionVerifyCode = jest.fn().mockResolvedValue(mockRespPayload);
+  const result = await resolver.verifyCode(token, headers, {
+   clientMutationId: 'testid',
+   code: '00000000',
+   options: { service: 'testo-co' },
+  });
+  expect(authClient.sessionVerifyCode).toBeCalledTimes(1);
+  expect(authClient.sessionVerifyCode).toBeCalledWith(
+   token,
+   '00000000',
+   { service: 'testo-co' },
+   headers
+  );
+  expect(result).toStrictEqual({
+   clientMutationId: 'testid',
+  });
+ });
 });

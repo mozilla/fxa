@@ -23,6 +23,7 @@ import { BasicPayload } from './dto/payload';
 import { SessionReauthedAccountPlayload } from './dto/payload/signed-in-account';
 import { CatchGatewayError } from './lib/error';
 import { Session as SessionType, SessionStatus } from './model/session';
+import { SessionVerifyCodeInput } from './dto/input/session-verify-code';
 
 @Resolver((of: any) => SessionType)
 export class SessionResolver {
@@ -96,6 +97,28 @@ export class SessionResolver {
     @Args('input', { type: () => BasicMutationInput }) input: BasicMutationInput
   ): Promise<BasicPayload> {
     await this.authAPI.sessionResendVerifyCode(token, headers);
+    return {
+      clientMutationId: input.clientMutationId,
+    };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Verify a OTP code.',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async verifyCode(
+   @GqlSessionToken() token: string,
+   @GqlXHeaders() headers: Headers,
+   @Args('input', { type: () => SessionVerifyCodeInput })
+    input: SessionVerifyCodeInput
+  ): Promise<BasicPayload> {
+    await this.authAPI.sessionVerifyCode(
+     token,
+     input.code,
+     input.options,
+     headers
+    );
     return {
       clientMutationId: input.clientMutationId,
     };
