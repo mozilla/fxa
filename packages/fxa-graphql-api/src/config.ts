@@ -18,6 +18,9 @@ export interface RedisConfig {
 
 function makeRedisConfig(envPrefix: string, prefix: string) {
   return {
+    test: {
+      default: 'localhost',
+    },
     host: {
       default: 'localhost',
       env: envPrefix + '_REDIS_HOST',
