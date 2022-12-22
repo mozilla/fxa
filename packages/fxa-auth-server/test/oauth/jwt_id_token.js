@@ -29,10 +29,19 @@ describe('lib/jwt_id_token', () => {
   // to sign a claim with the wrong issuer. lib/oauth/jwt.js does not allow
   // the issuer to be set, so we need to use jsonwebtoken directly.
   const sign = (claims, algorithm = SIGNING_ALG) => {
-    return jsonwebtoken.sign(claims, SIGNING_PEM, {
-      algorithm,
-      keyid: SIGNING_KID,
-    });
+    if (algorithm === 'HS256') {
+      // As of jsonwebtoken v9, secretOrPrivateKey must be a symmetric key when using HS256
+      // Using date as a random string
+      return jsonwebtoken.sign(claims, `${Date.now()}`, {
+        algorithm,
+        keyid: SIGNING_KID,
+      });
+    } else {
+      return jsonwebtoken.sign(claims, SIGNING_PEM, {
+        algorithm,
+        keyid: SIGNING_KID,
+      });
+    }
   };
 
   // Helper function that signs a set of invalid claims, calls the verifier,
