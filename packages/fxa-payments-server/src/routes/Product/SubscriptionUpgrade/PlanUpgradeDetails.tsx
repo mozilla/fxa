@@ -56,7 +56,7 @@ export const PlanUpgradeDetails = ({
         </Localized>
 
         <Localized
-          id={`plan-price-${selectedPlan.interval}`}
+          id={`plan-price-interval-${selectedPlan.interval}`}
           vars={{
             amount: getLocalizedCurrency(
               selectedPlan.amount,
@@ -129,7 +129,7 @@ export const PlanDetailsCard = ({
         {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
         <p id="product-description" className="plan-details-description">
           <Localized
-            id={`plan-price-${interval}`}
+            id={`plan-price-interval-${interval}`}
             vars={{
               amount: getLocalizedCurrency(amount, currency),
               intervalCount: interval_count,

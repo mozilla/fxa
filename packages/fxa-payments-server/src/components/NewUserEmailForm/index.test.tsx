@@ -86,7 +86,7 @@ describe('NewUserEmailForm test', () => {
     const signInCopy = queryByTestId('sign-in-copy');
     expect(signInCopy).toBeInTheDocument();
 
-    const firstEmail = queryByTestId('new-user-email');
+    const firstEmail = queryByTestId('new-user-enter-email');
     expect(firstEmail).toBeInTheDocument();
 
     const secondEmail = queryByTestId('new-user-confirm-email');
@@ -112,7 +112,7 @@ describe('NewUserEmailForm test', () => {
     };
 
     const { getByTestId, queryByText } = subject();
-    const firstEmail = getByTestId('new-user-email');
+    const firstEmail = getByTestId('new-user-enter-email');
 
     fireEvent.change(firstEmail, { target: { value: 'invalid-email' } });
     fireEvent.blur(firstEmail);
@@ -133,7 +133,7 @@ describe('NewUserEmailForm test', () => {
     };
 
     const { getByTestId, queryByText } = subject();
-    const firstEmail = getByTestId('new-user-email');
+    const firstEmail = getByTestId('new-user-enter-email');
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.blur(firstEmail);
 
@@ -154,7 +154,7 @@ describe('NewUserEmailForm test', () => {
 
     const { getByTestId, queryByText } = subject();
 
-    const firstEmail = getByTestId('new-user-email');
+    const firstEmail = getByTestId('new-user-enter-email');
     const secondEmail = getByTestId('new-user-confirm-email');
 
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
@@ -178,7 +178,7 @@ describe('NewUserEmailForm test', () => {
 
     const { getByTestId, queryByText } = subject();
 
-    const firstEmail = getByTestId('new-user-email');
+    const firstEmail = getByTestId('new-user-enter-email');
     const secondEmail = getByTestId('new-user-confirm-email');
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
     fireEvent.change(secondEmail, {
@@ -202,7 +202,7 @@ describe('NewUserEmailForm test', () => {
     };
 
     const { getByTestId, queryByText } = subject();
-    const firstEmail = getByTestId('new-user-email');
+    const firstEmail = getByTestId('new-user-enter-email');
     const secondEmail = getByTestId('new-user-confirm-email');
 
     fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });

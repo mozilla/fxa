@@ -200,7 +200,7 @@ export const PaymentForm = ({
     plan && isExistingCustomer(customer) ? (
       <div className="flex items-center justify-between text-base">
         <Localized
-          id={`plan-price-${plan.interval}`}
+          id={`plan-price-interval-${plan.interval}`}
           vars={{
             amount: getLocalizedCurrency(plan.amount, plan.currency),
             intervalCount: plan.interval_count!,

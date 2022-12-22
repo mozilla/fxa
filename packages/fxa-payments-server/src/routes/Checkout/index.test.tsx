@@ -234,7 +234,7 @@ describe('routes/Checkout', () => {
   describe('handling a passwordless Stripe subscription', () => {
     const fillOutZeForm = async (shouldSubscribeToNewsletter = false) => {
       const { getByTestId } = screen;
-      fireEvent.change(getByTestId('new-user-email'), {
+      fireEvent.change(getByTestId('new-user-enter-email'), {
         target: { value: newAccountEmail },
       });
       fireEvent.change(getByTestId('new-user-confirm-email'), {
@@ -510,7 +510,7 @@ describe('routes/Checkout', () => {
   describe('handling a passwordless PayPal subscription', () => {
     const fillOutZeForm = async (shouldSubscribeToNewsletter = false) => {
       const { getByTestId } = screen;
-      fireEvent.change(getByTestId('new-user-email'), {
+      fireEvent.change(getByTestId('new-user-enter-email'), {
         target: { value: newAccountEmail },
       });
       fireEvent.change(getByTestId('new-user-confirm-email'), {
