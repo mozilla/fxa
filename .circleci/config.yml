@@ -128,6 +128,8 @@ commands:
       - run: node .circleci/modules-to-test.js | tee packages/test.list
       - run: ./_scripts/create-version-json.sh
       - run: ./_scripts/compile-backend-ts-services.sh
+      - store_artifacts:
+          path: artifacts
 
   cache-save-yarn:
     steps:
@@ -198,7 +200,6 @@ commands:
 
   test-settings-server:
     steps:
-      - provision
       - run:
           name: Running test...
           command: ./.circleci/test-package.sh fxa-settings
@@ -392,17 +393,13 @@ jobs:
 
   # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
-    parameters:
-      executor:
-        type: executor
-    executor: << parameters.executor >>
+    executor: smoke-test-executor
     steps:
       - git-checkout
       - provision
-      - wait-for-infrastructure
       - run:
           name: Running test section against a remote target
-          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh 3
+          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
       - store_artifacts:
           path: ~/screenshots
           destination: screenshots
@@ -560,25 +557,44 @@ workflows:
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
   smoke_test:
     jobs:
-      - request-smoke-testing:
+      - request-production-smoke-tests:
           type: approval
           filters:
             branches:
-              only: /^run-smoke-tests-/
+              only: /^run-smoke-tests-.*/
             tags:
               ignore: /.*/
       - production-smoke-tests:
           requires:
-            - request-smoke-testing
+            - request-production-smoke-tests
+
+      - request-test-content-server-remote:
+          type: approval
+          filters:
+            branches:
+              only: /^run-smoke-tests-.*/
+            tags:
+              ignore: /.*/
+      - test-content-server-remote:
+          requires:
+            - request-test-content-server-remote
+
+      - request-test-content-server-remote-parts:
+          type: approval
+          filters:
+            branches:
+              only: /^run-smoke-tests-.*/
+            tags:
+              ignore: /.*/
       - test-content-server-remote-part-0:
           requires:
-            - request-smoke-testing
+            - request-test-content-server-remote-parts
       - test-content-server-remote-part-1:
           requires:
-            - request-smoke-testing
+            - request-test-content-server-remote-parts
       - test-content-server-remote-part-2:
           requires:
-            - request-smoke-testing
+            - request-test-content-server-remote-parts
 
   deploy_branch:
     jobs:
