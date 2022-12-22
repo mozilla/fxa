@@ -9,20 +9,28 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 import Settings from '../Settings';
 import { QueryParams } from '../..';
 import PageCannotCreateAccount from '../PageCannotCreateAccount';
+import config from '../../lib/config';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
-  // const { showReactApp } = flowQueryParams;
+  const { showReactApp } = flowQueryParams;
+  const { simpleRoutes } = config.showContentServer;
 
   return (
     <>
       <Head />
       <Router basepath={'/'}>
         <ScrollToTop default>
-          {/* TODO: set up client-side guard around simpleRoutes by checking for `showReactApp`
-           * and if config flag is on, FXA-TBD2  */}
-          <PageCannotCreateAccount path="/cannot_create_account/*" />
+          {showReactApp === true && simpleRoutes === true ? (
+            <PageCannotCreateAccount path="/cannot_create_account/*" />
+          ) : (
+            <>
+              {window.location.assign(
+                `${window.location.origin}/cannot_create_account`
+              )}
+            </>
+          )}
 
           <Settings path="/settings/*" {...{ flowQueryParams }} />
         </ScrollToTop>

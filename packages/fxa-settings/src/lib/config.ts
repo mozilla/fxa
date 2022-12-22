@@ -47,13 +47,24 @@ export interface Config {
   };
   version: string;
   tracing: TracingOpts;
+  showContentServer: {
+    simpleRoutes: boolean;
+    resetPasswordRoutes: boolean;
+    oauthRoutes: boolean;
+    signInRoutes: boolean;
+    signUpRoutes: boolean;
+    pairRoutes: boolean;
+    postVerifyAddRecoveryKeyRoutes: boolean;
+    postVerifyCADViaQRRoutes: boolean;
+    signInVerificationViaPushRoutes: boolean;
+  };
 }
 
 export function getDefault() {
   return {
     env: 'development',
     l10n: {
-      strict: false,
+      strict: true,
     },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
@@ -90,6 +101,17 @@ export function getDefault() {
       sampleRate: 0.0,
       batchProcessor: true,
       filterPii: true,
+    },
+    showContentServer: {
+      simpleRoutes: false,
+      resetPasswordRoutes: false,
+      oauthRoutes: false,
+      signInRoutes: false,
+      signUpRoutes: false,
+      pairRoutes: false,
+      postVerifyAddRecoveryKeyRoutes: false,
+      postVerifyCADViaQRRoutes: false,
+      signInVerificationViaPushRoutes: false,
     },
   } as Config;
 }

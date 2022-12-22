@@ -61,6 +61,23 @@ const settingsConfig = {
     length: config.get('recovery_codes.length'),
   },
   tracing: config.get('tracing'),
+  showReactApp: {
+    simpleRoutes: config.get('showReactApp.simpleRoutes'),
+    resetPasswordRoutes: config.get('showReactApp.resetPasswordRoutes'),
+    oauthRoutes: config.get('showReactApp.oauthRoutes'),
+    signInRoutes: config.get('showReactApp.signInRoutes'),
+    signUpRoutes: config.get('showReactApp.signUpRoutes'),
+    pairRoutes: config.get('showReactApp.pairRoutes'),
+    postVerifyAddRecoveryKeyRoutes: config.get(
+      'showReactApp.postVerifyAddRecoveryKeyRoutes'
+    ),
+    postVerifyCADViaQRRoutes: config.get(
+      'showReactApp.postVerifyCADViaQRRoutes'
+    ),
+    signInVerificationViaPushRoutes: config.get(
+      'showReactApp.signInVerificationViaPushRoutes'
+    ),
+  },
 };
 
 // Inject Beta Settings meta content

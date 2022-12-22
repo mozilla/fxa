@@ -29,7 +29,7 @@ interface FlowQueryParams {
 
 // temporary until we can safely direct all users to all routes currently in content-server
 export interface QueryParams extends FlowQueryParams {
-  showNewReactApp?: boolean;
+  showReactApp?: boolean;
 }
 
 try {
