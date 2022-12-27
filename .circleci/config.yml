@@ -339,9 +339,10 @@ commands:
               --verbose \
               --since \
               --topological-dev \
-              --include="fxa-profile-server" \
+              --exclude="fxa-customs-server" \
+              --exclude="fxa-auth-server" \
               --exclude="fxa-dev-launcher" \
-              run test:integration
+              --parallel run test:integration
 
 jobs:
 
