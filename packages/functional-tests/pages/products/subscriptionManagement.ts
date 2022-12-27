@@ -3,6 +3,12 @@ import { BaseLayout } from '../layout';
 export class SubscriptionManagementPage extends BaseLayout {
   readonly path = '/subscription';
 
+  async subscriptiontHeader() {
+    const header = this.page.locator('#subscriptions-support');
+    await header.waitFor({ state: 'visible' });
+    return header.isVisible();
+  }
+
   async cancelSubscription() {
     return Promise.all([
       await this.page
@@ -30,6 +36,39 @@ export class SubscriptionManagementPage extends BaseLayout {
     await frame.fill('.InputElement[name=cvc]', '777');
     await frame.fill('.InputElement[name=postal]', '88888');
     await this.page.locator('[data-testid="submit"]').click();
+  }
+
+  async fillSupportForm() {
+    await this.page.locator('[data-testid="contact-support-button"]').click();
+    await this.page.locator('#product_chosen a.chosen-single').click();
+    await this.page
+      .locator(
+        '#product_chosen ul.chosen-results li[data-option-array-index="1"]'
+      )
+      .click();
+    await this.page.locator('#topic_chosen a.chosen-single').click();
+    await this.page
+      .locator(
+        '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
+      )
+      .click();
+    await this.page.locator('#app_chosen a.chosen-single').click();
+    await this.page
+      .locator('#app_chosen ul.chosen-results li[data-option-array-index="1"]')
+      .click();
+    await this.page.locator('input[name="subject"]').fill('Test Support');
+    await this.page
+      .locator('textarea[name=message]')
+      .fill('Testing Support Form');
+  }
+
+  async submitSupportForm() {
+    return await this.page.locator('button[type=submit]').click();
+  }
+
+  async cancelSupportForm() {
+    await this.page.locator('button.cancel').click();
+    await this.page.waitForLoadState();
   }
 
   async resubscribe() {
