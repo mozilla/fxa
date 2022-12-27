@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "./bin/fxa-dev-launcher.mjs"
+    "start": "./bin/fxa-dev-launcher.mjs",
+    "lint": "echo 'Linting not enabled.'"
   },
   "bin": "./bin/fxa-dev-launcher.mjs",
   "repository": {

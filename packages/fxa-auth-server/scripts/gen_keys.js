@@ -40,7 +40,9 @@ try {
   const keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
   assert(!keysExist, 'keys already exists');
 } catch (e) {
-  process.exit();
+  console.log('keys already exist!');
+  return;
+  //process.exit();
 }
 
 // We tag our keys with their creation time, and a unique key id

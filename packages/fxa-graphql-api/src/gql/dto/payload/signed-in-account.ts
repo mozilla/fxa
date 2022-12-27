@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ObjectType, OmitType } from '@nestjs/graphql';
 
+type hexstring = string;
+
 @ObjectType()
 export class SignedInAccountPayload {
   @Field({

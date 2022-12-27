@@ -20314,7 +20314,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"db-migrations@workspace:*, db-migrations@workspace:packages/db-migrations":
+"db-migrations@workspace:packages/db-migrations":
   version: 0.0.0-use.local
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
@@ -26048,7 +26048,6 @@ fsevents@~2.1.1:
     class-validator: ^0.13.2
     cldr-localenames-full: 42.0.0
     cors: ^2.8.5
-    db-migrations: "workspace:*"
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0

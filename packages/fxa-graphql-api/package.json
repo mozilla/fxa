@@ -6,20 +6,20 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "compile": "tsc --noEmit",
-    "lint": "eslint *",
+    "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "watch": "tsc -w",
     "start": "pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:8290/__heartbeat__",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test:unit": "jest --runInBand -t '#unit'",
-    "test:integration": "jest --runInBand -t '#integration' && yarn test:e2e",
-    "test": "jest --runInBand && yarn test:e2e",
+    "test:unit": "jest --coverage --runInBand --logHeapUsage --forceExit -t '#unit'",
+    "test:integration": "jest --coverage --runInBand --logHeapUsage -t '#integration' && yarn test:e2e",
+    "test": "jest --runInBand --logHeapUsage && yarn test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
+    "test:e2e": "jest --runInBand --logHeapUsage --config ./test/jest-e2e.json",
     "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts"
   },
   "repository": {
@@ -114,7 +114,7 @@
     "rootDir": "src",
     "testRegex": ".spec.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [ "ts-jest", { "isolatedModules": true } ]
     },
     "coverageDirectory": "./coverage",
     "testEnvironment": "node"

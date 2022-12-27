@@ -13,7 +13,6 @@ mkdir -p config
 cd ../../
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
-node ./packages/db-migrations/bin/patcher.mjs
 yarn workspaces foreach \
     --verbose \
     --topological-dev \

@@ -17,7 +17,7 @@
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
     "test": "CI=true npm-run-all test:frontend test:server",
-    "test:unit": "test",
+    "test:unit": "yarn build-css && yarn build:client && yarn test",
     "test:integration": "echo 'No integration tests present!'"
   },
   "browserslist": {

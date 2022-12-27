@@ -67,9 +67,9 @@
     "test:mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
     "test:mocha:unit": "tsc --build && mocha -r esbuild-register --recursive test/**/*.{js,ts} -g '#unit'",
     "test:mocha:integration": "tsc --build && mocha -r esbuild-register --recursive test/**/*.{js,ts} -g '#unit' --invert",
-    "test:jest": "jest --runInBand --coverage",
-    "test:jest:unit": "jest --runInBand --coverage -t '#unit' ",
-    "test:jest:integration": "jest --runInBand --coverage -t '#integration' ",
+    "test:jest": "jest --runInBand --logHeapUsage --coverage",
+    "test:jest:unit": "jest --coverage --runInBand --logHeapUsage --forceExit --coverage -t '#unit' ",
+    "test:jest:integration": "jest --coverage --runInBand --logHeapUsage --coverage -t '#integration' ",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
@@ -169,7 +169,6 @@
     "class-validator": "^0.13.2",
     "cldr-localenames-full": "42.0.0",
     "cors": "^2.8.5",
-    "db-migrations": "workspace:*",
     "express": "^4.17.3",
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
@@ -202,7 +201,7 @@
     "rootDir": "nestjs",
     "testRegex": ".spec.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [ "ts-jest", { "isolatedModules": true } ]
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

@@ -1002,7 +1002,7 @@ export class StripeHelper extends StripeHelperBase {
             couponDetails.discountAmount = total_discount_amounts[0].amount;
           }
         } catch (err) {
-          console.log('REINO');
+          console.trace('REINO', err.message);
           if (
             err instanceof error &&
             err.errno === error.ERRNO.INVALID_PROMOTION_CODE

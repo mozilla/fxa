@@ -11,6 +11,12 @@ orbs:
 
 executors:
 
+  # Default node executor with low resources. Useful for running quick / small tasks
+  tiny-executor:
+    resource_class: small
+    docker:
+      - image: cimg/node:16.13
+
   # For creating docker builds
   docker-build-executor:
     parameters:
@@ -118,6 +124,27 @@ commands:
     steps:
       - run: git fetch
       - run: git checkout << pipeline.git.revision >>
+      - git-check-for-rebase
+
+  git-check-for-rebase:
+    steps:
+      - run:
+          name: Check for rebase
+          command: |
+            commitsBehind=$(git rev-list --left-only --count main...HEAD);
+            if [[ $((commitsBehind)) > 0 ]]; then
+
+              if [[ $((commitsBehind)) == 1 ]]; then commits="commit"; else commits="commits"; fi;
+
+              echo -e '\n\n'
+              echo '=============================================================================='
+              echo "WARNING! Your branch is $commitsBehind $commits behind master!"
+              echo '------------------------------------------------------------------------------'
+              echo 'Please consider rebasing. By not rebasing you always run the risk of'
+              echo 'introducing a breaking change into main!'
+              echo '=============================================================================='
+              echo -e '\n\n'
+            fi
 
   # Note: We no longer cache in step. As long as packages used in the branch aren't that different
   # from the packages used in main, which is generally the case, we shouldn't see large install
@@ -127,9 +154,6 @@ commands:
       - run: ./.circleci/base-install.sh
       - run: node .circleci/modules-to-test.js | tee packages/test.list
       - run: ./_scripts/create-version-json.sh
-      - run: ./_scripts/compile-backend-ts-services.sh
-      - store_artifacts:
-          path: artifacts
 
   cache-save-yarn:
     steps:
@@ -147,6 +171,32 @@ commands:
             - fxa-yarn-07-{{ checksum "yarn.lock" }}
             - fxa-yarn-07-
 
+  cache-save-ts-build:
+    steps:
+       - save_cache:
+          key: fxa-ts-build-01-<< pipeline.git.revision >>
+          paths:
+            - /home/circleci/project/packages/fxa-admin-server/dist
+            - /home/circleci/project/packages/fxa-auth-client/dist
+            - /home/circleci/project/packages/fxa-auth-server/dist
+            - /home/circleci/project/packages/fxa-event-broker/dist
+            - /home/circleci/project/packages/fxa-graphql-api/dist
+            - /home/circleci/project/packages/fxa-shared/dist
+            - /home/circleci/project/packages/fxa-support-panel/dist
+
+  cache-restore-ts-build:
+    steps:
+       - save_cache:
+          key: fxa-ts-build-01-<< pipeline.git.revision >>
+          paths:
+            - /home/circleci/project/packages/fxa-admin-server/dist
+            - /home/circleci/project/packages/fxa-auth-client/dist
+            - /home/circleci/project/packages/fxa-auth-server/dist
+            - /home/circleci/project/packages/fxa-event-broker/dist
+            - /home/circleci/project/packages/fxa-graphql-api/dist
+            - /home/circleci/project/packages/fxa-shared/dist
+            - /home/circleci/project/packages/fxa-support-panel/dist
+
   test-content-server-part:
     parameters:
       index:
@@ -157,6 +207,7 @@ commands:
         default: 3
     steps:
       - git-checkout
+      - cache-restore-ts-build
       - provision
       - wait-for-infrastructure
       - run:
@@ -165,14 +216,7 @@ commands:
             CIRCLE_NODE_INDEX: << parameters.index >>
             CIRCLE_NODE_TOTAL: << parameters.total >>
           command: ./.circleci/test-package.sh fxa-content-server
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: artifacts/tests
+      - store-artifacts
 
   test-content-server-remote-part:
     parameters:
@@ -189,34 +233,115 @@ commands:
             CIRCLE_NODE_INDEX: << parameters.index >>
             CIRCLE_NODE_TOTAL: << parameters.total >>
           command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: artifacts/tests
+      - store-artifacts
 
   test-settings-server:
     steps:
       - run:
           name: Running test...
           command: ./.circleci/test-package.sh fxa-settings
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: artifacts/tests
+      - store-artifacts
 
   wait-for-infrastructure:
     steps:
       - run:
           name: Wait for MySQL DB
           command: ./_scripts/check-mysql.sh
+      - run:
+          name: Run DB migrations
+          command: node ./packages/db-migrations/bin/patcher.mjs;
+      - run:
+          name: Wait for firestore
+          command:  ./_scripts/check-url.sh localhost:9090;
+
+  lint:
+    steps:
+      - run:
+          name: Linting
+          # Note: not all workspaces should pass linting. Remove --excluded once everything lints cleanly
+          command: |
+            yarn workspaces foreach \
+              --verbose \
+              --since \
+              --exclude=browserid-verifier  \
+              --exclude=functional-tests\
+              --exclude=fxa-admin-panel  \
+              --exclude=fxa-admin-server \
+              --exclude=fxa-auth-client \
+              --exclude=fxa-customs-server  \
+              --exclude=fxa-event-broker  \
+              --exclude=fxa-graphql-api \
+              --exclude=fxa-payments-server  \
+              --exclude=fxa-settings  \
+              --exclude=fxa-support-panel \
+              --parallel run lint
+
+  report-coverage:
+    steps:
+      - run:
+          command: |
+            yarn workspaces foreach \
+              --since \
+              --topological-dev \
+              --include="fxa-*" \
+              --exclude="fxa-dev-launcher" \
+              --parallel exec '../../_scripts/report-coverage.sh $npm_package_name'
+
+  store-artifacts:
+    steps:
+      - run: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+      - store_artifacts:
+          path: artifacts
+      - store_artifacts:
+          path: ~/screenshots
+      - store_artifacts:
+          path: ~/.pm2/logs
+      - store_test_results:
+          path: artifacts/tests
+
+  ts-build:
+    steps:
+      - run:
+          name: Build Typescript Packages
+          command: |
+              yarn workspaces foreach \
+                --verbose \
+                --since \
+                --topological-dev \
+                --parallel \
+                --include="fxa-admin-server" \
+                --include="fxa-auth-client" \
+                --include="fxa-event-broker" \
+                --include="fxa-graphql-api" \
+                --include="fxa-shared" \
+                --include="fxa-support-panel" \
+                run compile
+      - cache-save-ts-build
+
+  unit-test:
+    steps:
+      - run:
+          name: Unit Test
+          command: |
+            NODE_ENV=test yarn workspaces foreach \
+              --verbose \
+              --since \
+              --topological-dev \
+              --exclude="fxa-dev-launcher" \
+              --parallel run test:unit
+
+  integration-test:
+    steps:
+      - run:
+          name: Integration Test
+          command: |
+             NODE_ENV=test yarn workspaces foreach \
+              --verbose \
+              --since \
+              --topological-dev \
+              --include="fxa-profile-server" \
+              --exclude="fxa-dev-launcher" \
+              run test:integration
 
 jobs:
 
@@ -238,8 +363,7 @@ jobs:
       - run:
           name: Push to docker hub
           command: ./.circleci/deploy-all.sh
-      - store_artifacts:
-          path: artifacts
+      - store-artifacts
 
   # This deploys a base image of fxa that is useful for CI testing. Think of this image as
   # the last known good state of fxa. The image is designed to come with everything required
@@ -295,80 +419,36 @@ jobs:
             docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
             docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
 
-  test-package:
-    executor: fullstack-executor
-    parameters:
-      package:
-        type: string
-    steps:
-      - git-checkout
-      - provision
-      - wait-for-infrastructure
-      - run:
-          name: Testing << parameters.package >>
-          command: ./.circleci/test-package.sh << parameters.package >>
-      - store_test_results:
-          path: artifacts/tests
-      - run:
-          name: Reporting code coverage...
-          command: bash <(curl -s https://codecov.io/bash) -F << parameters.package >> -X gcov
-
-  lint:
+  build-and-unit-test:
     executor: default-executor
     steps:
       - git-checkout
-      - run:
-          name: Linting
-          command: |
-            PACKAGES=(\
-            'fxa-shared' \
-            'fxa-auth-server' \
-            )
-            for p in "${PACKAGES[@]}"; do
-              (cd packages/$p && yarn lint)
-            done
+      - cache-restore-ts-build
+      - provision
+      - lint
+      - ts-build
+      - unit-test
+      - report-coverage
       - jira/notify
 
-  test-many:
+  integration-test:
     executor: fullstack-executor
+    resource_class: medium
     steps:
       - git-checkout
+      - cache-restore-ts-build
       - provision
+      - ts-build
       - wait-for-infrastructure
-      - run:
-          name: Testing...
-          command: |
-            PACKAGES=(\
-            'fxa-shared' \
-            'fxa-react' \
-            'fxa-graphql-api' \
-            'fxa-payments-server' \
-            'fxa-admin-server' \
-            'fxa-admin-panel' \
-            'fxa-support-panel' \
-            'fxa-event-broker' \
-            'fxa-profile-server' \
-            '123done' \
-            'browserid-verifier' \
-            'fortress' \
-            'fxa-auth-client' \
-            'fxa-geodb' \
-            'fxa-customs-server' \
-            )
-            for p in "${PACKAGES[@]}"; do
-              ./.circleci/test-package.sh $p
-            done
-      - run:
-          name: Reporting code coverage...
-          command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
-      - store_artifacts:
-          path: artifacts
+      - integration-test
+      - report-coverage
       - jira/notify
 
   test-settings-server:
     executor: functional-test-executor
     steps:
       - git-checkout
+      - cache-restore-ts-build
       - provision
       - wait-for-infrastructure
       - test-settings-server
@@ -400,11 +480,7 @@ jobs:
       - run:
           name: Running test section against a remote target
           command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: artifacts/tests
+      - store-artifacts
 
   # These jobs are manually triggered for now. see .circleci/README.md
   test-content-server-remote-part-0:
@@ -435,8 +511,8 @@ jobs:
       - run:
           name: Running smoke tests
           command: yarn workspace functional-tests test-production
-      - store_artifacts:
-          path: artifacts
+      - store-artifacts
+      # TODO: Is this actually needed?
       - store_test_results:
           path: artifacts/tests
 
@@ -464,13 +540,7 @@ jobs:
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: artifacts
-      - store_test_results:
-          path: artifacts/tests
+      - store-artifacts
 
   build-and-deploy-storybooks:
     executor: default-executor
@@ -486,72 +556,56 @@ jobs:
     steps:
       - cache-save-yarn
 
+  functional-test-pre-check:
+    executor: tiny-executor
+    steps:
+      - run: echo 'Unit and Integration Tests Completed Successfully! Starting functional tests.'
 
 workflows:
 
   test_pull_request:
     jobs:
-      - lint:
+
+      - build-and-unit-test:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
 
-      - test-many:
+      - integration-test:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
 
-      - test-settings-server:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - playwright-functional-tests:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+      - functional-test-pre-check:
+          requires:
+            - build-and-unit-test
+            - integration-test
 
       - build-and-deploy-storybooks:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+          requires:
+            - functional-test-pre-check
+
+      - test-settings-server:
+          requires:
+            - functional-test-pre-check
+
+      - test-content-server-0:
+          requires:
+            - functional-test-pre-check
+      - test-content-server-1:
+          requires:
+            - functional-test-pre-check
+      - test-content-server-2:
+          requires:
+            - functional-test-pre-check
+
+      - playwright-functional-tests:
+          requires:
+            - functional-test-pre-check
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
@@ -637,44 +691,30 @@ workflows:
 
   test_and_deploy_tag:
     jobs:
-      - lint:
+      - build-and-unit-test:
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-      - test-many:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+
+      - integration-test:
+          requires:
+            - build-and-unit-test
+
+      - functional-test-pre-check:
+          requires:
+            - integration-test
+
       - test-content-server-0:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+          requires:
+            - functional-test-pre-check
       - test-content-server-1:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+          requires:
+            - functional-test-pre-check
       - test-content-server-2:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+          requires:
+            - functional-test-pre-check
       - deploy-packages:
           executor: docker-build-executor
           filters:
@@ -683,8 +723,7 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - test-many
-            - test-auth-server
+            - functional-test-pre-check
             - test-content-server-0
             - test-content-server-1
             - test-content-server-2
