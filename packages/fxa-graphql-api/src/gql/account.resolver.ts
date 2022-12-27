@@ -47,6 +47,7 @@ import {
   UpdateAvatarInput,
   UpdateDisplayNameInput,
   VerifyEmailInput,
+  VerifyEmailCodeInput,
   VerifySessionInput,
   VerifyTotpInput,
   CreatePassword,
@@ -607,6 +608,29 @@ export class AccountResolver {
       uid: input.uid,
       unblockCode: input.unblockCode,
     });
+    return {
+      clientMutationId: input.clientMutationId,
+    };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description:
+     'Used to verify a users primary email address.',
+  })
+  @CatchGatewayError
+  public async emailVerifyCode(
+   @GqlXHeaders() headers: Headers,
+   @Args('input', { type: () => VerifyEmailCodeInput }) input: VerifyEmailCodeInput
+  ): Promise<BasicPayload> {
+    await this.authAPI.verifyCode(
+     input.uid,
+     input.code,
+     {
+       service: input.service
+     },
+     headers
+    );
+    
     return {
       clientMutationId: input.clientMutationId,
     };
