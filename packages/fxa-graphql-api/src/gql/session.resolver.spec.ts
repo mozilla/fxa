@@ -90,4 +90,22 @@ describe('#unit - AccountResolver', () => {
     );
     expect(result).toStrictEqual(mockRespPayload);
   });
+
+  it('resends a verify code through the auth-client', async () => {
+    const sessionToken = 'goodtoken';
+    const headers = new Headers();
+    const now = Date.now();
+    authClient.sessionResendVerifyCode = jest.fn().mockResolvedValue({});
+    const result = await resolver.resendVerifyCode(sessionToken, headers, {
+      clientMutationId: 'testid',
+    });
+    expect(authClient.sessionResendVerifyCode).toBeCalledTimes(1);
+    expect(authClient.sessionResendVerifyCode).toBeCalledWith(
+      'goodtoken',
+      headers
+    );
+    expect(result).toStrictEqual({
+      clientMutationId: 'testid',
+    });
+  });
 });
