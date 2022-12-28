@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ObjectType, OmitType } from '@nestjs/graphql';
 
-type hexstring = string;
-
 @ObjectType()
 export class SignedInAccountPayload {
   @Field({
@@ -14,10 +12,10 @@ export class SignedInAccountPayload {
   public clientMutationId?: string;
 
   @Field()
-  public uid!: hexstring;
+  public uid!: string;
 
   @Field()
-  public sessionToken!: hexstring;
+  public sessionToken!: string;
 
   @Field()
   verified!: boolean;
@@ -28,7 +26,7 @@ export class SignedInAccountPayload {
   @Field()
   metricsEnabled!: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   keyFetchToken?: hexstring;
 
   @Field({ nullable: true })
@@ -39,7 +37,7 @@ export class SignedInAccountPayload {
 }
 
 @ObjectType()
-export class SessionReauthedAccountPlayload extends OmitType(
+export class SessionReauthedAccountPayload extends OmitType(
   SignedInAccountPayload,
   ['sessionToken']
 ) {}

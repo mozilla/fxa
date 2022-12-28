@@ -12,13 +12,13 @@ export class SignedUpAccountPayload {
   public clientMutationId?: string;
 
   @Field()
-  public uid!: hexstring;
+  public uid!: string;
 
   @Field()
-  public sessionToken!: hexstring;
+  public sessionToken!: string;
 
   @Field({ nullable: true })
-  keyFetchToken?: hexstring;
+  keyFetchToken?: string;
 
   @Field()
   authAt!: number;

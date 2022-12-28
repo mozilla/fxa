@@ -16,5 +16,5 @@ export class FinishSetupInput {
   public token!: string;
 
   @Field()
-  public authPW!: hexstring;
+  public authPW!: string;
 }

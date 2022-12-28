@@ -19,7 +19,7 @@ import {
 import { DestroySessionInput } from './dto/input';
 import { SessionReauthInput } from './dto/input/session-reauth';
 import { BasicPayload } from './dto/payload';
-import { SessionReauthedAccountPlayload } from './dto/payload/signed-in-account';
+import { SessionReauthedAccountPayload } from './dto/payload/signed-in-account';
 import { CatchGatewayError } from './lib/error';
 import { Session as SessionType, SessionStatus } from './model/session';
 
@@ -63,14 +63,14 @@ export class SessionResolver {
     return { state, uid };
   }
 
-  @Mutation((returns) => SessionReauthedAccountPlayload, {
+  @Mutation((returns) => SessionReauthedAccountPayload, {
     description: 'Re-authenticate an existing session token.',
   })
   @CatchGatewayError
   public async reauthSession(
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => SessionReauthInput }) input: SessionReauthInput
-  ): Promise<SessionReauthedAccountPlayload> {
+  ): Promise<SessionReauthedAccountPayload> {
     const result = await this.authAPI.sessionReauthWithAuthPW(
       input.sessionToken,
       input.email,

@@ -11,7 +11,7 @@ export class SessionReauthOptionsInput extends SignInOptionsInput {}
 @InputType()
 export class SessionReauthInput extends SignInInput {
   @Field()
-  public sessionToken!: hexstring;
+  public sessionToken!: string;
 
   @Field()
   public options!: SessionReauthOptionsInput;

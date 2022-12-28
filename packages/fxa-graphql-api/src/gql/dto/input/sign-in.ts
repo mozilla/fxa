@@ -41,7 +41,7 @@ export class SignInInput {
   public clientMutationId?: string;
 
   @Field()
-  public authPW!: hexstring;
+  public authPW!: string;
 
   @Field()
   public email!: string;

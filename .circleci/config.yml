@@ -122,15 +122,12 @@ commands:
   # to a circleci `- checkout` command.
   git-checkout:
     steps:
-      - run: git fetch
-      - run: git checkout << pipeline.git.revision >>
-      - git-check-for-rebase
-
-  git-check-for-rebase:
-    steps:
       - run:
-          name: Check for rebase
+          name:
           command: |
+            set +x
+            git fetch
+            git checkout << pipeline.git.revision >>
             commitsBehind=$(git rev-list --left-only --count main...HEAD);
             if [[ $((commitsBehind)) > 0 ]]; then
 
@@ -151,9 +148,12 @@ commands:
   # times, since the base image will have everything cached.
   provision:
     steps:
-      - run: ./.circleci/base-install.sh
-      - run: node .circleci/modules-to-test.js | tee packages/test.list
-      - run: ./_scripts/create-version-json.sh
+      - run:
+          name: Base Install
+          command: |
+            ./.circleci/base-install.sh;
+            node .circleci/modules-to-test.js | tee packages/test.list
+            ./_scripts/create-version-json.sh;
 
   cache-save-yarn:
     steps:
@@ -171,32 +171,6 @@ commands:
             - fxa-yarn-07-{{ checksum "yarn.lock" }}
             - fxa-yarn-07-
 
-  cache-save-ts-build:
-    steps:
-       - save_cache:
-          key: fxa-ts-build-01-<< pipeline.git.revision >>
-          paths:
-            - /home/circleci/project/packages/fxa-admin-server/dist
-            - /home/circleci/project/packages/fxa-auth-client/dist
-            - /home/circleci/project/packages/fxa-auth-server/dist
-            - /home/circleci/project/packages/fxa-event-broker/dist
-            - /home/circleci/project/packages/fxa-graphql-api/dist
-            - /home/circleci/project/packages/fxa-shared/dist
-            - /home/circleci/project/packages/fxa-support-panel/dist
-
-  cache-restore-ts-build:
-    steps:
-       - save_cache:
-          key: fxa-ts-build-01-<< pipeline.git.revision >>
-          paths:
-            - /home/circleci/project/packages/fxa-admin-server/dist
-            - /home/circleci/project/packages/fxa-auth-client/dist
-            - /home/circleci/project/packages/fxa-auth-server/dist
-            - /home/circleci/project/packages/fxa-event-broker/dist
-            - /home/circleci/project/packages/fxa-graphql-api/dist
-            - /home/circleci/project/packages/fxa-shared/dist
-            - /home/circleci/project/packages/fxa-support-panel/dist
-
   test-content-server-part:
     parameters:
       index:
@@ -207,8 +181,8 @@ commands:
         default: 3
     steps:
       - git-checkout
-      - cache-restore-ts-build
       - provision
+      - ts-build-restore
       - wait-for-infrastructure
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
@@ -227,6 +201,7 @@ commands:
     steps:
       - git-checkout
       - provision
+      - ts-build
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -304,19 +279,34 @@ commands:
       - run:
           name: Build Typescript Packages
           command: |
-              yarn workspaces foreach \
-                --verbose \
-                --since \
-                --topological-dev \
-                --parallel \
-                --include="fxa-admin-server" \
-                --include="fxa-auth-client" \
-                --include="fxa-event-broker" \
-                --include="fxa-graphql-api" \
-                --include="fxa-shared" \
-                --include="fxa-support-panel" \
-                run compile
-      - cache-save-ts-build
+            yarn workspaces foreach \
+              --verbose \
+              --since \
+              --topological-dev \
+              --parallel \
+              --include="fxa-admin-server" \
+              --include="fxa-auth-client" \
+              --include="fxa-event-broker" \
+              --include="fxa-graphql-api" \
+              --include="fxa-shared" \
+              --include="fxa-support-panel" \
+              run compile;
+      - save_cache:
+          key: fxa-ts-build-01-<< pipeline.git.revision >>
+          paths:
+            - /home/circleci/project/packages/fxa-admin-server/dist
+            - /home/circleci/project/packages/fxa-auth-client/dist
+            - /home/circleci/project/packages/fxa-auth-server/dist
+            - /home/circleci/project/packages/fxa-event-broker/dist
+            - /home/circleci/project/packages/fxa-graphql-api/dist
+            - /home/circleci/project/packages/fxa-shared/dist
+            - /home/circleci/project/packages/fxa-support-panel/dist
+
+  ts-build-restore:
+    steps:
+       - restore_cache:
+          keys:
+            - fxa-ts-build-01-<< pipeline.git.revision >>
 
   unit-test:
     steps:
@@ -325,9 +315,9 @@ commands:
           command: |
             NODE_ENV=test yarn workspaces foreach \
               --verbose \
-              --since \
               --topological-dev \
               --exclude="fxa-dev-launcher" \
+              --exclude="functional-tests" \
               --parallel run test:unit
 
   integration-test:
@@ -337,11 +327,9 @@ commands:
           command: |
              NODE_ENV=test yarn workspaces foreach \
               --verbose \
-              --since \
               --topological-dev \
-              --exclude="fxa-customs-server" \
-              --exclude="fxa-auth-server" \
               --exclude="fxa-dev-launcher" \
+              --exclude="functional-tests" \
               --parallel run test:integration
 
 jobs:
@@ -424,23 +412,21 @@ jobs:
     executor: default-executor
     steps:
       - git-checkout
-      - cache-restore-ts-build
       - provision
-      - lint
       - ts-build
+      - lint
       - unit-test
       - report-coverage
       - jira/notify
 
   integration-test:
     executor: fullstack-executor
-    resource_class: medium
+    resource_class: small
     steps:
       - git-checkout
-      - cache-restore-ts-build
       - provision
-      - ts-build
       - wait-for-infrastructure
+      - ts-build-restore
       - integration-test
       - report-coverage
       - jira/notify
@@ -449,7 +435,7 @@ jobs:
     executor: functional-test-executor
     steps:
       - git-checkout
-      - cache-restore-ts-build
+      - ts-build-restore
       - provision
       - wait-for-infrastructure
       - test-settings-server
@@ -523,6 +509,7 @@ jobs:
     steps:
       - git-checkout
       - provision
+      - ts-build-restore
       - run:
           name: Ensure playwright install
           # The base install script always skips playwright browser installs in an attempt
@@ -557,11 +544,6 @@ jobs:
     steps:
       - cache-save-yarn
 
-  functional-test-pre-check:
-    executor: tiny-executor
-    steps:
-      - run: echo 'Unit and Integration Tests Completed Successfully! Starting functional tests.'
-
 workflows:
 
   test_pull_request:
@@ -575,38 +557,30 @@ workflows:
               ignore: /.*/
 
       - integration-test:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-
-      - functional-test-pre-check:
-          requires:
+           requires:
             - build-and-unit-test
-            - integration-test
 
       - build-and-deploy-storybooks:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
 
       - test-settings-server:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
 
       - test-content-server-0:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
       - test-content-server-1:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
       - test-content-server-2:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
 
       - playwright-functional-tests:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
@@ -703,19 +677,15 @@ workflows:
           requires:
             - build-and-unit-test
 
-      - functional-test-pre-check:
-          requires:
-            - integration-test
-
       - test-content-server-0:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
       - test-content-server-1:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
       - test-content-server-2:
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
       - deploy-packages:
           executor: docker-build-executor
           filters:
@@ -724,7 +694,7 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - functional-test-pre-check
+            - build-and-unit-test
             - test-content-server-0
             - test-content-server-1
             - test-content-server-2
