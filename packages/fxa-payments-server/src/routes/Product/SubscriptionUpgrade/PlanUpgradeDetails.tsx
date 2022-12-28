@@ -1,36 +1,44 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
-import { getLocalizedCurrency, formatPlanPricing } from '../../../lib/formats';
+
+import { AppContext } from '../../../lib/AppContext';
+
+import ffLogo from '../../../images/firefox-logo.svg';
+import { Plan } from '../../../store/types';
+
 import {
   uiContentFromProductConfig,
   webIconConfigFromProductConfig,
 } from 'fxa-shared/subscriptions/configuration/utils';
-import { AppContext } from '../../../lib/AppContext';
 
-import ffLogo from '../../../images/firefox-logo.svg';
-
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import './index.scss';
-import { Plan } from '../../../store/types';
+import { PriceDetails } from '../../../components/PriceDetails';
 
 export const PlanUpgradeDetails = ({
   selectedPlan,
   upgradeFromPlan,
   isMobile,
   className = 'default',
+  invoicePreview,
 }: {
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   isMobile: boolean;
+  invoicePreview: FirstInvoicePreview;
   className?: string;
 }) => {
-  const totalPrice = formatPlanPricing(
-    selectedPlan.amount,
-    selectedPlan.currency,
-    selectedPlan.interval,
-    selectedPlan.interval_count
-  );
+  const { config } = useContext(AppContext);
+  const { amount, currency, interval, interval_count } = selectedPlan;
 
   const role = isMobile ? undefined : 'complementary';
+
+  const showTax = config.featureFlags.useStripeAutomaticTax;
+
+  const taxAmount = invoicePreview.tax?.amount || 0;
+  const taxInclusive = invoicePreview.tax?.inclusive;
+  const totalAmount = showTax ? invoicePreview.total : amount;
+  const subTotal = invoicePreview.subtotal;
 
   return (
     <section
@@ -50,23 +58,51 @@ export const PlanUpgradeDetails = ({
 
       <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
-      <div className="py-6 border-t-0 plan-details-item font-semibold">
-        <Localized id="sub-update-total-label">
-          <div className="total-label">New total</div>
-        </Localized>
+      <div className="py-6 border-t-0">
+        {showTax && !!subTotal && !!taxAmount && !taxInclusive && (
+          <>
+            <div className="plan-details-item">
+              <Localized id="plan-details-list-price">
+                <div>List Price</div>
+              </Localized>
 
-        <Localized
-          id={`plan-price-interval-${selectedPlan.interval}`}
-          vars={{
-            amount: getLocalizedCurrency(
-              selectedPlan.amount,
-              selectedPlan.currency
-            ),
-            intervalCount: selectedPlan.interval_count,
-          }}
-        >
-          <div className="total-price">{totalPrice}</div>
-        </Localized>
+              <PriceDetails
+                total={subTotal}
+                currency={currency}
+                dataTestId="plan-upgrade-subtotal"
+              />
+            </div>
+
+            <div className="plan-details-item">
+              <Localized id="plan-details-tax">
+                <div>Taxes and Fees</div>
+              </Localized>
+
+              <PriceDetails
+                total={taxAmount}
+                currency={currency}
+                dataTestId="plan-upgrade-tax-amount"
+              />
+            </div>
+          </>
+        )}
+
+        {!!totalAmount && (
+          <div className="plan-details-item font-semibold mt-5">
+            <Localized id="sub-update-total-label">
+              <div className="total-label">New total</div>
+            </Localized>
+
+            <PriceDetails
+              total={totalAmount}
+              currency={currency}
+              interval={interval}
+              intervalCount={interval_count}
+              className="total-price"
+              dataTestId="total-price"
+            />
+          </div>
+        )}
       </div>
     </section>
   );
@@ -90,12 +126,6 @@ export const PlanDetailsCard = ({
     plan,
     navigatorLanguages,
     config.featureFlags.useFirestoreProductConfigs
-  );
-  const planPrice = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    interval_count
   );
 
   const setWebIconBackground = webIconBackground
@@ -128,15 +158,12 @@ export const PlanDetailsCard = ({
 
         {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
         <p id="product-description" className="plan-details-description">
-          <Localized
-            id={`plan-price-interval-${interval}`}
-            vars={{
-              amount: getLocalizedCurrency(amount, currency),
-              intervalCount: interval_count,
-            }}
-          >
-            {planPrice}
-          </Localized>
+          <PriceDetails
+            total={amount || 0}
+            currency={currency}
+            interval={interval}
+            intervalCount={interval_count}
+          />
           &nbsp;&bull;&nbsp;
           {productDetails.subtitle}
         </p>

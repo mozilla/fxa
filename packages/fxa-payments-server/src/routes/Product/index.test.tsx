@@ -2,7 +2,11 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 
@@ -24,6 +28,7 @@ import {
   mockServerUrl,
   mockOptionsResponses,
   INACTIVE_PLAN_ID,
+  MOCK_PREVIEW_INVOICE_NO_TAX,
 } from '../../lib/test-utils';
 
 import { SignInLayout } from '../../components/AppLayout';
@@ -49,6 +54,11 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigate,
 }));
+
+const mockPreviewInvoiceResponse = {
+  ...MOCK_PREVIEW_INVOICE_NO_TAX,
+  line_items: [{ ...MOCK_PREVIEW_INVOICE_NO_TAX.line_items[0], id: PLAN_ID }],
+};
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -111,6 +121,7 @@ describe('routes/Product', () => {
     mockProfile = MOCK_PROFILE,
     mockPlans = MOCK_PLANS,
     mockCustomer = MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+    mockPreviewInvoice = MOCK_PREVIEW_INVOICE_NO_TAX,
     planId = PLAN_ID,
     planEligibility = 'invalid',
   } = {}) => [
@@ -134,6 +145,19 @@ describe('routes/Product', () => {
         200,
         { eligibility: planEligibility },
         { 'Access-Control-Allow-Origin': '*' }
+      ),
+    nock(authServer)
+      .persist()
+      .post('/v1/oauth/subscriptions/invoice/preview')
+      .reply(
+        200,
+        {
+          ...mockPreviewInvoice,
+          line_items: [{ ...mockPreviewInvoice.line_items[0], id: planId }],
+        },
+        {
+          'Access-Control-Allow-Origin': '*',
+        }
       ),
   ];
 
@@ -165,6 +189,12 @@ describe('routes/Product', () => {
           { eligibility: 'create' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
 
@@ -197,6 +227,7 @@ describe('routes/Product', () => {
     const { findByTestId, queryByTestId } = render(
       <Subject productId="bad_product" />
     );
+    await waitForElementToBeRemoved(queryByTestId('loading-overlay'));
     await findByTestId('no-such-plan-error');
     expect(queryByTestId('dialog-dismiss')).not.toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -225,6 +256,12 @@ describe('routes/Product', () => {
           { eligibility: 'invalid' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-profile');
@@ -261,6 +298,12 @@ describe('routes/Product', () => {
           '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
         )
         .reply(200, MOCK_CUSTOMER),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findByTestId } = render(<Subject planId={INACTIVE_PLAN_ID} />);
     const errorEl = await findByTestId('no-such-plan-error');
@@ -291,9 +334,51 @@ describe('routes/Product', () => {
           { eligibility: 'invalid' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-customer');
+    expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('displays an error on failure to load invoice preview', async () => {
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'invalid' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(400, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
+    ];
+    const { findByTestId } = render(<Subject />);
+    const errorEl = await findByTestId('product-invoice-preview-error');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
@@ -325,6 +410,12 @@ describe('routes/Product', () => {
           { eligibility: 'create' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findAllByText } = render(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
@@ -359,6 +450,12 @@ describe('routes/Product', () => {
           { eligibility: 'create' },
           { 'Access-Control-Allow-Origin': '*' }
         ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findAllByText } = render(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
@@ -492,7 +589,8 @@ describe('routes/Product', () => {
 
   it('displays payment confirmation if user is already subscribed to the product', async () => {
     const apiMocks = initSubscribedApiMocks();
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId, queryByTestId } = render(<Subject />);
+    await waitForElementToBeRemoved(queryByTestId('loading-overlay'));
     const confirmEl = await findByTestId('payment-confirmation');
     expect(confirmEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);

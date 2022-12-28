@@ -26,29 +26,32 @@ import { ProductProps } from '../index';
 import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
 import { PaymentProviderDetails } from '../../../components/PaymentProviderDetails';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export type SubscriptionUpgradeProps = {
-  isMobile: boolean;
   profile: Profile;
   customer: Customer;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: WebSubscription;
+  invoicePreview: FirstInvoicePreview;
+  isMobile?: boolean;
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
   updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];
 };
 
 export const SubscriptionUpgrade = ({
-  isMobile,
+  isMobile = false,
   profile,
   customer,
   selectedPlan,
   upgradeFromPlan,
   upgradeFromSubscription,
+  invoicePreview,
+  updateSubscriptionPlanStatus,
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
-  updateSubscriptionPlanStatus,
 }: SubscriptionUpgradeProps) => {
   const ariaLabelledBy = 'error-plan-change-failed-header';
   const ariaDescribedBy = 'error-plan-change-failed-description';
@@ -120,18 +123,6 @@ export const SubscriptionUpgrade = ({
       )}
       <Header {...{ profile }} />
       <div className="main-content">
-        <div className="payment-panel">
-          <PlanUpgradeDetails
-            {...{
-              profile,
-              selectedPlan,
-              upgradeFromPlan,
-              isMobile,
-              showExpandButton: isMobile,
-            }}
-          />
-        </div>
-
         <div
           className="product-payment product-upgrade rounded-lg tablet:rounded-t-none"
           data-testid="subscription-upgrade"
@@ -159,7 +150,7 @@ export const SubscriptionUpgrade = ({
             className="payment upgrade"
             {...{ validator, onSubmit }}
           >
-            <hr />
+            <hr className="my-6" />
             <Localized
               id="sub-update-copy"
               vars={{
@@ -178,11 +169,11 @@ export const SubscriptionUpgrade = ({
               </p>
             </Localized>
 
-            <hr />
+            <hr className="my-6" />
 
             <PaymentConsentCheckbox plan={selectedPlan} onClick={engageOnce} />
 
-            <hr />
+            <hr className="my-6" />
 
             <div className="button-row">
               <SubmitButton
@@ -209,6 +200,16 @@ export const SubscriptionUpgrade = ({
             </div>
           </Form>
         </div>
+        <PlanUpgradeDetails
+          {...{
+            profile,
+            selectedPlan,
+            upgradeFromPlan,
+            isMobile,
+            showExpandButton: isMobile,
+            invoicePreview,
+          }}
+        />
         {mobileUpdateHeading}
       </div>
     </>
