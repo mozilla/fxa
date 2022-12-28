@@ -9,7 +9,7 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit --reporter mocha-junit-reporter"
+DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit "
 if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep #integration "; fi;
 
@@ -26,10 +26,20 @@ yarn run merge-ftl:test
 echo
 yarn run emails-scss
 
-TESTS=(local oauth remote scripts)
+set -x;
+
+if [ "$TEST_TYPE" == 'integration' ]; then
+  TESTS=(local oauth remote scripts);
+else
+  TESTS=(local oauth scripts)
+fi;
+
 for t in "${TESTS[@]}"; do
-  echo "testing $t"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
+  echo "Testing: $t"
+
+
+  #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
+  mocha $DEFAULT_ARGS $GREP_TESTS test/$t
 done
 
 yarn run clean-up-old-ci-stripe-customers

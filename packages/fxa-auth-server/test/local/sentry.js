@@ -302,13 +302,13 @@ describe('Sentry', () => {
 
     it('reports valid error with error', async () => {
       await emitError(_testError(errorCode, errno, new Error('BOOM')));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1));
       sandbox.assert.calledOnce(sentryCaptureSpy);
     });
 
     it('reports valid error with inner error', async () => {
       await emitError(_testError(errorCode, errno, new Error('BOOM')));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1));
       sandbox.assert.calledOnce(sentryCaptureSpy);
     });
   });

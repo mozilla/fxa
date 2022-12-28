@@ -1327,7 +1327,7 @@ describe('/account/stub', () => {
     }
   });
 
-  it('rejects creating an account with an invalid email domain', async () => {
+  it('#integration - rejects creating an account with an invalid email domain', async () => {
     const { route, mockRequest } = setup();
     mockRequest.payload.email = 'test@bad.domain';
 
@@ -1449,7 +1449,7 @@ describe('/account/status', () => {
     });
   });
 
-  it('returns invalid for an invalid email domain', async () => {
+  it('#integration -returns invalid for an invalid email domain', async () => {
     const { route, mockRequest } = setup();
     mockRequest.payload.email = 'test@bad.domain';
 

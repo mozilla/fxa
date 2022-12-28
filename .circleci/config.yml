@@ -281,17 +281,16 @@ commands:
           name: Build Typescript Packages
           command: |
             yarn workspaces foreach \
-              --verbose \
               --since \
+              --verbose \
               --topological-dev \
-              --parallel \
               --include="fxa-admin-server" \
               --include="fxa-auth-client" \
               --include="fxa-event-broker" \
               --include="fxa-graphql-api" \
               --include="fxa-shared" \
               --include="fxa-support-panel" \
-              run compile;
+              --parallel run compile;
             echo "Typescript Build Complete: $?"
       - save_cache:
           name: Save Typescript Build
@@ -322,7 +321,7 @@ commands:
               --topological-dev \
               --exclude="fxa-dev-launcher" \
               --exclude="functional-tests" \
-              run test:unit;
+              --parallel run test:unit;
             echo "Unit Tests Complete: $?"
 
   integration-test:
