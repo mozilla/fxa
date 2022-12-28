@@ -738,7 +738,8 @@ export default class AuthClient {
       scopes?: string[];
       marketingOptIn?: boolean;
       newsletters?: string[];
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<{}> {
     return this.sessionPost('/session/verify_code', sessionToken, {
       code,
