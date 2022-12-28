@@ -201,7 +201,12 @@
     "rootDir": "nestjs",
     "testRegex": ".spec.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": [ "ts-jest", { "isolatedModules": true } ]
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

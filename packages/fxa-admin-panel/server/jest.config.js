@@ -1,6 +1,6 @@
 module.exports = {
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
   },
   coveragePathIgnorePatterns: ['<rootDir>'],
   collectCoverageFrom: ['**/*.js', '!**/jest*js'],

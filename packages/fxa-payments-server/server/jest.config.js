@@ -9,5 +9,7 @@ module.exports = {
       statements: 0,
     },
   },
-  transform: { 'fxa-shared/.*': 'ts-jest' },
+  transform: {
+    "fxa-shared/*": [ "ts-jest", { "isolatedModules": true } ]
+  }
 };

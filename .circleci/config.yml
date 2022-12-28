@@ -154,6 +154,11 @@ commands:
             ./.circleci/base-install.sh;
             node .circleci/modules-to-test.js | tee packages/test.list
             ./_scripts/create-version-json.sh;
+      - store_artifacts:
+          path: ./packages/test.list
+      - store_artifacts:
+          path: ./packages/version.json
+
 
   cache-save-yarn:
     steps:
@@ -314,29 +319,13 @@ commands:
     steps:
       - run:
           name: Unit Test
-          command: |
-            NODE_ENV=test yarn workspaces foreach \
-              --since \
-              --verbose \
-              --topological-dev \
-              --exclude="fxa-dev-launcher" \
-              --exclude="functional-tests" \
-              --parallel run test:unit;
-            echo "Unit Tests Complete: $?"
+          command: ./_scripts/run-workspace-command.sh test:unit
 
   integration-test:
     steps:
       - run:
           name: Integration Test
-          command: |
-            NODE_ENV=test yarn workspaces foreach \
-              --since \
-              --verbose \
-              --topological-dev \
-              --exclude="fxa-dev-launcher" \
-              --exclude="functional-tests" \
-              --parallel run test:integration;
-            echo "Integration Tests Complete: $?";
+          command: ./_scripts/run-workspace-command.sh test:integration
 
 jobs:
 
@@ -416,7 +405,7 @@ jobs:
 
   build-and-unit-test:
     executor: default-executor
-    resource_class: medium+
+    resource_class: large
     steps:
       - git-checkout
       - provision

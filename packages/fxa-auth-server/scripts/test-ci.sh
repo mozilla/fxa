@@ -26,8 +26,6 @@ yarn run merge-ftl:test
 echo
 yarn run emails-scss
 
-set -x;
-
 if [ "$TEST_TYPE" == 'integration' ]; then
   TESTS=(local oauth remote scripts);
 else
@@ -35,11 +33,12 @@ else
 fi;
 
 for t in "${TESTS[@]}"; do
-  echo "Testing: $t"
-
+  echo -e "\n\nTesting: $t"
 
   #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
   mocha $DEFAULT_ARGS $GREP_TESTS test/$t
 done
 
-yarn run clean-up-old-ci-stripe-customers
+if [ "$TEST_TYPE" == 'integration' ]; then
+  yarn run clean-up-old-ci-stripe-customers;
+fi;
