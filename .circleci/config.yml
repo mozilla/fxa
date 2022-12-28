@@ -123,7 +123,7 @@ commands:
   git-checkout:
     steps:
       - run:
-          name:
+          name: Checkout Branch
           command: |
             set +x
             git fetch
@@ -249,7 +249,8 @@ commands:
               --exclude=fxa-payments-server  \
               --exclude=fxa-settings  \
               --exclude=fxa-support-panel \
-              --parallel run lint
+              --parallel run lint;
+            echo "Linting Complete: $?"
 
   report-coverage:
     steps:
@@ -291,7 +292,9 @@ commands:
               --include="fxa-shared" \
               --include="fxa-support-panel" \
               run compile;
+            echo "Typescript Build Complete: $?"
       - save_cache:
+          name: Save Typescript Build
           key: fxa-ts-build-01-<< pipeline.git.revision >>
           paths:
             - /home/circleci/project/packages/fxa-admin-server/dist
@@ -314,23 +317,27 @@ commands:
           name: Unit Test
           command: |
             NODE_ENV=test yarn workspaces foreach \
+              --since \
               --verbose \
               --topological-dev \
               --exclude="fxa-dev-launcher" \
               --exclude="functional-tests" \
-              --parallel run test:unit
+              run test:unit;
+            echo "Unit Tests Complete: $?"
 
   integration-test:
     steps:
       - run:
           name: Integration Test
           command: |
-             NODE_ENV=test yarn workspaces foreach \
+            NODE_ENV=test yarn workspaces foreach \
+              --since \
               --verbose \
               --topological-dev \
               --exclude="fxa-dev-launcher" \
               --exclude="functional-tests" \
-              --parallel run test:integration
+              --parallel run test:integration;
+            echo "Integration Tests Complete: $?";
 
 jobs:
 
@@ -410,13 +417,13 @@ jobs:
 
   build-and-unit-test:
     executor: default-executor
+    resource_class: medium+
     steps:
       - git-checkout
       - provision
       - ts-build
       - lint
       - unit-test
-      - report-coverage
       - jira/notify
 
   integration-test:
@@ -428,7 +435,6 @@ jobs:
       - wait-for-infrastructure
       - ts-build-restore
       - integration-test
-      - report-coverage
       - jira/notify
 
   test-settings-server:

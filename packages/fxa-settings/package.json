@@ -19,7 +19,7 @@
     "test": "yarn merge-ftl:test && SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false",
     "test:watch": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test:coverage": "yarn test --coverage --watchAll=false",
-    "test:unit": "yarn test",
+    "test:unit": "yarn merge-ftl:test && SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false",
     "test:integration": "echo 'No integration tests present!'",
     "merge-ftl": "grunt merge-ftl",
     "merge-ftl:test": "grunt merge-ftl:test",
