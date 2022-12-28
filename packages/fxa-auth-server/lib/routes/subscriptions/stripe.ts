@@ -415,7 +415,6 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<invoiceDTO.firstInvoicePreviewSchema> {
     this.log.begin('subscriptions.previewInvoice', request);
-    await this.customs.checkIpOnly(request, 'previewInvoice');
 
     const { promotionCode, priceId } = request.payload as Record<
       string,
@@ -431,6 +430,8 @@ export class StripeHandler {
       } catch (e: any) {
         this.log.error('previewInvoice.fetchCustomer', { error: e, uid });
       }
+    } else {
+      await this.customs.checkIpOnly(request, 'previewInvoice');
     }
 
     const country = request.app.geo.location?.country || 'US';

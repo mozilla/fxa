@@ -665,8 +665,9 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkIpOnly,
+        directStripeRoutesInstance.customs.check,
         VALID_REQUEST,
+        TEST_EMAIL,
         'previewInvoice'
       );
       sinon.assert.calledOnceWithExactly(
@@ -707,8 +708,9 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkIpOnly,
+        directStripeRoutesInstance.customs.check,
         VALID_REQUEST,
+        TEST_EMAIL,
         'previewInvoice'
       );
       sinon.assert.calledOnceWithExactly(
@@ -747,8 +749,9 @@ describe('DirectStripeRoutes', () => {
       );
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkIpOnly,
+        directStripeRoutesInstance.customs.check,
         VALID_REQUEST,
+        TEST_EMAIL,
         'previewInvoice'
       );
       sinon.assert.calledOnceWithExactly(
