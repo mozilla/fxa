@@ -40,7 +40,10 @@ const {
   'fxa-shared/db/models/auth': dbStub,
 });
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
-const { generateIdempotencyKey } = require('../../../lib/payments/utils');
+const {
+  generateIdempotencyKey,
+  roundTime,
+} = require('../../../lib/payments/utils');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -847,6 +850,16 @@ describe('#integration - StripeHelper', () => {
   });
 
   describe('createSubscriptionWithPMI', () => {
+    it('checks that roundTime() returns time rounded to the nearest minute', async () => {
+      const mockDate = new Date('2023-01-03T17:44:44.400Z');
+      const res = roundTime(mockDate);
+      const actualTime = '27879464.74';
+      const roundedTime = '27879465';
+
+      assert.deepEqual(res, roundedTime);
+      assert.notEqual(res, actualTime);
+    });
+
     it('creates a subscription successfully', async () => {
       const attachExpected = deepCopy(paymentMethodAttach);
       const customerExpected = deepCopy(newCustomerPM);
@@ -870,6 +883,7 @@ describe('#integration - StripeHelper', () => {
         'customerId',
         'priceId',
         attachExpected.card.fingerprint,
+        roundTime(),
       ]);
 
       const actual = await stripeHelper.createSubscriptionWithPMI({
@@ -926,6 +940,7 @@ describe('#integration - StripeHelper', () => {
         'customerId',
         'priceId',
         attachExpected.card.fingerprint,
+        roundTime(),
       ]);
 
       const actual = await stripeHelper.createSubscriptionWithPMI({
@@ -986,6 +1001,7 @@ describe('#integration - StripeHelper', () => {
         'customerId',
         'priceId',
         attachExpected.card.fingerprint,
+        roundTime(),
       ]);
 
       const actual = await stripeHelper.createSubscriptionWithPMI({
@@ -1060,6 +1076,7 @@ describe('#integration - StripeHelper', () => {
         'customerId',
         'priceId',
         attachExpected.card.fingerprint,
+        roundTime(),
       ]);
 
       try {

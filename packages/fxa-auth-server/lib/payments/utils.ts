@@ -8,3 +8,7 @@ export function generateIdempotencyKey(params: string[]) {
   sha.update(params.join(''));
   return sha.digest('base64url');
 }
+
+export function roundTime(date = new Date()) {
+  return Math.round(date.getTime() / (1000 * 60)).toString();
+}
