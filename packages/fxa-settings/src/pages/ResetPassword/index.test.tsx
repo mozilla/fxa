@@ -46,7 +46,7 @@ describe('PageResetPassword', () => {
     // when forceEmail is NOT provided as a prop, the optional read-only email should not be rendered
     const forcedEmailEl = screen.queryByTestId('reset-password-force-email');
     expect(forcedEmailEl).not.toBeInTheDocument();
-    // when 'canGoBack: false' or not passed as prop, the optional RememberPassword link component should not be rendered
+    // when 'canGoBack: false' or not passed as prop, the optional LinkRememberPassword component should not be rendered
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
