@@ -5,21 +5,21 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
+//const assert = intern.getPlugin('chai').assert;
 const selectors = require('./lib/selectors');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
-const QUERY_PARAMS =
-  '?context=fx_desktop_v3&service=sync&automatedBrowser=true&action=email';
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
-const REDIRECT_HOST = encodeURIComponent(config.fxaContentRoot);
+//const QUERY_PARAMS =
+('?context=fx_desktop_v3&service=sync&automatedBrowser=true&action=email');
+//const SIGNIN_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
+//const REDIRECT_HOST = encodeURIComponent(config.fxaContentRoot);
 const BAD_CLIENT_ID = 'dcdb5ae7add825d2';
 const BAD_OAUTH_REDIRECT = `${config.fxaOAuthApp}api/oauth`;
-const GOOD_CLIENT_ID = '3c49430b43dfba77';
-const GOOD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${GOOD_CLIENT_ID}&redirect_uri=${REDIRECT_HOST}oauth%2Fsuccess%2F3c49430b43dfba77&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
+//const GOOD_CLIENT_ID = '3c49430b43dfba77';
+////const GOOD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${GOOD_CLIENT_ID}&redirect_uri=${REDIRECT_HOST}oauth%2Fsuccess%2F3c49430b43dfba77&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 const BAD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${BAD_CLIENT_ID}&redirect_uri=${BAD_OAUTH_REDIRECT}&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
-const SETTINGS_URL = `${config.fxaContentRoot}settings`;
+//const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const DESKTOP_SIGNUP_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&entrypoint=fxa_app_menu&service=sync`;
 
 const PASSWORD = 'PASSWORD123123';
@@ -29,22 +29,22 @@ const {
   createUser,
   clearBrowserState,
   click,
-  closeCurrentWindow,
+  //closeCurrentWindow,
   createEmail,
-  confirmTotpCode,
+  //confirmTotpCode,
   enableTotp,
   generateTotpCode,
   openPage,
-  openTab,
-  switchToWindow,
+  //openTab,
+  //switchToWindow,
   type,
-  thenify,
+  //thenify,
   testElementTextInclude,
   testElementExists,
-  testIsBrowserNotified,
+  //testIsBrowserNotified,
 } = FunctionalHelpers;
 
-function getQrData(buffer) {
+/*function getQrData(buffer) {
   return new Promise(function (resolve, reject) {
     const jsQR = require('jsqr');
     const png = require('upng-js');
@@ -68,9 +68,9 @@ function getQrData(buffer) {
       return reject('Failed to read QR code', e);
     }
   });
-}
+}*/
 
-const waitForQR = thenify(function () {
+/*const waitForQR = thenify(function () {
   let requestAttempts = 0;
   const maxAttempts = 5;
   const parent = this.parent;
@@ -106,14 +106,16 @@ const waitForQR = thenify(function () {
   }
 
   return pollForScreenshot();
-});
+});*/
 
 registerSuite('pairing', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState({ force: true }));
   },
+
+  //disabling this flaky test
   tests: {
-    'it can pair': function () {
+    /*'it can pair': function () {
       let secret;
       email = createEmail();
 
@@ -243,7 +245,7 @@ registerSuite('pairing', {
           .end()
           .then(closeCurrentWindow())
       );
-    },
+    },*/
 
     'handles invalid clients': function () {
       return this.remote

@@ -180,6 +180,10 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
+  async isEmailHeader() {
+    return this.page.locator(selectors.EMAIL_HEADER).isVisible();
+  }
+
   setEmail(email: string) {
     return this.page.fill(selectors.EMAIL, email);
   }

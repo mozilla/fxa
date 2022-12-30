@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
-  'tests/functional/settings/change_password.js',
-  'tests/functional/settings/connected_services_oauth_clients.js',
-  'tests/functional/settings/external_links.js',
-  'tests/functional/settings/recovery_key.js',
-  'tests/functional/settings/secondary_email.js',
-  'tests/functional/settings/two_step_auth.js',
+  //'tests/functional/settings/change_password.js',
+  //'tests/functional/settings/connected_services_oauth_clients.js',
+  //'tests/functional/settings/external_links.js',
+  //'tests/functional/settings/recovery_key.js',
+  //'tests/functional/settings/secondary_email.js',
+  //'tests/functional/settings/two_step_auth.js',
 ];
