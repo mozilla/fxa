@@ -55,5 +55,3 @@ else
     set -x
     yarn workspaces foreach --since=$(cat base_ref) -R run postinstall
 fi
-
-node .circleci/modules-to-test.js | tee packages/test.list

@@ -18164,7 +18164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"charenc@npm:~0.0.1":
+"charenc@npm:0.0.2":
   version: 0.0.2
   resolution: "charenc@npm:0.0.2"
   checksum: 81dcadbe57e861d527faf6dd3855dc857395a1c4d6781f4847288ab23cffb7b3ee80d57c15bba7252ffe3e5e8019db767757ee7975663ad2ca0939bb8fcaf2e5
@@ -19677,7 +19677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crypt@npm:~0.0.1":
+"crypt@npm:0.0.2":
   version: 0.0.2
   resolution: "crypt@npm:0.0.2"
   checksum: baf4c7bbe05df656ec230018af8cf7dbe8c14b36b98726939cef008d473f6fe7a4fad906cfea4062c93af516f1550a3f43ceb4d6615329612c6511378ed9fe34
@@ -25184,7 +25184,6 @@ fsevents@~2.1.1:
     mjml: ^4.13.0
     mjml-browser: ^4.13.0
     mocha: ^10.0.0
-    mocha-junit-reporter: ^2.1.0
     moment: ^2.29.4
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
@@ -25451,6 +25450,7 @@ fsevents@~2.1.1:
     restify-clients: ^4.2.0
     sinon: ^9.0.3
     tap: ^16.3.0
+    tap-xunit: ^2.4.1
     walk: ^2.3.15
   languageName: unknown
   linkType: soft
@@ -26060,6 +26060,7 @@ fsevents@~2.1.1:
     ioredis: ^4.28.2
     ip: ^1.1.8
     jest: 27.5.1
+    jest-junit: ^15.0.0
     joi: 17.4.0
     js-md5: ^0.7.3
     jsdom: 20.0.0
@@ -26153,6 +26154,8 @@ fsevents@~2.1.1:
     husky: ^4.2.5
     json: ^11.0.0
     lint-staged: ^13.0.3
+    mocha-junit-reporter: ^2.2.0
+    mocha-multi: ^1.1.7
     node-fetch: ^2.6.7
     nps: ^5.10.0
     pm2: ^5.2.2
@@ -29576,7 +29579,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-buffer@npm:^1.1.0, is-buffer@npm:^1.1.5, is-buffer@npm:~1.1.1":
+"is-buffer@npm:^1.1.0, is-buffer@npm:^1.1.5, is-buffer@npm:~1.1.6":
   version: 1.1.6
   resolution: "is-buffer@npm:1.1.6"
   checksum: 4a186d995d8bbf9153b4bd9ff9fd04ae75068fe695d29025d25e592d9488911eeece84eefbd8fa41b8ddcc0711058a71d4c466dcf6f1f6e1d83830052d8ca707
@@ -31011,6 +31014,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"jest-junit@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "jest-junit@npm:15.0.0"
+  dependencies:
+    mkdirp: ^1.0.4
+    strip-ansi: ^6.0.1
+    uuid: ^8.3.2
+    xml: ^1.0.1
+  checksum: e8fe4d2f2ab843383ac41820a6fe495739d154ec435cd44ba590b44ec7fd62095676f3eef13f98392f81d4a3727ea58b4f4fad231fe367ac31243952b9ad716f
+  languageName: node
+  linkType: hard
+
 "jest-leak-detector@npm:^26.6.2":
   version: 26.6.2
   resolution: "jest-leak-detector@npm:26.6.2"
@@ -31854,7 +31869,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^3.12.1":
+"js-yaml@npm:^3.12.1, js-yaml@npm:^3.2.7":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
   dependencies:
@@ -33214,7 +33229,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.once@npm:^4.0.0":
+"lodash.once@npm:^4.0.0, lodash.once@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
   checksum: d768fa9f9b4e1dc6453be99b753906f58990e0c45e7b2ca5a3b40a33111e5d17f6edf2f768786e2716af90a8e78f8f91431ab8435f761fef00f9b0c256f6d245
@@ -33289,7 +33304,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:4.17.x, lodash@npm:>=3.5 <5, lodash@npm:^4.15.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.21":
+"lodash@npm:4.17.21, lodash@npm:4.17.x, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.15.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -33839,14 +33854,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"md5@npm:^2.1.0":
-  version: 2.2.1
-  resolution: "md5@npm:2.2.1"
+"md5@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "md5@npm:2.3.0"
   dependencies:
-    charenc: ~0.0.1
-    crypt: ~0.0.1
-    is-buffer: ~1.1.1
-  checksum: 2237e583f961d04d43c59c2f9383d1e47099427fa37f9dc50e8aec32e770f8b038ad9268c2523a7c8041ab6f4678a742ca533a7f670dbc2857c5b18388cf4d71
+    charenc: 0.0.2
+    crypt: 0.0.2
+    is-buffer: ~1.1.6
+  checksum: a63cacf4018dc9dee08c36e6f924a64ced735b37826116c905717c41cebeb41a522f7a526ba6ad578f9c80f02cb365033ccd67fe186ffbcc1a1faeb75daa9b6e
   languageName: node
   linkType: hard
 
@@ -34970,18 +34985,33 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha-junit-reporter@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "mocha-junit-reporter@npm:2.1.0"
+"mocha-junit-reporter@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "mocha-junit-reporter@npm:2.2.0"
   dependencies:
-    debug: ^2.2.0
-    md5: ^2.1.0
-    mkdirp: ~0.5.1
+    debug: ^4.3.4
+    md5: ^2.3.0
+    mkdirp: ~1.0.4
     strip-ansi: ^6.0.1
-    xml: ^1.0.0
+    xml: ^1.0.1
   peerDependencies:
     mocha: ">=2.2.5"
-  checksum: 26b3ce65159f36ce3861e0d3b15ec2e6d1dd5aa8b1619665a6d64e1fc8aba6bf37ecd0eb5368663143060ec9a7696b59642b524c870e674d8d4b093c50139ca2
+  checksum: 476dc12b676b8313ddac8ed27c5b43c86d6d54770efa0081a35a58f3a6717a504cc871058850da0611e7fc42e17201332390dc516096d51a189f12ff2141d420
+  languageName: node
+  linkType: hard
+
+"mocha-multi@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "mocha-multi@npm:1.1.7"
+  dependencies:
+    debug: ^4.1.1
+    is-string: ^1.0.4
+    lodash.once: ^4.1.1
+    mkdirp: ^1.0.4
+    object-assign: ^4.1.1
+  peerDependencies:
+    mocha: ">=2.2.0 <7 || >=9"
+  checksum: 1718fccd9178ac38fad0fc63de436b3ece9e688818a1fe3a44bdea9ac26b4a3f6e731e35f19857fd6c769b01bb57b30f4f095902189031a372f1a556a96a1cbc
   languageName: node
   linkType: hard
 
@@ -40890,7 +40920,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:1 || 2, readable-stream@npm:2.3.7, readable-stream@npm:^2.0.0, readable-stream@npm:^2.0.1, readable-stream@npm:^2.0.2, readable-stream@npm:^2.0.6, readable-stream@npm:^2.1.5, readable-stream@npm:^2.2.2, readable-stream@npm:^2.3.0, readable-stream@npm:^2.3.3, readable-stream@npm:^2.3.6, readable-stream@npm:~2.3.6":
+"readable-stream@npm:1 || 2, readable-stream@npm:2.3.7, readable-stream@npm:^2, readable-stream@npm:^2.0.0, readable-stream@npm:^2.0.1, readable-stream@npm:^2.0.2, readable-stream@npm:^2.0.6, readable-stream@npm:^2.1.5, readable-stream@npm:^2.2.2, readable-stream@npm:^2.3.0, readable-stream@npm:^2.3.3, readable-stream@npm:^2.3.6, readable-stream@npm:~2.3.6":
   version: 2.3.7
   resolution: "readable-stream@npm:2.3.7"
   dependencies:
@@ -45231,6 +45261,40 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"tap-parser@npm:~1.2.2":
+  version: 1.2.2
+  resolution: "tap-parser@npm:1.2.2"
+  dependencies:
+    events-to-array: ^1.0.1
+    inherits: ~2.0.1
+    js-yaml: ^3.2.7
+    readable-stream: ^2
+  dependenciesMeta:
+    readable-stream:
+      optional: true
+  bin:
+    tap-parser: bin/cmd.js
+  checksum: 42f501cbfb92b29d091a9267708ed2860a22878c1d79ba2f59355a136390c17f6f49db1b48e1e1a8ddddb3ce00dc9593e82910124def6e05822a46a7a36c86fb
+  languageName: node
+  linkType: hard
+
+"tap-xunit@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "tap-xunit@npm:2.4.1"
+  dependencies:
+    duplexer: ~0.1.1
+    minimist: ~1.2.0
+    tap-parser: ~1.2.2
+    through2: ~2.0.0
+    xmlbuilder: ~4.2.0
+    xtend: ~4.0.0
+  bin:
+    tap-xunit: ./bin/tap-xunit
+    txunit: ./bin/tap-xunit
+  checksum: bc0eb0865ac1171e7f61de2dbbf151b19d8aa0cae96ebc5f51cd4dbcc6681d200af7167d6ea72d5b71eddf7652a47d78e17fa5d72fb27dad8a983482d57b5b6f
+  languageName: node
+  linkType: hard
+
 "tap-yaml@npm:^1.0.0":
   version: 1.0.0
   resolution: "tap-yaml@npm:1.0.0"
@@ -45700,7 +45764,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"through2@npm:^2.0.0, through2@npm:^2.0.3":
+"through2@npm:^2.0.0, through2@npm:^2.0.3, through2@npm:~2.0.0":
   version: 2.0.5
   resolution: "through2@npm:2.0.5"
   dependencies:
@@ -48921,7 +48985,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"xml@npm:^1.0.0":
+"xml@npm:^1.0.1":
   version: 1.0.1
   resolution: "xml@npm:1.0.1"
   checksum: 11b5545ef3f8fec3fa29ce251f50ad7b6c97c103ed4d851306ec23366f5fa4699dd6a942262df52313a0cd1840ab26256da253c023bad3309d8ce46fe6020ca0
@@ -48939,6 +49003,15 @@ resolve@^2.0.0-next.3:
   version: 11.0.1
   resolution: "xmlbuilder@npm:11.0.1"
   checksum: 7152695e16f1a9976658215abab27e55d08b1b97bca901d58b048d2b6e106b5af31efccbdecf9b07af37c8377d8e7e821b494af10b3a68b0ff4ae60331b415b0
+  languageName: node
+  linkType: hard
+
+"xmlbuilder@npm:~4.2.0":
+  version: 4.2.1
+  resolution: "xmlbuilder@npm:4.2.1"
+  dependencies:
+    lodash: ^4.0.0
+  checksum: 2d4c5fb6591399904070cee273a558847bffe07c71458871d3b44b0157e7c2e18684991b47636b8f5c80fcf4f79cb83b263c65781c960adcccfb80d349fa82b0
   languageName: node
   linkType: hard
 

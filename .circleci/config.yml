@@ -10,7 +10,6 @@ orbs:
   jira: circleci/jira@1.3.1
 
 executors:
-
   # Default node executor with low resources. Useful for running quick / small tasks
   tiny-executor:
     resource_class: small
@@ -101,14 +100,13 @@ executors:
   smoke-test-executor:
     parameters:
       resource_class:
-          type: string
-          default: medium+
+        type: string
+        default: medium+
     resource_class: << parameters.resource_class >>
     docker:
       - image: << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
 
 commands:
-
   # Note: Cloning this way allows us to run a git fetch later on download the road. This type of
   # clone operation will result in a .git/config with no user attached that is using a
   # https://github.com/mozilla/fxa for the remote origin.
@@ -152,13 +150,12 @@ commands:
           name: Base Install
           command: |
             ./.circleci/base-install.sh;
-            node .circleci/modules-to-test.js | tee packages/test.list
-            ./_scripts/create-version-json.sh;
-      - store_artifacts:
-          path: ./packages/test.list
+            ./.circleci/create-lists.sh
+            ./_scripts/create-version-json.sh
       - store_artifacts:
           path: ./packages/version.json
-
+      - store_artifacts:
+          path: ./.lists
 
   cache-save-yarn:
     steps:
@@ -232,45 +229,28 @@ commands:
           command: node ./packages/db-migrations/bin/patcher.mjs;
       - run:
           name: Wait for firestore
-          command:  ./_scripts/check-url.sh localhost:9090;
+          command: ./_scripts/check-url.sh localhost:9090;
 
   lint:
     steps:
       - run:
           name: Linting
-          # Note: not all workspaces should pass linting. Remove --excluded once everything lints cleanly
-          command: |
-            yarn workspaces foreach \
-              --verbose \
-              --since \
-              --exclude=browserid-verifier  \
-              --exclude=functional-tests\
-              --exclude=fxa-admin-panel  \
-              --exclude=fxa-admin-server \
-              --exclude=fxa-auth-client \
-              --exclude=fxa-customs-server  \
-              --exclude=fxa-event-broker  \
-              --exclude=fxa-graphql-api \
-              --exclude=fxa-payments-server  \
-              --exclude=fxa-settings  \
-              --exclude=fxa-support-panel \
-              --parallel run lint;
-            echo "Linting Complete: $?"
+          command: ./.circleci/lint-packages.sh
 
   report-coverage:
+    parameters:
+      list:
+        type: string
+        default: ''
     steps:
       - run:
-          command: |
-            yarn workspaces foreach \
-              --since \
-              --topological-dev \
-              --include="fxa-*" \
-              --exclude="fxa-dev-launcher" \
-              --parallel exec '../../_scripts/report-coverage.sh $npm_package_name'
+          command: ./.circleci/report-converage.sh << parameters.list >>
 
   store-artifacts:
     steps:
-      - run: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+      - run:
+          name: Ensure directories
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
       - store_artifacts:
           path: artifacts
       - store_artifacts:
@@ -283,20 +263,8 @@ commands:
   ts-build:
     steps:
       - run:
-          name: Build Typescript Packages
-          command: |
-            yarn workspaces foreach \
-              --since \
-              --verbose \
-              --topological-dev \
-              --include="fxa-admin-server" \
-              --include="fxa-auth-client" \
-              --include="fxa-event-broker" \
-              --include="fxa-graphql-api" \
-              --include="fxa-shared" \
-              --include="fxa-support-panel" \
-              --parallel run compile;
-            echo "Typescript Build Complete: $?"
+          name: Build Common Typescript Packages
+          command: ./.circleci/build-ts-packages.sh
       - save_cache:
           name: Save Typescript Build
           key: fxa-ts-build-01-<< pipeline.git.revision >>
@@ -311,7 +279,7 @@ commands:
 
   ts-build-restore:
     steps:
-       - restore_cache:
+      - restore_cache:
           keys:
             - fxa-ts-build-01-<< pipeline.git.revision >>
 
@@ -319,16 +287,17 @@ commands:
     steps:
       - run:
           name: Unit Test
-          command: ./_scripts/run-workspace-command.sh test:unit
+          command: ./.circleci/run-list-parallel.sh .lists/unit-test.list
+      - store-artifacts
 
   integration-test:
     steps:
       - run:
           name: Integration Test
-          command: ./_scripts/run-workspace-command.sh test:integration
+          command: ./.circleci/run-list-parallel.sh .lists/integration-test.list
+      - store-artifacts
 
 jobs:
-
   deploy-packages:
     parameters:
       executor:
@@ -403,27 +372,42 @@ jobs:
             docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
             docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
 
-  build-and-unit-test:
+  build:
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
       - provision
       - ts-build
-      - lint
-      - unit-test
       - jira/notify
 
-  integration-test:
-    executor: fullstack-executor
+  lint:
+    executor: default-executor
     resource_class: small
     steps:
       - git-checkout
       - provision
-      - wait-for-infrastructure
       - ts-build-restore
+      - lint
+
+  unit-test:
+    executor: default-executor
+    resource_class: medium
+    steps:
+      - git-checkout
+      - provision
+      - ts-build-restore
+      - unit-test
+
+  integration-test:
+    executor: fullstack-executor
+    resource_class: medium
+    steps:
+      - git-checkout
+      - provision
+      - ts-build-restore
+      - wait-for-infrastructure
       - integration-test
-      - jira/notify
 
   test-settings-server:
     executor: functional-test-executor
@@ -539,42 +523,41 @@ jobs:
       - cache-save-yarn
 
 workflows:
-
   test_pull_request:
     jobs:
-
-      - build-and-unit-test:
+      - build:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
-
+      - lint:
+          requires:
+            - build
+      - unit-test:
+          requires:
+            - build
       - integration-test:
-           requires:
-            - build-and-unit-test
-
+          requires:
+            - unit-test
       - build-and-deploy-storybooks:
           requires:
-            - build-and-unit-test
-
+            - unit-test
       - test-settings-server:
           requires:
-            - build-and-unit-test
-
+            - unit-test
       - test-content-server-0:
           requires:
-            - build-and-unit-test
+            - unit-test
       - test-content-server-1:
           requires:
-            - build-and-unit-test
+            - unit-test
       - test-content-server-2:
           requires:
-            - build-and-unit-test
-
+            - unit-test
       - playwright-functional-tests:
           requires:
-            - build-and-unit-test
+            - unit-test
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
@@ -590,7 +573,6 @@ workflows:
       - production-smoke-tests:
           requires:
             - request-production-smoke-tests
-
       - request-test-content-server-remote:
           type: approval
           filters:
@@ -601,7 +583,6 @@ workflows:
       - test-content-server-remote:
           requires:
             - request-test-content-server-remote
-
       - request-test-content-server-remote-parts:
           type: approval
           filters:
@@ -631,7 +612,6 @@ workflows:
                 - /^dockerpush.*/
             tags:
               ignore: /.*/
-
       - deploy-fxa-ci-image:
           executor: docker-build-executor
           filters:
@@ -640,14 +620,12 @@ workflows:
                 - main
             tags:
               ignore: /.*/
-
       - deploy-fxa-ci-browser-image:
           requires:
             - deploy-fxa-ci-image
           executor:
             name: docker-build-executor
             image: cimg/node:16.13-browsers
-
       - build-and-deploy-storybooks:
           requires:
             - deploy-fxa-ci-image
@@ -660,26 +638,30 @@ workflows:
 
   test_and_deploy_tag:
     jobs:
-      - build-and-unit-test:
+      - build:
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-
+      - lint:
+          requires:
+            - build
+      - unit-test:
+          requires:
+            - build
       - integration-test:
           requires:
-            - build-and-unit-test
-
+            - build
       - test-content-server-0:
           requires:
-            - build-and-unit-test
+            - build
       - test-content-server-1:
           requires:
-            - build-and-unit-test
+            - build
       - test-content-server-2:
           requires:
-            - build-and-unit-test
+            - build
       - deploy-packages:
           executor: docker-build-executor
           filters:
@@ -688,7 +670,9 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build-and-unit-test
+            - unit-test
+            - integration-test
+            - lint
             - test-content-server-0
             - test-content-server-1
             - test-content-server-2

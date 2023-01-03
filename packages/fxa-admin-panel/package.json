@@ -14,8 +14,8 @@
     "start": "tsc --build ../fxa-react && npm run build-css && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
-    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit",
+    "test:frontend": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-frontend.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false  rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit",
+    "test:server": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-server.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit",
     "test": "CI=true npm-run-all test:frontend test:server",
     "test:unit": "yarn build-css && yarn build:client && yarn test",
     "test:integration": "echo 'No integration tests present!'"

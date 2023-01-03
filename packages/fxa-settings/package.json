@@ -16,9 +16,10 @@
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "storybook": "STORYBOOK_BUILD=1 npm run build-css && start-storybook -p 6008 --no-version-updates",
-    "test": "yarn merge-ftl:test && SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false",
+    "test": "yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit ",
     "test:watch": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test:coverage": "yarn test --coverage --watchAll=false",
+    "test:unit": "yarn test",
     "merge-ftl": "grunt merge-ftl",
     "merge-ftl:test": "grunt merge-ftl:test",
     "watch-ftl": "grunt watch-ftl"

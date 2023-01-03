@@ -13,13 +13,13 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test:unit": "jest --coverage --runInBand --logHeapUsage --forceExit -t '#unit'",
-    "test:integration": "jest --coverage --runInBand --logHeapUsage -t '#integration' && yarn test:e2e",
+    "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --forceExit -t '#unit' --ci --reporters=default --reporters=jest-junit  ",
+    "test:integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --coverage --runInBand --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit && yarn test:e2e",
     "test": "jest --runInBand --logHeapUsage && yarn test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
-    "test:e2e": "jest --runInBand --logHeapUsage --config ./test/jest-e2e.json",
+    "test:e2e": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.json --ci --reporters=default --reporters=jest-junit",
     "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts"
   },
   "repository": {
