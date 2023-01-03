@@ -75,7 +75,7 @@ import { CurrencyHelper } from './currencies';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import { generateIdempotencyKey } from './utils';
+import { generateIdempotencyKey, roundTime } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -498,6 +498,7 @@ export class StripeHelper extends StripeHelperBase {
       customerId,
       priceId,
       paymentMethod?.card?.fingerprint || '',
+      roundTime(),
     ]);
 
     const createParams: Stripe.SubscriptionCreateParams = {
