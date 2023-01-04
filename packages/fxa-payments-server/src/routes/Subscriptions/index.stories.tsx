@@ -90,10 +90,13 @@ function setupVariantStories(
                   subtotal_excluding_tax: 2000,
                   total: 2300,
                   total_excluding_tax: 2000,
-                  tax: {
-                    amount: 300,
-                    inclusive: false,
-                  },
+                  tax: [
+                    {
+                      amount: 300,
+                      inclusive: false,
+                      display_name: 'Sales Tax',
+                    },
+                  ],
                 },
               ],
             },
@@ -123,10 +126,13 @@ function setupVariantStories(
                   subtotal_excluding_tax: 1700,
                   total: 2000,
                   total_excluding_tax: 1700,
-                  tax: {
-                    amount: 300,
-                    inclusive: true,
-                  },
+                  tax: [
+                    {
+                      amount: 300,
+                      inclusive: true,
+                      display_name: 'Sales Tax',
+                    },
+                  ],
                 },
               ],
             },
@@ -596,10 +602,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
       name: 'first invoice',
     },
   ],
-  tax: {
-    amount: 300,
-    inclusive: false,
-  },
+  tax: [
+    {
+      amount: 300,
+      inclusive: false,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
@@ -615,10 +624,13 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
       name: 'first invoice',
     },
   ],
-  tax: {
-    amount: 300,
-    inclusive: true,
-  },
+  tax: [
+    {
+      amount: 300,
+      inclusive: true,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 const getPreviewInvoiceMockData = (response: FirstInvoicePreview) => [

@@ -26,11 +26,14 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
 
   // Add tax if it exists
   if (invoice.total_tax_amounts.length > 0) {
-    const tax = invoice.total_tax_amounts[0];
-    invoicePreview.tax = {
+    invoicePreview.tax = invoice.total_tax_amounts.map((tax) => ({
       amount: tax.amount,
       inclusive: tax.inclusive,
-    };
+      display_name:
+        typeof tax.tax_rate === 'object'
+          ? tax.tax_rate.display_name
+          : undefined,
+    }));
   }
 
   // Add discount if it exists
@@ -61,11 +64,14 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
     };
 
     if (invoice.total_tax_amounts.length > 0) {
-      const tax = invoice.total_tax_amounts[0];
-      invoicePreview.tax = {
+      invoicePreview.tax = invoice.total_tax_amounts.map((tax) => ({
         amount: tax.amount,
         inclusive: tax.inclusive,
-      };
+        display_name:
+          typeof tax.tax_rate === 'object'
+            ? tax.tax_rate.display_name
+            : undefined,
+      }));
     }
 
     return invoicePreview;

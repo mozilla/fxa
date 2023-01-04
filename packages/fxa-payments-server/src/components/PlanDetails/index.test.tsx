@@ -202,8 +202,12 @@ describe('PlanDetails', () => {
       selectedPlan.interval,
       selectedPlan.interval_count
     );
+    const totalTax = INVOICE_PREVIEW_EXCLUSIVE_TAX.tax?.reduce(
+      (total, taxRate) => total + taxRate.amount,
+      0
+    );
     const expectedTaxAmount = getLocalizedCurrencyString(
-      INVOICE_PREVIEW_EXCLUSIVE_TAX.tax?.amount!,
+      totalTax || null,
       selectedPlan.currency
     );
 

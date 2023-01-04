@@ -2126,6 +2126,7 @@ describe('#integration - StripeHelper', () => {
             price: 'priceId',
           },
         ],
+        expand: ['total_tax_amounts.tax_rate'],
       });
     });
 

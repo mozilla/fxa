@@ -13,6 +13,7 @@ export interface InvoiceLineItem {
 export interface InvoiceTax {
   amount: number;
   inclusive: boolean;
+  display_name?: string;
 }
 
 export interface InvoiceDiscount {
@@ -31,7 +32,7 @@ export interface FirstInvoicePreview {
   subtotal_excluding_tax: number | null;
   total: number;
   total_excluding_tax: number | null;
-  tax?: InvoiceTax;
+  tax?: InvoiceTax[];
   discount?: InvoiceDiscount;
 }
 
@@ -53,9 +54,10 @@ export const firstInvoicePreviewSchema = joi.object({
   subtotal_excluding_tax: joi.number().required().allow(null),
   total: joi.number().required(),
   total_excluding_tax: joi.number().required().allow(null),
-  tax: joi.object({
+  tax: joi.array().items({
     amount: joi.number().required(),
     inclusive: joi.boolean().required(),
+    display_name: joi.string().optional(),
   }),
   discount: joi.object({
     amount: joi.number().required(),
@@ -80,7 +82,8 @@ export type firstInvoicePreviewSchema = {
   tax?: {
     amount: number;
     inclusive: boolean;
-  };
+    display_name?: string;
+  }[];
   discount?: {
     amount: number;
     amount_off: number | null;
@@ -99,7 +102,7 @@ export interface SubsequentInvoicePreview {
   subtotal_excluding_tax: number | null;
   total: number;
   total_excluding_tax: number | null;
-  tax?: InvoiceTax;
+  tax?: InvoiceTax[];
 }
 
 export const subsequentInvoicePreviewsSchema = joi.array().items(
@@ -110,9 +113,10 @@ export const subsequentInvoicePreviewsSchema = joi.array().items(
     subtotal_excluding_tax: joi.number().required().allow(null),
     total: joi.number().required(),
     total_excluding_tax: joi.number().required().allow(null),
-    tax: joi.object({
+    tax: joi.array().items({
       amount: joi.number().required(),
       inclusive: joi.boolean().required(),
+      display_name: joi.string().optional(),
     }),
   })
 );
@@ -127,7 +131,8 @@ export type subsequentInvoicePreview = {
   tax?: {
     amount: number;
     inclusive: boolean;
-  };
+    display_name?: string;
+  }[];
 };
 
 export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;

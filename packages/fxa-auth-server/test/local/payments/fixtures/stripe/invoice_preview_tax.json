@@ -134,7 +134,9 @@
           {
             "amount": 371,
             "inclusive": true,
-            "tax_rate": "txr_1JALB2BVqmGyQTMa3ltU6p6y"
+            "tax_rate": {
+              "display_name": "GST"
+            }
           }
         ],
         "tax_rates": [],
@@ -181,7 +183,9 @@
     {
       "amount": 371,
       "inclusive": true,
-      "tax_rate": "txr_1JALB2BVqmGyQTMa3ltU6p6y"
+      "tax_rate": {
+        "display_name": "GST"
+      }
     }
   ],
   "transfer_data": null,
