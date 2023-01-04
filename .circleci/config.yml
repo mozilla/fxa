@@ -409,6 +409,13 @@ jobs:
       - wait-for-infrastructure
       - integration-test
 
+  functional-test-pre-check:
+    executor: tiny-executor
+    steps:
+      - run:
+          name: Pre Check
+          command: echo 'All pre-tests stages passed. Starting Functional Test Suite!'
+
   test-settings-server:
     executor: functional-test-executor
     steps:
@@ -539,25 +546,33 @@ workflows:
             - build
       - integration-test:
           requires:
+            - build
+
+      - functional-test-pre-check:
+          requires:
+            - lint
             - unit-test
+            - integration-test
+
       - build-and-deploy-storybooks:
           requires:
-            - unit-test
+            - functional-test-pre-check
+
       - test-settings-server:
           requires:
-            - unit-test
+            - functional-test-pre-check
       - test-content-server-0:
           requires:
-            - unit-test
+            - functional-test-pre-check
       - test-content-server-1:
           requires:
-            - unit-test
+            - functional-test-pre-check
       - test-content-server-2:
           requires:
-            - unit-test
+            - functional-test-pre-check
       - playwright-functional-tests:
           requires:
-            - unit-test
+            - functional-test-pre-check
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
