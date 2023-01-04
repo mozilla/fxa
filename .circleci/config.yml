@@ -372,13 +372,16 @@ jobs:
             docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
             docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
 
-  build:
+  build-and-validate:
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
       - provision
       - ts-build
+      - lint
+      - unit-test
+      - jira/notify
       - jira/notify
 
   lint:
@@ -408,13 +411,6 @@ jobs:
       - ts-build-restore
       - wait-for-infrastructure
       - integration-test
-
-  functional-test-pre-check:
-    executor: tiny-executor
-    steps:
-      - run:
-          name: Pre Check
-          command: echo 'All pre-tests stages passed. Starting Functional Test Suite!'
 
   test-settings-server:
     executor: functional-test-executor
@@ -532,47 +528,38 @@ jobs:
 workflows:
   test_pull_request:
     jobs:
-      - build:
+      - build-and-validate:
+          name: Build > Lint > Unit Test
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
-      - lint:
-          requires:
-            - build
-      - unit-test:
-          requires:
-            - build
-      - integration-test:
-          requires:
-            - build
 
-      - functional-test-pre-check:
+      - integration-test:
+          name: Integration Test
           requires:
-            - lint
-            - unit-test
-            - integration-test
+            - Build > Lint > Unit Test
 
       - build-and-deploy-storybooks:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
 
       - test-settings-server:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
       - test-content-server-0:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
       - test-content-server-1:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
       - test-content-server-2:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
       - playwright-functional-tests:
           requires:
-            - functional-test-pre-check
+            - Build > Lint > Unit Test
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
@@ -653,30 +640,25 @@ workflows:
 
   test_and_deploy_tag:
     jobs:
-      - build:
+      - build-and-validate:
+          name: Build > Lint > Unit Test
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-      - lint:
-          requires:
-            - build
-      - unit-test:
-          requires:
-            - build
       - integration-test:
           requires:
-            - build
+            - Build > Lint > Unit Test
       - test-content-server-0:
           requires:
-            - build
+            - Build > Lint > Unit Test
       - test-content-server-1:
           requires:
-            - build
+            - Build > Lint > Unit Test
       - test-content-server-2:
           requires:
-            - build
+            - Build > Lint > Unit Test
       - deploy-packages:
           executor: docker-build-executor
           filters:
@@ -685,9 +667,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - unit-test
+            - Build > Lint > Unit Test
             - integration-test
-            - lint
             - test-content-server-0
             - test-content-server-1
             - test-content-server-2

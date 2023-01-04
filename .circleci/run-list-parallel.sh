@@ -16,4 +16,4 @@ fi
 # Setting --load let's us wait for a heavy test suite to finish before starting another one
 # Setting --ungroup makes the output stream better, although it is then interlaced
 # Setting --joblog preserves the output in a log file.
-parallel --load 75% --halt 0 --ungroup --joblog .list/$LIST.log < $LIST
+parallel --load 75% --halt 0 --ungroup --joblog $LIST.log < $LIST
