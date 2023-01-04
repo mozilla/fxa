@@ -18,7 +18,7 @@
     "test:server": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-server.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit",
     "test": "CI=true npm-run-all test:frontend test:server",
     "test:unit": "yarn build-css && yarn build:client && yarn test",
-    "test:integration": "echo 'No integration tests present!'"
+    "test:integration": "echo No integration tests present for $npm_package_name"
   },
   "browserslist": {
     "production": [

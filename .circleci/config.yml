@@ -409,7 +409,7 @@ jobs:
       - run-tests:
           test_name: Integration Test (many)
           list: integration-test.list
-          max_jobs: "2"
+          max_jobs: "1"
 
   test-settings-server:
     executor: functional-test-executor
