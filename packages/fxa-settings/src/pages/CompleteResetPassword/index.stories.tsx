@@ -13,18 +13,18 @@ export default {
   component: CompleteResetPassword,
 } as Meta;
 
-const storyWithProps = (props?: CompleteResetPasswordProps) => {
+const storyWithProps = (props: CompleteResetPasswordProps) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
-        <CompleteResetPassword linkStatus="valid" {...props} />
+        <CompleteResetPassword {...props} />
       </AppLayout>
     </LocationProvider>
   );
   return story;
 };
 
-export const WithValidLink = storyWithProps();
+export const WithValidLink = storyWithProps({ linkStatus: 'valid' });
 
 export const WithSyncWarning = storyWithProps({
   linkStatus: 'valid',
