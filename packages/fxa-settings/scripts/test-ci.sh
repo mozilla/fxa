@@ -37,9 +37,9 @@ cd packages/fxa-content-server
 
 node tests/intern.js \
   --suites="settings" \
-  --output="../../artifacts/tests/results.xml" \
+  --output="../../artifacts/tests/fxa-settings/intern-results.xml" \
   || \
 node tests/intern.js \
   --suites="settings" \
-  --output="../../artifacts/tests/results.xml" \
+  --output="../../artifacts/tests/fxa-settings/intern-rerun-results.xml" \
   --grep="$(<rerun.txt)"

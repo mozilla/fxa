@@ -18,7 +18,7 @@
     "test:frontend": "yarn merge-ftl:test && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false",
     "test:frontend:watch": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
     "test:server": "jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit",
-    "test:unit.skip": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit",
+    "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit",
     "test:integration": "yarn build-css && yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "start-storybook -p 6006",
