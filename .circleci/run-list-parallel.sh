@@ -18,7 +18,7 @@ fi
 
 LIST=$1
 JOBLOG="--joblog artifacts/tests/$LIST.log"
-MEM_SUSPEND=$2
+MEM_MAX=$2
 
 mkdir -p artifacts/tests
 
@@ -26,4 +26,4 @@ mkdir -p artifacts/tests
 # Setting --load let's us wait for a heavy test suite to finish before starting another one
 # Setting --ungroup makes the output stream better, although it is then interlaced
 # Setting --joblog preserves the output in a log file.
-parallel --load 75% --halt 0 --cf --joblog artifacts/tests/$LIST.log --memsuspend  $MEM_SUSPEND < .lists/$LIST
+parallel --load 75% --halt 0 --joblog artifacts/tests/$LIST.log ----memfree $MEM_MAX --retires 1 < .lists/$LIST
