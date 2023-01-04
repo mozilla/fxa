@@ -14,7 +14,7 @@ import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import {
   inputNewPassword,
   inputVerifyPassword,
-} from '../FormPassword/index.test';
+} from '../../FormPassword/index.test';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../../constants';
 

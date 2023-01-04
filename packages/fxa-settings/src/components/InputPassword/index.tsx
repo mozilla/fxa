@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useCallback, ChangeEvent } from 'react';
-import InputText, { InputTextProps } from '../../InputText';
+import InputText, { InputTextProps } from '../InputText';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
 import { useLocalization } from '@fluent/react';

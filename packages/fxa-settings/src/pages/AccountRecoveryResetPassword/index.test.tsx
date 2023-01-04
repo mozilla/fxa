@@ -45,8 +45,8 @@ describe('PageAccountRecoveryResetPassword', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
-  it('shows a different message when given a broken link', () => {
-    render(<AccountRecoveryResetPassword linkStatus="broken" />);
+  it('shows a different message when given a damaged link', () => {
+    render(<AccountRecoveryResetPassword linkStatus="damaged" />);
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(`Reset password link damaged`);
   });

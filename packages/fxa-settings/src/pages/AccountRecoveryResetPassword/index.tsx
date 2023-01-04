@@ -13,6 +13,8 @@ import { useFtlMsgResolver } from '../../models/hooks';
 
 import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
+import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
+import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
 // --canGoBack-- determines if the user can navigate back to an fxa entrypoint
 
 export type AccountRecoveryResetPasswordProps = {
@@ -25,7 +27,7 @@ type FormData = {
   newPassword: string;
 };
 
-type LinkStatus = 'expired' | 'broken' | 'valid';
+type LinkStatus = 'expired' | 'damaged' | 'valid';
 
 const AccountRecoveryResetPassword = ({
   canGoBack,
@@ -181,51 +183,8 @@ const AccountRecoveryResetPassword = ({
           {canGoBack && <LinkRememberPassword />}
         </>
       )}
-      {linkStatus === 'broken' && (
-        <>
-          <div className="mb-4">
-            <h1 className="card-header">
-              <FtlMsg id="password-link-damaged-header">
-                Reset password link damaged
-              </FtlMsg>
-            </h1>
-          </div>
-          <p className="text-sm mb-6">
-            <FtlMsg id="password-link-damaged-message">
-              The link you clicked was missing characters, and may have been
-              broken by your email client. Copy the address carefully, and try
-              again.
-            </FtlMsg>
-          </p>
-        </>
-      )}
-      {linkStatus === 'expired' && (
-        <>
-          <div className="mb-4">
-            <h1 className="card-header">
-              <FtlMsg id="password-link-expired-header">
-                Reset password link expired
-              </FtlMsg>
-            </h1>
-          </div>
-          <p className="text-sm mb-6">
-            <FtlMsg id="password-link-expired-message">
-              The link you clicked to reset your password is expired.
-            </FtlMsg>
-          </p>
-          <div className="text-sm mt-6">
-            <FtlMsg id="receive-new-link">
-              <button
-                onClick={sendNewLinkEmail}
-                className="link-blue text-sm"
-                id="remember-password"
-              >
-                Receive new link
-              </button>
-            </FtlMsg>
-          </div>
-        </>
-      )}
+      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
+      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
     </>
   );
 };

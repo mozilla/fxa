@@ -13,9 +13,12 @@ import {
 } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import FlowContainer from '../FlowContainer';
-import { AuthUiErrors, composeAuthUiErrorTranslationId } from '../../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from '../../../lib/auth-errors/auth-errors';
 import { useLocalization, Localized } from '@fluent/react';
-import FormPassword from '../FormPassword';
+import FormPassword from '../../FormPassword';
 
 type FormData = {
   oldPassword: string;
@@ -62,7 +65,9 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     async ({ oldPassword, newPassword }: FormData) => {
       if (oldPassword === newPassword) {
         const localizedError = l10n.getString(
-          composeAuthUiErrorTranslationId(AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT),
+          composeAuthUiErrorTranslationId(
+            AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT
+          ),
           null,
           AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
         );
