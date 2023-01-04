@@ -237,6 +237,7 @@ commands:
           name: Linting
           command: ./.circleci/lint-packages.sh
 
+  # Not currently used. But should be soon once coverage reports are fixed up.
   report-coverage:
     parameters:
       list:
@@ -283,18 +284,22 @@ commands:
           keys:
             - fxa-ts-build-01-<< pipeline.git.revision >>
 
-  unit-test:
+  run-tests:
+    parameters:
+      test_name:
+        type: string
+      # Name of file in ./lists folder holding tests to execute in parallel
+      list:
+        type: string
+      # Test suites are run in parallel, this is the upper bound for any
+      # job. If the job exceeds it will be suspended until more memory
+      # becomes available.
+      mem_max:
+        type: string
     steps:
       - run:
-          name: Unit Test
-          command: ./.circleci/run-list-parallel.sh .lists/unit-test.list
-      - store-artifacts
-
-  integration-test:
-    steps:
-      - run:
-          name: Integration Test
-          command: ./.circleci/run-list-parallel.sh .lists/integration-test.list
+          name: << parameters.test_name >>
+          command: ./.circleci/run-list-parallel.sh  << parameters.list >> << parameters.mem_max >>
       - store-artifacts
 
 jobs:
@@ -380,8 +385,10 @@ jobs:
       - provision
       - ts-build
       - lint
-      - unit-test
-      - jira/notify
+      - run-tests:
+          test_name: Unit Test (many)
+          list: unit-test.list
+          mem_max: 3GB
       - jira/notify
 
   lint:
@@ -393,15 +400,6 @@ jobs:
       - ts-build-restore
       - lint
 
-  unit-test:
-    executor: default-executor
-    resource_class: large
-    steps:
-      - git-checkout
-      - provision
-      - ts-build-restore
-      - unit-test
-
   integration-test:
     executor: fullstack-executor
     resource_class: medium+
@@ -410,7 +408,10 @@ jobs:
       - provision
       - ts-build-restore
       - wait-for-infrastructure
-      - integration-test
+      - run-tests:
+          test_name: Integration Test (many)
+          list: integration-test.list
+          mem_max: 2GB
 
   test-settings-server:
     executor: functional-test-executor
@@ -526,6 +527,9 @@ jobs:
       - cache-save-yarn
 
 workflows:
+
+  # This workflow is executed whenever a pull request is issued. It will also
+  # run on PR drafts.
   test_pull_request:
     jobs:
       - build-and-validate:
@@ -602,6 +606,7 @@ workflows:
           requires:
             - request-test-content-server-remote-parts
 
+  # This workflow is primarily triggered after PRs are approved and land on main.
   deploy_branch:
     jobs:
       - deploy-packages:
@@ -638,6 +643,8 @@ workflows:
           requires:
             - deploy-fxa-ci-image
 
+  # This workflow is used for building docker containers that are then deployed to
+  # live infrastructure.
   test_and_deploy_tag:
     jobs:
       - build-and-validate:
