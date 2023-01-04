@@ -291,15 +291,10 @@ commands:
       # Name of file in ./lists folder holding tests to execute in parallel
       list:
         type: string
-      # Test suites are run in parallel, this is the upper bound for any
-      # job. If the job exceeds it will be suspended until more memory
-      # becomes available.
-      mem_max:
-        type: string
     steps:
       - run:
           name: << parameters.test_name >>
-          command: ./.circleci/run-list-parallel.sh  << parameters.list >> << parameters.mem_max >>
+          command: ./.circleci/run-list-parallel.sh  << parameters.list >>
       - store-artifacts
 
 jobs:
@@ -388,7 +383,6 @@ jobs:
       - run-tests:
           test_name: Unit Test (many)
           list: unit-test.list
-          mem_max: 3GB
       - jira/notify
 
   lint:
@@ -411,7 +405,6 @@ jobs:
       - run-tests:
           test_name: Integration Test (many)
           list: integration-test.list
-          mem_max: 2GB
 
   test-settings-server:
     executor: functional-test-executor
