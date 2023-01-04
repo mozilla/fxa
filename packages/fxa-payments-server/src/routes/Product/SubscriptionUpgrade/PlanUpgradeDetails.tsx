@@ -35,8 +35,9 @@ export const PlanUpgradeDetails = ({
 
   const showTax = config.featureFlags.useStripeAutomaticTax;
 
-  const taxAmount = invoicePreview.tax?.amount || 0;
-  const taxInclusive = invoicePreview.tax?.inclusive;
+  const exclusiveTaxRates =
+    invoicePreview.tax?.filter((taxRate) => !taxRate.inclusive) || [];
+
   const totalAmount = showTax ? invoicePreview.total : amount;
   const subTotal = invoicePreview.subtotal;
 
@@ -59,7 +60,7 @@ export const PlanUpgradeDetails = ({
       <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
       <div className="py-6 border-t-0">
-        {showTax && !!subTotal && !!taxAmount && !taxInclusive && (
+        {showTax && !!subTotal && exclusiveTaxRates.length && (
           <>
             <div className="plan-details-item">
               <Localized id="plan-details-list-price">
@@ -73,17 +74,31 @@ export const PlanUpgradeDetails = ({
               />
             </div>
 
-            <div className="plan-details-item">
-              <Localized id="plan-details-tax">
-                <div>Taxes and Fees</div>
-              </Localized>
+            {exclusiveTaxRates.length === 1 && (
+              <div className="plan-details-item">
+                <Localized id="plan-details-tax">
+                  <div>Taxes and Fees</div>
+                </Localized>
 
-              <PriceDetails
-                total={taxAmount}
-                currency={currency}
-                dataTestId="plan-upgrade-tax-amount"
-              />
-            </div>
+                <PriceDetails
+                  total={exclusiveTaxRates[0].amount}
+                  currency={currency}
+                  dataTestId="plan-upgrade-tax-amount"
+                />
+              </div>
+            )}
+            {exclusiveTaxRates.length > 1 &&
+              exclusiveTaxRates.map((taxRate, idx) => (
+                <div className="plan-details-item" key={idx}>
+                  <div>{taxRate.display_name}</div>
+
+                  <PriceDetails
+                    total={taxRate.amount}
+                    currency={currency}
+                    dataTestId="plan-upgrade-tax-amount"
+                  />
+                </div>
+              ))}
           </>
         )}
 

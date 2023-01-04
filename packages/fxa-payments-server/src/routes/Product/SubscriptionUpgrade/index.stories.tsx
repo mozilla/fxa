@@ -53,10 +53,13 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
   subtotal_excluding_tax: 2804,
   total: 2999,
   total_excluding_tax: 2804,
-  tax: {
-    amount: 195,
-    inclusive: true,
-  },
+  tax: [
+    {
+      amount: 195,
+      inclusive: true,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   line_items: [],
@@ -64,10 +67,13 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   subtotal_excluding_tax: 2999,
   total: 3194,
   total_excluding_tax: 2999,
-  tax: {
-    amount: 195,
-    inclusive: false,
-  },
+  tax: [
+    {
+      amount: 195,
+      inclusive: false,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
