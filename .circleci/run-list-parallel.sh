@@ -14,6 +14,7 @@ LIST=$1
 JOBLOG="--joblog artifacts/tests/$LIST.log"
 
 if [[ $2 == "" ]]; then
+  MAX_JOBS=""
 else
   MAX_JOBS="-j $2"
 fi
