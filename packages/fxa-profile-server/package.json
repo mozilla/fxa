@@ -12,7 +12,7 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "scripts/test-local.sh",
-    "test:unit.skip": "yarn make-dirs && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#unit'",
+    "test:unit": "yarn make-dirs && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#unit'",
     "test:integration": "yarn make-dirs && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-integration.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "make-dirs": "mkdir -p var/public"

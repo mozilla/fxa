@@ -12,4 +12,4 @@ if [ ! -f $LIST ]; then
   exit 1
 fi
 
-time parallel --halt 1 < $LIST
+parallel --jobs -1 --load 50% --halt 2 --ungroup < $LIST

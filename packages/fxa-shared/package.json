@@ -62,7 +62,7 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn test:mocha && yarn test:jest",
-    "test:unit.skip": "yarn test:mocha:unit && yarn test:jest:unit",
+    "test:unit": "yarn test:mocha:unit && yarn test:jest:unit",
     "test:integration": "yarn test:mocha:integration && yarn test:jest:integration",
     "test:mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
     "test:mocha:unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register --recursive test/**/*.{js,ts} -g '#unit'",
