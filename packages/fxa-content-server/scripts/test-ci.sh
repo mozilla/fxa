@@ -51,5 +51,6 @@ test_suite circle 3
 # The last node currently has the least work to do in the above tests
 if [[ "${CIRCLE_NODE_INDEX}" == "2" ]]; then
   node tests/intern.js --suites='server' --output='../../artifacts/tests/server-results.xml'
-  node tests/intern.js --suites='pairing' --output='../../artifacts/tests/pairing-results.xml'
+  #Removing the flaky pairing suite, to be addressed in https://mozilla-hub.atlassian.net/browse/FXA-6558
+  #node tests/intern.js --suites='pairing' --output='../../artifacts/tests/pairing-results.xml'
 fi
