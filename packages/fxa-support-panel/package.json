@@ -20,7 +20,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
-    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json"
+    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json",
+    "test:unit": "echo No unit tests present for $npm_package_name",
+    "test:integration": "yarn test"
   },
   "private": true,
   "repository": {

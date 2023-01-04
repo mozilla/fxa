@@ -396,7 +396,7 @@ jobs:
 
   integration-test:
     executor: fullstack-executor
-    resource_class: medium+
+    resource_class: large
     steps:
       - git-checkout
       - provision
