@@ -25,7 +25,7 @@ const clickConfirmUnlinkButton = async () => {
     fireEvent.click(confirmButton);
   });
 };
-describe('Linked Accounts', () => {
+describe('#integration - Linked Accounts', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
