@@ -47,7 +47,7 @@ export interface ProductMetadata {
   emailIconURL?: string | null;
   playStoreLink?: string;
   productOrder?: string | null;
-  productSet?: string[] | null;
+  productSet: string[];
   upgradeCTA?: string | null;
   webIconBackground?: string | null;
   webIconURL: string | null;

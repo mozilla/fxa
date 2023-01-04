@@ -552,6 +552,7 @@ describe('lib/routes/validators:', () => {
       currency: 'usd',
       active: true,
       configuration: {
+        productSet: ['foo'],
         urls: {
           emailIcon: 'http://firestore.example.gg/email.ico',
           successActionButton: 'http://firestore.example.gg/download',

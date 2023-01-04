@@ -347,12 +347,15 @@ export class StripeProductsAndPlansConverter {
 
     // Extended by PlanConfig
     planConfig.stripePriceId = plan.id;
-    const { productOrder } = plan.metadata;
+    const { productOrder, productSet } = plan.metadata;
     const playSkuIds = plan.metadata[STRIPE_PRICE_METADATA.PLAY_SKU_IDS];
     const appStoreProductIds =
       plan.metadata[STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS];
     if (productOrder) {
       planConfig.productOrder = parseInt(productOrder);
+    }
+    if (productSet) {
+      planConfig.productSet = commaSeparatedListToArray(productSet);
     }
     if (playSkuIds) {
       planConfig[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] =

@@ -117,7 +117,7 @@ export interface ProductConfigSchemaValidation {
 
 export const minimalConfigSchema = joi.object({
   id: joi.string().optional().allow(null).allow(''),
-  productSet: joi.array().items(joi.string()).optional().allow(null),
+  productSet: joi.array().items(joi.string()).required(),
   urls: urlsSchema,
   uiContent: uiContentSchema,
   styles: stylesSchema,

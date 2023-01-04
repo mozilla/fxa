@@ -466,7 +466,7 @@ module.exports.subscriptionProductMetadataBaseValidator = isA
     successActionButtonURL: isA.string().uri().required(),
     appStoreLink: isA.string().uri().optional(),
     playStoreLink: isA.string().uri().optional(),
-    productSet: isA.string().optional(),
+    productSet: isA.string().required(),
     productOrder: isA.number().optional(),
     'product:termsOfServiceDownloadURL': isA
       .string()

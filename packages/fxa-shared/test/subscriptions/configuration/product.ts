@@ -14,6 +14,7 @@ const firestoreObject = {
     '*': ['stuff'],
   },
   locales: {},
+  productSet: ['foo'],
   styles: {
     webIconBackground: '#fff',
   },
