@@ -12,4 +12,8 @@ if [ ! -f $LIST ]; then
   exit 1
 fi
 
-parallel --jobs -1 --load 50% --halt 2 --ungroup < $LIST
+# Executes the command in the LIST file in parallel. Some notes on options
+# Setting --load let's us wait for a heavy test suite to finish before starting another one
+# Setting --ungroup makes the output stream better, although it is then interlaced
+# Setting --joblog preserves the output in a log file.
+parallel --load 75% --halt 0 --ungroup --joblog .list/$LIST.log < $LIST
