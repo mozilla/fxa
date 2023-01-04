@@ -291,10 +291,14 @@ commands:
       # Name of file in ./lists folder holding tests to execute in parallel
       list:
         type: string
+      # Controls the number of parallel operations
+      max_jobs:
+        type: string
+        default: ""
     steps:
       - run:
           name: << parameters.test_name >>
-          command: ./.circleci/run-list-parallel.sh  << parameters.list >>
+          command: ./.circleci/run-list-parallel.sh  << parameters.list >> << parameters.max_jobs >>
       - store-artifacts
 
 jobs:
@@ -396,7 +400,7 @@ jobs:
 
   integration-test:
     executor: fullstack-executor
-    resource_class: xlarge
+    resource_class: large
     steps:
       - git-checkout
       - provision
@@ -405,6 +409,7 @@ jobs:
       - run-tests:
           test_name: Integration Test (many)
           list: integration-test.list
+          max_jobs: "2"
 
   test-settings-server:
     executor: functional-test-executor
