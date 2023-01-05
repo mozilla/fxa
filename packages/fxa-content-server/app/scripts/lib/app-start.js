@@ -504,7 +504,6 @@ Start.prototype = {
         broker: this._authenticationBroker,
         config: this._config,
         createView: this.createView.bind(this),
-        experimentGroupingRules: this._experimentGroupingRules,
         metrics: this._metrics,
         notifier: this._notifier,
         relier: this._relier,
