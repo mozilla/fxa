@@ -32,6 +32,9 @@ export type InputTextProps = {
   anchorStart?: boolean;
   spellCheck?: boolean;
   autoComplete?: string;
+  inputMode?: 'text' | 'numeric' | 'tel' | 'email';
+  required?: boolean;
+  tooltipPosition?: 'top' | 'bottom';
 };
 
 export const InputText = ({
@@ -54,6 +57,9 @@ export const InputText = ({
   anchorStart,
   spellCheck,
   autoComplete,
+  inputMode,
+  required,
+  tooltipPosition,
 }: InputTextProps) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -128,6 +134,8 @@ export const InputText = ({
             pattern,
             spellCheck,
             autoComplete,
+            inputMode,
+            required,
           }}
         />
       </span>
@@ -135,6 +143,7 @@ export const InputText = ({
         <Tooltip
           type="error"
           {...{ anchorStart }}
+          position={tooltipPosition}
           className="-mb-px"
           message={errorText}
         />
