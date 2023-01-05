@@ -14,6 +14,7 @@ const ResetPasswordLinkExpired = () => {
 
   return (
     <>
+      {/* TODO: Add alertBar for success/failure status of resendLinkHandler */}
       <FtlMsg id="reset-pwd-link-expired-header">
         <h1 id="fxa-reset-link-expired-header" className="card-header">
           Reset password link expired
