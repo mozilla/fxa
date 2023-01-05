@@ -12,22 +12,43 @@ echo '' > .lists/unit-test.list
 echo '' > .lists/unit-test-includes.list
 echo '' > .lists/integration-test.list
 echo '' > .lists/integration-test-includes.list
+echo '' > .lists/dynamic-ci-pipeine-parameters.yml
+echo '' > .lists/dynamic-ci-integration-tests.yml
 
 function genWorkspaceCmd() {
-  if [ -f "packages/$1/package.json" ]; then
-    if [[ $(cat packages/$1/package.json | jq ".scripts.\"$2\"") != null ]]; then
-      echo "NODE_ENV=test yarn workspace $1 run $2" >> .lists/$3
+  PACKAGE=$1
+  SCRIPT=$2
+  LIST=$3
+
+  echo Creating Workspace Command $PACKAGE, $SCRIPT, $LIST
+
+  if [ -f "packages/$PACKAGE/package.json" ]; then
+    if [[ $(cat packages/$PACKAGE/package.json | jq ".scripts.\"$SCRIPT\"") != null ]]; then
+      echo "NODE_ENV=test yarn workspace $PACKAGE run $SCRIPT" >> .lists/$LIST
+    else
+      echo $PACKAGE does not support have script: $SCRIPT
     fi
   fi
 }
+
 function genIncludeArgs() {
-  if [ -f "packages/$1/package.json" ]; then
-    echo "Processing packages/$1/package.json "
-    if [[ $(cat packages/$1/package.json | jq ".scripts.\"$2\"") != null ]]; then
-      echo "--include $1" >> .lists/$3
+  PACKAGE=$1
+  SCRIPT=$2
+  LIST=$3
+
+  echo Creating Includes Arg Command $PACKAGE, $SCRIPT, $LIST
+
+  if [ -f "packages/$PACKAGE/package.json" ]; then
+    if [[ $(cat packages/$PACKAGE/package.json | jq ".scripts.\"$SCRIPT\"") != null ]]; then
+      echo "--include $PACKAGE" >> .lists/$LIST
+    else
+      echo $PACKAGE does not support have script: $SCRIPT
     fi
   fi
 }
+
+
+
 
 if [[ $(cat packages/test.list) == *all* ]]; then
   echo "Testing All Packages";
