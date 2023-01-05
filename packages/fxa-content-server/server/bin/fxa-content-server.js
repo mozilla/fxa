@@ -17,7 +17,6 @@ logger.info(`commit hash set to: ${version.commit}`);
 logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
 logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
 const config = require('../lib/configuration');
-const { addAllReactRoutesConditionally } = require('../lib/routes/react-app');
 
 // Tracing must be initialized asap
 const tracing = require('fxa-shared/tracing/node-tracing');
@@ -37,7 +36,7 @@ const sentry = require('../lib/sentry');
 const statsd = require('../lib/statsd');
 const { cors, routing } = require('fxa-shared/express').express();
 const {
-  createSettingsProxy,
+  useSettingsProxy,
   modifySettingsStatic,
 } = require('../lib/beta-settings');
 
@@ -188,35 +187,22 @@ function makeApp() {
   const routes = require('../lib/routes')(config, i18n, statsd);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
+  routes.forEach(routeHelpers.addRoute);
 
   if (config.get('env') === 'production') {
     app.get(settingsPath, modifySettingsStatic);
-
-    addAllReactRoutesConditionally(app, routeHelpers, modifySettingsStatic);
   }
-
-  if (config.get('env') === 'development') {
-    app.use(settingsPath, createSettingsProxy);
-
-    addAllReactRoutesConditionally(app, routeHelpers, createSettingsProxy);
-  } else {
-    app.get(settingsPath + '/*', modifySettingsStatic);
-  }
-
-  /* This creates `app.whatever('/path' ...` handlers for every content-server route and
-   * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
-   * these excluded routes for content-server to serve in checks above if the feature flag is
-   * set to false or if the request does not contain `showReactApp=true`. Adding these routes
-   * must come after React-related route modifications so that `next('route')` skips to these
-   * route implementations. */
-  routes.forEach(routeHelpers.addRoute);
-
-  // must come after route handling
   app.use(
     serveStatic(STATIC_DIRECTORY, {
       maxAge: config.get('static_max_age'),
     })
   );
+
+  if (config.get('env') === 'development') {
+    app.use(settingsPath, useSettingsProxy);
+  } else {
+    app.get(settingsPath + '/*', modifySettingsStatic);
+  }
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
