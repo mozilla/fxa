@@ -253,7 +253,6 @@ describe('NewUserEmailForm test', () => {
   it('Notifies the user if domain does not provide email', async () => {
     const checkAccountExists = (userAccount: string) =>
       Promise.resolve({ exists: false, invalidDomain: true });
-    debugger;
     const result = await emailInputValidationAndAccountCheck(
       'foxy@mozilla.com',
       false,

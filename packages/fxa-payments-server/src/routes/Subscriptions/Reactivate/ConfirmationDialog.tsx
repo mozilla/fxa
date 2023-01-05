@@ -152,10 +152,8 @@ const ConfirmationDialog = ({
   );
   const { last4 } = customer;
 
-  const { loading, error, amount } = useHandleConfirmationDialog(
-    customerSubscription,
-    plan
-  );
+  const { loading, error, amount } =
+    useHandleConfirmationDialog(customerSubscription);
 
   const ariaLabelledByError = 'error-content-header';
   const ariaDescribedByError = 'error-content-description';

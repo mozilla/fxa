@@ -235,19 +235,14 @@ describe('useInfoBoxMessage', () => {
 
 describe('useHandleConfirmationDialog', () => {
   const customerSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
-  const plan = SELECTED_PLAN;
 
   const Subject = ({
     customerSubscription,
-    plan,
   }: {
     customerSubscription: WebSubscription;
-    plan: Plan;
   }) => {
-    const { loading, error, amount } = useHandleConfirmationDialog(
-      customerSubscription,
-      plan
-    );
+    const { loading, error, amount } =
+      useHandleConfirmationDialog(customerSubscription);
     return (
       <>
         {loading ? <span data-testid="loading">loading</span> : null}
@@ -265,31 +260,13 @@ describe('useHandleConfirmationDialog', () => {
       .mockResolvedValue({ total: 100 });
   });
 
-  it('no promotion code, but plan does not have amount', async () => {
-    const { queryByTestId } = render(
-      <Subject
-        customerSubscription={customerSubscription}
-        plan={{ ...plan, amount: null }}
-      />
-    );
-
-    await waitFor(() => {
-      expect(queryByTestId('loading')).not.toBeInTheDocument();
-      expect(queryByTestId('error')).toBeInTheDocument();
-      expect(queryByTestId('amount')).not.toBeInTheDocument();
-    });
-
-    expect(apiInvoicePreview).toHaveBeenCalledTimes(0);
-  });
-
-  it('promotion code, but false, and plan has amount', async () => {
+  it('promotion code not applied', async () => {
     const { queryByTestId, getByTestId } = render(
       <Subject
         customerSubscription={{
           ...customerSubscription,
           promotion_code: 'CODE10',
         }}
-        plan={plan}
       />
     );
 
@@ -300,11 +277,14 @@ describe('useHandleConfirmationDialog', () => {
     });
 
     const amount = getByTestId('amount').textContent;
-    expect(amount).toEqual('2999');
-    expect(apiInvoicePreview).toHaveBeenCalledTimes(0);
+    expect(amount).toEqual('100');
+    expect(apiInvoicePreview).toHaveBeenCalledWith({
+      priceId: customerSubscription.plan_id,
+      promotionCode: undefined,
+    });
   });
 
-  it('prmotion code, and true, but api fails', async () => {
+  it('promotion code but api fails', async () => {
     (apiInvoicePreview as jest.Mock).mockClear().mockRejectedValue({});
     const { queryByTestId } = render(
       <Subject
@@ -313,7 +293,6 @@ describe('useHandleConfirmationDialog', () => {
           promotion_code: 'CODE10',
           promotion_duration: 'forever',
         }}
-        plan={plan}
       />
     );
 
@@ -327,10 +306,13 @@ describe('useHandleConfirmationDialog', () => {
       expect(queryByTestId('amount')).not.toBeInTheDocument();
     });
 
-    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+    expect(apiInvoicePreview).toHaveBeenCalledWith({
+      priceId: customerSubscription.plan_id,
+      promotionCode: 'CODE10',
+    });
   });
 
-  it('promotion code, and true and api success', async () => {
+  it('promotion code and api success', async () => {
     const { queryByTestId, getByTestId } = render(
       <Subject
         customerSubscription={{
@@ -338,7 +320,6 @@ describe('useHandleConfirmationDialog', () => {
           promotion_code: 'CODE10',
           promotion_duration: 'forever',
         }}
-        plan={plan}
       />
     );
     await waitFor(() => {
@@ -353,7 +334,10 @@ describe('useHandleConfirmationDialog', () => {
 
     const amount = getByTestId('amount').textContent;
     expect(amount).toEqual('100');
-    expect(apiInvoicePreview).toHaveBeenCalledTimes(1);
+    expect(apiInvoicePreview).toHaveBeenCalledWith({
+      priceId: customerSubscription.plan_id,
+      promotionCode: 'CODE10',
+    });
   });
 });
 
