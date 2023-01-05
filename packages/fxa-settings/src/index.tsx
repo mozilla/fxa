@@ -9,6 +9,7 @@ import {
   getTracingHeadersFromDocument,
   init as initTracing,
 } from 'fxa-shared/tracing/browser-tracing';
+import Settings from './components/Settings';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
@@ -29,11 +30,13 @@ interface FlowQueryParams {
 
 // temporary until we can safely direct all users to all routes currently in content-server
 export interface QueryParams extends FlowQueryParams {
-  showReactApp?: boolean;
+  showNewReactApp?: boolean;
 }
 
 try {
   const flowQueryParams = searchParams(window.location.search) as QueryParams;
+
+  const { showNewReactApp } = flowQueryParams;
 
   // Populate config
   readConfigMeta((name: string) => {
@@ -61,7 +64,11 @@ try {
             bundles={['settings', 'react']}
             userLocales={navigator.languages}
           >
-            <App {...{ flowQueryParams }} />
+            {showNewReactApp ? (
+              <App {...{ flowQueryParams }} />
+            ) : (
+              <Settings {...{ flowQueryParams }} />
+            )}
           </AppLocalizationProvider>
         </AppContext.Provider>
       </AppErrorBoundary>

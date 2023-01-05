@@ -20,18 +20,21 @@ const BaseGroupingRule = require('./base');
 const GROUPS = [
   'control',
 
-  // Treatment branches.
-  // This one is for users who will see the React version of content-server pages
-  'react',
+  // Treatment branches. This one is for users who will see the new, generalized React app which houses more urls than just `/settings`
+  'generalized',
 ];
 
-/* This experiment is disabled by default. If you would like to see the React pages, make sure
- * 1) your local config is set up to enable feature flags for the set of routes you're interested
- * in and either 2a) append `showReactApp=true` to the URL _or_ 2b) to see it in a flow, append
- * the following query params to the page that will navigate to the page you're interested in:
- * `?forceExperiment=generalizedReactApp&forceExperimentGroup=react` */
+// This experiment is disabled by default. If you would like to go through
+// open the settings page with the following query params:
+// `?forceExperiment=generalizedReactApp&forceExperimentGroup=generalized`
 const ROLLOUT_RATE = 0.0;
 
+// This splits users into users who see the original Settings React app,
+// and users who see a generalized version of that app which can also display
+// routes that were previously content-server routes. This is not intended to wrap
+// the entirety of the Content Server React project -- it is a temporary experiment
+// which only wraps the generalization of the React app, and will be removed after
+// successful roll out of those changes.
 module.exports = class GeneralizedReactApp extends BaseGroupingRule {
   constructor() {
     super();
