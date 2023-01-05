@@ -8,67 +8,67 @@ parameters:
 
   check-fxa-admin-panel:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-admin-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-auth-client:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-auth-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-content-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-customs-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-dev-launcher:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-event-broker:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-geodb:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-graphql-api:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-payments-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-profile-server:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-react:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-settings:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-shared:
     type: boolean
-    default: true 
+    default: true
 
   check-fxa-support-panel:
     type: boolean
-    default: true 
+    default: true
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
@@ -480,6 +480,21 @@ jobs:
           grep: << parameters.package >>
           max_jobs: "1"
 
+  run-integration-test:
+    parameters:
+      package:
+        type: string
+    steps:
+      - git-checkout
+      - provision
+      - ts-build-restore
+      - wait-for-infrastructure
+      - run:
+          name: Integration Test
+          cmd: yarn workspace << parameters.package >> run test:integration
+      - store-artifacts
+
+
   test-settings-server:
     executor: functional-test-executor
     steps:
@@ -617,95 +632,95 @@ workflows:
             - Build > Lint > Unit Test
 
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-admin-panel
           package: fxa-admin-panel
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-admin-server
           package: fxa-admin-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-auth-client
           package: fxa-auth-client
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-auth-server
           package: fxa-auth-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-content-server
           package: fxa-content-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-customs-server
           package: fxa-customs-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-event-broker
           package: fxa-event-broker
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-geodb
           package: fxa-geodb
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-graphql-api
           package: fxa-graphql-api
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-payments-server
           package: fxa-payments-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-profile-server
           package: fxa-profile-server
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-react
           package: fxa-react
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-settings
           package: fxa-settings
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-shared
           package: fxa-shared
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
-      - test-integration:
+      - run-integration-test:
           name: Integration Test - fxa-support-panel
           package: fxa-support-panel
           requires:
-            - Build > Lint > Unit Test 
+            - Build > Lint > Unit Test
 
       - integration-test:
           name: Integration Test - fxa-admin-server

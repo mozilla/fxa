@@ -8,10 +8,8 @@ if [[ ! -f .lists/test.list ]]; then
 fi
 
 # Clear out temp files
-rm .lists/dynamic-ci-tests.yml
-touch .lists/dynamic-ci-tests.yml
-rm .lists/dynamic-ci-parameters.yml
-touch .lists/dynamic-ci-parameters.yml
+echo '' > .lists/dynamic-ci-parameters.yml
+echo '' > .lists/dynamic-ci-tests.yml
 
 function genDynamicTest() {
   PACKAGE=$1
@@ -58,7 +56,7 @@ for d in packages/fxa-*/ ; do
     echo "Evaluating $pkg"
 
     createDynamicCiConfig $pkg
-    genDynamicTest $pkg test:integration test-integration "Integration Test"
+    genDynamicTest $pkg test:integration run-integration-test "Integration Test"
 done
 
 

@@ -9,11 +9,10 @@ jobs:
     executor: continuation/default
     steps:
       - checkout
-      - run:
-          name: Generate Pipeline generated_config.yml file
-          command: ./circleci/generate-config.sh
+      - run: .circleci/create-lists.sh
+      - run: .circleci/generate-config.sh
       - continuation/continue:
-          configuration_path:  ./circleci/generated-config.yml
+          configuration_path:  ./circleci/config_generated.yml
 workflows:
   setup-workflow:
     jobs:

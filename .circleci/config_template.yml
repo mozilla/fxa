@@ -416,6 +416,21 @@ jobs:
           grep: << parameters.package >>
           max_jobs: "1"
 
+  run-integration-test:
+    parameters:
+      package:
+        type: string
+    steps:
+      - git-checkout
+      - provision
+      - ts-build-restore
+      - wait-for-infrastructure
+      - run:
+          name: Integration Test
+          cmd: yarn workspace << parameters.package >> run test:integration
+      - store-artifacts
+
+
   test-settings-server:
     executor: functional-test-executor
     steps:
