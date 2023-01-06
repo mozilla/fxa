@@ -74,3 +74,5 @@ export function createPiiFilter(enabled: boolean, logger?: ILogger) {
 
   return piiFilter;
 }
+
+export function test() {}
