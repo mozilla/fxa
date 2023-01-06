@@ -209,7 +209,6 @@ function makeApp() {
   }
 
   if (config.get('env') === 'production') {
-    console.log('in proddd');
     app.get(settingsPath, modifySettingsStatic);
 
     addNonSettingsRoutes(modifySettingsStatic);
@@ -218,7 +217,6 @@ function makeApp() {
   }
 
   if (config.get('env') === 'development') {
-    console.log('in devvvv');
     app.use(settingsPath, createSettingsProxy);
 
     addNonSettingsRoutes(createSettingsProxy);
