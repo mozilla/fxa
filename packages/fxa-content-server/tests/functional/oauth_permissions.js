@@ -207,12 +207,8 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(openSettingsInNewTab())
           .then(switchToWindow(1))
 
-          .then(
-            click(
-              selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
-              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
-            )
-          )
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.INPUT_LABEL_DISPLAY_NAME))
           .then(
             type(
               selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
