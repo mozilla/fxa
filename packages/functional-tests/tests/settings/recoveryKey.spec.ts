@@ -133,7 +133,7 @@ test.describe('recovery key test', () => {
     credentials,
     target,
     page,
-    pages: { settings, recoveryKey, login },
+    pages: { settings, recoveryKey, login, resetPassword },
   }) => {
     await settings.signOut();
 
@@ -170,7 +170,7 @@ test.describe('recovery key test', () => {
     await page.goto(link2, { waitUntil: 'load' });
 
     // Verify reset link expired
-    expect(await login.resetPasswordLinkExpriredHeader()).toBe(true);
+    expect(await resetPassword.resetPasswordLinkExpriredHeader()).toBe(true);
   });
 
   test('use account recovery key', async ({
