@@ -15,6 +15,7 @@ import SignInPasswordView from 'views/sign_in_password';
 import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
+import CannotCreateAccountView from '../../../scripts/views/cannot_create_account';
 
 describe('lib/router', () => {
   let broker;
@@ -26,6 +27,19 @@ describe('lib/router', () => {
   var router;
   var user;
   var windowMock;
+  var config;
+
+  const showReactAppAll = {
+    simpleRoutes: true,
+    resetPasswordRoutes: true,
+    oauthRoutes: true,
+    signInRoutes: true,
+    signUpRoutes: true,
+    pairRoutes: true,
+    postVerifyAddRecoveryKeyRoutes: true,
+    postVerifyCADViaQRRoutes: true,
+    signInVerificationViaPushRoutes: true,
+  };
 
   beforeEach(() => {
     navigateUrl = navigateOptions = null;
@@ -41,6 +55,8 @@ describe('lib/router', () => {
       window: windowMock,
     });
 
+    config = { showReactApp: showReactAppAll };
+
     router = new Router({
       broker,
       metrics: metrics,
@@ -48,6 +64,7 @@ describe('lib/router', () => {
       relier: relier,
       user: user,
       window: windowMock,
+      config,
     });
 
     sinon
@@ -381,6 +398,7 @@ describe('lib/router', () => {
         relier: relier,
         user: user,
         window: windowMock,
+        config,
       });
       assert.isTrue(router.storage._backend.getItem('canGoBack'));
     });
@@ -490,6 +508,62 @@ describe('lib/router', () => {
             viewConstructorOptions
           )
         );
+      });
+    });
+  });
+
+  describe('React-related methods', () => {
+    describe('showReactApp', () => {
+      beforeEach(() => {
+        sinon.spy(router, 'showReactApp');
+      });
+      it('returns true when routeName is included in react group route', () => {
+        assert.isTrue(router.showReactApp('cannot_create_account'));
+      });
+
+      it('returns false when routeName is not included in react group route', () => {
+        assert.isFalse(router.showReactApp('whatever'));
+      });
+    });
+    describe('createReactOrBackboneViewHandler', () => {
+      const viewConstructorOptions = {};
+      let routeHandler;
+
+      beforeEach(() => {
+        sinon.spy(router, 'navigateAway');
+        sinon.spy(router, 'navigate');
+        sinon.spy(router, 'createReactOrBackboneViewHandler');
+        sinon.spy(router, 'showView');
+      });
+
+      it('navigates away with param when React conditions are met', () => {
+        sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+        routeHandler = router.createReactOrBackboneViewHandler(
+          'cannot_create_account',
+          CannotCreateAccountView
+        );
+
+        assert.equal(router.navigate.callCount, 0);
+        assert.equal(router.navigateAway.callCount, 1);
+        const args = router.navigateAway.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], '/cannot_create_account?showReactApp=true');
+      });
+      it('renders Backbone view when React conditions are not met', () => {
+        routeHandler = router.createReactOrBackboneViewHandler(
+          'cannot_create_account',
+          CannotCreateAccountView,
+          viewConstructorOptions
+        );
+        assert.equal(router.navigateAway.callCount, 0);
+        return routeHandler.then(() => {
+          assert.isTrue(
+            router.showView.calledWith(
+              CannotCreateAccountView,
+              viewConstructorOptions
+            )
+          );
+        });
       });
     });
   });

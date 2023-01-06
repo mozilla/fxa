@@ -4,17 +4,20 @@
 
 'use strict';
 
+const { getReactRouteGroups } = require('./routes/react-app');
+
 module.exports = function (config, i18n, statsd) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
+  const reactRouteGroups = getReactRouteGroups(config.get('showReactApp'));
 
   const routes = [
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
     require('./routes/get-apple-app-site-association')(),
-    require('./routes/get-frontend-pairing')(),
-    require('./routes/get-frontend').default(),
-    require('./routes/get-oauth-success'),
+    require('./routes/get-frontend-pairing').default(reactRouteGroups),
+    require('./routes/get-frontend').default(reactRouteGroups),
+    require('./routes/get-oauth-success').default(reactRouteGroups),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-update-firefox')(config),
     require('./routes/get-index')(config),
@@ -33,7 +36,7 @@ module.exports = function (config, i18n, statsd) {
     require('./routes/post-third-party-auth-redirect')(config),
     require('./routes/get-500')(config),
     require('./routes/validate-email-domain')(config),
-  ];
+  ].filter((routeDefinition) => routeDefinition); // get rid of null values
 
   if (config.get('csp.enabled')) {
     routes.push(

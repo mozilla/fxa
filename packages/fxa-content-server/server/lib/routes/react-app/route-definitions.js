@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * @param {Array.<String>} routes
- * @returns {import("fxa-shared/express/routing").RouteDefinition}
- */
-function getFrontEndRouteDefinitions(routes) {
+/** @type {import("./types").GetRouteDefinition} */
+function getFrontEndRouteDefinition(routes) {
   const path = routes.join('|'); // prepare for use in a RegExp
   return {
     method: 'get',
@@ -20,6 +17,33 @@ function getFrontEndRouteDefinitions(routes) {
   };
 }
 
+/** @type {import("./types").GetRouteDefinition} */
+function getFrontEndPairingRouteDefinition(routes) {
+  const path = routes.join('|'); // prepare for use in a RegExp
+  return {
+    method: 'get',
+    path: new RegExp('^/(' + path + ')/?$'),
+    process: function (req, res) {
+      res.redirect(302, '/pair/failure');
+    },
+  };
+}
+
+/** @type {import("./types").GetRouteDefinition} */
+function getOAuthSuccessRouteDefinition(routes) {
+  const path = routes.join('|'); // prepare for use in a RegExp
+  return {
+    method: 'get',
+    path,
+    process: function (req, res, next) {
+      req.url = '/';
+      next();
+    },
+  };
+}
+
 module.exports = {
-  getFrontEndRouteDefinitions,
+  getFrontEndRouteDefinition,
+  getFrontEndPairingRouteDefinition,
+  getOAuthSuccessRouteDefinition,
 };
