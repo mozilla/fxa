@@ -15,7 +15,7 @@ type RouteMethod =
   | 'patch'
   | 'options'
   | 'head';
-type RouteDefinition = {
+export type RouteDefinition = {
   method: RouteMethod;
   path: string | RegExp;
   process: Function;
