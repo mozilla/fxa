@@ -189,34 +189,40 @@ function makeApp() {
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
 
-  if (config.get('env') === 'production') {
-    app.get(settingsPath, modifySettingsStatic);
+  function addNonSettingsRoutes(middleware) {
+    addAllReactRoutesConditionally(app, routeHelpers, middleware);
 
-    addAllReactRoutesConditionally(app, routeHelpers, modifySettingsStatic);
+    /* This creates `app.whatever('/path' ...` handlers for every content-server route and
+     * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
+     * these excluded routes for content-server to serve in checks above if the feature flag is
+     * set to false or if the request does not contain `showReactApp=true`. Adding these routes
+     * must come after React-related route modifications so that `next('route')` skips to these
+     * route implementations. */
+    routes.forEach(routeHelpers.addRoute);
+
+    // must come after route handling but before wildcard routes
+    app.use(
+      serveStatic(STATIC_DIRECTORY, {
+        maxAge: config.get('static_max_age'),
+      })
+    );
   }
 
-  if (config.get('env') === 'development') {
-    app.use(settingsPath, createSettingsProxy);
+  if (config.get('env') === 'production') {
+    console.log('in proddd');
+    app.get(settingsPath, modifySettingsStatic);
 
-    addAllReactRoutesConditionally(app, routeHelpers, createSettingsProxy);
-  } else {
+    addNonSettingsRoutes(modifySettingsStatic);
+
     app.get(settingsPath + '/*', modifySettingsStatic);
   }
 
-  /* This creates `app.whatever('/path' ...` handlers for every content-server route and
-   * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
-   * these excluded routes for content-server to serve in checks above if the feature flag is
-   * set to false or if the request does not contain `showReactApp=true`. Adding these routes
-   * must come after React-related route modifications so that `next('route')` skips to these
-   * route implementations. */
-  routes.forEach(routeHelpers.addRoute);
+  if (config.get('env') === 'development') {
+    console.log('in devvvv');
+    app.use(settingsPath, createSettingsProxy);
 
-  // must come after route handling
-  app.use(
-    serveStatic(STATIC_DIRECTORY, {
-      maxAge: config.get('static_max_age'),
-    })
-  );
+    addNonSettingsRoutes(createSettingsProxy);
+  }
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
