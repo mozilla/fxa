@@ -24,3 +24,4 @@ export { VerifyEmailInput, VerifyEmailCodeInput } from './verify-email';
 export { VerifySessionInput } from './verify-session';
 export { VerifyTotpInput } from './verify-totp';
 export { AccountStatusInput } from './account-status';
+export { RecoveryKeyBundleInput } from './recovery-key';
