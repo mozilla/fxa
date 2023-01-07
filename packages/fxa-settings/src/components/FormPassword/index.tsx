@@ -10,7 +10,7 @@ import { ReactComponent as UnsetIcon } from './unset.svg';
 import { UseFormMethods, ValidateResult } from 'react-hook-form';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
-import PasswordValidator from './PasswordValidator';
+import PasswordValidator from '../../lib/password-validator';
 import { useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';

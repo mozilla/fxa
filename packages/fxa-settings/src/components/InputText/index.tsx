@@ -18,11 +18,13 @@ export type InputTextProps = {
   children?: ReactElement;
   label: string;
   placeholder?: string;
+  hasErrors?: boolean;
   errorText?: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onFocusCb?: () => void;
+  onBlurCb?: () => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
   name?: string;
   prefixDataTestId?: string;
@@ -42,6 +44,8 @@ export const InputText = ({
   placeholder,
   onChange,
   onFocusCb,
+  onBlurCb,
+  hasErrors,
   errorText,
   className = '',
   inputRef,
@@ -68,10 +72,16 @@ export const InputText = ({
   const checkHasContent = (event: ChangeEvent<HTMLInputElement>) =>
     setHasContent(event.target.value.length > 0);
 
-  const onBlur = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    checkHasContent(event);
-    setFocused(false);
-  }, []);
+  const onBlur = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      checkHasContent(event);
+      setFocused(false);
+      if (onBlurCb) {
+        onBlurCb();
+      }
+    },
+    [onBlurCb]
+  );
 
   const textFieldChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -89,9 +99,13 @@ export const InputText = ({
     <label
       className={classNames(
         'flex items-center rounded transition-all duration-100 ease-in-out border relative',
-        focused ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200',
+        focused
+          ? 'border-blue-400 shadow-input-blue-focus outline-none'
+          : 'border-grey-200',
         disabled ? 'border-grey-100 bg-grey-10' : 'bg-white',
-        errorText ? 'border-red-700 shadow-input-red-focus' : '',
+        hasErrors || errorText
+          ? 'border-2 border-red-700 shadow-input-red-focus'
+          : '',
         className
       )}
       data-testid={formatDataTestId('input-container')}
@@ -110,7 +124,11 @@ export const InputText = ({
           {label}
         </span>
         <input
-          className="pb-1 pt-5 px-3 w-full font-body rounded focus:outline-none disabled:bg-grey-10 placeholder-transparent focus:placeholder-grey-500 text-grey-900 disabled:text-grey-300 disabled:cursor-default"
+          className={classNames(
+            'pb-1 pt-5 px-3 w-full font-body rounded',
+            focused ? 'outline-none placeholder-grey-500' : '',
+            disabled ? 'bg-grey-10 placeholder-transparent cursor-default' : ''
+          )}
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
           title={label}
