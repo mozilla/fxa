@@ -1418,7 +1418,7 @@ AppError.iapInvalidToken = (error) => {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.IAP_INVALID_TOKEN,
-      message: 'Invalid token',
+      message: `Invalid IAP token${error?.message ? `: ${error.message}` : ''}`,
     },
     ...extra
   );
