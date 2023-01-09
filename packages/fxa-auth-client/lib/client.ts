@@ -406,13 +406,16 @@ export default class AuthClient {
     } = {},
     headers: Headers = new Headers()
   ) {
-    return this.request('POST', '/recovery_email/verify_code',
-     {
-       uid,
-       code,
-       ...options,
-     },
-     headers);
+    return this.request(
+      'POST',
+      '/recovery_email/verify_code',
+      {
+        uid,
+        code,
+        ...options,
+      },
+      headers
+    );
   }
 
   async recoveryEmailStatus(sessionToken: hexstring) {
@@ -832,6 +835,57 @@ export default class AuthClient {
       sessionToken,
       payload
     );
+  }
+
+  async passwordChangeWithAuthPW(
+    email: string,
+    oldPasswordAuthPW: string,
+    newPasswordAuthPW: string,
+    oldUnwrapBKey: string,
+    newUnwrapBKey: string,
+    options: {
+      keys?: boolean;
+      sessionToken?: hexstring;
+    } = {}
+  ): Promise<{
+    uid: hexstring;
+    sessionToken: hexstring;
+    verified: boolean;
+    authAt: number;
+    unwrapBKey?: hexstring;
+    keyFetchToken?: hexstring;
+  }> {
+    const passwordData = await this.request('POST', '/password/change/start', {
+      email,
+      oldAuthPW: oldPasswordAuthPW,
+    });
+
+    const keys = await this.accountKeys(
+      passwordData.keyFetchToken,
+      oldUnwrapBKey
+    );
+
+    const wrapKb = crypto.unwrapKB(keys.kB, newUnwrapBKey);
+    const sessionToken = options.sessionToken
+      ? (await hawk.deriveHawkCredentials(options.sessionToken, 'sessionToken'))
+          .id
+      : undefined;
+    const payload = {
+      wrapKb,
+      authPW: newPasswordAuthPW,
+      sessionToken,
+    };
+    const accountData = await this.hawkRequest(
+      'POST',
+      pathWithKeys('/password/change/finish', options.keys),
+      passwordData.passwordChangeToken,
+      tokenType.passwordChangeToken,
+      payload
+    );
+    if (options.keys && accountData.keyFetchToken) {
+      accountData.unwrapBKey = newUnwrapBKey;
+    }
+    return accountData;
   }
 
   async passwordChange(

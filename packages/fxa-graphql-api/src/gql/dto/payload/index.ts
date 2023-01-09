@@ -17,3 +17,4 @@ export { UpdateDisplayNamePayload } from './update-display-name';
 export { VerifyTotpPayload } from './verify-totp';
 export { AccountStatusPayload } from './account-status';
 export { RecoveryKeyBundlePayload } from './recovery-key';
+export { PasswordChangePayload } from './password-change';

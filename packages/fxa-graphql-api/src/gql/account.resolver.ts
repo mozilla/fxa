@@ -57,6 +57,7 @@ import {
   AccountResetInput,
   AccountStatusInput,
   RecoveryKeyBundleInput,
+  PasswordChangeInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -74,7 +75,8 @@ import {
   PasswordForgotCodeStatusPayload,
   AccountResetPayload,
   AccountStatusPayload,
-  RecoveryKeyBundlePayload
+  RecoveryKeyBundlePayload,
+  PasswordChangePayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
@@ -615,28 +617,28 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
-    description:
-     'Used to verify a users primary email address.',
+    description: 'Used to verify a users primary email address.',
   })
   @CatchGatewayError
   public async emailVerifyCode(
-   @GqlXHeaders() headers: Headers,
-   @Args('input', { type: () => VerifyEmailCodeInput }) input: VerifyEmailCodeInput
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => VerifyEmailCodeInput })
+    input: VerifyEmailCodeInput
   ): Promise<BasicPayload> {
     await this.authAPI.verifyCode(
-     input.uid,
-     input.code,
-     {
-       service: input.service
-     },
-     headers
+      input.uid,
+      input.code,
+      {
+        service: input.service,
+      },
+      headers
     );
-    
+
     return {
       clientMutationId: input.clientMutationId,
     };
   }
-
+  
   @Query((returns) => RecoveryKeyBundlePayload, {
     description:
      'Retrieves a user recovery key bundle from its recovery key id. The bundle contains an encrypted copy for the sync key.',
@@ -648,6 +650,30 @@ export class AccountResolver {
     const { recoveryData } = await this.authAPI.getRecoveryKey(input.accountResetToken, input.recoveryKeyId);
 
     return { recoveryData };
+  }
+  
+  @Mutation((returns) => PasswordChangePayload, {
+    description:
+      "Change a user's password. The client is required to compute authPW since we don't send the clear password to our server.",
+  })
+  @CatchGatewayError
+  public async passwordChange(
+    @Args('input', { type: () => PasswordChangeInput })
+    input: PasswordChangeInput
+  ): Promise<PasswordChangePayload> {
+    const result = await this.authAPI.passwordChangeWithAuthPW(
+      input.email,
+      input.oldPasswordAuthPW,
+      input.newPasswordAuthPW,
+      input.oldUnwrapBKey,
+      input.newUnwrapBKey,
+      input.options
+    );
+
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
   }
 
   @ResolveField()
