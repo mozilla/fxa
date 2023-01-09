@@ -91,6 +91,10 @@ export class SubscriptionManagementPage extends BaseLayout {
       .textContent();
   }
 
+  async subscriptionDetails() {
+    return this.page.locator('[data-testid="subscription-item"]').textContent();
+  }
+
   getResubscriptionPrice() {
     return this.page
       .locator('[data-testid="price-details-standalone"]')
