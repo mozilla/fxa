@@ -122,7 +122,7 @@
     "@stripe/stripe-js": "^1.37.0",
     "accept-language-parser": "^1.5.0",
     "classnames": "^2.3.1",
-    "convict": "^6.2.3",
+    "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dayjs": "^1.11.5",
