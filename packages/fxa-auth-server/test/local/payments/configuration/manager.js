@@ -58,6 +58,7 @@ const productConfig = {
     '*': ['stuff'],
   },
   locales: {},
+  productSet: ['foo'],
   styles: {
     webIconBackground: '#fff',
   },
@@ -79,6 +80,7 @@ const planConfig = {
     '*': ['stuff'],
   },
   locales: {},
+  productSet: ['foo'],
   styles: {
     webIconBackground: '#fff',
   },

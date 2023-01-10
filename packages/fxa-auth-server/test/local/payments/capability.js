@@ -475,14 +475,6 @@ describe('CapabilityService', () => {
       assert.equal(error.message, 'Unknown subscription plan');
     });
 
-    it('returns invalid for targetPlan with no productSet', async () => {
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_NOPRODUCTSET'
-      );
-      assert.equal(actual, 'invalid');
-    });
-
     it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
       capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
         ['plan_123456']

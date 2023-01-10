@@ -17,7 +17,7 @@ import {
 
 export const productConfigJoiKeys = {
   stripeProductId: joi.string().optional(),
-  productSet: joi.array().items(joi.string()).optional(),
+  productSet: joi.array().items(joi.string()).required(),
   promotionCodes: joi.array().items(joi.string()).optional(),
 };
 
@@ -77,7 +77,7 @@ export class ProductConfig implements BaseConfig {
 
   // Extended by ProductConfig
   stripeProductId?: string;
-  productSet?: string[];
+  productSet!: string[];
 
   static async validate(
     productConfig: ProductConfig,

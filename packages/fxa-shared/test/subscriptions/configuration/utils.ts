@@ -230,6 +230,7 @@ describe('#unit - product configuration util functions', () => {
     locales: planLocales,
     support: planSupport,
     promotionCodes: planPromotionCodes,
+    productSet: ['testo'],
   };
   const fullMergedConfig = {
     id: '0001',

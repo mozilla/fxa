@@ -290,6 +290,7 @@ describe('StripeProductsAndPlansConverter', () => {
           'capabilities:aFakeClientId12345': 'more, comma, separated,  values',
           upgradeCTA: 'hello <a href="http://example.org">world</a>',
           productOrder: '2',
+          productSet: 'foo',
           successActionButtonURL: 'https://example.com/download',
         },
         id: 'plan_123',
@@ -307,6 +308,7 @@ describe('StripeProductsAndPlansConverter', () => {
           successActionButton: 'https://example.com/download',
         },
         productOrder: 2,
+        productSet: ['foo'],
       };
       const actualPlanConfig = converter.stripePlanToPlanConfig(testPlan);
       assert.deepEqual(expectedPlanConfig, actualPlanConfig);
@@ -593,6 +595,7 @@ describe('StripeProductsAndPlansConverter', () => {
         'capabilities:aFakeClientId12345': 'more, comma, separated,  values',
         upgradeCTA: 'hello <a href="http://example.org">world</a>',
         productOrder: '2',
+        productSet: 'foo',
         successActionButtonURL: 'https://example.com/download',
       },
       id: 'plan_123',
@@ -610,6 +613,7 @@ describe('StripeProductsAndPlansConverter', () => {
         successActionButton: 'https://example.com/download',
       },
       productOrder: 2,
+      productSet: ['foo'],
     };
     const plan2 = deepCopy({ ...plan1, id: 'plan_456' });
     const planConfig2 = { ...deepCopy(planConfig1), stripePriceId: plan2.id };

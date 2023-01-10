@@ -16,7 +16,7 @@ import {
 import { PlanConfigurationDtoT } from '../../dto/auth/payments/plan-configuration';
 
 const NULL_METADATA = {
-  productSet: null,
+  productSet: [],
   productOrder: null,
   emailIconURL: null,
   webIconURL: null,

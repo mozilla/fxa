@@ -38,7 +38,7 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
 // allow plan metadata to override product metadata
 export const metadataFromPlan = (plan: Plan): ProductMetadata => {
   const metadata = {
-    productSet: null,
+    productSet: [],
     productOrder: null,
     emailIconURL: null,
     webIconURL: null,

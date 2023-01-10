@@ -15,7 +15,7 @@ export const subscriptionProductMetadataBaseValidator = Joi.object({
   successActionButtonURL: Joi.string().uri().required(),
   appStoreLink: Joi.string().uri().optional(),
   playStoreLink: Joi.string().uri().optional(),
-  productSet: Joi.string().optional(),
+  productSet: Joi.string().required(),
   productOrder: Joi.number().optional(),
   'product:termsOfServiceDownloadURL': Joi.string()
     .regex(legalResourceDomainPattern)
