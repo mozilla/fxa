@@ -35,7 +35,7 @@ const sampleIpnMessage =
 
 const sandbox = sinon.createSandbox();
 
-describe('PayPalClient', () => {
+describe('#integration - PayPalClient', () => {
   /** @type {PayPalClient} */
   let client;
 

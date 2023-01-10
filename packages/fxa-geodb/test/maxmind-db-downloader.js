@@ -95,9 +95,9 @@ describe('maxmind-db-downloader', function () {
   describe('#integration - setupAutoUpdate', function () {
     it('auto update calls downloadAll correctly', function (done) {
       // test takes slightly over 5 seconds, set
-      // timeout to 6 seconds to ensure that we don't
+      // timeout to 10 seconds to ensure that we don't
       // timeout prematurely.
-      this.timeout(6000);
+      this.timeout(10000);
       sinon.stub(maxmindDbDownloader, 'downloadAll').callsFake(function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(

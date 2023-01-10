@@ -3,7 +3,8 @@
 echo "Running base install!"
 echo " . Base commit reference: $(cat base_ref)"
 echo " . Current commit reference: $(git rev-parse HEAD)"
-echo " . Force yarn install: $FORCE_YARN_INSTALL \n"
+echo " . Force yarn install: $FORCE_YARN_INSTALL"
+echo -e '\n\n'
 
 # Only run yarn install if there are changes in the lock file or the env, FORCE_YARN_INSTALL,
 # indicates a yarn install must be run. The file yarn.lock.base as well as node_modules and
@@ -11,19 +12,26 @@ echo " . Force yarn install: $FORCE_YARN_INSTALL \n"
 # of the main branch. If there is no change to the lock file, there is no point in rebuilding,
 # and we can use the last known good state.
 
-if $FORCE_YARN_INSTALL == 'true'; then
+if [[ $FORCE_YARN_INSTALL == 'true' ]]; then
 
     # This is just here as safety net, in case we encounter an issue with base image state and
     # need to force an install.
     echo 'Forcing yarn install because FORCE_YARN_INSTALL == true.'
+    echo -e '\n\n'
     set -x
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds;
 
 elif ! cmp --silent yarn.lock yarn.lock.base; then
-    echo 'Changes detected on yarn.lock!'
-    echo 'Note that pipelines execute faster if we can skip the yarn install step'
-    echo 'which is possible when lock files are in sync with latest build from main.\n'
-    echo 'Please consider rebasing on main, it may improve CI run times times!\n'
+    echo '=============================================================================='
+    echo 'IMPORTANT! Changes detected on yarn.lock.'
+    echo '------------------------------------------------------------------------------'
+    echo 'Note that pipelines execute faster if we can skip the yarn install step.'
+    echo 'This is possible when lock files are in sync with latest build from main.'
+    echo 'If there is no direct reason why the lockfile should change, please consider'
+    echo 'rebasing on main, it may improve CI run times!'
+    echo '=============================================================================='
+    echo -e '\n\n'
+
 
     # There are a couple tricks here:
     #  1. Skip playwright browser install. We can do this because it's already been done in the base image. Installing
@@ -34,7 +42,13 @@ elif ! cmp --silent yarn.lock yarn.lock.base; then
     set -x
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install --immutable --inline-builds;
 else
-    echo 'No changes detected on yarn.lock! Skipping yarn install and running postinstall directly.\n'
+    echo '=============================================================================='
+    echo 'Congrats! No changes detected on yarn.lock.'
+    echo '------------------------------------------------------------------------------'
+    echo 'Skipping yarn install and running postinstall directly.\n'
+    echo '=============================================================================='
+    echo -e '\n\n'
+
 
     # If we skip the yarn install, postinstall may still be needed on any workspace that have changed
     # since the base docker image was built.

@@ -23,7 +23,7 @@ const execOptions = {
   },
 };
 
-describe('scripts/delete-account:', () => {
+describe('#integration - scripts/delete-account:', () => {
   it('does not fail', () => {
     return execAsync(
       'node -r esbuild-register scripts/delete-account',

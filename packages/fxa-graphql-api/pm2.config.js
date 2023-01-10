@@ -7,12 +7,18 @@ const PATH = process.env.PATH.split(':')
   .join(':');
 
 const nest = require.resolve('@nestjs/cli/bin/nest.js');
+const getNestScript = () => `${nest} start`;
+const getProdScript = () => 'rm -rf dist && yarn build && node dist/main.js';
+const script =
+  process.env.CI === 'true' || process.env.NODE_ENV === 'production'
+    ? getProdScript()
+    : getNestScript();
 
 module.exports = {
   apps: [
     {
       name: 'gql-api',
-      script: `${nest} start --debug=9200 --watch`,
+      script,
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
@@ -20,6 +26,7 @@ module.exports = {
         PATH,
         NODE_ENV: 'development',
         TS_NODE_TRANSPILE_ONLY: 'true',
+        TS_NODE_COMPILER: 'typescript-cached-transpile',
         TS_NODE_FILES: 'true',
         PORT: '8290', // TODO: this needs to get added to src/config.ts
         CUSTOMS_SERVER_URL: 'none',

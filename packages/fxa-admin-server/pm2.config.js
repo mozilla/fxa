@@ -7,12 +7,18 @@ const PATH = process.env.PATH.split(':')
   .join(':');
 
 const nest = require.resolve('@nestjs/cli/bin/nest.js');
+const getDevScript = () => `${nest} start --debug=9150 --watch`;
+const getProdScript = () => 'rm -rf dist && yarn build && node dist/main.js';
+const script =
+  process.env.CI === 'true' || process.env.NODE_ENV === 'production'
+    ? getProdScript()
+    : getDevScript();
 
 module.exports = {
   apps: [
     {
       name: 'admin-server',
-      script: `${nest} start --debug=9150 --watch`,
+      script,
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',

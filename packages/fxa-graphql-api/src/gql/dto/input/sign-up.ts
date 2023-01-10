@@ -23,7 +23,7 @@ export class SignUpOptionsInput {
   @Field({ nullable: true })
   public verificationMethod?: string;
 
-  @Field({ nullable: true })
+  @Field((type) => String, { nullable: true })
   public preVerified?: BoolString;
 
   @Field((type) => MetricsContext, { nullable: true })
@@ -38,7 +38,7 @@ export class SignUpInput {
   })
   public clientMutationId?: string;
 
-  @Field()
+  @Field((type) => String)
   public authPW!: hexstring;
 
   @Field()

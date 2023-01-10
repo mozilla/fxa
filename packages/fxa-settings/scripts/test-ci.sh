@@ -13,8 +13,7 @@ mkdir -p config
 cd ../../
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
-node ./packages/db-migrations/bin/patcher.mjs
-yarn workspaces foreach \
+CI=true yarn workspaces foreach \
     --verbose \
     --topological-dev \
     --include 123done \
@@ -38,9 +37,9 @@ cd packages/fxa-content-server
 
 node tests/intern.js \
   --suites="settings" \
-  --output="../../artifacts/tests/results.xml" \
+  --output="../../artifacts/tests/fxa-settings/intern-results.xml" \
   || \
 node tests/intern.js \
   --suites="settings" \
-  --output="../../artifacts/tests/results.xml" \
+  --output="../../artifacts/tests/fxa-settings/intern-rerun-results.xml" \
   --grep="$(<rerun.txt)"

@@ -10,7 +10,7 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 const rimraf = require('rimraf');
 
-describe('the signing-key management scripts', function () {
+describe('#integration - the signing-key management scripts', function () {
   let runScript;
   let workDir, keyFile, newKeyFile, oldKeyFile;
 

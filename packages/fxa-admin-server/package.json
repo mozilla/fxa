@@ -6,7 +6,7 @@
     "prebuild": "rimraf dist",
     "build": "yarn prebuild && yarn nest build && cp ./src/config/*.json ./dist/config",
     "compile": "tsc --noEmit",
-    "lint": "eslint *",
+    "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "yarn build && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
@@ -15,8 +15,8 @@
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn gen-keys && yarn test:default && yarn test:e2e ",
     "gen-keys": "node -r esbuild-register ./scripts/gen_keys.ts;",
-    "test:unit": "jest --runInBand --forceExit -t '#unit' ",
-    "test:integration": "jest --runInBand --forceExit -t '#integration' ",
+    "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#unit' --ci --reporters=default --reporters=jest-junit",
+    "test:integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit",
     "test:default": "jest --runInBand --forceExit",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -93,7 +93,12 @@
     "rootDir": "src",
     "testRegex": ".spec.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

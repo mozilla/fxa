@@ -34,7 +34,8 @@ const vapidKeysFile = config.get('vapidKeysFile');
 const fileExists = fs.existsSync(vapidKeysFile);
 if (fileExists) {
   console.log('keys file already exists');
-  process.exit();
+  return;
+  // process.exit();
 }
 
 console.error('Generating key for VAPID');

@@ -248,7 +248,7 @@ describe('support', () => {
         nock.isDone();
       });
 
-      it('should handle retrying an update user call', async () => {
+      it('#integration - should handle retrying an update user call', async () => {
         config.subscriptions.enabled = true;
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .post('/api/v2/requests.json')
