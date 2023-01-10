@@ -10,7 +10,7 @@ export class SessionReauthOptionsInput extends SignInOptionsInput {}
 
 @InputType()
 export class SessionReauthInput extends SignInInput {
-  @Field()
+  @Field((type) => String)
   public sessionToken!: hexstring;
 
   @Field()

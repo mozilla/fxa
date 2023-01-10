@@ -21,11 +21,9 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn merge-ftl:test && yarn emails-scss && VERIFIER_VERSION=0 scripts/test-local.sh",
-    "test:unit": "yarn merge-ftl:test && yarn emails-scss && VERIFIER_VERSION=0 TEST_TYPE=unit scripts/test-local.sh",
-    "test:integration": "yarn merge-ftl:test && yarn emails-scss && VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-local.sh",
     "test-ci": "yarn merge-ftl:test && scripts/test-local.sh && npm run test-e2e",
-    "test-ci:unit": "yarn merge-ftl:test && TEST_TYPE=unit scripts/test-local.sh",
-    "test-ci:integration": "yarn merge-ftl:test && TEST_TYPE=integration scripts/test-local.sh && npm run test-e2e",
+    "test:unit": "yarn merge-ftl:test && yarn emails-scss && VERIFIER_VERSION=0 TEST_TYPE=unit scripts/test-ci.sh",
+    "test:integration": "yarn merge-ftl:test && yarn emails-scss && VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-ci.sh",
     "test-e2e": "NODE_ENV=dev mocha -r esbuild-register test/e2e",
     "test-scripts": "NODE_ENV=dev mocha -r esbuild-register test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha -r esbuild-register --timeout=300000 test/remote",
@@ -198,7 +196,6 @@
     "mailparser": "0.6.1",
     "mjml-browser": "^4.13.0",
     "mocha": "^10.0.0",
-    "mocha-junit-reporter": "^2.1.0",
     "moment": "^2.29.4",
     "nock": "^13.2.2",
     "nodemon": "^2.0.19",
@@ -219,5 +216,9 @@
     "webpack": "^4.43.0",
     "webpack-watch-files-plugin": "^1.2.1",
     "ws": "^8.11.0"
+  },
+  "mocha": {
+    "reporter": "mocha-multi",
+    "reporterOptions": "spec=-,mocha-junit-reporter=-"
   }
 }

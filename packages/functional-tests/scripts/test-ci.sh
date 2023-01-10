@@ -6,12 +6,7 @@ cd "$DIR/../../../"
 
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
-
-#npx playwright install --with-deps
-
-node ./packages/db-migrations/bin/patcher.mjs
-
-yarn workspaces foreach \
+CI=true yarn workspaces foreach \
     --verbose \
     --topological-dev \
     --include 123done \
@@ -27,8 +22,5 @@ yarn workspaces foreach \
     run start > ~/.pm2/logs/startup.log
 
 npx pm2 ls
-
-#yarn workspace functional-tests test
-
 circleci tests glob "packages/functional-tests/tests/**/*.spec.ts" | circleci tests split > tests-to-run.txt
 yarn workspace functional-tests test $(cat tests-to-run.txt|awk -F"/" '{ print $NF }')

@@ -8,6 +8,5 @@
     "importHelpers": true,
     "types": ["../fxa-auth-client/lib/types", "mozlog", "jest"]
   },
-  "references": [{ "path": "../fxa-shared" }, { "path": "../fxa-auth-client" }],
   "include": ["src"]
 }

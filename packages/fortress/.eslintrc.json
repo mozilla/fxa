@@ -2,7 +2,8 @@
   "extends": ["plugin:fxa/server"],
   "plugins": ["fxa"],
   "ignorePatterns": [
-    "static"
+    "static",
+    "node_modules"
   ],
   "root": true
 }

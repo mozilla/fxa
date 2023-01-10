@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "record": "playwright test --project=stub --debug",
-    "test:unit": "echo 'No unit tests present!'",
-    "test:integration": "echo 'No integration tests present!'",
     "test": "playwright test --project=local",
     "test-local": "playwright test --project=local",
     "test-stage": "playwright test --project=stage",

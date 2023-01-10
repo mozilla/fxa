@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 MODULE=$1
+TEST=$2
 DIR=$(dirname "$0")
 
 if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
@@ -16,7 +17,7 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
     time ./scripts/test-ci.sh
   else
     # default action
-    time (yarn workspaces focus "$MODULE" && NODE_ENV=test yarn test)
+    time (NODE_ENV=test yarn workspace $MODULE $TEST)
   fi
 else
   echo -e "\n###################################"

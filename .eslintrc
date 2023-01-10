@@ -8,5 +8,9 @@
     "require-atomic-updates": "off",
     "space-unary-ops": "off",
     "no-useless-escape": "off"
-  }
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules"
+  ]
 }

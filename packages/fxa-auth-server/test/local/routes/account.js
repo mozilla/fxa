@@ -1449,7 +1449,7 @@ describe('/account/status', () => {
     });
   });
 
-  it('returns invalid for an invalid email domain', async () => {
+  it('#integration -returns invalid for an invalid email domain', async () => {
     const { route, mockRequest } = setup();
     mockRequest.payload.email = 'test@bad.domain';
 

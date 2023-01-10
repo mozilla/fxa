@@ -58,7 +58,6 @@ module.exports = {
     {
       name: 'otel-collector',
       script: '_scripts/otel-collector.sh',
-      max_restarts: '1',
       autorestart: false,
       kill_timeout: 20000,
     },

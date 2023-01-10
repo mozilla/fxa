@@ -19,7 +19,7 @@ export class SessionStatus {
   })
   public uid!: string;
 
-  @Field({
+  @Field((type) => String, {
     description: 'Whether the current session is verified',
   })
   public state!: SessionVerifiedState;

@@ -20,9 +20,10 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "scripts/test-local.sh",
-    "test:unit": "tap test/local --no-coverage --jobs=1",
-    "test:integration": "tap test/remote test/scripts --no-coverage --jobs=1",
-    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+    "test:unit": "yarn make-artifacts-dir && tap test/local --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-unit.xml",
+    "test:integration": "yarn make-artifacts-dir && tap test/remote test/scripts --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration.xml",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
+    "make-artifacts-dir": "mkdir -p ../../artifacts/tests/$npm_package_name"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^2.19.4",
@@ -63,6 +64,7 @@
     "restify-clients": "^4.2.0",
     "sinon": "^9.0.3",
     "tap": "^16.3.0",
+    "tap-xunit": "^2.4.1",
     "walk": "^2.3.15"
   }
 }

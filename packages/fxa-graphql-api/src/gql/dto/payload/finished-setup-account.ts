@@ -11,10 +11,10 @@ export class FinishedSetupAccountPayload {
   })
   public clientMutationId?: string;
 
-  @Field()
+  @Field((type) => String)
   public uid!: hexstring;
 
-  @Field()
+  @Field((type) => String)
   public sessionToken!: hexstring;
 
   @Field()
