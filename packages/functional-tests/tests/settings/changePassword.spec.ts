@@ -87,15 +87,15 @@ test.describe('change password tests', () => {
     expect(await changePassword.validPasswordLength()).toBe(true);
   });
 
-  test('reset password via settings works', async ({ pages: { login } }, {
-    project,
-  }) => {
+  test('reset password via settings works', async ({
+    pages: { login, resetPassword },
+  }, { project }) => {
     test.slow();
 
     // Click forgot password link
     await login.clickForgotPassword();
 
     // Verify it navigates to reset password page
-    expect(await login.resetPasswordHeader()).toBe(true);
+    expect(await resetPassword.resetPasswordHeader()).toBe(true);
   });
 });
