@@ -97,7 +97,7 @@ test.describe('Reset password ', () => {
     page,
     pages: { resetPassword },
   }) => {
-    const url = `${target.contentServerUrl}/reset_password` + '?email=' + email;
+    const url = `${target.contentServerUrl}/reset_password?email=${email}`;
     await page.goto(url, {
       waitUntil: 'networkidle',
     });
