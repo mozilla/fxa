@@ -20,17 +20,17 @@ export const Checkbox = ({
   onChange,
   prefixDataTestId,
 }: CheckboxProps) => {
-  const [focused, setFocussed] = useState<boolean>(false);
+  const [focused, setFocused] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(defaultChecked === true);
   const [hovered, setHovered] = useState<boolean>(false);
 
   const checkboxFocus = useCallback(() => {
-    setFocussed(true);
-  }, [setFocussed]);
+    setFocused(true);
+  }, [setFocused]);
 
   const checkboxBlur = useCallback(() => {
-    setFocussed(false);
-  }, [setFocussed]);
+    setFocused(false);
+  }, [setFocused]);
 
   const checkboxChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
