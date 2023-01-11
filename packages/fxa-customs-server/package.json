@@ -33,7 +33,7 @@
     "bl": "6.0.0",
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.15",
-    "convict": "^6.2.3",
+    "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dedent": "^0.7.0",

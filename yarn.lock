@@ -11,7 +11,7 @@ __metadata:
   dependencies:
     audit-filter: 0.5.0
     client-sessions: 0.8.x
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
@@ -17458,7 +17458,7 @@ __metadata:
     body-parser: ^1.20.1
     browserid-local-verify: 0.5.2
     compute-cluster: 0.0.9
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
@@ -19764,13 +19764,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict@npm:^6.2.3":
-  version: 6.2.3
-  resolution: "convict@npm:6.2.3"
+"convict@npm:^6.2.4":
+  version: 6.2.4
+  resolution: "convict@npm:6.2.4"
   dependencies:
     lodash.clonedeep: ^4.5.0
     yargs-parser: ^20.2.7
-  checksum: 69e44ac26405bf4abcc452a95cf5b9f0ef55786cdf19526a83165e2746a93d86187e3705ebf7e7efc8f06e904143acb228ba21604202ec5a937aed0958d49ac7
+  checksum: e14da5c359e3b0452d39c005429e5e4ab1192fa94e51824e135ca8e6b921e95dfd803c15993ea6d23837b6cecb5a402e981a5dd37bee52a62a7a0924798eefe0
   languageName: node
   linkType: hard
 
@@ -20776,7 +20776,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
-    convict: ^6.2.3
+    convict: ^6.2.4
     fxa-shared: "workspace:*"
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
@@ -25347,7 +25347,7 @@ fsevents@~2.1.1:
     autoprefixer: ^10.4.7
     body-parser: ^1.20.1
     chance: ^1.1.8
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.6.3
@@ -25405,7 +25405,7 @@ fsevents@~2.1.1:
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
@@ -25522,7 +25522,7 @@ fsevents@~2.1.1:
     chai-as-promised: ^7.1.1
     cldr-core: ^42.0.0
     commander: 2.18.0
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dedent: ^0.7.0
@@ -25667,7 +25667,7 @@ fsevents@~2.1.1:
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
     consolidate: 0.16.0
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.6
@@ -25815,7 +25815,7 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     bunyan: ^1.8.15
     chai: ^4.3.6
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dedent: ^0.7.0
@@ -25897,7 +25897,7 @@ fsevents@~2.1.1:
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
@@ -25993,7 +25993,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
     commander: ^6.0.0
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
@@ -26112,7 +26112,7 @@ fsevents@~2.1.1:
     babel-eslint: ^10.1.0
     browserslist: ^4.21.4
     classnames: ^2.3.1
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.11.5
@@ -26196,7 +26196,7 @@ fsevents@~2.1.1:
     checksum: 1.0.0
     commander: 9.3.0
     compute-cluster: 0.0.9
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^8.18.0
@@ -26506,7 +26506,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
-    convict: ^6.2.3
+    convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
