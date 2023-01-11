@@ -139,6 +139,27 @@ describe('AppErrors', () => {
     assert(!result.output.payload.retryAfterLocalized);
   });
 
+  it('iapInvalidToken', () => {
+    const defaultErrorMessage = 'Invalid IAP token';
+    let result = AppError.iapInvalidToken();
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 196);
+    assert.equal(result.message, defaultErrorMessage);
+    assert.equal(result.output.statusCode, 400);
+    assert.equal(result.output.payload.error, 'Bad Request');
+
+    let iapAPIError = { someProp: 123 };
+    result = AppError.iapInvalidToken(iapAPIError);
+    assert.equal(result.message, defaultErrorMessage);
+
+    iapAPIError = { message: 'Wow helpful extra info' };
+    result = AppError.iapInvalidToken(iapAPIError);
+    assert.equal(
+      result.message,
+      `${defaultErrorMessage}: ${iapAPIError.message}`
+    );
+  });
+
   it('unexpectedError without request data', () => {
     const err = AppError.unexpectedError();
     assert.instanceOf(err, AppError);
