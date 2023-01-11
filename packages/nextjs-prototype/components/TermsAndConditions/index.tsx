@@ -49,7 +49,6 @@ const vpnItems: GenericTermsListItem[] = [
 export default function TermsAndConditions() {
   return (
     <>
-      <h1>Ts and Cs</h1>
       <GenericTerms
         title="Mozilla uses Stripe and PayPal for secure payment processing."
         titleLocalizationId="title-1"
