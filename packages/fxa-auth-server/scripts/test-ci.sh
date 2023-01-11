@@ -26,11 +26,7 @@ yarn run merge-ftl:test
 echo
 yarn run emails-scss
 
-if [ "$TEST_TYPE" == 'integration' ]; then
-  TESTS=(oauth remote);
-else
-  TESTS=(local scripts)
-fi;
+TESTS=(local oauth remote scripts)
 
 for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"
