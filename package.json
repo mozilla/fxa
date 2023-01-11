@@ -33,7 +33,6 @@
   "license": "MPL-2.0",
   "dependencies": {
     "diffparser": "^2.0.1",
-    "graphql": "^16.6.0",
     "husky": "^4.2.5",
     "lint-staged": "^13.0.3",
     "node-fetch": "^2.6.7",
@@ -98,6 +97,7 @@
     "fbjs/isomorphic-fetch": "^3.0.0",
     "gobbledygook": "https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
     "google-gax": "2.30.5",
+    "graphql": "15.6.1",
     "http-proxy": "^1.18.1",
     "minimist": "^1.2.6",
     "moment:>2.0.0 <3": ">=2.29.4",
