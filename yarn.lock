@@ -23643,6 +23643,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"gatsby-plugin-postcss@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "gatsby-plugin-postcss@npm:6.4.0"
+  dependencies:
+    "@babel/runtime": ^7.20.7
+    postcss-loader: ^7.0.2
+  peerDependencies:
+    gatsby: ^5.0.0-next
+    postcss: ^8.0.5
+  checksum: a2a6d0e7a84ad2f9c0d579447a912bf264bf50fc0721261f449d7a06da06eba73d572148d561b5bca107efdd24d5c40a8ad2bc2b51a8e2c517bacecc32fbeb40
+  languageName: node
+  linkType: hard
+
 "gatsby-plugin-typescript@npm:^5.4.0":
   version: 5.4.0
   resolution: "gatsby-plugin-typescript@npm:5.4.0"
@@ -30169,7 +30182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"klona@npm:^2.0.4":
+"klona@npm:^2.0.4, klona@npm:^2.0.5":
   version: 2.0.5
   resolution: "klona@npm:2.0.5"
   checksum: 8c976126ea252b766e648a4866e1bccff9d3b08432474ad80c559f6c7265cf7caede2498d463754d8c88c4759895edd8210c85c0d3155e6aae4968362889466f
@@ -36241,6 +36254,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-loader@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "postcss-loader@npm:7.0.2"
+  dependencies:
+    cosmiconfig: ^7.0.0
+    klona: ^2.0.5
+    semver: ^7.3.8
+  peerDependencies:
+    postcss: ^7.0.0 || ^8.0.1
+    webpack: ^5.0.0
+  checksum: 2d251537d482eb751f812c96c8b515f46d7c9905cad7afab33f0f34872670619b7440cefc9e2babbf89fb11b4708850d522d79fa5ff788227587645e78f16638
+  languageName: node
+  linkType: hard
+
 "postcss-logical@npm:^3.0.0":
   version: 3.0.0
   resolution: "postcss-logical@npm:3.0.0"
@@ -37152,7 +37179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.0, postcss@npm:^8.1.0, postcss@npm:^8.2.15, postcss@npm:^8.2.9, postcss@npm:^8.4.14, postcss@npm:^8.4.18, postcss@npm:^8.4.19, postcss@npm:^8.4.20":
+"postcss@npm:^8.0.0, postcss@npm:^8.1.0, postcss@npm:^8.2.15, postcss@npm:^8.2.9, postcss@npm:^8.4.14, postcss@npm:^8.4.18, postcss@npm:^8.4.19, postcss@npm:^8.4.20, postcss@npm:^8.4.21":
   version: 8.4.21
   resolution: "postcss@npm:8.4.21"
   dependencies:
@@ -42489,10 +42516,14 @@ __metadata:
     "@types/node": ^18.11.18
     "@types/react": ^18.0.26
     "@types/react-dom": ^18.0.10
+    autoprefixer: ^10.4.13
     babel-preset-gatsby: ^3.4.0
     gatsby: ^5.3.3
+    gatsby-plugin-postcss: ^6.4.0
+    postcss: ^8.4.21
     react: ^18.2.0
     react-dom: ^18.2.0
+    tailwindcss: ^3.2.4
     typescript: ^4.9.4
   languageName: unknown
   linkType: soft
@@ -42851,7 +42882,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^3.2.0":
+"tailwindcss@npm:^3.2.0, tailwindcss@npm:^3.2.4":
   version: 3.2.4
   resolution: "tailwindcss@npm:3.2.4"
   dependencies:
