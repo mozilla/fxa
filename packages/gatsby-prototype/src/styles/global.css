@@ -1,0 +1,132 @@
+@import '../../../fxa-react/styles/index.css';
+@import '../../../fxa-settings/src/styles/fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-base font-body;
+}
+
+.label-title {
+  @apply font-semibold my-3 text-base text-grey-600 text-start;
+}
+
+/* borders */
+/* after '@tailwind base' has been enabled for payments remove border-0 border-solid */
+.row-divider-grey-200 {
+  @apply border-b border-0 border-solid border-grey-200;
+}
+
+.payment-panel {
+  @apply mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
+}
+
+/* footer copy */
+.payment-footer {
+  @apply pt-14;
+}
+
+.legal-blurb {
+  @apply clear-both mt-5 text-xs leading-5 text-center;
+}
+
+.legal-blurb a {
+  @apply underline;
+}
+
+.legal-blurb p {
+  @apply m-0 text-grey-400;
+}
+
+.legal-heading {
+  @apply font-semibold text-grey-500;
+}
+
+/* shared styles used in Checkout and SubscriptionCreate*/
+.pay-with-heading {
+  @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mb-6 text-grey-400;
+  @apply before:content-[''] before:border-b before:border-0 before:border-solid before:border-grey-200;
+  @apply after:content-[''] after:border-b after:border-0 after:border-solid after:border-grey-200;
+}
+
+.step-header {
+  @apply mt-10 text-lg;
+}
+
+/* shared styles used in PlanDetails and PlanUpgradeDetails */
+.accordion-btn {
+  @apply bg-transparent border-transparent cursor-pointer text-blue-500 leading-5 my-2 py-2 pr-2 pl-6 relative focus:border focus:border-solid focus:border-blue-400 focus:py-2 focus:pr-4 focus:pl-10 focus:shadow-none;
+}
+
+.arrow {
+  @apply before:bg-[url('../images/chevron.svg')] before:content-[''] before:absolute before:h-4 before:w-6 before:top-[0.6rem]  before:left-0 focus:before:left-[0.87rem];
+}
+
+.coupon-info {
+  @apply pt-6 font-medium text-sm;
+}
+
+.green-icon-text {
+  @apply flex items-center justify-center gap-2 text-green-900;
+}
+
+.component-card {
+  @apply bg-white rounded-b-lg shadow-sm shadow-grey-300;
+}
+
+.component-card.rounded-plan {
+  @apply rounded-lg tablet:mt-0;
+}
+
+.payment-error ~ .payment-panel,
+.payment-confirmation ~ .payment-panel {
+  @apply mt-6;
+}
+
+.payment-error ~ .payment-panel .component-card {
+  @apply rounded-t-lg;
+}
+
+.plan-details-description {
+  @apply text-grey-400 mt-1 mb-0;
+}
+
+.plan-details-header {
+  @apply flex gap-4 my-0 py-4;
+}
+
+.plan-details-icon {
+  @apply w-16 h-16 rounded-lg;
+}
+
+.plan-details-logo-wrap {
+  @apply flex h-16 items-center justify-center rounded-lg shrink-0 w-16;
+}
+
+.plan-details-product {
+  @apply text-grey-600 text-sm leading-5 my-0 break-words;
+}
+
+.plan-details-item {
+  @apply flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm;
+}
+
+.total-label {
+  @apply text-base;
+}
+
+.total-price {
+  @apply overflow-hidden text-ellipsis text-lg whitespace-nowrap;
+}
+
+.main-content {
+  @apply mt-16 mx-7 min-h-[calc(100vh_-_4rem)];
+  @apply tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto;
+  @apply desktop:grid-cols-[600px_1fr];
+}
+
+.payment-button {
+  @apply cta-base-p flex-1 font-semibold rounded-md text-base;
+}
