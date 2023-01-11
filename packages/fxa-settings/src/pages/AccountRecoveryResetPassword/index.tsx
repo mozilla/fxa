@@ -6,184 +6,131 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@reach/router';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAccount, useAlertBar } from '../../models';
+import { usePageViewEvent } from '../../lib/metrics';
+import { useAlertBar } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models/hooks';
 
-import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
 import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
-// --canGoBack-- determines if the user can navigate back to an fxa entrypoint
+import FormResetPasswordWithBalloon from '../../components/FormResetPasswordWithBalloon';
+
+// This page is based on complete_reset_password but has been separated to align with the routes.
+
+// Users should only see this page if they initiated account recovery with a valid account recovery key
+// Account recovery properties must be set to recover the account using the recovery key
+// (recoveryKeyId, accountResetToken, kb)
+
+// If lostRecoveryKey is set, redirect to /complete_reset_password
 
 export type AccountRecoveryResetPasswordProps = {
-  canGoBack?: boolean;
+  email: string;
   linkStatus: LinkStatus;
 };
 
 type FormData = {
-  currentPassword: string;
   newPassword: string;
+  confirmPassword: string;
 };
 
 type LinkStatus = 'expired' | 'damaged' | 'valid';
 
 const AccountRecoveryResetPassword = ({
-  canGoBack,
+  email,
   linkStatus,
 }: AccountRecoveryResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent('account-recovery-reset-password', {
     entrypoint_variation: 'react',
   });
 
-  const [currentPassword, setCurrentPassword] = useState<string>('');
-  const [newPassword, setNewPassword] = useState<string>('');
-  const [currentPasswordErrorText, setCurrentPasswordErrorText] =
-    useState<string>('');
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>('');
-  const [isFocused, setIsFocused] = useState(false);
   const alertBar = useAlertBar();
-  const account = useAccount();
   const navigate = useNavigate();
-  const onFocusMetricsEvent = 'account-recovery-reset-password.engage';
   const ftlMsgResolver = useFtlMsgResolver();
+  const onFocusMetricsEvent = 'account-recovery-reset-password.engage';
 
-  const { handleSubmit } = useForm<FormData>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
-    defaultValues: {
-      currentPassword: '',
-      newPassword: '',
-    },
-  });
+  const { handleSubmit, register, getValues, errors, formState, trigger } =
+    useForm<FormData>({
+      mode: 'onTouched',
+      criteriaMode: 'all',
+      defaultValues: {
+        newPassword: '',
+        confirmPassword: '',
+      },
+    });
 
-  const onFocus = () => {
-    if (!isFocused && onFocusMetricsEvent) {
-      logViewEvent('flow', onFocusMetricsEvent, {
-        entrypoint_variation: 'react',
-      });
-      setIsFocused(true);
-    }
+  const alertSuccessAndNavigate = useCallback(() => {
+    const successCompletePwdReset = ftlMsgResolver.getMsg(
+      'account-recovery-reset-password-success-alert',
+      'Password set'
+    );
+    alertBar.success(successCompletePwdReset);
+    navigate('/reset_password_with_recovery_key_verified', { replace: true });
+  }, [alertBar, ftlMsgResolver, navigate]);
+
+  const sendNewLinkEmail = () => {
+    // TODO: Hook up functionality to send a new verification link
   };
-
-  const navigateToHome = useCallback(() => {
-    navigate('/settings', { replace: true });
-  }, [navigate]);
-
-  // TO-DO:
-  // * Set tooltip error message reflecting password requirements.
-  // const setErrorMessage = (errorText: string) => {
-  //   setEmailErrorText(errorText);
-  // };
-  // * Set up metrics for all events
-  // - submitting the new password
-  // - focusing the password inputs if desired
-  // - remembering one's password
-  // - asking for a new link.
-  // * Hook up the functionality for sending a user a new verification link,
-  // instead of this dummy function.
-  const sendNewLinkEmail = () => {};
 
   const onSubmit = () => {
     try {
-      account.changePassword(currentPassword, newPassword);
-      navigateToHome();
+      // TODO: - completeAccountPasswordResetWithRecoveryKey
+      //       - logViewEvent('verification.success');
+      //       - metrics.logUserPreferences('account-recovery', false)
+      //       - logFlowEventOnce('recovery-key-consume.success', viewName);
+      alertSuccessAndNavigate();
     } catch (e) {
-      const errorAccountRecoveryResetPassword = ftlMsgResolver.getMsg(
-        'reset-password-error-general',
-        'Sorry, there was a problem resetting your password'
-      );
-      alertBar.error(errorAccountRecoveryResetPassword);
+      // TODO: - if token expired, re-render and show LinkExpired
+      //       - metrics event for error
+      //       - error feedback in alertBar
     }
   };
-
-  const newPasswordLabel = ftlMsgResolver.getMsg(
-    'new-password-label',
-    'New password'
-  );
-  const currentPasswordLabel = ftlMsgResolver.getMsg(
-    'current-password-label',
-    'Current password'
-  );
 
   return (
     <>
       {linkStatus === 'valid' && (
         <>
-          <div className="mb-4">
-            <h1 className="card-header">
-              <FtlMsg id="create-new-password-header">
-                Create new password
-              </FtlMsg>
-            </h1>
-          </div>
-          <p className="text-sm mb-6">
-            <FtlMsg id="account-restored-success-message">
+          <FtlMsg id="create-new-password-header">
+            <h1 className="card-header">Create new password</h1>
+          </FtlMsg>
+          <FtlMsg id="account-restored-success-message">
+            <p className="text-sm my-4">
               You have successfully restored your account using your account
               recovery key. Create a new password to secure your data, and store
               it in a safe location.
-            </FtlMsg>
-          </p>
-          <form
-            noValidate
-            className="flex flex-col gap-4"
-            onSubmit={handleSubmit(onSubmit)}
-            data-testid="account-recovery-reset-password-form"
-          >
-            <InputText
-              type="password"
-              label={newPasswordLabel}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                // clear error tooltip if user types in the field
-                if (newPasswordErrorText) {
-                  setNewPasswordErrorText('');
-                }
-              }}
-              onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
-              autoFocus
-              errorText={newPasswordErrorText}
-              className="text-start"
-              anchorStart
-              autoComplete="off"
-              spellCheck={false}
-              prefixDataTestId="account-recovery-reset-password-new-password"
-            />
-            <InputText
-              type="password"
-              label={currentPasswordLabel}
-              onChange={(e) => {
-                setCurrentPassword(e.target.value);
-                // clear error tooltip if user types in the field
-                if (currentPasswordErrorText) {
-                  setCurrentPasswordErrorText('');
-                }
-              }}
-              onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
-              errorText={currentPasswordErrorText}
-              className="text-start"
-              anchorStart
-              autoComplete="off"
-              spellCheck={false}
-              prefixDataTestId="account-recovery-reset-password-current-password"
-            />
+            </p>
+          </FtlMsg>
 
-            <FtlMsg id="confirm-account-recovery-key-button">
-              <button
-                data-testid="confirm-account-recovery-key-button"
-                type="submit"
-                className="cta-primary cta-xl"
-              >
-                Reset password
-              </button>
-            </FtlMsg>
-          </form>
+          {/* Hidden email field is to allow Fx password manager
+           to correctly save the updated password. Without it,
+           the password manager tries to save the old password
+           as the username. */}
+          <input type="email" value={email} className="hidden" readOnly />
+          <section className="text-start mt-4">
+            <FormResetPasswordWithBalloon
+              {...{
+                formState,
+                errors,
+                trigger,
+                register,
+                getValues,
+                newPasswordErrorText,
+                setNewPasswordErrorText,
+              }}
+              onSubmit={handleSubmit(onSubmit)}
+              email={email}
+              loading={false}
+              onFocusMetricsEvent={onFocusMetricsEvent}
+            />
+          </section>
 
-          {canGoBack && <LinkRememberPassword />}
+          {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}
+          <LinkRememberPassword {...{ email }} />
         </>
       )}
       {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
+      {/* TODO update ResetPasswordLinkExpired to receive sendNewLinkEmail() */}
       {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
     </>
   );

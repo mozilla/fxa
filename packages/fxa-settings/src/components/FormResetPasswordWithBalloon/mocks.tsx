@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import FormPassword from '.';
+import FormResetPasswordWithBalloon from '.';
 
 export const Subject = () => {
   type FormData = {
@@ -30,7 +30,7 @@ export const Subject = () => {
     });
 
   return (
-    <FormPassword
+    <FormResetPasswordWithBalloon
       {...{
         formState,
         errors,
@@ -43,7 +43,6 @@ export const Subject = () => {
       onSubmit={handleSubmit(onFormSubmit)}
       email="test@example.com"
       loading={false}
-      submitButtonText="Reset password"
       onFocusMetricsEvent="test-event"
     />
   );

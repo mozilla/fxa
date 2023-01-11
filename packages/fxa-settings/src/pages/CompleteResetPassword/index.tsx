@@ -5,23 +5,34 @@
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { HomePath } from '../../constants';
 import { usePageViewEvent } from '../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models/hooks';
-import { useAccount, useAlertBar } from '../../models';
+import { useAlertBar } from '../../models';
 import WarningMessage from '../../components/WarningMessage';
-import FormPassword from '../../components/FormPassword';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
 import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import FormResetPasswordWithBalloon from '../../components/FormResetPasswordWithBalloon';
+
+// The equivalent complete_reset_password mustache file included account_recovery_reset_password
+// For React, we have opted to separate these into two pages to align with the routes.
+//
+// Users should only see the CompleteResetPassword page on /complete _reset_password if
+//   - there is no account recovery key for their account
+//   - there is an account recovery key for their account, but it was reported as lost
+//
+// If the user has an account recovery key (and it is not reported as lost),
+// navigate to /account_recovery_confirm_key
+//
+// If account recovery was initiated with a key, redirect to account_recovery_reset_password
 
 export type CompleteResetPasswordProps = {
-  email?: string;
-  forceEmail?: string;
+  email: string;
   linkStatus: LinkStatus;
-  showSyncWarning?: boolean;
-  showAccountRecoveryInfo?: boolean;
+  // resetPasswordConfirm will be obtained from the relier
+  // resetPasswordConfirm determines if sync warning is shown
+  resetPasswordConfirm?: boolean;
 };
 
 type FormData = {
@@ -33,14 +44,18 @@ type LinkStatus = 'expired' | 'damaged' | 'valid';
 
 const CompleteResetPassword = ({
   email,
-  forceEmail,
   linkStatus,
-  showSyncWarning,
-  showAccountRecoveryInfo,
+  resetPasswordConfirm,
 }: CompleteResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent('complete-reset-password', {
     entrypoint_variation: 'react',
   });
+
+  const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
+  const alertBar = useAlertBar();
+  const navigate = useNavigate();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const onFocusMetricsEvent = 'complete-password-reset.engage';
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -51,28 +66,24 @@ const CompleteResetPassword = ({
         confirmPassword: '',
       },
     });
-  const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
 
-  const alertBar = useAlertBar();
-  const account = useAccount();
-  const navigate = useNavigate();
-  const ftlMsgResolver = useFtlMsgResolver();
-
-  const alertSuccessAndGoHome = useCallback(() => {
+  const alertSuccessAndNavigate = useCallback(() => {
     const successCompletePwdReset = ftlMsgResolver.getMsg(
       'complete-reset-password-success-alert',
       'Password set'
     );
     alertBar.success(successCompletePwdReset);
-    navigate(HomePath + '#password', { replace: true });
+    navigate('/reset_password_verified', { replace: true });
   }, [alertBar, ftlMsgResolver, navigate]);
 
-  const onFormSubmit = useCallback(
+  const onSubmit = useCallback(
     async ({ newPassword }: FormData) => {
       try {
-        // TODO: add logic to set a new password
-        alertSuccessAndGoHome();
+        // TODO: completeAccountPasswordReset
+        // logViewEvent('verification.success');
+        alertSuccessAndNavigate();
       } catch (e) {
+        // if token expired, re-render and show LinkExpired
         // TODO metrics event for error
         const errorCompletePwdReset = ftlMsgResolver.getMsg(
           'complete-reset-password-error-alert',
@@ -81,14 +92,11 @@ const CompleteResetPassword = ({
         alertBar.error(errorCompletePwdReset);
       }
     },
-    [ftlMsgResolver, alertSuccessAndGoHome, alertBar]
+    [ftlMsgResolver, alertSuccessAndNavigate, alertBar]
   );
 
   return (
     <>
-      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
-      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
-
       {/* With valid password reset link */}
       {linkStatus === 'valid' && (
         <>
@@ -98,7 +106,8 @@ const CompleteResetPassword = ({
             </h1>
           </FtlMsg>
 
-          {showSyncWarning && (
+          {/* SyncWarning is only shown if resetPasswordConfirm === true */}
+          {resetPasswordConfirm && (
             <WarningMessage
               warningMessageFtlId="complete-reset-password-warning-message"
               warningType="Remember:"
@@ -110,22 +119,14 @@ const CompleteResetPassword = ({
               subscriptions you may have and Pocket data will not be affected.
             </WarningMessage>
           )}
-          {showAccountRecoveryInfo && (
-            <FtlMsg id="complete-reset-pw-account-recovery-info">
-              <p className="mb-5 mt-4 text-sm">
-                You have successfully restored your account using your account
-                recovery key. Create a new password to secure your data, and
-                store it in a safe location.
-              </p>
-            </FtlMsg>
-          )}
+
           {/* Hidden email field is to allow Fx password manager
            to correctly save the updated password. Without it,
            the password manager tries to save the old password
            as the username. */}
-          <input type="email" value={email} className="hidden" />
+          <input type="email" value={email} className="hidden" readOnly />
           <section className="text-start mt-4">
-            <FormPassword
+            <FormResetPasswordWithBalloon
               {...{
                 formState,
                 errors,
@@ -135,16 +136,18 @@ const CompleteResetPassword = ({
                 newPasswordErrorText,
                 setNewPasswordErrorText,
               }}
-              onFocusMetricsEvent="complete-reset-password.engage"
-              onSubmit={handleSubmit(onFormSubmit)}
-              primaryEmail={account.primaryEmail.email}
-              loading={account.loading}
+              onSubmit={handleSubmit(onSubmit)}
+              {...{ email }}
+              loading={false}
+              onFocusMetricsEvent={onFocusMetricsEvent}
             />
           </section>
-          {!forceEmail && <LinkRememberPassword {...{ email }} />}
-          {forceEmail && <LinkRememberPassword {...{ forceEmail }} />}
+          {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}
+          <LinkRememberPassword {...{ email }} />
         </>
       )}
+      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
+      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
     </>
   );
 };

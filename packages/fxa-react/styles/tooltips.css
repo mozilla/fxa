@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* REACT NOTE: We're currently using jQ to look for the "closest" element matching `input-row` to
- * set which element the tooltip should be relative to. If the component is using Tailwind, it's
- * using `tooltip-container` instead, which only has a component class because its purpose is more
- * clear than matching closest "relative" class. This can be done in a nicer way with React. */
-.tooltip-container {
-  @apply relative;
-}
-
 .input-balloon {
   @apply absolute text-start w-[calc(100%+.5rem)] -left-1 desktop:w-64 desktop:left-auto px-5 py-4 bg-white rounded-sm top-[calc(100%+.25rem)] desktop:-top-2 border border-grey-100 shadow-sm transition-opacity z-10;
 
