@@ -148,6 +148,7 @@ packages/fxa-settings/test/
 
 #gatsby-prototype
 packages/gatsby-prototype/src/gatsby-types.d.ts
+packages/gatsby-prototype/public
 
 Library
 .node
