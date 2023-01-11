@@ -1,3 +1,10 @@
+@import 'fxa-react/styles/index';
+@import './fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply text-base font-body;
+}

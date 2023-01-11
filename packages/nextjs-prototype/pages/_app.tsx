@@ -1,6 +1,14 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
+import AppLocalizationProvider from '../components/Localization/AppLocalizationProvider';
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <AppLocalizationProvider // Replace with one from fxa-react when possible
+      userLocales={['en']} // Update this as well
+      bundles={['payments', 'react']}
+    >
+      <Component {...pageProps} />
+    </AppLocalizationProvider>
+  );
 }

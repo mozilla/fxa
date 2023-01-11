@@ -21,6 +21,8 @@
     "typescript": "4.9.4"
   },
   "devDependencies": {
+    "@fluent/bundle": "^0.17.1",
+    "@fluent/react": "^0.14.1",
     "@types/eslint": "^8",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
