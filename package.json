@@ -33,6 +33,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "diffparser": "^2.0.1",
+    "graphql": "^16.6.0",
     "husky": "^4.2.5",
     "lint-staged": "^13.0.3",
     "node-fetch": "^2.6.7",

@@ -39,6 +39,7 @@ storybooks-publish
 tsconfig.tsbuildinfo
 tailwind.out.*
 .idea
+**/.cache
 
 # Dependencies
 **/node_modules
@@ -144,6 +145,9 @@ packages/fxa-react/test/
 packages/fxa-settings/fxa-content-server-l10n/
 packages/fxa-settings/public/locales
 packages/fxa-settings/test/
+
+#gatsby-prototype
+packages/gatsby-prototype/src/gatsby-types.d.ts
 
 Library
 .node
