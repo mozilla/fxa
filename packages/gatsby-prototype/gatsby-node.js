@@ -9,8 +9,8 @@ exports.onCreateWebpackConfig = ({
     module: {
       rules: [
         {
-          test: /\.[jt]sx?$/,
-          include: [/node_modules(.*[/\\])/],
+          test: [/\.js?$/],
+
           use: 'babel-loader',
         },
       ],

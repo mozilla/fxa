@@ -28,7 +28,7 @@ export const SubscriptionTitle = ({
       <img src={checkLogo} alt="" />
 
       <Localized id="sub-guarantee">
-        {/* <div className="font-semibold text-sm">30-day money-back guarantee</div> */}
+        <div className="font-semibold text-sm">30-day money-back guarantee</div>
       </Localized>
     </div>
   );
@@ -38,11 +38,11 @@ export const SubscriptionTitle = ({
       className={`subscription-title bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px border-y-auto tablet:mx-0 ${className}`}
       data-testid={`subscription-${screenType}-title`}
     >
-      {/* <Localized id={`subscription-${screenType}-title`}>
+      <Localized id={`subscription-${screenType}-title`}>
         <h3 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
           {titles[screenType]}
         </h3>
-      </Localized> */}
+      </Localized>
 
       {subtitleElement}
     </div>
