@@ -38,6 +38,9 @@ const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 const accountUtils = require('../../../../lib/routes/utils/account.ts');
+const {
+  SubscriptionEligibilityResult,
+} = require('fxa-shared/subscriptions/types');
 
 let log,
   config,
@@ -47,6 +50,7 @@ let log,
   payPalHelper,
   token,
   stripeHelper,
+  capabilityService,
   profile,
   push;
 
@@ -132,7 +136,8 @@ describe('subscriptions payPalRoutes', () => {
     payPalHelper.currencyHelper = currencyHelper;
     Container.set(PayPalHelper, payPalHelper);
     profile = {};
-    Container.set(CapabilityService, {});
+    capabilityService = sinon.createStubInstance(CapabilityService);
+    Container.set(CapabilityService, capabilityService);
     push = {};
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
@@ -191,6 +196,11 @@ describe('subscriptions payPalRoutes', () => {
     let plan, customer, subscription, promotionCode;
 
     beforeEach(() => {
+      stripeHelper.findCustomerSubscriptionByPlanId =
+        sinon.fake.returns(undefined);
+      capabilityService.getPlanEligibility = sinon.fake.resolves(
+        SubscriptionEligibilityResult.CREATE
+      );
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
       stripeHelper.taxRateByCountryCode = sinon.fake.resolves({
         id: 'tr-1234',
@@ -337,6 +347,60 @@ describe('subscriptions payPalRoutes', () => {
             assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
           }
         });
+      });
+    });
+
+    describe('customer that is has an incomplete subscription', () => {
+      it('throws a user is already subscribed to product error', async () => {
+        capabilityService.getPlanEligibility = sinon.fake.resolves(
+          SubscriptionEligibilityResult.UPGRADE
+        );
+
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.userAlreadySubscribedToProduct());
+        }
+      });
+    });
+
+    describe('customer that is ineligible for product', () => {
+      it('throws a user is already subscribed to product error', async () => {
+        capabilityService.getPlanEligibility = sinon.fake.resolves(
+          SubscriptionEligibilityResult.UPGRADE
+        );
+
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.userAlreadySubscribedToProduct());
+        }
+      });
+
+      it('should cleanup incomplete subscriptions', async () => {
+        stripeHelper.findCustomerSubscriptionByPlanId = sinon.fake.returns({
+          status: 'incomplete',
+        });
+        capabilityService.getPlanEligibility = sinon.fake.resolves(
+          SubscriptionEligibilityResult.UPGRADE
+        );
+
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+        } catch (err) {
+          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
+        }
       });
     });
 

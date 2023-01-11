@@ -33,6 +33,7 @@ import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
+import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
@@ -110,6 +111,24 @@ export class PayPalHandler extends StripeWebhookHandler {
       // that is in a recognized location with an active tax registration.
       const taxSubscription =
         this.automaticTax && customer.tax?.automatic_tax === 'supported';
+
+      const { priceId } = request.payload as Record<string, string>;
+
+      // Make sure to clean up any subscriptions that may be hanging with no payment
+      const existingSubscription =
+        this.stripeHelper.findCustomerSubscriptionByPlanId(customer, priceId);
+      if (existingSubscription?.status === 'incomplete') {
+        await this.stripeHelper.cancelSubscription(existingSubscription.id);
+      }
+
+      // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
+      const eligibility = await this.capabilityService.getPlanEligibility(
+        customer.metadata.userid,
+        priceId
+      );
+      if (eligibility !== SubscriptionEligibilityResult.CREATE) {
+        throw error.userAlreadySubscribedToProduct();
+      }
 
       const isPaypalCustomer = hasPaypalSubscription(customer);
       const { token, metricsContext } = request.payload as Record<
