@@ -165,6 +165,27 @@ Lug.prototype.summary = function (request, response) {
     phoneNumber: responseBody.formattedPhoneNumber,
   };
 
+  // TODO: Remove after debugging mysterious empty response body reported in FXA-6573
+  //       is complete.
+  if (
+    config.env !== 'prod' &&
+    line.status === 400 &&
+    line.path === '/v1/session/verify_code'
+  ) {
+    try {
+      const body = JSON.stringify(responseBody);
+      this.info('request.summary.debug', {
+        body,
+        bodySize: body.length,
+      });
+    } catch (error) {
+      this.info('request.summary.debug', {
+        bodySize: -1,
+        error,
+      });
+    }
+  }
+
   if (line.status >= 500) {
     line.trace = request.app.traced;
     line.stack = response.stack;
