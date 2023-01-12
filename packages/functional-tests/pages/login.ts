@@ -306,20 +306,6 @@ export class LoginPage extends BaseLayout {
     return header.isVisible();
   }
 
-  async resetPasswordHeader() {
-    const resetPass = this.page.locator(selectors.RESET_PASSWORD_HEADER);
-    await resetPass.waitFor();
-    return resetPass.isVisible();
-  }
-
-  async resetPasswordLinkExpriredHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_EXPIRED_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
-  }
-
   async permissionsHeader() {
     const resetPass = this.page.locator(selectors.PERMISSIONS_HEADER);
     await resetPass.waitFor();
