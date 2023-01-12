@@ -120,6 +120,12 @@ export class SubscribePage extends BaseLayout {
     await this.page.click('[data-testid="coupon-remove-button"]');
   }
 
+  planUpgradeDetails() {
+    return this.page
+      .locator('[data-testid="plan-upgrade-details-component"]')
+      .textContent();
+  }
+
   submit() {
     return Promise.all([
       this.page.waitForLoadState(),

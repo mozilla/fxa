@@ -32,6 +32,11 @@ test.describe('resubscription test', () => {
     const subscriptionPage = await settings.clickPaidSubscriptions();
     subscriptionManagement.page = subscriptionPage;
 
+    //Verify no coupon details are visible
+    expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
+      'Promo'
+    );
+
     //Cancel subscription and then resubscribe
     await subscriptionManagement.cancelSubscription();
     await subscriptionManagement.resubscribe();
@@ -39,6 +44,11 @@ test.describe('resubscription test', () => {
     //Verify that the resubscription has the same coupon applied
     expect(await subscriptionManagement.getResubscriptionPrice()).toEqual(
       total
+    );
+
+    //Verify no coupon details are visible
+    expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
+      'Promo'
     );
   });
 
@@ -67,6 +77,11 @@ test.describe('resubscription test', () => {
     const subscriptionPage = await settings.clickPaidSubscriptions();
     subscriptionManagement.page = subscriptionPage;
 
+    //Verify no coupon details are visible
+    expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
+      'Promo'
+    );
+
     //Cancel subscription and then resubscribe
     await subscriptionManagement.cancelSubscription();
     await subscriptionManagement.resubscribe();
@@ -74,6 +89,11 @@ test.describe('resubscription test', () => {
     //Verify that the resubscription has the same coupon applied
     expect(await subscriptionManagement.getResubscriptionPrice()).toEqual(
       total
+    );
+
+    //Verify no coupon details are visible
+    expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
+      'Promo'
     );
   });
 
