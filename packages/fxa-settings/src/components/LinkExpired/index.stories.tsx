@@ -5,15 +5,21 @@
 import React from 'react';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
-import ResetPasswordLinkDamaged from '.';
+import LinkExpired from '.';
 
 export default {
-  title: 'components/ResetPasswordLinkDamaged',
-  component: ResetPasswordLinkDamaged,
+  title: 'components/LinkExpired',
+  component: LinkExpired,
 } as Meta;
 
-export const Default = () => (
+export const ResetPasswordLinkExpired = () => (
   <AppLayout>
-    <ResetPasswordLinkDamaged />
+    <LinkExpired linkType="reset-password" />
+  </AppLayout>
+);
+
+export const SigninLinkExpired = () => (
+  <AppLayout>
+    <LinkExpired linkType="signin" />
   </AppLayout>
 );

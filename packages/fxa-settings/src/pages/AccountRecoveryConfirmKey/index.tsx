@@ -13,8 +13,8 @@ import { useFtlMsgResolver } from '../../models/hooks';
 import { InputText } from '../../components/InputText';
 import CardHeader from '../../components/CardHeader';
 import WarningMessage from '../../components/WarningMessage';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import LinkExpired from '../../components/LinkExpired';
+import LinkDamaged from '../../components/LinkDamaged';
 
 // --serviceName-- is the relying party
 
@@ -97,8 +97,8 @@ const AccountRecoveryConfirmKey = ({
 
   return (
     <>
-      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
-      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
+      {linkStatus === 'damaged' && <LinkDamaged linkType="reset-password" />}
+      {linkStatus === 'expired' && <LinkExpired linkType="reset-password" />}
 
       {linkStatus === 'valid' && (
         <>

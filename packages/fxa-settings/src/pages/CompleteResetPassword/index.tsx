@@ -11,8 +11,8 @@ import { useFtlMsgResolver } from '../../models/hooks';
 import { useAlertBar } from '../../models';
 import WarningMessage from '../../components/WarningMessage';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import LinkExpired from '../../components/LinkExpired';
+import LinkDamaged from '../../components/LinkDamaged';
 import FormResetPasswordWithBalloon from '../../components/FormResetPasswordWithBalloon';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
@@ -146,8 +146,8 @@ const CompleteResetPassword = ({
           <LinkRememberPassword {...{ email }} />
         </>
       )}
-      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
-      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
+      {linkStatus === 'expired' && <LinkExpired linkType="reset-password" />}
+      {linkStatus === 'damaged' && <LinkDamaged linkType="reset-password" />}
     </>
   );
 };

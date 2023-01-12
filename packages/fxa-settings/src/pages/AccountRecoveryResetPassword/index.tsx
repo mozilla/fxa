@@ -12,8 +12,8 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models/hooks';
 
 import LinkRememberPassword from '../../components/LinkRememberPassword';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import LinkExpired from '../../components/LinkExpired';
+import LinkDamaged from '../../components/LinkDamaged';
 import FormResetPasswordWithBalloon from '../../components/FormResetPasswordWithBalloon';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
@@ -129,9 +129,9 @@ const AccountRecoveryResetPassword = ({
           <LinkRememberPassword {...{ email }} />
         </>
       )}
-      {linkStatus === 'damaged' && <ResetPasswordLinkDamaged />}
+      {linkStatus === 'damaged' && <LinkDamaged linkType="reset-password" />}
       {/* TODO update ResetPasswordLinkExpired to receive sendNewLinkEmail() */}
-      {linkStatus === 'expired' && <ResetPasswordLinkExpired />}
+      {linkStatus === 'expired' && <LinkExpired linkType="reset-password" />}
     </>
   );
 };
