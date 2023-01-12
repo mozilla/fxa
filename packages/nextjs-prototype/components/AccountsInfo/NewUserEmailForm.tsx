@@ -8,7 +8,7 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
 
-const SHIELD_ICON = 'images/shield.svg';
+const SHIELD_ICON = '/images/shield.svg';
 
 export type NewUserEmailFormProps = {
   getString?: (id: string) => string;

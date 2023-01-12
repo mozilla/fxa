@@ -115,3 +115,17 @@ body {
 .input-row--checkbox input[type='checkbox'] {
   @apply mr-3 mr-4;
 }
+
+.main-content {
+  @apply mt-16 mx-7 min-h-[calc(100vh_-_4rem)];
+  @apply tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto;
+  @apply desktop:grid-cols-[600px_1fr];
+}
+
+.payment-button {
+  @apply cta-base-p flex-1 font-semibold rounded-md text-base;
+}
+
+.payment-panel {
+  @apply mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
+}

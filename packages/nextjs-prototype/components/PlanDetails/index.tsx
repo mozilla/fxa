@@ -8,8 +8,8 @@ import {
 } from '../../lib/formats';
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
 
-const FIREFOX_LOGO = 'images/firefox-logo.svg';
-const INFO_ICON = 'images/info.svg';
+const FIREFOX_LOGO = '/images/firefox-logo.svg';
+const INFO_ICON = '/images/info.svg';
 
 export type PriceInfo = {
   id: string;
