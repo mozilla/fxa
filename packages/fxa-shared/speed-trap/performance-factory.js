@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NAVIGATION_TIMING_FIELDS } from './timing-fields'
+import { NAVIGATION_TIMING_FIELDS } from './timing-fields';
 
 /**
  * Small util for determining if a browser went to sleep.
  */
 class SleepDetection {
-
   constructor() {
     this.sleepDetected = false;
-    this.lastTime =Date.now();
+    this.lastTime = Date.now();
     this.iid = '';
   }
 
   startSleepDetection() {
     this.iid = setInterval(() => {
-       if (this.sleepDetected) {
-         clearInterval(this.iid);
-         return;
-       }
+      if (this.sleepDetected) {
+        clearInterval(this.iid);
+        return;
+      }
 
-       const currentTime = Date.now();
-       if (currentTime > (this.lastTime + 2000*2)) {  // ignore small delays
-         this.sleepDetected = true;
-       }
-       this.lastTime = currentTime;
-     }, 2000);
-   }
+      const currentTime = Date.now();
+      if (currentTime > this.lastTime + 2000 * 2) {
+        // ignore small delays
+        this.sleepDetected = true;
+      }
+      this.lastTime = currentTime;
+    }, 2000);
+  }
 }
 
 /**
@@ -39,7 +39,6 @@ class SleepDetection {
  * and the metrics collected will be wildly off.
  */
 class PerformanceFallback {
-
   constructor() {
     this.unreliable = true;
     this.timeOrigin = Date.now();
@@ -69,7 +68,7 @@ export function getFallbackPerformanceApi() {
 /**
  * Provides the browser's performance api.
  */
-export function getRealPerformanceApi () {
+export function getRealPerformanceApi() {
   // eslint-disable-next-line no-undef
   return window.performance;
 }
@@ -79,10 +78,15 @@ export function getRealPerformanceApi () {
  * of it to support minimal functionality required by speed trap.
  */
 export function getPerformanceApi() {
-  // eslint-disable-next-line no-undef
-  if (!!window.performance && typeof window.performance.now === 'function') {
-    return getRealPerformanceApi();
-  }
+  const api = getRealPerformanceApi();
+  // If the api can produce a time origin and a valid now, let's use it.
+  try {
+    const check = api.timeOrigin + api.now();
+    if (typeof check === 'number' && check > 0) {
+      return api;
+    }
+  } catch (err) {}
 
+  // Otherwise return the fallback api
   return getFallbackPerformanceApi();
 }
