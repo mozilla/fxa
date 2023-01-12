@@ -1,5 +1,5 @@
 import React from 'react';
-import { Localized } from '@fluent/react';
+// import { Localized } from '@fluent/react';
 import checkLogo from '../../images/check.svg';
 
 export const titles = {
@@ -14,40 +14,38 @@ export const titles = {
 
 export type SubscriptionTitleProps = {
   screenType: keyof typeof titles;
-  subtitle?: React.ReactElement;
-  className?: string;
+  subtitle?: string;
 };
 
-export const SubscriptionTitle = ({
+const SubscriptionTitle = ({
   screenType,
   subtitle,
-  className = '',
-}: SubscriptionTitleProps) => {
-  const subtitleElement = subtitle || (
-    <div className="green-icon-text mb-4">
-      <img src={checkLogo} alt="" />
+}: SubscriptionTitleProps) => (
+  <div
+    className={`subscription-title bg-white font-semibold shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px border-y-auto tablet:mx-0`}
+    data-testid={`subscription-${screenType}-title`}
+  >
+    {/* <Localized id={`subscription-${screenType}-title`}> */}
+      <h1 className="leading-8 mb-2 text-grey-600 text-xl">
+        {titles[screenType]}
+      </h1>
+    {/* </Localized> */}
 
-      <Localized id="sub-guarantee">
-        <div className="font-semibold text-sm">30-day money-back guarantee</div>
-      </Localized>
+    <div className="text-sm mb-4">
+      { subtitle ||
+        <div className="flex gap-2 green-icon-text justify-center">
+          <img src={checkLogo} alt="" />
+
+          {/* <Localized id="sub-guarantee"> */}
+            <div>
+              30-day money back guarantee
+            </div>
+          {/* </Localized> */}
+        </div>
+      }
     </div>
-  );
-
-  return (
-    <div
-      className={`subscription-title bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px border-y-auto tablet:mx-0 ${className}`}
-      data-testid={`subscription-${screenType}-title`}
-    >
-      <Localized id={`subscription-${screenType}-title`}>
-        <h3 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
-          {titles[screenType]}
-        </h3>
-      </Localized>
-
-      {subtitleElement}
-    </div>
-  );
-};
+  </div>
+);
 
 export type SubscriptionTitleType = typeof SubscriptionTitle;
 export default SubscriptionTitle;

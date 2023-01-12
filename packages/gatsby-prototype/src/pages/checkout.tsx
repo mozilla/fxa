@@ -2,12 +2,12 @@ import React from 'react';
 import SubscriptionTitle from '../components/SubscriptionTitle';
 
 const Checkout = () => (
-  <div>
-    hello
+  <main>
     <SubscriptionTitle
       screenType="create"
+      // subtitle={plan.subtitle}
     />
-  </div>
+  </main>
 )
 
 export default Checkout;
