@@ -1,4 +1,5 @@
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
+import AccountsInfo from '../../components/AccountsInfo';
 import PlanDetails from '../../components/PlanDetails';
 import TermsAndConditions from '../../components/TermsAndConditions';
 
@@ -33,13 +34,17 @@ const planDetailsProps = {
 
 export default function PlayHome() {
   return (
-    <>
+    <div className="mx-8">
       <h1>Playground to test or show components</h1>
+      <div className="mt-8 w-[600px]">
+        <h2>Account Info</h2>
+        <AccountsInfo />
+      </div>
       <div className="mt-8">
         <h2>Ts & Cs</h2>
         <TermsAndConditions />
       </div>
-      <div className="mt-8">
+      <div className="mt-8 w-[400px]">
         <h2>Plan Details</h2>
         <PlanDetails
           priceInfo={planDetailsProps.priceInfo}
@@ -47,6 +52,6 @@ export default function PlayHome() {
           infoBox={planDetailsProps.infoBox}
         />
       </div>
-    </>
+    </div>
   );
 }

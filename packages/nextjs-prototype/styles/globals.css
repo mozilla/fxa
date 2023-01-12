@@ -6,7 +6,18 @@
 @tailwind utilities;
 
 body {
-  @apply text-base font-body;
+  @apply text-sm font-body;
+}
+
+/* shared styles used in Checkout and SubscriptionCreate*/
+.pay-with-heading {
+  @apply gap-5 grid grid-cols-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)] items-center mb-6 text-grey-400;
+  @apply before:content-[''] before:border-b before:border-0 before:border-solid before:border-grey-200;
+  @apply after:content-[''] after:border-b after:border-0 after:border-solid after:border-grey-200;
+}
+
+.step-header {
+  @apply mt-10 text-lg;
 }
 
 /* shared styles used in PlanDetails and PlanUpgradeDetails */
@@ -68,4 +79,39 @@ body {
 
 .total-price {
   @apply overflow-hidden text-ellipsis text-lg whitespace-nowrap;
+}
+
+/* */
+/* .input-row--checkbox {
+  label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    input[type='checkbox'] {
+      flex: 0 0 18px;
+      transform: scale(1.5);
+
+      &:checked {
+        background-image: url('images/check.svg');
+      }
+    }
+
+    .label-text {
+      display: block;
+      margin: 0 0 0 2px;
+    }
+  }
+} */
+
+.input-row--checkbox {
+  @apply mt-6 mb-2;
+}
+
+.input-row--checkbox label {
+  @apply flex gap-0 items-center;
+}
+
+.input-row--checkbox input[type='checkbox'] {
+  @apply mr-3 mr-4;
 }
