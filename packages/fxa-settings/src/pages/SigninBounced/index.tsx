@@ -38,10 +38,6 @@ const SigninBounced = ({
     navigate('/signup');
   };
 
-  // TO-DO:
-  // - fix up the ftl strings with comments and vars etc.
-  // - add in fade-in animations
-
   return (
     <>
       <div className="mb-4">
