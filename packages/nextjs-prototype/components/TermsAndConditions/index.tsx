@@ -1,72 +1,23 @@
 import GenericTerms, { GenericTermsListItem } from './GenericTerms';
 
-// paymentProviderItems, accountsItems and vpnItems could eventually be populated from the hCMS
+export type GenericTermItem = {
+  key: string;
+  title: string;
+  titleLocalizationId: string;
+  items: GenericTermsListItem[];
+};
 
-const paymentProviderItems: GenericTermsListItem[] = [
-  {
-    href: 'https://stripe.com/privacy',
-    text: 'Stripe privacy policy',
-    localizationId: 'stripe-item-1',
-  },
-  {
-    href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
-    text: 'PayPal privacy policy',
-    localizationId: 'paypal-item-1',
-  },
-];
+type TermsAndConditionsProps = {
+  terms: GenericTermItem[];
+};
 
-const accountsItems: GenericTermsListItem[] = [
-  {
-    href: 'https://accounts.stage.mozaws.net/legal/terms',
-    text: 'Terms of Service',
-    localizationId: 'terms-item-1',
-  },
-  {
-    href: 'https://accounts.stage.mozaws.net/legal/privacy',
-    text: 'Privacy Notice',
-    localizationId: 'privacy-item-1',
-  },
-];
-
-const vpnItems: GenericTermsListItem[] = [
-  {
-    href: 'https://www.mozilla.org/about/legal/terms/subscription-services',
-    text: 'Terms of Service',
-    localizationId: 'terms-item-1',
-  },
-  {
-    href: 'https://www.mozilla.org/privacy/subscription-services',
-    text: 'Privacy Notice',
-    localizationId: 'privacy-item-1',
-  },
-  {
-    href: 'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/legal-docs?url=https://accounts-static.cdn.mozilla.net/legal/subscription_services_tos',
-    text: 'Download Terms',
-    localizationId: 'download-item-1',
-  },
-];
-
-export default function TermsAndConditions() {
+export default function TermsAndConditions(props: TermsAndConditionsProps) {
+  const { terms } = props;
   return (
     <>
-      <GenericTerms
-        key="payment-provider-terms"
-        title="Mozilla uses Stripe and PayPal for secure payment processing."
-        titleLocalizationId="title-1"
-        items={paymentProviderItems}
-      />
-      <GenericTerms
-        key="fxa-terms"
-        title="Firefox Accounts"
-        titleLocalizationId="title-1"
-        items={accountsItems}
-      />
-      <GenericTerms
-        key="product-terms"
-        title="Mozilla VPN"
-        titleLocalizationId="title-1"
-        items={vpnItems}
-      />
+      {terms.map((term) => (
+        <GenericTerms {...term} />
+      ))}
     </>
   );
 }

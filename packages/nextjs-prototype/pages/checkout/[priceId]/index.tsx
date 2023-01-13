@@ -1,59 +1,55 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
-import PlanDetails from '../../../components/PlanDetails';
+import PriceDetails from '../../../components/PriceDetails';
 import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
-import { PlanInterval } from 'fxa-shared/subscriptions/types';
+import { mockHCMSFetch, Plan, priceDetailsProps } from '../../../data/mock';
+import { buildTermsPropsFromPriceConfig } from './helpers';
 
-const planDetailsProps = {
-  priceInfo: {
-    id: 'price_123',
-    name: 'Monthly Plan',
-    productName: 'Mozilla VPN',
-    listPrice: 500,
-    taxAmount: 50,
-    discountAmount: 50,
-    totalPrice: 500,
-    currency: 'USD',
-    interval: 'month' as PlanInterval,
-    intervalCount: 1,
-    details: [
-      'Device-level encryption',
-      'Servers in 30+ countries',
-      'Connect 5 devices with one subscription',
-      'Available for Windows, iOS and Android',
-    ],
-    subtitle: 'Da best VPN',
-  },
-  additionalStyles: {
-    webIcon:
-      'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web-64.svg',
-  },
-  infoBox: {
-    message: 'Coupon has been applied',
-  },
-};
+// Generates `/checkout/123` (is the ID set in priceDetailsprops in data/mock)
+export async function getStaticPaths() {
+  // Add logic to dynamically fetch IDs from hCMS (or for the prototype the mock GraphQL)
+  return {
+    paths: [{ params: { priceId: priceDetailsProps.priceInfo.id } }],
+    fallback: false, // can also be true or 'blocking'
+  };
+}
 
-export default function CheckoutPricePage() {
+// `getStaticPaths` requires using `getStaticProps`
+export async function getStaticProps() {
+  // Fetch price config from the hCMS. (Currently mocked out, returning static data)
+  const hCmsPriceConfig = await mockHCMSFetch();
+  return {
+    // Passed to the page component as props
+    props: { priceConfig: hCmsPriceConfig },
+  };
+}
+
+export default function CheckoutPricePage({
+  priceConfig,
+}: {
+  priceConfig: Plan;
+}) {
   const [paymentsDisabled, setPaymentsDisabled] = useState(true);
-  const router = useRouter();
-  const priceId = router.query.priceId;
+
+  // Investigate how to only execute this once
+  const terms = buildTermsPropsFromPriceConfig(priceConfig);
+
   return (
     <div className="main-content">
       <SubscriptionTitle screenType="create" />
       <div className="payment-panel">
-        <PlanDetails
-          priceInfo={planDetailsProps.priceInfo}
-          additionalStyles={planDetailsProps.additionalStyles}
-          infoBox={planDetailsProps.infoBox}
+        <PriceDetails
+          priceInfo={priceDetailsProps.priceInfo}
+          additionalStyles={priceDetailsProps.additionalStyles}
+          infoBox={priceDetailsProps.infoBox}
         />
       </div>
       <div className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
         <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
         <PaymentForm disabled={paymentsDisabled} />
-        <TermsAndConditions />
+        <TermsAndConditions terms={terms} />
       </div>
     </div>
   );

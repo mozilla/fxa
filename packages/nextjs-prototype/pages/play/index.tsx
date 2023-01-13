@@ -1,6 +1,6 @@
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
 import AccountsInfo from '../../components/AccountsInfo';
-import PlanDetails from '../../components/PlanDetails';
+import PlanDetails from '../../components/PriceDetails';
 import TermsAndConditions from '../../components/TermsAndConditions';
 
 const planDetailsProps = {

@@ -36,7 +36,7 @@ export type InfoBoxMessage = {
   couponDurationDate?: number;
 };
 
-export type PlanDetailsProps = {
+export type PriceDetailsProps = {
   priceInfo: PriceInfo;
   additionalStyles?: PlanDetailsAdditionalStyles;
   isMobile?: boolean;
@@ -45,7 +45,7 @@ export type PlanDetailsProps = {
   infoBox?: InfoBoxMessage;
 };
 
-export default function PlanDetails(props: PlanDetailsProps) {
+export default function PriceDetails(props: PriceDetailsProps) {
   const {
     priceInfo,
     className,
