@@ -7,6 +7,24 @@ import PaymentForm from '../../../components/PaymentForm';
 import { mockHCMSFetch, Plan, priceDetailsProps } from '../../../data/mock';
 import { buildTermsPropsFromPriceConfig } from './helpers';
 
+/**
+ * ????? Open Questions ?????
+ *
+ * Question 1. As much as possible, should we aim/try to build the checkout to be SSG over SSR?
+ *
+ * Question 2. From my understanding, I don't think a total SSG page would be possible. Since the
+ *    price and tax data can change depending on the users IP address, SSG won't work in this case.
+ *    Do you agree, or did I miss something?
+ *
+ * Question 3. Assuming agreement on 2., would Incremental Static Regeneration, work in this case?
+ *    I had a quick look, and from my understanding it also won't really work. Although, I think we
+ *    could do some fun things to maybe make it work.
+ *
+ * Question 4. So does that make a client side fetch the best option?
+ *
+ * Question 5. Should we just abandon SSG and go full SSR?
+ */
+
 // Generates `/checkout/123` (is the ID set in priceDetailsprops in data/mock)
 export async function getStaticPaths() {
   // Add logic to dynamically fetch IDs from hCMS (or for the prototype the mock GraphQL)
