@@ -1738,6 +1738,41 @@ describe('/account/devices', () => {
     }
   });
 
+  it('only updates lastAccessTime for non-refresh token request', async () => {
+    const credentials = {
+      uid: crypto.randomBytes(16).toString('hex'),
+      refreshTokenId: crypto.randomBytes(16).toString('hex'),
+    };
+
+    const mockRequest = mocks.mockRequest({
+      acceptLanguage: 'en;q=0.5, fr;q=0.51',
+      credentials,
+      devices: [
+        {
+          id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          name: 'current session',
+          type: 'mobile',
+          refreshTokenId: credentials.refreshTokenId,
+          lastAccessTime: Date.now(),
+        },
+      ],
+      payload: {},
+    });
+    const mockDB = mocks.mockDB();
+    const mockDevices = mocks.mockDevices();
+    const log = mocks.mockLog();
+    const accountRoutes = makeRoutes({
+      db: mockDB,
+      devices: mockDevices,
+      log,
+    });
+    const route = getRoute(accountRoutes, '/account/devices');
+
+    return runTest(route, mockRequest, () => {
+      assert.notCalled(mockDB.touchSessionToken);
+    });
+  });
+
   it('filters out idle devices based on a query parameter', async () => {
     const now = Date.now();
     const FIVE_DAYS_AGO = now - 1000 * 60 * 60 * 24 * 5;
@@ -1793,6 +1828,7 @@ describe('/account/devices', () => {
       assert.equal(response[0].sessionToken, undefined);
       assert.equal(response[0].isCurrentDevice, true);
       assert.ok(response[0].lastAccessTime > ONE_DAY_AGO);
+      assert.calledWithExactly(mockDB.touchSessionToken, credentials, {}, true);
     });
   });
 });
