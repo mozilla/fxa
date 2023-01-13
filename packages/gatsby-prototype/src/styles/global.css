@@ -90,7 +90,7 @@ body {
 }
 
 .plan-details-description {
-  @apply text-grey-400 mt-1 mb-0;
+  @apply text-sm text-grey-400 mt-1 mb-0;
 }
 
 .plan-details-header {
@@ -106,11 +106,11 @@ body {
 }
 
 .plan-details-product {
-  @apply text-grey-600 text-sm leading-5 my-0 break-words;
+  @apply text-grey-600 text-base leading-5 my-0 break-words;
 }
 
 .plan-details-item {
-  @apply flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm;
+  @apply flex items-center justify-between gap-2 leading-normal text-grey-600;
 }
 
 .total-label {
