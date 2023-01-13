@@ -1,17 +1,24 @@
-exports.onCreateWebpackConfig = ({
+import type { GatsbyNode } from "gatsby";
+
+const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = async({
   stage,
-  rules,
   loaders,
   plugins,
   actions,
-}) => {
+}): Promise<void> => {
   actions.setWebpackConfig({
     module: {
       rules: [
         {
-          test: [/\.js?$/],
-
-          use: 'babel-loader',
+          test:  /\.js|\.jsx$/,
+          use: [
+            loaders.postcss(),
+            `babel-loader`,
+          ],
+          include: /[/\\]node_modules[/\\]@fluent[/\\](bundle|langneg|syntax)[\\/]syntax[/\\]esm[/\\]/,
+          query: {
+            presets: ['babel-preset-gatsby']
+          }
         },
       ],
     },
@@ -22,3 +29,5 @@ exports.onCreateWebpackConfig = ({
     ],
   });
 };
+
+module.exports = onCreateWebpackConfig;
