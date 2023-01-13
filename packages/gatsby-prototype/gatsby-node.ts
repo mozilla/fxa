@@ -1,6 +1,6 @@
-import type { GatsbyNode } from "gatsby";
+import type { GatsbyNode } from 'gatsby';
 
-const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = async({
+const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
   stage,
   loaders,
   plugins,
@@ -10,15 +10,8 @@ const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = async({
     module: {
       rules: [
         {
-          test:  /\.js|\.jsx$/,
-          use: [
-            loaders.postcss(),
-            `babel-loader`,
-          ],
-          include: /[/\\]node_modules[/\\]@fluent[/\\](bundle|langneg|syntax)[\\/]syntax[/\\]esm[/\\]/,
-          query: {
-            presets: ['babel-preset-gatsby']
-          }
+          test: /\.js$/,
+          type: 'javascript/esm',
         },
       ],
     },

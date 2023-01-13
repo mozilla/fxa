@@ -2493,12 +2493,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fluent/react@npm:^0.14.1":
+  version: 0.14.1
+  resolution: "@fluent/react@npm:0.14.1"
+  dependencies:
+    "@fluent/sequence": ^0.7.0
+    cached-iterable: ^0.3.0
+  peerDependencies:
+    "@fluent/bundle": ">=0.16.0 <0.18.0"
+    react: ">=16.8.0"
+  checksum: d2121ef267f7a3e9c2364368f121786fedea5f1d0881e15dfd78049db7f6015f789685b17584e82154e3f128c1e067c1fed2572fad52888fd2c52c0c2e2c2b6f
+  languageName: node
+  linkType: hard
+
 "@fluent/sequence@npm:0.5.0":
   version: 0.5.0
   resolution: "@fluent/sequence@npm:0.5.0"
   peerDependencies:
     "@fluent/bundle": ">= 0.13.0"
   checksum: 68e482b4927f68ff5a8c30b48373b033335784a171d4c01b71e1109fcb88591a01c8ca71c20320e5553d1a536aa4fa56c28ed80f63ae02ef5a96038cb2f3820b
+  languageName: node
+  linkType: hard
+
+"@fluent/sequence@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@fluent/sequence@npm:0.7.0"
+  peerDependencies:
+    "@fluent/bundle": ">= 0.13.0"
+  checksum: 569c52674552dc735e2febcbd75056145be463b59a3e25a30575d69be2ef41af78f0be9a5bb59017ed08838a076dfb4689a2a73d5cbbe077483592736f689942
   languageName: node
   linkType: hard
 
@@ -9755,6 +9777,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/postcss-reporter@npm:^7":
+  version: 7.0.1
+  resolution: "@types/postcss-reporter@npm:7.0.1"
+  dependencies:
+    postcss: ^8.2.10
+  checksum: d793ae39aad11fe34bf40d31922a15f914b11d752fc727e0a56d7a8e9818e8fa7a3a927e0731f22a391b963c5156d5f93905d2c12730e83b85ba277d5e185d03
+  languageName: node
+  linkType: hard
+
 "@types/prettier@npm:2.3.0":
   version: 2.3.0
   resolution: "@types/prettier@npm:2.3.0"
@@ -15121,7 +15152,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cached-iterable@npm:^0.3":
+"cached-iterable@npm:^0.3, cached-iterable@npm:^0.3.0":
   version: 0.3.0
   resolution: "cached-iterable@npm:0.3.0"
   checksum: ec486d37c6fd5df38992b785a49de611ccb8e87825e533f91c33e9e02e7061769cd1ac7bb958e828057ff2ecb6b290c9922fb49bfb7c21a04acb0c4f35ca230a
@@ -36980,6 +37011,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-reporter@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "postcss-reporter@npm:7.0.5"
+  dependencies:
+    picocolors: ^1.0.0
+    thenby: ^1.3.4
+  peerDependencies:
+    postcss: ^8.1.0
+  checksum: ed450a6fbf03c42d43ceec1d6ff3e1671441a00abf1f81b919c8d23761250d6809bac42e5ade06c8e4ca137cb1e27e3cb3f74ded3d4b79d332807f6abe4ee57c
+  languageName: node
+  linkType: hard
+
 "postcss-resolve-nested-selector@npm:^0.1.1":
   version: 0.1.1
   resolution: "postcss-resolve-nested-selector@npm:0.1.1"
@@ -37179,7 +37222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.0, postcss@npm:^8.1.0, postcss@npm:^8.2.15, postcss@npm:^8.2.9, postcss@npm:^8.4.14, postcss@npm:^8.4.18, postcss@npm:^8.4.19, postcss@npm:^8.4.20, postcss@npm:^8.4.21":
+"postcss@npm:^8.0.0, postcss@npm:^8.1.0, postcss@npm:^8.2.10, postcss@npm:^8.2.15, postcss@npm:^8.2.9, postcss@npm:^8.4.14, postcss@npm:^8.4.18, postcss@npm:^8.4.19, postcss@npm:^8.4.20, postcss@npm:^8.4.21":
   version: 8.4.21
   resolution: "postcss@npm:8.4.21"
   dependencies:
@@ -42513,14 +42556,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sub-plat-gatsby@workspace:packages/gatsby-prototype"
   dependencies:
+    "@fluent/bundle": ^0.17.1
+    "@fluent/react": ^0.14.1
     "@types/node": ^18.11.18
+    "@types/postcss-reporter": ^7
     "@types/react": ^18.0.26
     "@types/react-dom": ^18.0.10
     autoprefixer: ^10.4.13
     babel-preset-gatsby: ^3.4.0
+    fxa-react: "workspace:*"
+    fxa-shared: "workspace:*"
     gatsby: ^5.3.3
     gatsby-plugin-postcss: ^6.4.0
     postcss: ^8.4.21
+    postcss-reporter: ^7.0.5
     react: ^18.2.0
     react-dom: ^18.2.0
     tailwindcss: ^3.2.4
@@ -43281,6 +43330,13 @@ __metadata:
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
   checksum: b6937a38c80c7f84d9c11dd75e49d5c44f71d95e810a3250bd1f1797fc7117c57698204adf676b71497acc205d769d65c16ae8fa10afad832ae1322630aef10a
+  languageName: node
+  linkType: hard
+
+"thenby@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "thenby@npm:1.3.4"
+  checksum: 2d2ef3d67fa851467f328f1373da75a760d6a469d45f667570703894656057a666a1fb488398ce7830606253dba24eb55a063d6ce939e9e872a2b9d2cdd68c2c
   languageName: node
   linkType: hard
 
