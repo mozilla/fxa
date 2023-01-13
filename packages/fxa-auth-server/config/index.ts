@@ -1919,13 +1919,13 @@ const convictConf = convict({
   otp: {
     step: {
       doc: 'Default time step size (seconds)',
-      default: 10 * 60,
+      default: 5 * 60,
       format: 'nat',
       env: 'OTP_SIGNUP_STEP_SIZE',
     },
     window: {
       doc: 'Tokens in the previous x-windows that should be considered valid',
-      default: 1,
+      default: 0,
       format: 'nat',
       env: 'OTP_SIGNUP_WINDOW',
     },

@@ -165,7 +165,7 @@ describe('#integration - remote account create with sign-up code', function () {
     );
   });
 
-  it('should verify code from previous code window', async () => {
+  it('should not verify code from previous code window', async () => {
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
@@ -190,9 +190,10 @@ describe('#integration - remote account create with sign-up code', function () {
 
     const previousWindowCode = futureAuthenticator.generate(secret);
 
-    const response = await client.verifyShortCodeEmail(previousWindowCode);
-
-    assert.ok(response);
+    await assert.failsAsync(client.verifyShortCodeEmail(previousWindowCode), {
+      code: 400,
+      errno: 183,
+    });
   });
 
   it('should not verify code from future code window', async () => {
