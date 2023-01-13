@@ -692,5 +692,21 @@ describe('#integration - AccountResolver', () => {
         });
       });
     });
+
+    describe('getRecoveryKeyBundle', () => {
+      it('succeeds', async () => {
+        authClient.getRecoveryKey = jest.fn().mockResolvedValue({
+          recoveryData: 'recoveryData'
+        });
+        const result = await resolver.getRecoveryKeyBundle({
+          accountResetToken: 'cooltokenyo',
+          recoveryKeyId: 'recoveryKeyId'
+        });
+        expect(authClient.getRecoveryKey).toBeCalledWith('cooltokenyo', 'recoveryKeyId');
+        expect(result).toStrictEqual({
+          recoveryData: 'recoveryData'
+        });
+      });
+    });
   });
 });

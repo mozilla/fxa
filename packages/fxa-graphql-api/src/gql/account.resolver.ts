@@ -56,6 +56,7 @@ import {
   PasswordForgotCodeStatusInput,
   AccountResetInput,
   AccountStatusInput,
+  RecoveryKeyBundleInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -66,7 +67,6 @@ import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
   CreateTotpPayload,
-  UpdateAvatarPayload,
   UpdateDisplayNamePayload,
   VerifyTotpPayload,
   PasswordForgotSendCodePayload,
@@ -74,6 +74,7 @@ import {
   PasswordForgotCodeStatusPayload,
   AccountResetPayload,
   AccountStatusPayload,
+  RecoveryKeyBundlePayload
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
@@ -634,6 +635,19 @@ export class AccountResolver {
     return {
       clientMutationId: input.clientMutationId,
     };
+  }
+
+  @Query((returns) => RecoveryKeyBundlePayload, {
+    description:
+     'Retrieves a user recovery key bundle from its recovery key id. The bundle contains an encrypted copy for the sync key.',
+  })
+  @CatchGatewayError
+  public async getRecoveryKeyBundle(
+   @Args('input', { type: () => RecoveryKeyBundleInput }) input: RecoveryKeyBundleInput
+  ): Promise<RecoveryKeyBundlePayload> {
+    const { recoveryData } = await this.authAPI.getRecoveryKey(input.accountResetToken, input.recoveryKeyId);
+
+    return { recoveryData };
   }
 
   @ResolveField()

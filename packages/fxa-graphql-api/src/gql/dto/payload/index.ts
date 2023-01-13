@@ -16,3 +16,4 @@ export { UpdateAvatarPayload } from './update-avatar';
 export { UpdateDisplayNamePayload } from './update-display-name';
 export { VerifyTotpPayload } from './verify-totp';
 export { AccountStatusPayload } from './account-status';
+export { RecoveryKeyBundlePayload } from './recovery-key';
