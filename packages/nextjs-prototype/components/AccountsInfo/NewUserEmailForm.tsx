@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Localized } from '@fluent/react';
 import { Form, Input, Checkbox } from '../fields';
 import { isEmailValid } from 'fxa-shared/email/helpers';
@@ -11,29 +11,21 @@ import {
 const SHIELD_ICON = '/images/shield.svg';
 
 export type NewUserEmailFormProps = {
-  getString?: (id: string) => string;
   signInURL: string;
-  setValidEmail: (value: string) => void;
-  setAccountExists: (value: boolean) => void;
-  setInvalidEmailDomain: (value: boolean) => void;
-  setEmailsMatch: (value: boolean) => void;
   checkAccountExists: (
     email: string
   ) => Promise<{ exists: boolean; invalidDomain: boolean }>;
   onToggleNewsletterCheckbox: () => void;
+  setEmailOk: (value: boolean) => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 export default function NewUserEmailForm({
-  getString,
   signInURL,
-  setValidEmail,
-  setAccountExists,
-  setInvalidEmailDomain,
-  setEmailsMatch,
   checkAccountExists,
   onToggleNewsletterCheckbox,
+  setEmailOk,
   validatorInitialState,
   validatorMiddlewareReducer,
 }: NewUserEmailFormProps) {
@@ -43,6 +35,16 @@ export default function NewUserEmailForm({
   });
 
   const [emailInputState, setEmailInputState] = useState<string>();
+  const [emailValid, setEmailValid] = useState(false);
+  const [emailsMatch, setEmailsMatch] = useState(false);
+
+  useEffect(() => {
+    if (emailValid && emailsMatch) {
+      setEmailOk(true);
+    } else {
+      setEmailOk(false);
+    }
+  }, [emailValid, emailsMatch]);
 
   return (
     <Form
@@ -92,13 +94,10 @@ export default function NewUserEmailForm({
             emailInputValidationAndAccountCheck(
               value,
               focused,
-              setValidEmail,
-              setAccountExists,
-              setInvalidEmailDomain,
               setEmailInputState,
+              setEmailValid,
               checkAccountExists,
-              signInURL,
-              getString
+              signInURL
             )
           }
         />
@@ -117,8 +116,7 @@ export default function NewUserEmailForm({
               value,
               focused,
               emailInputState,
-              setEmailsMatch,
-              getString
+              setEmailsMatch
             )
           }
         />
@@ -153,15 +151,12 @@ export default function NewUserEmailForm({
 export async function emailInputValidationAndAccountCheck(
   value: string,
   focused: boolean,
-  setValidEmail: (value: string) => void,
-  setAccountExists: (value: boolean) => void,
-  setInvalidEmailDomain: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
+  setEmailValid: (value: boolean) => void,
   checkAccountExists: (
     email: string
   ) => Promise<{ exists: boolean; invalidDomain: boolean }>,
-  signInURL: string,
-  getString?: (id: string) => string
+  signInURL: string
 ) {
   let error = null;
   let valid = false;
@@ -170,7 +165,6 @@ export async function emailInputValidationAndAccountCheck(
   setEmailInputState(value);
   if (isEmailValid(value)) {
     valid = true;
-    setValidEmail(value);
     if (!focused) {
       const response = await checkAccountExists(value);
       if (response?.exists) {
@@ -178,17 +172,16 @@ export async function emailInputValidationAndAccountCheck(
       } else if (response?.invalidDomain) {
         invalidEmailDomain = response.invalidDomain;
       }
-      setInvalidEmailDomain(invalidEmailDomain);
-      setAccountExists(hasAccount);
     }
   } else {
-    setValidEmail('');
+    valid = false;
   }
 
-  const errorMsg = getString
-    ? /* istanbul ignore next - not testing l10n here */
-      getString('new-user-email-validate')
-    : 'Email is not valid';
+  // const errorMsg = getString
+  //   ? /* istanbul ignore next - not testing l10n here */
+  //     getString('new-user-email-validate')
+  //   : 'Email is not valid';
+  const errorMsg = 'Email is not valid';
 
   const accountExistsMsg = (
     <Localized
@@ -225,6 +218,12 @@ export async function emailInputValidationAndAccountCheck(
     error = invalidEmailDomainMsg;
   }
 
+  if (valid && !error) {
+    setEmailValid(true);
+  } else {
+    setEmailValid(false);
+  }
+
   return {
     value,
     valid,
@@ -236,17 +235,17 @@ export function emailConfirmationValidation(
   value: string,
   focused: boolean,
   emailInputState: string | undefined,
-  setEmailsMatch: (value: boolean) => void,
-  getString?: Function
+  setEmailsMatch: (value: boolean) => void
 ) {
   let valid = false;
 
   setEmailsMatch((valid = emailInputState === value));
 
-  const errorMsg = getString
-    ? /* istanbul ignore next - not testing l10n here */
-      getString('new-user-email-validate-confirm')
-    : 'Emails do not match';
+  // const errorMsg = getString
+  //   ? /* istanbul ignore next - not testing l10n here */
+  //     getString('new-user-email-validate-confirm')
+  //   : 'Emails do not match';
+  const errorMsg = 'Emails do not match';
 
   return {
     value,

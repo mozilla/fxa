@@ -50,16 +50,19 @@ export default function TermsAndConditions() {
   return (
     <>
       <GenericTerms
+        key="payment-provider-terms"
         title="Mozilla uses Stripe and PayPal for secure payment processing."
         titleLocalizationId="title-1"
         items={paymentProviderItems}
       />
       <GenericTerms
+        key="fxa-terms"
         title="Firefox Accounts"
         titleLocalizationId="title-1"
         items={accountsItems}
       />
       <GenericTerms
+        key="product-terms"
         title="Mozilla VPN"
         titleLocalizationId="title-1"
         items={vpnItems}

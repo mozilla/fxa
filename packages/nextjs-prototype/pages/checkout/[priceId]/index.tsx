@@ -1,11 +1,11 @@
-import React from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import PlanDetails from '../../../components/PlanDetails';
 import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
-import { PlanInterval } from '../../../../fxa-shared/subscriptions/types';
+import { PlanInterval } from 'fxa-shared/subscriptions/types';
 
 const planDetailsProps = {
   priceInfo: {
@@ -37,6 +37,7 @@ const planDetailsProps = {
 };
 
 export default function CheckoutPricePage() {
+  const [paymentsDisabled, setPaymentsDisabled] = useState(true);
   const router = useRouter();
   const priceId = router.query.priceId;
   return (
@@ -50,8 +51,8 @@ export default function CheckoutPricePage() {
         />
       </div>
       <div className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
-        <AccountsInfo />
-        <PaymentForm />
+        <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
+        <PaymentForm disabled={paymentsDisabled} />
         <TermsAndConditions />
       </div>
     </div>
