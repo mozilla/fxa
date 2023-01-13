@@ -4,25 +4,46 @@
 
 'use strict';
 
+const {
+  getFrontEndPairingRouteDefinition,
+} = require('./react-app/route-definitions');
+
 // This route handler prevents REFRESH behaviour for the pairing flow
 // If the user refreshes the browser during pairing, we instruct them to start over
 
-module.exports = function () {
-  // The array is converted into a RegExp
-  const PAIRING_ROUTES = [
-    'pair/auth/allow',
-    'pair/auth/complete',
-    'pair/auth/totp',
-    'pair/auth/wait_for_supp',
-    'pair/supp/allow',
-    'pair/supp/wait_for_auth',
-  ].join('|'); // prepare for use in a RegExp
+// The array is converted into a RegExp
+const PAIRING_ROUTES = [
+  'pair/auth/allow',
+  'pair/auth/complete',
+  'pair/auth/totp',
+  'pair/auth/wait_for_supp',
+  'pair/supp/allow',
+  'pair/supp/wait_for_auth',
+];
 
-  return {
-    method: 'get',
-    path: new RegExp('^/(' + PAIRING_ROUTES + ')/?$'),
-    process: function (req, res) {
-      res.redirect(302, '/pair/failure');
-    },
-  };
+function getRoutesExcludingPairingReact({ pairRoutes }, routeNames) {
+  return pairRoutes.featureFlagOn
+    ? routeNames.filter(
+        (routeName) =>
+          !pairRoutes.routes.find((route) => routeName === route.name)
+      )
+    : routeNames;
+}
+
+/** @type {import("./react-app/types").GetBackboneRouteDefinition} */
+function getFrontEndPairing(reactRouteGroups, routeNames = PAIRING_ROUTES) {
+  const routesExcludingPairingReact = getRoutesExcludingPairingReact(
+    reactRouteGroups,
+    routeNames
+  );
+
+  return routesExcludingPairingReact.length > 0
+    ? getFrontEndPairingRouteDefinition(routesExcludingPairingReact)
+    : null;
+}
+
+module.exports = {
+  default: getFrontEndPairing,
+  PAIRING_ROUTES,
+  getRoutesExcludingPairingReact, // exported for testing
 };

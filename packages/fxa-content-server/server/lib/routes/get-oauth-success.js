@@ -4,9 +4,37 @@
 
 'use strict';
 
-exports.path = '/oauth/success/:clientId';
-exports.method = 'get';
-exports.process = function (req, res, next) {
-  req.url = '/';
-  next();
+const {
+  getOAuthSuccessRouteDefinition,
+} = require('./react-app/route-definitions');
+
+const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
+
+function getRoutesExcludingOAuthSuccessReact({ oauthRoutes }, routeNames) {
+  return oauthRoutes.featureFlagOn
+    ? routeNames.filter(
+        (routeName) =>
+          !oauthRoutes.routes.find((route) => routeName === route.name)
+      )
+    : routeNames;
+}
+
+/** @type {import("./react-app/types").GetBackboneRouteDefinition} */
+function getOAuthSuccessRoutes(
+  reactRouteGroups,
+  routeNames = OAUTH_SUCCESS_ROUTES
+) {
+  const routesExcludingOAuthSuccessReact = getRoutesExcludingOAuthSuccessReact(
+    reactRouteGroups,
+    routeNames
+  );
+  return routesExcludingOAuthSuccessReact.length > 0
+    ? getOAuthSuccessRouteDefinition(routesExcludingOAuthSuccessReact)
+    : null;
+}
+
+module.exports = {
+  default: getOAuthSuccessRoutes,
+  OAUTH_SUCCESS_ROUTES,
+  getRoutesExcludingOAuthSuccessReact, // exported for testing
 };

@@ -45,6 +45,7 @@ import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
+import { getReactRouteGroups } from '../../../server/lib/routes/react-app';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
@@ -110,6 +111,10 @@ let Router = Backbone.Router.extend({
     }
 
     this.storage = Storage.factory('sessionStorage', this.window);
+    this.reactRouteGroups = getReactRouteGroups(
+      this.config.showReactApp,
+      false
+    );
   },
 });
 
@@ -126,23 +131,10 @@ Router = Router.extend({
     ),
     'authorization(/)': createViewHandler(RedirectAuthView),
     'cannot_create_account(/)': function () {
-      // TODO: check for what feature flag group this route is in and check `featureFlagOn` so
-      // we don't have to check all of these at the router level. Probably turn this into some
-      // helper function. FXA-6538
-      const showReactApp = this.config.showReactApp.simpleRoutes;
-
-      if (showReactApp && this.isInReactExperiment()) {
-        const link = `${'/cannot_create_account'}${Url.objToSearchString({
-          showReactApp,
-        })}`;
-
-        this.navigateAway(link);
-      } else {
-        // TODO: make a helper function out of this or make `createViewHandler` work
-        return getView(CannotCreateAccountView).then((View) => {
-          return this.showView(View);
-        });
-      }
+      this.createReactOrBackboneViewHandler(
+        'cannot_create_account',
+        CannotCreateAccountView
+      );
     },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': createViewHandler(ClearStorageView),
@@ -340,6 +332,35 @@ Router = Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
+  },
+
+  showReactApp(routeName) {
+    for (const routeGroup in this.reactRouteGroups) {
+      if (
+        this.reactRouteGroups[routeGroup].routes.find(
+          (route) => routeName === route.name
+        )
+      ) {
+        return this.reactRouteGroups[routeGroup].featureFlagOn;
+      }
+    }
+    return false;
+  },
+
+  createReactOrBackboneViewHandler(routeName, ViewOrPath, options) {
+    const showReactApp = this.showReactApp(routeName);
+
+    if (showReactApp && this.isInReactExperiment()) {
+      const link = `/${routeName}${Url.objToSearchString({
+        showReactApp,
+      })}`;
+
+      this.navigateAway(link);
+    } else {
+      return getView(ViewOrPath).then((View) => {
+        return this.showView(View, options);
+      });
+    }
   },
 
   onNavigate(event) {
