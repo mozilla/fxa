@@ -16,7 +16,6 @@ export async function getStaticPaths() {
   };
 }
 
-// `getStaticPaths` requires using `getStaticProps`
 export async function getStaticProps() {
   // Fetch price config from the hCMS. (Currently mocked out, returning static data)
   const hCmsPriceConfig = await mockHCMSFetch();
