@@ -678,7 +678,7 @@ describe('#integration - AccountResolver', () => {
         authClient.verifyCode = jest.fn().mockResolvedValue({
           uid: 'cooltokenyo',
           code: 'coolcode',
-          options: { service: 'sync' }
+          options: { service: 'sync' },
         });
         const result = await resolver.emailVerifyCode(headers, {
           uid: 'cooltokenyo',
@@ -688,7 +688,42 @@ describe('#integration - AccountResolver', () => {
         });
         expect(authClient.verifyCode).toBeCalledTimes(1);
         expect(result).toStrictEqual({
-          clientMutationId: 'testid'
+          clientMutationId: 'testid',
+        });
+      });
+    });
+
+    describe('changePassword', () => {
+      it('succeeds', async () => {
+        authClient.passwordChangeWithAuthPW = jest.fn().mockResolvedValue({
+          uid: 'cooltokenyo',
+          sessionToken: '000000',
+          verified: true,
+          authAt: 1,
+          unwrapBKey: '000000',
+          keyFetchToken: '000000',
+        });
+        const result = await resolver.passwordChange({
+          clientMutationId: 'testid',
+          email: 'asdf@asdf.com',
+          oldPasswordAuthPW: 'oldPasswordAuthPW',
+          newPasswordAuthPW: 'newPasswordAuthPW',
+          oldUnwrapBKey: 'oldUnwrapBKey',
+          newUnwrapBKey: 'newUnwrapBKey',
+          options: {
+            keys: true,
+            sessionToken: '000000',
+          },
+        });
+        expect(authClient.passwordChangeWithAuthPW).toBeCalledTimes(1);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+          uid: 'cooltokenyo',
+          sessionToken: '000000',
+          verified: true,
+          authAt: 1,
+          unwrapBKey: '000000',
+          keyFetchToken: '000000',
         });
       });
     });
