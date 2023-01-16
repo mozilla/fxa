@@ -4,13 +4,13 @@
 
 import React from 'react';
 import ResetPassword, { ResetPasswordProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE_NAME, MOCK_EMAIL } from './mocks';
 
 export default {
-  title: 'pages/ResetPassword',
+  title: 'pages/ResetPassword/ResetPassword',
   component: ResetPassword,
 } as Meta;
 

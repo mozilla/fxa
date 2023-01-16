@@ -6,9 +6,9 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as MailLink } from './graphic_mail.svg';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 
-import LinkRememberPassword from '../../components/LinkRememberPassword';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
 export type ConfirmResetPasswordProps = {
   email?: string;
