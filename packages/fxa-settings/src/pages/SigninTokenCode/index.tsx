@@ -7,13 +7,13 @@ import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-// import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../models/hooks';
 import { usePageViewEvent, logViewEvent } from '../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { ReactComponent as MailImg } from './graphic_mail.svg';
 
 // email will eventually be obtained from account context
-type SigninTokenCodeProps = { email: string };
+export type SigninTokenCodeProps = { email: string };
 
 type FormData = {
   confirmationCode: string;
@@ -30,7 +30,7 @@ const SigninTokenCode = ({
   const [tokenErrorMessage, setTokenErrorMessage] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
   // const alertBar = useAlertBar();
-  // const ftlMsgResolver = useFtlMsgResolver();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const onFocusMetricsEvent = 'signin-token-code.engage';
 
@@ -60,7 +60,11 @@ const SigninTokenCode = ({
 
   const onSubmit = () => {
     if (!confirmationCode) {
-      setTokenErrorMessage('This is a required field');
+      const codeRequiredError = ftlMsgResolver.getMsg(
+        'signin-token-code-required-error',
+        'Confirmation code required'
+      );
+      setTokenErrorMessage(codeRequiredError);
     }
     try {
       // Check confirmation code
@@ -69,8 +73,8 @@ const SigninTokenCode = ({
     } catch (e) {
       // TODO: error handling, error message confirmation
       // const errorSigninTokenCode = ftlMsgResolver.getMsg(
-      //   'signin-token-code-error-general',
-      //   'Invalid confirmation code'
+      //   'signin-token-code-error',
+      //   'Incorrect confirmation code'
       // );
       // alertBar.error(errorSigninTokenCode);
     }
@@ -110,12 +114,11 @@ const SigninTokenCode = ({
           onSubmit={handleSubmit(onSubmit)}
         >
           {/* Using `type="text" inputmode="numeric"` shows the numeric pad on mobile and strips out whitespace on desktop. */}
-          <FtlMsg id="signin-token-code-input">
+          <FtlMsg id="signin-token-code-input-label">
             <InputText
               type="text"
               inputMode="numeric"
-              label="Confirmation code"
-              placeholder="Enter 6-digit code"
+              label="Enter 6-digit code"
               onChange={(e) => {
                 setConfirmationCode(e.target.value);
                 // clear error tooltip if user types in the field
