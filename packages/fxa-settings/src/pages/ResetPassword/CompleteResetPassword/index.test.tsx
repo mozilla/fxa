@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../models/mocks';
-import { AppContext, AlertBarInfo } from '../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import { AppContext, AlertBarInfo } from '../../../models';
 import CompleteResetPassword from '.';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));

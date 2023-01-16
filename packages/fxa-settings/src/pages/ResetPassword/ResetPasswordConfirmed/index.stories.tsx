@@ -4,12 +4,12 @@
 
 import React from 'react';
 import ResetPasswordConfirmed from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/ResetPasswordConfirmed',
+  title: 'pages/ResetPassword/ResetPasswordConfirmed',
   component: ResetPasswordConfirmed,
 } as Meta;
 

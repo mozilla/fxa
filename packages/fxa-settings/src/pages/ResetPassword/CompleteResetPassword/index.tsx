@@ -5,16 +5,16 @@
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { HomePath } from '../../constants';
-import { usePageViewEvent } from '../../lib/metrics';
+import { HomePath } from '../../../constants';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
-import { useAccount, useAlertBar } from '../../models';
-import WarningMessage from '../../components/WarningMessage';
-import FormPassword from '../../components/FormPassword';
-import LinkRememberPassword from '../../components/LinkRememberPassword';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import { useFtlMsgResolver } from '../../../models/hooks';
+import { useAccount, useAlertBar } from '../../../models';
+import WarningMessage from '../../../components/WarningMessage';
+import FormPassword from '../../../components/FormPassword';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import ResetPasswordLinkExpired from '../../../components/ResetPasswordLinkExpired';
+import ResetPasswordLinkDamaged from '../../../components/ResetPasswordLinkDamaged';
 
 export type CompleteResetPasswordProps = {
   email?: string;

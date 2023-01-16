@@ -5,16 +5,16 @@
 import { Link, RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAlertBar } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import { InputText } from '../../components/InputText';
-import CardHeader from '../../components/CardHeader';
-import WarningMessage from '../../components/WarningMessage';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import { InputText } from '../../../components/InputText';
+import CardHeader from '../../../components/CardHeader';
+import WarningMessage from '../../../components/WarningMessage';
+import ResetPasswordLinkExpired from '../../../components/ResetPasswordLinkExpired';
+import ResetPasswordLinkDamaged from '../../../components/ResetPasswordLinkDamaged';
 
 // --serviceName-- is the relying party
 

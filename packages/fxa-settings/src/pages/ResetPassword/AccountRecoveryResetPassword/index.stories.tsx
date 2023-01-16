@@ -3,21 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '../../components/AppLayout';
+import AccountRecoveryResetPassword, {
+  AccountRecoveryResetPasswordProps,
+} from '.';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import CompleteResetPassword, { CompleteResetPasswordProps } from '.';
 
 export default {
-  title: 'pages/CompleteResetPassword',
-  component: CompleteResetPassword,
+  title: 'pages/ResetPassword/AccountRecoveryResetPassword',
+  component: AccountRecoveryResetPassword,
 } as Meta;
 
-const storyWithProps = (props: CompleteResetPasswordProps) => {
+const storyWithProps = (props: AccountRecoveryResetPasswordProps) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
-        <CompleteResetPassword {...props} />
+        <AccountRecoveryResetPassword {...props} />
       </AppLayout>
     </LocationProvider>
   );
@@ -26,16 +28,11 @@ const storyWithProps = (props: CompleteResetPasswordProps) => {
 
 export const WithValidLink = storyWithProps({ linkStatus: 'valid' });
 
-export const WithSyncWarning = storyWithProps({
-  linkStatus: 'valid',
-  showSyncWarning: true,
-});
-
-export const WithAccountRecoveryInfo = storyWithProps({
-  linkStatus: 'valid',
-  showAccountRecoveryInfo: true,
-});
+export const WithBrokenLink = storyWithProps({ linkStatus: 'damaged' });
 
 export const WithExpiredLink = storyWithProps({ linkStatus: 'expired' });
 
-export const WithDamagedLink = storyWithProps({ linkStatus: 'damaged' });
+export const CanGoBack = storyWithProps({
+  canGoBack: true,
+  linkStatus: 'valid',
+});

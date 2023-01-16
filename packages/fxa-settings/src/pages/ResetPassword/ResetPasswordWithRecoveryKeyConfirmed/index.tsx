@@ -5,8 +5,8 @@
 import React from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent } from '../../lib/metrics';
-import Ready from '../../components/Ready';
+import { logViewEvent } from '../../../lib/metrics';
+import Ready from '../../../components/Ready';
 
 type ResetPasswordWithRecoveryKeyVerifiedProps = {
   serviceName?: string;

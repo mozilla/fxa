@@ -6,15 +6,15 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@reach/router';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAccount, useAlertBar } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useAccount, useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import { InputText } from '../../components/InputText';
-import LinkRememberPassword from '../../components/LinkRememberPassword';
-import ResetPasswordLinkExpired from '../../components/ResetPasswordLinkExpired';
-import ResetPasswordLinkDamaged from '../../components/ResetPasswordLinkDamaged';
+import { InputText } from '../../../components/InputText';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import ResetPasswordLinkExpired from '../../../components/ResetPasswordLinkExpired';
+import ResetPasswordLinkDamaged from '../../../components/ResetPasswordLinkDamaged';
 // --canGoBack-- determines if the user can navigate back to an fxa entrypoint
 
 export type AccountRecoveryResetPasswordProps = {
