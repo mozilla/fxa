@@ -45,6 +45,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps() {
+  // Add logic here for translations
+  // https://soykje.gitlab.io/en/blog/nextjs-i18n/
+
   // Fetch price config from the hCMS. (Currently mocked out, returning static data)
   const hCmsPriceConfig = await mockHCMSFetch();
   return {

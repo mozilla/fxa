@@ -39,21 +39,14 @@ export type InfoBoxMessage = {
 export type PriceDetailsProps = {
   priceInfo: PriceInfo;
   additionalStyles?: PlanDetailsAdditionalStyles;
-  isMobile?: boolean;
   showExpandButton?: boolean;
   className?: string;
   infoBox?: InfoBoxMessage;
 };
 
 export default function PriceDetails(props: PriceDetailsProps) {
-  const {
-    priceInfo,
-    className,
-    isMobile,
-    additionalStyles,
-    showExpandButton,
-    infoBox,
-  } = props;
+  const { priceInfo, className, additionalStyles, showExpandButton, infoBox } =
+    props;
   const {
     productName,
     listPrice,
