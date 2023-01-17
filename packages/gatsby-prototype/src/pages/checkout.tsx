@@ -1,9 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+import {
+  State as ValidatorState,
+  useValidatorState,
+  MiddlewareReducer as ValidatorMiddlewareReducer,
+} from '../lib/validator';
+
+import { Form } from '../components/fields';
+
 import AppLocalizationProvider from '../AppLocalizationProvider';
+import CreateAccount from '../components/CreateAccount';
 import PlanDetails from '../components/PlanDetails';
 import SubscriptionTitle from '../components/SubscriptionTitle';
 
-const Checkout = () => {
+export type CheckoutProps = {
+  validatorInitialState?: ValidatorState;
+  validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
+};
+
+const Checkout = ({
+  validatorInitialState,
+  validatorMiddlewareReducer,
+}: CheckoutProps) => {
+  const validator = useValidatorState({
+    initialState: validatorInitialState,
+    middleware: validatorMiddlewareReducer,
+  });
+
   return (
     <AppLocalizationProvider
       userLocales={navigator.languages}
@@ -18,13 +41,21 @@ const Checkout = () => {
         <div className="payment-panel">
           <PlanDetails
             selectedPlan={plan}
-            isMobile
-            showExpandButton
+            // isMobile
+            // showExpandButton
             invoicePreview={invoicePreview}
             coupon={coupon}
-            additionalCouponInfo={additionalCouponInfo}
+            // additionalCouponInfo={additionalCouponInfo}
           />
         </div>
+
+        <Form
+          className="component-card border-t-0 mb-6 py-4 px-4 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12"
+          data-testid="subscription-create"
+          validator={validator}
+        >
+          <CreateAccount />
+        </Form>
       </main>
     </AppLocalizationProvider>
   );
