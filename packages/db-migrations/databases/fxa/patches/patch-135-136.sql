@@ -1,3 +1,15 @@
+SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+
+CALL assertPatchLevel('135');
+
+-- This migration adds a routine for removing sessions on accounts that have
+-- over maxSessions. Essentially, per account tokens above maxSessions
+-- will be purged. Older tokens will be removed first. Associated unverified
+-- tokens and devices will also be removed.
+--   accountUid  - The account to target
+--   maxSessions - Max number of sessions allowed per account
+--   maxTokensDeleted - Max number of session tokens to delete at a time. This is another safeguard, since we don't know how many sessions each account has ahead of time.
+--   totalDeletions - Total number of rows deleted, which includes session token rows, unverified session token rows, and device rows.
 CREATE PROCEDURE `limitSessions_3` (
   IN `accountUid` BINARY(16),
   IN `maxSessions` INT UNSIGNED,
@@ -60,3 +72,5 @@ BEGIN
   SET @releasedLock = (SELECT RELEASE_LOCK('fxa-auth-server.prune-lock'));
 
 END;
+
+UPDATE dbMetadata SET value = '136' WHERE name = 'schema-patch-level';
