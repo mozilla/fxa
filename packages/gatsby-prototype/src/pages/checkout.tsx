@@ -15,6 +15,8 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../lib/validator';
 
+import Layout from '../templates/Layout';
+
 export type CheckoutProps = {
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -36,40 +38,42 @@ const Checkout = ({
       userLocales={navigator.languages}
       bundles={['gatsby', 'react']}
     >
-      <main className="main-content">
-        <SubscriptionTitle
-          screenType="create"
-          // subtitle={plan.subtitle}
-        />
-
-        <div className="payment-panel">
-          <PlanDetails
-            selectedPlan={plan}
-            // isMobile
-            // showExpandButton
-            invoicePreview={invoicePreview}
-            coupon={coupon}
-            // additionalCouponInfo={additionalCouponInfo}
+      <Layout profile={mockProfile}>
+        <main className="main-content">
+          <SubscriptionTitle
+            screenType="create"
+            // subtitle={plan.subtitle}
           />
-        </div>
 
-        <Form
-          className="component-card border-t-0 mb-6 py-4 px-4 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12"
-          data-testid="subscription-create"
-          validator={validator}
-        >
-          <CreateAccount />
+          <div className="payment-panel">
+            <PlanDetails
+              selectedPlan={plan}
+              // isMobile
+              // showExpandButton
+              invoicePreview={invoicePreview}
+              coupon={coupon}
+              // additionalCouponInfo={additionalCouponInfo}
+            />
+          </div>
 
-          <hr className="mx-auto w-full" />
+          <Form
+            className="component-card border-t-0 mb-6 py-4 px-4 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12"
+            data-testid="subscription-create"
+            validator={validator}
+          >
+            <CreateAccount />
 
-          <ChoosePayment
-            paypalScriptLoaded
-            selectedPlan={plan}
-            type={PaymentMethodHeaderType.SecondStep}
-            onClick={() => setCheckboxSet(!checkboxSet)}
-          />
-        </Form>
-      </main>
+            <hr className="mx-auto w-full" />
+
+            <ChoosePayment
+              paypalScriptLoaded
+              selectedPlan={plan}
+              type={PaymentMethodHeaderType.SecondStep}
+              onClick={() => setCheckboxSet(!checkboxSet)}
+            />
+          </Form>
+        </main>
+      </Layout>
     </AppLocalizationProvider>
   );
 };
