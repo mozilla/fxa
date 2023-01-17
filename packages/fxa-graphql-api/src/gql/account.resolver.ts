@@ -27,6 +27,7 @@ import {
 import { GraphQLResolveInfo } from 'graphql';
 import {
   parseResolveInfo,
+  ResolveTree,
   simplifyParsedResolveInfoFragmentWithType,
 } from 'graphql-parse-resolve-info';
 
@@ -119,7 +120,7 @@ export class AccountResolver {
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the emails
-    const parsed: any = parseResolveInfo(info);
+    const parsed: ResolveTree = parseResolveInfo(info) as ResolveTree;
     const simplified = simplifyParsedResolveInfoFragmentWithType(
       parsed,
       info.returnType
@@ -129,12 +130,22 @@ export class AccountResolver {
 
   private shouldIncludeLinkedAccounts(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the linked accounts
-    const parsed: any = parseResolveInfo(info);
+    const parsed: ResolveTree = parseResolveInfo(info) as ResolveTree;
     const simplified = simplifyParsedResolveInfoFragmentWithType(
       parsed,
       info.returnType
     );
     return simplified.fields.hasOwnProperty('linkedAccounts');
+  }
+
+  private shouldIncludeSecurityEvents(info: GraphQLResolveInfo): boolean {
+    // Introspect the query to determine if we should load account events
+    const parsed: ResolveTree = parseResolveInfo(info) as ResolveTree;
+    const simplified = simplifyParsedResolveInfoFragmentWithType(
+      parsed,
+      info.returnType
+    );
+    return simplified.fields.hasOwnProperty('securityEvents');
   }
 
   @Mutation((returns) => BasicPayload, {
@@ -442,6 +453,10 @@ export class AccountResolver {
       options?.include?.push('linkedAccounts');
     }
 
+    if (this.shouldIncludeSecurityEvents(info)) {
+      options?.include?.push('securityEvents');
+    }
+
     return Account.findByUid(uid, options);
   }
 
@@ -638,20 +653,24 @@ export class AccountResolver {
       clientMutationId: input.clientMutationId,
     };
   }
-  
+
   @Query((returns) => RecoveryKeyBundlePayload, {
     description:
-     'Retrieves a user recovery key bundle from its recovery key id. The bundle contains an encrypted copy for the sync key.',
+      'Retrieves a user recovery key bundle from its recovery key id. The bundle contains an encrypted copy for the sync key.',
   })
   @CatchGatewayError
   public async getRecoveryKeyBundle(
-   @Args('input', { type: () => RecoveryKeyBundleInput }) input: RecoveryKeyBundleInput
+    @Args('input', { type: () => RecoveryKeyBundleInput })
+    input: RecoveryKeyBundleInput
   ): Promise<RecoveryKeyBundlePayload> {
-    const { recoveryData } = await this.authAPI.getRecoveryKey(input.accountResetToken, input.recoveryKeyId);
+    const { recoveryData } = await this.authAPI.getRecoveryKey(
+      input.accountResetToken,
+      input.recoveryKeyId
+    );
 
     return { recoveryData };
   }
-  
+
   @Mutation((returns) => PasswordChangePayload, {
     description:
       "Change a user's password. The client is required to compute authPW since we don't send the clear password to our server.",
@@ -773,6 +792,20 @@ export class AccountResolver {
           providerId: item.providerId,
           authAt: item.authAt,
           enabled: item.enabled,
+        };
+      });
+    }
+    return [];
+  }
+
+  @ResolveField()
+  public securityEvents(@Parent() account: Account) {
+    if (account.securityEvents) {
+      return account.securityEvents.map((item) => {
+        return {
+          name: item.name,
+          createdAt: item.createdAt,
+          verified: item.verified,
         };
       });
     }
