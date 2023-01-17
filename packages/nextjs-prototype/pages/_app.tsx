@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import Layout from '../components/layout';
 import type { AppProps } from 'next/app';
 import AppLocalizationProvider from '../components/Localization/AppLocalizationProvider';
 
@@ -8,7 +9,9 @@ export default function App({ Component, pageProps }: AppProps) {
       userLocales={['en']} // Update this as well
       bundles={['payments', 'react']}
     >
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </AppLocalizationProvider>
   );
 }

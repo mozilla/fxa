@@ -78,7 +78,7 @@ export default function CheckoutPricePage({
   }, []);
 
   return (
-    <main className="main-content">
+    <>
       <SubscriptionTitle screenType="create" />
       <article className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
         <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
@@ -96,6 +96,6 @@ export default function CheckoutPricePage({
         )}
         <CouponForm />
       </aside>
-    </main>
+    </>
   );
 }
