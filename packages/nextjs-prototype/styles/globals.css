@@ -129,3 +129,49 @@ body {
 .payment-panel {
   @apply mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
 }
+
+/* coupon form styles */
+.coupon-button {
+  @apply font-header items-center border-0 rounded-md cursor-pointer inline-flex text-base font-bold justify-center w-full py-0 px-4 bg-blue-500 text-white h-12 max-h-10 tablet:max-h-12;
+}
+
+.coupon-applied {
+  @apply font-header items-center border-0 rounded-md cursor-pointer inline-flex text-base font-bold justify-center w-full py-0 px-4 bg-grey-900/10 text-grey-900 h-12 max-h-10 tablet:max-h-12;
+}
+
+.coupon-button:active {
+  @apply bg-blue-800 border-blue-800;
+}
+
+.coupon-button:focus,
+.coupon-button:focus-visible {
+  @apply outline outline-2 outline-offset-2 outline-blue-500;
+}
+
+.coupon-button:disabled {
+  @apply bg-blue-500/40 border-transparent text-white/50 cursor-not-allowed;
+}
+
+@media (hover: hover) {
+  .coupon-button:hover:not(:disabled):not(:active) {
+    @apply bg-blue-600 border-blue-600 text-white no-underline;
+  }
+
+  .coupon-applied:hover:not(:disabled):not(:active) {
+    @apply bg-grey-900/20;
+  }
+}
+
+@screen mobileLandscape {
+  .coupon-button {
+    @apply w-auto;
+  }
+}
+
+.coupon-input {
+  @apply bg-white border border-grey-900/30 box-border rounded text-grey-900 text-base font-normal outline-0 relative w-full z-[2] mb-0 py-0 pr-[11px] pl-4 placeholder:text-grey-900/40 placeholder:font-normal placeholder:opacity-100 h-12 max-h-10 tablet:max-h-12;
+}
+
+.coupon-invalid {
+  @apply bg-white border border-red-700 border-solid box-border rounded text-grey-900 text-base font-normal outline-0 relative w-full z-[2] mb-0 py-0 pr-[11px] pl-4 placeholder:text-grey-900/40 placeholder:font-normal placeholder:opacity-100 h-12 max-h-10 tablet:max-h-12;
+}

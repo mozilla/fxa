@@ -1,6 +1,7 @@
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
 import AccountsInfo from '../../components/AccountsInfo';
 import PlanDetails from '../../components/PriceDetails';
+import CouponForm from '../../components/CouponForm';
 import TermsAndConditions from '../../components/TermsAndConditions';
 
 const planDetailsProps = {
@@ -51,6 +52,7 @@ export default function PlayHome() {
           additionalStyles={planDetailsProps.additionalStyles}
           infoBox={planDetailsProps.infoBox}
         />
+        <CouponForm />
       </div>
     </div>
   );
