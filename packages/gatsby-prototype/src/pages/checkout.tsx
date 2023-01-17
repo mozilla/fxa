@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 
+import { Form } from '../components/fields';
+
+import AppLocalizationProvider from '../AppLocalizationProvider';
+import ChoosePayment from '../components/ChoosePayment';
+import CreateAccount from '../components/CreateAccount';
+import PlanDetails from '../components/PlanDetails';
+import SubscriptionTitle from '../components/SubscriptionTitle';
+
+import { PaymentMethodHeaderType } from '../lib/types';
 import {
   State as ValidatorState,
   useValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../lib/validator';
-
-import { Form } from '../components/fields';
-
-import AppLocalizationProvider from '../AppLocalizationProvider';
-import CreateAccount from '../components/CreateAccount';
-import PlanDetails from '../components/PlanDetails';
-import SubscriptionTitle from '../components/SubscriptionTitle';
 
 export type CheckoutProps = {
   validatorInitialState?: ValidatorState;
@@ -26,6 +28,8 @@ const Checkout = ({
     initialState: validatorInitialState,
     middleware: validatorMiddlewareReducer,
   });
+
+  const [checkboxSet, setCheckboxSet] = useState(false);
 
   return (
     <AppLocalizationProvider
@@ -55,6 +59,15 @@ const Checkout = ({
           validator={validator}
         >
           <CreateAccount />
+
+          <hr className="mx-auto w-full" />
+
+          <ChoosePayment
+            paypalScriptLoaded
+            selectedPlan={plan}
+            type={PaymentMethodHeaderType.SecondStep}
+            onClick={() => setCheckboxSet(!checkboxSet)}
+          />
         </Form>
       </main>
     </AppLocalizationProvider>

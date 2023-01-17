@@ -75,3 +75,8 @@ export type AdditonalCouponInfo = {
   couponDurationDate: number;
   message: string;
 };
+
+export enum PaymentMethodHeaderType {
+  NoPrefix,
+  SecondStep,
+}

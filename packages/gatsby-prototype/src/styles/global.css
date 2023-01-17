@@ -130,3 +130,7 @@ body {
 .payment-button {
   @apply cta-base-p flex-1 font-semibold rounded-md text-base;
 }
+
+.input-row--checkbox {
+  @apply mt-3 mb-2;
+}
