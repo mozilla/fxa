@@ -235,7 +235,6 @@ export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
 
 export {
   Account,
-  AccountOptions,
   AccountCustomers,
   AccountResetToken,
   BaseAuthModel,

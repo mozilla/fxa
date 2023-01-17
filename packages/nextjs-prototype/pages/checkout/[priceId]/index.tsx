@@ -5,7 +5,7 @@ import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
 import { mockHCMSFetch, Plan, priceDetailsProps } from '../../../data/mock';
-import { buildTermsPropsFromPriceConfig } from './helpers';
+import { buildTermsPropsFromPriceConfig } from '../../../lib/checkout/helpers';
 
 /**
  * ????? Open Questions ?????

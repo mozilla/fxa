@@ -45,7 +45,7 @@ export default function AccountsInfo(props: AccountsInfoProps) {
     } else {
       setPaymentsDisabled(true);
     }
-  }, [emailOk, checkboxAuthorization]);
+  }, [emailOk, checkboxAuthorization, setPaymentsDisabled]);
 
   return (
     <div>

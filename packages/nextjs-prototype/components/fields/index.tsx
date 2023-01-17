@@ -7,7 +7,6 @@ import React, {
   FormHTMLAttributes,
 } from 'react';
 import { withLocalization, WithLocalizationProps } from '@fluent/react';
-import { CardElementProps } from '@stripe/react-stripe-js';
 import classNames from 'classnames';
 import { Validator, FieldType } from '../../lib/validator';
 import Tooltip from '../Tooltip';
@@ -171,6 +170,7 @@ const UnwrappedInput = (props: InputProps) => {
   } = props;
 
   const { validator } = useContext(FormContext) as FormContextValue;
+  const tooltipParentRef = useRef<HTMLInputElement>(null);
 
   const onChange = useCallback(
     async (ev: any) => {
@@ -223,8 +223,6 @@ const UnwrappedInput = (props: InputProps) => {
     },
     [name, props, validator, onValidate, onValidatePromise, getString]
   );
-
-  const tooltipParentRef = useRef<HTMLInputElement>(null);
 
   return (
     <Field
@@ -295,77 +293,77 @@ export const defaultStripeElementValidator: OnValidateFunction = (
   };
 };
 
-type StripeElementWrapperProps = FieldProps & {
-  onValidate?: OnValidateFunction;
-  component: any;
-  getString?: Function;
-};
+// type StripeElementWrapperProps = FieldProps & {
+//   onValidate?: OnValidateFunction;
+//   component: any;
+//   getString?: Function;
+// };
 
-type WrappedStripeElementProps = StripeElementWrapperProps & CardElementProps;
+// type WrappedStripeElementProps = StripeElementWrapperProps & CardElementProps;
 
-export const StripeElement = (props: WrappedStripeElementProps) => {
-  const {
-    component: StripeElementComponent,
-    name,
-    tooltip,
-    onValidate = defaultStripeElementValidator,
-    required = false,
-    label,
-    className,
-    autoFocus,
-    getString,
-    ...childProps
-  } = props;
-  const { validator } = useContext(FormContext) as FormContextValue;
-  const elementValue = useRef<stripe.elements.ElementChangeResponse>();
-  const onChange = useCallback(
-    (value: stripe.elements.ElementChangeResponse) => {
-      elementValue.current = value;
-      validator.updateField({
-        name,
-        ...onValidate(value, true, props, getString),
-      });
-    },
-    [name, props, validator, onValidate, elementValue, getString]
-  );
+// export const StripeElement = (props: WrappedStripeElementProps) => {
+//   const {
+//     component: StripeElementComponent,
+//     name,
+//     tooltip,
+//     onValidate = defaultStripeElementValidator,
+//     required = false,
+//     label,
+//     className,
+//     autoFocus,
+//     getString,
+//     ...childProps
+//   } = props;
+//   const { validator } = useContext(FormContext) as FormContextValue;
+//   const elementValue = useRef<stripe.elements.ElementChangeResponse>();
+//   const onChange = useCallback(
+//     (value: stripe.elements.ElementChangeResponse) => {
+//       elementValue.current = value;
+//       validator.updateField({
+//         name,
+//         ...onValidate(value, true, props, getString),
+//       });
+//     },
+//     [name, props, validator, onValidate, elementValue, getString]
+//   );
 
-  const onBlur = useCallback(
-    (ev: any) => {
-      const value = elementValue.current;
-      validator.updateField({
-        name,
-        ...onValidate(value, false, props, getString),
-      });
-    },
-    [name, props, validator, onValidate, elementValue, getString]
-  );
+//   const onBlur = useCallback(
+//     (ev: any) => {
+//       const value = elementValue.current;
+//       validator.updateField({
+//         name,
+//         ...onValidate(value, false, props, getString),
+//       });
+//     },
+//     [name, props, validator, onValidate, elementValue, getString]
+//   );
 
-  const tooltipParentRef = useRef<any>(null);
-  return (
-    <Field
-      {...{
-        fieldType: 'stripe',
-        tooltipParentRef,
-        name,
-        tooltip,
-        required,
-        label,
-        className,
-        autoFocus,
-      }}
-    >
-      <div className="tooltip-parent" ref={tooltipParentRef}>
-        <StripeElementComponent
-          {...{
-            ...childProps,
-            onChange,
-            onBlur,
-          }}
-        />
-      </div>
-    </Field>
-  );
-};
+//   const tooltipParentRef = useRef<any>(null);
+//   return (
+//     <Field
+//       {...{
+//         fieldType: 'stripe',
+//         tooltipParentRef,
+//         name,
+//         tooltip,
+//         required,
+//         label,
+//         className,
+//         autoFocus,
+//       }}
+//     >
+//       <div className="tooltip-parent" ref={tooltipParentRef}>
+//         <StripeElementComponent
+//           {...{
+//             ...childProps,
+//             onChange,
+//             onBlur,
+//           }}
+//         />
+//       </div>
+//     </Field>
+//   );
+// };
 
 type CheckboxProps = {
   onValidate?: OnValidateFunction;
@@ -431,14 +429,7 @@ type SubmitButtonProps = { children: React.ReactNode } & FieldProps &
   >;
 
 export const SubmitButton = (props: SubmitButtonProps) => {
-  const {
-    name,
-    label,
-    children,
-    className,
-    disabled = false,
-    ...childProps
-  } = props;
+  const { name, children, className, disabled = false, ...childProps } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
   const buttonProps = {
     className,

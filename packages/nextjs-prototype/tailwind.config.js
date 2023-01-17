@@ -9,11 +9,12 @@ const extractImportedComponents = require('fxa-react/extract-imported-components
 const config = require('fxa-react/configs/tailwind');
 
 if (process.env.NODE_ENV === 'production') {
-  const matches = extractImportedComponents(
-    resolve(__dirname, 'src', 'components')
-  );
+  const matches = extractImportedComponents(resolve(__dirname, 'components'));
 
   config.content.push(...matches);
+  config.content.push('./pages/**/*.{js,ts,jsx,tsx}'); // Add nextjs react content
+  config.content.push('./components/**/*.{js,ts,jsx,tsx}'); // Add nextjs react content
+  config.safelist = undefined; // Remove for now - Causes 10s-30s compile times
 } else {
   config.content = [];
   config.content.push('../fxa-react/components/**/*.tsx');

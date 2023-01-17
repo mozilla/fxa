@@ -5,7 +5,7 @@
 // This is a React version of this Bootstrap view:
 // https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/views/tooltip.js
 
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 // import ScreenInfo from '../../lib/screen-info';
 // import { AppContext } from '../../lib/AppContext';

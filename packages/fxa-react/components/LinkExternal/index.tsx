@@ -32,10 +32,12 @@ export const LinkExternal = ({
       rel,
     }}
   >
-    {children}
-    <Localized id="link-sr-new-window">
-      <span className="sr-only">Opens in new window</span>
-    </Localized>
+    <>
+      {children}
+      <Localized id="link-sr-new-window">
+        <span className="sr-only">Opens in new window</span>
+      </Localized>
+    </>
   </a>
 );
 

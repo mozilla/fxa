@@ -1,7 +1,7 @@
-import { GenericTermItem } from '../../../components/TermsAndConditions';
-import { Plan } from '../../../data/mock';
+import { GenericTermItem } from '../../components/TermsAndConditions';
+import { Plan } from '../../data/mock';
 
-const DEFAULT_TERMS: GenericTermItem[] = [
+export const DEFAULT_TERMS: GenericTermItem[] = [
   {
     key: 'payment-provider-terms',
     title: 'Mozilla uses Stripe and PayPal for secure payment processing.',

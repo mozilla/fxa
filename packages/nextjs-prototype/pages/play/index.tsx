@@ -3,6 +3,8 @@ import AccountsInfo from '../../components/AccountsInfo';
 import PlanDetails from '../../components/PriceDetails';
 import CouponForm from '../../components/CouponForm';
 import TermsAndConditions from '../../components/TermsAndConditions';
+import { useState } from 'react';
+import { DEFAULT_TERMS } from '../../lib/checkout/helpers';
 
 const planDetailsProps = {
   priceInfo: {
@@ -34,16 +36,20 @@ const planDetailsProps = {
 };
 
 export default function PlayHome() {
+  const [, setPaymentsDisabled] = useState(true);
   return (
     <div className="mx-8">
       <h1>Playground to test or show components</h1>
       <div className="mt-8 w-[600px]">
         <h2>Account Info</h2>
-        <AccountsInfo />
+        <AccountsInfo
+          signInUrl={''}
+          setPaymentsDisabled={setPaymentsDisabled}
+        />
       </div>
       <div className="mt-8">
         <h2>Ts & Cs</h2>
-        <TermsAndConditions />
+        <TermsAndConditions terms={DEFAULT_TERMS} />
       </div>
       <div className="mt-8 w-[400px]">
         <h2>Plan Details</h2>

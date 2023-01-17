@@ -1,4 +1,5 @@
 import { Localized } from '@fluent/react';
+import { ReactElement } from 'react';
 
 const CHECK_LOGO = '/images/check.svg';
 
@@ -14,7 +15,7 @@ export const titles = {
 
 export type SubscriptionTitleProps = {
   screenType: keyof typeof titles;
-  subtitle?: React.ReactElement;
+  subtitle?: ReactElement;
   className?: string;
 };
 

@@ -1,23 +1,39 @@
-import { useReducer, useMemo } from 'react';
+import { useReducer, useMemo, Dispatch } from 'react';
 
-export const useValidatorState = (
-  params?: UseValidatorStateParams
-): Validator => {
-  const { initialState = defaultState, middleware = undefined } = params || {};
-
-  let reducer = middleware
-    ? (state: State, action: Action) => middleware(state, action, mainReducer)
-    : mainReducer;
-
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  return useMemo(() => new Validator(state, dispatch), [state, dispatch]);
+export type FieldType = 'input' | 'stripe';
+type FieldStateKeys = 'fieldType' | 'value' | 'required' | 'valid' | 'error';
+type FieldState = {
+  fieldType: FieldType;
+  value?: any;
+  required: boolean;
+  valid: boolean | undefined | null;
+  error: string | null;
 };
 
-type UseValidatorStateParams = {
-  initialState?: State;
-  middleware?: MiddlewareReducer;
+export type State = {
+  error: any;
+  fields: { [name: string]: FieldState };
 };
+
+export type Action =
+  | {
+      type: 'registerField';
+      name: string;
+      fieldType: FieldType;
+      required: boolean;
+      initialValue: any;
+    }
+  | {
+      type: 'updateField';
+      name: string;
+      value: any;
+      valid: boolean | null | undefined;
+      error: any;
+    }
+  | { type: 'setGlobalError'; error: any }
+  | { type: 'resetGlobalError' };
+
+export type ActionReducer = (state: State, action: Action) => State;
 
 export type MiddlewareReducer = (
   state: State,
@@ -25,11 +41,21 @@ export type MiddlewareReducer = (
   next: ActionReducer
 ) => State;
 
+type UseValidatorStateParams = {
+  initialState?: State;
+  middleware?: MiddlewareReducer;
+};
+
+export const defaultState: State = {
+  error: null,
+  fields: {},
+};
+
 export class Validator {
   state: State;
-  dispatch: React.Dispatch<Action>;
+  dispatch: Dispatch<Action>;
 
-  constructor(state: State, dispatch: React.Dispatch<Action>) {
+  constructor(state: State, dispatch: Dispatch<Action>) {
     this.state = state;
     this.dispatch = dispatch;
   }
@@ -118,45 +144,17 @@ export class Validator {
   }
 }
 
-export type State = {
-  error: any;
-  fields: { [name: string]: FieldState };
-};
-
-export type FieldType = 'input' | 'stripe';
-type FieldStateKeys = 'fieldType' | 'value' | 'required' | 'valid' | 'error';
-type FieldState = {
-  fieldType: FieldType;
-  value?: any;
-  required: boolean;
-  valid: boolean | undefined | null;
-  error: string | null;
-};
-
-export const defaultState: State = {
-  error: null,
-  fields: {},
-};
-
-export type Action =
-  | {
-      type: 'registerField';
-      name: string;
-      fieldType: FieldType;
-      required: boolean;
-      initialValue: any;
-    }
-  | {
-      type: 'updateField';
-      name: string;
-      value: any;
-      valid: boolean | null | undefined;
-      error: any;
-    }
-  | { type: 'setGlobalError'; error: any }
-  | { type: 'resetGlobalError' };
-
-export type ActionReducer = (state: State, action: Action) => State;
+export const setFieldState = (
+  state: State,
+  name: string,
+  fn: (field: FieldState) => FieldState
+) => ({
+  ...state,
+  fields: {
+    ...state.fields,
+    [name]: fn(state.fields[name]),
+  },
+});
 
 export const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
@@ -188,19 +186,20 @@ export const mainReducer: ActionReducer = (state, action) => {
       return { ...state, error: null };
     }
   }
-  return state;
 };
 
-export const setFieldState = (
-  state: State,
-  name: string,
-  fn: (field: FieldState) => FieldState
-) => ({
-  ...state,
-  fields: {
-    ...state.fields,
-    [name]: fn(state.fields[name]),
-  },
-});
+export const useValidatorState = (
+  params?: UseValidatorStateParams
+): Validator => {
+  const { initialState = defaultState, middleware = undefined } = params || {};
+
+  const reducer = middleware
+    ? (state: State, action: Action) => middleware(state, action, mainReducer)
+    : mainReducer;
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return useMemo(() => new Validator(state, dispatch), [state, dispatch]);
+};
 
 export default useValidatorState;

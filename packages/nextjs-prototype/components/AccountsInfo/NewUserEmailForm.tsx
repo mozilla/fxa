@@ -44,7 +44,7 @@ export default function NewUserEmailForm({
     } else {
       setEmailOk(false);
     }
-  }, [emailValid, emailsMatch]);
+  }, [emailValid, emailsMatch, setEmailOk]);
 
   return (
     <Form
@@ -128,7 +128,7 @@ export default function NewUserEmailForm({
           name="new-user-subscribe-product-updates"
           onClick={onToggleNewsletterCheckbox}
         >
-          I'd like to receive product updates from Firefox
+          I&apos;d like to receive product updates from Firefox
         </Checkbox>
       </Localized>
 

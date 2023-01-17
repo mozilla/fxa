@@ -16,6 +16,7 @@ export default function TermsAndConditions(props: TermsAndConditionsProps) {
   return (
     <>
       {terms.map((term) => (
+        // eslint-disable-next-line react/jsx-key
         <GenericTerms {...term} />
       ))}
     </>

@@ -23,7 +23,7 @@ export default function GenericTerms(props: GenericTermsProps) {
 
       <p className="m-0 text-grey-400">
         {items.map((item) => (
-          <span className="mr-3 last:mr-0">
+          <span key={`span-${item.href}`} className="mr-3 last:mr-0">
             <LinkExternal key={item.href} href={item.href}>
               {item.text}
             </LinkExternal>
