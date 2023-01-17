@@ -69,12 +69,9 @@ export default function PriceDetails(props: PriceDetailsProps) {
 
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
 
-  const role = isMobile ? undefined : 'complementary';
-
   return (
     <div
       className={`component-card px-4 rounded-t-none tablet:rounded-t-lg ${className}`}
-      {...{ role }}
       data-testid="plan-details-component"
     >
       <div className="plan-details-header row-divider-grey-200">

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import PriceDetails from '../../../components/PriceDetails';
+import CouponForm from '../../../components/CouponForm';
 import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
@@ -54,20 +55,21 @@ export default function CheckoutPricePage({
   const terms = buildTermsPropsFromPriceConfig(priceConfig);
 
   return (
-    <div className="main-content">
+    <main className="main-content">
       <SubscriptionTitle screenType="create" />
-      <div className="payment-panel">
+      <article className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+        <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
+        <PaymentForm disabled={paymentsDisabled} />
+        <TermsAndConditions terms={terms} />
+      </article>
+      <aside className="payment-panel">
         <PriceDetails
           priceInfo={priceDetailsProps.priceInfo}
           additionalStyles={priceDetailsProps.additionalStyles}
           infoBox={priceDetailsProps.infoBox}
         />
-      </div>
-      <div className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
-        <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
-        <PaymentForm disabled={paymentsDisabled} />
-        <TermsAndConditions terms={terms} />
-      </div>
-    </div>
+        <CouponForm />
+      </aside>
+    </main>
   );
 }
