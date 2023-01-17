@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
-import PriceDetails from '../../../components/PriceDetails';
+import PriceDetails, { PriceInfo } from '../../../components/PriceDetails';
 import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
-import { mockHCMSFetch, Plan, priceDetailsProps } from '../../../data/mock';
-import { buildTermsPropsFromPriceConfig } from '../../../lib/checkout/helpers';
+import {
+  mockHCMSFetch,
+  mockInvoicePreviewFetch,
+  Plan,
+  priceDetailsProps,
+} from '../../../data/mock';
+import {
+  buildPriceDetails,
+  buildTermsPropsFromPriceConfig,
+} from '../../../lib/checkout/helpers';
 
 /**
  * ????? Open Questions ?????
@@ -49,19 +57,34 @@ export default function CheckoutPricePage({
   priceConfig: Plan;
 }) {
   const [paymentsDisabled, setPaymentsDisabled] = useState(true);
+  const [priceInfo, setPriceInfo] = useState<PriceInfo | null>(null);
+  const [isLoading, setLoading] = useState(false);
 
   // Investigate how to only execute this once
   const terms = buildTermsPropsFromPriceConfig(priceConfig);
+
+  useEffect(() => {
+    setLoading(true);
+    mockInvoicePreviewFetch().then((res) => {
+      const compiledPriceInfo = buildPriceDetails(priceConfig, res);
+      setPriceInfo(compiledPriceInfo);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div className="main-content">
       <SubscriptionTitle screenType="create" />
       <div className="payment-panel">
-        <PriceDetails
-          priceInfo={priceDetailsProps.priceInfo}
-          additionalStyles={priceDetailsProps.additionalStyles}
-          infoBox={priceDetailsProps.infoBox}
-        />
+        {isLoading || !priceInfo ? (
+          <div>Loading</div>
+        ) : (
+          <PriceDetails
+            priceInfo={priceInfo}
+            additionalStyles={priceDetailsProps.additionalStyles}
+            infoBox={priceDetailsProps.infoBox}
+          />
+        )}
       </div>
       <div className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
         <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />

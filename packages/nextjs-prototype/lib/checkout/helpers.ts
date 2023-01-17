@@ -1,5 +1,6 @@
+import { PriceInfo } from '../../components/PriceDetails';
 import { GenericTermItem } from '../../components/TermsAndConditions';
-import { Plan } from '../../data/mock';
+import { Plan, InvoicePreview } from '../../data/mock';
 
 export const DEFAULT_TERMS: GenericTermItem[] = [
   {
@@ -68,4 +69,29 @@ export function buildTermsPropsFromPriceConfig(priceConfig: Plan) {
   });
 
   return terms;
+}
+
+export function buildPriceDetails(
+  priceConfig: Plan,
+  invoicePreview: InvoicePreview
+): PriceInfo {
+  const taxAmount = invoicePreview.tax ? invoicePreview.tax[0].amount : 0;
+  const discountAmount = invoicePreview.discount
+    ? invoicePreview.discount[0].amount
+    : 0;
+
+  return {
+    id: priceConfig.id,
+    name: priceConfig.planName,
+    productName: priceConfig.productName,
+    listPrice: invoicePreview.subtotal,
+    taxAmount,
+    discountAmount,
+    totalPrice: invoicePreview.total,
+    currency: 'USD',
+    interval: 'month',
+    intervalCount: 1,
+    details: priceConfig.description,
+    subtitle: priceConfig.subtitle,
+  };
 }

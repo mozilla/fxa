@@ -139,3 +139,54 @@ export async function mockHCMSFetch(): Promise<Plan> {
       'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
   };
 }
+
+type InvoiceTax = {
+  amount: number;
+  inclusive: boolean;
+  displayName: string;
+};
+
+type InvoiceDiscount = {
+  amount: number;
+  amountOff: number;
+  percentOff: number | null;
+};
+
+export type InvoicePreview = {
+  total: number;
+  totalExcludingTax: number | null;
+  subtotal: number;
+  subtotalExcludingTax: number | null;
+  currency: string;
+  tax: InvoiceTax[] | null;
+  discount: InvoiceDiscount[] | null;
+};
+
+export const mockInvoicePreview: InvoicePreview = {
+  total: 2250,
+  totalExcludingTax: 1950,
+  subtotal: 2000,
+  subtotalExcludingTax: 2000,
+  currency: 'USD',
+  tax: [
+    {
+      amount: 300,
+      inclusive: false,
+      displayName: 'Sales Tax',
+    },
+  ],
+  discount: [
+    {
+      amount: 50,
+      amountOff: 50,
+      percentOff: null,
+    },
+  ],
+};
+
+export async function mockInvoicePreviewFetch(
+  withDelay: boolean = false
+): Promise<InvoicePreview> {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return mockInvoicePreview;
+}
