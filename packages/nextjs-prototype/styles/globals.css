@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 body {
-  @apply text-sm font-body;
+  @apply text-sm font-body m-0;
 }
 
 /* shared styles used in Checkout and SubscriptionCreate*/
