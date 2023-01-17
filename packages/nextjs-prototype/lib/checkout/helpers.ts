@@ -71,6 +71,17 @@ export function buildTermsPropsFromPriceConfig(priceConfig: Plan) {
   return terms;
 }
 
+/**
+ * Build the terms and privacy props using DEFAULT_TERMS
+ * and the price config from the hCMS for the price specified by the path
+ */
+export function buildAdditionalStyles(priceConfig: Plan) {
+  return {
+    webIcon: priceConfig.webIconUrl,
+    webIconBackground: priceConfig.styles?.webIconBackground,
+  };
+}
+
 export function buildPriceDetails(
   priceConfig: Plan,
   invoicePreview: InvoicePreview

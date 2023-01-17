@@ -127,7 +127,7 @@ export async function mockHCMSFetch(): Promise<Plan> {
     upgradeCTA: 'Lets get you updated',
     successActionButtonUrl: 'https://foxkeh.com/buttons/',
     successActionButtonLabel: 'You did it!',
-    webIconUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+    webIconUrl: 'https://foxkeh.com/downloads/parts/head01.svg',
     tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
     tosDownloadUrl:
       'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',

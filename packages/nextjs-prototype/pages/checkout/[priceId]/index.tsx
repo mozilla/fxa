@@ -11,6 +11,7 @@ import {
   priceDetailsProps,
 } from '../../../data/mock';
 import {
+  buildAdditionalStyles,
   buildPriceDetails,
   buildTermsPropsFromPriceConfig,
 } from '../../../lib/checkout/helpers';
@@ -62,7 +63,10 @@ export default function CheckoutPricePage({
 
   // Investigate how to only execute this once
   const terms = buildTermsPropsFromPriceConfig(priceConfig);
+  const additionalStyles = buildAdditionalStyles(priceConfig);
 
+  // Once we switch to GraphQL also switch to Vercel SWR
+  // https://nextjs.org/docs/basic-features/data-fetching/client-side#client-side-data-fetching-with-swr
   useEffect(() => {
     setLoading(true);
     mockInvoicePreviewFetch().then((res) => {
@@ -81,8 +85,7 @@ export default function CheckoutPricePage({
         ) : (
           <PriceDetails
             priceInfo={priceInfo}
-            additionalStyles={priceDetailsProps.additionalStyles}
-            infoBox={priceDetailsProps.infoBox}
+            additionalStyles={additionalStyles}
           />
         )}
       </div>
