@@ -8,13 +8,7 @@ import PasswordStrengthBalloon from '.';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
-const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-}));
-
-describe('password requirement balloons', () => {
+describe('PasswordStrengthBalloon component', () => {
   // TODO: enable l10n tests when FXA-6461 is resolved (handle embedded tags)
   // let bundle: FluentBundle;
   // beforeAll(async () => {

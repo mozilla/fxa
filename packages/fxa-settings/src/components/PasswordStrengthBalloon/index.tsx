@@ -48,7 +48,9 @@ export const PasswordStrengthBalloon = ({
         <li data-testid="password-not-email-req" className="flex">
           <span className="w-4 h-4 text-center">
             {!hasUserTakenAction && '•'}
-            {hasUserTakenAction && <ValidationIcon hasError={isSameAsEmail} />}
+            {hasUserTakenAction && (
+              <ValidationIcon hasError={!isTooShort && isSameAsEmail} />
+            )}
           </span>
           <FtlMsg id="password-strength-balloon-not-email">
             <span className="ltr:pl-2 rtl:pr-2">Not your email address</span>
@@ -70,10 +72,22 @@ export const PasswordStrengthBalloon = ({
           <span className="w-8 h-8 ">
             <LockIcon />
           </span>
-          <FtlMsg id="password-strength-balloon-stay-safe-tips">
+          <FtlMsg
+            id="password-strength-balloon-stay-safe-tips"
+            elems={{
+              LinkExternal: (
+                <LinkExternal
+                  href="https://support.mozilla.org/kb/password-strength"
+                  data-testid="password-strength-tips-link"
+                  className="link-grey"
+                >
+                  create strong passwords
+                </LinkExternal>
+              ),
+            }}
+          >
             <span className="ltr:pl-2 rtl:pr-2" data-testid="password-tip">
               Stay safe &mdash; don’t reuse passwords. See more tips to{' '}
-              {/* TODO set link target */}
               <LinkExternal
                 href="https://support.mozilla.org/kb/password-strength"
                 data-testid="password-strength-tips-link"

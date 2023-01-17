@@ -3,20 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Subject } from './mocks';
+import ChooseWhatToSync from '.';
 import AppLayout from '../AppLayout';
-import FormResetPasswordWithBalloon from '.';
 import { Meta } from '@storybook/react';
+import { Subject } from './mocks';
 
 export default {
-  title: 'Components/FormResetPasswordWithBalloon',
-  component: FormResetPasswordWithBalloon,
+  title: 'components/ChooseWhatToSync',
+  component: ChooseWhatToSync,
 } as Meta;
 
-export const Default = () => (
-  <AppLayout>
-    <div className="max-w-lg mx-auto">
+export const Default = () => {
+  return (
+    <AppLayout>
       <Subject />
-    </div>
-  </AppLayout>
-);
+    </AppLayout>
+  );
+};

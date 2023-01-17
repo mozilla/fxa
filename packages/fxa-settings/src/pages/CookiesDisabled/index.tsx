@@ -73,14 +73,14 @@ const CookiesDisabled = (_: RouteComponentProps) => {
         </p>
       </FtlMsg>
 
-      <p className="my-6">
+      <div className="my-6">
         <LinkExternal
           className="link-blue text-sm"
           href="https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer"
         >
           <FtlMsg id="cookies-disabled-learn-more">Learn more</FtlMsg>
         </LinkExternal>
-      </p>
+      </div>
 
       <div className="flex">
         <FtlMsg id="cookies-disabled-button-try-again">

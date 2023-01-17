@@ -104,19 +104,17 @@ export const InputText = ({
   return (
     <label
       className={classNames(
-        'flex items-center rounded transition-all duration-100 ease-in-out border relative',
-        focused
-          ? 'border-blue-400 shadow-input-blue-focus outline-none'
+        'flex items-center rounded transition-all duration-100 ease-in-out border relative outline-none',
+        hasErrors || errorText ? 'border-red-700 shadow-input-red-focus' : '',
+        !hasErrors && focused
+          ? 'border-blue-400 shadow-input-blue-focus'
           : 'border-grey-200',
         disabled ? 'border-grey-100 bg-grey-10' : 'bg-white',
-        hasErrors || errorText
-          ? 'border-2 border-red-700 shadow-input-red-focus'
-          : '',
         className
       )}
       data-testid={formatDataTestId('input-container')}
     >
-      <span className="block flex-auto  bg-green-100">
+      <span className="block flex-auto">
         <span
           className={classNames(
             'px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body',
@@ -132,7 +130,7 @@ export const InputText = ({
         <input
           className={classNames(
             'pb-1 pt-5 px-3 w-full font-body rounded',
-            focused ? 'outline-none placeholder-grey-500' : '',
+            focused ? 'outline-none border-none placeholder-grey-500' : '',
             disabled ? 'bg-grey-10 placeholder-transparent cursor-default' : ''
           )}
           data-testid={formatDataTestId('input-field')}

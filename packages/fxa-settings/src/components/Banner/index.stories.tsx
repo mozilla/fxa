@@ -6,6 +6,7 @@ import React from 'react';
 import Banner, { BannerType } from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
+import { Subject } from './mocks';
 
 export default {
   title: 'components/Banner',
@@ -33,5 +34,11 @@ export const Error = () => (
     <Banner type={BannerType.error}>
       <p>This is an "error" type banner inside our AppLayout.</p>
     </Banner>
+  </AppLayout>
+);
+
+export const DismissibleInfo = () => (
+  <AppLayout>
+    <Subject />
   </AppLayout>
 );
