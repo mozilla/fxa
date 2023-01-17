@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
-import PriceDetails from '../../../components/PriceDetails';
 import CouponForm from '../../../components/CouponForm';
+import PriceDetails, { PriceInfo } from '../../../components/PriceDetails';
 import AccountsInfo from '../../../components/AccountsInfo';
 import TermsAndConditions from '../../../components/TermsAndConditions';
 import PaymentForm from '../../../components/PaymentForm';
-import { mockHCMSFetch, Plan, priceDetailsProps } from '../../../data/mock';
-import { buildTermsPropsFromPriceConfig } from '../../../lib/checkout/helpers';
+import {
+  mockHCMSFetch,
+  mockInvoicePreviewFetch,
+  Plan,
+  priceDetailsProps,
+} from '../../../data/mock';
+import {
+  buildAdditionalStyles,
+  buildPriceDetails,
+  buildTermsPropsFromPriceConfig,
+} from '../../../lib/checkout/helpers';
 
 /**
  * ????? Open Questions ?????
@@ -50,9 +59,23 @@ export default function CheckoutPricePage({
   priceConfig: Plan;
 }) {
   const [paymentsDisabled, setPaymentsDisabled] = useState(true);
+  const [priceInfo, setPriceInfo] = useState<PriceInfo | null>(null);
+  const [isLoading, setLoading] = useState(false);
 
   // Investigate how to only execute this once
   const terms = buildTermsPropsFromPriceConfig(priceConfig);
+  const additionalStyles = buildAdditionalStyles(priceConfig);
+
+  // Once we switch to GraphQL also switch to Vercel SWR
+  // https://nextjs.org/docs/basic-features/data-fetching/client-side#client-side-data-fetching-with-swr
+  useEffect(() => {
+    setLoading(true);
+    mockInvoicePreviewFetch().then((res) => {
+      const compiledPriceInfo = buildPriceDetails(priceConfig, res);
+      setPriceInfo(compiledPriceInfo);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <main className="main-content">
@@ -63,11 +86,14 @@ export default function CheckoutPricePage({
         <TermsAndConditions terms={terms} />
       </article>
       <aside className="payment-panel">
-        <PriceDetails
-          priceInfo={priceDetailsProps.priceInfo}
-          additionalStyles={priceDetailsProps.additionalStyles}
-          infoBox={priceDetailsProps.infoBox}
-        />
+        {isLoading || !priceInfo ? (
+          <div>Loading</div>
+        ) : (
+          <PriceDetails
+            priceInfo={priceInfo}
+            additionalStyles={additionalStyles}
+          />
+        )}
         <CouponForm />
       </aside>
     </main>
