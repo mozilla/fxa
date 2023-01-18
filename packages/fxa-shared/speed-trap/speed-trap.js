@@ -15,19 +15,19 @@ var SpeedTrap = {
     // reduced functionality. The exact performance API can also be passed in as option
     // for testing purposes.
     this.performance = options.performance || getPerformanceApi();
-    this.baseTime = this.performance.timeOrigin;
+    this.baseTime = parseInt(this.performance.timeOrigin);
 
     this.navigationTiming = Object.create(NavigationTiming);
     this.navigationTiming.init({
       performance: this.performance,
-      useL1Timings: options.useL1Timings
+      useL1Timings: options.useL1Timings,
     });
 
     this.timers = Object.create(Timers);
-    this.timers.init({performance: this.performance});
+    this.timers.init({ performance: this.performance });
 
     this.events = Object.create(Events);
-    this.events.init({performance: this.performance});
+    this.events.init({ performance: this.performance });
 
     this.uuid = guid();
 
@@ -106,7 +106,7 @@ var SpeedTrap = {
       // performance.timeOrigin or performance.timings.navigationStart and get a valid value.
       // It's very likely the performance API is using a monotonic clock that does not match our
       // current system clock.
-      duration: this.performance.now(),
+      duration: parseInt(this.performance.now()),
       timers: this.timers.get(),
       events: this.events.get(),
     };
@@ -122,8 +122,9 @@ var SpeedTrap = {
    * Note: performance.now() will likely differ from Date.now() and is not expected to be the real
    * time. Please be aware of what underlying implementation is in use when calling this function.
    */
-  now: function() {
-    return this.performance.timeOrigin + this.performance.now();
+  now: function () {
+    // Chrome's performance api returns floats, but our API requires integers.
+    return parseInt(this.performance.timeOrigin + this.performance.now());
   },
 
   /**
@@ -135,7 +136,7 @@ var SpeedTrap = {
       return this.performance.isInSuspectState();
     }
     return false;
-  }
+  },
 };
 
 export default Object.create(SpeedTrap);
