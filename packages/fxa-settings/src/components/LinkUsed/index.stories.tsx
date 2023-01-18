@@ -5,15 +5,21 @@
 import React from 'react';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
-import ResetPasswordLinkExpired from '.';
+import LinkUsed from '.';
 
 export default {
-  title: 'components/ResetPasswordLinkExpired',
-  component: ResetPasswordLinkExpired,
+  title: 'components/LinkUsed',
+  component: LinkUsed,
 } as Meta;
 
-export const Default = () => (
+export const LinkAlreadyUsedForPrimaryEmail = () => (
   <AppLayout>
-    <ResetPasswordLinkExpired />
+    <LinkUsed isForPrimaryEmail={true} />
+  </AppLayout>
+);
+
+export const LinkAlreadyUsedForSomethingOtherThanPrimaryEmail = () => (
+  <AppLayout>
+    <LinkUsed isForPrimaryEmail={false} />
   </AppLayout>
 );
