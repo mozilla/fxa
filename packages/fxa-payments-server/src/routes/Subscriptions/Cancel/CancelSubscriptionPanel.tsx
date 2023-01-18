@@ -99,7 +99,6 @@ export type CancelSubscriptionPanelProps = {
   paymentProvider: PaymentProvider | undefined;
   promotionCode: string | undefined;
   subsequentInvoice: SubsequentInvoicePreview;
-  invoicePreview: FirstInvoicePreview;
 };
 
 const CancelSubscriptionPanel = ({
@@ -110,7 +109,6 @@ const CancelSubscriptionPanel = ({
   paymentProvider,
   promotionCode,
   subsequentInvoice,
-  invoicePreview,
 }: CancelSubscriptionPanelProps) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
@@ -187,7 +185,8 @@ const CancelSubscriptionPanel = ({
     [onConfirmationChanged, engage]
   );
 
-  const intervalPriceDetailsData = getIntervalPriceDetailsData(invoicePreview);
+  const intervalPriceDetailsData =
+    getIntervalPriceDetailsData(subsequentInvoice);
   const { nextBillL10nId, nextBillAmount, nextBillDate, nextBillL10nVars } =
     getNextBillData(plan, subsequentInvoice);
 

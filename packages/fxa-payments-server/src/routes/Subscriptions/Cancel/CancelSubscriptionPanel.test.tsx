@@ -16,10 +16,6 @@ import {
   MOCK_CUSTOMER,
   MOCK_SUBSEQUENT_INVOICES,
   MOCK_PREVIEW_INVOICE_NO_TAX,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
 } from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
@@ -52,7 +48,6 @@ describe('CancelSubscriptionPanel', () => {
     cancelSubscription: jest.fn().mockResolvedValue(null),
     cancelSubscriptionStatus: defaultState.cancelSubscription,
     subsequentInvoice: MOCK_SUBSEQUENT_INVOICES[0],
-    invoicePreview: MOCK_PREVIEW_INVOICE_NO_TAX,
     promotionCode: undefined,
     paymentProvider: undefined,
   };
@@ -73,7 +68,7 @@ describe('CancelSubscriptionPanel', () => {
           render(<CancelSubscriptionPanel {...props} />);
 
           const planPrice = formatPlanPricing(
-            props.invoicePreview.total,
+            props.subsequentInvoice.total,
             props.plan.currency,
             props.plan.interval,
             props.plan.interval_count
@@ -232,7 +227,7 @@ describe('CancelSubscriptionPanel', () => {
             />
           </LocalizationProvider>
         );
-        expect(queryByText('$20.00 fooly')).toBeInTheDocument();
+        expect(queryByText('$5.00 fooly')).toBeInTheDocument();
         expect(queryByText('quuz 09/13/2019')).toBeInTheDocument();
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -252,7 +247,7 @@ describe('CancelSubscriptionPanel', () => {
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );
-        expect(queryByText('$20.00 barly 8 24hrs')).toBeInTheDocument();
+        expect(queryByText('$5.00 barly 8 24hrs')).toBeInTheDocument();
       });
 
       it('displays the correct pricing and exclusive tax info with interval of 1', () => {
@@ -276,12 +271,11 @@ describe('CancelSubscriptionPanel', () => {
                 ...MOCK_SUBSEQUENT_INVOICES[2],
                 period_start: 1568408388.815,
               }}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 + $3.00 tax fooly'
+          '$5.00 + $1.23 tax fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $5.00 + $1.23 taxes is due due 09/13/2019'
@@ -307,12 +301,11 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[2]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 + $3.00 tax barly 8 24hrs'
+          '$5.00 + $1.23 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $5.00 + $1.23 taxes is due due 08/14/2019'
@@ -336,12 +329,11 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[4]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$19.50 + $3.00 tax barly 8 24hrs'
+          '$4.50 + $1.23 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $4.50 + $1.23 taxes is due due 08/14/2019'
@@ -368,12 +360,11 @@ describe('CancelSubscriptionPanel', () => {
                 ...MOCK_SUBSEQUENT_INVOICES[3],
                 period_start: 1568408388.815,
               }}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 fooly'
+          '$5.00 fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $5.00 prices is due due 09/13/2019'
@@ -388,7 +379,7 @@ describe('CancelSubscriptionPanel', () => {
             [one] { $priceAmount } fooly
             *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
-          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due <strong>{ $date }</strong>`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
@@ -398,15 +389,14 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[3]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 barly 8 24hrs'
+          '$5.00 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 08/14/2019'
+          'Your next bill of $5.00 prices is due 08/14/2019'
         );
       });
 
@@ -427,12 +417,11 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[5]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT}
             />
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$19.50 barly 8 24hrs'
+          '$4.50 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $4.50 prices is due due 08/14/2019'

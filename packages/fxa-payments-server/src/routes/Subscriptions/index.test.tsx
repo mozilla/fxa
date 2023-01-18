@@ -162,9 +162,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, mockSubsequentInvoices),
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, mockPreviewInvoice),
   ];
 
   it('uses PaymentUpdateForm', async () => {
@@ -173,9 +170,6 @@ describe('routes/Subscriptions', () => {
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
       mockPreviewInvoice: MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     render(<Subject />);
     await screen.findByTestId('subscription-management-loaded');
     await waitForExpect(() => {
@@ -192,9 +186,6 @@ describe('routes/Subscriptions', () => {
       mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
 
     const { findByTestId, queryAllByTestId, queryByTestId } = render(
       <Subject />
@@ -214,9 +205,6 @@ describe('routes/Subscriptions', () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId } = render(<Subject />);
     await findByTestId('manage-pocket-title');
     await findByTestId('manage-pocket-link');
@@ -238,9 +226,6 @@ describe('routes/Subscriptions', () => {
         },
       })),
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId, queryAllByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     expect(queryAllByTestId('upgrade-cta').length).toBe(2);
@@ -265,9 +250,6 @@ describe('routes/Subscriptions', () => {
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { getAllByTestId, findByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
@@ -308,9 +290,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-profile');
   });
@@ -329,9 +308,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-plans');
   });
@@ -350,9 +326,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
   });
@@ -371,32 +344,8 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(500, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-invoice');
-  });
-
-  it('displays an error if preview invoice fetch fails', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(500, MOCK_PREVIEW_INVOICE_NO_TAX);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-invoice-previews');
   });
 
   it('displays an error if subsequent invoice response is an empty array', async () => {
@@ -413,32 +362,8 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, []);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-subsequent-invoice');
-  });
-
-  it('displays an error if invoice preview doesnt match any subscription', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-subhub-missing-invoice-preview');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
@@ -457,9 +382,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
@@ -534,9 +456,6 @@ describe('routes/Subscriptions', () => {
           },
         ],
       });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
 
     const {
       findByTestId,
@@ -600,9 +519,6 @@ describe('routes/Subscriptions', () => {
     });
 
     nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
-    nock(authServer)
       .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
       .reply(200, {});
     nock(authServer)
@@ -646,12 +562,6 @@ describe('routes/Subscriptions', () => {
           },
         ],
       });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
 
     const { findByTestId, queryAllByTestId, queryByTestId, getAllByTestId } =
       render(<Subject />);
@@ -911,9 +821,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');
   });
