@@ -1,6 +1,6 @@
 import React from 'react';
-import { Profile } from '../../lib/types';
-import Header from '../../components/Header';
+import { Profile } from '../lib/types';
+import Header from '../components/Header';
 
 type Props = {
   children: React.ReactNode;

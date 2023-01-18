@@ -15,8 +15,8 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../lib/validator';
 
-import Layout from '../templates/Layout';
 import CouponForm from '../components/CouponForm';
+import Layout from '../layouts';
 
 export type CheckoutProps = {
   validatorInitialState?: ValidatorState;
