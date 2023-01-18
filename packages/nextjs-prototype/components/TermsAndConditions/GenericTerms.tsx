@@ -2,12 +2,14 @@ import { Localized } from '@fluent/react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type GenericTermsListItem = {
+  key: string;
   href: string;
   text: string;
   localizationId: string;
 };
 
 export type GenericTermsProps = {
+  key: string;
   title: string;
   titleLocalizationId: string;
   items: GenericTermsListItem[];
@@ -15,6 +17,7 @@ export type GenericTermsProps = {
 
 export default function GenericTerms(props: GenericTermsProps) {
   const { title, titleLocalizationId, items } = props;
+  console.log({ props });
   return (
     <div className="clear-both mt-5 text-xs leading-5 text-center">
       <Localized id={titleLocalizationId}>
@@ -23,8 +26,8 @@ export default function GenericTerms(props: GenericTermsProps) {
 
       <p className="m-0 text-grey-400">
         {items.map((item) => (
-          <span key={`span-${item.href}`} className="mr-3 last:mr-0">
-            <LinkExternal key={item.href} href={item.href}>
+          <span key={`span-${item.key}`} className="mr-3 last:mr-0">
+            <LinkExternal key={`link-${item.key}`} href={item.href}>
               {item.text}
             </LinkExternal>
           </span>

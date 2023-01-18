@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8100",
+    "dev": "next dev -p 8110",
     "build": "next build",
-    "start": "next start -p 8100",
+    "start": "next start -p 8110",
     "lint": "next lint"
   },
   "dependencies": {
@@ -15,9 +15,12 @@
     "@types/react-dom": "18.0.10",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.1.0",
     "next": "13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "swr": "^2.0.0",
     "typescript": "4.9.4"
   },
   "devDependencies": {

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { request } from 'graphql-request';
+import useSWR from 'swr';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import CouponForm from '../../../components/CouponForm';
 import PriceDetails, { PriceInfo } from '../../../components/PriceDetails';
@@ -56,6 +58,9 @@ export async function getStaticProps() {
   };
 }
 
+const fetcher = (query: any, variables: any) =>
+  request('http://localhost:8100/graphql', query, variables);
+
 export default function CheckoutPricePage({
   priceConfig,
 }: {
@@ -79,6 +84,35 @@ export default function CheckoutPricePage({
       setLoading(false);
     });
   }, []);
+
+  console.log('REINO --- before request here');
+
+  const {
+    data,
+    error,
+    isLoading: isLoading2,
+  } = useSWR(
+    [
+      `{
+      invoicePreview(planId: $planId) {
+        total
+        subtotal
+        discount {
+          amount
+        }
+        tax {
+          amount
+        }
+      }
+    }`,
+      {
+        planId: '123',
+      },
+    ],
+    fetcher
+  );
+
+  console.log({ data, error, isLoading2 });
 
   return (
     <>

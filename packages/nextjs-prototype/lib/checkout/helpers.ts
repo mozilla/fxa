@@ -9,11 +9,13 @@ export const DEFAULT_TERMS: GenericTermItem[] = [
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'payment-provider-terms-1',
         href: 'https://stripe.com/privacy',
         text: 'Stripe privacy policy',
         localizationId: 'stripe-item-1',
       },
       {
+        key: 'payment-provider-terms-2',
         href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
         text: 'PayPal privacy policy',
         localizationId: 'paypal-item-1',
@@ -26,11 +28,13 @@ export const DEFAULT_TERMS: GenericTermItem[] = [
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'fxa-terms-1',
         href: 'https://accounts.stage.mozaws.net/legal/terms',
         text: 'Terms of Service',
         localizationId: 'terms-item-1',
       },
       {
+        key: 'fxa-terms-2',
         href: 'https://accounts.stage.mozaws.net/legal/privacy',
         text: 'Privacy Notice',
         localizationId: 'privacy-item-1',
@@ -51,16 +55,19 @@ export function buildTermsPropsFromPriceConfig(priceConfig: Plan) {
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'product-terms-1',
         href: priceConfig.tosUrl,
         text: 'Terms of Service',
         localizationId: 'terms-item-1',
       },
       {
+        key: 'product-terms-2',
         href: priceConfig.privacyNoticeUrl,
         text: 'Privacy Notice',
         localizationId: 'privacy-item-1',
       },
       {
+        key: 'product-terms-3',
         href: priceConfig.tosDownloadUrl,
         text: 'Download Terms',
         localizationId: 'download-item-1',
