@@ -9,7 +9,7 @@ import { Meta } from '@storybook/react';
 import { MOCK_SERVICE } from './mocks';
 
 export default {
-  title: 'pages/SigninRecoveryCode',
+  title: 'pages/Signin/SigninRecoveryCode',
   component: SigninRecoveryCode,
 } as Meta;
 

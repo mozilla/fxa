@@ -5,10 +5,10 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
-import InputText from '../../components/InputText';
+import InputText from '../../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
-import { usePageViewEvent, logViewEvent } from '../../lib/metrics';
+import { useFtlMsgResolver } from '../../../models/hooks';
+import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { ReactComponent as MailImg } from './graphic_mail.svg';
 

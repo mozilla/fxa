@@ -4,12 +4,12 @@
 
 import React from 'react';
 import SigninReported from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/SigninReported',
+  title: 'pages/Signin/SigninReported',
   component: SigninReported,
 } as Meta;
 

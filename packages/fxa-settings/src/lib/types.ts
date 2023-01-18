@@ -5,3 +5,11 @@
 export type LinkType = 'reset-password' | 'signin';
 
 export type LinkStatus = 'valid' | 'used' | 'expired' | 'damaged';
+
+export enum MozServices {
+  Default = 'account settings',
+  FirefoxMonitor = 'Firefox Monitor',
+  FirefoxSync = 'Firefox Sync',
+  MozillaVPN = 'Mozilla VPN',
+  Pocket = 'Pocket',
+}

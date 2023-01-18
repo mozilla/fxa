@@ -4,12 +4,12 @@
 
 import React from 'react';
 import SigninConfirmed from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/SigninConfirmed',
+  title: 'pages/Signin/SigninConfirmed',
   component: SigninConfirmed,
 } as Meta;
 
