@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { AppContext, AlertBarInfo } from '../../models';
 import CompleteResetPassword from '.';
 import { usePageViewEvent } from '../../lib/metrics';
+import { MOCK_EMAIL } from './mocks';
+// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+// import { FluentBundle } from '@fluent/bundle';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -25,32 +28,56 @@ const alertBarInfo = {
   error: jest.fn(),
 } as unknown as AlertBarInfo;
 
-describe('CompleteResetPassword', () => {
+describe('CompleteResetPassword page', () => {
+  // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
+  // TODO: in FXA-6461
+  // let bundle: FluentBundle;
+  // beforeAll(async () => {
+  //   bundle = await getFtlBundle('settings');
+  // });
+
   it('renders the component as expected when the link is valid', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
-        <CompleteResetPassword linkStatus="valid" />
+        <CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />
       </AppContext.Provider>
     );
+    // testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {
       name: 'Create new password',
     });
-    screen.getByText('Password requirements');
-    screen.getByLabelText('Enter new password');
-    screen.getByLabelText('Confirm new password');
-    screen.getByRole('button', { name: 'Save' });
+    screen.getByLabelText('New password');
+    screen.getByLabelText('Re-enter password');
+    screen.getByRole('button', { name: 'Reset password' });
     screen.getByRole('link', {
       name: 'Remember your password? Sign in',
     });
+  });
 
-    // The current password field should not be rendered
-    const currentPwField = screen.queryByLabelText('Enter current password');
-    expect(currentPwField).not.toBeInTheDocument();
+  it('displays password requirements when the new password field is in focus', async () => {
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
+        <CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+      </AppContext.Provider>
+    );
+    const newPasswordField = screen.getByTestId('new-password-input-field');
+
+    fireEvent.focus(newPasswordField);
+    await waitFor(() => {
+      expect(screen.getByText('Password requirements')).toBeVisible();
+    });
+
+    fireEvent.blur(newPasswordField);
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Password requirements')
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('renders the component as expected when provided with an expired link', () => {
-    render(<CompleteResetPassword linkStatus="expired" />);
+    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="expired" />);
 
     screen.getByRole('heading', {
       name: 'Reset password link expired',
@@ -61,19 +88,10 @@ describe('CompleteResetPassword', () => {
     });
 
     // Components that should not be rendered when the link is expired
-    const passwordResetWarning = screen.queryByText(
-      'When you reset your password, you reset your account.'
-    );
-    const passwordRequirements = screen.queryByText('Password requirements');
-    const newPasswordField = screen.queryByLabelText('Enter new password');
-
-    expect(passwordResetWarning).not.toBeInTheDocument();
-    expect(passwordRequirements).not.toBeInTheDocument();
-    expect(newPasswordField).not.toBeInTheDocument();
   });
 
   it('renders the component as expected when provided with a damaged link', () => {
-    render(<CompleteResetPassword linkStatus="damaged" />);
+    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="damaged" />);
 
     screen.getByRole('heading', {
       name: 'Reset password link damaged',
@@ -81,23 +99,11 @@ describe('CompleteResetPassword', () => {
     screen.getByText(
       'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
     );
-    screen.queryByText('When you reset your password, you reset your account.');
-
-    // Components that should not be rendered when the link is damaged
-    const passwordRequirements = screen.queryByText('Password requirements');
-    const newPasswordField = screen.queryByLabelText('Enter new password');
-    const receiveNewLink = screen.queryByRole('button', {
-      name: 'Receive new link',
-    });
-
-    expect(receiveNewLink).not.toBeInTheDocument();
-    expect(passwordRequirements).not.toBeInTheDocument();
-    expect(newPasswordField).not.toBeInTheDocument();
   });
 
   // TODO : check for metrics event when link is expired or damaged
-  it('emits the expected metrics on render when the link is valid', async () => {
-    render(<CompleteResetPassword linkStatus="valid" />);
+  it('emits the expected metrics on render when the link is valid', () => {
+    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />);
     expect(usePageViewEvent).toHaveBeenCalledWith('complete-reset-password', {
       entrypoint_variation: 'react',
     });

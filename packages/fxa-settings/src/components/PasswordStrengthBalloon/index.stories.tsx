@@ -19,7 +19,9 @@ const storyWithProps = (
 ) => {
   const story = () => (
     <AppLayout>
-      <div className="tooltip-container">
+      {/* PasswordStrengthBalloon and its associated InputPassword
+          must be wrapped in a relative div for accurate balloon positioning */}
+      <div className="relative">
         <InputPassword
           label="Password (example only, disabled for storybook)"
           defaultValue={passwordExample}

@@ -4,11 +4,12 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
 import AccountRecoveryResetPassword from '.';
+import { MOCK_EMAIL } from './mocks';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -21,7 +22,7 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-describe('PageAccountRecoveryResetPassword', () => {
+describe('AccountRecoveryResetPassword page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
   // let bundle: FluentBundle;
@@ -30,47 +31,60 @@ describe('PageAccountRecoveryResetPassword', () => {
   // });
 
   it('renders as expected with valid link', () => {
-    render(<AccountRecoveryResetPassword linkStatus="valid" />);
+    render(
+      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+    );
     // testAllL10n(screen, bundle);
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Create new password');
-    expect(screen.getByLabelText('New password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Current password')).toBeInTheDocument();
+    screen.getByRole('heading', { name: 'Create new password' });
+    screen.getByLabelText('New password');
+    screen.getByLabelText('Re-enter password');
 
-    expect(
-      screen.getByRole('button', { name: 'Reset password' })
-    ).toBeInTheDocument();
-    // when 'canGoBack: false' or not passed as prop, the optional RememberPassword link component should not be rendered
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    screen.getByRole('button', { name: 'Reset password' });
+    screen.getByRole('link', {
+      name: 'Remember your password? Sign in',
+    });
+  });
+
+  it('displays password requirements when the new password field is in focus', async () => {
+    render(
+      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+    );
+
+    const newPasswordField = screen.getByTestId('new-password-input-field');
+
+    fireEvent.focus(newPasswordField);
+    await waitFor(() => {
+      expect(screen.getByText('Password requirements')).toBeVisible();
+    });
+
+    fireEvent.blur(newPasswordField);
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Password requirements')
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('shows a different message when given a damaged link', () => {
-    render(<AccountRecoveryResetPassword linkStatus="damaged" />);
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(`Reset password link damaged`);
+    render(
+      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="damaged" />
+    );
+    screen.getByRole('heading', { name: 'Reset password link damaged' });
   });
 
   it('shows a different message for an expired link, with a button for getting a new link', () => {
-    render(<AccountRecoveryResetPassword linkStatus="expired" />);
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(`Reset password link expired`);
-    expect(
-      screen.getByRole('button', { name: 'Receive new link' })
-    ).toBeInTheDocument();
-  });
-
-  it('renders a "Remember your password?" link if "canGoBack: true"', () => {
     render(
-      <AccountRecoveryResetPassword canGoBack={true} linkStatus="valid" />
+      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="expired" />
     );
-    expect(
-      screen.getByRole('link', { name: 'Remember your password? Sign in' })
-    ).toBeInTheDocument();
+    screen.getByRole('heading', { name: 'Reset password link expired' });
+    screen.getByRole('button', { name: 'Receive new link' });
   });
 
   it('emits a metrics event on render', () => {
-    render(<AccountRecoveryResetPassword linkStatus="valid" />);
+    render(
+      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(
       `account-recovery-reset-password`,
       {

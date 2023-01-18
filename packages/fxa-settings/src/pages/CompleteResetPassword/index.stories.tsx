@@ -7,6 +7,7 @@ import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import CompleteResetPassword, { CompleteResetPasswordProps } from '.';
+import { MOCK_EMAIL } from './mocks';
 
 export default {
   title: 'pages/CompleteResetPassword',
@@ -24,18 +25,23 @@ const storyWithProps = (props: CompleteResetPasswordProps) => {
   return story;
 };
 
-export const WithValidLink = storyWithProps({ linkStatus: 'valid' });
-
-export const WithSyncWarning = storyWithProps({
+export const WithValidLink = storyWithProps({
+  email: MOCK_EMAIL,
   linkStatus: 'valid',
-  showSyncWarning: true,
 });
 
-export const WithAccountRecoveryInfo = storyWithProps({
+export const ValidWithSyncWarning = storyWithProps({
+  email: MOCK_EMAIL,
   linkStatus: 'valid',
-  showAccountRecoveryInfo: true,
+  resetPasswordConfirm: true,
 });
 
-export const WithExpiredLink = storyWithProps({ linkStatus: 'expired' });
+export const WithExpiredLink = storyWithProps({
+  email: MOCK_EMAIL,
+  linkStatus: 'expired',
+});
 
-export const WithDamagedLink = storyWithProps({ linkStatus: 'damaged' });
+export const WithDamagedLink = storyWithProps({
+  email: MOCK_EMAIL,
+  linkStatus: 'damaged',
+});
