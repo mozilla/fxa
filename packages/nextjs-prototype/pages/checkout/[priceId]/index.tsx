@@ -17,6 +17,11 @@ import {
   buildTermsPropsFromPriceConfig,
 } from '../../../lib/checkout/helpers';
 
+// For testing
+const LOCALE = 'en';
+const SIGN_IN_URL =
+  'https://accounts.stage.mozaws.net/subscriptions/products/prod_FiJ42WCzZNRSbS?device_id=fe5ecde452c94ac2b9491bfb25f372a2&flow_begin_time=1669138664874&flow_id=b902cdaf0e479cb95d9cb69a7f32a9d3abdc28a3510460d8742cf944f6ad8d99&plan=price_1J0Y1iKb9q6OnNsLXwdOFgDr&entrypoint=www.mozilla.org-vpn-product-page&form_type=button&service=e6eb0d1e856335fc&utm_source=www.mozilla.org-vpn-product-page&utm_medium=referral&utm_campaign=vpn-product-page&data_cta_position=pricing&signin=yes';
+
 /**
  * ????? Open Questions ?????
  *
@@ -44,12 +49,12 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ params }: { params: any }) {
   // Add logic here for translations
   // https://soykje.gitlab.io/en/blog/nextjs-i18n/
 
-  // Fetch price config from the hCMS. (Currently mocked out, returning static data)
-  const hCmsPriceConfig = await mockHCMSFetch();
+  // Fetch price config from the hCMS.
+  const hCmsPriceConfig = await mockHCMSFetch(params.priceId, LOCALE);
   return {
     // Passed to the page component as props
     props: { priceConfig: hCmsPriceConfig },
@@ -84,7 +89,10 @@ export default function CheckoutPricePage({
     <>
       <SubscriptionTitle screenType="create" />
       <article className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
-        <AccountsInfo signInUrl="" setPaymentsDisabled={setPaymentsDisabled} />
+        <AccountsInfo
+          signInUrl={SIGN_IN_URL}
+          setPaymentsDisabled={setPaymentsDisabled}
+        />
         <PaymentForm disabled={paymentsDisabled} />
         <TermsAndConditions terms={terms} />
       </article>

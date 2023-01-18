@@ -39,6 +39,9 @@ const mockData: PaymentConfirmationProps = {
   last4: '4242',
 };
 
+// For testing
+const LOCALE = 'en';
+
 // Generates `/checkout/123` (is the ID set in priceDetailsprops in data/mock)
 export async function getStaticPaths() {
   // Add logic to dynamically fetch IDs from hCMS (or for the prototype the mock GraphQL)
@@ -48,12 +51,12 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ params }: { params: any }) {
   // Add logic here for translations
   // https://soykje.gitlab.io/en/blog/nextjs-i18n/
 
   // Fetch price config from the hCMS. (Currently mocked out, returning static data)
-  const hCmsPriceConfig = await mockHCMSFetch();
+  const hCmsPriceConfig = await mockHCMSFetch(params.priceId, LOCALE);
   return {
     // Passed to the page component as props
     props: { priceConfig: hCmsPriceConfig },

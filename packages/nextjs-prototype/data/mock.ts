@@ -121,31 +121,85 @@ export type Plan = {
   cancellationSurveyUrl: string;
 };
 
-export async function mockHCMSFetch(): Promise<Plan> {
-  return {
-    id: '123',
-    productName: 'Testing Foxkeh',
-    planName: 'Test',
-    active: true,
-    styles: {
-      webIconBackground: '#20123a',
-    },
-    description: ['Testing Foxkeh', 'Product Detail line 2'],
-    subtitle: 'Test Plan Subtitle',
-    upgradeCTA: 'Lets get you updated',
-    successActionButtonUrl: 'https://foxkeh.com/buttons/',
-    successActionButtonLabel: 'You did it!',
-    webIconUrl: 'https://foxkeh.com/downloads/parts/head01.svg',
-    tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-    tosDownloadUrl:
-      'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-    privacyNoticeUrl:
-      'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-    privacyNoticeDownloadUrl:
-      'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-    cancellationSurveyUrl:
-      'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
+const mockPlan: Plan = {
+  id: '123',
+  productName: 'Testing Foxkeh',
+  planName: 'Test',
+  active: true,
+  styles: {
+    webIconBackground: '#20123a',
+  },
+  description: ['Testing Foxkeh', 'Product Detail line 2'],
+  subtitle: 'Test Plan Subtitle',
+  upgradeCTA: 'Lets get you updated',
+  successActionButtonUrl: 'https://foxkeh.com/buttons/',
+  successActionButtonLabel: 'You did it!',
+  webIconUrl: 'https://foxkeh.com/downloads/parts/head01.svg',
+  tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+  tosDownloadUrl:
+    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+  privacyNoticeUrl:
+    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+  privacyNoticeDownloadUrl:
+    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+  cancellationSurveyUrl:
+    'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
+};
+
+export async function mockHCMSFetch(
+  planId: string,
+  locale: string,
+  withDelay: boolean = false
+): Promise<Plan> {
+  if (withDelay) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  const query = `
+  query Plan($planId: String!, $locale: String!) {
+    plan(id: $planId, locale: $locale) {
+      id
+      productName
+      planName
+      active
+      styles {
+        webIconBackground
+      }
+      description
+      subtitle
+      upgradeCTA
+      successActionButtonUrl
+      successActionButtonLabel
+      webIconUrl
+      tosUrl
+      tosDownloadUrl
+      privacyNoticeUrl
+      privacyNoticeDownloadUrl
+      cancellationSurveyUrl
+    }
+  }
+  `;
+  const variables = {
+    planId,
+    locale,
   };
+
+  try {
+    const { plan } = await request(
+      'http://localhost:8100/graphql',
+      query,
+      variables
+    );
+
+    return {
+      ...plan,
+      webIconUrl: 'https://foxkeh.com/downloads/parts/head01.svg',
+    };
+  } catch (error) {
+    console.log(error);
+  }
+
+  return mockPlan;
 }
 
 type InvoiceTax = {
@@ -220,11 +274,17 @@ export async function mockInvoicePreviewFetch(
     planId: '123',
   };
 
-  const { invoicePreview } = await request(
-    'http://localhost:8100/graphql',
-    query,
-    variables
-  );
+  try {
+    const { invoicePreview } = await request(
+      'http://localhost:8100/graphql',
+      query,
+      variables
+    );
 
-  return invoicePreview;
+    return invoicePreview;
+  } catch (error) {
+    console.log(error);
+  }
+
+  return mockInvoicePreview;
 }
