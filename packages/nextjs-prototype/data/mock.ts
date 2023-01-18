@@ -1,4 +1,5 @@
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
+import request from 'graphql-request';
 import { GenericTermItem } from '../components/TermsAndConditions';
 
 export const priceDetailsProps = {
@@ -37,11 +38,13 @@ export const terms: GenericTermItem[] = [
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'payment-provider-terms-1',
         href: 'https://stripe.com/privacy',
         text: 'Stripe privacy policy',
         localizationId: 'stripe-item-1',
       },
       {
+        key: 'payment-provider-terms-2',
         href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
         text: 'PayPal privacy policy',
         localizationId: 'paypal-item-1',
@@ -54,11 +57,13 @@ export const terms: GenericTermItem[] = [
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'fxa-terms-1',
         href: 'https://accounts.stage.mozaws.net/legal/terms',
         text: 'Terms of Service',
         localizationId: 'terms-item-1',
       },
       {
+        key: 'fxa-terms-2',
         href: 'https://accounts.stage.mozaws.net/legal/privacy',
         text: 'Privacy Notice',
         localizationId: 'privacy-item-1',
@@ -71,16 +76,19 @@ export const terms: GenericTermItem[] = [
     titleLocalizationId: 'title-1',
     items: [
       {
+        key: 'product-terms-1',
         href: 'https://www.mozilla.org/about/legal/terms/subscription-services',
         text: 'Terms of Service',
         localizationId: 'terms-item-1',
       },
       {
+        key: 'product-terms-2',
         href: 'https://www.mozilla.org/privacy/subscription-services',
         text: 'Privacy Notice',
         localizationId: 'privacy-item-1',
       },
       {
+        key: 'product-terms-3',
         href: 'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/legal-docs?url=https://accounts-static.cdn.mozilla.net/legal/subscription_services_tos',
         text: 'Download Terms',
         localizationId: 'download-item-1',
@@ -142,24 +150,24 @@ export async function mockHCMSFetch(): Promise<Plan> {
 
 type InvoiceTax = {
   amount: number;
-  inclusive: boolean;
-  displayName: string;
+  inclusive?: boolean;
+  displayName?: string;
 };
 
 type InvoiceDiscount = {
   amount: number;
-  amountOff: number;
+  amountOff: number | null;
   percentOff: number | null;
 };
 
 export type InvoicePreview = {
   total: number;
-  totalExcludingTax: number | null;
+  totalExcludingTax?: number | null;
   subtotal: number;
-  subtotalExcludingTax: number | null;
+  subtotalExcludingTax?: number | null;
   currency: string;
-  tax: InvoiceTax[] | null;
-  discount: InvoiceDiscount[] | null;
+  tax?: InvoiceTax[] | null;
+  discount?: InvoiceDiscount[] | null;
 };
 
 export const mockInvoicePreview: InvoicePreview = {
@@ -187,6 +195,36 @@ export const mockInvoicePreview: InvoicePreview = {
 export async function mockInvoicePreviewFetch(
   withDelay: boolean = false
 ): Promise<InvoicePreview> {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return mockInvoicePreview;
+  if (withDelay) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  const query = `
+  query ExampleQuery($planId: String!) {
+    invoicePreview(planId: $planId) {
+      total
+      totalExcludingTax
+      subtotal
+      subtotalExcludingTax
+      currency
+      discount {
+        amount
+      }
+      tax {
+        amount
+      }
+    }
+  }
+  `;
+  const variables = {
+    planId: '123',
+  };
+
+  const { invoicePreview } = await request(
+    'http://localhost:8100/graphql',
+    query,
+    variables
+  );
+
+  return invoicePreview;
 }

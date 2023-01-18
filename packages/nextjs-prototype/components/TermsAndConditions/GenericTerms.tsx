@@ -17,7 +17,6 @@ export type GenericTermsProps = {
 
 export default function GenericTerms(props: GenericTermsProps) {
   const { title, titleLocalizationId, items } = props;
-  console.log({ props });
   return (
     <div className="clear-both mt-5 text-xs leading-5 text-center">
       <Localized id={titleLocalizationId}>
