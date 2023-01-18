@@ -8,7 +8,7 @@ import CreateAccount from '../components/CreateAccount';
 import PlanDetails from '../components/PlanDetails';
 import SubscriptionTitle from '../components/SubscriptionTitle';
 
-import { PaymentMethodHeaderType } from '../lib/types';
+import { Coupon, PaymentMethodHeaderType } from '../lib/types';
 import {
   State as ValidatorState,
   useValidatorState,
@@ -16,6 +16,7 @@ import {
 } from '../lib/validator';
 
 import Layout from '../templates/Layout';
+import CouponForm from '../components/CouponForm';
 
 export type CheckoutProps = {
   validatorInitialState?: ValidatorState;
@@ -32,6 +33,7 @@ const Checkout = ({
   });
 
   const [checkboxSet, setCheckboxSet] = useState(false);
+  const [coupon, setCoupon] = useState<Coupon>();
 
   return (
     <AppLocalizationProvider
@@ -53,6 +55,14 @@ const Checkout = ({
               invoicePreview={invoicePreview}
               coupon={coupon}
               // additionalCouponInfo={additionalCouponInfo}
+            />
+
+            <CouponForm
+              readOnly={false}
+              subscriptionInProgress={false}
+              coupon={coupon}
+              setCoupon={setCoupon}
+              checkCoupon={checkCoupon}
             />
           </div>
 
@@ -138,7 +148,11 @@ const invoicePreview = {
   ],
 };
 
-const coupon = {
+const checkCoupon = (promo: string) => {
+  return coupon;
+};
+
+const coupon: Coupon = {
   promotionCode: 'mockPromotionCode',
   type: 'mockType',
   durationInMonths: 12,
