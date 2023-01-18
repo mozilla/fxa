@@ -7,7 +7,7 @@ goal is focused on serving Mozilla's requirements -- not being easy to set up
 or easily usable in other scenarios.
 
 In order to scale effectively, we may use technologies which have significant
-barriers to entry (eg. cost or expertise).
+barriers to entry (e.g., cost or expertise).
 
 If you're filing bugs, working on documentation, or helping reproduce a
 problem, thank you for your help and please read below for guidelines.
@@ -35,8 +35,7 @@ You must agree to abide by the [Mozilla Community Participation Guidelines](http
 
 ## Bug Reports
 
-You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new). Please try to include as much information as you can and under what conditions
-you saw the issue.
+You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new). Please try to include as much information as you can and under what conditions you saw the issue.
 
 ## Development Process
 
@@ -56,7 +55,7 @@ When submitting a PR:
 
 - You agree to and have the legal right to license your code under the project's [license](/LICENSE).
 - Base your branch off the current `main`.
-- Add both your code and new tests if relevant.
+- Add both your code and new tests, if relevant.
 - Run `grunt lint` and `npm test` to make sure your code passes linting and tests.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
 - Your commit message must follow the
@@ -83,7 +82,7 @@ We loosely follow the [Angular commit guidelines](https://github.com/angular/ang
   semi-colons, etc)
 - **refactor**: A code change that neither fixes a bug or adds a feature
 - **perf**: A code change that improves performance
-- **test**: Adding missing tests
+- **test**: Adds missing tests
 - **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
   generation
 
