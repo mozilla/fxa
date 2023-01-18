@@ -4,13 +4,13 @@
 
 import React from 'react';
 import AccountRecoveryConfirmKey, { AccountRecoveryConfirmKeyProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE_NAME } from './mocks';
 
 export default {
-  title: 'pages/AccountRecoveryConfirmKey',
+  title: 'pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
 } as Meta;
 

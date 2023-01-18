@@ -4,15 +4,15 @@
 
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../models/mocks';
-import { AppContext, AlertBarInfo } from '../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import { AppContext, AlertBarInfo } from '../../../models';
 import CompleteResetPassword from '.';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { MOCK_EMAIL } from './mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));

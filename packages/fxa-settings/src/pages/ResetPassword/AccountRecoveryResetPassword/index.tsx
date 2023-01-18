@@ -6,15 +6,15 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@reach/router';
-import { usePageViewEvent } from '../../lib/metrics';
-import { useAlertBar } from '../../models';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import LinkRememberPassword from '../../components/LinkRememberPassword';
-import LinkExpired from '../../components/LinkExpired';
-import LinkDamaged from '../../components/LinkDamaged';
-import FormResetPasswordWithBalloon from '../../components/FormResetPasswordWithBalloon';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import LinkExpired from '../../../components/LinkExpired';
+import LinkDamaged from '../../../components/LinkDamaged';
+import FormResetPasswordWithBalloon from '../../../components/FormResetPasswordWithBalloon';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 

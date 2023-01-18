@@ -4,13 +4,13 @@
 
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
-import { renderWithRouter } from '../../models/mocks';
+import { renderWithRouter } from '../../../models/mocks';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import ResetPasswordWithRecoveryKeyVerified from '.';
-import { logViewEvent } from '../../lib/metrics';
+import { logViewEvent } from '../../../lib/metrics';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));

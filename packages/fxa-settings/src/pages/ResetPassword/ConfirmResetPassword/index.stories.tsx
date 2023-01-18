@@ -4,13 +4,13 @@
 
 import React from 'react';
 import ConfirmResetPassword, { ConfirmResetPasswordProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_EMAIL } from './mocks';
 
 export default {
-  title: 'pages/ConfirmResetPassword',
+  title: 'pages/ResetPassword/ConfirmResetPassword',
   component: ConfirmResetPassword,
 } as Meta;
 

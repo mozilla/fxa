@@ -4,12 +4,12 @@
 
 import React from 'react';
 import ResetPasswordWithRecoveryKeyVerified from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/ResetPasswordWithRecoveryKeyVerified',
+  title: 'pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
   component: ResetPasswordWithRecoveryKeyVerified,
 } as Meta;
 

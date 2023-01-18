@@ -5,16 +5,16 @@
 import { Link, RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAlertBar } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import { InputText } from '../../components/InputText';
-import CardHeader from '../../components/CardHeader';
-import WarningMessage from '../../components/WarningMessage';
-import LinkExpired from '../../components/LinkExpired';
-import LinkDamaged from '../../components/LinkDamaged';
+import { InputText } from '../../../components/InputText';
+import CardHeader from '../../../components/CardHeader';
+import WarningMessage from '../../../components/WarningMessage';
+import LinkExpired from '../../../components/LinkExpired';
+import LinkDamaged from '../../../components/LinkDamaged';
 
 // --serviceName-- is the relying party
 
@@ -43,7 +43,6 @@ const AccountRecoveryConfirmKey = ({
   const [recoveryKeyErrorText, setRecoveryKeyErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
   const alertBar = useAlertBar();
-  // TODO confirm event name
   const onFocusMetricsEvent = 'account-recovery-confirm-key.engage';
   const ftlMsgResolver = useFtlMsgResolver();
 
