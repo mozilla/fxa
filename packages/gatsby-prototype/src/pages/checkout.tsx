@@ -18,6 +18,8 @@ import {
 import CouponForm from '../components/CouponForm';
 import Layout from '../layouts';
 
+import { useStaticQuery, graphql } from 'gatsby';
+
 export type CheckoutProps = {
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -35,9 +37,65 @@ const Checkout = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [coupon, setCoupon] = useState<Coupon>();
 
+  const data = useStaticQuery(graphql`
+    query {
+      subplat {
+        plan(id: "123", locale: "en-us") {
+          id
+          productName
+          planName
+          active
+          styles {
+            webIconBackground
+          }
+          description
+          subtitle
+          upgradeCTA
+          successActionButtonUrl
+          successActionButtonLabel
+          webIconUrl
+          tosUrl
+          tosDownloadUrl
+          privacyNoticeUrl
+          privacyNoticeDownloadUrl
+          cancellationSurveyUrl
+        }
+
+        invoicePreview(planId: "123") {
+          total
+          totalExcludingTax
+          subtotal
+          subtotalExcludingTax
+          currency
+          tax {
+            amount
+            inclusive
+            displayName
+          }
+          discount {
+            amount
+            amountOff
+          }
+        }
+      }
+    }
+  `);
+  // const data = {subplat: {plan: null}, site: { siteMetadata: {invoicePreview: null}}}
+  const plan = {
+    ...data.subplat.plan,
+    currency: 'usd',
+    details: [
+      'Device-level encryption',
+      'Servers is 30+ countries',
+      'Connects 5 devices with one subscription',
+      'Available for Windows, iOS and Android',
+    ],
+  };
+  const invoicePreview = data.subplat.invoicePreview;
+
   return (
     <AppLocalizationProvider
-      userLocales={navigator.languages}
+      userLocales={['en-US']}
       bundles={['gatsby', 'react']}
     >
       <Layout profile={mockProfile}>
@@ -89,64 +147,6 @@ const Checkout = ({
 };
 
 export default Checkout;
-
-// delete later
-const plan = {
-  id: '123',
-  productName: 'Testing Foxkeh',
-  planName: 'Test',
-  active: true,
-  styles: {
-    webIconBackground: '#20123a',
-  },
-  description: ['Testing Foxkeh', 'Product Detail line 2'],
-  subtitle: 'Test Plan Subtitle',
-  upgradeCTA: 'Lets get you updated',
-  successActionButtonUrl: 'https://foxkeh.com/buttons/',
-  successActionButtonLabel: 'You did it!',
-  webIconUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-  tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-  tosDownloadUrl:
-    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-  privacyNoticeUrl:
-    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-  privacyNoticeDownloadUrl:
-    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
-  cancellationSurveyUrl:
-    'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
-  amount: 935,
-  currency: 'usd',
-  interval: 'month' as const,
-  interval_count: 1,
-  details: [
-    'Device-level encryption',
-    'Servers is 30+ countries',
-    'Connects 5 devices with one subscription',
-    'Available for Windows, iOS and Android',
-  ],
-};
-
-const invoicePreview = {
-  total: 2250,
-  totalExcludingTax: 1950,
-  subtotal: 2000,
-  subtotalExcludingTax: 2000,
-  currency: 'USD',
-  tax: [
-    {
-      amount: 300,
-      inclusive: false,
-      displayName: 'Sales Tax',
-    },
-  ],
-  discount: [
-    {
-      amount: 50,
-      amountOff: 50,
-      percentOff: null,
-    },
-  ],
-};
 
 const checkCoupon = (promo: string) => {
   return coupon;

@@ -19,6 +19,7 @@
     "fxa-react": "workspace:*",
     "fxa-shared": "workspace:*",
     "gatsby": "^5.3.3",
+    "gatsby-source-graphql": "^5.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
