@@ -5,9 +5,9 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import ResetPasswordConfirmed from '.';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));

@@ -3,24 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AccountRecoveryResetPassword, {
-  AccountRecoveryResetPasswordProps,
-} from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import CompleteResetPassword, { CompleteResetPasswordProps } from '.';
 import { MOCK_EMAIL } from './mocks';
 
 export default {
-  title: 'pages/AccountRecoveryResetPassword',
-  component: AccountRecoveryResetPassword,
+  title: 'pages/ResetPassword/CompleteResetPassword',
+  component: CompleteResetPassword,
 } as Meta;
 
-const storyWithProps = (props: AccountRecoveryResetPasswordProps) => {
+const storyWithProps = (props: CompleteResetPasswordProps) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
-        <AccountRecoveryResetPassword {...props} />
+        <CompleteResetPassword {...props} />
       </AppLayout>
     </LocationProvider>
   );
@@ -32,12 +30,18 @@ export const WithValidLink = storyWithProps({
   linkStatus: 'valid',
 });
 
-export const WithBrokenLink = storyWithProps({
+export const ValidWithSyncWarning = storyWithProps({
   email: MOCK_EMAIL,
-  linkStatus: 'damaged',
+  linkStatus: 'valid',
+  resetPasswordConfirm: true,
 });
 
 export const WithExpiredLink = storyWithProps({
   email: MOCK_EMAIL,
   linkStatus: 'expired',
+});
+
+export const WithDamagedLink = storyWithProps({
+  email: MOCK_EMAIL,
+  linkStatus: 'damaged',
 });
