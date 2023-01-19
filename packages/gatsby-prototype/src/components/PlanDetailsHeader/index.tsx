@@ -11,8 +11,15 @@ export type PlanDetailsHeaderProps = {
 };
 
 const PlanDetailsHeader = ({ selectedPlan }: PlanDetailsHeaderProps) => {
-  const { amount, currency, interval, interval_count, productName, subtitle } =
-    selectedPlan;
+  const {
+    amount,
+    currency,
+    interval,
+    interval_count,
+    productName,
+    subtitle,
+    webIconUrl,
+  } = selectedPlan;
 
   const planPrice = formatPlanPricing(
     amount,
@@ -21,6 +28,13 @@ const PlanDetailsHeader = ({ selectedPlan }: PlanDetailsHeaderProps) => {
     interval_count
   );
 
+  let webIcon;
+
+  const checkImage =
+    /([|.|\w|\s|-])*\.(?:jpe?g|gif|png|svg|JPE?G|GIF|PNG|SVG)$/;
+
+  checkImage.test(webIconUrl) ? (webIcon = webIconUrl) : (webIcon = ffLogo);
+
   return (
     <div className="flex gap-4 my-0 py-4 border-b border-0 border-solid border-grey-200">
       <div
@@ -28,8 +42,7 @@ const PlanDetailsHeader = ({ selectedPlan }: PlanDetailsHeaderProps) => {
         // style={{ ...setWebIconBackground }}
       >
         <img
-          src={ffLogo}
-          // src={webIcon || ffLogo}
+          src={webIcon}
           alt={productName}
           data-testid="product-logo"
           className="plan-details-icon"

@@ -1,7 +1,6 @@
 ---
 id: '123'
-path: '/testing-foxkeh'
-productName: 'Testing Foxkeh'
+productName: 'Mozilla VPN'
 planName: 'Test'
 active: true
 styles: { webIconBackground: '#20123a' }
@@ -10,7 +9,7 @@ subtitle: 'Test Plan Subtitle'
 upgradeCTA: 'Lets get you updated'
 successActionButtonUrl: 'https://foxkeh.com/buttons/'
 successActionButtonLabel: 'You did it!'
-webIconUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
+webIconUrl: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web-64.svg'
 tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
 tosDownloadUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
 privacyNoticeUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'

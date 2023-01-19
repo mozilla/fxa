@@ -27,9 +27,72 @@ import path from 'path';
 
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions;
-  const planTemplate = path.resolve('src/templates/template1.tsx');
+  const planTemplate1 = path.resolve(
+    'src/templates/Checkout/checkout-template-1.tsx'
+  );
 
-  const res = await graphql(`
+  const gqlQuery = await graphql(`
+    query SubPlatQuery {
+      subplat {
+        plan(id: "123", locale: "en-us") {
+          id
+          productName
+          planName
+          active
+          styles {
+            webIconBackground
+          }
+          description
+          subtitle
+          upgradeCTA
+          successActionButtonUrl
+          successActionButtonLabel
+          webIconUrl
+          tosUrl
+          tosDownloadUrl
+          privacyNoticeUrl
+          privacyNoticeDownloadUrl
+          cancellationSurveyUrl
+        }
+
+        invoicePreview(planId: "123") {
+          total
+          totalExcludingTax
+          subtotal
+          subtotalExcludingTax
+          currency
+          tax {
+            amount
+            inclusive
+            displayName
+          }
+          discount {
+            amount
+            amountOff
+          }
+        }
+
+        coupon(planId: "123", promotionCode: "") {
+          discountAmount
+          durationInMonths
+          promotionCode
+          type
+        }
+      }
+    }
+  `);
+
+  const mockPlan = gqlQuery.data.subplat;
+  const pathName = gqlQuery.data.subplat.plan.productName
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+  createPage({
+    path: `/plan/${pathName}`,
+    component: planTemplate1,
+    context: mockPlan,
+  });
+
+  const markDownQuery = await graphql(`
     query allProducts {
       allMarkdownRemark {
         edges {
@@ -39,7 +102,6 @@ exports.createPages = async ({ graphql, actions }) => {
               cancellationSurveyUrl
               description
               id
-              path
               planName
               privacyNoticeDownloadUrl
               privacyNoticeUrl
@@ -59,16 +121,43 @@ exports.createPages = async ({ graphql, actions }) => {
           }
         }
       }
+      subplat {
+        invoicePreview(planId: "123") {
+          total
+          totalExcludingTax
+          subtotal
+          subtotalExcludingTax
+          currency
+          tax {
+            amount
+            inclusive
+            displayName
+          }
+          discount {
+            amount
+            amountOff
+          }
+        }
+
+        coupon(planId: "123", promotionCode: "") {
+          discountAmount
+          durationInMonths
+          promotionCode
+          type
+        }
+      }
     }
   `);
 
-  res.data.allMarkdownRemark.edges.forEach(({ node }: any) => {
-    const path = node.frontmatter.path;
+  markDownQuery.data.allMarkdownRemark.edges.forEach(({ node }: any) => {
     const plan = node.frontmatter;
+    const pathName = plan.productName.replace(/\s+/g, '-').toLowerCase();
+    const otherData = markDownQuery.data.subplat;
+    const mockPlan = { plan, ...otherData };
     createPage({
-      path,
-      component: planTemplate,
-      context: { plan },
+      path: `/plan/${pathName}`,
+      component: planTemplate1,
+      context: mockPlan,
     });
   });
 };

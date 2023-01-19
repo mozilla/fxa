@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { graphql, useStaticQuery } from 'gatsby';
 
-import { Form } from '../components/fields';
+import { Form } from '../../components/fields';
 
-import AppLocalizationProvider from '../AppLocalizationProvider';
-import ChoosePayment from '../components/ChoosePayment';
-import CreateAccount from '../components/CreateAccount';
-import PlanDetails from '../components/PlanDetails';
-import SubscriptionTitle from '../components/SubscriptionTitle';
+import AppLocalizationProvider from '../../AppLocalizationProvider';
+import ChoosePayment from '../../components/ChoosePayment';
+import CreateAccount from '../../components/CreateAccount';
+import PlanDetails from '../../components/PlanDetails';
+import SubscriptionTitle from '../../components/SubscriptionTitle';
 
-import { Coupon, PaymentMethodHeaderType } from '../lib/types';
+import { Coupon, PaymentMethodHeaderType } from '../../lib/types';
 import {
   State as ValidatorState,
   useValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
-} from '../lib/validator';
+} from '../../lib/validator';
 
-import Layout from '../layouts';
+import CouponForm from '../../components/CouponForm';
+import Layout from '../../layouts';
 
 export type CheckoutProps = {
   pageContext: any;
@@ -25,7 +25,7 @@ export type CheckoutProps = {
 };
 
 const Checkout = ({
-  pageContext: { plan },
+  pageContext: data,
   validatorInitialState,
   validatorMiddlewareReducer,
 }: CheckoutProps) => {
@@ -35,9 +35,14 @@ const Checkout = ({
   });
 
   const [checkboxSet, setCheckboxSet] = useState(false);
+  const [coupon, setCoupon] = useState<Coupon>();
+
+  const checkCoupon = (promo: string) => {
+    return revisedCoupon;
+  };
 
   const revisedPlan = {
-    ...plan,
+    ...data.plan,
     currency: 'usd',
     details: [
       'Device-level encryption',
@@ -45,6 +50,12 @@ const Checkout = ({
       'Connects 5 devices with one subscription',
       'Available for Windows, iOS and Android',
     ],
+  };
+
+  const revisedCoupon: Coupon = {
+    ...data.coupon,
+    couponDurationDate: 12,
+    message: 'Your plan will automatically renew at the list price.',
   };
 
   return (
@@ -64,8 +75,16 @@ const Checkout = ({
               selectedPlan={revisedPlan}
               // isMobile
               // showExpandButton
-              invoicePreview={mockInvoicePreview}
-              // coupon={dataCoupon}
+              invoicePreview={data.invoicePreview}
+              coupon={revisedCoupon}
+            />
+
+            <CouponForm
+              readOnly={false}
+              subscriptionInProgress={false}
+              coupon={coupon}
+              setCoupon={setCoupon}
+              checkCoupon={checkCoupon}
             />
           </div>
 
@@ -80,7 +99,7 @@ const Checkout = ({
 
             <ChoosePayment
               paypalScriptLoaded
-              selectedPlan={revisedPlan}
+              selectedPlan={data}
               type={PaymentMethodHeaderType.SecondStep}
               onClick={() => setCheckboxSet(!checkboxSet)}
             />
@@ -103,26 +122,4 @@ const mockProfile = {
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
   metricsEnabled: true,
-};
-
-const mockInvoicePreview = {
-  total: 2250,
-  totalExcludingTax: 1950,
-  subtotal: 2000,
-  subtotalExcludingTax: 2000,
-  currency: 'USD',
-  tax: [
-    {
-      amount: 300,
-      inclusive: false,
-      displayName: 'Sales Tax',
-    },
-  ],
-  discount: [
-    {
-      amount: 50,
-      amountOff: 50,
-      percentOff: null,
-    },
-  ],
 };
