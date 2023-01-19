@@ -19,13 +19,13 @@ import {
 import Layout from '../layouts';
 
 export type CheckoutProps = {
-  data: any;
+  pageContext: any;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 const Checkout = ({
-  data,
+  pageContext: { plan },
   validatorInitialState,
   validatorMiddlewareReducer,
 }: CheckoutProps) => {
@@ -35,6 +35,17 @@ const Checkout = ({
   });
 
   const [checkboxSet, setCheckboxSet] = useState(false);
+
+  const revisedPlan = {
+    ...plan,
+    currency: 'usd',
+    details: [
+      'Device-level encryption',
+      'Servers is 30+ countries',
+      'Connects 5 devices with one subscription',
+      'Available for Windows, iOS and Android',
+    ],
+  };
 
   return (
     <AppLocalizationProvider
@@ -50,10 +61,10 @@ const Checkout = ({
 
           <div className="payment-panel">
             <PlanDetails
-              selectedPlan={data}
+              selectedPlan={revisedPlan}
               // isMobile
               // showExpandButton
-              invoicePreview={data.subplat.invoicePreview}
+              invoicePreview={mockInvoicePreview}
               // coupon={dataCoupon}
             />
           </div>
@@ -69,7 +80,7 @@ const Checkout = ({
 
             <ChoosePayment
               paypalScriptLoaded
-              selectedPlan={data}
+              selectedPlan={revisedPlan}
               type={PaymentMethodHeaderType.SecondStep}
               onClick={() => setCheckboxSet(!checkboxSet)}
             />
@@ -94,32 +105,24 @@ const mockProfile = {
   metricsEnabled: true,
 };
 
-export const planQuery = useStaticQuery(graphql`
-  query PlanByName($path: String!) {
-    markdownRemark(frontmatter: { path: { eq: $path } }) {
-      html
-      frontmatter {
-        active
-        cancellationSurveyUrl
-        description
-        id
-        path
-        planName
-        privacyNoticeDownloadUrl
-        privacyNoticeUrl
-        productName
-        styles {
-          webIconBackground
-        }
-        subtitle
-        successActionButtonLabel
-        successActionButtonUrl
-        title
-        tosDownloadUrl
-        tosUrl
-        upgradeCTA
-        webIconUrl
-      }
-    }
-  }
-`);
+const mockInvoicePreview = {
+  total: 2250,
+  totalExcludingTax: 1950,
+  subtotal: 2000,
+  subtotalExcludingTax: 2000,
+  currency: 'USD',
+  tax: [
+    {
+      amount: 300,
+      inclusive: false,
+      displayName: 'Sales Tax',
+    },
+  ],
+  discount: [
+    {
+      amount: 50,
+      amountOff: 50,
+      percentOff: null,
+    },
+  ],
+};

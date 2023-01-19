@@ -1,33 +1,35 @@
 import type { GatsbyNode } from 'gatsby';
 
-const path = require('path');
+import path from 'path';
 
-const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
-  stage,
-  loaders,
-  plugins,
-  actions,
-}): Promise<void> => {
-  actions.setWebpackConfig({
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          type: 'javascript/esm',
-        },
-      ],
-    },
-    plugins: [
-      plugins.define({
-        __DEVELOPMENT__: stage === `develop` || stage === `develop-html`,
-      }),
-    ],
-  });
-};
+// const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
+//   stage,
+//   loaders,
+//   plugins,
+//   actions,
+// }): Promise<void> => {
+//   actions.setWebpackConfig({
+//     module: {
+//       rules: [
+//         {
+//           test: /\.js$/,
+//           type: 'javascript/esm',
+//         },
+//       ],
+//     },
+//     plugins: [
+//       plugins.define({
+//         __DEVELOPMENT__: stage === `develop` || stage === `develop-html`,
+//       }),
+//     ],
+//   });
+// };
 
-const createPages: GatsbyNode['createPages'] = async ({ graphql, actions }) => {
+exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions;
-  const queryResults: any = await graphql(`
+  const planTemplate = path.resolve('src/templates/template1.tsx');
+
+  const res = await graphql(`
     query allProducts {
       allMarkdownRemark {
         edges {
@@ -60,20 +62,15 @@ const createPages: GatsbyNode['createPages'] = async ({ graphql, actions }) => {
     }
   `);
 
-  const productTemplate = path.resolve(`src/templates/template1.tsx`);
-
-  queryResults.data.allMarkdownRemark.edges.forEach(({ node }: any) => {
+  res.data.allMarkdownRemark.edges.forEach(({ node }: any) => {
     const path = node.frontmatter.path;
+    const plan = node.frontmatter;
     createPage({
-      path: `products/${path}`,
-      component: productTemplate,
-      // context: {
-      //   // This time the entire product is passed down as context
-      //   product: node,
-      // },
+      path,
+      component: planTemplate,
+      context: { plan },
     });
   });
 };
 
-module.exports = onCreateWebpackConfig;
-module.exports = createPages;
+// module.exports = onCreateWebpackConfig;
