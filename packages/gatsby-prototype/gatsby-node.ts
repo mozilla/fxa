@@ -1,5 +1,7 @@
 import type { GatsbyNode } from 'gatsby';
 
+const path = require('path');
+
 const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
   stage,
   loaders,
@@ -23,4 +25,55 @@ const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
   });
 };
 
+const createPages: GatsbyNode['createPages'] = async ({ graphql, actions }) => {
+  const { createPage } = actions;
+  const queryResults: any = await graphql(`
+    query allProducts {
+      allMarkdownRemark {
+        edges {
+          node {
+            frontmatter {
+              active
+              cancellationSurveyUrl
+              description
+              id
+              path
+              planName
+              privacyNoticeDownloadUrl
+              privacyNoticeUrl
+              productName
+              styles {
+                webIconBackground
+              }
+              subtitle
+              successActionButtonLabel
+              successActionButtonUrl
+              title
+              tosDownloadUrl
+              tosUrl
+              upgradeCTA
+              webIconUrl
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const productTemplate = path.resolve(`src/templates/template1.tsx`);
+
+  queryResults.data.allMarkdownRemark.edges.forEach(({ node }: any) => {
+    const path = node.frontmatter.path;
+    createPage({
+      path: `products/${path}`,
+      component: productTemplate,
+      // context: {
+      //   // This time the entire product is passed down as context
+      //   product: node,
+      // },
+    });
+  });
+};
+
 module.exports = onCreateWebpackConfig;
+module.exports = createPages;
