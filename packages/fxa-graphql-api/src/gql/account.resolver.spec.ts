@@ -83,6 +83,9 @@ describe('#integration - AccountResolver', () => {
         (resolver as any).shouldIncludeLinkedAccounts = jest
           .fn()
           .mockReturnValue(true);
+        (resolver as any).shouldIncludeSecurityEvents = jest
+          .fn()
+          .mockReturnValue(true);
         const result = await resolver.account(USER_1.uid, {} as any);
         expect(result?.createdAt).toBe(USER_1.createdAt);
       });
@@ -161,6 +164,20 @@ describe('#integration - AccountResolver', () => {
         const linkedAccounts = resolver.linkedAccounts(user!);
         expect(linkedAccounts).toStrictEqual([
           { providerId: 1, enabled: true, authAt },
+        ]);
+      });
+
+      it('resolves security events when included', async () => {
+        const user = await Account.findByUid(USER_1.uid, {
+          include: ['securityEvents'],
+        });
+        const createdAt = Date.now();
+        (user!.securityEvents as any) = [
+          { name: 'account.created', verified: true, createdAt },
+        ];
+        const securityEvents = resolver.securityEvents(user!);
+        expect(securityEvents).toStrictEqual([
+          { name: 'account.created', verified: true, createdAt },
         ]);
       });
     });
@@ -731,15 +748,18 @@ describe('#integration - AccountResolver', () => {
     describe('getRecoveryKeyBundle', () => {
       it('succeeds', async () => {
         authClient.getRecoveryKey = jest.fn().mockResolvedValue({
-          recoveryData: 'recoveryData'
+          recoveryData: 'recoveryData',
         });
         const result = await resolver.getRecoveryKeyBundle({
           accountResetToken: 'cooltokenyo',
-          recoveryKeyId: 'recoveryKeyId'
+          recoveryKeyId: 'recoveryKeyId',
         });
-        expect(authClient.getRecoveryKey).toBeCalledWith('cooltokenyo', 'recoveryKeyId');
+        expect(authClient.getRecoveryKey).toBeCalledWith(
+          'cooltokenyo',
+          'recoveryKeyId'
+        );
         expect(result).toStrictEqual({
-          recoveryData: 'recoveryData'
+          recoveryData: 'recoveryData',
         });
       });
     });

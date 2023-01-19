@@ -8,11 +8,12 @@ import { BaseAuthModel, Proc } from './base-auth';
 import { Email } from './email';
 import { Device } from './device';
 import { LinkedAccount } from './linked-account';
+import { SecurityEvent } from './security-event';
 import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
 
 export type AccountOptions = {
-  include?: Array<'emails' | 'linkedAccounts'>;
+  include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
 };
 
 const selectFields = [
@@ -70,6 +71,7 @@ export class Account extends BaseAuthModel {
   devices?: Device[];
   emails?: Email[];
   linkedAccounts?: LinkedAccount[];
+  securityEvents?: SecurityEvent[];
 
   static relationMappings = {
     emails: {
@@ -94,6 +96,14 @@ export class Account extends BaseAuthModel {
         to: 'linkedAccounts.uid',
       },
       modelClass: LinkedAccount,
+      relation: BaseAuthModel.HasManyRelation,
+    },
+    securityEvents: {
+      join: {
+        from: 'accounts.uid',
+        to: 'securityEvents.uid',
+      },
+      modelClass: SecurityEvent,
       relation: BaseAuthModel.HasManyRelation,
     },
   };
@@ -475,6 +485,10 @@ export class Account extends BaseAuthModel {
       account.linkedAccounts = await LinkedAccount.findByUid(uid);
     }
 
+    if (options?.include?.includes('securityEvents')) {
+      account.securityEvents = await SecurityEvent.findByUid(uid);
+    }
+
     return account;
   }
 
@@ -502,5 +516,9 @@ export class Account extends BaseAuthModel {
       // err on caution / don't throw
       return false;
     }
+  }
+
+  static async securityEvents(uid: string) {
+    return SecurityEvent.findByUid(uid);
   }
 }

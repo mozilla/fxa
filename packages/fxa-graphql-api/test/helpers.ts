@@ -29,6 +29,14 @@ export const linkedAccountsTable = fs.readFileSync(
   path.join(thisDir, './linked-accounts.sql'),
   'utf8'
 );
+export const securityEventsTable = fs.readFileSync(
+  path.join(thisDir, './security-events.sql'),
+  'utf8'
+);
+export const securityEventsNameTable = fs.readFileSync(
+  path.join(thisDir, './security-events-names.sql'),
+  'utf8'
+);
 export const sessionsTable = fs.readFileSync(
   path.join(thisDir, './sessions.sql'),
   'utf8'
@@ -106,6 +114,8 @@ export async function testDatabaseSetup(): Promise<Knex> {
   await instance.raw(emailsTable);
   await instance.raw(linkedAccountsTable);
   await instance.raw(sessionsTable);
+  await instance.raw(securityEventsNameTable);
+  await instance.raw(securityEventsTable);
 
   /* Debugging Assistance
    knex.on('query', (data) => {
