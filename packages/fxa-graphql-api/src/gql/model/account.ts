@@ -9,6 +9,7 @@ import { Email } from './emails';
 import { Subscription } from './subscription';
 import { Totp } from './totp';
 import { LinkedAccount } from './linkedAccount';
+import { SecurityEvent } from './securityEvent';
 
 @ObjectType({
   description: "The current authenticated user's Firefox Account record.",
@@ -60,4 +61,9 @@ export class Account {
     description: 'Linked accounts',
   })
   public linkedAccounts!: LinkedAccount;
+
+  @Field((type) => [SecurityEvent], {
+    description: 'Security events',
+  })
+  public securityEvents!: SecurityEvent[];
 }

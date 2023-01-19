@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import Ready from '../../components/Ready';
+import Ready from '../../../components/Ready';
 
 type ResetPasswordConfirmedProps = {
   continueHandler?: Function;

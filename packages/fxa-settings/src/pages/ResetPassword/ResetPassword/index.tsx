@@ -6,15 +6,15 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@reach/router';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAccount, useAlertBar } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useAccount, useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import { InputText } from '../../components/InputText';
-import CardHeader from '../../components/CardHeader';
-import WarningMessage from '../../components/WarningMessage';
-import LinkRememberPassword from '../../components/LinkRememberPassword';
+import { InputText } from '../../../components/InputText';
+import CardHeader from '../../../components/CardHeader';
+import WarningMessage from '../../../components/WarningMessage';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
 // --forceEmail-- is a hint to the signup page that the user should not
 // be given the option to change their address

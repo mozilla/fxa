@@ -320,7 +320,7 @@ jobs:
       - cache-restore-yarn
       - provision
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run:
           name: Build docker images
           command: ./.circleci/build-all.sh
@@ -340,7 +340,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - git-clone
       - cache-restore-yarn
       - run:
@@ -362,7 +362,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - browser-tools/install-firefox:
           version: 102.4.0esr
       - browser-tools/install-geckodriver:
