@@ -37,6 +37,10 @@ const Checkout = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [coupon, setCoupon] = useState<Coupon>();
 
+  const checkCoupon = (promo: string) => {
+    return dataCoupon;
+  };
+
   const data = useStaticQuery(graphql`
     query {
       subplat {
@@ -77,10 +81,17 @@ const Checkout = ({
             amountOff
           }
         }
+
+        coupon(planId: "123", promotionCode: "") {
+          discountAmount
+          durationInMonths
+          promotionCode
+          type
+        }
       }
     }
   `);
-  // const data = {subplat: {plan: null}, site: { siteMetadata: {invoicePreview: null}}}
+
   const plan = {
     ...data.subplat.plan,
     currency: 'usd',
@@ -91,7 +102,12 @@ const Checkout = ({
       'Available for Windows, iOS and Android',
     ],
   };
-  const invoicePreview = data.subplat.invoicePreview;
+
+  const dataCoupon: Coupon = {
+    ...data.subplat.coupon,
+    couponDurationDate: 12,
+    message: 'Your plan will automatically renew at the list price.',
+  };
 
   return (
     <AppLocalizationProvider
@@ -110,9 +126,8 @@ const Checkout = ({
               selectedPlan={plan}
               // isMobile
               // showExpandButton
-              invoicePreview={invoicePreview}
-              coupon={coupon}
-              // additionalCouponInfo={additionalCouponInfo}
+              invoicePreview={data.subplat.invoicePreview}
+              coupon={dataCoupon}
             />
 
             <CouponForm
@@ -148,17 +163,6 @@ const Checkout = ({
 
 export default Checkout;
 
-const checkCoupon = (promo: string) => {
-  return coupon;
-};
-
-const coupon: Coupon = {
-  promotionCode: 'mockPromotionCode',
-  type: 'mockType',
-  durationInMonths: 12,
-  discountAmount: 1000,
-};
-
 const mockProfile = {
   avatar: 'http://placekitten.com/256/256',
   displayName: 'Foxy77',
@@ -169,9 +173,4 @@ const mockProfile = {
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
   metricsEnabled: true,
-};
-
-const additionalCouponInfo = {
-  couponDurationDate: 12,
-  message: 'Your plan will automatically renew at the list price.',
 };

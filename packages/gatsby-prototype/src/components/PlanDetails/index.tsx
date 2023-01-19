@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { getLocalizedDate } from '../../lib/formats';
-import {
-  AdditonalCouponInfo,
-  Coupon,
-  InvoicePreview,
-  Plan,
-} from '../../lib/types';
+import { Coupon, InvoicePreview, Plan } from '../../lib/types';
 import { LabelItem } from '../../lib/utils';
 
 import PlanDetailsHeader from '../PlanDetailsHeader';
@@ -19,7 +14,6 @@ export type PlanDetailsProps = {
   showExpandButton?: boolean;
   invoicePreview?: InvoicePreview;
   coupon?: Coupon;
-  additionalCouponInfo?: AdditonalCouponInfo;
 };
 
 const PlanDetails = ({
@@ -28,7 +22,6 @@ const PlanDetails = ({
   showExpandButton,
   invoicePreview,
   coupon,
-  additionalCouponInfo,
 }: PlanDetailsProps) => {
   const { details, currency, interval_count } = selectedPlan;
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
@@ -37,7 +30,7 @@ const PlanDetails = ({
   let discountAmount = coupon?.discountAmount;
   let subtotal = invoicePreview?.subtotal;
   let total = invoicePreview?.total;
-  let infoBoxMessage = additionalCouponInfo;
+  // let infoBoxMessage = null;
 
   return (
     <div
@@ -116,7 +109,7 @@ const PlanDetails = ({
               />
             )}
 
-            {infoBoxMessage &&
+            {/* {infoBoxMessage &&
               (infoBoxMessage.couponDurationDate ? (
                 <div
                   className="green-icon-text coupon-info"
@@ -147,7 +140,7 @@ const PlanDetails = ({
                     {infoBoxMessage.message}
                   </Localized>
                 </div>
-              ))}
+              ))} */}
           </div>
         </>
       )}
