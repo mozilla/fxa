@@ -55,4 +55,6 @@ cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
 
 cs-sign-out-button = Sign out
 
+cs-recent-activity = Recent Account Activity
+
 ##

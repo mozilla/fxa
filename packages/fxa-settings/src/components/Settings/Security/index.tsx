@@ -9,6 +9,7 @@ import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
 import { useAccount } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { Link } from '@reach/router';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   const pwdDateText = Intl.DateTimeFormat('default', {
@@ -75,6 +76,20 @@ export const Security = () => {
         <UnitRowRecoveryKey />
         <hr className="unit-row-hr" />
         <UnitRowTwoStepAuth />
+
+        <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6">
+          <div className="pb-5 text-center mobileLandscape:text-start">
+            <Localized id="cs-recent-activity">
+              <Link
+                data-testid="settings-recent-activity"
+                className="link-blue text-sm"
+                to="/settings/recent_activity"
+              >
+                Recent Account Activity
+              </Link>
+            </Localized>
+          </div>
+        </div>
       </div>
     </section>
   );

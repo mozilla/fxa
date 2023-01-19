@@ -27,7 +27,6 @@ import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
 import ResetPasswordView from '../views/reset_password';
-import SecurityEvents from '../views/security_events';
 import SignInBouncedView from '../views/sign_in_bounced';
 import SignInPasswordView from '../views/sign_in_password';
 import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
@@ -253,7 +252,6 @@ Router = Router.extend({
     'secondary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
-    'security_events(/)': createViewHandler(SecurityEvents),
     'settings(/)': function () {
       // Because settings is a separate js app, we need to ensure navigating
       // from the content-server app passes along flow parameters.
