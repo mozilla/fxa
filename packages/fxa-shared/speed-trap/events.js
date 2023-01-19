@@ -7,7 +7,7 @@ class Events {
     this.events = [];
 
     if (!options || !options.performance) {
-      throw new Error('options.performance is required!')
+      throw new Error('options.performance is required!');
     }
     this.performance = options.performance;
   }
@@ -15,7 +15,9 @@ class Events {
   capture(name) {
     this.events.push({
       type: name,
-      offset: this.performance.now(),
+
+      // Chrome produces floats, but our API expects integers
+      offset: parseInt(this.performance.now()),
     });
   }
 
