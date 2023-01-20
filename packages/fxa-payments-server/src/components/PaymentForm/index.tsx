@@ -246,69 +246,65 @@ export const PaymentForm = ({
       <Localized id="payment-cancel-btn">
         <button
           data-testid="cancel"
-          className="payment-button h-10 border-0 bg-grey-900/10 mobileLandscape:h-12"
+          className="payment-button h-10 border-0 bg-grey-900/10 hover:bg-grey-900/20 mobileLandscape:h-12"
           onClick={onCancel}
         >
           Cancel
         </button>
       </Localized>
 
-      <Localized
-        id={submitButtonL10nId ? submitButtonL10nId : 'payment-update-btn'}
+      <SubmitButton
+        data-testid="submit"
+        className="payment-button cta-primary h-10 mobileLandscape:h-12"
+        name="submit"
+        disabled={inProgress}
       >
-        <SubmitButton
-          data-testid="submit"
-          className="payment-button cta-primary h-10 mobileLandscape:h-12"
-          name="submit"
-          disabled={inProgress}
-        >
-          {inProgress ? (
-            <LoadingSpinner
-              spinnerType={SpinnerType.White}
-              imageClassName="w-8 h-8 animate-spin"
-            />
-          ) : submitButtonCopy ? (
-            <span>{submitButtonCopy}</span>
-          ) : (
-            <span>Update</span>
-          )}
-        </SubmitButton>
-      </Localized>
+        {inProgress ? (
+          <LoadingSpinner
+            spinnerType={SpinnerType.White}
+            imageClassName="w-8 h-8 animate-spin"
+          />
+        ) : (
+          <Localized
+            id={submitButtonL10nId ? submitButtonL10nId : 'payment-update-btn'}
+          >
+            <span>{submitButtonCopy ? submitButtonCopy : `Update`}</span>
+          </Localized>
+        )}
+      </SubmitButton>
     </div>
   ) : (
     <div className="mb-5">
-      <Localized id="payment-submit-btn">
-        <SubmitButton
-          data-testid="submit"
-          className="payment-button cta-primary !font-bold w-full mt-8 h-12"
-          name="submit"
-          disabled={!allowSubmit}
-        >
-          {showProgressSpinner ? (
-            <LoadingSpinner
-              spinnerType={SpinnerType.White}
-              imageClassName="w-8 h-8 animate-spin"
+      <SubmitButton
+        data-testid="submit"
+        className="payment-button cta-primary !font-bold w-full mt-8 h-12"
+        name="submit"
+        disabled={!allowSubmit}
+      >
+        {showProgressSpinner ? (
+          <LoadingSpinner
+            spinnerType={SpinnerType.White}
+            imageClassName="w-8 h-8 animate-spin"
+          />
+        ) : (
+          <div className="text-center">
+            <img
+              src={LockImage}
+              className="h-4 w-4 my-0 mx-3 relative top-0.5"
+              alt=""
             />
-          ) : (
-            <div className="text-center">
-              <img
-                src={LockImage}
-                className="h-4 w-4 my-0 mx-3 relative top-0.5"
-                alt=""
-              />
-              <Localized
-                id={
-                  submitButtonL10nId
-                    ? submitButtonL10nId
-                    : payButtonL10nId(customer)
-                }
-              >
-                <span>{submitButtonCopy}</span>
-              </Localized>
-            </div>
-          )}
-        </SubmitButton>
-      </Localized>
+            <Localized
+              id={
+                submitButtonL10nId
+                  ? submitButtonL10nId
+                  : payButtonL10nId(customer)
+              }
+            >
+              <span>{submitButtonCopy}</span>
+            </Localized>
+          </div>
+        )}
+      </SubmitButton>
     </div>
   );
 
