@@ -4,11 +4,11 @@
 
 import React, { useCallback } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
-import { copy } from '../../../lib/clipboard';
+import { copy } from '../../lib/clipboard';
 import { ReactComponent as CopyIcon } from './copy.svg';
 import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
-import { useAccount } from '../../../models';
+import { useAccount } from '../../models';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
@@ -27,6 +27,31 @@ export type GetDataTrioProps = {
   value: string | string[];
   contentType?: DownloadContentType;
   onAction?: (type: 'download' | 'copy' | 'print') => void;
+};
+
+export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
+  return (
+    <Localized id="get-data-trio-copy" attrs={{ title: true, ariaLabel: true }}>
+      <button
+        title="Copy"
+        type="button"
+        onClick={async () => {
+          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
+          await copy(copyValue);
+          onAction?.('copy');
+        }}
+        data-testid="databutton-copy"
+        className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
+      >
+        <CopyIcon
+          aria-label="Copy"
+          width="21"
+          height="24"
+          className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
+        />
+      </button>
+    </Localized>
+  );
 };
 
 const recoveryCodesPrintTemplate = (
@@ -61,6 +86,7 @@ export const GetDataTrio = ({
     null,
     contentType
   );
+
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
     printWindow.document.write(recoveryCodesPrintTemplate(value, pageTitle));
@@ -73,7 +99,10 @@ export const GetDataTrio = ({
 
   return (
     <div className="flex justify-between w-4/5 max-w-48">
-      <Localized id="get-data-trio-download" attrs={{ title: true }}>
+      <Localized
+        id="get-data-trio-download"
+        attrs={{ title: true, ariaLabel: true }}
+      >
         <a
           title="Download"
           href={URL.createObjectURL(
@@ -87,6 +116,7 @@ export const GetDataTrio = ({
           onClick={() => onAction?.('download')}
         >
           <DownloadIcon
+            aria-label="Download"
             height="24"
             width="18"
             className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
@@ -94,30 +124,15 @@ export const GetDataTrio = ({
         </a>
       </Localized>
 
-      <Localized id="get-data-trio-copy" attrs={{ title: true }}>
-        <button
-          title="Copy"
-          type="button"
-          onClick={async () => {
-            const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
-            await copy(copyValue);
-            onAction?.('copy');
-          }}
-          data-testid="databutton-copy"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
-        >
-          <CopyIcon
-            width="21"
-            height="24"
-            className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
-          />
-        </button>
-      </Localized>
+      <GetDataCopySingleton {...{ onAction, value }} />
 
       {/** This only opens the page that is responsible
        *   for triggering the print screen.
        **/}
-      <Localized id="get-data-trio-print" attrs={{ title: true }}>
+      <Localized
+        id="get-data-trio-print"
+        attrs={{ title: true, ariaLabel: true }}
+      >
         <button
           title="Print"
           type="button"
@@ -129,6 +144,7 @@ export const GetDataTrio = ({
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
         >
           <PrintIcon
+            aria-label="Print"
             height="24"
             width="24"
             className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"

@@ -4,9 +4,11 @@
 
 import { Localized } from '@fluent/react';
 import React, { useState } from 'react';
-import GetDataTrio, { DownloadContentType } from '../GetDataTrio';
-import { Tooltip } from '../../Tooltip';
-
+import GetDataTrio, {
+  DownloadContentType,
+  GetDataCopySingleton,
+} from '../GetDataTrio';
+import { Tooltip } from '../Tooltip';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',
@@ -23,6 +25,7 @@ export type DataBlockProps = {
   separator?: string;
   onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
   onAction?: actionFn;
+  isIOS?: boolean;
 };
 
 export const DataBlock = ({
@@ -32,6 +35,7 @@ export const DataBlock = ({
   separator,
   onCopy,
   onAction = () => {},
+  isIOS = false,
 }: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
   const [performedAction, setPerformedAction] = useState<actions>();
@@ -79,7 +83,11 @@ export const DataBlock = ({
           </Localized>
         )}
       </div>
-      <GetDataTrio {...{ value, contentType, onAction: actionCb }} />
+      {isIOS ? (
+        <GetDataCopySingleton {...{ value, onAction: actionCb }} />
+      ) : (
+        <GetDataTrio {...{ value, contentType, onAction: actionCb }} />
+      )}
     </>
   );
 };

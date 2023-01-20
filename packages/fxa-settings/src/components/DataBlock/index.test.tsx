@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Account, AppContext } from '../../../models';
+import { Account, AppContext } from '../../models';
 import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
 
@@ -62,6 +62,22 @@ it('can apply spacing to multiple values', () => {
   expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
     multiValue.join(' ')
   );
+});
+
+it('displays only Copy icon in iOS', () => {
+  render(
+    <AppContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} separator=" " isIOS />
+    </AppContext.Provider>
+  );
+
+  expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Download' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Print' })
+  ).not.toBeInTheDocument();
 });
 
 it('displays a tooltip on action', async () => {

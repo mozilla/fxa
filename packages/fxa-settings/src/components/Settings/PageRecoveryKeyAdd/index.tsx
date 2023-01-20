@@ -11,7 +11,7 @@ import {
 } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
-import DataBlock from '../DataBlock';
+import DataBlock from '../../DataBlock';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../../InputPassword';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
