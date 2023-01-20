@@ -178,7 +178,7 @@ export const CouponForm = ({
           <div className="input-row">
             <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
               <input
-                className={`${error ? 'invalid' : ''}`}
+                className={`${error ? 'invalid' : ''} h-8`}
                 type="text"
                 name="coupon"
                 data-testid="coupon-input"
@@ -196,7 +196,7 @@ export const CouponForm = ({
           <div>
             <button
               name="apply"
-              className="button"
+              className="cta-primary h-8"
               type="submit"
               data-testid="coupon-button"
               disabled={checkingCoupon || readOnly || subscriptionInProgress}

@@ -102,7 +102,7 @@ const CreateAccount = () => (
       <img src={shieldIcon} alt="shield" />
 
       <Localized id="new-user-subscribe-product-assurance">
-        <p>
+        <p className="text-sm">
           We only use your email to create your account. We will never sell it
           to a third party.
         </p>

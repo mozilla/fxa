@@ -1,4 +1,4 @@
-@import '../../../fxa-react/styles/index.css';
+@import 'fxa-react/styles/index.css';
 @import '../../../fxa-settings/src/styles/fonts.css';
 
 @tailwind base;
@@ -133,4 +133,8 @@ body {
 
 .input-row--checkbox {
   @apply mt-3 mb-2;
+}
+
+.input-row--checkbox label {
+  @apply flex items-center gap-4;
 }
