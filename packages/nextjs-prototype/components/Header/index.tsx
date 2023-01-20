@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-const FIREFOX_LOGO = '/images/firefox-logo-combined.svg';
+import FIREFOX_LOGO from '../../public/images/firefox-logo-combined.svg';
 
 export const Header = () => (
   <header
@@ -9,7 +9,7 @@ export const Header = () => (
     role="banner"
   >
     <div data-testid="branding">
-      <Image src={FIREFOX_LOGO} alt="Firefox logo" width={120} height={32} />
+      <Image src={FIREFOX_LOGO} alt="Firefox logo" />
     </div>
   </header>
 );

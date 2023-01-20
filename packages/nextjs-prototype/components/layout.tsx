@@ -1,10 +1,14 @@
 import Header from './Header';
+import Footer from './Footer';
 
 export default function Layout({ children }: { children: any }) {
   return (
-    <div className="flex justify-center">
+    <>
       <Header />
-      <main className="main-content">{children}</main>
-    </div>
+      <div className="flex justify-center">
+        <main className="main-content">{children}</main>
+      </div>
+      <Footer />
+    </>
   );
 }

@@ -91,7 +91,7 @@ export default function CheckoutSuccessPage({
   return (
     <>
       <SubscriptionTitle screenType="success" />
-      <article className="component-card border-t-0 min-h-full mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+      <article className="component-card border-t-0 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
         <PaymentConfirmation {...mockData} />
         <TermsAndConditions terms={terms} />
       </article>
