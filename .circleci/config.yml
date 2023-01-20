@@ -124,7 +124,16 @@ commands:
           name: Checkout Branch
           command: |
             set +x
-            git fetch
+            # If the PR is coming from a fork, add it as a remote, so the commit can be
+            # checked out.
+            echo "$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
+            if [[ "$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME" != "" ]]; then
+              echo "Adding remote https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
+              git fetch git@github.com:$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME.git << pipeline.git.revision >>
+            else
+              git fetch
+            fi
+
             git checkout << pipeline.git.revision >>
             commitsBehind=$(git rev-list --left-only --count main...HEAD);
             if [[ $((commitsBehind)) > 0 ]]; then
@@ -133,7 +142,7 @@ commands:
 
               echo -e '\n\n'
               echo '=============================================================================='
-              echo "WARNING! Your branch is $commitsBehind $commits behind master!"
+              echo "WARNING! Your branch is $commitsBehind $commits behind main!"
               echo '------------------------------------------------------------------------------'
               echo 'Please consider rebasing. By not rebasing you always run the risk of'
               echo 'introducing a breaking change into main!'
@@ -395,16 +404,12 @@ jobs:
       - run-tests:
           test_name: Unit Test (many)
           list: unit-test.list
-      - jira/notify
 
-  lint:
+  on-complete:
     executor: default-executor
     resource_class: small
     steps:
-      - git-checkout
-      - provision
-      - ts-build-restore
-      - lint
+      - jira/notify
 
   integration-test-part:
     parameters:
@@ -609,6 +614,20 @@ workflows:
       - playwright-functional-tests:
           name: Playwright Functional Tests
           requires:
+            - Build > Lint > Unit Test
+
+      - on-complete:
+          name: On Complete
+          requires:
+            - Content Server Functional Test Part 1
+            - Content Server Functional Test Part 2
+            - Content Server Functional Test Part 3
+            - Content Server Functional Test Part 4
+            - Content Server Functional Test Part 5
+            - Functional Tests - Settings Server
+            - Story Book Build & Deploy
+            - Integration Test Part 1
+            - Integration Test Part 2
             - Build > Lint > Unit Test
 
   # This workflow can be useful if we want to run test changes in our functional tests
