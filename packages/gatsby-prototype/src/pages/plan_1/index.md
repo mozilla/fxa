@@ -1,6 +1,6 @@
 ---
 id: '123'
-productName: 'Mozilla VPN'
+productName: 'Foxkeh VPN'
 planName: 'Test'
 active: true
 styles: { webIconBackground: '#20123a' }

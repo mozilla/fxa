@@ -4,7 +4,7 @@ import Header from '../components/Header';
 
 type Props = {
   children: React.ReactNode;
-  profile: Profile;
+  profile?: Profile;
 };
 
 const Layout: React.FC<Props> = ({ children, profile }) => (

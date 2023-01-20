@@ -8,9 +8,13 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 export type PlanDetailsHeaderProps = {
   selectedPlan: Plan;
+  className?: string;
 };
 
-const PlanDetailsHeader = ({ selectedPlan }: PlanDetailsHeaderProps) => {
+const PlanDetailsHeader = ({
+  selectedPlan,
+  className = '',
+}: PlanDetailsHeaderProps) => {
   const {
     amount,
     currency,
@@ -36,7 +40,9 @@ const PlanDetailsHeader = ({ selectedPlan }: PlanDetailsHeaderProps) => {
   checkImage.test(webIconUrl) ? (webIcon = webIconUrl) : (webIcon = ffLogo);
 
   return (
-    <div className="flex gap-4 my-0 py-4 border-b border-0 border-solid border-grey-200">
+    <div
+      className={`flex gap-4 my-0 py-4 border-b border-0 border-solid border-grey-200 ${className}`}
+    >
       <div
         className="flex h-16 items-center justify-center rounded-lg shrink-0 w-16"
         // style={{ ...setWebIconBackground }}

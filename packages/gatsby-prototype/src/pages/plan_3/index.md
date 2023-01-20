@@ -1,15 +1,15 @@
 ---
-id: '234'
-productName: 'Foxkeh VPN & Relay'
+id: '345'
+productName: 'Foxeh Hubs'
 planName: 'Test'
 active: true
 styles: { webIconBackground: '#20123a' }
-description: ['Testing Foxkeh', 'Product Detail line 2']
+description: ['Foxehubs', 'Product Detail line 2']
 subtitle: 'Test Plan Subtitle'
 upgradeCTA: 'Lets get you updated'
 successActionButtonUrl: 'https://foxkeh.com/buttons/'
 successActionButtonLabel: 'You did it!'
-webIconUrl: 'https://accounts-static.cdn.mozilla.net/product-icons/bundle-relay-vpn-64.svg'
+webIconUrl: 'https://accounts-static.cdn.mozilla.net/product-icons/hubs-logo-color-256.svg'
 tosUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
 tosDownloadUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
 privacyNoticeUrl: 'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos'
