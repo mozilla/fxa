@@ -96,7 +96,7 @@ export const Field = ({
         {label && (
           <span
             data-testid="input-label-text"
-            className="font-medium text-sm text-grey-400 block mb-2 text-start"
+            className="font-medium text-sm text-grey-400 block my-2 text-start"
           >
             {label}
           </span>
@@ -246,7 +246,10 @@ const UnwrappedInput = (props: InputProps) => {
           ref: tooltipParentRef,
           name,
           required,
-          className: classNames({ invalid: validator.isInvalid(name) }),
+          className: classNames(
+            { invalid: validator.isInvalid(name) },
+            'w-full h-8'
+          ),
           value: validator.getValue(name, ''),
           onBlur,
           onChange,

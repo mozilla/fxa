@@ -5,6 +5,8 @@ import { PaymentMethodHeaderType, Plan } from '../../lib/types';
 
 import AcceptedCards from '../AcceptedCards';
 import { PaymentMethodHeader } from '../PaymentMethodHeader';
+import { Input } from '../fields';
+import LockImage from '../../images/lock.svg';
 
 export type ChoosePaymentProps = {
   paypalScriptLoaded: boolean;
@@ -74,30 +76,49 @@ const ChoosePayment = ({
           <div className="label-title">Enter your card information</div>
         </Localized>
 
-        {/* <PaymentForm
-              {...{
-                submitNonce,
-                onSubmit: onStripeSubmit,
-                onChange,
-                submitButtonL10nId: 'new-user-submit',
-                submitButtonCopy: 'Subscribe Now',
-                shouldAllowSubmit:
-                  checkboxSet &&
-                  validEmail !== '' &&
-                  !accountExists &&
-                  !invalidEmailDomain &&
-                  emailsMatch,
+        <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
+          <Input
+            type="text"
+            name="name"
+            label="Name as it appears on your card"
+            data-testid="name"
+            placeholder="Full Name"
+            required
+            spellCheck={false}
+            // onValidate={(value, focused, props) =>
+            //   validateName(value, focused, props, getString)
+            // }
+          />
+        </Localized>
 
-                inProgress,
-                validatorInitialState,
-                confirm: false,
-                submit: true,
-                plan: selectedPlan,
-                onMounted: onFormMounted,
-                onEngaged: onFormEngaged,
-                promotionCode: coupon?.promotionCode,
-              }}
-            /> */}
+        <Localized id="payment-cc" attrs={{ label: true }}>
+          <Input
+            name="creditCard"
+            label="Your card"
+            placeholder="Card Number"
+            required
+          />
+        </Localized>
+      </div>
+      <div className="mb-5">
+        <Localized id="payment-submit-btn">
+          <button
+            data-testid="submit"
+            className="payment-button cta-primary !font-bold w-full mt-8 h-12"
+            name="submit"
+          >
+            <div className="text-center">
+              <img
+                src={LockImage}
+                className="h-4 w-4 my-0 mx-3 relative top-0.5"
+                alt=""
+              />
+              <Localized id="subscribe-now">
+                <span>Subscribe Now</span>
+              </Localized>
+            </div>
+          </button>
+        </Localized>
       </div>
     </>
   );
