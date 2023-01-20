@@ -37,8 +37,10 @@ const Checkout = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [coupon, setCoupon] = useState<Coupon>();
 
-  const checkCoupon = (promo: string) => {
-    return dataCoupon;
+  const checkCoupon = async (promo: string) => {
+    const data = await fetch('http://localhost:3000');
+    const coupon: Coupon = await data.json();
+    return coupon;
   };
 
   const data = useStaticQuery(graphql`
@@ -81,33 +83,21 @@ const Checkout = ({
             amountOff
           }
         }
-
-        coupon(planId: "123", promotionCode: "") {
-          discountAmount
-          durationInMonths
-          promotionCode
-          type
-        }
       }
     }
   `);
 
   const plan = {
     ...data.subplat.plan,
-    currency: 'usd',
-    details: [
-      'Device-level encryption',
-      'Servers is 30+ countries',
-      'Connects 5 devices with one subscription',
-      'Available for Windows, iOS and Android',
-    ],
+    currency: data.subplat.invoicePreview.currency,
+    details: data.subplat.plan.description,
   };
 
-  const dataCoupon: Coupon = {
-    ...data.subplat.coupon,
-    couponDurationDate: 12,
-    message: 'Your plan will automatically renew at the list price.',
-  };
+  // const dataCoupon: Coupon = {
+  //   ...data.subplat.coupon,
+  //   couponDurationDate: 12,
+  //   message: 'Your plan will automatically renew at the list price.',
+  // };
 
   return (
     <AppLocalizationProvider
@@ -127,7 +117,7 @@ const Checkout = ({
               // isMobile
               // showExpandButton
               invoicePreview={data.subplat.invoicePreview}
-              coupon={dataCoupon}
+              coupon={coupon}
             />
 
             <CouponForm
