@@ -1,28 +1,29 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     open-pull-requests-limit: 6
     labels:
-      - "maintenance"
-      - "dependencies"
+      - 'maintenance'
+      - 'dependencies'
     reviewers:
-      - "@mozilla/fxa-devs"
+      - '@mozilla/fxa-devs'
     ignore:
-      - dependency-name: "@types/*"
-      - dependency-name: "web-push"
-      - dependency-name: "jest-watch-typeahead" # To be removed after react-scripts update
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-  - package-ecosystem: "github-actions"
-    directory: "/"
+      - dependency-name: '@types/*'
+      - dependency-name: 'web-push'
+      - dependency-name: 'jest-watch-typeahead' # To be removed after react-scripts update
+      - dependency-name: 'esbuild' # See FXA-5948
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
       interval: daily
     open-pull-requests-limit: 6
     reviewers:
-      - "@mozilla/fxa-devs"
+      - '@mozilla/fxa-devs'
     labels:
-      - "maintenance"
-      - "dependencies"
+      - 'maintenance'
+      - 'dependencies'
