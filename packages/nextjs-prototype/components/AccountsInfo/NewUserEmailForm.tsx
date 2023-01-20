@@ -8,7 +8,8 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
 
-const SHIELD_ICON = '/images/shield.svg';
+import Image from 'next/image';
+import SHIELD_ICON from '../../public/images/shield.svg';
 
 export type NewUserEmailFormProps = {
   signInURL: string;
@@ -136,7 +137,7 @@ export default function NewUserEmailForm({
         className="flex justify-center items-center"
         data-testid="assurance-copy"
       >
-        <img src={SHIELD_ICON} alt="shield" />
+        <Image src={SHIELD_ICON} alt="shield" />
         <Localized id="new-user-subscribe-product-assurance">
           <p>
             We only use your email to create your account. We will never sell it

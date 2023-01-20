@@ -4,9 +4,10 @@ import PaymentProviderDetails from './PaymentProviderDetails';
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
 import { getLocalizedCurrency } from '../../lib/formats';
 
-const CIRCLED_CHECKBOX = '/images/circled-confirm.svg';
-const CHECKMARK_ICON = '/images/checkmark.svg';
-const EMAIL_SENT_ICON = '/images/email-sent.svg';
+import Image from 'next/image';
+import CIRCLED_CHECKBOX from '../../public/images/circled-confirm.svg';
+import CHECKMARK_ICON from '../../public/images/checkmark.svg';
+import EMAIL_SENT_ICON from '../../public/images/email-sent.svg';
 
 // TW classes
 const subheadingClasses = 'text-grey-400 max-w-sm';
@@ -55,7 +56,7 @@ export default function PaymentConfirmation({
         <header className="flex flex-col justify-center items-center row-divider-grey-200 text-center pb-8 mt-5 desktop:mt-2">
           {accountExists ? (
             <>
-              <img
+              <Image
                 className="max-h-12"
                 src={CIRCLED_CHECKBOX}
                 alt="circled checkbox"
@@ -74,8 +75,8 @@ export default function PaymentConfirmation({
             </>
           ) : (
             <>
-              <img src={CHECKMARK_ICON} alt="checkmark icon" />
-              <img src={EMAIL_SENT_ICON} alt="email sent icon" />
+              <Image src={CHECKMARK_ICON} alt="checkmark icon" />
+              <Image src={EMAIL_SENT_ICON} alt="email sent icon" />
               <Localized id="payment-confirmation-thanks-heading-account-exists">
                 <h2 className={h2classes}>Thanks, now check your email!</h2>
               </Localized>

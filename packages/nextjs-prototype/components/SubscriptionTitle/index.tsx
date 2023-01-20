@@ -1,7 +1,8 @@
 import { Localized } from '@fluent/react';
 import { ReactElement } from 'react';
 
-const CHECK_LOGO = '/images/check.svg';
+import Image from 'next/image';
+import CHECK_LOGO from '../../public/images/check.svg';
 
 export const titles = {
   create: 'Set up your subscription',
@@ -26,7 +27,7 @@ export const SubscriptionTitle = ({
 }: SubscriptionTitleProps) => {
   const subtitleElement = subtitle || (
     <div className="green-icon-text mb-4">
-      <img src={CHECK_LOGO} alt="" />
+      <Image src={CHECK_LOGO} alt="" />
 
       <Localized id="sub-guarantee">
         <div className="font-semibold text-sm">30-day money-back guarantee</div>

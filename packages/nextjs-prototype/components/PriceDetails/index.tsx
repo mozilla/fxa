@@ -7,9 +7,9 @@ import {
   getLocalizedDate,
 } from '../../lib/formats';
 import { PlanInterval } from 'fxa-shared/subscriptions/types';
-
-const FIREFOX_LOGO = '/images/firefox-logo.svg';
-const INFO_ICON = '/images/info.svg';
+import Image from 'next/image';
+import FIREFOX_LOGO from '../../public/images/firefox-logo.svg';
+import INFO_ICON from '../../public/images/info.svg';
 
 export type PriceInfo = {
   id: string;
@@ -69,11 +69,13 @@ export default function PriceDetails(props: PriceDetailsProps) {
     >
       <div className="plan-details-header row-divider-grey-200">
         <div className="plan-details-logo-wrap" style={{}}>
-          <img
+          <Image
             src={additionalStyles?.webIcon || FIREFOX_LOGO}
             alt={productName}
             data-testid="product-logo"
             className="plan-details-icon"
+            width={64}
+            height={64}
           />
         </div>
 
@@ -243,7 +245,7 @@ export default function PriceDetails(props: PriceDetailsProps) {
                     className="green-icon-text coupon-info"
                     data-testid="coupon-success-with-date"
                   >
-                    <img src={INFO_ICON} alt="" />
+                    <Image src={INFO_ICON} alt="" />
 
                     <Localized
                       id={infoBox.message}
@@ -262,7 +264,7 @@ export default function PriceDetails(props: PriceDetailsProps) {
                     className="green-icon-text coupon-info"
                     data-testid="coupon-success"
                   >
-                    <img src={INFO_ICON} alt="" />
+                    <Image src={INFO_ICON} alt="" />
 
                     <Localized id={infoBox.message}>
                       {infoBox.message}
