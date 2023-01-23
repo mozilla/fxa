@@ -8,16 +8,15 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import SigninTotpCode from '.';
+import ConfirmSignupCode from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
-describe('Sign in with TOTP code page', () => {
+describe('PageSigninTokenCode', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
   // let bundle: FluentBundle;
@@ -26,36 +25,22 @@ describe('Sign in with TOTP code page', () => {
   // });
 
   it('renders as expected', () => {
-    render(<SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    render(<ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter security code to continue to account settings'
+      'Enter confirmation code for your Firefox account'
     );
     screen.getByLabelText('Enter 6-digit code');
 
     screen.getByRole('button', { name: 'Confirm' });
-    screen.getByRole('link', { name: 'Use a different account' });
-    screen.getByRole('link', { name: 'Trouble entering code?' });
-  });
-
-  it('shows the relying party in the header when a service name is provided', () => {
-    render(
-      <SigninTotpCode
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        serviceName={MozServices.MozillaVPN}
-      />
-    );
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(
-      'Enter security code to continue to Mozilla VPN'
-    );
+    screen.getByRole('button', { name: 'Email new code.' });
   });
 
   it('emits a metrics event on render', () => {
-    render(<SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`signin-totp-code`, {
+    render(<ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    expect(usePageViewEvent).toHaveBeenCalledWith(`confirm-signup-code`, {
       entrypoint_variation: 'react',
     });
   });

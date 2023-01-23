@@ -18,7 +18,7 @@ import { logViewEvent, settingsViewName } from '../../lib/metrics';
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];
   errors: UseFormMethods['errors'];
-  onSubmit: any; // TODO: fix this type
+  onSubmit: () => void;
   trigger: UseFormMethods['trigger'];
   register: UseFormMethods['register'];
   getValues: UseFormMethods['getValues'];

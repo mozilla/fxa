@@ -13,8 +13,7 @@ signin-totp-code-heading-w-custom-service = Enter security code <span>to continu
 signin-totp-code-image-label =
   .aria-label = A device with a hidden 6-digit code.
 signin-totp-code-instruction = Open your authentication app and enter the security code it provides.
-signin-totp-code-input-label =
-  .label = Enter 6-digit code
+signin-totp-code-input-label-v2 = Enter 6-digit code
 # Form button to confirm if the security code entered by the user is valid
 signin-totp-code-confirm-button = Confirm
 signin-totp-code-other-account-link = Use a different account

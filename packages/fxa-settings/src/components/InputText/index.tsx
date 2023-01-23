@@ -116,13 +116,13 @@ export const InputText = ({
       )}
       data-testid={formatDataTestId('input-container')}
     >
-      <span className="block flex-auto">
+      <span className="block flex-auto  bg-green-100">
         <span
           className={classNames(
-            'px-3 w-full cursor-text absolute text-sm origin-top-left transition-all duration-100 ease-in-out truncate font-body',
+            'px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body',
             disabled ? 'text-grey-300' : 'text-grey-900',
             hasContent || focused
-              ? 'transform scale-80 mt-1 ml-1 -left-px'
+              ? 'transform scale-80 mt-1 ltr:ml-1 rtl:mr-1 ltr:-left-px rtl:-right-px'
               : 'mt-3 pt-px'
           )}
           data-testid={formatDataTestId('input-label')}

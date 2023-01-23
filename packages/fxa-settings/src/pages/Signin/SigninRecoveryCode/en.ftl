@@ -13,8 +13,7 @@ signin-recovery-code-heading-w-custom-service = Enter backup authentication code
 signin-recovery-code-image-description =
   .aria-label = Document that contains hidden text.
 signin-recovery-code-instruction = Please enter a backup authentication code that was provided to you during two step authentication setup.
-signin-recovery-code-input =
-  .label = Enter 10-digit backup authentication code
+signin-recovery-code-input-label = Enter 10-digit backup authentication code
 # Form button to confirm if the backup authentication code entered by the user is valid
 signin-recovery-code-confirm-button = Confirm
 # Link to return to signin with two-step authentication code (security code)
