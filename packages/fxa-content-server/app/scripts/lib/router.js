@@ -137,7 +137,9 @@ Router = Router.extend({
       );
     },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
-    'clear(/)': createViewHandler(ClearStorageView),
+    'clear(/)': function () {
+      this.createReactOrBackboneViewHandler('clear', ClearStorageView);
+    },
     'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
     'complete_signin(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_IN,
