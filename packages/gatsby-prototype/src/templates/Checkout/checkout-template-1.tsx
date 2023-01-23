@@ -43,6 +43,7 @@ const Checkout = ({
 
   const revisedPlan = {
     ...data.plan,
+    amount: 935,
     currency: 'usd',
     details: [
       'Device-level encryption',
@@ -50,6 +51,8 @@ const Checkout = ({
       'Connects 5 devices with one subscription',
       'Available for Windows, iOS and Android',
     ],
+    interval: 'month',
+    interval_count: 1,
   };
 
   const revisedCoupon: Coupon = {
