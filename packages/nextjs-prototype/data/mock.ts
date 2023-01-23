@@ -196,7 +196,7 @@ export async function mockHCMSFetch(
       webIconUrl: 'https://foxkeh.com/downloads/parts/head01.svg',
     };
   } catch (error) {
-    console.log(error);
+    console.log('Looks like GraphQL is not running');
   }
 
   return mockPlan;
@@ -283,8 +283,14 @@ export async function mockInvoicePreviewFetch(
 
     return invoicePreview;
   } catch (error) {
-    console.log(error);
+    console.log('Looks like GQL not running');
   }
 
   return mockInvoicePreview;
+}
+
+export async function mockCreateSub(withDelay: boolean = false): Promise<void> {
+  if (withDelay) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
 }

@@ -117,7 +117,7 @@ body {
 }
 
 .main-content {
-  @apply mt-16 mx-7 min-h-[calc(100vh_-_4rem)];
+  @apply mt-16 mx-7 min-h-[calc(100vh_-_13rem)];
   @apply tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-[80px] tablet:mb-auto;
   @apply desktop:grid-cols-[600px_1fr];
 }

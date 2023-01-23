@@ -93,7 +93,10 @@ export default function CheckoutPricePage({
           signInUrl={SIGN_IN_URL}
           setPaymentsDisabled={setPaymentsDisabled}
         />
-        <PaymentForm disabled={paymentsDisabled} />
+        <PaymentForm
+          disabled={paymentsDisabled}
+          setDisabled={setPaymentsDisabled}
+        />
         <TermsAndConditions terms={terms} />
       </article>
       <aside className="payment-panel">
