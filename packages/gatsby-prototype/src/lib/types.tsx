@@ -80,3 +80,21 @@ export enum PaymentMethodHeaderType {
   NoPrefix,
   SecondStep,
 }
+
+export type SubplatQuery = {
+  subplat: {
+    plan: Plan;
+    invoicePreview: InvoicePreview;
+    coupon: Coupon;
+  };
+};
+
+export type MarkdownQuery = {
+  allMarkdownRemark: {
+    edges: {
+      node: {
+        frontmatter: Plan;
+      };
+    };
+  };
+};
