@@ -12,6 +12,12 @@ if [[ ! -f .lists/$LIST ]]; then
   echo "List isn't a valid file: $LIST"
   exit 1
 fi
+
+if [[ ! -s .lists/$LIST ]]; then
+  echo "$LIST contains no operations. Exiting early!"
+  exit 0
+fi
+
 JOBLOG="--joblog artifacts/tests/$LIST.log"
 
 if [[ $MAX_JOBS == "NONE" ]]; then

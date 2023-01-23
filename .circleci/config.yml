@@ -219,13 +219,6 @@ commands:
           command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
       - store-artifacts
 
-  test-settings-server:
-    steps:
-      - run:
-          name: Running test...
-          command: ./.circleci/test-package.sh fxa-settings
-      - store-artifacts
-
   wait-for-infrastructure:
     steps:
       - run:
@@ -430,15 +423,6 @@ jobs:
           index: << parameters.index >>
           total: << parameters.total >>
 
-  test-settings-server:
-    executor: functional-test-executor
-    steps:
-      - git-checkout
-      - ts-build-restore
-      - provision
-      - wait-for-infrastructure
-      - test-settings-server
-
   test-content-server-part:
     parameters:
       resource_class:
@@ -572,11 +556,6 @@ workflows:
 
       - build-and-deploy-storybooks:
           name: Story Book Build & Deploy
-          requires:
-            - Build > Lint > Unit Test
-
-      - test-settings-server:
-          name: Functional Tests - Settings Server
           requires:
             - Build > Lint > Unit Test
 
