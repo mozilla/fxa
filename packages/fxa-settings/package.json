@@ -20,7 +20,7 @@
     "test:watch": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test:coverage": "yarn test --coverage --watchAll=false",
     "test:unit": "echo No unit tests present for $npm_package_name",
-    "test:integration": "yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
+    "test:integration": "tsc --build ../fxa-react && yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
     "merge-ftl": "grunt merge-ftl",
     "merge-ftl:test": "grunt merge-ftl:test",
     "watch-ftl": "grunt watch-ftl"
