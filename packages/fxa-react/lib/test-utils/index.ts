@@ -139,11 +139,12 @@ function _createFtlBundle(messages: string, locale: string) {
  */
 export function testAllL10n(
   { getAllByTestId }: Screen<typeof queries>,
-  bundle: FluentBundle
+  bundle: FluentBundle,
+  ftlArgs?: Record<string, FluentVariable>
 ) {
   const ftlMsgMocks = getAllByTestId('ftlmsg-mock');
   ftlMsgMocks.forEach((ftlMsgMock) => {
-    testL10n(ftlMsgMock, bundle);
+    testL10n(ftlMsgMock, bundle, ftlArgs);
   });
 }
 
