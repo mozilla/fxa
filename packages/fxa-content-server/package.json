@@ -133,7 +133,7 @@
     "thread-loader": "^3.0.4",
     "time-grunt": "2.0.0",
     "typescript": "^4.9.3",
-    "ua-parser-js": "1.0.2",
+    "ua-parser-js": "1.0.33",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
     "webcrypto-liner": "https://github.com/mozilla-fxa/webcrypto-liner.git#30d4ecdfbbe33535ad43f31bf3f0407edce543a3",
