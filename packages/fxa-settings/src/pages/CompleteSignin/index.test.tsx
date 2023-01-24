@@ -61,7 +61,7 @@ describe('CompleteSignin', () => {
     // Components that should not be rendered when the link is expired
     const signinConfirmation = screen.queryByText('Sign-in confirmed');
     const serviceAvailabilityConfirmation = screen.queryByText(
-      'You’re now ready to use Account Settings'
+      'You’re now ready to use account settings'
     );
     expect(signinConfirmation).not.toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).not.toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('CompleteSignin', () => {
     expect(receiveNewLink).not.toBeInTheDocument();
     const signinConfirmation = screen.queryByText('Sign-in confirmed');
     const serviceAvailabilityConfirmation = screen.queryByText(
-      'You’re now ready to use Account Settings'
+      'You’re now ready to use account settings'
     );
     expect(signinConfirmation).not.toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).not.toBeInTheDocument();

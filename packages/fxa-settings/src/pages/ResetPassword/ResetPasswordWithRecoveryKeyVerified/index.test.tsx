@@ -24,7 +24,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     renderWithRouter(<ResetPasswordWithRecoveryKeyVerified />);
     const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
     testL10n(ftlMsgMock, bundle, {
-      serviceName: 'Account Settings',
+      serviceName: 'account settings',
     });
 
     const newAccountRecoveryKeyButton = screen.getByText(

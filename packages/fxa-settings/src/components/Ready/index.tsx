@@ -20,6 +20,8 @@ type ReadyProps = {
 export type ViewNameType =
   | 'signin-confirmed'
   | 'signin-verified'
+  | 'signup-confirmed'
+  | 'signup-verified'
   | 'reset-password-confirmed'
   | 'reset-password-verified'
   | 'reset-password-with-recovery-key-verified';
@@ -35,6 +37,11 @@ const getTemplateValues = (viewName: ViewNameType) => {
       templateValues.headerId = 'sign-in-complete-header';
       templateValues.headerText = 'Sign-in confirmed';
       break;
+    case 'signup-confirmed':
+    case 'signup-verified':
+      templateValues.headerId = 'sign-up-complete-header';
+      templateValues.headerText = 'Account confirmed';
+      break;
     case 'reset-password-confirmed':
     case 'reset-password-with-recovery-key-verified':
       templateValues.headerId = 'reset-password-complete-header';
@@ -49,7 +56,7 @@ const getTemplateValues = (viewName: ViewNameType) => {
 const Ready = ({
   continueHandler,
   isSignedIn = true,
-  serviceName = 'Account Settings',
+  serviceName = 'account settings',
   viewName,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, {
