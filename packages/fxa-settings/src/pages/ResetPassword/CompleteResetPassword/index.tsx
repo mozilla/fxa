@@ -110,7 +110,7 @@ const CompleteResetPassword = ({
           {/* SyncWarning is only shown if resetPasswordConfirm === true */}
           {resetPasswordConfirm && (
             <WarningMessage
-              warningMessageFtlId="complete-reset-password-warning-message"
+              warningMessageFtlId="complete-reset-password-warning-message-2"
               warningType="Remember:"
             >
               When you reset your password, you reset your account. You may lose

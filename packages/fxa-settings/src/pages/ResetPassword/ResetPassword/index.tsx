@@ -120,7 +120,7 @@ const ResetPassword = ({
       />
 
       <WarningMessage
-        warningMessageFtlId="reset-password-warning-message"
+        warningMessageFtlId="reset-password-warning-message-2"
         warningType="Note:"
       >
         When you reset your password, you reset your account. You may lose some
