@@ -5,10 +5,10 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import CompleteSignin from '.';
-import { usePageViewEvent } from '../../lib/metrics';
-import { renderWithRouter } from '../../models/mocks';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { renderWithRouter } from '../../../models/mocks';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));

@@ -3,42 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPasswordConfirmed from '.';
-import AppLayout from '../../../components/AppLayout';
-import { MozServices } from '../../../lib/types';
+import ConfirmWithLink from '.';
+import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { DefaultSubject, SubjectCanGoBack, SubjectWithWebmail } from './mocks';
 
 export default {
-  title: 'pages/ResetPassword/ResetPasswordConfirmed',
-  component: ResetPasswordConfirmed,
+  title: 'components/ConfirmWithLink',
+  component: ConfirmWithLink,
 } as Meta;
 
 export const Default = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed />
+      <DefaultSubject />
     </AppLayout>
   </LocationProvider>
 );
 
-export const WithRelyingPartyNoContinueAction = () => (
+export const UserCanGoBack = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed serviceName={MozServices.MozillaVPN} />
+      <SubjectCanGoBack />
     </AppLayout>
   </LocationProvider>
 );
 
-export const WithRelyingPartyAndContinueAction = () => (
+export const withWebmailLink = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed
-        serviceName={MozServices.MozillaVPN}
-        continueHandler={() => {
-          console.log('Arbitrary action');
-        }}
-      />
+      <SubjectWithWebmail />
     </AppLayout>
   </LocationProvider>
 );

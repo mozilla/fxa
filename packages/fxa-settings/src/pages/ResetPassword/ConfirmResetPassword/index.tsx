@@ -4,21 +4,22 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as MailLink } from './graphic_mail.svg';
 import { usePageViewEvent } from '../../../lib/metrics';
 
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import ConfirmWithLink, {
+  ConfirmWithLinkPageStrings,
+} from '../../../components/ConfirmWithLink';
 
 export type ConfirmResetPasswordProps = {
-  email?: string;
-  forceEmail?: string;
+  email: string;
+  forceAuth?: boolean;
   canSignIn?: boolean;
 };
 
 const ConfirmResetPassword = ({
   email,
-  forceEmail,
+  forceAuth,
   canSignIn,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent('confirm-reset-password', {
@@ -26,39 +27,28 @@ const ConfirmResetPassword = ({
   });
 
   // TODO check for passwordResetToken (confirms reset password initiated)
-  // TODO redirect to reset_password if !passwordResetToken and/or !email
+  // TODO redirect to reset_password if !passwordResetToken
 
   const resendHandler = () => {
     // TODO resend code
     // TODO logViewEvent metric
   };
 
+  const confirmResetPasswordStrings: ConfirmWithLinkPageStrings = {
+    headingFtlId: 'confirm-pw-reset-header',
+    headingText: 'Reset email sent',
+    instructionFtlId: 'confirm-pw-reset-instructions',
+    instructionText: `Click the link emailed to ${email} within the next hour to create a new password.`,
+  };
+
   return (
     <>
-      <div className="mb-4">
-        <FtlMsg id="confirm-pw-reset-header">
-          <h1 className="card-header">Reset email sent</h1>
-        </FtlMsg>
-      </div>
-      <div className="flex justify-center mx-auto">
-        <MailLink />
-      </div>
-      <FtlMsg id="confirm-pw-reset-instructions">
-        <p className="my-4 text-sm">{`Click the link emailed to ${email} within the next hour to create a new password.`}</p>
-      </FtlMsg>
-      <FtlMsg id="confirm-pw-reset-resend">
-        <button
-          className="link-blue text-sm"
-          onClick={(e) => {
-            resendHandler();
-          }}
-        >
-          Not in inbox or spam folder? Resend
-        </button>
-      </FtlMsg>
-
-      {canSignIn && !forceEmail && <LinkRememberPassword {...{ email }} />}
-      {canSignIn && forceEmail && <LinkRememberPassword {...{ forceEmail }} />}
+      <ConfirmWithLink
+        {...{ email }}
+        confirmWithLinkPageStrings={confirmResetPasswordStrings}
+        resendEmailCallback={resendHandler}
+      />
+      {canSignIn && <LinkRememberPassword {...{ email, forceAuth }} />}
     </>
   );
 };

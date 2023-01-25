@@ -3,18 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPassword, { ResetPasswordProps } from '.';
-import AppLayout from '../../../components/AppLayout';
+import ResetPassword from '.';
+import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_SERVICE_NAME, MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../models/mocks';
+import { MozServices } from '../../lib/types';
 
 export default {
-  title: 'pages/ResetPassword/ResetPassword',
+  title: 'pages/ResetPassword',
   component: ResetPassword,
 } as Meta;
 
-const storyWithProps = (props?: ResetPasswordProps) => {
+const storyWithProps = ({ ...props }) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
@@ -25,14 +26,15 @@ const storyWithProps = (props?: ResetPasswordProps) => {
   return story;
 };
 
-export const Default = storyWithProps();
+export const Default = storyWithProps({});
 
 export const WithServiceName = storyWithProps({
-  serviceName: MOCK_SERVICE_NAME,
+  serviceName: MozServices.MozillaVPN,
 });
 
-export const WithForcedEmail = storyWithProps({
-  forceEmail: MOCK_EMAIL,
+export const WithForceAuth = storyWithProps({
+  prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
+  forceAuth: true,
 });
 
 export const CanGoBack = storyWithProps({

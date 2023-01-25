@@ -7,12 +7,11 @@ import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import ConfirmSignin from '.';
-import { EXAMPLE_EMAIL } from './mocks';
-import { act } from 'react-dom/test-utils';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
@@ -29,23 +28,19 @@ describe('ConfirmSignin', () => {
   // TODO: add tests for all metrics as they are added
 
   it("renders default view as expected with user's email", () => {
-    render(
-      <ConfirmSignin email={EXAMPLE_EMAIL} isOpenWebmailButtonVisible={false} />
-    );
+    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent('Confirm this sign-in');
     screen.getByText(
-      `Check your email for the sign-in confirmation link sent to ${EXAMPLE_EMAIL}`
+      `Check your email for the sign-in confirmation link sent to ${MOCK_ACCOUNT.primaryEmail.email}`
     );
     screen.getByRole('button', { name: 'Not in inbox or spam folder? Resend' });
   });
 
   it('resends the email when the user clicks the resend button', () => {
-    render(
-      <ConfirmSignin email={EXAMPLE_EMAIL} isOpenWebmailButtonVisible={false} />
-    );
+    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent('Confirm this sign-in');
     // check that the back button is present
@@ -59,9 +54,9 @@ describe('ConfirmSignin', () => {
 
   it('shows the Open Webmail button if in the appropriate context', () => {
     render(
-      <ConfirmSignin email={EXAMPLE_EMAIL} isOpenWebmailButtonVisible={true} />
+      <ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} withWebmailLink />
     );
-    const openWebmailButton = screen.getByRole('link', {
+    screen.getByRole('link', {
       name: 'Open Gmail Opens in new window',
     });
   });
@@ -69,10 +64,8 @@ describe('ConfirmSignin', () => {
   it('renders the expected view with the Back button when user can go back', async () => {
     render(
       <ConfirmSignin
-        email={EXAMPLE_EMAIL}
-        canGoBack={true}
+        email={MOCK_ACCOUNT.primaryEmail.email}
         goBackCallback={mockGoBackCallback}
-        isOpenWebmailButtonVisible={false}
       />
     );
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -85,9 +78,7 @@ describe('ConfirmSignin', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(
-      <ConfirmSignin email={EXAMPLE_EMAIL} isOpenWebmailButtonVisible={false} />
-    );
+    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(`confirm-signin`, {
       entrypoint_variation: 'react',
     });

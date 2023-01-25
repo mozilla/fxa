@@ -27,6 +27,7 @@ import FormResetPasswordWithBalloon from '../../../components/FormResetPasswordW
 export type AccountRecoveryResetPasswordProps = {
   email: string;
   linkStatus: LinkStatus;
+  forceAuth?: boolean;
 };
 
 type FormData = {
@@ -39,6 +40,7 @@ type LinkStatus = 'expired' | 'damaged' | 'valid';
 const AccountRecoveryResetPassword = ({
   email,
   linkStatus,
+  forceAuth = false,
 }: AccountRecoveryResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent('account-recovery-reset-password', {
     entrypoint_variation: 'react',
@@ -126,7 +128,7 @@ const AccountRecoveryResetPassword = ({
           </section>
 
           {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}
-          <LinkRememberPassword {...{ email }} />
+          <LinkRememberPassword {...{ email, forceAuth }} />
         </>
       )}
       {linkStatus === 'damaged' && <LinkDamaged linkType="reset-password" />}

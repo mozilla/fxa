@@ -4,13 +4,14 @@
 
 import React from 'react';
 import ConfirmSignin, { ConfirmSigninProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { EXAMPLE_EMAIL, mockGoBackCallback } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { mockGoBackCallback } from './mocks';
 
 export default {
-  title: 'pages/ConfirmSignin',
+  title: 'pages/Signin/ConfirmSignin',
   component: ConfirmSignin,
 } as Meta;
 
@@ -26,18 +27,15 @@ const storyWithProps = (props: ConfirmSigninProps) => {
 };
 
 export const UserCannotGoBack = storyWithProps({
-  email: EXAMPLE_EMAIL,
-  isOpenWebmailButtonVisible: false,
+  email: MOCK_ACCOUNT.primaryEmail.email,
 });
 
 export const UserCanGoBack = storyWithProps({
-  email: EXAMPLE_EMAIL,
-  canGoBack: true,
+  email: MOCK_ACCOUNT.primaryEmail.email,
   goBackCallback: mockGoBackCallback,
-  isOpenWebmailButtonVisible: false,
 });
 
-export const OpenWebmailButtonIsVisible = storyWithProps({
-  email: EXAMPLE_EMAIL,
-  isOpenWebmailButtonVisible: true,
+export const withWebmailLink = storyWithProps({
+  email: MOCK_ACCOUNT.primaryEmail.email,
+  withWebmailLink: true,
 });

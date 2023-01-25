@@ -3,27 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
+import LinkRememberPassword from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 
 export default {
   title: 'components/LinkRememberPassword',
   component: LinkRememberPassword,
 } as Meta;
 
-const storyWithProps = (props?: LinkRememberPasswordProps) => {
+const storyWithProps = ({ ...props }) => {
   const story = () => (
     <LocationProvider>
-      <LinkRememberPassword {...props} />
+      <LinkRememberPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        {...props}
+      />
     </LocationProvider>
   );
   return story;
 };
 
-export const Default = storyWithProps();
+export const Default = storyWithProps({});
 
-export const WithEmailHref = storyWithProps({ email: MOCK_EMAIL });
-
-export const WithForceEmailHref = storyWithProps({ forceEmail: MOCK_EMAIL });
+export const WithForceAuth = storyWithProps({ forceAuth: true });
