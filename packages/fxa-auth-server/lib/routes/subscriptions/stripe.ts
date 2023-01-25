@@ -41,6 +41,7 @@ import { generateIdempotencyKey } from '../../payments/utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
+import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
@@ -879,8 +880,11 @@ export const stripeRoutes = (
         response: {
           schema: isA.array().items(
             isA.object().keys({
-              clientId: isA.string(),
-              capabilities: isA.array().items(isA.string()),
+              clientId: isA.string().description(DESCRIPTIONS.clientId),
+              capabilities: isA
+                .array()
+                .items(isA.string())
+                .description(DESCRIPTIONS.capabilities),
             })
           ) as any,
         },
@@ -959,9 +963,14 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            priceId: isA.string().required(),
-            paymentMethodId: validators.stripePaymentMethodId.optional(),
-            promotionCode: isA.string().optional(),
+            priceId: isA.string().required().description(DESCRIPTIONS.priceId),
+            paymentMethodId: validators.stripePaymentMethodId
+              .optional()
+              .description(DESCRIPTIONS.paymentMethodId),
+            promotionCode: isA
+              .string()
+              .optional()
+              .description(DESCRIPTIONS.promotionCode),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
@@ -983,9 +992,17 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            invoiceId: isA.string().required(),
-            paymentMethodId: validators.stripePaymentMethodId.required(),
-            idempotencyKey: isA.string().required(),
+            invoiceId: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.invoiceId),
+            paymentMethodId: validators.stripePaymentMethodId
+              .required()
+              .description(DESCRIPTIONS.paymentMethodId),
+            idempotencyKey: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.idempotencyKey),
           },
         },
       },
@@ -1006,8 +1023,13 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            priceId: validators.subscriptionsPlanId.required(),
-            promotionCode: isA.string().optional(),
+            priceId: validators.subscriptionsPlanId
+              .required()
+              .description(DESCRIPTIONS.priceId),
+            promotionCode: isA
+              .string()
+              .optional()
+              .description(DESCRIPTIONS.promotionCode),
           },
         },
       },
@@ -1040,8 +1062,13 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            priceId: validators.subscriptionsPlanId.required(),
-            promotionCode: isA.string().required(),
+            priceId: validators.subscriptionsPlanId
+              .required()
+              .description(DESCRIPTIONS.priceId),
+            promotionCode: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.promotionCode),
           },
         },
       },
@@ -1078,7 +1105,9 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            paymentMethodId: validators.stripePaymentMethodId.required(),
+            paymentMethodId: validators.stripePaymentMethodId
+              .required()
+              .description(DESCRIPTIONS.paymentMethodId),
           },
         },
       },
@@ -1097,13 +1126,17 @@ export const stripeRoutes = (
         response: {
           schema: isA
             .object({
-              id: validators.stripePaymentMethodId.required(),
+              id: validators.stripePaymentMethodId
+                .required()
+                .description(DESCRIPTIONS.paymentMethodId),
             })
             .unknown(true) as any,
         },
         validate: {
           payload: {
-            paymentMethodId: validators.stripePaymentMethodId.required(),
+            paymentMethodId: validators.stripePaymentMethodId
+              .required()
+              .description(DESCRIPTIONS.paymentMethodId),
           },
         },
       },
@@ -1117,12 +1150,18 @@ export const stripeRoutes = (
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_PRODUCTNAME_GET,
         response: {
           schema: isA.object({
-            product_name: isA.string().required(),
+            product_name: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.productName),
           }) as any,
         },
         validate: {
           query: {
-            productId: isA.string().required(),
+            productId: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.productId),
           },
         },
       },
@@ -1139,10 +1178,14 @@ export const stripeRoutes = (
         },
         validate: {
           params: {
-            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+            subscriptionId: validators.subscriptionsSubscriptionId
+              .required()
+              .description(DESCRIPTIONS.subscriptionId),
           },
           payload: {
-            planId: validators.subscriptionsPlanId.required(),
+            planId: validators.subscriptionsPlanId
+              .required()
+              .description(DESCRIPTIONS.planId),
           },
         },
       },
@@ -1160,7 +1203,9 @@ export const stripeRoutes = (
         },
         validate: {
           params: {
-            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+            subscriptionId: validators.subscriptionsSubscriptionId
+              .required()
+              .description(DESCRIPTIONS.subscriptionId),
           },
         },
       },
@@ -1178,7 +1223,9 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+            subscriptionId: validators.subscriptionsSubscriptionId
+              .required()
+              .description(DESCRIPTIONS.subscriptionId),
           },
         },
       },
