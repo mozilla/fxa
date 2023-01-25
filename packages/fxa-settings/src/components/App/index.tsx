@@ -9,6 +9,7 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 import Settings from '../Settings';
 import { QueryParams } from '../..';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
+import Clear from '../../pages/Clear';
 
 export const App = ({
   flowQueryParams,
@@ -24,7 +25,10 @@ export const App = ({
            * check since users will be served the Backbone version of pages if either of those
            * are false, but guard with query param anyway since we have it handy */}
           {showReactApp && (
-            <CannotCreateAccount path="/cannot_create_account/*" />
+            <>
+              <CannotCreateAccount path="/cannot_create_account/*" />
+              <Clear path="/clear/*" />
+            </>
           )}
 
           <Settings path="/settings/*" {...{ flowQueryParams }} />
