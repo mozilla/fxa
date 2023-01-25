@@ -9,21 +9,12 @@ const GROUPS = [
   'control',
 
   // Treatment branches
-  'google',
+  'treatment',
 ];
-
-// For each client specify which experiment group to show
-const ROLLOUT_CONFIG = {
-  // 123Done
-  dcdb5ae7add825d2: GROUPS,
-  // Pocket
-  '7377719276ad44ee': GROUPS,
-  '749818d3f2e7857f': GROUPS,
-};
 
 // This experiment is disabled by default. If you would like to go through
 // the flow, load email-first screen and append query params
-// `?forceExperiment=thirdPartyAuth&forceExperimentGroup=google`
+// `?forceExperiment=thirdPartyAuth&forceExperimentGroup=treatment`
 const ROLLOUT_RATE = 0.0;
 
 module.exports = class ThirdPartyAuth extends BaseGroupingRule {
@@ -34,7 +25,6 @@ module.exports = class ThirdPartyAuth extends BaseGroupingRule {
     // Easier to set class properties for testability
     this.groups = GROUPS;
     this.rolloutRate = ROLLOUT_RATE;
-    this.rolloutConfig = ROLLOUT_CONFIG;
   }
 
   /**
@@ -46,19 +36,18 @@ module.exports = class ThirdPartyAuth extends BaseGroupingRule {
    */
   choose(subject = {}) {
     let choice = false;
-    const { clientId } = subject;
+    const { relier } = subject;
 
-    if (!clientId) {
+    if (!relier) {
       return;
     }
 
-    const clientConfig = this.rolloutConfig[clientId];
-    if (!clientConfig) {
+    if (relier.isSync()) {
       return;
     }
 
     if (this.bernoulliTrial(this.rolloutRate, subject.uniqueUserId)) {
-      choice = this.uniformChoice(clientConfig, subject.uniqueUserId);
+      choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
     }
 
     return choice;

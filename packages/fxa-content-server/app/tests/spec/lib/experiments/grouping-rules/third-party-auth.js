@@ -7,15 +7,13 @@ import Experiment from 'lib/experiments/grouping-rules/third-party-auth';
 
 describe('lib/experiments/grouping-rules/third-party-auth', () => {
   let experiment;
-  const validClientID = 'dcdb5ae7add825d2';
-  const invalidClientID = 'notvalid';
 
   beforeEach(() => {
     experiment = new Experiment();
   });
 
   describe('choose', () => {
-    it('returns false if no clientId', () => {
+    it('returns false if no relier', () => {
       assert.isFalse(
         experiment.choose({
           experimentGroupingRules: { choose: () => experiment.name },
@@ -24,23 +22,23 @@ describe('lib/experiments/grouping-rules/third-party-auth', () => {
       );
     });
 
-    it('returns false if invalid clientId', () => {
+    it('returns false if sync service', () => {
       assert.isFalse(
         experiment.choose({
           experimentGroupingRules: { choose: () => experiment.name },
-          clientId: invalidClientID,
+          relier: { isSync: () => true },
           uniqueUserId: 'user-id',
         })
       );
     });
 
-    it('returns treatment if valid clientId', () => {
+    it('returns treatment if valid', () => {
       const rules = experiment.groups;
       assert.isTrue(
         rules.include(
           experiment.choose({
             experimentGroupingRules: { choose: () => experiment.name },
-            clientId: validClientID,
+            relier: { isSync: () => false },
             uniqueUserId: 'user-id',
           })
         )
@@ -52,7 +50,7 @@ describe('lib/experiments/grouping-rules/third-party-auth', () => {
       assert.isFalse(
         experiment.choose({
           experimentGroupingRules: { choose: () => experiment.name },
-          clientId: validClientID,
+          relier: { isSync: () => true },
           uniqueUserId: 'user-id',
         })
       );

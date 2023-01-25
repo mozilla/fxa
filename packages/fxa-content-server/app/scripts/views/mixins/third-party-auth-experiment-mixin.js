@@ -10,9 +10,9 @@ export default {
 
   isInThirdPartyAuthExperiment() {
     const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
-      clientId: this.relier.get('clientId'),
+      relier: this.relier,
     });
 
-    return experimentGroup === 'google';
+    return experimentGroup === 'treatment';
   },
 };
