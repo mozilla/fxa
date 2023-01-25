@@ -5,13 +5,13 @@ node .circleci/modules-to-test.js | tee packages/test.list
 
 # Create empty files
 mkdir -p .lists
-echo '' > .lists/ts-build-includes.list
-echo '' > .lists/lint.list
-echo '' > .lists/lint-includes.list
-echo '' > .lists/unit-test.list
-echo '' > .lists/unit-test-includes.list
-echo '' > .lists/integration-test.list
-echo '' > .lists/integration-test-includes.list
+touch .lists/ts-build-includes.list
+touch .lists/lint.list
+touch .lists/lint-includes.list
+touch .lists/unit-test.list
+touch .lists/unit-test-includes.list
+touch .lists/integration-test.list
+touch .lists/integration-test-includes.list
 
 function genWorkspaceCmd() {
   if [ -f "packages/$1/package.json" ]; then
