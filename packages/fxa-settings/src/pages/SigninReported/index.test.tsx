@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { render, screen } from '@testing-library/react';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import SigninReported from '.';
 import { usePageViewEvent } from '../../lib/metrics';
@@ -20,8 +20,7 @@ describe('SigninReported', () => {
   });
   it('renders Ready component as expected', () => {
     render(<SigninReported />);
-    const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    testL10n(ftlMsgMock, bundle);
+    testAllL10n(screen, bundle);
 
     const reportHeader = screen.getByText('Thank you for your vigilance');
     const reportMessage = screen.getByText(

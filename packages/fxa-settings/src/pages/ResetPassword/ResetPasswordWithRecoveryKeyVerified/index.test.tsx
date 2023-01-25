@@ -5,7 +5,7 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
-import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import ResetPasswordWithRecoveryKeyVerified from '.';
 import { logViewEvent } from '../../../lib/metrics';
@@ -22,10 +22,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
   it('renders default content as expected', () => {
     renderWithRouter(<ResetPasswordWithRecoveryKeyVerified />);
-    const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    testL10n(ftlMsgMock, bundle, {
-      serviceName: 'account settings',
-    });
+    testAllL10n(screen, bundle);
 
     const newAccountRecoveryKeyButton = screen.getByText(
       'Generate a new account recovery key'
