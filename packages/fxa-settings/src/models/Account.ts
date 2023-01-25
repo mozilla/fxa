@@ -25,6 +25,12 @@ export interface LinkedAccount {
   enabled: boolean;
 }
 
+export interface SecurityEvent {
+  name: string;
+  createdAt: number;
+  verified?: boolean;
+}
+
 // TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
 export interface AttachedClient {
   clientId: string;
@@ -68,6 +74,7 @@ export interface AccountData {
     created: number;
     productName: string;
   }[];
+  securityEvents: SecurityEvent[];
 }
 
 const ATTACHED_CLIENTS_FIELDS = `
@@ -176,6 +183,18 @@ export const GET_TOTP_STATUS = gql`
     account {
       totp {
         exists
+        verified
+      }
+    }
+  }
+`;
+
+export const GET_SECURITY_EVENTS = gql`
+  query GetSecurityEvents {
+    account {
+      securityEvents {
+        name
+        createdAt
         verified
       }
     }
@@ -318,11 +337,17 @@ export class Account implements AccountData {
     return this.data.linkedAccounts;
   }
 
+  get securityEvents() {
+    return this.data.securityEvents;
+  }
+
   get hasSecondaryVerifiedEmail() {
     return this.emails.length > 1 && this.emails[1].verified;
   }
 
-  async refresh(field: 'account' | 'clients' | 'totp' | 'recovery') {
+  async refresh(
+    field: 'account' | 'clients' | 'totp' | 'recovery' | 'securityEvents'
+  ) {
     let query = GET_ACCOUNT;
     switch (field) {
       case 'clients':
@@ -341,6 +366,15 @@ export class Account implements AccountData {
         query,
       })
     );
+  }
+
+  async getSecurityEvents() {
+    const { data } = await this.apolloClient.query({
+      fetchPolicy: 'network-only',
+      query: GET_SECURITY_EVENTS,
+    });
+    const { account } = data;
+    return account.securityEvents;
   }
 
   async changePassword(oldPassword: string, newPassword: string) {

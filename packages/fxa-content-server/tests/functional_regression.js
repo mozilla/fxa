@@ -36,7 +36,6 @@ module.exports = testsSettings.concat([
   'tests/functional/pp.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/robots_txt.js',
-  'tests/functional/security_events.js',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',

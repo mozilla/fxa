@@ -26,6 +26,7 @@ import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import PageAvatar from './PageAvatar';
 import { QueryParams } from '../..';
+import PageRecentActivity from './PageRecentActivity';
 
 export const Settings = ({
   flowQueryParams,
@@ -122,6 +123,7 @@ export const Settings = ({
           )}
           <PageSecondaryEmailAdd path="/emails" />
           <PageSecondaryEmailVerify path="/emails/verify" />
+          <PageRecentActivity path="/recent_activity" />
           <PageDeleteAccount path="/delete_account" />
           <Redirect from="/clients" to="/settings#connected-services" noThrow />
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
