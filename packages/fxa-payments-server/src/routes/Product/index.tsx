@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
@@ -149,15 +148,15 @@ export const Product = ({
     accessToken,
     config,
     locationReload,
+    navigateToUrl,
     queryParams,
     matchMediaDefault,
   } = useContext(AppContext);
-  const navigate = useNavigate();
 
   const planId = queryParams.plan;
 
   if (!accessToken) {
-    navigate(
+    navigateToUrl(
       `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`
     );
   }

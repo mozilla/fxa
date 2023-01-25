@@ -260,8 +260,11 @@ export function useFetchInvoicePreview(
     error: boolean;
     result?: FirstInvoicePreview;
   }>({ loading: false, error: false, result: undefined });
+  const isMounted = useRef(false);
 
   useEffect(() => {
+    isMounted.current = true;
+
     const getSubscriptionPrice = async () => {
       if (!priceId) {
         return setInvoicePreview({
@@ -282,15 +285,19 @@ export function useFetchInvoicePreview(
           error: false,
           result: undefined,
         });
+
         const preview = await apiInvoicePreview({
           priceId,
           promotionCode,
         });
-        setInvoicePreview({
-          loading: false,
-          error: false,
-          result: preview,
-        });
+
+        if (isMounted.current) {
+          setInvoicePreview({
+            loading: false,
+            error: false,
+            result: preview,
+          });
+        }
       } catch (err) {
         setInvoicePreview({
           loading: false,
@@ -301,6 +308,10 @@ export function useFetchInvoicePreview(
     };
 
     getSubscriptionPrice();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [priceId, customerSubscriptions]);
 
   return invoicePreview;
