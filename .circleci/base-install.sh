@@ -51,7 +51,8 @@ else
 
 
     # If we skip the yarn install, postinstall may still be needed on any workspace that have changed
-    # since the base docker image was built.
+    # since the base docker image was built. We excldue fxa-shared, because for some reason, the
+    # post install is just another build call, and we will get to the build step in just a second.
     set -x
-    yarn workspaces foreach --since=$(cat base_ref) -R run postinstall
+    yarn workspaces foreach -piv $(cat .lists/postinstall-includes.list) --exclude=fxa-shared -R run postinstall
 fi

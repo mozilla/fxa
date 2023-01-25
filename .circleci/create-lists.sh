@@ -43,6 +43,7 @@ do
   # Creates a list of --include filters for yarn various workspace commands.
   genIncludeArgs $pkg compile ts-build-includes.list
   genIncludeArgs $pkg lint lint-includes.list
+  genIncludeArgs $pkg postinstall postinstall-includes.list
   genIncludeArgs $pkg test:unit unit-test-includes.list
   genIncludeArgs $pkg test:integration integration-test-includes.list
 

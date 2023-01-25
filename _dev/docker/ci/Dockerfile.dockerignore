@@ -1,0 +1,8 @@
+.ssh
+.cache
+.docker
+**/.vscode
+**/.DS_Store
+**/node_modules
+**/_dev/docker
+**/packages/fxa-auth-server/.mail_output
