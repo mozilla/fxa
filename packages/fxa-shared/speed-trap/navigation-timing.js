@@ -62,7 +62,7 @@ class NavigationTiming {
     const l2Timings = this.getL2Timings();
     const l1Timings = this.getL1Timings();
 
-    function diffL1() {
+    const diffL1 = () => {
       // Make navigation timings relative to navigation start.
       for (const key in NAVIGATION_TIMING_FIELDS) {
         const timing = l1Timings[key];
@@ -81,16 +81,16 @@ class NavigationTiming {
           diff[key] = timing - this.performance.timing.navigationStart;
         }
       }
-    }
+    };
 
-    function diffL2() {
+    const diffL2 = () => {
       // If we have level 2 timings we can almost return the timings directly. We just have massage
       // a couple fields to keep it backwards compatible.
       for (const key in NAVIGATION_TIMING_FIELDS) {
         const mappedKey = L2TimingsMap[key] || key;
         diff[key] = l2Timings[mappedKey];
       }
-    }
+    };
 
     // Case for testing. We should always try to use l2, but if explicitly requested use L1.
     if (this.useL1Timings && l1Timings) {
