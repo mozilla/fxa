@@ -6,7 +6,7 @@ parameters:
     default: mozilla/fxa-circleci
   force-deploy-fxa-ci-images:
     type: boolean
-    default: false
+    default: true
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
