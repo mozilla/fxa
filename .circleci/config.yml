@@ -390,7 +390,7 @@ jobs:
             mkdir -p .yarn
             docker build . \
               -f ./project/_dev/docker/ci/Dockerfile \
-              --target base \
+              --target ci-final \
               -t << pipeline.parameters.docker-repo >>:ci-latest
 
       # Build the browser based CI image. This image is used for functional testing.
@@ -404,7 +404,7 @@ jobs:
             cp -r /usr/local/bin/firefox* /home/circleci/install/.
             cp -r /usr/local/bin/gecko* /home/circleci/install/.
             docker build . -f ./project/_dev/docker/ci/Dockerfile \
-                           --target browsers \
+                           --target browsers-final \
                            -t << pipeline.parameters.docker-repo >>:ci-browsers-latest
 
       # Push images at the same time. Since these images are related, push them
