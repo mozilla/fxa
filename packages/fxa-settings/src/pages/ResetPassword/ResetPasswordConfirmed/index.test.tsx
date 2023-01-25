@@ -19,7 +19,7 @@ describe('ResetPasswordConfirmed', () => {
       'Your password has been reset'
     );
     const serviceAvailabilityConfirmation = screen.getByText(
-      'You’re now ready to use Account Settings'
+      'You’re now ready to use account settings'
     );
     expect(passwordResetConfirmation).toBeInTheDocument();
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();

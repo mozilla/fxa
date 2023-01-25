@@ -26,14 +26,14 @@ describe('Ready', () => {
     render(<Ready {...{ viewName }} />);
     const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
     testL10n(ftlMsgMock, bundle, {
-      serviceName: 'Account Settings',
+      serviceName: 'account settings',
     });
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
     );
     const serviceAvailabilityConfirmation = screen.getByText(
-      'You’re now ready to use Account Settings'
+      'You’re now ready to use account settings'
     );
     const passwordResetContinueButton = screen.queryByText('Continue');
     // Calling `getByText` will fail if the first two elements aren't in the document,
