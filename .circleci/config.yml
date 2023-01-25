@@ -302,6 +302,17 @@ commands:
           command: ./.circleci/run-list-parallel.sh  << parameters.list >> << parameters.max_jobs >> << parameters.index >>:<< parameters.total >>
       - store-artifacts
 
+  fail-fast:
+    steps:
+      - run: sleep 10
+      - run:
+          name: Fail Fast
+          when: on_fail
+          command: |
+            echo "Canceling workflow as a step resulted in failure"
+            node .circleci/cancel-jobs.mjs;
+
+
 jobs:
   deploy-packages:
     parameters:
@@ -377,18 +388,13 @@ jobs:
             docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
             docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
 
-  build-and-validate:
+  build:
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
       - provision
       - ts-build
-      - lint
-      - run-tests:
-          test_name: Unit Test (many)
-          list: unit-test.list
-      - jira/notify
 
   lint:
     executor: default-executor
@@ -398,6 +404,17 @@ jobs:
       - provision
       - ts-build-restore
       - lint
+
+  unit-test:
+    executor: default-executor
+    resource_class: large
+    steps:
+      - git-checkout
+      - provision
+      - ts-build-restore
+      - run-tests:
+          test_name: Unit Test (many)
+          list: unit-test.list
 
   integration-test-part:
     parameters:
@@ -527,68 +544,84 @@ workflows:
   # run on PR drafts.
   test_pull_request:
     jobs:
-      - build-and-validate:
-          name: Build > Lint > Unit Test
+      - build:
+          name: Build
           filters:
             branches:
               ignore: /main/
             tags:
               ignore: /.*/
 
+      - lint:
+          name: Lint
+          requires:
+            - Build
+
+      - unit-test:
+          name: Unit Test
+          requires:
+            - Build
+          post-steps:
+            - fail-fast
+
       - integration-test-part:
           name: Integration Test Part 1
           index: 0
           total: 2
           requires:
-            - Build > Lint > Unit Test
+            - Build
+          post-steps:
+            - fail-fast
 
       - integration-test-part:
           name: Integration Test Part 2
           index: 1
           total: 2
           requires:
-            - Build > Lint > Unit Test
+            - Build
+          post-steps:
+            - fail-fast
 
       - build-and-deploy-storybooks:
           name: Story Book Build & Deploy
           requires:
-            - Build > Lint > Unit Test
+            - Build
 
       - test-content-server-part:
           name: Content Server Functional Test Part 1
           index: 0
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 2
           index: 1
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 3
           index: 2
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 4
           index: 3
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 5
           index: 4
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
 
       - playwright-functional-tests:
           name: Playwright Functional Tests
           requires:
-            - Build > Lint > Unit Test
+            - Build
 
   # This workflow can be useful if we want to run test changes in our functional tests
   # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
@@ -672,55 +705,66 @@ workflows:
   # live infrastructure.
   test_and_deploy_tag:
     jobs:
-      - build-and-validate:
-          name: Build > Lint > Unit Test
+      - build:
+          name: Build
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
+      - lint:
+          name: Lint
+          requires:
+            - Build
+      - unit-test:
+          name: Unit Test
+          requires:
+            - Build
+
       - integration-test-part:
           name: Integration Test Part 1
           index: 0
           total: 1
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - integration-test-part:
           name: Integration Test Part 2
           index: 1
           total: 1
           requires:
-            - Build > Lint > Unit Test
+            - Build
+
       - test-content-server-part:
           name: Content Server Functional Test Part 1
           index: 0
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 2
           index: 1
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 3
           index: 2
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 4
           index: 3
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
       - test-content-server-part:
           name: Content Server Functional Test Part 5
           index: 4
           total: 5
           requires:
-            - Build > Lint > Unit Test
+            - Build
+
       - deploy-packages:
           executor: docker-build-executor
           filters:
@@ -729,7 +773,9 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - Build > Lint > Unit Test
+            - Build
+            - Lint
+            - Unit Test
             - Integration Test Part 1
             - Integration Test Part 2
             - Content Server Functional Test Part 1
