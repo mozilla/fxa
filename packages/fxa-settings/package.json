@@ -42,6 +42,9 @@
         "branches": 50,
         "lines": 65
       }
+    },
+    "transform": {
+      "^.+\\.tsx?$":  [ "ts-jest", { "isolatedModules": true } ]
     }
   },
   "browserslist": {
