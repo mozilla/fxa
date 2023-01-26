@@ -7,13 +7,15 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 
-COPY --chown=circleci:circleci .yarn /home/circleci/.yarn
-COPY --chown=circleci:circleci project /home/circleci/project
+# COPY --chown=circleci:circleci .yarn /home/circleci/.yarn
+# COPY --chown=circleci:circleci project /home/circleci/project
 
 # Install packages so container is ready to build.
 # Remove l10n files, becuase those need to fetched again anyways
 # to ensure the latest state is being used.
-RUN yarn install --immutable --inline-builds; \
+RUN --mount=type=bind,from=.yarn,target=/home/circleci/.yarn \
+    --mount=type=bind,from=project,target=/home/circleci/project \
+    yarn install --immutable --inline-builds; \
     git rev-parse HEAD > base_ref; \
     cp yarn.lock yarn.lock.base; \
     rm -rf ./packages/fxa-settings/fxa-content-server-l10n; \
@@ -31,7 +33,7 @@ ENV FXA_AUTO_INSTALL=0
 COPY --chown=circleci:circleci install /usr/local/bin/
 
 # Copy over base image state
-COPY --chown=circleci:circleci --from=ci_base /home/circleci /home/circleci
+COPY --chown=circleci:circleci --from=ci /home/circleci /home/circleci
 
 # Install firefox for playwright tests
 RUN npx playwright install firefox
