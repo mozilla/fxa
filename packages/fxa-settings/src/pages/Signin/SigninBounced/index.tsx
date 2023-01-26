@@ -4,10 +4,10 @@
 
 import React from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { logPageViewEvent } from '../../lib/metrics';
+import { logPageViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
+import { useFtlMsgResolver } from '../../../models/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type SigninBouncedProps = {

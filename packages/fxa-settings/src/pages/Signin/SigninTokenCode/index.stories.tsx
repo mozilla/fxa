@@ -4,12 +4,12 @@
 
 import React from 'react';
 import SigninTokenCode from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_EMAIL } from './mocks';
 
 export default {
-  title: 'pages/SigninTokenCode',
+  title: 'pages/Signin/SigninTokenCode',
   component: SigninTokenCode,
 } as Meta;
 

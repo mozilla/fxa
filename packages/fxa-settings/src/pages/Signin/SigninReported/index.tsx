@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps } from '@reach/router';
 

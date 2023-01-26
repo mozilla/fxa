@@ -4,14 +4,14 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { renderWithRouter } from '../../models/mocks';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { renderWithRouter } from '../../../models/mocks';
+// import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import SigninBounced from '.';
-import { logPageViewEvent } from '../../lib/metrics';
+import { logPageViewEvent } from '../../../lib/metrics';
 import { MOCK_EMAIL } from './mocks';
 
-jest.mock('../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   logPageViewEvent: jest.fn(),
 }));

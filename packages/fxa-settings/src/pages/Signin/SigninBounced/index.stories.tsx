@@ -4,12 +4,12 @@
 
 import React from 'react';
 import SigninBounced, { SigninBouncedProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
 export default {
-  title: 'pages/SigninBounced',
+  title: 'pages/Signin/SigninBounced',
   component: SigninBounced,
 } as Meta;
 
