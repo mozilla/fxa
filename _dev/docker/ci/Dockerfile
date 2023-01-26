@@ -37,8 +37,8 @@ COPY --chown=circleci:circleci --from=ci_base /home/circleci /home/circleci
 RUN npx playwright install firefox
 
 # Produces single layer images. Which appear are more efficient.
-FROM cimg/node:16.13-browsers as ci-final
-COPY --chown=circleci:circleci --from=browsers_base /home/circleci /home/circleci
+FROM cimg/node:16.13 as ci-final
+COPY --chown=circleci:circleci --from=ci /home/circleci /home/circleci
 
 FROM cimg/node:16.13-browsers as browsers-final
-COPY --chown=circleci:circleci --from=browsers_base /home/circleci /home/circleci
+COPY --chown=circleci:circleci --from=browsers /home/circleci /home/circleci
