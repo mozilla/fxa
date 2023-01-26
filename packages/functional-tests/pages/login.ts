@@ -1,6 +1,7 @@
 import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import AuthClient from 'fxa-auth-client';
 
 export const selectors = {
   AGE: '#age',
@@ -9,6 +10,7 @@ export const selectors = {
   EMAIL_PREFILLED: '#prefillEmail',
   EMAIL_HEADER: '#fxa-enter-email-header',
   ERROR: '.error',
+  INVALID_CODE_TOOLTIP_ERROR: '#error-tooltip-183',
   LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
   LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
   LINK_USE_DIFFERENT: '#use-different',
@@ -45,6 +47,11 @@ export class LoginPage extends BaseLayout {
 
   get emailHeader() {
     return this.page.locator(selectors.EMAIL_HEADER);
+  }
+
+  async getFxaClient(target) {
+    const AUTH_SERVER_ROOT = target.authServerUrl;
+    return new AuthClient(AUTH_SERVER_ROOT);
   }
 
   get passwordHeader() {
@@ -284,8 +291,18 @@ export class LoginPage extends BaseLayout {
     });
   }
 
+  async isPasswordHeader() {
+    const header = await this.page.locator(selectors.PASSWORD_HEADER);
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async clickSignIn() {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
+  }
+
+  async invalidCodeError() {
+    return this.page.innerText(selectors.INVALID_CODE_TOOLTIP_ERROR);
   }
 
   async isSyncConnectedHeader() {
