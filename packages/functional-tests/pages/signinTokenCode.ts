@@ -45,4 +45,8 @@ export class SigninTokenCodePage extends BaseLayout {
   get successMessage() {
     return this.page.locator(this.selectors.SUCCESS);
   }
+
+  async clickSubmitButton() {
+    await this.page.locator(this.selectors.SUBMIT).click();
+  }
 }
