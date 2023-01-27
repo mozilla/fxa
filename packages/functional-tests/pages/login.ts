@@ -199,6 +199,10 @@ export class LoginPage extends BaseLayout {
     return this.page.fill(selectors.PASSWORD, password);
   }
 
+  confirmPassword(password: string) {
+    return this.page.fill(selectors.VPASSWORD, password);
+  }
+
   async clickUseRecoveryCode() {
     return this.page.click(selectors.LINK_USE_RECOVERY_CODE);
   }
