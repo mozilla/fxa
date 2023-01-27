@@ -597,10 +597,18 @@ describe('routes/Product', () => {
   });
 
   it('redirects to content server when there is no access token', async () => {
+    const navigateToUrl = jest.fn();
     const appContext = { ...defaultAppContextValue(), accessToken: undefined };
-    render(<Subject productId="fizz" planId="quux" {...{ appContext }} />);
+    render(
+      <Subject
+        productId="fizz"
+        planId="quux"
+        {...{ appContext }}
+        navigateToUrl={navigateToUrl}
+      />
+    );
 
-    expect(mockedNavigate).toHaveBeenCalledWith(
+    expect(navigateToUrl).toHaveBeenCalledWith(
       'https://content.example/subscriptions/products/fizz?plan=quux&signin=yes'
     );
   });
