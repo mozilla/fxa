@@ -44,7 +44,12 @@
       }
     },
     "transform": {
-      "^.+\\.tsx?$":  [ "ts-jest", { "isolatedModules": true } ]
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
     }
   },
   "browserslist": {
