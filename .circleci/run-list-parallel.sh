@@ -76,7 +76,14 @@ echo " - Operation list: .lists/$LIST-$SPLIT_FILE"
 # Make sure the test folder exists in the artifacts dir
 mkdir -p artifacts/tests
 
-# Executes the command in the LIST file in parallel. Some notes on options
-# Setting --load let's us wait for a heavy test suite to finish before starting another one
-# Setting --joblog preserves the output in a log file.
-parallel $MAX_JOBS --load 50% --halt 0 --joblog artifacts/tests/$LIST-$SPLIT_FILE.log < .lists/$LIST-$SPLIT_FILE
+if [[ -f .lists/$LIST-$SPLIT_FILE ]]; then
+  # Executes the command in the LIST file in parallel. Some notes on options
+  # Setting --load let's us wait for a heavy test suite to finish before starting another one
+  # Setting --joblog preserves the output in a log file.
+  parallel $MAX_JOBS --load 50% --halt 0 --joblog artifacts/tests/$LIST-$SPLIT_FILE.log < .lists/$LIST-$SPLIT_FILE
+else
+  # If there weren't enough commands to split up, then the file might not be present. For example, if there
+  # is just one operation to run, and we've requested to split operations into two groups, then second group
+  # will have zero operations and therefore nothing to run.
+  echo "Split test file, $LIST-$SPLIT_FILE, does not exist. Exiting early!"
+fi
