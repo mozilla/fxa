@@ -221,6 +221,42 @@ describe('PlanDetails', () => {
     });
   });
 
+  it('does not render a single tax of 0 amont', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    (apiInvoicePreview as jest.Mock).mockClear().mockResolvedValue({
+      ...INVOICE_PREVIEW_EXCLUSIVE_TAX,
+      tax: [
+        {
+          amount: 0,
+          inclusive: false,
+          display_name: 'Sales Tax',
+        },
+      ],
+    });
+    const props = {
+      ...{
+        profile: userProfile,
+        showExpandButton: false,
+        isMobile: false,
+        selectedPlan,
+      },
+    };
+    const subject = () => {
+      return render(<PlanDetails {...props} />);
+    };
+
+    const { queryByTestId } = subject();
+
+    await waitFor(() => {
+      const taxAmount = queryByTestId('tax-amount');
+      expect(taxAmount).not.toBeInTheDocument();
+    });
+  });
+
   it('renders as expected using firestore config', () => {
     updateConfig({
       featureFlags: {
