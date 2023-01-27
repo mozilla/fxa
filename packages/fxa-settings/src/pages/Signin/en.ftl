@@ -16,7 +16,7 @@ signin-header = Sign in
 # This message is followed by a bulleted list
 signin-tos-list-intro = By proceeding, you agree to:
 # <linkExternal> links to the Terms of Service and also to the Privacy Notice
-signin-tos-list-pocket = { product-pocket }’s <linkExternal>Terms of Service</linkExternal> and <linkExternal>Privacy Notice</linkExternal>
+signin-tos-list-pocket = { -product-pocket }’s <linkExternal>Terms of Service</linkExternal> and <linkExternal>Privacy Notice</linkExternal>
 # <linkExternal> links to the Terms of Service and also to the Privacy Notice
 signin-tos-list-firefox = { -brand-firefox }’s <linkExternal>Terms of Service</linkExternal> and <linkExternal>Privacy Notice</linkExternal>
 # <linkExternal> links to the Terms of Service and also to the Privacy Notice
