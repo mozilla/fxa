@@ -6,12 +6,22 @@ delete-account-header =
 delete-account-step-1-2 = Step 1 of 2
 delete-account-step-2-2 = Step 2 of 2
 
-delete-account-confirm-title-2 = You’ve connected your { -product-firefox-account } to { -brand-mozilla } products that keep you secure and productive on the web:
+delete-account-confirm-title-3 = You may have connected your { -product-firefox-account } to one or more of the following { -brand-mozilla } products or services that keep you secure and productive on the web:
+
+delete-account-product-firefox-account = { -product-firefox-account }
+delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
+delete-account-product-mdn-plus = { -product-mdn-plus }
+delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
+delete-account-product-pocket = { -product-pocket }
+delete-account-product-firefox-monitor = { -product-firefox-monitor }
+delete-account-product-firefox-relay = { -product-firefox-relay }
+delete-account-product-firefox-sync = Syncing { -brand-firefox } data
+delete-account-product-firefox-addons = { -brand-firefox } Add-ons
 
 delete-account-acknowledge = Please acknowledge that by deleting your account:
 
-delete-account-chk-box-1-v2 =
- .label = Any paid subscriptions you have will be canceled (Except { product-pocket })
+delete-account-chk-box-1-v3 =
+ .label = Any paid subscriptions you have will be canceled (Except { -product-pocket })
 delete-account-chk-box-2 =
  .label = You may lose saved information and features within { -brand-mozilla } products
 delete-account-chk-box-3 =

@@ -9,7 +9,17 @@ import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { HomePath, MonitorLink, ROOTPATH, VPNLink } from '../../../constants';
+import {
+  AddonsLink,
+  HomePath,
+  HubsLink,
+  MDNLink,
+  MonitorLink,
+  RelayLink,
+  ROOTPATH,
+  SyncLink,
+  VPNLink,
+} from '../../../constants';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
@@ -24,7 +34,7 @@ type FormData = {
 };
 
 const checkboxLabels: Record<string, string> = {
-  'delete-account-chk-box-1-v2':
+  'delete-account-chk-box-1-v3':
     'Any paid subscriptions you have will be canceled (Except Pocket)',
   'delete-account-chk-box-2':
     'You may lose saved information and features within Mozilla products',
@@ -33,6 +43,44 @@ const checkboxLabels: Record<string, string> = {
   'delete-account-chk-box-4':
     'Any extensions and themes that you published to addons.mozilla.org will be deleted',
 };
+
+const deleteProducts = [
+  {
+    localizationId: 'delete-account-product-firefox-sync',
+    productName: 'Syncing Firefox data',
+    href: SyncLink,
+  },
+  {
+    localizationId: 'delete-account-product-mozilla-vpn',
+    productName: 'Mozilla VPN',
+    href: VPNLink,
+  },
+  {
+    localizationId: 'delete-account-product-firefox-relay',
+    productName: 'Firefox Relay',
+    href: RelayLink,
+  },
+  {
+    localizationId: 'delete-account-product-firefox-addons',
+    productName: 'Firefox Add-ons',
+    href: AddonsLink,
+  },
+  {
+    localizationId: 'delete-account-product-firefox-monitor',
+    productName: 'Firefox Monitor',
+    href: MonitorLink,
+  },
+  {
+    localizationId: 'delete-account-product-mdn-plus',
+    productName: 'MDN Plus',
+    href: MDNLink,
+  },
+  {
+    localizationId: 'delete-account-product-mozilla-hubs',
+    productName: 'Mozilla Hubs',
+    href: HubsLink,
+  },
+];
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
   usePageViewEvent('settings.delete-account');
@@ -121,28 +169,27 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
-            <Localized id="delete-account-confirm-title-2">
+            <Localized id="delete-account-confirm-title-3">
               <p className="mb-4">
-                You've connected your Firefox account to Mozilla products that
-                keep you secure and productive on the web:
+                You may have connected your Firefox account to one or more of
+                the following Mozilla products or services that keep you secure
+                and productive on the web:
               </p>
             </Localized>
-            <div className="p-2">
-              <ul className="list-inside mb-4">
-                <li className="list-disc">
-                  <a className="link-blue" href={VPNLink}>
-                    <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
-                  </a>
-                </li>
-                <li className="list-disc">
-                  <a className="link-blue" href={MonitorLink}>
-                    <Localized id="product-firefox-monitor">
-                      Firefox Monitor
+            <ul
+              className="list-inside my-2 mb-4"
+              data-testid="delete-account-product-list"
+            >
+              {deleteProducts.map((product) => (
+                <li className="list-disc mt-1" key={product.localizationId}>
+                  <a className="link-blue" href={product.href}>
+                    <Localized id={product.localizationId}>
+                      {product.productName}
                     </Localized>
                   </a>
                 </li>
-              </ul>
-            </div>
+              ))}
+            </ul>
             <Localized id="delete-account-acknowledge">
               <p className="mb-4">
                 Please acknowledge that by deleting your account:

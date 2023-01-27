@@ -83,7 +83,7 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
                       </div>
-                      <Localized id="bento-menu-monitor">
+                      <Localized id="bento-menu-monitor-2">
                         Firefox Monitor
                       </Localized>
                     </LinkExternal>
@@ -97,7 +97,7 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={pocketIcon} alt="" />
                       </div>
-                      <Localized id="bento-menu-pocket">Pocket</Localized>
+                      <Localized id="bento-menu-pocket-2">Pocket</Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -137,7 +137,7 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={vpnIcon} alt="" />
                       </div>
-                      <Localized id="bento-menu-vpn">Mozilla VPN</Localized>
+                      <Localized id="bento-menu-vpn-2">Mozilla VPN</Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -149,7 +149,7 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={relayIcon} alt="" />
                       </div>
-                      <Localized id="bento-menu-firefox-relay">
+                      <Localized id="bento-menu-firefox-relay-2">
                         Firefox Relay
                       </Localized>
                     </LinkExternal>

@@ -8,7 +8,7 @@ reset-password-heading-w-default-service = Reset password <span>to continue to a
 # { $serviceName } represents a product name (e.g., Mozilla VPN) that will be passed in as a variable
 reset-password-heading-w-custom-service = Reset password <span>to continue to { $serviceName }</span>
 
-reset-password-warning-message = <span>Note:</span> When you reset your password, you reset your account. You may lose some of your personal information (including history, bookmarks, and passwords). That’s because we encrypt your data with your password to protect your privacy. You’ll still keep any subscriptions you may have and { product-pocket } data will not be affected.
+reset-password-warning-message-2 = <span>Note:</span> When you reset your password, you reset your account. You may lose some of your personal information (including history, bookmarks, and passwords). That’s because we encrypt your data with your password to protect your privacy. You’ll still keep any subscriptions you may have and { -product-pocket } data will not be affected.
 
 reset-password-button = Begin reset
 reset-password-success-alert = Password reset
