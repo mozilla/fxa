@@ -1,13 +1,17 @@
 version: 2.1
 
 parameters:
-  docker-repo:
-    type: string
-    default: mozilla/fxa-circleci
+  run-smoke-tests:
+    type: boolean
+    default: false
+  run-smoke-tests-parallel:
+    type: boolean
+    default: false
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
   jira: circleci/jira@1.3.1
+
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -37,7 +41,17 @@ executors:
       # Enabling hard links saves about 1.2 GB of space in the image.
       YARN_NM_MODE: hardlinks-global
 
-  # For any thing that does need context, ie linting, building, unit testing, etc...
+  # Contains prebuilt image with low install overhead. Perfect for the first build
+  # step, and the saving the initial a workspace state.
+  build-executor:
+    docker:
+      - image: mozilla/fxa-circleci:ci-builder
+    environment:
+      NODE_ENV: development
+      FIRESTORE_EMULATOR_HOST: localhost:9090
+
+  # Contains minimal image for running common jobs like linting, or unit tests.
+  # This image requires a restored workspace state.
   default-executor:
     parameters:
       resource_class:
@@ -45,12 +59,13 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: << pipeline.parameters.docker-repo >>:ci-base-latest
+      - image: mozilla/fxa-circleci:ci-test-runner
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
 
-  # For anything that needs a full stack to run
+  # A minimal image for anything job needs infrastructure. Perfect for integration tests.
+  # This image requires a restored workspace state.
   fullstack-executor:
     parameters:
       resource_class:
@@ -58,7 +73,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: << pipeline.parameters.docker-repo >>:ci-base-latest
+      - image: mozilla/fxa-circleci:ci-test-runner
       - image: cimg/mysql:8.0.28
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -69,7 +84,7 @@ executors:
       FIRESTORE_EMULATOR_HOST: localhost:9090
 
   # For anything that needs a full stack to run and needs browsers available for
-  # ui test automation
+  # ui test automation. This image requires a restored workspace state.
   functional-test-executor:
     parameters:
       resource_class:
@@ -77,7 +92,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
+      - image: mozilla/fxa-circleci:ci-functional-test-runner
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -95,8 +110,8 @@ executors:
       PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
-  # For anything that needs browsers for ui automation, but doesn't need a full stack.
-  # Perfect running smoke tests deployed code.
+  # Contains a pre-installed fxa stack and browsers for doing ui test
+  # automation. Perfect for running smoke tests against remote targets.
   smoke-test-executor:
     parameters:
       resource_class:
@@ -104,28 +119,47 @@ executors:
         default: medium+
     resource_class: << parameters.resource_class >>
     docker:
-      - image: << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
+      - image: mozilla/fxa-circleci:ci-functional-test-runner
+    environment:
+      NODE_ENV: development
+
 
 commands:
-  # Note: Cloning this way allows us to run a git fetch later on download the road. This type of
-  # clone operation will result in a .git/config with no user attached that is using a
-  # https://github.com/mozilla/fxa for the remote origin.
-  git-clone:
-    steps:
-      - run: git clone https://github.com/mozilla/fxa .
-      - run: git checkout << pipeline.git.revision >>
 
-  # Note: Since we use a pre-populated base image that has a .git folder already present (see
-  # comment above), running a fetch and checkout saves a considerable amount of time  when compared
-  # to a circleci `- checkout` command.
+  git-clone:
+    # Note: Cloning this way allows us to run a git fetch & checkout later on download the road. This type of
+    # clone operation will result in a .git/config with no user attached that is using
+    # https://github.com/mozilla/fxa for the remote origin.
+    # The --depth argument is used to drastically cut down the initial download size. The size
+    # of the git folder is also much smaller, which ultimately results in smaller docker images.
+    steps:
+      - run:
+          name: git clone
+          command: |
+            git clone https://github.com/mozilla/fxa . --depth=1
+            git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=2
+            git checkout << pipeline.git.revision >>
+
   git-checkout:
+    # Note: Since we use a pre-populated base image that has a .git folder already present (see
+    # comment above), running a fetch and checkout saves a considerable amount of time when compared
+    # to a circleci `- checkout` command.
     steps:
       - run:
           name: Checkout Branch
           command: |
             set +x
-            git fetch
+            # If the PR is coming from a fork, add it as a remote, so the commit can be checked out.
+            if [[ "$CIRCLE_PR_USERNAME" != "" && "$CIRCLE_PR_REPONAME" != "" ]]; then
+              echo "Adding remote https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
+              git fetch https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME << pipeline.git.revision >> --depth=1
+            else
+              git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=1
+            fi
+
             git checkout << pipeline.git.revision >>
+            git reset --hard
+
             commitsBehind=$(git rev-list --left-only --count main...HEAD);
             if [[ $((commitsBehind)) > 0 ]]; then
 
@@ -141,16 +175,16 @@ commands:
               echo -e '\n\n'
             fi
 
-  # Note: We no longer cache in step. As long as packages used in the branch aren't that different
-  # from the packages used in main, which is generally the case, we shouldn't see large install
-  # times, since the base image will have everything cached.
   provision:
+    # Note: We no longer cache in step. As long as packages used in the branch aren't that different
+    # from the packages used in main, which is generally the case, we shouldn't see large install
+    # times, since the base image will have pre cached.
     steps:
       - run:
           name: Base Install
           command: |
-            ./.circleci/base-install.sh;
             ./.circleci/create-lists.sh
+            ./.circleci/base-install.sh
             ./_scripts/create-version-json.sh
       - store_artifacts:
           path: ./packages/version.json
@@ -160,18 +194,17 @@ commands:
   cache-save-yarn:
     steps:
       - save_cache:
-          key: fxa-yarn-07-{{ checksum "yarn.lock" }}
+          key: fxa-yarn-001-{{ checksum "yarn.lock" }}
           paths:
-            - /home/circleci/.yarn/berry
-            - /home/circleci/project/.yarn/build-state.yml
-            - /home/circleci/project/.yarn/install-state.gzs
+            - /home/circleci/.yarn
+            - /home/circleci/project/.yarn
 
   cache-restore-yarn:
     steps:
       - restore_cache:
           keys:
-            - fxa-yarn-07-{{ checksum "yarn.lock" }}
-            - fxa-yarn-07-
+            - fxa-yarn-001-{{ checksum "yarn.lock" }}
+            - fxa-yarn-001-
 
   test-content-server-part:
     parameters:
@@ -181,9 +214,11 @@ commands:
         type: integer
     steps:
       - git-checkout
-      - provision
-      - ts-build-restore
+      - restore-workspace
       - wait-for-infrastructure
+      - run:
+          name: Start services for << parameters.index >> of << parameters.total >>
+          command: packages/fxa-content-server/scripts/start-services.sh
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -201,7 +236,6 @@ commands:
     steps:
       - git-checkout
       - provision
-      - ts-build
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -228,8 +262,8 @@ commands:
           name: Linting
           command: ./.circleci/lint-packages.sh
 
-  # Not currently used. But should be soon once coverage reports are fixed up.
   report-coverage:
+    # Not currently used. But should be soon once coverage reports are fixed up.
     parameters:
       list:
         type: string
@@ -257,24 +291,20 @@ commands:
       - run:
           name: Build Common Typescript Packages
           command: ./.circleci/build-ts-packages.sh
-      - save_cache:
-          name: Save Typescript Build
-          key: fxa-ts-build-01-<< pipeline.git.revision >>
-          paths:
-            - /home/circleci/project/packages/fxa-admin-server/dist
-            - /home/circleci/project/packages/fxa-auth-client/dist
-            - /home/circleci/project/packages/fxa-auth-server/dist
-            - /home/circleci/project/packages/fxa-event-broker/dist
-            - /home/circleci/project/packages/fxa-graphql-api/dist
-            - /home/circleci/project/packages/fxa-react/dist
-            - /home/circleci/project/packages/fxa-shared/dist
-            - /home/circleci/project/packages/fxa-support-panel/dist
 
-  ts-build-restore:
+  save-workspace:
     steps:
-      - restore_cache:
-          keys:
-            - fxa-ts-build-01-<< pipeline.git.revision >>
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - .lists
+            - node_modules
+            - packages
+
+  restore-workspace:
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project
 
   run-tests:
     parameters:
@@ -312,13 +342,87 @@ commands:
             echo "Canceling workflow as a step resulted in failure"
             node .circleci/cancel-jobs.mjs;
 
+  rebuild-check:
+    parameters:
+      force-deploy:
+        type: boolean
+    # If there are no changes on the lock file, we can skip the rebuild and exit early.
+    steps:
+      - run:
+          name: Check if rebuild is needed
+          command: |
+            # If the lockfile has changed, we need a rebuild
+            if [[ "<< parameters.force-deploy >>" == "true" ]]; then
+              echo "Pipeline parameter force-deploy-fxa-ci-images set to true. Rebuilding docker images for CI.";
+            elif [[ -n $(git diff HEAD~1 HEAD -- yarn.lock) ]]; then
+              echo "Yarn lock has changes. Rebuilding docker images for CI!";
+            else
+              echo "No changes on yarn.lock. Skipping CI image rebuild.";
+              circleci-agent step halt
+            fi
+
+  install-test-browsers:
+    # Install browsers for content server testing. Once content server tests are complete, this can be removed.
+    steps:
+      - browser-tools/install-firefox:
+          version: 102.4.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.32.0
+
+  build-ci-image:
+    # Creates a docker image from the CI multistage build file.
+    parameters:
+      target:
+        type: string
+    steps:
+      - run:
+          name: Build << parameters.target >>
+          command: |
+            cd ..
+            docker build . \
+                -f ./project/_dev/docker/ci/Dockerfile \
+                --target << parameters.target >> \
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>
+
+  create-ci-images:
+    # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
+    steps:
+      - run:
+          name: Prep yarn install
+          command: cd .. && mkdir -p .yarn
+      - build-ci-image:
+          target: test-runner
+      - build-ci-image:
+          target: builder
+      - run:
+          name: Prep browser install
+          command: |
+            cd ..
+            mkdir -p install
+            cp -r /usr/local/bin/firefox* install/.
+            cp -r /usr/local/bin/gecko* install/.
+      - build-ci-image:
+          target: functional-test-runner
+
+      # Push images at the same time. Since these images are related, push them
+      # in unison. Doing these operations in parallel cuts down on how expensive this
+      # step is.
+      - run:
+          name: Push CI Images and Extract Yarn Cache
+          command: |
+            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
+            .circleci/copy-docker-cache.sh mozilla/fxa-circleci:ci-builder &
+            docker push mozilla/fxa-circleci:ci-test-runner &
+            docker push mozilla/fxa-circleci:ci-functional-test-runner &
+            docker push mozilla/fxa-circleci:ci-builder &
+            wait
+
 
 jobs:
+
+  # Does a production level build of FxA and produces docker images.
   deploy-packages:
-    parameters:
-      executor:
-        type: executor
-    executor: << parameters.executor >>
+    executor: docker-build-executor
     steps:
       - checkout
       - cache-restore-yarn
@@ -334,88 +438,63 @@ jobs:
           command: ./.circleci/deploy-all.sh
       - store-artifacts
 
-  # This deploys a base image of fxa that is useful for CI testing. Think of this image as
-  # the last known good state of fxa. The image is designed to come with everything required
-  # to spin up tests pipelines quickly.
-  deploy-fxa-ci-image:
+  # This deploys docker images that are useful for CI testing. Think of this image as
+  # the last known good build state of fxa. The images are designed to come to help spin
+  # up jobs as quickly as possible.
+  deploy-fxa-ci-images:
     parameters:
       executor:
         type: executor
+      force-deploy:
+        type: boolean
+        default: false
     executor: << parameters.executor >>
     steps:
+      # Run with layer caching to speed up builds
       - setup_remote_docker:
-          docker_layer_caching: false
+          docker_layer_caching: true
       - git-clone
+      - rebuild-check:
+          force-deploy: << parameters.force-deploy >>
+      - install-test-browsers
       - cache-restore-yarn
-      - run:
-          name: Build docker fxa ci image
-          command: docker build . -f ./_dev/docker/ci-base/Dockerfile -t ci-base-latest
-      - deploy:
-          name: Push fxa ci image
-          command: |
-            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            docker tag ci-base-latest << pipeline.parameters.docker-repo >>:ci-base-latest
-            docker push << pipeline.parameters.docker-repo >>:ci-base-latest
+      - create-ci-images
+      - cache-save-yarn
 
-  # This deploys another base image. It's built on top of the image produced above. This
-  # image has all the libraries needed for running UI tests automation in headless browsers.
-  deploy-fxa-ci-browser-image:
-    parameters:
-      executor:
-        type: executor
-    executor: << parameters.executor >>
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - browser-tools/install-firefox:
-          version: 102.4.0esr
-      - browser-tools/install-geckodriver:
-          version: v0.32.0
-      - git-clone
-      - cache-restore-yarn
-      # Copies the browsers the browsers that were installed above into a location accessible to the
-      # docker build.
-      - run: mkdir -p /home/circleci/project/install
-      - run: cp -r /usr/local/bin/firefox* /home/circleci/project/install/.
-      - run: cp -r /usr/local/bin/gecko* /home/circleci/project/install/.
-      - run:
-          name: Build docker fxa ci image
-          command: docker build . -f ./_dev/docker/ci-browsers/Dockerfile -t ci-base-browsers-latest
-      - deploy:
-          name: Push fxa ci image
-          command: |
-            docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            docker tag ci-base-browsers-latest << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
-            docker push << pipeline.parameters.docker-repo >>:ci-base-browsers-latest
-
+  # The initial step for many pipelines, this step installs packages and does a build on
+  # the code. It then stores the resulting state into a CircleCI workspace for later
+  # use.
   build:
-    executor: default-executor
+    executor: build-executor
     resource_class: large
     steps:
       - git-checkout
       - provision
       - ts-build
+      - save-workspace
 
+  # Runs linter on packages that have changes.
   lint:
     executor: default-executor
     resource_class: small
     steps:
       - git-checkout
-      - provision
-      - ts-build-restore
+      - restore-workspace
       - lint
 
+  # Runs unit tests in parallel across packages with changes.
   unit-test:
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
-      - provision
-      - ts-build-restore
+      - restore-workspace
       - run-tests:
-          test_name: Unit Test (many)
+          test_name: Unit Test
           list: unit-test.list
 
+  # Runs integration tests suites across packages with changes. Integration tests can take
+  #  longer to run, so this job supports splitting.
   integration-test-part:
     parameters:
       index:
@@ -425,8 +504,7 @@ jobs:
     executor: fullstack-executor
     steps:
       - git-checkout
-      - provision
-      - ts-build-restore
+      - restore-workspace
       - wait-for-infrastructure
       - run-tests:
           test_name: Integration Test (many)
@@ -435,6 +513,8 @@ jobs:
           index: << parameters.index >>
           total: << parameters.total >>
 
+  # Runs a subset of content server's tests. These tests take longer to run,
+  # so they are split into parts.
   test-content-server-part:
     parameters:
       resource_class:
@@ -496,29 +576,31 @@ jobs:
       - store_test_results:
           path: artifacts/tests
 
+  # Runs functional tests using playwright. These tests support splitting
+  # and parallel execution.
   playwright-functional-tests:
+    parameters:
+      resource_class:
+        type: string
+        default: large
+      parallelism:
+        type: integer
+        default: 5
     executor: functional-test-executor
-    resource_class: large
-    parallelism: 3
+    resource_class: << parameters.resource_class >>
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
-      - provision
-      - ts-build-restore
-      - run:
-          name: Ensure playwright install
-          # The base install script always skips playwright browser installs in an attempt
-          # to be more efficient. When the lockfile has drifted, we may need to install
-          # playwright again in order to ensure the expected browser version is present. If
-          # the expected version is present, this should be pretty fast. If it is not it will
-          # take a moment to install the browsers.
-          command: |
-            if ! cmp --silent yarn.lock yarn.lock.base; then npx playwright install; fi;
+      - restore-workspace
       - run:
           name: Add localhost
           command: |
             sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
             sudo cat /etc/hosts
       - wait-for-infrastructure
+      - run:
+          name: Start services for playwright tests
+          command: ./packages/functional-tests/scripts/start-services.sh
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
@@ -528,132 +610,141 @@ jobs:
     executor: default-executor
     steps:
       - git-checkout
-      - provision
+      - restore-workspace
       - run:
           name: Build and deploy Storybooks
-          command: npx github:mozilla-fxa/storybook-gcp-publisher
+          command: |
+            STORYBOOKS_USE_YARN_WORKSPACES=false npx github:mozilla-fxa/storybook-gcp-publisher
 
-  update-yarn-cache:
-    executor: default-executor
+  # A nice way to finalize a workflow. This will also notify jira.
+  on-complete:
+    parameters:
+      stage:
+        type: string
+      job_type:
+        type: string
+    executor: tiny-executor
     steps:
-      - cache-save-yarn
+      - run:
+          name: "Stage completed"
+          command: echo "<< parameters.stage >> completed!"
+      - jira/notify:
+          job_type: << parameters.job_type >>
+
 
 workflows:
 
-  # This workflow is executed whenever a pull request is issued. It will also
-  # run on PR drafts.
   test_pull_request:
+    # This workflow is executed whenever a pull request is issued. It will also
+    # run on PR drafts.
     jobs:
       - build:
-          name: Build
+          name: Build (PR)
           filters:
             branches:
               ignore: /main/
             tags:
               ignore: /.*/
-
       - lint:
-          name: Lint
+          name: Lint (PR)
           requires:
-            - Build
-
+            - Build (PR)
       - unit-test:
-          name: Unit Test
+          name: Unit Test (PR)
           requires:
-            - Build
+            - Build (PR)
           post-steps:
             - fail-fast
-
       - integration-test-part:
-          name: Integration Test Part 1
+          name: Integration Test 1 (PR)
           index: 0
-          total: 2
+          total: 3
           requires:
-            - Build
+            - Build (PR)
           post-steps:
             - fail-fast
-
       - integration-test-part:
-          name: Integration Test Part 2
+          name: Integration Test 2 (PR)
           index: 1
-          total: 2
+          total: 3
           requires:
-            - Build
+            - Build (PR)
           post-steps:
             - fail-fast
-
-      - build-and-deploy-storybooks:
-          name: Story Book Build & Deploy
+      - integration-test-part:
+          name: Integration Test 3 (PR)
+          index: 2
+          total: 3
           requires:
-            - Build
-
+            - Build (PR)
+          post-steps:
+            - fail-fast
       - test-content-server-part:
-          name: Content Server Functional Test Part 1
+          name: Functional Test - Content 1 (PR)
           index: 0
           total: 5
           requires:
-            - Build
+            - Build (PR)
       - test-content-server-part:
-          name: Content Server Functional Test Part 2
+          name: Functional Test - Content 2 (PR)
           index: 1
           total: 5
           requires:
-            - Build
+            - Build (PR)
       - test-content-server-part:
-          name: Content Server Functional Test Part 3
+          name: Functional Test - Content 3 (PR)
           index: 2
           total: 5
           requires:
-            - Build
+            - Build (PR)
       - test-content-server-part:
-          name: Content Server Functional Test Part 4
+          name: Functional Test - Content 4 (PR)
           index: 3
           total: 5
           requires:
-            - Build
+            - Build (PR)
       - test-content-server-part:
-          name: Content Server Functional Test Part 5
+          name: Functional Test - Content 5 (PR)
           index: 4
           total: 5
           requires:
-            - Build
-
+            - Build (PR)
       - playwright-functional-tests:
-          name: Playwright Functional Tests
+          name: Functional Tests - Playwright (PR)
           requires:
-            - Build
+            - Build (PR)
 
-  # This workflow can be useful if we want to run test changes in our functional tests
-  # against deployed code. Simply prefix a branch with run-smoke-tests, and issue a PR.
-  smoke_test:
+      - on-complete:
+          name: Tests Complete (PR)
+          stage: Tests
+          job_type: build
+          requires:
+            - Lint (PR)
+            - Unit Test (PR)
+            - Integration Test 1 (PR)
+            - Integration Test 2 (PR)
+            - Integration Test 3 (PR)
+            - Functional Test - Content 1 (PR)
+            - Functional Test - Content 2 (PR)
+            - Functional Test - Content 3 (PR)
+            - Functional Test - Content 4 (PR)
+            - Functional Test - Content 5 (PR)
+            - Functional Tests - Playwright (PR)
+
+  production_smoke_test:
+    # This workflow can be useful if we want to run test changes in our functional tests
+    # against deployed code. It can be triggered by setting a pipeline parameter to true.
+    when: << pipeline.parameters.run-smoke-tests >>
     jobs:
-      - request-production-smoke-tests:
-          type: approval
-          filters:
-            branches:
-              only: /^run-smoke-tests-.*/
-            tags:
-              ignore: /.*/
-      - production-smoke-tests:
-          requires:
-            - request-production-smoke-tests
-      - request-test-content-server-remote:
-          type: approval
-          filters:
-            branches:
-              only: /^run-smoke-tests-.*/
-            tags:
-              ignore: /.*/
-      - test-content-server-remote:
-          requires:
-            - request-test-content-server-remote
-      - request-test-content-server-remote-parts:
-          type: approval
-          filters:
-            branches:
-              only: /^run-smoke-tests-.*/
-            tags:
-              ignore: /.*/
+      - production-smoke-tests
+      - test-content-server-remote
+
+  production_smoke_test_parallel:
+    # Similar to workflow above, except content server tests are split and run concurrently.
+    # It can be triggered by setting a pipeline parameters to true.
+    when: << pipeline.parameters.run-smoke-tests-parallel >>
+    jobs:
+      - production-smoke-tests
       - test-content-server-remote-part-0:
           requires:
             - request-test-content-server-remote-parts
@@ -664,11 +755,14 @@ workflows:
           requires:
             - request-test-content-server-remote-parts
 
-  # This workflow is primarily triggered after PRs are approved and land on main.
-  deploy_branch:
+  deploy_packages:
+    # This workflow can be triggered after a PR lands on main. It requires approval.
+    # The same operation will eventually run nightly. The same operation will run nightly.
     jobs:
-      - deploy-packages:
-          executor: docker-build-executor
+      # Builds the monorepo for a production / stage deploy
+      - request-deploy-packages:
+          name: Request Deploy FxA Packages
+          type: approval
           filters:
             branches:
               only:
@@ -677,33 +771,47 @@ workflows:
                 - /^dockerpush.*/
             tags:
               ignore: /.*/
-      - deploy-fxa-ci-image:
-          executor: docker-build-executor
-          filters:
-            branches:
-              only:
-                - main
-            tags:
-              ignore: /.*/
-      - deploy-fxa-ci-browser-image:
+      - deploy-packages:
+          name: Deploy FxA Packages
           requires:
-            - deploy-fxa-ci-image
+            - Request Deploy FxA Packages
+
+  deploy_ci_images:
+    # This workflow is triggered after a PR lands on main. The workflow will
+    # short circuit if incoming PR doesn't modify any npm packages. The same
+    # operation will run nightly.
+    jobs:
+      - deploy-fxa-ci-images:
+          name: Deploy CI Images
           executor:
             name: docker-build-executor
             image: cimg/node:16.13-browsers
+          filters:
+            branches:
+              only: main
+            tags:
+              ignore: /.*/
+
+  deploy_story_book:
+    # This workflow is triggered after a PR lands on main. It requires approval.
+    # The same operation will eventually run nightly.
+    jobs:
+      - request-build-and-deploy-storybooks:
+          name: Request Deploy Storybooks
+          type: approval
+          filters:
+            branches:
+              only: main
+            tags:
+              ignore: /.*/
       - build-and-deploy-storybooks:
+          name: Deploy Storybooks
           requires:
-            - deploy-fxa-ci-image
+            - Request Deploy Storybooks
 
-      # Once the base image is deployed, go ahead and cache the yarn's state. This will save
-      # us some time on the next build
-      - update-yarn-cache:
-          requires:
-            - deploy-fxa-ci-image
-
-  # This workflow is used for building docker containers that are then deployed to
-  # live infrastructure.
   test_and_deploy_tag:
+    # This workflow is used for building docker containers that are then deployed to
+    # live infrastructure.
     jobs:
       - build:
           name: Build
@@ -720,66 +828,153 @@ workflows:
           name: Unit Test
           requires:
             - Build
-
       - integration-test-part:
-          name: Integration Test Part 1
+          name: Integration Test 1
           index: 0
-          total: 1
+          total: 3
           requires:
             - Build
       - integration-test-part:
-          name: Integration Test Part 2
+          name: Integration Test 2
           index: 1
-          total: 1
+          total: 3
           requires:
             - Build
-
+      - integration-test-part:
+          name: Integration Test 3
+          index: 2
+          total: 3
+          requires:
+            - Build
       - test-content-server-part:
-          name: Content Server Functional Test Part 1
+          name: Functional Test - Content 1
           index: 0
           total: 5
           requires:
             - Build
       - test-content-server-part:
-          name: Content Server Functional Test Part 2
+          name: Functional Test - Content 2
           index: 1
           total: 5
           requires:
             - Build
       - test-content-server-part:
-          name: Content Server Functional Test Part 3
+          name: Functional Test - Content 3
           index: 2
           total: 5
           requires:
             - Build
       - test-content-server-part:
-          name: Content Server Functional Test Part 4
+          name: Functional Test - Content 4
           index: 3
           total: 5
           requires:
             - Build
       - test-content-server-part:
-          name: Content Server Functional Test Part 5
+          name: Functional Test - Content 5
           index: 4
           total: 5
           requires:
             - Build
-
-      - deploy-packages:
-          executor: docker-build-executor
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+      - playwright-functional-tests:
+          name: Functional Tests - Playwright
           requires:
             - Build
+      - deploy-packages:
+          name: FXA
+          requires:
             - Lint
             - Unit Test
-            - Integration Test Part 1
-            - Integration Test Part 2
-            - Content Server Functional Test Part 1
-            - Content Server Functional Test Part 2
-            - Content Server Functional Test Part 3
-            - Content Server Functional Test Part 4
-            - Content Server Functional Test Part 5
+            - Integration Test 1
+            - Integration Test 2
+            - Integration Test 3
+            - Functional Test - Content 1
+            - Functional Test - Content 2
+            - Functional Test - Content 3
+            - Functional Test - Content 4
+            - Functional Test - Content 5
+            - Functional Tests - Playwright
+
+  nightly:
+    # This work flow runs a full build, test suite, and deployment of docker images nightly
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - build:
+          name: Build (nightly)
+          filters:
+            branches:
+              only: main
+            tags:
+              ignore: /.*/
+      - lint:
+          name: Lint (nightly)
+          requires:
+            - Build (nightly)
+      - unit-test:
+          name: Unit Test (nightly)
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 1 (nightly)
+          index: 0
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 2 (nightly)
+          index: 1
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 3 (nightly)
+          index: 2
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - playwright-functional-tests:
+          name: Functional Tests - Playwright (nightly)
+          requires:
+            - Build (nightly)
+      - on-complete:
+          name: Tests Complete (nightly)
+          stage: Tests (nightly)
+          job_type: build
+          requires:
+            - Lint (nightly)
+            - Unit Test (nightly)
+            - Integration Test 1 (nightly)
+            - Integration Test 2 (nightly)
+            - Integration Test 3 (nightly)
+            - Functional Tests - Playwright (nightly)
+      - build-and-deploy-storybooks:
+          name: Deploy Storybooks (nightly)
+          requires:
+            - Tests Complete (nightly)
+      - deploy-packages:
+          name: Deploy FxA Packages (nightly)
+          requires:
+            - Tests Complete (nightly)
+      - deploy-fxa-ci-images:
+          name: Deploy CI Images (nightly)
+          executor:
+            name: docker-build-executor
+            image: cimg/node:16.13-browsers
+          # Note, setting force-deploy as true will result in rebuilding the images regardless
+          # of whether or not there are package modifications.
+          force-deploy: true
+          requires:
+            - Tests Complete (nightly)

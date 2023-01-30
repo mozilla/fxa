@@ -1,0 +1,15 @@
+.ssh
+.cache
+.docker
+**/.vscode
+**/node_modules
+**/_dev/docker
+**/packages/fxa-auth-server/.mail_output
+**/Library
+**/_dev/docker
+**/.circleci
+**/.npm
+**/artifacts
+**/configs
+**/temp
+**/test
