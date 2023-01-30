@@ -14,9 +14,9 @@ jest.mock('fxa-react/lib/utils', () => {
     __esModule: true,
     ...originalModule,
     FtlMsg: (props: FtlMsgProps) => (
-      <div data-testid="ftlmsg-mock" id={props.id}>
+      <span data-testid="ftlmsg-mock" id={props.id}>
         {props.children}
-      </div>
+      </span>
     ),
   };
 });

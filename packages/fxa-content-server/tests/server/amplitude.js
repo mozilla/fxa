@@ -227,6 +227,16 @@ registerSuite('amplitude', {
       );
     },
 
+    'screen.cannot_create_account': () => {
+      createAmplitudeEvent('screen.cannot_create_account');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_reg - cannot_create_account_view'
+      );
+    },
+
     'screen.cookies_disabled': () => {
       createAmplitudeEvent('screen.cookies_disabled');
 
