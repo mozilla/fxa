@@ -92,7 +92,7 @@ export const PlanDetails = ({
   );
 
   const exclusiveTaxRates = priceAmounts.taxRates.filter(
-    (taxRate) => !taxRate.inclusive
+    (taxRate) => !taxRate.inclusive && taxRate.amount > 0
   );
 
   useEffect(() => {
