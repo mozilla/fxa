@@ -233,4 +233,35 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
       expect(result).false;
     });
   });
+
+  describe('getSpecialTaxAmounts', () => {
+    const getMockTaxAmount = (amount: number, display_name: string) =>
+      ({
+        amount,
+        inclusive: false,
+        tax_rate: {
+          display_name,
+        },
+      } as Stripe.Invoice.TotalTaxAmount);
+
+    const mockTaxAmounts = [
+      getMockTaxAmount(10, 'HST'),
+      getMockTaxAmount(11, 'PST'),
+      getMockTaxAmount(12, 'GST'),
+      getMockTaxAmount(13, 'QST'),
+      getMockTaxAmount(14, 'RST'),
+    ];
+
+    it('formats special tax amounts', () => {
+      const result = helpers.getSpecialTaxAmounts(mockTaxAmounts);
+
+      sinon.assert.match(result, {
+        hst: 10,
+        pst: 11,
+        gst: 12,
+        qst: 13,
+        rst: 14,
+      });
+    });
+  });
 });

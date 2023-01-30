@@ -119,10 +119,23 @@ export class StripeAutomaticTaxConverter {
       const customer = await this.fetchCustomer(customerId);
       if (!customer) return; // Do not enable tax for an invalid customer
 
-      // TODO FXA-6580: Update customer
-      console.log(subscriptionId, product, customer);
+      const taxEnabled = await this.enableTaxForCustomer(customer);
+      if (!taxEnabled) return; // Do not enable tax if customer is not taxable
+
+      await this.enableTaxForSubscription(subscriptionId);
+
+      const invoicePreview = await this.fetchInvoicePreview(subscriptionId);
+
+      const report = this.buildReport(
+        customer,
+        firestoreSubscription,
+        product,
+        plan,
+        invoicePreview
+      );
 
       // TODO FXA-6581: Write report to CSV
+      console.log('report:', report);
     } catch (e) {
       // TODO FXA-6581: Error output formatting
       console.error(e);
@@ -142,5 +155,114 @@ export class StripeAutomaticTaxConverter {
     if (customer.deleted) return null;
 
     return customer;
+  }
+
+  /**
+   * Updates a customer's IP address and enables Stripe automatic tax
+   * @param customer A Stripe customer with the `tax` field expanded
+   * @returns True if customer is now taxable, or false if customer cannot be taxed
+   */
+  async enableTaxForCustomer(customer: Stripe.Customer) {
+    if (this.helpers.isTaxEligible(customer)) return true;
+
+    // TODO FXA-6581: Handle ip address map unknown customer
+    await this.stripe.customers.update(customer.id, {
+      tax: {
+        ip_address: this.ipAddressMap[customer.id],
+      },
+    });
+
+    const updatedCustomer = await this.fetchCustomer(customer.id);
+
+    const isTaxEligible =
+      !!updatedCustomer && this.helpers.isTaxEligible(updatedCustomer);
+
+    return isTaxEligible;
+  }
+
+  /**
+   * Updates a Stripe subscription with automatic tax enabled
+   * @param subscriptionId Subscription to enable automatic tax for
+   * @returns Updated subscription
+   */
+  enableTaxForSubscription(subscriptionId: string) {
+    return this.stripe.subscriptions.update(subscriptionId, {
+      automatic_tax: {
+        enabled: true,
+      },
+    });
+  }
+
+  /**
+   * Get an expanded invoice preview
+   * @param subscriptionId The subscription to fetch an invoice preview for
+   * @returns A Stripe invoice preview with tax rates expanded
+   */
+  fetchInvoicePreview(subscriptionId: string) {
+    return this.stripe.invoices.retrieveUpcoming({
+      subscription: subscriptionId,
+      expand: ['total_tax_amounts.tax_rate'],
+    });
+  }
+
+  /**
+   * Creates an ordered array of fields destined for CSV format
+   * in the order described by the Stripe Tax for Existing Customers PRD
+   * @returns An array representing the fields to be output to CSV
+   */
+  buildReport(
+    customer: Stripe.Customer,
+    subscription: Stripe.Subscription,
+    product: Stripe.Product,
+    plan: Stripe.Plan,
+    invoicePreview: Stripe.Invoice
+  ) {
+    const { hst, pst, gst, qst, rst } = this.helpers.getSpecialTaxAmounts(
+      invoicePreview.total_tax_amounts
+    );
+
+    // We build a temporary object first for readability & maintainability purposes
+    const report = {
+      uid: customer.metadata.userid,
+      email: customer.email,
+
+      productId: product.id,
+      productName: product.name,
+      planId: plan.id,
+      planName: plan.nickname, // TODO FXA-6581: Confirm this field
+      planInterval: plan.interval_count,
+      planIntervalUnit: plan.interval,
+
+      baseAmount: invoicePreview.total_excluding_tax,
+      taxAmount: invoicePreview.tax,
+      hst,
+      gst,
+      pst,
+      qst,
+      rst,
+
+      totalAmount: invoicePreview.total,
+      nextInvoice: subscription.current_period_end,
+    };
+
+    return [
+      report.uid,
+      report.email,
+      report.productId,
+      report.productName,
+      report.planId,
+      report.planName,
+      report.planInterval,
+      report.planIntervalUnit,
+      report.baseAmount,
+      report.taxAmount,
+      report.hst,
+      report.gst,
+      report.pst,
+      report.qst,
+      report.rst,
+      report.totalAmount,
+      report.nextInvoice,
+    ];
   }
 }

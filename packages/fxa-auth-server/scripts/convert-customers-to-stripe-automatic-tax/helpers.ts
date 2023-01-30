@@ -97,4 +97,33 @@ export class StripeAutomaticTaxConverterHelpers {
 
     return noSoonerThan < renewalDate;
   }
+
+  /**
+   * Gets a number of "special" tax amounts from Stripes tax amount list, such as those
+   * used for Canada.
+   * @param taxAmounts A list of tax amounts with tax rates expanded
+   * @returns The amount of the first matching tax amount
+   */
+  getSpecialTaxAmounts(taxAmounts: Stripe.Invoice.TotalTaxAmount[]) {
+    const specialTaxAmounts = {
+      hst: 0,
+      pst: 0,
+      gst: 0,
+      qst: 0,
+      rst: 0,
+    };
+
+    for (const taxAmount of taxAmounts) {
+      const taxRate = taxAmount.tax_rate as Stripe.TaxRate;
+      const key = taxRate.display_name.toLowerCase();
+
+      if (key in specialTaxAmounts) {
+        // This must be done via display name since the tax rate ID changes every time for automatic tax
+        specialTaxAmounts[key as keyof typeof specialTaxAmounts] +=
+          taxAmount.amount;
+      }
+    }
+
+    return specialTaxAmounts;
+  }
 }
