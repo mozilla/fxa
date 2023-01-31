@@ -15,11 +15,12 @@ import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
+import { MozServices } from '../../../lib/types';
 
 // --serviceName-- is the relying party
 
 export type AccountRecoveryConfirmKeyProps = {
-  serviceName?: string;
+  serviceName?: MozServices;
   linkStatus: LinkStatus;
 };
 
@@ -104,7 +105,7 @@ const AccountRecoveryConfirmKey = ({
           <CardHeader
             headingWithDefaultServiceFtlId="account-recovery-confirm-key-heading-w-default-service"
             headingWithCustomServiceFtlId="account-recovery-confirm-key-heading-w-custom-service"
-            headingText={`Reset password with account recovery key`}
+            headingText="Reset password with account recovery key"
             {...{ serviceName }}
           />
           <FtlMsg id="account-recovery-confirm-key-instructions">

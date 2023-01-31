@@ -40,7 +40,7 @@ describe('PrimaryEmailVerified page', () => {
   it('show the service name when it is passed in', () => {
     render(<PrimaryEmailVerified isSignedIn serviceName={MOCK_SERVICE} />);
 
-    screen.getByText('You’re now ready to use Example Service');
+    screen.getByText(`You’re now ready to use ${MOCK_SERVICE}`);
   });
 
   it('emits the expected metrics on render', () => {

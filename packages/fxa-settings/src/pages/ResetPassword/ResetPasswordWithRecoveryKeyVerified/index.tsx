@@ -7,9 +7,10 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
 import Ready from '../../../components/Ready';
+import { MozServices } from '../../../lib/types';
 
 type ResetPasswordWithRecoveryKeyVerifiedProps = {
-  serviceName?: string;
+  serviceName?: MozServices;
 };
 
 const ResetPasswordWithRecoveryKeyVerified = ({

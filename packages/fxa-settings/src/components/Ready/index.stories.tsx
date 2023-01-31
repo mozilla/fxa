@@ -3,29 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import Ready from '.';
-import { ViewNameType } from '.';
+import Ready, { ReadyProps } from '.';
 import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
+import { MozServices } from '../../lib/types';
 
 export default {
   title: 'components/Ready',
   component: Ready,
 } as Meta;
 
-type ReadyWithLayoutPropsType = {
-  continueHandler?: Function;
-  isSignedIn?: boolean;
-  serviceName?: string;
-  viewName: ViewNameType;
-};
-
 const ReadyWithLayout = ({
   continueHandler,
   isSignedIn,
   serviceName,
   viewName,
-}: ReadyWithLayoutPropsType) => {
+}: ReadyProps) => {
   return (
     <AppLayout>
       <Ready {...{ continueHandler, isSignedIn, serviceName, viewName }} />
@@ -43,18 +36,21 @@ export const ResetPasswordConfirmForLoggedOutUser = () => (
 
 export const ResetPasswordConfirmedWithRelyingParty = () => (
   <ReadyWithLayout
-    serviceName="Example Service"
+    serviceName={MozServices.FirefoxSync}
     viewName="reset-password-confirmed"
   />
 );
 
 export const WithRelyingPartyNoContinueAction = () => (
-  <ReadyWithLayout serviceName="Example Service" viewName="signin-confirmed" />
+  <ReadyWithLayout
+    serviceName={MozServices.FirefoxSync}
+    viewName="signin-confirmed"
+  />
 );
 
 export const WithRelyingPartyAndContinueAction = () => (
   <ReadyWithLayout
-    serviceName={'Example Service'}
+    serviceName={MozServices.FirefoxSync}
     viewName="reset-password-confirmed"
     continueHandler={() => {
       console.log('Arbitrary action');

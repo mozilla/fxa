@@ -152,7 +152,18 @@ Router = Router.extend({
     }),
     'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
-    'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
+    'cookies_disabled(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'cookies_disabled',
+        CookiesDisabledView,
+        {
+          // HACK: this page uses the history API to navigate back and must go back one page
+          // further if being redirected from content-server. Flow params are not always
+          // available to check against so we explicitely send in an additional param.
+          contentRedirect: true,
+        }
+      );
+    },
     'force_auth(/)': createViewHandler(ForceAuthView),
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
     'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
@@ -347,18 +358,30 @@ Router = Router.extend({
     return false;
   },
 
-  createReactOrBackboneViewHandler(routeName, ViewOrPath, options) {
+  createReactOrBackboneViewHandler(
+    routeName,
+    ViewOrPath,
+    additionalParams,
+    backboneViewOptions
+  ) {
     const showReactApp = this.showReactApp(routeName);
 
     if (showReactApp && this.isInReactExperiment()) {
+      const { deviceId, flowBeginTime, flowId } =
+        this.metrics.getFlowEventMetadata();
+
       const link = `/${routeName}${Url.objToSearchString({
         showReactApp,
+        deviceId,
+        flowBeginTime,
+        flowId,
+        ...additionalParams,
       })}`;
 
       this.navigateAway(link);
     } else {
       return getView(ViewOrPath).then((View) => {
-        return this.showView(View, options);
+        return this.showView(View, backboneViewOptions);
       });
     }
   },

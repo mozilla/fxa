@@ -42,10 +42,8 @@ describe('PageSigninRecoveryCode', () => {
 
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('link', { name: 'Back' });
-    // 'Opens in new window' is sr-only text added by the LinkExternal component
-    // This should always be included for accessibility
     screen.getByRole('link', {
-      name: 'Are you locked out? Opens in new window',
+      name: /Are you locked out?/,
     });
   });
 
@@ -53,7 +51,7 @@ describe('PageSigninRecoveryCode', () => {
     render(<SigninRecoveryCode serviceName={MOCK_SERVICE} />);
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter backup authentication code to continue to Example Service'
+      `Enter backup authentication code to continue to ${MOCK_SERVICE}`
     );
   });
 

@@ -53,7 +53,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
     );
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      `Reset password with account recovery key to continue to Example Service`
+      `Reset password with account recovery key to continue to ${MOCK_SERVICE_NAME}`
     );
   });
 

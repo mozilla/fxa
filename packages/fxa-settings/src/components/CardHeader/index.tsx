@@ -4,41 +4,83 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { MozServices } from '../../lib/types';
 
-// TODO improve typing to allow either default or custom or both (but not none)
-export type CardHeaderProps = {
-  headingWithDefaultServiceFtlId: string;
-  headingWithCustomServiceFtlId?: string;
+interface CardHeaderRequiredProps {
   headingText: string;
-  serviceName?: string;
-};
+}
 
-const CardHeader = ({
-  headingWithDefaultServiceFtlId,
-  headingWithCustomServiceFtlId,
-  headingText,
-  serviceName,
-}: CardHeaderProps) => {
+interface CardHeaderDefaultServiceProps extends CardHeaderRequiredProps {
+  headingWithDefaultServiceFtlId: string;
+}
+
+interface CardHeaderCustomServiceProps extends CardHeaderRequiredProps {
+  headingWithCustomServiceFtlId: string;
+  serviceName: Exclude<MozServices, 'Default'>;
+}
+
+interface CardHeaderBasicProps extends CardHeaderRequiredProps {
+  headingTextFtlId: string;
+}
+
+type CardHeaderProps =
+  | CardHeaderDefaultServiceProps
+  | CardHeaderCustomServiceProps
+  | CardHeaderBasicProps;
+
+function isCustomService(
+  props: CardHeaderProps
+): props is CardHeaderCustomServiceProps {
   return (
-    <header>
-      {serviceName && headingWithCustomServiceFtlId ? (
-        <FtlMsg id={headingWithCustomServiceFtlId} vars={{ serviceName }}>
-          <h1 className="card-header">
-            {headingText}{' '}
-            <span className="card-subheader">to continue to {serviceName}</span>
-          </h1>
-        </FtlMsg>
-      ) : (
-        <FtlMsg id={headingWithDefaultServiceFtlId}>
-          <h1 className="card-header">
-            {headingText}{' '}
-            <span className="card-subheader">
-              to continue to account settings
-            </span>
-          </h1>
-        </FtlMsg>
-      )}
-    </header>
+    (props as CardHeaderCustomServiceProps).headingWithCustomServiceFtlId !==
+    undefined
+  );
+}
+
+function isDefaultService(
+  props: CardHeaderProps
+): props is CardHeaderDefaultServiceProps {
+  const serviceName = (props as CardHeaderCustomServiceProps).serviceName;
+  return (
+    ((props as CardHeaderDefaultServiceProps).headingWithDefaultServiceFtlId !==
+      undefined &&
+      serviceName === undefined) ||
+    serviceName === MozServices.Default
+  );
+}
+
+const CardHeader = (props: CardHeaderProps) => {
+  const { headingText } = props;
+
+  if (isDefaultService(props)) {
+    return (
+      <FtlMsg id={props.headingWithDefaultServiceFtlId}>
+        <h1 className="card-header">
+          {headingText}{' '}
+          <span className="card-subheader">
+            to continue to {MozServices.Default}
+          </span>
+        </h1>
+      </FtlMsg>
+    );
+  }
+
+  if (isCustomService(props)) {
+    const { headingWithCustomServiceFtlId, serviceName } = props;
+    return (
+      <FtlMsg id={headingWithCustomServiceFtlId} vars={{ serviceName }}>
+        <h1 className="card-header">
+          {headingText}{' '}
+          <span className="card-subheader">to continue to {serviceName}</span>
+        </h1>
+      </FtlMsg>
+    );
+  }
+
+  return (
+    <FtlMsg id={props.headingTextFtlId}>
+      <h1 className="card-header mb-2">{headingText}</h1>
+    </FtlMsg>
   );
 };
 

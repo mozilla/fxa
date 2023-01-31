@@ -12,6 +12,7 @@ import {
   MOCK_HEADING,
   MOCK_SERVICE_NAME,
 } from './mocks';
+import { MozServices } from '../../lib/types';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -35,7 +36,7 @@ describe('CardHeader', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: `${MOCK_HEADING} to continue to account settings`,
+        name: `${MOCK_HEADING} to continue to ${MozServices.Default}`,
       })
     ).toBeInTheDocument();
   });

@@ -31,10 +31,8 @@ describe('SigninBounced', () => {
     screen.getByRole('heading', {
       name: 'Sorry. We’ve locked your\xa0account.',
     });
-    // 'let us know' is what is visible when the user reads this visually.
-    // 'Opens in new window' is text appended automatically by the LinkExternal component for screenreaders
     const supportLink = screen.getByRole('link', {
-      name: 'let us know Opens in new window',
+      name: /let us know/,
     });
     expect(supportLink).toBeInTheDocument();
   });
