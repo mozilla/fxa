@@ -155,7 +155,7 @@
     "@opentelemetry/plugin-react-load": "^0.28.0",
     "@opentelemetry/sdk-trace-base": "^1.7.0",
     "@opentelemetry/sdk-trace-node": "^1.7.0",
-    "@opentelemetry/sdk-trace-web": "^1.7.0",
+    "@opentelemetry/sdk-trace-web": "^1.9.1",
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
