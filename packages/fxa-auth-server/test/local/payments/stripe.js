@@ -6633,7 +6633,7 @@ describe('#integration - StripeHelper', () => {
         );
       });
 
-      it(`ignores ${type} operations with no customer attached`, async () => {
+      it(`ignores ${type} operations with no customer attached to event`, async () => {
         const event = deepCopy(eventPaymentMethodAttached);
         event.type = type;
         event.data.object.customer = null;
@@ -6646,6 +6646,23 @@ describe('#integration - StripeHelper', () => {
           stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill
         );
         sinon.assert.notCalled(stripeHelper.stripe.paymentMethods.retrieve);
+      });
+
+      it(`ignores ${type} operations with no customer attached to stripe payment method`, async () => {
+        const event = deepCopy(eventPaymentMethodAttached);
+        stripeHelper.stripe.paymentMethods.retrieve = sandbox
+          .stub()
+          .resolves({ ...paymentMethodAttach, customer: null });
+        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
+        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox.stub();
+        await stripeHelper.processWebhookEventToFirestore(event);
+        sinon.assert.notCalled(
+          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripe.paymentMethods.retrieve,
+          event.data.object.id
+        );
       });
     }
 

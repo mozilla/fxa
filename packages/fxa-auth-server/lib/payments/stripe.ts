@@ -3250,6 +3250,14 @@ export class StripeHelper extends StripeHelperBase {
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
+
+    // If this payment method is not attached, we can't store it in firestore as
+    // the customer may not exist. It is possible that a payment_method.detached
+    // event has already been processed, detaching the payment method.
+    if (!paymentMethod.customer) {
+      return;
+    }
+
     try {
       await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
         paymentMethod

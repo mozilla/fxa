@@ -29,9 +29,7 @@
     "generated_from": null,
     "last4": "4242",
     "networks": {
-      "available": [
-        "visa"
-      ],
+      "available": ["visa"],
       "preferred": null
     },
     "three_d_secure_usage": {
@@ -40,7 +38,7 @@
     "wallet": null
   },
   "created": 123456789,
-  "customer": null,
+  "customer": "cus_32kfds093ks",
   "livemode": false,
   "metadata": {
     "order_id": "123456789"
