@@ -5,9 +5,10 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
+import { MozServices } from '../../../lib/types';
 
 export type PrimaryEmailVerifiedProps = {
-  serviceName?: string;
+  serviceName?: MozServices;
   isSignedIn?: boolean;
 };
 

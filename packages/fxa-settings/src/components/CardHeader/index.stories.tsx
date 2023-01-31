@@ -18,22 +18,27 @@ export default {
   component: CardHeader,
 } as Meta;
 
-const storyWithProps = ({ ...props }) => {
+const storyWithProps = (props: React.ComponentProps<typeof CardHeader>) => {
   const story = () => (
     <AppLayout>
-      <CardHeader
-        {...props}
-        headingWithDefaultServiceFtlId={MOCK_DEFAULT_HEADING_FTL_ID}
-        headingText={MOCK_HEADING}
-      />
+      <CardHeader {...props} />
     </AppLayout>
   );
   return story;
 };
 
-export const Default = storyWithProps({});
+export const Basic = storyWithProps({
+  headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  headingText: MOCK_HEADING,
+});
 
-export const WithServiceName = storyWithProps({
+export const WithDefaultServiceName = storyWithProps({
+  headingWithDefaultServiceFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  headingText: MOCK_HEADING,
+});
+
+export const WithCustomServiceName = storyWithProps({
   serviceName: MOCK_SERVICE_NAME,
   headingWithCustomServiceFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
+  headingText: MOCK_HEADING,
 });

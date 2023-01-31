@@ -82,7 +82,7 @@ class Storage {
       if (type === 'sessionStorage') {
         storage = win.sessionStorage;
       } else {
-        // HACK: Allows the functional tests to simulate disabled local storage.
+        // HACK: Allows the functional and unit tests to simulate disabled local storage.
         if (
           Url.searchParam('disable_local_storage', win.location.search) === '1'
         ) {

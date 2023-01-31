@@ -527,6 +527,7 @@ describe('lib/router', () => {
     });
     describe('createReactOrBackboneViewHandler', () => {
       const viewConstructorOptions = {};
+      const additionalParams = {};
       let routeHandler;
 
       beforeEach(() => {
@@ -553,6 +554,7 @@ describe('lib/router', () => {
         routeHandler = router.createReactOrBackboneViewHandler(
           'cannot_create_account',
           CannotCreateAccountView,
+          additionalParams,
           viewConstructorOptions
         );
         assert.equal(router.navigateAway.callCount, 0);

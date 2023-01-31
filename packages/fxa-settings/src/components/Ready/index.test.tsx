@@ -8,6 +8,7 @@ import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -15,7 +16,7 @@ jest.mock('../../lib/metrics', () => ({
 }));
 
 describe('Ready', () => {
-  const customServiceName = 'Example Service';
+  const customServiceName = MozServices.FirefoxSync;
   const viewName = 'reset-password-confirmed';
   let bundle: FluentBundle;
   beforeAll(async () => {

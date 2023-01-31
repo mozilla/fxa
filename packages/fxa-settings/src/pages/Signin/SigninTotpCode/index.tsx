@@ -7,15 +7,16 @@ import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
 import InputText from '../../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+// import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { ReactComponent as TwoFactorImg } from './graphic_two_factor_auth.svg';
 import CardHeader from '../../../components/CardHeader';
+import { MozServices } from '../../../lib/types';
 
 // --serviceName-- is the relying party
 
-export type SigninTotpCodeProps = { serviceName?: string };
+export type SigninTotpCodeProps = { serviceName?: MozServices };
 
 type FormData = {
   confirmationCode: string;

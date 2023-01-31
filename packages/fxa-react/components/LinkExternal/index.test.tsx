@@ -12,9 +12,7 @@ it('renders without imploding', () => {
   const textContent = 'Keep the internet open and accessible to all.';
 
   const renderResult = render(
-    <LinkExternal {...{ className }} {...{ href }}>
-      {textContent}
-    </LinkExternal>
+    <LinkExternal {...{ className, href }}>{textContent}</LinkExternal>
   );
 
   const link = renderResult.getByTestId('link-external');
@@ -22,5 +20,9 @@ it('renders without imploding', () => {
   expect(link).toBeInTheDocument();
   expect(link).toHaveClass(className);
   expect(link).toHaveProperty('href', href);
+  expect(link).toHaveProperty('target', '_blank');
+  expect(link).toHaveProperty('rel', 'noopener noreferrer');
   expect(link).toHaveTextContent(textContent);
+  // 'Opens in new window' is sr-only text added for for accessibility
+  expect(link).toHaveTextContent('Opens in new window');
 });

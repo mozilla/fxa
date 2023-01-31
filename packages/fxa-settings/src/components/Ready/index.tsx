@@ -8,12 +8,13 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as PulseHearts } from './account-verified.svg';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models/hooks';
+import { MozServices } from '../../lib/types';
 
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
-type ReadyProps = {
+export type ReadyProps = {
   continueHandler?: Function;
   isSignedIn?: boolean;
-  serviceName?: string;
+  serviceName?: MozServices;
   viewName: ViewNameType;
 };
 

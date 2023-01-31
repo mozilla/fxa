@@ -1,0 +1,37 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from 'react';
+import Banner, { BannerType } from '.';
+import { Meta } from '@storybook/react';
+import AppLayout from '../AppLayout';
+
+export default {
+  title: 'components/Banner',
+  component: Banner,
+} as Meta;
+
+export const Info = () => (
+  <AppLayout>
+    <Banner type={BannerType.info}>
+      <p>This is an "info" type banner inside our AppLayout.</p>
+    </Banner>
+  </AppLayout>
+);
+
+export const Success = () => (
+  <AppLayout>
+    <Banner type={BannerType.success}>
+      <p>This is a "success" type banner inside our AppLayout.</p>
+    </Banner>
+  </AppLayout>
+);
+
+export const Error = () => (
+  <AppLayout>
+    <Banner type={BannerType.error}>
+      <p>This is an "error" type banner inside our AppLayout.</p>
+    </Banner>
+  </AppLayout>
+);

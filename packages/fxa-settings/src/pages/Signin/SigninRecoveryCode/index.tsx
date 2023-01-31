@@ -13,8 +13,9 @@ import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as RecoveryCodesImg } from './graphic_recovery_codes.svg';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { MozServices } from '../../../lib/types';
 
-export type SigninRecoveryCodeProps = { serviceName?: string };
+export type SigninRecoveryCodeProps = { serviceName?: MozServices };
 
 type FormData = {
   recoveryCode: string;

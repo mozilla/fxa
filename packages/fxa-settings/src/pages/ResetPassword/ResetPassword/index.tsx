@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from '@reach/router';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -15,6 +14,7 @@ import { InputText } from '../../../components/InputText';
 import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import { MozServices } from '../../../lib/types';
 
 // --forceEmail-- is a hint to the signup page that the user should not
 // be given the option to change their address
@@ -27,7 +27,7 @@ import LinkRememberPassword from '../../../components/LinkRememberPassword';
 // --serviceName-- is the relying party
 
 export type ResetPasswordProps = {
-  serviceName?: string;
+  serviceName?: MozServices;
   forceEmail?: string;
   canGoBack?: boolean;
 };

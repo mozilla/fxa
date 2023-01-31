@@ -43,7 +43,7 @@ describe('Sign in with TOTP code page', () => {
     render(<SigninTotpCode serviceName={MOCK_SERVICE} />);
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter security code to continue to Example Service'
+      `Enter security code to continue to ${MOCK_SERVICE}`
     );
   });
 

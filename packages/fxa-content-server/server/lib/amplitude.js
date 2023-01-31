@@ -277,6 +277,24 @@ const EVENTS = {
     event: 'view',
   },
 
+  // cookies_disabled
+  'screen.cookies_disabled': {
+    group: GROUPS.activity,
+    event: 'cookies_disabled_view',
+  },
+  'cookies_disabled.submit': {
+    group: GROUPS.activity,
+    event: 'cookies_disabled_submit',
+  },
+  'cookies_disabled.success': {
+    group: GROUPS.activity,
+    event: 'cookies_disabled_success',
+  },
+  'cookies_disabled.fail': {
+    group: GROUPS.activity,
+    event: 'cookies_disabled_fail',
+  },
+
   /* Everything under this point should be Settings events, aka 'fxa_pref' group */
   // Account recovery key
   'screen.settings.account-recovery': {

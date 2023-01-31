@@ -8,6 +8,7 @@ import AppLayout from '../../../components/AppLayout';
 import { MozServices } from '../../../lib/types';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { MOCK_SERVICE_NAME } from '../ResetPassword/mocks';
 
 export default {
   title: 'pages/ResetPassword/ResetPasswordConfirmed',
@@ -25,7 +26,7 @@ export const Default = () => (
 export const WithRelyingPartyNoContinueAction = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed serviceName={'ExampleService'} />
+      <ResetPasswordConfirmed serviceName={MOCK_SERVICE_NAME} />
     </AppLayout>
   </LocationProvider>
 );
@@ -34,7 +35,7 @@ export const WithRelyingPartyAndContinueAction = () => (
   <LocationProvider>
     <AppLayout>
       <ResetPasswordConfirmed
-        serviceName={MozServices.FirefoxMonitor}
+        serviceName={MOCK_SERVICE_NAME}
         continueHandler={() => {
           console.log('Arbitrary action');
         }}

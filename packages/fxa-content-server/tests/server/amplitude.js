@@ -227,6 +227,46 @@ registerSuite('amplitude', {
       );
     },
 
+    'screen.cookies_disabled': () => {
+      createAmplitudeEvent('screen.cookies_disabled');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - cookies_disabled_view'
+      );
+    },
+
+    'cookies_disabled.submit': () => {
+      createAmplitudeEvent('cookies_disabled.submit');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - cookies_disabled_submit'
+      );
+    },
+
+    'cookies_disabled.success': () => {
+      createAmplitudeEvent('cookies_disabled.success');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - cookies_disabled_success'
+      );
+    },
+
+    'cookies_disabled.fail': () => {
+      createAmplitudeEvent('cookies_disabled.fail');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - cookies_disabled_fail'
+      );
+    },
+
     'flow.reset-password.submit': () => {
       amplitude(
         {
