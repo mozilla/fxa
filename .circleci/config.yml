@@ -94,6 +94,16 @@ executors:
       SUBSCRIPTIONS_PAYPAL_ENABLED: true
       PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
+      # Needed for react conversion playwright tests
+      REACT_CONVERSION_SIMPLE_ROUTES: true
+      REACT_CONVERSION_RESET_PASSWORD_ROUTES: true
+      REACT_CONVERSION_OAUTH_ROUTES: true
+      REACT_CONVERSION_SIGNIN_ROUTES: true
+      REACT_CONVERSION_SIGNUP_ROUTES: true
+      REACT_CONVERSION_PAIR_ROUTES: true
+      REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES: true
+      REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
+      REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES: true
 
   # For anything that needs browsers for ui automation, but doesn't need a full stack.
   # Perfect running smoke tests deployed code.
