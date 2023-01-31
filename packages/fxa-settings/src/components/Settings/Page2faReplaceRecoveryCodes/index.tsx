@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import DataBlock from '../DataBlock';
+import DataBlock from '../../DataBlock';
 import InputText from '../../InputText';
 import { HomePath } from '../../../constants';
 import {

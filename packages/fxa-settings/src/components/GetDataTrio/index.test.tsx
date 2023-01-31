@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Account, AppContext } from '../../../models';
+import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 
 const contentType = 'Firefox account recovery key';
@@ -17,7 +17,7 @@ const account = {
   },
 } as unknown as Account;
 
-it('renders as expected', () => {
+it('renders Trio as expected', () => {
   window.URL.createObjectURL = jest.fn();
   render(
     <AppContext.Provider value={{ account }}>
@@ -31,4 +31,14 @@ it('renders as expected', () => {
   );
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-print')).toBeInTheDocument();
+});
+
+it('renders single Copy button as expected', () => {
+  window.URL.createObjectURL = jest.fn();
+  render(
+    <AppContext.Provider value={{ account }}>
+      <GetDataTrio {...{ value, contentType, url }} />
+    </AppContext.Provider>
+  );
+  expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
 });

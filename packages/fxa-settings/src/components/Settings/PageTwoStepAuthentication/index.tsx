@@ -9,7 +9,7 @@ import InputText from '../../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import DataBlock from '../DataBlock';
+import DataBlock from '../../DataBlock';
 import { useAccount, useAlertBar, useSession } from '../../../models';
 import { checkCode, copyRecoveryCodes, getCode } from '../../../lib/totp';
 import { HomePath } from '../../../constants';

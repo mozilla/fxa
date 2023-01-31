@@ -5,6 +5,7 @@
 import React from 'react';
 import ResetPasswordConfirmed from '.';
 import AppLayout from '../../../components/AppLayout';
+import { MozServices } from '../../../lib/types';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
@@ -33,7 +34,7 @@ export const WithRelyingPartyAndContinueAction = () => (
   <LocationProvider>
     <AppLayout>
       <ResetPasswordConfirmed
-        serviceName={'Example Service'}
+        serviceName={MozServices.FirefoxMonitor}
         continueHandler={() => {
           console.log('Arbitrary action');
         }}
