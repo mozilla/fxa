@@ -223,7 +223,7 @@ export class AccountResolver {
   @Mutation((returns) => Boolean)
   public async recordAdminSecurityEvent(
     @Args('uid') uid: string,
-    @Args('name') name: SecurityEventNames
+    @Args('name', { type: () => String }) name: SecurityEventNames
   ) {
     // the ipAddr and ipHmacKey values here are required, but also have no bearing on this type of record.
     // the securityEvents table is being repurposed to store a broader variety of events, hence the dummy values.

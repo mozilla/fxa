@@ -10,7 +10,7 @@ import { FirestoreService } from './firestore.service';
 describe('#unit - Firestore Service', () => {
   let service: Firestore;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [MockConfig, MockFirestoreFactory],
     }).compile();

@@ -17,7 +17,7 @@
     "gen-keys": "node -r esbuild-register ./scripts/gen_keys.ts;",
     "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#unit' --ci --reporters=default --reporters=jest-junit",
     "test:integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit",
-    "test:default": "jest --runInBand --forceExit",
+    "test:default": "jest --runInBand --forceExit -t=\"scripts/audit-tokens\"",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
@@ -77,7 +77,7 @@
     "esbuild": "^0.14.2",
     "esbuild-register": "^3.2.0",
     "eslint": "^8.18.0",
-    "jest": "27.5.1",
+    "jest": "29.3.1",
     "pm2": "^5.2.2",
     "supertest": "^6.3.0",
     "ts-jest": "^29.0.0",
@@ -90,7 +90,11 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
+    "modulePaths": [
+      "<rootDir>/src",
+      "<rootDir>/scripts"
+    ],
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": [
