@@ -3,64 +3,52 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { RouteComponentProps } from '@reach/router';
-import InputText from '../../../components/InputText';
+import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 // import { useFtlMsgResolver } from '../../../models/hooks';
-import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { ReactComponent as TwoFactorImg } from './graphic_two_factor_auth.svg';
 import CardHeader from '../../../components/CardHeader';
+import FormVerifyCode, {
+  FormAttributes,
+} from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 
 // --serviceName-- is the relying party
 
-export type SigninTotpCodeProps = { serviceName?: MozServices };
-
-type FormData = {
-  confirmationCode: string;
-};
+export type SigninTotpCodeProps = { email: string, serviceName?: MozServices };
 
 const SigninTotpCode = ({
+  email,
   serviceName,
 }: SigninTotpCodeProps & RouteComponentProps) => {
-  usePageViewEvent('signin-totp-code', {
+  const viewName = 'signin-totp-code';
+  usePageViewEvent(viewName, {
     entrypoint_variation: 'react',
   });
 
-  const [totpCodeValue, setTotpCodeValue] = useState<string>('');
-  const [totpErrorMessage, setTotpErrorMessage] = useState<string>('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [code, setCode] = useState<string>('');
+  const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   // const alertBar = useAlertBar();
   // const ftlMsgResolver = useFtlMsgResolver();
 
-  const onFocusMetricsEvent = 'signin-totp-code.engage';
-
-  const onFocus = () => {
-    if (!isFocused && onFocusMetricsEvent) {
-      logViewEvent('flow', onFocusMetricsEvent, {
-        entrypoint_variation: 'react',
-      });
-      setIsFocused(true);
-    }
+  const formAttributes: FormAttributes = {
+    inputFtlId: 'signin-totp-code-input-label-v2',
+    inputLabelText: 'Enter 6-digit code',
+    pattern: '[0-9]{6}',
+    maxLength: 6,
+    submitButtonFtlId: 'signin-totp-code-confirm-button',
+    submitButtonText: 'Confirm',
   };
 
-  const { handleSubmit } = useForm<FormData>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
-    defaultValues: {
-      confirmationCode: '',
-    },
-  });
-
   const onSubmit = () => {
-    if (!totpCodeValue) {
+    if (!code) {
       // TODO: Add l10n for this string
       // Holding on l10n pending product decision
       // Current string vs "Security code required" vs other
       // See FXA-6422, and discussion on PR-14744
-      setTotpErrorMessage('Two-step authentication code required');
+      setCodeErrorMessage('Two-step authentication code required');
     }
     try {
       // Check security code
@@ -107,56 +95,29 @@ const SigninTotpCode = ({
           </p>
         </FtlMsg>
 
-        <form
-          noValidate
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          {/* Using `type="text" inputmode="numeric"` shows the numeric pad on mobile and strips out whitespace on desktop. */}
-          <FtlMsg id="signin-totp-code-input-label">
-            {/* TODO: standardize with input used for Settings/TwoStepAuthentication? */}
-            <InputText
-              type="text"
-              inputMode="numeric"
-              label="Enter 6-digit code"
-              onChange={(e) => {
-                setTotpCodeValue(e.target.value);
-                // clear error tooltip if user types in the field
-                if (totpErrorMessage) {
-                  setTotpErrorMessage('');
-                }
-              }}
-              onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
-              errorText={totpErrorMessage}
-              autoFocus
-              pattern="\d{6}"
-              className="text-start"
-              anchorStart
-              autoComplete="off"
-              spellCheck={false}
-              prefixDataTestId="signin-totp-code"
-              required
-              tooltipPosition="bottom"
-              maxLength={6}
-            />
-          </FtlMsg>
+        <FormVerifyCode
+          {...{
+            formAttributes,
+            viewName,
+            email,
+            onSubmit,
+            code,
+            setCode,
+            codeErrorMessage,
+            setCodeErrorMessage,
+          }}
+        />
 
-          <FtlMsg id="signin-totp-code-confirm-button">
-            <button type="submit" className="cta-primary cta-xl">
-              Confirm
-            </button>
-          </FtlMsg>
-        </form>
         <div className="mt-5 link-blue text-sm flex justify-between">
           <FtlMsg id="signin-totp-code-other-account-link">
-            <a href="/signin" className="text-start">
+            <Link to="/signin" className="text-start">
               Use a different account
-            </a>
+            </Link>
           </FtlMsg>
           <FtlMsg id="signin-totp-code-recovery-code-link">
-            <a href="/signin_recovery_code" className="text-end">
+            <Link to="/signin_recovery_code" className="text-end">
               Trouble entering code?
-            </a>
+            </Link>
           </FtlMsg>
         </div>
       </main>

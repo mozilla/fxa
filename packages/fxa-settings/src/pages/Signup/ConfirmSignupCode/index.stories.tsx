@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import SigninTokenCode from '.';
+import ConfirmSignupCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 export default {
-  title: 'pages/Signin/SigninTokenCode',
-  component: SigninTokenCode,
+  title: 'pages/Signup/ConfirmSignupCode',
+  component: ConfirmSignupCode,
 } as Meta;
 
 export const Default = () => (
   <AppLayout>
-    <SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />
+    <ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />
   </AppLayout>
 );

@@ -3,28 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import SigninTotpCode, { SigninTotpCodeProps } from '.';
+import SigninTotpCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
-import { MOCK_SERVICE } from './mocks';
 import { LocationProvider } from '@reach/router';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MozServices } from '../../../lib/types';
 
 export default {
   title: 'pages/Signin/SigninTotpCode',
   component: SigninTotpCode,
 } as Meta;
 
-const storyWithProps = (props?: SigninTotpCodeProps) => {
+const storyWithProps = ({ ...props }) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
-        <SigninTotpCode {...props} />
+        <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} {...props} />
       </AppLayout>
     </LocationProvider>
   );
   return story;
 };
 
-export const Default = storyWithProps();
+export const Default = storyWithProps({});
 
-export const WithRelyingParty = storyWithProps({ serviceName: MOCK_SERVICE });
+export const WithRelyingParty = storyWithProps({
+  serviceName: MozServices.MozillaVPN,
+});

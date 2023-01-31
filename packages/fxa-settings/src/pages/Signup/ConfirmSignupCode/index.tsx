@@ -14,28 +14,27 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 
 // email will eventually be obtained from account context
-export type SigninTokenCodeProps = { email: string };
+export type ConfirmSignupCodeProps = { email: string };
 
-const SigninTokenCode = ({
+const ConfirmSignupCode = ({
   email,
-}: SigninTokenCodeProps & RouteComponentProps) => {
-  const viewName = 'signin-token-code';
+}: ConfirmSignupCodeProps & RouteComponentProps) => {
+  const viewName = 'confirm-signup-code';
   usePageViewEvent(viewName, {
     entrypoint_variation: 'react',
   });
 
+  // const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
   const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
-  // const alertBar = useAlertBar();
-  const ftlMsgResolver = useFtlMsgResolver();
-
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-token-code-input-label-v2',
+    inputFtlId: 'confirm-signup-code-input-label',
     inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
-    submitButtonFtlId: 'signin-token-code-confirm-button',
+    submitButtonFtlId: 'confirm-signup-code-submit-button',
     submitButtonText: 'Confirm',
   };
 
@@ -49,27 +48,29 @@ const SigninTokenCode = ({
   const onSubmit = () => {
     if (!code) {
       const codeRequiredError = ftlMsgResolver.getMsg(
-        'signin-token-code-required-error',
-        'Confirmation code required'
+        'confirm-signup-code-required-error',
+        'Please enter confirmation code'
       );
       setCodeErrorMessage(codeRequiredError);
     }
     try {
       // Check confirmation code
-      // Log success event
-      // Check if isForcePasswordChange
+      // Log success event (verification.success)
+      // Display success message
+      // Handle newsletter subscription
     } catch (e) {
       // TODO: error handling, error message confirmation
-      // const errorSigninTokenCode = ftlMsgResolver.getMsg(
-      //   'signin-token-code-error',
-      //   'Incorrect confirmation code'
-      // );
-      // alertBar.error(errorSigninTokenCode);
+      // Possible AuthErrors to display in tooltip:
+      //   - 'INVALID_EXPIRED_SIGNUP_CODE' = 'Invalid or expired confirmation code'
+      //   - 'OTP_CODE_REQUIRED' = 'Please enter confirmation code'
+      //   - 'INVALID_OTP_CODE' = 'Valid code required'
+      // all other errors: alertBar.error(errorConfirmSignupCode);
     }
   };
 
   return (
-    // TODO: redirect to force_auth or signin if user has not initiated sign in
+    // the view is always rendered, but the confirmation may be
+    // prevented by the broker.
 
     // TODO: handle bounced email
     //       if the account no longer exists, redirect to sign up
@@ -77,7 +78,7 @@ const SigninTokenCode = ({
     //       and provide correct support link
     <>
       <header>
-        <FtlMsg id="signin-token-code-heading">
+        <FtlMsg id="confirm-signup-code-heading">
           <h1 className="card-header">
             Enter confirmation code
             <span className="card-subheader"> for your Firefox account</span>
@@ -90,8 +91,8 @@ const SigninTokenCode = ({
           <MailImg className="w-3/5" role="img" />
         </div>
 
-        <FtlMsg id="signin-token-code-instruction">
-          <p id="verification-email-message" className="m-5 text-sm">
+        <FtlMsg id="confirm-signup-code-instruction">
+          <p className="m-5 text-sm">
             Enter the code that was sent to {email} within 5 minutes.
           </p>
         </FtlMsg>
@@ -110,10 +111,10 @@ const SigninTokenCode = ({
         />
 
         <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs inline-flex gap-1">
-          <FtlMsg id="signin-token-code-code-expired">
+          <FtlMsg id="confirm-signup-code-code-expired">
             <p>Code expired?</p>
           </FtlMsg>
-          <FtlMsg id="signin-token-code-resend-code-link">
+          <FtlMsg id="confirm-signup-code-resend-code-link">
             <button
               id="resend"
               className="link-blue"
@@ -128,4 +129,4 @@ const SigninTokenCode = ({
   );
 };
 
-export default SigninTokenCode;
+export default ConfirmSignupCode;

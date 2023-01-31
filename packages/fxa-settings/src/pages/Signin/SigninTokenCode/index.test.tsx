@@ -9,7 +9,7 @@ import { render, screen } from '@testing-library/react';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import SigninTokenCode from '.';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -25,7 +25,7 @@ describe('PageSigninTokenCode', () => {
   // });
 
   it('renders as expected', () => {
-    render(<SigninTokenCode email={MOCK_EMAIL} />);
+    render(<SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -39,7 +39,7 @@ describe('PageSigninTokenCode', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<SigninTokenCode email={MOCK_EMAIL} />);
+    render(<SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(`signin-token-code`, {
       entrypoint_variation: 'react',
     });

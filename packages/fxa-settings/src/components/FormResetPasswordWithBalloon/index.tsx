@@ -14,7 +14,7 @@ import { useFtlMsgResolver } from '../../models';
 type FormResetPasswordWithBalloonProps = {
   formState: UseFormMethods['formState'];
   errors: UseFormMethods['errors'];
-  onSubmit: any; // TODO: fix this type
+  onSubmit: () => void;
   trigger: UseFormMethods['trigger'];
   register: UseFormMethods['register'];
   getValues: UseFormMethods['getValues'];

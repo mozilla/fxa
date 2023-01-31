@@ -6,7 +6,8 @@ import React from 'react';
 import SigninRecoveryCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
-import { MOCK_SERVICE } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MozServices } from '../../../lib/types';
 
 export default {
   title: 'pages/Signin/SigninRecoveryCode',
@@ -15,12 +16,15 @@ export default {
 
 export const Default = () => (
   <AppLayout>
-    <SigninRecoveryCode />
+    <SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />
   </AppLayout>
 );
 
 export const WithServiceName = () => (
   <AppLayout>
-    <SigninRecoveryCode serviceName={MOCK_SERVICE} />
+    <SigninRecoveryCode
+      email={MOCK_ACCOUNT.primaryEmail.email}
+      serviceName={MozServices.MozillaVPN}
+    />
   </AppLayout>
 );
