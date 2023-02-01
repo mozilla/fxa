@@ -832,66 +832,126 @@ workflows:
               only: /.*/
       - lint:
           name: Lint
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
             - Build
       - unit-test:
           name: Unit Test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
             - Build
       - integration-test-part:
           name: Integration Test 1
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 0
           total: 3
           requires:
             - Build
       - integration-test-part:
           name: Integration Test 2
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 1
           total: 3
           requires:
             - Build
       - integration-test-part:
           name: Integration Test 3
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 2
           total: 3
           requires:
             - Build
       - test-content-server-part:
           name: Functional Test - Content 1
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 0
           total: 5
           requires:
             - Build
       - test-content-server-part:
           name: Functional Test - Content 2
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 1
           total: 5
           requires:
             - Build
       - test-content-server-part:
           name: Functional Test - Content 3
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 2
           total: 5
           requires:
             - Build
       - test-content-server-part:
           name: Functional Test - Content 4
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 3
           total: 5
           requires:
             - Build
       - test-content-server-part:
           name: Functional Test - Content 5
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           index: 4
           total: 5
           requires:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
             - Build
       - deploy-packages:
-          name: FXA
+          name: Deploy FXA
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
             - Lint
             - Unit Test
