@@ -18,6 +18,7 @@ import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
+import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 
 export class MozillaSubscriptionHandler {
   constructor(
@@ -164,7 +165,9 @@ export const mozillaSubscriptionRoutes = ({
         },
         validate: {
           params: {
-            planId: validators.subscriptionsPlanId.required(),
+            planId: validators.subscriptionsPlanId
+              .required()
+              .description(DESCRIPTIONS.planId),
           },
         },
       },

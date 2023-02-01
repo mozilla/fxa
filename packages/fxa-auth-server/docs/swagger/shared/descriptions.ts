@@ -11,13 +11,27 @@ const DESCRIPTIONS = {
     'If specified, a value of `offline` will cause the connecting client to be granted a refresh token alongside its access token.',
   acrValues:
     'A space-separated list of ACR values specifying acceptable levels of user authentication that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assuarance level >= 2 which ensures that the user has been authenticated with 2FA before authorizing the requested grant.',
-  active: 'Boolean indicator of weather the presented token is active.',
+  active: 'Boolean indicator of whether the presented token is active.',
+  activePrice:
+    'Whether the price can be used for new purchases. Defaults to true.',
+  amount:
+    'Amount intended to be collected. A positive integer representing how much to charge in the smallest currency unit (e.g. 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency).',
   assertion: 'A FxA assertion for the signed-in user.',
   authAt:
     'The UTC unix timestamp for the session at which the user last authenticated to FxA server when generating this token, in seconds since the epoch.',
   authPW: 'The PBKDF2/HKDF-stretched password as a hex string.',
+  billingAgreementId: 'A unique identifier for the PayPal billing agreement.',
+  billingName: 'Full name',
+  brand:
+    'Card brand (e.g. `amex`, `diners`, `discover`, `jcb`, `mastercard`, `unionpay`, `visa`, or `unknown`).',
   bundle:
     'See [**decrypting the bundle**](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response) for information on how to extract kA|wrapKb from the bundle.',
+  cancelAtPeriodEnd:
+    'True if the subscription will not automatically renew at the end of the current billing period. Else false.',
+  cancelledAt:
+    'If the subscription has been canceled, the date of that cancellation. If the subscription was canceled with `cancel_at_period_end`, `canceled_at` will reflect the time of the most recent update request, not the end of the subscription period when the subscription is automatically moved to a canceled state.',
+  capabilities:
+    'An array of RP-defined strings that represent a certain level of access to their product/service.',
   clientId:
     'The OAuth client identifier for the requesting client application (provided by the connecting client application)',
   clientIdPermission: ' asking for permission.',
@@ -38,7 +52,14 @@ const DESCRIPTIONS = {
     'The [PKCE](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pkce.md) code verifier. Required for public clients, forbidden otherwise.',
   command:
     "The id of the command to be invoked, as found in the device's availableCommands set.",
+  createdAt: 'This is the date the subscription was created.',
   createdTime: 'Integer time of token creation.',
+  currency: 'The three-letter ISO currency code, in lowercase.',
+  currencyCode: 'The three-letter ISO currency code, in uppercase.',
+  currentPeriodEnd: 'This is the end date of the current billing cycle.',
+  currentPeriodStart: 'This is the start date of the current billing cycle.',
+  customerId:
+    'A unique identifier for the Stripe/PayPal [customer](https://stripe.com/docs/api/customers/object).',
   customSessionToken: 'Custom session token id to destroy.',
   duration:
     'Time interval in milliseconds until the certificate will expire, up to a maximum of 24 hours.',
@@ -51,7 +72,16 @@ const DESCRIPTIONS = {
   excluded:
     'Array of device ids to exclude from the notification. Ignored unless `to:"all"` is specified.',
   exp: 'Integer time of token expiration.',
+  expMonth: "Two-digit number representing the card's expiration month.",
+  expYear: "Four-digit number representing the card's expiration year.",
   expiresIn: 'The number of seconds until the access token will expire.',
+  failureCode:
+    'Reason for the failure (e.g. insufficient funds, closed, frozen).',
+  failureMessage: dedent`
+    Message from Stripe for the client making the request to further explain the reason for top-up failure if available.
+
+    For more information about failure codes and messages from Stripe to the client, see [Stripe docs](https://stripe.com/docs/api/errors). It is suggested that the [error type](https://stripe.com/docs/api/errors#errors-message) of \`type: card_error\` is shown directly to the customer.
+  `,
   filterIdleDevicesTimestamp:
     'Filter device list to only show devices active since UTC timestamp.',
   'fxa-lastUsedAt': ' Integer time when this token is last used.',
@@ -87,6 +117,8 @@ const DESCRIPTIONS = {
       - \`access_type\`: (optional) Determines whether to generate a \`refresh_token\` (if \`offline\`) or not (if \`online\`).
   `,
   iat: 'Integer time of token creation.',
+  idempotencyKey:
+    'The idempotency key transmitted during the request, if any. For more information, see [Stripe docs](https://stripe.com/docs/error-low-level#idempotency)',
   idToken:
     'OpenID Connect identity token, provisioned if the authorization was requested with `openid` scope.',
   imageUri: 'A url to a logo or image that represents the client.',
@@ -94,6 +126,12 @@ const DESCRIPTIONS = {
     'The index of the most recently seen command item. Only commands enqueued after the given index will be returned.',
   indexSchema:
     'The largest index of the commands returned in this response. This value can be passed as the index parameter in subsequent calls in order to page through all the items.',
+  interval:
+    'The frequency at which a subscription is billed (e.g. day, week, month, year).',
+  intervalCount:
+    'The number of intervals between subscription billings (e.g. `interval=month` and `interval_count=3` bills every 3 months).',
+  invoiceId:
+    'A unique identifer for an [invoice](https://stripe.com/docs/api/invoices/object) to Stripe/PayPal customers whose subscriptions are managed by Stripe.',
   jti: 'The hex id of the token.',
   keys: 'Indicates whether a key-fetch token should be returned in the success response.',
   keysJwe:
@@ -101,7 +139,10 @@ const DESCRIPTIONS = {
   keysJweOauth:
     'Returns the JWE bundle of key material for any scopes that have keys, if `grant_type=authorization_code`',
   last: 'Indicates whether more commands and enqueued than could be returned within the specific limit.',
+  last4: 'The last four digits of the card.',
   lastAccessTime: 'Integer last-access time for the token.',
+  latestInvoice:
+    'The most recent invoice this subscription has generated from Stripe.',
   limit:
     'The maximum number of commands to return. The default and maximum value for limit is 100.',
   location: "Object containing the client's state and country",
@@ -112,8 +153,29 @@ const DESCRIPTIONS = {
   queryKeys:
     'Indicates whether a new `keyFetchToken` is required, default to `false`.',
   payload: 'Opaque payload to be forwarded to the device.',
+  paymentMethodId:
+    'A unique identifier for the payment method in Stripe; does not apply to IAP subscriptions.',
+  paymentProvider: 'The payment processors (e.g. PayPal, Stripe).',
+  paymentType:
+    'The type of the payment method (e.g., `credit`, `debit`, `prepaid`, or `unknown`).',
+  paypalPaymentError: 'The payment error from PayPal encountered.',
+  planId:
+    'A unique identifier for the [plan](https://stripe.com/docs/api/plans/object).',
+  planMetadata:
+    'Set of key-value pairs used to store additional information about the plan. For more information, see [Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#stripe-plan-metadata)',
+  planName: 'The name of the plan.',
   ppidSeed:
     'Seed used in `sub` claim generation of JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise Identifiers (PPID)](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pairwise-pseudonymous-identifiers.md) enabled. Used to forcibly rotate the `sub` claim. Must be an integer in the range 0-1024. If not specified, it will default to `0`.',
+  previousProduct: 'The previous product name.',
+  priceId:
+    'A unique identifier for the [price](https://stripe.com/docs/api/prices/object).',
+  productId:
+    'A unique identifier for the [product](https://stripe.com/docs/api/products/object) purchased.',
+  productMetadata:
+    'Set of key-value pairs used to store additional information about the product. For more information, see [Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#stripe-product-metadata)',
+  productName: 'The name of the product purchased.',
+  promotionCode: 'A customer-redeemable code for a coupon.',
+  promotionDuration: 'Indicates how long the coupon is valid for.',
   publicKey:
     'The key to sign (run bin/generate-keypair from [**browserid-crypto**](https://github.com/mozilla/browserid-crypto)).',
   pushPayload:
@@ -161,7 +223,12 @@ const DESCRIPTIONS = {
     'Indicates whether a new `sessionToken` is required, default to `false`.',
   state:
     'An opaque string value provided by the connecting client application, which will be returned unmodified upon redirection alongside the authorization code. This can be used by the connecting client guard against certain classes of attack in the redirect-based OAuth flow to verify that the redirect is authentic.',
+  status:
+    'The status of the product (e.g. `active`, `canceled`, `trialing`, `unpaid`, etc).',
   sub: 'The hex id of the user.',
+  subscriptionId:
+    'A unique identifier for the Stripe [subscription](https://stripe.com/docs/api/subscriptions/object).',
+  subscriptions: 'A list of all subscriptions (including web and IAP).',
   target: 'The id of the device on which to invoke the command.',
   to: "Devices to notify. String `'all'` or an array containing the relevant device ids.",
   token:

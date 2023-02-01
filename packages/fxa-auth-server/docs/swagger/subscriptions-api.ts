@@ -144,13 +144,22 @@ const OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_DELETE = {
 const OAUTH_SUBSCRIPTIONS_PAYPAL_CHECKOUT_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/paypal-checkout',
+  notes: [
+    'Retrieves token authorizing transaction to move to the next stage of PayPal checkout.',
+  ],
 };
 
 const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_BILLING_AND_SUBSCRIPTIONS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description:
     '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Returns a customer billing details and subscriptions.
+    `,
+  ],
 };
 
 const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY = {
@@ -169,73 +178,126 @@ const OAUTH_MOZILLA_SUBSCRIPTIONS_CUSTOMER_PLAN_ELIGIBILITY = {
 const OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/iap/rtdn',
+  notes: ['Handles a Google Play Real-time Developer Notification.'],
 };
 
 const OAUTH_SUBSCRIPTIONS_CLIENTS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/clients',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 [Authenticated with OAuth bearer token](https://github.com/mozilla/fxa/blob/95cded6e96e2b20f7593153a428d158001bb8d3b/packages/fxa-shared/oauth/constants.ts#L5)
+
+      Returns a list of clients and their capabilities.
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/invoice/preview',
+  notes: [
+    `Previews an invoice for a new plan where the user is not yet subscribed (and therefore there is no \`subscriptionId\`); includes estimated tax (based on the user's geolocation) and any discount from a promotion code.`,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_SUBSEQUENT_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/invoice/preview-subsequent',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Previews a list of subsequent invoices based on existing subscriptions and the customer's \`subscriptionId\`; includes estimated tax (based on the customer's last known geolocation) and any discount from a promotion code.
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_COUPON_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/coupon',
+  notes: ['Retrieves coupon details of a valid plan and promotion code.'],
 };
 
 const OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_FAILED_DETACH_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/paymentmethod/failed/detach',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Detaches a payment method from a Stripe customer without any subscriptions. This is only for Stripe customers; excludes customers using PayPal, Apple, Google, etc).
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_PRODUCTNAME_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/productname',
+  notes: [
+    'Returns the product name of a valid Stripe `productId` (does not apply to IAP).',
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_PUT = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/active/{subscriptionId}',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Updates an active subscription for Stripe customer based on their Stripe \`subscriptionId\` (does not apply to IAP).
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_REACTIVATE_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/reactivate',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Reactivate valid Stripe/PayPal customer subscription (does not apply to IAP).
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_ACTIVE_NEW_PAYPAL_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/active/new-paypal',
+  notes: ['Create subscription for the provided customer using PayPal.'],
 };
 
 const OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_BILLING_AGREEMENT_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/paymentmethod/billing-agreement',
-  notes: ['🔒 Authenticated with OAuth bearer token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with OAuth bearer token
+
+      Updates the billing agreement for a user with a new PayPal token.
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_STRIPE_EVENT_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/stripe/event',
+  notes: [
+    'Handles webhook events from Stripe by pre-processing the incoming event and dispatching to the appropriate sub-handler.',
+  ],
 };
 
 const OAUTH_SUPPORTPANEL_SUBSCRIPTIONS_GET = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/support-panel/subscriptions',
-  notes: ['🔒 Authenticated with support panel secret'],
+  notes: ['This endpoint is deprecated.'],
+  plugins: {
+    'hapi-swagger': {
+      deprecated: true,
+    },
+  },
 };
 
 const API_DOCS = {

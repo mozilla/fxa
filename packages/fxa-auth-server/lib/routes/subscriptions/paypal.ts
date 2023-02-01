@@ -34,6 +34,7 @@ import { handleAuth } from './utils';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
+import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
@@ -595,7 +596,11 @@ export const paypalRoutes = (
         },
         validate: {
           payload: {
-            currencyCode: isA.string().uppercase().required(),
+            currencyCode: isA
+              .string()
+              .uppercase()
+              .required()
+              .description(DESCRIPTIONS.currencyCode),
           },
         },
       },
@@ -619,10 +624,16 @@ export const paypalRoutes = (
         },
         validate: {
           payload: {
-            priceId: isA.string().required(),
-            promotionCode: isA.string().optional(),
+            priceId: isA.string().required().description(DESCRIPTIONS.priceId),
+            promotionCode: isA
+              .string()
+              .optional()
+              .description(DESCRIPTIONS.promotionCode),
             token: validators.paypalPaymentToken.allow(null).optional(),
-            idempotencyKey: isA.string().required(),
+            idempotencyKey: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.idempotencyKey),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
