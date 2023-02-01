@@ -125,4 +125,43 @@ test.describe('resubscription test', () => {
     //Verify that the card info is updated
     expect(await subscriptionManagement.getCardInfo()).toContain('4444');
   });
+
+  test('update mode of payment for paypal', async ({
+    page,
+    pages: { relier, subscribe, login, settings, subscriptionManagement },
+  }) => {
+    await relier.goto();
+    await relier.clickSubscribe();
+
+    // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
+    await subscribe.addCouponCode('auto10pforever');
+
+    //Subscribe successfully
+    await subscribe.setPayPalInfo();
+    await subscribe.submit();
+
+    //Login to FxA account
+    await login.goto();
+    await login.clickSignIn();
+    const subscriptionPage = await settings.clickPaidSubscriptions();
+    subscriptionManagement.page = subscriptionPage;
+
+    //Change Paypal information
+    const paypalPage = await subscriptionManagement.clickPaypalChange();
+    subscriptionManagement.page = paypalPage;
+
+    //Verify the account as 'CREDIT UNION'
+    expect(await subscriptionManagement.checkPaypalAccount()).toMatch(
+      'CREDIT UNION'
+    );
+
+    //Change account from 'Credit Union' to 'Visa'
+    await subscriptionManagement.updatePaypalAccount();
+
+    //Added this timeout wait for page to be loaded correctly
+    await page.waitForTimeout(1000);
+
+    //Verify that the payment info is updated
+    expect(await subscriptionManagement.checkPaypalAccount()).toMatch('Visa');
+  });
 });

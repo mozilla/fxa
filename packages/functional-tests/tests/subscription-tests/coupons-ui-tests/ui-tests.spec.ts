@@ -40,5 +40,13 @@ test.describe('ui functionality', () => {
 
     //Verify Discount section is not displayed
     expect(await subscribe.planUpgradeDetails()).not.toContain('Promo');
+
+    //Submit the changes
+    await subscribe.clickConfirmPlanChange();
+    await subscribe.clickPayNow();
+    await subscribe.submit();
+
+    //Verify the subscription is successful
+    expect(await subscribe.isSubscriptionSuccess()).toBe(true);
   });
 });
