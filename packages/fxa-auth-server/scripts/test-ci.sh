@@ -3,9 +3,6 @@
 DIR=$(dirname "$0")
 cd "$DIR/.."
 
-# TODO: Shouldn't be needed... Validate that's true.
-# yarn workspaces focus fxa-auth-server
-
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 

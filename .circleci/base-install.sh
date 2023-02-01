@@ -51,7 +51,13 @@ else
 
 
     # If we skip the yarn install, postinstall may still be needed on any workspace that have changed
-    # since the base docker image was built.
+    # since the base docker image was built. We exclude wome workspaces because their post install is just
+    # another build call, which will be taken care of in a following step.
     set -x
-    yarn workspaces foreach --since=$(cat base_ref) -R run postinstall
+    yarn workspaces foreach \
+        --topological-dev \
+        -piv $(cat .lists/postinstall-includes.list) \
+        --exclude=fxa-shared \
+        --exclude=fxa-auth-client \
+        run postinstall
 fi

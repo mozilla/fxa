@@ -43,9 +43,6 @@ function test_suite() {
     --groupIndex=${i}
 }
 
-# TODO: Move to step in CI
-yarn lint
-
 cd ../../
 mkdir -p artifacts/tests
 
