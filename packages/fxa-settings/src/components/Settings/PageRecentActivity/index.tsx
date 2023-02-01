@@ -5,7 +5,6 @@
 import { RouteComponentProps } from '@reach/router';
 
 import FlowContainer from '../FlowContainer';
-import { useLocalization } from '@fluent/react';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import { SecurityEvent as SecurityEventSection } from './SecurityEvent';
 import React, { useState, useEffect } from 'react';
@@ -13,8 +12,6 @@ import React, { useState, useEffect } from 'react';
 export const PageRecentActivity = (_: RouteComponentProps) => {
   const account = useAccount();
   const [securityEvents, setSecurityEvents] = useState(account.securityEvents);
-
-  const { l10n } = useLocalization();
 
   useEffect(() => {
     (async () => {

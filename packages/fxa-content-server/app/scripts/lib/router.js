@@ -159,7 +159,7 @@ Router = Router.extend({
         {
           // HACK: this page uses the history API to navigate back and must go back one page
           // further if being redirected from content-server. Flow params are not always
-          // available to check against so we explicitely send in an additional param.
+          // available to check against, so we explicitly send in an additional param.
           contentRedirect: true,
         }
       );
@@ -249,7 +249,14 @@ Router = Router.extend({
       type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
     }),
     'report_signin(/)': createViewHandler(ReportSignInView),
-    'reset_password(/)': createViewHandler(ResetPasswordView),
+
+    'reset_password(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'reset_password',
+        ResetPasswordView
+      );
+    },
+
     'reset_password_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.PASSWORD_RESET,
     }),
