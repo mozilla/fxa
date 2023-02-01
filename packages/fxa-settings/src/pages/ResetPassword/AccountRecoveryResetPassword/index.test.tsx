@@ -9,7 +9,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AccountRecoveryResetPassword from '.';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { SHOW_BALLOON_TIMEOUT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -32,7 +33,10 @@ describe('AccountRecoveryResetPassword page', () => {
 
   it('renders as expected with valid link', () => {
     render(
-      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+      <AccountRecoveryResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="valid"
+      />
     );
     // testAllL10n(screen, bundle);
 
@@ -48,34 +52,42 @@ describe('AccountRecoveryResetPassword page', () => {
 
   it('displays password requirements when the new password field is in focus', async () => {
     render(
-      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+      <AccountRecoveryResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="valid"
+      />
     );
 
     const newPasswordField = screen.getByTestId('new-password-input-field');
+    expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
 
     fireEvent.focus(newPasswordField);
-    await waitFor(() => {
-      expect(screen.getByText('Password requirements')).toBeVisible();
-    });
-
-    fireEvent.blur(newPasswordField);
-    await waitFor(() => {
-      expect(
-        screen.queryByText('Password requirements')
-      ).not.toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Password requirements')).toBeVisible();
+      },
+      {
+        timeout: SHOW_BALLOON_TIMEOUT,
+      }
+    );
   });
 
   it('shows a different message when given a damaged link', () => {
     render(
-      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="damaged" />
+      <AccountRecoveryResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="damaged"
+      />
     );
     screen.getByRole('heading', { name: 'Reset password link damaged' });
   });
 
   it('shows a different message for an expired link, with a button for getting a new link', () => {
     render(
-      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="expired" />
+      <AccountRecoveryResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="expired"
+      />
     );
     screen.getByRole('heading', { name: 'Reset password link expired' });
     screen.getByRole('button', { name: 'Receive new link' });
@@ -83,7 +95,10 @@ describe('AccountRecoveryResetPassword page', () => {
 
   it('emits a metrics event on render', () => {
     render(
-      <AccountRecoveryResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+      <AccountRecoveryResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="valid"
+      />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(
       `account-recovery-reset-password`,

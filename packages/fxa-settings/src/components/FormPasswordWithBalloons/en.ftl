@@ -1,4 +1,10 @@
-## FormResetPasswordWithBalloon
+## FormPasswordWithBalloons
+
+signup-new-password-label =
+  .label = Password
+signup-confirm-password-label =
+  .label = Repeat password
+signup-submit-button = Create account
 
 form-reset-password-with-balloon-new-password =
   .label = New password

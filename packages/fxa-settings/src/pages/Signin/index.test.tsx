@@ -36,9 +36,17 @@ describe('Signin', () => {
       name: 'Enter your password for your Firefox account',
     });
     const passwordInputForm = screen.getByLabelText('Password');
+    const firefoxTermsLink: HTMLElement = screen.getByRole('link', {
+      name: 'Terms of Service',
+    });
+    const firefoxPrivacyLink: HTMLElement = screen.getByRole('link', {
+      name: 'Privacy Notice',
+    });
 
     expect(signinHeader).toBeInTheDocument();
     expect(passwordInputForm).toBeInTheDocument();
+    expect(firefoxTermsLink).toHaveAttribute('href', '/legal/terms');
+    expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
   });
 
   it('renders Signin page as expected with password not required', () => {
@@ -101,6 +109,23 @@ describe('Signin', () => {
     expect(signinHeader).toBeInTheDocument();
     expect(pocketLogo).toBeInTheDocument();
     expect(passwordInputForm).not.toBeInTheDocument();
+
+    // Pocket links should always open in a new window (announced by screen readers)
+    const pocketTermsLink = screen.getByRole('link', {
+      name: 'Terms of Service Opens in new window',
+    });
+    const pocketPrivacyLink = screen.getByRole('link', {
+      name: 'Privacy Notice Opens in new window',
+    });
+
+    expect(pocketTermsLink).toHaveAttribute(
+      'href',
+      'https://getpocket.com/tos/'
+    );
+    expect(pocketPrivacyLink).toHaveAttribute(
+      'href',
+      'https://getpocket.com/privacy/'
+    );
   });
 
   it('emits the expected metrics on render', () => {

@@ -8,7 +8,8 @@ import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { AppContext, AlertBarInfo } from '../../../models';
 import CompleteResetPassword from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { SHOW_BALLOON_TIMEOUT } from '../../../constants';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -39,7 +40,10 @@ describe('CompleteResetPassword page', () => {
   it('renders the component as expected when the link is valid', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
-        <CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+        <CompleteResetPassword
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          linkStatus="valid"
+        />
       </AppContext.Provider>
     );
     // testAllL10n(screen, bundle);
@@ -58,26 +62,34 @@ describe('CompleteResetPassword page', () => {
   it('displays password requirements when the new password field is in focus', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
-        <CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />
+        <CompleteResetPassword
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          linkStatus="valid"
+        />
       </AppContext.Provider>
     );
     const newPasswordField = screen.getByTestId('new-password-input-field');
 
-    fireEvent.focus(newPasswordField);
-    await waitFor(() => {
-      expect(screen.getByText('Password requirements')).toBeVisible();
-    });
+    expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
 
-    fireEvent.blur(newPasswordField);
-    await waitFor(() => {
-      expect(
-        screen.queryByText('Password requirements')
-      ).not.toBeInTheDocument();
-    });
+    fireEvent.focus(newPasswordField);
+    await waitFor(
+      () => {
+        expect(screen.getByText('Password requirements')).toBeVisible();
+      },
+      {
+        timeout: SHOW_BALLOON_TIMEOUT,
+      }
+    );
   });
 
   it('renders the component as expected when provided with an expired link', () => {
-    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="expired" />);
+    render(
+      <CompleteResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="expired"
+      />
+    );
 
     screen.getByRole('heading', {
       name: 'Reset password link expired',
@@ -91,7 +103,12 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('renders the component as expected when provided with a damaged link', () => {
-    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="damaged" />);
+    render(
+      <CompleteResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="damaged"
+      />
+    );
 
     screen.getByRole('heading', {
       name: 'Reset password link damaged',
@@ -103,7 +120,12 @@ describe('CompleteResetPassword page', () => {
 
   // TODO : check for metrics event when link is expired or damaged
   it('emits the expected metrics on render when the link is valid', () => {
-    render(<CompleteResetPassword email={MOCK_EMAIL} linkStatus="valid" />);
+    render(
+      <CompleteResetPassword
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        linkStatus="valid"
+      />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith('complete-reset-password', {
       entrypoint_variation: 'react',
     });

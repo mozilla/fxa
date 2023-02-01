@@ -9,35 +9,33 @@ import AccountRecoveryResetPassword, {
 import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 export default {
   title: 'pages/ResetPassword/AccountRecoveryResetPassword',
   component: AccountRecoveryResetPassword,
 } as Meta;
 
-const storyWithProps = (props: AccountRecoveryResetPasswordProps) => {
+const storyWithProps = (props?: Partial<AccountRecoveryResetPasswordProps>) => {
   const story = () => (
     <LocationProvider>
       <AppLayout>
-        <AccountRecoveryResetPassword {...props} />
+        <AccountRecoveryResetPassword
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          linkStatus="valid"
+        />
       </AppLayout>
     </LocationProvider>
   );
   return story;
 };
 
-export const WithValidLink = storyWithProps({
-  email: MOCK_EMAIL,
-  linkStatus: 'valid',
-});
+export const WithValidLink = storyWithProps();
 
 export const WithBrokenLink = storyWithProps({
-  email: MOCK_EMAIL,
   linkStatus: 'damaged',
 });
 
 export const WithExpiredLink = storyWithProps({
-  email: MOCK_EMAIL,
   linkStatus: 'expired',
 });

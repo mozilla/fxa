@@ -17,7 +17,7 @@ import { MozServices } from '../../../lib/types';
 
 // --serviceName-- is the relying party
 
-export type SigninTotpCodeProps = { email: string, serviceName?: MozServices };
+export type SigninTotpCodeProps = { email: string; serviceName?: MozServices };
 
 const SigninTotpCode = ({
   email,
@@ -79,7 +79,7 @@ const SigninTotpCode = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <FtlMsg id="signin-totp-code-image-label">
+          <FtlMsg id="signin-totp-code-image-label" attrs={{ ariaLabel: true }}>
             <TwoFactorImg
               className="w-3/5"
               role="img"

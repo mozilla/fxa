@@ -18,7 +18,12 @@ const WarningMessage = ({
 }: WarningMessageProps) => {
   return (
     <div className="mt-5 mb-8 text-sm" data-testid="warning-message-container">
-      <FtlMsg id={warningMessageFtlId}>
+      <FtlMsg
+        id={warningMessageFtlId}
+        elems={{
+          span: <span className="text-red-600 uppercase">{warningType}</span>,
+        }}
+      >
         <p>
           <span className="text-red-600 uppercase">{warningType}</span>{' '}
           {children}

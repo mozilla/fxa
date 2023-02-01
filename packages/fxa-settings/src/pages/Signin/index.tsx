@@ -9,8 +9,8 @@ import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps, Link } from '@reach/router';
 import InputPassword from '../../components/InputPassword';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as PocketLogo } from './pocket.svg';
+import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 
 export type SigninProps = {
   email: string;
@@ -177,60 +177,11 @@ const Signin = ({
             </FtlMsg>
           </div>
         </form>
-        <div className="text-grey-500 my-5 text-xs">
-          {isPocketClient ? (
-            <>
-              <FtlMsg id="signin-tos-list-intro">
-                <p className="text-xs">By proceeding, you agree to:</p>
-              </FtlMsg>
-              <ul>
-                <FtlMsg id="signin-tos-list-pocket">
-                  <li className="text-xs">
-                    Pocket’s{' '}
-                    <LinkExternal
-                      className="link-grey"
-                      href="https://getpocket.com/tos/"
-                    >
-                      Terms of Service
-                    </LinkExternal>{' '}
-                    and{' '}
-                    <LinkExternal
-                      className="link-grey"
-                      href="https://getpocket.com/privacy/"
-                    >
-                      Privacy Notice
-                    </LinkExternal>
-                  </li>
-                </FtlMsg>
-                <FtlMsg id="signin-tos-list-firefox">
-                  <li className="text-xs">
-                    Firefox’s{' '}
-                    <Link className="link-grey" to="/legal/terms">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link className="link-grey" to="/legal/privacy">
-                      Privacy Notice
-                    </Link>
-                  </li>
-                </FtlMsg>
-              </ul>
-            </>
-          ) : (
-            <FtlMsg id="signin-tos-and-privacy">
-              <p className="text-xs">
-                By proceeding, you agree to the{' '}
-                <Link className="link-grey" to="/legal/terms">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link className="link-grey" to="/legal/privacy">
-                  Privacy Notice
-                </Link>
-              </p>
-            </FtlMsg>
-          )}
-        </div>
+        {isPocketClient ? (
+          <TermsPrivacyAgreement isPocketClient />
+        ) : (
+          <TermsPrivacyAgreement />
+        )}
         <div className="flex justify-between">
           <FtlMsg id="signin-use-a-different-account">
             <Link to="/" className="text-sm link-blue">

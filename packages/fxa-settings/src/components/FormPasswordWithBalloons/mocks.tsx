@@ -4,9 +4,14 @@
 
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import FormResetPasswordWithBalloon from '.';
+import FormPasswordWithBalloons, { PasswordFormType } from '.';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 
-export const Subject = () => {
+type SubjectProps = {
+  passwordFormType: PasswordFormType;
+};
+
+export const Subject = ({ passwordFormType }: SubjectProps) => {
   type FormData = {
     oldPassword?: string;
     newPassword: string;
@@ -17,7 +22,8 @@ export const Subject = () => {
     alert('Form submitted! (onFormSubmit called)');
   };
 
-  const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
+  const [passwordMatchErrorText, setPasswordMatchErrorText] =
+    useState<string>('');
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -30,18 +36,19 @@ export const Subject = () => {
     });
 
   return (
-    <FormResetPasswordWithBalloon
+    <FormPasswordWithBalloons
       {...{
         formState,
         errors,
         trigger,
         register,
         getValues,
-        newPasswordErrorText,
-        setNewPasswordErrorText,
+        passwordFormType,
+        passwordMatchErrorText,
+        setPasswordMatchErrorText,
       }}
       onSubmit={handleSubmit(onFormSubmit)}
-      email="test@example.com"
+      email={MOCK_ACCOUNT.primaryEmail.email}
       loading={false}
       onFocusMetricsEvent="test-event"
     />
