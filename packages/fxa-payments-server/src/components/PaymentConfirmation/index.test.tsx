@@ -10,9 +10,9 @@ import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
-import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { updateConfig } from '../../lib/config';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -132,14 +132,12 @@ const paypalCustomer: Customer = {
   ],
 };
 
-const coupon: CouponDetails = {
-  discountAmount: 200,
-  promotionCode: 'TEST',
-  type: '',
-  durationInMonths: 1,
-  valid: true,
-  expired: false,
-  maximallyRedeemed: false,
+const invoice: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 0,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
 };
 
 afterEach(() => {
@@ -329,7 +327,7 @@ describe('PaymentConfirmation', () => {
     expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
   });
 
-  it('renders with a discounted amount when coupon is present', () => {
+  it('renders with the invoice total amount when an invoice is present', () => {
     const subject = () => {
       return render(
         <AppContext.Provider value={{ ...defaultAppContext }}>
@@ -339,7 +337,7 @@ describe('PaymentConfirmation', () => {
               selectedPlan,
               customer,
               productUrl,
-              coupon,
+              invoice,
             }}
           />
         </AppContext.Provider>

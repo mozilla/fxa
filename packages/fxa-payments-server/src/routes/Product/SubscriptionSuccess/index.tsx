@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Plan, Customer, Profile } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
@@ -9,6 +9,7 @@ import PaymentConfirmation from '../../../components/PaymentConfirmation';
 import Header from '../../../components/Header';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import CouponForm from '../../../components/CouponForm';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
 
@@ -41,6 +42,8 @@ export const SubscriptionSuccess = ({
     featureFlags.useFirestoreProductConfigs
   );
 
+  const [invoice, setInvoice] = useState<FirstInvoicePreview>();
+
   const productUrl =
     successActionButton ||
     productRedirectURLs[product_id] ||
@@ -57,7 +60,7 @@ export const SubscriptionSuccess = ({
             customer: customer,
             productUrl,
             accountExists,
-            coupon,
+            invoice,
           }}
         />
 
@@ -69,6 +72,7 @@ export const SubscriptionSuccess = ({
               isMobile,
               showExpandButton: isMobile,
               coupon: coupon,
+              setInvoice: setInvoice,
             }}
           />
 

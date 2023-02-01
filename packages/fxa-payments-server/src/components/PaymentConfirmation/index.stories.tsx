@@ -10,6 +10,7 @@ import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Meta } from '@storybook/react';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export default {
   title: 'components/PaymentConfirmation',
@@ -79,14 +80,12 @@ const customer: Customer = {
 
 const productUrl = 'https://mozilla.org';
 
-const coupon: CouponDetails = {
-  discountAmount: 200,
-  promotionCode: 'TEST',
-  type: '',
-  durationInMonths: 1,
-  valid: true,
-  expired: false,
-  maximallyRedeemed: false,
+const invoice: FirstInvoicePreview = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
 };
 
 const storyWithProps = (
@@ -141,10 +140,10 @@ export const WithPasswordlessAccount = storyWithProps({
   accountExists: false,
 });
 
-export const WithCoupon = storyWithProps({
+export const WithInvoicePreview = storyWithProps({
   profile: userProfile,
   selectedPlan: selectedPlan,
   customer: PAYPAL_CUSTOMER,
   productUrl: productUrl,
-  coupon: coupon,
+  invoice: invoice,
 });
