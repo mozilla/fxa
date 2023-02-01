@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable, Provider } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
@@ -43,7 +43,7 @@ export const StripeFactory: Provider<Stripe> = {
  * Extends PaymentConfigManager to be service like
  */
 @Injectable()
-export class StripePaymentConfigManagerService extends PaymentConfigManager {
+export class StripePaymentConfigManagerService extends PaymentConfigManager implements OnModuleDestroy {
   constructor(
     configService: ConfigService<AppConfig>,
     logger: MozLoggerService,
@@ -55,6 +55,10 @@ export class StripePaymentConfigManagerService extends PaymentConfigManager {
     };
 
     super(config, firestore, logger);
+  }
+
+  async onModuleDestroy() {
+    await this.stopListeners();
   }
 }
 
