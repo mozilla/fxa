@@ -167,8 +167,8 @@ commands:
               git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=1
             fi
 
-            git checkout << pipeline.git.revision >>
             git reset --hard
+            git checkout << pipeline.git.revision >>
 
             commitsBehind=$(git rev-list --left-only --count main...HEAD);
             if [[ $((commitsBehind)) > 0 ]]; then
