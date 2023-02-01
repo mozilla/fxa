@@ -824,7 +824,7 @@ workflows:
     # live infrastructure.
     jobs:
       - build:
-          name: Build
+          name: Build (TAG)
           filters:
             branches:
               ignore: /.*/
@@ -833,63 +833,63 @@ workflows:
       - lint:
           name: Lint
           requires:
-            - Build
+            - Build (TAG)
       - unit-test:
           name: Unit Test
           requires:
-            - Build
+            - Build (TAG)
       - integration-test-part:
           name: Integration Test 1
           index: 0
           total: 3
           requires:
-            - Build
+            - Build (TAG)
       - integration-test-part:
           name: Integration Test 2
           index: 1
           total: 3
           requires:
-            - Build
+            - Build (TAG)
       - integration-test-part:
           name: Integration Test 3
           index: 2
           total: 3
           requires:
-            - Build
+            - Build (TAG)
       - test-content-server-part:
           name: Functional Test - Content 1
           index: 0
           total: 5
           requires:
-            - Build
+            - Build (TAG)
       - test-content-server-part:
           name: Functional Test - Content 2
           index: 1
           total: 5
           requires:
-            - Build
+            - Build (TAG)
       - test-content-server-part:
           name: Functional Test - Content 3
           index: 2
           total: 5
           requires:
-            - Build
+            - Build (TAG)
       - test-content-server-part:
           name: Functional Test - Content 4
           index: 3
           total: 5
           requires:
-            - Build
+            - Build (TAG)
       - test-content-server-part:
           name: Functional Test - Content 5
           index: 4
           total: 5
           requires:
-            - Build
+            - Build (TAG)
       - playwright-functional-tests:
           name: Functional Tests - Playwright
           requires:
-            - Build
+            - Build (TAG)
       - deploy-packages:
           name: FXA
           requires:
