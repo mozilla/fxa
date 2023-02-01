@@ -277,6 +277,11 @@ const EVENTS = {
     event: 'view',
   },
 
+  'screen.cannot_create_account': {
+    group: GROUPS.registration,
+    event: 'cannot_create_account_view',
+  },
+
   // cookies_disabled
   'screen.cookies_disabled': {
     group: GROUPS.activity,

@@ -6,21 +6,37 @@ import React from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RouteComponentProps } from '@reach/router';
 import AppLayout from '../../components/AppLayout';
+import CardHeader from '../../components/CardHeader';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { logPageViewEvent } from '../../lib/metrics';
 
-// NOTE: page is incomplete, was half-hacked together as a first route to serve
+export const routeName = 'cannot_create_account';
 
 const CannotCreateAccount = (_: RouteComponentProps) => {
+  /* TODO: get serviceName from relier once FXA-6437 is complete. Or... rethink this issue
+   * filed/fixed 8.5 years ago: https://github.com/mozilla/fxa-content-server/issues/1783
+   * In some contexts, opening this link in a new tab was not ideal, so we previously set it
+   * to open in a new tab _only_ if it was the Sync flow. Is this still true?
+   */
+  logPageViewEvent(routeName, {
+    entrypoint_variation: 'react',
+  });
   return (
     <AppLayout>
-      <h1 className="card-header">Cannot create account</h1>
-      <p className="mb-4 text-sm">
-        You must meet certain age requirements to create a Firefox account.
-      </p>
+      <CardHeader
+        headingText="Cannot create account"
+        headingTextFtlId="cannot-create-account-header"
+      />
+      <FtlMsg id="cannot-create-account-requirements">
+        <p className="text-sm mb-9">
+          You must meet certain age requirements to create a Firefox account.
+        </p>
+      </FtlMsg>
       <LinkExternal
-        className="link-blue text-sm"
+        className="link-blue text-xs"
         href="https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy"
       >
-        Learn more
+        <FtlMsg id="cannot-create-account-learn-more-link">Learn more</FtlMsg>
       </LinkExternal>
     </AppLayout>
   );

@@ -6,6 +6,8 @@ import React from 'react';
 import CookiesDisabled, { routeName } from '.';
 import { screen, render, fireEvent } from '@testing-library/react';
 import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
+import { FluentBundle } from '@fluent/bundle';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 
 jest.mock('../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
@@ -32,11 +34,17 @@ function setCookieEnabled(cookieEnabled = true) {
 }
 
 describe('CookiesDisabled', () => {
+  let bundle: FluentBundle;
+  beforeAll(async () => {
+    bundle = await getFtlBundle('settings');
+  });
+
   const getTryAgainButton = () =>
     screen.getByRole('button', { name: 'Try again' });
 
   it('renders as expected', () => {
     render(<CookiesDisabled />);
+    testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {
       name: 'Local storage and cookies are required',
@@ -130,6 +138,7 @@ describe('CookiesDisabled', () => {
         setCookieEnabled(false);
 
         render(<CookiesDisabled />);
+        testAllL10n(screen, bundle);
         fireEvent.click(getTryAgainButton());
         await screen.findByText('Local storage or cookies are still disabled');
       });
