@@ -838,72 +838,71 @@ workflows:
           name: Unit Test
           requires:
             - Build
-      - integration-test-part:
-          name: Integration Test 1
-          index: 0
-          total: 3
-          requires:
-            - Build
-      - integration-test-part:
-          name: Integration Test 2
-          index: 1
-          total: 3
-          requires:
-            - Build
-      - integration-test-part:
-          name: Integration Test 3
-          index: 2
-          total: 3
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 1
-          index: 0
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 2
-          index: 1
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 3
-          index: 2
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 4
-          index: 3
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 5
-          index: 4
-          total: 5
-          requires:
-            - Build
-      - playwright-functional-tests:
-          name: Functional Tests - Playwright
-          requires:
-            - Build
-      - deploy-packages:
-          name: FXA
-          requires:
-            - Lint
-            - Unit Test
-            - Integration Test 1
-            - Integration Test 2
-            - Integration Test 3
-            - Functional Test - Content 1
-            - Functional Test - Content 2
-            - Functional Test - Content 3
-            - Functional Test - Content 4
-            - Functional Test - Content 5
-            - Functional Tests - Playwright
+      # - integration-test-part:
+      #     name: Integration Test 1
+      #     index: 0
+      #     total: 3
+      #     requires:
+      #       - Build
+      # - integration-test-part:
+      #     name: Integration Test 2
+      #     index: 1
+      #     total: 3
+      #     requires:
+      #       - Build
+      # - integration-test-part:
+      #     name: Integration Test 3
+      #     index: 2
+      #     total: 3
+      #     requires:
+      #       - Build
+      # - test-content-server-part:
+      #     name: Functional Test - Content 1
+      #     index: 0
+      #     total: 5
+      #     requires:
+      #       - Build
+      # - test-content-server-part:
+      #     name: Functional Test - Content 2
+      #     index: 1
+      #     total: 5
+      #     requires:
+      #       - Build
+      # - test-content-server-part:
+      #     name: Functional Test - Content 3
+      #     index: 2
+      #     total: 5
+      #     requires:
+      #       - Build
+      # - test-content-server-part:
+      #     name: Functional Test - Content 4
+      #     index: 3
+      #     total: 5
+      #     requires:
+      #       - Build
+      # - test-content-server-part:
+      #     name: Functional Test - Content 5
+      #     index: 4
+      #     total: 5
+      #     requires:
+      #       - Build
+      # - playwright-functional-tests:
+      #     name: Functional Tests - Playwright
+      #     requires:
+      #       - Build
+      # - deploy-packages:
+      #     requires:
+      #       - Lint
+      #       - Unit Test
+      #       - Integration Test 1
+      #       - Integration Test 2
+      #       - Integration Test 3
+      #       - Functional Test - Content 1
+      #       - Functional Test - Content 2
+      #       - Functional Test - Content 3
+      #       - Functional Test - Content 4
+      #       - Functional Test - Content 5
+      #       - Functional Tests - Playwright
 
   nightly:
     # This work flow runs a full build, test suite, and deployment of docker images nightly
