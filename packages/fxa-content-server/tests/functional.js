@@ -6,20 +6,15 @@ const testsSettings = require('./functional_settings');
 module.exports = testsSettings.concat([
   'tests/functional/fx_browser_relier.js',
   'tests/functional/oauth_webchannel.js',
-  'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
-  'tests/functional/sign_up_with_code.js',
   // new and flaky tests above here',
   'tests/functional/500.js',
   'tests/functional/back_button_after_start.js',
-  'tests/functional/bounced_email.js',
-  'tests/functional/confirm.js',
   'tests/functional/cookies_disabled.js',
   'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/force_auth.js',
   'tests/functional/fx_desktop_handshake.js',
-  'tests/functional/fx_firstrun_v2.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/legal.js',
@@ -36,24 +31,30 @@ module.exports = testsSettings.concat([
   'tests/functional/post_verify/account_recovery.js',
   'tests/functional/post_verify/secondary_email.js',
   'tests/functional/push.js',
-  'tests/functional/pp.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/robots_txt.js',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_up.js',
-  'tests/functional/sync_v1.js',
-  'tests/functional/sync_v2.js',
-  'tests/functional/sync_v3_email_first.js',
   'tests/functional/sync_v3_sign_in.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/sync_v3_reset_password.js',
   'tests/functional/sync_v3_settings.js',
-  'tests/functional/tos.js',
 
   // Disabled because of https://github.com/mozilla/fxa/issues/9863
   // 'tests/functional/verification_reminders.js',
+
+  // These tests no longer adds value and have been removed as
+  // part of the analysis in
+  // https://docs.google.com/spreadsheets/d/11Wq-Y-ipeNFXqLHbr3GJCh_f_qEAG-CUuqBt5Dcnh5k/edit#gid=0
+  // 'tests/functional/bounced_email.js',
+  // 'tests/functional/sync_v1.js',
+  // 'tests/functional/pp.js',
+  // 'tests/functional/sync_v2.js',
+  // 'tests/functional/fx_firstrun_v2.js',
+  // 'tests/functional/tos.js',
+  // 'tests/functional/confirm.js',
 
   // Disabled because this test migrated to Playwright
   // See `/functional-test`
@@ -72,6 +73,9 @@ module.exports = testsSettings.concat([
   //'tests/functional/settings/recovery_key.js',
   //'tests/functional/settings/secondary_email.js',
   //'tests/functional/settings/two_step_auth.js',
+  //'tests/functional/sign_up_with_code.js',
+  //'tests/functional/sync_v3_email_first.js',
+  // 'tests/functional/reset_password.js',
 ]);
 
 // Mocha tests are only exposed during local dev, not on prod-like

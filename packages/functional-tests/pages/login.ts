@@ -1,6 +1,7 @@
 import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import AuthClient from 'fxa-auth-client';
 
 export const selectors = {
   AGE: '#age',
@@ -45,6 +46,11 @@ export class LoginPage extends BaseLayout {
 
   get emailHeader() {
     return this.page.locator(selectors.EMAIL_HEADER);
+  }
+
+  async getFxaClient(target) {
+    const AUTH_SERVER_ROOT = target.authServerUrl;
+    return new AuthClient(AUTH_SERVER_ROOT);
   }
 
   get passwordHeader() {
@@ -192,6 +198,10 @@ export class LoginPage extends BaseLayout {
     return this.page.fill(selectors.PASSWORD, password);
   }
 
+  confirmPassword(password: string) {
+    return this.page.fill(selectors.VPASSWORD, password);
+  }
+
   async clickUseRecoveryCode() {
     return this.page.click(selectors.LINK_USE_RECOVERY_CODE);
   }
@@ -282,6 +292,12 @@ export class LoginPage extends BaseLayout {
     return this.page.isVisible(selectors.SIGNIN_HEADER, {
       timeout: 100,
     });
+  }
+
+  async isPasswordHeader() {
+    const header = await this.page.locator(selectors.PASSWORD_HEADER);
+    await header.waitFor();
+    return header.isVisible();
   }
 
   async clickSignIn() {
