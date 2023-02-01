@@ -36,6 +36,7 @@ export type PlanDetailsProps = {
   className?: string;
   coupon?: CouponDetails;
   invoicePreview?: FirstInvoicePreview;
+  setInvoice?: (invoice: FirstInvoicePreview) => void;
 };
 
 export const PlanDetails = ({
@@ -45,6 +46,7 @@ export const PlanDetails = ({
   showExpandButton = false,
   coupon,
   invoicePreview,
+  setInvoice,
 }: PlanDetailsProps) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
@@ -138,6 +140,10 @@ export const PlanDetails = ({
         }
         const latestInvoicePreview = invoice.current;
 
+        if (setInvoice) {
+          setInvoice(latestInvoicePreview);
+        }
+
         const price = formatPlanPricing(
           latestInvoicePreview.total as unknown as number,
           currency,
@@ -168,6 +174,7 @@ export const PlanDetails = ({
     interval_count,
     selectedPlan.plan_id,
     invoicePreview,
+    setInvoice,
   ]);
 
   return (
