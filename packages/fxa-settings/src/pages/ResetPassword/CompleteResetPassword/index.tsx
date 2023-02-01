@@ -30,6 +30,7 @@ import FormResetPasswordWithBalloon from '../../../components/FormResetPasswordW
 
 export type CompleteResetPasswordProps = {
   email: string;
+  forceAuth?: boolean;
   linkStatus: LinkStatus;
   // resetPasswordConfirm will be obtained from the relier
   // resetPasswordConfirm determines if sync warning is shown
@@ -45,6 +46,7 @@ type LinkStatus = 'expired' | 'damaged' | 'valid';
 
 const CompleteResetPassword = ({
   email,
+  forceAuth = false,
   linkStatus,
   resetPasswordConfirm,
 }: CompleteResetPasswordProps & RouteComponentProps) => {
@@ -144,7 +146,7 @@ const CompleteResetPassword = ({
             />
           </section>
           {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}
-          <LinkRememberPassword {...{ email }} />
+          <LinkRememberPassword {...{ email, forceAuth }} />
         </>
       )}
       {linkStatus === 'expired' && <LinkExpired linkType="reset-password" />}

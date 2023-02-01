@@ -5,18 +5,18 @@
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { useAccount, useAlertBar } from '../../../models';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { useAccount, useAlertBar } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useFtlMsgResolver } from '../../models/hooks';
 
-import { InputText } from '../../../components/InputText';
-import CardHeader from '../../../components/CardHeader';
-import WarningMessage from '../../../components/WarningMessage';
-import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { MozServices } from '../../../lib/types';
+import { InputText } from '../../components/InputText';
+import CardHeader from '../../components/CardHeader';
+import WarningMessage from '../../components/WarningMessage';
+import LinkRememberPassword from '../../components/LinkRememberPassword';
+import { MozServices } from '../../lib/types';
 
-// --forceEmail-- is a hint to the signup page that the user should not
+// --forceAuth-- is a hint to the signup page that the user should not
 // be given the option to change their address
 // can be triggered by clicking on "Forgot password?" from /force_auth?email=user@domain.com
 // where the provided email is a registered account
@@ -28,7 +28,8 @@ import { MozServices } from '../../../lib/types';
 
 export type ResetPasswordProps = {
   serviceName?: MozServices;
-  forceEmail?: string;
+  prefillEmail?: string;
+  forceAuth?: boolean;
   canGoBack?: boolean;
 };
 
@@ -39,16 +40,17 @@ type FormData = {
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
   serviceName,
-  forceEmail,
+  prefillEmail,
+  forceAuth,
   canGoBack,
 }: ResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent('reset-password', {
     entrypoint_variation: 'react',
   });
 
-  const [email, setEmail] = useState<string>(forceEmail || '');
+  const [email, setEmail] = useState<string>(prefillEmail || '');
   const [emailErrorText, setEmailErrorText] = useState<string>('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
@@ -138,23 +140,23 @@ const ResetPassword = ({
       >
         {/* if email is forced, display a read-only email */}
         {/* do not provide input field to modify the email */}
-        {forceEmail && (
+        {forceAuth && prefillEmail && (
           <p
             data-testid="reset-password-force-email"
             className="text-base break-all"
           >
-            {forceEmail}
+            {prefillEmail}
           </p>
         )}
 
         {/* if email is not forced, display input field */}
-        {!forceEmail && (
+        {!forceAuth && (
           <InputText
             type="email"
             label="Email"
             name="email"
             placeholder={'username@domain.com'}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setEmail(e.target.value);
               // clear error tooltip if user types in the field
               if (emailErrorText) {
@@ -183,8 +185,7 @@ const ResetPassword = ({
         </FtlMsg>
       </form>
 
-      {canGoBack && !forceEmail && <LinkRememberPassword {...{ email }} />}
-      {canGoBack && forceEmail && <LinkRememberPassword {...{ forceEmail }} />}
+      {canGoBack && <LinkRememberPassword {...{ email, forceAuth }} />}
     </>
   );
 };

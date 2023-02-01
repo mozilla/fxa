@@ -60,7 +60,7 @@ describe('ConfirmResetPassword', () => {
   });
 
   it('renders a "Remember your password?" link if "canSignIn: true"', () => {
-    render(<ConfirmResetPassword canSignIn={true} />);
+    render(<ConfirmResetPassword email={MOCK_EMAIL} canSignIn={true} />);
     expect(
       screen.getByRole('link', { name: 'Remember your password? Sign in' })
     ).toBeInTheDocument();

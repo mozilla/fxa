@@ -4,13 +4,13 @@
 
 import React, { useState } from 'react';
 import { useNavigate, RouteComponentProps } from '@reach/router';
-import LinkDamaged from '../../components/LinkDamaged';
-import LinkExpired from '../../components/LinkExpired';
-import LinkUsed from '../../components/LinkUsed';
+import LinkDamaged from '../../../components/LinkDamaged';
+import LinkExpired from '../../../components/LinkExpired';
+import LinkUsed from '../../../components/LinkUsed';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { usePageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { LinkStatus } from '../../lib/types';
+import { LinkStatus } from '../../../lib/types';
 
 // We will probably grab `isSignedIn` off of the Account model in the long run.
 export type CompleteSigninProps = {

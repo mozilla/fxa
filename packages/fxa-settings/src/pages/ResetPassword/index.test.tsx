@@ -7,11 +7,12 @@ import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
 import ResetPassword from '.';
-import { MOCK_SERVICE_NAME, MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../models/mocks';
+import { MozServices } from '../../lib/types';
 
-jest.mock('../../../lib/metrics', () => ({
+jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
@@ -51,15 +52,20 @@ describe('PageResetPassword', () => {
   });
 
   it('renders a custom service name in the header when it is provided', () => {
-    render(<ResetPassword serviceName={MOCK_SERVICE_NAME} />);
+    render(<ResetPassword serviceName={MozServices.MozillaVPN} />);
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      `Reset password to continue to ${MOCK_SERVICE_NAME}`
+      `Reset password to continue to Mozilla VPN`
     );
   });
 
-  it('renders a read-only email but no text input when forceEmail is provided as a prop', () => {
-    render(<ResetPassword forceEmail={MOCK_EMAIL} />);
+  it('renders a read-only email but no text input when forceAuth is true', () => {
+    render(
+      <ResetPassword
+        prefillEmail={MOCK_ACCOUNT.primaryEmail.email}
+        forceAuth={true}
+      />
+    );
     expect(
       screen.getByTestId('reset-password-force-email')
     ).toBeInTheDocument();
@@ -68,6 +74,7 @@ describe('PageResetPassword', () => {
 
   it('renders a "Remember your password?" link if "canGoBack: true"', () => {
     render(<ResetPassword canGoBack={true} />);
+
     expect(
       screen.getByRole('link', { name: 'Remember your password? Sign in' })
     ).toBeInTheDocument();

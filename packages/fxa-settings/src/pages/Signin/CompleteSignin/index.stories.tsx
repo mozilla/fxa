@@ -6,10 +6,10 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import CompleteSignin, { CompleteSigninProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../../components/AppLayout';
 
 export default {
-  title: 'pages/CompleteSignin',
+  title: 'pages/Signin/CompleteSignin',
   component: CompleteSignin,
 } as Meta;
 

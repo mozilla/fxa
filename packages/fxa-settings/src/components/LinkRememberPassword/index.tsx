@@ -7,22 +7,21 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 
 export type LinkRememberPasswordProps = {
-  email?: string;
-  forceEmail?: string;
+  email: string;
+  forceAuth?: boolean;
 };
 
 const LinkRememberPassword = ({
   email,
-  forceEmail,
+  forceAuth,
 }: LinkRememberPasswordProps) => {
-  const linkTarget = forceEmail ? '/force_auth' : '/signin';
-  const queryParam = email || forceEmail || '';
+  const linkTarget = forceAuth ? '/force_auth' : '/signin';
 
   return (
     <div className="text-sm mt-6">
       <FtlMsg id="remember-pw-link">
         <Link
-          to={`${linkTarget}?email=${encodeURIComponent(queryParam)}`}
+          to={`${linkTarget}?email=${encodeURIComponent(email)}`}
           className="link-blue text-sm"
           id="remember-password"
         >

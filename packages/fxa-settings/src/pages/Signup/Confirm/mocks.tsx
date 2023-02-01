@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozServices } from '../../../lib/types';
-
-export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
-export const MOCK_EMAIL = 'blabidi@blabidiboo.com';
+export const MOCK_GOBACK_CB = () => {
+  console.log('Navigating back!');
+};

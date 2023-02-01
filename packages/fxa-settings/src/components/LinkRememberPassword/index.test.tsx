@@ -6,7 +6,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, render, screen } from '@testing-library/react';
 import LinkRememberPassword from '.';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
@@ -17,7 +17,7 @@ describe('LinkRememberPassword', () => {
   });
 
   it('renders', () => {
-    render(<LinkRememberPassword />);
+    render(<LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />);
     testAllL10n(screen, bundle);
 
     expect(
@@ -25,8 +25,8 @@ describe('LinkRememberPassword', () => {
     ).toBeInTheDocument();
   });
 
-  it('links to signin if `forceEmail` is not provided, and passes email as query param', () => {
-    render(<LinkRememberPassword email={MOCK_EMAIL} />);
+  it('links to signin if not forceAuth', () => {
+    render(<LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />);
 
     const rememberPasswordLink = screen.getByRole('link', {
       name: 'Remember your password? Sign in',
@@ -35,19 +35,21 @@ describe('LinkRememberPassword', () => {
 
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      '/signin?email=bleep%40bloop.com'
+      '/signin?email=johndope%40example.com'
     );
   });
 
-  it('links to force_auth if `forceEmail` is provided, and passes forceEmail as query param', () => {
-    render(<LinkRememberPassword forceEmail={MOCK_EMAIL} />);
+  it('links to force_auth if forceAuth is true', () => {
+    render(
+      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} forceAuth />
+    );
 
     const rememberPasswordLink = screen.getByRole('link', {
       name: 'Remember your password? Sign in',
     });
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      '/force_auth?email=bleep%40bloop.com'
+      '/force_auth?email=johndope%40example.com'
     );
   });
 });
