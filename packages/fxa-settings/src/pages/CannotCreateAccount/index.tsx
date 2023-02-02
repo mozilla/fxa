@@ -8,19 +8,19 @@ import { RouteComponentProps } from '@reach/router';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { logPageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../constants';
 
-export const routeName = 'cannot_create_account';
+export const viewName = 'cannot_create_account';
 
 const CannotCreateAccount = (_: RouteComponentProps) => {
   /* TODO: get serviceName from relier once FXA-6437 is complete. Or... rethink this issue
    * filed/fixed 8.5 years ago: https://github.com/mozilla/fxa-content-server/issues/1783
    * In some contexts, opening this link in a new tab was not ideal, so we previously set it
    * to open in a new tab _only_ if it was the Sync flow. Is this still true?
+   * Alternatively, do we want to always open this in the same tab since users are locked out?
    */
-  logPageViewEvent(routeName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   return (
     <AppLayout>
       <CardHeader

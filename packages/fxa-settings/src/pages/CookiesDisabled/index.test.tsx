@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import CookiesDisabled, { routeName } from '.';
+import CookiesDisabled, { viewName } from '.';
 import { screen, render, fireEvent } from '@testing-library/react';
-import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
@@ -60,9 +61,7 @@ describe('CookiesDisabled', () => {
 
     getTryAgainButton();
 
-    expect(logPageViewEvent).toHaveBeenCalledWith(routeName, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   describe('"Try again" button', () => {
@@ -97,24 +96,32 @@ describe('CookiesDisabled', () => {
     it('emits expected metrics events on success', () => {
       render(<CookiesDisabled />);
       fireEvent.click(getTryAgainButton());
-      expect(logViewEvent).toHaveBeenCalledWith(routeName, 'submit', {
-        entrypoint_variation: 'react',
-      });
-      expect(logViewEvent).toHaveBeenCalledWith(routeName, 'success', {
-        entrypoint_variation: 'react',
-      });
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'submit',
+        REACT_ENTRYPOINT
+      );
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'success',
+        REACT_ENTRYPOINT
+      );
     });
 
     it('emits expected metrics events on error', () => {
       setLocationSearch('?disable_local_storage=1');
       render(<CookiesDisabled />);
       fireEvent.click(getTryAgainButton());
-      expect(logViewEvent).toHaveBeenCalledWith(routeName, 'submit', {
-        entrypoint_variation: 'react',
-      });
-      expect(logViewEvent).toHaveBeenCalledWith(routeName, 'fail', {
-        entrypoint_variation: 'react',
-      });
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'submit',
+        REACT_ENTRYPOINT
+      );
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'fail',
+        REACT_ENTRYPOINT
+      );
     });
 
     describe('goes back in history if localStorage and cookies are enabled', () => {

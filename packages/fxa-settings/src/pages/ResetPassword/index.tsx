@@ -15,6 +15,7 @@ import CardHeader from '../../components/CardHeader';
 import WarningMessage from '../../components/WarningMessage';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 // --forceAuth-- is a hint to the signup page that the user should not
 // be given the option to change their address
@@ -25,6 +26,8 @@ import { MozServices } from '../../lib/types';
 // --canGoBack-- determines if the user can navigate back to an fxa entrypoint
 
 // --serviceName-- is the relying party
+
+export const viewName = 'reset-password';
 
 export type ResetPasswordProps = {
   serviceName?: MozServices;
@@ -44,9 +47,7 @@ const ResetPassword = ({
   forceAuth,
   canGoBack,
 }: ResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent('reset-password', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [email, setEmail] = useState<string>(prefillEmail || '');
   const [emailErrorText, setEmailErrorText] = useState<string>('');
@@ -54,7 +55,6 @@ const ResetPassword = ({
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
-  const onFocusMetricsEvent = 'reset-password.engage';
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit } = useForm<FormData>({
@@ -72,10 +72,8 @@ const ResetPassword = ({
   });
 
   const onFocus = () => {
-    if (!isFocused && onFocusMetricsEvent) {
-      logViewEvent('flow', onFocusMetricsEvent, {
-        entrypoint_variation: 'react',
-      });
+    if (!isFocused) {
+      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };
@@ -163,7 +161,7 @@ const ResetPassword = ({
                 setEmailErrorText('');
               }
             }}
-            onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
+            onFocusCb={onFocus}
             autoFocus
             errorText={emailErrorText}
             className="text-start"

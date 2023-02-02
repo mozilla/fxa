@@ -6,8 +6,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import SigninReported from '.';
+import SigninReported, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -32,8 +33,6 @@ describe('SigninReported', () => {
 
   it('emits the expected metrics on render', () => {
     render(<SigninReported />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('signin-reported', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

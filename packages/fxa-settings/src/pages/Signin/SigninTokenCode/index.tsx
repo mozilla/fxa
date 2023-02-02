@@ -12,17 +12,17 @@ import { ReactComponent as MailImg } from './graphic_mail.svg';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // email will eventually be obtained from account context
 export type SigninTokenCodeProps = { email: string };
 
+export const viewName = 'signin-token-code';
+
 const SigninTokenCode = ({
   email,
 }: SigninTokenCodeProps & RouteComponentProps) => {
-  const viewName = 'signin-token-code';
-  usePageViewEvent(viewName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');

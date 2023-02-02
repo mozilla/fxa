@@ -4,12 +4,13 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Signin from '.';
+import Signin, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { MOCK_EMAIL, MOCK_SERVICE, MOCK_OTHER_ICON } from './mocks';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
@@ -136,8 +137,6 @@ describe('Signin', () => {
         serviceName={MOCK_SERVICE}
       />
     );
-    expect(usePageViewEvent).toHaveBeenCalledWith('signin', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

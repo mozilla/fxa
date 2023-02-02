@@ -4,11 +4,12 @@
 
 import React from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { logPageViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 export type SigninBouncedProps = {
   onBackButtonClick?: (
@@ -18,14 +19,14 @@ export type SigninBouncedProps = {
   email: string;
 };
 
+export const viewName = 'signin-bounced';
+
 const SigninBounced = ({
   canGoBack,
   email,
   onBackButtonClick = () => window.history.back(),
 }: SigninBouncedProps & RouteComponentProps) => {
-  logPageViewEvent('signin-bounced', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
   const navigate = useNavigate();

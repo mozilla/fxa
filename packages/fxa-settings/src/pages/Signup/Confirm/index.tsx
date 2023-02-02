@@ -8,6 +8,7 @@ import { RouteComponentProps } from '@reach/router';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 export type ConfirmProps = {
   email: string;
@@ -20,15 +21,15 @@ export type WebmailValues = {
   link: string;
 };
 
+export const viewName = 'confirm';
+
 const Confirm = ({
   email,
   goBackCallback,
   withWebmailLink,
 }: RouteComponentProps & ConfirmProps) => {
   // TODO: Confirm event name  - could not hit this route
-  usePageViewEvent('confirm', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const confirmSignupPageText: ConfirmWithLinkPageStrings = {
     headingFtlId: 'confirm-signup-heading',

@@ -277,25 +277,25 @@ const EVENTS = {
     event: 'view',
   },
 
-  'screen.cannot_create_account': {
+  'screen.cannot-create-account': {
     group: GROUPS.registration,
     event: 'cannot_create_account_view',
   },
 
   // cookies_disabled
-  'screen.cookies_disabled': {
+  'screen.cookies-disabled': {
     group: GROUPS.activity,
     event: 'cookies_disabled_view',
   },
-  'cookies_disabled.submit': {
+  'flow.cookies-disabled.submit': {
     group: GROUPS.activity,
     event: 'cookies_disabled_submit',
   },
-  'cookies_disabled.success': {
+  'flow.cookies-disabled.success': {
     group: GROUPS.activity,
     event: 'cookies_disabled_success',
   },
-  'cookies_disabled.fail': {
+  'flow.cookies-disabled.fail': {
     group: GROUPS.activity,
     event: 'cookies_disabled_fail',
   },

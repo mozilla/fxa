@@ -15,6 +15,7 @@ import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -27,6 +28,8 @@ import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloo
 // navigate to /account_recovery_confirm_key
 //
 // If account recovery was initiated with a key, redirect to account_recovery_reset_password
+
+export const viewName = 'complete-reset-password';
 
 export type CompleteResetPasswordProps = {
   email: string;
@@ -50,16 +53,13 @@ const CompleteResetPassword = ({
   linkStatus,
   resetPasswordConfirm,
 }: CompleteResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent('complete-reset-password', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
   const alertBar = useAlertBar();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
-  const onFocusMetricsEvent = 'complete-password-reset.engage';
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -144,7 +144,7 @@ const CompleteResetPassword = ({
               passwordFormType="reset"
               onSubmit={handleSubmit(onSubmit)}
               loading={false}
-              onFocusMetricsEvent={onFocusMetricsEvent}
+              onFocusMetricsEvent={`${viewName}.engage`}
             />
           </section>
           {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}

@@ -9,7 +9,7 @@ import { AppContext, AlertBarInfo } from '../../../models';
 import CompleteResetPassword from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { SHOW_BALLOON_TIMEOUT } from '../../../constants';
+import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -126,8 +126,9 @@ describe('CompleteResetPassword page', () => {
         linkStatus="valid"
       />
     );
-    expect(usePageViewEvent).toHaveBeenCalledWith('complete-reset-password', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(
+      'complete-reset-password',
+      REACT_ENTRYPOINT
+    );
   });
 });

@@ -4,10 +4,12 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { getFtlBundle, testAllL10n, testL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import SignupConfirmed from '.';
+import SignupConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -21,10 +23,7 @@ describe('SignupConfirmed', () => {
   });
   it('renders Ready component as expected', () => {
     render(<SignupConfirmed />);
-    const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    testL10n(ftlMsgMock, bundle, {
-      serviceName: 'account settings',
-    });
+    testAllL10n(screen, bundle);
 
     const signupConfirmation = screen.getByText('Account confirmed');
     const serviceAvailabilityConfirmation = screen.getByText(
@@ -40,9 +39,7 @@ describe('SignupConfirmed', () => {
 
   it('emits the expected metrics on render', () => {
     render(<SignupConfirmed />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('signup-confirmed', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
@@ -57,11 +54,9 @@ describe('SignupConfirmed', () => {
 
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'signup-confirmed',
-      'signup-confirmed.continue',
-      {
-        entrypoint_variation: 'react',
-      }
+      viewName,
+      `${viewName}.continue`,
+      REACT_ENTRYPOINT
     );
   });
 });

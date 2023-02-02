@@ -8,8 +8,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import Confirm from '.';
+import Confirm, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -75,8 +76,6 @@ describe('Confirm', () => {
 
   it('emits a metrics event on render', () => {
     render(<Confirm email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`confirm`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

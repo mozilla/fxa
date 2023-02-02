@@ -8,6 +8,7 @@ import { RouteComponentProps } from '@reach/router';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 export type ConfirmSigninProps = {
   email: string;
@@ -15,14 +16,14 @@ export type ConfirmSigninProps = {
   withWebmailLink?: boolean; // TO-DO: Replace broker functionality which gives us this value (provider?)
 };
 
+export const viewName = 'confirm-signin';
+
 const ConfirmSignin = ({
   email,
   goBackCallback,
   withWebmailLink,
 }: RouteComponentProps & ConfirmSigninProps) => {
-  usePageViewEvent('confirm-signin', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const confirmSigninPageText: ConfirmWithLinkPageStrings = {
     headingFtlId: 'confirm-signin-heading',

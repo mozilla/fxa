@@ -6,8 +6,9 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import SigninConfirmed from '.';
+import SigninConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -37,9 +38,7 @@ describe('SigninConfirmed', () => {
 
   it('emits the expected metrics on render', () => {
     render(<SigninConfirmed />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('signin-confirmed', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
@@ -54,11 +53,9 @@ describe('SigninConfirmed', () => {
 
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'signin-confirmed',
-      'signin-confirmed.continue',
-      {
-        entrypoint_variation: 'react',
-      }
+      viewName,
+      `${viewName}.continue`,
+      REACT_ENTRYPOINT
     );
   });
 });

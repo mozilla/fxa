@@ -4,11 +4,12 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import ConfirmResetPassword from '.';
+import ConfirmResetPassword, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { MOCK_EMAIL } from './mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -54,9 +55,7 @@ describe('ConfirmResetPassword', () => {
 
   it('emits the expected metrics on render', async () => {
     render(<ConfirmResetPassword email={MOCK_EMAIL} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('confirm-reset-password', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('renders a "Remember your password?" link if "canSignIn: true"', () => {

@@ -8,11 +8,12 @@ import classNames from 'classnames';
 import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import { logPageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
 import { ReactComponent as TwoFactorImg } from '../Signin/SigninTotpCode/graphic_two_factor_auth.svg';
 import CardHeader from '../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 type InlineTotpSetupProps = {
   code: string;
@@ -20,12 +21,14 @@ type InlineTotpSetupProps = {
   serviceName?: MozServices;
 };
 
+export const viewName = 'inline-totp-setup';
+
 export const InlineTotpSetup = ({
   code,
   email,
   serviceName,
 }: InlineTotpSetupProps) => {
-  logPageViewEvent('inline-totp-setup', { entrypoint_variation: 'react' });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   /*
    * TODO:
@@ -74,9 +77,7 @@ export const InlineTotpSetup = ({
     }
     try {
       // Check security code
-      // logViewEvent('flow', inline-totp-setup.submit, {
-      //   entrypoint_variation: 'react',
-      //  });
+      // logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
     } catch (e) {
       // TODO: error handling, error message confirmation
       //       - use the Banner component
@@ -164,29 +165,13 @@ export const InlineTotpSetup = ({
             />
           )}
           <section>
-            <form noValidate>
-              <div id="totp" className="totp-details">
-                {showQR ? (
-                  <>
-                    <FtlMsg
-                      id="inline-totp-setup-use-qr-or-enter-key-instructions"
-                      elems={{
-                        toggleToManualModeButton: (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowQR(false);
-                            }}
-                            className="link-blue inline"
-                          >
-                            Can’t scan code?
-                          </button>
-                        ),
-                      }}
-                    >
-                      <p className="text-sm mb-4">
-                        Scan the QR code in your authentication app and then
-                        enter the authentication code it provides.{' '}
+            <div id="totp" className="totp-details">
+              {showQR ? (
+                <>
+                  <FtlMsg
+                    id="inline-totp-setup-use-qr-or-enter-key-instructions"
+                    elems={{
+                      toggleToManualModeButton: (
                         <button
                           type="button"
                           onClick={() => {
@@ -196,43 +181,45 @@ export const InlineTotpSetup = ({
                         >
                           Can’t scan code?
                         </button>
-                      </p>
-                    </FtlMsg>
-                    <div>
-                      <img
-                        className={classNames({
-                          hidden: !qrCodeSrc,
-                        })}
-                        alt={localizedQRCodeAltText}
-                        src={qrCodeSrc}
-                      />
-                    </div>
-                    <FtlMsg id="inline-totp-setup-on-completion-description">
-                      <p className="text-sm mb-4">
-                        Once complete, it will begin generating authentication
-                        codes for you to enter.
-                      </p>
-                    </FtlMsg>
-                  </>
-                ) : (
-                  <>
-                    <FtlMsg
-                      id="inline-totp-setup-enter-key-or-use-qr-instructions"
-                      elems={{
-                        toggleToQRButton: (
-                          <button
-                            onClick={() => {
-                              setShowQR(true);
-                            }}
-                            className="link-blue inline"
-                          >
-                            Scan QR code instead?
-                          </button>
-                        ),
-                      }}
-                    >
-                      <p className="text-sm m-2">
-                        Type this secret key into your authentication app.{' '}
+                      ),
+                    }}
+                  >
+                    <p className="text-sm mb-4">
+                      Scan the QR code in your authentication app and then enter
+                      the authentication code it provides.{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowQR(false);
+                        }}
+                        className="link-blue inline"
+                      >
+                        Can’t scan code?
+                      </button>
+                    </p>
+                  </FtlMsg>
+                  <div>
+                    <img
+                      className={classNames({
+                        hidden: !qrCodeSrc,
+                      })}
+                      alt={localizedQRCodeAltText}
+                      src={qrCodeSrc}
+                    />
+                  </div>
+                  <FtlMsg id="inline-totp-setup-on-completion-description">
+                    <p className="text-sm mb-4">
+                      Once complete, it will begin generating authentication
+                      codes for you to enter.
+                    </p>
+                  </FtlMsg>
+                </>
+              ) : (
+                <>
+                  <FtlMsg
+                    id="inline-totp-setup-enter-key-or-use-qr-instructions"
+                    elems={{
+                      toggleToQRButton: (
                         <button
                           onClick={() => {
                             setShowQR(true);
@@ -241,43 +228,55 @@ export const InlineTotpSetup = ({
                         >
                           Scan QR code instead?
                         </button>
-                      </p>
-                    </FtlMsg>
-                    <div className="qr-code-container">
-                      <div className="qr-code-text">{secret}</div>
-                    </div>
-                    <FtlMsg id="inline-totp-setup-on-completion-description">
-                      <p className="text-sm mb-4">
-                        Once complete, it will begin generating authentication
-                        codes for you to enter.
-                      </p>
-                    </FtlMsg>
-                  </>
-                )}
-                <FormVerifyCode
-                  viewName="inline_totp_setup"
-                  email={email}
-                  onSubmit={handleSubmit(onSubmit)}
-                  formAttributes={{
-                    inputLabelText: 'Authentication code',
-                    inputFtlId: 'inline-totp-setup-security-code-placeholder',
-                    pattern: 'd{6}',
-                    maxLength: 6,
-                    submitButtonText: 'Ready',
-                    submitButtonFtlId: 'inline-totp-setup-ready-button',
-                  }}
-                  code={totpCodeValue}
-                  setCode={setTotpCodeValue}
-                  codeErrorMessage={totpErrorMessage}
-                  setCodeErrorMessage={setTotpErrorMessage}
-                />
-                <button className="link-blue text-sm mt-4">
-                  <FtlMsg id="inline-totp-setup-cancel-setup-button">
-                    Cancel setup
+                      ),
+                    }}
+                  >
+                    <p className="text-sm m-2">
+                      Type this secret key into your authentication app.{' '}
+                      <button
+                        onClick={() => {
+                          setShowQR(true);
+                        }}
+                        className="link-blue inline"
+                      >
+                        Scan QR code instead?
+                      </button>
+                    </p>
                   </FtlMsg>
-                </button>
-              </div>
-            </form>
+                  <div className="qr-code-container">
+                    <div className="qr-code-text">{secret}</div>
+                  </div>
+                  <FtlMsg id="inline-totp-setup-on-completion-description">
+                    <p className="text-sm mb-4">
+                      Once complete, it will begin generating authentication
+                      codes for you to enter.
+                    </p>
+                  </FtlMsg>
+                </>
+              )}
+              <FormVerifyCode
+                viewName="inline_totp_setup"
+                email={email}
+                onSubmit={handleSubmit(onSubmit)}
+                formAttributes={{
+                  inputLabelText: 'Authentication code',
+                  inputFtlId: 'inline-totp-setup-security-code-placeholder',
+                  pattern: 'd{6}',
+                  maxLength: 6,
+                  submitButtonText: 'Ready',
+                  submitButtonFtlId: 'inline-totp-setup-ready-button',
+                }}
+                code={totpCodeValue}
+                setCode={setTotpCodeValue}
+                codeErrorMessage={totpErrorMessage}
+                setCodeErrorMessage={setTotpErrorMessage}
+              />
+              <button className="link-blue text-sm mt-4">
+                <FtlMsg id="inline-totp-setup-cancel-setup-button">
+                  Cancel setup
+                </FtlMsg>
+              </button>
+            </div>
           </section>
         </>
       )}

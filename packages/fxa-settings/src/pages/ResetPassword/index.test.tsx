@@ -8,9 +8,10 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
-import ResetPassword from '.';
+import ResetPassword, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -82,8 +83,6 @@ describe('PageResetPassword', () => {
 
   it('emits a metrics event on render', () => {
     render(<ResetPassword />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`reset-password`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

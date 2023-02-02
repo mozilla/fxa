@@ -11,6 +11,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkStatus } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // We will probably grab `isSignedIn` off of the Account model in the long run.
 export type CompleteSigninProps = {
@@ -19,14 +20,14 @@ export type CompleteSigninProps = {
   linkStatus: LinkStatus;
 };
 
+export const viewName = 'complete-signin';
+
 const CompleteSignin = ({
   brokerNextAction,
   isForPrimaryEmail,
   linkStatus,
 }: CompleteSigninProps & RouteComponentProps) => {
-  usePageViewEvent('complete-signin', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigate = useNavigate();
   const linkType = 'signin';
   const [error, setError] = useState<string>();
