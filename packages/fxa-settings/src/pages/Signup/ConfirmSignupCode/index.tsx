@@ -8,11 +8,11 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
-import { ReactComponent as MailImg } from './graphic_mail.svg';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { MailImage } from '../../../components/images';
 
 // email will eventually be obtained from account context
 export type ConfirmSignupCodeProps = { email: string };
@@ -88,7 +88,7 @@ const ConfirmSignupCode = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <MailImg className="w-3/5" role="img" />
+          <MailImage className="w-3/5" />
         </div>
 
         <FtlMsg id="confirm-signup-code-instruction">

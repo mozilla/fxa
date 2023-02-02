@@ -5,11 +5,10 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as PulseHearts } from './account-verified.svg';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useFtlMsgResolver } from '../../models/hooks';
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { HeartsVerifiedImage } from '../../components/images';
 
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
@@ -68,11 +67,6 @@ const Ready = ({
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const templateValues = getTemplateValues(viewName);
-  const ftlMsgResolver = useFtlMsgResolver();
-  const pulsingHeartsAltText = ftlMsgResolver.getMsg(
-    'pulsing-hearts-description',
-    'A pink laptop and a purple mobile device each with a pulsing heart'
-  );
 
   return (
     <>
@@ -84,11 +78,7 @@ const Ready = ({
         </h1>
       </div>
       <div className="flex justify-center mx-auto">
-        <PulseHearts
-          className="w-3/5"
-          role="img"
-          aria-label={pulsingHeartsAltText}
-        />
+        <HeartsVerifiedImage className="w-3/5" />
       </div>
       <section>
         <div className="error"></div>

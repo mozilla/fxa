@@ -8,7 +8,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
-import { ReactComponent as RecoveryCodesImg } from './graphic_recovery_codes.svg';
+import { RecoveryCodesImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
@@ -79,13 +79,7 @@ const SigninRecoveryCode = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <FtlMsg id="signin-recovery-code-image-description">
-            <RecoveryCodesImg
-              className="w-3/5"
-              role="img"
-              aria-label="Document that contains hidden text."
-            />
-          </FtlMsg>
+          <RecoveryCodesImage className="w-3/5" />
         </div>
 
         <FtlMsg id="signin-recovery-code-instruction">

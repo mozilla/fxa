@@ -8,7 +8,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
-import { ReactComponent as MailImg } from './graphic_mail.svg';
+import { MailImage } from '../../../components/images';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -87,7 +87,7 @@ const SigninTokenCode = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <MailImg className="w-3/5" role="img" />
+          <MailImage className="w-3/5" />
         </div>
 
         <FtlMsg id="signin-token-code-instruction">

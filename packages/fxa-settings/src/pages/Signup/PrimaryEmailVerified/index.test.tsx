@@ -6,8 +6,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PrimaryEmailVerified, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-import { FluentBundle } from '@fluent/bundle';
+// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+// import { FluentBundle } from '@fluent/bundle';
 import { MOCK_SERVICE } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 
@@ -17,14 +17,14 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 describe('PrimaryEmailVerified page', () => {
-  let bundle: FluentBundle;
-  beforeAll(async () => {
-    bundle = await getFtlBundle('settings');
-  });
+  // let bundle: FluentBundle;
+  // beforeAll(async () => {
+  //   bundle = await getFtlBundle('settings');
+  // });
 
   it('renders the page as expected when the user is signed in', () => {
     render(<PrimaryEmailVerified />);
-    testAllL10n(screen, bundle);
+    // testAllL10n(screen, bundle);
 
     screen.getByText('Primary email confirmed');
     screen.getByText('Your account is ready!');

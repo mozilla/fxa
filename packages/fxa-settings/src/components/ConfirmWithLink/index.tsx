@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as Mail } from './graphic_mail.svg';
+import { MailImage } from '../../components/images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import CardHeader from '../CardHeader';
 
@@ -61,11 +61,9 @@ const ConfirmWithLink = ({
         headingTextFtlId={confirmWithLinkPageStrings.headingFtlId}
       />
 
-      <FtlMsg id="confirm-signup-aria-label" attrs={{ ariaLabel: true }}>
-        <div className="flex justify-center">
-          <Mail role="img" aria-label="An envelope containing a link" />
-        </div>
-      </FtlMsg>
+      <div className="flex justify-center">
+        <MailImage />
+      </div>
       <FtlMsg id={confirmWithLinkPageStrings.instructionFtlId} vars={{ email }}>
         <p className="my-4 text-sm">
           {confirmWithLinkPageStrings.instructionText}

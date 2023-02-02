@@ -9,7 +9,7 @@ import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps, Link } from '@reach/router';
 import InputPassword from '../../components/InputPassword';
-import { ReactComponent as PocketLogo } from './pocket.svg';
+import { ReactComponent as PocketLogo } from 'fxa-react/images/pocket.svg';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
 

@@ -29,5 +29,3 @@ inline-recovery-confirmation-header-default = Confirm backup authentication code
 # If more appropriate in a locale, the string within the <span>, "to continue to { $serviceName }" can stand alone as "Continue to { $serviceName }"
 # $serviceName - the name of the service which is using Firefox accounts to authenticate
 inline-recovery-confirmation-header = Confirm backup authentication code <span>to continue to { $serviceName }</span>
-inline-recovery-setup-image-description =
-  .aria-label = Document that contains hidden text.

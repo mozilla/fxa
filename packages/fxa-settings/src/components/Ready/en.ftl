@@ -12,5 +12,4 @@ ready-account-ready = Your account is ready!
 ready-continue = Continue
 sign-in-complete-header = Sign-in confirmed
 sign-up-complete-header = Account confirmed
-pulsing-hearts-description = A pink laptop and a purple mobile device each with a pulsing heart
 primary-email-verified-header = Primary email confirmed
