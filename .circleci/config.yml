@@ -965,86 +965,86 @@ workflows:
             - Functional Test - Content 5
             - Functional Tests - Playwright
 
-  nightly:
-    # This work flow runs a full build, test suite, and deployment of docker images nightly
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only: main
-    jobs:
-      - build:
-          name: Build (nightly)
-          filters:
-            branches:
-              only: main
-            tags:
-              ignore: /.*/
-      - lint:
-          name: Lint (nightly)
-          requires:
-            - Build (nightly)
-      - unit-test:
-          name: Unit Test (nightly)
-          requires:
-            - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 1 (nightly)
-          index: 0
-          total: 3
-          requires:
-            - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 2 (nightly)
-          index: 1
-          total: 3
-          requires:
-            - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 3 (nightly)
-          index: 2
-          total: 3
-          requires:
-            - Build (nightly)
-          post-steps:
-            - fail-fast
-      - playwright-functional-tests:
-          name: Functional Tests - Playwright (nightly)
-          requires:
-            - Build (nightly)
-      - on-complete:
-          name: Tests Complete (nightly)
-          stage: Tests (nightly)
-          job_type: build
-          requires:
-            - Lint (nightly)
-            - Unit Test (nightly)
-            - Integration Test 1 (nightly)
-            - Integration Test 2 (nightly)
-            - Integration Test 3 (nightly)
-            - Functional Tests - Playwright (nightly)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (nightly)
-          requires:
-            - Tests Complete (nightly)
-      - deploy-packages:
-          name: Deploy FxA Packages (nightly)
-          requires:
-            - Tests Complete (nightly)
-      - deploy-fxa-ci-images:
-          name: Deploy CI Images (nightly)
-          executor:
-            name: docker-build-executor
-            image: cimg/node:16.13-browsers
-          # Note, setting force-deploy as true will result in rebuilding the images regardless
-          # of whether or not there are package modifications.
-          force-deploy: true
-          requires:
-            - Tests Complete (nightly)
+  # nightly:
+  #   # This work flow runs a full build, test suite, and deployment of docker images nightly
+  #   triggers:
+  #     - schedule:
+  #         cron: "0 0 * * *"
+  #         filters:
+  #           branches:
+  #             only: main
+  #   jobs:
+  #     - build:
+  #         name: Build (nightly)
+  #         filters:
+  #           branches:
+  #             only: main
+  #           tags:
+  #             ignore: /.*/
+  #     - lint:
+  #         name: Lint (nightly)
+  #         requires:
+  #           - Build (nightly)
+  #     - unit-test:
+  #         name: Unit Test (nightly)
+  #         requires:
+  #           - Build (nightly)
+  #         post-steps:
+  #           - fail-fast
+  #     - integration-test-part:
+  #         name: Integration Test 1 (nightly)
+  #         index: 0
+  #         total: 3
+  #         requires:
+  #           - Build (nightly)
+  #         post-steps:
+  #           - fail-fast
+  #     - integration-test-part:
+  #         name: Integration Test 2 (nightly)
+  #         index: 1
+  #         total: 3
+  #         requires:
+  #           - Build (nightly)
+  #         post-steps:
+  #           - fail-fast
+  #     - integration-test-part:
+  #         name: Integration Test 3 (nightly)
+  #         index: 2
+  #         total: 3
+  #         requires:
+  #           - Build (nightly)
+  #         post-steps:
+  #           - fail-fast
+  #     - playwright-functional-tests:
+  #         name: Functional Tests - Playwright (nightly)
+  #         requires:
+  #           - Build (nightly)
+  #     - on-complete:
+  #         name: Tests Complete (nightly)
+  #         stage: Tests (nightly)
+  #         job_type: build
+  #         requires:
+  #           - Lint (nightly)
+  #           - Unit Test (nightly)
+  #           - Integration Test 1 (nightly)
+  #           - Integration Test 2 (nightly)
+  #           - Integration Test 3 (nightly)
+  #           - Functional Tests - Playwright (nightly)
+  #     - build-and-deploy-storybooks:
+  #         name: Deploy Storybooks (nightly)
+  #         requires:
+  #           - Tests Complete (nightly)
+  #     - deploy-packages:
+  #         name: Deploy FxA Packages (nightly)
+  #         requires:
+  #           - Tests Complete (nightly)
+  #     - deploy-fxa-ci-images:
+  #         name: Deploy CI Images (nightly)
+  #         executor:
+  #           name: docker-build-executor
+  #           image: cimg/node:16.13-browsers
+  #         # Note, setting force-deploy as true will result in rebuilding the images regardless
+  #         # of whether or not there are package modifications.
+  #         force-deploy: true
+  #         requires:
+  #           - Tests Complete (nightly)
