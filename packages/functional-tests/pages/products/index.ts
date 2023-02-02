@@ -125,6 +125,17 @@ export class SubscribePage extends BaseLayout {
       .locator('[data-testid="plan-upgrade-details-component"]')
       .textContent();
   }
+  async clickConfirmPlanChange() {
+    await this.page.locator('[data-testid="confirm"]').click();
+  }
+
+  async isSubscriptionSuccess() {
+    const success = this.page.locator(
+      '[data-testid="subscription-success-title"]'
+    );
+    await success.waitFor();
+    return success.isVisible();
+  }
 
   submit() {
     return Promise.all([

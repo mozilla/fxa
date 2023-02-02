@@ -38,6 +38,38 @@ export class SubscriptionManagementPage extends BaseLayout {
     await this.page.locator('[data-testid="submit"]').click();
   }
 
+  async clickPaypalChange() {
+    const changeButton = this.page.locator(
+      '[data-testid="change-payment-update-button"]'
+    );
+    await changeButton.waitFor({ state: 'attached' });
+    const [paypalWindow] = await Promise.all([
+      this.page.waitForEvent('popup'),
+      this.page.locator('[data-testid="change-payment-update-button"]').click(),
+    ]);
+    await paypalWindow.waitForLoadState('load');
+    return paypalWindow;
+  }
+
+  async updatePaypalAccount() {
+    await this.page.locator('#fundingLink').click();
+    await this.page.waitForLoadState();
+    const cardOption = this.page.locator(
+      'input[type="radio"][data-type="CREDIT_CARD"]'
+    );
+    await cardOption.click();
+    const saveChanges = this.page.locator('button[name="SaveFI"]');
+    await saveChanges.click();
+    const submit = this.page.locator('button[name="modalClose"]');
+    await submit.click();
+  }
+
+  async checkPaypalAccount() {
+    const account = this.page.locator('#fundingLink');
+    await account.waitFor();
+    return account.textContent();
+  }
+
   async fillSupportForm() {
     await this.page.locator('[data-testid="contact-support-button"]').click();
     await this.page.locator('#product_chosen a.chosen-single').click();
