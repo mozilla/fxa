@@ -8,9 +8,10 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import SigninTotpCode from '.';
+import SigninTotpCode, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -55,8 +56,6 @@ describe('Sign in with TOTP code page', () => {
 
   it('emits a metrics event on render', () => {
     render(<SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`signin-totp-code`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

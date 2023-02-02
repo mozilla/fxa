@@ -6,11 +6,12 @@ import React from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps } from '@reach/router';
+import { REACT_ENTRYPOINT } from '../../../constants';
+
+export const viewName = 'signin-reported';
 
 const SigninReported = (props: RouteComponentProps) => {
-  usePageViewEvent('signin-reported', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   return (
     <>

@@ -9,6 +9,7 @@ import { ReactComponent as PulseHearts } from './account-verified.svg';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models/hooks';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
@@ -65,9 +66,7 @@ const Ready = ({
   serviceName,
   viewName,
 }: ReadyProps & RouteComponentProps) => {
-  usePageViewEvent(viewName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const templateValues = getTemplateValues(viewName);
   const ftlMsgResolver = useFtlMsgResolver();
   const pulsingHeartsAltText = ftlMsgResolver.getMsg(
@@ -118,9 +117,7 @@ const Ready = ({
             className="cta-primary cta-base-p font-bold mx-2 flex-1"
             onClick={(e) => {
               const eventName = `${viewName}.continue`;
-              logViewEvent(viewName, eventName, {
-                entrypoint_variation: 'react',
-              });
+              logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
               continueHandler(e);
             }}
           >

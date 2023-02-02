@@ -10,6 +10,9 @@ import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
+import { REACT_ENTRYPOINT } from '../../../constants';
+
+export const viewName = 'confirm-reset-password';
 
 export type ConfirmResetPasswordProps = {
   email: string;
@@ -22,9 +25,7 @@ const ConfirmResetPassword = ({
   forceAuth,
   canSignIn,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent('confirm-reset-password', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   // TODO check for passwordResetToken (confirms reset password initiated)
   // TODO redirect to reset_password if !passwordResetToken

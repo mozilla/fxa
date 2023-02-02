@@ -8,16 +8,18 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
 import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 type ResetPasswordWithRecoveryKeyVerifiedProps = {
   serviceName?: MozServices;
 };
 
+export const viewName = 'reset-password-with-recovery-key-verified';
+
 const ResetPasswordWithRecoveryKeyVerified = ({
   serviceName,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   const navigate = useNavigate();
-  const viewName = 'reset-password-with-recovery-key-verified';
 
   return (
     <>
@@ -27,9 +29,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
           className="cta-primary cta-xl"
           onClick={() => {
             const eventName = `${viewName}.generate-new-key`;
-            logViewEvent(viewName, eventName, {
-              entrypoint_variation: 'react',
-            });
+            logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
             navigate('/settings/account_recovery');
           }}
         >
@@ -42,9 +42,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
         className="link-blue text-sm"
         onClick={() => {
           const eventName = `${viewName}.continue-to-account`;
-          logViewEvent(viewName, eventName, {
-            entrypoint_variation: 'react',
-          });
+          logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
           navigate('/settings');
         }}
       >

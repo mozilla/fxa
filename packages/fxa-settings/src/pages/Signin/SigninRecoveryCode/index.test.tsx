@@ -8,9 +8,10 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import SigninRecoveryCode from '.';
+import SigninRecoveryCode, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -63,8 +64,6 @@ describe('PageSigninRecoveryCode', () => {
 
   it('emits a metrics event on render', () => {
     render(<SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`signin-recovery-code`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

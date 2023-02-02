@@ -4,11 +4,12 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import PrimaryEmailVerified from '.';
+import PrimaryEmailVerified, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { MOCK_SERVICE } from './mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -45,8 +46,6 @@ describe('PrimaryEmailVerified page', () => {
 
   it('emits the expected metrics on render', () => {
     render(<PrimaryEmailVerified />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('primary-email-verified', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

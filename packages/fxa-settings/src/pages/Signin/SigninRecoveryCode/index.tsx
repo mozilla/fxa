@@ -15,20 +15,20 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 export type SigninRecoveryCodeProps = {
   email: string;
   serviceName?: MozServices;
 };
 
+export const viewName = 'signin-recovery-code';
+
 const SigninRecoveryCode = ({
   email,
   serviceName,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
-  const viewName = 'signin-recovery-code';
-  usePageViewEvent(viewName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');

@@ -8,8 +8,9 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import AccountRecoveryConfirmKey from '.';
+import AccountRecoveryConfirmKey, { viewName } from '.';
 import { MOCK_SERVICE_NAME } from './mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -71,11 +72,6 @@ describe('PageAccountRecoveryConfirmKey', () => {
 
   it('emits a metrics event on render', () => {
     render(<AccountRecoveryConfirmKey linkStatus="valid" />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(
-      `account-recovery-confirm-key`,
-      {
-        entrypoint_variation: 'react',
-      }
-    );
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

@@ -4,13 +4,14 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { logPageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import InputText from '../../components/InputText';
 import DataBlock from '../../components/DataBlock';
 import { ReactComponent as RecoveryCodesGraphic } from '../Signin/SigninRecoveryCode/graphic_recovery_codes.svg';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 export type InlineRecoverySetupProps = {
   isIOS?: boolean;
@@ -19,15 +20,15 @@ export type InlineRecoverySetupProps = {
   showConfirmation: boolean;
 };
 
+export const viewName = 'inline-recovery-setup';
+
 const InlineRecoverySetup = ({
   isIOS,
   recoveryCodes,
   serviceName,
   showConfirmation,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
-  logPageViewEvent('inline-recovery-setup', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedInputTextLabel = ftlMsgResolver.getMsg(

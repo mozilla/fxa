@@ -8,9 +8,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
-import Signup from '.';
+import Signup, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -137,8 +138,6 @@ describe('Signup page', () => {
 
   it('emits a metrics event on render', () => {
     render(<Signup email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`signup`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

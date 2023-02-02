@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 export type FormAttributes = {
   inputLabelText: string;
@@ -46,9 +47,7 @@ const FormVerifyCode = ({
 
   const onFocus = () => {
     if (!isFocused && viewName) {
-      logViewEvent('flow', `${viewName}.engage`, {
-        entrypoint_variation: 'react',
-      });
+      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };

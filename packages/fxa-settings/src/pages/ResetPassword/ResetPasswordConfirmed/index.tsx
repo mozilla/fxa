@@ -12,14 +12,13 @@ type ResetPasswordConfirmedProps = {
   serviceName?: MozServices;
 };
 
+export const viewName = 'reset-password-confirmed';
+
 const ResetPasswordConfirmed = ({
   continueHandler,
   serviceName,
-}: ResetPasswordConfirmedProps & RouteComponentProps) => {
-  // This is pretty ridiculously barebones, but the content in here gets expanded on other, similar views.
-  const viewName = 'reset-password-confirmed';
-
-  return <Ready {...{ continueHandler, viewName, serviceName }} />;
-};
+}: ResetPasswordConfirmedProps & RouteComponentProps) => (
+  <Ready {...{ continueHandler, viewName, serviceName }} />
+);
 
 export default ResetPasswordConfirmed;

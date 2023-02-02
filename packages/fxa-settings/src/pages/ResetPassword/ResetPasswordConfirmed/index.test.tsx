@@ -4,8 +4,9 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import ResetPasswordConfirmed from '.';
+import ResetPasswordConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -27,9 +28,7 @@ describe('ResetPasswordConfirmed', () => {
 
   it('emits the expected metrics on render', () => {
     render(<ResetPasswordConfirmed />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('reset-password-confirmed', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
@@ -44,11 +43,9 @@ describe('ResetPasswordConfirmed', () => {
 
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'reset-password-confirmed',
-      'reset-password-confirmed.continue',
-      {
-        entrypoint_variation: 'react',
-      }
+      viewName,
+      `${viewName}.continue`,
+      REACT_ENTRYPOINT
     );
   });
 });

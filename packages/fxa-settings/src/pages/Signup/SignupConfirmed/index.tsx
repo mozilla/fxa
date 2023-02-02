@@ -12,13 +12,13 @@ type SignupConfirmedProps = {
   serviceName?: MozServices;
 };
 
+export const viewName = 'signup-confirmed';
+
 const SignupConfirmed = ({
   continueHandler,
   serviceName,
-}: SignupConfirmedProps & RouteComponentProps) => {
-  const viewName = 'signup-confirmed';
-
-  return <Ready {...{ continueHandler, viewName, serviceName }} />;
-};
+}: SignupConfirmedProps & RouteComponentProps) => (
+  <Ready {...{ continueHandler, viewName, serviceName }} />
+);
 
 export default SignupConfirmed;

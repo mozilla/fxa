@@ -7,14 +7,14 @@ import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import InlineRecoverySetup from '.';
-import { logPageViewEvent } from '../../lib/metrics';
+import InlineRecoverySetup, { viewName } from '.';
+import { usePageViewEvent } from '../../lib/metrics';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
-  logViewEvent: jest.fn(),
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
 }));
 
 describe('InlineRecoverySetup', () => {
@@ -130,8 +130,6 @@ describe('InlineRecoverySetup', () => {
         showConfirmation={false}
       />
     );
-    expect(logPageViewEvent).toHaveBeenCalledWith('inline-recovery-setup', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

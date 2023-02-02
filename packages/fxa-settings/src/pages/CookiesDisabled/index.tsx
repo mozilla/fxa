@@ -10,15 +10,14 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import Storage from '../../lib/storage';
 import Banner, { BannerType } from '../../components/Banner';
 import { searchParams } from '../../lib/utilities';
-import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import CardHeader from '../../components/CardHeader';
+import { REACT_ENTRYPOINT } from '../../constants';
 
-export const routeName = 'cookies_disabled';
+export const viewName = 'cookies-disabled';
 
 const CookiesDisabled = (_: RouteComponentProps) => {
-  logPageViewEvent(routeName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   /* HACK / TODO when sunsetting content-server: if this page is hit through content-server's
    * router instead of hitting it directly via `/cookies_disabled?showReactApp=true`, which
@@ -30,18 +29,12 @@ const CookiesDisabled = (_: RouteComponentProps) => {
   const [stillDisabled, setStillDisabled] = useState(false);
 
   const buttonHandler = useCallback(() => {
-    logViewEvent(routeName, 'submit', {
-      entrypoint_variation: 'react',
-    });
+    logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     if (!Storage.isLocalStorageEnabled(window) || !navigator.cookieEnabled) {
-      logViewEvent(routeName, 'fail', {
-        entrypoint_variation: 'react',
-      });
+      logViewEvent(`flow.${viewName}`, 'fail', REACT_ENTRYPOINT);
       setStillDisabled(true);
     } else {
-      logViewEvent(routeName, 'success', {
-        entrypoint_variation: 'react',
-      });
+      logViewEvent(`flow.${viewName}`, 'success', REACT_ENTRYPOINT);
       if (contentRedirect) {
         window.history.go(-2);
       } else {

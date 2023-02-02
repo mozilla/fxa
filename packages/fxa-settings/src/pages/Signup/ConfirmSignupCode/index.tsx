@@ -12,17 +12,17 @@ import { ReactComponent as MailImg } from './graphic_mail.svg';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // email will eventually be obtained from account context
 export type ConfirmSignupCodeProps = { email: string };
 
+export const viewName = 'confirm-signup-code';
+
 const ConfirmSignupCode = ({
   email,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
-  const viewName = 'confirm-signup-code';
-  usePageViewEvent(viewName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   // const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();

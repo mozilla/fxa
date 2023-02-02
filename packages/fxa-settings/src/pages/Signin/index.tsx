@@ -11,6 +11,7 @@ import { RouteComponentProps, Link } from '@reach/router';
 import InputPassword from '../../components/InputPassword';
 import { ReactComponent as PocketLogo } from './pocket.svg';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 export type SigninProps = {
   email: string;
@@ -19,15 +20,15 @@ export type SigninProps = {
   serviceName?: MozServices;
 };
 
+export const viewName = 'signin';
+
 const Signin = ({
   email,
   isPasswordNeeded,
   ServiceLogo,
   serviceName,
 }: SigninProps & RouteComponentProps) => {
-  usePageViewEvent('signin', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const isPocketClient = serviceName === MozServices.Pocket;
   const [error, setError] = useState('');

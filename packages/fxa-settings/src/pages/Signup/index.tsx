@@ -19,6 +19,7 @@ import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import Banner, { BannerType } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 interface SharedProps {
   email: string;
@@ -51,6 +52,8 @@ type FormData = {
   userAge: string;
 };
 
+export const viewName = 'signup';
+
 const Signup = ({
   email,
   canChangeEmail = true,
@@ -58,11 +61,9 @@ const Signup = ({
   isCWTSEnabled,
   areNewslettersEnabled,
 }: SignupProps & RouteComponentProps) => {
-  usePageViewEvent('signup', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const onFocusMetricsEvent = 'signup.engage';
+  const onFocusMetricsEvent = `${viewName}.engage`;
   const isPocketClient = serviceName === MozServices.Pocket;
 
   const [ageCheckErrorText, setAgeCheckErrorText] = useState<string>('');
@@ -104,10 +105,8 @@ const Signup = ({
   );
 
   const onFocus = () => {
-    if (!isFocused && onFocusMetricsEvent) {
-      logViewEvent('flow', onFocusMetricsEvent, {
-        entrypoint_variation: 'react',
-      });
+    if (!isFocused) {
+      logViewEvent('flow', onFocusMetricsEvent, REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };

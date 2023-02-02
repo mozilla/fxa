@@ -15,6 +15,7 @@ import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -23,6 +24,8 @@ import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloo
 // (recoveryKeyId, accountResetToken, kb)
 
 // If lostRecoveryKey is set, redirect to /complete_reset_password
+
+export const viewName = 'account-recovery-reset-password';
 
 export type AccountRecoveryResetPasswordProps = {
   email: string;
@@ -42,16 +45,13 @@ const AccountRecoveryResetPassword = ({
   linkStatus,
   forceAuth = false,
 }: AccountRecoveryResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent('account-recovery-reset-password', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
   const alertBar = useAlertBar();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
-  const onFocusMetricsEvent = 'account-recovery-reset-password.engage';
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -65,7 +65,7 @@ const AccountRecoveryResetPassword = ({
 
   const alertSuccessAndNavigate = useCallback(() => {
     const successCompletePwdReset = ftlMsgResolver.getMsg(
-      'account-recovery-reset-password-success-alert',
+      `${viewName}-success-alert`,
       'Password set'
     );
     alertBar.success(successCompletePwdReset);
@@ -125,7 +125,7 @@ const AccountRecoveryResetPassword = ({
               onSubmit={handleSubmit(onSubmit)}
               email={email}
               loading={false}
-              onFocusMetricsEvent={onFocusMetricsEvent}
+              onFocusMetricsEvent={`${viewName}.engage`}
             />
           </section>
 

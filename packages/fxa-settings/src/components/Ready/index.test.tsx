@@ -9,6 +9,7 @@ import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -99,10 +100,8 @@ describe('Ready', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<Ready viewName={viewName} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, {
-      entrypoint_variation: 'react',
-    });
+    render(<Ready {...{ viewName }} />);
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits a metrics event when a user clicks `Continue`', () => {
@@ -116,11 +115,12 @@ describe('Ready', () => {
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
-    const clickViewName = `${viewName}`;
     const fullActionName = `${viewName}.continue`;
     fireEvent.click(passwordResetContinueButton);
-    expect(logViewEvent).toHaveBeenCalledWith(clickViewName, fullActionName, {
-      entrypoint_variation: 'react',
-    });
+    expect(logViewEvent).toHaveBeenCalledWith(
+      viewName,
+      fullActionName,
+      REACT_ENTRYPOINT
+    );
   });
 });

@@ -4,13 +4,14 @@
 
 import React from 'react';
 import { screen, render } from '@testing-library/react';
-import { logPageViewEvent } from '../../lib/metrics';
-import CannotCreateAccount, { routeName } from '.';
+import { usePageViewEvent } from '../../lib/metrics';
+import CannotCreateAccount, { viewName } from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
 }));
 
 describe('CannotCreateAccount', () => {
@@ -23,9 +24,7 @@ describe('CannotCreateAccount', () => {
     render(<CannotCreateAccount />);
     testAllL10n(screen, bundle);
 
-    expect(logPageViewEvent).toHaveBeenCalledWith(routeName, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
 
     screen.getByRole('heading', {
       name: 'Cannot create account',

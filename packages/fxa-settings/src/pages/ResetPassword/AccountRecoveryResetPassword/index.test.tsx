@@ -8,9 +8,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import AccountRecoveryResetPassword from '.';
+import AccountRecoveryResetPassword, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { SHOW_BALLOON_TIMEOUT } from '../../../constants';
+import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -100,11 +100,6 @@ describe('AccountRecoveryResetPassword page', () => {
         linkStatus="valid"
       />
     );
-    expect(usePageViewEvent).toHaveBeenCalledWith(
-      `account-recovery-reset-password`,
-      {
-        entrypoint_variation: 'react',
-      }
-    );
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

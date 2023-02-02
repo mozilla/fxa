@@ -7,8 +7,9 @@ import { fireEvent, screen } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import ResetPasswordWithRecoveryKeyVerified from '.';
+import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
 import { logViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -41,11 +42,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     );
     fireEvent.click(newAccountRecoveryKeyButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'reset-password-with-recovery-key-verified',
-      'reset-password-with-recovery-key-verified.generate-new-key',
-      {
-        entrypoint_variation: 'react',
-      }
+      viewName,
+      `${viewName}.generate-new-key`,
+      REACT_ENTRYPOINT
     );
   });
 
@@ -54,11 +53,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     const continueToAccountLink = screen.getByText('Continue to my account');
     fireEvent.click(continueToAccountLink);
     expect(logViewEvent).toHaveBeenCalledWith(
-      'reset-password-with-recovery-key-verified',
-      'reset-password-with-recovery-key-verified.continue-to-account',
-      {
-        entrypoint_variation: 'react',
-      }
+      viewName,
+      `${viewName}.continue-to-account`,
+      REACT_ENTRYPOINT
     );
   });
 });

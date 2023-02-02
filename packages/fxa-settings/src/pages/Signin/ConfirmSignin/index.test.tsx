@@ -8,12 +8,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import ConfirmSignin from '.';
+import ConfirmSignin, { viewName } from '.';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
-  logViewEvent: jest.fn(),
 }));
 
 const mockGoBackCallback = jest.fn();
@@ -79,8 +79,6 @@ describe('ConfirmSignin', () => {
 
   it('emits a metrics event on render', () => {
     render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(`confirm-signin`, {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

@@ -227,8 +227,8 @@ registerSuite('amplitude', {
       );
     },
 
-    'screen.cannot_create_account': () => {
-      createAmplitudeEvent('screen.cannot_create_account');
+    'screen.cannot-create-account': () => {
+      createAmplitudeEvent('screen.cannot-create-account');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
@@ -237,8 +237,8 @@ registerSuite('amplitude', {
       );
     },
 
-    'screen.cookies_disabled': () => {
-      createAmplitudeEvent('screen.cookies_disabled');
+    'screen.cookies-disabled': () => {
+      createAmplitudeEvent('screen.cookies-disabled');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
@@ -247,8 +247,8 @@ registerSuite('amplitude', {
       );
     },
 
-    'cookies_disabled.submit': () => {
-      createAmplitudeEvent('cookies_disabled.submit');
+    'flow.cookies_disabled.submit': () => {
+      createAmplitudeEvent('flow.cookies-disabled.submit');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
@@ -258,7 +258,7 @@ registerSuite('amplitude', {
     },
 
     'cookies_disabled.success': () => {
-      createAmplitudeEvent('cookies_disabled.success');
+      createAmplitudeEvent('flow.cookies-disabled.success');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
@@ -268,7 +268,7 @@ registerSuite('amplitude', {
     },
 
     'cookies_disabled.fail': () => {
-      createAmplitudeEvent('cookies_disabled.fail');
+      createAmplitudeEvent('flow.cookies-disabled.fail');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(

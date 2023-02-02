@@ -4,9 +4,10 @@
 
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import CompleteSignin from '.';
+import CompleteSignin, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { renderWithRouter } from '../../../models/mocks';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -111,8 +112,6 @@ describe('CompleteSignin', () => {
     renderWithRouter(
       <CompleteSignin linkStatus="valid" isForPrimaryEmail={true} />
     );
-    expect(usePageViewEvent).toHaveBeenCalledWith('complete-signin', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

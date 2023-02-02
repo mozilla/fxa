@@ -12,13 +12,13 @@ export type PrimaryEmailVerifiedProps = {
   isSignedIn?: boolean;
 };
 
+export const viewName = 'primary-email-verified';
+
 const PrimaryEmailVerified = ({
   serviceName,
   isSignedIn = false,
-}: PrimaryEmailVerifiedProps & RouteComponentProps) => {
-  const viewName = 'primary-email-verified';
-
-  return <Ready {...{ viewName, serviceName, isSignedIn }} />;
-};
+}: PrimaryEmailVerifiedProps & RouteComponentProps) => (
+  <Ready {...{ viewName, serviceName, isSignedIn }} />
+);
 
 export default PrimaryEmailVerified;

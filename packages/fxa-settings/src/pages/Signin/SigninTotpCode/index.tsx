@@ -14,19 +14,19 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // --serviceName-- is the relying party
 
 export type SigninTotpCodeProps = { email: string; serviceName?: MozServices };
 
+export const viewName = 'signin-totp-code';
+
 const SigninTotpCode = ({
   email,
   serviceName,
 }: SigninTotpCodeProps & RouteComponentProps) => {
-  const viewName = 'signin-totp-code';
-  usePageViewEvent(viewName, {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
@@ -52,9 +52,7 @@ const SigninTotpCode = ({
     }
     try {
       // Check security code
-      // logViewEvent('flow', signin-totp-code.submit, {
-      //   entrypoint_variation: 'react',
-      //  });
+      // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);
       // Check if isForcePasswordChange
     } catch (e) {
       // TODO: error handling, error message confirmation

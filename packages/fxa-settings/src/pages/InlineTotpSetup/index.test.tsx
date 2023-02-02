@@ -6,14 +6,15 @@ import React from 'react';
 import { screen, render, fireEvent } from '@testing-library/react';
 // import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import InlineTotpSetup from '.';
-import { logPageViewEvent } from '../../lib/metrics';
+import InlineTotpSetup, { viewName } from '.';
+import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { MOCK_CODE, MOCK_EMAIL } from './mocks';
+import { REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
 }));
 
 describe('InlineTotpSetup', () => {
@@ -128,8 +129,6 @@ describe('InlineTotpSetup', () => {
 
   it('emits the expected metrics on render', () => {
     render(<InlineTotpSetup code={MOCK_CODE} email={MOCK_EMAIL} />);
-    expect(logPageViewEvent).toHaveBeenCalledWith('inline-totp-setup', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

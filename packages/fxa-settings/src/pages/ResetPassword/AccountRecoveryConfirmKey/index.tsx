@@ -16,6 +16,7 @@ import WarningMessage from '../../../components/WarningMessage';
 import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import { MozServices } from '../../../lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 // --serviceName-- is the relying party
 
@@ -30,21 +31,20 @@ type FormData = {
 
 type LinkStatus = 'damaged' | 'expired' | 'valid';
 
+export const viewName = 'account-recovery-confirm-key';
+
 // eslint-disable-next-line no-empty-pattern
 const AccountRecoveryConfirmKey = ({
   serviceName,
   linkStatus,
 }: AccountRecoveryConfirmKeyProps & RouteComponentProps) => {
   // TODO: confirm event name
-  usePageViewEvent('account-recovery-confirm-key', {
-    entrypoint_variation: 'react',
-  });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [recoveryKey, setRecoveryKey] = useState<string>('');
   const [recoveryKeyErrorText, setRecoveryKeyErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
   const alertBar = useAlertBar();
-  const onFocusMetricsEvent = 'account-recovery-confirm-key.engage';
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit } = useForm<FormData>({
@@ -56,10 +56,8 @@ const AccountRecoveryConfirmKey = ({
   });
 
   const onFocus = () => {
-    if (!isFocused && onFocusMetricsEvent) {
-      logViewEvent('flow', onFocusMetricsEvent, {
-        entrypoint_variation: 'react',
-      });
+    if (!isFocused) {
+      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };
@@ -81,9 +79,7 @@ const AccountRecoveryConfirmKey = ({
     }
     try {
       checkRecoveryKey();
-      logViewEvent('flow', 'account-recovery-confirm-key.submit', {
-        entrypoint_variation: 'react',
-      });
+      logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
     } catch (e) {
       const errorAccountRecoveryConfirmKey = ftlMsgResolver.getMsg(
         'account-recovery-confirm-key-error-general',
@@ -138,7 +134,7 @@ const AccountRecoveryConfirmKey = ({
                   setRecoveryKey(e.target.value);
                 }}
                 errorText={recoveryKeyErrorText}
-                onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
+                onFocusCb={onFocus}
                 autoFocus
                 className="text-start"
                 anchorStart
