@@ -7,7 +7,7 @@ import Stripe from 'stripe';
 import Container from 'typedi';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
-import { AppConfig } from '../lib/types';
+import { AppConfig, AuthLogger } from '../lib/types';
 import { promises as fs } from 'fs';
 
 const pckg = require('../package.json');
@@ -276,6 +276,10 @@ async function refundUnverifiedAccounts({
   skipFile: string;
   filterStatus?: Stripe.Subscription['status'];
 }) {
+  const log = Container.get(AuthLogger);
+
+  log.info('init', { message: 'Starting script' });
+
   const unverifiedAccounts: OutputData[] = [];
   const unverifiedAccountsRefunded: OutputData[] = [];
   const verifiedAccounts: OutputData[] = [];
