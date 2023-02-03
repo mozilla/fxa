@@ -4,20 +4,20 @@
 
 import React, { ReactElement } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { RemoteMetadata } from '../../../../lib/types';
-import { usePageViewEvent } from '../../../../lib/metrics';
-import CardHeader from '../../../../components/CardHeader';
-import Banner, { BannerType } from '../../../../components/Banner';
-import AppLayout from '../../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../../constants';
-import DeviceInfoBlock from '../../../../components/DeviceInfoBlock';
+import { RemoteMetadata } from '../../../lib/types';
+import { usePageViewEvent } from '../../../lib/metrics';
+import CardHeader from '../../../components/CardHeader';
+import Banner, { BannerType } from '../../../components/Banner';
+import AppLayout from '../../../components/AppLayout';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 
 export type BannerMessage = {
   messageType: BannerType;
   messageElement: ReactElement;
 };
 
-export type WaitForAuthProps = {
+export type SuppWaitForAuthProps = {
   authDeviceInfo: RemoteMetadata;
   // Listen to broken for error/success messages
   // included in props temporarily for tests/storybook
@@ -26,10 +26,10 @@ export type WaitForAuthProps = {
 
 export const viewName = 'pair.supp.wait-for-auth';
 
-const WaitForAuth = ({
+const SuppWaitForAuth = ({
   authDeviceInfo,
   bannerMessage,
-}: WaitForAuthProps & RouteComponentProps) => {
+}: SuppWaitForAuthProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const {
     deviceName,
@@ -69,4 +69,4 @@ const WaitForAuth = ({
   );
 };
 
-export default WaitForAuth;
+export default SuppWaitForAuth;

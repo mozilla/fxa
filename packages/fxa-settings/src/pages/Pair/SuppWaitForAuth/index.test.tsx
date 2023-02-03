@@ -5,22 +5,22 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-import WaitForSupp, { viewName } from '.';
+import SuppWaitForAuth, { viewName } from '.';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_METADATA_WITH_DEVICE_NAME,
   MOCK_METADATA_WITH_LOCATION,
-} from '../../../../components/DeviceInfoBlock/mocks';
-import { usePageViewEvent } from '../../../../lib/metrics';
-import { REACT_ENTRYPOINT } from '../../../../constants';
+} from '../../../components/DeviceInfoBlock/mocks';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
-jest.mock('../../../../lib/metrics', () => ({
+jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
-describe('DeviceInfoBlock component', () => {
+describe('SuppWaitForAuth page', () => {
   it('renders as expected when the location is undefined', () => {
-    render(<WaitForSupp suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />);
+    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Approval now required from your other device'
@@ -31,7 +31,7 @@ describe('DeviceInfoBlock component', () => {
   });
 
   it('renders as expected when a device name is provided', () => {
-    render(<WaitForSupp suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME} />);
+    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME} />);
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
       'Ultron'
@@ -39,13 +39,13 @@ describe('DeviceInfoBlock component', () => {
   });
 
   it('renders as expected when a location is available', () => {
-    render(<WaitForSupp suppDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
+    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
 
     screen.getByText('Vancouver, British Columbia, Canada (estimated)');
   });
 
-  it('emits expected metrics events on success', () => {
-    render(<WaitForSupp suppDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
+  it('emits expected metrics events on render', () => {
+    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
