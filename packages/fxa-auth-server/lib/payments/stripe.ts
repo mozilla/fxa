@@ -349,6 +349,10 @@ export class StripeHelper extends StripeHelperBase {
 
     const subUpdates = customer.subscriptions.data
       .filter((sub) => {
+        // If subscription automatic_tax enabled, do not set tax rates
+        if (sub.automatic_tax) {
+          return false;
+        }
         const subTaxRates = new Set(
           (sub.default_tax_rates ?? []).map((tr) => tr.id)
         );
