@@ -8,7 +8,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 // import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
-import { ReactComponent as TwoFactorImg } from './graphic_two_factor_auth.svg';
+import { TwoFactorAuthImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
@@ -77,13 +77,7 @@ const SigninTotpCode = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <FtlMsg id="signin-totp-code-image-label" attrs={{ ariaLabel: true }}>
-            <TwoFactorImg
-              className="w-3/5"
-              role="img"
-              aria-label="A device with a hidden 6-digit code."
-            />
-          </FtlMsg>
+          <TwoFactorAuthImage className="w-3/5" />
         </div>
 
         <FtlMsg id="signin-totp-code-instruction">

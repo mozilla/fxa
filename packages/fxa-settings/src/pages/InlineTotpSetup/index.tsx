@@ -9,7 +9,7 @@ import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import { usePageViewEvent } from '../../lib/metrics';
-import { ReactComponent as TwoFactorImg } from '../Signin/SigninTotpCode/graphic_two_factor_auth.svg';
+import { TwoFactorAuthImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
@@ -44,10 +44,6 @@ export const InlineTotpSetup = ({
     'tfa-qr-code-alt',
     `Use the code ${code} to set up two-step authentication in supported applications.`,
     { code }
-  );
-  const localizedTwoFactorImgAriaLabel = ftlMsgResolver.getMsg(
-    'signin-totp-code-image-label',
-    'A device with a hidden 6-digit code.'
   );
   const [secret, setSecret] = useState<string>();
   const [qrCodeSrc, setQRCodeSrc] = useState<string>();
@@ -99,11 +95,7 @@ export const InlineTotpSetup = ({
             {...{ serviceName }}
           />
           <section className="flex flex-col items-center">
-            <TwoFactorImg
-              className="w-1/2"
-              role="img"
-              aria-label={localizedTwoFactorImgAriaLabel}
-            />
+            <TwoFactorAuthImage className="w-1/2" />
             <FtlMsg
               id="inline-totp-setup-add-security-link"
               elems={{

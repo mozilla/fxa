@@ -9,7 +9,7 @@ import { useEscKeydownEffect } from '../../../lib/hooks';
 
 import firefoxIcon from 'fxa-react/images/ff-logo.svg';
 import monitorIcon from './monitor.svg';
-import pocketIcon from './pocket.svg';
+import pocketIcon from 'fxa-react/images/pocket.svg';
 import desktopIcon from './desktop.svg';
 import mobileIcon from './mobile.svg';
 import relayIcon from './relay.svg';

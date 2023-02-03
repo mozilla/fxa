@@ -1,0 +1,39 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from 'react';
+import { RouteComponentProps } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import CardHeader from '../../../components/CardHeader';
+import Banner, { BannerType } from '../../../components/Banner';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { HeartsVerifiedImage } from '../../../components/images';
+
+type PairSuccessProps = { error?: string };
+
+const PairSuccess = ({ error }: PairSuccessProps & RouteComponentProps) => {
+  const viewName = 'pair-success';
+  usePageViewEvent(viewName, { entrypoint_variation: 'react' });
+  // TODO: We'll need to figure out how to localize the error (be it passing in a localized
+  // error, or passing in an error id to compose the ftl id)
+  return (
+    <>
+      {error && (
+        <Banner type={BannerType.error}>
+          <p>{error}</p>
+        </Banner>
+      )}
+      <CardHeader
+        headingTextFtlId="pair-success-header"
+        headingText="Device connected"
+      />
+      <HeartsVerifiedImage className="w-3/5 mx-auto" />
+      <FtlMsg id="pair-success-message">
+        <p className="text-sm">Pairing was successful.</p>
+      </FtlMsg>
+    </>
+  );
+};
+
+export default PairSuccess;

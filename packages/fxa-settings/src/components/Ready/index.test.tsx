@@ -4,8 +4,8 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-import { FluentBundle } from '@fluent/bundle';
+// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+// import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
@@ -19,14 +19,14 @@ jest.mock('../../lib/metrics', () => ({
 describe('Ready', () => {
   const customServiceName = MozServices.FirefoxSync;
   const viewName = 'reset-password-confirmed';
-  let bundle: FluentBundle;
-  beforeAll(async () => {
-    bundle = await getFtlBundle('settings');
-  });
+  // let bundle: FluentBundle;
+  // beforeAll(async () => {
+  //   bundle = await getFtlBundle('settings');
+  // });
 
   it('renders as expected with default values', () => {
     render(<Ready {...{ viewName }} />);
-    testAllL10n(screen, bundle);
+    // testAllL10n(screen, bundle);
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'

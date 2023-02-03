@@ -10,8 +10,8 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import InputText from '../../components/InputText';
 import DataBlock from '../../components/DataBlock';
-import { ReactComponent as RecoveryCodesGraphic } from '../Signin/SigninRecoveryCode/graphic_recovery_codes.svg';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { RecoveryCodesImage } from '../../components/images';
 
 export type InlineRecoverySetupProps = {
   isIOS?: boolean;
@@ -34,10 +34,6 @@ const InlineRecoverySetup = ({
   const localizedInputTextLabel = ftlMsgResolver.getMsg(
     'inline-recovery-backup-authentication-code',
     'Backup authentication code'
-  );
-  const localizedGraphicAriaLabel = ftlMsgResolver.getMsg(
-    'inline-recovery-setup-image-description',
-    'Document that contains hidden text.'
   );
 
   /* TODO: - Add in copy/download/print/continue/cancel actions for all buttons
@@ -73,11 +69,7 @@ const InlineRecoverySetup = ({
           <section>
             <form noValidate>
               <div>
-                <RecoveryCodesGraphic
-                  role="img"
-                  aria-label={localizedGraphicAriaLabel}
-                  className="mx-auto"
-                />
+                <RecoveryCodesImage className="mx-auto" />
                 <FtlMsg id="inline-recovery-confirmation-description">
                   <p className="text-sm mb-6">
                     To ensure that you will be able to regain access to your
