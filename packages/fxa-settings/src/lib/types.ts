@@ -13,3 +13,14 @@ export enum MozServices {
   MozillaVPN = 'Mozilla VPN',
   Pocket = 'Pocket',
 }
+
+// Information about a device
+export type RemoteMetadata = {
+  deviceName?: string;
+  browserName: string;
+  genericOSName: string;
+  ipAddress: string;
+  country?: string;
+  region?: string;
+  city?: string;
+};

@@ -11,6 +11,7 @@ import {
   MOCK_CUSTOM_HEADING_FTL_ID,
   MOCK_HEADING,
   MOCK_SERVICE_NAME,
+  MOCK_SUBHEADING,
 } from './mocks';
 
 export default {
@@ -30,6 +31,12 @@ const storyWithProps = (props: React.ComponentProps<typeof CardHeader>) => {
 export const Basic = storyWithProps({
   headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
   headingText: MOCK_HEADING,
+});
+
+export const BasicWithCustomSubheading = storyWithProps({
+  headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  headingText: MOCK_HEADING,
+  subheadingText: MOCK_SUBHEADING,
 });
 
 export const WithDefaultServiceName = storyWithProps({

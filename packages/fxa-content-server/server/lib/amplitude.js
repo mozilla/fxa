@@ -491,6 +491,11 @@ const EVENTS = {
     group: GROUPS.qrConnectDevice,
     event: 'wait_for_supp',
   },
+  // the screen displayed if the pairing supplicant approved first
+  'screen.pair.supp.wait-for-auth': {
+    group: GROUPS.qrConnectDevice,
+    event: 'wait_for_auth',
+  },
   'screen.pair.auth.complete': {
     group: GROUPS.qrConnectDevice,
     event: 'complete',

@@ -36,7 +36,7 @@ describe('CardHeader', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: `${MOCK_HEADING} to continue to ${MozServices.Default}`,
+        name: `${MOCK_HEADING} to continue to account settings`,
       })
     ).toBeInTheDocument();
   });
