@@ -15,6 +15,10 @@ A relying party will get webhook calls for events. These events are encoded in
 [SET][set]s with the following formats. See the [SET RFC][set] for definitions and other
 examples.
 
+## Retries
+
+If RP's system does not send a 200 response after a webhook event is sent, the webhook will retry for 7 days.
+
 ### Password Change
 
 Sent when a user has reset or changed their password. Services receiving this event
@@ -79,8 +83,10 @@ Services should update any cached profile data they hold about the user.
 Sent when a user's subscription state has changed to RPs that provide the changed
 subscription capability.
 
-**NOTE**: There are strict requirements about subscription state change handling
+**NOTES**:
+- There are strict requirements about subscription state change handling
 based on the `changeTime` as documented below.
+- A webhook event will not be sent if a user creates an FxA account on the sign up subscription page in Subplat. Since the account is suddenly new, we assume the user never visited the product and thus shouldn't get information on this new user until they visit the RP's product page.
 
 - Event Identifier
   - `https://schemas.accounts.firefox.com/event/subscription-state-change`
@@ -95,6 +101,25 @@ based on the `changeTime` as documented below.
       - Time in seconds when the state change occured in the payment system.
         This value MUST be tracked by the receiving system, and events with a
         changeTime older than the last tracked time MUST be discarded.
+
+#### Scenarios
+
+Create FxA account on Subscription page
+1. User creates an FxA account on the create subscription page - no webhook events.
+   - RP should initialize subscription from cookie or fetching profile data
+1. User cancels subscription which will cancel Sept 5th but has never visited RP's page - Webhook sends a subscription isActive true event.
+(Webhook now behaves like the below scenarios)
+
+Cancelling Subscription
+1. User with an FxA account creates a subscription - Webhook sends a subscription isActive true event.
+1. User cancels their subscription which will cancel Sept 5th - Webhook sends a subscription isActive true event.
+1. Sept 5th comes - Webhook sends a subscription isActive false event for User.
+
+Continuing Subscription
+1. User has subscription
+1. User cancels subscription which will end Sept 5th - Webhook sends subscription isActive true event.
+1. User restarts subscription before Sept 5th - Webhook sends subscription isActive true event.
+1. Sept 5th comes - no webhook events.
 
 ### Example Subscription State Change Event
 
@@ -116,6 +141,8 @@ based on the `changeTime` as documented below.
 
 Sent when a user has been deleted from Firefox Accounts. RPs MUST delete all user
 records for the given user when receiving this event.
+
+**NOTE**: An RP may get a delete event, without the user visiting the RP's product page. See Subscription State Change scenarios for the scenario where a user subscribes to a product and creates an FxA account and the webhook doesn't send a webhook event.
 
 - Event Identifier
   - `https://schemas.accounts.firefox.com/event/delete-user`
