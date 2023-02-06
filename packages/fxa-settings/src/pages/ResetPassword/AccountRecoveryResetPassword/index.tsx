@@ -16,6 +16,7 @@ import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import CardHeader from '../../../components/CardHeader';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -94,11 +95,12 @@ const AccountRecoveryResetPassword = ({
     <>
       {linkStatus === 'valid' && (
         <>
-          <FtlMsg id="create-new-password-header">
-            <h1 className="card-header">Create new password</h1>
-          </FtlMsg>
+          <CardHeader
+            headingText="Create new password"
+            headingTextFtlId="create-new-password-header"
+          />
           <FtlMsg id="account-restored-success-message">
-            <p className="text-sm my-4">
+            <p className="text-sm mb-4">
               You have successfully restored your account using your account
               recovery key. Create a new password to secure your data, and store
               it in a safe location.

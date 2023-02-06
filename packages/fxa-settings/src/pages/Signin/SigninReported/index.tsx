@@ -7,6 +7,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps } from '@reach/router';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import CardHeader from '../../../components/CardHeader';
 
 export const viewName = 'signin-reported';
 
@@ -15,22 +16,16 @@ const SigninReported = (props: RouteComponentProps) => {
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="card-header">
-          <FtlMsg id="signin-reported-header">
-            Thank you for your vigilance
-          </FtlMsg>
-        </h1>
-      </div>
-      <section>
-        <div className="error"></div>
-        <FtlMsg id="signin-reported-message">
-          <p className="my-4 text-sm">
-            Our team has been notified. Reports like this help us fend off
-            intruders.
-          </p>
-        </FtlMsg>
-      </section>
+      <CardHeader
+        headingText="Thank you for your vigilance"
+        headingTextFtlId="signin-reported-header"
+      />
+      <FtlMsg id="signin-reported-message">
+        <p className="text-sm">
+          Our team has been notified. Reports like this help us fend off
+          intruders.
+        </p>
+      </FtlMsg>
     </>
   );
 };

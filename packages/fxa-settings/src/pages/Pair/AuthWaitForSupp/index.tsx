@@ -45,7 +45,7 @@ const AuthWaitForSupp = ({
     <AppLayout>
       <CardHeader
         headingText="Approval now required"
-        headingTextFtlId="pair-wait-for-auth-heading-text"
+        headingAndSubheadingFtlId="pair-wait-for-auth-heading-text"
         subheadingText="from your other device"
       />
       {bannerMessage && (

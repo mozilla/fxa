@@ -12,6 +12,7 @@ import InputText from '../../components/InputText';
 import DataBlock from '../../components/DataBlock';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { RecoveryCodesImage } from '../../components/images';
+import CardHeader from '../../components/CardHeader';
 
 export type InlineRecoverySetupProps = {
   isIOS?: boolean;
@@ -47,25 +48,12 @@ const InlineRecoverySetup = ({
     <>
       {showConfirmation ? (
         <>
-          <div className="mb-4">
-            {serviceName ? (
-              <FtlMsg id="inline-recovery-confirmation-header">
-                <h1 className="card-header">
-                  Confirm backup authentication code{' '}
-                  <span className="card-subheader">{`to continue to ${serviceName}`}</span>
-                </h1>
-              </FtlMsg>
-            ) : (
-              <FtlMsg id="inline-recovery-confirmation-header-default">
-                <h1 className="card-header">
-                  Confirm backup authentication code{' '}
-                  <span className="card-subheader">
-                    {`to continue to ${MozServices.Default}`}
-                  </span>
-                </h1>
-              </FtlMsg>
-            )}
-          </div>
+          <CardHeader
+            headingText="Confirm backup authentication code"
+            headingWithDefaultServiceFtlId="inline-recovery-confirmation-header-default"
+            headingWithCustomServiceFtlId="inline-recovery-confirmation-header"
+            {...{ serviceName }}
+          />
           <section>
             <form noValidate>
               <div>
@@ -108,25 +96,12 @@ const InlineRecoverySetup = ({
         </>
       ) : (
         <>
-          <div className="mb-4">
-            {serviceName ? (
-              <FtlMsg id="inline-recovery-setup-header" vars={{ serviceName }}>
-                <h1 className="card-header">
-                  Save backup authentication codes{' '}
-                  <span className="card-subheader">{`to continue to ${serviceName}`}</span>
-                </h1>
-              </FtlMsg>
-            ) : (
-              <FtlMsg id="inline-recovery-setup-header-default">
-                <h1 className="card-header">
-                  Save backup authentication codes{' '}
-                  <span className="card-subheader">
-                    {`to continue to ${MozServices.Default}`}
-                  </span>
-                </h1>
-              </FtlMsg>
-            )}
-          </div>
+          <CardHeader
+            headingText="Save backup authentication codes"
+            headingWithDefaultServiceFtlId="inline-recovery-setup-header-default"
+            headingWithCustomServiceFtlId="inline-recovery-setup-header"
+            {...{ serviceName }}
+          />
           <section className="mt-6 flex flex-col items-center h-auto justify-between">
             <FtlMsg id="inline-recovery-setup-message">
               <p className="text-sm mb-6">

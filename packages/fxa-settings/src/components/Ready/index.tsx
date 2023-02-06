@@ -9,6 +9,7 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
+import CardHeader from '../CardHeader';
 
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
@@ -70,13 +71,10 @@ const Ready = ({
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="card-header">
-          <FtlMsg id={templateValues.headerId}>
-            {templateValues.headerText}
-          </FtlMsg>
-        </h1>
-      </div>
+      <CardHeader
+        headingText={templateValues.headerText}
+        headingTextFtlId={templateValues.headerId}
+      />
       <div className="flex justify-center mx-auto">
         <HeartsVerifiedImage className="w-3/5" />
       </div>
