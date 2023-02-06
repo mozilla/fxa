@@ -57,8 +57,8 @@ export const DeviceInfoBlock = ({
   };
 
   return (
-    <div className="mt-9 mb-4">
-      {deviceName && <h2 className="mb-5 text-base">{deviceName}</h2>}
+    <div className="mt-8 mb-4">
+      {deviceName && <h2 className="mb-4 text-base">{deviceName}</h2>}
       <FtlMsg id="device-info-browser-os" vars={{ browserName, genericOSName }}>
         <p className="text-xs">{`${browserName} on ${genericOSName}`}</p>
       </FtlMsg>
