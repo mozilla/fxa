@@ -723,7 +723,10 @@ workflows:
           name: Functional Tests - Playwright (PR)
           requires:
             - Build (PR)
-
+      - build-and-deploy-storybooks:
+          name: Deploy Storybooks (PR)
+          requires:
+            - Build (PR)
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
@@ -740,6 +743,7 @@ workflows:
             - Functional Test - Content 4 (PR)
             - Functional Test - Content 5 (PR)
             - Functional Tests - Playwright (PR)
+            - Deploy Storybooks (PR)
 
   production_smoke_test:
     # This workflow can be useful if we want to run test changes in our functional tests
