@@ -7260,17 +7260,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-user-interaction@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@opentelemetry/instrumentation-user-interaction@npm:0.31.0"
+"@opentelemetry/instrumentation-user-interaction@npm:^0.32.0":
+  version: 0.32.0
+  resolution: "@opentelemetry/instrumentation-user-interaction@npm:0.32.0"
   dependencies:
-    "@opentelemetry/core": ^1.0.0
-    "@opentelemetry/instrumentation": ^0.32.0
-    "@opentelemetry/sdk-trace-web": ^1.0.0
+    "@opentelemetry/core": ^1.8.0
+    "@opentelemetry/instrumentation": ^0.34.0
+    "@opentelemetry/sdk-trace-web": ^1.8.0
   peerDependencies:
-    "@opentelemetry/api": ^1.0.0
+    "@opentelemetry/api": ^1.3.0
     zone.js: 0.11.4
-  checksum: bdeecce7b31cfd224e5b2f15803edcd9e22af01be59714d5f115c2c88beae2bed17b3fb7474d631badddbd67ae9d70c6e7f8a7d5469c17721da8f2b558c2be42
+  checksum: dd51b96787fe542275f9ba84f20929199fac6446bffec61f3f7d306168dfd737e89f054b6a2603f5d4abf66f8bb3a085645a609c63b70a50e070c9d6f936d34a
   languageName: node
   linkType: hard
 
@@ -26445,7 +26445,7 @@ fsevents@~2.1.1:
     "@opentelemetry/exporter-trace-otlp-http": ^0.34.0
     "@opentelemetry/instrumentation-document-load": ^0.31.0
     "@opentelemetry/instrumentation-fetch": ^0.34.0
-    "@opentelemetry/instrumentation-user-interaction": ^0.31.0
+    "@opentelemetry/instrumentation-user-interaction": ^0.32.0
     "@opentelemetry/instrumentation-xml-http-request": ^0.33.0
     "@opentelemetry/plugin-react-load": ^0.28.0
     "@opentelemetry/sdk-trace-base": ^1.7.0
