@@ -8,6 +8,11 @@
 .card {
   @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20 mobileLandscape:shadow-card-grey-drop;
 
+  /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
+  &.card-xl {
+    @apply mobileLandscape:w-184;
+  }
+
   &::before {
     @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''] bg-ff-logo;
   }

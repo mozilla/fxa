@@ -13,6 +13,9 @@ import CookiesDisabled from '../../pages/CookiesDisabled';
 import ResetPassword from '../../pages/ResetPassword';
 import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
+import Legal from '../../pages/Legal';
+import LegalTerms from '../../pages/Legal/Terms';
+import LegalPrivacy from '../../pages/Legal/Privacy';
 
 export const App = ({
   flowQueryParams,
@@ -34,9 +37,13 @@ export const App = ({
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
               <ResetPasswordWithRecoveryKeyVerified path="/reset_password_with_recovery_key_verified/*" />
+              <Legal path="/legal/*" />
+              <LegalTerms path="/legal/terms/*" />
+              <LegalTerms path="/:locale/legal/terms/*" />
+              <LegalPrivacy path="/legal/privacy/*" />
+              <LegalPrivacy path="/:locale/legal/privacy/*" />
             </>
           )}
-
           <Settings path="/settings/*" {...{ flowQueryParams }} />
         </ScrollToTop>
       </Router>

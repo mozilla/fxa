@@ -18,7 +18,8 @@ export interface ReactRouteGroup {
   featureFlagOn: boolean;
   routes: {
     name: string;
-    definition: RouteDefinition;
+    // only server-side react route groups contain the route definition
+    definition?: RouteDefinition;
   }[];
 }
 
@@ -27,7 +28,7 @@ export interface GetRouteDefinition {
 }
 
 export interface GetRouteDefinitionSingle {
-  (route: string): RouteDefinition;
+  (route: string | RegExp): RouteDefinition;
 }
 
 export interface RouteHelpers {
@@ -61,7 +62,7 @@ export interface ReactRouteGroups {
 }
 
 export interface GetReactRouteGroups {
-  (showReactApp: ShowReactApp, isServer: boolean): ReactRouteGroups;
+  (showReactApp: ShowReactApp, i18n: any): ReactRouteGroups;
 }
 
 export interface GetRoute {
@@ -72,5 +73,8 @@ export interface GetRoute {
 }
 
 export interface GetBackboneRouteDefinition {
-  (reactRouteGroups: ReactRouteGroups, routeNames: string[]): RouteDefinition;
+  (
+    reactRouteGroups: ReactRouteGroups,
+    routeNames: string[]
+  ): RouteDefinition | null;
 }

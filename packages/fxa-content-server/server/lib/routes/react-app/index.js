@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { ReactRoute } = require('./react-route');
+const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
 
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
  * or setting `routes` with `.getRoutes` on the react route class. See tests for examples.
  *
+ * When setting a regex, the corresponding matches for `router.js` must be set in
+ * `react-route-client.js`.
  *  @type {import("./types").GetReactRouteGroups}
  */
-const getReactRouteGroups = (showReactApp, isServer = true) => {
-  const reactRoute = new ReactRoute(isServer);
-
+const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,
@@ -21,6 +21,13 @@ const getReactRouteGroups = (showReactApp, isServer = true) => {
         'cannot_create_account',
         'clear',
         'cookies_disabled',
+        'legal',
+        // Match (allow for optional trailing slash):
+        // * /legal/terms
+        // * /<locale>/legal/terms
+        // * /legal/privacy
+        // * /<locale>/legal/privacy
+        TERMS_PRIVACY_REGEX,
       ]),
     },
 
@@ -35,7 +42,7 @@ const getReactRouteGroups = (showReactApp, isServer = true) => {
 
     oauthRoutes: {
       featureFlagOn: showReactApp.oauthRoutes,
-      routes: [reactRoute.getRoute('/oauth/success/:clientId')],
+      routes: [],
     },
 
     signInRoutes: {

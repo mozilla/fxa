@@ -4,11 +4,16 @@
 
 'use strict';
 
-const { getReactRouteGroups } = require('./routes/react-app');
+const {
+  getServerReactRouteGroups,
+} = require('./routes/react-app/route-groups-server');
 
 module.exports = function (config, i18n, statsd) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
-  const reactRouteGroups = getReactRouteGroups(config.get('showReactApp'));
+  const reactRouteGroups = getServerReactRouteGroups(
+    config.get('showReactApp'),
+    i18n
+  );
 
   const routes = [
     redirectVersionedToUnversioned('complete_reset_password'),
@@ -18,7 +23,7 @@ module.exports = function (config, i18n, statsd) {
     require('./routes/get-frontend-pairing').default(reactRouteGroups),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),
-    require('./routes/get-terms-privacy')(i18n),
+    require('./routes/get-terms-privacy').default(reactRouteGroups, i18n),
     require('./routes/get-update-firefox')(config),
     require('./routes/get-index')(config),
     require('./routes/get-ver.json'),

@@ -44,7 +44,7 @@ import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
-import { getReactRouteGroups } from '../../../server/lib/routes/react-app';
+import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
@@ -110,10 +110,7 @@ let Router = Backbone.Router.extend({
     }
 
     this.storage = Storage.factory('sessionStorage', this.window);
-    this.reactRouteGroups = getReactRouteGroups(
-      this.config.showReactApp,
-      false
-    );
+    this.reactRouteGroups = getClientReactRouteGroups(this.config.showReactApp);
   },
 });
 
@@ -172,9 +169,13 @@ Router = Router.extend({
     'force_auth(/)': createViewHandler(ForceAuthView),
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
     'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
-    'legal(/)': createViewHandler('legal'),
+    'legal(/)': function () {
+      this.createReactOrBackboneViewHandler('legal', 'legal');
+    },
     'legal/privacy(/)': createViewHandler('pp'),
-    'legal/terms(/)': createViewHandler('tos'),
+    'legal/terms(/)': function () {
+      this.createReactOrBackboneViewHandler('legal/terms', 'tos');
+    },
     'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': createViewHandler(SignInPasswordView),
@@ -365,7 +366,7 @@ Router = Router.extend({
     for (const routeGroup in this.reactRouteGroups) {
       if (
         this.reactRouteGroups[routeGroup].routes.find(
-          (route) => routeName === route.name
+          (route) => routeName === route
         )
       ) {
         return this.reactRouteGroups[routeGroup].featureFlagOn;

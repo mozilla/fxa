@@ -7,15 +7,17 @@ import mozLogo from 'fxa-react/images/moz-logo.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
 import Head from 'fxa-react/components/Head';
+import classNames from 'classnames';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
   // the string should be localized
   title?: string;
   children: React.ReactNode;
+  widthClass?: string;
 };
 
-export const AppLayout = ({ title, children }: AppLayoutProps) => {
+export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   return (
     <>
@@ -24,9 +26,9 @@ export const AppLayout = ({ title, children }: AppLayoutProps) => {
         className="flex min-h-screen flex-col items-center"
         data-testid="app"
       >
-        <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
+        <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1 pt-14">
           <section>
-            <div className="card">{children}</div>
+            <div className={classNames('card', widthClass)}>{children}</div>
           </section>
         </main>
         <footer className="hidden mobileLandscape:block w-full p-8">

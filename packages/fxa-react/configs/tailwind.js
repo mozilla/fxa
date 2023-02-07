@@ -33,6 +33,7 @@ module.exports = {
       width: {
         18: '4.5rem',
         120: '30rem',
+        184: '46rem',
       },
       minWidth: {
         sm: '27rem',
@@ -89,6 +90,9 @@ module.exports = {
       animation: {
         'delayed-fade-in': 'fade-in 1s linear 5s forwards',
         spin: 'rotate 0.8s linear infinite',
+      },
+      listStyleType: {
+        circle: 'circle',
       },
     },
     screens: {
