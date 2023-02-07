@@ -123,6 +123,8 @@ const ERRNO = {
 
   IAP_PURCHASE_ALREADY_REGISTERED: 208,
 
+  INVALID_INVOICE_PREVIEW_REQUEST: 209,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -1437,12 +1439,29 @@ AppError.iapPurchaseConflict = (error) => {
   );
 };
 
+AppError.invalidInvoicePreviewRequest = (error, message, priceId, customer) => {
+  const extra = error ? [{}, undefined, error] : [];
+  return new AppError(
+    {
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.INVALID_INVOICE_PREVIEW_REQUEST,
+      message,
+    },
+    {
+      priceId,
+      customer,
+    },
+    ...extra
+  );
+};
+
 AppError.iapInternalError = (error) => {
   const extra = error ? [{}, undefined, error] : [];
   return new AppError(
     {
       code: 500,
-      error: 'Internal Error',
+      error: 'Internal Server Error',
       errno: ERRNO.IAP_INTERNAL_OTHER,
       message: 'IAP Internal Error',
     },

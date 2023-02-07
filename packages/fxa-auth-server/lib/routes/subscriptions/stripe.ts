@@ -441,15 +441,28 @@ export class StripeHandler {
       !customer || customer.tax?.automatic_tax === 'supported';
     const automaticTax = this.automaticTax && isCustomerTaxed;
 
-    const previewInvoice = await this.stripeHelper.previewInvoice({
-      automaticTax,
-      country,
-      ipAddress,
-      promotionCode,
-      priceId,
-    });
+    try {
+      const previewInvoice = await this.stripeHelper.previewInvoice({
+        automaticTax,
+        country,
+        ipAddress,
+        promotionCode,
+        priceId,
+      });
 
-    return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
+      return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
+    } catch (err: any) {
+      if (err.type === 'StripeInvalidRequestError') {
+        throw error.invalidInvoicePreviewRequest(
+          err,
+          err.message,
+          priceId,
+          customer?.id
+        );
+      } else {
+        throw err;
+      }
+    }
   }
 
   /**
