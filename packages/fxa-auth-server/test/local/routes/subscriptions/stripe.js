@@ -818,6 +818,22 @@ describe('DirectStripeRoutes', () => {
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
     });
+
+    it('error with AppError invalidInvoicePreviewRequest', async () => {
+      const appError = new Error('Stripe error');
+      appError.type = 'StripeInvalidRequestError';
+      directStripeRoutesInstance.stripeHelper.previewInvoice.rejects(appError);
+
+      const request = deepCopy(VALID_REQUEST);
+
+      try {
+        await directStripeRoutesInstance.previewInvoice(request);
+        assert.fail('Preview Invoice should fail');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_INVOICE_PREVIEW_REQUEST);
+      }
+    });
   });
 
   describe('subsequentInvoicePreviews', () => {
