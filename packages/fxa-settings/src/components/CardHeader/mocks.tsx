@@ -10,4 +10,6 @@ export const MOCK_CUSTOM_HEADING_FTL_ID = 'custom-heading';
 
 export const MOCK_HEADING = 'Complete this step';
 
+export const MOCK_SUBHEADING = 'on your other device';
+
 export const MOCK_SERVICE_NAME = MozServices.FirefoxMonitor;

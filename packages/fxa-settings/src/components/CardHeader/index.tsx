@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
 
@@ -23,10 +23,16 @@ interface CardHeaderBasicProps extends CardHeaderRequiredProps {
   headingTextFtlId: string;
 }
 
+interface CardHeaderWithCustomSubheadingProps extends CardHeaderRequiredProps {
+  headingTextFtlId: string;
+  subheadingText: string;
+}
+
 type CardHeaderProps =
   | CardHeaderDefaultServiceProps
   | CardHeaderCustomServiceProps
-  | CardHeaderBasicProps;
+  | CardHeaderBasicProps
+  | CardHeaderWithCustomSubheadingProps;
 
 function isCustomService(
   props: CardHeaderProps
@@ -49,17 +55,30 @@ function isDefaultService(
   );
 }
 
+function isBasicWithCustomSubheading(
+  props: CardHeaderProps
+): props is CardHeaderWithCustomSubheadingProps {
+  return (
+    (props as CardHeaderWithCustomSubheadingProps).subheadingText !== undefined
+  );
+}
+
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
 
   if (isDefaultService(props)) {
+    const spanElement: ReactElement = (
+      <span className="card-subheader">
+        to continue to {MozServices.Default}
+      </span>
+    );
     return (
-      <FtlMsg id={props.headingWithDefaultServiceFtlId}>
+      <FtlMsg
+        id={props.headingWithDefaultServiceFtlId}
+        elems={{ span: spanElement }}
+      >
         <h1 className="card-header">
-          {headingText}{' '}
-          <span className="card-subheader">
-            to continue to {MozServices.Default}
-          </span>
+          {headingText} {spanElement}
         </h1>
       </FtlMsg>
     );
@@ -67,11 +86,31 @@ const CardHeader = (props: CardHeaderProps) => {
 
   if (isCustomService(props)) {
     const { headingWithCustomServiceFtlId, serviceName } = props;
+    const spanElement: ReactElement = (
+      <span className="card-subheader">to continue to {serviceName}</span>
+    );
     return (
-      <FtlMsg id={headingWithCustomServiceFtlId} vars={{ serviceName }}>
+      <FtlMsg
+        id={headingWithCustomServiceFtlId}
+        vars={{ serviceName }}
+        elems={{ span: spanElement }}
+      >
         <h1 className="card-header">
-          {headingText}{' '}
-          <span className="card-subheader">to continue to {serviceName}</span>
+          {headingText} {spanElement}
+        </h1>
+      </FtlMsg>
+    );
+  }
+
+  if (isBasicWithCustomSubheading(props)) {
+    const { subheadingText, headingTextFtlId } = props;
+    const spanElement: ReactElement = (
+      <span className="card-subheader">{subheadingText}</span>
+    );
+    return (
+      <FtlMsg id={headingTextFtlId} elems={{ span: spanElement }}>
+        <h1 className="card-header">
+          {headingText} {spanElement}
         </h1>
       </FtlMsg>
     );
