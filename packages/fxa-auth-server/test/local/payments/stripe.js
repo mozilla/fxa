@@ -3188,6 +3188,19 @@ describe('#integration - StripeHelper', () => {
       assert.deepEqual(result2, undefined);
     });
 
+    it('ignores subscriptions where automatic tax is enabled', async () => {
+      const customer = deepCopy(customer1);
+      customer.subscriptions.data[0].automatic_tax = true;
+      const paymentMethod = deepCopy(paymentMethodAttach);
+      sinon.stub(stripeHelper.stripe.subscriptions, 'update');
+      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
+        customer,
+        paymentMethod
+      );
+      assert.deepEqual(result, []);
+      assert(stripeHelper.stripe.subscriptions.update.notCalled);
+    });
+
     it('updates the subscription tax rates from one rate to a different one', async () => {
       const customer = deepCopy(customer1);
       const paymentMethod = deepCopy(paymentMethodAttach);
