@@ -16,6 +16,7 @@ const cwd = path.resolve(__dirname, ROOT_DIR);
 const execOptions = {
   cwd,
   env: {
+    ...process.env,
     PATH: process.env.PATH || '',
     NODE_ENV: 'dev',
     LOG_LEVEL: 'error',
@@ -24,7 +25,8 @@ const execOptions = {
 };
 
 describe('#integration - scripts/delete-account:', () => {
-  it('does not fail', () => {
+  it('does not fail', function () {
+    this.timeout(10000);
     return execAsync(
       'node -r esbuild-register scripts/delete-account',
       execOptions
