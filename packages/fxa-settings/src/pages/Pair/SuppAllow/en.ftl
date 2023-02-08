@@ -1,4 +1,4 @@
-## SuppAllow page - Part of the devide pairing flow
+## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
 ## The pairing must be confirmed from both devices to succeed
 
