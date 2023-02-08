@@ -10,14 +10,14 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { HeartsBrokenImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
+type PairUnsupportedProps = { error?: string };
+export const viewName = 'pair-unsupported';
 
-type PairFailureProps = { error?: string };
-export const viewName = 'pair-failure';
-
-const PairFailure = ({ error }: PairFailureProps & RouteComponentProps) => {
+const PairUnsupported = ({
+  error,
+}: PairUnsupportedProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  // TODO: We'll need to figure out how to actually localize the error (be it passing in a localized
-  // error, or passing in an error id to compose the ftl id)
+
   return (
     <>
       {error && (
@@ -26,15 +26,18 @@ const PairFailure = ({ error }: PairFailureProps & RouteComponentProps) => {
         </Banner>
       )}
       <CardHeader
-        headingTextFtlId="pair-failure-header"
-        headingText="Pairing not successful"
+        headingTextFtlId="pair-unsupported-header"
+        headingText="Pair using an app"
       />
       <HeartsBrokenImage className="w-3/5 mx-auto" />
-      <FtlMsg id="pair-failure-message">
-        <p className="text-sm">The setup process was terminated.</p>
+      <FtlMsg id="pair-unsupported-message">
+        <p className="text-sm">
+          Did you use the system camera? You must pair from within a Firefox
+          app.
+        </p>
       </FtlMsg>
     </>
   );
 };
 
-export default PairFailure;
+export default PairUnsupported;
