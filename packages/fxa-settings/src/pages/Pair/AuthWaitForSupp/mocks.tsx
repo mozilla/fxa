@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { BannerMessage } from '.';
-import { BannerType } from '../../../../components/Banner';
+import { BannerType } from '../../../components/Banner';
 
 const bannerText = <p>Uh-oh that device is not allowed to connect</p>;
 

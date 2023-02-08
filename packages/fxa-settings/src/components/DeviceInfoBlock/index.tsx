@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { RemoteMetadata as DeviceInfoBlockProps } from '../../lib/types';
 
 // Remote metadata is obtained from pairing channel
@@ -57,7 +57,7 @@ export const DeviceInfoBlock = ({
   };
 
   return (
-    <div className="mt-9">
+    <div className="mt-9 mb-4">
       {deviceName && <h2 className="mb-5 text-base">{deviceName}</h2>}
       <FtlMsg id="device-info-browser-os" vars={{ browserName, genericOSName }}>
         <p className="text-xs">{`${browserName} on ${genericOSName}`}</p>

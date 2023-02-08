@@ -3,34 +3,45 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import WaitForAuth from '.';
+import SuppAllow from '.';
 import { Meta } from '@storybook/react';
+import { MOCK_BANNER_MESSAGE } from './mocks';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_METADATA_WITH_DEVICE_NAME,
   MOCK_METADATA_WITH_LOCATION,
-} from '../../../../components/DeviceInfoBlock/mocks';
-import { MOCK_BANNER_MESSAGE } from './mocks';
+} from '../../../components/DeviceInfoBlock/mocks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 export default {
-  title: 'pages/Pair/Supp/WaitForAuth',
-  component: WaitForAuth,
+  title: 'pages/Pair/SuppAllow',
+  component: SuppAllow,
 } as Meta;
 
 export const WithLocation = () => (
-  <WaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />
+  <SuppAllow
+    email={MOCK_ACCOUNT.primaryEmail.email}
+    authDeviceInfo={MOCK_METADATA_WITH_LOCATION}
+  />
 );
 
 export const WithUnknownLocation = () => (
-  <WaitForAuth authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+  <SuppAllow
+    email={MOCK_ACCOUNT.primaryEmail.email}
+    authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+  />
 );
 
 export const WithDeviceName = () => (
-  <WaitForAuth authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME} />
+  <SuppAllow
+    email={MOCK_ACCOUNT.primaryEmail.email}
+    authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
+  />
 );
 
 export const WithErrorMessage = () => (
-  <WaitForAuth
+  <SuppAllow
+    email={MOCK_ACCOUNT.primaryEmail.email}
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
     bannerMessage={MOCK_BANNER_MESSAGE}
   />
