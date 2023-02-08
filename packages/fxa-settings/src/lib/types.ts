@@ -17,8 +17,8 @@ export enum MozServices {
 // Information about a device
 export type RemoteMetadata = {
   deviceName?: string;
-  browserName: string;
-  genericOSName: string;
+  deviceFamily: string;
+  deviceOS: string;
   ipAddress: string;
   country?: string;
   region?: string;

@@ -19,7 +19,7 @@ export type BannerMessage = {
 };
 
 export type AuthAllowProps = {
-  authDeviceInfo: RemoteMetadata;
+  suppDeviceInfo: RemoteMetadata;
   // TODO: In FXA-6639 - Listen to broken for error/success messages
   // included in props temporarily for tests/storybook
   bannerMessage?: BannerMessage;
@@ -33,20 +33,11 @@ const handleSubmit = () => {
 };
 
 const AuthAllow = ({
-  authDeviceInfo,
+  suppDeviceInfo,
   bannerMessage,
   email,
 }: AuthAllowProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const {
-    deviceName,
-    browserName,
-    genericOSName,
-    ipAddress,
-    city,
-    region,
-    country,
-  } = authDeviceInfo;
 
   const changePasswordLink = (
     <Link to="/reset_password" className="link-blue">
@@ -68,17 +59,7 @@ const AuthAllow = ({
       )}
       <LocationBalloonImage className="w-3/5 mx-auto mt-8" />
       <form noValidate onSubmit={handleSubmit}>
-        <DeviceInfoBlock
-          {...{
-            deviceName,
-            browserName,
-            genericOSName,
-            ipAddress,
-            city,
-            region,
-            country,
-          }}
-        />
+        <DeviceInfoBlock remoteMetadata={suppDeviceInfo} />
         <div className="flex flex-col justify-center">
           <FtlMsg id="pair-auth-allow-confirm-button">
             <button

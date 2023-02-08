@@ -8,9 +8,7 @@ import { RemoteMetadata } from '../../lib/types';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import {
-  MOCK_BROWSER_NAME,
-  MOCK_IP_ADDRESS,
-  MOCK_OS_NAME,
+  MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_DEVICE_NAME,
   MOCK_CITY,
   MOCK_REGION,
@@ -26,9 +24,7 @@ const storyWithProps = (props?: Partial<RemoteMetadata>) => {
   const story = () => (
     <AppLayout>
       <DeviceInfoBlock
-        ipAddress={MOCK_IP_ADDRESS}
-        browserName={MOCK_BROWSER_NAME}
-        genericOSName={MOCK_OS_NAME}
+        remoteMetadata={MOCK_METADATA_UNKNOWN_LOCATION}
         {...props}
       />
     </AppLayout>

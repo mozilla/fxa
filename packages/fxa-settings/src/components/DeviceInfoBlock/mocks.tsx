@@ -6,15 +6,15 @@ import { RemoteMetadata } from '../../lib/types';
 
 export const MOCK_IP_ADDRESS = 'XX.XX.XXX.XXX';
 export const MOCK_DEVICE_NAME = 'Ultron';
-export const MOCK_BROWSER_NAME = 'Firefox';
-export const MOCK_OS_NAME = 'macOS';
+export const MOCK_DEVICE_FAMILY = 'Firefox';
+export const MOCK_DEVICE_OS = 'macOS';
 export const MOCK_COUNTRY = 'Canada';
 export const MOCK_REGION = 'British Columbia';
 export const MOCK_CITY = 'Vancouver';
 
 export const MOCK_METADATA_WITH_LOCATION: RemoteMetadata = {
-  browserName: MOCK_BROWSER_NAME,
-  genericOSName: MOCK_OS_NAME,
+  deviceFamily: MOCK_DEVICE_FAMILY,
+  deviceOS: MOCK_DEVICE_OS,
   ipAddress: MOCK_IP_ADDRESS,
   city: MOCK_CITY,
   region: MOCK_REGION,
@@ -23,8 +23,8 @@ export const MOCK_METADATA_WITH_LOCATION: RemoteMetadata = {
 
 export const MOCK_METADATA_WITH_DEVICE_NAME: RemoteMetadata = {
   deviceName: MOCK_DEVICE_NAME,
-  browserName: MOCK_BROWSER_NAME,
-  genericOSName: MOCK_OS_NAME,
+  deviceFamily: MOCK_DEVICE_FAMILY,
+  deviceOS: MOCK_DEVICE_OS,
   ipAddress: MOCK_IP_ADDRESS,
   city: MOCK_CITY,
   region: MOCK_REGION,
@@ -32,7 +32,7 @@ export const MOCK_METADATA_WITH_DEVICE_NAME: RemoteMetadata = {
 };
 
 export const MOCK_METADATA_UNKNOWN_LOCATION: RemoteMetadata = {
-  browserName: MOCK_BROWSER_NAME,
-  genericOSName: MOCK_OS_NAME,
+  deviceFamily: MOCK_DEVICE_FAMILY,
+  deviceOS: MOCK_DEVICE_OS,
   ipAddress: MOCK_IP_ADDRESS,
 };
