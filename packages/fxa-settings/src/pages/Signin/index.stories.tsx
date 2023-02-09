@@ -8,7 +8,7 @@ import AppLayout from '../../components/AppLayout';
 import { MozServices } from '../../lib/types';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL, MOCK_SERVICE, MOCK_OTHER_ICON } from './mocks';
+import { MOCK_EMAIL, MOCK_SERVICE } from './mocks';
 export default {
   title: 'pages/Signin',
   component: Signin,
@@ -19,12 +19,11 @@ const SigninWithProvider = ({
   email,
   isPasswordNeeded,
   serviceName,
-  ServiceLogo,
 }: SigninProps) => {
   return (
     <LocationProvider>
       <AppLayout>
-        <Signin {...{ email, isPasswordNeeded, ServiceLogo, serviceName }} />
+        <Signin {...{ email, isPasswordNeeded, serviceName }} />
       </AppLayout>
     </LocationProvider>
   );
@@ -59,14 +58,5 @@ export const IsPocketClient = () => (
     email={MOCK_EMAIL}
     isPasswordNeeded={false}
     serviceName={MozServices.Pocket}
-  />
-);
-
-export const HasServiceLogo = () => (
-  <SigninWithProvider
-    email={MOCK_EMAIL}
-    isPasswordNeeded={false}
-    serviceName={MOCK_SERVICE}
-    ServiceLogo={MOCK_OTHER_ICON}
   />
 );

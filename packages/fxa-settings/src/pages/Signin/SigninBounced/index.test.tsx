@@ -29,7 +29,7 @@ describe('SigninBounced', () => {
     //   email:MOCK_EMAIL,
     // });
     screen.getByRole('heading', {
-      name: 'Sorry. We’ve locked your\xa0account.',
+      name: 'Sorry. We’ve locked your account.',
     });
     const supportLink = screen.getByRole('link', {
       name: /let us know/,

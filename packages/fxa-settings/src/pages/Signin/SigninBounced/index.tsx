@@ -10,6 +10,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import CardHeader from '../../../components/CardHeader';
 
 export type SigninBouncedProps = {
   onBackButtonClick?: (
@@ -41,13 +42,10 @@ const SigninBounced = ({
 
   return (
     <>
-      <div className="mb-4">
-        <FtlMsg id="signin-bounced-header">
-          <h1 className="card-header">
-            Sorry. We’ve locked your{'\u00A0'}account.
-          </h1>
-        </FtlMsg>
-      </div>
+      <CardHeader
+        headingText="Sorry. We’ve locked your account."
+        headingTextFtlId="signin-bounced-header"
+      />
       <section>
         <div className="flex justify-center mx-auto">
           <EmailBounced className="w-3/5" role="img" />

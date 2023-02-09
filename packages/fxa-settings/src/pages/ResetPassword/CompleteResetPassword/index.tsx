@@ -16,6 +16,7 @@ import LinkExpired from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import CardHeader from '../../../components/CardHeader';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -104,11 +105,10 @@ const CompleteResetPassword = ({
       {/* With valid password reset link */}
       {linkStatus === 'valid' && (
         <>
-          <FtlMsg id="complete-reset-pw-header">
-            <h1 id="fxa-reset-link-damaged-header" className="card-header">
-              Create new password
-            </h1>
-          </FtlMsg>
+          <CardHeader
+            headingText="Create new password"
+            headingTextFtlId="complete-reset-pw-header"
+          />
 
           {/* SyncWarning is only shown if resetPasswordConfirm === true */}
           {resetPasswordConfirm && (

@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import CardHeader from '../CardHeader';
 
 type LinkUsedProps = {
   isForPrimaryEmail: boolean;
@@ -29,9 +30,10 @@ const LinkUsed = ({ isForPrimaryEmail }: LinkUsedProps) => {
 
   return (
     <>
-      <FtlMsg id={templateValues.headerId}>
-        <h1 className="card-header">{templateValues.headerText}</h1>
-      </FtlMsg>
+      <CardHeader
+        headingText={templateValues.headerText}
+        headingTextFtlId={templateValues.headerId}
+      />
 
       <FtlMsg id="confirmation-link-reused-message">
         <p className="mt-4 text-sm">

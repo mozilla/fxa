@@ -11,7 +11,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 
-export const viewName = 'cannot_create_account';
+export const viewName = 'cannot-create-account';
 
 const CannotCreateAccount = (_: RouteComponentProps) => {
   /* TODO: get serviceName from relier once FXA-6437 is complete. Or... rethink this issue

@@ -13,6 +13,7 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import CardHeader from '../../../components/CardHeader';
 
 // email will eventually be obtained from account context
 export type SigninTokenCodeProps = { email: string };
@@ -76,54 +77,44 @@ const SigninTokenCode = ({
     //       if the account exists, notify that the account has been blocked
     //       and provide correct support link
     <>
-      <header>
-        <FtlMsg id="signin-token-code-heading">
-          <h1 className="card-header">
-            Enter confirmation code
-            <span className="card-subheader"> for your Firefox account</span>
-          </h1>
+      <CardHeader
+        headingText="Enter confirmation code"
+        headingAndSubheadingFtlId="signin-token-code-heading"
+      />
+
+      <div className="flex justify-center mx-auto">
+        <MailImage className="w-3/5" />
+      </div>
+
+      <FtlMsg id="signin-token-code-instruction">
+        <p id="verification-email-message" className="m-5 text-sm">
+          Enter the code that was sent to {email} within 5 minutes.
+        </p>
+      </FtlMsg>
+
+      <FormVerifyCode
+        {...{
+          formAttributes,
+          viewName,
+          email,
+          onSubmit,
+          code,
+          setCode,
+          codeErrorMessage,
+          setCodeErrorMessage,
+        }}
+      />
+
+      <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs inline-flex gap-1">
+        <FtlMsg id="signin-token-code-code-expired">
+          <p>Code expired?</p>
         </FtlMsg>
-      </header>
-
-      <main>
-        <div className="flex justify-center mx-auto">
-          <MailImage className="w-3/5" />
-        </div>
-
-        <FtlMsg id="signin-token-code-instruction">
-          <p id="verification-email-message" className="m-5 text-sm">
-            Enter the code that was sent to {email} within 5 minutes.
-          </p>
+        <FtlMsg id="signin-token-code-resend-code-link">
+          <button id="resend" className="link-blue" onClick={handleResendCode}>
+            Email new code.
+          </button>
         </FtlMsg>
-
-        <FormVerifyCode
-          {...{
-            formAttributes,
-            viewName,
-            email,
-            onSubmit,
-            code,
-            setCode,
-            codeErrorMessage,
-            setCodeErrorMessage,
-          }}
-        />
-
-        <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs inline-flex gap-1">
-          <FtlMsg id="signin-token-code-code-expired">
-            <p>Code expired?</p>
-          </FtlMsg>
-          <FtlMsg id="signin-token-code-resend-code-link">
-            <button
-              id="resend"
-              className="link-blue"
-              onClick={handleResendCode}
-            >
-              Email new code.
-            </button>
-          </FtlMsg>
-        </div>
-      </main>
+      </div>
     </>
   );
 };

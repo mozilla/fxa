@@ -409,10 +409,14 @@ export function setUserPreference(prefName: string, value: boolean) {
  * payload.
  */
 export function useUserPreferences() {
-  const account = useAccount();
-  setUserPreference('account-recovery', account.recoveryKey);
-  setUserPreference('emails', account.hasSecondaryVerifiedEmail);
-  setUserPreference('two-step-authentication', account.totpActive);
+  try {
+    const account = useAccount();
+    setUserPreference('account-recovery', account.recoveryKey);
+    setUserPreference('emails', account.hasSecondaryVerifiedEmail);
+    setUserPreference('two-step-authentication', account.totpActive);
+  } catch {
+    // noop, just means the user isn't logged in
+  }
 }
 
 /**
