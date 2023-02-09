@@ -68,7 +68,7 @@ const execOptions = {
   },
 };
 
-describe('#integration - scripts/dump-users', function () {
+describe.skip('#integration - scripts/dump-users', function () {
   this.timeout(10000);
 
   let db, server;

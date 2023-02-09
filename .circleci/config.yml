@@ -507,6 +507,9 @@ jobs:
   #  longer to run, so this job supports splitting.
   integration-test-part:
     parameters:
+      resource_class:
+        type: string
+        default: xlarge
       index:
         type: integer
       total:
