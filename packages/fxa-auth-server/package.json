@@ -101,7 +101,7 @@
     "i18n-iso-countries": "^7.5.0",
     "ioredis": "^4.28.2",
     "joi": "17.4.0",
-    "jose": "^4.10.0",
+    "jose": "^4.11.4",
     "jsdom": "^20.0.0",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.0",
