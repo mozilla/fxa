@@ -54,6 +54,7 @@ export class SubscribePage extends BaseLayout {
     await paypalWindow.waitForLoadState('load');
     await paypalWindow.fill('input[type=password]', 'Ah4SboP6UDZx95I');
     await paypalWindow.click('button[id=btnLogin]');
+    await paypalWindow.waitForLoadState();
     await paypalWindow.click('button[id=consentButton]');
   }
 

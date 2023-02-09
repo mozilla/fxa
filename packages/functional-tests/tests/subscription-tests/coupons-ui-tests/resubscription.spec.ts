@@ -159,7 +159,7 @@ test.describe('resubscription test', () => {
     await subscriptionManagement.updatePaypalAccount();
 
     //Added this timeout wait for page to be loaded correctly
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
 
     //Verify that the payment info is updated
     expect(await subscriptionManagement.checkPaypalAccount()).toMatch('Visa');

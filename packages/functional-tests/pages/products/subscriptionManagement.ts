@@ -66,7 +66,7 @@ export class SubscriptionManagementPage extends BaseLayout {
 
   async checkPaypalAccount() {
     const account = this.page.locator('#fundingLink');
-    await account.waitFor();
+    await account.waitFor({ state: 'visible' });
     return account.textContent();
   }
 
