@@ -2,32 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 const password = 'passwordzxcv';
 let email;
 
 test.describe('Firefox Desktop Sync v3 sign in', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
+  test.beforeEach(async ({ page, pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
-    await login.clearCache();
   });
 
-  test.afterEach(async ({ pages: { login } }) => {
-    await login.clearCache();
-  });
-
-  test('verified, does not need to confirm ', async ({
+  test('verified, does not need to confirm', async ({
     target,
     page,
-    pages: {
-      login,
-      signinTokenCode,
-      connectAnotherDevice,
-      fxDesktopV3ForceAuth,
-    },
+    pages: { login, signinTokenCode, connectAnotherDevice },
   }) => {
     const uaStrings = {
       desktop_firefox_58:
@@ -52,22 +42,11 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
-  test('verified, resend', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode, connectAnotherDevice },
-  }) => {
-    const uaStrings = {
-      desktop_firefox_58:
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
-    };
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
-    const queryParam = new URLSearchParams(query);
-    const email = login.createEmail();
+  test('verified, resend', async ({ target }) => {
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      await newPagesForSync(target);
     await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&${queryParam.toString()}`
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
     await login.setEmail(email);
     await signinTokenCode.clickSubmitButton();
@@ -91,18 +70,16 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
-  test('verified - invalid code', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode, connectAnotherDevice },
-  }) => {
+  test('verified - invalid code', async ({ target }) => {
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      await newPagesForSync(target);
     const uaStrings = {
       desktop_firefox_58:
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
     };
     const query = { forceUA: uaStrings['desktop_firefox_58'] };
     const queryParam = new URLSearchParams(query);
-    const email = login.createEmail();
+    //const email = login.createEmail('sync{id}');
     await page.goto(
       `${
         target.contentServerUrl
@@ -125,11 +102,9 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
-  test('verified, blocked', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode, connectAnotherDevice },
-  }) => {
+  test('verified, blocked', async ({ target }) => {
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      await newPagesForSync(target);
     const uaStrings = {
       desktop_firefox_58:
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
@@ -154,23 +129,16 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
-  test('unverified', async ({
-    target,
-    page,
-    pages: {
-      login,
-      signinTokenCode,
-      connectAnotherDevice,
-      fxDesktopV3ForceAuth,
-    },
-  }) => {
+  test('unverified', async ({ target }) => {
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      await newPagesForSync(target);
     const uaStrings = {
       desktop_firefox_58:
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
     };
     const query = { forceUA: uaStrings['desktop_firefox_58'] };
     const queryParam = new URLSearchParams(query);
-    const email = login.createEmail();
+    //const email = login.createEmail('sync{id}');
     await target.auth.signUp(email, password, {
       lang: 'en',
       preVerified: 'false',
