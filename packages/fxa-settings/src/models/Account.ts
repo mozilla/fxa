@@ -1,10 +1,11 @@
-import { gql, ApolloClient, Reference } from '@apollo/client';
+import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
 import config from '../lib/config';
 import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
+import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 
 export interface DeviceLocation {
   city: string | null;
@@ -438,11 +439,31 @@ export class Account implements AccountData {
     });
   }
 
-  // TODO reset password function
-  resetPassword(email: string) {
-    // check if email is linked to existing account
-    // if account exists, send reset password link by email
-    // handle error - if email unknown, return "Unknown account" error with sign in link
+  async resetPassword(email: string) {
+    try {
+      const result = await this.apolloClient.mutate({
+        mutation: gql`
+          mutation passwordForgotSendCode(
+            $input: PasswordForgotSendCodeInput!
+          ) {
+            passwordForgotSendCode(input: $input) {
+              clientMutationId
+              passwordForgotToken
+            }
+          }
+        `,
+        variables: { input: { email } },
+      });
+
+      const { passwordForgotToken } = result.data.passwordForgotSendCode;
+      return passwordForgotToken;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
   }
 
   async setDisplayName(displayName: string) {

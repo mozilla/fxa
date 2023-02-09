@@ -18,9 +18,7 @@ export default {
 const storyWithProps = ({ ...props }) => {
   const story = () => (
     <LocationProvider>
-      <AppLayout>
-        <ResetPassword {...props} />
-      </AppLayout>
+      <ResetPassword {...props} />
     </LocationProvider>
   );
   return story;
@@ -35,8 +33,4 @@ export const WithServiceName = storyWithProps({
 export const WithForceAuth = storyWithProps({
   prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
   forceAuth: true,
-});
-
-export const CanGoBack = storyWithProps({
-  canGoBack: true,
 });

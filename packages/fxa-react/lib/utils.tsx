@@ -31,7 +31,7 @@ export class FtlMsgResolver {
    *  - There are no missing parameters
    *  - There are no straight quotes
    *
-   * Note, this requires that the default 'en' bundle was loaded and is a available.
+   * Note, this requires that the default 'en' bundle was loaded and is available.
    *
    * @param id - The id of the message to fetch
    * @param fallbackText - The fallback text for the message

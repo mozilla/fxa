@@ -5,35 +5,29 @@
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { useAccount, useAlertBar } from '../../models';
+import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
+import { useAccount } from '../../models';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models/hooks';
 
 import { InputText } from '../../components/InputText';
 import CardHeader from '../../components/CardHeader';
 import WarningMessage from '../../components/WarningMessage';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
+
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 
-// --forceAuth-- is a hint to the signup page that the user should not
-// be given the option to change their address
-// can be triggered by clicking on "Forgot password?" from /force_auth?email=user@domain.com
-// where the provided email is a registered account
-// (e.g., if coming from force_auth or a relying party)
-
-// --canGoBack-- determines if the user can navigate back to an fxa entrypoint
-
-// --serviceName-- is the relying party
+import AppLayout from '../../components/AppLayout';
+import { composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
+import Banner, { BannerType } from '../../components/Banner';
 
 export const viewName = 'reset-password';
 
 export type ResetPasswordProps = {
-  serviceName?: MozServices;
   prefillEmail?: string;
   forceAuth?: boolean;
-  canGoBack?: boolean;
+  serviceName?: MozServices;
 };
 
 type FormData = {
@@ -42,20 +36,19 @@ type FormData = {
 
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
-  serviceName,
+  // TODO: Pull service name from Relier model FXA-6437
+  serviceName = MozServices.Default,
   prefillEmail,
   forceAuth,
-  canGoBack,
 }: ResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [email, setEmail] = useState<string>(prefillEmail || '');
-  const [emailErrorText, setEmailErrorText] = useState<string>('');
+  const [errorText, setErrorText] = useState<string>('');
+  const [errorTranslationId, setErrorTranslationId] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
-  const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit } = useForm<FormData>({
     mode: 'onBlur',
@@ -82,42 +75,32 @@ const ResetPassword = ({
     navigate('confirm_reset_password', { replace: true });
   }, [navigate]);
 
-  // Set tooltip error message
-  // const setErrorMessage = (errorText: string) => {
-  //   setEmailErrorText(errorText);
-  // };
-
-  // --TODO: Complete onSubmit handling in FXA-6123--
-  // Verify if provided email is linked to existing account
-  // If yes, logViewEvent (reset-password.submit),
-  // initiate password reset and send password reset link by email
-  // Navigate to confirm_reset_password
-  // Catch errors:
-  // If 'UNKNOWN_ACCOUNT' --> tooltip ('Unknown account. Sign up' w/link), log error
-  // If USER_CANCELLED_LOGIN --> log error (login.cancelled)
-  // If other error --> alertBar, ''Sorry, there was a problem resetting your password'
-  const onSubmit = () => {
+  const onSubmit = async () => {
     try {
-      // TODO resetPassword function in FXA-6123
-      account.resetPassword(email);
+      setErrorTranslationId('');
+      await account.resetPassword(email);
       navigateToConfirmPwReset();
-    } catch (e) {
-      const errorResetPassword = ftlMsgResolver.getMsg(
-        'reset-password-error-general',
-        'Sorry, there was a problem resetting your password'
-      );
-      alertBar.error(errorResetPassword);
+    } catch (err) {
+      setErrorTranslationId(composeAuthUiErrorTranslationId(err));
     }
   };
 
   return (
-    <>
+    <AppLayout>
       <CardHeader
         headingWithDefaultServiceFtlId="reset-password-heading-w-default-service"
         headingWithCustomServiceFtlId="reset-password-heading-w-custom-service"
         headingText="Reset password"
         {...{ serviceName }}
       />
+
+      {errorTranslationId && (
+        <Banner type={BannerType.error}>
+          <FtlMsg id={errorTranslationId}>
+            <p>Sorry, there was a problem resetting your password</p>
+          </FtlMsg>
+        </Banner>
+      )}
 
       <WarningMessage
         warningMessageFtlId="reset-password-warning-message-2"
@@ -157,13 +140,13 @@ const ResetPassword = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setEmail(e.target.value);
               // clear error tooltip if user types in the field
-              if (emailErrorText) {
-                setEmailErrorText('');
+              if (errorText) {
+                setErrorText('');
               }
             }}
             onFocusCb={onFocus}
             autoFocus
-            errorText={emailErrorText}
+            errorText={errorText}
             className="text-start"
             anchorStart
             autoComplete="off"
@@ -183,8 +166,8 @@ const ResetPassword = ({
         </FtlMsg>
       </form>
 
-      {canGoBack && <LinkRememberPassword {...{ email, forceAuth }} />}
-    </>
+      <LinkRememberPassword {...{ email }} />
+    </AppLayout>
   );
 };
 

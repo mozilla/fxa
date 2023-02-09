@@ -4,17 +4,21 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../lib/metrics';
+
+import { logPageViewEvent } from '../../lib/metrics';
 import ResetPassword, { viewName } from '.';
-import { MOCK_ACCOUNT } from '../../models/mocks';
-import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 
+import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+import { MozServices } from '../../lib/types';
+import { Account, AppContext } from '../../models';
+import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
+
 jest.mock('../../lib/metrics', () => ({
-  usePageViewEvent: jest.fn(),
+  logPageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
@@ -23,6 +27,14 @@ jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
 }));
+
+function renderWithAccount(account: Account) {
+  render(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <ResetPassword />
+    </AppContext.Provider>
+  );
+}
 
 describe('PageResetPassword', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -48,8 +60,9 @@ describe('PageResetPassword', () => {
     // when forceEmail is NOT provided as a prop, the optional read-only email should not be rendered
     const forcedEmailEl = screen.queryByTestId('reset-password-force-email');
     expect(forcedEmailEl).not.toBeInTheDocument();
-    // when 'canGoBack: false' or not passed as prop, the optional LinkRememberPassword component should not be rendered
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Remember your password? Sign in' })
+    ).toBeInTheDocument();
   });
 
   it('renders a custom service name in the header when it is provided', () => {
@@ -73,16 +86,52 @@ describe('PageResetPassword', () => {
     expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
   });
 
-  it('renders a "Remember your password?" link if "canGoBack: true"', () => {
-    render(<ResetPassword canGoBack={true} />);
-
-    expect(
-      screen.getByRole('link', { name: 'Remember your password? Sign in' })
-    ).toBeInTheDocument();
-  });
-
   it('emits a metrics event on render', () => {
     render(<ResetPassword />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  it('submit success', async () => {
+    const account = {
+      resetPassword: jest.fn().mockResolvedValue({
+        passwordForgotToken: '123',
+      }),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+        target: { value: MOCK_ACCOUNT.primaryEmail.email },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Begin Reset'));
+    });
+
+    expect(account.resetPassword).toHaveBeenCalledWith(
+      MOCK_ACCOUNT.primaryEmail.email
+    );
+    expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
+      replace: true,
+    });
+  });
+
+  it('displays errors', async () => {
+    const gqlError: any = AuthUiErrorNos[102]; // Unknown account error
+    const account = {
+      resetPassword: jest.fn().mockRejectedValue(gqlError),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Begin Reset'));
+    });
+
+    await screen.findByText(
+      'Sorry, there was a problem resetting your password'
+    );
   });
 });

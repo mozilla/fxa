@@ -11,6 +11,7 @@ import { QueryParams } from '../..';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
+import ResetPassword from '../../pages/ResetPassword';
 
 export const App = ({
   flowQueryParams,
@@ -30,6 +31,7 @@ export const App = ({
               <CannotCreateAccount path="/cannot_create_account/*" />
               <Clear path="/clear/*" />
               <CookiesDisabled path="/cookies_disabled/*" />
+              <ResetPassword path="/reset_password/*" />
             </>
           )}
 
