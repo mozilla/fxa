@@ -100,7 +100,7 @@ export const ModalVerifySession = ({
         </Localized>
 
         <Localized
-          id="mvs-enter-verification-code-desc"
+          id="mvs-enter-verification-code-desc-2"
           vars={{ email: primaryEmail.email }}
           elems={{
             email: <span className="font-bold"></span>,

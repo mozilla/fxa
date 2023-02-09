@@ -109,7 +109,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           >
             <p>
               Please enter the confirmation code that was sent to{' '}
-              <strong>{email}</strong> within 5 minutes.
+              <span className="font-bold">{email}</span> within 5 minutes.
             </p>
           </Localized>
 

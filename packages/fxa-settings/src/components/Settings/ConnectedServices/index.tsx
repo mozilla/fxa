@@ -275,8 +275,9 @@ export const ConnectedServices = () => {
               </Localized>
 
               <Localized
-                id="cs-disconnect-sync-content-2"
+                id="cs-disconnect-sync-content-3"
                 vars={{ device: selectedClient!.name }}
+                elems={{ span: <span className="break-word"></span> }}
               >
                 <p
                   id="connected-devices-sign-out-description"
@@ -289,8 +290,9 @@ export const ConnectedServices = () => {
               </Localized>
 
               <Localized
-                id="cs-disconnect-sync-reason-2"
+                id="cs-disconnect-sync-reason-3"
                 vars={{ device: selectedClient!.name }}
+                elems={{ span: <span className="break-word"></span> }}
               >
                 <p className="my-4 text-center">
                   What's the main reason for disconnecting{' '}

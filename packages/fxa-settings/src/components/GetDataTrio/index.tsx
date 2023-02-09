@@ -31,7 +31,7 @@ export type GetDataTrioProps = {
 
 export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
   return (
-    <Localized id="get-data-trio-copy" attrs={{ title: true, ariaLabel: true }}>
+    <Localized id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
       <button
         title="Copy"
         type="button"
@@ -100,7 +100,7 @@ export const GetDataTrio = ({
   return (
     <div className="flex justify-between w-4/5 max-w-48">
       <Localized
-        id="get-data-trio-download"
+        id="get-data-trio-download-2"
         attrs={{ title: true, ariaLabel: true }}
       >
         <a
@@ -130,7 +130,7 @@ export const GetDataTrio = ({
        *   for triggering the print screen.
        **/}
       <Localized
-        id="get-data-trio-print"
+        id="get-data-trio-print-2"
         attrs={{ title: true, ariaLabel: true }}
       >
         <button

@@ -50,14 +50,26 @@ const SigninBounced = ({
         <div className="flex justify-center mx-auto">
           <EmailBounced className="w-3/5" role="img" />
         </div>
-        <FtlMsg id="signin-bounced-message" vars={{ email: email }}>
+        <FtlMsg id="signin-bounced-message" vars={{ email }}>
           <p className="text-sm mb-6">
             The confirmation email we sent to {email} was returned and we’ve
             locked your account to protect your Firefox data.
           </p>
         </FtlMsg>
 
-        <FtlMsg id="signin-bounced-help">
+        <FtlMsg
+          id="signin-bounced-help"
+          elems={{
+            linkExternal: (
+              <LinkExternal
+                className="link-blue"
+                href="https://support.mozilla.org/"
+              >
+                let us know
+              </LinkExternal>
+            ),
+          }}
+        >
           <p className="text-sm mb-6 text-grey-400">
             If this is a valid email address,{' '}
             <LinkExternal

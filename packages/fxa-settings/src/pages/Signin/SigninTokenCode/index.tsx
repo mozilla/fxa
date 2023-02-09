@@ -86,7 +86,7 @@ const SigninTokenCode = ({
         <MailImage className="w-3/5" />
       </div>
 
-      <FtlMsg id="signin-token-code-instruction">
+      <FtlMsg id="signin-token-code-instruction" vars={{email}}>
         <p id="verification-email-message" className="m-5 text-sm">
           Enter the code that was sent to {email} within 5 minutes.
         </p>
