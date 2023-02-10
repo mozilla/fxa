@@ -8,46 +8,49 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { MOCK_ERROR } from './mock';
 import { REACT_ENTRYPOINT } from '../../../constants';
-
-import PairFailure, { viewName } from '.';
+import { MOCK_ERROR } from './mock';
+import PairUnsupported, { viewName } from '.';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
-describe('PairFailure', () => {
+describe('PairUnsupported', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
   it('renders the default view as expected', () => {
-    render(<PairFailure />);
+    render(<PairUnsupported />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Pairing not successful');
+    expect(headingEl).toHaveTextContent('Pair using an app');
     expect(
-      screen.getByText('The setup process was terminated.')
+      screen.getByText(
+        'Did you use the system camera? You must pair from within a Firefox app.'
+      )
     ).toBeInTheDocument();
   });
 
   it('renders errors as expected', () => {
-    render(<PairFailure error={MOCK_ERROR} />);
+    render(<PairUnsupported error={MOCK_ERROR} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Pairing not successful');
+    expect(headingEl).toHaveTextContent('Pair using an app');
     expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
     expect(
-      screen.getByText('The setup process was terminated.')
+      screen.getByText(
+        'Did you use the system camera? You must pair from within a Firefox app.'
+      )
     ).toBeInTheDocument();
   });
 
   it('emits expected metrics event on render', () => {
-    render(<PairFailure />);
+    render(<PairUnsupported />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });
