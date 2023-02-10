@@ -25,7 +25,7 @@ const render = (acct: Account = account) =>
     </AppContext.Provider>
   );
 
-describe.only('Recent Account Activity', () => {
+describe('Recent Account Activity', () => {
   it('renders', async () => {
     await act(async () => {
       await render();
