@@ -26,7 +26,10 @@ const getReactRouteGroups = (showReactApp, isServer = true) => {
 
     resetPasswordRoutes: {
       featureFlagOn: showReactApp.resetPasswordRoutes,
-      routes: reactRoute.getRoutes(['reset_password']),
+      routes: reactRoute.getRoutes([
+        'reset_password',
+        'confirm_reset_password',
+      ]),
     },
 
     oauthRoutes: {

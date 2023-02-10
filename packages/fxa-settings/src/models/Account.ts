@@ -32,6 +32,10 @@ export interface SecurityEvent {
   verified?: boolean;
 }
 
+export interface PasswordForgotSendCodePayload {
+  passwordForgotToken: string;
+}
+
 // TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
 export interface AttachedClient {
   clientId: string;
@@ -439,7 +443,68 @@ export class Account implements AccountData {
     });
   }
 
-  async resetPassword(email: string) {
+  async resetPassword(email: string): Promise<PasswordForgotSendCodePayload> {
+    try {
+      const result = await this.apolloClient.mutate({
+        mutation: gql`
+          mutation passwordForgotSendCode(
+            $input: PasswordForgotSendCodeInput!
+          ) {
+            passwordForgotSendCode(input: $input) {
+              passwordForgotToken
+            }
+          }
+        `,
+        variables: { input: { email } },
+      });
+
+      return result.data.passwordForgotSendCode;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
+  }
+
+  async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
+    try {
+      await this.apolloClient.mutate({
+        mutation: gql`
+          mutation passwordForgotCodeStatus(
+            $input: PasswordForgotCodeStatusInput!
+          ) {
+            passwordForgotCodeStatus(input: $input) {
+              tries
+            }
+          }
+        `,
+        variables: { input: { token: passwordForgotToken } },
+      });
+
+      // If the request does not fail, that means that the token has not been
+      // consumed yet
+      return false;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+
+      // Invalid token means the user has completed reset password
+      if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
+        return true;
+      }
+
+      // Throw all other errors
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
+  }
+
+  async resendResetPassword(
+    email: string
+  ): Promise<PasswordForgotSendCodePayload> {
     try {
       const result = await this.apolloClient.mutate({
         mutation: gql`
@@ -455,8 +520,7 @@ export class Account implements AccountData {
         variables: { input: { email } },
       });
 
-      const { passwordForgotToken } = result.data.passwordForgotSendCode;
-      return passwordForgotToken;
+      return result.data.passwordForgotSendCode;
     } catch (err) {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
       if (errno && AuthUiErrorNos[errno]) {

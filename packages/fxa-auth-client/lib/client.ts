@@ -514,17 +514,12 @@ export default class AuthClient {
     );
   }
 
-  async passwordForgotStatus(
-    passwordForgotToken: string,
-    headers: Headers = new Headers()
-  ) {
+  async passwordForgotStatus(passwordForgotToken: string) {
     return this.hawkRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
-      tokenType.passwordForgotToken,
-      undefined,
-      headers
+      tokenType.passwordForgotToken
     );
   }
 

@@ -5,21 +5,42 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ConfirmResetPassword, { viewName } from '.';
-import { usePageViewEvent } from '../../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { LocationProvider } from '@reach/router';
+import { Account, AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
+import { logPageViewEvent } from '../../../lib/metrics';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
+  logPageViewEvent: jest.fn(),
 }));
+
+function renderWithAccount(account: Account) {
+  render(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <LocationProvider>
+        <ConfirmResetPassword />
+      </LocationProvider>
+    </AppContext.Provider>
+  );
+}
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+  useLocation: () => {
+    return {
+      state: {
+        email: MOCK_EMAIL,
+        passwordForgotToken: MOCK_PASSWORD_FORGOT_TOKEN,
+      },
+    };
+  },
 }));
 
 describe('ConfirmResetPassword', () => {
@@ -30,13 +51,16 @@ describe('ConfirmResetPassword', () => {
   // });
 
   it('renders ConfirmResetPassword component as expected', () => {
-    render(<ConfirmResetPassword email={MOCK_EMAIL} />);
+    const account = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(true),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent('Reset email sent');
-
-    // TODO expect image
 
     const confirmPwResetInstructions = screen.getByText(
       `Click the link emailed to ${MOCK_EMAIL} within the next hour to create a new password.`
@@ -48,18 +72,15 @@ describe('ConfirmResetPassword', () => {
         name: 'Not in inbox or spam folder? Resend',
       })
     ).toBeInTheDocument();
-
-    // when 'canSignIn: false' or not passed as prop, the optional LinkRememberPassword component should not be rendered
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('emits the expected metrics on render', async () => {
-    render(<ConfirmResetPassword email={MOCK_EMAIL} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    render(<ConfirmResetPassword />);
+    expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
-  it('renders a "Remember your password?" link if "canSignIn: true"', () => {
-    render(<ConfirmResetPassword email={MOCK_EMAIL} canSignIn={true} />);
+  it('renders a "Remember your password?" link', () => {
+    render(<ConfirmResetPassword />);
     expect(
       screen.getByRole('link', { name: 'Remember your password? Sign in' })
     ).toBeInTheDocument();

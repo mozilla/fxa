@@ -21,6 +21,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../components/Banner';
+import { ConfirmResetPasswordProps } from './ConfirmResetPassword';
 
 export const viewName = 'reset-password';
 
@@ -71,15 +72,23 @@ const ResetPassword = ({
     }
   };
 
-  const navigateToConfirmPwReset = useCallback(() => {
-    navigate('confirm_reset_password', { replace: true });
-  }, [navigate]);
+  const navigateToConfirmPwReset = useCallback(
+    (stateData: ConfirmResetPasswordProps) => {
+      navigate('confirm_reset_password', { state: stateData, replace: true });
+    },
+    [navigate]
+  );
 
   const onSubmit = async () => {
     try {
       setErrorTranslationId('');
       await account.resetPassword(email);
-      navigateToConfirmPwReset();
+
+      const result = await account.resetPassword(email);
+      navigateToConfirmPwReset({
+        passwordForgotToken: result.passwordForgotToken,
+        email,
+      });
     } catch (err) {
       setErrorTranslationId(composeAuthUiErrorTranslationId(err));
     }

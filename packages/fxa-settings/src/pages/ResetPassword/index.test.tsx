@@ -115,6 +115,10 @@ describe('PageResetPassword', () => {
     );
     expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
       replace: true,
+      state: {
+        email: 'johndope@example.com',
+        passwordForgotToken: '123',
+      },
     });
   });
 
