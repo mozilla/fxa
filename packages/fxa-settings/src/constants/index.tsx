@@ -15,3 +15,13 @@ export const HubsLink = 'https://hubs.mozilla.com/';
 export const SHOW_BALLOON_TIMEOUT = 500;
 export const HIDE_BALLOON_TIMEOUT = 400;
 export const REACT_ENTRYPOINT = { entrypoint_variation: 'react' };
+
+export enum ENTRYPOINTS {
+  FIREFOX_IOS_OAUTH_ENTRYPOINT = 'ios_settings_manage',
+  FIREFOX_TOOLBAR_ENTRYPOINT = 'fxa_discoverability_native',
+  FIREFOX_MENU_ENTRYPOINT = 'fxa_app_menu',
+  FIREFOX_PREFERENCES_ENTRYPOINT = 'preferences',
+  FIREFOX_SYNCED_TABS_ENTRYPOINT = 'synced-tabs',
+  FIREFOX_TABS_SIDEBAR_ENTRYPOINT = 'tabs-sidebar',
+  FIREFOX_FX_VIEW_ENTRYPOINT = 'fx-view',
+}

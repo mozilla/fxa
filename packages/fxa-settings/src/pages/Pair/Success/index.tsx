@@ -9,12 +9,12 @@ import CardHeader from '../../../components/CardHeader';
 import Banner, { BannerType } from '../../../components/Banner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { HeartsVerifiedImage } from '../../../components/images';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 type PairSuccessProps = { error?: string };
-
+export const viewName = 'pair-success';
 const PairSuccess = ({ error }: PairSuccessProps & RouteComponentProps) => {
-  const viewName = 'pair-success';
-  usePageViewEvent(viewName, { entrypoint_variation: 'react' });
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
   // TODO: We'll need to figure out how to localize the error (be it passing in a localized
   // error, or passing in an error id to compose the ftl id)
   return (
