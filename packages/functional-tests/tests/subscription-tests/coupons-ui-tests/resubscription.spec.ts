@@ -126,7 +126,9 @@ test.describe('resubscription test', () => {
     expect(await subscriptionManagement.getCardInfo()).toContain('4444');
   });
 
-  test('update mode of payment for paypal', async ({
+  //Diabling the test as this is being flaky because Paypal Sandbox is being finicky
+  // FXA - 6786
+  /*test('update mode of payment for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }) => {
@@ -163,5 +165,5 @@ test.describe('resubscription test', () => {
 
     //Verify that the payment info is updated
     expect(await subscriptionManagement.checkPaypalAccount()).toMatch('Visa');
-  });
+  });*/
 });
