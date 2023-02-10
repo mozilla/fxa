@@ -13,6 +13,7 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { MailImage } from '../../../components/images';
+import CardHeader from '../../../components/CardHeader';
 
 // email will eventually be obtained from account context
 export type ConfirmSignupCodeProps = { email: string };
@@ -77,14 +78,10 @@ const ConfirmSignupCode = ({
     //       if the account exists, notify that the account has been blocked
     //       and provide correct support link
     <>
-      <header>
-        <FtlMsg id="confirm-signup-code-heading">
-          <h1 className="card-header">
-            Enter confirmation code
-            <span className="card-subheader"> for your Firefox account</span>
-          </h1>
-        </FtlMsg>
-      </header>
+      <CardHeader
+        headingText="Enter confirmation code"
+        headingAndSubheadingFtlId="confirm-signup-code-heading"
+      />
 
       <main>
         <div className="flex justify-center mx-auto">

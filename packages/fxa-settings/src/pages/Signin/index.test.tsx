@@ -69,28 +69,6 @@ describe('Signin', () => {
     expect(passwordInputForm).not.toBeInTheDocument();
   });
 
-  it('renders Signin page as expected with service logo', () => {
-    render(
-      <Signin
-        email={MOCK_EMAIL}
-        isPasswordNeeded={false}
-        serviceName={MOCK_SERVICE}
-        ServiceLogo={MOCK_OTHER_ICON}
-      />
-    );
-    // testAllL10n(screen, bundle);
-
-    const signinHeader = screen.getByRole('heading', {
-      name: 'Sign in',
-    });
-    const passwordInputForm = screen.queryByLabelText('Password');
-    const exampleLogo = screen.getByLabelText(MOCK_SERVICE);
-
-    expect(signinHeader).toBeInTheDocument();
-    expect(exampleLogo).toBeInTheDocument();
-    expect(passwordInputForm).not.toBeInTheDocument();
-  });
-
   it('renders Signin page with Pocket client as expected', () => {
     render(
       <Signin

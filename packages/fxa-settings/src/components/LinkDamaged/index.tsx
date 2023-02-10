@@ -5,6 +5,7 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkType } from '../../lib/types';
+import CardHeader from '../CardHeader';
 
 type LinkDamagedProps = {
   linkType: LinkType;
@@ -35,9 +36,10 @@ const LinkDamaged = ({ linkType }: LinkDamagedProps) => {
   const headerValue = getHeaderValues(linkType);
   return (
     <>
-      <FtlMsg id={headerValue.headerId}>
-        <h1 className="card-header">{headerValue.text}</h1>
-      </FtlMsg>
+      <CardHeader
+        headingText={headerValue.text}
+        headingTextFtlId={headerValue.headerId}
+      />
 
       <FtlMsg id="link-damaged-message">
         <p className="mt-4 text-sm">

@@ -461,6 +461,10 @@ const EVENTS = {
     group: GROUPS.connectDevice,
     event: 'pair_submit',
   },
+  'screen.pair.supp':{
+    group:GROUPS.connectDevice,
+    event: 'pair_supp_view'
+  },
   'pair.submit': {
     group: GROUPS.connectDevice,
     event: 'pair_submit',
@@ -490,6 +494,10 @@ const EVENTS = {
   'screen.pair.auth.wait-for-supp': {
     group: GROUPS.qrConnectDevice,
     event: 'wait_for_supp',
+  },
+  'screen.pair.supp.allow': {
+    group: GROUPS.qrConnectDevice,
+    event: 'supp_allow_view',
   },
   // the screen displayed if the pairing supplicant approved first
   'screen.pair.supp.wait-for-auth': {

@@ -13,30 +13,43 @@ import {
   MOCK_SERVICE_NAME,
   MOCK_SUBHEADING,
 } from './mocks';
+import { MozServices } from '../../lib/types';
 
 export default {
   title: 'components/CardHeader',
   component: CardHeader,
 } as Meta;
 
-const storyWithProps = (props: React.ComponentProps<typeof CardHeader>) => {
+const storyWithProps = (
+  props: React.ComponentProps<typeof CardHeader>,
+  storyName?: string
+) => {
   const story = () => (
     <AppLayout>
       <CardHeader {...props} />
     </AppLayout>
   );
+  if (storyName) story.storyName = storyName;
   return story;
 };
 
-export const Basic = storyWithProps({
-  headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
-  headingText: MOCK_HEADING,
-});
+export const Basic = storyWithProps(
+  {
+    headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+    headingText: MOCK_HEADING,
+  },
+  'Heading only (basic)'
+);
 
 export const BasicWithCustomSubheading = storyWithProps({
-  headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  headingAndSubheadingFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
   headingText: MOCK_HEADING,
   subheadingText: MOCK_SUBHEADING,
+});
+
+export const BasicWithDefaultSubheading = storyWithProps({
+  headingAndSubheadingFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
+  headingText: "Do somethin'",
 });
 
 export const WithDefaultServiceName = storyWithProps({
@@ -49,3 +62,35 @@ export const WithCustomServiceName = storyWithProps({
   headingWithCustomServiceFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
   headingText: MOCK_HEADING,
 });
+
+export const WithSeparateSubheadingDefaultServiceName = storyWithProps(
+  {
+    headingText: MOCK_HEADING,
+    headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+    subheadingWithDefaultServiceFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+    subheadingWithLogoFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  },
+  'Separate l10n for subheading, with default service'
+);
+
+export const WithSeparateSubheadingCustomServiceName = storyWithProps(
+  {
+    serviceName: MOCK_SERVICE_NAME,
+    headingText: MOCK_HEADING,
+    headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+    subheadingWithCustomServiceFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
+    subheadingWithLogoFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
+  },
+  'Separate l10n for subheading, with custom service name'
+);
+
+export const WithSeparateSubheadingLogo = storyWithProps(
+  {
+    serviceName: MozServices.Pocket,
+    headingText: MOCK_HEADING,
+    headingTextFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+    subheadingWithCustomServiceFtlId: MOCK_CUSTOM_HEADING_FTL_ID,
+    subheadingWithLogoFtlId: MOCK_DEFAULT_HEADING_FTL_ID,
+  },
+  'Separate l10n for subheading, with logo'
+);

@@ -5,6 +5,7 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkType } from '../../lib/types';
+import CardHeader from '../CardHeader';
 
 type LinkExpiredProps = {
   linkType: LinkType;
@@ -60,9 +61,10 @@ const LinkExpired = ({ linkType }: LinkExpiredProps) => {
   return (
     <>
       {/* TODO: Add alertBar for success/failure status of resendLinkHandler */}
-      <FtlMsg id={templateValues.headerId}>
-        <h1 className="card-header">{templateValues.headerText}</h1>
-      </FtlMsg>
+      <CardHeader
+        headingText={templateValues.headerText}
+        headingTextFtlId={templateValues.headerId}
+      />
 
       <FtlMsg id={templateValues.messageId}>
         <p className="mt-4 text-sm">{templateValues.messageText}</p>

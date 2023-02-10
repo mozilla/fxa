@@ -9,14 +9,13 @@ import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps, Link } from '@reach/router';
 import InputPassword from '../../components/InputPassword';
-import { ReactComponent as PocketLogo } from 'fxa-react/images/pocket.svg';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
+import CardHeader from '../../components/CardHeader';
 
 export type SigninProps = {
   email: string;
   isPasswordNeeded: boolean;
-  ServiceLogo?: React.ElementType;
   serviceName?: MozServices;
 };
 
@@ -25,7 +24,6 @@ export const viewName = 'signin';
 const Signin = ({
   email,
   isPasswordNeeded,
-  ServiceLogo,
   serviceName,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -80,68 +78,21 @@ const Signin = ({
 
   return (
     <>
-      <div className="mb-4">
-        {isPasswordNeeded ? (
-          <FtlMsg id="signin-password-needed-header">
-            <h1 className="card-header">
-              Enter your password{' '}
-              <span className="card-subheader">for your Firefox account</span>
-            </h1>
-          </FtlMsg>
-        ) : (
-          <>
-            <FtlMsg id="signin-header">
-              <h1 className="card-header">Sign in</h1>
-            </FtlMsg>
-            <>
-              {isPocketClient && (
-                <FtlMsg id="signin-subheader-with-logo">
-                  <span className="card-subheader">
-                    Continue to{' '}
-                    <span>
-                      <PocketLogo
-                        className="inline"
-                        aria-label={MozServices.Pocket}
-                      />
-                    </span>
-                  </span>
-                </FtlMsg>
-              )}
-              {!isPocketClient && ServiceLogo && (
-                <FtlMsg id="signin-subheader-with-logo">
-                  <span className="card-subheader">
-                    Continue to{' '}
-                    <span>
-                      <ServiceLogo
-                        className="inline"
-                        aria-label={serviceName}
-                      />
-                    </span>
-                  </span>
-                </FtlMsg>
-              )}
-              {!isPocketClient &&
-                !ServiceLogo &&
-                (serviceName ? (
-                  <FtlMsg
-                    id="signin-subheader-without-logo-with-servicename"
-                    vars={{ serviceName }}
-                  >
-                    <span className="card-subheader">
-                      Continue to {serviceName}
-                    </span>
-                  </FtlMsg>
-                ) : (
-                  <FtlMsg id="signin-subheader-without-logo-default">
-                    <span className="card-subheader">
-                      {`Continue to ${MozServices.Default}`}
-                    </span>
-                  </FtlMsg>
-                ))}
-            </>
-          </>
-        )}
-      </div>
+      {isPasswordNeeded ? (
+        <CardHeader
+          headingText="Enter your password"
+          headingAndSubheadingFtlId="signin-password-needed-header"
+        />
+      ) : (
+        <CardHeader
+          headingText="Sign in"
+          headingTextFtlId="signin-header"
+          subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
+          subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
+          subheadingWithLogoFtlId="signin-subheader-with-logo"
+          {...{ serviceName }}
+        />
+      )}
       <section>
         {/* Alerts and success messages originally went here */}
         <div className="mt-9">
@@ -178,11 +129,9 @@ const Signin = ({
             </FtlMsg>
           </div>
         </form>
-        {isPocketClient ? (
-          <TermsPrivacyAgreement isPocketClient />
-        ) : (
-          <TermsPrivacyAgreement />
-        )}
+
+        <TermsPrivacyAgreement {...{ isPocketClient }} />
+
         <div className="flex justify-between">
           <FtlMsg id="signin-use-a-different-account">
             <Link to="/" className="text-sm link-blue">
