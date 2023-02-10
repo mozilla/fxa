@@ -57,6 +57,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });
+    await page.waitForTimeout(1000);
 
     // refresh sends the user back to the first step
     expect(await login.isEmailHeader()).toBe(true);
