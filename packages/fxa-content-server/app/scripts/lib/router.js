@@ -136,7 +136,12 @@ Router = Router.extend({
     'clear(/)': function () {
       this.createReactOrBackboneViewHandler('clear', ClearStorageView);
     },
-    'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+    'complete_reset_password(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'complete_reset_password',
+        CompleteResetPasswordView
+      );
+    },
     'complete_signin(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_IN,
     }),
@@ -266,9 +271,7 @@ Router = Router.extend({
     'reset_password_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.PASSWORD_RESET,
     }),
-    'reset_password_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PASSWORD_RESET,
-    }),
+
     'reset_password_with_recovery_key_verified(/)': function () {
       this.createReactOrBackboneViewHandler(
         'reset_password_with_recovery_key_verified',
@@ -279,6 +282,18 @@ Router = Router.extend({
         }
       );
     },
+
+    'reset_password_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'reset_password_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.PASSWORD_RESET,
+        }
+      );
+    },
+
     'secondary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),

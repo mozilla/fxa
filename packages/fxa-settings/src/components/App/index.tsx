@@ -12,10 +12,15 @@ import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
 import ResetPassword from '../../pages/ResetPassword';
 import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
+
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 import Legal from '../../pages/Legal';
 import LegalTerms from '../../pages/Legal/Terms';
 import LegalPrivacy from '../../pages/Legal/Privacy';
+
+import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
+import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
+
 
 export const App = ({
   flowQueryParams,
@@ -34,14 +39,18 @@ export const App = ({
               <CannotCreateAccount path="/cannot_create_account/*" />
               <Clear path="/clear/*" />
               <CookiesDisabled path="/cookies_disabled/*" />
-              <ResetPassword path="/reset_password/*" />
-              <ConfirmResetPassword path="/confirm_reset_password/*" />
-              <ResetPasswordWithRecoveryKeyVerified path="/reset_password_with_recovery_key_verified/*" />
+
               <Legal path="/legal/*" />
               <LegalTerms path="/legal/terms/*" />
               <LegalTerms path="/:locale/legal/terms/*" />
               <LegalPrivacy path="/legal/privacy/*" />
               <LegalPrivacy path="/:locale/legal/privacy/*" />
+
+             <ResetPassword path='/reset_password/*' />
+             <ConfirmResetPassword path='/confirm_reset_password/*' />
+             <CompleteResetPassword path='/complete_reset_password/*' />
+             <ResetPasswordConfirmed path='/reset_password_verified/*' />
+             <ResetPasswordWithRecoveryKeyVerified path='/reset_password_with_recovery_key_verified/*' />
             </>
           )}
           <Settings path="/settings/*" {...{ flowQueryParams }} />

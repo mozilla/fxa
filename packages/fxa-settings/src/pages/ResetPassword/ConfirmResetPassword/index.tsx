@@ -13,8 +13,10 @@ import ConfirmWithLink, {
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import { useAccount, useInterval } from '../../../models';
-import { FtlMsg } from 'fxa-react/dist/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { logPageViewEvent } from '../../../lib/metrics';
+import { MozServices } from '../../../lib/types';
+import { ResetPasswordProps } from '../index';
 
 export const viewName = 'confirm-reset-password';
 
@@ -36,7 +38,7 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
   const [isPolling, setIsPolling] = useState<number | null>(
     POLLING_INTERVAL_MS
   );
-
+  
   const navigateToPasswordReset = useCallback(() => {
     navigate('reset_password?showReactApp=true', { replace: true });
   }, [navigate]);
@@ -55,8 +57,8 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
     try {
       // A bit unconventional but this endpoint will throw an invalid token error
       // that represents the password has been reset.
-      const status = await account.resetPasswordStatus(passwordForgotToken);
-      if (status) {
+      const isValid = await account.resetPasswordStatus(passwordForgotToken);
+      if (!isValid) {
         // TODO: Going from react page to non-react page will require a hard
         // navigate. When signin flow have been converted we should be able
         // to use `navigate`
@@ -68,7 +70,7 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
   }, isPolling);
 
   const resendHandler = async () => {
-    const result = await account.resetPassword(email);
+    const result = await account.resendResetPassword(email);
     passwordForgotToken = result.passwordForgotToken;
     setPasswordResetResend(true);
   };
