@@ -127,7 +127,7 @@ test.describe('resubscription test', () => {
   });
 
   //Diabling the test as this is being flaky because Paypal Sandbox is being finicky
-  // FXA - 6786
+  // FXA - 6786, FXA - 6788
   /*test('update mode of payment for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
