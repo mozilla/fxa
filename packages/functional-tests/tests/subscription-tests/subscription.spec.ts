@@ -38,7 +38,9 @@ test.describe('subscription test with cc and paypal', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test('subscribe with paypal and login to product', async ({
+  //Diabling the test as this is being flaky because Paypal Sandbox is being finicky
+  // FXA - 6786, FXA - 6788
+  /*test('subscribe with paypal and login to product', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
@@ -49,5 +51,5 @@ test.describe('subscription test with cc and paypal', () => {
     await relier.clickEmailFirst();
     await login.submit();
     expect(await relier.isPro()).toBe(true);
-  });
+  });*/
 });
