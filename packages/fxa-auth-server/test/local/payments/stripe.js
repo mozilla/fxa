@@ -4955,6 +4955,10 @@ describe('#integration - StripeHelper', () => {
       id: sourceId,
     };
 
+    const mockOldInvoice = {
+      total: 4567,
+    }
+
     const mockInvoice = {
       id: 'inv_0000000000',
       number: '1234567',
@@ -5644,6 +5648,7 @@ describe('#integration - StripeHelper', () => {
       productPaymentCycleNew:
         eventCustomerSubscriptionUpdated.data.object.plan.interval,
       closeDate: 1326853478,
+      invoiceTotalOldInCents: mockOldInvoice.total,
       productMetadata: {
         emailIconURL:
           eventCustomerSubscriptionUpdated.data.object.plan.metadata
@@ -5663,6 +5668,7 @@ describe('#integration - StripeHelper', () => {
       const mockUpgradeDowngradeDetails = 'mockUpgradeDowngradeDetails';
 
       beforeEach(() => {
+        sandbox.stub(stripeHelper, 'getInvoice').resolves(mockOldInvoice);
         sandbox
           .stub(
             stripeHelper,
@@ -5940,6 +5946,7 @@ describe('#integration - StripeHelper', () => {
             productIdNew,
             updateType:
               SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
+            invoiceTotalNewInCents: mockInvoice.total,
             productIdOld,
             productNameOld,
             productIconURLOld,

@@ -2844,6 +2844,12 @@ export class StripeHelper extends StripeHelperBase {
         }
       : null;
 
+    const previousLatestInvoice: string = previousAttributes.latest_invoice;
+    const invoiceOld: Stripe.Invoice = await this.getInvoice(
+      previousLatestInvoice
+    );
+    const invoiceTotalOldInCents = invoiceOld.total;
+
     const planIdNew = planNew.id;
 
     const cancelAtPeriodEndNew = subscription.cancel_at_period_end;
@@ -2905,6 +2911,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountNewCurrency,
       productPaymentCycleNew,
       closeDate: event.created,
+      invoiceTotalOldInCents,
       productMetadata: productNewMetadata,
       planConfig,
     };
@@ -3117,6 +3124,7 @@ export class StripeHelper extends StripeHelperBase {
       id: invoiceId,
       number: invoiceNumber,
       currency: paymentProratedCurrency,
+      total: invoiceTotalNewInCents,
     } = invoice;
 
     // Using stripes default proration behaviour
@@ -3165,6 +3173,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountOldCurrency,
       invoiceNumber,
       invoiceId,
+      invoiceTotalNewInCents,
       paymentProratedInCents: onetimePaymentAmount,
       paymentProratedCurrency,
     };
