@@ -461,9 +461,13 @@ const EVENTS = {
     group: GROUPS.connectDevice,
     event: 'pair_submit',
   },
-  'screen.pair.supp':{
-    group:GROUPS.connectDevice,
-    event: 'pair_supp_view'
+  'screen.pair.supp': {
+    group: GROUPS.connectDevice,
+    event: 'pair_supp_view',
+  },
+  'screen.pair.auth.totp': {
+    group: GROUPS.connectDevice,
+    event: 'view',
   },
   'pair.submit': {
     group: GROUPS.connectDevice,
