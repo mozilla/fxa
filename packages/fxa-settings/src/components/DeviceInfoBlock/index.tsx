@@ -4,20 +4,22 @@
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import React from 'react';
-import { RemoteMetadata as DeviceInfoBlockProps } from '../../lib/types';
+import { RemoteMetadata } from '../../lib/types';
 
 // Remote metadata is obtained from pairing channel
 // Some of this data may align with the account.ts model but the keys are slightly different (e.g., `state` vs `region`)
+type DeviceInfoBlockProps = { remoteMetadata: RemoteMetadata };
 
-export const DeviceInfoBlock = ({
-  deviceName,
-  browserName,
-  genericOSName,
-  ipAddress,
-  city,
-  region,
-  country,
-}: DeviceInfoBlockProps) => {
+export const DeviceInfoBlock = ({ remoteMetadata }: DeviceInfoBlockProps) => {
+  const {
+    deviceName,
+    deviceFamily,
+    deviceOS,
+    ipAddress,
+    city,
+    region,
+    country,
+  } = remoteMetadata;
   const LocalizedLocation = () => {
     if (city && region && country) {
       return (
@@ -59,8 +61,8 @@ export const DeviceInfoBlock = ({
   return (
     <div className="mt-8 mb-4">
       {deviceName && <h2 className="mb-4 text-base">{deviceName}</h2>}
-      <FtlMsg id="device-info-browser-os" vars={{ browserName, genericOSName }}>
-        <p className="text-xs">{`${browserName} on ${genericOSName}`}</p>
+      <FtlMsg id="device-info-browser-os" vars={{ deviceFamily, deviceOS }}>
+        <p className="text-xs">{`${deviceFamily} on ${deviceOS}`}</p>
       </FtlMsg>
       <p className="text-xs">
         <LocalizedLocation />
