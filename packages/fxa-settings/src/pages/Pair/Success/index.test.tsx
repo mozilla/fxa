@@ -8,8 +8,9 @@ import { render, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
+import { REACT_ENTRYPOINT } from '../../../constants';
 import { MOCK_ERROR } from './mocks';
-import PairSuccess from '.';
+import PairSuccess, { viewName } from '.';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -42,8 +43,6 @@ describe('PairSuccess', () => {
 
   it('emits expected metrics event on render', () => {
     render(<PairSuccess />);
-    expect(usePageViewEvent).toHaveBeenCalledWith('pair-success', {
-      entrypoint_variation: 'react',
-    });
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });
