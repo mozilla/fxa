@@ -33,7 +33,7 @@ import {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } from '../../payments/stripe-formatter';
-import { AuthLogger, AuthRequest } from '../../types';
+import { AuthLogger, AuthRequest, TaxAddress } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
@@ -368,16 +368,19 @@ export class StripeHandler {
 
     const { displayName } = request.payload as Record<string, string>;
 
-    const ipAddress = this.automaticTax ? request.app.clientAddress : undefined;
+    const taxAddress = this.buildTaxAddress(
+      request.app.clientAddress,
+      request.app.geo.location
+    );
 
     const idempotencyKey = generateIdempotencyKey([uid]);
-    customer = await this.stripeHelper.createPlainCustomer(
+    customer = await this.stripeHelper.createPlainCustomer({
       uid,
       email,
       displayName,
       idempotencyKey,
-      ipAddress
-    );
+      taxAddress,
+    });
     return filterCustomer(customer);
   }
 
@@ -436,7 +439,13 @@ export class StripeHandler {
     }
 
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = customer?.tax?.ip_address || request.app.clientAddress;
+
+    const taxAddress = this.buildTaxAddress(
+      request.app.clientAddress,
+      request.app.geo.location,
+      customer || undefined
+    );
+
     const isCustomerTaxed =
       !customer || customer.tax?.automatic_tax === 'supported';
     const automaticTax = this.automaticTax && isCustomerTaxed;
@@ -445,9 +454,9 @@ export class StripeHandler {
       const previewInvoice = await this.stripeHelper.previewInvoice({
         automaticTax,
         country,
-        ipAddress,
         promotionCode,
         priceId,
+        taxAddress,
       });
 
       return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
@@ -511,15 +520,20 @@ export class StripeHandler {
       string
     >;
     const country = request.app.geo.location?.country || 'US';
-    const ipAddress = request.app.clientAddress;
+
+    const taxAddress = this.buildTaxAddress(
+      request.app.clientAddress,
+      request.app.geo.location
+    );
+
     const automaticTax = this.automaticTax;
 
     const couponDetails = this.stripeHelper.retrieveCouponDetails({
       automaticTax,
       country,
-      ipAddress,
       priceId,
       promotionCode,
+      taxAddress,
     });
 
     return couponDetails;
@@ -853,6 +867,45 @@ export class StripeHandler {
     );
 
     return response;
+  }
+
+  /**
+   * Builds a TaxAddress from request geolocation or customer
+   * A tax address is only considered complete if it has both countryCode and postalCode
+   * @param ipAddress Used for logging purposes
+   * @param location Used to determine tax location if customer does not have/not provided
+   * @param customer Used to determine tax location first if shipping address present
+   */
+  buildTaxAddress(
+    ipAddress: string,
+    location?: {
+      countryCode?: string;
+      postalCode?: string;
+    },
+    customer?: Stripe.Customer
+  ): TaxAddress | undefined {
+    const customerAddress = customer?.shipping?.address;
+    if (customerAddress?.country && customerAddress.postal_code) {
+      return {
+        countryCode: customerAddress.country,
+        postalCode: customerAddress.postal_code,
+      };
+    }
+
+    if (location?.countryCode && location?.postalCode) {
+      return {
+        countryCode: location.countryCode,
+        postalCode: location.postalCode,
+      };
+    }
+
+    this.log.warn('stripe.buildTaxAddress', {
+      ipAddress,
+      location,
+      customerId: customer?.id,
+    });
+
+    return;
   }
 }
 

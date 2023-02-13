@@ -38,6 +38,7 @@ export interface AuthApp extends RequestApplicationState {
       state: string;
       country: string;
       countryCode: string;
+      postalCode?: string;
     };
     [key: string]: any;
   };
@@ -58,6 +59,11 @@ export interface AuthRequest extends Request {
   stashMetricsContext: any;
   propagateMetricsContext: any;
   gatherMetricsContext: any;
+}
+
+export interface TaxAddress {
+  countryCode: string;
+  postalCode: string;
 }
 
 export interface ProfileClient {
