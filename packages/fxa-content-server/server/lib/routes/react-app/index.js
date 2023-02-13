@@ -29,6 +29,7 @@ const getReactRouteGroups = (showReactApp, isServer = true) => {
       routes: reactRoute.getRoutes([
         'reset_password',
         'confirm_reset_password',
+        'reset_password_with_recovery_key_verified',
       ]),
     },
 

@@ -16,6 +16,10 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('ResetPasswordWithRecoveryKeyVerified', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
@@ -42,8 +46,8 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     );
     fireEvent.click(newAccountRecoveryKeyButton);
     expect(logViewEvent).toHaveBeenCalledWith(
-      viewName,
-      `${viewName}.generate-new-key`,
+      `flow.${viewName}`,
+      'generate-new-key',
       REACT_ENTRYPOINT
     );
   });
@@ -53,8 +57,8 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     const continueToAccountLink = screen.getByText('Continue to my account');
     fireEvent.click(continueToAccountLink);
     expect(logViewEvent).toHaveBeenCalledWith(
-      viewName,
-      `${viewName}.continue-to-account`,
+      `flow.${viewName}`,
+      'continue-to-account',
       REACT_ENTRYPOINT
     );
   });

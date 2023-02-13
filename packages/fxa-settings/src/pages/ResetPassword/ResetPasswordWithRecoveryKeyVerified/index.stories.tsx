@@ -4,7 +4,6 @@
 
 import React from 'react';
 import ResetPasswordWithRecoveryKeyVerified from '.';
-import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 
@@ -15,8 +14,12 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
       <ResetPasswordWithRecoveryKeyVerified />
-    </AppLayout>
+  </LocationProvider>
+);
+
+export const WithSync = () => (
+  <LocationProvider>
+      <ResetPasswordWithRecoveryKeyVerified isSync />
   </LocationProvider>
 );

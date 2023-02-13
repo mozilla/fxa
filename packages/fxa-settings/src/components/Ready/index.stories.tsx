@@ -18,10 +18,21 @@ const ReadyWithLayout = ({
   isSignedIn,
   serviceName,
   viewName,
+  isSync,
+  errorMessage,
 }: ReadyProps) => {
   return (
     <AppLayout>
-      <Ready {...{ continueHandler, isSignedIn, serviceName, viewName }} />
+      <Ready
+        {...{
+          viewName,
+          continueHandler,
+          isSignedIn,
+          serviceName,
+          isSync,
+          errorMessage,
+        }}
+      />
     </AppLayout>
   );
 };
@@ -55,5 +66,20 @@ export const WithRelyingPartyAndContinueAction = () => (
     continueHandler={() => {
       console.log('Arbitrary action');
     }}
+  />
+);
+
+export const IsSync = () => (
+  <ReadyWithLayout
+    viewName="reset-password-with-recovery-key-verified"
+    isSync
+  />
+);
+
+export const WithErrorMessage = () => (
+  <ReadyWithLayout
+    viewName="reset-password-with-recovery-key-verified"
+    isSync
+    errorMessage="But something else went wrong"
   />
 );

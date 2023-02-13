@@ -1,6 +1,8 @@
 ## Ready component
 
 reset-password-complete-header = Your password has been reset
+ready-complete-set-up-instruction = Complete setup by entering your new password on your other { -brand-firefox } devices.
+ready-start-browsing-button = Start browsing
 # This is a string that tells the user they can use whatever service prompted them to reset their password or to verify their email
 # Variables:
 # { $serviceName } represents a product name (e.g., Mozilla VPN) that will be passed in as a variable
