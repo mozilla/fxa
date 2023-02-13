@@ -125,6 +125,8 @@ const ERRNO = {
 
   INVALID_INVOICE_PREVIEW_REQUEST: 209,
 
+  UNABLE_TO_LOGIN_NO_PASSWORD_SET: 210,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -377,6 +379,15 @@ AppError.cannotCreatePassword = function () {
     error: 'Bad Request',
     errno: ERRNO.CANNOT_CREATE_PASSWORD,
     message: 'Can not create password, password already set.',
+  });
+};
+
+AppError.cannotLoginNoPasswordSet = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNABLE_TO_LOGIN_NO_PASSWORD_SET,
+    message: 'Complete account setup, please reset password to continue.',
   });
 };
 

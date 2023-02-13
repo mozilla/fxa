@@ -309,6 +309,12 @@ var ERRORS = {
     errno: 116,
     message: t('This endpoint is no longer supported'),
   },
+  UNABLE_TO_LOGIN_NO_PASSWORD_SET: {
+    errno: 210,
+    message: t(
+      'Complete account setup, please <a href="/reset_password">reset password</a> to continue.'
+    ),
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: t('System unavailable, try again soon'),

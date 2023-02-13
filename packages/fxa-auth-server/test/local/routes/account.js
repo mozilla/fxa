@@ -3566,6 +3566,25 @@ describe('/account/login', () => {
       assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
     }
   });
+
+  it('fails login when no password set', () => {
+    mockDB.accountRecord = sinon.spy(() => {
+      return Promise.resolve({
+        verifierSetAt: 0, // no password set
+      });
+    });
+    return runTest(route, mockRequest).then(
+      () => assert.ok(false),
+      (err) => {
+        assert.equal(
+          mockDB.accountRecord.callCount,
+          1,
+          'db.accountRecord was called'
+        );
+        assert.equal(err.errno, 210, 'correct errno called');
+      }
+    );
+  });
 });
 
 describe('/account/keys', () => {
