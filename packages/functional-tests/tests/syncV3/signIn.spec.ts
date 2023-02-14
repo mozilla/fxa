@@ -14,11 +14,9 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     email = login.createEmail('sync{id}');
   });
 
-  test('verified, does not need to confirm', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode, connectAnotherDevice },
-  }) => {
+  test('verified, does not need to confirm', async ({ target }) => {
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      await newPagesForSync(target);
     const uaStrings = {
       desktop_firefox_58:
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
