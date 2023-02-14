@@ -77,7 +77,6 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     };
     const query = { forceUA: uaStrings['desktop_firefox_58'] };
     const queryParam = new URLSearchParams(query);
-    //const email = login.createEmail('sync{id}');
     await page.goto(
       `${
         target.contentServerUrl
@@ -136,7 +135,6 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     };
     const query = { forceUA: uaStrings['desktop_firefox_58'] };
     const queryParam = new URLSearchParams(query);
-    //const email = login.createEmail('sync{id}');
     await target.auth.signUp(email, password, {
       lang: 'en',
       preVerified: 'false',
