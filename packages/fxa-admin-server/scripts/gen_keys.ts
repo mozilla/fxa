@@ -62,10 +62,8 @@ function addKeyProperties(key:FxaJwkKey):FxaJwkKey {
   return key;
 }
 
-console.log('Generating keypair');
-
-cp.exec(`openssl genrsa 2048`, (err, stdout, stderr) => {
-  const s = pem2jwk(stdout);
+function convertPem2Jwk(pem: string) {
+  const s = pem2jwk(pem);
   addKeyProperties(s);
   fs.writeFileSync(secretKeyFile, JSON.stringify(s));
   console.error('Secret Key saved:', secretKeyFile);
@@ -78,4 +76,23 @@ cp.exec(`openssl genrsa 2048`, (err, stdout, stderr) => {
   };
   fs.writeFileSync(pubKeyFile, JSON.stringify(pub));
   console.error('Public Key saved:', pubKeyFile);
+}
+
+console.log('Generating keypair');
+
+cp.exec(`openssl genrsa 2048`, (err, stdout, stderr) => {
+  try {
+    convertPem2Jwk(stdout);
+  } catch (err) {
+    // As of OpenSSL v3.0 genrsa uses format PKCS#8, which is not supported by pem-jwk
+    // As a work around, use the --traditional flag which outputs format PKCS#1
+    // https://github.com/dannycoates/pem-jwk/issues/15
+    if (err.message === 'Failed to match tag: "bitstr" at: ["privateKey"]') {
+      cp.exec(`openssl genrsa --traditional 2048`, (err, stdout, stderr) => {
+        convertPem2Jwk(stdout);
+      });
+    } else {
+      throw err;
+    }
+  }
 });
