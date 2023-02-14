@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 // import { useFtlMsgResolver } from '../../../models/hooks';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -18,25 +18,24 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 
 // --serviceName-- is the relying party
 
-export type SigninTotpCodeProps = {
+export type AuthTotpProps = {
   email: string;
   serviceName?: MozServices;
 };
 
-export const viewName = 'signin-totp-code';
+export const viewName = 'pair.auth.totp';
 
-const SigninTotpCode = ({
+const AuthTotp = ({
   email,
   serviceName,
-}: SigninTotpCodeProps & RouteComponentProps) => {
+}: AuthTotpProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  // const alertBar = useAlertBar();
   // const ftlMsgResolver = useFtlMsgResolver();
 
-  // FTL strings in this view are reused in `Pair/AuthTotp` -- if we change them here but not there, we need to split those strings out.
+  // These ftlids match those in `SigninTotpCode`
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-totp-code-input-label-v2',
     inputLabelText: 'Enter 6-digit code',
@@ -57,21 +56,22 @@ const SigninTotpCode = ({
     try {
       // Check security code
       // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);
-      // Check if isForcePasswordChange
+      // redirect to /pair/auth/allow
     } catch (e) {
       // TODO: error handling, error message confirmation
-      //       - decide if alertBar or error div
-      // const errorSigninTotpCode = ftlMsgResolver.getMsg(
+      //
+      // const errorAuthTotp = ftlMsgResolver.getMsg(
       //   'signin-totp-code-error-general',
       //   'Invalid confirmation code'
       // );
-      // alertBar.error(errorSigninTotpCode);
+      // put the error into a <Banner /> element
     }
   };
 
   return (
     // TODO: redirect to force_auth or signin if user has not initiated sign in
     <>
+      {/* Ftl ids match those in signin-totp-code because it uses those strings. */}
       <CardHeader
         headingWithDefaultServiceFtlId="signin-totp-code-heading-w-default-service"
         headingWithCustomServiceFtlId="signin-totp-code-heading-w-custom-service"
@@ -103,21 +103,9 @@ const SigninTotpCode = ({
             setCodeErrorMessage,
           }}
         />
-        <div className="mt-5 link-blue text-sm flex justify-between">
-          <FtlMsg id="signin-totp-code-other-account-link">
-            <Link to="/signin" className="text-start">
-              Use a different account
-            </Link>
-          </FtlMsg>
-          <FtlMsg id="signin-totp-code-recovery-code-link">
-            <Link to="/signin_recovery_code" className="text-end">
-              Trouble entering code?
-            </Link>
-          </FtlMsg>
-        </div>
       </main>
     </>
   );
 };
 
-export default SigninTotpCode;
+export default AuthTotp;
