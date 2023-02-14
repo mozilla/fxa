@@ -340,12 +340,12 @@ describe('#integration - StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
       stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
-      const actual = await stripeHelper.createPlainCustomer(
+      const actual = await stripeHelper.createPlainCustomer({
         uid,
-        'joe@example.com',
-        'Joe Cool',
-        uuidv4()
-      );
+        email: 'joe@example.com',
+        displayName: 'Joe Cool',
+        idempotencyKey: uuidv4(),
+      });
       assert.deepEqual(actual, expected);
       sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.insertCustomerRecord,
@@ -354,19 +354,22 @@ describe('#integration - StripeHelper', () => {
       );
     });
 
-    it('creates a customer using the stripe api with an ipaddress', async () => {
+    it('creates a customer using the stripe api with a shipping address', async () => {
       const expected = deepCopy(newCustomerPM);
       sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
       stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const idempotencyKey = uuidv4();
-      const actual = await stripeHelper.createPlainCustomer(
+      const actual = await stripeHelper.createPlainCustomer({
         uid,
-        'joe@example.com',
-        'Joe Cool',
+        email: 'joe@example.com',
+        displayName: 'Joe Cool',
         idempotencyKey,
-        '127.0.0.1'
-      );
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      });
       assert.deepEqual(actual, expected);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.customers.create,
@@ -374,8 +377,17 @@ describe('#integration - StripeHelper', () => {
           email: 'joe@example.com',
           name: 'Joe Cool',
           description: uid,
-          metadata: { userid: uid },
-          tax: { ip_address: '127.0.0.1' },
+          metadata: {
+            userid: uid,
+            geoip_date: sinon.match.any,
+          },
+          shipping: {
+            name: sinon.match.any,
+            address: {
+              country: 'US',
+              postal_code: '92841',
+            },
+          },
         },
         { idempotency_key: idempotencyKey }
       );
@@ -391,7 +403,12 @@ describe('#integration - StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
 
       return stripeHelper
-        .createPlainCustomer('uid', 'joe@example.com', 'Joe Cool', uuidv4())
+        .createPlainCustomer({
+          uid: 'uid',
+          email: 'joe@example.com',
+          displayName: 'Joe Cool',
+          idempotencyKey: uuidv4(),
+        })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           (err) => {
@@ -1784,17 +1801,23 @@ describe('#integration - StripeHelper', () => {
       const actual = await stripeHelper.retrieveCouponDetails({
         automaticTax: false,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
         automaticTax: false,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.retrievePromotionCodeForPlan,
@@ -1823,17 +1846,23 @@ describe('#integration - StripeHelper', () => {
       const actual = await stripeHelper.retrieveCouponDetails({
         automaticTax: false,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
         automaticTax: false,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'planId',
         promotionCode: 'promo',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
       sinon.assert.calledOnceWithExactly(
         stripeHelper.retrievePromotionCodeForPlan,
@@ -2082,8 +2111,11 @@ describe('#integration - StripeHelper', () => {
       await stripeHelper.previewInvoice({
         automaticTax: false,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
 
       sinon.assert.calledOnceWithExactly(stripeStub, {
@@ -2100,7 +2132,7 @@ describe('#integration - StripeHelper', () => {
       });
     });
 
-    it('uses ipAddress when automatic tax is enabled', async () => {
+    it('uses shipping address when automatic tax is enabled', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
@@ -2108,8 +2140,11 @@ describe('#integration - StripeHelper', () => {
       await stripeHelper.previewInvoice({
         automaticTax: true,
         country: 'US',
-        ipAddress: '1.1.1.1',
         priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
       });
 
       sinon.assert.calledOnceWithExactly(stripeStub, {
@@ -2117,9 +2152,43 @@ describe('#integration - StripeHelper', () => {
           enabled: true,
         },
         customer_details: {
-          tax: {
-            ip_address: '1.1.1.1',
+          tax_exempt: 'none',
+          shipping: {
+            name: sinon.match.any,
+            address: {
+              country: 'US',
+              postal_code: '92841',
+            },
           },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+        expand: ['total_tax_amounts.tax_rate'],
+      });
+    });
+
+    it('excludes shipping address when automatic tax is enabled but shipping address not available', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+
+      await stripeHelper.previewInvoice({
+        automaticTax: true,
+        country: 'US',
+        priceId: 'priceId',
+        taxAddress: undefined,
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        automatic_tax: {
+          enabled: true,
+        },
+        customer_details: {
+          tax_exempt: 'none',
+          shipping: undefined,
         },
         subscription_items: [
           {
@@ -2139,8 +2208,11 @@ describe('#integration - StripeHelper', () => {
         await stripeHelper.previewInvoice({
           automaticTax: true,
           country: 'US',
-          ipAddress: '1.1.1.1',
           priceId: 'priceId',
+          taxAddress: {
+            countryCode: 'US',
+            postalCode: '92841',
+          },
         });
       } catch (e) {
         sinon.assert.calledOnce(stripeHelper.log.warn);
@@ -2165,7 +2237,7 @@ describe('#integration - StripeHelper', () => {
       });
     });
 
-    it('uses ipAddress when automatic tax is enabled', async () => {
+    it('uses shipping address when automatic tax is enabled', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
@@ -2803,33 +2875,6 @@ describe('#integration - StripeHelper', () => {
             postal_code: '12345',
             state: 'CA',
           },
-          expand: ['tax'],
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertCustomerRecordWithBackfill,
-        undefined,
-        { metadata: {} }
-      );
-    });
-
-    it('updates Customer with the ip address', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves({ metadata: {}, tax: {} });
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      const result = await stripeHelper.updateCustomerBillingAddress({
-        customerId: customer1.id,
-        ipAddress: '1.1.1.1',
-      });
-      assert.deepEqual(result, { metadata: {}, tax: {} });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
-        customer1.id,
-        {
-          tax: { ip_address: '1.1.1.1' },
           expand: ['tax'],
         }
       );
@@ -4957,7 +5002,7 @@ describe('#integration - StripeHelper', () => {
 
     const mockOldInvoice = {
       total: 4567,
-    }
+    };
 
     const mockInvoice = {
       id: 'inv_0000000000',
