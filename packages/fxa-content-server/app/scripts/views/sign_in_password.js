@@ -76,6 +76,8 @@ const SignInPasswordView = FormView.extend({
       return this.notifyOfResetAccount(account);
     } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
       return this.showValidationError(this.$('input[type=password]'), err);
+    } else if (AuthErrors.is(err, 'UNABLE_TO_LOGIN_NO_PASSWORD_SET')) {
+      return this.unsafeDisplayError(err);
     }
 
     // re-throw error, it will be handled at a lower level.
