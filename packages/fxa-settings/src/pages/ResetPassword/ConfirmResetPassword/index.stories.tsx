@@ -4,34 +4,33 @@
 
 import React from 'react';
 import ConfirmResetPassword from '.';
-import AppLayout from '../../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
+import {
+  LocationProvider,
+  createHistory,
+  createMemorySource,
+} from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL } from './mocks';
+import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
 
 export default {
   title: 'pages/ResetPassword/ConfirmResetPassword',
   component: ConfirmResetPassword,
 } as Meta;
 
+const source = createMemorySource('/fake-memories');
+const history = createHistory(source);
+history.location.state = {
+  email: MOCK_EMAIL,
+  passwordForgotToken: MOCK_PASSWORD_FORGOT_TOKEN,
+};
+
 const storyWithProps = ({ ...props }) => {
   const story = () => (
-    <LocationProvider>
-      <AppLayout>
-        <ConfirmResetPassword email={MOCK_EMAIL} {...props} />
-      </AppLayout>
+    <LocationProvider history={history}>
+      <ConfirmResetPassword {...props} />
     </LocationProvider>
   );
   return story;
 };
 
 export const Default = storyWithProps({});
-
-export const WithForceAuth = storyWithProps({
-  forceAuth: true,
-  canSignIn: true,
-});
-
-export const WithLinkRememberPassword = storyWithProps({
-  canSignIn: true,
-});

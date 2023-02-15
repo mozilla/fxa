@@ -494,11 +494,10 @@ export class AccountResolver {
   })
   @CatchGatewayError
   public async passwordForgotCodeStatus(
-    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => PasswordForgotCodeStatusInput })
     input: PasswordForgotCodeStatusInput
   ) {
-    return this.authAPI.passwordForgotStatus(input.token, headers);
+    return this.authAPI.passwordForgotStatus(input.token);
   }
 
   @Mutation((returns) => AccountResetPayload, {

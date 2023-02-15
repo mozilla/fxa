@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useContext, useRef, useEffect } from 'react';
+import { AppContext, GET_INITIAL_STATE } from './AppContext';
+import { GET_SESSION_VERIFIED, Session } from './Session';
+import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { useContext, useRef } from 'react';
-import { clearSignedInAccountUid } from '../lib/cache';
 import { getDefault } from '../lib/config';
-import { AppContext, GET_INITIAL_STATE } from './AppContext';
-import { GET_SESSION_VERIFIED, Session } from './Session';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -90,4 +90,30 @@ export function useFtlMsgResolver() {
 export async function useRelier() {
   const { relierFactory } = useContext(AppContext);
   return await relierFactory?.getRelier();
+}
+
+/**
+ * Hook to run a function on an interval.
+ * @param callback - function to call
+ * @param delay - interval in Ms to run, null to stop poll
+ */
+export function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef(callback);
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (!delay && delay !== 0) {
+      return;
+    }
+
+    const id = window.setInterval(() => {
+      if (savedCallback.current) {
+        savedCallback.current();
+      }
+    }, delay);
+    return () => window.clearInterval(id);
+  }, [delay]);
 }

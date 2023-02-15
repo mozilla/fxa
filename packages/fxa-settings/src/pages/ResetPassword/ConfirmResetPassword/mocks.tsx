@@ -3,3 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export const MOCK_EMAIL = 'blabidi@blabidiboo.com';
+export const MOCK_PASSWORD_FORGOT_TOKEN = 'abc';

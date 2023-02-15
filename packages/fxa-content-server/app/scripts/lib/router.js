@@ -146,7 +146,12 @@ Router = Router.extend({
     'confirm(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_UP,
     }),
-    'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
+    'confirm_reset_password(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'confirm_reset_password',
+        ConfirmResetPasswordView
+      );
+    },
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
     }),
