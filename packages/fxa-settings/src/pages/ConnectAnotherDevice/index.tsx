@@ -148,7 +148,7 @@ const ConnectAnotherDevice = ({
                     </p>
                   </FtlMsg>
                 ) : (
-                  <FtlMsg id="connect-another-device-signin-to-complete-message">
+                  <FtlMsg id="connect-another-device-signin-another-device-to-complete-message">
                     <p className="text-sm">
                       Sign in to Firefox on another device to complete set-up
                     </p>
