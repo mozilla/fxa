@@ -268,12 +268,16 @@ Router = Router.extend({
     'reset_password_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.PASSWORD_RESET,
     }),
-    'reset_password_with_recovery_key_verified(/)': createViewHandler(
-      ReadyView,
-      {
-        type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY,
-      }
-    ),
+    'reset_password_with_recovery_key_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'reset_password_with_recovery_key_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY,
+        }
+      );
+    },
     'secondary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),

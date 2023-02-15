@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
+import Banner, { BannerType } from '../Banner';
 
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
@@ -17,6 +18,8 @@ export type ReadyProps = {
   isSignedIn?: boolean;
   serviceName?: MozServices;
   viewName: ViewNameType;
+  isSync?: boolean;
+  errorMessage?: string;
 };
 
 export type ViewNameType =
@@ -65,9 +68,16 @@ const Ready = ({
   isSignedIn = true,
   serviceName,
   viewName,
+  isSync = false,
+  errorMessage,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const templateValues = getTemplateValues(viewName);
+
+  const startBrowsing = () => {
+    const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
+    navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
+  };
 
   return (
     <>
@@ -75,34 +85,55 @@ const Ready = ({
         headingText={templateValues.headerText}
         headingTextFtlId={templateValues.headerId}
       />
+      {errorMessage && (
+        <Banner type={BannerType.error}>
+          <p>{errorMessage}</p>
+        </Banner>
+      )}
       <div className="flex justify-center mx-auto">
         <HeartsVerifiedImage className="w-3/5" />
       </div>
       <section>
-        <div className="error"></div>
-        {isSignedIn ? (
-          serviceName ? (
-            <FtlMsg id="ready-use-service" vars={{ serviceName }}>
-              <p className="my-4 text-sm">{`You’re now ready to use ${serviceName}`}</p>
-            </FtlMsg>
-          ) : (
-            <FtlMsg id="ready-use-service-default">
+        {isSync && (
+          <>
+            <FtlMsg id="ready-complete-set-up-instruction">
               <p className="my-4 text-sm">
-                You’re now ready to use account settings
+                Complete setup by entering your new password on your other
+                Firefox devices.
               </p>
             </FtlMsg>
-          )
-        ) : (
+            <div className="flex justify-center mx-auto mt-6">
+              <FtlMsg id="ready-start-browsing-button">
+                <button className="cta-primary cta-xl" onClick={startBrowsing}>
+                  Start browsing
+                </button>
+              </FtlMsg>
+            </div>
+          </>
+        )}
+        {!isSync && isSignedIn && serviceName && (
+          <FtlMsg id="ready-use-service" vars={{ serviceName }}>
+            <p className="my-4 text-sm">{`You’re now ready to use ${serviceName}`}</p>
+          </FtlMsg>
+        )}
+        {!isSync && isSignedIn && !serviceName && (
+          <FtlMsg id="ready-use-service-default">
+            <p className="my-4 text-sm">
+              You’re now ready to use account settings
+            </p>
+          </FtlMsg>
+        )}
+        {!isSync && !isSignedIn && (
           <FtlMsg id="ready-account-ready">
             <p className="my-4 text-sm">Your account is ready!</p>
           </FtlMsg>
         )}
       </section>
       {continueHandler && (
-        <div className="flex justify-center mx-auto mt-6 max-w-64">
+        <div className="flex justify-center mx-auto mt-6">
           <button
             type="submit"
-            className="cta-primary cta-base-p font-bold mx-2 flex-1"
+            className="cta-primary cta-xl font-bold mx-2 flex-1"
             onClick={(e) => {
               const eventName = `${viewName}.continue`;
               logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
