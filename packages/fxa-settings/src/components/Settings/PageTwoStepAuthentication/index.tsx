@@ -224,7 +224,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                     attrs={{ alt: true }}
                   >
                     <img
-                      className="mx-auto w-48 h-48 border rounded-xl border-8 border-green-800/10"
+                      className="mx-auto w-48 h-48 rounded-xl border-8 border-green-800/10"
                       data-testid="2fa-qr-code"
                       src={totpInfo.result.qrCodeUrl}
                       alt={`Use the code ${totpInfo.result.secret} to set up two-step authentication in supported applications.`}

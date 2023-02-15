@@ -125,7 +125,10 @@ const AccountRecoveryConfirmKey = ({
             onSubmit={handleSubmit(onSubmit)}
             data-testid="account-recovery-confirm-key-form"
           >
-            <FtlMsg id="account-recovery-confirm-key-input">
+            <FtlMsg
+              id="account-recovery-confirm-key-input"
+              attrs={{ label: true }}
+            >
               <InputText
                 type="text"
                 label="Enter account recovery key"

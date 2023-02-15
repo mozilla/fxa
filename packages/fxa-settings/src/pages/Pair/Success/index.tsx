@@ -25,11 +25,11 @@ const PairSuccess = ({ error }: PairSuccessProps & RouteComponentProps) => {
         </Banner>
       )}
       <CardHeader
-        headingTextFtlId="pair-success-header"
+        headingTextFtlId="pair-success-header-2"
         headingText="Device connected"
       />
       <HeartsVerifiedImage className="w-3/5 mx-auto" />
-      <FtlMsg id="pair-success-message">
+      <FtlMsg id="pair-success-message-2">
         <p className="text-sm">Pairing was successful.</p>
       </FtlMsg>
     </>

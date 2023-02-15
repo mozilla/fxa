@@ -90,8 +90,8 @@ export const InlineTotpSetup = ({
         <>
           <CardHeader
             headingText="Enable two-step authentication"
-            headingWithCustomServiceFtlId="inline-totp-setup-enable-two-step-authentication-custom-header"
-            headingWithDefaultServiceFtlId="inline-totp-setup-enable-two-step-authentication-default-header"
+            headingWithCustomServiceFtlId="inline-totp-setup-enable-two-step-authentication-custom-header-2"
+            headingWithDefaultServiceFtlId="inline-totp-setup-enable-two-step-authentication-default-header-2"
             {...{ serviceName }}
           />
           <section className="flex flex-col items-center">
@@ -144,15 +144,15 @@ export const InlineTotpSetup = ({
           {showQR ? (
             <CardHeader
               headingText="Scan authentication code"
-              headingWithCustomServiceFtlId="inline-totp-setup-show-qr-custom-service-header"
-              headingWithDefaultServiceFtlId="inline-totp-setup-show-qr-default-service-header"
+              headingWithCustomServiceFtlId="inline-totp-setup-show-qr-custom-service-header-2"
+              headingWithDefaultServiceFtlId="inline-totp-setup-show-qr-default-service-header-2"
               {...{ serviceName }}
             />
           ) : (
             <CardHeader
               headingText="Enter code manually"
-              headingWithCustomServiceFtlId="inline-totp-setup-no-qr-custom-service-header"
-              headingWithDefaultServiceFtlId="inline-totp-setup-no-qr-default-service-header"
+              headingWithCustomServiceFtlId="inline-totp-setup-no-qr-custom-service-header-2"
+              headingWithDefaultServiceFtlId="inline-totp-setup-no-qr-default-service-header-2"
               {...{ serviceName }}
             />
           )}

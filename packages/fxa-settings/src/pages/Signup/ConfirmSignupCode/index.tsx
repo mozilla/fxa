@@ -88,7 +88,7 @@ const ConfirmSignupCode = ({
           <MailImage className="w-3/5" />
         </div>
 
-        <FtlMsg id="confirm-signup-code-instruction">
+        <FtlMsg id="confirm-signup-code-instruction" vars={{ email }}>
           <p className="m-5 text-sm">
             Enter the code that was sent to {email} within 5 minutes.
           </p>

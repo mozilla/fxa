@@ -5,7 +5,7 @@
 # That users can choose to sync
 choose-what-to-sync-prompt = Choose what to sync:
 choose-what-to-sync-option-bookmarks =
- .label = Bookmarks
+  .label = Bookmarks
 choose-what-to-sync-option-history =
   .label = History
 choose-what-to-sync-option-passwords =
