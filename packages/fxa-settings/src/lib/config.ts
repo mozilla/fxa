@@ -34,6 +34,9 @@ export interface Config {
     auth: {
       url: string;
     };
+    oauth: {
+      url: string;
+    },
     profile: {
       url: string;
     };
@@ -72,6 +75,9 @@ export function getDefault() {
       },
       auth: {
         url: '',
+      },
+      oauth: {
+        url: ''
       },
       profile: {
         url: '',

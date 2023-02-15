@@ -1414,6 +1414,10 @@ export default class AuthClient {
     return this.request('POST', '/oauth/id-token-verify', payload);
   }
 
+  async getProductInfo(productId: string) {
+    return this.request('GET', `/oauth/subscriptions/productname?productId=${productId}`)
+  }
+
   async sendPushLoginRequest(sessionToken: string) {
     return this.sessionPost('/session/verify/send_push', sessionToken, {});
   }
