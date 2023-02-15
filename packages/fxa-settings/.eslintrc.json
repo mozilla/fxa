@@ -2,5 +2,14 @@
   "extends": [
     "react-app",
     "react-app/jest"
-  ]
+  ],
+  "rules": {
+    "import/export": "error",
+    "import/named": "off",
+    "import/no-deprecated": "error",
+    "import/no-named-as-default-member": "off",
+    "import/no-unresolved": "off",
+    "jest/no-jest-import": "off",
+    "jest/valid-describe": "off"
+  }
 }
