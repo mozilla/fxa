@@ -509,7 +509,7 @@ jobs:
     parameters:
       resource_class:
         type: string
-        default: xlarge
+        default: medium
       index:
         type: integer
       total:
@@ -671,7 +671,7 @@ workflows:
       - integration-test-part:
           name: Integration Test 1 (PR)
           index: 0
-          total: 3
+          total: 6
           requires:
             - Build (PR)
           post-steps:
@@ -679,7 +679,7 @@ workflows:
       - integration-test-part:
           name: Integration Test 2 (PR)
           index: 1
-          total: 3
+          total: 6
           requires:
             - Build (PR)
           post-steps:
@@ -687,7 +687,31 @@ workflows:
       - integration-test-part:
           name: Integration Test 3 (PR)
           index: 2
-          total: 3
+          total: 6
+          requires:
+            - Build (PR)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 4 (PR)
+          index: 3
+          total: 6
+          requires:
+            - Build (PR)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 5 (PR)
+          index: 4
+          total: 6
+          requires:
+            - Build (PR)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 6 (PR)
+          index: 5
+          total: 6
           requires:
             - Build (PR)
           post-steps:
