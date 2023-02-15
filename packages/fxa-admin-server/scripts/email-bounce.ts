@@ -3,7 +3,7 @@ import { Model } from 'objection';
 import yargs from 'yargs';
 
 import Config from '../src/config';
-import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
+import { Account, Email, EmailBounce } from 'fxa-shared/db/models/auth';
 import {
   AccountIsh,
   BounceIsh,
@@ -18,7 +18,7 @@ const argv = yargs.options({
   count: { type: 'number', default: 1 },
   email: { type: 'string' },
   withDiagnosticCode: { type: 'boolean' },
-}).argv;
+}).parseSync();
 
 async function addBounceToDB() {
   const instance = knex({ client: 'mysql', connection: config.database.fxa });
@@ -38,7 +38,7 @@ async function addBounceToDB() {
       account = randomAccount();
       bounce = randomEmailBounce(account.email);
       const email = randomEmail(account);
-      account.emails = [email];
+      account.emails = [email as Email];
 
       await Account.query().insertGraph({ ...account });
     }

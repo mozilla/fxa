@@ -4,7 +4,9 @@
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "yarn prebuild && yarn nest build && cp ./src/config/*.json ./dist/config",
+    "build": "yarn prebuild && yarn nest build && yarn copy-src && yarn copy-config",
+    "copy-src": "mv ./dist/src/* ./dist/.",
+    "copy-config": "cp ./src/config/*.json ./dist/config",
     "compile": "tsc --noEmit",
     "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
