@@ -12,7 +12,7 @@ connect-another-device-signin-link = Sign in
 # A message prompting the user to sign in via a different device than the current one so as to complete the device-syncing process
 connect-another-device-still-adding-devices-message = Still adding devices? Sign in to { -brand-firefox } on another device to complete setup
 # A message prompting the user to sign in via a different device than the current one so as to complete the device-syncing process
-connect-another-device-signin-to-complete-message = Sign in to { -brand-firefox } on another device to complete setup
+connect-another-device-signin-another-device-to-complete-message = Sign in to { -brand-firefox } on another device to complete setup
 # This message is a value-proposition prompting the user to sync another device so as to get tabs, bookmarks, and passwords shared between devices
 connect-another-device-get-data-on-another-device-message = Want to get your tabs, bookmarks, and passwords on another device?
 # This link leads the user back to the `/pair` page so as to connect another device
