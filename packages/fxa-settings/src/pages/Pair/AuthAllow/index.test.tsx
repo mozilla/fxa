@@ -40,7 +40,7 @@ describe('Pair/AuthAllow page', () => {
     render(
       <AuthAllow
         email={MOCK_EMAIL}
-        authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
       />
     );
     // testAllL10n(screen, bundle, {email:MOCK_EMAIL});
@@ -64,7 +64,7 @@ describe('Pair/AuthAllow page', () => {
     render(
       <AuthAllow
         email={MOCK_EMAIL}
-        authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
+        suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
       />
     );
 
@@ -77,7 +77,7 @@ describe('Pair/AuthAllow page', () => {
     render(
       <AuthAllow
         email={MOCK_EMAIL}
-        authDeviceInfo={MOCK_METADATA_WITH_LOCATION}
+        suppDeviceInfo={MOCK_METADATA_WITH_LOCATION}
       />
     );
 
@@ -88,7 +88,7 @@ describe('Pair/AuthAllow page', () => {
     render(
       <AuthAllow
         email={MOCK_EMAIL}
-        authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
+        suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
       />
     );
 

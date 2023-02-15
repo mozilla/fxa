@@ -18,7 +18,10 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 
 // --serviceName-- is the relying party
 
-export type SigninTotpCodeProps = { email: string; serviceName?: MozServices };
+export type SigninTotpCodeProps = {
+  email: string;
+  serviceName?: MozServices;
+};
 
 export const viewName = 'signin-totp-code';
 
@@ -33,6 +36,7 @@ const SigninTotpCode = ({
   // const alertBar = useAlertBar();
   // const ftlMsgResolver = useFtlMsgResolver();
 
+  // FTL strings in this view are reused in `Pair/AuthTotp` -- if we change them here but not there, we need to split those strings out.
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-totp-code-input-label-v2',
     inputLabelText: 'Enter 6-digit code',
@@ -99,7 +103,6 @@ const SigninTotpCode = ({
             setCodeErrorMessage,
           }}
         />
-
         <div className="mt-5 link-blue text-sm flex justify-between">
           <FtlMsg id="signin-totp-code-other-account-link">
             <Link to="/signin" className="text-start">

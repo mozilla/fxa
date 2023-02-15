@@ -31,15 +31,6 @@ const AuthWaitForSupp = ({
   bannerMessage,
 }: AuthWaitForSuppProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const {
-    deviceName,
-    browserName,
-    genericOSName,
-    ipAddress,
-    city,
-    region,
-    country,
-  } = suppDeviceInfo;
 
   return (
     <AppLayout>
@@ -54,17 +45,7 @@ const AuthWaitForSupp = ({
         </Banner>
       )}
 
-      <DeviceInfoBlock
-        {...{
-          deviceName,
-          browserName,
-          genericOSName,
-          ipAddress,
-          city,
-          region,
-          country,
-        }}
-      />
+      <DeviceInfoBlock remoteMetadata={suppDeviceInfo} />
     </AppLayout>
   );
 };

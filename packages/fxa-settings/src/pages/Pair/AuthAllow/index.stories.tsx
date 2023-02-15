@@ -21,28 +21,28 @@ export default {
 export const WithLocation = () => (
   <AuthAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
-    authDeviceInfo={MOCK_METADATA_WITH_LOCATION}
+    suppDeviceInfo={MOCK_METADATA_WITH_LOCATION}
   />
 );
 
 export const WithUnknownLocation = () => (
   <AuthAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
-    authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+    suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
   />
 );
 
 export const WithDeviceName = () => (
   <AuthAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
-    authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
+    suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
   />
 );
 
 export const WithErrorMessage = () => (
   <AuthAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
-    authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
+    suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
     bannerMessage={MOCK_BANNER_MESSAGE}
   />
 );

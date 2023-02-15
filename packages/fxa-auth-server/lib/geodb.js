@@ -56,6 +56,7 @@ module.exports = (log) => {
           countryCode: location.countryCode,
           state: location.state,
           stateCode: location.stateCode,
+          postalCode: location.postalCode,
         },
         timeZone: location.timeZone,
       };

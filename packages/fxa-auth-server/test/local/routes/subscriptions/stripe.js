@@ -616,20 +616,20 @@ describe('DirectStripeRoutes', () => {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
       };
+      VALID_REQUEST.app.geo = {};
 
       const actual = await directStripeRoutesInstance.createCustomer(
         VALID_REQUEST
       );
       const callArgs =
-        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(
-          0
-        ).args;
-      assert.equal(callArgs[4], undefined);
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
+          .args[0];
+      assert.equal(callArgs.taxAddress, undefined);
 
       assert.deepEqual(filterCustomer(expected), actual);
     });
 
-    it('creates a stripe customer with the ip address on automatic tax', async () => {
+    it('creates a stripe customer with the shipping address on automatic tax', async () => {
       const expected = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.createPlainCustomer.resolves(
         expected
@@ -639,15 +639,21 @@ describe('DirectStripeRoutes', () => {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
       };
+      VALID_REQUEST.app.geo = {
+        location: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      };
 
       const actual = await directStripeRoutesInstance.createCustomer(
         VALID_REQUEST
       );
       const callArgs =
-        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(
-          0
-        ).args;
-      assert.equal(callArgs[4], '127.0.0.1');
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
+          .args[0];
+      assert.equal(callArgs.taxAddress?.countryCode, 'US');
+      assert.equal(callArgs.taxAddress?.postalCode, '92841');
       assert.deepEqual(filterCustomer(expected), actual);
     });
   });
@@ -680,9 +686,9 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
+          taxAddress: undefined,
         }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
@@ -723,9 +729,9 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: true,
           country: 'US',
-          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
+          taxAddress: undefined,
         }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
@@ -742,7 +748,12 @@ describe('DirectStripeRoutes', () => {
         promotionCode: 'promotionCode',
         priceId: 'priceId',
       };
-      VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.app.geo = {
+        location: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      };
 
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
@@ -768,9 +779,12 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
+          taxAddress: {
+            countryCode: 'US',
+            postalCode: '92841',
+          },
         }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
@@ -790,6 +804,8 @@ describe('DirectStripeRoutes', () => {
         geo: {
           location: {
             country: 'DE',
+            countryCode: 'DE',
+            postalCode: '92841',
           },
         },
       };
@@ -811,9 +827,12 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'DE',
-          ipAddress: '1.1.1.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
+          taxAddress: {
+            countryCode: 'DE',
+            postalCode: '92841',
+          },
         }
       );
       assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
@@ -848,7 +867,12 @@ describe('DirectStripeRoutes', () => {
           data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
         },
       });
-      VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.app.geo = {
+        location: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      };
 
       const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
         VALID_REQUEST
@@ -999,7 +1023,12 @@ describe('DirectStripeRoutes', () => {
         promotionCode: 'promotionCode',
         priceId: 'priceId',
       };
-      VALID_REQUEST.app.geo = {};
+      VALID_REQUEST.app.geo = {
+        location: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      };
       const actual = await directStripeRoutesInstance.retrieveCouponDetails(
         VALID_REQUEST
       );
@@ -1009,9 +1038,12 @@ describe('DirectStripeRoutes', () => {
         {
           automaticTax: false,
           country: 'US',
-          ipAddress: '127.0.0.1',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
+          taxAddress: {
+            countryCode: 'US',
+            postalCode: '92841',
+          },
         }
       );
 
@@ -2298,6 +2330,80 @@ describe('DirectStripeRoutes', () => {
         );
         assert.deepEqual(actual, expected);
       });
+    });
+  });
+
+  describe('buildTaxAddress', () => {
+    it('prefers customer shipping address', () => {
+      const location = {
+        countryCode: 'US',
+        postalCode: '92841',
+      };
+      const customer = {
+        shipping: {
+          address: {
+            country: 'CA',
+            postal_code: 'J3L',
+          },
+        },
+      };
+
+      const taxAddress = directStripeRoutesInstance.buildTaxAddress(
+        '127.0.0.1',
+        location,
+        customer
+      );
+
+      assert.deepEqual(taxAddress, {
+        countryCode: 'CA',
+        postalCode: 'J3L',
+      });
+    });
+
+    it('falls back to geoip', () => {
+      const location = {
+        countryCode: 'US',
+        postalCode: '92841',
+      };
+      const customer = {
+        shipping: {
+          address: {
+            country: 'CA',
+          },
+        },
+      };
+
+      const taxAddress = directStripeRoutesInstance.buildTaxAddress(
+        '127.0.0.1',
+        location,
+        customer
+      );
+
+      assert.deepEqual(taxAddress, {
+        countryCode: 'US',
+        postalCode: '92841',
+      });
+    });
+
+    it('returns undefined if cannot resolve a taxable location', () => {
+      const location = {
+        postalCode: '92841',
+      };
+      const customer = {
+        shipping: {
+          address: {
+            country: 'CA',
+          },
+        },
+      };
+
+      const taxAddress = directStripeRoutesInstance.buildTaxAddress(
+        '127.0.0.1',
+        location,
+        customer
+      );
+
+      assert.deepEqual(taxAddress, undefined);
     });
   });
 });

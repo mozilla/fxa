@@ -1,6 +1,7 @@
 {
   "extends": "../../_dev/tsconfig.browser.json",
   "compilerOptions": {
+    "experimentalDecorators": true,
     "noEmit": true,
     "lib": [
       "dom",

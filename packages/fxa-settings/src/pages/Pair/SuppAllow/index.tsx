@@ -39,15 +39,6 @@ const SuppAllow = ({
   email,
 }: SuppAllowProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const {
-    deviceName,
-    browserName,
-    genericOSName,
-    ipAddress,
-    city,
-    region,
-    country,
-  } = authDeviceInfo;
 
   const spanElement: ReactElement = (
     <span className="card-subheader">for {email}</span>
@@ -69,17 +60,7 @@ const SuppAllow = ({
         </Banner>
       )}
       <form noValidate onSubmit={handleSubmit}>
-        <DeviceInfoBlock
-          {...{
-            deviceName,
-            browserName,
-            genericOSName,
-            ipAddress,
-            city,
-            region,
-            country,
-          }}
-        />
+        <DeviceInfoBlock remoteMetadata={authDeviceInfo} />
         <div className="flex flex-col justify-center">
           <FtlMsg id="pair-supp-allow-confirm-button">
             <button

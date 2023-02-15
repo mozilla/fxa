@@ -50,6 +50,10 @@ function Location(locationData, userLocale) {
     this.stateCode =
       locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
   }
+
+  if (locationData.postal) {
+    this.postalCode = locationData.postal.code;
+  }
 }
 
 module.exports = Location;

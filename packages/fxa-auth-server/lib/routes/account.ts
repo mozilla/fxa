@@ -758,6 +758,12 @@ export class AccountHandler {
     };
 
     const checkEmailAndPassword = async () => {
+      // Third party accounts might not have set a password and
+      // won't be able to login via email/password.
+      if (accountRecord.verifierSetAt <= 0) {
+        throw error.cannotLoginNoPasswordSet();
+      }
+
       await this.signinUtils.checkEmailAddress(
         accountRecord,
         email,
@@ -768,6 +774,7 @@ export class AccountHandler {
         accountRecord.authSalt,
         accountRecord.verifierVersion
       );
+
       const match = await this.signinUtils.checkPassword(
         accountRecord,
         password,
