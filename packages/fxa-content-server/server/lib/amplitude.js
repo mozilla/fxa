@@ -287,17 +287,39 @@ const EVENTS = {
     group: GROUPS.activity,
     event: 'cookies_disabled_view',
   },
-  'flow.cookies-disabled.submit': {
+  'flow.cookies-disabled.try-again-submit': {
     group: GROUPS.activity,
-    event: 'cookies_disabled_submit',
+    event: 'cookies_disabled_try_again_submit',
   },
-  'flow.cookies-disabled.success': {
+  'flow.cookies-disabled.try-again-success': {
     group: GROUPS.activity,
-    event: 'cookies_disabled_success',
+    event: 'cookies_disabled_try_again_success',
   },
-  'flow.cookies-disabled.fail': {
+  'flow.cookies-disabled.try-again-fail': {
     group: GROUPS.activity,
-    event: 'cookies_disabled_fail',
+    event: 'cookies_disabled_try_again_fail',
+  },
+
+  // legal
+  'screen.legal': {
+    group: GROUPS.activity,
+    event: 'legal_view',
+  },
+  'screen.legal-terms': {
+    group: GROUPS.activity,
+    event: 'legal_terms_view',
+  },
+  'screen.legal-privacy': {
+    group: GROUPS.activity,
+    event: 'legal_privacy_view',
+  },
+  'flow.legal-terms.back': {
+    group: GROUPS.activity,
+    event: 'legal_terms_back',
+  },
+  'flow.legal-privacy.back': {
+    group: GROUPS.activity,
+    event: 'legal_privacy_back',
   },
 
   /* Everything under this point should be Settings events, aka 'fxa_pref' group */

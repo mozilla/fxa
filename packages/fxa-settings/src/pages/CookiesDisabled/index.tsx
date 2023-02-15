@@ -29,12 +29,12 @@ const CookiesDisabled = (_: RouteComponentProps) => {
   const [stillDisabled, setStillDisabled] = useState(false);
 
   const buttonHandler = useCallback(() => {
-    logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
+    logViewEvent(`flow.${viewName}`, 'try-again-submit', REACT_ENTRYPOINT);
     if (!Storage.isLocalStorageEnabled(window) || !navigator.cookieEnabled) {
-      logViewEvent(`flow.${viewName}`, 'fail', REACT_ENTRYPOINT);
+      logViewEvent(`flow.${viewName}`, 'try-again-fail', REACT_ENTRYPOINT);
       setStillDisabled(true);
     } else {
-      logViewEvent(`flow.${viewName}`, 'success', REACT_ENTRYPOINT);
+      logViewEvent(`flow.${viewName}`, 'try-again-success', REACT_ENTRYPOINT);
       if (contentRedirect) {
         window.history.go(-2);
       } else {

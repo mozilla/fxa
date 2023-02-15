@@ -247,33 +247,83 @@ registerSuite('amplitude', {
       );
     },
 
-    'flow.cookies_disabled.submit': () => {
-      createAmplitudeEvent('flow.cookies-disabled.submit');
+    'flow.cookies_disabled.try-again-submit': () => {
+      createAmplitudeEvent('flow.cookies-disabled.try-again-submit');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
         logger.info.args[0][1].event_type,
-        'fxa_activity - cookies_disabled_submit'
+        'fxa_activity - cookies_disabled_try_again_submit'
       );
     },
 
-    'cookies_disabled.success': () => {
-      createAmplitudeEvent('flow.cookies-disabled.success');
+    'cookies_disabled.try-again-success': () => {
+      createAmplitudeEvent('flow.cookies-disabled.try-again-success');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
         logger.info.args[0][1].event_type,
-        'fxa_activity - cookies_disabled_success'
+        'fxa_activity - cookies_disabled_try_again_success'
       );
     },
 
-    'cookies_disabled.fail': () => {
-      createAmplitudeEvent('flow.cookies-disabled.fail');
+    'cookies_disabled.try-again-fail': () => {
+      createAmplitudeEvent('flow.cookies-disabled.try-again-fail');
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(
         logger.info.args[0][1].event_type,
-        'fxa_activity - cookies_disabled_fail'
+        'fxa_activity - cookies_disabled_try_again_fail'
+      );
+    },
+
+    'screen.legal': () => {
+      createAmplitudeEvent('screen.legal');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - legal_view'
+      );
+    },
+
+    'screen.legal-terms': () => {
+      createAmplitudeEvent('screen.legal-terms');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - legal_terms_view'
+      );
+    },
+
+    'flow.legal-terms.back': () => {
+      createAmplitudeEvent('flow.legal-terms.back');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - legal_terms_back'
+      );
+    },
+
+    'screen.legal-privacy': () => {
+      createAmplitudeEvent('screen.legal-privacy');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - legal_privacy_view'
+      );
+    },
+
+    'flow.legal-privacy.back': () => {
+      createAmplitudeEvent('flow.legal-privacy.back');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_activity - legal_privacy_back'
       );
     },
 
