@@ -24,7 +24,7 @@ import fs from 'fs';
 import cp from 'child_process';
 import assert from 'assert';
 import crypto from 'crypto';
-import { pem2jwk } from 'pem-jwk';
+import { Extras, JWK, pem2jwk } from 'pem-jwk';
 
 import Config from '../src/config';
 
@@ -45,7 +45,9 @@ try {
 //    kid: "2017-03-16-ebe69008de771d62cd1cadf9faa6daae"
 //    "fxa-createdAt": 1489716000,
 //  }
-function addKeyProperties(key) {
+export type FxaJwkKey = JWK<Extras> & {'fxa-createdAt'?: number};
+
+function addKeyProperties(key:FxaJwkKey):FxaJwkKey {
   const now = new Date();
   key.kty = 'RSA';
   key.kid = `${now.toISOString().slice(0, 10)}-${crypto
@@ -56,6 +58,7 @@ function addKeyProperties(key) {
     .slice(0, 32)}`;
   // Timestamp to nearest hour; consumers don't need to know the precise time.
   key['fxa-createdAt'] = Math.round(now.getTime() / 1000 / 3600) * 3600;
+
   return key;
 }
 
