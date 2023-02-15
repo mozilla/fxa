@@ -1,6 +1,6 @@
 {
   "name": "fxa-react",
-  "version": "1.251.3",
+  "version": "1.252.0",
   "description": "Shared components for FxA React Apps",
   "exports": {
     "./components/": "./dist/components/",
