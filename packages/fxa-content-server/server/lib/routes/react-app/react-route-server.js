@@ -2,36 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { FRONTEND_ROUTES } = require('../get-frontend');
-const { PAIRING_ROUTES } = require('../get-frontend-pairing');
-const { OAUTH_SUCCESS_ROUTES } = require('../get-oauth-success');
+const {
+  FRONTEND_ROUTES,
+  PAIRING_ROUTES,
+  OAUTH_SUCCESS_ROUTES,
+  TERMS_PRIVACY_REGEX,
+} = require('./content-server-routes');
 const {
   getFrontEndRouteDefinition,
   getFrontEndPairingRouteDefinition,
   getOAuthSuccessRouteDefinition,
+  getTermsPrivacyRouteDefinition,
 } = require('./route-definitions');
 
 /**
- * Returns a route object with the `name` of the route and the route `definition`
- * if used on the server-side.
+ * Returns a route object with the `name` of the route and the route `definition`.
  */
-class ReactRoute {
-  /** @param {Boolean} isServer Is access coming from the server? The client
-   * doesn't need route definitions. */
-  constructor(isServer) {
-    this.isServer = isServer;
+class ReactRouteServer {
+  /** @param {any} i18n
+   * */
+  constructor(i18n) {
+    this.i18n = i18n;
   }
 
-  /** @param {String} name */
+  /** @param {String|RegExp} name */
   getRoute(name) {
-    if (FRONTEND_ROUTES.includes(name)) {
-      return this.getFrontEnd(name);
+    if (typeof name === 'string') {
+      if (FRONTEND_ROUTES.includes(name)) {
+        return this.getFrontEnd(name);
+      }
+      if (PAIRING_ROUTES.includes(name)) {
+        return this.getFrontEndPairing(name);
+      }
+      if (OAUTH_SUCCESS_ROUTES.includes(name)) {
+        return this.getOAuthSuccess(name);
+      }
     }
-    if (PAIRING_ROUTES.includes(name)) {
-      return this.getFrontEndPairing(name);
-    }
-    if (OAUTH_SUCCESS_ROUTES.includes(name)) {
-      return this.getOAuthSuccess(name);
+    if (name instanceof RegExp && name.source === TERMS_PRIVACY_REGEX.source) {
+      return this.getTermsPrivacy(TERMS_PRIVACY_REGEX);
     }
 
     throw new Error(
@@ -55,7 +63,7 @@ class ReactRoute {
   getRouteObject(name, definition) {
     return {
       name,
-      ...(this.isServer && { definition }),
+      definition,
     };
   }
 
@@ -73,8 +81,16 @@ class ReactRoute {
   getOAuthSuccess(name) {
     return this.getRouteObject(name, getOAuthSuccessRouteDefinition([name]));
   }
+
+  /** @private */
+  getTermsPrivacy(regex) {
+    return this.getRouteObject(
+      regex,
+      getTermsPrivacyRouteDefinition(regex, this.i18n)
+    );
+  }
 }
 
 module.exports = {
-  ReactRoute,
+  ReactRouteServer,
 };

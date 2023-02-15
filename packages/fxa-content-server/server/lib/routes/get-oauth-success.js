@@ -4,11 +4,10 @@
 
 'use strict';
 
+const { OAUTH_SUCCESS_ROUTES } = require('./react-app/content-server-routes');
 const {
   getOAuthSuccessRouteDefinition,
 } = require('./react-app/route-definitions');
-
-const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
 function getRoutesExcludingOAuthSuccessReact({ oauthRoutes }, routeNames) {
   return oauthRoutes.featureFlagOn
@@ -35,6 +34,5 @@ function getOAuthSuccessRoutes(
 
 module.exports = {
   default: getOAuthSuccessRoutes,
-  OAUTH_SUCCESS_ROUTES,
   getRoutesExcludingOAuthSuccessReact, // exported for testing
 };

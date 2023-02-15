@@ -192,7 +192,7 @@ function makeApp() {
   const routeHelpers = routing(app, routeLogger);
 
   function addNonSettingsRoutes(middleware) {
-    addAllReactRoutesConditionally(app, routeHelpers, middleware);
+    addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n);
 
     /* This creates `app.whatever('/path' ...` handlers for every content-server route and
      * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
