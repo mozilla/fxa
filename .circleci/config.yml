@@ -674,24 +674,18 @@ workflows:
           total: 3
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
       - integration-test-part:
           name: Integration Test 2 (PR)
           index: 1
           total: 3
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
       - integration-test-part:
           name: Integration Test 3 (PR)
           index: 2
           total: 3
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
       - test-content-server-part:
           name: Functional Test - Content 1 (PR)
           index: 0
