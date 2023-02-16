@@ -23,6 +23,7 @@ export class StripeAutomaticTaxConverter {
   private ipAddressMap: IpAddressMap;
   private helpers: StripeAutomaticTaxConverterHelpers;
   private stripeQueue: PQueue;
+  private ineligibleProducts: string[];
 
   /**
    * A converter to update all eligible customers to Stripe automatic tax
@@ -60,6 +61,8 @@ export class StripeAutomaticTaxConverter {
       fs.readFileSync(ipAddressMapFile, 'utf-8')
     );
     this.ipAddressMap = this.helpers.processIPAddressList(ipAddressList);
+
+    this.ineligibleProducts = ['prod_HEJ13uxjG4Rj6L', 'prod_HeWOjYtYcEjAzV'];
   }
 
   /**
@@ -131,6 +134,9 @@ export class StripeAutomaticTaxConverter {
 
     try {
       const product = await this.fetchProduct(plan.product as string);
+
+      const isExcludedProduct = this.isExcludedSubscriptionProduct(product.id);
+      if (isExcludedProduct) return; // Return early if subscription is for excluded product
 
       const customer = await this.fetchCustomer(customerId);
       if (!customer) return; // Do not enable tax for an invalid customer
@@ -214,6 +220,15 @@ export class StripeAutomaticTaxConverter {
       !!updatedCustomer && this.helpers.isTaxEligible(updatedCustomer);
 
     return isTaxEligible;
+  }
+
+  /**
+   * Check if the subscriptions product is eligible to enable Tax
+   * @param productId
+   * @returns
+   */
+  isExcludedSubscriptionProduct(productId: string) {
+    return this.ineligibleProducts.includes(productId);
   }
 
   /**
