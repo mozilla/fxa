@@ -82,6 +82,9 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
+      MYSQL_MEM_LIMIT: 1.2g
+      MYSQL_MEM_RES: 1g
+      NODE_OPTIONS: --max-old-space-size=6000
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -119,6 +122,8 @@ executors:
       REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES: true
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES: true
+      MYSQL_MEM_LIMIT: 1.2g
+      MYSQL_MEM_RES: 1g
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.

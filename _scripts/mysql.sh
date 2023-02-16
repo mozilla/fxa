@@ -16,12 +16,22 @@ function on_sigint() {
 
 trap on_sigint INT
 
+if [ -z "MYSQL_MEM_LIMIT"]; then
+  MYSQL_MEM_LIMIT=2g
+fi
+
+if [ -z "MYSQL_MEM_RES"]; then
+  MYSQL_MEM_RES=1.8g
+fi
+
 # Create pushbox db on start (because pushbox doesn't create it)
 docker run --rm --name=mydb \
   -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
   -e MYSQL_ROOT_HOST=% \
   -e MYSQL_DATABASE=pushbox \
   -p 3306:3306 \
+  --memory="$MYSQL_MEM_LIMIT" \
+  --memory-reservation="$MYSQL_MEM_RES" \
   mysql/mysql-server:8.0.28 --default-authentication-plugin=mysql_native_password &
 
 cd "$DIR"
