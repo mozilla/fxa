@@ -5758,7 +5758,10 @@ describe('#integration - StripeHelper', () => {
         mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(error);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
-        event.data.previous_attributes = { cancel_at_period_end: false };
+        event.data.previous_attributes = {
+          cancel_at_period_end: false,
+          latest_invoice: 'mock_latest_invoice_id',
+        };
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5779,7 +5782,10 @@ describe('#integration - StripeHelper', () => {
         mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(error);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
-        event.data.previous_attributes = { cancel_at_period_end: false };
+        event.data.previous_attributes = {
+          cancel_at_period_end: false,
+          latest_invoice: 'mock_latest_invoice_id',
+        };
         try {
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5805,7 +5811,10 @@ describe('#integration - StripeHelper', () => {
           .resolves(mockInvoiceUpcomingWithData);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
-        event.data.previous_attributes = { cancel_at_period_end: false };
+        event.data.previous_attributes = {
+          cancel_at_period_end: false,
+          latest_invoice: 'mock_latest_invoice_id',
+        };
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5823,7 +5832,10 @@ describe('#integration - StripeHelper', () => {
       it('calls the expected helper method for reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
-        event.data.previous_attributes = { cancel_at_period_end: true };
+        event.data.previous_attributes = {
+          cancel_at_period_end: true,
+          latest_invoice: 'mock_latest_invoice_id',
+        };
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5836,10 +5848,35 @@ describe('#integration - StripeHelper', () => {
         );
       });
 
+      it('calls the helper method when latest_invoice is not present', async () => {
+        const expected = {
+          ...expectedBaseUpdateDetails,
+          invoiceTotalOldInCents: undefined,
+        };
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = false;
+        event.data.previous_attributes = {
+          cancel_at_period_end: true,
+          latest_invoice: undefined,
+        };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
+        assert.equal(result, mockReactivationDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateReactivationDetailsForEmail',
+          event.data.object,
+          expected
+        );
+      });
+
       it('calls the expected helper method for upgrade or downgrade', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = false;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5864,6 +5901,8 @@ describe('#integration - StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = true;
+        event.data.previous_attributes.latest_invoice =
+          'mock_latest_invoice_id';
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
@@ -5891,7 +5930,10 @@ describe('#integration - StripeHelper', () => {
           .resolves(mockPlanConfig);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
-        event.data.previous_attributes = { cancel_at_period_end: false };
+        event.data.previous_attributes = {
+          cancel_at_period_end: false,
+          latest_invoice: 'mock_latest_invoice_id',
+        };
         const result =
           await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
             event
