@@ -72,15 +72,31 @@ echo "Running operations in parallel"
 echo " - Group: $((INDEX+1)) of $TOTAL."
 echo " - Operation Count: $GROUP_SIZE"
 echo " - Operation list: .lists/$LIST-$SPLIT_FILE"
+echo " - Max Parallelization: ${MAX_JOBS}"
+
 
 # Make sure the test folder exists in the artifacts dir
 mkdir -p artifacts/tests
 
 if [[ -f .lists/$LIST-$SPLIT_FILE ]]; then
+
+  # Provide some info about what is being run. This can be helpful in the event an operation hangs.
+  echo " - Conducting the following operations: "
+  cat .lists/$LIST-$SPLIT_FILE
+
+  # This controls whether parallels writes to standard out immediately, or collects output and prints
+  # it all at once. When our max parallel jobs is set to 1, there is no reason to group output, and
+  # it's better to stream to stdout in real time. When our max parallel jobs are greater than 1, then
+  # streaming out results in interleaved output that is difficult to read. Another downside of group
+  # is that we may never see the output if a process crashes.
+  if [[ "$MAX_JOBS" == "-j 1" ]]; then
+    GROUP_ARG="--ungroup"
+  fi
+
   # Executes the command in the LIST file in parallel. Some notes on options
   # Setting --load let's us wait for a heavy test suite to finish before starting another one
   # Setting --joblog preserves the output in a log file.
-  parallel $MAX_JOBS --load 50% --halt 0 --joblog artifacts/tests/$LIST-$SPLIT_FILE.log < .lists/$LIST-$SPLIT_FILE
+  parallel $MAX_JOBS $GROUP_ARG --load 50% --halt 0 --joblog artifacts/tests/$LIST-$SPLIT_FILE.log < .lists/$LIST-$SPLIT_FILE
 else
   # If there weren't enough commands to split up, then the file might not be present. For example, if there
   # is just one operation to run, and we've requested to split operations into two groups, then second group
