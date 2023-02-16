@@ -7,10 +7,12 @@ import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import CompleteSignin, { CompleteSigninProps } from '.';
 import AppLayout from '../../../components/AppLayout';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/CompleteSignin',
+  title: 'Pages/Signin/CompleteSignin',
   component: CompleteSignin,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props: CompleteSigninProps) => {

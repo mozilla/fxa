@@ -8,10 +8,12 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE_NAME } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword/AccountRecoveryConfirmKey',
+  title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props: AccountRecoveryConfirmKeyProps) => {

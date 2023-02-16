@@ -6,10 +6,12 @@ import React from 'react';
 import Supp from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Pair/Supp',
+  title: 'Pages/Pair/Supp',
   component: Supp,
+  decorators: [withLocalization],
 } as Meta;
 
 export const DefaultLoadingState = () => <Supp />;

@@ -9,10 +9,12 @@ import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 import { Account } from '../../../models/Account';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/Security',
   component: Security,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithAccount = (account: Partial<Account>, storyName?: string) => {

@@ -11,10 +11,12 @@ import { mockAppContext } from '../../../models/mocks';
 import { Account } from '../../../models/Account';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/Nav',
   component: Nav,
+  decorators: [withLocalization],
 } as Meta;
 
 const account = {

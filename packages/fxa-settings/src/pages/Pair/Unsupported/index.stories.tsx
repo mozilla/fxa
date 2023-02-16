@@ -7,10 +7,12 @@ import PairUnsupported from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../../../components/AppLayout';
 import { MOCK_ERROR } from './mock';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Pair/Unsupported',
+  title: 'Pages/Pair/Unsupported',
   component: PairUnsupported,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

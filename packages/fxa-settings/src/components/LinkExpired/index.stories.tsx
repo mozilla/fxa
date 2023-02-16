@@ -6,10 +6,12 @@ import React from 'react';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import LinkExpired from '.';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/LinkExpired',
+  title: 'Components/LinkExpired',
   component: LinkExpired,
+  decorators: [withLocalization],
 } as Meta;
 
 export const ResetPasswordLinkExpired = () => (

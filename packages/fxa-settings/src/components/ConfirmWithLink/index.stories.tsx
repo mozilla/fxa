@@ -8,10 +8,12 @@ import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { DefaultSubject, SubjectCanGoBack, SubjectWithWebmail } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/ConfirmWithLink',
+  title: 'Components/ConfirmWithLink',
   component: ConfirmWithLink,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

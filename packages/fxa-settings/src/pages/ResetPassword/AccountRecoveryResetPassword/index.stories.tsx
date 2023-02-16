@@ -10,10 +10,12 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword/AccountRecoveryResetPassword',
+  title: 'Pages/ResetPassword/AccountRecoveryResetPassword',
   component: AccountRecoveryResetPassword,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props?: Partial<AccountRecoveryResetPasswordProps>) => {

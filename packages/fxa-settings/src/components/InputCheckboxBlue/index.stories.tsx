@@ -5,10 +5,12 @@
 import React from 'react';
 import InputCheckboxBlue from './index';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/InputCheckboxBlue',
   component: InputCheckboxBlue,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => (

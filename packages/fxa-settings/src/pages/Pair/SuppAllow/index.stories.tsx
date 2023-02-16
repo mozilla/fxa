@@ -12,10 +12,12 @@ import {
   MOCK_METADATA_WITH_LOCATION,
 } from '../../../components/DeviceInfoBlock/mocks';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Pair/SuppAllow',
+  title: 'Pages/Pair/SuppAllow',
   component: SuppAllow,
+  decorators: [withLocalization],
 } as Meta;
 
 export const WithLocation = () => (

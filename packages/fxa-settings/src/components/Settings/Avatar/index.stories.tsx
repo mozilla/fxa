@@ -8,10 +8,12 @@ import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/Avatar',
   component: Avatar,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithContext = (account: Account, storyName?: string) => {

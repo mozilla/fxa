@@ -7,10 +7,12 @@ import { LocationProvider } from '@reach/router';
 import { AppLayout } from '../AppLayout';
 import { PageSecondaryEmailAdd } from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/SecondaryEmailAdd',
+  title: 'Pages/Settings/SecondaryEmailAdd',
   component: PageSecondaryEmailAdd,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

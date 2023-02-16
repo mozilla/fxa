@@ -7,10 +7,12 @@ import Banner, { BannerType } from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
 import { Subject } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/Banner',
+  title: 'Components/Banner',
   component: Banner,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Info = () => (

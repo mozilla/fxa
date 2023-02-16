@@ -4,7 +4,7 @@
 
 module.exports = {
   stories: ['./design-guide/main.stories.tsx', '../src/**/*.stories.tsx'],
-  staticDirs: ['./design-guide'],
+  staticDirs: ['../public'],
   addons: [
     '@storybook/addon-actions',
     '@storybook/addon-links',

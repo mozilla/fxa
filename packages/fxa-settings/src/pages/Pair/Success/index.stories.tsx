@@ -7,10 +7,12 @@ import PairSuccess from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../../../components/AppLayout';
 import { MOCK_ERROR } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Pair/Success',
+  title: 'Pages/Pair/Success',
   component: PairSuccess,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (
