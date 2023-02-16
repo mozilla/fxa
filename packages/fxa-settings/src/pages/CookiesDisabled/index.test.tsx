@@ -98,12 +98,12 @@ describe('CookiesDisabled', () => {
       fireEvent.click(getTryAgainButton());
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
-        'submit',
+        'try-again-submit',
         REACT_ENTRYPOINT
       );
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
-        'success',
+        'try-again-success',
         REACT_ENTRYPOINT
       );
     });
@@ -114,12 +114,12 @@ describe('CookiesDisabled', () => {
       fireEvent.click(getTryAgainButton());
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
-        'submit',
+        'try-again-submit',
         REACT_ENTRYPOINT
       );
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
-        'fail',
+        'try-again-fail',
         REACT_ENTRYPOINT
       );
     });
