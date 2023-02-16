@@ -7,10 +7,12 @@ import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import PasswordInfoBalloon from '.';
 import InputPassword from '../InputPassword';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/PasswordInfoBalloon',
+  title: 'Components/PasswordInfoBalloon',
   component: PasswordInfoBalloon,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

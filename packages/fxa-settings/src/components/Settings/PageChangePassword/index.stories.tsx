@@ -7,10 +7,12 @@ import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/ChangePassword',
+  title: 'Pages/Settings/ChangePassword',
   component: PageChangePassword,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

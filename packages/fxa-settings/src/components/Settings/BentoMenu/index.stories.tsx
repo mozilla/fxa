@@ -5,10 +5,12 @@
 import React from 'react';
 import BentoMenu from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/BentoMenu',
   component: BentoMenu,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => (

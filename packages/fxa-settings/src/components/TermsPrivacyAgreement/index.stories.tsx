@@ -6,9 +6,12 @@ import React from 'react';
 import TermsPrivacyAgreement from '.';
 import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
+
 export default {
-  title: 'components/TermsPrivacyAgreement',
+  title: 'Components/TermsPrivacyAgreement',
   component: TermsPrivacyAgreement,
+  decorators: [withLocalization],
 } as Meta;
 
 export const FirefoxOnly = () => (

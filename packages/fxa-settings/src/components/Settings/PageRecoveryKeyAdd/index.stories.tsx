@@ -7,10 +7,12 @@ import { PageRecoveryKeyAdd } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/RecoveryKeyAdd',
+  title: 'Pages/Settings/RecoveryKeyAdd',
   component: PageRecoveryKeyAdd,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

@@ -5,10 +5,12 @@
 import React from 'react';
 import AppLayout from './index';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/AppLayout',
   component: AppLayout,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => (

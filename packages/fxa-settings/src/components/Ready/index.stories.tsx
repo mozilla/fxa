@@ -7,10 +7,12 @@ import Ready, { ReadyProps } from '.';
 import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/Ready',
+  title: 'Components/Ready',
   component: Ready,
+  decorators: [withLocalization],
 } as Meta;
 
 const ReadyWithLayout = ({

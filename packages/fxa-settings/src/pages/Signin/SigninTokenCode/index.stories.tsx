@@ -7,10 +7,12 @@ import SigninTokenCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/SigninTokenCode',
+  title: 'Pages/Signin/SigninTokenCode',
   component: SigninTokenCode,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

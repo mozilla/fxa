@@ -6,10 +6,12 @@ import React from 'react';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import LinkDamaged from '.';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/LinkDamaged',
+  title: 'Components/LinkDamaged',
   component: LinkDamaged,
+  decorators: [withLocalization],
 } as Meta;
 
 export const DamagedResetPasswordLink = () => (

@@ -9,6 +9,7 @@ import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 const account = {
   ...MOCK_ACCOUNT,
@@ -28,8 +29,9 @@ const account = {
 } as any;
 
 export default {
-  title: 'pages/Settings/TwoStepAuthenticationReplaceCodes',
+  title: 'Pages/Settings/TwoStepAuthenticationReplaceCodes',
   component: Page2faReplaceRecoveryCodes,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

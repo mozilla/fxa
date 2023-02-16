@@ -8,10 +8,12 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signup/PrimaryEmailVerified',
+  title: 'Pages/Signup/PrimaryEmailVerified',
   component: PrimaryEmailVerified,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props?: PrimaryEmailVerifiedProps) => {

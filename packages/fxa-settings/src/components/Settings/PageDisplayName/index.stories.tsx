@@ -7,10 +7,12 @@ import React from 'react';
 import { PageDisplayName } from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/DisplayName',
+  title: 'Pages/Settings/DisplayName',
   component: PageDisplayName,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

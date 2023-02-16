@@ -6,8 +6,9 @@ import React from 'react';
 import Clear from '.';
 import { Meta } from '@storybook/react';
 
+// This page is only used for testing and does not need the localization decorator
 export default {
-  title: 'pages/Clear',
+  title: 'Pages/Clear',
   component: Clear,
 } as Meta;
 
