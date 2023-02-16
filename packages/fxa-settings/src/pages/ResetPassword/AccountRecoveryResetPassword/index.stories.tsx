@@ -11,6 +11,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { LinkStatus } from '../../../lib/types';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryResetPassword',
@@ -35,9 +36,9 @@ const storyWithProps = (props?: Partial<AccountRecoveryResetPasswordProps>) => {
 export const WithValidLink = storyWithProps();
 
 export const WithBrokenLink = storyWithProps({
-  linkStatus: 'damaged',
+  linkStatus: LinkStatus.damaged,
 });
 
 export const WithExpiredLink = storyWithProps({
-  linkStatus: 'expired',
+  linkStatus: LinkStatus.expired,
 });

@@ -21,6 +21,7 @@ export type InputTextProps = {
   hasErrors?: boolean;
   errorText?: string;
   className?: string;
+  inputOnlyClassName?: string;
   inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onFocusCb?: () => void;
@@ -51,6 +52,7 @@ export const InputText = ({
   hasErrors,
   errorText,
   className = '',
+  inputOnlyClassName = '',
   inputRef,
   type = 'text',
   name,
@@ -129,6 +131,7 @@ export const InputText = ({
         </span>
         <input
           className={classNames(
+            inputOnlyClassName,
             'pb-1 pt-5 px-3 w-full font-body rounded',
             focused ? 'outline-none border-none placeholder-grey-500' : '',
             disabled ? 'bg-grey-10 placeholder-transparent cursor-default' : ''

@@ -1,6 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import base32Decode from 'base32-decode';
 import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
 import config from '../lib/config';
-import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
+import AuthClient, {
+  generateRecoveryKey,
+  getRecoveryKeyIdByUid,
+} from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
@@ -34,6 +42,10 @@ export interface SecurityEvent {
 
 export interface PasswordForgotSendCodePayload {
   passwordForgotToken: string;
+}
+
+export interface RecoveryKeyBundlePayload {
+  recoveryData: string;
 }
 
 // TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
@@ -206,6 +218,14 @@ export const GET_SECURITY_EVENTS = gql`
   }
 `;
 
+const GET_RECOVERY_BUNDLE = gql`
+  query GetRecoveryKeyBundle($input: RecoveryKeyBundleInput!) {
+    getRecoveryKeyBundle(input: $input) {
+      recoveryData
+    }
+  }
+`;
+
 export function getNextAvatar(
   existingId?: string,
   existingUrl?: string,
@@ -373,6 +393,13 @@ export class Account implements AccountData {
     );
   }
 
+  async hasRecoveryKey(email: string): Promise<boolean> {
+    // Users may not be logged in (no session token) so we currently can't use GQL here
+    return this.withLoadingStatus(
+      (await this.authClient.recoveryKeyExists(sessionToken()!, email)).exists
+    );
+  }
+
   async getSecurityEvents() {
     const { data } = await this.apolloClient.query({
       fetchPolicy: 'network-only',
@@ -380,6 +407,37 @@ export class Account implements AccountData {
     });
     const { account } = data;
     return account.securityEvents;
+  }
+
+  async getRecoveryKeyBundle(
+    accountResetToken: string,
+    recoveryKey: string,
+    uid: hexstring
+  ) {
+    const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
+    const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
+    const recoveryKeyId = await getRecoveryKeyIdByUid(uint8RecoveryKey, uid);
+
+    try {
+      const { data } = await this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_RECOVERY_BUNDLE,
+        variables: {
+          input: {
+            accountResetToken,
+            recoveryKeyId,
+          },
+        },
+      });
+      const { recoveryData } = data.getRecoveryKeyBundle;
+      return { recoveryData, recoveryKeyId };
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
   }
 
   async changePassword(oldPassword: string, newPassword: string) {

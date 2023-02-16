@@ -6,6 +6,7 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkType } from '../../lib/types';
 import CardHeader from '../CardHeader';
+import AppLayout from '../AppLayout';
 
 type LinkDamagedProps = {
   linkType: LinkType;
@@ -35,7 +36,7 @@ const LinkDamaged = ({ linkType }: LinkDamagedProps) => {
   // TODO : Metric event(s) for damaged link
   const headerValue = getHeaderValues(linkType);
   return (
-    <>
+    <AppLayout>
       <CardHeader
         headingText={headerValue.text}
         headingTextFtlId={headerValue.headerId}
@@ -47,7 +48,7 @@ const LinkDamaged = ({ linkType }: LinkDamagedProps) => {
           by your email client. Copy the address carefully, and try again.
         </p>
       </FtlMsg>
-    </>
+    </AppLayout>
   );
 };
 

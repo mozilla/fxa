@@ -4,7 +4,12 @@
 
 export type LinkType = 'reset-password' | 'signin';
 
-export type LinkStatus = 'valid' | 'used' | 'expired' | 'damaged';
+export enum LinkStatus {
+  damaged = 'damaged',
+  expired = 'expired',
+  valid = 'valid',
+  used = 'used',
+}
 
 export enum MozServices {
   Default = 'account settings',

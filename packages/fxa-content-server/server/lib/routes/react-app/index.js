@@ -7,7 +7,7 @@ const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
- * or setting `routes` with `.getRoutes` on the react route class. See tests for examples.
+ * or setting `routes` with `.getRoutes` on the react route object.
  *
  * When setting a regex, the corresponding matches for `router.js` must be set in
  * `react-route-client.js`.
@@ -39,6 +39,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'confirm_reset_password',
         'reset_password_verified',
         'reset_password_with_recovery_key_verified',
+        'account_recovery_confirm_key',
       ]),
     },
 

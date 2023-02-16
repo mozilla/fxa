@@ -23,7 +23,11 @@ export default {
 
 const source = createMemorySource('/fake-memories');
 
-const storyWithAccountAndHistory = (account: Account, history: History) => {
+const storyWithAccountAndHistory = (
+  account: Account,
+  history: History,
+  storyName?: string
+) => {
   const story = () => (
     <AppContext.Provider value={mockAppContext({ account })}>
       <LocationProvider history={history}>
@@ -31,32 +35,49 @@ const storyWithAccountAndHistory = (account: Account, history: History) => {
       </LocationProvider>
     </AppContext.Provider>
   );
+  story.storyName = storyName;
   return story;
 };
 
-const validHistory = createHistory(source);
-validHistory.location.href =
-  'http://localhost.com/?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith';
+const historyWithParams = createHistory(source);
+historyWithParams.location.href = `${window.location.href}?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith`;
 
-const invalidHistory = createHistory(source);
-invalidHistory.location.href = 'http://localhost.com/?';
+const historyWithoutParams = createHistory(source);
+historyWithoutParams.location.href = 'http://localhost.com/?';
 
-const validAccount = {
+const accountNoRecoveryKey = {
   resetPasswordStatus: () => Promise.resolve(true),
+  hasRecoveryKey: () => Promise.resolve(false),
 } as unknown as Account;
 
-const invalidAccount = {
+const accountWithRecoveryKeyStatusError = {
+  resetPasswordStatus: () => Promise.resolve(true),
+  hasRecoveryKey: () => {
+    throw new Error('boop');
+  },
+} as unknown as Account;
+
+const accountWithFalseyResetPasswordStatus = {
   resetPasswordStatus: () => Promise.resolve(false),
 } as unknown as Account;
 
-export const Default = storyWithAccountAndHistory(validAccount, validHistory);
+export const NoRecoveryKeySet = storyWithAccountAndHistory(
+  accountNoRecoveryKey,
+  historyWithParams,
+  'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
+);
+
+export const ErrorCheckingRecoveryKeyStatus = storyWithAccountAndHistory(
+  accountWithRecoveryKeyStatusError,
+  historyWithParams
+);
 
 export const WithExpiredLink = storyWithAccountAndHistory(
-  invalidAccount,
-  validHistory
+  accountWithFalseyResetPasswordStatus,
+  historyWithParams
 );
 
 export const WithDamagedLink = storyWithAccountAndHistory(
-  validAccount,
-  invalidHistory
+  accountNoRecoveryKey,
+  historyWithoutParams
 );

@@ -5,6 +5,7 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
+import AppLayout from '../AppLayout';
 
 type LinkUsedProps = {
   isForPrimaryEmail: boolean;
@@ -29,7 +30,7 @@ const LinkUsed = ({ isForPrimaryEmail }: LinkUsedProps) => {
   const templateValues = getTemplateValues(isForPrimaryEmail);
 
   return (
-    <>
+    <AppLayout>
       <CardHeader
         headingText={templateValues.headerText}
         headingTextFtlId={templateValues.headerId}
@@ -40,7 +41,7 @@ const LinkUsed = ({ isForPrimaryEmail }: LinkUsedProps) => {
           That confirmation link was already used, and can only be used once.
         </p>
       </FtlMsg>
-    </>
+    </AppLayout>
   );
 };
 
