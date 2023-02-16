@@ -51,6 +51,7 @@ jobs:
 
           # Extract gettext
           cd ./packages/fxa-content-server
+          rm ./locale/templates/LC_MESSAGES/*
           npx grunt l10n-extract
           cd ../..
 
