@@ -8,6 +8,7 @@ import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { useFtlMsgResolver } from '../../models';
 
 export type FormAttributes = {
   inputLabelText: string;
@@ -45,6 +46,12 @@ const FormVerifyCode = ({
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedLabel = ftlMsgResolver.getMsg(
+    formAttributes.inputFtlId,
+    formAttributes.inputLabelText
+  );
+
   const onFocus = () => {
     if (!isFocused && viewName) {
       logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
@@ -67,32 +74,30 @@ const FormVerifyCode = ({
       onSubmit={handleSubmit(onSubmit)}
     >
       {/* Using `type="text" inputmode="numeric"` shows the numeric pad on mobile and strips out whitespace on desktop. */}
-      <FtlMsg id={formAttributes.inputFtlId}>
-        <InputText
-          type="text"
-          inputMode="numeric"
-          label={formAttributes.inputLabelText}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setCode(e.target.value);
-            // clear error tooltip if user types in the field
-            if (codeErrorMessage) {
-              setCodeErrorMessage('');
-            }
-          }}
-          onFocusCb={viewName ? onFocus : undefined}
-          errorText={codeErrorMessage}
-          autoFocus
-          pattern={formAttributes.pattern}
-          maxLength={formAttributes.maxLength}
-          className="text-start"
-          anchorStart
-          autoComplete="off"
-          spellCheck={false}
-          prefixDataTestId={viewName}
-          required
-          tooltipPosition="bottom"
-        />
-      </FtlMsg>
+      <InputText
+        type="text"
+        inputMode="numeric"
+        label={localizedLabel}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setCode(e.target.value);
+          // clear error tooltip if user types in the field
+          if (codeErrorMessage) {
+            setCodeErrorMessage('');
+          }
+        }}
+        onFocusCb={viewName ? onFocus : undefined}
+        errorText={codeErrorMessage}
+        autoFocus
+        pattern={formAttributes.pattern}
+        maxLength={formAttributes.maxLength}
+        className="text-start"
+        anchorStart
+        autoComplete="off"
+        spellCheck={false}
+        prefixDataTestId={viewName}
+        required
+        tooltipPosition="bottom"
+      />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>
         <button type="submit" className="cta-primary cta-xl">
