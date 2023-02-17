@@ -58,7 +58,7 @@ try {
         <AppContext.Provider value={appContext}>
           <AppLocalizationProvider
             baseDir="/settings/locales"
-            bundles={['settings', 'react']}
+            bundles={['settings', 'react', 'branding']}
             userLocales={navigator.languages}
           >
             <App {...{ flowQueryParams }} />

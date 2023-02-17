@@ -143,6 +143,7 @@ case "$MODULE" in
     "$SETTINGS")
         copy_ftl "settings"
         copy_ftl "react"
+        copy_ftl "branding"
         ;;
     "$AUTH")
         copy_ftl "auth"
