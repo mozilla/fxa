@@ -3,19 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import FormVerifyCode, { FormAttributes } from '.';
-import { useFtlMsgResolver } from '../../models';
-import { MOCK_ACCOUNT } from '../../models/mocks';
+import FormVerifyCode, { FormAttributes, FormVerifyCodeProps } from '.';
 
-export const Subject = () => {
-  type FormData = {
-    code?: string;
-  };
-
-  const [code, setCode] = useState<string>('');
+export const Subject = ({
+  localizedCustomCodeRequiredMessage = '',
+}: Partial<FormVerifyCodeProps>) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  const ftlMsgResolver = useFtlMsgResolver();
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'demo-input-label-id',
@@ -27,32 +20,16 @@ export const Subject = () => {
   };
 
   const onFormSubmit = () => {
-    if (!code) {
-      const codeRequiredError = ftlMsgResolver.getMsg(
-        'confirm-signup-code-required-error',
-        'Confirmation code required'
-      );
-      setCodeErrorMessage(codeRequiredError);
-    }
+    alert('Trying to submit');
   };
-
-  const { handleSubmit } = useForm<FormData>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
-    defaultValues: {
-      code: '',
-    },
-  });
 
   return (
     <FormVerifyCode
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      onSubmit={handleSubmit(onFormSubmit)}
+      verifyCode={onFormSubmit}
       viewName="default-view"
       {...{
         formAttributes,
-        code,
-        setCode,
+        localizedCustomCodeRequiredMessage,
         codeErrorMessage,
         setCodeErrorMessage,
       }}

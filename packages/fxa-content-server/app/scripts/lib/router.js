@@ -160,7 +160,12 @@ Router = Router.extend({
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
     }),
-    'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
+    'confirm_signup_code(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'confirm_signup_code',
+        ConfirmSignupCodeView
+      );
+    },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
     'cookies_disabled(/)': function () {
       this.createReactOrBackboneViewHandler(
