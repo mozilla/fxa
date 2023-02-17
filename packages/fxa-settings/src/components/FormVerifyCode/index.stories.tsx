@@ -7,10 +7,12 @@ import FormVerifyCode from '.';
 import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { Subject } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/FormVerifyCode',
+  title: 'Components/FormVerifyCode',
   component: FormVerifyCode,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

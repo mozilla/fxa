@@ -7,10 +7,12 @@ import SigninConfirmed from '.';
 import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/SigninConfirmed',
+  title: 'Pages/Signin/SigninConfirmed',
   component: SigninConfirmed,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

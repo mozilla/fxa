@@ -7,10 +7,12 @@ import { PageDeleteAccount } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/DeleteAccount',
+  title: 'Pages/Settings/DeleteAccount',
   component: PageDeleteAccount,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

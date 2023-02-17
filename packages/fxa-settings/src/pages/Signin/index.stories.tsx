@@ -9,9 +9,12 @@ import { MozServices } from '../../lib/types';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_EMAIL, MOCK_SERVICE } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
+
 export default {
-  title: 'pages/Signin',
+  title: 'Pages/Signin',
   component: Signin,
+  decorators: [withLocalization],
 } as Meta;
 
 // TODO: Add in error and success states when the Banner is added in

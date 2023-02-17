@@ -5,10 +5,12 @@
 import React from 'react';
 import CannotCreateAccount from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'pages/CannotCreateAccount',
+  title: 'Pages/CannotCreateAccount',
   component: CannotCreateAccount,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => <CannotCreateAccount />;

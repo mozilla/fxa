@@ -11,10 +11,12 @@ import {
 } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword/ConfirmResetPassword',
+  title: 'Pages/ResetPassword/ConfirmResetPassword',
   component: ConfirmResetPassword,
+  decorators: [withLocalization],
 } as Meta;
 
 const source = createMemorySource('/fake-memories');

@@ -13,10 +13,12 @@ import {
 } from './mocks';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/Profile',
   component: Profile,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithContext = (account: Account, storyName?: string) => {

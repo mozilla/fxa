@@ -16,12 +16,14 @@ import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 export default {
   title: 'Pages/Settings',
   component: PageSettings,
+  decorators: [withLocalization],
 } as Meta;
 
 const coldStartAccount = {

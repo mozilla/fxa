@@ -14,10 +14,12 @@ import {
   MOCK_SUBHEADING,
 } from './mocks';
 import { MozServices } from '../../lib/types';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/CardHeader',
+  title: 'Components/CardHeader',
   component: CardHeader,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (

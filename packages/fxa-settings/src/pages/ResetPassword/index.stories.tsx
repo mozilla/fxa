@@ -4,15 +4,16 @@
 
 import React from 'react';
 import ResetPassword from '.';
-import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword',
+  title: 'Pages/ResetPassword',
   component: ResetPassword,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = ({ ...props }) => {

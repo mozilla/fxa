@@ -7,10 +7,12 @@ import ConfirmSignupCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signup/ConfirmSignupCode',
+  title: 'Pages/Signup/ConfirmSignupCode',
   component: ConfirmSignupCode,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

@@ -8,10 +8,12 @@ import { MOCK_SECURITY_EVENTS } from './mocks';
 import { Meta } from '@storybook/react';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/RecentActivity',
+  title: 'Pages/Settings/RecentActivity',
   component: PageRecentActivity,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

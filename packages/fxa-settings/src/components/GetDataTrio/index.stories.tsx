@@ -5,10 +5,12 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import GetDataTrio, { GetDataCopySingleton } from './index';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/GetDataTrio',
   component: GetDataTrio,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

@@ -14,10 +14,12 @@ import {
   MOCK_REGION,
   MOCK_COUNTRY,
 } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/DeviceInfoBlock',
+  title: 'Components/DeviceInfoBlock',
   component: DeviceInfoBlock,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props?: Partial<RemoteMetadata>) => {

@@ -5,10 +5,12 @@
 import React from 'react';
 import Legal from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Legal',
+  title: 'Pages/Legal',
   component: Legal,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => <Legal />;

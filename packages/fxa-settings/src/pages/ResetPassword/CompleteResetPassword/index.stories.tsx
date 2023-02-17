@@ -13,10 +13,12 @@ import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { mockAppContext } from '../../../models/mocks';
 import { AppContext, Account } from '../../../models';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword/CompleteResetPassword',
+  title: 'Pages/ResetPassword/CompleteResetPassword',
   component: CompleteResetPassword,
+  decorators: [withLocalization],
 } as Meta;
 
 const source = createMemorySource('/fake-memories');

@@ -5,10 +5,12 @@
 import React from 'react';
 import LegalPrivacy from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Legal/Privacy',
+  title: 'Pages/Legal/Privacy',
   component: LegalPrivacy,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => <LegalPrivacy />;

@@ -9,10 +9,12 @@ import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/SigninTotpCode',
+  title: 'Pages/Signin/SigninTotpCode',
   component: SigninTotpCode,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = ({ ...props }) => {
