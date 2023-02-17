@@ -114,6 +114,7 @@ export function useInterval(callback: () => void, delay: number | null) {
         savedCallback.current();
       }
     }, delay);
+    
     return () => window.clearInterval(id);
   }, [delay]);
 }

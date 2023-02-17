@@ -3,41 +3,58 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '../../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
+import {
+  createHistory,
+  createMemorySource,
+  History,
+  LocationProvider,
+} from '@reach/router';
 import { Meta } from '@storybook/react';
-import CompleteResetPassword, { CompleteResetPasswordProps } from '.';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import CompleteResetPassword from '.';
+import { mockAppContext } from '../../../models/mocks';
+import { AppContext, Account } from '../../../models';
 
 export default {
   title: 'pages/ResetPassword/CompleteResetPassword',
   component: CompleteResetPassword,
 } as Meta;
 
-const storyWithProps = (props?: Partial<CompleteResetPasswordProps>) => {
+const source = createMemorySource('/fake-memories');
+
+const storyWithAccountAndHistory = (account: Account, history: History) => {
   const story = () => (
-    <LocationProvider>
-      <AppLayout>
-        <CompleteResetPassword
-          email={MOCK_ACCOUNT.primaryEmail.email}
-          linkStatus="valid"
-        />
-      </AppLayout>
-    </LocationProvider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <LocationProvider history={history}>
+        <CompleteResetPassword />
+      </LocationProvider>
+    </AppContext.Provider>
   );
   return story;
 };
 
-export const Default = storyWithProps();
+const validHistory = createHistory(source);
+validHistory.location.href =
+  'http://localhost.com/?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith';
 
-export const ValidWithSyncWarning = storyWithProps({
-  resetPasswordConfirm: true,
-});
+const invalidHistory = createHistory(source);
+invalidHistory.location.href = 'http://localhost.com/?';
 
-export const WithExpiredLink = storyWithProps({
-  linkStatus: 'expired',
-});
+const validAccount = {
+  resetPasswordStatus: () => Promise.resolve(true),
+} as unknown as Account;
 
-export const WithDamagedLink = storyWithProps({
-  linkStatus: 'damaged',
-});
+const invalidAccount = {
+  resetPasswordStatus: () => Promise.resolve(false),
+} as unknown as Account;
+
+export const Default = storyWithAccountAndHistory(validAccount, validHistory);
+
+export const WithExpiredLink = storyWithAccountAndHistory(
+  invalidAccount,
+  validHistory
+);
+
+export const WithDamagedLink = storyWithAccountAndHistory(
+  validAccount,
+  invalidHistory
+);
