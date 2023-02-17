@@ -3,31 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
-import { AppContext, AlertBarInfo } from '../../../models';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { mockAppContext } from '../../../models/mocks';
+import { AppContext, Account } from '../../../models';
 import CompleteResetPassword from '.';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
+import { LocationProvider } from '@reach/router';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
+const PASSWORD = 'passwordzxcv';
+
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
+  logPageViewEvent: jest.fn(),
 }));
 
+let account: Account;
+let mockToken: string,
+  mockCode: string,
+  mockEmail: string,
+  mockPasswordHash: string;
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+  useLocation: () => {
+    return {
+      href: `http://localhost.com/?&token=${mockToken}&code=${mockCode}&email=${mockEmail}&emailToHashWith=${mockPasswordHash}`,
+    };
+  },
 }));
 
-const alertBarInfo = {
-  success: jest.fn(),
-  error: jest.fn(),
-} as unknown as AlertBarInfo;
+function renderWithAccount(account: Account) {
+  render(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <LocationProvider>
+        <CompleteResetPassword />
+      </LocationProvider>
+    </AppContext.Provider>
+  );
+}
 
 describe('CompleteResetPassword page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -36,16 +59,20 @@ describe('CompleteResetPassword page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+  beforeEach(() => {
+    mockCode = 'code';
+    mockToken = 'token';
+    mockEmail = 'boo@boo.boo';
+    mockPasswordHash = 'hash';
 
-  it('renders the component as expected when the link is valid', () => {
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
-        <CompleteResetPassword
-          email={MOCK_ACCOUNT.primaryEmail.email}
-          linkStatus="valid"
-        />
-      </AppContext.Provider>
-    );
+    account = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(true),
+    } as unknown as Account;
+  });
+
+  it('renders the component as expected', () => {
+    renderWithAccount(account);
     // testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {
@@ -60,14 +87,8 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('displays password requirements when the new password field is in focus', async () => {
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ alertBarInfo })}>
-        <CompleteResetPassword
-          email={MOCK_ACCOUNT.primaryEmail.email}
-          linkStatus="valid"
-        />
-      </AppContext.Provider>
-    );
+    renderWithAccount(account);
+
     const newPasswordField = screen.getByTestId('new-password-input-field');
 
     expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
@@ -83,13 +104,14 @@ describe('CompleteResetPassword page', () => {
     );
   });
 
-  it('renders the component as expected when provided with an expired link', () => {
-    render(
-      <CompleteResetPassword
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus="expired"
-      />
-    );
+  it('renders the component as expected when provided with an expired link', async () => {
+    account = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(false),
+    } as unknown as Account;
+
+    await act(async () => {
+      renderWithAccount(account);
+    });
 
     screen.getByRole('heading', {
       name: 'Reset password link expired',
@@ -98,17 +120,11 @@ describe('CompleteResetPassword page', () => {
     screen.getByRole('button', {
       name: 'Receive new link',
     });
-
-    // Components that should not be rendered when the link is expired
   });
 
   it('renders the component as expected when provided with a damaged link', () => {
-    render(
-      <CompleteResetPassword
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus="damaged"
-      />
-    );
+    mockToken = '';
+    renderWithAccount(account);
 
     screen.getByRole('heading', {
       name: 'Reset password link damaged',
@@ -119,16 +135,71 @@ describe('CompleteResetPassword page', () => {
   });
 
   // TODO : check for metrics event when link is expired or damaged
-  it('emits the expected metrics on render when the link is valid', () => {
-    render(
-      <CompleteResetPassword
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus="valid"
-      />
-    );
-    expect(usePageViewEvent).toHaveBeenCalledWith(
+  it('emits the expected metrics on render', () => {
+    renderWithAccount(account);
+
+    expect(logPageViewEvent).toHaveBeenCalledWith(
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
+  });
+
+  it('displays any errors', async () => {
+    account = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest
+        .fn()
+        .mockRejectedValue(new Error('Request failed')),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('new-password-input-field'), {
+        target: { value: PASSWORD },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verify-password-input-field'), {
+        target: { value: PASSWORD },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Reset password'));
+    });
+
+    screen.getByText('Sorry, there was a problem setting your password');
+  });
+
+  it('can submit', async () => {
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('new-password-input-field'), {
+        target: { value: PASSWORD },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verify-password-input-field'), {
+        target: { value: PASSWORD },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Reset password'));
+    });
+
+    expect(account.completeResetPassword).toHaveBeenCalledWith(
+      mockToken,
+      mockCode,
+      mockEmail,
+      PASSWORD
+    );
+    expect(mockNavigate).toHaveBeenCalledWith('/reset_password_verified', {
+      replace: true,
+    });
   });
 });

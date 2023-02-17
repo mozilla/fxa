@@ -6,6 +6,7 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
+import AppLayout from '../../../components/AppLayout';
 
 type ResetPasswordConfirmedProps = {
   continueHandler?: Function;
@@ -18,7 +19,9 @@ const ResetPasswordConfirmed = ({
   continueHandler,
   serviceName,
 }: ResetPasswordConfirmedProps & RouteComponentProps) => (
-  <Ready {...{ continueHandler, viewName, serviceName }} />
+  <AppLayout>
+    <Ready {...{ continueHandler, viewName, serviceName }} />
+  </AppLayout>
 );
 
 export default ResetPasswordConfirmed;

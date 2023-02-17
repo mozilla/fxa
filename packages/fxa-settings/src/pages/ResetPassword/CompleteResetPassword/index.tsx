@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import React, { useCallback, useState, useEffect } from 'react';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { logPageViewEvent } from '../../../lib/metrics';
 
-import { useFtlMsgResolver } from '../../../models/hooks';
-import { useAlertBar } from '../../../models';
+import { useAccount } from '../../../models/hooks';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import LinkExpired from '../../../components/LinkExpired';
@@ -17,6 +15,9 @@ import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+import AppLayout from '../../../components/AppLayout';
+import Banner, { BannerType } from '../../../components/Banner';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -32,15 +33,6 @@ import CardHeader from '../../../components/CardHeader';
 
 export const viewName = 'complete-reset-password';
 
-export type CompleteResetPasswordProps = {
-  email: string;
-  forceAuth?: boolean;
-  linkStatus: LinkStatus;
-  // resetPasswordConfirm will be obtained from the relier
-  // resetPasswordConfirm determines if sync warning is shown
-  resetPasswordConfirm?: boolean;
-};
-
 type FormData = {
   newPassword: string;
   confirmPassword: string;
@@ -48,19 +40,46 @@ type FormData = {
 
 type LinkStatus = 'expired' | 'damaged' | 'valid';
 
-const CompleteResetPassword = ({
-  email,
-  forceAuth = false,
-  linkStatus,
-  resetPasswordConfirm,
-}: CompleteResetPasswordProps & RouteComponentProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
+const CompleteResetPassword = (_: RouteComponentProps) => {
+  logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
-  const alertBar = useAlertBar();
   const navigate = useNavigate();
-  const ftlMsgResolver = useFtlMsgResolver();
+  const account = useAccount();
+  const [linkStatus, setLinkStatus] = useState<LinkStatus>('valid');
+  const [errorCompletePwdReset, setErrorCompletePwdReset] =
+    useState<boolean>(false);
+
+  // TODO: Pull this information from relier, in meantime we can get from query params
+  const [resetPasswordConfirm] = useState<boolean>(false);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.href);
+  const token = searchParams.get('token');
+  const code = searchParams.get('code');
+  const email = searchParams.get('email');
+  const passwordHash = searchParams.get('emailToHashWith');
+
+  useEffect(() => {
+    if (!token || !code || !email || !passwordHash) {
+      setLinkStatus('damaged');
+    }
+  }, [token, code, email, passwordHash]);
+
+  useEffect(() => {
+    const checkPasswordForgotToken = async (token: string) => {
+      try {
+        const isValid = await account.resetPasswordStatus(token);
+        if (!isValid) {
+          setLinkStatus('expired');
+        }
+      } catch (e) {
+        setLinkStatus('damaged');
+      }
+    };
+
+    checkPasswordForgotToken(token!);
+  }, [token]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -73,35 +92,35 @@ const CompleteResetPassword = ({
     });
 
   const alertSuccessAndNavigate = useCallback(() => {
-    const successCompletePwdReset = ftlMsgResolver.getMsg(
-      'complete-reset-password-success-alert',
-      'Password set'
-    );
-    alertBar.success(successCompletePwdReset);
     navigate('/reset_password_verified', { replace: true });
-  }, [alertBar, ftlMsgResolver, navigate]);
+  }, [navigate]);
 
   const onSubmit = useCallback(
     async ({ newPassword }: FormData) => {
       try {
-        // TODO: completeAccountPasswordReset
-        // logViewEvent('verification.success');
+        await account.completeResetPassword(token!, code!, email!, newPassword);
         alertSuccessAndNavigate();
       } catch (e) {
-        // if token expired, re-render and show LinkExpired
-        // TODO metrics event for error
-        const errorCompletePwdReset = ftlMsgResolver.getMsg(
-          'complete-reset-password-error-alert',
-          'Sorry, there was a problem setting your password'
-        );
-        alertBar.error(errorCompletePwdReset);
+        setErrorCompletePwdReset(true);
       }
     },
-    [ftlMsgResolver, alertSuccessAndNavigate, alertBar]
+    [token, code, email]
   );
 
   return (
-    <>
+    <AppLayout>
+      {errorCompletePwdReset && (
+        <Banner
+          type={BannerType.error}
+          dismissible
+          setIsVisible={setErrorCompletePwdReset}
+        >
+          <FtlMsg id="complete-reset-password-error-alert">
+            <p>Sorry, there was a problem setting your password</p>
+          </FtlMsg>
+        </Banner>
+      )}
+
       {/* With valid password reset link */}
       {linkStatus === 'valid' && (
         <>
@@ -128,11 +147,11 @@ const CompleteResetPassword = ({
            to correctly save the updated password. Without it,
            the password manager tries to save the old password
            as the username. */}
-          <input type="email" value={email} className="hidden" readOnly />
+          <input type="email" value={email!} className="hidden" readOnly />
           <section className="text-start mt-4">
             <FormPasswordWithBalloons
               {...{
-                email,
+                email: email!,
                 formState,
                 errors,
                 trigger,
@@ -147,13 +166,12 @@ const CompleteResetPassword = ({
               onFocusMetricsEvent={`${viewName}.engage`}
             />
           </section>
-          {/* TODO: Verify if the "Remember password?" should always direct to /signin (current state) */}
-          <LinkRememberPassword {...{ email, forceAuth }} />
+          <LinkRememberPassword {...{ email: email! }} />
         </>
       )}
       {linkStatus === 'expired' && <LinkExpired linkType="reset-password" />}
       {linkStatus === 'damaged' && <LinkDamaged linkType="reset-password" />}
-    </>
+    </AppLayout>
   );
 };
 

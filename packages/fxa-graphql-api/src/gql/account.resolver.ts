@@ -481,12 +481,7 @@ export class AccountResolver {
     @Args('input', { type: () => PasswordForgotVerifyCodeInput })
     input: PasswordForgotVerifyCodeInput
   ) {
-    return this.authAPI.passwordForgotVerifyCode(
-      input.code,
-      input.token,
-      {},
-      headers
-    );
+    return this.authAPI.passwordForgotVerifyCode(input.code, input.token, {});
   }
 
   @Mutation((returns) => PasswordForgotCodeStatusPayload, {
@@ -513,8 +508,8 @@ export class AccountResolver {
       input.email,
       input.newPassword,
       input.accountResetToken,
-      input.options,
-      headers
+      input.options
+      // headers, TODO: Not sure why this request fails when forwarding headers
     );
   }
 
