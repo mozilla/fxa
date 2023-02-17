@@ -23,9 +23,9 @@ const LinkRememberPassword = ({
   return (
     <div className="text-sm mt-6">
       <FtlMsg id="remember-pw-link">
-        <Link to={target} className="link-blue text-sm" id="remember-password">
+        <a href={target} className="link-blue text-sm" id="remember-password">
           Remember your password? Sign in
-        </Link>
+        </a>
       </FtlMsg>
     </div>
   );

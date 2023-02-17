@@ -2864,11 +2864,15 @@ export class StripeHelper extends StripeHelperBase {
         }
       : null;
 
-    const previousLatestInvoice: string = previousAttributes.latest_invoice;
-    const invoiceOld: Stripe.Invoice = await this.getInvoice(
-      previousLatestInvoice
-    );
-    const invoiceTotalOldInCents = invoiceOld.total;
+    let invoiceTotalOldInCents: number | undefined;
+    const previousLatestInvoice = previousAttributes.latest_invoice as
+      | string
+      | undefined;
+
+    if (previousLatestInvoice) {
+      const invoiceOld = await this.getInvoice(previousLatestInvoice);
+      invoiceTotalOldInCents = invoiceOld.total;
+    }
 
     const planIdNew = planNew.id;
 

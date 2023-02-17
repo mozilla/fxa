@@ -485,13 +485,13 @@ export class Account implements AccountData {
 
       // If the request does not fail, that means that the token has not been
       // consumed yet
-      return false;
+      return true;
     } catch (err) {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
 
       // Invalid token means the user has completed reset password
       if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        return true;
+        return false;
       }
 
       // Throw all other errors
@@ -521,6 +521,78 @@ export class Account implements AccountData {
       });
 
       return result.data.passwordForgotSendCode;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
+  }
+
+  /**
+   * Verify a passwordForgotToken, which returns an accountResetToken that can
+   * be used to perform the actual password reset.
+   *
+   * @param token passwordForgotToken
+   * @param code code
+   */
+  async verifyPasswordForgotToken(token: string, code: string) {
+    try {
+      const verifyCodeResult = await this.apolloClient.mutate({
+        mutation: gql`
+          mutation passwordForgotVerifyCode(
+            $input: PasswordForgotVerifyCodeInput!
+          ) {
+            passwordForgotVerifyCode(input: $input) {
+              accountResetToken
+            }
+          }
+        `,
+        variables: { input: { token, code } },
+      });
+      return verifyCodeResult.data.passwordForgotVerifyCode;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
+  }
+
+  /**
+   * Complete the password reset process. When a user reset's their password,
+   * all current sessions are revoked and they will have to re-login connected
+   * devices. Depending on if they used a recovery key, their encryption key might
+   * change.
+   *
+   * @param token passwordForgotToken
+   * @param code
+   * @param email current user email
+   * @param newPassword new password
+   */
+  async completeResetPassword(
+    token: string,
+    code: string,
+    email: string,
+    newPassword: string
+  ): Promise<any> {
+    try {
+      const { accountResetToken } = await this.verifyPasswordForgotToken(
+        token,
+        code
+      );
+      const accountResetResult = await this.apolloClient.mutate({
+        mutation: gql`
+          mutation accountReset($input: AccountResetInput!) {
+            accountReset(input: $input) {
+              clientMutationId
+            }
+          }
+        `,
+        variables: { input: { accountResetToken, email, newPassword } },
+      });
     } catch (err) {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
       if (errno && AuthUiErrorNos[errno]) {
