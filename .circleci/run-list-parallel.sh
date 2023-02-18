@@ -38,11 +38,11 @@ fi
 
 
 # Quick integrity check on total / index
-if $TOTAL > 24; then
+if [[ "$TOTAL" -gt "24" ]]; then
   echo "Invalid GROUP argument - $GROUP. Total groups must be be less than 24."
   exit 1
 fi
-if $INDEX < 0 || $INDEX >= $TOTAL; then
+if [[ "$INDEX" -lt "0" || "$INDEX" -ge "$TOTAL" ]]; then
   echo "Invalid GROUP argument - $GROUP. INDEX must be positive and less than total."
   exit 1
 fi
