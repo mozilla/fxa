@@ -237,10 +237,10 @@ describe('lib/reliers/relier-factory', () => {
       );
     });
 
-    it('has correct state', () => {
+    it('has correct state', async () => {
       expect(relier.name).toEqual('pairing-supplicant');
       expect(relier.isOAuth()).toBeTruthy();
-      expect(relier.isSync()).toBeFalsy();
+      expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
       expect(relier.pickResumeTokenInfo()).toEqual({});
       expect(relier.isTrusted()).toBeFalsy();

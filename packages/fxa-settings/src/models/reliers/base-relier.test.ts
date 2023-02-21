@@ -19,8 +19,8 @@ describe('BaseRelier Model', function () {
   });
 
   describe('isSync', function () {
-    it('returns `false`', function () {
-      expect(model.isSync()).toBeFalsy();
+    it('returns `false`', async function () {
+      expect(await model.isSync()).toBeFalsy();
     });
   });
 

@@ -170,8 +170,13 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
     return true;
   }
 
-  isSync() {
-    return this.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
+  async isSync() {
+    if (this.clientInfo == null) {
+      return false;
+    }
+
+    const clientInfo = await this.clientInfo;
+    return clientInfo.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
   }
 
   isTrusted() {
