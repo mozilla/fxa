@@ -10,6 +10,7 @@ import {
   PairingAuthorityRelier,
   PairingSupplicantRelier,
   Relier,
+  RelierSubscriptionInfo,
   ResumeObj,
 } from '../../models/reliers';
 import { Constants } from '../constants';
@@ -91,7 +92,7 @@ export class RelierFactory {
    * @param flags A set of flags that help determine what kind of relier to produce. These flags are also based off the context.
    * @returns A relier implementation.
    */
-  async getRelier() {
+  getRelier() {
     const context = this.context;
     const channelContext = this.channelContext;
     const flags = this.flags;
@@ -99,17 +100,15 @@ export class RelierFactory {
     // Keep trying until something sticks
     let relier: Relier | undefined;
     if (flags.isDevicePairingAsAuthority()) {
-      console.log('Making');
-      relier = await this.createPairingAuthorityRelier(channelContext);
+      relier = this.createPairingAuthorityRelier(channelContext);
     } else if (flags.isDevicePairingAsSupplicant()) {
-      relier = await this.createParingSupplicationRelier(context);
+      relier = this.createParingSupplicationRelier(context);
     } else if (flags.isOAuth()) {
-      relier = await this.createOAuthRelier(context);
+      relier = this.createOAuthRelier(context);
     } else if (flags.isSyncService() || flags.isV3DesktopContext()) {
-      console.log('Creating browser!');
-      relier = await this.createBrowserRelier(context);
+      relier = this.createBrowserRelier(context);
     } else {
-      relier = await this.creteDefaultRelier(context);
+      relier = this.creteDefaultRelier(context);
     }
 
     // Run final validation. This will ensure that the all fields decorated with an @bind are in the
@@ -119,81 +118,46 @@ export class RelierFactory {
     return relier;
   }
 
-  private async createPairingAuthorityRelier(context: ModelContext) {
+  private createPairingAuthorityRelier(context: ModelContext) {
     const relier = new PairingAuthorityRelier(context);
-    await this.initRelier(relier, this.delegates);
+    this.initRelier(relier);
     return relier;
   }
 
-  private async createParingSupplicationRelier(context: ModelContext) {
+  private createParingSupplicationRelier(context: ModelContext) {
     const relier = new PairingSupplicantRelier(context);
-    await this.initRelier(relier, this.delegates);
-    await this.initClientInfo(
-      relier,
-      await this.getClientInfo(relier.clientId)
-    );
+    this.initRelier(relier);
+    this.initClientInfo(relier);
+
     return relier;
   }
 
-  private async createOAuthRelier(context: ModelContext) {
+  private createOAuthRelier(context: ModelContext) {
     const relier = new OAuthRelier(context);
-    await this.initRelier(relier, this.delegates);
+    this.initRelier(relier);
     this.initOAuthRelier(relier, this.flags);
-    this.initClientInfo(relier, await this.getClientInfo(relier.clientId));
+    this.initClientInfo(relier);
     return relier;
   }
 
-  private async creteDefaultRelier(context: ModelContext) {
+  private creteDefaultRelier(context: ModelContext) {
     const relier = new BaseRelier(context);
-    await this.initRelier(relier, this.delegates);
+    this.initRelier(relier);
     return relier;
   }
 
-  private async createBrowserRelier(context: ModelContext) {
+  private createBrowserRelier(context: ModelContext) {
     const relier = new BrowserRelier(context);
-    await this.initRelier(relier, this.delegates);
-    this.initBrowserRelier(relier);
+    this.initRelier(relier);
     return relier;
   }
 
-  private async getClientInfo(clientId: string | undefined) {
-    // Make sure a valid client id is provided before evening attempting the call.
-    if (!clientId) {
-      throw new OAuthError('UNKNOWN_CLIENT', {
-        client_id: 'null or empty',
-      });
-    }
 
-    try {
-      const serviceInfo = await this.delegates.getClientInfo(clientId);
-
-      // TODO: Let's use our context bindings instead! Remove after approval.
-      //
-      // const result = Transform.transformUsingSchema(
-      //   serviceInfo,
-      //   CLIENT_INFO_SCHEMA,
-      //   OAuthErrors
-      // );
-      const clientInfo = new ClientInfo(new GenericContext(serviceInfo));
-      return clientInfo;
-    } catch (err) {
-      if (
-        err.name === 'INVALID_PARAMETER' &&
-        err.validation?.keys?.[0] === 'client_id'
-      ) {
-        throw new OAuthError('UNKNOWN_CLIENT', {
-          client_id: clientId,
-        });
-      }
-
-      throw err;
-    }
-  }
 
   /**
    * Initializes a base relier state
    **/
-  async initRelier(relier: BaseRelier, delegates: RelierDelegates) {
+  initRelier(relier: BaseRelier) {
     // Important!
     // FxDesktop declares both `entryPoint` (capital P) and
     // `entrypoint` (lowcase p). Normalize to `entrypoint`.
@@ -206,35 +170,6 @@ export class RelierFactory {
     ) {
       relier.entrypoint = entryPoint;
     }
-
-    // TODO: Is the following still needed? Seems like there should be a cleaner way to do this.
-    // HACK: issue #6121 - we want to fetch the subscription product
-    // name as the "service" here if we're starting from a payment flow.
-    // But, this fetch() is called long before router or any view logic
-    // kicks in. So, let's check the URL path here to see if there's a
-    // product ID for name lookup.
-    const productId = delegates.getProductIdFromRoute();
-    if (productId) {
-      relier.subscriptionProductId = productId;
-      const subscriptionProductId = relier.subscriptionProductId;
-
-      if (!subscriptionProductId) {
-        return;
-      }
-      const subscriptionProductName = relier.subscriptionProductName;
-
-      if (subscriptionProductName) {
-        return;
-      }
-
-      const data = await delegates.getProductInfo(subscriptionProductId);
-      if (data && data.productName && typeof data.productName === 'string') {
-        relier.subscriptionProductName = data.productName;
-      } else {
-        relier.subscriptionProductId = undefined || '';
-      }
-    }
-    // END HACK
   }
 
   /**
@@ -298,41 +233,71 @@ export class RelierFactory {
     }
   }
 
-  /**
-   * Initializes the browser relier state
-   */
-  initBrowserRelier(relier: BrowserRelier) {
-    // TODO: I don't think this should be here. It appears to be used by auth brokers, not reliers...
-    // this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
-    // Customize the serviceName based on *why* the user is signing in.
-    if (relier.service === 'sync') {
-      relier.serviceName = Constants.RELIER_SYNC_SERVICE_NAME;
-    } else {
-      relier.serviceName = 'Firefox';
+  initClientInfo(relier: OAuthRelier) {
+    relier.clientInfo = this.createClientInfo(relier.clientId);
+  }
+
+  initSubscriptionInfo(relier:Relier) {
+    // Do not wait on this. Components can do so with useEffect if needed. However,
+    // not all
+    relier.subscriptionInfo = this.createRelierSubscriptionInfo();
+  }
+
+  private async createClientInfo(clientId: string | undefined) {
+    // Make sure a valid client id is provided before evening attempting the call.
+    if (!clientId) {
+      throw new OAuthError('UNKNOWN_CLIENT', {
+        client_id: 'null or empty',
+      });
+    }
+
+    try {
+      const serviceInfo = await this.delegates.getClientInfo(clientId);
+
+      // TODO: Let's use our context bindings instead! Remove after approval.
+      //
+      // const result = Transform.transformUsingSchema(
+      //   serviceInfo,
+      //   CLIENT_INFO_SCHEMA,
+      //   OAuthErrors
+      // );
+      const clientInfo = new ClientInfo(new GenericContext(serviceInfo));
+      return clientInfo;
+    } catch (err) {
+      if (
+        err.name === 'INVALID_PARAMETER' &&
+        err.validation?.keys?.[0] === 'client_id'
+      ) {
+        throw new OAuthError('UNKNOWN_CLIENT', {
+          client_id: clientId,
+        });
+      }
+
+      throw err;
     }
   }
 
-  /**
-   * Queries for client information and applies that info to relier state.
-   * @param relier - An oauth relier to init
-   * @param clientInfo - An oauth client to fetch some data with.
-   */
-  initClientInfo(relier: OAuthRelier, clientInfo: ClientInfo) {
-    /**
-     * If redirect_uri was specified in the query we must validate it
-     * Ref: https://tools.ietf.org/html/rfc6749#section-3.1.2
-     *
-     * Verification (email) flows do not have a redirect uri, nothing to validate
-     */
-    if (!isCorrectRedirect(relier.redirectUri, clientInfo)) {
-      // if provided redirect uri doesn't match with any client redirectUri then throw
-      throw new OAuthError('INCORRECT_REDIRECT');
+  private async createRelierSubscriptionInfo(): Promise<RelierSubscriptionInfo> {
+    // TODO: Is the following still needed? Seems like there should be a cleaner way to do this.
+    // HACK: issue #6121 - we want to fetch the subscription product
+    // name as the "service" here if we're starting from a payment flow.
+    // But, this fetch() is called long before router or any view logic
+    // kicks in. So, let's check the URL path here to see if there's a
+    // product ID for name lookup.
+    const productId = this.delegates.getProductIdFromRoute();
+    let subscriptionProductName = '';
+    let subscriptionProductId = '';
+    if (productId) {
+      const data = await this.delegates.getProductInfo(subscriptionProductId);
+      if (data && data.productName && typeof data.productName === 'string') {
+        subscriptionProductName = data.productName;
+      } else {
+        subscriptionProductId = undefined || '';
+      }
     }
-
-    relier.clientId = clientInfo.clientId;
-    relier.imageUri = clientInfo.imageUri;
-    relier.redirectUri = clientInfo.redirectUri;
-    relier.serviceName = clientInfo.serviceName;
-    relier.trusted = clientInfo.trusted;
+    return {
+      subscriptionProductId,
+      subscriptionProductName
+    }
   }
 }
