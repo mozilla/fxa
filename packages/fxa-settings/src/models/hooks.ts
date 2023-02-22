@@ -90,7 +90,7 @@ export function useFtlMsgResolver() {
 export function useRelier() {
   const { relierFactory } = useContext(AppContext);
   if (relierFactory == null) {
-    throw new Error('Relier factory never initialized!')
+    throw new Error('Relier factory never initialized!');
   }
   return relierFactory.getRelier();
 }

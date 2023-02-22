@@ -6,7 +6,11 @@
 
 module.exports = function (grunt) {
   const srcPaths = ['.license.header', 'src/**/*.ftl'];
-  const testPaths = ['../fxa-shared/l10n/branding.ftl','../fxa-react/components/**/*.ftl','src/**/*.ftl'];
+  const testPaths = [
+    '../fxa-shared/l10n/branding.ftl',
+    '../fxa-react/components/**/*.ftl',
+    'src/**/*.ftl',
+  ];
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),

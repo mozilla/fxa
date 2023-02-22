@@ -152,8 +152,6 @@ export class RelierFactory {
     return relier;
   }
 
-
-
   /**
    * Initializes a base relier state
    **/
@@ -237,7 +235,7 @@ export class RelierFactory {
     relier.clientInfo = this.createClientInfo(relier.clientId);
   }
 
-  initSubscriptionInfo(relier:Relier) {
+  initSubscriptionInfo(relier: Relier) {
     // Do not wait on this. Components can do so with useEffect if needed. However,
     // not all
     relier.subscriptionInfo = this.createRelierSubscriptionInfo();
@@ -297,7 +295,7 @@ export class RelierFactory {
     }
     return {
       subscriptionProductId,
-      subscriptionProductName
-    }
+      subscriptionProductName,
+    };
   }
 }

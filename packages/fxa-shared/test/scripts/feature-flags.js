@@ -29,7 +29,6 @@ const SCRIPT = `node scripts${path.sep}feature-flags`;
 const cwd = path.resolve(__dirname, ROOT_DIR);
 
 describe('#integration - scripts/feature-flags:', function () {
-
   // NOTE: In low resource situations each test takes about 1.8s, we need more
   //       overhead to account for this.
   this.timeout(5000);

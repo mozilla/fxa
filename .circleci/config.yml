@@ -680,6 +680,8 @@ workflows:
           total: 6
           requires:
             - Build (PR)
+          post-steps:
+            - fail-fast
       - integration-test-part:
           name: Integration Test 3 (PR)
           index: 2
@@ -710,6 +712,8 @@ workflows:
           total: 6
           requires:
             - Build (PR)
+          post-steps:
+            - fail-fast
       - test-content-server-part:
           name: Functional Test - Content 1 (PR)
           index: 0

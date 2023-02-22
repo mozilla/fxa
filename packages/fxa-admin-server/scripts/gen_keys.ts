@@ -45,9 +45,9 @@ try {
 //    kid: "2017-03-16-ebe69008de771d62cd1cadf9faa6daae"
 //    "fxa-createdAt": 1489716000,
 //  }
-export type FxaJwkKey = JWK<Extras> & {'fxa-createdAt'?: number};
+export type FxaJwkKey = JWK<Extras> & { 'fxa-createdAt'?: number };
 
-function addKeyProperties(key:FxaJwkKey):FxaJwkKey {
+function addKeyProperties(key: FxaJwkKey): FxaJwkKey {
   const now = new Date();
   key.kty = 'RSA';
   key.kid = `${now.toISOString().slice(0, 10)}-${crypto
