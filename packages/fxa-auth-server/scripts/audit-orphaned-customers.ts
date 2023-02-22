@@ -7,19 +7,39 @@ import Stripe from 'stripe';
 import Container from 'typedi';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { promises as fs } from 'fs';
-import {
-  AppConfig,
-  AuthLogger
-} from '../lib/types';
-import AppError, { ERRNO } from '../lib/error';
+import { AppConfig, AuthLogger } from '../lib/types';
+import { Account } from 'fxa-shared/db/models/auth';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { Knex } from 'knex';
 
 type CustomerData = {
   id: string;
   uid?: string;
-  email?: string;
 };
 
-type Customers = Map<string, CustomerData>
+type AccountData = {
+  customer: CustomerData;
+  account: Account;
+};
+
+type ErrorsOutput = CustomerData & {
+  message: string;
+  stack?: string;
+};
+
+class AuditError extends Error {
+  public id: string;
+  public uid?: string;
+
+  constructor(message: string, id: string, uid?: string) {
+    super(message);
+    this.name = 'AuditError';
+    this.id = id;
+    this.uid = uid;
+  }
+}
+
+type Customers = Map<string, CustomerData>;
 
 const pckg = require('../package.json');
 
@@ -102,21 +122,24 @@ async function writeCsv(data: CustomerData[], file: string) {
 }
 
 const orphanedCustomers: CustomerData[] = [];
-const errorsOutput: CustomerData[] = [];
+const matchedCustomers: CustomerData[] = [];
+const errorsOutput: ErrorsOutput[] = [];
 
 /**
  * Get unique Stripe Customers by looping through subscriptions
  * If the customer has a uid, add to StripeCustomers
  * If the customer does not have a uid, add to ErrorsOutput
-*/
+ */
 async function retrieveStripeCustomers(
   startDate: number,
   endDate: number,
   logCadence: number,
-  status?: string,
+  status?: string
 ): Promise<Customers> {
   const log = Container.get(AuthLogger);
-  log.info('retrieveStripeCustomers - start', { message: 'Processing Stripe subscriptions...' });
+  log.info('retrieveStripeCustomers - start', {
+    message: 'Processing Stripe subscriptions...',
+  });
 
   const config = Container.get(AppConfig);
   const stripe = new Stripe(config.subscriptions.stripeApiKey, {
@@ -141,33 +164,36 @@ async function retrieveStripeCustomers(
       isCustomer(sub.customer) && sub.customer.metadata['userid']
         ? sub.customer.metadata['userid']
         : undefined;
-    const email =
-      isCustomer(sub.customer) && sub.customer.email
-        ? sub.customer.email
-        : undefined;
     const output: CustomerData = {
       id,
       uid,
-      email,
     };
 
     i++;
 
-    if (i > 0 &&
-      i % logCadence === 0) {
-      log.info('retrieveStripeCustomers - in progress', { message: `Subscriptions processed: ${i}` });
+    if (i > 0 && i % logCadence === 0) {
+      log.info('retrieveStripeCustomers - in progress', {
+        message: `Subscriptions processed: ${i}`,
+      });
     }
 
     if (!uid) {
-      errorsOutput.push(output);
+      errorsOutput.push({
+        ...output,
+        message: 'Stripe customer UID not found',
+      });
     } else {
       stripeCustomers.set(uid, output);
     }
-  };
+  }
 
   if (stripeCustomers.size > 0) {
-    log.info('retrieveStripeCustomers - in progress', { message: `Total subscriptions processed: ${i}`});
-    log.info('retrieveStripeCustomers - done', { message: `Total Stripe customers: ${stripeCustomers.size}` });
+    log.info('retrieveStripeCustomers - in progress', {
+      message: `Total subscriptions processed: ${i}`,
+    });
+    log.info('retrieveStripeCustomers - done', {
+      message: `Total Stripe customers: ${stripeCustomers.size}`,
+    });
     return stripeCustomers;
   }
 
@@ -176,36 +202,81 @@ async function retrieveStripeCustomers(
       startDate * 1000
     ).toDateString()} and ${new Date(endDate * 1000).toDateString()}`
   );
-};
+}
 
-/**
- * Check Stripe Customer UID against Account Records
-*/
-async function checkStripeExistsInAccount(
-  database: any,
-  key: string,
-  value: CustomerData,
+async function fetchAccountByUidTxn(
+  txn: Knex.Transaction,
+  uid: string,
+  customerData: CustomerData
 ) {
   try {
-    await database.account(key);
-    return { matchedAccount: value };
-  } catch (err){
-    if (err instanceof AppError && err.errno === ERRNO.ACCOUNT_UNKNOWN) {
-      return { orphanedAccount: value };
-    } else {
-      return { errorAccount: value };
-    }
+    const account = await Account.query()
+      .select('uid')
+      .where('uid', uuidTransformer.to(uid))
+      .first()
+      .transacting(txn);
+
+    return {
+      account,
+      customer: customerData,
+    };
+  } catch (err) {
+    const { id, uid } = customerData;
+    throw new AuditError(err.message, id, uid);
   }
-};
+}
+
+async function batchFetchAccount(
+  uidArray: Array<{ key: string; value: CustomerData }>
+) {
+  return await Account.transaction(async (txn) => {
+    return Promise.allSettled(
+      uidArray.map(({ key, value }) => fetchAccountByUidTxn(txn, key, value))
+    );
+  });
+}
+
+function processAccountData(
+  // eslint-disable-next-line no-undef
+  results: PromiseSettledResult<AccountData>[]
+) {
+  results.forEach(async (result) => {
+    if (result.status === 'fulfilled') {
+      const { account, customer } = result.value;
+      if (account) {
+        matchedCustomers.push(customer);
+      } else {
+        orphanedCustomers.push(customer);
+      }
+    }
+
+    if (result.status === 'rejected') {
+      const error = result.reason;
+      if (error instanceof AuditError) {
+        errorsOutput.push({
+          id: error.id,
+          uid: error.uid,
+          message: error.message,
+          stack: error.stack,
+        });
+      } else {
+        errorsOutput.push({
+          id: 'unknown',
+          uid: 'unknown',
+          message: error.message || 'Unknown error',
+          stack: error.stack,
+        });
+      }
+    }
+  });
+}
 
 async function auditStripeExistsInAccounts({
-  database,
   startDate,
   endDate,
   logCadence,
   filterStatus,
-} : {
-  database: any,
+}: {
   startDate: number;
   endDate: number;
   logCadence: number;
@@ -214,48 +285,43 @@ async function auditStripeExistsInAccounts({
   const log = Container.get(AuthLogger);
   log.info('init', { message: 'Starting audit script...' });
 
-  const matchedCustomers: CustomerData[] = [];
-  let i = 0;
-
   try {
-    const stripeCustomers: Customers =
-      await retrieveStripeCustomers(
-        startDate,
-        endDate,
-        logCadence,
-        filterStatus,
-      );
-
-    log.info('auditStripeExistsInAccounts - start', { message: 'Auditing Stripe customers...' });
-
-    const results = await Promise.allSettled(
-      Array.from(stripeCustomers, ([key, value]) =>
-        checkStripeExistsInAccount(database, key, value)
-      )
+    const stripeCustomers: Customers = await retrieveStripeCustomers(
+      startDate,
+      endDate,
+      logCadence,
+      filterStatus
     );
 
-    results.forEach(result => {
-      if (result.status === 'fulfilled') {
-        if (result.value.matchedAccount) {
-          i++;
-          matchedCustomers.push(result.value.matchedAccount);
-        } else if (result.value.orphanedAccount) {
-          i++;
-          orphanedCustomers.push(result.value.orphanedAccount);
-        } else {
-          i++;
-          errorsOutput.push(result.value.errorAccount)
-        }
-      }
+    const stripeCustomersArray: Array<{ key: string; value: CustomerData }> =
+      [];
+    stripeCustomers.forEach((value, key) =>
+      stripeCustomersArray.push({ key, value })
+    );
 
-      if (i > 0 &&
-        i % logCadence === 0) {
-        log.info('auditStripeExistsInAccounts - in progress', { message: `Audited Stripe customers: ${Math.round(i/stripeCustomers.size*100)}%` });
-      };
+    log.info('auditStripeExistsInAccounts - start', {
+      message: 'Auditing Stripe customers...',
     });
 
-    log.info('auditStripeExistsInAccounts - done', { message: 'Audit script completed.' });
+    for (let k = 0; k < stripeCustomers.size / logCadence; k++) {
+      const results = await batchFetchAccount(
+        stripeCustomersArray.slice(logCadence * k, logCadence * (k + 1))
+      );
 
+      processAccountData(results);
+      log.info('auditStripeExistsInAccounts - in progress', {
+        message: `Audited Stripe customers: ${Math.round(
+          ((logCadence * k + results.length) / stripeCustomers.size) * 100
+        )}%`,
+      });
+    }
+
+    log.info('auditStripeExistsInAccounts - done', {
+      message: 'Audit script completed.',
+      orphanedCustomersProcessed: orphanedCustomers.length,
+      matchedCustomersProcessed: matchedCustomers.length,
+      errorRecords: errorsOutput.length,
+    });
   } catch (err) {
     console.error('Error occurred while auditing Stripe customers.');
     throw err;
@@ -265,7 +331,7 @@ async function auditStripeExistsInAccounts({
   await writeCsv(matchedCustomers, 'matched_output');
   await writeCsv(orphanedCustomers, 'orphaned_output');
   await writeCsv(errorsOutput, 'error_output');
-};
+}
 
 async function init() {
   program
@@ -291,7 +357,7 @@ async function init() {
       ''
     )
     .parse(process.argv);
-  const { database } = await setupProcessingTaskObjects('audit-orphaned-customers');
+  await setupProcessingTaskObjects('audit-orphaned-customers');
 
   const startDate = parseStartDate(program.startDate);
   const endDate = parseEndDate(program.endDate);
@@ -299,7 +365,6 @@ async function init() {
   const filterStatus = parseSubscriptionStatus(program.subscriptionStatus);
 
   await auditStripeExistsInAccounts({
-    database,
     startDate,
     endDate,
     logCadence,
@@ -307,7 +372,7 @@ async function init() {
   });
 
   return 0;
-};
+}
 
 if (require.main === module) {
   init()
