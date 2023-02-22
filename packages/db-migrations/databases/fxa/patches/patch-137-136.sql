@@ -1,0 +1,21 @@
+-- -- Delete new row from table
+-- DELETE FROM securityEventNames WHERE name='account.login.failure';
+-- DELETE FROM securityEventNames WHERE name='account.two_factor_added';
+-- DELETE FROM securityEventNames WHERE name='account.two_factor_requested';
+-- DELETE FROM securityEventNames WHERE name='account.two_factor_challenge_failure';
+-- DELETE FROM securityEventNames WHERE name='account.two_factor_challenge_success';
+-- DELETE FROM securityEventNames WHERE name='account.two_factor_removed';
+-- DELETE FROM securityEventNames WHERE name='account.password_reset_requested';
+-- DELETE FROM securityEventNames WHERE name='account.password_reset_success';
+-- DELETE FROM securityEventNames WHERE name='account.recovery_key_added';
+-- DELETE FROM securityEventNames WHERE name='account.recovery_key_challenge_failure';
+-- DELETE FROM securityEventNames WHERE name='account.recovery_key_challenge_success';
+-- DELETE FROM securityEventNames WHERE name='account.recovery_key_removed';
+-- DELETE FROM securityEventNames WHERE name='account.password_added';
+-- DELETE FROM securityEventNames WHERE name='account.password_changed';
+-- DELETE FROM securityEventNames WHERE name='account.secondary_email_added';
+-- DELETE FROM securityEventNames WHERE name='account.secondary_email_removed';
+-- DELETE FROM securityEventNames WHERE name='account.primary_secondary_swapped';
+
+-- -- Decrement the schema version
+-- UPDATE dbMetadata SET value = '136' WHERE name = 'schema-patch-level';

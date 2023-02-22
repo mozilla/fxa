@@ -60,13 +60,6 @@ async function run(config) {
     Container.set(AuthFirestore, authFirestore);
   }
 
-  const accountEventsManager = config.accountEvents.enabled
-    ? new AccountEventsManager()
-    : {
-        recordEmailEvent: async () => Promise.resolve(),
-      };
-  Container.set(AccountEventsManager, accountEventsManager);
-
   const redis = require('../lib/redis')(
     { ...config.redis, ...config.redis.sessionTokens },
     log
@@ -85,6 +78,14 @@ async function run(config) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
   }
+
+  const accountEventsManager = config.accountEvents.enabled
+    ? new AccountEventsManager(database)
+    : {
+        recordEmailEvent: async () => Promise.resolve(),
+        recordSecurityEvent: async () => Promise.resolve(),
+      };
+  Container.set(AccountEventsManager, accountEventsManager);
 
   // Set currencyHelper before stripe and paypal helpers, so they can use it.
   try {

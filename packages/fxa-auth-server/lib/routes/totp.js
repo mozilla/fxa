@@ -13,6 +13,8 @@ const { promisify } = require('util');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../account-events';
 
 module.exports = (log, db, mailer, customs, config) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
@@ -27,6 +29,8 @@ module.exports = (log, db, mailer, customs, config) => {
     (config.recoveryCodes && config.recoveryCodes.count) || 8;
 
   promisify(qrcode.toDataURL);
+
+  const accountEventsManager = Container.get(AccountEventsManager);
 
   return [
     {
@@ -186,6 +190,13 @@ module.exports = (log, db, mailer, customs, config) => {
           }
         }
 
+        accountEventsManager.recordSecurityEvent(db, {
+          name: 'account.two_factor_removed',
+          uid,
+          ipAddr: request.app.clientAddress,
+          tokenId: sessionToken && sessionToken.id,
+        });
+
         return {};
       },
     },
@@ -287,6 +298,13 @@ module.exports = (log, db, mailer, customs, config) => {
             enabled: true,
           });
 
+          accountEventsManager.recordSecurityEvent(db, {
+            name: 'account.two_factor_added',
+            uid,
+            ip: request.app.clientAddress,
+            tokenId: sessionToken && sessionToken.id,
+          });
+
           await log.notifyAttachedServices('profileDataChanged', request, {
             uid: sessionToken.uid,
           });
@@ -300,6 +318,13 @@ module.exports = (log, db, mailer, customs, config) => {
         if (isValidCode) {
           log.info('totp.verified', { uid });
           await request.emitMetricsEvent('totpToken.verified', { uid });
+
+          accountEventsManager.recordSecurityEvent(db, {
+            name: 'account.two_factor_challenge_success',
+            uid,
+            ip: request.app.clientAddress,
+            tokenId: sessionToken && sessionToken.id,
+          });
         } else {
           log.info('totp.unverified', { uid });
           await customs.flag(request.app.clientAddress, {
@@ -307,6 +332,13 @@ module.exports = (log, db, mailer, customs, config) => {
             errno: errors.ERRNO.INVALID_EXPIRED_OTP_CODE,
           });
           await request.emitMetricsEvent('totpToken.unverified', { uid });
+
+          accountEventsManager.recordSecurityEvent(db, {
+            name: 'account.two_factor_challenge_failure',
+            uid,
+            ip: request.app.clientAddress,
+            tokenId: sessionToken && sessionToken.id,
+          });
         }
 
         await sendEmailNotification();

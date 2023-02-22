@@ -10,6 +10,7 @@ const { StatsD } = require('hot-shots');
 const { AccountEventsManager } = require('../../lib/account-events');
 const { default: Container } = require('typedi');
 const { AppConfig, AuthFirestore } = require('../../lib/types');
+const mocks = require('../mocks');
 
 const UID = 'uid';
 
@@ -19,6 +20,7 @@ describe('Account Events', () => {
   let accountEventsManager;
   let addMock;
   let statsd;
+  let mockDb;
 
   beforeEach(() => {
     addMock = sinon.stub();
@@ -40,7 +42,11 @@ describe('Account Events', () => {
       accountEvents: {
         enabled: true,
       },
+      securityHistory: {
+        ipHmacKey: 'cool',
+      },
     };
+    mockDb = mocks.mockDB();
     Container.set(AppConfig, mockConfig);
     Container.set(AuthFirestore, firestore);
     statsd = { increment: sinon.spy() };
@@ -109,6 +115,41 @@ describe('Account Events', () => {
       assert.isUndefined(addMock.firstCall.firstArg.template);
       assert.isUndefined(addMock.firstCall.firstArg.deviceId);
       assert.isUndefined(addMock.firstCall.firstArg.flowId);
+    });
+  });
+
+  describe('security events', function () {
+    it('can record security event', async () => {
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+
+      assert.calledOnceWithExactly(mockDb.securityEvent, message);
+
+      assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.write.account.login'
+      );
+    });
+
+    it('logs and does not throw on failure', async () => {
+      mockDb.securityEvent = sinon.stub().throws();
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ip: '123.123.123.123',
+        tokenId: '123',
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+      assert.isFalse(addMock.called);
+      assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.error.account.login'
+      );
     });
   });
 });

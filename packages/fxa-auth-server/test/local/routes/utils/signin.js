@@ -6,12 +6,14 @@
 
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
+const { Container } = require('typedi');
 
 const mocks = require('../../../mocks');
 const Password = require('../../../../lib/crypto/password')({}, {});
 const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
 const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
+const { AppConfig } = require('../../../../lib/types');
 
 const CLIENT_ADDRESS = '10.0.0.1';
 const TEST_EMAIL = 'test@example.com';
@@ -25,6 +27,9 @@ const otpOptions = {
 function makeSigninUtils(options) {
   const log = options.log || mocks.mockLog();
   const config = options.config || {};
+  config.authFirestore = config.authFirestore || {};
+  config.securityHistory = config.securityHistory || {};
+  Container.set(AppConfig, config);
   const customs = options.customs || {};
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || {};
@@ -704,6 +709,10 @@ describe('sendSigninNotifications', () => {
       mailer,
       config,
     }).sendSigninNotifications;
+  });
+
+  after(() => {
+    Container.reset();
   });
 
   it('emits correct notifications when no verifications are required', () => {

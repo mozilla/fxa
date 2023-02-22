@@ -9,12 +9,14 @@ const isA = require('joi');
 const validators = require('../validators');
 const butil = require('../../crypto/butil');
 const error = require('../../error');
+const { Container } = require('typedi');
+const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 
 const BASE_36 = validators.BASE_36;
 
 // An arbitrary, but very generous, limit on the number of active sessions.
-// Currently only for metrics purposes, not enforced.
+// Currently, only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
 
 module.exports = (log, config, customs, db, mailer, cadReminders) => {
@@ -24,6 +26,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
   const otpOptions = config.otp;
   const otpUtils = require('../utils/otp')(log, config, db);
+  const accountEventsManager = Container.get(AccountEventsManager);
 
   return {
     validators: {
@@ -434,7 +437,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
       }
 
       function recordSecurityEvent() {
-        db.securityEvent({
+        accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
           ipAddr: ip,

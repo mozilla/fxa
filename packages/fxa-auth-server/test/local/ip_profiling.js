@@ -10,8 +10,9 @@ const getRoute = require('../routes_helpers').getRoute;
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
-const { default: Container } = require('typedi');
+const { Container } = require('typedi');
 const { ProfileClient } = require('../../lib/types');
+const { AccountEventsManager } = require('../../lib/account-events');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
@@ -25,10 +26,14 @@ function makeRoutes(options = {}, requireMocks) {
       ipProfiling: {
         allowedRecency: MS_ONE_DAY,
       },
+      ipHmacKey: 'cool',
     },
     signinConfirmation: {},
     smtp: {},
   };
+  Container.set(AccountEventsManager, {
+    recordSecurityEvent: () => {},
+  });
   const log = mocks.mockLog();
   const cadReminders = mocks.mockCadReminders();
   const customs = {
@@ -108,8 +113,8 @@ describe('IP Profiling', function () {
     route = getRoute(accountRoutes, '/account/login');
   });
 
-  afterEach(() => {
-    Container.remove(ProfileClient);
+  after(() => {
+    Container.reset();
   });
 
   it('no previously verified session', () => {
