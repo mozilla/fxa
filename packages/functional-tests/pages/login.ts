@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
@@ -23,7 +27,10 @@ export const selectors = {
   SHOW_PASSWORD: '#password ~ [for="show-password"]',
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
+  SIGN_UP_CODE_HEADER: '#fxa-confirm-signup-code-header',
+  CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
+  COPPA_HEADER: '#fxa-cannot-create-account-header',
   SUBMIT: 'button[type=submit]',
   SUBMIT_USER_SIGNED_IN: '#use-logged-in',
   RECOVERY_KEY_TEXT_INPUT: 'input[type=text]',
@@ -190,6 +197,20 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.EMAIL_HEADER).isVisible();
   }
 
+  async cannotCreateAccountHeader() {
+    return this.page.locator(selectors.COPPA_HEADER).isVisible();
+  }
+
+  async isSignUpCodeHeader() {
+    const header = this.page.locator(selectors.SIGN_UP_CODE_HEADER);
+    header.waitFor({ state: 'visible' });
+    return header.isVisible();
+  }
+
+  async confirmEmail() {
+    return this.page.innerText(selectors.CONFIRM_EMAIL);
+  }
+
   setEmail(email: string) {
     return this.page.fill(selectors.EMAIL, email);
   }
@@ -304,6 +325,10 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
   }
 
+  async clickSubmit() {
+    return this.page.locator(selectors.SUBMIT).click();
+  }
+
   async isSyncConnectedHeader() {
     return this.page.isVisible(selectors.SYNC_CONNECTED_HEADER, {
       timeout: 100,
@@ -373,6 +398,10 @@ export class LoginPage extends BaseLayout {
     return this.page.inputValue(selectors.EMAIL);
   }
 
+  async getPasswordInput() {
+    return this.page.inputValue(selectors.PASSWORD);
+  }
+
   async isCachedLogin() {
     return this.page.isVisible(selectors.SUBMIT_USER_SIGNED_IN, {
       timeout: 1000,
@@ -384,6 +413,10 @@ export class LoginPage extends BaseLayout {
       waitUntil: 'load',
     });
     return this.page.waitForTimeout(1000);
+  }
+
+  async getErrorMessage() {
+    return this.page.innerText(selectors.ERROR);
   }
 
   createEmail(template?: string) {

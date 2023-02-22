@@ -12,6 +12,19 @@ import {
 } from '../../lib/context';
 import { ModelContext } from '../../lib/context/interfaces/model-context';
 
+export interface RelierSubscriptionInfo {
+  subscriptionProductId: string;
+  subscriptionProductName: string;
+}
+
+export interface RelierClientInfo {
+  clientId: string | undefined;
+  imageUri: string | undefined;
+  serviceName: string | undefined;
+  redirectUri: string | undefined;
+  trusted: boolean | undefined;
+}
+
 /**
  * A convenience interface for easy mocking / testing. Use this type in components.
  */
@@ -26,9 +39,6 @@ export interface RelierData {
   resetPasswordConfirm: boolean | undefined;
   setting: string | undefined;
   service: string | undefined;
-  serviceName: string | undefined;
-  subscriptionProductId: string | undefined;
-  subscriptionProductName: string | undefined;
   style: string | undefined;
   uid: string | undefined;
   utmCampaign: string | undefined;
@@ -36,6 +46,9 @@ export interface RelierData {
   utmMedium: string | undefined;
   utmSource: string | undefined;
   utmTerm: string | undefined;
+
+  clientInfo: Promise<RelierClientInfo> | undefined;
+  subscriptionInfo: Promise<RelierSubscriptionInfo> | undefined;
 }
 
 export interface ResumeTokenInfo {
@@ -44,7 +57,7 @@ export interface ResumeTokenInfo {
 
 export interface Relier extends RelierData {
   isOAuth(): boolean;
-  isSync(): boolean;
+  isSync(): Promise<boolean>;
   shouldOfferToSync(view: string): boolean;
   wantsKeys(): boolean;
   wantsTwoStepAuthentication(): boolean;
@@ -73,6 +86,12 @@ export class BaseRelier implements ModelContextProvider, Relier {
     return 'base';
   }
 
+  /** Lazy loaded client info. */
+  clientInfo: Promise<RelierClientInfo> | undefined;
+
+  /** Lazy loaded subscription info. */
+  subscriptionInfo: Promise<RelierSubscriptionInfo> | undefined;
+
   @bind([V.isString, V.isRequired])
   context: string | undefined;
 
@@ -96,16 +115,6 @@ export class BaseRelier implements ModelContextProvider, Relier {
 
   @bind([V.isString])
   service: string | undefined;
-
-  // TODO: Double check
-  @bind([V.isString], 'service')
-  serviceName: string | undefined;
-
-  @bind([V.isString])
-  subscriptionProductId: string;
-
-  @bind([V.isString])
-  subscriptionProductName: string;
 
   @bind([V.isString])
   style: string | undefined;
@@ -138,8 +147,6 @@ export class BaseRelier implements ModelContextProvider, Relier {
     if (curContext == null) {
       throw new Error('Context must be provided!');
     }
-    this.subscriptionProductName = '';
-    this.subscriptionProductId = '';
   }
 
   getModelContext() {
@@ -151,7 +158,7 @@ export class BaseRelier implements ModelContextProvider, Relier {
   isOAuth(): boolean {
     return false;
   }
-  isSync(): boolean {
+  async isSync(): Promise<boolean> {
     return false;
   }
   shouldOfferToSync(view: string): boolean {

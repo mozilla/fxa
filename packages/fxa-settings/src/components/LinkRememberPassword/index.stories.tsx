@@ -7,10 +7,12 @@ import LinkRememberPassword from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/LinkRememberPassword',
+  title: 'Components/LinkRememberPassword',
   component: LinkRememberPassword,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = ({ ...props }) => {

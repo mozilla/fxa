@@ -6,10 +6,12 @@ import React from 'react';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import LinkUsed from '.';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/LinkUsed',
+  title: 'Components/LinkUsed',
   component: LinkUsed,
+  decorators: [withLocalization],
 } as Meta;
 
 export const LinkAlreadyUsedForPrimaryEmail = () => (

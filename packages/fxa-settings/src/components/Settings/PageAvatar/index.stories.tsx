@@ -7,10 +7,12 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
 import PageAvatar from './';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/Avatar',
+  title: 'Pages/Settings/Avatar',
   component: PageAvatar,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

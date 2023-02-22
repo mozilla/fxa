@@ -25714,7 +25714,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.5.0
     ioredis: ^4.28.2
     joi: 17.4.0
-    jose: ^4.10.0
+    jose: ^4.12.0
     jsdom: ^20.0.0
     jsonwebtoken: ^9.0.0
     jsxgettext-recursive-next: 1.1.0
@@ -32847,17 +32847,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^4.10.0":
-  version: 4.10.0
-  resolution: "jose@npm:4.10.0"
-  checksum: c575bf2519b758592b3037cac0da34ff2641e56a050b156fe6ab18c03cd6c22e5338d28d1fe3dd997c9b3c0cc7deda72faca4a93ff41274a587850c6519852d0
-  languageName: node
-  linkType: hard
-
 "jose@npm:^4.10.3":
   version: 4.11.0
   resolution: "jose@npm:4.11.0"
   checksum: 8d81e978e0da306911b61b1de1e2d78bd4903b4aa68a4b338b7c89c41edc3d56aea4d5ef4784a078a630dd6aa81f6328901ae3ce215f33b90d51ee8ebf4c9dbd
+  languageName: node
+  linkType: hard
+
+"jose@npm:^4.12.0":
+  version: 4.12.0
+  resolution: "jose@npm:4.12.0"
+  checksum: 09e67611768127ab54b6b507401de4b1f87e1e285cf2c2fc917e931e001b7e584c90081b421f483f13a6eec4fc44936e4a5f4b8ae2d59928061e886e35d33fa2
   languageName: node
   linkType: hard
 

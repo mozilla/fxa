@@ -7,10 +7,12 @@ import { Meta } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
 import { AppLayout } from '../AppLayout';
 import { WindowLocation, LocationProvider } from '@reach/router';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/SecondaryEmailVerify',
+  title: 'Pages/Settings/SecondaryEmailVerify',
   component: PageSecondaryEmailVerify,
+  decorators: [withLocalization],
 } as Meta;
 
 const mockLocation = {

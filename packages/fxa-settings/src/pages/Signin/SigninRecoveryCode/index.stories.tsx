@@ -8,10 +8,12 @@ import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/SigninRecoveryCode',
+  title: 'Pages/Signin/SigninRecoveryCode',
   component: SigninRecoveryCode,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

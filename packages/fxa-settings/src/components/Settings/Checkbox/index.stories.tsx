@@ -5,10 +5,12 @@
 import React from 'react';
 import Checkbox from './index';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
   title: 'Components/Settings/Checkbox',
   component: Checkbox,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Basic = () => (

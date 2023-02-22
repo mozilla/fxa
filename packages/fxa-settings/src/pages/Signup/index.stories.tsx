@@ -9,10 +9,12 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
 import { MOCK_ACCOUNT } from '../../models/mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signup',
+  title: 'Pages/Signup',
   component: Signup,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props?: Partial<SignupProps>) => {

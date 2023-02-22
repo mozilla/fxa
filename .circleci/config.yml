@@ -674,8 +674,6 @@ workflows:
           total: 6
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
       - integration-test-part:
           name: Integration Test 2 (PR)
           index: 1

@@ -7,10 +7,12 @@ import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import PasswordStrengthBalloon, { PasswordStrengthBalloonProps } from '.';
 import InputPassword from '../InputPassword';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/PasswordStrengthBalloon',
+  title: 'Components/PasswordStrengthBalloon',
   component: PasswordStrengthBalloon,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (

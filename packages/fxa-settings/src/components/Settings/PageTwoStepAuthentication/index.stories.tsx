@@ -7,10 +7,12 @@ import React from 'react';
 import { PageTwoStepAuthentication } from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Settings/TwoStepAuthentication',
+  title: 'Pages/Settings/TwoStepAuthentication',
   component: PageTwoStepAuthentication,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

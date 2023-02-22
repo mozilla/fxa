@@ -6,20 +6,22 @@ import React from 'react';
 import ResetPasswordWithRecoveryKeyVerified from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
+  title: 'Pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
   component: ResetPasswordWithRecoveryKeyVerified,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (
   <LocationProvider>
-      <ResetPasswordWithRecoveryKeyVerified />
+    <ResetPasswordWithRecoveryKeyVerified />
   </LocationProvider>
 );
 
 export const WithSync = () => (
   <LocationProvider>
-      <ResetPasswordWithRecoveryKeyVerified isSync />
+    <ResetPasswordWithRecoveryKeyVerified isSync />
   </LocationProvider>
 );

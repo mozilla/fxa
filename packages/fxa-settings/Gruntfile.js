@@ -6,6 +6,11 @@
 
 module.exports = function (grunt) {
   const srcPaths = ['.license.header', 'src/**/*.ftl'];
+  const testPaths = [
+    '../fxa-shared/l10n/branding.ftl',
+    '../fxa-react/components/**/*.ftl',
+    'src/**/*.ftl',
+  ];
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -20,7 +25,7 @@ module.exports = function (grunt) {
       // FTL updates on our side that haven't landed yet on the l10n side. We want to test
       // against _our_ latest, and not necessarily the l10n repo's latest.
       'ftl-test': {
-        src: srcPaths,
+        src: testPaths,
         dest: 'test/settings.ftl',
       },
     },

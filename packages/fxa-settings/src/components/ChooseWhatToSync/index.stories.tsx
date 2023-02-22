@@ -7,10 +7,12 @@ import ChooseWhatToSync from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { Subject } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/ChooseWhatToSync',
+  title: 'Components/ChooseWhatToSync',
   component: ChooseWhatToSync,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => {

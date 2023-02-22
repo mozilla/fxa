@@ -11,10 +11,12 @@ import {
   MOCK_WARNING_MESSAGE,
   MOCK_WARNING_TYPE,
 } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'components/WarningMessage',
+  title: 'Components/WarningMessage',
   component: WarningMessage,
+  decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (

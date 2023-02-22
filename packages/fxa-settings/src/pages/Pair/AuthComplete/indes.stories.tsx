@@ -7,10 +7,12 @@ import AuthComplete from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Pair/AuthComplete',
+  title: 'Pages/Pair/AuthComplete',
   component: AuthComplete,
+  decorators: [withLocalization],
 } as Meta;
 
 // Any metadata mock from DeviceInfoBlock will do, location is not displayed on this page

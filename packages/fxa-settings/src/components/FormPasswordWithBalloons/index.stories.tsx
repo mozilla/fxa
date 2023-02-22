@@ -7,10 +7,12 @@ import { Subject } from './mocks';
 import AppLayout from '../AppLayout';
 import FormPasswordWithBalloons from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/FormPasswordWithBalloons',
   component: FormPasswordWithBalloons,
+  decorators: [withLocalization],
 } as Meta;
 
 export const ResetPassword = () => (

@@ -34,6 +34,13 @@ export class RelierPage extends BaseLayout {
     ]);
   }
 
+  clickSignIn() {
+    return Promise.all([
+      this.page.locator('button.sign-in-button.signin').click(),
+      this.page.waitForNavigation({ waitUntil: 'load' }),
+    ]);
+  }
+
   clickForceAuth() {
     return Promise.all([
       this.page.locator('button.force-auth').click(),

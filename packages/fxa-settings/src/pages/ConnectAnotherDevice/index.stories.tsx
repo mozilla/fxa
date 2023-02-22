@@ -13,10 +13,12 @@ import {
   MOCK_DEFAULTS,
   MOCK_DEVICE_BASIC_PROPS,
 } from './mocks';
+import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
-  title: 'pages/ConnectAnotherDevice',
+  title: 'Pages/ConnectAnotherDevice',
   component: ConnectAnotherDevice,
+  decorators: [withLocalization],
 } as Meta;
 
 export const CanSignInNoSuccessMessage = () => (

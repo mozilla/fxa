@@ -9,10 +9,12 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { mockGoBackCallback } from './mocks';
+import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
-  title: 'pages/Signin/ConfirmSignin',
+  title: 'Pages/Signin/ConfirmSignin',
   component: ConfirmSignin,
+  decorators: [withLocalization],
 } as Meta;
 
 const storyWithProps = (props: ConfirmSigninProps) => {

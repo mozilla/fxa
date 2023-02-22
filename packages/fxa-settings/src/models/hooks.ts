@@ -87,9 +87,12 @@ export function useFtlMsgResolver() {
   return new FtlMsgResolver(l10n, config.l10n.strict);
 }
 
-export async function useRelier() {
+export function useRelier() {
   const { relierFactory } = useContext(AppContext);
-  return await relierFactory?.getRelier();
+  if (relierFactory == null) {
+    throw new Error('Relier factory never initialized!');
+  }
+  return relierFactory.getRelier();
 }
 
 /**
@@ -114,7 +117,7 @@ export function useInterval(callback: () => void, delay: number | null) {
         savedCallback.current();
       }
     }, delay);
-    
+
     return () => window.clearInterval(id);
   }, [delay]);
 }
