@@ -122,16 +122,19 @@ describe('CompleteResetPassword page', () => {
     });
   });
 
-  it('renders the component as expected when provided with a damaged link', () => {
+
+  it('renders the component as expected when provided with a damaged link', async () => {
     mockToken = '';
     renderWithAccount(account);
 
-    screen.getByRole('heading', {
-      name: 'Reset password link damaged',
-    });
-    screen.getByText(
-      'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
-    );
+    await waitFor(() => {
+      screen.getByRole('heading', {
+        name: 'Reset password link damaged',
+      });
+      screen.getByText(
+        'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
+      );
+    })
   });
 
   // TODO : check for metrics event when link is expired or damaged

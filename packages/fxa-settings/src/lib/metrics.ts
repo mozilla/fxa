@@ -314,6 +314,49 @@ export function logEvents(
 }
 
 /**
+ * Logs an error event
+ * @param error - An error object to log. Based loosely on AuthUiError state. This drives a unique the event identifier.
+ * @param eventProperties - Extra event properties.
+ */
+export function logErrorEvent(
+  error:{
+    viewName?:string,
+    errno?:number,
+    context?:string,
+    namespace?:string
+  },
+  eventProperties: Hash<any> = {})
+{
+  logEvents([errorToId()], eventProperties);
+
+  function errorToId(){
+    let context = error.context;
+    if (!context) {
+      if (error.viewName) {
+        context = addViewNamePrefix(error.viewName);
+      } else {
+        context = 'unknown context';
+      }
+    }
+
+    const id = 'error.' + [
+      context,
+      error.namespace || 'unknown namespace',
+      error.errno || -1,
+    ].join('.');
+
+    return id;
+  }
+
+  function addViewNamePrefix(viewName:string) {
+    if (viewNamePrefix) {
+      return `${viewNamePrefix}.${viewName}`;
+    }
+    return viewName;
+  }
+}
+
+/**
  * Log an event with the view name as a prefix
  *
  * @param viewName

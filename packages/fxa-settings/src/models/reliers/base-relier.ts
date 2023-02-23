@@ -92,7 +92,7 @@ export class BaseRelier implements ModelContextProvider, Relier {
   /** Lazy loaded subscription info. */
   subscriptionInfo: Promise<RelierSubscriptionInfo> | undefined;
 
-  @bind([V.isString, V.isRequired])
+  @bind([V.isString])
   context: string | undefined;
 
   @bind([V.isString])
@@ -107,7 +107,7 @@ export class BaseRelier implements ModelContextProvider, Relier {
   @bind([V.isString], T.snakeCase)
   entrypointVariation: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  @bind([V.isBoolean], T.snakeCase)
   resetPasswordConfirm: boolean | undefined;
 
   @bind([V.isString])

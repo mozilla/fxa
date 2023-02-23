@@ -39,6 +39,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'confirm_reset_password',
         'reset_password_verified',
         'reset_password_with_recovery_key_verified',
+        'account_recovery_reset_password'
       ]),
     },
 

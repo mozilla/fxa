@@ -6,14 +6,15 @@ import { ApolloClient, gql } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
 import config, { Config, readConfigMeta } from '../lib/config';
+import { StorageContext, UrlHashContext, UrlSearchContext } from '../lib/context';
 import firefox, { FirefoxCommand } from '../lib/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
-import { RelierFactory } from '../lib/reliers';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
 import { AlertBarInfo } from './AlertBarInfo';
 import { mockAppContext } from './mocks';
 import { Session } from './Session';
+import {  RelierFactory } from '../lib/reliers';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -26,13 +27,17 @@ export const GET_INITIAL_STATE = gql`
 
 export interface AppContextValue {
   authClient?: AuthClient;
+  oauthClient?: OAuthClient;
   apolloClient?: ApolloClient<object>;
   config?: Config;
   account?: Account;
   alertBarInfo?: AlertBarInfo;
   session?: Session; // used exclusively for test mocking
   navigatorLanguages?: readonly string[];
-  relierFactory?: RelierFactory;
+  urlSearchContext?: UrlSearchContext,
+  urlHashContext?: UrlHashContext,
+  storageContext?: StorageContext,
+  relierFactory?:RelierFactory,
 }
 
 export function initializeAppContext() {
@@ -45,6 +50,10 @@ export function initializeAppContext() {
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
   const alertBarInfo = new AlertBarInfo();
+  const storageContext = new StorageContext(window);
+  const urlSearchContext = new UrlSearchContext(window);
+  const urlHashContext= new UrlHashContext(window);
+
   const relierFactory = new RelierFactory({
     delegates: {
       getClientInfo: (id: string) => oauthClient.getClientInfo(id),
@@ -104,15 +113,22 @@ export function initializeAppContext() {
   firefox.addEventListener(FirefoxCommand.Error, (event) => {
     console.error(event);
   });
-  return {
+
+  const context:AppContextValue = {
     authClient,
+    oauthClient,
     apolloClient,
     config,
     account,
     alertBarInfo,
-    navigatorLanguages: navigator.languages || ['en'],
+    urlSearchContext,
+    urlHashContext,
+    storageContext,
     relierFactory,
-  } as AppContextValue;
+    navigatorLanguages: navigator.languages || ['en']
+  };
+
+  return context;
 }
 
 export const AppContext = React.createContext<AppContextValue>(

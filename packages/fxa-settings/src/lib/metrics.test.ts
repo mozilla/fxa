@@ -16,6 +16,7 @@ import {
   useUserPreferences,
   useViewEvent,
   usePageViewEvent,
+  logErrorEvent,
 } from './metrics';
 
 import { window } from './window';
@@ -427,3 +428,37 @@ describe('setNewsletters', () => {
     });
   });
 });
+
+describe('logError', () => {
+
+  it('logs an fxa-ish error with view name and context', () => {
+    initFlow();
+
+    logErrorEvent({
+      viewName: 'foo',
+      context: 'bar',
+      namespace: 'baz',
+      errno:77
+    })
+
+    expectPayloadEvents(['error.bar.baz.77'])
+  })
+
+  it('logs an fxa-ish error with view name', () => {
+    initFlow();
+
+    logErrorEvent({
+      viewName: 'foo',
+      namespace: 'baz',
+      errno:77
+    })
+
+    expectPayloadEvents(['error.foo.baz.77'])
+  })
+
+  it('logs empty error', () => {
+    initFlow();
+    logErrorEvent({ })
+    expectPayloadEvents(['error.unknown context.unknown namespace.-1'])
+  })
+})

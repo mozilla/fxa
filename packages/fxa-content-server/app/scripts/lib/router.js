@@ -122,9 +122,12 @@ Router = Router.extend({
     'account_recovery_confirm_key(/)': createViewHandler(
       AccountRecoveryConfirmKey
     ),
-    'account_recovery_reset_password(/)': createViewHandler(
-      CompleteResetPasswordView
-    ),
+    'account_recovery_reset_password(/)': function() {
+      this.createReactOrBackboneViewHandler(
+        'account_recovery_reset_password',
+        CompleteResetPasswordView
+      );
+    },
     'authorization(/)': createViewHandler(RedirectAuthView),
     'cannot_create_account(/)': function () {
       this.createReactOrBackboneViewHandler(

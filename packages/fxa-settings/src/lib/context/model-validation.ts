@@ -4,6 +4,7 @@
 
 // TODO: Figure out how to port Vat. Here's a simplistic implementation for POC.
 
+import { isEmailValid } from 'fxa-shared/email/helpers';
 import { Constants } from '../constants';
 
 /**
@@ -132,6 +133,11 @@ export const ContextValidation = {
     return v;
   },
 
+  isVerificationCode: (k:string, v:any) => {
+    // TODO: Add validation
+    return ContextValidation.isString(k,v);
+  },
+
   isAction: (k: string, v: any) => {
     // TODO: Add validation
     return ContextValidation.isString(k, v);
@@ -149,7 +155,11 @@ export const ContextValidation = {
 
   isEmail: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    v = ContextValidation.isString(k,v);
+    if (!isEmailValid(v)) {
+      throw new ContextValidationError(k, v, 'Is not a valid email');
+    }
+    return v;
   },
 
   isGreaterThanZero: (k: string, v: any) => {

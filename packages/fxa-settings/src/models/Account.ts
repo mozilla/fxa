@@ -641,6 +641,10 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
+  setLastLogin(date: number) {
+    // FOLLOW-UP: Not yet implemented.
+  }
+
   async deleteAvatar() {
     await this.withLoadingStatus(
       this.apolloClient.mutate({
@@ -1045,5 +1049,22 @@ export class Account implements AccountData {
     );
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
+  }
+
+  async resetPasswordWithRecoveryKey(opts:{
+    accountResetToken:string,
+    emailToHashWith:string
+    password:string,
+    recoveryKeyId:string,
+    kB:string,
+  }) {
+    const data = await this.authClient.resetPasswordWithRecoveryKey(
+      opts.accountResetToken,
+      opts.emailToHashWith,
+      opts.password,
+      opts.recoveryKeyId,
+      { kB: opts.kB }
+    );
+    currentAccount(data);
   }
 }

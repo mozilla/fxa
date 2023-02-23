@@ -7,8 +7,15 @@ import { render, screen } from '@testing-library/react';
 import LinkExpired from '.';
 
 describe('LinkExpired', () => {
+
+  let handler:()=>Promise<void>;
+
+  beforeAll(() => {
+    handler = jest.fn();
+  })
+
   it('renders the component as expected for an expired Reset Password link', () => {
-    render(<LinkExpired linkType="reset-password" />);
+    render(<LinkExpired linkType="reset-password" resendLinkHandler={handler} />);
 
     screen.getByRole('heading', {
       name: 'Reset password link expired',
@@ -20,7 +27,7 @@ describe('LinkExpired', () => {
   });
 
   it('renders the component as expected for an expired Signin link', () => {
-    render(<LinkExpired linkType="signin" />);
+    render(<LinkExpired linkType="signin" resendLinkHandler={handler} />);
 
     screen.getByRole('heading', {
       name: 'Confirmation link expired',
@@ -30,4 +37,12 @@ describe('LinkExpired', () => {
       name: 'Receive new link',
     });
   });
+
+  it('fires the handler', () => {
+    render(<LinkExpired linkType="signin" resendLinkHandler={handler} />);
+    screen.getByRole('button', {
+      name: 'Receive new link',
+    }).click();
+    expect(handler).toBeCalled();
+  })
 });

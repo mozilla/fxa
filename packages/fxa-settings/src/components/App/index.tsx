@@ -20,13 +20,12 @@ import LegalPrivacy from '../../pages/Legal/Privacy';
 
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
-
+import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { showReactApp } = flowQueryParams;
-
   return (
     <>
       <Router basepath={'/'}>
@@ -51,6 +50,7 @@ export const App = ({
              <CompleteResetPassword path='/complete_reset_password/*' />
              <ResetPasswordConfirmed path='/reset_password_verified/*' />
              <ResetPasswordWithRecoveryKeyVerified path='/reset_password_with_recovery_key_verified/*' />
+             <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
             </>
           )}
           <Settings path="/settings/*" {...{ flowQueryParams }} />
