@@ -15,6 +15,9 @@ const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
 const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { Container } = require('typedi');
+const { AccountEventsManager } = require('../lib/account-events');
+
 const proxyquire = require('proxyquire');
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
@@ -226,6 +229,8 @@ module.exports = {
   mockPayPalHelper,
   mockPlaySubscriptions,
   mockAppStoreSubscriptions,
+  mockAccountEventsManager,
+  unMockAccountEventsManager
 };
 
 function mockCustoms(errors) {
@@ -867,4 +872,17 @@ function mockAppStoreSubscriptions(methods) {
     require('../lib/payments/iap/apple-app-store/subscriptions')
       .AppStoreSubscriptions
   );
+}
+
+function mockAccountEventsManager() {
+  const mgr = {
+    recordSecurityEvent: sinon.stub(),
+    recordEmailEvent: sinon.stub()
+  };
+  Container.set(AccountEventsManager, mgr)
+  return mgr;
+}
+
+function unMockAccountEventsManager() {
+  Container.remove(AccountEventsManager)
 }

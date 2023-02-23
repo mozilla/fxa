@@ -4,10 +4,10 @@
 
 'use strict';
 
+const sinon = require('sinon');
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const sinon = require('sinon');
 const errors = require('../../../lib/error');
 
 let log, db, customs, mailer, routes, route, request, response;
@@ -16,10 +16,24 @@ const recoveryKeyId = '000000';
 const recoveryData = '11111111111';
 const uid = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
+
+let mockAccountEventsManager;
+
 describe('POST /recoveryKey', () => {
+
+  beforeEach(() => {
+    mockAccountEventsManager = mocks.mockAccountEventsManager();
+  })
+
+  after(() => {
+    mocks.unMockAccountEventsManager();
+  })
+
   describe('should create account recovery key', () => {
+    let requestOptions;
+
     beforeEach(() => {
-      const requestOptions = {
+      requestOptions = {
         credentials: { uid, email },
         log,
         payload: { recoveryKeyId, recoveryData, enabled: true },
@@ -32,6 +46,18 @@ describe('POST /recoveryKey', () => {
     it('returned the correct response', () => {
       assert.deepEqual(response, {});
     });
+
+    it('recorded security event', () => {
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_added',
+          ipAddr: '63.245.221.32',
+          uid: requestOptions.credentials.uid,
+          tokenId: requestOptions.credentials.id
+        }));
+    })
 
     it('called log.begin correctly', () => {
       assert.equal(log.begin.callCount, 1);
@@ -114,6 +140,7 @@ describe('POST /recoveryKey', () => {
 
   describe('should verify account recovery key', () => {
     beforeEach(() => {
+      mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
         credentials: { uid, email },
         log,
@@ -126,6 +153,9 @@ describe('POST /recoveryKey', () => {
         requestOptions
       ).then((r) => (response = r));
     });
+    after(() => {
+      mocks.unMockAccountEventsManager();
+    })
 
     it('returned the correct response', () => {
       assert.deepEqual(response, {});
@@ -174,16 +204,102 @@ describe('POST /recoveryKey', () => {
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
     });
+
+    it('records security event', () => {
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_challenge_success',
+          ipAddr: '63.245.221.32',
+          uid: uid,
+          tokenId: undefined
+        })
+      );
+    });
   });
 
+  describe('should not verify invalid account recovery key', () => {
+
+    let error;
+
+    beforeEach(() => {
+      mockAccountEventsManager = mocks.mockAccountEventsManager();
+      const requestOptions = {
+        credentials: { uid, email, tokenVerificationId: true },
+        log,
+        payload: { recoveryKeyId:recoveryKeyId, enabled: false },
+      };
+      return setup(
+        { db: { email } },
+        {},
+        '/recoveryKey/verify',
+        requestOptions
+      ).catch(e => {error = e});
+    });
+    after(() => {
+      mocks.unMockAccountEventsManager();
+    })
+
+    it('records security event', () => {
+      assert.isDefined(error);
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_challenge_failure',
+          ipAddr: '63.245.221.32',
+          uid: uid,
+          tokenId: undefined
+        })
+      );
+    });
+  });
+
+
   describe('should fail for unverified session', () => {
-    it('returned the correct response', () => {
+
+    beforeEach(() => {
+      mockAccountEventsManager = mocks.mockAccountEventsManager();
+    })
+
+    afterEach(() => {
+      mocks.unMockAccountEventsManager();
+    })
+
+    function makeUnverifiedReq() {
       const requestOptions = {
         credentials: { uid, email, tokenVerificationId: '1232311' },
       };
-      return setup({ db: {} }, {}, '/recoveryKey', requestOptions).then(
+      return setup({ db: {} }, {}, '/recoveryKey', requestOptions)
+    }
+
+    it('returned the correct response', () => {
+      makeUnverifiedReq().then(
         assert.fail,
         (err) => {
+          assert.deepEqual(
+            err.errno,
+            errors.ERRNO.SESSION_UNVERIFIED,
+            'returns unverified session error'
+          );
+        }
+      );
+    });
+
+    it('records security event', () => {
+      makeUnverifiedReq().then(
+        assert.fail,
+        (err) => {
+          sinon.assert.calledWith(
+            mockAccountEventsManager.recordSecurityEvent,
+            sinon.match.defined,
+            sinon.match({
+              name: 'account.xxx',
+              ipAddr: '63.245.221.32',
+              uid: uid,
+              tokenId: undefined
+            }));
           assert.deepEqual(
             err.errno,
             errors.ERRNO.SESSION_UNVERIFIED,
@@ -349,6 +465,15 @@ describe('POST /recoveryKey/exists', () => {
 });
 
 describe('DELETE /recoveryKey', () => {
+
+  beforeEach(() => {
+    mockAccountEventsManager = mocks.mockAccountEventsManager();
+  })
+
+  afterEach(() => {
+    mocks.unMockAccountEventsManager();
+  })
+
   describe('should delete account recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
@@ -389,10 +514,23 @@ describe('DELETE /recoveryKey', () => {
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
     });
+
+    it('recorded security event', () => {
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_removed',
+          ipAddr: '63.245.221.32',
+          uid: uid,
+          tokenId: undefined
+        }));
+    });
   });
 
   describe('should fail for unverified session', () => {
     beforeEach(() => {
+      mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
         method: 'DELETE',
         credentials: { uid, email, tokenVerificationId: 'unverified' },
@@ -405,6 +543,10 @@ describe('DELETE /recoveryKey', () => {
         requestOptions
       ).then(assert.fail, (err) => (response = err));
     });
+
+    after(() => {
+      mocks.unMockAccountEventsManager();
+    })
 
     it('returned the correct response', () => {
       assert.equal(

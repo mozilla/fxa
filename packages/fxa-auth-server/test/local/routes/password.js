@@ -4,14 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
+const sinon = require('sinon');
+const {assert} = require('chai');
+
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 
 const uuid = require('uuid');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
-const sinon = require('sinon');
 const log = require('../../../lib/log');
 const random = require('../../../lib/crypto/random');
 
@@ -57,6 +58,17 @@ function runRoute(routes, name, request) {
 }
 
 describe('/password', () => {
+
+  let mockAccountEventsManager;
+
+  beforeEach(() => {
+    mockAccountEventsManager = mocks.mockAccountEventsManager();
+  })
+
+  afterEach(() => {
+    mocks.unMockAccountEventsManager();
+  })
+
   it('/forgot/send_code', () => {
     const mockCustoms = mocks.mockCustoms();
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -263,6 +275,17 @@ describe('/password', () => {
         'password.forgot.resend_code.completed',
         'password.forgot.resend_code.completed event was logged'
       );
+
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.password_reset_requested',
+          ipAddr: '63.245.221.32',
+          uid: mockRequest.auth.credentials.uid,
+          tokenId: undefined
+        })
+      )
     });
   });
 
@@ -540,6 +563,28 @@ describe('/password', () => {
           null,
           'db.createSessionToken was passed correct form factor'
         );
+
+        sinon.assert.calledWith(
+          mockAccountEventsManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.password_changed',
+            ipAddr: '63.245.221.32',
+            uid: mockRequest.auth.credentials.uid,
+            tokenId: mockRequest.auth.credentials.id
+          })
+        );
+
+        sinon.assert.calledWith(
+          mockAccountEventsManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.password_reset_success',
+            ipAddr: '63.245.221.32',
+            uid: mockRequest.auth.credentials.uid,
+            tokenId: mockRequest.auth.credentials.id
+          })
+        );
       });
     });
 
@@ -683,6 +728,17 @@ describe('/password', () => {
       assert.equal(mockDB.account.callCount, 1);
       assert.equal(mockDB.createPassword.callCount, 1);
       assert.deepEqual(res, 1584397692000);
+
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.password_added',
+          ipAddr: '63.245.221.32',
+          uid: mockRequest.auth.credentials.uid,
+          tokenId: mockRequest.auth.credentials.id
+        })
+      );
     });
 
     it('should fail if password already created', async () => {

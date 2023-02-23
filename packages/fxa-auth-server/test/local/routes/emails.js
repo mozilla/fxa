@@ -134,6 +134,7 @@ const otpOptions = {
 
 let zendeskClient;
 let cadReminders;
+let db;
 
 const updateZendeskPrimaryEmail =
   require('../../../lib/routes/emails')._updateZendeskPrimaryEmail;
@@ -164,7 +165,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.otp = otpOptions;
 
   const log = options.log || mocks.mockLog();
-  const db = options.db || mocks.mockDB();
+  db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
       return Promise.resolve(true);
@@ -1082,7 +1083,14 @@ describe('/recovery_email/verify_code', () => {
 describe('/recovery_email', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
-  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils, stripeHelper;
+  let dbData,
+    accountRoutes,
+    mockDB,
+    mockRequest,
+    route,
+    otpUtils,
+    stripeHelper,
+    mockAccountEventManager;
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
@@ -1110,6 +1118,7 @@ describe('/recovery_email', () => {
     mockDB = mocks.mockDB(dbData);
     stripeHelper = mocks.mockStripeHelper();
     stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+    mockAccountEventManager = mocks.mockAccountEventsManager();
     accountRoutes = makeRoutes({
       checkPassword: function () {
         return Promise.resolve(true);
@@ -1132,6 +1141,10 @@ describe('/recovery_email', () => {
       { otp: otpOptions },
       {}
     );
+  });
+
+  afterEach(() => {
+    mocks.unMockAccountEventsManager();
   });
 
   describe('/recovery_email', () => {
@@ -1166,6 +1179,17 @@ describe('/recovery_email', () => {
         assert.equal(
           mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
           mockRequest.auth.credentials.uid
+        );
+
+        sinon.assert.calledWith(
+          mockAccountEventManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.secondary_email_added',
+            ipAddr: '63.245.221.32',
+            uid: uid,
+            tokenId: undefined,
+          })
         );
       });
     });
@@ -1398,6 +1422,16 @@ describe('/recovery_email', () => {
       return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
+        sinon.assert.calledWithMatch(
+          mockAccountEventManager.recordSecurityEvent,
+          mockDB,
+          {
+            name: 'account.secondary_email_removed',
+            ipAddr: '63.245.221.32',
+            uid: mockRequest.auth.credentials.uid,
+            tokenId: mockRequest.auth.credentials.id,
+          }
+        );
       });
     });
 
@@ -1562,6 +1596,16 @@ describe('/recovery_email', () => {
         );
         assert.equal(stripeHelper.fetchCustomer.callCount, 1);
         assert.equal(stripeHelper.stripe.customers.update.callCount, 1);
+        assert.calledWith(
+          mockAccountEventManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.primary_secondary_swapped',
+            ipAddr: '63.245.221.32',
+            uid: mockRequest.auth.credentials.uid,
+            tokenId: undefined,
+          })
+        );
       });
     });
 

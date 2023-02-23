@@ -301,7 +301,7 @@ module.exports = (log, db, mailer, customs, config) => {
           accountEventsManager.recordSecurityEvent(db, {
             name: 'account.two_factor_added',
             uid,
-            ip: request.app.clientAddress,
+            ipAddr: request.app.clientAddress,
             tokenId: sessionToken && sessionToken.id,
           });
 
@@ -322,7 +322,7 @@ module.exports = (log, db, mailer, customs, config) => {
           accountEventsManager.recordSecurityEvent(db, {
             name: 'account.two_factor_challenge_success',
             uid,
-            ip: request.app.clientAddress,
+            ipAddr: request.app.clientAddress,
             tokenId: sessionToken && sessionToken.id,
           });
         } else {
@@ -336,7 +336,7 @@ module.exports = (log, db, mailer, customs, config) => {
           accountEventsManager.recordSecurityEvent(db, {
             name: 'account.two_factor_challenge_failure',
             uid,
-            ip: request.app.clientAddress,
+            ipAddr: request.app.clientAddress,
             tokenId: sessionToken && sessionToken.id,
           });
         }

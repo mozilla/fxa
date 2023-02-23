@@ -12,7 +12,7 @@ const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
-
+const { recordSecurityEvent } = require('./utils/security-event');
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
@@ -633,6 +633,8 @@ module.exports = (
           throw emailUtils.sendError(err, true);
         }
 
+        recordSecurityEvent('account.secondary_email_added', { db, request, account });
+
         return {};
 
         async function deleteAccountIfUnverified() {
@@ -722,6 +724,9 @@ module.exports = (
         }
 
         await db.deleteEmail(uid, normalizeEmail(email));
+
+        recordSecurityEvent('account.secondary_email_removed', { db, request })
+
         await db.resetAccountTokens(uid);
 
         // Find the email object that corresponds to the email being deleted
@@ -853,6 +858,8 @@ module.exports = (
             acceptLanguage: request.app.acceptLanguage,
             uid,
           });
+
+          recordSecurityEvent('account.primary_secondary_swapped', { db, request } )
         }
 
         return {};

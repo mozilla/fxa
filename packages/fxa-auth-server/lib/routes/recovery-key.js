@@ -9,6 +9,7 @@ const RECOVERY_KEY_DOCS =
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
 const errors = require('../error');
+const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
 const isA = require('joi');
 
@@ -96,6 +97,8 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           );
         }
 
+        recordSecurityEvent('account.recovery_key_added', { db, request, account: {uid} });
+
         return {};
       },
     },
@@ -120,45 +123,52 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
+        try {
+          if (sessionToken.tokenVerificationId) {
+            throw errors.unverifiedSession();
+          }
 
-        // This route can let you check if a key is valid therefore we
-        // rate limit it.
-        await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
+          // This route can let you check if a key is valid therefore we
+          // rate limit it.
+          await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
 
-        const { recoveryKeyId } = request.payload;
+          const { recoveryKeyId } = request.payload;
 
-        // Attempt to retrieve an account recovery key, if it exists and is not already enabled,
-        // then we enable it.
-        const recoveryKeyData = await db.getRecoveryKey(uid, recoveryKeyId);
+          // Attempt to retrieve an account recovery key, if it exists and is not already enabled,
+          // then we enable it.
+          const recoveryKeyData = await db.getRecoveryKey(uid, recoveryKeyId);
 
-        if (!recoveryKeyData.enabled) {
-          await db.updateRecoveryKey(uid, recoveryKeyId, true);
+          if (!recoveryKeyData.enabled) {
+            await db.updateRecoveryKey(uid, recoveryKeyId, true);
 
-          await request.emitMetricsEvent('recoveryKey.created', { uid });
+            await request.emitMetricsEvent('recoveryKey.created', { uid });
 
-          const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
-          const emailOptions = {
-            acceptLanguage,
-            ip,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          };
+            const account = await db.account(uid);
+            const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+            const emailOptions = {
+              acceptLanguage,
+              ip,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            };
 
-          await mailer.sendPostAddAccountRecoveryEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+            await mailer.sendPostAddAccountRecoveryEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
+          recordSecurityEvent('account.recovery_key_challenge_success', { db, request, account: {uid} } )
+
+        } catch (err) {
+          recordSecurityEvent('account.recovery_key_challenge_failure', { db, request, account: {uid} }  )
+          throw err;
         }
 
         return {};
@@ -258,6 +268,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
 
         await db.deleteRecoveryKey(uid);
+        recordSecurityEvent('account.recovery_key_removed', { db, request } )
 
         const account = await db.account(uid);
 
@@ -280,6 +291,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           account,
           emailOptions
         );
+
 
         return {};
       },
