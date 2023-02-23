@@ -8,8 +8,24 @@ import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 
+const pagesViewableWithoutAuthentication = [
+  'primary_email_verified',
+  'primary_email_confirmed',
+  'reset_password_verified',
+  'reset_password_with_recovery_key_verified',
+];
+
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   let reauth = false;
+
+  const currentPageDoesNotRequireAuthentication =
+    pagesViewableWithoutAuthentication.some((urlSnippet) => {
+      // We check if the url for the current page contains the path of a page which does not require authentication
+      return (
+        window?.location?.href && window.location.href.includes(urlSnippet)
+      );
+    });
+
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
       if (error.message === 'Invalid token') {
@@ -26,7 +42,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
       reauth = true;
     }
   }
-  if (reauth) {
+  if (reauth && !currentPageDoesNotRequireAuthentication) {
     window.location.replace(
       `/signin?redirect_to=${encodeURIComponent(window.location.pathname)}`
     );

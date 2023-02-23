@@ -9,6 +9,7 @@ import { MozServices } from '../../../lib/types';
 
 type SigninConfirmedProps = {
   continueHandler?: Function;
+  isSignedIn: boolean;
   serviceName?: MozServices;
 };
 
@@ -16,9 +17,10 @@ export const viewName = 'signin-confirmed';
 
 const SigninConfirmed = ({
   continueHandler,
+  isSignedIn,
   serviceName,
 }: SigninConfirmedProps & RouteComponentProps) => (
-  <Ready {...{ continueHandler, viewName, serviceName }} />
+  <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
 );
 
 export default SigninConfirmed;

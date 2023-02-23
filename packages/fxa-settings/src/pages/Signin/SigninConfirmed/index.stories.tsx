@@ -15,10 +15,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
+export const DefaultSignedIn = () => (
   <LocationProvider>
     <AppLayout>
-      <SigninConfirmed />
+      <SigninConfirmed isSignedIn />
+    </AppLayout>
+  </LocationProvider>
+);
+
+export const DefaultSignedOut = () => (
+  <LocationProvider>
+    <AppLayout>
+      <SigninConfirmed isSignedIn={false} />
     </AppLayout>
   </LocationProvider>
 );

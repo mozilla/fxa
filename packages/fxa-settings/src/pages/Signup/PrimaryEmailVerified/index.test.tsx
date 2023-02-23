@@ -23,19 +23,20 @@ describe('PrimaryEmailVerified page', () => {
   // });
 
   it('renders the page as expected when the user is signed in', () => {
-    render(<PrimaryEmailVerified />);
+    render(<PrimaryEmailVerified isSignedIn />);
     // testAllL10n(screen, bundle);
 
     screen.getByText('Primary email confirmed');
-    screen.getByText('Your account is ready!');
+    screen.getByText('You’re now ready to use account settings');
     const signinContinueButton = screen.queryByText('Continue');
     expect(signinContinueButton).not.toBeInTheDocument();
   });
 
-  it('renders the page as expected when the user is not signed in', () => {
-    render(<PrimaryEmailVerified isSignedIn />);
+  it('renders the page as expected when the user is signed out', () => {
+    render(<PrimaryEmailVerified isSignedIn={false} />);
+    // testAllL10n(screen, bundle);
 
-    screen.getByText('You’re now ready to use account settings');
+    screen.getByText('Your account is ready!');
   });
 
   it('show the service name when it is passed in', () => {
@@ -45,7 +46,7 @@ describe('PrimaryEmailVerified page', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<PrimaryEmailVerified />);
+    render(<PrimaryEmailVerified isSignedIn />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

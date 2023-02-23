@@ -10,6 +10,7 @@ import AppLayout from '../../../components/AppLayout';
 
 type ResetPasswordConfirmedProps = {
   continueHandler?: Function;
+  isSignedIn: boolean;
   serviceName?: MozServices;
 };
 
@@ -17,10 +18,11 @@ export const viewName = 'reset-password-confirmed';
 
 const ResetPasswordConfirmed = ({
   continueHandler,
+  isSignedIn,
   serviceName,
 }: ResetPasswordConfirmedProps & RouteComponentProps) => (
   <AppLayout>
-    <Ready {...{ continueHandler, viewName, serviceName }} />
+    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
   </AppLayout>
 );
 

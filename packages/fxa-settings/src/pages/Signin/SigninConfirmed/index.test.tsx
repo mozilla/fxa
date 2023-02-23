@@ -21,7 +21,7 @@ describe('SigninConfirmed', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Ready component as expected', () => {
-    render(<SigninConfirmed />);
+    render(<SigninConfirmed isSignedIn />);
     // testAllL10n(screen, bundle);
 
     const signinConfirmation = screen.getByText('Sign-in confirmed');
@@ -37,13 +37,14 @@ describe('SigninConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<SigninConfirmed />);
+    render(<SigninConfirmed isSignedIn />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
     render(
       <SigninConfirmed
+        isSignedIn
         continueHandler={() => {
           console.log('beepboop');
         }}

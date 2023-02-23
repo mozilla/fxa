@@ -16,10 +16,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
+export const DefaultSignedIn = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed />
+      <ResetPasswordConfirmed isSignedIn />
+    </AppLayout>
+  </LocationProvider>
+);
+
+export const DefaultSignedOut = () => (
+  <LocationProvider>
+    <AppLayout>
+      <ResetPasswordConfirmed isSignedIn={false} />
     </AppLayout>
   </LocationProvider>
 );
@@ -27,7 +35,7 @@ export const Default = () => (
 export const WithRelyingPartyNoContinueAction = () => (
   <LocationProvider>
     <AppLayout>
-      <ResetPasswordConfirmed serviceName={MozServices.MozillaVPN} />
+      <ResetPasswordConfirmed isSignedIn serviceName={MozServices.MozillaVPN} />
     </AppLayout>
   </LocationProvider>
 );
@@ -36,6 +44,7 @@ export const WithRelyingPartyAndContinueAction = () => (
   <LocationProvider>
     <AppLayout>
       <ResetPasswordConfirmed
+        isSignedIn
         serviceName={MozServices.MozillaVPN}
         continueHandler={() => {
           console.log('Arbitrary action');
