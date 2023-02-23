@@ -23,6 +23,9 @@ const {
   playStoreSubscriptionSchema,
 } = require('fxa-shared/dto/auth/payments/iap-subscription');
 const {
+  latestInvoiceItemsSchema,
+} = require('fxa-shared/dto/auth/payments/invoice');
+const {
   default: DESCRIPTIONS,
 } = require('../../docs/swagger/shared/descriptions');
 
@@ -406,6 +409,7 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .string()
     .required()
     .description(DESCRIPTIONS.latestInvoice),
+  latest_invoice_items: latestInvoiceItemsSchema.required(),
   plan_id: module.exports.subscriptionsPlanId
     .required()
     .description(DESCRIPTIONS.planId),

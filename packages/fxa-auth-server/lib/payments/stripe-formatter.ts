@@ -77,3 +77,15 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
     return invoicePreview;
   });
 }
+
+/**
+ * Formats an array of Stripe Invoice to the stripeInvoiceToLatestInvoiceItemsDTO DTO format.
+ *
+ * Currently this is the same as stripeInvoiceToFirstInvoicePreviewDTO, however could change
+ * in future.
+ */
+export function stripeInvoiceToLatestInvoiceItemsDTO(
+  invoice: Stripe.Invoice
+): invoiceDTO.LatestInvoiceItems {
+  return stripeInvoiceToFirstInvoicePreviewDTO(invoice);
+}

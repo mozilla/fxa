@@ -257,6 +257,20 @@ describe('#integration - remote subscriptions:', function () {
             cancel_at_period_end: false,
             end_at: null,
             latest_invoice: '628031D-0002',
+            latest_invoice_items: {
+              line_items: [
+                {
+                  amount: 599,
+                  currency: 'usd',
+                  id: 'plan_G93lTs8hfK7NNG',
+                  name: 'testo',
+                },
+              ],
+              subtotal: 599,
+              subtotal_excluding_tax: null,
+              total: 599,
+              total_excluding_tax: null,
+            },
             status: 'active',
             failure_code: undefined,
             failure_message: undefined,

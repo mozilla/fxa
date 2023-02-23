@@ -8,6 +8,7 @@ import { Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
 import { SignInLayout } from '../AppLayout';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
 
 export default {
   title: 'components/PaymentFormV2',
@@ -37,6 +38,15 @@ const PLAN = {
       'https://www.mozilla.org/fr/privacy/websites/',
   },
 };
+
+const invoice: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
+
 const CUSTOMER: Customer = {
   billing_name: 'Foo Barson',
   payment_provider: 'stripe',
@@ -53,6 +63,7 @@ const CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: invoice,
       status: 'active',
       cancel_at_period_end: false,
       created: Date.now(),

@@ -22,7 +22,10 @@ import {
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import withMock from 'storybook-addon-mock';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  LatestInvoiceItems,
+} from 'fxa-shared/dto/auth/payments/invoice';
 
 function init() {
   setupVariantStories('routes/Subscriptions', {
@@ -445,6 +448,14 @@ const baseProps: SubscriptionsProps = {
   },
 };
 
+const invoice: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
+
 const customerSubscriptions = [
   {
     _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -454,6 +465,7 @@ const customerSubscriptions = [
     cancel_at_period_end: false,
     end_at: null,
     latest_invoice: '628031D-0002',
+    latest_invoice_items: invoice,
     plan_id: PLAN_ID,
     product_id: PRODUCT_ID,
     product_name: 'Example Product',

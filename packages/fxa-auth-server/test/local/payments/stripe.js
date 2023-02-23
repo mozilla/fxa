@@ -44,6 +44,9 @@ const {
   generateIdempotencyKey,
   roundTime,
 } = require('../../../lib/payments/utils');
+const {
+  stripeInvoiceToLatestInvoiceItemsDTO,
+} = require('../../../lib/payments/stripe-formatter');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -4493,6 +4496,8 @@ describe('#integration - StripeHelper', () => {
         const failedChargeCopy = deepCopy(failedCharge);
         const subscription = deepCopy(pastDueSubscription);
         const invoice = deepCopy(unpaidInvoice);
+        const latestInvoiceItems =
+          stripeInvoiceToLatestInvoiceItemsDTO(invoice);
 
         const expected = [
           {
@@ -4510,6 +4515,7 @@ describe('#integration - StripeHelper', () => {
             failure_code: failedChargeCopy.failure_code,
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
+            latest_invoice_items: latestInvoiceItems,
             promotion_code: null,
             promotion_duration: null,
             promotion_end: null,
@@ -4564,6 +4570,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       describe('when the subscription is not past_due, incomplete, or incomplete_expired', () => {
+        const latestInvoiceItems =
+          stripeInvoiceToLatestInvoiceItemsDTO(paidInvoice);
         describe('when the subscription is active', () => {
           it('formats the subscription', async () => {
             const input = { data: [subscription1] };
@@ -4589,6 +4597,7 @@ describe('#integration - StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                latest_invoice_items: latestInvoiceItems,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
@@ -4624,6 +4633,7 @@ describe('#integration - StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                latest_invoice_items: latestInvoiceItems,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
@@ -4663,6 +4673,7 @@ describe('#integration - StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                latest_invoice_items: latestInvoiceItems,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
@@ -4672,6 +4683,49 @@ describe('#integration - StripeHelper', () => {
             assert.deepEqual(actual, expected);
             assert.isNotNull(actual[0].end_at);
           });
+        });
+      });
+
+      describe('when there is a subscription invalid latest_invoice', () => {
+        it('should throw an error for a null latest_invoice', async () => {
+          const subscription = deepCopy(subscription1);
+          subscription.latest_invoice = null;
+
+          const input = {
+            data: [subscription],
+          };
+
+          try {
+            await stripeHelper.subscriptionsToResponse(input);
+            assert.fail();
+          } catch (err) {
+            assert.isNotNull(err);
+            assert.equal(
+              err.message,
+              'Latest invoice for subscription could not be found'
+            );
+          }
+        });
+
+        it('should throw an error for a latest_invoice without an invoice number', async () => {
+          const subscription = deepCopy(subscription1);
+          const input = {
+            data: [subscription],
+          };
+          sandbox
+            .stub(stripeHelper, 'expandResource')
+            .resolves({ ...paidInvoice, number: null });
+
+          try {
+            await stripeHelper.subscriptionsToResponse(input);
+            assert.fail();
+          } catch (err) {
+            assert.isNotNull(err);
+            assert.equal(
+              err.message,
+              'Invoice number for subscription is required'
+            );
+          }
         });
       });
     });
@@ -4716,6 +4770,8 @@ describe('#integration - StripeHelper', () => {
     });
 
     describe('when a subscription has a promotion code', () => {
+      const latestInvoiceItems =
+        stripeInvoiceToLatestInvoiceItemsDTO(paidInvoice);
       it('"once" coupon duration do not include the promotion values in the returned value', async () => {
         const subscription = deepCopy(subscriptionCouponOnce);
         const input = { data: [subscription] };
@@ -4741,6 +4797,7 @@ describe('#integration - StripeHelper', () => {
             failure_code: undefined,
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
+            latest_invoice_items: latestInvoiceItems,
             promotion_code: null,
             promotion_duration: null,
             promotion_end: null,
@@ -4777,6 +4834,7 @@ describe('#integration - StripeHelper', () => {
             failure_code: undefined,
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
+            latest_invoice_items: latestInvoiceItems,
             promotion_code:
               subscriptionCouponForever.metadata.appliedPromotionCode,
             promotion_duration: 'forever',
@@ -4814,6 +4872,7 @@ describe('#integration - StripeHelper', () => {
             failure_code: undefined,
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
+            latest_invoice_items: latestInvoiceItems,
             promotion_code:
               subscriptionCouponRepeating.metadata.appliedPromotionCode,
             promotion_duration: 'repeating',

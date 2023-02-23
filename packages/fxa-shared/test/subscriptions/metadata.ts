@@ -14,6 +14,7 @@ import {
   getProductSupportApps,
 } from '../../subscriptions/metadata';
 import { PlanConfigurationDtoT } from '../../dto/auth/payments/plan-configuration';
+import { LatestInvoiceItems } from '../../dto/auth/payments/invoice';
 
 const NULL_METADATA = {
   productSet: [],
@@ -40,6 +41,21 @@ const PLAN: Plan = {
   active: true,
   plan_metadata: null,
   product_metadata: null,
+};
+
+const LATEST_INVOICE_ITEMS: LatestInvoiceItems = {
+  line_items: [
+    {
+      amount: 599,
+      currency: 'usd',
+      id: 'plan_8675309',
+      name: 'Example product',
+    },
+  ],
+  subtotal: 599,
+  subtotal_excluding_tax: null,
+  total: 599,
+  total_excluding_tax: null,
 };
 
 const requiredProductMetadata = {
@@ -241,6 +257,7 @@ describe('#unit - subscriptions/metadata', () => {
         cancel_at_period_end: false,
         end_at: null,
         latest_invoice: 'DDCB9132-0002',
+        latest_invoice_items: LATEST_INVOICE_ITEMS,
         plan_id: 'price_1HJnNbBVqmGyQTMaoduxgunR',
         product_name: 'Cooking with Foxkeh',
         product_id: 'prod_GvH2k78kKusAlV',
@@ -257,6 +274,7 @@ describe('#unit - subscriptions/metadata', () => {
         cancel_at_period_end: false,
         end_at: null,
         latest_invoice: 'DDCB9132-0001',
+        latest_invoice_items: LATEST_INVOICE_ITEMS,
         plan_id: 'plan_GjeF1VyTFSnOkD',
         product_name: 'Firefox Guardian',
         product_id: 'prod_GjeBkx6iQFoVgg',

@@ -8,9 +8,8 @@ import { PaymentConfirmation, PaymentConfirmationProps } from './index';
 import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { Meta } from '@storybook/react';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
 
 export default {
   title: 'components/PaymentConfirmation',
@@ -50,6 +49,14 @@ const selectedPlanWithMetadata: Plan = {
   },
 };
 
+const invoice: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
+
 const customer: Customer = {
   billing_name: 'Jane Doe',
   payment_provider: 'stripe',
@@ -62,6 +69,7 @@ const customer: Customer = {
     {
       _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
+      latest_invoice_items: invoice,
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',
@@ -79,14 +87,6 @@ const customer: Customer = {
 };
 
 const productUrl = 'https://mozilla.org';
-
-const invoice: FirstInvoicePreview = {
-  line_items: [],
-  subtotal: 735,
-  subtotal_excluding_tax: null,
-  total: 735,
-  total_excluding_tax: null,
-};
 
 const storyWithProps = (
   props: PaymentConfirmationProps,
