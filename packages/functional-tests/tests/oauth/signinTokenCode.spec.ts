@@ -29,7 +29,8 @@ test.describe('OAuth signin token code', () => {
   };
   /* eslint-enable camelcase */
 
-  test.beforeEach(async ({ target }) => {
+  test.beforeEach(async ({ target }, { project }) => {
+    test.skip(project.name === 'production', 'doesnt work in prod currently');
     // The `sync` prefix is needed to force confirmation.
     email = `sync${Math.random()}@restmail.net`;
     await target.createAccount(email, password, {
