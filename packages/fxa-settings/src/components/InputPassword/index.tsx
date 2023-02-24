@@ -17,7 +17,7 @@ type OptionalSyncedVisibilityProps =
     }
   | { areBothPasswordsVisible?: never; setAreBothPasswordsVisible?: never };
 
-type InputPasswordProps = Omit<InputTextProps, 'type'> &
+export type InputPasswordProps = Omit<InputTextProps, 'type'> &
   OptionalSyncedVisibilityProps;
 
 export const InputPassword = ({

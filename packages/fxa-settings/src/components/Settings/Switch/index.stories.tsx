@@ -2,35 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Localized } from '@fluent/react';
-import { storiesOf } from '@storybook/react';
-import React, { useState } from 'react';
+import React from 'react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import Switch from '.';
+import { Subject } from './mocks';
 
-storiesOf('Components/Settings/Switch', module)
-  .add('on', () => <Subject />)
-  .add('loading, user switched off', () => <Subject isSubmitting />)
-  .add('off', () => <Subject isOn={false} />)
-  .add('loading, user switched on', () => (
-    <Subject isOn={false} isSubmitting />
-  ));
+export default {
+  title: 'Components/Settings/Switch',
+  component: Switch,
+  decorators: [withLocalization],
+} as Meta;
 
-const Subject = ({ isOn = true, isSubmitting = false }) => {
-  const [switchState, setSwitchState] = useState<boolean>(isOn);
-  const handler = () => {
-    alert('You flipped the switch!');
-    setSwitchState(!switchState);
-  };
+export const On = () => <Subject />;
 
-  return (
-    <Switch
-      {...{
-        isSubmitting,
-        isOn: switchState,
-        handler,
-        id: 'boop',
-        localizedLabel: <Localized id="">Screenreader only text</Localized>,
-      }}
-    />
-  );
-};
+export const LoadingUserSwitchedOff = () => <Subject isSubmitting />;
+
+export const Off = () => <Subject isOn={false} />;
+
+export const LoadingUserSwitchedOn = () => (
+  <Subject isOn={false} isSubmitting />
+);

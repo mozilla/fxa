@@ -3,60 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
 import Tooltip from './index';
+import { withLocalization } from '../../../.storybook/decorators';
 
-storiesOf('Components/Tooltip', module)
-  .add('default', () => (
-    <div className="p-20 max-w-md">
-      <div className="mb-3">
-        <div className="relative inline">
-          <p className="inline">Default tooltip pointing to this text</p>
-          <Tooltip message="My tooltip message here" className="mb-2" />
+export default {
+  title: 'Components/Tooltip',
+  component: Tooltip,
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <div className="flex flex-col items-center p-20 max-w-md">
+        <div className="relative p-2 bg-grey-100">
+          <Story />
         </div>
       </div>
-    </div>
-  ))
-  .add('Error', () => (
-    <div className="p-20 max-w-md">
-      <div className="mb-3">
-        <div className="relative inline">
-          <p className="inline">Error tooltip pointing to this text</p>
-          <Tooltip
-            type="error"
-            message="My tooltip message here"
-            className="mb-2"
-          />
-        </div>
-      </div>
-    </div>
-  ))
-  .add('bottom', () => (
-    <div className="p-20 max-w-md">
-      <div className="mb-3">
-        <div className="relative inline">
-          <p className="inline">Default tooltip pointing to this text</p>
-          <Tooltip
-            message="My tooltip message here"
-            position="bottom"
-            className="mt-2"
-          />
-        </div>
-      </div>
-    </div>
-  ))
-  .add('bottom anchored left', () => (
-    <div className="p-20 max-w-md">
-      <div className="mb-3">
-        <div className="relative inline">
-          <p className="inline">Default tooltip pointing to this text</p>
-          <Tooltip
-            message="My tooltip message here"
-            position="bottom"
-            anchorStart={true}
-            className="mt-2"
-          />
-        </div>
-      </div>
-    </div>
-  ));
+    ),
+  ],
+} as Meta;
+
+export const Default = () => (
+  <>
+    <p>Default tooltip pointing to this text</p>
+    <Tooltip message="My tooltip message here" />
+  </>
+);
+export const Bottom = () => (
+  <>
+    <p>Default tooltip pointing to this text</p>
+    <Tooltip message="My tooltip message here" position="bottom" />
+  </>
+);
+export const BottomAnchoredStart = () => (
+  <>
+    <p>Default tooltip pointing to this text</p>
+    <Tooltip message="My tooltip message here" position="bottom" anchorStart />
+  </>
+);
+export const Error = () => (
+  <>
+    <p>Error tooltip pointing to this text</p>
+    <Tooltip type="error" message="My tooltip message here" />
+  </>
+);

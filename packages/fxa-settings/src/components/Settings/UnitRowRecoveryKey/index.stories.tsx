@@ -3,33 +3,49 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { LocationProvider } from '@reach/router';
 import UnitRowRecoveryKey from '.';
-import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext, mockSession } from 'fxa-settings/src/models/mocks';
+import { Account, AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
-storiesOf('Components/Settings/UnitRowRecoveryKey', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('with account recovery key', () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account: {
-          recoveryKey: true,
-        } as any,
-      })}
-    >
-      <UnitRowRecoveryKey />
-    </AppContext.Provider>
-  ))
-  .add('no account recovery key', () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account: {
-          recoveryKey: false,
-        } as any,
-      })}
-    >
-      <UnitRowRecoveryKey />
-    </AppContext.Provider>
-  ));
+export default {
+  title: 'Components/Settings/UnitRowRecoveryKey',
+  component: UnitRowRecoveryKey,
+  decorators: [withLocalization],
+} as Meta;
+
+const accountHasRecoveryKey = {
+  hasPassword: true,
+  recoveryKey: true,
+} as unknown as Account;
+
+const accountWithoutRecoveryKey = {
+  hasPassword: true,
+  recoveryKey: false,
+} as unknown as Account;
+
+const accountWithoutPassword = {
+  hasPassword: false,
+  recoveryKey: false,
+} as unknown as Account;
+
+const storyWithContext = (account: Partial<Account>) => {
+  const context = { account: account as Account };
+
+  const story = () => (
+    <LocationProvider>
+      <AppContext.Provider value={mockAppContext(context)}>
+        <UnitRowRecoveryKey />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+  return story;
+};
+
+export const HasAccountRecoveryKey = storyWithContext(accountHasRecoveryKey);
+
+export const NoAccountRecoveryKey = storyWithContext(accountWithoutRecoveryKey);
+
+export const DisabledStateNoPassword = storyWithContext(accountWithoutPassword);

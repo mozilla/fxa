@@ -50,13 +50,14 @@ export const Tooltip = ({
       title={message}
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white
-         p-3 rounded text-xs font-header font-bold
+         rounded text-xs font-header font-bold
           shadow-tooltip-grey-drop
          `,
         type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,
         {
-          'ltr:left-1/2 transform -translate-x-1/2': !anchorStart,
+          'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
+            !anchorStart,
           'ltr:left-0 rtl:right-0': anchorStart,
           'bottom-full': position === 'top',
           'top-full': position === 'bottom',
@@ -65,7 +66,8 @@ export const Tooltip = ({
     >
       <span
         className={classNames('absolute', caretClass(type, position), {
-          'left-1/2 transform -translate-x-1/2': !anchorStart,
+          'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
+            !anchorStart,
           'ltr:left-ten rtl:right-ten w-auto': anchorStart,
           'top-full': position === 'top',
           'bottom-full': position === 'bottom',
