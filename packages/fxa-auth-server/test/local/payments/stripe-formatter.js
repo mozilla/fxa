@@ -9,6 +9,7 @@ const { assert } = require('chai');
 const {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
+  stripeInvoiceToLatestInvoiceItemsDTO,
 } = require('../../../lib/payments/stripe-formatter');
 const previewInvoiceWithTax = require('./fixtures/stripe/invoice_preview_tax.json');
 const previewInvoiceWithDiscountAndTax = require('./fixtures/stripe/invoice_preview_tax_discount.json');
@@ -88,5 +89,55 @@ describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
       previewInvoiceWithDiscountAndTax.period_end
     );
     assert.equal(invoice[1].total, previewInvoiceWithDiscountAndTax.total);
+  });
+});
+
+describe('stripeInvoiceToLatestInvoiceItemsDTO', () => {
+  it('formats an invoice with tax', () => {
+    const invoice = stripeInvoiceToLatestInvoiceItemsDTO(
+      deepCopy(previewInvoiceWithTax)
+    );
+    assert.equal(invoice.total, previewInvoiceWithTax.total);
+    assert.equal(invoice.subtotal, previewInvoiceWithTax.subtotal);
+    assert.equal(
+      invoice.tax[0].amount,
+      previewInvoiceWithTax.total_tax_amounts[0].amount
+    );
+    assert.equal(
+      invoice.tax[0].display_name,
+      previewInvoiceWithTax.total_tax_amounts[0].tax_rate.display_name
+    );
+    assert.equal(invoice.tax[0].inclusive, true);
+    assert.isUndefined(invoice.discount);
+  });
+
+  it('formats an invoice with tax and discount', () => {
+    const invoice = stripeInvoiceToLatestInvoiceItemsDTO(
+      deepCopy(previewInvoiceWithDiscountAndTax)
+    );
+    assert.equal(invoice.total, previewInvoiceWithDiscountAndTax.total);
+    assert.equal(invoice.subtotal, previewInvoiceWithDiscountAndTax.subtotal);
+    assert.equal(
+      invoice.tax[0].amount,
+      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].amount
+    );
+    assert.equal(
+      invoice.tax[0].display_name,
+      previewInvoiceWithDiscountAndTax.total_tax_amounts[0].tax_rate
+        .display_name
+    );
+    assert.equal(invoice.tax[0].inclusive, true);
+    assert.equal(
+      invoice.discount.amount,
+      previewInvoiceWithDiscountAndTax.total_discount_amounts[0].amount
+    );
+    assert.equal(
+      invoice.discount.amount_off,
+      previewInvoiceWithDiscountAndTax.discount.coupon.amount_off
+    );
+    assert.equal(
+      invoice.discount.percent_off,
+      previewInvoiceWithDiscountAndTax.discount.coupon.percent_off
+    );
   });
 });

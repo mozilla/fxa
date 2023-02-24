@@ -22,6 +22,7 @@ import {
 import { MemoryRouter } from 'react-router-dom';
 import {
   FirstInvoicePreview,
+  LatestInvoiceItems,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 
@@ -717,6 +718,14 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   },
 ];
 
+export const MOCK_LATEST_INVOICE_ITEMS: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
+
 export const MOCK_CUSTOMER: Customer = {
   customerId: 'cus_123xyz',
   billing_name: 'Jane Doe',
@@ -734,6 +743,7 @@ export const MOCK_CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: MOCK_LATEST_INVOICE_ITEMS,
       status: 'active',
       cancel_at_period_end: false,
       created: 1565815388.815,

@@ -75,6 +75,7 @@ import { CurrencyHelper } from './currencies';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
@@ -2325,7 +2326,7 @@ export class StripeHelper extends StripeHelperBase {
   async subscriptionsToResponse(
     subscriptions: Stripe.ApiList<Stripe.Subscription>
   ): Promise<WebSubscription[]> {
-    const subs = [];
+    const subs: WebSubscription[] = [];
     const products = await this.allAbbrevProducts();
     for (const sub of subscriptions.data) {
       let failure_code, failure_message;
@@ -2343,6 +2344,14 @@ export class StripeHelper extends StripeHelperBase {
           latestInvoice,
           INVOICES_RESOURCE
         );
+      }
+
+      if (!latestInvoice) {
+        throw new Error('Latest invoice for subscription could not be found');
+      }
+
+      if (!latestInvoice.number) {
+        throw new Error('Invoice number for subscription is required');
       }
 
       // If this is a charge-automatically payment that is past_due, attempt
@@ -2389,8 +2398,9 @@ export class StripeHelper extends StripeHelperBase {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        latest_invoice: latestInvoice!.number!,
+        latest_invoice: latestInvoice.number,
+        latest_invoice_items:
+          stripeInvoiceToLatestInvoiceItemsDTO(latestInvoice),
         plan_id: plan.id,
         product_name,
         product_id,

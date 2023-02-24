@@ -12,7 +12,10 @@ import { FluentBundle } from '@fluent/bundle';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { updateConfig } from '../../lib/config';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  LatestInvoiceItems,
+} from 'fxa-shared/dto/auth/payments/invoice';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -76,6 +79,14 @@ const selectedPlanWithConfiguration = {
   },
 };
 
+const latestInvoiceItems: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
+
 const customer: Customer = {
   billing_name: 'Jane Doe',
   payment_provider: 'stripe',
@@ -88,6 +99,7 @@ const customer: Customer = {
     {
       _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
+      latest_invoice_items: latestInvoiceItems,
       subscription_id: 'sub0.28964929339372136',
       plan_id: 'plan_123',
       product_id: 'prod_123',
@@ -116,6 +128,7 @@ const paypalCustomer: Customer = {
     {
       _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
+      latest_invoice_items: latestInvoiceItems,
       subscription_id: 'sub0.28964929339372136',
       plan_id: 'plan_123',
       product_id: 'prod_123',

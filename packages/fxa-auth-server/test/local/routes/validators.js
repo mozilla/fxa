@@ -791,6 +791,20 @@ describe('lib/routes/validators:', () => {
       current_period_start: 1573695337,
       end_at: null,
       latest_invoice: 'in_1FeXFGJNcmPzuWtR3EUd2zw7',
+      latest_invoice_items: {
+        line_items: [
+          {
+            amount: 599,
+            currency: 'usd',
+            id: 'plan_G93lTs8hfK7NNG',
+            name: 'testo',
+          },
+        ],
+        subtotal: 599,
+        subtotal_excluding_tax: null,
+        total: 599,
+        total_excluding_tax: null,
+      },
       plan_id: 'plan_G93lTs8hfK7NNG',
       product_id: 'prod_G93l8Yn7XJHYUs',
       product_name: 'testo',

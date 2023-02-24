@@ -4,6 +4,7 @@ import {
   AppStoreSubscription,
   PlayStoreSubscription,
 } from '../dto/auth/payments/iap-subscription';
+import { LatestInvoiceItems } from '../dto/auth/payments/invoice';
 import { PlanConfigurationDtoT } from '../dto/auth/payments/plan-configuration';
 
 export type PlanInterval = Stripe.Plan['interval'];
@@ -125,6 +126,7 @@ export type WebSubscription = Pick<
     _subscription_type: SubscriptionTypes[0];
     end_at: Stripe.Subscription['ended_at'];
     latest_invoice: string;
+    latest_invoice_items: LatestInvoiceItems;
     plan_id: Stripe.Plan['id'];
     product_name: Stripe.Product['name'];
     product_id: Stripe.Product['id'];

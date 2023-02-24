@@ -1,11 +1,22 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { AppStoreSubscription } from 'fxa-shared/dto/auth/payments/iap-subscription';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import {
+  FirstInvoicePreview,
+  LatestInvoiceItems,
+} from 'fxa-shared/dto/auth/payments/invoice';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
 import { Customer, Plan, Profile } from '../store/types';
+
+const invoice: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -41,6 +52,7 @@ export const CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: invoice,
       status: 'active',
       created: Date.now(),
       cancel_at_period_end: false,
@@ -134,6 +146,7 @@ export const PAYPAL_CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: invoice,
       status: 'active',
       cancel_at_period_end: false,
       created: Date.now(),

@@ -11,6 +11,15 @@ import { Product, ProductProps } from './index';
 import { Customer, Plan, Profile } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
+
+const invoice: LatestInvoiceItems = {
+  line_items: [],
+  subtotal: 735,
+  subtotal_excluding_tax: null,
+  total: 735,
+  total_excluding_tax: null,
+};
 
 function init() {
   storiesOf('routes/Product', module)
@@ -59,6 +68,7 @@ function init() {
               product_name: 'Example Product',
               product_id: 'prod_123',
               latest_invoice: '628031D-0002',
+              latest_invoice_items: invoice,
               plan_id: 'plan_123',
               status: 'active',
               subscription_id: 'sk_78987',
@@ -246,6 +256,7 @@ const CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: invoice,
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,

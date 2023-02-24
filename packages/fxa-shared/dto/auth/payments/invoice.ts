@@ -136,3 +136,9 @@ export type subsequentInvoicePreview = {
 };
 
 export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;
+
+export interface LatestInvoiceItems extends FirstInvoicePreview {}
+
+export const latestInvoiceItemsSchema = firstInvoicePreviewSchema;
+
+export type latestInvoiceItemsSchema = firstInvoicePreviewSchema;
