@@ -169,7 +169,21 @@ export const PLAN = {
   },
 };
 
-export const PLANS: Plan[] = [PLAN, UPGRADE_FROM_PLAN, SELECTED_PLAN];
+export const INACTIVE_PLAN = {
+  ...PLAN,
+  product_metadata: { ...PLAN.product_metadata },
+  plan_id: 'plan_inactive',
+  active: false,
+};
+
+export const PLANS: Plan[] = [
+  PLAN,
+  UPGRADE_FROM_PLAN,
+  SELECTED_PLAN,
+  INACTIVE_PLAN,
+];
+
+export const INACTIVE_PLAN_ID = INACTIVE_PLAN.plan_id;
 
 export const FILTERED_SETUP_INTENT: FilteredSetupIntent = {
   client_secret:
