@@ -756,7 +756,7 @@ export const MOCK_CUSTOMER: Customer = {
   ],
 };
 
-export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
+export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION: Customer = {
   ...MOCK_CUSTOMER,
   subscriptions: [
     ...MOCK_CUSTOMER.subscriptions,
@@ -765,11 +765,17 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
       product_id: PRODUCT_ID,
+      product_name: '',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: MOCK_LATEST_INVOICE_ITEMS,
       status: 'active',
       cancel_at_period_end: false,
+      created: 1565816388.815,
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
+      end_at: null,
+      promotion_duration: null,
+      promotion_end: null,
     },
   ],
 };
@@ -907,6 +913,23 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePrevi
       percent_off: null,
     },
   };
+
+export const INVOICE_NO_TAX: LatestInvoiceItems = MOCK_PREVIEW_INVOICE_NO_TAX;
+
+export const INVOICE_AFTER_SUBSCRIPTION: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION;
+
+export const INVOICE_WITH_TAX_EXCLUSIVE: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE;
+
+export const INVOICE_WITH_TAX_INCLUSIVE: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE;
+
+export const INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT;
+
+export const INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT;
 
 export function getLocalizedMessage(
   bundle: FluentBundle,

@@ -22,21 +22,21 @@ import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import AppContext from '../../../lib/AppContext';
 import { PriceDetails } from '../../../components/PriceDetails';
 import {
-  FirstInvoicePreview,
+  LatestInvoiceItems,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 
 const getIntervalPriceDetailsData = (
-  invoicePreview: FirstInvoicePreview | SubsequentInvoicePreview
+  invoice: LatestInvoiceItems | SubsequentInvoicePreview
 ) => {
   const exclusiveTaxRates =
-    invoicePreview.tax?.filter((taxRate) => !taxRate.inclusive) || [];
-  const showInvoicePreviewTax = !!exclusiveTaxRates.length;
+    invoice.tax?.filter((taxRate) => !taxRate.inclusive) || [];
+  const showInvoiceTax = !!exclusiveTaxRates.length;
 
-  const invoicePreviewDisplayTotal =
-    showInvoicePreviewTax && invoicePreview.total_excluding_tax
-      ? invoicePreview.total_excluding_tax
-      : invoicePreview.total;
+  const invoiceDisplayTotal =
+    showInvoiceTax && invoice.total_excluding_tax
+      ? invoice.total_excluding_tax
+      : invoice.total;
 
   const taxAmount = exclusiveTaxRates.reduce(
     (total, taxRate) => total + taxRate.amount,
@@ -44,8 +44,8 @@ const getIntervalPriceDetailsData = (
   );
 
   return {
-    showInvoicePreviewTax,
-    invoicePreviewDisplayTotal,
+    showInvoiceTax,
+    invoiceDisplayTotal,
     taxAmount,
   };
 };
@@ -56,27 +56,24 @@ const getNextBillData = (
 ) => {
   const { period_start: subsequentInvoiceDate } = subsequentInvoice;
 
-  const { showInvoicePreviewTax, invoicePreviewDisplayTotal, taxAmount } =
+  const { showInvoiceTax, invoiceDisplayTotal, taxAmount } =
     getIntervalPriceDetailsData(subsequentInvoice);
 
-  const nextBillL10nId = showInvoicePreviewTax
+  const nextBillL10nId = showInvoiceTax
     ? 'sub-next-bill-tax'
     : 'sub-next-bill-no-tax';
   const nextBillAmount = formatPriceAmount(
-    invoicePreviewDisplayTotal,
+    invoiceDisplayTotal,
     plan.currency,
-    showInvoicePreviewTax,
+    showInvoiceTax,
     taxAmount || null
   );
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBillL10nVarsDefault = {
-    priceAmount: getLocalizedCurrency(
-      invoicePreviewDisplayTotal,
-      plan.currency
-    ),
+    priceAmount: getLocalizedCurrency(invoiceDisplayTotal, plan.currency),
     date: nextBillDate,
   };
-  const nextBillL10nVars = showInvoicePreviewTax
+  const nextBillL10nVars = showInvoiceTax
     ? {
         ...nextBillL10nVarsDefault,
         taxAmount: getLocalizedCurrency(taxAmount, plan.currency),
@@ -99,7 +96,7 @@ export type CancelSubscriptionPanelProps = {
   paymentProvider: PaymentProvider | undefined;
   promotionCode: string | undefined;
   subsequentInvoice: SubsequentInvoicePreview;
-  invoicePreview: FirstInvoicePreview;
+  invoice: LatestInvoiceItems;
 };
 
 const CancelSubscriptionPanel = ({
@@ -110,7 +107,7 @@ const CancelSubscriptionPanel = ({
   paymentProvider,
   promotionCode,
   subsequentInvoice,
-  invoicePreview,
+  invoice,
 }: CancelSubscriptionPanelProps) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
@@ -187,7 +184,7 @@ const CancelSubscriptionPanel = ({
     [onConfirmationChanged, engage]
   );
 
-  const intervalPriceDetailsData = getIntervalPriceDetailsData(invoicePreview);
+  const intervalPriceDetailsData = getIntervalPriceDetailsData(invoice);
   const { nextBillL10nId, nextBillAmount, nextBillDate, nextBillL10nVars } =
     getNextBillData(plan, subsequentInvoice);
 
@@ -205,9 +202,9 @@ const CancelSubscriptionPanel = ({
             <div className="with-settings-button">
               <div className="price-details" data-testid="price-details">
                 <PriceDetails
-                  total={intervalPriceDetailsData.invoicePreviewDisplayTotal}
+                  total={intervalPriceDetailsData.invoiceDisplayTotal}
                   tax={intervalPriceDetailsData.taxAmount}
-                  showTax={intervalPriceDetailsData.showInvoicePreviewTax}
+                  showTax={intervalPriceDetailsData.showInvoiceTax}
                   currency={plan.currency}
                   interval={plan.interval}
                   intervalCount={plan.interval_count}

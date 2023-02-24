@@ -15,11 +15,11 @@ import {
   MOCK_PLANS,
   MOCK_CUSTOMER,
   MOCK_SUBSEQUENT_INVOICES,
-  MOCK_PREVIEW_INVOICE_NO_TAX,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
-  MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
+  INVOICE_NO_TAX,
+  INVOICE_WITH_TAX_EXCLUSIVE,
+  INVOICE_WITH_TAX_INCLUSIVE,
+  INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
+  INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
 } from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
@@ -52,7 +52,7 @@ describe('CancelSubscriptionPanel', () => {
     cancelSubscription: jest.fn().mockResolvedValue(null),
     cancelSubscriptionStatus: defaultState.cancelSubscription,
     subsequentInvoice: MOCK_SUBSEQUENT_INVOICES[0],
-    invoicePreview: MOCK_PREVIEW_INVOICE_NO_TAX,
+    invoice: INVOICE_NO_TAX,
     promotionCode: undefined,
     paymentProvider: undefined,
   };
@@ -73,7 +73,7 @@ describe('CancelSubscriptionPanel', () => {
           render(<CancelSubscriptionPanel {...props} />);
 
           const planPrice = formatPlanPricing(
-            props.invoicePreview.total,
+            props.invoice.total,
             props.plan.currency,
             props.plan.interval,
             props.plan.interval_count
@@ -276,7 +276,7 @@ describe('CancelSubscriptionPanel', () => {
                 ...MOCK_SUBSEQUENT_INVOICES[2],
                 period_start: 1568408388.815,
               }}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
+              invoice={INVOICE_WITH_TAX_EXCLUSIVE}
             />
           </LocalizationProvider>
         );
@@ -307,7 +307,7 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[2]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE}
+              invoice={INVOICE_WITH_TAX_EXCLUSIVE}
             />
           </LocalizationProvider>
         );
@@ -336,7 +336,7 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[4]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT}
+              invoice={INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT}
             />
           </LocalizationProvider>
         );
@@ -368,7 +368,7 @@ describe('CancelSubscriptionPanel', () => {
                 ...MOCK_SUBSEQUENT_INVOICES[3],
                 period_start: 1568408388.815,
               }}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
+              invoice={INVOICE_WITH_TAX_INCLUSIVE}
             />
           </LocalizationProvider>
         );
@@ -398,7 +398,7 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[3]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE}
+              invoice={INVOICE_WITH_TAX_INCLUSIVE}
             />
           </LocalizationProvider>
         );
@@ -427,7 +427,7 @@ describe('CancelSubscriptionPanel', () => {
               {...baseProps}
               plan={plan}
               subsequentInvoice={MOCK_SUBSEQUENT_INVOICES[5]}
-              invoicePreview={MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT}
+              invoice={INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT}
             />
           </LocalizationProvider>
         );

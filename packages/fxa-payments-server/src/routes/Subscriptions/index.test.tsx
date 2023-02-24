@@ -41,8 +41,7 @@ import {
   PLAN_ID,
   PRODUCT_ID,
   MOCK_SUBSEQUENT_INVOICES,
-  MOCK_PREVIEW_INVOICE_NO_TAX,
-  MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION,
+  MOCK_LATEST_INVOICE_ITEMS,
 } from '../../lib/test-utils';
 
 import { SettingsLayout } from '../../components/AppLayout';
@@ -140,14 +139,12 @@ describe('routes/Subscriptions', () => {
     mockActiveSubscriptions = MOCK_ACTIVE_SUBSCRIPTIONS,
     mockPlans = MOCK_PLANS,
     mockSubsequentInvoices = MOCK_SUBSEQUENT_INVOICES,
-    mockPreviewInvoice = MOCK_PREVIEW_INVOICE_NO_TAX,
   }: {
     displayName?: string | undefined;
     mockCustomer?: typeof MOCK_CUSTOMER;
     mockActiveSubscriptions?: typeof MOCK_ACTIVE_SUBSCRIPTIONS;
     mockPlans?: typeof MOCK_PLANS;
     mockSubsequentInvoices?: typeof MOCK_SUBSEQUENT_INVOICES;
-    mockPreviewInvoice?: typeof MOCK_PREVIEW_INVOICE_NO_TAX;
   } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
@@ -162,20 +159,13 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, mockSubsequentInvoices),
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, mockPreviewInvoice),
   ];
 
   it('uses PaymentUpdateForm', async () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
-      mockPreviewInvoice: MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     render(<Subject />);
     await screen.findByTestId('subscription-management-loaded');
     await waitForExpect(() => {
@@ -192,9 +182,6 @@ describe('routes/Subscriptions', () => {
       mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
 
     const { findByTestId, queryAllByTestId, queryByTestId } = render(
       <Subject />
@@ -214,9 +201,6 @@ describe('routes/Subscriptions', () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId } = render(<Subject />);
     await findByTestId('manage-pocket-title');
     await findByTestId('manage-pocket-link');
@@ -238,9 +222,6 @@ describe('routes/Subscriptions', () => {
         },
       })),
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId, queryAllByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     expect(queryAllByTestId('upgrade-cta').length).toBe(2);
@@ -265,9 +246,6 @@ describe('routes/Subscriptions', () => {
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
     });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { getAllByTestId, findByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
@@ -308,9 +286,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-profile');
   });
@@ -329,9 +304,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-plans');
   });
@@ -350,9 +322,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
   });
@@ -371,32 +340,8 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(500, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-invoice');
-  });
-
-  it('displays an error if preview invoice fetch fails', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(500, MOCK_PREVIEW_INVOICE_NO_TAX);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-invoice-previews');
   });
 
   it('displays an error if subsequent invoice response is an empty array', async () => {
@@ -413,32 +358,8 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, []);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-subsequent-invoice');
-  });
-
-  it('displays an error if invoice preview doesnt match any subscription', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-subhub-missing-invoice-preview');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
@@ -457,9 +378,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
@@ -517,26 +435,7 @@ describe('routes/Subscriptions', () => {
       ]);
     nock(authServer)
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, {
-        ...MOCK_CUSTOMER,
-        subscriptions: [
-          {
-            _subscription_type: MozillaSubscriptionTypes.WEB,
-            subscription_id: 'sub0.28964929339372136',
-            plan_id: '123doneProMonthly',
-            product_id: 'prod_123',
-            product_name: '123done Pro',
-            latest_invoice: '628031D-0002',
-            status: 'active',
-            cancel_at_period_end: true,
-            current_period_start: 1565816388.815,
-            current_period_end: 1568408388.815,
-          },
-        ],
-      });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
+      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION);
 
     const {
       findByTestId,
@@ -600,9 +499,6 @@ describe('routes/Subscriptions', () => {
     });
 
     nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
-    nock(authServer)
       .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
       .reply(200, {});
     nock(authServer)
@@ -627,6 +523,7 @@ describe('routes/Subscriptions', () => {
             plan_id: PLAN_ID,
             product_id: PRODUCT_ID,
             latest_invoice: '628031D-0002',
+            latest_invoice_items: MOCK_LATEST_INVOICE_ITEMS,
             status: 'active',
             cancel_at_period_end: false,
             current_period_start: 1565816388.815,
@@ -639,6 +536,7 @@ describe('routes/Subscriptions', () => {
             product_id: 'prod_123',
             product_name: '123done Pro',
             latest_invoice: '628031D-0002',
+            latest_invoice_items: MOCK_LATEST_INVOICE_ITEMS,
             status: 'active',
             cancel_at_period_end: true,
             current_period_start: 1565816388.815,
@@ -646,12 +544,6 @@ describe('routes/Subscriptions', () => {
           },
         ],
       });
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_NO_TAX);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
 
     const { findByTestId, queryAllByTestId, queryByTestId, getAllByTestId } =
       render(<Subject />);
@@ -716,6 +608,11 @@ describe('routes/Subscriptions', () => {
   async function commonReactivationSetup({
     useDefaultIcon = false,
     cancelledAtIsUnavailable = false,
+    discount = 'NONE',
+  }: {
+    useDefaultIcon?: boolean;
+    cancelledAtIsUnavailable?: boolean;
+    discount?: 'NONE' | 'ENDS_NEXT_INTERVAL' | 'ONGOING';
   }) {
     // To exercise the default icon fallback, delete webIconURL from the second plan.
     const plans = !useDefaultIcon
@@ -732,6 +629,42 @@ describe('routes/Subscriptions', () => {
           },
           ...MOCK_PLANS.slice(2),
         ];
+
+    let latest_invoice_items;
+    let otherPromotionItems;
+    switch (discount) {
+      case 'ENDS_NEXT_INTERVAL':
+        latest_invoice_items = {
+          ...MOCK_LATEST_INVOICE_ITEMS,
+          total: 685,
+        };
+        otherPromotionItems = {
+          promotion_code: 'PROMO50',
+          promotion_end: 1568408388.815,
+          promotion_duration: 'repeating',
+        };
+        break;
+      case 'ONGOING':
+        latest_invoice_items = {
+          ...MOCK_LATEST_INVOICE_ITEMS,
+          total: 685,
+        };
+        otherPromotionItems = {
+          promotion_code: 'PROMO50',
+          promotion_end: 1677273263.815,
+          promotion_duration: 'repeating',
+        };
+        break;
+      case 'NONE':
+      default:
+        latest_invoice_items = MOCK_LATEST_INVOICE_ITEMS;
+        otherPromotionItems = {
+          promotion_code: undefined,
+          promotion_end: null,
+          promotion_duration: null,
+        };
+        break;
+    }
 
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, plans);
@@ -752,12 +685,14 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
             product_name: '123done Pro',
             latest_invoice: '628031D-0002',
+            latest_invoice_items,
             status: 'active',
             cancel_at_period_end: true,
             current_period_start: 1565816388.815,
@@ -782,12 +717,14 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
             product_name: '123done Pro',
             latest_invoice: '628031D-0002',
+            latest_invoice_items,
             status: 'active',
             cancel_at_period_end: false,
             current_period_start: 1565816388.815,
@@ -820,76 +757,91 @@ describe('routes/Subscriptions', () => {
     }
   };
 
-  const reactivationTests =
-    (useDefaultIcon = true) =>
-    () => {
-      it('supports reactivating a subscription through the confirmation flow', async () => {
-        commonReactivationSetup({ useDefaultIcon });
-        nock(authServer)
-          .post('/v1/oauth/subscriptions/reactivate')
-          .reply(200, {});
-        nock(authServer)
-          .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-          .reply(200, MOCK_SUBSEQUENT_INVOICES);
-        const { findByTestId, getByTestId, getByAltText, queryByTestId } =
-          render(<Subject />);
+  const reactivationTests = (
+    useDefaultIcon = true,
+    discount: 'NONE' | 'ENDS_NEXT_INTERVAL' | 'ONGOING' = 'NONE'
+  ) => {
+    let amountString: string = '';
+    switch (discount) {
+      case 'ONGOING':
+        amountString = '$6.85';
+        break;
+      case 'ENDS_NEXT_INTERVAL':
+      case 'NONE':
+      default:
+        amountString = '$7.35';
+    }
+    it('supports reactivating a subscription through the confirmation flow', async () => {
+      commonReactivationSetup({ useDefaultIcon, discount });
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/reactivate')
+        .reply(200, {});
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+        .reply(200, MOCK_SUBSEQUENT_INVOICES);
+      const { findByTestId, getByTestId, getByAltText, queryByTestId } = render(
+        <Subject />
+      );
 
-        // Wait for the page to load with one subscription
-        await findByTestId('subscription-management-loaded');
+      // Wait for the page to load with one subscription
+      await findByTestId('subscription-management-loaded');
 
-        const reactivateButton = getByTestId('reactivate-subscription-button');
-        fireEvent.click(reactivateButton);
+      const reactivateButton = getByTestId('reactivate-subscription-button');
+      fireEvent.click(reactivateButton);
 
-        // Product image should appear in the reactivation confirm dialog.
-        expectProductImage({ getByAltText, useDefaultIcon });
+      // Product image should appear in the reactivation confirm dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
 
-        const reactivateConfirmButton = getByTestId(
-          'reactivate-subscription-confirm-button'
-        );
-        fireEvent.click(reactivateConfirmButton);
+      const reactivateModalCopy = getByTestId('reactivate-modal-copy');
+      expect(reactivateModalCopy.textContent).toContain(amountString);
 
-        await findByTestId('reactivate-subscription-success-dialog');
+      const reactivateConfirmButton = getByTestId(
+        'reactivate-subscription-confirm-button'
+      );
+      fireEvent.click(reactivateConfirmButton);
 
-        await waitForExpect(() =>
-          expect(queryByTestId('loading-overlay')).not.toBeInTheDocument()
-        );
+      await findByTestId('reactivate-subscription-success-dialog');
 
-        // Product image should appear in the reactivation success dialog.
-        expectProductImage({ getByAltText, useDefaultIcon });
+      await waitForExpect(() =>
+        expect(queryByTestId('loading-overlay')).not.toBeInTheDocument()
+      );
 
-        const successButton = getByTestId(
-          'reactivate-subscription-success-button'
-        );
-        fireEvent.click(successButton);
+      // Product image should appear in the reactivation success dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
 
-        await findByTestId('reveal-cancel-subscription-button');
-      });
+      const successButton = getByTestId(
+        'reactivate-subscription-success-button'
+      );
+      fireEvent.click(successButton);
 
-      it('should display an error message if reactivation fails', async () => {
-        commonReactivationSetup({ useDefaultIcon });
-        nock(authServer)
-          .post('/v1/oauth/subscriptions/reactivate')
-          .reply(500, {});
-        nock(authServer)
-          .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-          .reply(200, MOCK_SUBSEQUENT_INVOICES);
+      await findByTestId('reveal-cancel-subscription-button');
+    });
 
-        const { findByTestId, getByTestId } = render(<Subject />);
+    it('should display an error message if reactivation fails', async () => {
+      commonReactivationSetup({ useDefaultIcon });
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/reactivate')
+        .reply(500, {});
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+        .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
-        // Wait for the page to load with one subscription
-        await findByTestId('subscription-management-loaded');
+      const { findByTestId, getByTestId } = render(<Subject />);
 
-        const reactivateButton = getByTestId('reactivate-subscription-button');
-        fireEvent.click(reactivateButton);
+      // Wait for the page to load with one subscription
+      await findByTestId('subscription-management-loaded');
 
-        const reactivateConfirmButton = getByTestId(
-          'reactivate-subscription-confirm-button'
-        );
-        fireEvent.click(reactivateConfirmButton);
+      const reactivateButton = getByTestId('reactivate-subscription-button');
+      fireEvent.click(reactivateButton);
 
-        await findByTestId('error-reactivation');
-      });
-    };
+      const reactivateConfirmButton = getByTestId(
+        'reactivate-subscription-confirm-button'
+      );
+      fireEvent.click(reactivateConfirmButton);
+
+      await findByTestId('error-reactivation');
+    });
+  };
 
   describe('reactivation with defined webIconURL', () => {
     reactivationTests(false);
@@ -897,6 +849,14 @@ describe('routes/Subscriptions', () => {
 
   describe('reactivation with default icon', () => {
     reactivationTests(true);
+  });
+
+  describe('reactivation with ongoing discount', () => {
+    reactivationTests(true, 'ONGOING');
+  });
+
+  describe('reactivation with discount ending next interval', () => {
+    reactivationTests(true, 'ENDS_NEXT_INTERVAL');
   });
 
   it('should display an error message for a plan found in auth-server but not subhub', async () => {
@@ -911,9 +871,6 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/invoice/preview')
-      .reply(200, MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');
   });
@@ -944,6 +901,7 @@ describe('routes/Subscriptions', () => {
       product_id: PRODUCT_ID,
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
+      latest_invoice_items: MOCK_LATEST_INVOICE_ITEMS,
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
@@ -1004,7 +962,6 @@ describe('routes/Subscriptions', () => {
         },
         mockPlans: MOCK_PLANS,
         mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
-        mockPreviewInvoice: MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION,
       });
 
       const { findByTestId, queryAllByTestId } = render(<Subject />);
