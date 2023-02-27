@@ -199,7 +199,6 @@ describe('subscriptions stripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
-        stripeAutomaticTax: { enabled: false },
         paypalNvpSigCredentials: {
           enabled: false,
         },
@@ -429,7 +428,6 @@ describe('DirectStripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
-        stripeAutomaticTax: { enabled: false },
         productConfigsFirestore: { enabled: false },
       },
     };
@@ -684,7 +682,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
         {
-          automaticTax: false,
+          automaticTax: true,
           country: 'US',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
@@ -777,7 +775,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
         {
-          automaticTax: false,
+          automaticTax: true,
           country: 'US',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
@@ -825,7 +823,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
         {
-          automaticTax: false,
+          automaticTax: true,
           country: 'DE',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
@@ -1036,7 +1034,6 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
         {
-          automaticTax: false,
           country: 'US',
           promotionCode: 'promotionCode',
           priceId: 'priceId',
@@ -1211,28 +1208,6 @@ describe('DirectStripeRoutes', () => {
           paymentMethodId: 'pm_asdf',
           promotionCode: undefined,
           automaticTax: true,
-        }
-      );
-    });
-
-    it('creates a subscription with a payment method using automatic tax but in an unsupported region', async () => {
-      const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      customer.tax = {
-        automatic_tax: 'unrecognized_location',
-      };
-      directStripeRoutesInstance.automaticTax = true;
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
-      assertSuccessWithAutomaticTax(sourceCountry, actual, expected);
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: 'cus_new',
-          priceId: 'Jane Doe',
-          paymentMethodId: 'pm_asdf',
-          promotionCode: undefined,
-          automaticTax: false,
         }
       );
     });
@@ -1415,7 +1390,6 @@ describe('DirectStripeRoutes', () => {
           managementClientId: MOCK_CLIENT_ID,
           managementTokenTTL: MOCK_TTL,
           stripeApiKey: 'sk_test_1234',
-          stripeAutomaticTax: { enabled: false },
         },
       };
 

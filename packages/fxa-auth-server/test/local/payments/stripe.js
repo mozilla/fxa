@@ -127,7 +127,6 @@ const mockConfig = {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
-    stripeAutomaticTax: { enabled: false },
   },
   subhub: {
     enabled: true,
@@ -1799,7 +1798,6 @@ describe('#integration - StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        automaticTax: false,
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
@@ -1810,7 +1808,7 @@ describe('#integration - StripeHelper', () => {
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
-        automaticTax: false,
+        automaticTax: true,
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
@@ -1844,7 +1842,6 @@ describe('#integration - StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        automaticTax: false,
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
@@ -1855,7 +1852,7 @@ describe('#integration - StripeHelper', () => {
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
-        automaticTax: false,
+        automaticTax: true,
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',

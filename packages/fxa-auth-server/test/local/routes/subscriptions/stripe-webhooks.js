@@ -89,7 +89,6 @@ describe('StripeWebhookHandler', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
-        stripeAutomaticTax: { enabled: false },
         paypalNvpSigCredentials: {
           enabled: true,
         },

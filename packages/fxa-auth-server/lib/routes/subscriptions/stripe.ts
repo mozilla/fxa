@@ -79,7 +79,6 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
-  automaticTax: boolean;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -97,7 +96,6 @@ export class StripeHandler {
       require('../../subscription-account-reminders')(log, config);
 
     this.capabilityService = Container.get(CapabilityService);
-    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -448,7 +446,7 @@ export class StripeHandler {
 
     const isCustomerTaxed =
       !customer || customer.tax?.automatic_tax === 'supported';
-    const automaticTax = this.automaticTax && isCustomerTaxed;
+    const automaticTax = isCustomerTaxed;
 
     try {
       const previewInvoice = await this.stripeHelper.previewInvoice({
@@ -481,7 +479,6 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<invoiceDTO.subsequentInvoicePreviewsSchema> {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
-    const automaticTax = this.automaticTax;
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'subsequentInvoicePreviews');
 
@@ -498,7 +495,7 @@ export class StripeHandler {
         .filter((sub) => !sub.canceled_at)
         .map((sub) => {
           return this.stripeHelper.previewInvoiceBySubscriptionId({
-            automaticTax: automaticTax && sub.automatic_tax.enabled,
+            automaticTax: sub.automatic_tax?.enabled || false,
             subscriptionId: sub.id,
           });
         })
@@ -526,10 +523,7 @@ export class StripeHandler {
       request.app.geo.location
     );
 
-    const automaticTax = this.automaticTax;
-
     const couponDetails = this.stripeHelper.retrieveCouponDetails({
-      automaticTax,
       country,
       priceId,
       promotionCode,
@@ -562,8 +556,7 @@ export class StripeHandler {
 
       // Creating a subscription with automatic_tax enabled requires a customer with an address
       // that is in a recognized location with an active tax registration.
-      const taxSubscription =
-        this.automaticTax && customer.tax?.automatic_tax === 'supported';
+      const taxSubscription = customer.tax?.automatic_tax === 'supported';
 
       const {
         priceId,
@@ -618,14 +611,14 @@ export class StripeHandler {
           await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
         }
 
-        if (!this.automaticTax && paymentMethodCountry) {
+        if (!taxSubscription && paymentMethodCountry) {
           taxRateId = (
             await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
           )?.id;
         }
       }
 
-      const taxOptions = this.automaticTax
+      const taxOptions = taxSubscription
         ? { automaticTax: taxSubscription }
         : { taxRateId };
 
@@ -638,7 +631,7 @@ export class StripeHandler {
           ...taxOptions,
         });
 
-      if (this.automaticTax && !taxSubscription) {
+      if (!taxSubscription) {
         this.log.warn(
           'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
           {
@@ -652,7 +645,7 @@ export class StripeHandler {
         this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
       if (
-        !this.automaticTax &&
+        !taxSubscription &&
         sourceCountry &&
         addressLookupCountries.includes(sourceCountry)
       ) {

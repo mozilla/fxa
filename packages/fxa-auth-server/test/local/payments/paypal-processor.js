@@ -50,7 +50,6 @@ describe('PaypalProcessor', () => {
       currenciesToCountries: { ZAR: ['AS', 'CA'] },
       subscriptions: {
         paypalNvpSigCredentials: { enabled: false },
-        stripeAutomaticTax: { enabled: false },
       },
     };
     mockStripeHelper = {};

@@ -979,13 +979,11 @@ export class StripeHelper extends StripeHelperBase {
    * exist for the provided priceId.
    */
   async retrieveCouponDetails({
-    automaticTax,
     country,
     priceId,
     promotionCode,
     taxAddress,
   }: {
-    automaticTax: boolean;
     country: string;
     priceId: string;
     promotionCode: string;
@@ -1017,7 +1015,7 @@ export class StripeHelper extends StripeHelperBase {
         try {
           const { currency, discount, total, total_discount_amounts } =
             await this.previewInvoice({
-              automaticTax,
+              automaticTax: true,
               country,
               priceId,
               promotionCode,

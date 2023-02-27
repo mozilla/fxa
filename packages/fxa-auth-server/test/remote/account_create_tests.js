@@ -25,7 +25,6 @@ describe('remote account create', function () {
     config.subscriptions = {
       enabled: true,
       stripeApiKey: 'fake_key',
-      stripeAutomaticTax: { enabled: false },
       paypalNvpSigCredentials: {
         enabled: false,
       },

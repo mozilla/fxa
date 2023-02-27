@@ -114,7 +114,6 @@ describe('subscriptions payPalRoutes', () => {
         paypalNvpSigCredentials: {
           enabled: true,
         },
-        stripeAutomaticTax: { enabled: false },
       },
       currenciesToCountries: {
         USD: ['US', 'CA', 'GB'],
@@ -470,21 +469,10 @@ describe('subscriptions payPalRoutes', () => {
         );
       }
 
-      function assertNoBillingUpdate() {
-        sinon.assert.notCalled(authDbModule.getAccountCustomerByUid);
-        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      }
-
       function assertTaxId() {
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
-      }
-
-      function assertAutomaticTax() {
-        sinon.assert.notCalled(stripeHelper.taxRateByCountryCode);
-        sinon.assert.notCalled(stripeHelper.customerTaxId);
-        sinon.assert.notCalled(stripeHelper.addTaxIdToCustomer);
       }
 
       it('should run a charge successfully', async () => {
@@ -511,40 +499,6 @@ describe('subscriptions payPalRoutes', () => {
             promotionCode: undefined,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
-          }
-        );
-      });
-
-      it('should run a charge with automatic tax successfully', async () => {
-        customer.tax = {
-          automatic_tax: 'supported',
-        };
-        const requestOptions = deepCopy(defaultRequestOptions);
-        requestOptions.geo = {
-          location: {
-            countryCode: 'CA',
-            state: 'Ontario',
-          },
-        };
-        config.subscriptions.stripeAutomaticTax.enabled = true;
-        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...requestOptions,
-          payload: { token },
-        });
-        assertChargedSuccessfully(actual);
-        // Billing should not be updated for automatic tax since we use IP address
-        // for taxable location
-        assertNoBillingUpdate();
-        assertAutomaticTax();
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            automaticTax: true,
           }
         );
       });
@@ -576,38 +530,6 @@ describe('subscriptions payPalRoutes', () => {
             promotionCode,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
-          }
-        );
-      });
-
-      it('should run a charge with automatic tax in unsupported region successfully', async () => {
-        customer.tax = {
-          automatic_tax: 'unrecognized_location',
-        };
-        const requestOptions = deepCopy(defaultRequestOptions);
-        requestOptions.geo = {
-          location: {
-            countryCode: 'CA',
-            state: 'Ontario',
-          },
-        };
-        config.subscriptions.stripeAutomaticTax.enabled = true;
-        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...requestOptions,
-          payload: { token },
-        });
-        assertChargedSuccessfully(actual);
-        assertBillingUpdate();
-        assertAutomaticTax();
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            automaticTax: false,
           }
         );
       });

@@ -45,7 +45,6 @@ const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
   subscriptionAccountReminders: any;
-  automaticTax: boolean;
 
   constructor(
     log: AuthLogger,
@@ -61,7 +60,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.paypalHelper = Container.get(PayPalHelper);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
-    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -110,8 +108,7 @@ export class PayPalHandler extends StripeWebhookHandler {
 
       // Creating a subscription with automatic_tax enabled requires a customer with an address
       // that is in a recognized location with an active tax registration.
-      const taxSubscription =
-        this.automaticTax && customer.tax?.automatic_tax === 'supported';
+      const taxSubscription = customer.tax?.automatic_tax === 'supported';
 
       const { priceId } = request.payload as Record<string, string>;
 
@@ -245,7 +242,7 @@ export class PayPalHandler extends StripeWebhookHandler {
 
     // TODO: Remove the following in FXA-6091
     let taxRateId: string | undefined;
-    if (!this.automaticTax && agreementDetails.countryCode) {
+    if (!taxSubscription && agreementDetails.countryCode) {
       if (!this.stripeHelper.customerTaxId(customer)) {
         await this.stripeHelper.addTaxIdToCustomer(customer, currency);
       }
@@ -255,7 +252,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       taxRateId = taxRate?.id;
     }
 
-    const taxOptions = this.automaticTax
+    const taxOptions = taxSubscription
       ? { automaticTax: taxSubscription }
       : { taxRateId };
 
@@ -271,7 +268,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       this.stripeHelper.updateCustomerPaypalAgreement(customer, agreementId),
     ]);
 
-    if (this.automaticTax && !taxSubscription) {
+    if (!taxSubscription) {
       this.log.warn(
         'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
         {
@@ -331,7 +328,7 @@ export class PayPalHandler extends StripeWebhookHandler {
 
     // TODO: Remove the following in FXA-6091
     let taxRateId: string | undefined;
-    if (!this.automaticTax && customer.address?.country) {
+    if (!taxSubscription && customer.address?.country) {
       if (!this.stripeHelper.customerTaxId(customer)) {
         await this.stripeHelper.addTaxIdToCustomer(customer, currency);
       }
@@ -341,7 +338,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       taxRateId = taxRate?.id;
     }
 
-    const taxOptions = this.automaticTax
+    const taxOptions = taxSubscription
       ? { automaticTax: taxSubscription }
       : { taxRateId };
 
@@ -413,8 +410,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       });
     }
 
-    const taxSubscription =
-      this.automaticTax && customer.tax?.automatic_tax === 'supported';
+    const taxSubscription = customer.tax?.automatic_tax === 'supported';
 
     const { token } = request.payload as Record<string, string>;
     const { agreementId } = await this.createAndVerifyBillingAgreement({
