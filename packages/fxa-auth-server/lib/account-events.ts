@@ -6,37 +6,54 @@ import { Container } from 'typedi';
 
 import { AuthFirestore, AppConfig } from '../lib/types';
 import { StatsD } from 'hot-shots';
+import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 
-type AccountEvent = {
-  name: string;
-  createdAt: number;
-  eventType: 'emailEvent' | 'securityEvent';
-
-  // Email event properties
-  template?: string;
-
+type BaseEvent = {
   // General metric properties
   deviceId?: string;
   flowId?: string;
   service?: string;
 };
 
+type EmailEvent = BaseEvent & {
+  createdAt: number;
+  name: string;
+  eventType: 'emailEvent';
+  template: string;
+};
+
+type SecurityEvent = BaseEvent & {
+  uid: string;
+  name: SecurityEventNames;
+  ipAddr: string;
+  tokenId?: string;
+};
+
+type AuthDatabase = {
+  securityEvent: (arg: SecurityEvent) => void;
+};
+
 export class AccountEventsManager {
-  private firestore: Firestore;
-  private usersDbRef;
+  private firestore?: Firestore;
+  private usersDbRef?;
   private statsd;
   readonly prefix: string;
   readonly name: string;
+  readonly ipHmacKey: string;
 
   constructor() {
     // Users are already stored in the event broker Firebase collection, so we
     // need to grab that prefix.
-    const { authFirestore } = Container.get(AppConfig);
+    const { authFirestore, securityHistory } = Container.get(AppConfig);
+    this.ipHmacKey = securityHistory.ipHmacKey;
     this.prefix = authFirestore.ebPrefix;
     this.name = `${this.prefix}users`;
 
-    this.firestore = Container.get(AuthFirestore);
-    this.usersDbRef = this.firestore.collection(this.name);
+    // Firestore is only need for email events
+    if (Container.has(AuthFirestore)) {
+      this.firestore = Container.get(AuthFirestore);
+      this.usersDbRef = this.firestore.collection(this.name);
+    }
 
     this.statsd = Container.get(StatsD);
   }
@@ -46,7 +63,7 @@ export class AccountEventsManager {
    */
   public async recordEmailEvent(
     uid: string,
-    message: AccountEvent,
+    message: EmailEvent,
     name: 'emailSent' | 'emailDelivered' | 'emailBounced' | 'emailComplaint'
   ) {
     try {
@@ -68,11 +85,35 @@ export class AccountEventsManager {
         if (!value) delete emailEvent[key as keyof typeof emailEvent];
       }
 
-      await this.usersDbRef.doc(uid).collection('events').add(emailEvent);
+      await this.usersDbRef?.doc(uid).collection('events').add(emailEvent);
       this.statsd.increment('accountEvents.recordEmailEvent.write');
     } catch (err) {
       // Failing to write to events shouldn't break anything
       this.statsd.increment('accountEvents.recordEmailEvent.error');
+    }
+  }
+
+  /**
+   * Record a security event for the user. This is based on our security events
+   * that are stored in MySQL.
+   *
+   * @param db - auth db
+   * @param message - message
+   */
+  public recordSecurityEvent(db: AuthDatabase, message: SecurityEvent) {
+    const { uid, name, ipAddr, tokenId } = message;
+
+    try {
+      db.securityEvent({
+        name,
+        uid,
+        ipAddr,
+        tokenId,
+      });
+      this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
+    } catch (err) {
+      // Failing to write to events shouldn't break anything
+      this.statsd.increment(`accountEvents.recordSecurityEvent.error.${name}`);
     }
   }
 }

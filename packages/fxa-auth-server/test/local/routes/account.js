@@ -16,10 +16,11 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
-const { default: Container } = require('typedi');
+const { Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../lib/payments/capability');
+const { AccountEventsManager } = require('../../../lib/account-events');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
@@ -31,6 +32,7 @@ const {
 const {
   deleteAccountIfUnverified,
 } = require('../../../lib/routes/utils/account');
+const { AppConfig } = require('../../../lib/types');
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -53,6 +55,11 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.signinConfirmation = config.signinConfirmation || {};
   config.signinUnblock = config.signinUnblock || {};
   config.secondaryEmail = config.secondaryEmail || {};
+  config.authFirestore = config.authFirestore || {};
+  config.securityHistory = config.securityHistory || {};
+
+  Container.set(AppConfig, config);
+  Container.set(AccountEventsManager, new AccountEventsManager());
 
   const log = options.log || mocks.mockLog();
   const mailer = options.mailer || {};

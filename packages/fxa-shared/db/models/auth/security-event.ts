@@ -15,6 +15,7 @@ const EVENT_NAMES = {
   'emails.clearBounces': 4,
   'account.enable': 5,
   'account.disable': 6,
+  'account.login.failure': 7, // User attempted to login but failed
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

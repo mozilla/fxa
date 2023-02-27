@@ -4,13 +4,23 @@
 
 'use strict';
 
-const { assert } = require('chai');
+const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const otplib = require('otplib');
-const sinon = require('sinon');
+const { Container } = require('typedi');
+const { AccountEventsManager } = require('../../../lib/account-events');
 
-let log, db, customs, routes, route, request, requestOptions, mailer;
+let log,
+  db,
+  customs,
+  routes,
+  route,
+  request,
+  requestOptions,
+  mailer,
+  accountEventsManager;
 const TEST_EMAIL = 'test@email.com';
 const secret = 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN';
 const sessionId = 'id';
@@ -34,6 +44,13 @@ describe('totp', () => {
         },
       },
     };
+    accountEventsManager = {
+      recordSecurityEvent: sinon.fake.resolves({}),
+    };
+  });
+
+  after(() => {
+    Container.reset();
   });
 
   describe('/totp/create', () => {
@@ -135,6 +152,17 @@ describe('totp', () => {
           dbArgs[1],
           'email-2fa',
           `second argument was reduced verification level`
+        );
+
+        assert.calledOnceWithExactly(
+          accountEventsManager.recordSecurityEvent,
+          db,
+          {
+            name: 'account.two_factor_removed',
+            uid: 'uid',
+            ipAddr: '63.245.221.32',
+            tokenId: 'id',
+          }
         );
       });
     });
@@ -248,6 +276,20 @@ describe('totp', () => {
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 1);
+
+        assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
+          name: 'account.two_factor_added',
+          uid: 'uid',
+          ip: '63.245.221.32',
+          tokenId: 'id',
+        });
+
+        assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
+          name: 'account.two_factor_challenge_success',
+          uid: 'uid',
+          ip: '63.245.221.32',
+          tokenId: 'id',
+        });
       });
     });
 
@@ -315,6 +357,17 @@ describe('totp', () => {
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
+
+        assert.calledOnceWithExactly(
+          accountEventsManager.recordSecurityEvent,
+          db,
+          {
+            name: 'account.two_factor_challenge_success',
+            uid: 'uid',
+            ip: '63.245.221.32',
+            tokenId: 'id',
+          }
+        );
       });
     });
 
@@ -419,6 +472,17 @@ describe('totp', () => {
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
+
+        assert.calledOnceWithExactly(
+          accountEventsManager.recordSecurityEvent,
+          db,
+          {
+            name: 'account.two_factor_challenge_failure',
+            uid: 'uid',
+            ip: '63.245.221.32',
+            tokenId: 'id',
+          }
+        );
       });
     });
   });
@@ -462,6 +526,7 @@ function setup(results, errors, routePath, requestOptions) {
 
 function makeRoutes(options = {}) {
   const config = { step: 30, window: 1 };
+  Container.set(AccountEventsManager, accountEventsManager);
   const { log, db, customs, mailer } = options;
   return require('../../../lib/routes/totp')(log, db, mailer, customs, config);
 }

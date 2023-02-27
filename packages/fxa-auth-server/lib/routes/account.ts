@@ -44,6 +44,7 @@ import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+import { AccountEventsManager } from '../account-events';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -62,6 +63,7 @@ export class AccountHandler {
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
+  private accountEventsManager: AccountEventsManager;
 
   constructor(
     private log: AuthLogger,
@@ -96,6 +98,7 @@ export class AccountHandler {
       this.paypalHelper = Container.get(PayPalHelper);
     }
     this.capabilityService = Container.get(CapabilityService);
+    this.accountEventsManager = Container.get(AccountEventsManager);
   }
 
   private async generateRandomValues() {
@@ -781,6 +784,11 @@ export class AccountHandler {
         request.app.clientAddress
       );
       if (!match) {
+        this.accountEventsManager.recordSecurityEvent(this.db, {
+          name: 'account.login.failure',
+          uid: accountRecord.uid,
+          ipAddr: request.app.clientAddress,
+        });
         throw error.incorrectPassword(accountRecord.email, email);
       }
     };
@@ -1414,7 +1422,7 @@ export class AccountHandler {
     };
 
     const recordSecurityEvent = () => {
-      this.db.securityEvent({
+      this.accountEventsManager.recordSecurityEvent(this.db, {
         name: 'account.reset',
         uid: account.uid,
         ipAddr: request.app.clientAddress,
