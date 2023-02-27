@@ -68,6 +68,7 @@ const selectedPlan: Plan = {
 const selectedPlanWithConfig: Plan = {
   ...selectedPlan,
   configuration: {
+    productSet: ['testSet'],
     urls: {
       webIcon: 'https://webicon',
       successActionButton: '',
@@ -604,6 +605,28 @@ describe('PlanDetails', () => {
       const { queryByTestId } = subject();
       expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
       expect(queryByTestId('coupon-success-with-date')).not.toBeInTheDocument();
+    });
+
+    it('show total for 100% coupon', () => {
+      const subject = () => {
+        return render(
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+              coupon: {
+                ...coupon,
+                discountAmount: selectedPlan.amount || 935,
+              },
+            }}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      expect(queryByTestId('total-price')).toBeInTheDocument();
     });
   });
 

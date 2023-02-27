@@ -60,7 +60,7 @@ export const PlanUpgradeDetails = ({
       <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
       <div className="py-6 border-t-0">
-        {showTax && !!subTotal && exclusiveTaxRates.length && (
+        {showTax && !!subTotal && !!exclusiveTaxRates.length && (
           <>
             <div className="plan-details-item">
               <Localized id="plan-details-list-price">
