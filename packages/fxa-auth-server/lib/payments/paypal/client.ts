@@ -504,7 +504,7 @@ export class PayPalClient {
 
     if (options.refundType === RefundType.partial) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      data.AMT = options.amount!.toString();
+      data.AMT = (options.amount! / 100).toFixed(2);
     }
 
     return this.doRequest<NVPRefundTransactionResponse>(

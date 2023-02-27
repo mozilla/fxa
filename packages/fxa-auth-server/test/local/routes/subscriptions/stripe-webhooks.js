@@ -1525,6 +1525,8 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('updates the invoice to report refused refund if paypal refuses to refund', async () => {
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
@@ -1536,14 +1538,13 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.updateInvoiceWithPaypalRefundReason =
           sinon.fake.resolves({});
         StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        const error = new RefusedError(
+          'Transaction refused',
+          'This transaction already has a chargeback filed',
+          '10009'
+        );
         StripeWebhookHandlerInstance.paypalHelper.issueRefund =
-          sinon.fake.rejects(
-            new RefusedError(
-              'Transaction refused',
-              'This transaction already has a chargeback filed',
-              '10009'
-            )
-          );
+          sinon.fake.rejects(error);
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
@@ -1575,6 +1576,19 @@ describe('StripeWebhookHandler', () => {
             .updateInvoiceWithPaypalRefundReason,
           invoice,
           'This transaction already has a chargeback filed'
+        );
+        assert.calledOnceWithExactly(
+          sentryModule.reportSentryError,
+          { ...error, output: { payload: { invoiceId: invoice.id } } },
+          {}
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.log.error,
+          'handleCreditNoteEvent',
+          {
+            invoiceId: invoice.id,
+            message: 'Paypal refund refused.',
+          }
         );
       });
     });
