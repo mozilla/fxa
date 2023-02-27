@@ -347,35 +347,33 @@ export const PlanDetails = ({
               </div>
 
               <div className="pt-4 pb-6">
-                {!!priceAmounts.totalAmount && (
-                  <div className="plan-details-item font-semibold">
-                    <Localized id="plan-details-total-label">
-                      <div className="total-label">Total</div>
-                    </Localized>
+                <div className="plan-details-item font-semibold">
+                  <Localized id="plan-details-total-label">
+                    <div className="total-label">Total</div>
+                  </Localized>
 
-                    <Localized
-                      id={`plan-price-interval-${interval}`}
-                      data-testid="plan-price-total"
-                      attrs={{ title: true }}
-                      vars={{
-                        amount: getLocalizedCurrency(
-                          priceAmounts.totalAmount,
-                          currency
-                        ),
-                        intervalCount: interval_count,
-                      }}
+                  <Localized
+                    id={`plan-price-interval-${interval}`}
+                    data-testid="plan-price-total"
+                    attrs={{ title: true }}
+                    vars={{
+                      amount: getLocalizedCurrency(
+                        priceAmounts.totalAmount,
+                        currency
+                      ),
+                      intervalCount: interval_count,
+                    }}
+                  >
+                    <div
+                      className="total-price"
+                      title={priceAmounts.totalPrice}
+                      data-testid="total-price"
+                      id="total-price"
                     >
-                      <div
-                        className="total-price"
-                        title={priceAmounts.totalPrice}
-                        data-testid="total-price"
-                        id="total-price"
-                      >
-                        {priceAmounts.totalPrice}
-                      </div>
-                    </Localized>
-                  </div>
-                )}
+                      {priceAmounts.totalPrice}
+                    </div>
+                  </Localized>
+                </div>
 
                 {infoBoxMessage &&
                   (infoBoxMessage.couponDurationDate ? (
