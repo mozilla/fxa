@@ -5,6 +5,9 @@
 import Stripe from 'stripe';
 import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
+import fs from 'fs';
+import GeoDB from 'fxa-geodb';
+import PQueue from 'p-queue';
 
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
@@ -19,18 +22,24 @@ export class StripeAutomaticTaxConverter {
   private firestore: Firestore;
   private ipAddressMap: IpAddressMap;
   private helpers: StripeAutomaticTaxConverterHelpers;
+  private stripeQueue: PQueue;
 
   /**
    * A converter to update all eligible customers to Stripe automatic tax
-   * @param isDryRun Makes no changes to Stripe, only prints information
+   * @param geodb An instantiated instance of fxa-geodb for IP->location purposes
    * @param batchSize Number of subscriptions to fetch from Firestore at a time
    * @param outputFile A CSV file to output a report of affected subscriptions to
+   * @param ipAddressMapFile A path to a file to write the report results out to
+   * @param stripe An instance of Stripe
+   * @param rateLimit A limit for number of stripe requests within the period of 1 second
    */
   constructor(
-    private isDryRun: boolean,
+    private geodb: ReturnType<typeof GeoDB>,
     private batchSize: number,
     private outputFile: string,
-    private stripe: Stripe
+    ipAddressMapFile: string,
+    private stripe: Stripe,
+    rateLimit: number
   ) {
     const config = Container.get<ConfigType>(AppConfig);
     this.config = config;
@@ -42,8 +51,15 @@ export class StripeAutomaticTaxConverter {
       Container.get(StripeAutomaticTaxConverterHelpers) ||
       new StripeAutomaticTaxConverterHelpers();
 
-    // TODO FXA-6581: Populate this with a JSON file
-    this.ipAddressMap = {};
+    this.stripeQueue = new PQueue({
+      intervalCap: rateLimit,
+      interval: 1000, // Stripe measures it's rate limit per second
+    });
+
+    const ipAddressList = JSON.parse(
+      fs.readFileSync(ipAddressMapFile, 'utf-8')
+    );
+    this.ipAddressMap = this.helpers.processIPAddressList(ipAddressList);
   }
 
   /**
@@ -67,9 +83,11 @@ export class StripeAutomaticTaxConverter {
       const applicableSubs =
         this.helpers.filterEligibleSubscriptions(subscriptions);
 
-      for (const applicableSub of applicableSubs) {
-        await this.generateReportForSubscription(applicableSub);
-      }
+      await Promise.all(
+        applicableSubs.map((applicableSub) =>
+          this.generateReportForSubscription(applicableSub)
+        )
+      );
     }
   }
 
@@ -112,9 +130,7 @@ export class StripeAutomaticTaxConverter {
     } = firestoreSubscription;
 
     try {
-      const product = await this.stripe.products.retrieve(
-        plan.product as string
-      );
+      const product = await this.fetchProduct(plan.product as string);
 
       const customer = await this.fetchCustomer(customerId);
       if (!customer) return; // Do not enable tax for an invalid customer
@@ -134,12 +150,19 @@ export class StripeAutomaticTaxConverter {
         invoicePreview
       );
 
-      // TODO FXA-6581: Write report to CSV
-      console.log('report:', report);
+      await this.writeReport(report);
+
+      console.log(subscriptionId);
     } catch (e) {
-      // TODO FXA-6581: Error output formatting
-      console.error(e);
+      console.error(subscriptionId, e);
     }
+  }
+
+  /**
+   * Retrieves a product record directly from Stripe
+   */
+  async fetchProduct(productId: string) {
+    return this.enqueueRequest(() => this.stripe.products.retrieve(productId));
   }
 
   /**
@@ -148,9 +171,11 @@ export class StripeAutomaticTaxConverter {
    * @returns The customer record for the customerId provided, or null if not found or deleted
    */
   async fetchCustomer(customerId: string) {
-    const customer = await this.stripe.customers.retrieve(customerId, {
-      expand: ['tax'],
-    });
+    const customer = await this.enqueueRequest(() =>
+      this.stripe.customers.retrieve(customerId, {
+        expand: ['tax'],
+      })
+    );
 
     if (customer.deleted) return null;
 
@@ -165,12 +190,23 @@ export class StripeAutomaticTaxConverter {
   async enableTaxForCustomer(customer: Stripe.Customer) {
     if (this.helpers.isTaxEligible(customer)) return true;
 
-    // TODO FXA-6581: Handle ip address map unknown customer
-    await this.stripe.customers.update(customer.id, {
-      tax: {
-        ip_address: this.ipAddressMap[customer.id],
-      },
-    });
+    const ipAddress = this.ipAddressMap[customer.metadata.userid];
+    if (!ipAddress) return false;
+
+    const geoLocation = this.geodb(ipAddress);
+    if (!geoLocation?.countryCode || !geoLocation?.postalCode) return false;
+
+    await this.enqueueRequest(() =>
+      this.stripe.customers.update(customer.id, {
+        shipping: {
+          name: customer.email || '',
+          address: {
+            country: geoLocation.countryCode,
+            postal_code: geoLocation.postalCode,
+          },
+        },
+      })
+    );
 
     const updatedCustomer = await this.fetchCustomer(customer.id);
 
@@ -185,12 +221,25 @@ export class StripeAutomaticTaxConverter {
    * @param subscriptionId Subscription to enable automatic tax for
    * @returns Updated subscription
    */
-  enableTaxForSubscription(subscriptionId: string) {
-    return this.stripe.subscriptions.update(subscriptionId, {
-      automatic_tax: {
-        enabled: true,
-      },
-    });
+  async enableTaxForSubscription(subscriptionId: string) {
+    const subscription = await this.enqueueRequest(() =>
+      this.stripe.subscriptions.retrieve(subscriptionId)
+    );
+
+    // https://stripe.com/docs/tax/subscriptions/update#existing-tax-rates
+    return this.enqueueRequest(() =>
+      this.stripe.subscriptions.update(subscriptionId, {
+        automatic_tax: {
+          enabled: true,
+        },
+        proration_behavior: 'none',
+        items: subscription.items.data.map((item) => ({
+          id: item.id,
+          tax_rates: '',
+        })),
+        default_tax_rates: '',
+      })
+    );
   }
 
   /**
@@ -198,11 +247,13 @@ export class StripeAutomaticTaxConverter {
    * @param subscriptionId The subscription to fetch an invoice preview for
    * @returns A Stripe invoice preview with tax rates expanded
    */
-  fetchInvoicePreview(subscriptionId: string) {
-    return this.stripe.invoices.retrieveUpcoming({
-      subscription: subscriptionId,
-      expand: ['total_tax_amounts.tax_rate'],
-    });
+  async fetchInvoicePreview(subscriptionId: string) {
+    return this.enqueueRequest(() =>
+      this.stripe.invoices.retrieveUpcoming({
+        subscription: subscriptionId,
+        expand: ['total_tax_amounts.tax_rate'],
+      })
+    );
   }
 
   /**
@@ -264,5 +315,24 @@ export class StripeAutomaticTaxConverter {
       report.totalAmount,
       report.nextInvoice,
     ];
+  }
+
+  /**
+   * Appends the report to the output file
+   * @param report an array representing the report CSV
+   */
+  async writeReport(report: (string | number | null)[]) {
+    const reportCSV = report.join(',') + '\n';
+
+    await fs.promises.writeFile(this.outputFile, reportCSV, {
+      flag: 'a+',
+      encoding: 'utf-8',
+    });
+  }
+
+  async enqueueRequest<T>(callback: () => T): Promise<T> {
+    return this.stripeQueue.add(callback, {
+      throwOnTimeout: true,
+    });
   }
 }
