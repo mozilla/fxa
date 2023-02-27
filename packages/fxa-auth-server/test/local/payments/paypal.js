@@ -338,6 +338,29 @@ describe('PayPalHelper', () => {
       );
     });
 
+    it('refunds partial transaction', async () => {
+      paypalHelper.client.doRequest = sinon.fake.resolves(
+        successfulRefundTransactionResponse
+      );
+      const response = await paypalHelper.refundTransaction({
+        idempotencyKey: defaultData.MSGSUBID,
+        transactionId: defaultData.TRANSACTIONID,
+        refundType: RefundType.partial,
+        amount: 123,
+      });
+      assert.deepEqual(response, {
+        pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
+        refundStatus: successfulRefundTransactionResponse.REFUNDSTATUS,
+        refundTransactionId:
+          successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
+      });
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.client.doRequest,
+        'RefundTransaction',
+        { ...defaultData, REFUNDTYPE: 'Partial', AMT: '1.23' }
+      );
+    });
+
     it('throws a RefusedError when a refund is refused', async () => {
       paypalHelper.client.refundTransaction = sinon.fake.rejects(
         new PayPalClientError('Fake', {

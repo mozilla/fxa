@@ -357,6 +357,22 @@ export class StripeWebhookHandler extends StripeHandler {
           invoice,
           error.longMessage
         );
+
+        this.log.error('handleCreditNoteEvent', {
+          invoiceId: invoice.id,
+          message: 'Paypal refund refused.',
+        });
+
+        const sentryError = {
+          ...error,
+          output: {
+            payload: {
+              invoiceId: invoice.id,
+            },
+          },
+        };
+
+        reportSentryError(sentryError, request);
       } else {
         throw error;
       }
