@@ -24,6 +24,7 @@ import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
+import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 
 export const App = ({
   flowQueryParams,
@@ -68,6 +69,14 @@ export const App = ({
               <PageWithLoggedInStatusState
                 Page={PrimaryEmailVerified}
                 path="/primary_email_verified/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={SignupConfirmed}
+                path="/signup_verified/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={SignupConfirmed}
+                path="/signup_confirmed/*"
               />
             </>
           )}

@@ -361,15 +361,29 @@ Router = Router.extend({
       type: VerificationReasons.SIGN_IN,
     }),
     'signup(/)': createViewHandler(SignUpPasswordView),
-    'signup_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
+    'signup_confirmed(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signup_confirmed',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_UP,
+        }
+      );
+    },
     'signup_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_UP,
     }),
-    'signup_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
+    'signup_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signup_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_UP,
+        }
+      );
+    },
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
     ),

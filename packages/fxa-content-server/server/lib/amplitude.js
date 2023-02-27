@@ -101,6 +101,12 @@ const EVENTS = {
     event: 'signup_code_submit',
   },
 
+  // Signup confirmed metrics
+  'screen.signup-confirmed': {
+    group: GROUPS.registration,
+    event: 'signup_confirmed_view',
+  },
+
   // Add account recovery key metrics, on `post_verify/account_recovery/*`
   'screen.add-recovery-key': {
     group: GROUPS.activity,

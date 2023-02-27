@@ -55,7 +55,11 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     signUpRoutes: {
       featureFlagOn: showReactApp.signUpRoutes,
-      routes: [reactRoute.getRoute('primary_email_verified')],
+      routes: reactRoute.getRoutes([
+        'primary_email_verified',
+        'signup_confirmed',
+        'signup_verified',
+      ]),
     },
 
     pairRoutes: {

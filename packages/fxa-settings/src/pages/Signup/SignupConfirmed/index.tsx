@@ -5,6 +5,7 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
+import AppLayout from '../../../components/AppLayout';
 import { MozServices } from '../../../lib/types';
 
 type SignupConfirmedProps = {
@@ -20,7 +21,9 @@ const SignupConfirmed = ({
   isSignedIn,
   serviceName,
 }: SignupConfirmedProps & RouteComponentProps) => (
-  <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
+  <AppLayout>
+    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
+  </AppLayout>
 );
 
 export default SignupConfirmed;
