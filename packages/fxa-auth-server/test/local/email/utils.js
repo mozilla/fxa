@@ -345,6 +345,7 @@ describe('email utils helpers', () => {
     beforeEach(() => {
       mockAccountEventsManager = {
         recordEmailEvent: sinon.stub(),
+        recordSecurityEvent: sinon.stub().resolves({})
       };
       Container.set(AccountEventsManager, mockAccountEventsManager);
     });

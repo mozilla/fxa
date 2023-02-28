@@ -280,14 +280,14 @@ describe('totp', () => {
         assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
           name: 'account.two_factor_added',
           uid: 'uid',
-          ip: '63.245.221.32',
+          ipAddr: '63.245.221.32',
           tokenId: 'id',
         });
 
         assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
           name: 'account.two_factor_challenge_success',
           uid: 'uid',
-          ip: '63.245.221.32',
+          ipAddr: '63.245.221.32',
           tokenId: 'id',
         });
       });
@@ -364,7 +364,7 @@ describe('totp', () => {
           {
             name: 'account.two_factor_challenge_success',
             uid: 'uid',
-            ip: '63.245.221.32',
+            ipAddr: '63.245.221.32',
             tokenId: 'id',
           }
         );
@@ -479,7 +479,7 @@ describe('totp', () => {
           {
             name: 'account.two_factor_challenge_failure',
             uid: 'uid',
-            ip: '63.245.221.32',
+            ipAddr: '63.245.221.32',
             tokenId: 'id',
           }
         );

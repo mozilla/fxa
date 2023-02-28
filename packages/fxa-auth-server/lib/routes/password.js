@@ -12,6 +12,7 @@ const error = require('../error');
 const isA = require('joi');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
+const { recordSecurityEvent } = require('./utils/security-event');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 
 const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
@@ -103,7 +104,7 @@ module.exports = function (
                           };
                         });
                     });
-                });
+                })
             },
             (err) => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -258,6 +259,11 @@ module.exports = function (
               return request
                 .emitMetricsEvent('account.changedPassword', {
                   uid: passwordChangeToken.uid,
+                })
+                .then(() => {
+                  // NOTE: Not quite sure of the difference between these two events:
+                  recordSecurityEvent('account.password_reset_success', { db, request, account:passwordChangeToken });
+                  recordSecurityEvent('account.password_changed', { db, request, account:passwordChangeToken })
                 })
                 .then(() => {
                   return result;
@@ -481,6 +487,7 @@ module.exports = function (
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode'),
         ])
+
           .then(db.accountRecord.bind(db, email))
           .then((accountRecord) => {
             if (
@@ -637,6 +644,9 @@ module.exports = function (
             return request.emitMetricsEvent(
               'password.forgot.resend_code.completed'
             );
+          })
+          .then(() => {
+            recordSecurityEvent('account.password_reset_requested', { db, request } );
           })
           .then(() => {
             return {
@@ -799,6 +809,8 @@ module.exports = function (
           wrapWrapKb,
           verifierVersion
         );
+
+        recordSecurityEvent('account.password_added', { db, request, account:{uid} } );
 
         return passwordCreated;
       },

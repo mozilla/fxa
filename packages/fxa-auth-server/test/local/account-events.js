@@ -127,9 +127,9 @@ describe('Account Events', () => {
         tokenId: '123',
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message);
-
+      
       assert.calledOnceWithExactly(mockDb.securityEvent, message);
-
+      
       assert.calledOnceWithExactly(
         statsd.increment,
         'accountEvents.recordSecurityEvent.write.account.login'
