@@ -39,8 +39,8 @@ describe('errorHandler', () => {
   it('redirects to /signin if called with a GQL authentication error', () => {
     errorResponse = {
       graphQLErrors: [new GraphQLError('Invalid token')],
-      operation: (null as any) as Operation,
-      forward: (null as any) as NextLink,
+      operation: null as any as Operation,
+      forward: null as any as NextLink,
     };
 
     errorHandler(errorResponse);
@@ -56,8 +56,8 @@ describe('errorHandler', () => {
     networkError.statusCode = 401;
     errorResponse = {
       networkError,
-      operation: (null as any) as Operation,
-      forward: (null as any) as NextLink,
+      operation: null as any as Operation,
+      forward: null as any as NextLink,
     };
 
     errorHandler(errorResponse);
@@ -72,8 +72,8 @@ describe('errorHandler', () => {
     networkError.statusCode = 500;
     errorResponse = {
       networkError,
-      operation: (null as any) as Operation,
-      forward: (null as any) as NextLink,
+      operation: null as any as Operation,
+      forward: null as any as NextLink,
     };
 
     errorHandler(errorResponse);

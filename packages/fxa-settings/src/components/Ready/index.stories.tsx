@@ -4,9 +4,9 @@
 
 import React from 'react';
 import Ready, { ReadyProps } from '.';
-import AppLayout from '../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
+import { AppLayout } from '../AppLayout';
 import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
@@ -40,7 +40,7 @@ const ReadyWithLayout = ({
 };
 
 export const SigninConfirmedOrSigninVerified = () => (
-  <ReadyWithLayout viewName="signin-confirmed" />
+  <ReadyWithLayout viewName="signin-confirmed" isSignedIn />
 );
 
 export const ResetPasswordConfirmForLoggedOutUser = () => (
@@ -49,6 +49,7 @@ export const ResetPasswordConfirmForLoggedOutUser = () => (
 
 export const ResetPasswordConfirmedWithRelyingParty = () => (
   <ReadyWithLayout
+    isSignedIn
     serviceName={MozServices.FirefoxSync}
     viewName="reset-password-confirmed"
   />
@@ -56,6 +57,7 @@ export const ResetPasswordConfirmedWithRelyingParty = () => (
 
 export const WithRelyingPartyNoContinueAction = () => (
   <ReadyWithLayout
+    isSignedIn
     serviceName={MozServices.FirefoxSync}
     viewName="signin-confirmed"
   />
@@ -63,6 +65,7 @@ export const WithRelyingPartyNoContinueAction = () => (
 
 export const WithRelyingPartyAndContinueAction = () => (
   <ReadyWithLayout
+    isSignedIn
     serviceName={MozServices.FirefoxSync}
     viewName="reset-password-confirmed"
     continueHandler={() => {
@@ -73,6 +76,7 @@ export const WithRelyingPartyAndContinueAction = () => (
 
 export const IsSync = () => (
   <ReadyWithLayout
+    isSignedIn
     viewName="reset-password-with-recovery-key-verified"
     isSync
   />
@@ -80,6 +84,7 @@ export const IsSync = () => (
 
 export const WithErrorMessage = () => (
   <ReadyWithLayout
+    isSignedIn
     viewName="reset-password-with-recovery-key-verified"
     isSync
     errorMessage="But something else went wrong"

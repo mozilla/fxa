@@ -22,7 +22,7 @@ describe('SignupConfirmed', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Ready component as expected', () => {
-    render(<SignupConfirmed />);
+    render(<SignupConfirmed isSignedIn />);
     // testAllL10n(screen, bundle);
 
     const signupConfirmation = screen.getByText('Account confirmed');
@@ -38,13 +38,14 @@ describe('SignupConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<SignupConfirmed />);
+    render(<SignupConfirmed isSignedIn />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
     render(
       <SignupConfirmed
+        isSignedIn
         continueHandler={() => {
           console.log('beepboop');
         }}

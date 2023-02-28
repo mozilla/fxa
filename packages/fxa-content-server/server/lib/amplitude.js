@@ -203,6 +203,12 @@ const EVENTS = {
     event: 'verified_recovery_key_submit',
   },
 
+  // Primary email verified - Primary email confirmed
+  'screen.primary-email-verified': {
+    group: GROUPS.signup,
+    event: 'primary_email_verified_view',
+  },
+
   'screen.account-recovery-confirm-key': {
     group: GROUPS.login,
     event: 'forgot_password_confirm_recovery_key_view',

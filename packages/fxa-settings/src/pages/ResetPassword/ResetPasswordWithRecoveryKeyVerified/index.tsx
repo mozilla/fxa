@@ -13,6 +13,7 @@ import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 
 type ResetPasswordWithRecoveryKeyVerifiedProps = {
+  isSignedIn: boolean;
   serviceName?: MozServices;
   // TODO: FXA-6804
   // Verify if relier is Sync with the useRelier hook that will be implemented in FXA-6437
@@ -29,6 +30,7 @@ export const viewName = 'reset-password-with-recovery-key-verified';
 
 const ResetPasswordWithRecoveryKeyVerified = ({
   serviceName,
+  isSignedIn,
   isSync,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
 
   return (
     <AppLayout title={localizedPageTitle}>
-      <Ready {...{ viewName, serviceName, isSync }} />
+      <Ready {...{ viewName, serviceName, isSync, isSignedIn }} />
       <div className="flex justify-center mx-auto m-6">
         <button className="cta-primary cta-xl" onClick={goToGenerateNewKey}>
           <FtlMsg id="reset-password-with-recovery-key-verified-generate-new-key">

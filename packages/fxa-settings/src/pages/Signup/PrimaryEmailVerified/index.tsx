@@ -6,19 +6,24 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
+import AppLayout from '../../../components/AppLayout';
 
 export type PrimaryEmailVerifiedProps = {
   serviceName?: MozServices;
-  isSignedIn?: boolean;
+  isSignedIn: boolean;
 };
 
 export const viewName = 'primary-email-verified';
 
 const PrimaryEmailVerified = ({
   serviceName,
-  isSignedIn = false,
-}: PrimaryEmailVerifiedProps & RouteComponentProps) => (
-  <Ready {...{ viewName, serviceName, isSignedIn }} />
-);
+  isSignedIn,
+}: PrimaryEmailVerifiedProps & RouteComponentProps) => {
+  return (
+    <AppLayout>
+      <Ready {...{ viewName, serviceName, isSignedIn }} />
+    </AppLayout>
+  );
+};
 
 export default PrimaryEmailVerified;

@@ -14,14 +14,20 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
+export const DefaultSignedIn = () => (
   <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified />
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn />
+  </LocationProvider>
+);
+
+export const DefaultSignedOut = () => (
+  <LocationProvider>
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />
   </LocationProvider>
 );
 
 export const WithSync = () => (
   <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSync />
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn isSync />
   </LocationProvider>
 );

@@ -39,13 +39,13 @@ export const PreparedImage = (props: PreparedImageProps) => {
   return (
     <>
       {showAriaLabel ? (
-        <FtlMsg id={props.ariaLabelFtlId} attrs={{ariaLabel:true}}>
+        <FtlMsg id={props.ariaLabelFtlId} attrs={{ ariaLabel: true }}>
           <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
         </FtlMsg>
       ) : (
         <Image
           className={className}
-          aria-hidden={true}
+          aria-hidden
           data-testid="aria-hidden-image"
         />
       )}

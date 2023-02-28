@@ -4,8 +4,6 @@
 
 import React from 'react';
 import PrimaryEmailVerified, { PrimaryEmailVerifiedProps } from '.';
-import AppLayout from '../../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE } from './mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
@@ -16,22 +14,16 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (props?: PrimaryEmailVerifiedProps) => {
-  const story = () => (
-    <LocationProvider>
-      <AppLayout>
-        <PrimaryEmailVerified {...props} />
-      </AppLayout>
-    </LocationProvider>
-  );
+const storyWithProps = (props: PrimaryEmailVerifiedProps) => {
+  const story = () => <PrimaryEmailVerified {...props} />;
   return story;
 };
 
-export const NotSignedIn = storyWithProps();
+export const BasicSignedIn = storyWithProps({ isSignedIn: true });
 
-export const SignedIn = storyWithProps({ isSignedIn: true });
+export const BasicSignedOut = storyWithProps({ isSignedIn: false });
 
-export const SignedInWithServiceName = storyWithProps({
-  isSignedIn: true,
+export const BasicWithServiceName = storyWithProps({
   serviceName: MOCK_SERVICE,
+  isSignedIn: false,
 });

@@ -19,13 +19,14 @@ jest.mock('../../lib/metrics', () => ({
 describe('Ready', () => {
   const customServiceName = MozServices.FirefoxSync;
   const viewName = 'reset-password-confirmed';
+  const isSignedIn = true;
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
   it('renders as expected with default values', () => {
-    render(<Ready {...{ viewName }} />);
+    render(<Ready {...{ viewName, isSignedIn }} />);
     // testAllL10n(screen, bundle);
 
     const passwordResetConfirmation = screen.getByText(
@@ -43,7 +44,9 @@ describe('Ready', () => {
   });
 
   it('renders as expected when given a service name', () => {
-    render(<Ready {...{ viewName }} serviceName={customServiceName} />);
+    render(
+      <Ready {...{ viewName, isSignedIn }} serviceName={customServiceName} />
+    );
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -77,6 +80,7 @@ describe('Ready', () => {
       <Ready
         {...{
           viewName,
+          isSignedIn,
         }}
         serviceName={customServiceName}
         continueHandler={() => {
@@ -100,7 +104,7 @@ describe('Ready', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<Ready {...{ viewName }} />);
+    render(<Ready {...{ viewName, isSignedIn }} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
@@ -111,7 +115,7 @@ describe('Ready', () => {
           console.log('beepboop');
         }}
         serviceName={customServiceName}
-        {...{ viewName }}
+        {...{ viewName, isSignedIn }}
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');

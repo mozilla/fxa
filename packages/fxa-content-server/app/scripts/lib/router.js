@@ -256,9 +256,16 @@ Router = Router.extend({
     'push/confirm_login(/)': createViewHandler('push/confirm_login'),
     'push/send_login(/)': createViewHandler('push/send_login'),
     'push/completed(/)': createViewHandler('push/completed'),
-    'primary_email_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
+    'primary_email_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'primary_email_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
+        }
+      );
+    },
     'report_signin(/)': createViewHandler(ReportSignInView),
 
     'reset_password(/)': function () {

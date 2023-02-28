@@ -15,7 +15,7 @@ import Banner, { BannerType } from '../Banner';
 // We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
   continueHandler?: Function;
-  isSignedIn?: boolean;
+  isSignedIn: boolean;
   serviceName?: MozServices;
   viewName: ViewNameType;
   isSync?: boolean;
@@ -65,7 +65,7 @@ const getTemplateValues = (viewName: ViewNameType) => {
 
 const Ready = ({
   continueHandler,
-  isSignedIn = true,
+  isSignedIn,
   serviceName,
   viewName,
   isSync = false,

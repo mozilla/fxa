@@ -30,7 +30,7 @@ it('applies a11y by default', () => {
 });
 
 it('can be hidden from screenreaders when desired', () => {
-  render(<HeartsVerifiedImage ariaHidden={true} />);
+  render(<HeartsVerifiedImage ariaHidden />);
   const image = screen.getByTestId('aria-hidden-image');
   expect(image).toBeInTheDocument();
   expect(image).toHaveAttribute('aria-hidden');

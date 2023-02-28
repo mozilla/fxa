@@ -5,6 +5,7 @@
 import React from 'react';
 import { RouteComponentProps, Router } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
+import { PageWithLoggedInStatusState } from '../PageWithLoggedInStatusState';
 import Settings from '../Settings';
 import { QueryParams } from '../..';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
@@ -18,9 +19,10 @@ import Legal from '../../pages/Legal';
 import LegalTerms from '../../pages/Legal/Terms';
 import LegalPrivacy from '../../pages/Legal/Privacy';
 
+import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
+
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
-
 
 export const App = ({
   flowQueryParams,
@@ -46,11 +48,25 @@ export const App = ({
               <LegalPrivacy path="/legal/privacy/*" />
               <LegalPrivacy path="/:locale/legal/privacy/*" />
 
-             <ResetPassword path='/reset_password/*' />
-             <ConfirmResetPassword path='/confirm_reset_password/*' />
-             <CompleteResetPassword path='/complete_reset_password/*' />
-             <ResetPasswordConfirmed path='/reset_password_verified/*' />
-             <ResetPasswordWithRecoveryKeyVerified path='/reset_password_with_recovery_key_verified/*' />
+              <ResetPassword path="/reset_password/*" />
+              <ConfirmResetPassword path="/confirm_reset_password/*" />
+              <CompleteResetPassword path="/complete_reset_password/*" />
+              {/* Pages using the Ready view need to be accessible to logged out viewers,
+               * but need to be able to check if the user is logged in or logged out,
+               * so they are wrapped in this component.
+               */}
+              <PageWithLoggedInStatusState
+                Page={ResetPasswordConfirmed}
+                path="/reset_password_verified/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={ResetPasswordWithRecoveryKeyVerified}
+                path="/reset_password_with_recovery_key_verified/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={PrimaryEmailVerified}
+                path="/primary_email_verified/*"
+              />
             </>
           )}
           <Settings path="/settings/*" {...{ flowQueryParams }} />
