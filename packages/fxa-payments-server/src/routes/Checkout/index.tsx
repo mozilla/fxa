@@ -238,7 +238,12 @@ export const Checkout = ({
     return <LoadingOverlay isLoading={true} />;
   }
 
-  if (!plans.result || plans.error !== null || !selectedPlan) {
+  if (
+    !plans.result ||
+    plans.error !== null ||
+    !selectedPlan ||
+    !selectedPlan.active
+  ) {
     return <PlanErrorDialog locationReload={locationReload} plans={plans} />;
   }
 

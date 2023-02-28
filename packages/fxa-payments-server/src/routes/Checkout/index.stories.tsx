@@ -5,7 +5,7 @@ import MockApp, {
 } from '../../../.storybook/components/MockApp';
 import { SignInLayout } from '../../components/AppLayout';
 import { APIError } from '../../lib/apiClient';
-import { PLANS } from '../../lib/mock-data';
+import { INACTIVE_PLAN_ID, PLANS } from '../../lib/mock-data';
 import { QueryParams } from '../../lib/types';
 import { Checkout, CheckoutProps } from './index';
 import { Meta } from '@storybook/react';
@@ -49,14 +49,17 @@ const MOCK_PROPS: CheckoutProps = {
   fetchCheckoutRouteResources: action('fetchCheckoutRouteResources'),
 };
 
-const storyWithProps = (routeProps: CheckoutProps) => {
+const storyWithProps = (
+  routeProps: CheckoutProps,
+  queryParams?: QueryParams
+) => {
   const story = () => (
-    <CheckoutRoute routeProps={routeProps} />
-  )
+    <CheckoutRoute routeProps={routeProps} queryParams={queryParams} />
+  );
   return story;
 };
 
-export const SubscribingWithANewAccount = storyWithProps({...MOCK_PROPS});
+export const SubscribingWithANewAccount = storyWithProps({ ...MOCK_PROPS });
 
 export const PlansLoading = storyWithProps({
   ...MOCK_PROPS,
@@ -74,3 +77,10 @@ export const PlansError = storyWithProps({
     }),
   },
 });
+
+export const PlansArchived = storyWithProps(
+  {
+    ...MOCK_PROPS,
+  },
+  { plan: INACTIVE_PLAN_ID }
+);

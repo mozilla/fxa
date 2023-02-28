@@ -31,6 +31,7 @@ import { AppContextType } from '../../lib/AppContext';
 import {
   CONFIRM_CARD_RESULT,
   CUSTOMER,
+  INACTIVE_PLAN_ID,
   MOCK_CURRENCY_ERROR,
   MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR,
   MOCK_GENERAL_PAYPAL_ERROR,
@@ -228,6 +229,12 @@ describe('routes/Checkout', () => {
     (apiFetchPlans as jest.Mock).mockRejectedValue({});
     const { findByTestId } = render(<Subject />);
     const errorEl = await findByTestId('error-loading-plans');
+    expect(errorEl).toBeInTheDocument();
+  });
+
+  it('displays an error when selecting an inactive / archived plan', async () => {
+    const { findByTestId } = render(<Subject planId={INACTIVE_PLAN_ID} />);
+    const errorEl = await findByTestId('no-such-plan-error');
     expect(errorEl).toBeInTheDocument();
   });
 
