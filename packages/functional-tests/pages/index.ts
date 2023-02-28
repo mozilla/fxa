@@ -18,6 +18,7 @@ import { SubscribePage } from './products';
 import { TotpPage } from './settings/totp';
 import { SubscriptionManagementPage } from './products/subscriptionManagement';
 import { ResetPasswordPage } from './resetPassword';
+import { LegalPage } from './legal';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -40,5 +41,6 @@ export function create(page: Page, target: BaseTarget) {
     totp: new TotpPage(page, target),
     subscriptionManagement: new SubscriptionManagementPage(page, target),
     resetPassword: new ResetPasswordPage(page, target),
+    legal: new LegalPage(page, target),
   };
 }
