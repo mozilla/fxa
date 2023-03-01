@@ -82,8 +82,6 @@ const ResetPassword = ({
   const onSubmit = async () => {
     try {
       setErrorTranslationId('');
-      await account.resetPassword(email);
-
       const result = await account.resetPassword(email);
       navigateToConfirmPwReset({
         passwordForgotToken: result.passwordForgotToken,
