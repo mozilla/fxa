@@ -15,13 +15,9 @@ export default {
 } as Meta;
 
 export const LinkAlreadyUsedForPrimaryEmail = () => (
-  <AppLayout>
-    <LinkUsed isForPrimaryEmail={true} />
-  </AppLayout>
+  <LinkUsed isForPrimaryEmail={true} />
 );
 
 export const LinkAlreadyUsedForSomethingOtherThanPrimaryEmail = () => (
-  <AppLayout>
-    <LinkUsed isForPrimaryEmail={false} />
-  </AppLayout>
+  <LinkUsed isForPrimaryEmail={false} />
 );

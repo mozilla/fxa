@@ -6,6 +6,7 @@ complete-reset-password-warning-message-2 = <span>Remember:</span> When you rese
 # A new password was successfully set for the user's account
 # Displayed in an alert bar
 complete-reset-password-success-alert = Password set
-# An error occured while attempting to set a new password (password reset flow)
+# An error occurred while attempting to set a new password (password reset flow)
 # Displayed in an alert bar
 complete-reset-password-error-alert = Sorry, there was a problem setting your password
+complete-reset-password-recovery-key-error = Sorry, there was a problem checking if you have an account recovery key. <hasRecoveryKeyErrorLink>Reset your password with your account recovery key.</hasRecoveryKeyErrorLink>

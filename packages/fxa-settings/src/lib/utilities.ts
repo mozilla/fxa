@@ -35,6 +35,16 @@ export function deepMerge(
   return deepMerge(target, ...sources);
 }
 
+export function getSearchParams(paramKeys: string[], locationHref: string) {
+  const { searchParams } = new URL(locationHref);
+  const params: Record<string, string | null> = {};
+
+  for (const paramKey of paramKeys) {
+    params[paramKey] = searchParams.get(paramKey);
+  }
+  return params;
+}
+
 /**
  * Convert a search string to its object representation, one entry
  * per query parameter. Assumes the string is a search string and

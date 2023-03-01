@@ -2,38 +2,72 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createHistory, createMemorySource, History } from '@reach/router';
 import React from 'react';
-import AccountRecoveryConfirmKey, { AccountRecoveryConfirmKeyProps } from '.';
-import AppLayout from '../../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
+import { Account } from '../../../models';
+import AccountRecoveryConfirmKey from '.';
 import { Meta } from '@storybook/react';
-import { MOCK_SERVICE_NAME } from './mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { Subject } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
-  decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (props: AccountRecoveryConfirmKeyProps) => {
-  const story = () => (
-    <LocationProvider>
-      <AppLayout>
-        <AccountRecoveryConfirmKey {...props} />
-      </AppLayout>
-    </LocationProvider>
-  );
+const source = createMemorySource('/fake-memories');
+
+const storyWithAccountAndHistory = (
+  account: Account,
+  history: History,
+  storyName?: string
+) => {
+  const story = () => <Subject {...{ account, history }} />;
+  story.storyName = storyName;
   return story;
 };
 
-export const ValidLinkWithDefaultService = storyWithProps({
-  linkStatus: 'valid',
-});
+const historyWithParams = createHistory(source);
+historyWithParams.location.href =
+  'http://localhost.com/?&token=token&code=code&email=email@email&uid=uid';
 
-export const ValidLinkWithServiceName = storyWithProps({
-  linkStatus: 'valid',
-  serviceName: MOCK_SERVICE_NAME,
-});
+const historyWithoutParams = createHistory(source);
+historyWithoutParams.location.href = 'http://localhost.com/?';
 
-export const ExpiredLink = storyWithProps({ linkStatus: 'expired' });
+const accountValid = {
+  getRecoveryKeyBundle: () => Promise.resolve(true),
+  verifyPasswordForgotToken: () => Promise.resolve(false),
+} as unknown as Account;
+
+const accountWithTokenError = {
+  verifyPasswordForgotToken: () => {
+    throw AuthUiErrors.INVALID_TOKEN;
+  },
+} as unknown as Account;
+
+const accountWithInvalidRecoveryKey = {
+  getRecoveryKeyBundle: () => {
+    throw Error('boop');
+  },
+} as unknown as Account;
+
+export const OnConfirmValidKey = storyWithAccountAndHistory(
+  accountValid,
+  historyWithParams,
+  'Valid recovery key. Users will be redirected to AccountRecoveryResetPassword on confirm'
+);
+
+export const OnConfirmInvalidKey = storyWithAccountAndHistory(
+  accountWithInvalidRecoveryKey,
+  historyWithParams
+);
+
+export const OnConfirmLinkExpired = storyWithAccountAndHistory(
+  accountWithTokenError,
+  historyWithParams
+);
+
+export const WithDamagedLink = storyWithAccountAndHistory(
+  accountValid,
+  historyWithoutParams
+);

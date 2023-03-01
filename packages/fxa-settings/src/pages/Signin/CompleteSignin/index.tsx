@@ -12,6 +12,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkStatus } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import AppLayout from '../../../components/AppLayout';
 
 // We will probably grab `isSignedIn` off of the Account model in the long run.
 export type CompleteSigninProps = {
@@ -46,8 +47,19 @@ const CompleteSignin = ({
       // Update the UI from the original template to use the Alert Bar.
     }
   }
+
+  if (linkStatus === LinkStatus.damaged) {
+    return <LinkDamaged {...{ linkType }} />;
+  }
+  if (linkStatus === LinkStatus.expired) {
+    return <LinkExpired {...{ linkType }} />;
+  }
+  if (linkStatus === LinkStatus.used) {
+    return <LinkUsed {...{ isForPrimaryEmail }} />;
+  }
+
   return (
-    <>
+    <AppLayout>
       {linkStatus === 'valid' && (
         <div className="flex-col justify-center align-middle">
           {error ? (
@@ -67,10 +79,7 @@ const CompleteSignin = ({
           )}
         </div>
       )}
-      {linkStatus === 'damaged' && <LinkDamaged {...{ linkType }} />}
-      {linkStatus === 'expired' && <LinkExpired {...{ linkType }} />}
-      {linkStatus === 'used' && <LinkUsed {...{ isForPrimaryEmail }} />}
-    </>
+    </AppLayout>
   );
 };
 

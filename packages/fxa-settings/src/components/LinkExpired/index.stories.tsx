@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import LinkExpired from '.';
 import { withLocalization } from '../../../.storybook/decorators';
@@ -15,13 +14,7 @@ export default {
 } as Meta;
 
 export const ResetPasswordLinkExpired = () => (
-  <AppLayout>
-    <LinkExpired linkType="reset-password" />
-  </AppLayout>
+  <LinkExpired linkType="reset-password" />
 );
 
-export const SigninLinkExpired = () => (
-  <AppLayout>
-    <LinkExpired linkType="signin" />
-  </AppLayout>
-);
+export const SigninLinkExpired = () => <LinkExpired linkType="signin" />;

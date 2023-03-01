@@ -1,6 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import assert from 'assert';
 import '../server'; // must import this to run with nodejs
-import { generateRecoveryKey } from 'fxa-auth-client/lib/recoveryKey';
+import {
+  generateRecoveryKey,
+  getRecoveryKeyIdByUid,
+} from 'fxa-auth-client/lib/recoveryKey';
 
 // as seen in https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/tests/spec/lib/crypto/recovery-keys.js
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
@@ -20,16 +27,22 @@ const expectedRecoveryData =
   'yT7bkdF8AYC6ecwsvRCI7A';
 
 describe('lib/recoveryKey', () => {
+  describe('getRecoveryKeyIdByUid', () => {
+    it('matches the test vector', async () => {
+      const recoveryKeyId = await getRecoveryKeyIdByUid(
+        expectedRecoveryKey,
+        uid
+      );
+      assert.deepStrictEqual(recoveryKeyId, expectedRecoveryKeyId);
+    });
+  });
   describe('generateRecoveryKey', () => {
     it('matches the test vector', async () => {
-      const {
-        recoveryKey,
-        recoveryKeyId,
-        recoveryData,
-      } = await generateRecoveryKey(uid, keys, {
-        testRecoveryKey: expectedRecoveryKey,
-        testIV: iv,
-      });
+      const { recoveryKey, recoveryKeyId, recoveryData } =
+        await generateRecoveryKey(uid, keys, {
+          testRecoveryKey: expectedRecoveryKey,
+          testIV: iv,
+        });
       assert.deepStrictEqual(recoveryKey, expectedRecoveryKey);
       assert.deepStrictEqual(recoveryKeyId, expectedRecoveryKeyId);
       assert.deepStrictEqual(recoveryData, expectedRecoveryData);

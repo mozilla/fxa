@@ -119,9 +119,12 @@ Cocktail.mixin(Router, ReactExperimentMixin);
 Router = Router.extend({
   routes: {
     '(/)': createViewHandler(IndexView),
-    'account_recovery_confirm_key(/)': createViewHandler(
-      AccountRecoveryConfirmKey
-    ),
+    'account_recovery_confirm_key(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'account_recovery_confirm_key',
+        AccountRecoveryConfirmKey
+      );
+    },
     'account_recovery_reset_password(/)': createViewHandler(
       CompleteResetPasswordView
     ),

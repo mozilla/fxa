@@ -18,38 +18,30 @@ export default {
 
 export const DefaultSignedIn = () => (
   <LocationProvider>
-    <AppLayout>
-      <ResetPasswordConfirmed isSignedIn />
-    </AppLayout>
+    <ResetPasswordConfirmed isSignedIn />
   </LocationProvider>
 );
 
 export const DefaultSignedOut = () => (
   <LocationProvider>
-    <AppLayout>
-      <ResetPasswordConfirmed isSignedIn={false} />
-    </AppLayout>
+    <ResetPasswordConfirmed isSignedIn={false} />
   </LocationProvider>
 );
 
 export const WithRelyingPartyNoContinueAction = () => (
   <LocationProvider>
-    <AppLayout>
-      <ResetPasswordConfirmed isSignedIn serviceName={MozServices.MozillaVPN} />
-    </AppLayout>
+    <ResetPasswordConfirmed isSignedIn serviceName={MozServices.MozillaVPN} />
   </LocationProvider>
 );
 
 export const WithRelyingPartyAndContinueAction = () => (
   <LocationProvider>
-    <AppLayout>
-      <ResetPasswordConfirmed
-        isSignedIn
-        serviceName={MozServices.MozillaVPN}
-        continueHandler={() => {
-          console.log('Arbitrary action');
-        }}
-      />
-    </AppLayout>
+    <ResetPasswordConfirmed
+      isSignedIn
+      serviceName={MozServices.MozillaVPN}
+      continueHandler={() => {
+        console.log('Arbitrary action');
+      }}
+    />
   </LocationProvider>
 );

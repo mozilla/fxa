@@ -8,6 +8,7 @@ import { LocationProvider } from '@reach/router';
 import CompleteSignin, { CompleteSigninProps } from '.';
 import AppLayout from '../../../components/AppLayout';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { LinkStatus } from '../../../lib/types';
 
 export default {
   title: 'Pages/Signin/CompleteSignin',
@@ -27,26 +28,26 @@ const storyWithProps = (props: CompleteSigninProps) => {
 };
 
 export const WithValidLink = storyWithProps({
-  linkStatus: 'valid',
+  linkStatus: LinkStatus.valid,
   isForPrimaryEmail: true,
 });
 
 export const WithExpiredLink = storyWithProps({
-  linkStatus: 'expired',
+  linkStatus: LinkStatus.expired,
   isForPrimaryEmail: true,
 });
 
 export const WithDamagedLink = storyWithProps({
-  linkStatus: 'damaged',
+  linkStatus: LinkStatus.damaged,
   isForPrimaryEmail: true,
 });
 
 export const WithUsedLinkDefault = storyWithProps({
-  linkStatus: 'used',
+  linkStatus: LinkStatus.used,
   isForPrimaryEmail: false,
 });
 
 export const WithUsedLinkForPrimaryEmail = storyWithProps({
-  linkStatus: 'used',
+  linkStatus: LinkStatus.used,
   isForPrimaryEmail: true,
 });

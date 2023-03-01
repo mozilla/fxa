@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { jweEncrypt, hkdf } from './crypto';
 import { hexToUint8, uint8ToHex } from './utils';
 
@@ -10,6 +14,30 @@ async function randomKey() {
   // Why 'A'? https://github.com/mozilla/fxa-content-server/pull/6323#discussion_r201211711
   recoveryKey[0] = 0x50 | (0x07 & recoveryKey[0]);
   return recoveryKey;
+}
+
+async function getRecoveryKeyId(
+  recoveryKey: Uint8Array,
+  salt: Uint8Array,
+  encoder: TextEncoder
+) {
+  return uint8ToHex(
+    await hkdf(
+      recoveryKey,
+      salt,
+      encoder.encode('fxa recovery fingerprint'),
+      16
+    )
+  );
+}
+
+export async function getRecoveryKeyIdByUid(
+  recoveryKey: Uint8Array,
+  uid: hexstring
+) {
+  const encoder = new TextEncoder();
+  const salt = hexToUint8(uid);
+  return getRecoveryKeyId(recoveryKey, salt, encoder);
 }
 
 export async function generateRecoveryKey(
@@ -30,14 +58,8 @@ export async function generateRecoveryKey(
     encoder.encode('fxa recovery encrypt key'),
     32
   );
-  const recoveryKeyId = uint8ToHex(
-    await hkdf(
-      recoveryKey,
-      salt,
-      encoder.encode('fxa recovery fingerprint'),
-      16
-    )
-  );
+
+  const recoveryKeyId = await getRecoveryKeyId(recoveryKey, salt, encoder);
 
   const recoveryData = await jweEncrypt(
     encryptionKey,
