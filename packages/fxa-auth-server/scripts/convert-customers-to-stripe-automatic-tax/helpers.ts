@@ -25,6 +25,14 @@ export interface IpAddressMap {
 }
 
 /**
+ * The file format we expect to be provided to match customer IP addresses
+ */
+export interface IpAddressMapFileEntry {
+  uid: string;
+  remote_address_chain: string;
+}
+
+/**
  * Firestore subscriptions contain additional expanded information
  * on top of the base Stripe.Subscription type
  */
@@ -36,6 +44,60 @@ export interface FirestoreSubscription extends Stripe.Subscription {
 
 export class StripeAutomaticTaxConverterHelpers {
   constructor() {}
+
+  /**
+   * Converts a list of customers and their remote address chains to a simple mapping
+   * where the keys represent the user's uid and the value represents their public IP
+   * @param ipAddressList a mapping read from a file exported from our logs
+   * @returns A simple mapping with {uid: public IP}
+   */
+  processIPAddressList(ipAddressList: IpAddressMapFileEntry[]) {
+    return ipAddressList.reduce((ipAddressMap, logEntry) => {
+      const clientIP = this.getClientIPFromRemoteAddressChain(
+        logEntry.remote_address_chain
+      );
+      if (!clientIP) return ipAddressMap;
+
+      ipAddressMap[logEntry.uid] = clientIP;
+      return ipAddressMap;
+    }, {} as IpAddressMap);
+  }
+
+  /**
+   * Retrieves the originating user's IP address from the remote address chain
+   * @param remoteAddressChain a string containing a JSON list of IPs, such as '["10.0.0.1"]'
+   * @returns The originating IP address or undefined if it cannot be determined
+   */
+  getClientIPFromRemoteAddressChain(remoteAddressChain: string) {
+    const [clientIP] = JSON.parse(remoteAddressChain) as string[];
+
+    if (!clientIP?.trim()) return;
+    if (this.isLocalIP(clientIP)) return;
+
+    return clientIP;
+  }
+
+  /**
+   * Check whether an IP address string exists in local address space
+   * @param ipAddress A string representing an IP address
+   * @returns true or false, based on whether the IP address is local or not
+   */
+  isLocalIP(ipAddress: string) {
+    const addressChunks = ipAddress.split('.');
+    // Class A private address space
+    if (addressChunks[0] === '10') return true;
+    // Class B private address space
+    if (
+      addressChunks[0] === '172' &&
+      parseInt(addressChunks[1], 10) >= 16 &&
+      parseInt(addressChunks[1], 10) <= 31
+    )
+      return true;
+    // Class C private address space
+    if (addressChunks[0] === '192' && addressChunks[1] === '168') return true;
+
+    return false;
+  }
 
   /**
    * Checks if Stripe customer is in a taxable location

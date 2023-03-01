@@ -26,6 +26,73 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     helpers = new StripeAutomaticTaxConverterHelpers();
   });
 
+  describe('processIPAddressList', () => {
+    it('converts IP address mapping to internal mapping', () => {
+      const result = helpers.processIPAddressList([
+        {
+          uid: 'example-uid',
+          remote_address_chain: '["1.1.1.1"]',
+        },
+        {
+          uid: 'example-uid-2',
+          remote_address_chain: '["8.8.8.8"]',
+        },
+        {
+          uid: 'example-uid-3',
+          remote_address_chain: '["10.0.0.1", "1.1.1.1"]',
+        },
+      ]);
+
+      const expected = {
+        'example-uid': '1.1.1.1',
+        'example-uid-2': '8.8.8.8',
+      };
+
+      sinon.assert.match(result, expected);
+    });
+  });
+
+  describe('getClientIPFromRemoteAddressChain', () => {
+    it('returns the first IP address when it is non-local', () => {
+      sinon.assert.match(
+        helpers.getClientIPFromRemoteAddressChain('["1.1.1.1","8.8.8.8"]'),
+        '1.1.1.1'
+      );
+    });
+
+    it('returns undefined if first IP address is local', () => {
+      sinon.assert.match(
+        helpers.getClientIPFromRemoteAddressChain('["192.168.1.1", "1.1.1.1"]'),
+        undefined
+      );
+    });
+
+    it('returns undefined if address chain is empty', () => {
+      sinon.assert.match(
+        helpers.getClientIPFromRemoteAddressChain('[]'),
+        undefined
+      );
+    });
+  });
+
+  describe('isLocalIP', () => {
+    it('returns true for class A', () => {
+      expect(helpers.isLocalIP('10.0.0.1')).true;
+    });
+
+    it('returns true for class B', () => {
+      expect(helpers.isLocalIP('172.16.0.1')).true;
+    });
+
+    it('returns true for class C', () => {
+      expect(helpers.isLocalIP('192.168.0.1')).true;
+    });
+
+    it('returns false for non-local IP', () => {
+      expect(helpers.isLocalIP('1.1.1.1')).false;
+    });
+  });
+
   describe('isTaxEligible', () => {
     it('returns true for supported customer', () => {
       const customer = {

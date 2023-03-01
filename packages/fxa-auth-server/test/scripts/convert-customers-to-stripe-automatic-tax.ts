@@ -10,6 +10,7 @@ import path from 'path';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import Container from 'typedi';
+import fs from 'fs';
 
 import { ConfigType } from '../../config';
 import { AppConfig, AuthFirestore } from '../../lib/types';
@@ -17,6 +18,7 @@ import { AppConfig, AuthFirestore } from '../../lib/types';
 import { StripeAutomaticTaxConverter } from '../../scripts/convert-customers-to-stripe-automatic-tax/convert-customers-to-stripe-automatic-tax';
 import {
   FirestoreSubscription,
+  IpAddressMapFileEntry,
   StripeAutomaticTaxConverterHelpers,
 } from '../../scripts/convert-customers-to-stripe-automatic-tax/helpers';
 import Stripe from 'stripe';
@@ -79,9 +81,22 @@ describe('StripeAutomaticTaxConverter', () => {
   let stripeAutomaticTaxConverter: StripeAutomaticTaxConverter;
   let helperStub: sinon.SinonStubbedInstance<StripeAutomaticTaxConverterHelpers>;
   let stripeStub: Stripe;
+  let geodbStub: sinon.SinonStub;
   let firestoreGetStub: sinon.SinonStub;
+  let mockIpAddressMapping: IpAddressMapFileEntry[];
+  let readFileSyncStub: sinon.SinonStub;
 
   beforeEach(() => {
+    mockIpAddressMapping = [
+      {
+        uid: 'mock-uid',
+        remote_address_chain: '1.1.1.1',
+      },
+    ];
+    readFileSyncStub = sinon
+      .stub(fs, 'readFileSync')
+      .returns(JSON.stringify(mockIpAddressMapping));
+
     firestoreGetStub = sinon.stub();
     Container.set(AuthFirestore, {
       collectionGroup: sinon.stub().returns({
@@ -98,7 +113,15 @@ describe('StripeAutomaticTaxConverter', () => {
     helperStub = sinon.createStubInstance(StripeAutomaticTaxConverterHelpers);
     Container.set(StripeAutomaticTaxConverterHelpers, helperStub);
 
+    helperStub.processIPAddressList.returns({
+      [mockIpAddressMapping[0].uid]:
+        mockIpAddressMapping[0].remote_address_chain,
+    });
+
+    geodbStub = sinon.stub();
+
     stripeStub = {
+      on: sinon.stub(),
       products: {},
       customers: {},
       subscriptions: {},
@@ -106,11 +129,17 @@ describe('StripeAutomaticTaxConverter', () => {
     } as Stripe;
 
     stripeAutomaticTaxConverter = new StripeAutomaticTaxConverter(
-      false,
+      geodbStub,
       100,
       './stripe-automatic-tax-converter.tmp.csv',
-      stripeStub
+      './stripe-automatic-tax-converter-ipaddresses.tmp.json',
+      stripeStub,
+      20
     );
+  });
+
+  afterEach(() => {
+    readFileSyncStub.restore();
   });
 
   describe('convert', () => {
@@ -183,11 +212,13 @@ describe('StripeAutomaticTaxConverter', () => {
         product: 'example-product',
       },
     } as FirestoreSubscription;
+    const mockReport = ['mock-report'];
     let logStub: sinon.SinonStub;
     let enableTaxForCustomer: sinon.SinonStub;
     let enableTaxForSubscription: sinon.SinonStub;
     let fetchInvoicePreview: sinon.SinonStub;
     let buildReport: sinon.SinonStub;
+    let writeReportStub: sinon.SinonStub;
 
     beforeEach(async () => {
       stripeStub.products.retrieve = sinon.stub().resolves(mockProduct);
@@ -201,9 +232,10 @@ describe('StripeAutomaticTaxConverter', () => {
         enableTaxForSubscription;
       fetchInvoicePreview = sinon.stub().resolves(mockInvoicePreview);
       stripeAutomaticTaxConverter.fetchInvoicePreview = fetchInvoicePreview;
-      // TODO FXA-6581: Update and validate buildReport
-      buildReport = sinon.stub().returns('example-report');
+      buildReport = sinon.stub().returns(mockReport);
       stripeAutomaticTaxConverter.buildReport = buildReport;
+      writeReportStub = sinon.stub().resolves();
+      stripeAutomaticTaxConverter.writeReport = writeReportStub;
       logStub = sinon.stub(console, 'log');
     });
 
@@ -230,8 +262,8 @@ describe('StripeAutomaticTaxConverter', () => {
         expect(fetchInvoicePreview.calledWith(mockFirestoreSub.id)).true;
       });
 
-      it('logs the report to stdout', () => {
-        expect(logStub.calledWith('report:', 'example-report')).true;
+      it('writes the report to disk', () => {
+        expect(writeReportStub.calledWith(mockReport)).true;
       });
     });
 
@@ -345,30 +377,74 @@ describe('StripeAutomaticTaxConverter', () => {
         stripeAutomaticTaxConverter.fetchCustomer = sinon
           .stub()
           .resolves(mockCustomer);
-
-        result = await stripeAutomaticTaxConverter.enableTaxForCustomer(
-          mockCustomer
-        );
       });
 
-      it('updates customer', () => {
-        expect(
-          updateStub.calledWith(mockCustomer.id, {
-            tax: {
-              ip_address: undefined,
+      describe('invalid IP address', () => {
+        beforeEach(async () => {
+          geodbStub.returns({});
+
+          result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
+            ...mockCustomer,
+            metadata: {
+              userid: mockIpAddressMapping[0].uid,
             },
-          })
-        ).true;
+          });
+        });
+
+        it('does not update customer', () => {
+          expect(updateStub.notCalled).true;
+        });
+
+        it('returns false', () => {
+          expect(result).false;
+        });
+      });
+
+      describe('valid IP address', () => {
+        beforeEach(async () => {
+          geodbStub.returns({
+            countryCode: 'US',
+            postalCode: 92841,
+          });
+
+          result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
+            ...mockCustomer,
+            metadata: {
+              userid: mockIpAddressMapping[0].uid,
+            },
+          });
+        });
+
+        it('updates customer', () => {
+          expect(
+            updateStub.calledWith(mockCustomer.id, {
+              shipping: {
+                name: mockCustomer.email,
+                address: {
+                  country: 'US',
+                  postal_code: 92841,
+                },
+              },
+            })
+          ).true;
+        });
+
+        it('returns true', () => {
+          expect(result).true;
+        });
       });
     });
   });
 
   describe('enableTaxForSubscription', () => {
     let updateStub: sinon.SinonStub;
+    let retrieveStub: sinon.SinonStub;
 
     beforeEach(async () => {
       updateStub = sinon.stub().resolves(mockSubscription);
       stripeStub.subscriptions.update = updateStub;
+      retrieveStub = sinon.stub().resolves(mockSubscription);
+      stripeStub.subscriptions.retrieve = retrieveStub;
 
       await stripeAutomaticTaxConverter.enableTaxForSubscription(
         mockSubscription.id
@@ -381,6 +457,14 @@ describe('StripeAutomaticTaxConverter', () => {
           automatic_tax: {
             enabled: true,
           },
+          proration_behavior: 'none',
+          items: [
+            {
+              id: mockSubscription.items.data[0].id,
+              tax_rates: '',
+            },
+          ],
+          default_tax_rates: '',
         })
       ).true;
     });
