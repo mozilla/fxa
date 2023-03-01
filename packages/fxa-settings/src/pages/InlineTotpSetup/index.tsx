@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import classNames from 'classnames';
 import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -45,34 +44,23 @@ export const InlineTotpSetup = ({
     `Use the code ${code} to set up two-step authentication in supported applications.`,
     { code }
   );
+  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'inline-totp-setup-code-required-error',
+    'Authentication code required'
+  );
   const [secret, setSecret] = useState<string>();
   const [qrCodeSrc, setQRCodeSrc] = useState<string>();
   const [showIntro, setShowIntro] = useState(true);
-  const [totpCodeValue, setTotpCodeValue] = useState('');
   const [showQR, setShowQR] = useState(true);
   const [totpErrorMessage, setTotpErrorMessage] = useState('');
 
-  type FormData = {
-    confirmationCode: string;
-  };
-
-  const { handleSubmit } = useForm<FormData>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
-    defaultValues: {
-      confirmationCode: '',
-    },
-  });
-
   const onSubmit = () => {
-    if (!totpCodeValue) {
-      // TODO: Add l10n for this string
-      // Holding on l10n pending product decision
-      // See FXA-6422, and discussion on PR-14744
-      setTotpErrorMessage('Backup authentication code required');
-    }
+    // TODO: Error message for empty field here or in FormVerifyCode?
+    // Holding on l10n pending product decision
+    // See FXA-6422, and discussion on PR-14744
+    // setTotpErrorMessage('Backup authentication code required');
     try {
-      // Check security code
+      // Check authentication code
       // logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
     } catch (e) {
       // TODO: error handling, error message confirmation
@@ -176,7 +164,7 @@ export const InlineTotpSetup = ({
                       ),
                     }}
                   >
-                    <p className="text-sm mb-4">
+                    <p className="text-sm my-4">
                       Scan the QR code in your authentication app and then enter
                       the authentication code it provides.{' '}
                       <button
@@ -248,8 +236,7 @@ export const InlineTotpSetup = ({
               )}
               <FormVerifyCode
                 viewName="inline_totp_setup"
-                email={email}
-                onSubmit={handleSubmit(onSubmit)}
+                verifyCode={onSubmit}
                 formAttributes={{
                   inputLabelText: 'Authentication code',
                   inputFtlId: 'inline-totp-setup-security-code-placeholder',
@@ -258,10 +245,9 @@ export const InlineTotpSetup = ({
                   submitButtonText: 'Ready',
                   submitButtonFtlId: 'inline-totp-setup-ready-button',
                 }}
-                code={totpCodeValue}
-                setCode={setTotpCodeValue}
                 codeErrorMessage={totpErrorMessage}
                 setCodeErrorMessage={setTotpErrorMessage}
+                {...{ localizedCustomCodeRequiredMessage }}
               />
               <button className="link-blue text-sm mt-4">
                 <FtlMsg id="inline-totp-setup-cancel-setup-button">

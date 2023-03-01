@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-// import { useFtlMsgResolver } from '../../../models/hooks';
+import { useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { TwoFactorAuthImage } from '../../../components/images';
@@ -31,51 +31,43 @@ const AuthTotp = ({
 }: AuthTotpProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   // const ftlMsgResolver = useFtlMsgResolver();
 
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'auth-totp-code-required-error',
+    'Authentication code required'
+  );
+
   // These ftlids match those in `SigninTotpCode`
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-totp-code-input-label-v2',
+    inputFtlId: 'auth-totp-input-label',
     inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
-    submitButtonFtlId: 'signin-totp-code-confirm-button',
+    submitButtonFtlId: 'auth-totp-confirm-button',
     submitButtonText: 'Confirm',
   };
 
   const onSubmit = () => {
-    if (!code) {
-      // TODO: Add l10n for this string
-      // Holding on l10n pending product decision
-      // Current string vs "Security code required" vs other
-      // See FXA-6422, and discussion on PR-14744
-      setCodeErrorMessage('Two-step authentication code required');
-    }
     try {
-      // Check security code
+      // Check authentication code
       // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);
       // redirect to /pair/auth/allow
     } catch (e) {
       // TODO: error handling, error message confirmation
-      //
-      // const errorAuthTotp = ftlMsgResolver.getMsg(
-      //   'signin-totp-code-error-general',
-      //   'Invalid confirmation code'
-      // );
-      // put the error into a <Banner /> element
+      // this should use auth-errors and place the errors in a tooltip or banner
     }
   };
 
   return (
     // TODO: redirect to force_auth or signin if user has not initiated sign in
     <>
-      {/* Ftl ids match those in signin-totp-code because it uses those strings. */}
       <CardHeader
-        headingWithDefaultServiceFtlId="signin-totp-code-heading-w-default-service"
-        headingWithCustomServiceFtlId="signin-totp-code-heading-w-custom-service"
-        headingText="Enter security code"
+        headingWithDefaultServiceFtlId="auth-totp-heading-w-default-service"
+        headingWithCustomServiceFtlId="auth-totp-heading-w-custom-service"
+        headingText="Enter authentication code"
         {...{ serviceName }}
       />
 
@@ -84,9 +76,9 @@ const AuthTotp = ({
           <TwoFactorAuthImage className="w-3/5" />
         </div>
 
-        <FtlMsg id="signin-totp-code-instruction">
+        <FtlMsg id="auth-totp-instruction">
           <p id="totp-code-instruction" className="my-5 text-sm">
-            Open your authentication app and enter the security code it
+            Open your authentication app and enter the authentication code it
             provides.
           </p>
         </FtlMsg>
@@ -95,10 +87,8 @@ const AuthTotp = ({
           {...{
             formAttributes,
             viewName,
-            email,
-            onSubmit,
-            code,
-            setCode,
+            verifyCode: onSubmit,
+            localizedCustomCodeRequiredMessage,
             codeErrorMessage,
             setCodeErrorMessage,
           }}

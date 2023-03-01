@@ -25,6 +25,7 @@ import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPasswo
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
+import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
 export const App = ({
   flowQueryParams,
@@ -78,6 +79,8 @@ export const App = ({
                 Page={SignupConfirmed}
                 path="/signup_confirmed/*"
               />
+
+              <ConfirmSignupCode path="/confirm_signup_code/*" />
             </>
           )}
           <Settings path="/settings/*" {...{ flowQueryParams }} />

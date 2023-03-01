@@ -136,7 +136,7 @@ const Signup = ({
   const onSubmit = useCallback(async ({ newPassword, userAge }: FormData) => {
     try {
       // await something
-      // go somwehere
+      // go somwehere, pass email as location state
     } catch (e) {
       // do something with the error
     }

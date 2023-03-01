@@ -31,9 +31,9 @@ tfa-button-cant-scan-qr = Can’t scan code?
 # When the user cannot use a QR code.
 tfa-enter-secret-key = Enter this secret key into your authenticator app:
 
-tfa-enter-totp = Now enter the security code from the authentication app.
-tfa-input-enter-totp =
- .label = Enter security code
+tfa-enter-totp-v2 = Now enter the authentication code from the authentication app.
+tfa-input-enter-totp-v2 =
+ .label = Enter authentication code
 tfa-save-these-codes-1 = Save these one-time use backup authentication codes in a safe place for when
   you don’t have your mobile device.
 

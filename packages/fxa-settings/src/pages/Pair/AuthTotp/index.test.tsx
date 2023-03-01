@@ -32,7 +32,7 @@ describe('Sign in with TOTP code page', () => {
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter security code to continue to account settings'
+      'Enter authentication code to continue to account settings'
     );
     screen.getByLabelText('Enter 6-digit code');
 
@@ -55,7 +55,7 @@ describe('Sign in with TOTP code page', () => {
     );
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter security code to continue to Mozilla VPN'
+      'Enter authentication code to continue to Mozilla VPN'
     );
   });
 

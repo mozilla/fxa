@@ -257,15 +257,15 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               </p>
             </div>
           )}
-          <Localized id="tfa-enter-totp">
-            <p>Now enter the security code from the authentication app.</p>
+          <Localized id="tfa-enter-totp-v2">
+            <p>Now enter the authentication code from the authentication app.</p>
           </Localized>
 
           <div className="mt-4 mb-6" data-testid="recovery-key-input">
-            <Localized id="tfa-input-enter-totp" attrs={{ label: true }}>
+            <Localized id="tfa-input-enter-totp-v2" attrs={{ label: true }}>
               <InputText
                 name="totp"
-                label="Enter security code"
+                label="Enter authentication code"
                 prefixDataTestId="totp"
                 maxLength={6}
                 autoFocus
