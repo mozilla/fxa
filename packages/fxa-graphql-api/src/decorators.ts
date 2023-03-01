@@ -42,6 +42,9 @@ export const GqlXHeaders = createParamDecorator(
   (data: unknown, context: ExecutionContext): Headers => {
     const ctx = GqlExecutionContext.create(context).getContext();
     const headers = ctx.req?.headers;
+    // We don't need to propagate the authorization token because
+    // it needs to be updated to originate from gql server.
+    delete headers['authorization'];
     return new Headers(headers);
   }
 );
