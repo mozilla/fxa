@@ -121,7 +121,7 @@ export const InputText = ({
           className={classNames(
             'px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body',
             disabled ? 'text-grey-300' : 'text-grey-900',
-            hasContent || focused
+            placeholder || hasContent || focused
               ? 'transform scale-80 mt-1 ltr:ml-1 rtl:mr-1 ltr:-left-px rtl:-right-px'
               : 'mt-3 pt-px'
           )}

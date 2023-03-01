@@ -9,7 +9,6 @@ import Head from 'fxa-react/components/Head';
 import { useLocalization } from '@fluent/react';
 
 type FlowContainerProps = {
-  width?: 'sm' | 'md' | 'lg' | 'xl';
   title?: string;
   subtitle?: string;
   onBackButtonClick?: (
