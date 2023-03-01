@@ -143,7 +143,7 @@ async function retrieveStripeCustomers(
 
   const config = Container.get(AppConfig);
   const stripe = new Stripe(config.subscriptions.stripeApiKey, {
-    apiVersion: '2022-08-01',
+    apiVersion: '2022-11-15',
     maxNetworkRetries: 3,
   });
   const baseQuery = `created<=${endDate} AND created>=${startDate}`;

@@ -32,7 +32,7 @@ export const StripeFactory: Provider<Stripe> = {
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
     return new Stripe(stripeConfig.stripeApiKey, {
-      apiVersion: '2022-08-01',
+      apiVersion: '2022-11-15',
       maxNetworkRetries: 3,
     });
   },
@@ -43,7 +43,10 @@ export const StripeFactory: Provider<Stripe> = {
  * Extends PaymentConfigManager to be service like
  */
 @Injectable()
-export class StripePaymentConfigManagerService extends PaymentConfigManager implements OnModuleDestroy {
+export class StripePaymentConfigManagerService
+  extends PaymentConfigManager
+  implements OnModuleDestroy
+{
   constructor(
     configService: ConfigService<AppConfig>,
     logger: MozLoggerService,

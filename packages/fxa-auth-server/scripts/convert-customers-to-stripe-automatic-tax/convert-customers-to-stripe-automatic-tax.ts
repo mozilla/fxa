@@ -320,7 +320,7 @@ export class StripeAutomaticTaxConverter {
     subscription: Stripe.Subscription,
     product: Stripe.Product,
     plan: Stripe.Plan,
-    invoicePreview: Stripe.Invoice
+    invoicePreview: Stripe.UpcomingInvoice
   ) {
     const { hst, pst, gst, qst, rst } = this.helpers.getSpecialTaxAmounts(
       invoicePreview.total_tax_amounts

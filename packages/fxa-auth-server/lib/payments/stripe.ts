@@ -195,7 +195,7 @@ export class StripeHelper extends StripeHelperBase {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2022-08-01',
+      apiVersion: '2022-11-15',
       maxNetworkRetries: 3,
     });
 
@@ -401,7 +401,7 @@ export class StripeHelper extends StripeHelperBase {
         shipping,
       },
       {
-        idempotency_key: idempotencyKey,
+        idempotencyKey,
       }
     );
     await Promise.all([
@@ -2166,14 +2166,15 @@ export class StripeHelper extends StripeHelperBase {
       return null;
     }
 
-    if (subscription.latest_invoice.payment_intent.charges?.data.length !== 0) {
+    const latestCharge = subscription.latest_invoice.payment_intent
+      .latest_charge as string | Stripe.Charge | null | undefined;
+    if (latestCharge && typeof latestCharge !== 'string') {
       // Get the country from the payment details.
       // However, historically there were (rare) instances where `charges` was
       // not found in the object graph, hence the defensive code.
       // There's only one charge (the latest), per Stripe's docs.
-      const paymentMethodDetails =
-        subscription.latest_invoice.payment_intent.charges?.data[0]
-          .payment_method_details;
+      const paymentMethodDetails: Stripe.Charge.PaymentMethodDetails | null =
+        latestCharge.payment_method_details;
 
       if (paymentMethodDetails?.card?.country) {
         return paymentMethodDetails.card.country;
@@ -2893,7 +2894,7 @@ export class StripeHelper extends StripeHelperBase {
     // subscription is updated. Instead there will be pending invoice items
     // which will be added to next invoice once its generated.
     // For more info see https://stripe.com/docs/api/subscriptions/update
-    let upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined;
+    let upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined;
     try {
       const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
         customer: customer.id,
@@ -2977,7 +2978,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined
+    upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined
   ) {
     const { current_period_end: serviceLastActiveDate } = subscription;
 
@@ -3134,7 +3135,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceitem: Stripe.Invoice | undefined,
+    upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined,
     productOrderNew: string,
     planOld: Stripe.Plan
   ) {
