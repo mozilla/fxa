@@ -13,6 +13,8 @@ const pagesViewableWithoutAuthentication = [
   'primary_email_confirmed',
   'reset_password_verified',
   'reset_password_with_recovery_key_verified',
+  'signup_verified',
+  'signup_confirmed',
 ];
 
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {

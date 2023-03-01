@@ -9,7 +9,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import SignupConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
