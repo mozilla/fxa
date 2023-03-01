@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { render, cleanup, fireEvent, screen } from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { APIError } from '../../../lib/apiClient';
@@ -17,6 +17,7 @@ import {
   MOCK_PLANS,
   getLocalizedMessage,
   MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
+  MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
   MOCK_PREVIEW_INVOICE_NO_TAX,
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
@@ -34,7 +35,6 @@ import { SignInLayout } from '../../../components/AppLayout';
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 import { getLocalizedCurrency } from '../../../lib/formats';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import { MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE } from '../../Subscriptions/index.stories';
 import { updateConfig } from '../../../lib/config';
 
 jest.mock('../../../lib/sentry');

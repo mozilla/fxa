@@ -3,14 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import '@testing-library/jest-dom/extend-expect';
 
-import {
-  cleanup,
-  fireEvent,
-  render,
-  waitFor,
-  waitForElementToBeRemoved,
-  screen,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
   MozillaSubscription,
@@ -24,7 +17,6 @@ import {
   getPromotionCodeForPrice,
   useCheckboxState,
   useFetchInvoicePreview,
-  useHandleConfirmationDialog,
   useInfoBoxMessage,
   useNonce,
 } from './hooks';
@@ -230,114 +222,6 @@ describe('useInfoBoxMessage', () => {
     expect(couponDurationDate?.slice(0, 7)).toBe(
       expectedCouponDurationDate.slice(0, 7)
     );
-  });
-});
-
-describe('useHandleConfirmationDialog', () => {
-  const customerSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
-
-  const Subject = ({
-    customerSubscription,
-  }: {
-    customerSubscription: WebSubscription;
-  }) => {
-    const { loading, error, amount } =
-      useHandleConfirmationDialog(customerSubscription);
-    return (
-      <>
-        {loading ? <span data-testid="loading">loading</span> : null}
-        {error ? <span data-testid="error">error</span> : null}
-        {!(loading || error) ? (
-          <span data-testid="amount">{amount}</span>
-        ) : null}
-      </>
-    );
-  };
-
-  beforeEach(() => {
-    (apiInvoicePreview as jest.Mock)
-      .mockClear()
-      .mockResolvedValue({ total: 100 });
-  });
-
-  it('promotion code not applied', async () => {
-    const { queryByTestId, getByTestId } = render(
-      <Subject
-        customerSubscription={{
-          ...customerSubscription,
-          promotion_code: 'CODE10',
-        }}
-      />
-    );
-
-    await waitFor(() => {
-      expect(queryByTestId('loading')).not.toBeInTheDocument();
-      expect(queryByTestId('error')).not.toBeInTheDocument();
-      expect(queryByTestId('amount')).toBeInTheDocument();
-    });
-
-    const amount = getByTestId('amount').textContent;
-    expect(amount).toEqual('100');
-    expect(apiInvoicePreview).toHaveBeenCalledWith({
-      priceId: customerSubscription.plan_id,
-      promotionCode: undefined,
-    });
-  });
-
-  it('promotion code but api fails', async () => {
-    (apiInvoicePreview as jest.Mock).mockClear().mockRejectedValue({});
-    const { queryByTestId } = render(
-      <Subject
-        customerSubscription={{
-          ...customerSubscription,
-          promotion_code: 'CODE10',
-          promotion_duration: 'forever',
-        }}
-      />
-    );
-
-    await waitFor(() => {
-      expect(queryByTestId('loading')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(queryByTestId('loading')).not.toBeInTheDocument();
-      expect(queryByTestId('error')).toBeInTheDocument();
-      expect(queryByTestId('amount')).not.toBeInTheDocument();
-    });
-
-    expect(apiInvoicePreview).toHaveBeenCalledWith({
-      priceId: customerSubscription.plan_id,
-      promotionCode: 'CODE10',
-    });
-  });
-
-  it('promotion code and api success', async () => {
-    const { queryByTestId, getByTestId } = render(
-      <Subject
-        customerSubscription={{
-          ...customerSubscription,
-          promotion_code: 'CODE10',
-          promotion_duration: 'forever',
-        }}
-      />
-    );
-    await waitFor(() => {
-      expect(queryByTestId('loading')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(queryByTestId('loading')).not.toBeInTheDocument();
-      expect(queryByTestId('error')).not.toBeInTheDocument();
-      expect(queryByTestId('amount')).toBeInTheDocument();
-    });
-
-    const amount = getByTestId('amount').textContent;
-    expect(amount).toEqual('100');
-    expect(apiInvoicePreview).toHaveBeenCalledWith({
-      priceId: customerSubscription.plan_id,
-      promotionCode: 'CODE10',
-    });
   });
 });
 

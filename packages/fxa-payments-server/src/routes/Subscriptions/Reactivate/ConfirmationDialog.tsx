@@ -11,28 +11,8 @@ import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
 import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import LoadingSpinner from '../../../components/LoadingSpinner';
-import { useHandleConfirmationDialog } from '../../../lib/hooks';
 import AppContext from '../../../lib/AppContext';
-
-const ConfirmationDialogErrorContent = ({
-  headerId,
-  descId,
-}: {
-  headerId: string;
-  descId: string;
-}) => (
-  <>
-    <Localized id="general-error-heading">
-      <h4 id={headerId} data-testid="reactivate-confirm-error-loading">
-        General application error
-      </h4>
-    </Localized>
-    <Localized id="basic-error-message">
-      <p id={descId}>Something went wrong. Please try again later.</p>
-    </Localized>
-  </>
-);
+import { couponOnSubsequentInvoice } from '../../../lib/coupon';
 
 const ConfirmationDialogContent = ({
   onConfirm,
@@ -89,7 +69,7 @@ const ConfirmationDialogContent = ({
             endDate: getLocalizedDate(periodEndDate),
           }}
         >
-          <p id={descId}>
+          <p id={descId} data-testid="reactivate-modal-copy">
             Your access to {productName} will continue, and your billing cycle
             and payment will stay the same. Your next charge will be{' '}
             {getLocalizedCurrencyString(amount, currency)} to the card ending in{' '}
@@ -152,19 +132,29 @@ const ConfirmationDialog = ({
   );
   const { last4 } = customer;
 
-  const { loading, error, amount } =
-    useHandleConfirmationDialog(customerSubscription);
+  const {
+    promotion_code: promotionCode,
+    promotion_end,
+    current_period_end,
+    promotion_duration,
+  } = customerSubscription;
 
-  const ariaLabelledByError = 'error-content-header';
-  const ariaDescribedByError = 'error-content-description';
+  const includeCoupon =
+    promotionCode &&
+    couponOnSubsequentInvoice(
+      current_period_end,
+      promotion_end,
+      promotion_duration
+    );
 
-  const ariaLabelledByConfirmation = 'confirmation-content-header';
-  const ariaDescribedByConfirmation = 'confirmation-content-description';
+  // Depending on whether or not the coupon should be applied to the next invoice
+  // use total or subtotal.
+  const amount = includeCoupon
+    ? customerSubscription.latest_invoice_items.total
+    : customerSubscription.latest_invoice_items.subtotal;
 
-  const ariaLabelledBy =
-    !loading && error ? ariaLabelledByError : ariaLabelledByConfirmation;
-  const ariaDescribedBy =
-    !loading && !error ? ariaDescribedByError : ariaDescribedByConfirmation;
+  const ariaLabelledBy = 'confirmation-content-header';
+  const ariaDescribedBy = 'confirmation-content-description';
 
   return (
     <DialogMessage
@@ -172,34 +162,18 @@ const ConfirmationDialog = ({
       headerId={ariaLabelledBy}
       descId={ariaDescribedBy}
     >
-      {!loading ? (
-        <>
-          {/* TO DO: display card type, IE 'to the Visa card ending...' */}
-          {error ? (
-            <ConfirmationDialogErrorContent
-              headerId={ariaLabelledBy}
-              descId={ariaDescribedBy}
-            />
-          ) : (
-            <ConfirmationDialogContent
-              onConfirm={onConfirm}
-              headerId={ariaLabelledBy}
-              descId={ariaDescribedBy}
-              periodEndDate={periodEndDate}
-              currency={plan.currency}
-              productName={plan.product_name}
-              amount={amount}
-              last4={last4}
-              webIconURL={webIcon}
-              webIconBackground={webIconBackground}
-            />
-          )}
-        </>
-      ) : (
-        <div className="my-24">
-          <LoadingSpinner />
-        </div>
-      )}
+      <ConfirmationDialogContent
+        onConfirm={onConfirm}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+        periodEndDate={periodEndDate}
+        currency={plan.currency}
+        productName={plan.product_name}
+        amount={amount}
+        last4={last4}
+        webIconURL={webIcon}
+        webIconBackground={webIconBackground}
+      />
     </DialogMessage>
   );
 };

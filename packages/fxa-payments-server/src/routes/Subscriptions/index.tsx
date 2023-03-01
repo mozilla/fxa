@@ -1,11 +1,5 @@
 // React looks unused here, but we need it for Storybook.
-import React, {
-  useEffect,
-  useContext,
-  useCallback,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useContext, useCallback, useRef } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
@@ -43,13 +37,9 @@ import {
 import {
   MozillaSubscription,
   WebSubscription,
-  MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
 import SubscriptionIapItem from './SubscriptionIapItem/SubscriptionIapItem';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { apiInvoicePreview } from '../../lib/apiClient';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
-import { couponOnSubsequentInvoice } from '../../lib/coupon';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -86,12 +76,6 @@ export const Subscriptions = ({
 }: SubscriptionsProps) => {
   const { accessToken, config, locationReload, navigateToUrl } =
     useContext(AppContext);
-
-  const [subscriptionPreviews, setSubscriptionPreviews] = useState<
-    FirstInvoicePreview[]
-  >([]);
-  const [subscriptionPreviewsLoading, setSubscriptionPreviewsLoading] =
-    useState(false);
 
   if (!accessToken) {
     window.location.href = `${config.servers.content.url}/subscriptions`;
@@ -161,50 +145,12 @@ export const Subscriptions = ({
     [navigateToUrl, SUPPORT_FORM_URL]
   );
 
-  useEffect(() => {
-    const fetchSubscriptionPreviews = async () => {
-      if (customerSubscriptions?.length) {
-        setSubscriptionPreviewsLoading(true);
-        try {
-          const subs = await Promise.all(
-            customerSubscriptions
-              .filter(
-                (sub) => sub._subscription_type === MozillaSubscriptionTypes.WEB
-              )
-              .map(async (sub) => {
-                const webSub = sub as WebSubscription;
-                const usePromotionCode = couponOnSubsequentInvoice(
-                  webSub.current_period_end,
-                  webSub.promotion_end,
-                  webSub.promotion_duration
-                );
-                return apiInvoicePreview({
-                  priceId: webSub.plan_id,
-                  promotionCode: usePromotionCode
-                    ? webSub.promotion_code
-                    : undefined,
-                });
-              })
-          );
-          setSubscriptionPreviews(subs);
-        } catch (error) {
-          setSubscriptionPreviews([]);
-        } finally {
-          setSubscriptionPreviewsLoading(false);
-        }
-      }
-    };
-
-    fetchSubscriptionPreviews();
-  }, [customerSubscriptions]);
-
   if (
     !accessToken ||
     customer.loading ||
     profile.loading ||
     plans.loading ||
-    subsequentInvoices.loading ||
-    subscriptionPreviewsLoading
+    subsequentInvoices.loading
   ) {
     return <LoadingOverlay isLoading={true} />;
   }
@@ -281,28 +227,6 @@ export const Subscriptions = ({
     customerSubscriptions.find(
       (s) => isWebSubscription(s) && !s.cancel_at_period_end
     );
-
-  if (activeWebSubscription && subscriptionPreviews?.length <= 0) {
-    const ariaLabelledBy = 'invoice-previews-not-found-header';
-    const ariaDescribedBy = 'invoice-previews-not-found-description';
-    return (
-      <DialogMessage
-        className="dialog-error"
-        onDismiss={locationReload}
-        headerId={ariaLabelledBy}
-        descId={ariaDescribedBy}
-      >
-        <Localized id="sub-invoice-previews-error-title">
-          <h4 id={ariaLabelledBy} data-testid="error-loading-invoice-previews">
-            Problem loading invoice previews
-          </h4>
-        </Localized>
-        <Localized id="sub-invoice-previews-error-text">
-          <p id={ariaDescribedBy}>Could not load invoice previews</p>
-        </Localized>
-      </DialogMessage>
-    );
-  }
 
   const showPaymentUpdateForm =
     customer && customer.result && activeWebSubscription;
@@ -450,12 +374,6 @@ export const Subscriptions = ({
                         invoice.subscriptionId ===
                         customerSubscription.subscription_id
                     )}
-                    invoicePreview={subscriptionPreviews.find((preview) => {
-                      return preview.line_items.some(
-                        (lineItem) =>
-                          lineItem.id === customerSubscription.plan_id
-                      );
-                    })}
                     {...{
                       customer: customer.result,
                       cancelSubscription,

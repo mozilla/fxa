@@ -170,51 +170,6 @@ export function useInfoBoxMessage(
   return infoBoxMessage;
 }
 
-export function useHandleConfirmationDialog(
-  customerSubscription: WebSubscription
-) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-  const [amount, setAmount] = useState<number>(0);
-
-  useEffect(() => {
-    const getSubscriptionPrice = async () => {
-      const {
-        promotion_code: promotionCode,
-        plan_id: priceId,
-        promotion_end,
-        current_period_end,
-        promotion_duration,
-      } = customerSubscription;
-
-      const includeCoupon =
-        promotionCode &&
-        couponOnSubsequentInvoice(
-          current_period_end,
-          promotion_end,
-          promotion_duration
-        );
-
-      try {
-        setLoading(true);
-        const preview = await apiInvoicePreview({
-          priceId,
-          promotionCode: includeCoupon ? promotionCode : undefined,
-        });
-        setAmount(preview.total);
-      } catch (err) {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getSubscriptionPrice();
-  }, [customerSubscription]);
-
-  return { loading, error, amount };
-}
-
 /**
  * Type guard function to check if a MozillaSubscription is a WebSubscription
  */

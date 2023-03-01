@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
   defaultAppContextValue,
@@ -21,302 +21,62 @@ import {
   MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
-import withMock from 'storybook-addon-mock';
-import {
-  FirstInvoicePreview,
-  LatestInvoiceItems,
-} from 'fxa-shared/dto/auth/payments/invoice';
+import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
 
-function init() {
-  setupVariantStories('routes/Subscriptions', {
-    paymentUpdateApiClientOverrides: defaultPaymentUpdateApiClientOverrides(),
-    paymentUpdateStripeOverride: defaultPaymentUpdateStripeOverride(),
-  });
-}
+// TODO: Move to some shared lib?
+const wait = (delay: number) =>
+  new Promise((resolve) => setTimeout(resolve, delay));
 
-function setupVariantStories(
-  namePrefix: string = 'routes/Subscriptions',
-  baseRouteProps: Partial<SubscriptionsProps> = {}
-) {
-  const SubscriptionsRoute = subscriptionsRouteWithBaseProps(baseRouteProps);
+const defaultPaymentUpdateApiClientOverrides = () => ({
+  apiCreateSetupIntent: async () => FILTERED_SETUP_INTENT,
+  apiUpdateDefaultPaymentMethod: async () => {
+    await wait(1000);
+    return CUSTOMER;
+  },
+});
 
-  storiesOf(namePrefix, module)
-    .addDecorator(withMock)
-    .add('loading', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...baseProps,
-        }}
-      />
-    ))
-    .add('no subscription', () => <SubscriptionsRoute />)
-    .add(
-      'subscribed with web subscription',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'subscribed with web subscription with coupon',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'subscribed with web subscription with exclusive tax',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-            subsequentInvoices: {
-              error: null,
-              loading: false,
-              result: [
-                {
-                  subscriptionId: 'sub_5551212',
-                  period_start: 1,
-                  subtotal: 2000,
-                  subtotal_excluding_tax: 2000,
-                  total: 2300,
-                  total_excluding_tax: 2000,
-                  tax: [
-                    {
-                      amount: 300,
-                      inclusive: false,
-                      display_name: 'Sales Tax',
-                    },
-                  ],
-                },
-              ],
-            },
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(
-          MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE
-        ),
-      }
-    )
-    .add(
-      'subscribed with web subscription with inclusive tax',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-            subsequentInvoices: {
-              error: null,
-              loading: false,
-              result: [
-                {
-                  subscriptionId: 'sub_5551212',
-                  period_start: 1,
-                  subtotal: 2000,
-                  subtotal_excluding_tax: 1700,
-                  total: 2000,
-                  total_excluding_tax: 1700,
-                  tax: [
-                    {
-                      amount: 300,
-                      inclusive: true,
-                      display_name: 'Sales Tax',
-                    },
-                  ],
-                },
-              ],
-            },
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(
-          MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE
-        ),
-      }
-    )
-    .add('subscribed with Google IAP', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedIapProps,
-        }}
-      />
-    ))
-    .add('subscribed with Apple IAP - Auto Rewew w/ Expiration', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedIapPropsAppleExpiry,
-        }}
-      />
-    ))
-    .add('subscribed with Apple IAP - No Auto Renew w/ Expiration', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedIapPropsAppleNoRenew,
-        }}
-      />
-    ))
-    .add('subscribed with Apple IAP - No expiration', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedIapPropsAppleNoExpiry,
-        }}
-      />
-    ))
-    .add(
-      'subscribed with Google IAP and web subscription',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedIapProps,
-            customerSubscriptions: [
-              ...customerSubscriptions,
-              ...subscribedIapProps.customerSubscriptions,
-            ],
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'subscribed with upgrade offer',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-            plans: {
-              error: null,
-              loading: false,
-              result: [
-                {
-                  ...PLANS[0],
-                  product_name: 'Upgradable Product',
-                  plan_metadata: null,
-                  product_metadata: {
-                    upgradeCTA: `
-                  Interested in better features?
-                  Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
-                `,
-                  },
-                },
-              ],
-            },
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'cancelled',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...cancelledProps,
-            resetCancelSubscription: linkTo(
-              'routes/Subscriptions',
-              'reactivation'
-            ),
-            cancelSubscriptionStatus: {
-              loading: false,
-              error: null,
-              result: {
-                subscriptionId: 'sub_5551212',
-              },
-            },
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'reactivation',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...cancelledProps,
-            reactivateSubscription: linkToReactivationConfirmation,
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    )
-    .add(
-      'reactivation confirmation',
-      () => (
-        <SubscriptionsRoute
-          routeProps={{
-            ...subscribedProps,
-            reactivateSubscriptionStatus: {
-              loading: false,
-              error: null,
-              result: {
-                subscriptionId: 'sub_5551212',
-                plan: PLANS[0],
-              },
-            },
-            resetReactivateSubscription: linkTo(
-              'routes/Subscriptions',
-              'subscribed'
-            ),
-          }}
-        />
-      ),
-      {
-        mockData: getPreviewInvoiceMockData(MOCK_PREVIEW_INVOICE_NO_TAX),
-      }
-    );
+const CONFIRM_CARD_SETUP_RESULT = {
+  setupIntent: {
+    payment_method: 'pm_test',
+  },
+  error: null,
+};
 
-  storiesOf(`${namePrefix}/errors`, module)
-    .add('profile', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...baseProps,
-          profile: errorFetchState(),
-        }}
-      />
-    ))
-    .add('plans', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...baseProps,
-          plans: errorFetchState(),
-        }}
-      />
-    ))
-    .add('reactivation', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...reactivationErrorProps,
-          reactivateSubscriptionStatus: errorFetchState(),
-          resetReactivateSubscription: linkTo(
-            'routes/Subscriptions',
-            'reactivation'
-          ),
-        }}
-      />
-    ));
-}
+// HACK: Not a complete confirmCardSetup return type, but good enough for stories.
+const defaultPaymentUpdateStripeOverride = () =>
+  ({
+    confirmCardSetup: async () => CONFIRM_CARD_SETUP_RESULT,
+  } as unknown as PaymentUpdateStripeAPIs);
+
+export default {
+  title: 'routes/Subscriptions',
+  component: Subscriptions,
+} as Meta;
+
+const baseRouteProps = {
+  paymentUpdateApiClientOverrides: defaultPaymentUpdateApiClientOverrides(),
+  paymentUpdateStripeOverride: defaultPaymentUpdateStripeOverride(),
+};
+
+const storyWithContext = ({
+  routeProps = baseProps,
+  queryParams = defaultAppContextValue.queryParams,
+  applyStubsToStripe,
+}: SubscriptionsRouteProps) => {
+  return () => (
+    <MockApp
+      applyStubsToStripe={applyStubsToStripe}
+      appContextValue={{
+        ...defaultAppContextValue,
+        queryParams,
+      }}
+    >
+      <SettingsLayout>
+        <Subscriptions {...routeProps} {...baseRouteProps} />
+      </SettingsLayout>
+    </MockApp>
+  );
+};
 
 const linkToReactivationConfirmation = () =>
   linkTo('routes/Subscriptions', 'reactivation confirmation');
@@ -335,40 +95,6 @@ type SubscriptionsRouteProps = {
   queryParams?: QueryParams;
   applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
 };
-
-// Quick & dirty utility to help build variant stories with common route props
-const subscriptionsRouteWithBaseProps =
-  (baseRouteProps?: Partial<SubscriptionsProps>) =>
-  ({ routeProps = baseProps, ...otherProps }: SubscriptionsRouteProps) =>
-    (
-      <SubscriptionsRoute
-        {...{
-          routeProps: {
-            ...routeProps,
-            ...(baseRouteProps || {}),
-          },
-          ...otherProps,
-        }}
-      />
-    );
-
-const SubscriptionsRoute = ({
-  routeProps = baseProps,
-  queryParams = defaultAppContextValue.queryParams,
-  applyStubsToStripe,
-}: SubscriptionsRouteProps) => (
-  <MockApp
-    applyStubsToStripe={applyStubsToStripe}
-    appContextValue={{
-      ...defaultAppContextValue,
-      queryParams,
-    }}
-  >
-    <SettingsLayout>
-      <Subscriptions {...routeProps} />
-    </SettingsLayout>
-  </MockApp>
-);
 
 const PRODUCT_ID = 'product_8675309';
 const PLAN_ID = 'plan_123';
@@ -448,12 +174,63 @@ const baseProps: SubscriptionsProps = {
   },
 };
 
-const invoice: LatestInvoiceItems = {
-  line_items: [],
-  subtotal: 735,
-  subtotal_excluding_tax: null,
-  total: 735,
+const INVOICE_NO_TAX: LatestInvoiceItems = {
+  total: 2000,
   total_excluding_tax: null,
+  subtotal: 2000,
+  subtotal_excluding_tax: null,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+};
+
+const INVOICE_WITH_TAX_EXCLUSIVE: LatestInvoiceItems = {
+  total: 2300,
+  total_excluding_tax: 2000,
+  subtotal: 2000,
+  subtotal_excluding_tax: 2000,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+  tax: [
+    {
+      amount: 300,
+      inclusive: false,
+      display_name: 'Sales Tax',
+    },
+  ],
+};
+
+const INVOICE_WITH_TAX_INCLUSIVE: LatestInvoiceItems = {
+  total: 2000,
+  total_excluding_tax: 1700,
+  subtotal: 2000,
+  subtotal_excluding_tax: 1700,
+  line_items: [
+    {
+      amount: 2000,
+      currency: 'USD',
+      id: PLAN_ID,
+      name: 'first invoice',
+    },
+  ],
+  tax: [
+    {
+      amount: 300,
+      inclusive: true,
+      display_name: 'Sales Tax',
+    },
+  ],
 };
 
 const customerSubscriptions = [
@@ -465,7 +242,7 @@ const customerSubscriptions = [
     cancel_at_period_end: false,
     end_at: null,
     latest_invoice: '628031D-0002',
-    latest_invoice_items: invoice,
+    latest_invoice_items: INVOICE_NO_TAX,
     plan_id: PLAN_ID,
     product_id: PRODUCT_ID,
     product_name: 'Example Product',
@@ -516,6 +293,30 @@ const cancelledProps: SubscriptionsProps = {
         {
           ...subscribedProps.customerSubscriptions[0],
           cancel_at_period_end: true,
+        },
+      ] as WebSubscription[])
+    : null,
+};
+
+const subscribedPropsWithTaxExclusive: SubscriptionsProps = {
+  ...subscribedProps,
+  customerSubscriptions: subscribedProps.customerSubscriptions
+    ? ([
+        {
+          ...subscribedProps.customerSubscriptions[0],
+          latest_invoice_items: INVOICE_WITH_TAX_EXCLUSIVE,
+        },
+      ] as WebSubscription[])
+    : null,
+};
+
+const subscribedPropsWithTaxInclusive: SubscriptionsProps = {
+  ...subscribedProps,
+  customerSubscriptions: subscribedProps.customerSubscriptions
+    ? ([
+        {
+          ...subscribedProps.customerSubscriptions[0],
+          latest_invoice_items: INVOICE_WITH_TAX_INCLUSIVE,
         },
       ] as WebSubscription[])
     : null,
@@ -586,117 +387,177 @@ const subscribedIapPropsAppleNoExpiry = {
   ] as IapSubscription[],
 };
 
-export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
-  total: 2000,
-  total_excluding_tax: null,
-  subtotal: 2000,
-  subtotal_excluding_tax: null,
-  line_items: [
-    {
-      amount: 2000,
-      currency: 'USD',
-      id: PLAN_ID,
-      name: 'first invoice',
-    },
-  ],
-};
+export const Loading = storyWithContext({});
 
-export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
-  total: 2300,
-  total_excluding_tax: 2000,
-  subtotal: 2000,
-  subtotal_excluding_tax: 2000,
-  line_items: [
-    {
-      amount: 2000,
-      currency: 'USD',
-      id: PLAN_ID,
-      name: 'first invoice',
-    },
-  ],
-  tax: [
-    {
-      amount: 300,
-      inclusive: false,
-      display_name: 'Sales Tax',
-    },
-  ],
-};
+export const NoSubscription = storyWithContext({});
 
-export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
-  total: 2000,
-  total_excluding_tax: 1700,
-  subtotal: 2000,
-  subtotal_excluding_tax: 1700,
-  line_items: [
-    {
-      amount: 2000,
-      currency: 'USD',
-      id: PLAN_ID,
-      name: 'first invoice',
-    },
-  ],
-  tax: [
-    {
-      amount: 300,
-      inclusive: true,
-      display_name: 'Sales Tax',
-    },
-  ],
-};
+export const SubscribedWithWebSubscription = storyWithContext({
+  routeProps: subscribedProps,
+});
 
-const getPreviewInvoiceMockData = (response: FirstInvoicePreview) => [
-  {
-    url: '/v1/oauth/subscriptions/invoice/preview',
-    method: 'POST',
-    status: 200,
-    response,
-  },
-];
+export const SubscribedWithWebSubscriptionWithCoupon = storyWithContext({
+  routeProps: subscribedProps,
+});
 
-const previewInvoiceMockData = [
-  {
-    url: '/v1/oauth/subscriptions/invoice/preview',
-    method: 'POST',
-    status: 200,
-    response: {
-      line_items: [
+export const SubscribedWithWebSubscriptionWithExclusiveTax = storyWithContext({
+  routeProps: {
+    ...subscribedPropsWithTaxExclusive,
+    subsequentInvoices: {
+      error: null,
+      loading: false,
+      result: [
         {
-          amount: 1000,
-          currency: 'USD',
-          id: 'plan_123',
-          name: 'Plan 123',
+          subscriptionId: 'sub_5551212',
+          period_start: 1,
+          subtotal: 2000,
+          subtotal_excluding_tax: 2000,
+          total: 2300,
+          total_excluding_tax: 2000,
+          tax: [
+            {
+              amount: 300,
+              inclusive: false,
+              display_name: 'Sales Tax',
+            },
+          ],
         },
       ],
-      subtotal: 1000,
-      total: 1000,
     },
-  },
-];
-
-// TODO: Move to some shared lib?
-const wait = (delay: number) =>
-  new Promise((resolve) => setTimeout(resolve, delay));
-
-const defaultPaymentUpdateApiClientOverrides = () => ({
-  apiCreateSetupIntent: async () => FILTERED_SETUP_INTENT,
-  apiUpdateDefaultPaymentMethod: async () => {
-    await wait(1000);
-    return CUSTOMER;
   },
 });
 
-const CONFIRM_CARD_SETUP_RESULT = {
-  setupIntent: {
-    payment_method: 'pm_test',
+export const SubscribedWithWebSubscriptionWithInclusiveTax = storyWithContext({
+  routeProps: {
+    ...subscribedPropsWithTaxInclusive,
+    subsequentInvoices: {
+      error: null,
+      loading: false,
+      result: [
+        {
+          subscriptionId: 'sub_5551212',
+          period_start: 1,
+          subtotal: 2000,
+          subtotal_excluding_tax: 1700,
+          total: 2000,
+          total_excluding_tax: 1700,
+          tax: [
+            {
+              amount: 300,
+              inclusive: true,
+              display_name: 'Sales Tax',
+            },
+          ],
+        },
+      ],
+    },
   },
-  error: null,
-};
+});
 
-// HACK: Not a complete confirmCardSetup return type, but good enough for stories.
-const defaultPaymentUpdateStripeOverride = () =>
-  ({
-    confirmCardSetup: async () => CONFIRM_CARD_SETUP_RESULT,
-  } as unknown as PaymentUpdateStripeAPIs);
+export const SubscribedWithGoogleIAP = storyWithContext({
+  routeProps: subscribedIapProps,
+});
 
-init();
+export const SubscribedWithAppleIAPAutoRenewWithExpiration = storyWithContext({
+  routeProps: subscribedIapPropsAppleExpiry,
+});
+
+export const SubscribedWithAppleIAPNoAutoRenewWithExpiration = storyWithContext(
+  {
+    routeProps: subscribedIapPropsAppleNoRenew,
+  }
+);
+
+export const SubscribedWithAppleIAPNoExpiration = storyWithContext({
+  routeProps: subscribedIapPropsAppleNoExpiry,
+});
+
+export const SubscribedWithGoogleIAPAndWebSubscription = storyWithContext({
+  routeProps: {
+    ...subscribedIapProps,
+    customerSubscriptions: [
+      ...customerSubscriptions,
+      ...subscribedIapProps.customerSubscriptions,
+    ],
+  },
+});
+
+export const SubscribedWithUpgradeOffer = storyWithContext({
+  routeProps: {
+    ...subscribedProps,
+    plans: {
+      error: null,
+      loading: false,
+      result: [
+        {
+          ...PLANS[0],
+          product_name: 'Upgradable Product',
+          plan_metadata: null,
+          product_metadata: {
+            upgradeCTA: `
+            Interested in better features?
+            Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
+          `,
+          },
+        },
+      ],
+    },
+  },
+});
+
+export const Cancelled = storyWithContext({
+  routeProps: {
+    ...cancelledProps,
+    resetCancelSubscription: linkTo('routes/Subscriptions', 'reactivation'),
+    cancelSubscriptionStatus: {
+      loading: false,
+      error: null,
+      result: {
+        subscriptionId: 'sub_5551212',
+      },
+    },
+  },
+});
+
+export const Reactivation = storyWithContext({
+  routeProps: {
+    ...cancelledProps,
+    reactivateSubscription: linkToReactivationConfirmation,
+  },
+});
+
+export const ReactivationConfirmation = storyWithContext({
+  routeProps: {
+    ...subscribedProps,
+    reactivateSubscriptionStatus: {
+      loading: false,
+      error: null,
+      result: {
+        subscriptionId: 'sub_5551212',
+        plan: PLANS[0],
+      },
+    },
+    resetReactivateSubscription: linkTo('routes/Subscriptions', 'subscribed'),
+  },
+});
+
+export const ErrorOnProfile = storyWithContext({
+  routeProps: {
+    ...baseProps,
+    profile: errorFetchState(),
+  },
+});
+
+export const ErrorOnPlans = storyWithContext({
+  routeProps: {
+    ...baseProps,
+    plans: errorFetchState(),
+  },
+});
+
+export const ErrorOnReactivation = storyWithContext({
+  routeProps: {
+    ...reactivationErrorProps,
+    reactivateSubscriptionStatus: errorFetchState(),
+    resetReactivateSubscription: linkTo('routes/Subscriptions', 'reactivation'),
+  },
+});
