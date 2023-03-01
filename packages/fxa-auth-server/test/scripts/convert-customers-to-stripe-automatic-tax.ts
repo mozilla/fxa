@@ -227,6 +227,9 @@ describe('StripeAutomaticTaxConverter', () => {
         .resolves(mockCustomer);
       enableTaxForCustomer = sinon.stub().resolves(true);
       stripeAutomaticTaxConverter.enableTaxForCustomer = enableTaxForCustomer;
+      stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = sinon
+        .stub()
+        .returns(false);
       enableTaxForSubscription = sinon.stub().resolves();
       stripeAutomaticTaxConverter.enableTaxForSubscription =
         enableTaxForSubscription;
@@ -283,6 +286,19 @@ describe('StripeAutomaticTaxConverter', () => {
         stripeAutomaticTaxConverter.enableTaxForCustomer = sinon
           .stub()
           .resolves(false);
+        await stripeAutomaticTaxConverter.generateReportForSubscription(
+          mockFirestoreSub
+        );
+
+        expect(enableTaxForCustomer.notCalled).true;
+        expect(enableTaxForSubscription.notCalled).true;
+        expect(logStub.notCalled).true;
+      });
+
+      it('does not update subscription for ineligible product', async () => {
+        stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = sinon
+          .stub()
+          .returns(true);
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
@@ -433,6 +449,28 @@ describe('StripeAutomaticTaxConverter', () => {
           expect(result).true;
         });
       });
+    });
+  });
+
+  describe('isEligibleSubscriptionProduct', () => {
+    let result: boolean;
+    const VALID_PRODUCT = 'valid';
+    const EXCLUDED_PRODUCT = 'prod_HEJ13uxjG4Rj6L';
+
+    it('returns false if the product is not excluded', () => {
+      result =
+        stripeAutomaticTaxConverter.isExcludedSubscriptionProduct(
+          VALID_PRODUCT
+        );
+      expect(result).false;
+    });
+
+    it('returns true if the product is meant to be excluded', () => {
+      result =
+        stripeAutomaticTaxConverter.isExcludedSubscriptionProduct(
+          EXCLUDED_PRODUCT
+        );
+      expect(result).true;
     });
   });
 
