@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { AccountEventsManager } = require  ('../../account-events');
-const { Container } = require('typedi');
+import { AccountEventsManager } from '../../account-events';
+import { Container } from 'typedi';
 
-export function recordSecurityEvent(name, opts) {
+export function recordSecurityEvent(name: any, opts: any) {
   const mgr = Container.get(AccountEventsManager);
   if (mgr == null || typeof mgr.recordSecurityEvent !== 'function') {
     return;
   }
 
-  mgr.recordSecurityEvent(opts.db,  {
+  mgr.recordSecurityEvent(opts.db, {
     name,
     uid: opts?.account?.uid || opts?.request?.auth?.credentials?.uid,
     ipAddr: opts?.request?.app?.clientAddress,
-    tokenId:  opts?.request?.auth?.credentials?.id,
+    tokenId: opts?.request?.auth?.credentials?.id,
   });
 }
