@@ -1,5 +1,6 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
+let email = '';
 const PASSWORD = 'passwordzxcv';
 
 test.describe('OAuth signin', () => {
@@ -70,7 +71,7 @@ test.describe('OAuth signin', () => {
     pages: { login, relier },
   }) => {
     // Create unverified account via backend
-    const email = login.createEmail();
+    email = login.createEmail();
     await target.auth.signUp(email, PASSWORD, {
       lang: 'en',
       preVerified: 'false',
@@ -90,7 +91,7 @@ test.describe('OAuth signin', () => {
     pages: { login, relier },
   }) => {
     // Create unverified account
-    const email = login.createEmail();
+    email = login.createEmail();
     const password = 'passwordzxcv';
 
     await relier.goto();
@@ -122,7 +123,7 @@ test.describe('OAuth signin', () => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
 
     // Create unverified account
-    const email = login.createEmail();
+    email = login.createEmail();
 
     await relier.goto();
     await relier.clickChooseFlow();
