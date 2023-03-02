@@ -77,6 +77,8 @@ registerSuite('beta settings', {
 
       const outputHtml = swapBetaMeta(dummyHtml, {
         __SERVER_CONFIG__: settingsConfig,
+        __TRACE_PARENT__: '00-0-0-00',
+        __TRACE_STATE__: '',
       });
 
       expect(proxiedResponse.send).to.be.calledWith(
@@ -93,6 +95,44 @@ registerSuite('beta settings', {
       proxyingResponse.send(data);
 
       expect(proxiedResponse.send).to.be.calledWith(new Buffer.from(data));
+    },
+    'does not include invalid flow id': function () {
+      const proxyingResponse = mockedResponse(dummyHtml, {
+        'content-type': 'text/html',
+      });
+      const proxiedResponse = mockRes(responseOptions);
+      modifyProxyRes(
+        proxyingResponse,
+        { query: { flowId: 'LOLNOPE' } },
+        proxiedResponse
+      );
+      proxyingResponse.send(dummyHtml);
+
+      expect(`${proxiedResponse.send.args[0][0]}`.includes('LOLNOPE')).to.be
+        .false;
+    },
+    'includes a valid flow id': function () {
+      const proxyingResponse = mockedResponse(dummyHtml, {
+        'content-type': 'text/html',
+      });
+      const proxiedResponse = mockRes(responseOptions);
+      modifyProxyRes(
+        proxyingResponse,
+        {
+          query: {
+            flowId:
+              '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f',
+          },
+        },
+        proxiedResponse
+      );
+      proxyingResponse.send(dummyHtml);
+
+      expect(
+        proxiedResponse.send.args[0][0].includes(
+          '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f'
+        )
+      ).to.be.true;
     },
   },
 });
