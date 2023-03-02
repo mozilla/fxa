@@ -5,8 +5,8 @@
 import program from 'commander';
 import { StatsD } from 'hot-shots';
 import { setupDatabase } from 'fxa-shared/db';
-import packageJson from '../package.json';
-import Config from '../src/config';
+import packageJson from '../../package.json';
+import Config from '../config';
 import mozlog from 'mozlog';
 import { ILogger } from 'fxa-shared/log';
 

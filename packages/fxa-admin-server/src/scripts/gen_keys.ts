@@ -26,7 +26,7 @@ import assert from 'assert';
 import crypto from 'crypto';
 import { Extras, JWK, pem2jwk } from 'pem-jwk';
 
-import Config from '../src/config';
+import Config from '../config';
 
 const pubKeyFile = Config.get('publicKeyFile');
 const secretKeyFile = Config.get('secretKeyFile');
