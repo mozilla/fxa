@@ -4377,31 +4377,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:1.1.0"
+"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.0.0"
   dependencies:
-    "@google-cloud/opentelemetry-resource-util": ^1.1.0
+    "@google-cloud/opentelemetry-resource-util": ^2.0.0
     "@grpc/grpc-js": ^1.1.8
-    "@grpc/proto-loader": ^0.6.0
+    "@grpc/proto-loader": ^0.7.0
     google-auth-library: ^7.0.0
-    google-proto-files: ^2.1.0
+    google-proto-files: ^3.0.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
     "@opentelemetry/core": ^1.0.0
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/sdk-trace-base": ^1.0.0
-  checksum: 6839b531427675323da0244d7b0482a61f8537fbcf6c98e00c27a1cf8b1954f3aed5edb01fc862d66257c692a06a87a1609c22764423433154ace3c332c7f4cd
+  checksum: 4cb3c15426e05716a2a85babede9f120bf04face327873a164411708afad55853978aa3f4674e1350dda32185905c7fbb178c36d5edc7ab96e07c00d5f609a16
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-resource-util@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@google-cloud/opentelemetry-resource-util@npm:1.1.0"
+"@google-cloud/opentelemetry-resource-util@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.0.0"
+  dependencies:
+    gcp-metadata: ^5.0.1
   peerDependencies:
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/semantic-conventions": ^1.0.0
-  checksum: 404d0cd835b682865b3ee6e82fd94bc0beeb0df6e63f45f6c72a5d86ded19ee509725ecc421eff49e294a535147083e1365c3ff3d163cd8588f19e52e6055bdc
+  checksum: 909c9b7f58b12a64c404c985f6677a78fcfd5cdd6c0bd3afc1d537a5071bab760dc503849db0d5ef39809a320d6d0514e7857c1c48babd7293488bcc9a150767
   languageName: node
   linkType: hard
 
@@ -4624,7 +4626,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/proto-loader@npm:^0.6.0, @grpc/proto-loader@npm:^0.6.12":
+"@grpc/proto-loader@npm:^0.6.12":
   version: 0.6.13
   resolution: "@grpc/proto-loader@npm:0.6.13"
   dependencies:
@@ -4651,6 +4653,21 @@ __metadata:
   bin:
     proto-loader-gen-types: build/bin/proto-loader-gen-types.js
   checksum: af1909ec3697cb3b6ba4eac47c5ecd3dcbfd28e3d95b2a8b0e8cc84edb33e9ec7ed75efbb9f5ec479712ed3c1f23638f2dc5130a28e7da388a59f54ef158ba9c
+  languageName: node
+  linkType: hard
+
+"@grpc/proto-loader@npm:^0.7.0":
+  version: 0.7.5
+  resolution: "@grpc/proto-loader@npm:0.7.5"
+  dependencies:
+    "@types/long": ^4.0.1
+    lodash.camelcase: ^4.3.0
+    long: ^4.0.0
+    protobufjs: ^7.0.0
+    yargs: ^16.2.0
+  bin:
+    proto-loader-gen-types: build/bin/proto-loader-gen-types.js
+  checksum: ca3a16fc18526a835d006802d15dcf21cb3e2a7a803a988bf34397ebeb07ae94062b3f06db3d1a9b8ec3c40bd96354ca69d9e2ac06ef4c3a74a990d9e55ca2fd
   languageName: node
   linkType: hard
 
@@ -26541,7 +26558,7 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@fluent/langneg": ^0.6.2
-    "@google-cloud/opentelemetry-cloud-trace-exporter": ^1.1.0
+    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.0.0
     "@nestjs/common": ^9.1.2
     "@nestjs/config": ^2.2.0
     "@nestjs/core": ^9.2.0
@@ -26849,6 +26866,16 @@ fsevents@~2.1.1:
     gaxios: ^5.0.0
     json-bigint: ^1.0.0
   checksum: b75635e564a39ef0a6ebbff0daa97cea37382c3d6f0d7a6a0406e03a275de804a74e3f3d410d5313a6c9dd3496023e96bc81474917fa8369974398eb069d9645
+  languageName: node
+  linkType: hard
+
+"gcp-metadata@npm:^5.0.1":
+  version: 5.2.0
+  resolution: "gcp-metadata@npm:5.2.0"
+  dependencies:
+    gaxios: ^5.0.0
+    json-bigint: ^1.0.0
+  checksum: 4e7ed589c814bb79cbf052b0eda1d5e219fbee030f4772eca27ec1e6e1faa85ba0ef3b17ea5c3fd51a54fc5429c924b4edbb260ac147701f211fb9807b893544
   languageName: node
   linkType: hard
 
@@ -27612,13 +27639,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-proto-files@npm:^2.1.0":
-  version: 2.5.2
-  resolution: "google-proto-files@npm:2.5.2"
+"google-proto-files@npm:^3.0.0":
+  version: 3.0.3
+  resolution: "google-proto-files@npm:3.0.3"
   dependencies:
-    protobufjs: ^6.8.0
+    protobufjs: ^7.0.0
     walkdir: ^0.4.0
-  checksum: 6d8cd7f11b0618161a58b17174265cd2df4fe693db89fb7849d395ee28a29ccebd814c5560fe772ca6a29327ce95f45f6beaa362f3630acba6158a09be6fc2ba
+  checksum: 6650768c72c76295c5a9357933f91d3fccafea2511c5e378dd9f43429b896f060a8f019dec2779d60bf11bdccd6f59c40d2195c3315681e4c41416ed02234ead
   languageName: node
   linkType: hard
 
@@ -41061,7 +41088,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:6.11.3, protobufjs@npm:^6.10.0, protobufjs@npm:^6.11.2, protobufjs@npm:^6.11.3, protobufjs@npm:^6.8.0, protobufjs@npm:^6.8.8":
+"protobufjs@npm:6.11.3, protobufjs@npm:^6.10.0, protobufjs@npm:^6.11.2, protobufjs@npm:^6.11.3, protobufjs@npm:^6.8.8":
   version: 6.11.3
   resolution: "protobufjs@npm:6.11.3"
   dependencies:
