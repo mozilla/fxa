@@ -85,7 +85,12 @@ function swapBetaMeta(html, metaContent = {}) {
 // Try to pull the flow id from the request query to setup the trace state context
 function getTraceState(req) {
   let state = '';
-  if (req && req.query && req.query.flowId) {
+  if (
+    req &&
+    req.query &&
+    req.query.flowId &&
+    /^(?:[a-fA-F0-9]{2}){32}$/.test(req.query.flowId)
+  ) {
     state = `flow.id=${req.query.flowId}`;
   }
   return state;
