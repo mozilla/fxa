@@ -16,12 +16,18 @@ export default {
 
 export const DefaultSignedIn = () => (
   <LocationProvider>
-    <SignupConfirmed isSignedIn />
+    <SignupConfirmed isSignedIn isSync={false} />
   </LocationProvider>
 );
 
 export const DefaultSignedOut = () => (
   <LocationProvider>
-    <SignupConfirmed isSignedIn={false} />
+    <SignupConfirmed isSignedIn={false} isSync={false} />
+  </LocationProvider>
+);
+
+export const IsSync = () => (
+  <LocationProvider>
+    <SignupConfirmed isSignedIn={false} isSync />
   </LocationProvider>
 );

@@ -16,13 +16,13 @@ export default {
 
 export const DefaultSignedIn = () => (
   <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn />
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn isSync={false} />
   </LocationProvider>
 );
 
 export const DefaultSignedOut = () => (
   <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} isSync={false} />
   </LocationProvider>
 );
 
