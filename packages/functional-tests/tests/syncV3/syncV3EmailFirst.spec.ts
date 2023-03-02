@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 const PASSWORD = 'passwordzxcv';
 let email;
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.beforeEach(async ({ target, credentials, pages: { login } }) => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
-    await login.clearCache();
   });
 
   test('open directly to /signup page, refresh on the /signup page', async ({
     target,
-    page,
-    pages: { login },
   }) => {
+    const { page, login } = await newPagesForSync(target);
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'networkidle' }
@@ -39,9 +37,8 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
 
   test('open directly to /signin page, refresh on the /signin page', async ({
     target,
-    page,
-    pages: { login },
   }) => {
+    const { page, login } = await newPagesForSync(target);
     await target.auth.signUp(email, PASSWORD, {
       lang: 'en',
       preVerified: 'true',
@@ -64,11 +61,8 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     expect(await login.isEmailHeader()).toBe(true);
   });
 
-  test('enter a firefox.com address', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode },
-  }) => {
+  test('enter a firefox.com address', async ({ target }) => {
+    const { page, login, signinTokenCode } = await newPagesForSync(target);
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'networkidle' }

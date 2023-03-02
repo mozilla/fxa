@@ -1,5 +1,4 @@
 import { test, expect } from '../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../lib/email';
 
 const PASSWORD = 'passwordzxcv';
 let email;

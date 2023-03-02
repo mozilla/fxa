@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 const makeUid = () =>
   [...Array(32)]
@@ -10,15 +10,20 @@ const makeUid = () =>
     .join('');
 
 test.describe('Desktop Sync V3 force auth', () => {
+  test.beforeEach(async ({}) => {
+    test.slow();
+  });
+
   test('sync v3 with a registered email, no uid', async ({
     credentials,
-    pages: {
+    target,
+  }) => {
+    const {
       fxDesktopV3ForceAuth,
       login,
       signinTokenCode,
       connectAnotherDevice,
-    },
-  }) => {
+    } = await newPagesForSync(target);
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       uid: undefined,
     });
@@ -35,13 +40,14 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('sync v3 with a registered email, registered uid', async ({
     credentials,
-    pages: {
+    target,
+  }) => {
+    const {
       fxDesktopV3ForceAuth,
       login,
       signinTokenCode,
       connectAnotherDevice,
-    },
-  }) => {
+    } = await newPagesForSync(target);
     await fxDesktopV3ForceAuth.open(credentials);
     await login.setPassword(credentials.password);
     await login.submit();
@@ -56,13 +62,14 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('sync v3 with a registered email, unregistered uid', async ({
     credentials,
-    pages: {
+    target,
+  }) => {
+    const {
       fxDesktopV3ForceAuth,
       login,
       signinTokenCode,
       connectAnotherDevice,
-    },
-  }) => {
+    } = await newPagesForSync(target);
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, { uid });
     await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
@@ -79,8 +86,9 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('sync v3 with an unregistered email, no uid', async ({
     credentials,
-    pages: { fxDesktopV3ForceAuth, login },
+    target,
   }) => {
+    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
     const email = `sync${Math.random()}@restmail.net`;
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       email,
@@ -104,8 +112,9 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('sync v3 with an unregistered email, registered uid', async ({
     credentials,
-    pages: { fxDesktopV3ForceAuth, login },
+    target,
   }) => {
+    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
     const email = `sync${Math.random()}@restmail.net`;
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       email,
@@ -123,8 +132,9 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('sync v3 with an unregistered email, unregistered uid', async ({
     credentials,
-    pages: { fxDesktopV3ForceAuth, login },
+    target,
   }) => {
+    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
     const email = `sync${Math.random()}@restmail.net`;
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -144,8 +154,10 @@ test.describe('Desktop Sync V3 force auth', () => {
 
   test('blocked with an registered email, unregistered uid', async ({
     credentials,
-    pages: { fxDesktopV3ForceAuth, login, connectAnotherDevice },
+    target,
   }) => {
+    const { fxDesktopV3ForceAuth, login, connectAnotherDevice } =
+      await newPagesForSync(target);
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       uid,
