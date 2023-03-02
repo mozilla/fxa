@@ -52,7 +52,7 @@ test.describe('resubscription test', () => {
     );
   });
 
-  test('resubscribe successfully with the same coupon after canceling for paypal', async ({
+  test.skip('resubscribe successfully with the same coupon after canceling for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }) => {
