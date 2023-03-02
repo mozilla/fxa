@@ -13,8 +13,8 @@ const { promisify } = require('util');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
-import { Container } from 'typedi';
-import { AccountEventsManager } from '../account-events';
+const { Container } = require('typedi');
+const { AccountEventsManager } = require('../account-events');
 
 module.exports = (log, db, mailer, customs, config) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
