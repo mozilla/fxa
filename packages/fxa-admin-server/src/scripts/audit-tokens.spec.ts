@@ -8,7 +8,7 @@ import { assert } from 'chai';
 import util from 'node:util';
 import path from 'node:path';
 import { auditRowCounts, auditAge, auditOrphanedRows } from './audit-tokens';
-import Config from '../src/config';
+import Config from '../config';
 import { clearDb, bindKnex, scaffoldDb } from './db-helpers';
 
 import sinon from 'sinon';

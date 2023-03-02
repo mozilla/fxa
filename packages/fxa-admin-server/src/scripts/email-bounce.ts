@@ -2,7 +2,7 @@ import { knex, Knex } from 'knex';
 import { Model } from 'objection';
 import yargs from 'yargs';
 
-import Config from '../src/config';
+import Config from '../config';
 import { Account, Email, EmailBounce } from 'fxa-shared/db/models/auth';
 import {
   AccountIsh,
