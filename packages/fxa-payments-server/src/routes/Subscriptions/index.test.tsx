@@ -631,38 +631,32 @@ describe('routes/Subscriptions', () => {
         ];
 
     let latest_invoice_items;
-    let otherPromotionItems;
+    let mockSubsequentInvoices;
     switch (discount) {
       case 'ENDS_NEXT_INTERVAL':
         latest_invoice_items = {
           ...MOCK_LATEST_INVOICE_ITEMS,
-          total: 685,
+          total: 735,
         };
-        otherPromotionItems = {
-          promotion_code: 'PROMO50',
-          promotion_end: 1568408388.815,
-          promotion_duration: 'repeating',
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 735 },
+        ];
         break;
       case 'ONGOING':
         latest_invoice_items = {
           ...MOCK_LATEST_INVOICE_ITEMS,
           total: 685,
         };
-        otherPromotionItems = {
-          promotion_code: 'PROMO50',
-          promotion_end: 1677273263.815,
-          promotion_duration: 'repeating',
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 685 },
+        ];
         break;
       case 'NONE':
       default:
         latest_invoice_items = MOCK_LATEST_INVOICE_ITEMS;
-        otherPromotionItems = {
-          promotion_code: undefined,
-          promotion_end: null,
-          promotion_duration: null,
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 735 },
+        ];
         break;
     }
 
@@ -685,7 +679,6 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
-            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
@@ -717,7 +710,6 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
-            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
@@ -734,7 +726,7 @@ describe('routes/Subscriptions', () => {
       });
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
+      .reply(200, mockSubsequentInvoices);
   }
 
   const expectProductImage = ({

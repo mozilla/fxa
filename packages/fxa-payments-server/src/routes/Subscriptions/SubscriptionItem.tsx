@@ -74,10 +74,7 @@ export const SubscriptionItem = ({
     );
   }
 
-  if (
-    customerSubscription.cancel_at_period_end === false &&
-    !((total || total === 0) && period_start)
-  ) {
+  if (!subsequentInvoice) {
     const ariaLabelledBy = 'invoice-not-found-header';
     const ariaDescribedBy = 'invoice-not-found-description';
     return (
@@ -134,6 +131,7 @@ export const SubscriptionItem = ({
                 customer,
                 customerSubscription,
                 reactivateSubscription,
+                subsequentInvoice,
               }}
             />
           </>

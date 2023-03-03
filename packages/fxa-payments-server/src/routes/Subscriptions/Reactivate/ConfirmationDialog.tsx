@@ -10,9 +10,8 @@ import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
 import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import AppContext from '../../../lib/AppContext';
-import { couponOnSubsequentInvoice } from '../../../lib/coupon';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const ConfirmationDialogContent = ({
   onConfirm,
@@ -114,14 +113,14 @@ const ConfirmationDialog = ({
   onConfirm,
   plan,
   customer,
-  customerSubscription,
+  subsequentInvoice,
   periodEndDate,
 }: {
   onDismiss: Function;
   onConfirm: () => void;
   plan: Plan;
   customer: Customer;
-  customerSubscription: WebSubscription;
+  subsequentInvoice: SubsequentInvoicePreview;
   periodEndDate: number;
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);
@@ -132,26 +131,7 @@ const ConfirmationDialog = ({
   );
   const { last4 } = customer;
 
-  const {
-    promotion_code: promotionCode,
-    promotion_end,
-    current_period_end,
-    promotion_duration,
-  } = customerSubscription;
-
-  const includeCoupon =
-    promotionCode &&
-    couponOnSubsequentInvoice(
-      current_period_end,
-      promotion_end,
-      promotion_duration
-    );
-
-  // Depending on whether or not the coupon should be applied to the next invoice
-  // use total or subtotal.
-  const amount = includeCoupon
-    ? customerSubscription.latest_invoice_items.total
-    : customerSubscription.latest_invoice_items.subtotal;
+  const amount = subsequentInvoice.total;
 
   const ariaLabelledBy = 'confirmation-content-header';
   const ariaDescribedBy = 'confirmation-content-description';
