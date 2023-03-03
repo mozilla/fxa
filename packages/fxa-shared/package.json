@@ -137,7 +137,7 @@
   },
   "dependencies": {
     "@fluent/langneg": "^0.6.2",
-    "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
+    "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
     "@nestjs/common": "^9.1.2",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.2.0",
