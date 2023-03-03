@@ -4,11 +4,10 @@
 
 import React from 'react';
 import Signin, { SigninProps } from '.';
-import AppLayout from '../../components/AppLayout';
 import { MozServices } from '../../lib/types';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL, MOCK_SERVICE } from './mocks';
+import { MOCK_SERVICE } from './mocks';
 import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
@@ -18,47 +17,30 @@ export default {
 } as Meta;
 
 // TODO: Add in error and success states when the Banner is added in
-const SigninWithProvider = ({
-  email,
-  isPasswordNeeded,
-  serviceName,
-}: SigninProps) => {
+const SigninWithProvider = ({ isPasswordNeeded, serviceName }: SigninProps) => {
   return (
     <LocationProvider>
-      <AppLayout>
-        <Signin {...{ email, isPasswordNeeded, serviceName }} />
-      </AppLayout>
+      <Signin {...{ isPasswordNeeded, serviceName }} />
     </LocationProvider>
   );
 };
 
-export const PasswordNeeded = () => (
-  <SigninWithProvider email={MOCK_EMAIL} isPasswordNeeded />
-);
+export const PasswordNeeded = () => <SigninWithProvider isPasswordNeeded />;
 
 export const PasswordNotNeeded = () => (
-  <SigninWithProvider email={MOCK_EMAIL} isPasswordNeeded={false} />
+  <SigninWithProvider isPasswordNeeded={false} />
 );
 
 export const PasswordNotNeededCustomServiceName = () => (
-  <SigninWithProvider
-    email={MOCK_EMAIL}
-    isPasswordNeeded={false}
-    serviceName={MOCK_SERVICE}
-  />
+  <SigninWithProvider isPasswordNeeded={false} serviceName={MOCK_SERVICE} />
 );
 
 export const PasswordNeededCustomServiceName = () => (
-  <SigninWithProvider
-    email={MOCK_EMAIL}
-    isPasswordNeeded={true}
-    serviceName={MOCK_SERVICE}
-  />
+  <SigninWithProvider isPasswordNeeded={true} serviceName={MOCK_SERVICE} />
 );
 
 export const IsPocketClient = () => (
   <SigninWithProvider
-    email={MOCK_EMAIL}
     isPasswordNeeded={false}
     serviceName={MozServices.Pocket}
   />

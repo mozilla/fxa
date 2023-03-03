@@ -347,7 +347,9 @@ Router = Router.extend({
       })}`;
       this.navigateAway(settingsLink);
     },
-    'signin(/)': createViewHandler(SignInPasswordView),
+    'signin(/)': function () {
+      this.createReactOrBackboneViewHandler('signin', SignInPasswordView);
+    },
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
     'signin_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_IN,

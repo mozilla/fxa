@@ -11,21 +11,23 @@ import { QueryParams } from '../..';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
-import ResetPassword from '../../pages/ResetPassword';
-import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 
-import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 import Legal from '../../pages/Legal';
 import LegalTerms from '../../pages/Legal/Terms';
 import LegalPrivacy from '../../pages/Legal/Privacy';
 
-import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
+import Signin from '../../pages/Signin';
 
+import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
+import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
+import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
+
+import ResetPassword from '../../pages/ResetPassword';
+import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
-import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
-import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
+import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 
 import SigninReported from '../../pages/Signin/SigninReported';
 
@@ -52,6 +54,8 @@ export const App = ({
               <LegalTerms path="/:locale/legal/terms/*" />
               <LegalPrivacy path="/legal/privacy/*" />
               <LegalPrivacy path="/:locale/legal/privacy/*" />
+
+              <Signin path="/signin/*" />
 
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
