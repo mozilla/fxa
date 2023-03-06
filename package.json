@@ -34,7 +34,7 @@
   "dependencies": {
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
-    "lint-staged": "^13.0.3",
+    "lint-staged": "^13.1.2",
     "node-fetch": "^2.6.7",
     "nps": "^5.10.0",
     "p-queue": "^7.3.4",
