@@ -6,6 +6,8 @@ import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
 
+import { paypalApiClient } from '@fxa/payments/paypal-api-client';
+
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
 export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
 export const PAYPAL_LIVE_BASE = 'https://api-3t.paypal.com';

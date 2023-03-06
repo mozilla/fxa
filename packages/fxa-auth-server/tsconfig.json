@@ -1,12 +1,27 @@
 {
-  "extends": "../../_dev/tsconfig.node.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
     "outDir": "./dist",
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "checkJs": false,
-    "types": ["accept-language", "mocha", "mozlog", "node"]
+    "types": ["accept-language", "mocha", "mozlog", "node", "fxa-geodb"],
+    "typeRoots": [
+      "../../types",
+      "../../node_modules/@types",
+      "../../packages/*/node_modules/@types"
+    ]
   },
   "references": [{ "path": "../fxa-shared" }],
   "include": [
