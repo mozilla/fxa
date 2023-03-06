@@ -139,7 +139,7 @@
     "@fluent/langneg": "^0.6.2",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
     "@nestjs/common": "^9.1.2",
-    "@nestjs/config": "^2.2.0",
+    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.2.0",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.2.0",

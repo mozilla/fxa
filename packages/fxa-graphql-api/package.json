@@ -35,7 +35,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@nestjs/common": "^9.1.2",
-    "@nestjs/config": "^2.2.0",
+    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.2.0",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.2.0",
