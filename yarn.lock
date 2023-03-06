@@ -6297,19 +6297,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@nestjs/config@npm:2.2.0"
+"@nestjs/config@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@nestjs/config@npm:2.3.1"
   dependencies:
-    dotenv: 16.0.1
-    dotenv-expand: 8.0.3
+    dotenv: 16.0.3
+    dotenv-expand: 10.0.0
     lodash: 4.17.21
-    uuid: 8.3.2
+    uuid: 9.0.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
     reflect-metadata: ^0.1.13
     rxjs: ^6.0.0 || ^7.2.0
-  checksum: 42b9d8014da51ee76621f705d3783d10fbcaa8362881ecd591b8c9542e8067d3e61258bb01556694c355471ea6af8485c05ba85d1326f54f810bff19bfefef2e
+  checksum: 3397b9a9d8492a2520edde2711865025ba6d4385370ab33ef2cd3b19cd868ea9855f2ee7f089a3fda0c60234fdec622ed9916cc94b912e9736ebad2ccfb827a0
   languageName: node
   linkType: hard
 
@@ -21990,17 +21990,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-expand@npm:10.0.0":
+  version: 10.0.0
+  resolution: "dotenv-expand@npm:10.0.0"
+  checksum: 2a38b470efe0abcb1ac8490421a55e1d764dc9440fd220942bce40965074f3fb00b585f4346020cb0f0f219966ee6b4ee5023458b3e2953fe5b3214de1b314ee
+  languageName: node
+  linkType: hard
+
 "dotenv-expand@npm:5.1.0, dotenv-expand@npm:^5.1.0":
   version: 5.1.0
   resolution: "dotenv-expand@npm:5.1.0"
   checksum: 8017675b7f254384915d55f9eb6388e577cf0a1231a28d54b0ca03b782be9501b0ac90ac57338636d395fa59051e6209e9b44b8ddf169ce6076dffb5dea227d3
-  languageName: node
-  linkType: hard
-
-"dotenv-expand@npm:8.0.3":
-  version: 8.0.3
-  resolution: "dotenv-expand@npm:8.0.3"
-  checksum: 128ce90ac825b543de3ece0154a51b056ab0dc36bb26d97a68cd0b8707327ecd3c182fb6ac63b26a0fcdfa85064419906a1065cb634f1f9dc08ad311375f1fc0
   languageName: node
   linkType: hard
 
@@ -22015,10 +22015,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:16.0.1":
-  version: 16.0.1
-  resolution: "dotenv@npm:16.0.1"
-  checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
+"dotenv@npm:16.0.3":
+  version: 16.0.3
+  resolution: "dotenv@npm:16.0.3"
+  checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
   languageName: node
   linkType: hard
 
@@ -25547,7 +25547,7 @@ fsevents@~2.1.1:
     "@google-cloud/firestore": ^6.4.0
     "@nestjs/cli": ^9.1.3
     "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.2.0
+    "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/platform-express": ^9.2.0
@@ -26023,7 +26023,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^10.0.0
     "@nestjs/cli": ^9.1.3
     "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.2.0
+    "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
@@ -26120,7 +26120,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^9.1.3
     "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.2.0
+    "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
@@ -26542,7 +26542,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.2
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.0.0
     "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.2.0
+    "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
@@ -26650,7 +26650,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^9.1.3
     "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.2.0
+    "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
     "@nestjs/mapped-types": ^1.2.0
     "@nestjs/platform-express": ^9.2.0

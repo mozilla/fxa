@@ -41,7 +41,7 @@
     "@golevelup/ts-jest": "^0.3.2",
     "@google-cloud/firestore": "^6.4.0",
     "@nestjs/common": "^9.1.2",
-    "@nestjs/config": "^2.2.0",
+    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.2.0",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/platform-express": "^9.2.0",
