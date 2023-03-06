@@ -111,28 +111,5 @@ registerSuite('beta settings', {
       expect(`${proxiedResponse.send.args[0][0]}`.includes('LOLNOPE')).to.be
         .false;
     },
-    'includes a valid flow id': function () {
-      const proxyingResponse = mockedResponse(dummyHtml, {
-        'content-type': 'text/html',
-      });
-      const proxiedResponse = mockRes(responseOptions);
-      modifyProxyRes(
-        proxyingResponse,
-        {
-          query: {
-            flowId:
-              '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f',
-          },
-        },
-        proxiedResponse
-      );
-      proxyingResponse.send(dummyHtml);
-
-      expect(
-        proxiedResponse.send.args[0][0].includes(
-          '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f'
-        )
-      ).to.be.true;
-    },
   },
 });

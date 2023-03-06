@@ -100,21 +100,6 @@ const config = require('../config');
 require('fxa-shared/tracing/node-tracing').init(config.get('tracing'));
 ```
 
-```
-// For client side apps
-import {
-  init as initTracing,
-  getTracingHeadersFromDocument,
-} from 'fxa-shared/tracing/browser-tracing';
-
-initTracing(
-  config.tracing,
-  // Looks up values in various DOM element attributes.
-  getTracingHeadersFromDocument(document),
-  console
-);
-```
-
 To see traces on your local system, set the following environment variables:
 
 ```

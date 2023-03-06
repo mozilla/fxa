@@ -6,7 +6,6 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
-const { getTraceParentId } = require('fxa-shared/tracing/node-tracing');
 
 module.exports = function (config) {
   let featureFlags;
@@ -127,11 +126,6 @@ module.exports = function (config) {
         req.query.client_id &&
         PROMPT_NONE_ENABLED_CLIENT_IDS.has(req.query.client_id);
 
-      const traceParent = getTraceParentId();
-      let traceState = '';
-      if (flowEventData && flowEventData.flowId) {
-        traceState = `flow.id=${flowEventData.flowId}`;
-      }
       res.render('index', {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
@@ -147,8 +141,6 @@ module.exports = function (config) {
         flowId: flowEventData.flowId,
         // Note that staticResourceUrl is added to templates as a build step
         staticResourceUrl: STATIC_RESOURCE_URL,
-        traceParent,
-        traceState,
       });
 
       if (req.headers.dnt === '1') {
