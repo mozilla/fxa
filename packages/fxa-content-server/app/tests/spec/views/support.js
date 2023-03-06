@@ -106,18 +106,28 @@ describe('views/support', function () {
           'support:app:foo': 'Mobile',
           'support:app:bar': 'Desktop',
         },
+        active: true,
       },
       {
         plan_id: 'foobar_9001',
         product_id: 'foobar_plus',
         product_name: 'FooBar Plus',
         product_metadata: {},
+        active: true,
       },
       {
         plan_id: 'moz_vpn_9001',
         product_id: 'moz_vpn_premium',
         product_name: 'Mozilla VPN',
         product_metadata: {},
+        active: true,
+      },
+      {
+        plan_id: 'archived_9001',
+        product_id: 'moz_fpn',
+        product_name: 'FPN VPN',
+        product_metadata: {},
+        active: false,
       },
     ]);
     sinon.stub(user, 'getAccountByUid').returns(account);
@@ -289,6 +299,35 @@ describe('views/support', function () {
           );
         });
     });
+
+    it('archived plan should be selectable', function () {
+      account.getSubscriptions.restore();
+      sinon.stub(account, 'getSubscriptions').resolves([
+        {
+          plan_id: '123done_9001',
+          product_id: '123done_xyz',
+          product_name: '123Done Pro',
+        },
+        {
+          plan_id: 'archived_9001',
+          product_id: 'moz_fpn',
+          product_name: 'FPN VPN',
+        },
+      ]);
+      return view
+        .render()
+        .then(function () {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function () {
+          view
+            .$('#product option:eq(2)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(view.supportForm.get('productName'), 'FxA - FPN VPN');
+        });
+    });
   });
 
   describe('category', function () {
@@ -452,6 +491,67 @@ describe('views/support', function () {
             account.createSupportTicket.firstCall.args[0],
             supportTicket
           );
+          assert.ok($('.dialog-success').length);
+          assert.equal(view.logFlowEvent.callCount, 4);
+          assert.deepEqual(view.logFlowEvent.getCall(0).args, [
+            'engage',
+            'support',
+            { once: true },
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(1).args, [
+            'submit',
+            'support',
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(2).args, [
+            'success',
+            'support',
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(3).args, [
+            'complete',
+            'support',
+          ]);
+        });
+    });
+
+    it('should display a success modal for an archived plan', function () {
+      account.getSubscriptions.restore();
+      sinon.stub(account, 'getSubscriptions').resolves([
+        {
+          plan_id: 'archived_9001',
+          product_id: 'moz_fpn',
+          product_name: 'FPN VPN',
+        },
+      ]);
+      sinon.stub(view, 'navigateToSubscriptionsManagement');
+      sinon
+        .stub(account, 'createSupportTicket')
+        .returns(Promise.resolve({ success: true }));
+      sinon.spy(view, 'logFlowEvent');
+
+      return view
+        .render()
+        .then(function () {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function () {
+          view.$('#product option:eq(1)').prop('selected', true);
+          view.$('#product').trigger('change');
+          view.$('#topic option:eq(1)').prop('selected', true);
+          view.$('#message').val(supportTicket.message).trigger('keyup');
+
+          // calling this directly instead of clicking submit so we can have
+          // a promise to await
+          return view.submitSupportForm();
+        })
+        .then(function () {
+          assert.isTrue(account.createSupportTicket.calledOnce);
+          console.log(account.createSupportTicket.firstCall.args[0]);
+          assert.deepEqual(account.createSupportTicket.firstCall.args[0], {
+            ...supportTicket,
+            productName: 'FxA - FPN VPN',
+            app: '',
+          });
           assert.ok($('.dialog-success').length);
           assert.equal(view.logFlowEvent.callCount, 4);
           assert.deepEqual(view.logFlowEvent.getCall(0).args, [
