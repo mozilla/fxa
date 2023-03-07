@@ -36,9 +36,11 @@
       "minimum": 1
     },
     "user_id": {
+      "description": "The unique identifier for the user.",
       "$ref": "#/definitions/hex32"
     },
     "device_id": {
+      "description": "The unique identifier for the device.",
       "$ref": "#/definitions/hex32"
     },
     "session_id": {
@@ -46,6 +48,7 @@
       "$ref": "#/definitions/integerLike"
     },
     "app_version": {
+      "description": "The version of the app.",
       "type": "string"
     },
     "language": {
@@ -54,21 +57,27 @@
       "pattern": "^[a-z]{1,}(-[a-zA-Z0-9]{1,})*$"
     },
     "country": {
+      "description": "The localized full country name where the locale is based (indirectly) on a request's `Accept-Language` header.",
       "type": "string"
     },
     "region": {
+      "description": "The localized full name of the province, state, or territory where the locale is based.",
       "type": "string"
     },
     "os_name": {
+      "description": "The name of the operating system.",
       "type": "string"
     },
     "os_version": {
+      "description": "The version of the operating system.",
       "type": "string"
     },
     "device_model": {
+      "description": "A unique name provided by the device manufacturer to identify the device type or design (e.g. 'iPad', 'iPhone' or 'Pixel 2 XL').",
       "type": "string"
     },
     "event_properties": {
+      "description": "Properties associated with a particular event, which values are current for the moment at which the event was triggered.",
       "type": "object",
       "properties": {
         "service": {
@@ -76,6 +85,7 @@
           "type": "string"
         },
         "oauth_client_id": {
+          "description": "The OAuth client ID for a RP integrated with FxA.",
           "type": "string"
         },
         "plan_id": {
@@ -91,6 +101,7 @@
       }
     },
     "user_properties": {
+      "description": "Properties tied to the FxA user. These values can reflect current or previous values, depending on its nature and how often it is updated.",
       "type": "object",
       "definitions": {
         "entrypointPattern": {
@@ -106,25 +117,32 @@
       },
       "properties": {
         "entrypoint": {
+          "description": "The specific page or browser UI element containing the first step of the FxA sign-in/sign-up process (e.g., enter email form).",
           "$ref": "#/properties/user_properties/definitions/entrypointPattern"
         },
         "entrypoint_experiment": {
+          "description": "Identifier for the experiment the user is part of at the entrypoint (if any).",
           "$ref": "#/properties/user_properties/definitions/entrypointPattern"
         },
         "entrypoint_variation": {
+          "description": "Identifier for the experiment variation the user is part of at the entrypoint (if any).",
           "$ref": "#/properties/user_properties/definitions/entrypointPattern"
         },
         "flow_id": {
+          "description": "The flow identifier.",
           "type": "string",
           "pattern": "^[a-fA-F0-9]{64}$"
         },
         "ua_browser": {
+          "description": "The user's web browser.",
           "type": "string"
         },
         "ua_version": {
+          "description": "The user's browser version.",
           "type": "string"
         },
         "utm_campaign": {
+          "description": "As defined by Google Analytics, this parameter is the individual campaign name, slogan, promo code, etc. for a product.",
           "anyOf": [
             {
               "$ref": "#/properties/user_properties/definitions/utmPattern"
@@ -135,15 +153,19 @@
           ]
         },
         "utm_content": {
+          "description": "As defined by Google Analytics, this parameter is used to differentiate similar content, or links within the same ad. This parameter can be used to track the name of an A-B test (i.e., if a particular call-to-action is resulting in more traffic).",
           "$ref": "#/properties/user_properties/definitions/utmPattern"
         },
         "utm_medium": {
+          "description": "As defined by Google Analytics, this parameter is used to identify the medium that directed the visitor to the page (e.g., utm_medium=email).",
           "$ref": "#/properties/user_properties/definitions/utmPattern"
         },
         "utm_source": {
+          "description": "Used to identify the site, or browser UI element that is sending traffic to the page containing the beginning of the FxA sign-in/sign-up process.",
           "$ref": "#/properties/user_properties/definitions/utmPattern"
         },
         "utm_term": {
+          "description": "As defined by Google Analytics, this parameter is used to identify the paid search keywords that led customers to a page. It can be used to track the cohort or variation in an A-B test (i.e., if a specific term sent more customers to a page).",
           "$ref": "#/properties/user_properties/definitions/utmPattern"
         }
       }
