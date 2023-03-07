@@ -356,7 +356,12 @@ Router = Router.extend({
       type: VerificationReasons.SIGN_IN,
     }),
     'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
-    'signin_reported(/)': createViewHandler(SignInReportedView),
+    'signin_reported(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_reported',
+        SignInReportedView
+      );
+    },
     'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
       type: VerificationReasons.SIGN_IN,
     }),

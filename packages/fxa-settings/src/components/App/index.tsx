@@ -27,6 +27,8 @@ import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecovery
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
+import SigninReported from '../../pages/Signin/SigninReported';
+
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
@@ -55,6 +57,8 @@ export const App = ({
               <ConfirmResetPassword path="/confirm_reset_password/*" />
               <CompleteResetPassword path="/complete_reset_password/*" />
               <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
+
+              <SigninReported path="/signin_reported/*" />
               {/* Pages using the Ready view need to be accessible to logged out viewers,
                * but need to be able to check if the user is logged in or logged out,
                * so they are wrapped in this component.
