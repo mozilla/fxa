@@ -20201,17 +20201,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.22.5":
+"core-js@npm:^3.22.5, core-js@npm:^3.29.0":
   version: 3.29.0
   resolution: "core-js@npm:3.29.0"
   checksum: 2bd69d783efcd2ef9197ce892a8b91d7b2fd86dddce805a3be0ff721013a2342eeab0f7d0b4b5548c1377b9846a8fb81485054efd39618b9d1a1fca04af81ccf
-  languageName: node
-  linkType: hard
-
-"core-js@npm:^3.26.0":
-  version: 3.26.0
-  resolution: "core-js@npm:3.26.0"
-  checksum: 0149eb9d3909fde9c17626af3a6e625c326e8598d0bb5e6c5b48a18e5fcd4eaf48d4964d873667d8148542ff590fb98eb3f93618da114ca54999d6bc0349734b
   languageName: node
   linkType: hard
 
@@ -25985,7 +25978,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.6
     copy-webpack-plugin: ^5.1.1
-    core-js: ^3.26.0
+    core-js: ^3.29.0
     css: 3.0.0
     css-loader: 1.0.0
     duration-js: 4.0.0
