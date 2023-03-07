@@ -28,6 +28,15 @@ module.exports = (log) => {
     }
 
     try {
+      const locationOverride = config.locationOverride.location;
+      if (
+        !!locationOverride &&
+        locationOverride.countryCode &&
+        locationOverride.postalCode
+      ) {
+        return config.locationOverride;
+      }
+
       const location = geodb(ip);
       const accuracy = location.accuracy;
       let confidence = 'fxa.location.accuracy.';

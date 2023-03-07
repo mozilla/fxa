@@ -86,6 +86,64 @@ Use the following as a template, and fill in your own values:
 
 The sandbox PayPal business account API credentials above can be found in the PayPal developer dashboard under ["Sandbox" > "Accounts"](https://developer.paypal.com/developer/accounts/). You may need to create a business account if one doesn't exist.
 
+## Stripe Tax
+
+### Enabling Stripe Tax
+
+To enable Stripe Tax in the Auth server you can: enable `stripeAutomaticTax` in your secrets.json or through your environment variables with `SUBSCRIPTIONS_STRIPE_AUTOMATIC_TAX`
+
+Example using secrets.json:
+
+```json
+{
+  "subscriptions": {
+    "stripeAutomaticTax": {
+      "enabled": true
+    }
+  }
+}
+```
+
+or with a `.env` file and `dotenv`
+
+```
+SUBSCRIPTIONS_STRIPE_AUTOMATIC_TAX=true
+```
+
+### Testing With Stripe Tax
+
+When running the FxA stack locally, our geodb service needs an override to resolve a location. This override object takes the form of:
+
+```json
+{
+  "location": {
+    "countryCode": <2 letter country code string>,
+    "postalCode": <corresponding postal code string>
+  }
+}
+```
+
+and can be passed in either through your `secrets.json` or through your environment variables.
+
+Example using `secrets.json`:
+
+```json
+  "geodb": {
+    "locationOverride": {
+      "location": {
+        "countryCode": "US",
+        "postalCode": "98332"
+      }
+    }
+  },
+```
+
+or with a `.env` file using `dotenv`
+
+```
+GEODB_LOCATION_OVERRIDE= { "location": { "countryCode": "US", "postalCode": "85001"} }
+```
+
 ## Linting
 
 Run lint with:

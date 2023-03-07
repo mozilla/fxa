@@ -143,6 +143,12 @@ const convictConf = convict({
       env: 'GEODB_LOG_ACCURACY',
       format: Boolean,
     },
+    locationOverride: {
+      doc: 'override for forcing location',
+      format: Object,
+      default: {},
+      env: 'GEODB_LOCATION_OVERRIDE',
+    },
   },
   appleAuthConfig: {
     clientId: {
