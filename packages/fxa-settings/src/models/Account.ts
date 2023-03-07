@@ -6,6 +6,7 @@ import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
+import { PasswordResetAccount } from './reset-password';
 
 export interface DeviceLocation {
   city: string | null;
@@ -233,7 +234,15 @@ export function getNextAvatar(
   return { id: existingId, url: existingUrl, isDefault: false };
 }
 
-export class Account implements AccountData {
+//
+// It is a good practice to explicitly declare that Account implements
+// PasswordResetAccount interface. However, unlike other languages, in
+// typescript, the interface declaration below isn't mandatory. Just as
+// an experiment remove this declaration and see what happens in
+// App/index.tsx. Does it compile, does it still work, is it still
+// typesafe?
+//
+export class Account implements AccountData, PasswordResetAccount {
   private readonly authClient: AuthClient;
   private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
@@ -641,7 +650,7 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  setLastLogin(date: number) {
+  async setLastLogin(date: number) {
     // FOLLOW-UP: Not yet implemented.
   }
 
@@ -1051,12 +1060,12 @@ export class Account implements AccountData {
     Storage.factory('localStorage').clear();
   }
 
-  async resetPasswordWithRecoveryKey(opts:{
-    accountResetToken:string,
-    emailToHashWith:string
-    password:string,
-    recoveryKeyId:string,
-    kB:string,
+  async resetPasswordWithRecoveryKey(opts: {
+    accountResetToken: string;
+    emailToHashWith: string;
+    password: string;
+    recoveryKeyId: string;
+    kB: string;
   }) {
     const data = await this.authClient.resetPasswordWithRecoveryKey(
       opts.accountResetToken,

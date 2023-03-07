@@ -32,7 +32,6 @@ import {
   useFtlMsgResolver,
   useNotifier,
   useBroker,
-  useAccount,
   useRelier,
   useUrlSearchContext,
 } from '../../../models/hooks';
@@ -42,6 +41,7 @@ import {
   VerificationInfo,
   useLocationStateContext as useLocationContext,
 } from '../../../models';
+import { PasswordResetAccount } from '../../../models/reset-password';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -54,6 +54,12 @@ import {
 export const viewName = 'account-recovery-reset-password';
 
 export type AccountRecoveryResetPasswordProps = {
+  //
+  // Password reset now no longer depends directly on account. Rather
+  // it depends on an interface that is more cohesive with it's concerns.
+  //
+  account: PasswordResetAccount;
+
   overrides?: {
     navigate?: NavigateFn;
     locationContext?: GenericContext;
@@ -67,6 +73,7 @@ type FormData = {
 };
 
 const AccountRecoveryResetPassword = ({
+  account,
   overrides,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -76,13 +83,30 @@ const AccountRecoveryResetPassword = ({
   const notifier = useNotifier();
   const broker = useBroker();
   const ftlMsgResolver = useFtlMsgResolver();
-  const account = useAccount();
+
+  //
+  // Switched to incoming prop
+  //
+  // const account = useAccount();
+  //
+  // Note: We could still use the hook pattern, but the hook would become
+  // type specific. One issue with using hooks like this is that
+  // the hooks module could turn into a nexus of type dependencies,
+  // that is if we start relying on the hooks for lots  of different
+  // of models. For this reason I don't think we should use hooks for
+  // accessing AppContext. I also think that after level 2 in the component
+  // hexarchy (or maybe level 3 or 4?? depending  on how you count)
+  // all 'model' type things should be passed by prop.
+  //
+  // Cross cutting concerns like logging, l10n, etc, are good to use as
+  // hooks at any level.
+  //
+
   const relier = useRelier();
   let navigate = useNavigate();
   let urlSearchContext = useUrlSearchContext();
   let locationContext = useLocationContext();
 
-  // Apply overrides
   navigate = overrides?.navigate || navigate;
   urlSearchContext = overrides?.urlSearchContext || urlSearchContext;
   locationContext = overrides?.locationContext || locationContext;
@@ -111,10 +135,7 @@ const AccountRecoveryResetPassword = ({
   if (state.contextError) {
     alertInvalidContext(state.contextError);
   } else if (!state.supportsRecovery) {
-    const msg = ftlMsgResolver.getMsg(
-      'redirecting',
-      'Redirecting'
-    );
+    const msg = ftlMsgResolver.getMsg('redirecting', 'Redirecting');
     alertBar.info(msg);
     navigate(`/complete_reset_password?${urlSearchContext.toSearchQuery()}`);
   }
@@ -224,13 +245,11 @@ const AccountRecoveryResetPassword = ({
     const password = data.newPassword;
 
     try {
-      await account.resetPasswordWithRecoveryKey(
-        {
-          password,
-          ...verificationInfo,
-          ...accountRecoveryKeyInfo
-        }
-      );
+      await account.resetPasswordWithRecoveryKey({
+        password,
+        ...verificationInfo,
+        ...accountRecoveryKeyInfo,
+      });
 
       // FOLLOW-UP: I don't see functionality in settings
       await account.setLastLogin(Date.now());

@@ -21,11 +21,14 @@ import LegalPrivacy from '../../pages/Legal/Privacy';
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
+import { useAccount } from '../../models';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { showReactApp } = flowQueryParams;
+  const account = useAccount();
+
   return (
     <>
       <Router basepath={'/'}>
@@ -45,12 +48,45 @@ export const App = ({
               <LegalPrivacy path="/legal/privacy/*" />
               <LegalPrivacy path="/:locale/legal/privacy/*" />
 
-             <ResetPassword path='/reset_password/*' />
-             <ConfirmResetPassword path='/confirm_reset_password/*' />
-             <CompleteResetPassword path='/complete_reset_password/*' />
-             <ResetPasswordConfirmed path='/reset_password_verified/*' />
-             <ResetPasswordWithRecoveryKeyVerified path='/reset_password_with_recovery_key_verified/*' />
-             <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
+              <ResetPassword path="/reset_password/*" />
+              <ConfirmResetPassword path="/confirm_reset_password/*" />
+              <CompleteResetPassword path="/complete_reset_password/*" />
+              <ResetPasswordConfirmed path="/reset_password_verified/*" />
+              <ResetPasswordWithRecoveryKeyVerified path="/reset_password_with_recovery_key_verified/*" />
+              <AccountRecoveryResetPassword
+                path="/account_recovery_reset_password/*"
+                // Since the account object supports the PasswordResetAccount interface, We could just pass in
+                // account like so:
+                //
+                // account={ account }
+
+                // Or we could provide a custom implementation without effecting other components. As you can see,
+                // this interface has taken what was once a 'tight' coupling and turned it into a 'loose' coupling
+                // The AccountRecoveryResetPassword no longer cares or is concerned with account, but rather it
+                // just cares that a small portion of that model is present.
+                //
+                // What are thoughts here. Is the code:
+                // - easier to understand?
+                // - easier to test?
+                // - more flexible?
+                //
+                account={{
+                  recoveryKey: account.recoveryKey,
+                  resetPassword: account.resetPassword,
+                  resetPasswordWithRecoveryKey:
+                    account.resetPasswordWithRecoveryKey,
+
+                  //
+                  // Just a contrived scenario....
+                  // Let's say for some reason, we want to change the behavior of setLastLogin.
+                  // Maybe we want to make it fail fast so that qa knows it's not implemented
+                  // and stops further testing.
+                  //
+                  setLastLogin: (_: number) => {
+                    throw new Error('Coming Soon!');
+                  },
+                }}
+              />
             </>
           )}
           <Settings path="/settings/*" {...{ flowQueryParams }} />

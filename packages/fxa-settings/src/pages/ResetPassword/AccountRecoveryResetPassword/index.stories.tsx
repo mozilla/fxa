@@ -3,13 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AccountRecoveryResetPassword, { AccountRecoveryResetPasswordProps } from '.';
+import AccountRecoveryResetPassword, {
+  AccountRecoveryResetPasswordProps,
+} from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { mockAppContext } from '../../../models/mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
 import { AppContext, AppContextValue } from '../../../models';
-import { mockUrlSearchContext, mockUrlHashContext, mockStorageContext, mockAccount, mockRelierFactory, mockLocationContext } from './mocks';
+import {
+  mockUrlSearchContext,
+  mockUrlHashContext,
+  mockStorageContext,
+  mockAccount,
+  mockRelierFactory,
+  mockLocationContext,
+} from './mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export default {
@@ -18,8 +27,11 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (ctx:AppContextValue, props:AccountRecoveryResetPasswordProps) => {
-  return(
+const storyWithProps = (
+  ctx: AppContextValue,
+  props: AccountRecoveryResetPasswordProps
+) => {
+  return (
     <AppContext.Provider value={ctx}>
       <LocationProvider>
         <AccountRecoveryResetPassword {...props} />
@@ -30,35 +42,40 @@ const storyWithProps = (ctx:AppContextValue, props:AccountRecoveryResetPasswordP
 
 function setup() {
   const account = mockAccount();
-  const navigate = async (to:string|number, opts?:{}) => {
+  const navigate = async (to: string | number, opts?: {}) => {
     console.log('Would navigate to', to, opts);
-  }
+  };
   const urlSearchContext = mockUrlSearchContext();
   const urlHashContext = mockUrlHashContext();
   const storageContext = mockStorageContext();
   const locationContext = mockLocationContext();
-  const relierFactory = mockRelierFactory(urlSearchContext, urlHashContext, storageContext );
+  const relierFactory = mockRelierFactory(
+    urlSearchContext,
+    urlHashContext,
+    storageContext
+  );
 
   const ctx = mockAppContext({
     urlSearchContext,
     urlHashContext,
     storageContext,
     account,
-    relierFactory
-  })
+    relierFactory,
+  });
 
   return {
     ctx,
     props: {
+      account,
       overrides: {
         navigate,
         urlSearchContext,
-        locationContext
-      }
+        locationContext,
+      },
     },
     account,
     urlSearchContext,
-    locationContext
+    locationContext,
   };
 }
 
@@ -70,7 +87,7 @@ export const WithValidLink = () => {
 export const WithExpiredLink = () => {
   const { props, ctx, account } = setup();
   // Mock the response. An INVALID_TOKEN means the link expired.
-  account.resetPasswordWithRecoveryKey =async () => {
+  account.resetPasswordWithRecoveryKey = async () => {
     const err = AuthUiErrors['INVALID_TOKEN'];
     throw err;
   };
@@ -79,7 +96,7 @@ export const WithExpiredLink = () => {
 
 export const WithBrokenLink = () => {
   const { props, urlSearchContext, ctx } = setup();
-  urlSearchContext.set('email', 'foobar.com')
+  urlSearchContext.set('email', 'foobar.com');
   return storyWithProps(ctx, props);
 };
 
