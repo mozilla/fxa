@@ -5,12 +5,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
-import {
-  getTracingHeadersFromDocument,
-  init as initTracing,
-} from 'fxa-shared/tracing/browser-tracing';
 import App from './components/App';
-import config, { readConfigMeta } from './lib/config';
+import { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
@@ -39,16 +35,6 @@ try {
   readConfigMeta((name: string) => {
     return document.head.querySelector(name);
   });
-
-  // Add tracing support
-  initTracing(
-    config.tracing,
-    {
-      ...getTracingHeadersFromDocument(document),
-      flowid: flowQueryParams.flowId,
-    },
-    console
-  );
 
   const appContext = initializeAppContext();
 

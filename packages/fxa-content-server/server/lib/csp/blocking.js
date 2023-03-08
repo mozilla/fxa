@@ -37,13 +37,6 @@ module.exports = function (config) {
   const GOOGLE_AUTH = 'https://accounts.google.com';
   const APPLE_AUTH = 'https://appleid.apple.com';
 
-  const tracingConfig = config.get('tracing');
-  let TRACE_OTLP_URL = undefined;
-  if (tracingConfig.otel && tracingConfig.otel.url) {
-    TRACE_OTLP_URL = url.parse(tracingConfig.otel.url);
-    TRACE_OTLP_URL = TRACE_OTLP_URL.href.replace(TRACE_OTLP_URL.pathname, '');
-  }
-
   //
   // Double quoted values
   //
@@ -69,7 +62,6 @@ module.exports = function (config) {
     PAIRING_SERVER_WEBSOCKET,
     PAIRING_SERVER_HTTP,
     SENTRY_SERVER,
-    TRACE_OTLP_URL,
   ];
   const scriptSrc = addCdnRuleIfRequired([SELF]);
   const styleSrc = addCdnRuleIfRequired([SELF]);
@@ -134,7 +126,6 @@ module.exports = function (config) {
       PUBLIC_URL,
       SELF,
       SENTRY_SERVER,
-      TRACE_OTLP_URL,
     },
   };
 

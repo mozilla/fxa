@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { deepMerge } from './utilities';
-import { TracingOpts } from 'fxa-shared/tracing/config';
 
 export const META_CONFIG = 'fxa-config';
 
@@ -36,7 +35,7 @@ export interface Config {
     };
     oauth: {
       url: string;
-    },
+    };
     profile: {
       url: string;
     };
@@ -49,7 +48,6 @@ export interface Config {
     length: number;
   };
   version: string;
-  tracing: TracingOpts;
 }
 
 export function getDefault() {
@@ -77,7 +75,7 @@ export function getDefault() {
         url: '',
       },
       oauth: {
-        url: ''
+        url: '',
       },
       profile: {
         url: '',
@@ -89,13 +87,6 @@ export function getDefault() {
     recoveryCodes: {
       count: 8,
       length: 10,
-    },
-    tracing: {
-      serviceName: '',
-      clientName: '',
-      sampleRate: 0.0,
-      batchProcessor: true,
-      filterPii: true,
     },
   } as Config;
 }
