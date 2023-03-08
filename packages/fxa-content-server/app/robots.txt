@@ -3,5 +3,9 @@
 # any site contents in their index.
 #
 # [1] https://support.google.com/webmasters/answer/93710
+
+User-agent: archive.org_bot
+Disallow: /
+
 User-agent: *
 Allow:
