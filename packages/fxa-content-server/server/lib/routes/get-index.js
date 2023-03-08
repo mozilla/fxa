@@ -46,7 +46,6 @@ module.exports = function (config) {
   const GOOGLE_AUTH_CONFIG = config.get('googleAuthConfig');
   const APPLE_AUTH_CONFIG = config.get('appleAuthConfig');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
-  const TRACING_CONFIG = config.get('tracing');
   const SHOW_REACT_APP = config.get('showReactApp');
 
   // Note that this list is only enforced for clients that use login_hint/email
@@ -89,7 +88,6 @@ module.exports = function (config) {
     },
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
-    tracing: TRACING_CONFIG,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
     showReactApp: SHOW_REACT_APP,
   };

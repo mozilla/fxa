@@ -59,7 +59,6 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
-  tracing: config.get('tracing'),
 };
 
 // Inject Beta Settings meta content
