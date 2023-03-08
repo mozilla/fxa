@@ -9,7 +9,7 @@ const password = 'passwordzxcv';
 let email;
 
 test.describe('Firefox Desktop Sync v3 sign in', () => {
-  test.beforeEach(async ({ page, pages: { login } }) => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
   });
