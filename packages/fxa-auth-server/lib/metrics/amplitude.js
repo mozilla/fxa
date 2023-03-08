@@ -340,6 +340,12 @@ module.exports = (log, config) => {
           time: amplitudeEvent.time + 1,
         });
       }
+
+      if (!service) {
+        // This is to help debug https://mozilla-hub.atlassian.net/browse/FXA-6619
+        const { browser } = getBrowser(request);
+        statsd.increment('amplitude.event.no_service', { browser });
+      }
     } else {
       statsd.increment('amplitude.event.dropped');
     }
