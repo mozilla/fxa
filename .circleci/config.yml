@@ -1,12 +1,31 @@
 version: 2.1
 
 parameters:
-  run-smoke-tests:
+  enable_test_pull_request:
+    type: boolean
+    default: true
+  enable_production_smoke_tests:
     type: boolean
     default: false
-  run-smoke-tests-parallel:
+  enable_stage_smoke_tests:
     type: boolean
     default: false
+  enable_deploy_packages:
+    type: boolean
+    default: true
+  enable_deploy_ci_images:
+    type: boolean
+    default: true
+  enable_deploy_story_book:
+    type: boolean
+    default: true
+  enable_test_and_deploy_tag:
+    type: boolean
+    default: true
+  enable_nightly:
+    type: boolean
+    default: true
+
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
@@ -575,6 +594,7 @@ jobs:
           index: 2
           total: 3
 
+  # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
   production-smoke-tests:
     executor: smoke-test-executor
@@ -588,6 +608,20 @@ jobs:
       # TODO: Is this actually needed?
       - store_test_results:
           path: artifacts/tests
+
+  smoke-tests:
+    parameters:
+      target:
+        type: string
+        default: test-production
+    executor: smoke-test-executor
+    steps:
+      - git-checkout
+      - provision
+      - run:
+          name: Running smoke tests
+          command: yarn workspace functional-tests << parameters.target >>
+      - store-artifacts
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -650,6 +684,7 @@ workflows:
   test_pull_request:
     # This workflow is executed whenever a pull request is issued. It will also
     # run on PR drafts.
+    when: << pipeline.parameters.enable_test_pull_request >>
     jobs:
       - build:
           name: Build (PR)
@@ -770,33 +805,43 @@ workflows:
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
 
-  production_smoke_test:
-    # This workflow can be useful if we want to run test changes in our functional tests
-    # against deployed code. It can be triggered by setting a pipeline parameter to true.
-    when: << pipeline.parameters.run-smoke-tests >>
+  # Triggered remotely. See .circleci/README.md
+  production_smoke_tests:
+    when: << pipeline.parameters.enable_production_smoke_tests >>
     jobs:
-      - production-smoke-tests
-      - test-content-server-remote
-
-  production_smoke_test_parallel:
-    # Similar to workflow above, except content server tests are split and run concurrently.
-    # It can be triggered by setting a pipeline parameters to true.
-    when: << pipeline.parameters.run-smoke-tests-parallel >>
-    jobs:
-      - production-smoke-tests
+      # Note that these target stage too! This might seem odd, but having tests pass on staging is currently
+      # a requirement for all production deploys.
       - test-content-server-remote-part-0:
-          requires:
-            - request-test-content-server-remote-parts
+          name: Smoke Stage - Content Server Part 1
       - test-content-server-remote-part-1:
-          requires:
-            - request-test-content-server-remote-parts
+          name: Smoke Stage - Content Server Part 2
       - test-content-server-remote-part-2:
-          requires:
-            - request-test-content-server-remote-parts
+          name: Smoke Stage - Content Server Part 3
+      - smoke-tests:
+          name: Smoke Test Stage - Playwright
+          target: test-stage
+      - smoke-tests:
+          name: Smoke Test Production - Playwright
+          target: test-production
+
+  # Triggered remotely. See .circleci/README.md
+  stage_smoke_tests:
+    when: << pipeline.parameters.enable_stage_smoke_tests >>
+    jobs:
+      - test-content-server-remote-part-0:
+          name: Smoke Test Stage - Content Server Part 1
+      - test-content-server-remote-part-1:
+          name: Smoke Test Stage - Content Server Part 2
+      - test-content-server-remote-part-2:
+          name: Smoke Test Stage - Content Server Part 3
+      - smoke-tests:
+          name: Smoke Test Stage - Playwright
+          target: test-stage
 
   deploy_packages:
     # This workflow can be triggered after a PR lands on main. It requires approval.
     # The same operation will eventually run nightly. The same operation will run nightly.
+    when: << pipeline.parameters.enable_deploy_packages >>
     jobs:
       # Builds the monorepo for a production / stage deploy
       - request-deploy-packages:
@@ -819,6 +864,7 @@ workflows:
     # This workflow is triggered after a PR lands on main. The workflow will
     # short circuit if incoming PR doesn't modify any npm packages. The same
     # operation will run nightly.
+    when: << pipeline.parameters.enable_deploy_ci_images >>
     jobs:
       - deploy-fxa-ci-images:
           name: Deploy CI Images
@@ -834,6 +880,7 @@ workflows:
   deploy_story_book:
     # This workflow is triggered after a PR lands on main. It requires approval.
     # The same operation will eventually run nightly.
+    when: << pipeline.parameters.enable_deploy_story_book >>
     jobs:
       - request-build-and-deploy-storybooks:
           name: Request Deploy Storybooks
@@ -851,6 +898,7 @@ workflows:
   test_and_deploy_tag:
     # This workflow is used for building docker containers that are then deployed to
     # live infrastructure.
+    when: << pipeline.parameters.enable_test_and_deploy_tag >>
     jobs:
       - build:
           name: Build
@@ -994,86 +1042,87 @@ workflows:
             - Functional Test - Content 5
             - Functional Tests - Playwright
 
-  # nightly:
-  #   # This work flow runs a full build, test suite, and deployment of docker images nightly
-  #   triggers:
-  #     - schedule:
-  #         cron: "0 0 * * *"
-  #         filters:
-  #           branches:
-  #             only: main
-  #   jobs:
-  #     - build:
-  #         name: Build (nightly)
-  #         filters:
-  #           branches:
-  #             only: main
-  #           tags:
-  #             ignore: /.*/
-  #     - lint:
-  #         name: Lint (nightly)
-  #         requires:
-  #           - Build (nightly)
-  #     - unit-test:
-  #         name: Unit Test (nightly)
-  #         requires:
-  #           - Build (nightly)
-  #         post-steps:
-  #           - fail-fast
-  #     - integration-test-part:
-  #         name: Integration Test 1 (nightly)
-  #         index: 0
-  #         total: 3
-  #         requires:
-  #           - Build (nightly)
-  #         post-steps:
-  #           - fail-fast
-  #     - integration-test-part:
-  #         name: Integration Test 2 (nightly)
-  #         index: 1
-  #         total: 3
-  #         requires:
-  #           - Build (nightly)
-  #         post-steps:
-  #           - fail-fast
-  #     - integration-test-part:
-  #         name: Integration Test 3 (nightly)
-  #         index: 2
-  #         total: 3
-  #         requires:
-  #           - Build (nightly)
-  #         post-steps:
-  #           - fail-fast
-  #     - playwright-functional-tests:
-  #         name: Functional Tests - Playwright (nightly)
-  #         requires:
-  #           - Build (nightly)
-  #     - on-complete:
-  #         name: Tests Complete (nightly)
-  #         stage: Tests (nightly)
-  #         job_type: build
-  #         requires:
-  #           - Lint (nightly)
-  #           - Unit Test (nightly)
-  #           - Integration Test 1 (nightly)
-  #           - Integration Test 2 (nightly)
-  #           - Integration Test 3 (nightly)
-  #           - Functional Tests - Playwright (nightly)
-  #     - build-and-deploy-storybooks:
-  #         name: Deploy Storybooks (nightly)
-  #         requires:
-  #           - Tests Complete (nightly)
-  #     - deploy-packages:
-  #         name: Deploy FxA Packages (nightly)
-  #         requires:
-  #           - Tests Complete (nightly)
-  #     - deploy-fxa-ci-images:
-  #         name: Deploy CI Images (nightly)
-  #         executor:
-  #           name: docker-build-executor
-  #           image: cimg/node:16.13-browsers
-  #         # Note, setting force-deploy as true will result in rebuilding the images regardless
-  #         # of whether or not there are package modifications.
-  #         force-deploy: true
-  #         requires:
-  #           - Tests Complete (nightly)
+  nightly:
+    # This work flow runs a full build, test suite, and deployment of docker images nightly
+    when: << pipeline.parameters.enable_nightly >>
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - build:
+          name: Build (nightly)
+          filters:
+            branches:
+              only: main
+            tags:
+              ignore: /.*/
+      - lint:
+          name: Lint (nightly)
+          requires:
+            - Build (nightly)
+      - unit-test:
+          name: Unit Test (nightly)
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 1 (nightly)
+          index: 0
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 2 (nightly)
+          index: 1
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - integration-test-part:
+          name: Integration Test 3 (nightly)
+          index: 2
+          total: 3
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
+      - playwright-functional-tests:
+          name: Functional Tests - Playwright (nightly)
+          requires:
+            - Build (nightly)
+      - on-complete:
+          name: Tests Complete (nightly)
+          stage: Tests (nightly)
+          job_type: build
+          requires:
+            - Lint (nightly)
+            - Unit Test (nightly)
+            - Integration Test 1 (nightly)
+            - Integration Test 2 (nightly)
+            - Integration Test 3 (nightly)
+            - Functional Tests - Playwright (nightly)
+      - build-and-deploy-storybooks:
+          name: Deploy Storybooks (nightly)
+          requires:
+            - Tests Complete (nightly)
+      - deploy-packages:
+          name: Deploy FxA Packages (nightly)
+          requires:
+            - Tests Complete (nightly)
+      - deploy-fxa-ci-images:
+          name: Deploy CI Images (nightly)
+          executor:
+            name: docker-build-executor
+            image: cimg/node:16.13-browsers
+          # Note, setting force-deploy as true will result in rebuilding the images regardless
+          # of whether or not there are package modifications.
+          force-deploy: true
+          requires:
+            - Tests Complete (nightly)
