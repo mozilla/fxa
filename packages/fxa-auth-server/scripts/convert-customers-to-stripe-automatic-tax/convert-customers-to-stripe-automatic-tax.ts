@@ -313,11 +313,11 @@ export class StripeAutomaticTaxConverter {
 
     return [
       report.uid,
-      report.email,
+      `"${report.email}"`,
       report.productId,
-      report.productName,
+      `"${report.productName}"`,
       report.planId,
-      report.planName,
+      `"${report.planName}"`,
       report.planInterval,
       report.planIntervalUnit,
       report.baseAmount,

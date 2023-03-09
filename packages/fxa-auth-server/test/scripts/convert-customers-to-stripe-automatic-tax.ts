@@ -562,11 +562,11 @@ describe('StripeAutomaticTaxConverter', () => {
 
       sinon.assert.match(result, [
         mockCustomer.metadata.userid,
-        mockCustomer.email,
+        `"${mockCustomer.email}"`,
         mockProduct.id,
-        mockProduct.name,
+        `"${mockProduct.name}"`,
         mockPlan.id,
-        mockPlan.nickname,
+        `"${mockPlan.nickname}"`,
         mockPlan.interval_count,
         mockPlan.interval,
         _mockInvoicePreview.total_excluding_tax,
