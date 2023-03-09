@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../models';
 
-import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 import { InputText } from '../../components/InputText';
 import CardHeader from '../../components/CardHeader';
@@ -79,7 +79,10 @@ const ResetPassword = ({
 
   const navigateToConfirmPwReset = useCallback(
     (stateData: ConfirmResetPasswordLocationState) => {
-      navigate('confirm_reset_password', { state: stateData, replace: true });
+      navigate('confirm_reset_password?showReactApp=true', {
+        state: stateData,
+        replace: true,
+      });
     },
     [navigate]
   );

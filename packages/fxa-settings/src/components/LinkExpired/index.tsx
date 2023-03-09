@@ -4,75 +4,44 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { LinkType } from '../../lib/types';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
+import { ResendStatus } from '../../lib/types';
+import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from '../Banner';
 
-type LinkExpiredProps = {
-  linkType: LinkType;
-  // FOLLOW-UP: Make link handler mandatory
-  resendLinkHandler?: (linkType: LinkType) => Promise<void>;
+export type LinkExpiredProps = {
+  headingText: string;
+  headingTextFtlId: string;
+  messageText: string;
+  messageFtlId: string;
+  resendLinkHandler: () => Promise<void>;
+  resendStatus: ResendStatus;
 };
 
-function getTemplateValues(linkType: LinkType) {
-  let templateValues = {
-    headerText: '',
-    headerId: '',
-    messageText: '',
-    messageId: '',
-  };
-  switch (linkType) {
-    case 'reset-password':
-      templateValues.headerText = 'Reset password link expired';
-      templateValues.headerId = 'reset-pwd-link-expired-header';
-      templateValues.messageText =
-        'The link you clicked to reset your password is expired.';
-      templateValues.messageId = 'reset-pwd-link-expired-message';
-
-      break;
-    case 'signin':
-      templateValues.headerText = 'Confirmation link expired';
-      templateValues.headerId = 'signin-link-expired-header';
-      templateValues.messageText =
-        'The link you clicked to confirm your email is expired.';
-      templateValues.messageId = 'signin-link-expired-message';
-
-      break;
-    default:
-      throw new Error('Invalid link type passed into LinkExpired component');
-  }
-  return templateValues;
-}
-
-const LinkExpired = ({ linkType, resendLinkHandler }: LinkExpiredProps) => {
-  // TODO : Metric event(s) for expired link
-
-  const templateValues = getTemplateValues(linkType);
-  const onClickReceiveNewLink = () => {
-    if (resendLinkHandler == null) {
-      console.error('resendLinkHandler missing!');
-    } else {
-      resendLinkHandler(linkType);
-    }
-  };
+export const LinkExpired = ({
+  headingText,
+  headingTextFtlId,
+  messageText,
+  messageFtlId,
+  resendLinkHandler,
+  resendStatus,
+}: LinkExpiredProps) => {
   return (
     <AppLayout>
-      {/* TODO: Add alertBar for success/failure status of resendLinkHandler */}
-      <CardHeader
-        headingText={templateValues.headerText}
-        headingTextFtlId={templateValues.headerId}
-      />
+      <CardHeader {...{ headingText, headingTextFtlId }} />
 
-      <FtlMsg id={templateValues.messageId}>
-        <p className="mt-4 text-sm">{templateValues.messageText}</p>
+      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus['error'] && <ResendLinkErrorBanner />}
+
+      <FtlMsg id={messageFtlId}>
+        <p className="mt-4 text-sm">{messageText}</p>
       </FtlMsg>
-      <FtlMsg id="resend-link">
-        <button onClick={onClickReceiveNewLink} className="link-blue mt-4">
+      {/* TODO Extract for reuse into ButtonResendResetPasswordLink */}
+      <FtlMsg id="reset-pwd-resend-link">
+        <button onClick={() => resendLinkHandler} className="link-blue mt-4">
           Receive new link
         </button>
       </FtlMsg>
     </AppLayout>
   );
 };
-
-export default LinkExpired;

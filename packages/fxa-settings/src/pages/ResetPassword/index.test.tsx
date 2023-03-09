@@ -113,13 +113,16 @@ describe('PageResetPassword', () => {
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email
     );
-    expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
-      replace: true,
-      state: {
-        email: 'johndope@example.com',
-        passwordForgotToken: '123',
-      },
-    });
+    expect(mockNavigate).toHaveBeenCalledWith(
+      'confirm_reset_password?showReactApp=true',
+      {
+        replace: true,
+        state: {
+          email: 'johndope@example.com',
+          passwordForgotToken: '123',
+        },
+      }
+    );
   });
 
   it('displays errors', async () => {

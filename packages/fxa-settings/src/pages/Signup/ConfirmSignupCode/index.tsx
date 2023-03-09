@@ -21,7 +21,12 @@ import {
   useFtlMsgResolver,
 } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
-import Banner, { BannerProps, BannerType } from '../../../components/Banner';
+import Banner, {
+  BannerProps,
+  BannerType,
+  ResendCodeErrorBanner,
+  ResendEmailSuccessBanner,
+} from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
@@ -29,6 +34,7 @@ import FormVerifyCode, {
 import { MailImage } from '../../../components/images';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { Newsletter } from '../../../components/ChooseNewsletters/newsletters';
+import { ResendStatus } from 'fxa-settings/src/lib/types';
 
 export const viewName = 'confirm-signup-code';
 
@@ -43,6 +49,9 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeCount, setResendCodeCount] = useState<number>(0);
   const [clearMessages, setClearMessages] = useState<boolean>(false);
+  const [resendStatus, setResendStatus] = useState<ResendStatus>(
+    ResendStatus['not sent']
+  );
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
@@ -63,9 +72,6 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
     type: undefined,
     children: undefined,
   });
-
-  // TODO escape email
-  const accountsEmail = 'accounts@firefox.com';
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'confirm-signup-code-input-label',
@@ -110,25 +116,9 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
     try {
       await account.sendVerificationCode();
       setResendCodeCount(resendCodeCount + 1);
-      const localizedBannerMessage = ftlMsgResolver.getMsg(
-        'confirm-signup-code-resend-code-success-message',
-        `Email resent. Add ${accountsEmail} to your contacts to ensure a smooth delivery.`,
-        { accountsEmail }
-      );
-      setBanner({
-        type: BannerType.success,
-        children: <p>{localizedBannerMessage}</p>,
-      });
+      setResendStatus(ResendStatus['sent']);
     } catch (e) {
-      // TODO verify error message copy - This is a new error message
-      const localizedBannerMessage = ftlMsgResolver.getMsg(
-        'confirm-signup-code-error-message',
-        'Something went wrong. A new code could not be sent.'
-      );
-      setBanner({
-        type: BannerType.error,
-        children: <p>{localizedBannerMessage}</p>,
-      });
+      setResendStatus(ResendStatus['error']);
     }
   }
 
@@ -224,6 +214,9 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
       {banner.type && banner.children && (
         <Banner type={banner.type}>{banner.children}</Banner>
       )}
+
+      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus['error'] && <ResendCodeErrorBanner />}
 
       <div className="flex justify-center mx-auto">
         <MailImage className="w-3/5" />

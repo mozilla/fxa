@@ -4,11 +4,11 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import LinkDamaged from '.';
+import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
 
 describe('LinkDamaged', () => {
   it('renders the component as expected for a damaged Reset Password link', () => {
-    render(<LinkDamaged linkType="reset-password" />);
+    render(<ResetPasswordLinkDamaged />);
 
     screen.getByRole('heading', {
       name: 'Reset password link damaged',
@@ -19,7 +19,7 @@ describe('LinkDamaged', () => {
   });
 
   it('renders the component as expected for a damaged signin link', () => {
-    render(<LinkDamaged linkType="signin" />);
+    render(<SigninLinkDamaged />);
 
     screen.getByRole('heading', {
       name: 'Confirmation link damaged',

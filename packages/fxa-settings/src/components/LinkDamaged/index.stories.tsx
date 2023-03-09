@@ -3,25 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
-import LinkDamaged from '.';
+import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
 import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/LinkDamaged',
-  component: LinkDamaged,
+  subcomponents: { ResetPasswordLinkDamaged, SigninLinkDamaged },
   decorators: [withLocalization],
 } as Meta;
 
-export const DamagedResetPasswordLink = () => (
-  <AppLayout>
-    <LinkDamaged linkType="reset-password" />
-  </AppLayout>
-);
+export const DamagedResetPasswordLink = () => <ResetPasswordLinkDamaged />;
 
-export const DamagedSigninLink = () => (
-  <AppLayout>
-    <LinkDamaged linkType="signin" />
-  </AppLayout>
-);
+export const DamagedSigninLink = () => <SigninLinkDamaged />;

@@ -4,18 +4,15 @@
 
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import Banner, { BannerType } from '../../../components/Banner';
-
-import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
+import { ResendStatus } from '../../../lib/types';
+import { useAccount, useInterval } from '../../../models';
+import AppLayout from '../../../components/AppLayout';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import AppLayout from '../../../components/AppLayout';
-import { useAccount, useInterval } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logPageViewEvent } from '../../../lib/metrics';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
 export const viewName = 'confirm-reset-password';
 
@@ -25,7 +22,6 @@ export type ConfirmResetPasswordLocationState = {
 };
 
 const POLLING_INTERVAL_MS = 2000;
-const FIREFOX_NOREPLY_EMAIL = 'accounts@firefox.com';
 
 const ConfirmResetPassword = (_: RouteComponentProps) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -41,12 +37,22 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
     state as ConfirmResetPasswordLocationState;
 
   const account = useAccount();
-  const [passwordResetResend, setPasswordResetResend] = useState(false);
+  const [resendStatus, setResendStatus] = useState<ResendStatus>(
+    ResendStatus['not sent']
+  );
   const [isPolling, setIsPolling] = useState<number | null>(
     POLLING_INTERVAL_MS
   );
   const [currentPasswordForgotToken, setCurrentPasswordForgotToken] =
     useState<string>(passwordForgotToken);
+
+  const navigateToPasswordReset = useCallback(() => {
+    navigate('reset_password?showReactApp=true', { replace: true });
+  }, [navigate]);
+
+  if (!email || !passwordForgotToken) {
+    navigateToPasswordReset();
+  }
 
   useInterval(async () => {
     try {
@@ -66,10 +72,15 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
     }
   }, isPolling);
 
-  const resendHandler = async () => {
-    const result = await account.resendResetPassword(email);
-    setCurrentPasswordForgotToken(result.passwordForgotToken);
-    setPasswordResetResend(true);
+  const resendEmailHandler = async () => {
+    try {
+      const result = await account.resendResetPassword(email);
+      logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
+      setCurrentPasswordForgotToken(result.passwordForgotToken);
+      setResendStatus(ResendStatus['sent']);
+    } catch (e) {
+      setResendStatus(ResendStatus['error']);
+    }
   };
 
   const confirmResetPasswordStrings: ConfirmWithLinkPageStrings = {
@@ -79,43 +90,15 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
     instructionText: `Click the link emailed to ${email} within the next hour to create a new password.`,
   };
 
-  const navigateToPasswordReset = useCallback(() => {
-    navigate('reset_password?showReactApp=true', { replace: true });
-  }, [navigate]);
-
-  if (!email || !passwordForgotToken) {
-    navigateToPasswordReset();
-    return (
-      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
-    );
-  } else
-    return (
-      <AppLayout>
-        {passwordResetResend && (
-          <Banner
-            type={BannerType.success}
-            dismissible
-            setIsVisible={setPasswordResetResend}
-          >
-            <FtlMsg
-              id="resend-pw-reset-banner"
-              vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
-            >
-              <p>
-                Email resent. Add accounts@firefox.com to your contacts to
-                ensure a smooth delivery.
-              </p>
-            </FtlMsg>
-          </Banner>
-        )}
-        <ConfirmWithLink
-          {...{ email }}
-          confirmWithLinkPageStrings={confirmResetPasswordStrings}
-          resendEmailCallback={resendHandler}
-        />
-        <LinkRememberPassword {...{ email }} />
-      </AppLayout>
-    );
+  return (
+    <AppLayout>
+      <ConfirmWithLink
+        {...{ email, resendEmailHandler, resendStatus }}
+        confirmWithLinkPageStrings={confirmResetPasswordStrings}
+      />
+      <LinkRememberPassword {...{ email }} />
+    </AppLayout>
+  );
 };
 
 export default ConfirmResetPassword;

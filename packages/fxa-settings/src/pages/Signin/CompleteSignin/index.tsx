@@ -4,8 +4,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate, RouteComponentProps } from '@reach/router';
-import LinkDamaged from '../../../components/LinkDamaged';
-import LinkExpired from '../../../components/LinkExpired';
+import { SigninLinkDamaged } from '../../../components/LinkDamaged';
+import { LinkExpiredSignin } from '../../../components/LinkExpiredSignin';
 import LinkUsed from '../../../components/LinkUsed';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -30,7 +30,6 @@ const CompleteSignin = ({
 }: CompleteSigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigate = useNavigate();
-  const linkType = 'signin';
   const [error, setError] = useState<string>();
   // there is no valid view in the `complete_signin` mustache. It completes your signin,
   // and then redirects you according to the broker method. The default is to `signin_verified`.
@@ -49,10 +48,10 @@ const CompleteSignin = ({
   }
 
   if (linkStatus === LinkStatus.damaged) {
-    return <LinkDamaged {...{ linkType }} />;
+    return <SigninLinkDamaged />;
   }
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired {...{ linkType }} />;
+    return <LinkExpiredSignin {...{ viewName }} />;
   }
   if (linkStatus === LinkStatus.used) {
     return <LinkUsed {...{ isForPrimaryEmail }} />;

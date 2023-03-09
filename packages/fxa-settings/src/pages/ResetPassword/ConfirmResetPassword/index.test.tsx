@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ConfirmResetPassword, { viewName } from '.';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -11,13 +11,15 @@ import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { LocationProvider } from '@reach/router';
 import { Account, AppContext } from '../../../models';
-import { mockAppContext } from '../../../models/mocks';
-import { logPageViewEvent } from '../../../lib/metrics';
+import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   logPageViewEvent: jest.fn(),
 }));
+
+const account = MOCK_ACCOUNT as unknown as Account;
 
 function renderWithAccount(account: Account) {
   render(
@@ -43,19 +45,15 @@ jest.mock('@reach/router', () => ({
   },
 }));
 
-describe('ConfirmResetPassword', () => {
+describe('ConfirmResetPassword page', () => {
   // TODO enable l10n testing
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
-  it('renders ConfirmResetPassword component as expected', () => {
-    const account = {
-      resetPasswordStatus: jest.fn().mockResolvedValue(true),
-    } as unknown as Account;
-
-    renderWithAccount(account);
+  it('renders as expected', () => {
+    render(<ConfirmResetPassword />);
 
     // testAllL10n(screen, bundle);
 
@@ -67,11 +65,28 @@ describe('ConfirmResetPassword', () => {
     );
     expect(confirmPwResetInstructions).toBeInTheDocument();
 
-    expect(
-      screen.getByRole('button', {
-        name: 'Not in inbox or spam folder? Resend',
-      })
-    ).toBeInTheDocument();
+    const resendEmailButton = screen.getByRole('button', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
+    expect(resendEmailButton).toBeInTheDocument();
+  });
+
+  it('sends a new email when clicking on resend button', async () => {
+    renderWithAccount(account);
+    account.resendResetPassword = jest.fn().mockResolvedValue('');
+
+    const resendEmailButton = screen.getByRole('button', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
+
+    fireEvent.click(resendEmailButton);
+
+    await waitFor(() => expect(account.resendResetPassword).toHaveBeenCalled());
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'confirm-reset-password',
+      'resend',
+      REACT_ENTRYPOINT
+    );
   });
 
   it('emits the expected metrics on render', async () => {

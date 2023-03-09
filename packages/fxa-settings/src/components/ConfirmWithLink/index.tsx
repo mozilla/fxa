@@ -5,21 +5,16 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MailImage } from '../../components/images';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import CardHeader from '../CardHeader';
+import { ResendStatus } from '../../lib/types';
+import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from '../Banner';
 
 export type ConfirmWithLinkProps = {
   confirmWithLinkPageStrings: ConfirmWithLinkPageStrings;
   email: string;
-  // TODO : update type definition once callback function is defined
-  goBackCallback?: () => void;
-  withWebmailLink?: boolean; // TODO: Replace broker functionality which gives us this value (provider?)
-  resendEmailCallback: () => void;
-};
-
-export type WebmailValues = {
-  buttonText: string;
-  link: string;
+  navigateBackHandler?: () => void;
+  resendEmailHandler: () => void;
+  resendStatus: ResendStatus;
 };
 
 export type ConfirmWithLinkPageStrings = {
@@ -32,27 +27,13 @@ export type ConfirmWithLinkPageStrings = {
 const ConfirmWithLink = ({
   confirmWithLinkPageStrings,
   email,
-  goBackCallback,
-  withWebmailLink = false,
-  resendEmailCallback,
+  navigateBackHandler,
+  resendEmailHandler,
+  resendStatus,
 }: ConfirmWithLinkProps) => {
-  // TODO: Replace utility that gets these values by matching the email provider via regex.
-  const getWebmailValues = (email: string) => {
-    // TODO replace hardcoded email provider and link - create a utility for this, see open-webmail-mixin.js
-    // - encode email address
-    const emailProvider = 'Gmail';
-    return {
-      emailProvider,
-      link: `https://mail.google.com/mail/u/?authuser=${email}`,
-    };
-  };
-
-  const webmailValues = getWebmailValues(email);
-
-  /*
-    TODO:
-        - Add a Banner to receive error/success messages.
-  */
+  // (temporarily?) removed `Open With Webmail` functionality
+  // Not currently functional in content-server/prod so requires fix/new utility
+  // File follow-up to check with Product to see if we want to recreate this functionality
 
   return (
     <>
@@ -60,6 +41,9 @@ const ConfirmWithLink = ({
         headingText={confirmWithLinkPageStrings.headingText}
         headingTextFtlId={confirmWithLinkPageStrings.headingFtlId}
       />
+
+      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus['error'] && <ResendLinkErrorBanner />}
 
       <div className="flex justify-center">
         <MailImage />
@@ -70,32 +54,19 @@ const ConfirmWithLink = ({
         </p>
       </FtlMsg>
       <div className="flex flex-col gap-3">
-        {withWebmailLink && (
-          <FtlMsg
-            id="confirm-with-link-webmail-link"
-            vars={{ emailProvider: webmailValues.emailProvider }}
-          >
-            <LinkExternal
-              href={webmailValues.link}
-              className="mx-auto link-blue text-sm"
-            >
-              Open {webmailValues.emailProvider}
-            </LinkExternal>
-          </FtlMsg>
-        )}
         <FtlMsg id="confirm-with-link-resend-link-button">
           <button
             className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
-            onClick={() => resendEmailCallback()}
+            onClick={resendEmailHandler}
           >
             Not in inbox or spam folder? Resend
           </button>
         </FtlMsg>
-        {goBackCallback && (
+        {navigateBackHandler && (
           <FtlMsg id="confirm-with-link-back-link">
             <button
               className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
-              onClick={() => goBackCallback()}
+              onClick={navigateBackHandler}
             >
               Back
             </button>
