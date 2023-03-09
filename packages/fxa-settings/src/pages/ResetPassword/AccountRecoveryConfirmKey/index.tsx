@@ -18,7 +18,7 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 import { InputText } from '../../../components/InputText';
 import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
-import LinkExpired from '../../../components/LinkExpired';
+import { ResetPasswordLinkExpired } from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import { LinkStatus, MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -38,10 +38,15 @@ type SubmitData = {
   recoveryKey: string;
 } & RequiredParamsAccountRecoveryConfirmKey;
 
+type LocationState = { email: string };
+
 export const viewName = 'account-recovery-confirm-key';
 
 const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+
+  // TODO: grab serviceName from the relier
+  const serviceName = MozServices.Default;
 
   const [recoveryKeyErrorText, setRecoveryKeyErrorText] = useState<string>('');
   // The password forgot code can only be used once to retrieve `accountResetToken`
@@ -52,7 +57,9 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const { linkStatus, setLinkStatus, requiredParams } =
     useAccountRecoveryConfirmKeyLinkStatus();
-  const location = useLocation();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: LocationState;
+  };
 
   const { handleSubmit, register } = useForm<FormData>({
     mode: 'onBlur',
@@ -166,15 +173,12 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
     checkRecoveryKey({ recoveryKey, token, code, email, uid });
   };
 
-  // TODO: grab serviceName from the relier
-  const serviceName = MozServices.Default;
-
   if (linkStatus === LinkStatus.damaged || requiredParams === null) {
     return <LinkDamaged linkType="reset-password" />;
   }
 
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired linkType="reset-password" />;
+    return <ResetPasswordLinkExpired />;
   }
 
   return (

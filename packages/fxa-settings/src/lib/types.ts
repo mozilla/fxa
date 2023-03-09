@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type LinkType = 'reset-password' | 'signin';
-
 export enum LinkStatus {
   damaged = 'damaged',
   expired = 'expired',
@@ -29,3 +27,9 @@ export type RemoteMetadata = {
   region?: string;
   city?: string;
 };
+
+export enum ResendStatus {
+  'not sent',
+  'sent',
+  'error',
+}

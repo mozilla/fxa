@@ -5,21 +5,17 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MailImage } from '../../components/images';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import CardHeader from '../CardHeader';
+import { ResendStatus } from '../../lib/types';
+import Banner, { BannerType } from '../Banner';
+import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 
 export type ConfirmWithLinkProps = {
   confirmWithLinkPageStrings: ConfirmWithLinkPageStrings;
   email: string;
-  // TODO : update type definition once callback function is defined
-  goBackCallback?: () => void;
-  withWebmailLink?: boolean; // TODO: Replace broker functionality which gives us this value (provider?)
-  resendEmailCallback: () => void;
-};
-
-export type WebmailValues = {
-  buttonText: string;
-  link: string;
+  navigateBackHandler?: () => void;
+  resendEmailHandler: () => void;
+  resendStatus: ResendStatus;
 };
 
 export type ConfirmWithLinkPageStrings = {
@@ -32,34 +28,38 @@ export type ConfirmWithLinkPageStrings = {
 const ConfirmWithLink = ({
   confirmWithLinkPageStrings,
   email,
-  goBackCallback,
-  withWebmailLink = false,
-  resendEmailCallback,
+  navigateBackHandler,
+  resendEmailHandler,
+  resendStatus,
 }: ConfirmWithLinkProps) => {
-  // TODO: Replace utility that gets these values by matching the email provider via regex.
-  const getWebmailValues = (email: string) => {
-    // TODO replace hardcoded email provider and link - create a utility for this, see open-webmail-mixin.js
-    // - encode email address
-    const emailProvider = 'Gmail';
-    return {
-      emailProvider,
-      link: `https://mail.google.com/mail/u/?authuser=${email}`,
-    };
-  };
+  const displaySuccessBanner = (
+    <Banner type={BannerType.success}>
+      <FtlMsg
+        id="link-expired-resent-link-success-message"
+        vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
+      >
+        {`Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
+        smooth delivery.`}
+      </FtlMsg>
+    </Banner>
+  );
 
-  const webmailValues = getWebmailValues(email);
-
-  /*
-    TODO:
-        - Add a Banner to receive error/success messages.
-  */
-
+  const displayErrorBanner = (
+    <Banner type={BannerType.error}>
+      <FtlMsg id="link-expired-resent-link-error-message">
+        Something went wrong. A new link could not be sent.
+      </FtlMsg>
+    </Banner>
+  );
   return (
     <>
       <CardHeader
         headingText={confirmWithLinkPageStrings.headingText}
         headingTextFtlId={confirmWithLinkPageStrings.headingFtlId}
       />
+
+      {resendStatus === ResendStatus['sent'] && displaySuccessBanner}
+      {resendStatus === ResendStatus['error'] && displayErrorBanner}
 
       <div className="flex justify-center">
         <MailImage />
@@ -70,32 +70,19 @@ const ConfirmWithLink = ({
         </p>
       </FtlMsg>
       <div className="flex flex-col gap-3">
-        {withWebmailLink && (
-          <FtlMsg
-            id="confirm-with-link-webmail-link"
-            vars={{ emailProvider: webmailValues.emailProvider }}
-          >
-            <LinkExternal
-              href={webmailValues.link}
-              className="mx-auto link-blue text-sm"
-            >
-              Open {webmailValues.emailProvider}
-            </LinkExternal>
-          </FtlMsg>
-        )}
         <FtlMsg id="confirm-with-link-resend-link-button">
           <button
             className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
-            onClick={() => resendEmailCallback()}
+            onClick={resendEmailHandler}
           >
             Not in inbox or spam folder? Resend
           </button>
         </FtlMsg>
-        {goBackCallback && (
+        {navigateBackHandler && (
           <FtlMsg id="confirm-with-link-back-link">
             <button
               className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
-              onClick={() => goBackCallback()}
+              onClick={navigateBackHandler}
             >
               Back
             </button>

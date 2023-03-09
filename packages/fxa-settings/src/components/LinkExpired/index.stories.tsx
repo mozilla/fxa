@@ -3,18 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import LinkExpired from '.';
+import { ResetPasswordLinkExpired, SigninLinkExpired } from '.';
 import { withLocalization } from '../../../.storybook/decorators';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 
 export default {
   title: 'Components/LinkExpired',
-  component: LinkExpired,
-  decorators: [withLocalization],
+  subcomponents: { ResetPasswordLinkExpired, SigninLinkExpired },
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
-export const ResetPasswordLinkExpired = () => (
-  <LinkExpired linkType="reset-password" />
-);
+// TODO Mock location state
+// TODO Mock callbacks
 
-export const SigninLinkExpired = () => <LinkExpired linkType="signin" />;
+export const LinkExpiredForResetPassword = () => <ResetPasswordLinkExpired />;
+
+export const LinkExpiredForSignin = () => <SigninLinkExpired />;

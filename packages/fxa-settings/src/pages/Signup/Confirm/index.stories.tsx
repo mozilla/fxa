@@ -8,7 +8,6 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { MOCK_GOBACK_CB } from './mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
@@ -34,10 +33,4 @@ export const Default = storyWithProps({
 
 export const UserCanGoBack = storyWithProps({
   email: MOCK_ACCOUNT.primaryEmail.email,
-  goBackCallback: MOCK_GOBACK_CB,
-});
-
-export const withWebmailLink = storyWithProps({
-  email: MOCK_ACCOUNT.primaryEmail.email,
-  withWebmailLink: true,
 });

@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { useNavigate, RouteComponentProps } from '@reach/router';
 import LinkDamaged from '../../../components/LinkDamaged';
-import LinkExpired from '../../../components/LinkExpired';
+import { SigninLinkExpired } from '../../../components/LinkExpired';
 import LinkUsed from '../../../components/LinkUsed';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -52,7 +52,7 @@ const CompleteSignin = ({
     return <LinkDamaged {...{ linkType }} />;
   }
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired {...{ linkType }} />;
+    return <SigninLinkExpired />;
   }
   if (linkStatus === LinkStatus.used) {
     return <LinkUsed {...{ isForPrimaryEmail }} />;

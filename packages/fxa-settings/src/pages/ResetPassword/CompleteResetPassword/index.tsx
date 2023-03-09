@@ -15,7 +15,7 @@ import { logPageViewEvent } from '../../../lib/metrics';
 import { useAccount } from '../../../models/hooks';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import LinkExpired from '../../../components/LinkExpired';
+import { ResetPasswordLinkExpired } from '../../../components/LinkExpired';
 import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -89,6 +89,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
         if (await account.hasRecoveryKey(email)) {
           navigate(`/account_recovery_confirm_key${location.search}`, {
             replace: true,
+            state: { ...{ email } },
           });
         }
       } catch (error) {
@@ -162,7 +163,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
   }
 
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired linkType="reset-password" />;
+    return <ResetPasswordLinkExpired />;
   }
 
   if (showLoadingSpinner) {
