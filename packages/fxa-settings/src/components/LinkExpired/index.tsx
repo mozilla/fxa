@@ -10,20 +10,11 @@ import AppLayout from '../AppLayout';
 
 type LinkExpiredProps = {
   linkType: LinkType;
+  // TODO: Make link handler mandatory
+  resendLinkHandler?: (linkType: LinkType) => Promise<void>;
 };
 
-const getResendLinkHandler = (linkType: LinkType) => {
-  if (linkType === 'reset-password') {
-    return function () {
-      //   TODO: add resend link action
-    };
-  }
-  return function () {
-    //   TODO: add resend link action
-  };
-};
-
-const getTemplateValues = (linkType: LinkType) => {
+function getTemplateValues(linkType: LinkType) {
   let templateValues = {
     headerText: '',
     headerId: '',
@@ -51,14 +42,18 @@ const getTemplateValues = (linkType: LinkType) => {
       throw new Error('Invalid link type passed into LinkExpired component');
   }
   return templateValues;
-};
+}
 
-const LinkExpired = ({ linkType }: LinkExpiredProps) => {
+const LinkExpired = ({ linkType, resendLinkHandler }: LinkExpiredProps) => {
   // TODO : Metric event(s) for expired link
 
-  const resendLinkHandler = getResendLinkHandler(linkType);
   const templateValues = getTemplateValues(linkType);
-
+  const onClickReceiveNewLink = () => {
+    if (resendLinkHandler == null) {
+      throw new Error('resendLinkHandler missing!');
+    }
+    resendLinkHandler(linkType);
+  };
   return (
     <AppLayout>
       {/* TODO: Add alertBar for success/failure status of resendLinkHandler */}
@@ -71,7 +66,7 @@ const LinkExpired = ({ linkType }: LinkExpiredProps) => {
         <p className="mt-4 text-sm">{templateValues.messageText}</p>
       </FtlMsg>
       <FtlMsg id="resend-link">
-        <button onClick={resendLinkHandler} className="link-blue mt-4">
+        <button onClick={onClickReceiveNewLink} className="link-blue mt-4">
           Receive new link
         </button>
       </FtlMsg>

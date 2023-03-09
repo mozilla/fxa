@@ -26,14 +26,13 @@ import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfi
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
-
 import SigninReported from '../../pages/Signin/SigninReported';
+import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { showReactApp } = flowQueryParams;
-
   return (
     <>
       <Router basepath={'/'}>
@@ -57,6 +56,7 @@ export const App = ({
               <ConfirmResetPassword path="/confirm_reset_password/*" />
               <CompleteResetPassword path="/complete_reset_password/*" />
               <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
+              <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
 
               <SigninReported path="/signin_reported/*" />
               {/* Pages using the Ready view need to be accessible to logged out viewers,
