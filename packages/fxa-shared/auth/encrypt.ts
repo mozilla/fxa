@@ -5,11 +5,10 @@ import crypto from 'crypto';
 
 const buf = require('buf');
 
-export const ascii = buf.ascii;
 export const hex = buf.hex;
 
 export function hash(value: any) {
   var sha = crypto.createHash('sha256');
-  sha.update(ascii(value));
+  sha.update(hex(value));
   return sha.digest();
 }
