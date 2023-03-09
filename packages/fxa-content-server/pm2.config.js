@@ -15,6 +15,7 @@ module.exports = {
       cwd: __dirname,
       env: {
         NODE_ENV: 'development',
+        NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
         CONFIG_FILES: 'server/config/local.json',
         PORT: 3030,
         PATH,
@@ -44,10 +45,10 @@ module.exports = {
         'app/scripts/templates/**/*.mustache',
         'app/styles/tailwind.css',
         'app/styles/tailwind/**/*.css',
-        require.resolve('fxa-react/configs/tailwind.js'),
+        require.resolve('fxa-react/configs/tailwind'),
         path.normalize(
           `${path.dirname(
-            require.resolve('fxa-react/configs/tailwind.js')
+            require.resolve('fxa-react/configs/tailwind')
           )}/../styles`
         ),
       ],

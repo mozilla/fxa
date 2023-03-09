@@ -16,6 +16,7 @@ module.exports = {
       env: {
         CONFIG_123DONE: './config-local.json',
         NODE_ENV: 'dev',
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         PORT: '8080',
         PATH,
       },
@@ -31,6 +32,7 @@ module.exports = {
       env: {
         CONFIG_123DONE: './config-local-untrusted.json',
         NODE_ENV: 'dev',
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         PORT: '10139',
         PATH,
       },

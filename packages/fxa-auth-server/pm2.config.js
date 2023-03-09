@@ -15,7 +15,7 @@ module.exports = {
       env: {
         DB: 'mysql',
         NODE_ENV: 'dev',
-        NODE_OPTIONS: '--inspect=9160',
+        NODE_OPTIONS: '--inspect=9160 --dns-result-order=ipv4first',
         TS_NODE_TRANSPILE_ONLY: 'true',
         IP_ADDRESS: '0.0.0.0',
         SIGNIN_UNBLOCK_FORCED_EMAILS: '^block.*@restmail\\.net$',
@@ -52,6 +52,7 @@ module.exports = {
       cwd: __dirname,
       env: {
         NODE_ENV: 'dev',
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         MAILER_PORT: '9001',
         PATH,
       },

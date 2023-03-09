@@ -18,7 +18,7 @@ module.exports = {
       env: {
         LOGGING_FORMAT: 'pretty',
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9170',
+        NODE_OPTIONS: '--inspect=9170 --dns-result-order=ipv4first',
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:3032',
         CONFIG_FILES: 'server/config/secrets.json',
         PORT: '3031',
@@ -39,6 +39,7 @@ module.exports = {
       env: {
         SKIP_PREFLIGHT_CHECK: 'true',
         NODE_ENV: 'development',
+        NODE_OPTIONS: '--openssl-legacy-provider',
         PUBLIC_URL: 'http://localhost:3031',
         BROWSER: 'NONE',
         PORT: '3032',
@@ -62,10 +63,10 @@ module.exports = {
         'src/styles',
         'src/components/**/*.css',
         'src/**/*.tsx',
-        require.resolve('fxa-react/configs/tailwind.js'),
+        require.resolve('fxa-react/configs/tailwind'),
         path.normalize(
           `${path.dirname(
-            require.resolve('fxa-react/configs/tailwind.js')
+            require.resolve('fxa-react/configs/tailwind')
           )}/../styles`
         ),
       ],

@@ -4,7 +4,7 @@
   "description": "FxA Admin Panel",
   "scripts": {
     "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build:client": "tsc --build ../fxa-react && tsc --build && NODE_ENV=production npm run build-css && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false rescripts build",
+    "build:client": "tsc --build ../fxa-react && tsc --build && NODE_ENV=production npm run build-css && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "build:server": "tsc -p server/tsconfig.json",
     "build": "npm-run-all build:client build:server",
     "compile": "tsc --noEmit",

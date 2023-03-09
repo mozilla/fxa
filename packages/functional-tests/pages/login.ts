@@ -203,7 +203,7 @@ export class LoginPage extends BaseLayout {
 
   async isSignUpCodeHeader() {
     const header = this.page.locator(selectors.SIGN_UP_CODE_HEADER);
-    header.waitFor({ state: 'visible' });
+    await header.waitFor({ state: 'visible' });
     return header.isVisible();
   }
 

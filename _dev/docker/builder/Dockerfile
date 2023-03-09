@@ -1,4 +1,4 @@
-FROM node:16-slim
+FROM node:18.14-slim
 
 RUN set -x \
     && addgroup --gid 10001 app \

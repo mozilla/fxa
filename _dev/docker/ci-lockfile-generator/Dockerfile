@@ -5,7 +5,7 @@
 # By running a yarn install inside the same base container that we use in our CI, we can
 # ensure the same checksums are created correctly.
 #
-FROM cimg/node:16.13
+FROM cimg/node:18.14
 
 COPY . .
 RUN sudo yarn cache clear --all

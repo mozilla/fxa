@@ -47,7 +47,7 @@
     "semver": "^7.3.5"
   },
   "engines": {
-    "node": "^16.12.0"
+    "node": "^18.14.2"
   },
   "husky": {
     "hooks": {
@@ -96,7 +96,7 @@
   "resolutions": {
     "@grpc/grpc-js": "~1.6.0",
     "@nestjs/cli/typescript": "^4.5.2",
-    "@types/node": "^16.11.3",
+    "@types/node": "^18.14.2",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "elliptic": ">=6.5.4",
     "eslint-plugin-import": "^2.25.2",

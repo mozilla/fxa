@@ -40,6 +40,7 @@ module.exports = {
       env: {
         SKIP_PREFLIGHT_CHECK: 'true',
         NODE_ENV: 'development',
+        NODE_OPTIONS: '--openssl-legacy-provider',
         PUBLIC_URL: 'http://localhost:8091',
         BROWSER: 'NONE',
         PORT: '8092',
@@ -65,7 +66,7 @@ module.exports = {
         'src/styles',
         'src/components/**/*.css',
         'src/**/*.tsx',
-        require.resolve('fxa-react/configs/tailwind.js'),
+        require.resolve('fxa-react/configs/tailwind'),
       ],
       ignore_watch: ['src/styles/tailwind.out.css'],
       time: true,
