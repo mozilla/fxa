@@ -18,6 +18,7 @@ describe('geodb', () => {
           if (item === 'geodb') {
             return {
               enabled: true,
+              locationOverride: {}
             };
           }
         },
