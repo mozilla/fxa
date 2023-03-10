@@ -21,7 +21,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../components/Banner';
-import { ConfirmResetPasswordProps } from './ConfirmResetPassword';
+import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword';
 
 export const viewName = 'reset-password';
 
@@ -73,7 +73,7 @@ const ResetPassword = ({
   };
 
   const navigateToConfirmPwReset = useCallback(
-    (stateData: ConfirmResetPasswordProps) => {
+    (stateData: ConfirmResetPasswordLocationState) => {
       navigate('confirm_reset_password', { state: stateData, replace: true });
     },
     [navigate]

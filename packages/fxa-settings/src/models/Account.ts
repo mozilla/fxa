@@ -548,6 +548,7 @@ export class Account implements AccountData {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
 
       // Invalid token means the user has completed reset password
+      // or that the provided token is stale (expired or replaced with new token)
       if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
         return false;
       }

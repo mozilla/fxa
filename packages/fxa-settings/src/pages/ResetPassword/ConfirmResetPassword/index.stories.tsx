@@ -26,13 +26,8 @@ history.location.state = {
   passwordForgotToken: MOCK_PASSWORD_FORGOT_TOKEN,
 };
 
-const storyWithProps = ({ ...props }) => {
-  const story = () => (
-    <LocationProvider history={history}>
-      <ConfirmResetPassword {...props} />
-    </LocationProvider>
-  );
-  return story;
-};
-
-export const Default = storyWithProps({});
+export const Default = () => (
+  <LocationProvider history={history}>
+    <ConfirmResetPassword />
+  </LocationProvider>
+);
