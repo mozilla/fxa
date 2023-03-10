@@ -1,6 +1,6 @@
 # Use Structurizr for Software Diagrams
 
-- Status: proposed
+- Status: accepted
 - Deciders: Ben Bangert, Wil Clouser, Dan Schomburg
 - Date: 2023-01-26
 
