@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigateFn, RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
@@ -12,7 +12,6 @@ import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloo
 import LinkDamaged from '../../../components/LinkDamaged';
 import LinkExpired from '../../../components/LinkExpired';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import AlertBar from '../../../components/Settings/AlertBar';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
@@ -27,8 +26,6 @@ import {
   usePageViewEvent,
 } from '../../../lib/metrics';
 import {
-  useAlertBar,
-  useFtlMsgResolver,
   useNotifier,
   useBroker,
   useAccount,
@@ -41,6 +38,7 @@ import {
   VerificationInfo,
   useLocationStateContext as useLocationContext,
 } from '../../../models';
+import Banner, { BannerType } from '../../../components/Banner';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -51,6 +49,8 @@ import {
 // If lostRecoveryKey is set, redirect to /complete_reset_password
 
 export const viewName = 'account-recovery-reset-password';
+
+const accountsEmail = 'accounts@firefox.com';
 
 export type AccountRecoveryResetPasswordProps = {
   overrides?: {
@@ -65,34 +65,40 @@ type FormData = {
   confirmPassword: string;
 };
 
+enum BannerState {
+  None,
+  UnexpectedError,
+  PasswordResendSuccess,
+  PasswordResetSuccess,
+  Redirecting,
+  PasswordResendError,
+  InvalidContext,
+}
+
 const AccountRecoveryResetPassword = ({
   overrides,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  // Grab state from hooks
-  const alertBar = useAlertBar();
   const notifier = useNotifier();
   const broker = useBroker();
-  const ftlMsgResolver = useFtlMsgResolver();
   const account = useAccount();
   const relier = useRelier();
-  let navigate = useNavigate();
-  let urlSearchContext = useUrlSearchContext();
-  let locationContext = useLocationContext();
 
-  // Apply overrides
+  let navigate = useNavigate();
   navigate = overrides?.navigate || navigate;
+
+  let urlSearchContext = useUrlSearchContext();
   urlSearchContext = overrides?.urlSearchContext || urlSearchContext;
+
+  let locationContext = useLocationContext();
   locationContext = overrides?.locationContext || locationContext;
 
   const verificationInfo = new VerificationInfo(urlSearchContext);
   const accountRecoveryKeyInfo = new AccountRecoveryKeyInfo(locationContext);
-
-  // The alert bar can get stuck in a stale state.
-  alertBar.hide();
-
   const state = getInitialState();
+
+  const [bannerState, setBannerState] = useState<BannerState>(BannerState.None);
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(state.linkStatus);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
@@ -106,77 +112,116 @@ const AccountRecoveryResetPassword = ({
       },
     });
 
-  // Make some presentation decisions based on initial state
-  if (state.contextError) {
-    alertInvalidContext(state.contextError);
-  } else if (!state.supportsRecovery) {
-    const msg = ftlMsgResolver.getMsg(
-      'account-recovery-reset-password-redirecting',
-      'Redirecting'
+  useEffect(() => {
+    if (state.contextError) {
+      alertInvalidContext(state.contextError);
+    } else if (!state.supportsRecovery) {
+      setBannerState(BannerState.Redirecting);
+      navigate(`/complete_reset_password?${urlSearchContext.toSearchQuery()}`);
+    }
+  }, [state, navigate, urlSearchContext]);
+
+  if (linkStatus === 'damaged') {
+    return <LinkDamaged {...{ linkType: 'reset-password' }} />;
+  }
+
+  if (linkStatus === 'expired') {
+    return (
+      <LinkExpired {...{ linkType: 'reset-password', resendLinkHandler }} />
     );
-    alertBar.info(msg);
-    navigate(`/complete_reset_password?${urlSearchContext.toSearchQuery()}`);
   }
 
   return (
     <AppLayout>
-      <AlertBar />
-      {linkStatus === 'valid' && (
-        <>
-          <CardHeader
-            headingText="Create new password"
-            headingTextFtlId="create-new-password-header"
-          />
-          <FtlMsg id="account-restored-success-message">
-            <p className="text-sm mb-4">
-              You have successfully restored your account using your account
-              recovery key. Create a new password to secure your data, and store
-              it in a safe location.
+      {BannerState.Redirecting === bannerState && (
+        <Banner type={BannerType.info}>
+          <FtlMsg id="account-recovery-reset-password-redirecting">
+            <p>Redirecting</p>
+          </FtlMsg>
+        </Banner>
+      )}
+      {BannerState.UnexpectedError === bannerState && (
+        <Banner type={BannerType.error}>
+          <FtlMsg id="account-recovery-reset-password-unexpected-error">
+            <p>Unexpected error encountered</p>
+          </FtlMsg>
+        </Banner>
+      )}
+      {BannerState.PasswordResendSuccess === bannerState && (
+        <Banner type={BannerType.success}>
+          <FtlMsg
+            id="account-recovery-reset-password-email-resent"
+            vars={{ accountsEmail }}
+          >
+            <p>
+              Email resent. Add {accountsEmail} to your contacts to ensure a
+              smooth delivery.
             </p>
           </FtlMsg>
-
-          {/* Hidden email field is to allow Fx password manager
-            to correctly save the updated password. Without it,
-            the password manager tries to save the old password
-            as the username. */}
-          <input type="email" value={state.email} className="hidden" readOnly />
-          <section className="text-start mt-4">
-            <FormPasswordWithBalloons
-              {...{
-                formState,
-                errors,
-                trigger,
-                register,
-                getValues,
-                passwordMatchErrorText,
-                setPasswordMatchErrorText,
-              }}
-              passwordFormType="reset"
-              onSubmit={handleSubmit(
-                (data: FormData) => {
-                  onSubmit(data);
-                },
-                (err) => {
-                  console.error(err);
-                }
-              )}
-              email={state.email}
-              loading={false}
-              onFocusMetricsEvent={`${viewName}.engage`}
-            />
-          </section>
-
-          <LinkRememberPassword {...state} />
-        </>
+        </Banner>
+      )}
+      {BannerState.PasswordResendError === bannerState && (
+        <Banner type={BannerType.error}>
+          <FtlMsg id="account-recovery-reset-password-email-resend-error">
+            <p>
+              Sorry, there was a problem resending a reset password link to your
+              email.
+            </p>
+          </FtlMsg>
+        </Banner>
+      )}
+      {BannerState.PasswordResetSuccess === bannerState && (
+        <Banner type={BannerType.success}>
+          <FtlMsg id="account-recovery-reset-password-success-alert">
+            <p>Password set</p>
+          </FtlMsg>
+        </Banner>
       )}
 
-      {linkStatus === 'damaged' && (
-        <LinkDamaged {...{ linkType: 'reset-password' }} />
-      )}
+      <CardHeader
+        headingText="Create new password"
+        headingTextFtlId="create-new-password-header"
+      />
+      <FtlMsg id="account-restored-success-message">
+        <p className="text-sm mb-4">
+          You have successfully restored your account using your account
+          recovery key. Create a new password to secure your data, and store it
+          in a safe location.
+        </p>
+      </FtlMsg>
 
-      {linkStatus === 'expired' && (
-        <LinkExpired {...{ linkType: 'reset-password', resendLinkHandler }} />
-      )}
+      {/* Hidden email field is to allow Fx password manager
+        to correctly save the updated password. Without it,
+        the password manager tries to save the old password
+        as the username. */}
+      <input type="email" value={state.email} className="hidden" readOnly />
+      <section className="text-start mt-4">
+        <FormPasswordWithBalloons
+          {...{
+            formState,
+            errors,
+            trigger,
+            register,
+            getValues,
+            passwordMatchErrorText,
+            setPasswordMatchErrorText,
+          }}
+          passwordFormType="reset"
+          onSubmit={handleSubmit(
+            (data: FormData) => {
+              onSubmit(data);
+            },
+            (err) => {
+              console.error(err);
+            }
+          )}
+          email={state.email}
+          loading={false}
+          onFocusMetricsEvent={`${viewName}.engage`}
+        />
+      </section>
+
+      <LinkRememberPassword {...state} />
     </AppLayout>
   );
 
@@ -200,7 +245,7 @@ const AccountRecoveryResetPassword = ({
         linkStatus = LinkStatus.damaged;
       } else if (!accountRecoveryKeyInfo.isValid()) {
         supportsRecovery = false;
-      } else if (accountRecoveryKeyInfo.lostRecoveryKey === true) {
+      } else if (verificationInfo.lostRecoveryKey === true) {
         supportsRecovery = false;
       }
     } catch (err) {
@@ -229,28 +274,28 @@ const AccountRecoveryResetPassword = ({
         ...accountRecoveryKeyInfo,
       });
 
-      // FOLLOW-UP: I don't see functionality in settings
+      // FOLLOW-UP: Functionality not yet available.
       await account.setLastLogin(Date.now());
 
-      // FOLLOW-UP: It seems like the account class will now refresh itself, so I don't think
-      //            these are necessary anymore?
+      // QUESTION: It seems like the account class will now refresh itself, so I don't think
+      //           these are necessary anymore?
       // storageContext.set('currentAccountUid', account.uid);
       // await account.refresh('account');
 
-      // FOLLOW-UP: No equivalent yet in settings
+      // FOLLOW-UP: Functionality not yet available.
       notifier.onAccountSignIn(account);
 
       relier.resetPasswordConfirm = true;
       logViewEvent(viewName, 'verification.success');
 
-      // FOLLOW-UP: Broker not yet implemented
+      // FOLLOW-UP: Functionality not yet available.
       await broker.invokeBrokerMethod('afterCompleteResetPassword', account);
+
       alertSuccess();
       navigateAway();
     } catch (err) {
       if (AuthUiErrors['INVALID_TOKEN'].errno === err.errno) {
-        // TODO: Is this needed? Had to add the a method to support this.
-        // BEFORE: this.logError(err);
+        // QUESTION: Is this needed? Had to add the a method to support this. Before it was, this.logError(err);
         logErrorEvent({ viewName, ...err });
         setLinkStatus(LinkStatus.expired);
       } else {
@@ -261,11 +306,7 @@ const AccountRecoveryResetPassword = ({
           alertInvalidContext(err);
         } else {
           logErrorEvent(err);
-          const msg = ftlMsgResolver.getMsg(
-            'account-recovery-reset-password-unexpected-error',
-            'Unexpected Error Encountered'
-          );
-          alertBar.error(msg);
+          setBannerState(BannerState.UnexpectedError);
         }
         throw err;
       }
@@ -277,26 +318,14 @@ const AccountRecoveryResetPassword = ({
 
     try {
       await account.resetPassword(state.email);
-      const msg = ftlMsgResolver.getMsg(
-        `account-recovery-reset-password-email-resent`,
-        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-      );
-      alertBar.success(msg);
+      setBannerState(BannerState.PasswordResendSuccess);
     } catch (err) {
-      const msg = ftlMsgResolver.getMsg(
-        'account-recovery-reset-password-email-resend-error',
-        'Sorry, there was a problem resending a reset password link to your email.'
-      );
-      alertBar.error(msg, err);
+      setBannerState(BannerState.PasswordResendError);
     }
   }
 
   function alertSuccess() {
-    const successCompletePwdReset = ftlMsgResolver.getMsg(
-      `account-recovery-reset-password-success-alert`,
-      'Password set'
-    );
-    alertBar.success(successCompletePwdReset);
+    setBannerState(BannerState.PasswordResetSuccess);
   }
 
   function navigateAway() {
@@ -308,13 +337,10 @@ const AccountRecoveryResetPassword = ({
   }
 
   function alertInvalidContext(err: ContextValidationErrors) {
-    const keys = err.errors.map((x) => x.key).join(',');
-    const msg = ftlMsgResolver.getMsg(
-      'account-recovery-reset-password-invalid-context',
-      `Invalid context: ${keys}`,
-      { keys }
+    setBannerState(BannerState.UnexpectedError);
+    console.error(
+      `Invalid keys detected: ${err.errors.map((x) => x.key).join(',')}`
     );
-    alertBar.error(msg, err);
   }
 };
 

@@ -10,7 +10,7 @@ import AppLayout from '../AppLayout';
 
 type LinkExpiredProps = {
   linkType: LinkType;
-  // TODO: Make link handler mandatory
+  // FOLLOW-UP: Make link handler mandatory
   resendLinkHandler?: (linkType: LinkType) => Promise<void>;
 };
 
@@ -50,9 +50,10 @@ const LinkExpired = ({ linkType, resendLinkHandler }: LinkExpiredProps) => {
   const templateValues = getTemplateValues(linkType);
   const onClickReceiveNewLink = () => {
     if (resendLinkHandler == null) {
-      throw new Error('resendLinkHandler missing!');
+      console.error('resendLinkHandler missing!');
+    } else {
+      resendLinkHandler(linkType);
     }
-    resendLinkHandler(linkType);
   };
   return (
     <AppLayout>

@@ -3,37 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  bind,
-  ContextValidation as V,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  validateContext,
+  ContextKeyTransforms,
+  ContextValidation,
   ContextValidationErrors,
   ModelContext,
+  ModelContextProvider,
+  bind,
+  validateContext,
 } from '../../lib/context';
 
 export * from './verification-info';
 
 export type VerificationInfoLinkStatus = 'expired' | 'damaged' | 'valid';
 
+const { isEmail, isRequired, isVerificationCode, isHex, isString, isBoolean } =
+  ContextValidation;
+const { snakeCase } = ContextKeyTransforms;
+
 export class VerificationInfo implements ModelContextProvider {
-  @bind([V.isEmail, V.isRequired])
+  @bind([isEmail, isRequired])
   email: string = '';
 
-  @bind([V.isEmail, V.isRequired])
+  @bind([isEmail, isRequired])
   emailToHashWith: string = '';
 
-  @bind([V.isVerificationCode, V.isRequired])
+  @bind([isVerificationCode, isRequired])
   code: string = '';
 
-  @bind([V.isHex, V.isRequired])
+  @bind([isHex, isRequired])
   token: string = '';
 
-  @bind([V.isString, V.isRequired])
+  @bind([isString, isRequired])
   uid: string = '';
 
-  @bind([V.isBoolean], T.snakeCase)
+  @bind([isBoolean], snakeCase)
   forceAuth: boolean = false;
+
+  @bind([isBoolean])
+  lostRecoveryKey: boolean | undefined;
 
   constructor(public readonly context: ModelContext) {}
   [x: string]: any;

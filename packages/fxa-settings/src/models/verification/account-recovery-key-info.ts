@@ -4,25 +4,24 @@
 
 import {
   bind,
-  ContextValidation as V,
+  ContextValidation,
   ModelContextProvider,
   ModelContext,
   validateContext,
   ContextValidationErrors,
 } from '../../lib/context';
 
+const { isNonEmptyString, isRequired } = ContextValidation;
+
 export class AccountRecoveryKeyInfo implements ModelContextProvider {
-  @bind([V.isNonEmptyString, V.isRequired])
+  @bind([isNonEmptyString, isRequired])
   accountResetToken: string = '';
 
-  @bind([V.isNonEmptyString, V.isRequired])
+  @bind([isNonEmptyString, isRequired])
   kB: string = '';
 
-  @bind([V.isNonEmptyString, V.isRequired])
+  @bind([isNonEmptyString, isRequired])
   recoveryKeyId: string = '';
-
-  @bind([V.isBoolean])
-  lostRecoveryKey: boolean | undefined;
 
   constructor(public readonly context: ModelContext) {}
 
