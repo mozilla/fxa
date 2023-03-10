@@ -51,8 +51,6 @@ import {
 
 export const viewName = 'account-recovery-reset-password';
 
-const accountsEmail = 'accounts@firefox.com';
-
 export type AccountRecoveryResetPasswordProps = {
   overrides?: {
     navigate?: NavigateFn;
@@ -69,10 +67,8 @@ type FormData = {
 enum BannerState {
   None,
   UnexpectedError,
-  PasswordResendSuccess,
   PasswordResetSuccess,
   Redirecting,
-  PasswordResendError,
   InvalidContext,
 }
 
