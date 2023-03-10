@@ -37,7 +37,7 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
   );
 
   const navigateToPasswordReset = useCallback(() => {
-    navigate('reset_password?showReactApp=true', { replace: true });
+    navigate('reset_password', { replace: true });
   }, [navigate]);
 
   if (!state) {
