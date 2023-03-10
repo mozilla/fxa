@@ -110,6 +110,12 @@ describe('CancelSubscriptionPanel', () => {
           const plan = findMockPlan(plan_id);
           runTests({ plan, ...baseProps });
         });
+
+        it('handles archived plans', () => {
+          const plan_id = `plan_archived${v}`;
+          const plan = findMockPlan(plan_id);
+          runTests({ plan, ...baseProps });
+        });
       });
     }
 
