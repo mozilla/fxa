@@ -25707,7 +25707,7 @@ fsevents@~2.1.1:
     pm2: ^5.2.2
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.5.7
+    rxjs: ^7.8.0
     stripe: ^10.7.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -26208,7 +26208,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.5.7
+    rxjs: ^7.8.0
     sqs-consumer: ^5.7.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -26309,7 +26309,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.5.7
+    rxjs: ^7.8.0
     superagent: ^8.0.0
     supertest: ^6.3.0
     ts-jest: ^29.0.0
@@ -26758,7 +26758,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
-    rxjs: ^7.5.7
+    rxjs: ^7.8.0
     sinon: ^9.0.3
     stripe: ^10.7.0
     superagent: ^8.0.0
@@ -26811,7 +26811,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^7.5.7
+    rxjs: ^7.8.0
     semver: ^7.3.5
     superagent: ^8.0.0
     supertest: ^6.3.0
@@ -44018,15 +44018,6 @@ resolve@^2.0.0-next.3:
   dependencies:
     tslib: ^2.1.0
   checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
-  languageName: node
-  linkType: hard
-
-"rxjs@npm:^7.5.7":
-  version: 7.5.7
-  resolution: "rxjs@npm:7.5.7"
-  dependencies:
-    tslib: ^2.1.0
-  checksum: edabcdb73b0f7e0f5f6e05c2077aff8c52222ac939069729704357d6406438acca831c24210db320aba269e86dbe1a400f3769c89101791885121a342fb15d9c
   languageName: node
   linkType: hard
 
