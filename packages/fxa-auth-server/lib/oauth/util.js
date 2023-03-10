@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const encrypt = require('fxa-shared/auth/encrypt');
 const AuthError = require('../error');
 const { signJWT } = require('../serverJWT');
+const crypto = require('crypto');
 
 /**
  * .base64URLEncode
@@ -20,26 +20,30 @@ const { signJWT } = require('../serverJWT');
  * @api public
  */
 function base64URLEncode(buf) {
-  return buf
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+  return buf.toString('base64url');
 }
 
 /**
  * Generates a hash of the access token based on
- * http://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
+ * Per: http://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
  *
- * This hash of the access token, then the base64url
- * value of the left half.
+ * at_hash
+ *     OPTIONAL. Access Token hash value. Its value is the base64url encoding of
+ *     the left-most half of the hash of the octets of the ASCII representation
+ *     of the access_token value, where the hash algorithm used is the hash
+ *     algorithm used in the alg Header Parameter of the ID Token's JOSE Header.
+ *     For instance, if the alg is RS256, hash the access_token value with
+ *     SHA-256, then take the left-most 128 bits and base64url encode them.
+ *     The at_hash value is a case sensitive string.
  *
- * @param {Buffer} accessToken The access token as seen by the client (hex form)
+ * @param {Buffer} accessToken The access token as seen by the client
  * @returns {String}
  * @api public
  */
 function generateTokenHash(accessToken) {
-  const hash = encrypt.hash(accessToken);
+  const sha = crypto.createHash('sha256');
+  sha.update(accessToken.toString('ascii'));
+  const hash = sha.digest();
   return base64URLEncode(hash.slice(0, hash.length / 2));
 }
 
