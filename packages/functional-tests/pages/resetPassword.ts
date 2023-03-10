@@ -12,6 +12,7 @@ export const selectors = {
   RESEND_RESET_PASSWORD_LINK: '#resend',
   RESEND_SUCCESS: '.success',
   UNKNOWN_ACCOUNT_ERROR: '.error',
+  RESET_PASSWORD_COMPLETE_HEADER: '#fxa-reset-password-complete-header',
 };
 
 export class ResetPasswordPage extends BaseLayout {
@@ -30,6 +31,14 @@ export class ResetPasswordPage extends BaseLayout {
   async confirmResetPasswordHeader() {
     const resetPass = this.page.locator(
       selectors.CONFIRM_RESET_PASSWORD_HEADER
+    );
+    await resetPass.waitFor();
+    return resetPass.isVisible();
+  }
+
+  async completeResetPasswordHeader() {
+    const resetPass = this.page.locator(
+      selectors.RESET_PASSWORD_COMPLETE_HEADER
     );
     await resetPass.waitFor();
     return resetPass.isVisible();
