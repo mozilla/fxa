@@ -15,12 +15,11 @@ import AppLayout from '../../../components/AppLayout';
 import { useAccount, useInterval } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logPageViewEvent } from '../../../lib/metrics';
-import { MozServices } from '../../../lib/types';
-import { ResetPasswordProps } from '../index';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export const viewName = 'confirm-reset-password';
 
-export type ConfirmResetPasswordProps = {
+export type ConfirmResetPasswordLocationState = {
   email: string;
   passwordForgotToken: string;
 };
@@ -32,32 +31,30 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const navigate = useNavigate();
-  let { state = {} } = useLocation();
-  const account = useAccount();
-  const [passwordResetResend, setPasswordResetResend] = useState(false);
-  const [isPolling, setIsPolling] = useState<number | null>(
-    POLLING_INTERVAL_MS
-  );
-  
-  const navigateToPasswordReset = useCallback(() => {
-    navigate('reset_password?showReactApp=true', { replace: true });
-  }, [navigate]);
+  let { state } = useLocation();
 
   if (!state) {
     state = {};
   }
 
-  let { email, passwordForgotToken } = state as ConfirmResetPasswordProps;
+  const { email, passwordForgotToken } =
+    state as ConfirmResetPasswordLocationState;
 
-  if (!email || !passwordForgotToken) {
-    navigateToPasswordReset();
-  }
+  const account = useAccount();
+  const [passwordResetResend, setPasswordResetResend] = useState(false);
+  const [isPolling, setIsPolling] = useState<number | null>(
+    POLLING_INTERVAL_MS
+  );
+  const [currentPasswordForgotToken, setCurrentPasswordForgotToken] =
+    useState<string>(passwordForgotToken);
 
   useInterval(async () => {
     try {
       // A bit unconventional but this endpoint will throw an invalid token error
-      // that represents the password has been reset.
-      const isValid = await account.resetPasswordStatus(passwordForgotToken);
+      // that represents the password has been reset (or that the token is expired)
+      const isValid = await account.resetPasswordStatus(
+        currentPasswordForgotToken
+      );
       if (!isValid) {
         // TODO: Going from react page to non-react page will require a hard
         // navigate. When signin flow have been converted we should be able
@@ -71,7 +68,7 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
 
   const resendHandler = async () => {
     const result = await account.resendResetPassword(email);
-    passwordForgotToken = result.passwordForgotToken;
+    setCurrentPasswordForgotToken(result.passwordForgotToken);
     setPasswordResetResend(true);
   };
 
@@ -82,33 +79,43 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
     instructionText: `Click the link emailed to ${email} within the next hour to create a new password.`,
   };
 
-  return (
-    <AppLayout>
-      {passwordResetResend && (
-        <Banner
-          type={BannerType.success}
-          dismissible
-          setIsVisible={setPasswordResetResend}
-        >
-          <FtlMsg
-            id="resend-pw-reset-banner"
-            vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
+  const navigateToPasswordReset = useCallback(() => {
+    navigate('reset_password?showReactApp=true', { replace: true });
+  }, [navigate]);
+
+  if (!email || !passwordForgotToken) {
+    navigateToPasswordReset();
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  } else
+    return (
+      <AppLayout>
+        {passwordResetResend && (
+          <Banner
+            type={BannerType.success}
+            dismissible
+            setIsVisible={setPasswordResetResend}
           >
-            <p>
-              Email resent. Add accounts@firefox.com to your contacts to ensure
-              a smooth delivery.
-            </p>
-          </FtlMsg>
-        </Banner>
-      )}
-      <ConfirmWithLink
-        {...{ email }}
-        confirmWithLinkPageStrings={confirmResetPasswordStrings}
-        resendEmailCallback={resendHandler}
-      />
-      <LinkRememberPassword {...{ email }} />
-    </AppLayout>
-  );
+            <FtlMsg
+              id="resend-pw-reset-banner"
+              vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
+            >
+              <p>
+                Email resent. Add accounts@firefox.com to your contacts to
+                ensure a smooth delivery.
+              </p>
+            </FtlMsg>
+          </Banner>
+        )}
+        <ConfirmWithLink
+          {...{ email }}
+          confirmWithLinkPageStrings={confirmResetPasswordStrings}
+          resendEmailCallback={resendHandler}
+        />
+        <LinkRememberPassword {...{ email }} />
+      </AppLayout>
+    );
 };
 
 export default ConfirmResetPassword;
