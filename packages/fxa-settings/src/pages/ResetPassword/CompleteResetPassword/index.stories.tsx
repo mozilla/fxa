@@ -3,17 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  createHistory,
-  createMemorySource,
-  History,
-  LocationProvider,
-} from '@reach/router';
 import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
-import { mockAppContext } from '../../../models/mocks';
-import { AppContext, Account } from '../../../models';
+import { Account } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
+import {
+  mockCompleteResetPasswordParams,
+  paramsWithMissingEmail,
+  Subject,
+} from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/CompleteResetPassword',
@@ -21,29 +19,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const source = createMemorySource('/fake-memories');
-
-const storyWithAccountAndHistory = (
+const storyWithSubject = (
   account: Account,
-  history: History,
+  params?: Record<string, string>,
   storyName?: string
 ) => {
-  const story = () => (
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider history={history}>
-        <CompleteResetPassword />
-      </LocationProvider>
-    </AppContext.Provider>
-  );
+  const story = () => {
+    return <Subject {...{ account, params }} />;
+  };
+
   story.storyName = storyName;
   return story;
 };
-
-const historyWithParams = createHistory(source);
-historyWithParams.location.href = `${window.location.href}?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith`;
-
-const historyWithoutParams = createHistory(source);
-historyWithoutParams.location.href = 'http://localhost.com/?';
 
 const accountNoRecoveryKey = {
   resetPasswordStatus: () => Promise.resolve(true),
@@ -61,23 +48,21 @@ const accountWithFalseyResetPasswordStatus = {
   resetPasswordStatus: () => Promise.resolve(false),
 } as unknown as Account;
 
-export const NoRecoveryKeySet = storyWithAccountAndHistory(
+export const NoRecoveryKeySet = storyWithSubject(
   accountNoRecoveryKey,
-  historyWithParams,
+  undefined,
   'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
 );
 
-export const ErrorCheckingRecoveryKeyStatus = storyWithAccountAndHistory(
-  accountWithRecoveryKeyStatusError,
-  historyWithParams
+export const ErrorCheckingRecoveryKeyStatus = storyWithSubject(
+  accountWithRecoveryKeyStatusError
 );
 
-export const WithExpiredLink = storyWithAccountAndHistory(
-  accountWithFalseyResetPasswordStatus,
-  historyWithParams
+export const WithExpiredLink = storyWithSubject(
+  accountWithFalseyResetPasswordStatus
 );
 
-export const WithDamagedLink = storyWithAccountAndHistory(
+export const WithDamagedLink = storyWithSubject(
   accountNoRecoveryKey,
-  historyWithoutParams
+  paramsWithMissingEmail
 );
