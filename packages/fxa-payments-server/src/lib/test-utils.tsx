@@ -450,6 +450,20 @@ export const MOCK_PLANS: Plan[] = [
     active: true,
   },
   {
+    plan_id: 'plan_archiveddaily',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'day' as const,
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    plan_metadata: null,
+    product_metadata: {
+      productSet: ['fpn'],
+    },
+    active: false,
+  },
+  {
     plan_id: 'plan_6days',
     product_id: 'prod_fpn',
     product_name: 'FPN',
@@ -476,6 +490,20 @@ export const MOCK_PLANS: Plan[] = [
       productSet: ['fpn'],
     },
     active: true,
+  },
+  {
+    plan_id: 'plan_archivedweekly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'week' as const,
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    plan_metadata: null,
+    product_metadata: {
+      productSet: ['fpn'],
+    },
+    active: false,
   },
   {
     plan_id: 'plan_6weeks',
@@ -506,6 +534,20 @@ export const MOCK_PLANS: Plan[] = [
     active: true,
   },
   {
+    plan_id: 'plan_archivedmonthly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'month' as const,
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    plan_metadata: null,
+    product_metadata: {
+      productSet: ['fpn'],
+    },
+    active: false,
+  },
+  {
     plan_id: 'plan_6months',
     product_id: 'prod_fpn',
     product_name: 'FPN',
@@ -532,6 +574,20 @@ export const MOCK_PLANS: Plan[] = [
       productSet: ['fpn'],
     },
     active: true,
+  },
+  {
+    plan_id: 'plan_archivedyearly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'year' as const,
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    plan_metadata: null,
+    product_metadata: {
+      productSet: ['fpn'],
+    },
+    active: false,
   },
   {
     plan_id: 'plan_6years',
@@ -618,6 +674,16 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
   },
 ];
 
+export const MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED = [
+  {
+    uid: 'a90fef48240b49b2b6a33d333aee9b13',
+    subscriptionId: 'sub0.28964929339372137',
+    productId: PRODUCT_ID,
+    createdAt: 1565816388815,
+    cancelledAt: null,
+  },
+];
+
 export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   {
     subscriptionId: 'sub0.28964929339372136',
@@ -699,6 +765,14 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
       },
     ],
   },
+  {
+    subscriptionId: MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].subscriptionId,
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: null,
+    total: 500,
+    total_excluding_tax: null,
+  },
 ];
 
 export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
@@ -777,6 +851,17 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION: Customer = {
       promotion_duration: null,
       promotion_end: null,
     },
+  ],
+};
+
+export const MOCK_CUSTOMER_ARCHIVED_PLAN: Customer = {
+  ...MOCK_CUSTOMER,
+  subscriptions: [
+    {
+      ...MOCK_CUSTOMER.subscriptions[0],
+      subscription_id: MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].subscriptionId,
+      plan_id: INACTIVE_PLAN_ID,
+    } as WebSubscription,
   ],
 };
 

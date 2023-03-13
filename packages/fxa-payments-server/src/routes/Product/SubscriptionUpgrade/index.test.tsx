@@ -28,6 +28,7 @@ import {
   SELECTED_PLAN,
   UPGRADE_FROM_PLAN,
   PROFILE,
+  UPGRADE_FROM_PLAN_ARCHIVED,
 } from '../../../lib/mock-data';
 
 import { SignInLayout } from '../../../components/AppLayout';
@@ -42,6 +43,36 @@ jest.mock('../../../lib/amplitude');
 
 const customerWebSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
 
+async function rendersAsExpected(upgradeFromPlan = UPGRADE_FROM_PLAN) {
+  const { findByTestId, queryByTestId, container } = render(
+    <Subject props={{ upgradeFromPlan }} />
+  );
+  await findByTestId('subscription-upgrade');
+
+  // Could do some more content-based tests here, but basically just a
+  // sanity test to assert that the products are in the correct slots
+  const fromName = container.querySelector(
+    '.from-plan .product-name'
+  ) as Element;
+  expect(fromName.textContent).toEqual(upgradeFromPlan.product_name);
+  const fromDesc = container.querySelector(
+    '.from-plan #product-description'
+  ) as Element;
+  expect(fromDesc.textContent).toContain(
+    upgradeFromPlan.product_metadata?.['product:subtitle']
+  );
+  const toName = container.querySelector('.to-plan .product-name') as Element;
+  expect(toName.textContent).toEqual(SELECTED_PLAN.product_name);
+  const toDesc = container.querySelector(
+    '.to-plan #product-description'
+  ) as Element;
+  expect(toDesc.textContent).toContain(
+    SELECTED_PLAN.product_metadata?.['product:subtitle']
+  );
+  expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
+  expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+}
+
 describe('routes/Product/SubscriptionUpgrade', () => {
   afterEach(() => {
     updateConfig({
@@ -54,31 +85,11 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 
   it('renders as expected', async () => {
-    const { findByTestId, queryByTestId, container } = render(<Subject />);
-    await findByTestId('subscription-upgrade');
+    await rendersAsExpected();
+  });
 
-    // Could do some more content-based tests here, but basically just a
-    // sanity test to assert that the products are in the correct slots
-    const fromName = container.querySelector(
-      '.from-plan .product-name'
-    ) as Element;
-    expect(fromName.textContent).toEqual(UPGRADE_FROM_PLAN.product_name);
-    const fromDesc = container.querySelector(
-      '.from-plan #product-description'
-    ) as Element;
-    expect(fromDesc.textContent).toContain(
-      UPGRADE_FROM_PLAN.product_metadata?.['product:subtitle']
-    );
-    const toName = container.querySelector('.to-plan .product-name') as Element;
-    expect(toName.textContent).toEqual(SELECTED_PLAN.product_name);
-    const toDesc = container.querySelector(
-      '.to-plan #product-description'
-    ) as Element;
-    expect(toDesc.textContent).toContain(
-      SELECTED_PLAN.product_metadata?.['product:subtitle']
-    );
-    expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
-    expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+  it('renders as expected when upgrade from plan is archived', async () => {
+    await rendersAsExpected(UPGRADE_FROM_PLAN_ARCHIVED);
   });
 
   it('renders as expected for inclusive tax', async () => {
