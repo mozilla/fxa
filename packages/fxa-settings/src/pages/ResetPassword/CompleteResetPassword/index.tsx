@@ -3,32 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState, useEffect } from 'react';
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
 
-import { useAccount } from '../../../models/hooks';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import LinkExpired from '../../../components/LinkExpired';
-import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import {
-  RequiredParamsCompleteResetPassword,
-  useCompleteResetPasswordLinkStatus,
-} from '../../../lib/hooks/useLinkStatus';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
+import { CompletePasswordResetAccount } from '../../../models/reset-password/account';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -51,11 +40,26 @@ type FormData = {
 
 type SubmitData = {
   newPassword: string;
-} & RequiredParamsCompleteResetPassword;
+} & CompleteResetPasswordParams;
 
 type LocationState = { lostRecoveryKey: boolean };
 
-const CompleteResetPassword = (_: RouteComponentProps) => {
+export type CompleteResetPasswordParams = {
+  email: string;
+  emailToHashWith: string;
+  code: string;
+  token: string;
+};
+
+const CompleteResetPassword = ({
+  account,
+  params,
+  setLinkStatus,
+}: {
+  account: CompletePasswordResetAccount;
+  params: CompleteResetPasswordParams;
+  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
+}) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -66,13 +70,9 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
    * to an immediate redirect or rerender of this page. */
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   const navigate = useNavigate();
-  const account = useAccount();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
-
-  const { linkStatus, setLinkStatus, requiredParams } =
-    useCompleteResetPasswordLinkStatus();
 
   const [errorCompletePwdReset, setErrorCompletePwdReset] =
     useState<boolean>(false);
@@ -96,8 +96,8 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       }
     };
 
-    if (requiredParams && !location.state?.lostRecoveryKey) {
-      checkForRecoveryKeyAndNavigate(requiredParams.email);
+    if (!location.state?.lostRecoveryKey) {
+      checkForRecoveryKeyAndNavigate(params.email);
     }
 
     setShowLoadingSpinner(false);
@@ -106,9 +106,8 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
     account,
     navigate,
     location.search,
-    requiredParams,
     location.state?.lostRecoveryKey,
-    linkStatus,
+    params.email,
   ]);
 
   useEffect(() => {
@@ -123,12 +122,10 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       }
     };
 
-    if (requiredParams) {
-      checkPasswordForgotToken(requiredParams.token);
-    }
+    checkPasswordForgotToken(params.token);
 
     setShowLoadingSpinner(false);
-  }, [requiredParams, account, setLinkStatus]);
+  }, [params.token, account, setLinkStatus]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -145,10 +142,26 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
   }, [navigate]);
 
   const onSubmit = useCallback(
-    async ({ newPassword, token, code, email }: SubmitData) => {
+    async ({
+      newPassword,
+      token,
+      code,
+      email,
+      emailToHashWith,
+    }: SubmitData) => {
       try {
-        // TODO: do we no longer need emailToHashWith?
-        await account.completeResetPassword(token, code, email, newPassword);
+        // The `emailToHashWith` option is returned by the auth-server to let the front-end
+        // know what to hash the new password with. This is important in the scenario where a user
+        // has changed their primary email address. In this case, they must still hash with the
+        // account's original email because this will maintain backwards compatibility with
+        // how account password hashing works previously.
+        const emailToUse = emailToHashWith || email;
+        await account.completeResetPassword(
+          token,
+          code,
+          emailToUse,
+          newPassword
+        );
         alertSuccessAndNavigate();
       } catch (e) {
         setErrorCompletePwdReset(true);
@@ -156,14 +169,6 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
     },
     [account, alertSuccessAndNavigate]
   );
-
-  if (linkStatus === LinkStatus.damaged || requiredParams === null) {
-    return <LinkDamaged linkType="reset-password" />;
-  }
-
-  if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired linkType="reset-password" />;
-  }
 
   if (showLoadingSpinner) {
     return (
@@ -235,12 +240,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
            to correctly save the updated password. Without it,
            the password manager tries to save the old password
            as the username. */}
-        <input
-          type="email"
-          value={requiredParams.email}
-          className="hidden"
-          readOnly
-        />
+        <input type="email" value={params.email} className="hidden" readOnly />
         <section className="text-start mt-4">
           <FormPasswordWithBalloons
             {...{
@@ -252,26 +252,26 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
               passwordMatchErrorText,
               setPasswordMatchErrorText,
             }}
-            email={requiredParams.email}
+            email={params.email}
             passwordFormType="reset"
             onSubmit={handleSubmit(({ newPassword }) =>
               onSubmit({
                 newPassword,
-                token: requiredParams.token,
-                code: requiredParams.code,
-                email: requiredParams.email,
-                // TODO: do we no longer need this?
-                emailToHashWith: requiredParams.emailToHashWith,
+                token: params.token,
+                code: params.code,
+                email: params.email,
+                emailToHashWith: params.emailToHashWith,
               })
             )}
             loading={false}
             onFocusMetricsEvent={`${viewName}.engage`}
           />
         </section>
-        <LinkRememberPassword email={requiredParams.email} />
+        <LinkRememberPassword email={params.email} />
       </>
     </AppLayout>
   );
 };
 
 export default CompleteResetPassword;
+// export default withLinkValidation({})(CompleteResetPassword);

@@ -38,7 +38,6 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
   const [isPolling, setIsPolling] = useState<number | null>(
     POLLING_INTERVAL_MS
   );
-  
   const navigateToPasswordReset = useCallback(() => {
     navigate('reset_password?showReactApp=true', { replace: true });
   }, [navigate]);

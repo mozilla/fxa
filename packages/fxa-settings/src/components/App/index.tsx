@@ -21,18 +21,23 @@ import LegalPrivacy from '../../pages/Legal/Privacy';
 
 import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 
-import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
+import CompleteResetPassword, {
+  CompleteResetPasswordParams,
+} from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
 import SigninReported from '../../pages/Signin/SigninReported';
+import LinkValidator from '../LinkValidator';
+import { useAccount } from '../../models';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { showReactApp } = flowQueryParams;
+  const account = useAccount();
 
   return (
     <>
@@ -55,7 +60,25 @@ export const App = ({
 
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
-              <CompleteResetPassword path="/complete_reset_password/*" />
+
+              <LinkValidator
+                path="/complete_reset_password/*"
+                page="completeResetPassword"
+                linkType="reset-password"
+              >
+                {({ setLinkStatus, params }) => (
+                  <CompleteResetPassword
+                    params={params as CompleteResetPasswordParams}
+                    {...{ setLinkStatus }}
+                    account={{
+                      hasRecoveryKey: account.hasRecoveryKey,
+                      resetPasswordStatus: account.resetPasswordStatus,
+                      completeResetPassword: account.completeResetPassword,
+                    }}
+                  />
+                )}
+              </LinkValidator>
+
               <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
 
               <SigninReported path="/signin_reported/*" />

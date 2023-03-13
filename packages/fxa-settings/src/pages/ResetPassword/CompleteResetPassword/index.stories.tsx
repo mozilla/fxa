@@ -23,61 +23,63 @@ export default {
 
 const source = createMemorySource('/fake-memories');
 
-const storyWithAccountAndHistory = (
-  account: Account,
-  history: History,
-  storyName?: string
-) => {
-  const story = () => (
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider history={history}>
-        <CompleteResetPassword />
-      </LocationProvider>
-    </AppContext.Provider>
-  );
-  story.storyName = storyName;
-  return story;
-};
+// const storyWithAccountAndHistory = (
+//   account: Account,
+//   history: History,
+//   storyName?: string
+// ) => {
+//   const story = () => (
+//     <AppContext.Provider value={mockAppContext({ account })}>
+//       <LocationProvider history={history}>
+//         <CompleteResetPassword />
+//       </LocationProvider>
+//     </AppContext.Provider>
+//   );
+//   story.storyName = storyName;
+//   return story;
+// };
 
-const historyWithParams = createHistory(source);
-historyWithParams.location.href = `${window.location.href}?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith`;
+// const historyWithParams = createHistory(source);
+// historyWithParams.location.href = `${window.location.href}?&token=token&code=code&email=email@email&emailToHashWith=emailToHashWith`;
 
-const historyWithoutParams = createHistory(source);
-historyWithoutParams.location.href = 'http://localhost.com/?';
+// const historyWithoutParams = createHistory(source);
+// historyWithoutParams.location.href = 'http://localhost.com/?';
 
-const accountNoRecoveryKey = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  hasRecoveryKey: () => Promise.resolve(false),
-} as unknown as Account;
+// const accountNoRecoveryKey = {
+//   resetPasswordStatus: () => Promise.resolve(true),
+//   hasRecoveryKey: () => Promise.resolve(false),
+// } as unknown as Account;
 
-const accountWithRecoveryKeyStatusError = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  hasRecoveryKey: () => {
-    throw new Error('boop');
-  },
-} as unknown as Account;
+// const accountWithRecoveryKeyStatusError = {
+//   resetPasswordStatus: () => Promise.resolve(true),
+//   hasRecoveryKey: () => {
+//     throw new Error('boop');
+//   },
+// } as unknown as Account;
 
-const accountWithFalseyResetPasswordStatus = {
-  resetPasswordStatus: () => Promise.resolve(false),
-} as unknown as Account;
+// const accountWithFalseyResetPasswordStatus = {
+//   resetPasswordStatus: () => Promise.resolve(false),
+// } as unknown as Account;
 
-export const NoRecoveryKeySet = storyWithAccountAndHistory(
-  accountNoRecoveryKey,
-  historyWithParams,
-  'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
-);
+// export const NoRecoveryKeySet = storyWithAccountAndHistory(
+//   accountNoRecoveryKey,
+//   historyWithParams,
+//   'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
+// );
 
-export const ErrorCheckingRecoveryKeyStatus = storyWithAccountAndHistory(
-  accountWithRecoveryKeyStatusError,
-  historyWithParams
-);
+// export const ErrorCheckingRecoveryKeyStatus = storyWithAccountAndHistory(
+//   accountWithRecoveryKeyStatusError,
+//   historyWithParams
+// );
 
-export const WithExpiredLink = storyWithAccountAndHistory(
-  accountWithFalseyResetPasswordStatus,
-  historyWithParams
-);
+// export const WithExpiredLink = storyWithAccountAndHistory(
+//   accountWithFalseyResetPasswordStatus,
+//   historyWithParams
+// );
 
-export const WithDamagedLink = storyWithAccountAndHistory(
-  accountNoRecoveryKey,
-  historyWithoutParams
-);
+// export const WithDamagedLink = storyWithAccountAndHistory(
+//   accountNoRecoveryKey,
+//   historyWithoutParams
+// );
+
+export const Temp = <>temp</>;

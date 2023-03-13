@@ -14,6 +14,7 @@ import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
+import { CompletePasswordResetAccount } from './reset-password/account';
 
 export interface DeviceLocation {
   city: string | null;
@@ -253,7 +254,7 @@ export function getNextAvatar(
   return { id: existingId, url: existingUrl, isDefault: false };
 }
 
-export class Account implements AccountData {
+export class Account implements AccountData, CompletePasswordResetAccount {
   private readonly authClient: AuthClient;
   private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
@@ -545,6 +546,7 @@ export class Account implements AccountData {
       // consumed yet
       return true;
     } catch (err) {
+      console.log('err', err);
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
 
       // Invalid token means the user has completed reset password
