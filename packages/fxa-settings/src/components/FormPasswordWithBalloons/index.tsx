@@ -22,12 +22,11 @@ export type FormPasswordWithBalloonsProps = {
   onSubmit: () => void;
   trigger: UseFormMethods['trigger'];
   register: UseFormMethods['register'];
-  getValues: UseFormMethods['getValues'];
+  watch: UseFormMethods['watch'];
   email: string;
-  onFocusMetricsEvent?: string;
+  onEngageMetricsEvent?: string;
   passwordMatchErrorText: string;
   setPasswordMatchErrorText: React.Dispatch<React.SetStateAction<string>>;
-  loading: boolean;
   children?: React.ReactNode;
 };
 
@@ -72,22 +71,24 @@ export const FormPasswordWithBalloons = ({
   email,
   trigger,
   register,
-  getValues,
-  onFocusMetricsEvent,
+  watch,
+  onEngageMetricsEvent,
   passwordMatchErrorText,
   setPasswordMatchErrorText,
-  loading,
   children,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [hasNewPwdFocused, setHasNewPwdFocused] = useState<boolean>(false);
   const [hasUserTakenAction, setHasUserTakenAction] = useState<boolean>(false);
   const [isNewPwdBalloonVisible, setIsNewPwdBalloonVisible] =
-    useState<boolean>(false);
+    useState<boolean>(true);
   const [isConfirmPwdBalloonVisible, setIsConfirmPwdBalloonVisible] =
     useState<boolean>(false);
   const [areBothPasswordsVisible, setAreBothPasswordsVisible] =
     useState<boolean>(false);
+
+  const newPassword = watch('newPassword');
+  const confirmPassword = watch('confirmPassword');
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -143,18 +144,31 @@ export const FormPasswordWithBalloons = ({
 
   const onNewPwdFocus = () => {
     showNewPwdBalloon();
-    if (!hasNewPwdFocused && onFocusMetricsEvent) {
-      logViewEvent(settingsViewName, onFocusMetricsEvent);
+    if (!hasNewPwdFocused && onEngageMetricsEvent) {
+      logViewEvent(settingsViewName, onEngageMetricsEvent);
       setHasNewPwdFocused(true);
     }
   };
 
   const onNewPwdBlur = () => {
+    // prevents immediate onblur from appearing valid
+    trigger('newPassword');
     !hasUserTakenAction && setHasUserTakenAction(true);
     // do not hide the password strength balloon if there are errors in the new password
-    if (getValues('newPassword') !== '' && !errors.newPassword) {
+    if (newPassword !== '' && !errors.newPassword) {
       hideNewPwdBalloon();
     }
+  };
+
+  const onNewPwdChange = () => {
+    if (!hasUserTakenAction) {
+      setHasUserTakenAction(true);
+
+      if (onEngageMetricsEvent) {
+        logViewEvent(settingsViewName, onEngageMetricsEvent);
+      }
+    }
+    newPassword === confirmPassword && setPasswordMatchErrorText('');
   };
 
   const onBlurConfirmPassword = () => {
@@ -162,7 +176,7 @@ export const FormPasswordWithBalloons = ({
       isConfirmPwdBalloonVisible &&
       hideConfirmPwdBalloon();
 
-    getValues('confirmPassword') !== getValues('newPassword') &&
+    confirmPassword !== newPassword &&
       setPasswordMatchErrorText(localizedPasswordMatchError);
   };
 
@@ -178,15 +192,12 @@ export const FormPasswordWithBalloons = ({
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
               name="newPassword"
+              autoFocus
               className="text-start"
               label={templateValues.passwordLabel}
-              onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}
+              onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
-              onChange={() => {
-                trigger(['newPassword', 'confirmPassword']);
-                getValues('confirmPassword') === getValues('newPassword') &&
-                  setPasswordMatchErrorText('');
-              }}
+              onChange={onNewPwdChange}
               hasErrors={
                 formState.dirtyFields.newPassword ? errors.newPassword : false
               }
@@ -238,7 +249,7 @@ export const FormPasswordWithBalloons = ({
               // Only used for the 'signup' page
               onFocusCb={
                 passwordFormType === 'signup' &&
-                getValues('newPassword') !== '' &&
+                newPassword !== '' &&
                 !errors.newPassword
                   ? showConfirmPwdBalloon
                   : undefined
@@ -248,13 +259,12 @@ export const FormPasswordWithBalloons = ({
                 if (passwordMatchErrorText) {
                   setPasswordMatchErrorText('');
                 }
-                trigger(['newPassword', 'confirmPassword']);
               }}
               hasErrors={errors.confirmPassword && passwordMatchErrorText}
               errorText={passwordMatchErrorText}
               inputRef={register({
                 required: true,
-                validate: (value: string) => value === getValues().newPassword,
+                validate: (value: string) => value === newPassword,
               })}
               anchorStart
               tooltipPosition="bottom"

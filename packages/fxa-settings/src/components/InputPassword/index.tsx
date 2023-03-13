@@ -38,6 +38,7 @@ export const InputPassword = ({
   anchorStart,
   areBothPasswordsVisible,
   setAreBothPasswordsVisible,
+  autoFocus,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
@@ -78,6 +79,7 @@ export const InputPassword = ({
         prefixDataTestId,
         tooltipPosition,
         anchorStart,
+        autoFocus,
       }}
     >
       <button

@@ -25,9 +25,9 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, watch, errors, formState, trigger } =
     useForm<FormData>({
-      mode: 'onTouched',
+      mode: 'onChange',
       criteriaMode: 'all',
       defaultValues: {
         newPassword: '',
@@ -42,15 +42,14 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
         errors,
         trigger,
         register,
-        getValues,
+        watch,
         passwordFormType,
         passwordMatchErrorText,
         setPasswordMatchErrorText,
       }}
       onSubmit={handleSubmit(onFormSubmit)}
       email={MOCK_ACCOUNT.primaryEmail.email}
-      loading={false}
-      onFocusMetricsEvent="test-event"
+      onEngageMetricsEvent="test-event"
     />
   );
 };

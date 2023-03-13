@@ -212,23 +212,6 @@ describe('AccountRecoveryResetPassword page', () => {
       );
     });
 
-    it('displays password requirements when the new password field is in focus', async () => {
-      const newPasswordField = screen.getByTestId('new-password-input-field');
-      expect(
-        screen.queryByText('Password requirements')
-      ).not.toBeInTheDocument();
-
-      fireEvent.focus(newPasswordField);
-      await waitFor(
-        () => {
-          expect(screen.getByText('Password requirements')).toBeVisible();
-        },
-        {
-          timeout: SHOW_BALLOON_TIMEOUT,
-        }
-      );
-    });
-
     describe('successful reset', () => {
       beforeAll(() => {
         account.setLastLogin = jest.fn();
@@ -243,6 +226,7 @@ describe('AccountRecoveryResetPassword page', () => {
       });
 
       it('emits a metric on successful reset', async () => {
+        console.log('account-recovery-reset-password viewName', viewName);
         expect(logViewEvent).toHaveBeenCalledWith(
           viewName,
           'verification.success'

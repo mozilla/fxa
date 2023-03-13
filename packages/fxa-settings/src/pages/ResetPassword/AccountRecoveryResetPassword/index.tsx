@@ -102,9 +102,9 @@ const AccountRecoveryResetPassword = ({
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(state.linkStatus);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, watch, errors, formState, trigger } =
     useForm<FormData>({
-      mode: 'onTouched',
+      mode: 'onChange',
       criteriaMode: 'all',
       defaultValues: {
         newPassword: '',
@@ -203,7 +203,7 @@ const AccountRecoveryResetPassword = ({
             errors,
             trigger,
             register,
-            getValues,
+            watch,
             passwordMatchErrorText,
             setPasswordMatchErrorText,
           }}
@@ -217,8 +217,7 @@ const AccountRecoveryResetPassword = ({
             }
           )}
           email={state.email}
-          loading={false}
-          onFocusMetricsEvent={`${viewName}.engage`}
+          onEngageMetricsEvent={`${viewName}.engage`}
         />
       </section>
 

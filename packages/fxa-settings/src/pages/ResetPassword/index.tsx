@@ -48,7 +48,6 @@ const ResetPassword = ({
 }: ResetPasswordProps & RouteComponentProps) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [email, setEmail] = useState<string>(prefillEmail || '');
   const [errorText, setErrorText] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -56,7 +55,7 @@ const ResetPassword = ({
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const { handleSubmit } = useForm<FormData>({
+  const { handleSubmit, watch, register } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     // The email field is not pre-filled for the reset_password page,
@@ -66,9 +65,11 @@ const ResetPassword = ({
     // immediately, the /signin page should have the original email.
     // See https://github.com/mozilla/fxa-content-server/issues/5293.
     defaultValues: {
-      email: '',
+      email: prefillEmail || '',
     },
   });
+
+  const email = watch('email');
 
   const onFocus = () => {
     if (!isFocused) {
@@ -161,30 +162,27 @@ const ResetPassword = ({
               label="Email"
               name="email"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setEmail(e.target.value);
                 // clear error tooltip if user types in the field
                 if (errorText) {
                   setErrorText('');
                 }
               }}
               onFocusCb={onFocus}
-              autoFocus
               errorText={errorText}
               className="text-start"
               anchorStart
               autoComplete="off"
               spellCheck={false}
               prefixDataTestId="reset-password"
+              inputRef={register({
+                required: true,
+              })}
             />
           </FtlMsg>
         )}
 
         <FtlMsg id="reset-password-button">
-          <button
-            data-testid="reset-password-button"
-            type="submit"
-            className="cta-primary cta-xl"
-          >
+          <button type="submit" className="cta-primary cta-xl">
             Begin Reset
           </button>
         </FtlMsg>
