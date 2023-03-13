@@ -4607,6 +4607,47 @@ describe('#integration - StripeHelper', () => {
             const actual = await stripeHelper.subscriptionsToResponse(input);
             assert.deepEqual(actual, expected);
           });
+
+          it('formats the subscription, when total_excluding_tax and subtotal_excluding_tax are not set', async () => {
+            const missingExcludingTaxPaidInvoice = deepCopy(paidInvoice);
+            delete missingExcludingTaxPaidInvoice.total_excluding_tax;
+            delete missingExcludingTaxPaidInvoice.subtotal_excluding_tax;
+            const latestInvoiceItems = stripeInvoiceToLatestInvoiceItemsDTO(
+              missingExcludingTaxPaidInvoice
+            );
+            const input = { data: [subscription1] };
+            sandbox
+              .stub(stripeHelper.stripe.invoices, 'retrieve')
+              .resolves(missingExcludingTaxPaidInvoice);
+            const callback = sandbox.stub(stripeHelper, 'expandResource');
+            callback.onCall(0).resolves(missingExcludingTaxPaidInvoice);
+            callback.onCall(1).resolves({ id: productId, name: productName });
+            const expected = [
+              {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
+                created: subscription1.created,
+                current_period_end: subscription1.current_period_end,
+                current_period_start: subscription1.current_period_start,
+                cancel_at_period_end: false,
+                end_at: null,
+                plan_id: subscription1.plan.id,
+                product_id: product1.id,
+                product_name: productName,
+                status: 'active',
+                subscription_id: subscription1.id,
+                failure_code: undefined,
+                failure_message: undefined,
+                latest_invoice: paidInvoice.number,
+                latest_invoice_items: latestInvoiceItems,
+                promotion_code: null,
+                promotion_duration: null,
+                promotion_end: null,
+              },
+            ];
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+            assert.deepEqual(actual, expected);
+          });
         });
 
         describe('when the subscription is set to cancel', () => {
