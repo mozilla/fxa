@@ -206,7 +206,7 @@ describe('lib/amplitude', () => {
       );
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
-        'Amplitude event failed validation: QUUX IS NOT A VALID DEVICE ID.',
+        'Amplitude event failed validation',
         Sentry.Severity.Error
       );
       expect(log.info).toHaveBeenCalledTimes(1);
