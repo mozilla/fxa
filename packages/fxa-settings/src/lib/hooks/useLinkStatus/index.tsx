@@ -9,10 +9,7 @@ import { LinkStatus } from '../../types';
 
 const getSetLinkStatus = (
   setLinkStatusConditionally: React.Dispatch<React.SetStateAction<LinkStatus>>,
-  requiredParams:
-    | RequiredParamsAccountRecoveryConfirmKey
-    | RequiredParamsCompleteResetPassword
-    | null
+  requiredParams: RequiredParamsAccountRecoveryConfirmKey | null
 ) => {
   // allow setting of `LinkStatus.damaged` or `LinkStatus.expired`, but confirm all required
   // params are present before allowing a set to `linkStatus.valid`
@@ -27,60 +24,6 @@ const getSetLinkStatus = (
     }
   };
 };
-
-// CompleteReset
-const requiredParamKeysCompleteResetPassword = [
-  'email',
-  'token',
-  'code',
-  'emailToHashWith',
-];
-export type ParamsCompleteResetPassword = {
-  email: string | null;
-  token: string | null;
-  code: string | null;
-  emailToHashWith: string | null;
-};
-export type RequiredParamsCompleteResetPassword = {
-  [K in keyof ParamsCompleteResetPassword]: NonNullable<
-    ParamsCompleteResetPassword[K]
-  >;
-};
-
-export function useCompleteResetPasswordLinkStatus() {
-  const searchParams = getSearchParams(
-    requiredParamKeysCompleteResetPassword,
-    useLocation().href
-  ) as ParamsCompleteResetPassword;
-
-  const isValid =
-    searchParams &&
-    requiredParamKeysCompleteResetPassword.every(
-      (key) =>
-        typeof searchParams[
-          key as keyof RequiredParamsCompleteResetPassword
-        ] === 'string'
-    );
-
-  const requiredParams = isValid
-    ? (searchParams as RequiredParamsCompleteResetPassword)
-    : null;
-
-  const [linkStatus, setLinkStatusConditionally] = useState<LinkStatus>(
-    isValid ? LinkStatus.valid : LinkStatus.damaged
-  );
-
-  const setLinkStatus = getSetLinkStatus(
-    setLinkStatusConditionally,
-    requiredParams
-  );
-
-  return {
-    linkStatus,
-    setLinkStatus,
-    requiredParams,
-  };
-}
 
 // AccountRecoveryConfirmKey
 const requiredParamsAccountRecoveryConfirmKey = [
