@@ -3,32 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState, useEffect } from 'react';
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
-
-import { useAccount } from '../../../models/hooks';
+import { useAccount } from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import LinkExpired from '../../../components/LinkExpired';
-import LinkDamaged from '../../../components/LinkDamaged';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import {
-  RequiredParamsCompleteResetPassword,
-  useCompleteResetPasswordLinkStatus,
-} from '../../../lib/hooks/useLinkStatus';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
+import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
+import useNavigateWithoutRerender from '../../../lib/hooks/useNavigateWithoutRerender';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -57,11 +47,24 @@ type FormData = {
 
 type SubmitData = {
   newPassword: string;
-} & RequiredParamsCompleteResetPassword;
+} & CompleteResetPasswordParams;
 
 type LocationState = { lostRecoveryKey: boolean };
 
-const CompleteResetPassword = (_: RouteComponentProps) => {
+type CompleteResetPasswordParams = {
+  email: string;
+  emailToHashWith: string;
+  code: string;
+  token: string;
+};
+
+const CompleteResetPassword = ({
+  params,
+  setLinkStatus,
+}: {
+  params: CompleteResetPasswordLink;
+  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
+}) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -72,13 +75,11 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
    * to an immediate redirect or rerender of this page. */
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   const navigate = useNavigate();
+  const navigateWithoutRerender = useNavigateWithoutRerender();
   const account = useAccount();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
-
-  const { linkStatus, setLinkStatus, requiredParams } =
-    useCompleteResetPasswordLinkStatus();
 
   /* When the user clicks the confirm password reset link from their email, we check
    * to see if they have an account recovery key set. If they do, we navigate to the
@@ -99,8 +100,8 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       }
     };
 
-    if (requiredParams && !location.state?.lostRecoveryKey) {
-      checkForRecoveryKeyAndNavigate(requiredParams.email);
+    if (!location.state?.lostRecoveryKey) {
+      checkForRecoveryKeyAndNavigate(params.email);
     }
 
     setShowLoadingSpinner(false);
@@ -108,8 +109,8 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
     account,
     navigate,
     location.search,
-    requiredParams,
     location.state?.lostRecoveryKey,
+    params.email,
   ]);
 
   useEffect(() => {
@@ -124,14 +125,12 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       }
     };
 
-    if (requiredParams) {
-      checkPasswordForgotToken(requiredParams.token);
-    }
+    checkPasswordForgotToken(params.token);
 
     setShowLoadingSpinner(false);
-  }, [requiredParams, account, setLinkStatus]);
+  }, [params.token, account, setLinkStatus]);
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, errors, formState, watch } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -143,14 +142,30 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
 
   const alertSuccessAndNavigate = useCallback(() => {
     setErrorType(ErrorType.none);
-    navigate('/reset_password_verified', { replace: true });
-  }, [navigate]);
+    navigateWithoutRerender('/reset_password_verified', { replace: true });
+  }, [navigateWithoutRerender]);
 
   const onSubmit = useCallback(
-    async ({ newPassword, token, code, email }: SubmitData) => {
+    async ({
+      newPassword,
+      token,
+      code,
+      email,
+      emailToHashWith,
+    }: SubmitData) => {
       try {
-        // TODO: do we no longer need emailToHashWith?
-        await account.completeResetPassword(token, code, email, newPassword);
+        // The `emailToHashWith` option is returned by the auth-server to let the front-end
+        // know what to hash the new password with. This is important in the scenario where a user
+        // has changed their primary email address. In this case, they must still hash with the
+        // account's original email because this will maintain backwards compatibility with
+        // how account password hashing works previously.
+        const emailToUse = emailToHashWith || email;
+        await account.completeResetPassword(
+          token,
+          code,
+          emailToUse,
+          newPassword
+        );
         alertSuccessAndNavigate();
       } catch (e) {
         setErrorType(ErrorType['complete-reset']);
@@ -158,14 +173,6 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
     },
     [account, alertSuccessAndNavigate]
   );
-
-  if (linkStatus === LinkStatus.damaged || requiredParams === null) {
-    return <LinkDamaged linkType="reset-password" />;
-  }
-
-  if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired linkType="reset-password" />;
-  }
 
   if (showLoadingSpinner) {
     return (
@@ -234,43 +241,36 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       </WarningMessage>
 
       {/* Hidden email field is to allow Fx password manager
-           to correctly save the updated password. Without it,
-           the password manager tries to save the old password
-           as the username. */}
-      <input
-        type="email"
-        value={requiredParams.email}
-        className="hidden"
-        readOnly
-      />
+          to correctly save the updated password. Without it,
+          the password manager tries to save the old password
+          as the username. */}
+      <input type="email" value={params.email} className="hidden" readOnly />
       <section className="text-start mt-4">
         <FormPasswordWithBalloons
           {...{
             formState,
             errors,
-            trigger,
             register,
-            getValues,
             passwordMatchErrorText,
             setPasswordMatchErrorText,
+            watch,
           }}
-          email={requiredParams.email}
+          email={params.email}
           passwordFormType="reset"
           onSubmit={handleSubmit(({ newPassword }) =>
             onSubmit({
               newPassword,
-              token: requiredParams.token,
-              code: requiredParams.code,
-              email: requiredParams.email,
-              // TODO: do we no longer need this?
-              emailToHashWith: requiredParams.emailToHashWith,
+              token: params.token,
+              code: params.code,
+              email: params.email,
+              emailToHashWith: params.emailToHashWith,
             })
           )}
           loading={false}
           onFocusMetricsEvent={`${viewName}.engage`}
         />
       </section>
-      <LinkRememberPassword email={requiredParams.email} />
+      <LinkRememberPassword email={params.email} />
     </AppLayout>
   );
 };

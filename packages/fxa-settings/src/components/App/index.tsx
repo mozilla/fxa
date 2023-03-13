@@ -36,6 +36,9 @@ import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 import SigninReported from '../../pages/Signin/SigninReported';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
+import LinkValidator from '../LinkValidator';
+import { UrlSearchContext } from '../../lib/context';
+import { CompleteResetPasswordLink } from '../../models/reset-password/verification';
 
 export const App = ({
   flowQueryParams,
@@ -102,7 +105,26 @@ export const App = ({
 
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
-              <CompleteResetPassword path="/complete_reset_password/*" />
+
+              <LinkValidator
+                path="/complete_reset_password/*"
+                linkType="reset-password"
+                getParamsFromModel={() => {
+                  return new CompleteResetPasswordLink(
+                    new UrlSearchContext(window)
+                  );
+                }}
+              >
+                {({ setLinkStatus, params }) => (
+                  <CompleteResetPassword
+                    {...{
+                      setLinkStatus,
+                      params,
+                    }}
+                  />
+                )}
+              </LinkValidator>
+
               <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
               <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
 

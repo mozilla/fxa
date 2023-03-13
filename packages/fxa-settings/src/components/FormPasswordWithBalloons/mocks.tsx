@@ -25,7 +25,7 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, watch, errors, formState } =
     useForm<FormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
@@ -40,9 +40,8 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
       {...{
         formState,
         errors,
-        trigger,
         register,
-        getValues,
+        watch,
         passwordFormType,
         passwordMatchErrorText,
         setPasswordMatchErrorText,

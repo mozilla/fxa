@@ -86,7 +86,7 @@ const Signup = ({
   // no newsletters are selected by default
   const [selectedNewsletters, setSelectedNewsletters] = useState<string[]>([]);
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
+  const { handleSubmit, register, watch, getValues, errors, formState } =
     useForm<FormData>({
       mode: 'onBlur',
       criteriaMode: 'all',
@@ -200,9 +200,8 @@ const Signup = ({
         {...{
           formState,
           errors,
-          trigger,
           register,
-          getValues,
+          watch,
           onFocus,
           email,
           onFocusMetricsEvent,
