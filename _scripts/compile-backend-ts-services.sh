@@ -20,7 +20,7 @@ echo "checking for affected services..."
 ORIGINAL_IFS=$IFS
 IFS=$'\n'
 # We don't need to worry about front-end services that use TS, since they must build successfully for CI to pass.
-BACKEND_PACKAGES=( "fxa-admin-server" "fxa-auth-server" "fxa-event-broker" "fxa-graphql-api" "fxa-shared" "fxa-auth-client" "fxa-support-panel" )
+BACKEND_PACKAGES=( "fxa-admin-server" "fxa-auth-server" "fxa-event-broker" "fxa-graphql-api" "fxa-shared" "fxa-auth-client" )
 INCLUDE_ARGS=''
 AFFECTED_PACKAGES=''
 for package_modified in $PACKAGES_MODIFIED; do
