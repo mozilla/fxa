@@ -70,7 +70,7 @@ const LinkExpired = ({ linkType }: LinkExpiredProps) => {
       <FtlMsg id={templateValues.messageId}>
         <p className="mt-4 text-sm">{templateValues.messageText}</p>
       </FtlMsg>
-      <FtlMsg id="resend-link">
+      <FtlMsg id="reset-pwd-resend-link">
         <button onClick={resendLinkHandler} className="link-blue mt-4">
           Receive new link
         </button>

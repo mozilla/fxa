@@ -194,6 +194,7 @@ describe('CompleteResetPassword page', () => {
   describe('errors', () => {
     it('displays "problem setting your password" error', async () => {
       account = {
+        hasRecoveryKey: jest.fn().mockResolvedValue(false),
         resetPasswordStatus: jest.fn().mockResolvedValue(true),
         completeResetPassword: jest
           .fn()
