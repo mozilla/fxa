@@ -9,7 +9,7 @@ import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { Meta } from '@storybook/react';
-import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export default {
   title: 'components/PaymentConfirmation',
@@ -49,7 +49,7 @@ const selectedPlanWithMetadata: Plan = {
   },
 };
 
-const invoice: LatestInvoiceItems = {
+const invoice: FirstInvoicePreview = {
   line_items: [],
   subtotal: 735,
   subtotal_excluding_tax: null,
