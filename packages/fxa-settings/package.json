@@ -85,7 +85,7 @@
     "react": "^16.13.1",
     "react-async-hook": "^4.0.0",
     "react-dom": "^16.13.1",
-    "react-easy-crop": "^4.6.1",
+    "react-easy-crop": "^4.7.4",
     "react-hook-form": "^6.15.8",
     "react-markdown": "^8.0.5",
     "react-scripts": "^4.0.3",
