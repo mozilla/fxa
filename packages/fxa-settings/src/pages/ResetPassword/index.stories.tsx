@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPassword from '.';
+import ResetPassword, { ResetPasswordProps } from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
@@ -16,7 +16,7 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = ({ ...props }) => {
+const storyWithProps = (props?: Partial<ResetPasswordProps>) => {
   const story = () => (
     <LocationProvider>
       <ResetPassword {...props} />
@@ -25,7 +25,7 @@ const storyWithProps = ({ ...props }) => {
   return story;
 };
 
-export const Default = storyWithProps({});
+export const Default = storyWithProps();
 
 export const WithServiceName = storyWithProps({
   serviceName: MozServices.MozillaVPN,

@@ -134,8 +134,6 @@ describe('PageResetPassword', () => {
       fireEvent.click(screen.getByText('Begin Reset'));
     });
 
-    await screen.findByText(
-      'Sorry, there was a problem resetting your password'
-    );
+    await screen.findByText('Unknown account');
   });
 });
