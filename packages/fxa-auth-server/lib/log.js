@@ -279,7 +279,7 @@ Lug.prototype.amplitudeEvent = function (data) {
           error: err.message,
         });
         Sentry.captureMessage(
-          `Amplitude event failed validation: ${err.message}.`,
+          'Amplitude event failed validation',
           Sentry.Severity.Error
         );
       });
