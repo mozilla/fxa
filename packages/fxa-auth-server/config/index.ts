@@ -1606,18 +1606,6 @@ const convictConf = convict({
       default: false,
       env: 'PUSHBOX_ENABLED',
     },
-    url: {
-      doc: 'Pushbox Server URL',
-      format: 'url',
-      default: 'https://pushbox.services.mozilla.com/',
-      env: 'PUSHBOX_URL',
-    },
-    key: {
-      doc: 'Authentication key to use when accessing pushbox server',
-      format: String,
-      default: 'Correct_Horse_Battery_Staple_1',
-      env: 'PUSHBOX_KEY',
-    },
     maxTTL: {
       doc: 'Maximum TTL to set on items written to pushbox',
       format: 'duration',
@@ -1625,12 +1613,6 @@ const convictConf = convict({
       env: 'PUSHBOX_MAX_TTL',
     },
     database: makeMySQLConfig('PUSHBOX', 'pushbox'),
-    directDbAccessPercentage: {
-      doc: 'The percentage of pushbox request to be handle through direct database access. 0 = off',
-      format: Number,
-      default: 0,
-      env: 'PUSHBOX_DIRECT_DB_PERCENT',
-    },
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
@@ -2109,7 +2091,6 @@ if (convictConf.get('oauthServer.openid.oldKeyFile')) {
 // Ensure secrets are not set to their default values in production.
 if (convictConf.get('isProduction')) {
   const SECRET_SETTINGS = [
-    'pushbox.key',
     'metrics.flow_id_key',
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
