@@ -2,9 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, Router } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
+import { useInitialState, useAccount, useConfig } from '../../models';
+import * as Metrics from '../../lib/metrics';
+
+import sentryMetrics from 'fxa-shared/lib/sentry';
+
 import { PageWithLoggedInStatusState } from '../PageWithLoggedInStatusState';
 import Settings from '../Settings';
 import { QueryParams } from '../..';
@@ -35,7 +40,47 @@ import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecov
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
+  const [isSignedIn, setIsSignedIn] = useState<boolean>();
+
   const { showReactApp } = flowQueryParams;
+  const { loading, error } = useInitialState();
+  const { metricsEnabled } = useAccount();
+  const config = useConfig();
+
+  useEffect(() => {
+    Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
+  }, [metricsEnabled, isSignedIn, flowQueryParams]);
+
+  useEffect(() => {
+    if (!loading && error?.message.includes('Invalid token')) {
+      setIsSignedIn(false);
+    } else if (!loading && !error) {
+      setIsSignedIn(true);
+    }
+  }, [error, loading]);
+
+  useEffect(() => {
+    if (!loading) {
+      // Previously, when Sentry was just loaded in Settings, we only enabled
+      // Sentry once we know the user's metrics preferences (and of course,
+      // only when the user was logged in, since all users in Settings are.)
+      // Now we enable Sentry for logged out users, and for logged in users
+      // who opt to have metrics enabled.
+      // A bit of chicken and egg but it could be possible that we miss some
+      // errors while the page is loading and user is being fetched.
+      if (metricsEnabled || !isSignedIn) {
+        sentryMetrics.configure({
+          release: config.version,
+          sentry: {
+            ...config.sentry,
+          },
+        });
+      } else {
+        sentryMetrics.disable();
+      }
+    }
+  }, [metricsEnabled, config.sentry, config.version, loading, isSignedIn]);
+
   return (
     <>
       <Router basepath={'/'}>
@@ -98,7 +143,7 @@ export const App = ({
               <ConfirmSignupCode path="/confirm_signup_code/*" />
             </>
           )}
-          <Settings path="/settings/*" {...{ flowQueryParams }} />
+          <Settings path="/settings/*" />
         </ScrollToTop>
       </Router>
     </>
