@@ -137,8 +137,21 @@ export type subsequentInvoicePreview = {
 
 export type subsequentInvoicePreviewsSchema = Array<subsequentInvoicePreview>;
 
-export interface LatestInvoiceItems extends FirstInvoicePreview {}
+export interface LatestInvoiceItems
+  extends Omit<
+    FirstInvoicePreview,
+    'subtotal_excluding_tax' | 'total_excluding_tax'
+  > {
+  subtotal_excluding_tax?: number | null;
+  total_excluding_tax?: number | null;
+}
 
-export const latestInvoiceItemsSchema = firstInvoicePreviewSchema;
+export const latestInvoiceItemsSchema = firstInvoicePreviewSchema.fork(
+  ['subtotal_excluding_tax', 'total_excluding_tax'],
+  (schema) => schema.optional().allow(null)
+);
 
-export type latestInvoiceItemsSchema = firstInvoicePreviewSchema;
+export type latestInvoiceItemsSchema = firstInvoicePreviewSchema & {
+  subtotal_excluding_tax?: number | null;
+  total_excluding_tax?: number | null;
+};

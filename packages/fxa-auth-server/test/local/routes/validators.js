@@ -849,6 +849,20 @@ describe('lib/routes/validators:', () => {
       assert.ok(!res.error);
     });
 
+    it('accepts a Stripe subscription with missing or undefined optional parameters', () => {
+      const stripeSubMissing = deepCopy(stripeSub);
+      const stripeSubUndefined = deepCopy(stripeSub);
+      delete stripeSubMissing.latest_invoice_items.subtotal_excluding_tax;
+      stripeSubUndefined.latest_invoice_items.subtotal_excluding_tax =
+        undefined;
+
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [stripeSubMissing, stripeSubUndefined],
+        });
+      assert.ok(!res.error);
+    });
+
     it('accepts a list with only Google Play subscriptions', () => {
       const res =
         validators.subscriptionsMozillaSubscriptionsValidator.validate({
