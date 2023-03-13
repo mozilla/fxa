@@ -35,6 +35,10 @@ const mockCustomer = customer1 as unknown as Stripe.Customer;
 const mockSubscription = subscription1 as unknown as FirestoreSubscription;
 const mockInvoicePreview = invoicePreviewTax as unknown as Stripe.Invoice;
 
+const mockAccount = {
+  locale: 'en-US',
+};
+
 const ROOT_DIR = '../..';
 const execAsync = util.promisify(cp.exec);
 const cwd = path.resolve(__dirname, ROOT_DIR);
@@ -81,6 +85,7 @@ describe('StripeAutomaticTaxConverter', () => {
   let stripeAutomaticTaxConverter: StripeAutomaticTaxConverter;
   let helperStub: sinon.SinonStubbedInstance<StripeAutomaticTaxConverterHelpers>;
   let stripeStub: Stripe;
+  let dbStub: any;
   let geodbStub: sinon.SinonStub;
   let firestoreGetStub: sinon.SinonStub;
   let mockIpAddressMapping: IpAddressMapFileEntry[];
@@ -126,7 +131,11 @@ describe('StripeAutomaticTaxConverter', () => {
       customers: {},
       subscriptions: {},
       invoices: {},
-    } as Stripe;
+    } as unknown as Stripe;
+
+    dbStub = {
+      account: sinon.stub(),
+    };
 
     stripeAutomaticTaxConverter = new StripeAutomaticTaxConverter(
       geodbStub,
@@ -134,7 +143,8 @@ describe('StripeAutomaticTaxConverter', () => {
       './stripe-automatic-tax-converter.tmp.csv',
       './stripe-automatic-tax-converter-ipaddresses.tmp.json',
       stripeStub,
-      20
+      20,
+      dbStub
     );
   });
 
@@ -222,9 +232,14 @@ describe('StripeAutomaticTaxConverter', () => {
 
     beforeEach(async () => {
       stripeStub.products.retrieve = sinon.stub().resolves(mockProduct);
+      fetchInvoicePreview = sinon.stub();
+      stripeAutomaticTaxConverter.fetchInvoicePreview = fetchInvoicePreview;
       stripeAutomaticTaxConverter.fetchCustomer = sinon
         .stub()
         .resolves(mockCustomer);
+      dbStub.account.resolves({
+        locale: 'en-US',
+      });
       enableTaxForCustomer = sinon.stub().resolves(true);
       stripeAutomaticTaxConverter.enableTaxForCustomer = enableTaxForCustomer;
       stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = sinon
@@ -233,7 +248,15 @@ describe('StripeAutomaticTaxConverter', () => {
       enableTaxForSubscription = sinon.stub().resolves();
       stripeAutomaticTaxConverter.enableTaxForSubscription =
         enableTaxForSubscription;
-      fetchInvoicePreview = sinon.stub().resolves(mockInvoicePreview);
+      fetchInvoicePreview = sinon
+        .stub()
+        .onFirstCall()
+        .resolves({
+          ...mockInvoicePreview,
+          total: mockInvoicePreview.total - 1,
+        })
+        .onSecondCall()
+        .resolves(mockInvoicePreview);
       stripeAutomaticTaxConverter.fetchInvoicePreview = fetchInvoicePreview;
       buildReport = sinon.stub().returns(mockReport);
       stripeAutomaticTaxConverter.buildReport = buildReport;
@@ -279,7 +302,18 @@ describe('StripeAutomaticTaxConverter', () => {
 
         expect(enableTaxForCustomer.notCalled).true;
         expect(enableTaxForSubscription.notCalled).true;
-        expect(logStub.notCalled).true;
+        expect(writeReportStub.notCalled).true;
+      });
+
+      it('aborts if account for customer does not exist', async () => {
+        dbStub.account.resolves(null);
+        await stripeAutomaticTaxConverter.generateReportForSubscription(
+          mockFirestoreSub
+        );
+
+        expect(enableTaxForCustomer.notCalled).true;
+        expect(enableTaxForSubscription.notCalled).true;
+        expect(writeReportStub.notCalled).true;
       });
 
       it('aborts if customer is not taxable', async () => {
@@ -292,7 +326,20 @@ describe('StripeAutomaticTaxConverter', () => {
 
         expect(enableTaxForCustomer.notCalled).true;
         expect(enableTaxForSubscription.notCalled).true;
-        expect(logStub.notCalled).true;
+        expect(writeReportStub.notCalled).true;
+      });
+
+      it('does not save report to CSV if total has not changed', async () => {
+        stripeAutomaticTaxConverter.fetchInvoicePreview = sinon
+          .stub()
+          .resolves(mockInvoicePreview);
+        await stripeAutomaticTaxConverter.generateReportForSubscription(
+          mockFirestoreSub
+        );
+
+        expect(enableTaxForCustomer.called).true;
+        expect(enableTaxForSubscription.called).true;
+        expect(writeReportStub.notCalled).true;
       });
 
       it('does not update subscription for ineligible product', async () => {
@@ -305,7 +352,7 @@ describe('StripeAutomaticTaxConverter', () => {
 
         expect(enableTaxForCustomer.notCalled).true;
         expect(enableTaxForSubscription.notCalled).true;
-        expect(logStub.notCalled).true;
+        expect(writeReportStub.notCalled).true;
       });
     });
   });
@@ -554,6 +601,7 @@ describe('StripeAutomaticTaxConverter', () => {
 
       const result = stripeAutomaticTaxConverter.buildReport(
         mockCustomer,
+        mockAccount,
         mockSubscription,
         mockProduct,
         mockPlan,
@@ -578,6 +626,7 @@ describe('StripeAutomaticTaxConverter', () => {
         mockSpecialTaxAmounts.rst,
         _mockInvoicePreview.total,
         mockSubscription.current_period_end,
+        `"${mockAccount.locale}"`,
       ]);
     });
   });
