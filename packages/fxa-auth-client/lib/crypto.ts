@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { hexToUint8, uint8ToBase64Url, uint8ToHex, xor } from './utils';
+import { hexToUint8, uint8ToBase64Url, base64UrlToUint8, uint8ToHex, xor } from './utils';
 
 const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
@@ -206,6 +206,39 @@ export async function jweEncrypt(
   return compactJWE;
 }
 
+/**
+ * Decrypt a JWE token using provided key material
+ * @param keyMaterial Key material
+ * @param jwe JWE token
+ */
+export async function jweDecrypt(keyMaterial: Uint8Array, jwe: string) : Promise<string> {
+ const encoder = new TextEncoder();
+  const [header, empty, iv, ciphertext, authenticationTag] = jwe.split('.');
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyMaterial,
+    {
+      name: 'AES-GCM',
+    },
+    false,
+    ['decrypt']
+  );
+  const ciphertextBuf = base64UrlToUint8(ciphertext);
+  const authenticationTagBuf = base64UrlToUint8(authenticationTag);
+  const dataBuf = new Uint8Array([...ciphertextBuf, ...authenticationTagBuf]);
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: base64UrlToUint8(iv),
+      additionalData: encoder.encode(header),
+      tagLength: 128,
+    },
+    key,
+   dataBuf
+  );
+  const decoder = new TextDecoder();
+  return decoder.decode(decrypted);
+}
 export async function checkWebCrypto() {
   try {
     await crypto.subtle.importKey(

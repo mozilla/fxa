@@ -17,7 +17,7 @@ test.describe('reset password', () => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
   });
 
-  test.skip('can reset password', async ({
+  test('can reset password', async ({
     page,
     target,
     credentials,

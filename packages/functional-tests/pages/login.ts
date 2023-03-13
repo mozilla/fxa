@@ -367,11 +367,11 @@ export class LoginPage extends BaseLayout {
   }
 
   setRecoveryKey(key: string) {
-    return this.page.fill(selectors.RECOVERY_KEY_TEXT_INPUT, key);
+    return this.page.locator(selectors.RECOVERY_KEY_TEXT_INPUT).fill(key);
   }
 
   setAge(age: string) {
-    return this.page.fill(selectors.AGE, age);
+    return this.page.locator(selectors.AGE).fill(age);
   }
 
   async setNewPassword(password: string) {

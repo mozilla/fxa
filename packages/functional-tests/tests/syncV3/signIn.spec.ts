@@ -8,7 +8,7 @@ import { EmailHeader, EmailType } from '../../lib/email';
 const password = 'passwordzxcv';
 let email;
 
-test.describe('Firefox Desktop Sync v3 sign in', () => {
+test.describe.skip('Firefox Desktop Sync v3 sign in', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');

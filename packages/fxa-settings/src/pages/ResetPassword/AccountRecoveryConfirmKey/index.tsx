@@ -28,7 +28,8 @@ import {
 } from '../../../lib/hooks/useLinkStatus';
 import AppLayout from '../../../components/AppLayout';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { randomBytes } from 'crypto';
+import base32Decode from 'base32-decode';
+import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 
 type FormData = {
   recoveryKey: string;
@@ -93,17 +94,17 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
 
       logViewEvent('flow', `${viewName}.success`, REACT_ENTRYPOINT);
 
-      // FOLLOW-UP: Get values by decoding recovery data.
-      const decode = (_data: string) => ({
-        kB: randomBytes(64).toString('hex'),
-      });
-      const { kB } = decode(recoveryData);
 
+      const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
+      const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
+
+      const decryptedData = await decryptRecoveryKeyData(uint8RecoveryKey, recoveryKeyId, recoveryData, uid);
+      
       navigate(`/account_recovery_reset_password${window.location.search}`, {
         state: {
           accountResetToken,
           recoveryKeyId,
-          kB,
+          kB: decryptedData.kB,
         },
       });
     },

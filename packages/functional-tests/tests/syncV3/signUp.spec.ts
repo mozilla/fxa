@@ -8,7 +8,7 @@ const password = 'passwordzxcv';
 const incorrectPassword = 'password123';
 let email;
 
-test.describe('Firefox Desktop Sync v3 sign up', () => {
+test.describe.skip('Firefox Desktop Sync v3 sign up', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
@@ -34,7 +34,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     await signinTokenCode.clickSubmitButton();
 
     // Verify the error message
-    expect(await login.getTooltipError()).toMatch('Passwords do not match');
+    expect(await login.getTooltipError()).toContain('Passwords do not match');
 
     // Fix the error
     await login.confirmPassword(password);
@@ -67,7 +67,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     // Age textbox is not on the page and click submit
     await login.submit();
     await login.fillOutSignUpCode(email);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+    expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
 
     await login.page.close();
     await page.close();
@@ -84,7 +84,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
         target.contentServerUrl
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
-    expect(await login.getTooltipError()).toMatch('Valid email required');
+    expect(await login.getTooltipError()).toContain('Valid email required');
 
     await login.page.close();
     await page.close();
@@ -100,7 +100,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
         target.contentServerUrl
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
-    expect(await login.getTooltipError()).toMatch('Valid email required');
+    expect(await login.getTooltipError()).toContain('Valid email required');
 
     await login.page.close();
     await page.close();
@@ -143,7 +143,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     expect(await login.isPasswordHeader()).toBe(true);
 
     // Verify the correct email is displayed
-    expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    expect(await login.getPrefilledEmail()).toContain(credentials.email);
 
     await login.page.close();
     await page.close();

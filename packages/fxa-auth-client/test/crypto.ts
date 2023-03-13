@@ -1,6 +1,10 @@
-import assert from 'assert';
+import * as assert from 'assert';
 import '../server'; // must import this to run with nodejs
-import { getCredentials, unbundleKeyFetchResponse } from 'fxa-auth-client/lib/crypto';
+import { getCredentials, hkdf, jweDecrypt, jweEncrypt, unbundleKeyFetchResponse } from 'fxa-auth-client/lib/crypto';
+import { randomKey, getRecoveryKeyIdByUid } from 'fxa-auth-client/lib/recoveryKey';
+import { hexToUint8 } from 'fxa-auth-client/lib/utils';
+
+const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
 
 describe('lib/crypto', () => {
   describe('getCredentials', () => {
@@ -35,5 +39,29 @@ describe('lib/crypto', () => {
         '849ac9f71643ace46dcdd384633ec1bffe565852806ee2f859c3eba7fafeafec'
       );
     });
+  });
+  
+  describe('jwe', () => {
+   it('should encrypt and decrypt',  async () => {
+      const recoveryKey = await randomKey();
+      const encoder = new TextEncoder();
+      const salt = hexToUint8(uid);
+      const data = {
+       kB: "aaaa"
+      };
+     const recoveryKeyId = await getRecoveryKeyIdByUid(recoveryKey, uid);
+
+    const encryptionKey = await hkdf(
+     recoveryKey,
+     salt,
+     encoder.encode('fxa recovery encrypt key'),
+     32
+    );
+    
+    const encryptedData = await jweEncrypt(encryptionKey, recoveryKeyId, encoder.encode(JSON.stringify(data)));
+    const decryptedData = await jweDecrypt(encryptionKey, encryptedData);
+
+    assert.deepEqual(JSON.parse(decryptedData), data);
+   });
   });
 });
