@@ -43,7 +43,6 @@ const LinkValidator = <T extends ModelContextProvider, TParams>({
     : children;
 
   const urlSearchContext = new UrlSearchContext(window);
-
   const validator = new Validator(urlSearchContext);
   const isValid = validator.isValid();
 
@@ -67,3 +66,39 @@ const LinkValidator = <T extends ModelContextProvider, TParams>({
 };
 
 export default LinkValidator;
+
+// do we like this better?
+export function withLinkValidation<T extends ModelContextProvider, TParams>(
+  Component: React.ComponentType<{
+    setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
+    params: TParams;
+  }>,
+  Validator: new (context: ModelContext) => T,
+  linkType: LinkType
+) {
+  return (props: any & RouteComponentProps) => {
+    const urlSearchContext = new UrlSearchContext(window);
+    const validator = new Validator(urlSearchContext);
+    const isValid = validator.isValid();
+
+    const [linkStatus, setLinkStatus] = useState<LinkStatus>(
+      isValid ? LinkStatus.valid : LinkStatus.damaged
+    );
+
+    if (linkStatus === LinkStatus.damaged) {
+      return <LinkDamaged {...{ linkType }} />;
+    }
+
+    if (linkStatus === LinkStatus.expired) {
+      return <LinkExpired {...{ linkType }} />;
+    }
+
+    return (
+      <Component
+        {...{ setLinkStatus }}
+        params={validator.getModelValues()}
+        {...props}
+      />
+    );
+  };
+}

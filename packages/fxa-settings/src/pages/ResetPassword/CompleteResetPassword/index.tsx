@@ -17,6 +17,8 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
+import { CompleteResetPasswordLinkValidator } from '../../../models/reset-password/verification';
+import { withLinkValidation } from '../../../components/LinkValidator';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -271,5 +273,10 @@ const CompleteResetPassword = ({
   );
 };
 
-export default CompleteResetPassword;
-// export default withLinkValidation({})(CompleteResetPassword);
+// do we like this better?
+export const CompleteResetPasswordWithLinkValidation = withLinkValidation<
+  CompleteResetPasswordLinkValidator,
+  CompleteResetPasswordParams
+>(CompleteResetPassword, CompleteResetPasswordLinkValidator, 'reset-password');
+
+export default CompleteResetPasswordWithLinkValidation;
