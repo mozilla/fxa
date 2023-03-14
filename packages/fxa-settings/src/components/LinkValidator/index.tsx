@@ -4,35 +4,38 @@
 
 import { RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
-import { UrlSearchContext } from '../../lib/context';
+import {
+  ModelContext,
+  ModelContextProvider,
+  UrlSearchContext,
+} from '../../lib/context';
 import { LinkStatus, LinkType } from '../../lib/types';
-import { CompleteResetPasswordLinkValidator } from '../../models/reset-password/verification';
 
 import LinkDamaged from '../LinkDamaged';
 import LinkExpired from '../LinkExpired';
 
-type LinkValidatorChildrenProps = {
+type LinkValidatorChildrenProps<TParams> = {
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-  params: { [key: string]: string };
+  params: TParams;
 };
 
-type LinkValidatorProps = {
+interface LinkValidatorClass<T> {
+  new (context: ModelContext): T;
+}
+
+type LinkValidatorProps<T extends ModelContextProvider, TParams> = {
   children:
-    | ((props: LinkValidatorChildrenProps) => React.ReactNode)
+    | ((props: LinkValidatorChildrenProps<TParams>) => React.ReactNode)
     | React.ReactElement;
-  page: keyof typeof pageValidatorMap;
+  Validator: LinkValidatorClass<T>;
   linkType: LinkType;
 };
 
-const pageValidatorMap = {
-  completeResetPassword: CompleteResetPasswordLinkValidator,
-};
-
-const LinkValidator = ({
+const LinkValidator = <T extends ModelContextProvider, TParams>({
   children,
-  page,
+  Validator,
   linkType,
-}: LinkValidatorProps & RouteComponentProps) => {
+}: LinkValidatorProps<T, TParams> & RouteComponentProps) => {
   // If `LinkValidator` is a route component receiving `path, then `children`
   // is a React.ReactElement
   const child = React.isValidElement(children)
@@ -41,7 +44,7 @@ const LinkValidator = ({
 
   const urlSearchContext = new UrlSearchContext(window);
 
-  const validator = new pageValidatorMap[page](urlSearchContext);
+  const validator = new Validator(urlSearchContext);
   const isValid = validator.isValid();
 
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(
@@ -56,7 +59,11 @@ const LinkValidator = ({
     return <LinkExpired {...{ linkType }} />;
   }
 
-  return <>{child({ params: validator.getModelValues(), setLinkStatus })}</>;
+  return (
+    <>
+      {child({ params: validator.getModelValues() as TParams, setLinkStatus })}
+    </>
+  );
 };
 
 export default LinkValidator;

@@ -546,7 +546,6 @@ export class Account implements AccountData {
       // consumed yet
       return true;
     } catch (err) {
-      console.log('err', err);
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
 
       // Invalid token means the user has completed reset password

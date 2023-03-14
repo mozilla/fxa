@@ -31,6 +31,7 @@ import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
 import SigninReported from '../../pages/Signin/SigninReported';
 import LinkValidator from '../LinkValidator';
+import { CompleteResetPasswordLinkValidator } from '../../models/reset-password/verification';
 
 export const App = ({
   flowQueryParams,
@@ -59,16 +60,16 @@ export const App = ({
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
 
-              <LinkValidator
+              <LinkValidator<
+                CompleteResetPasswordLinkValidator,
+                CompleteResetPasswordParams
+              >
                 path="/complete_reset_password/*"
-                page="completeResetPassword"
+                Validator={CompleteResetPasswordLinkValidator}
                 linkType="reset-password"
               >
                 {({ setLinkStatus, params }) => (
-                  <CompleteResetPassword
-                    params={params as CompleteResetPasswordParams}
-                    {...{ setLinkStatus }}
-                  />
+                  <CompleteResetPassword {...{ setLinkStatus, params }} />
                 )}
               </LinkValidator>
 

@@ -6,7 +6,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
-
+import { useAccount } from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
@@ -17,7 +17,6 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
-import { useAccount } from '../../../models';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -59,7 +58,6 @@ const CompleteResetPassword = ({
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
 }) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
-  const account = useAccount();
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
@@ -69,6 +67,7 @@ const CompleteResetPassword = ({
    * to an immediate redirect or rerender of this page. */
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   const navigate = useNavigate();
+  const account = useAccount();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
