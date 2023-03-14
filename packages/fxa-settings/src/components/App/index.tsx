@@ -24,6 +24,9 @@ import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import CompleteResetPassword from '../../pages/ResetPassword/CompleteResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
+
+import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
+
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
@@ -82,6 +85,14 @@ export const App = ({
               <PageWithLoggedInStatusState
                 Page={SignupConfirmed}
                 path="/signup_confirmed/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={SigninConfirmed}
+                path="/signin_verified/*"
+              />
+              <PageWithLoggedInStatusState
+                Page={SigninConfirmed}
+                path="/signin_confirmed/*"
               />
 
               <ConfirmSignupCode path="/confirm_signup_code/*" />

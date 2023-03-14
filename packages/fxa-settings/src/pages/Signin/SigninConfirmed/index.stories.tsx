@@ -4,7 +4,6 @@
 
 import React from 'react';
 import SigninConfirmed from '.';
-import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
@@ -17,16 +16,18 @@ export default {
 
 export const DefaultSignedIn = () => (
   <LocationProvider>
-    <AppLayout>
-      <SigninConfirmed isSignedIn />
-    </AppLayout>
+    <SigninConfirmed isSignedIn isSync={false} />
   </LocationProvider>
 );
 
 export const DefaultSignedOut = () => (
   <LocationProvider>
-    <AppLayout>
-      <SigninConfirmed isSignedIn={false} />
-    </AppLayout>
+    <SigninConfirmed isSignedIn={false} isSync={false} />
+  </LocationProvider>
+);
+
+export const IsSync = () => (
+  <LocationProvider>
+    <SigninConfirmed isSignedIn={false} isSync />
   </LocationProvider>
 );

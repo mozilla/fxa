@@ -113,7 +113,10 @@ export class RelierFactory {
 
     // Run final validation. This will ensure that the all fields decorated with an @bind are in the
     // the correct state.
-    relier?.validate();
+
+    // Commenting this out so that pages will stop erroring out when we don't have sufficient query params.
+    // This might be a TODO to restore this once we have all the data we need in the React app.
+    // relier?.validate();
 
     return relier;
   }

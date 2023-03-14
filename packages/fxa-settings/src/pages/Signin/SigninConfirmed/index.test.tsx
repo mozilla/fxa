@@ -21,7 +21,7 @@ describe('SigninConfirmed', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Ready component as expected', () => {
-    render(<SigninConfirmed isSignedIn />);
+    render(<SigninConfirmed isSignedIn isSync={false} />);
     // testAllL10n(screen, bundle);
 
     const signinConfirmation = screen.getByText('Sign-in confirmed');
@@ -37,7 +37,7 @@ describe('SigninConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<SigninConfirmed isSignedIn />);
+    render(<SigninConfirmed isSignedIn isSync={false} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
@@ -45,6 +45,7 @@ describe('SigninConfirmed', () => {
     render(
       <SigninConfirmed
         isSignedIn
+        isSync={false}
         continueHandler={() => {
           console.log('beepboop');
         }}
@@ -55,7 +56,7 @@ describe('SigninConfirmed', () => {
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
       viewName,
-      `${viewName}.continue`,
+      `flow.${viewName}.continue`,
       REACT_ENTRYPOINT
     );
   });

@@ -349,9 +349,16 @@ Router = Router.extend({
     },
     'signin(/)': createViewHandler(SignInPasswordView),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
-    'signin_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
+    'signin_confirmed(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_confirmed',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
+    },
     'signin_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_IN,
     }),
@@ -367,9 +374,16 @@ Router = Router.extend({
     }),
     'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
     'signin_unblock(/)': createViewHandler(SignInUnblockView),
-    'signin_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
+    'signin_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
+    },
     'signup(/)': createViewHandler(SignUpPasswordView),
     'signup_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(
