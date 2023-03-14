@@ -40,7 +40,8 @@ export class StripeAutomaticTaxConverter {
     private outputFile: string,
     ipAddressMapFile: string,
     private stripe: Stripe,
-    rateLimit: number
+    rateLimit: number,
+    private database: any
   ) {
     const config = Container.get<ConfigType>(AppConfig);
     this.config = config;
@@ -135,21 +136,47 @@ export class StripeAutomaticTaxConverter {
     try {
       const product = await this.fetchProduct(plan.product as string);
 
+      const priorInvoicePreview = await this.fetchInvoicePreview(
+        subscriptionId
+      );
+
       const isExcludedProduct = this.isExcludedSubscriptionProduct(product.id);
       if (isExcludedProduct) return; // Return early if subscription is for excluded product
 
       const customer = await this.fetchCustomer(customerId);
-      if (!customer) return; // Do not enable tax for an invalid customer
+      // Do not enable tax for an invalid customer
+      if (!customer) {
+        console.error(`Customer not found: ${customerId}`);
+        return;
+      }
+
+      const account = await this.database.account(customer.metadata.userid);
+      // Do not enable tax for a customer with no associated account
+      if (!account) {
+        console.error(`Account not found: ${customer.metadata.userid}`);
+        return;
+      }
 
       const taxEnabled = await this.enableTaxForCustomer(customer);
-      if (!taxEnabled) return; // Do not enable tax if customer is not taxable
+      // Do not enable tax if customer is not taxable
+      if (!taxEnabled) {
+        console.warn(
+          `Unable to place customer in taxable location: ${customer.id}`
+        );
+        return;
+      }
 
       await this.enableTaxForSubscription(subscriptionId);
 
       const invoicePreview = await this.fetchInvoicePreview(subscriptionId);
+      if (priorInvoicePreview.total === invoicePreview.total) {
+        console.warn(`Invoice total does not differ: ${subscriptionId}`);
+        return;
+      }
 
       const report = this.buildReport(
         customer,
+        account,
         firestoreSubscription,
         product,
         plan,
@@ -278,6 +305,7 @@ export class StripeAutomaticTaxConverter {
    */
   buildReport(
     customer: Stripe.Customer,
+    account: any,
     subscription: Stripe.Subscription,
     product: Stripe.Product,
     plan: Stripe.Plan,
@@ -309,6 +337,8 @@ export class StripeAutomaticTaxConverter {
 
       totalAmount: invoicePreview.total,
       nextInvoice: subscription.current_period_end,
+
+      locale: account.locale,
     };
 
     return [
@@ -329,6 +359,7 @@ export class StripeAutomaticTaxConverter {
       report.rst,
       report.totalAmount,
       report.nextInvoice,
+      `"${report.locale}"`,
     ];
   }
 
