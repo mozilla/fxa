@@ -17,7 +17,7 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
-import { CompletePasswordResetAccount } from '../../../models/reset-password/account';
+import { useAccount } from '../../../models';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -52,15 +52,14 @@ export type CompleteResetPasswordParams = {
 };
 
 const CompleteResetPassword = ({
-  account,
   params,
   setLinkStatus,
 }: {
-  account: CompletePasswordResetAccount;
   params: CompleteResetPasswordParams;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
 }) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
+  const account = useAccount();
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');

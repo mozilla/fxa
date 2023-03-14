@@ -31,13 +31,11 @@ import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 
 import SigninReported from '../../pages/Signin/SigninReported';
 import LinkValidator from '../LinkValidator';
-import { useAccount } from '../../models';
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { showReactApp } = flowQueryParams;
-  const account = useAccount();
 
   return (
     <>
@@ -70,11 +68,6 @@ export const App = ({
                   <CompleteResetPassword
                     params={params as CompleteResetPasswordParams}
                     {...{ setLinkStatus }}
-                    account={{
-                      hasRecoveryKey: account.hasRecoveryKey,
-                      resetPasswordStatus: account.resetPasswordStatus,
-                      completeResetPassword: account.completeResetPassword,
-                    }}
                   />
                 )}
               </LinkValidator>

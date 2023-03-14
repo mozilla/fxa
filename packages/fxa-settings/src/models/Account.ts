@@ -254,7 +254,7 @@ export function getNextAvatar(
   return { id: existingId, url: existingUrl, isDefault: false };
 }
 
-export class Account implements AccountData, CompletePasswordResetAccount {
+export class Account implements AccountData {
   private readonly authClient: AuthClient;
   private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
