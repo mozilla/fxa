@@ -25935,7 +25935,7 @@ fsevents@~2.1.1:
     poolee: ^1.0.1
     prettier: ^2.3.1
     proxyquire: ^2.1.3
-    punycode.js: 2.1.0
+    punycode.js: 2.3.0
     qrcode: ^1.5.1
     read: 2.0.0
     redlock: ^5.0.0-beta.2
@@ -41534,10 +41534,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"punycode.js@npm:2.1.0":
-  version: 2.1.0
-  resolution: "punycode.js@npm:2.1.0"
-  checksum: ac65ea53396228f2fe69356b3fc6adeb2a5b96916f00fc690358ef7f61ca3730318255f6102823e35f7be403a918e9a670482ba3a29878bea121da0008aae91a
+"punycode.js@npm:2.3.0":
+  version: 2.3.0
+  resolution: "punycode.js@npm:2.3.0"
+  checksum: 5ea3c4ed96f7a02269fc18bc542c05ba53ef7ba22ad36f82d731472409eb03561b88c328242b14f11511ea3725dc1ffd2f75eb8438d6d70f2ba3a158495271f5
   languageName: node
   linkType: hard
 
