@@ -6,9 +6,9 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
-import { useAccount } from '../../models';
+import { useAccount, useFtlMsgResolver } from '../../models';
 
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
 
 import { InputText } from '../../components/InputText';
 import CardHeader from '../../components/CardHeader';
@@ -19,7 +19,11 @@ import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 
 import AppLayout from '../../components/AppLayout';
-import { composeAuthUiErrorTranslationId } from '../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrorNos,
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from '../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../components/Banner';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword';
 
@@ -46,10 +50,11 @@ const ResetPassword = ({
 
   const [email, setEmail] = useState<string>(prefillEmail || '');
   const [errorText, setErrorText] = useState<string>('');
-  const [errorTranslationId, setErrorTranslationId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const account = useAccount();
   const navigate = useNavigate();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit } = useForm<FormData>({
     mode: 'onBlur',
@@ -81,14 +86,27 @@ const ResetPassword = ({
 
   const onSubmit = async () => {
     try {
-      setErrorTranslationId('');
+      setErrorMessage('');
       const result = await account.resetPassword(email);
       navigateToConfirmPwReset({
         passwordForgotToken: result.passwordForgotToken,
         email,
       });
     } catch (err) {
-      setErrorTranslationId(composeAuthUiErrorTranslationId(err));
+      let localizedError;
+      if (err.errno === AuthUiErrors.THROTTLED.errno) {
+        localizedError = ftlMsgResolver.getMsg(
+          composeAuthUiErrorTranslationId(err),
+          AuthUiErrorNos[err.errno].message,
+          { retryAfter: err.retryAfterLocalized }
+        );
+      } else {
+        localizedError = ftlMsgResolver.getMsg(
+          composeAuthUiErrorTranslationId(err),
+          err.message
+        );
+      }
+      setErrorMessage(localizedError);
     }
   };
 
@@ -101,11 +119,9 @@ const ResetPassword = ({
         {...{ serviceName }}
       />
 
-      {errorTranslationId && (
+      {errorMessage && (
         <Banner type={BannerType.error}>
-          <FtlMsg id={errorTranslationId}>
-            <p>Sorry, there was a problem resetting your password</p>
-          </FtlMsg>
+          <p>{errorMessage}</p>
         </Banner>
       )}
 
@@ -139,27 +155,28 @@ const ResetPassword = ({
 
         {/* if email is not forced, display input field */}
         {!forceAuth && (
-          <InputText
-            type="email"
-            label="Email"
-            name="email"
-            placeholder={'username@domain.com'}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setEmail(e.target.value);
-              // clear error tooltip if user types in the field
-              if (errorText) {
-                setErrorText('');
-              }
-            }}
-            onFocusCb={onFocus}
-            autoFocus
-            errorText={errorText}
-            className="text-start"
-            anchorStart
-            autoComplete="off"
-            spellCheck={false}
-            prefixDataTestId="reset-password"
-          />
+          <FtlMsg id="reset-password-password-input" attrs={{ label: true }}>
+            <InputText
+              type="email"
+              label="Email"
+              name="email"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setEmail(e.target.value);
+                // clear error tooltip if user types in the field
+                if (errorText) {
+                  setErrorText('');
+                }
+              }}
+              onFocusCb={onFocus}
+              autoFocus
+              errorText={errorText}
+              className="text-start"
+              anchorStart
+              autoComplete="off"
+              spellCheck={false}
+              prefixDataTestId="reset-password"
+            />
+          </FtlMsg>
         )}
 
         <FtlMsg id="reset-password-button">
