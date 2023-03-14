@@ -11787,7 +11787,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:*, @types/eslint@npm:7.2.13, @types/eslint@npm:^7.2.6":
+"@types/eslint@npm:*, @types/eslint@npm:^7.2.6":
   version: 7.2.13
   resolution: "@types/eslint@npm:7.2.13"
   dependencies:
@@ -12023,15 +12023,6 @@ __metadata:
   dependencies:
     "@types/unist": "*"
   checksum: 3e2ec0a56a06cd2fb5474b4ee312b40e70dc82e4e711514b393bb4e5ace2e9912576c9b44c2504bbb46c9b772794be49f1a4c418d01ceac1fafd66d15c158f62
-  languageName: node
-  linkType: hard
-
-"@types/hbs@npm:^4":
-  version: 4.0.1
-  resolution: "@types/hbs@npm:4.0.1"
-  dependencies:
-    handlebars: ^4.1.0
-  checksum: 28eae02b0a4133b0864096a59ca7e4573bcacebd9a0412c56428d06fe6ed42aa041d0cc57124551aecb841e08533ca3bdca7998d13cf44ba98ffdf32bff67fa5
   languageName: node
   linkType: hard
 
@@ -26830,55 +26821,6 @@ fsevents@~2.1.1:
   languageName: unknown
   linkType: soft
 
-"fxa-support-panel@workspace:packages/fxa-support-panel":
-  version: 0.0.0-use.local
-  resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
-  dependencies:
-    "@nestjs/cli": ^9.1.3
-    "@nestjs/common": ^9.1.2
-    "@nestjs/config": ^2.3.1
-    "@nestjs/core": ^9.2.0
-    "@nestjs/mapped-types": ^1.2.0
-    "@nestjs/platform-express": ^9.2.0
-    "@sentry/integrations": ^6.19.1
-    "@sentry/node": ^6.19.1
-    "@types/convict": ^5.2.2
-    "@types/eslint": 7.2.13
-    "@types/hbs": ^4
-    "@types/node": ^16.11.3
-    "@types/superagent": 4.1.11
-    "@types/supertest": ^2.0.11
-    audit-filter: ^0.5.0
-    class-transformer: ^0.5.1
-    class-validator: ^0.14.0
-    convict: ^6.2.4
-    convict-format-with-moment: ^6.2.0
-    convict-format-with-validator: ^6.2.0
-    esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
-    eslint: ^7.32.0
-    express: ^4.17.3
-    fxa-shared: "workspace:*"
-    handlebars: ^4.7.7
-    hbs: ^4.2.0
-    helmet: ^6.0.0
-    hot-shots: ^10.0.0
-    jest: 27.5.1
-    mozlog: ^3.0.2
-    pm2: ^5.2.2
-    prettier: ^2.3.1
-    reflect-metadata: ^0.1.13
-    rimraf: ^3.0.2
-    rxjs: ^7.8.0
-    semver: ^7.3.5
-    superagent: ^8.0.0
-    supertest: ^6.3.0
-    ts-jest: ^29.0.0
-    tslib: ^2.5.0
-    typescript: ^4.9.3
-  languageName: unknown
-  linkType: soft
-
 "fxa@workspace:.":
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
@@ -28422,7 +28364,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"handlebars@npm:4.7.7, handlebars@npm:^4.1.0, handlebars@npm:^4.7.7":
+"handlebars@npm:^4.7.7":
   version: 4.7.7
   resolution: "handlebars@npm:4.7.7"
   dependencies:
@@ -28854,16 +28796,6 @@ fsevents@~2.1.1:
     property-information: ^6.0.0
     space-separated-tokens: ^2.0.0
   checksum: 928a21576ff7b9a8c945e7940bcbf2d27f770edb4279d4d04b33dc90753e26ca35c1172d626f54afebd377b2afa32331e399feb3eb0f7b91a399dca5927078ae
-  languageName: node
-  linkType: hard
-
-"hbs@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "hbs@npm:4.2.0"
-  dependencies:
-    handlebars: 4.7.7
-    walk: 2.3.15
-  checksum: 811259d1bc6ecf94fca824df438167306a5f7e122b82aca59a3c593067c50175ce81c3de4d258b9cb19ae9ef5b91e8486282b5791191940bb5d8a298304965b5
   languageName: node
   linkType: hard
 
@@ -49604,7 +49536,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"walk@npm:2.3.15, walk@npm:^2.3.15, walk@npm:^2.3.9":
+"walk@npm:^2.3.15, walk@npm:^2.3.9":
   version: 2.3.15
   resolution: "walk@npm:2.3.15"
   dependencies:
