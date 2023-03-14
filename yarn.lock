@@ -6808,6 +6808,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/core@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/core@npm:1.10.0"
+  dependencies:
+    "@opentelemetry/semantic-conventions": 1.10.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.5.0"
+  checksum: 6713c5c6d1cab7eff81af85da7f4168ad700a11feaa5d5583a9871c6b18ae737ef4b6258c9689bc3b18fd4df0bb63c2b4aea3a7a41857d2f844f650207ca97ad
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/core@npm:1.7.0, @opentelemetry/core@npm:^1.0.0":
   version: 1.7.0
   resolution: "@opentelemetry/core@npm:1.7.0"
@@ -6841,17 +6852,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/exporter-jaeger@npm:~1.8.0":
-  version: 1.8.0
-  resolution: "@opentelemetry/exporter-jaeger@npm:1.8.0"
+"@opentelemetry/exporter-jaeger@npm:~1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/exporter-jaeger@npm:1.10.0"
   dependencies:
-    "@opentelemetry/core": 1.8.0
-    "@opentelemetry/sdk-trace-base": 1.8.0
-    "@opentelemetry/semantic-conventions": 1.8.0
+    "@opentelemetry/core": 1.10.0
+    "@opentelemetry/sdk-trace-base": 1.10.0
+    "@opentelemetry/semantic-conventions": 1.10.0
     jaeger-client: ^3.15.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-  checksum: 83d625deaa2689458fc496050bf1bc6dec03349adb7275447111da8898b44bdc5361ac1286d052caba9c3bbce8f93600c52c2a0626e788f6d2d17b49d23cebc2
+  checksum: 1bbd0012ff83cfd9515021287946904fa97a645c7474a08f258b564ebe7488202a07755234cad3621bcab7b4a4521b32b6c45b956afeff71e0492b788779894e
   languageName: node
   linkType: hard
 
@@ -7506,6 +7517,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/resources@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/resources@npm:1.10.0"
+  dependencies:
+    "@opentelemetry/core": 1.10.0
+    "@opentelemetry/semantic-conventions": 1.10.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.5.0"
+  checksum: 1da806c956f91609aa36933f99b38b0adcd6cbebe4f464bba6c2d5ad3a54e212aaad6257a2c0764b2ff835aef12d63a4ce0044f4cb1a2690a5ca9f4498630f88
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/resources@npm:1.7.0":
   version: 1.7.0
   resolution: "@opentelemetry/resources@npm:1.7.0"
@@ -7552,6 +7575,19 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.3.0 <1.4.0"
   checksum: 8dfb82e70b14fe2e95ce3f3d0b18e42981bfabe64c63b7f8c429aed197815356836a0350ad5cf38696f561c616ff5572f2ca63f4f968ae1367ed7180f730cad7
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/sdk-trace-base@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/sdk-trace-base@npm:1.10.0"
+  dependencies:
+    "@opentelemetry/core": 1.10.0
+    "@opentelemetry/resources": 1.10.0
+    "@opentelemetry/semantic-conventions": 1.10.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.5.0"
+  checksum: a49dae15a1ecee16b555057f9e1f8bb00301db06af17430768e0b2d5e23d5770d549346ec5eddeb96b3554284efcafcd1d94562624e688a0121d496d59fba349
   languageName: node
   linkType: hard
 
@@ -7646,6 +7682,13 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.3.0"
   checksum: 59423c4b4925f4c478560469427aad480eeaeb5e6137b578934b9df7187729a760c6e7d7330479911657965a72ca0cb8606c446f6dbf03f016c29ca608b6d1fd
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/semantic-conventions@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/semantic-conventions@npm:1.10.0"
+  checksum: 874d29ce1136a087e9e2719b1d6516a8db9dc821121b4bc8d870dfa07fb6d0ed6bf7ab210094284e9f3297b54c6fadeb3c22273d17e3c257e6dd1ebc54177ec4
   languageName: node
   linkType: hard
 
@@ -26694,7 +26737,7 @@ fsevents@~2.1.1:
     "@opentelemetry/auto-instrumentations-node": ~0.36.0
     "@opentelemetry/context-zone": ~1.7.0
     "@opentelemetry/context-zone-peer-dep": ~1.7.0
-    "@opentelemetry/exporter-jaeger": ~1.8.0
+    "@opentelemetry/exporter-jaeger": ~1.10.0
     "@opentelemetry/exporter-trace-otlp-http": ~0.34.0
     "@opentelemetry/instrumentation-document-load": ~0.31.0
     "@opentelemetry/instrumentation-fetch": ~0.34.0
