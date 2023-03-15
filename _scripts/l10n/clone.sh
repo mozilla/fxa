@@ -46,6 +46,3 @@ elif [ -n "${FXA_L10N_BRANCH}" ]; then
     git pull --quiet origin "${FXA_L10N_BRANCH}"
     echo "$PREFIX: L10N now on branch: ${FXA_L10N_BRANCH}"
 fi
-
-# record the git verison
-git rev-parse HEAD > git-head.txt
