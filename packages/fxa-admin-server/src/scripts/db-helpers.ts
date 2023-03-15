@@ -16,8 +16,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
 
-export const toZeroBuff = (size: number) =>
-  Buffer.from(Array(size).fill(0));
+export const toZeroBuff = (size: number) => Buffer.from(Array(size).fill(0));
 
 const sessionToken = (
   uid: string,

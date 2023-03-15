@@ -14,11 +14,13 @@ import {
 
 const config = Config.getProperties();
 
-const argv = yargs.options({
-  count: { type: 'number', default: 1 },
-  email: { type: 'string' },
-  withDiagnosticCode: { type: 'boolean' },
-}).parseSync();
+const argv = yargs
+  .options({
+    count: { type: 'number', default: 1 },
+    email: { type: 'string' },
+    withDiagnosticCode: { type: 'boolean' },
+  })
+  .parseSync();
 
 async function addBounceToDB() {
   const instance = knex({ client: 'mysql', connection: config.database.fxa });

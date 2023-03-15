@@ -18,7 +18,7 @@ const knex = setupDatabase({
 });
 
 const logFactory = mozlog(config.log);
-let log:ILogger = logFactory('default');
+let log: ILogger = logFactory('default');
 
 //#region Table Definitions
 /** Defines table and key column */
@@ -400,10 +400,7 @@ export async function run() {
         'When defined puts the program into a loop that executes every X seconds.',
         '0'
       )
-      .option(
-        '--console',
-        'When defined use the console instead of mozlogger'
-      )
+      .option('--console', 'When defined use the console instead of mozlogger')
       .parse(process.argv);
 
     if (program.console) {
@@ -412,8 +409,8 @@ export async function run() {
         warn: console.warn,
         trace: console.trace,
         info: console.info,
-        error: console.error
-      }
+        error: console.error,
+      };
     }
 
     if (parseInt(program.loopInterval)) {

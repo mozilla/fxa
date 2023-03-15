@@ -96,7 +96,6 @@ describe('#integration - scripts/audit-tokens', () => {
   });
 
   describe('cli', () => {
-
     jest.setTimeout(50000);
 
     async function testScript(args: string) {
@@ -145,7 +144,9 @@ describe('#integration - scripts/audit-tokens', () => {
     });
 
     it('auditOrphanedRows option', async () => {
-      const { stdout } = await testScript('--verbose --auditOrphanedRows  --console ');
+      const { stdout } = await testScript(
+        '--verbose --auditOrphanedRows  --console '
+      );
       assert.isTrue(/OrphanedRows/.test(stdout));
     });
 
