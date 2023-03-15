@@ -4391,9 +4391,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/bigquery@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@google-cloud/bigquery@npm:6.0.2"
+"@google-cloud/bigquery@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@google-cloud/bigquery@npm:6.1.0"
   dependencies:
     "@google-cloud/common": ^4.0.0
     "@google-cloud/paginator": ^4.0.0
@@ -4406,8 +4406,8 @@ __metadata:
     p-event: ^4.1.0
     readable-stream: ^4.0.0
     stream-events: ^1.0.5
-    uuid: ^8.0.0
-  checksum: 2a8afeb20aa648210ae28547eaeaab1c8abf881d465173d632943f64aa0fa8b235998b4653714d703da72e362612ff2d4b967ea7fae569b7ccf82d167a7e2243
+    uuid: ^9.0.0
+  checksum: a6b9aa30fe5e6ab1f3b3523aa46392f2c7606c4892f5537b0a2dd21b96cf529586841078c868c1a5a4d48ba4105451ca611d7a2f429f1f31dcc588513aadf3ff
   languageName: node
   linkType: hard
 
@@ -25810,7 +25810,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.6.2
-    "@google-cloud/bigquery": ^6.0.2
+    "@google-cloud/bigquery": ^6.1.0
     "@google-cloud/firestore": ^6.4.0
     "@google-cloud/translate": ^6.3.1
     "@googlemaps/google-maps-services-js": ^3.3.16
