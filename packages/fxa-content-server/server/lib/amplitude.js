@@ -87,6 +87,19 @@ const EVENTS = {
     event: 'complete_pairing',
   },
 
+  'screen.signin-confirmed': {
+    group: GROUPS.signin,
+    event: 'signin_confirmed_view',
+  },
+  'flow.signin-confirmed.continue': {
+    group: GROUPS.signin,
+    event: 'signin_confirmed_continue',
+  },
+  'flow.signin-confirmed.start-browsing': {
+    group: GROUPS.signin,
+    event: 'signin_confirmed_start_browsing',
+  },
+
   // Signup code based metrics
   'screen.confirm-signup-code': {
     group: GROUPS.registration,
@@ -105,6 +118,14 @@ const EVENTS = {
   'screen.signup-confirmed': {
     group: GROUPS.registration,
     event: 'signup_confirmed_view',
+  },
+  'flow.signup-confirmed.continue': {
+    group: GROUPS.registration,
+    event: 'signup_confirmed_view_continue',
+  },
+  'flow.signup-confirmed.start-browsing': {
+    group: GROUPS.registration,
+    event: 'signup_confirmed_start_browsing',
   },
 
   // Add account recovery key metrics, on `post_verify/account_recovery/*`
@@ -144,6 +165,10 @@ const EVENTS = {
     group: GROUPS.login,
     event: 'reset_password_confirmed_continue',
   },
+  'flow.reset-password-confirmed.start-browsing': {
+    group: GROUPS.login,
+    event: 'reset_password_confirmed_start_browsing',
+  },
 
   // Reset password with recovery key verified
   'screen.reset-password-with-recovery-key-verified': {
@@ -157,6 +182,14 @@ const EVENTS = {
   'flow.reset-password-with-recovery-key-verified.continue-to-account': {
     group: GROUPS.login,
     event: 'reset_password_with_recovery_key_verified_continue_to_account',
+  },
+  'flow.reset-password-with-recovery-key-verified.continue': {
+    group: GROUPS.login,
+    event: 'reset_password_with_recovery_key_verified_continue',
+  },
+  'flow.reset-password-with-recovery-key-verified.start-browsing': {
+    group: GROUPS.login,
+    event: 'reset_password_with_recovery_key_verified_start_browsing',
   },
 
   // Save account recovery key
@@ -213,6 +246,14 @@ const EVENTS = {
   'screen.primary-email-verified': {
     group: GROUPS.signup,
     event: 'primary_email_verified_view',
+  },
+  'flow.primary-email-verified.continue': {
+    group: GROUPS.signup,
+    event: 'primary_email_verified_view_continue',
+  },
+  'flow.primary-email-verified.start-browsing': {
+    group: GROUPS.signup,
+    event: 'primary_email_verified_view_start_browsing',
   },
 
   'screen.account-recovery-confirm-key': {
@@ -856,7 +897,7 @@ function receiveEvent(event, request, data) {
             error: err.message,
           });
           Sentry.captureMessage(
-            `Amplitude event failed validation: ${err.message}.`,
+            'Amplitude event failed validation',
             Sentry.Severity.Error
           );
         });

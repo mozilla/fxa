@@ -23,4 +23,19 @@ export abstract class BaseContext implements ModelContext {
   persist() {
     // no-op
   }
+
+  toJSON() {
+    const temp: Record<string, unknown> = {};
+    for (const key in this.getKeys()) {
+      temp[key] = this.get(key);
+    }
+    return JSON.stringify(temp);
+  }
+
+  fromJSON(json: string) {
+    const parsed = JSON.parse(json);
+    Object.keys(parsed).forEach((key) => {
+      this.set(key, parsed[key]);
+    });
+  }
 }

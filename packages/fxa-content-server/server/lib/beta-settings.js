@@ -4,7 +4,6 @@
 
 const { readFileSync } = require('fs');
 const { join } = require('path');
-const { getTraceParentId } = require('fxa-shared/tracing/node-tracing');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const config = require('./configuration');
 
@@ -60,7 +59,6 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
-  tracing: config.get('tracing'),
 };
 
 // Inject Beta Settings meta content
@@ -80,20 +78,6 @@ function swapBetaMeta(html, metaContent = {}) {
   });
 
   return result;
-}
-
-// Try to pull the flow id from the request query to setup the trace state context
-function getTraceState(req) {
-  let state = '';
-  if (
-    req &&
-    req.query &&
-    req.query.flowId &&
-    /^(?:[a-fA-F0-9]{2}){32}$/.test(req.query.flowId)
-  ) {
-    state = `flow.id=${req.query.flowId}`;
-  }
-  return state;
 }
 
 // Conditionally modify the response
@@ -121,8 +105,6 @@ function modifyProxyRes(proxyRes, req, res) {
       let html = body.toString();
       html = swapBetaMeta(html, {
         __SERVER_CONFIG__: settingsConfig,
-        __TRACE_PARENT__: getTraceParentId(),
-        __TRACE_STATE__: getTraceState(req),
       });
       res.send(new Buffer.from(html));
     } else {
@@ -145,8 +127,6 @@ const modifySettingsStatic = function (req, res) {
   return res.send(
     swapBetaMeta(settingsIndexFile, {
       __SERVER_CONFIG__: settingsConfig,
-      __TRACE_PARENT__: getTraceParentId(),
-      __TRACE_STATE__: getTraceState(req),
     })
   );
 };

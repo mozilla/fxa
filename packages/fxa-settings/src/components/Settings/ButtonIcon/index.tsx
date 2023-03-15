@@ -15,7 +15,7 @@ type ButtonIconProps = {
   testId?: string;
 };
 
-const ButtonIcon = ({
+export const ButtonIcon = ({
   title,
   icon,
   classNames,

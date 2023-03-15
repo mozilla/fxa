@@ -14,8 +14,10 @@ signin-recovery-code-instruction = Please enter a backup authentication code tha
 signin-recovery-code-input-label = Enter 10-digit backup authentication code
 # Form button to confirm if the backup authentication code entered by the user is valid
 signin-recovery-code-confirm-button = Confirm
-# Link to return to signin with two-step authentication code (security code)
+# Link to return to signin with two-step authentication code
 signin-recovery-code-back-link = Back
 # External link for support if the user can't use two-step autentication or a backup authentication code
 # https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 signin-recovery-code-support-link = Are you locked out?
+# Error displayed in a tooltip when form is submitted witout a code
+signin-recovery-code-required-error = Backup authentication code required

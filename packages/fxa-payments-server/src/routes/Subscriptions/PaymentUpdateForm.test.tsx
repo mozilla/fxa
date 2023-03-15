@@ -17,7 +17,12 @@ import {
   elementChangeResponse,
   MOCK_PAYPAL_CUSTOMER_RESULT,
 } from '../../lib/test-utils';
-import { CUSTOMER, FILTERED_SETUP_INTENT, PLAN } from '../../lib/mock-data';
+import {
+  CUSTOMER,
+  FILTERED_SETUP_INTENT,
+  INACTIVE_PLAN,
+  PLAN,
+} from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
 import { defaultConfig } from '../../lib/config';
@@ -125,6 +130,18 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
 
   it('renders correctly for paypal', async () => {
     render(<Subject customer={{ ...CUSTOMER, payment_provider: 'paypal' }} />);
+    expect(
+      screen.getByTestId('change-payment-update-button')?.getAttribute('href')
+    ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);
+  });
+
+  it('renders correctly for paypal with archived plan', async () => {
+    render(
+      <Subject
+        customer={{ ...CUSTOMER, payment_provider: 'paypal' }}
+        plan={INACTIVE_PLAN}
+      />
+    );
     expect(
       screen.getByTestId('change-payment-update-button')?.getAttribute('href')
     ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);

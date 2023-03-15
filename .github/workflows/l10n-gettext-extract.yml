@@ -35,6 +35,7 @@ jobs:
       - name: Extract gettext strings and flag for review
         run: |
           cd fxa-code
+          _scripts/l10n/clone.sh
           yarn workspaces focus fxa-content-server
 
           # Extract gettext
@@ -55,7 +56,7 @@ jobs:
           npx grunt l10n-extract
           cd ../..
 
-          # Get hash frome base commit
+          # Get hash from base commit
           OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
 
           # Compare hashes

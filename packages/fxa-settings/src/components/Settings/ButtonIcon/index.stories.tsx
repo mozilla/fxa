@@ -3,17 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
-import { ButtonIconTrash, ButtonIconReload } from '.';
+import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from '.';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 
-storiesOf('Components/Settings/ButtonIcon', module)
-  .add('ButtonIconTrash', () => (
-    <div className="p-10 max-w-lg">
-      <ButtonIconTrash title="Remove email" />
-    </div>
-  ))
-  .add('ButtonIconReload', () => (
-    <div className="p-10 max-w-lg">
-      <ButtonIconReload title="Reload email" />
-    </div>
-  ));
+export default {
+  title: 'Components/Settings/ButtonIcon',
+  component: ButtonIcon,
+  subcomponents: { ButtonIconTrash, ButtonIconReload },
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <div className="p-10 max-w-lg">
+        <Story />
+      </div>
+    ),
+  ],
+} as Meta;
+
+const onClick = () => alert('You clicked the button!');
+
+export const TrashButton = () => <ButtonIconTrash title="Remove email" />;
+
+export const ButtonDisabled = () => (
+  <ButtonIconTrash title="Remove email" disabled />
+);
+
+export const ButtonWithClickAction = () => (
+  <ButtonIconTrash {...{ onClick }} title="Remove email" />
+);
+
+export const ReloadButton = () => <ButtonIconReload title="Reload email" />;

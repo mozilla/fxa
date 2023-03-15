@@ -42,6 +42,8 @@ import {
   PRODUCT_ID,
   MOCK_SUBSEQUENT_INVOICES,
   MOCK_LATEST_INVOICE_ITEMS,
+  MOCK_CUSTOMER_ARCHIVED_PLAN,
+  MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED,
 } from '../../lib/test-utils';
 
 import { SettingsLayout } from '../../components/AppLayout';
@@ -416,27 +418,7 @@ describe('routes/Subscriptions', () => {
     await findByTestId('error-cancellation');
   });
 
-  it('supports cancelling a subscription', async () => {
-    initApiMocks();
-
-    nock(authServer)
-      .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
-      .reply(200, {});
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, [
-        {
-          uid: 'a90fef48240b49b2b6a33d333aee9b13',
-          subscriptionId: 'sub0.28964929339372136',
-          productId: '123doneProProduct',
-          createdAt: 1565816388815,
-          cancelledAt: 1566252991684,
-        },
-      ]);
-    nock(authServer)
-      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
-      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION);
-
+  async function cancellationSuccessCommonSteps() {
     const {
       findByTestId,
       queryAllByTestId,
@@ -490,6 +472,60 @@ describe('routes/Subscriptions', () => {
     );
     // A farewell dialog should appear
     await findByTestId('cancellation-message-title');
+  }
+
+  it('supports cancelling a subscription', async () => {
+    initApiMocks();
+
+    nock(authServer)
+      .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
+      .reply(200, {});
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, [
+        {
+          uid: 'a90fef48240b49b2b6a33d333aee9b13',
+          subscriptionId: 'sub0.28964929339372136',
+          productId: '123doneProProduct',
+          createdAt: 1565816388815,
+          cancelledAt: 1566252991684,
+        },
+      ]);
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION);
+
+    await cancellationSuccessCommonSteps();
+  });
+
+  it('supports cancelling a subscription to an archived plan', async () => {
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_ARCHIVED_PLAN,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED,
+    });
+
+    nock(authServer)
+      .delete(
+        `/v1/oauth/subscriptions/active/${MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].subscriptionId}`
+      )
+      .reply(200, {});
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, [
+        {
+          uid: 'a90fef48240b49b2b6a33d333aee9b13',
+          subscriptionId:
+            MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].subscriptionId,
+          productId: MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].productId,
+          createdAt: 1565816388815,
+          cancelledAt: 1566252991684,
+        },
+      ]);
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, MOCK_CUSTOMER_ARCHIVED_PLAN);
+
+    await cancellationSuccessCommonSteps();
   });
 
   it('cancelling one subscription disables other subscription cancel buttons', async () => {
@@ -631,38 +667,32 @@ describe('routes/Subscriptions', () => {
         ];
 
     let latest_invoice_items;
-    let otherPromotionItems;
+    let mockSubsequentInvoices;
     switch (discount) {
       case 'ENDS_NEXT_INTERVAL':
         latest_invoice_items = {
           ...MOCK_LATEST_INVOICE_ITEMS,
-          total: 685,
+          total: 735,
         };
-        otherPromotionItems = {
-          promotion_code: 'PROMO50',
-          promotion_end: 1568408388.815,
-          promotion_duration: 'repeating',
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 735 },
+        ];
         break;
       case 'ONGOING':
         latest_invoice_items = {
           ...MOCK_LATEST_INVOICE_ITEMS,
           total: 685,
         };
-        otherPromotionItems = {
-          promotion_code: 'PROMO50',
-          promotion_end: 1677273263.815,
-          promotion_duration: 'repeating',
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 685 },
+        ];
         break;
       case 'NONE':
       default:
         latest_invoice_items = MOCK_LATEST_INVOICE_ITEMS;
-        otherPromotionItems = {
-          promotion_code: undefined,
-          promotion_end: null,
-          promotion_duration: null,
-        };
+        mockSubsequentInvoices = [
+          { ...MOCK_SUBSEQUENT_INVOICES[0], total: 735 },
+        ];
         break;
     }
 
@@ -685,7 +715,6 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
-            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
@@ -717,7 +746,6 @@ describe('routes/Subscriptions', () => {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
-            ...otherPromotionItems,
             _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
@@ -734,7 +762,7 @@ describe('routes/Subscriptions', () => {
       });
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
-      .reply(200, MOCK_SUBSEQUENT_INVOICES);
+      .reply(200, mockSubsequentInvoices);
   }
 
   const expectProductImage = ({

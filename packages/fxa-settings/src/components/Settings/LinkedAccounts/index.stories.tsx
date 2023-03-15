@@ -3,19 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { LinkedAccounts } from '.';
-
 import { MOCK_LINKED_ACCOUNTS } from './mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
+import { LocationProvider } from '@reach/router';
 
-storiesOf('Components/Settings/LinkedAccounts', module).add('default', () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: { linkedAccounts: MOCK_LINKED_ACCOUNTS } as any,
-    })}
-  >
-    <LinkedAccounts />
-  </AppContext.Provider>
-));
+export default {
+  title: 'Components/Settings/LinkedAccounts',
+  component: LinkedAccounts,
+  decorators: [withLocalization],
+} as Meta;
+
+export const Default = () => (
+  <LocationProvider>
+    <AppContext.Provider
+      value={mockAppContext({
+        account: { linkedAccounts: MOCK_LINKED_ACCOUNTS } as any,
+      })}
+    >
+      <LinkedAccounts />
+    </AppContext.Provider>
+  </LocationProvider>
+);

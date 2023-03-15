@@ -4,7 +4,6 @@
 
 import React from 'react';
 import SigninReported from '.';
-import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
@@ -17,8 +16,6 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
-      <SigninReported />
-    </AppLayout>
+    <SigninReported />
   </LocationProvider>
 );

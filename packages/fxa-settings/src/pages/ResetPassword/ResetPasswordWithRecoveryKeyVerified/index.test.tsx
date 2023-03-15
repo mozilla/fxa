@@ -26,7 +26,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders default content as expected', () => {
-    renderWithRouter(<ResetPasswordWithRecoveryKeyVerified />);
+    renderWithRouter(
+      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
+    );
     // testAllL10n(screen, bundle);
 
     const newAccountRecoveryKeyButton = screen.getByText(
@@ -40,7 +42,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('emits the expected metrics when a user generates new recovery keys', async () => {
-    renderWithRouter(<ResetPasswordWithRecoveryKeyVerified />);
+    renderWithRouter(
+      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
+    );
     const newAccountRecoveryKeyButton = screen.getByText(
       'Generate a new account recovery key'
     );
@@ -53,7 +57,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('emits the expected metrics when a user continues to their account', async () => {
-    renderWithRouter(<ResetPasswordWithRecoveryKeyVerified />);
+    renderWithRouter(
+      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
+    );
     const continueToAccountLink = screen.getByText('Continue to my account');
     fireEvent.click(continueToAccountLink);
     expect(logViewEvent).toHaveBeenCalledWith(

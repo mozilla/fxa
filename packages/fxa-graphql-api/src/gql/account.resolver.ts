@@ -508,8 +508,8 @@ export class AccountResolver {
       input.email,
       input.newPassword,
       input.accountResetToken,
-      input.options
-      // headers, TODO: Not sure why this request fails when forwarding headers
+      input.options,
+      headers
     );
   }
 

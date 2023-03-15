@@ -423,12 +423,6 @@ async function create(log, error, config, routes, db, statsd) {
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
 
   server.auth.scheme(
-    'supportPanelSecret',
-    sharedSecretAuth.strategy(`Bearer ${config.supportPanel.secretBearerToken}`)
-  );
-  server.auth.strategy('supportPanelSecret', 'supportPanelSecret');
-
-  server.auth.scheme(
     'supportSecret',
     sharedSecretAuth.strategy(`Bearer ${config.support.secretBearerToken}`, {
       throwOnFailure: false,

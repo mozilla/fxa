@@ -79,7 +79,8 @@ function getL10nVersion() {
       __dirname,
       '..',
       '..',
-      'fxa-content-server-l10n',
+      'public',
+      'locales',
       'git-head.txt'
     );
     return fs.readFileSync(gitShaPath, 'utf8').trim();

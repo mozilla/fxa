@@ -19,7 +19,7 @@ const Legal = (_: RouteComponentProps) => {
     <AppLayout>
       <CardHeader headingTextFtlId="legal-header" headingText="Legal" />
 
-      <div className="flex justify-between text-sm">
+      <div className="flex mobileLandscape:justify-between gap-x-10 text-sm">
         <Link className="link-blue" to="/legal/terms">
           <FtlMsg id="legal-terms-of-service-link">Terms of Service</FtlMsg>
         </Link>

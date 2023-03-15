@@ -2240,6 +2240,24 @@ describe('#integration - StripeHelper', () => {
       });
     });
 
+    it('uses country when automatic tax is not enabled', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(stripeHelper, 'taxRateByCountryCode').resolves();
+
+      await stripeHelper.previewInvoiceBySubscriptionId({
+        automaticTax: false,
+        subscriptionId: 'sub123',
+        includeCanceled: true,
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        subscription: 'sub123',
+        subscription_cancel_at_period_end: false,
+      });
+    });
+
     it('uses shipping address when automatic tax is enabled', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
