@@ -53,7 +53,7 @@
     "./tracing/*": "./dist/tracing/*.js"
   },
   "scripts": {
-    "postinstall": "yarn build || true",
+    "postinstall": "yarn l10n:clone && yarn build || true",
     "build": "tsc --build && yarn copy-assets && yarn copy-sql",
     "compile": "tsc --noEmit && yarn copy-assets && yarn copy-sql",
     "copy-assets": "cp -r ./db/luaScripts ./dist/db/luaScripts",

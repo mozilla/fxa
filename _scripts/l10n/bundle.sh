@@ -25,7 +25,7 @@ cd "$(dirname "$0")/../.."
 # Check path is valid
 target_folder="packages/$PACKAGE/$FOLDER"
 if [ ! -d "$target_folder" ]; then
-    echo "$PREFIX: Invalid location! The path $target_folder must exist."
+    echo "$PREFIX: Invalid location! The path $target_folder must exist. Did yarn l10n:prime get run?"
     exit 1
 fi
 
