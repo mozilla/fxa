@@ -21063,14 +21063,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dateformat@npm:3.0.3, dateformat@npm:~3.0.3":
+"dateformat@npm:3.0.3":
   version: 3.0.3
   resolution: "dateformat@npm:3.0.3"
   checksum: ca4911148abb09887bd9bdcd632c399b06f3ecad709a18eb594d289a1031982f441e08e281db77ffebcb2cbcbfa1ac578a7cbfbf8743f41009aa5adc1846ed34
   languageName: node
   linkType: hard
 
-"dateformat@npm:^4.6.3":
+"dateformat@npm:^4.6.3, dateformat@npm:~4.6.2":
   version: 4.6.3
   resolution: "dateformat@npm:4.6.3"
   checksum: c3aa0617c0a5b30595122bc8d1bee6276a9221e4d392087b41cbbdf175d9662ae0e50d0d6dcdf45caeac5153c4b5b0844265f8cd2b2245451e3da19e39e3b65d
@@ -24902,12 +24902,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"findup-sync@npm:~0.3.0":
-  version: 0.3.0
-  resolution: "findup-sync@npm:0.3.0"
+"findup-sync@npm:~5.0.0":
+  version: 5.0.0
+  resolution: "findup-sync@npm:5.0.0"
   dependencies:
-    glob: ~5.0.0
-  checksum: 44d9ca92aba973781c9560d015f1a3b62a21236e198890d877f4e1113b9d7a0b40a5568516eacce18a6e9cc43a16b27d6c8de10bff26333ebdf86f8804970480
+    detect-file: ^1.0.0
+    is-glob: ^4.0.3
+    micromatch: ^4.0.4
+    resolve-dir: ^1.0.1
+  checksum: 576716c77a0e8330b17ae9cba27d1fda8907c8cda7bf33a47f1999e16e089bfc6df4dd62933e0760f430736183c054348c34aa45dd882d49c8c098f55b89ee1d
   languageName: node
   linkType: hard
 
@@ -25883,7 +25886,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^8.7.0
     googleapis: ^109.0.1
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-copy: 1.0.0
@@ -26044,7 +26047,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     got: 11.8.5
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
@@ -26168,7 +26171,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
@@ -26473,7 +26476,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
@@ -26610,7 +26613,7 @@ fsevents@~2.1.1:
     fetch-mock: ^9.11.0
     file-loader: ^4.3.0
     fxa-shared: "workspace:*"
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
@@ -26691,7 +26694,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
     graphql: ^15.6.1
-    grunt: ^1.5.3
+    grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
@@ -27341,7 +27344,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob@npm:^5.0.15, glob@npm:^5.0.3, glob@npm:~5.0.0":
+"glob@npm:^5.0.15, glob@npm:^5.0.3":
   version: 5.0.15
   resolution: "glob@npm:5.0.15"
   dependencies:
@@ -28272,28 +28275,26 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "grunt@npm:1.5.3"
+"grunt@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "grunt@npm:1.6.1"
   dependencies:
-    dateformat: ~3.0.3
+    dateformat: ~4.6.2
     eventemitter2: ~0.4.13
     exit: ~0.1.2
-    findup-sync: ~0.3.0
+    findup-sync: ~5.0.0
     glob: ~7.1.6
     grunt-cli: ~1.4.3
     grunt-known-options: ~2.0.0
     grunt-legacy-log: ~3.0.0
     grunt-legacy-util: ~2.0.1
-    iconv-lite: ~0.4.13
+    iconv-lite: ~0.6.3
     js-yaml: ~3.14.0
     minimatch: ~3.0.4
-    mkdirp: ~1.0.4
     nopt: ~3.0.6
-    rimraf: ~3.0.2
   bin:
     grunt: bin/grunt
-  checksum: 3cf1dfed5b3641d59e315f4062921aa902c0e2aaefb2f2b18b7439c5b9cce12551f689b0390290cb2f55e276e75622e61469374c044382c3abb9dc1776a12dc1
+  checksum: bc03f5bba1edee2f3ac01cf8c5d4a2fe787d2244b7aa7bf73278b1295489dcf10639e531fe0a0af5d2e83e4df2a15cd9bde495f510ffb0b5c3126b16bf37993d
   languageName: node
   linkType: hard
 
@@ -29555,7 +29556,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2":
+"iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2, iconv-lite@npm:~0.6.3":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:
@@ -43920,7 +43921,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2, rimraf@npm:~3.0.2":
+"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:
