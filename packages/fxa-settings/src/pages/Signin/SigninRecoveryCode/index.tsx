@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { RecoveryCodesImage } from '../../../components/images';
@@ -30,10 +30,12 @@ const SigninRecoveryCode = ({
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  // const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'signin-recovery-code-required-error',
+    'Backup authentication code required'
+  );
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label',
@@ -45,24 +47,13 @@ const SigninRecoveryCode = ({
   };
 
   const onSubmit = () => {
-    if (!code) {
-      const codeRequiredError = ftlMsgResolver.getMsg(
-        'signin-recovery-code-required-error',
-        'Backup authentication code required'
-      );
-      setCodeErrorMessage(codeRequiredError);
-    }
     try {
       // Check recovery code
       // Log success event
       // Check if isForcePasswordChange
     } catch (e) {
       // TODO: error handling, error message confirmation
-      // const errorSigninRecoveryCode = ftlMsgResolver.getMsg(
-      //   'signin-recovery-code-error-general',
-      //   'Incorrect backup authentication code'
-      // );
-      // alertBar.error(errorSigninRecoveryCode);
+      // This will likely use auth-errors, and errors should be displayed in a tooltip or banner
     }
   };
 
@@ -93,10 +84,8 @@ const SigninRecoveryCode = ({
           {...{
             formAttributes,
             viewName,
-            email,
-            onSubmit,
-            code,
-            setCode,
+            verifyCode: onSubmit,
+            localizedCustomCodeRequiredMessage,
             codeErrorMessage,
             setCodeErrorMessage,
           }}

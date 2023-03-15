@@ -4,20 +4,47 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import ConfirmSignupCode, { viewName } from '.';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Account, AppContext } from '../../../models';
+import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { LocationProvider } from '@reach/router';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
-describe('PageSigninTokenCode', () => {
+const mockNavigate = jest.fn();
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => {
+    return {
+      state: {
+        email: MOCK_ACCOUNT.primaryEmail.email,
+      },
+    };
+  },
+}));
+
+let account: Account;
+
+function renderWithAccount(account: Account) {
+  render(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <LocationProvider>
+        <ConfirmSignupCode />
+      </LocationProvider>
+    </AppContext.Provider>
+  );
+}
+
+describe('ConfirmSignupCode page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
   // let bundle: FluentBundle;
@@ -25,8 +52,19 @@ describe('PageSigninTokenCode', () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
+  beforeEach(() => {
+    account = {
+      verifySession: jest.fn().mockResolvedValue(true),
+      handleResendCode: jest.fn().mockResolvedValue(true),
+    } as unknown as Account;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders as expected', () => {
-    render(<ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithAccount(account);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -39,8 +77,66 @@ describe('PageSigninTokenCode', () => {
     screen.getByRole('button', { name: 'Email new code.' });
   });
 
-  it('emits a metrics event on render', () => {
-    render(<ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+  it('emits a metrics event on render', async () => {
+    renderWithAccount(account);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+
+    //  Input field is autofocused on render and should emit an 'engage' event metric
+    await waitFor(() => {
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'engage',
+        REACT_ENTRYPOINT
+      );
+    });
+  });
+
+  it('emits a metrics event on successful form submission', async () => {
+    renderWithAccount(account);
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.change(codeInput, {
+      target: { value: '123123' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'verification.success',
+        REACT_ENTRYPOINT
+      );
+    });
+  });
+});
+
+describe('ConfirmSignupCode page with error states', () => {
+  beforeEach(() => {
+    account = {
+      verifySession: jest.fn().mockResolvedValue(false),
+      handleResendCode: jest.fn().mockResolvedValue(false),
+    } as unknown as Account;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders an error tooltip when the form is submitted without a code', async () => {
+    renderWithAccount(account);
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.change(codeInput, {
+      target: { value: '' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(screen.getByTestId('tooltip')).toHaveTextContent(
+        'Confirmation code is required'
+      );
+    });
   });
 });

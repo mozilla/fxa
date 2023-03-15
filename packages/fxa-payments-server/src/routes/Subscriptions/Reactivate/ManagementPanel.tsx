@@ -11,17 +11,20 @@ import { getLocalizedDateString, getLocalizedDate } from '../../../lib/formats';
 import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const ReactivateSubscriptionPanel = ({
   plan,
   customerSubscription,
   customer,
   reactivateSubscription,
+  subsequentInvoice,
 }: {
   plan: Plan;
   customerSubscription: WebSubscription;
   customer: Customer;
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
+  subsequentInvoice: SubsequentInvoicePreview;
 }) => {
   const { subscription_id } = customerSubscription;
   const [
@@ -51,6 +54,7 @@ const ReactivateSubscriptionPanel = ({
             customer,
             periodEndDate: periodEndTimeStamp,
             customerSubscription,
+            subsequentInvoice,
           }}
           onDismiss={hideReactivateConfirmation}
           onConfirm={onReactivateClick}

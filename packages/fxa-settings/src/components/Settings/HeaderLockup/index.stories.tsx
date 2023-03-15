@@ -3,25 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { HeaderLockup } from '.';
-import { AppContext } from '../../../models';
-import { mockAppContext } from 'fxa-settings/src/models/mocks';
+import { Account, AppContext } from '../../../models';
+import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
-const account = {
+export default {
+  title: 'Components/Settings/HeaderLockup',
+  component: HeaderLockup,
+  decorators: [withLocalization],
+} as Meta;
+
+const accountWithoutAvatar = {
   avatar: {
     url: null,
     id: null,
   },
   primaryEmail: {
-    email: 'johndope@example.com',
+    email: MOCK_ACCOUNT.primaryEmail.email,
   },
-} as any;
+} as unknown as Account;
 
-storiesOf('Components/Settings/HeaderLockup', module)
-  .add('with default avatar', () => (
-    <AppContext.Provider value={mockAppContext({ account })}>
+const storyWithContext = (account: Partial<Account>) => {
+  const context = { account: account as Account };
+
+  const story = () => (
+    <AppContext.Provider value={mockAppContext(context)}>
       <HeaderLockup />
     </AppContext.Provider>
-  ))
-  .add('with non-default avatar', () => <HeaderLockup />);
+  );
+  return story;
+};
+
+export const WithDefaultAvatar = storyWithContext(accountWithoutAvatar);
+
+export const WithCustomAvatar = () => <HeaderLockup />;

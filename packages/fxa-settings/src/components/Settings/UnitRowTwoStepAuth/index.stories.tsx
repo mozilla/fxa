@@ -3,19 +3,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
-storiesOf('Components/Settings/UnitRowTwoStepAuth', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default unset', () => (
-    <AppContext.Provider
-      value={mockAppContext({ account: { totp: { enabled: false } } as any })}
-    >
-      <UnitRowTwoStepAuth />
-    </AppContext.Provider>
-  ))
-  .add('enabled', () => <UnitRowTwoStepAuth />);
+export default {
+  title: 'Components/Settings/UnitRowTwoStepAuth',
+  component: UnitRowTwoStepAuth,
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
+} as Meta;
+
+export const TFAEnabled = () => <UnitRowTwoStepAuth />;
+
+export const TFADisabled = () => (
+  <AppContext.Provider
+    value={mockAppContext({
+      account: {
+        hasPassword: true,
+        totp: { exists: false, verified: false },
+      } as any,
+    })}
+  >
+    <UnitRowTwoStepAuth />
+  </AppContext.Provider>
+);
+
+export const DisabledNoPassword = () => (
+  <AppContext.Provider
+    value={mockAppContext({
+      account: { hasPassword: false, totp: { enabled: false } } as any,
+    })}
+  >
+    <UnitRowTwoStepAuth />
+  </AppContext.Provider>
+);

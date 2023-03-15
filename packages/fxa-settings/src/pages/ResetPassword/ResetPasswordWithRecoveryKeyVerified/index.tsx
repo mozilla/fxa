@@ -15,9 +15,6 @@ import { useFtlMsgResolver } from '../../../models';
 type ResetPasswordWithRecoveryKeyVerifiedProps = {
   isSignedIn: boolean;
   serviceName?: MozServices;
-  // TODO: FXA-6804
-  // Verify if relier is Sync with the useRelier hook that will be implemented in FXA-6437
-  // instead of using a prop
   isSync?: boolean;
 };
 

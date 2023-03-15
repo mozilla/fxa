@@ -4,6 +4,14 @@
 
 import { BaseContext } from './base-context';
 
+export type UrlContextWindow = {
+  location: Pick<
+    typeof window.location,
+    'href' | 'pathname' | 'search' | 'hash'
+  >;
+  history: Pick<typeof window.history, 'replaceState'>;
+};
+
 /**
  * Creates a context from the current URL state
  */
@@ -19,7 +27,7 @@ export abstract class UrlContext extends BaseContext {
    * @param window Current window
    * @param mode Whether or not to store state in the search query or the hash.
    */
-  constructor(public readonly window: Window) {
+  constructor(public readonly window: UrlContextWindow) {
     super();
   }
 

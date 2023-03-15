@@ -45,7 +45,7 @@ async function init() {
     )
     .parse(process.argv);
 
-  const { stripeHelper } = await setupProcessingTaskObjects(
+  const { stripeHelper, database } = await setupProcessingTaskObjects(
     'existing-customers-stripe-tax'
   );
 
@@ -61,7 +61,8 @@ async function init() {
     program.outputFile,
     program.ipAddressMapFile,
     stripeHelper.stripe,
-    rateLimit
+    rateLimit,
+    database
   );
 
   await stripeAutomaticTaxConverter.convert();

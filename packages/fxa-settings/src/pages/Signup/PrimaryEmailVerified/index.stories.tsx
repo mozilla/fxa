@@ -19,11 +19,23 @@ const storyWithProps = (props: PrimaryEmailVerifiedProps) => {
   return story;
 };
 
-export const BasicSignedIn = storyWithProps({ isSignedIn: true });
+export const BasicSignedIn = storyWithProps({
+  isSignedIn: true,
+  isSync: false,
+});
 
-export const BasicSignedOut = storyWithProps({ isSignedIn: false });
+export const BasicSignedOut = storyWithProps({
+  isSignedIn: false,
+  isSync: false,
+});
 
 export const BasicWithServiceName = storyWithProps({
   serviceName: MOCK_SERVICE,
   isSignedIn: false,
+  isSync: false,
+});
+
+export const BasicIsSync = storyWithProps({
+  isSignedIn: true,
+  isSync: true,
 });

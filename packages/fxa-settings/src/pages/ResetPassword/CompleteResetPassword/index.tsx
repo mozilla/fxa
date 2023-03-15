@@ -42,6 +42,12 @@ import { LinkStatus } from '../../../lib/types';
 //
 // If account recovery was initiated with a key, redirect to account_recovery_reset_password
 
+enum ErrorType {
+  'none',
+  'recovery-key',
+  'complete-reset',
+}
+
 export const viewName = 'complete-reset-password';
 
 type FormData = {
@@ -60,7 +66,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
-  const [hasRecoveryKeyError, setHasRecoveryKeyError] = useState(false);
+  const [errorType, setErrorType] = useState(ErrorType.none);
   /* Show a loading spinner until all checks complete. Without this, users with a
    * recovery key set or with an expired or damaged link will experience some jank due
    * to an immediate redirect or rerender of this page. */
@@ -73,9 +79,6 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
 
   const { linkStatus, setLinkStatus, requiredParams } =
     useCompleteResetPasswordLinkStatus();
-
-  const [errorCompletePwdReset, setErrorCompletePwdReset] =
-    useState<boolean>(false);
 
   /* When the user clicks the confirm password reset link from their email, we check
    * to see if they have an account recovery key set. If they do, we navigate to the
@@ -92,7 +95,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
           });
         }
       } catch (error) {
-        setHasRecoveryKeyError(true);
+        setErrorType(ErrorType['recovery-key']);
       }
     };
 
@@ -102,13 +105,11 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
 
     setShowLoadingSpinner(false);
   }, [
-    setLinkStatus,
     account,
     navigate,
     location.search,
     requiredParams,
     location.state?.lostRecoveryKey,
-    linkStatus,
   ]);
 
   useEffect(() => {
@@ -141,6 +142,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
     });
 
   const alertSuccessAndNavigate = useCallback(() => {
+    setErrorType(ErrorType.none);
     navigate('/reset_password_verified', { replace: true });
   }, [navigate]);
 
@@ -151,7 +153,7 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
         await account.completeResetPassword(token, code, email, newPassword);
         alertSuccessAndNavigate();
       } catch (e) {
-        setErrorCompletePwdReset(true);
+        setErrorType(ErrorType['complete-reset']);
       }
     },
     [account, alertSuccessAndNavigate]
@@ -170,6 +172,16 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
   }
+
+  const renderCompleteResetPasswordErrorBanner = () => {
+    return (
+      <Banner type={BannerType.error}>
+        <FtlMsg id="complete-reset-password-error-alert">
+          <p>Sorry, there was a problem setting your password</p>
+        </FtlMsg>
+      </Banner>
+    );
+  };
 
   const renderRecoveryKeyErrorBanner = () => {
     const hasRecoveryKeyErrorLink = (
@@ -200,76 +212,65 @@ const CompleteResetPassword = (_: RouteComponentProps) => {
 
   return (
     <AppLayout>
-      {errorCompletePwdReset && (
-        <Banner
-          type={BannerType.error}
-          dismissible
-          setIsVisible={setErrorCompletePwdReset}
-        >
-          <FtlMsg id="complete-reset-password-error-alert">
-            <p>Sorry, there was a problem setting your password</p>
-          </FtlMsg>
-        </Banner>
-      )}
+      <CardHeader
+        headingText="Create new password"
+        headingTextFtlId="complete-reset-pw-header"
+      />
 
-      <>
-        {hasRecoveryKeyError && renderRecoveryKeyErrorBanner()}
+      {errorType === ErrorType['recovery-key'] &&
+        renderRecoveryKeyErrorBanner()}
+      {errorType === ErrorType['complete-reset'] &&
+        renderCompleteResetPasswordErrorBanner()}
 
-        <CardHeader
-          headingText="Create new password"
-          headingTextFtlId="complete-reset-pw-header"
-        />
+      <WarningMessage
+        warningMessageFtlId="complete-reset-password-warning-message-2"
+        warningType="Remember:"
+      >
+        When you reset your password, you reset your account. You may lose some
+        of your personal information (including history, bookmarks, and
+        passwords). That’s because we encrypt your data with your password to
+        protect your privacy. You’ll still keep any subscriptions you may have
+        and Pocket data will not be affected.
+      </WarningMessage>
 
-        <WarningMessage
-          warningMessageFtlId="complete-reset-password-warning-message-2"
-          warningType="Remember:"
-        >
-          When you reset your password, you reset your account. You may lose
-          some of your personal information (including history, bookmarks, and
-          passwords). That’s because we encrypt your data with your password to
-          protect your privacy. You’ll still keep any subscriptions you may have
-          and Pocket data will not be affected.
-        </WarningMessage>
-
-        {/* Hidden email field is to allow Fx password manager
+      {/* Hidden email field is to allow Fx password manager
            to correctly save the updated password. Without it,
            the password manager tries to save the old password
            as the username. */}
-        <input
-          type="email"
-          value={requiredParams.email}
-          className="hidden"
-          readOnly
+      <input
+        type="email"
+        value={requiredParams.email}
+        className="hidden"
+        readOnly
+      />
+      <section className="text-start mt-4">
+        <FormPasswordWithBalloons
+          {...{
+            formState,
+            errors,
+            trigger,
+            register,
+            getValues,
+            passwordMatchErrorText,
+            setPasswordMatchErrorText,
+          }}
+          email={requiredParams.email}
+          passwordFormType="reset"
+          onSubmit={handleSubmit(({ newPassword }) =>
+            onSubmit({
+              newPassword,
+              token: requiredParams.token,
+              code: requiredParams.code,
+              email: requiredParams.email,
+              // TODO: do we no longer need this?
+              emailToHashWith: requiredParams.emailToHashWith,
+            })
+          )}
+          loading={false}
+          onFocusMetricsEvent={`${viewName}.engage`}
         />
-        <section className="text-start mt-4">
-          <FormPasswordWithBalloons
-            {...{
-              formState,
-              errors,
-              trigger,
-              register,
-              getValues,
-              passwordMatchErrorText,
-              setPasswordMatchErrorText,
-            }}
-            email={requiredParams.email}
-            passwordFormType="reset"
-            onSubmit={handleSubmit(({ newPassword }) =>
-              onSubmit({
-                newPassword,
-                token: requiredParams.token,
-                code: requiredParams.code,
-                email: requiredParams.email,
-                // TODO: do we no longer need this?
-                emailToHashWith: requiredParams.emailToHashWith,
-              })
-            )}
-            loading={false}
-            onFocusMetricsEvent={`${viewName}.engage`}
-          />
-        </section>
-        <LinkRememberPassword email={requiredParams.email} />
-      </>
+      </section>
+      <LinkRememberPassword email={requiredParams.email} />
     </AppLayout>
   );
 };

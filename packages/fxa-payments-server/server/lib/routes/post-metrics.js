@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const joi = require('joi');
-const amplitude = require('../amplitude');
+const { amplitude } = require('../amplitude');
 const logger = require('../logging/log')('server.post-metrics');
 
 const config = require('../../config');

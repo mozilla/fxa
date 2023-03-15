@@ -21,10 +21,6 @@ const {
   addAllReactRoutesConditionally,
 } = require('../lib/routes/react-app/add-routes');
 
-// Tracing must be initialized asap
-const tracing = require('fxa-shared/tracing/node-tracing');
-tracing.init(config.getProperties().tracing, logger);
-
 const bodyParser = require('body-parser');
 const consolidate = require('consolidate');
 const cookieParser = require('cookie-parser');

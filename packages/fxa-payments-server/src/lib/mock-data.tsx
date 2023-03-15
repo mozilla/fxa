@@ -130,6 +130,16 @@ export const UPGRADE_FROM_PLAN: Plan = {
   },
 };
 
+export const UPGRADE_FROM_PLAN_ARCHIVED: Plan = {
+  ...UPGRADE_FROM_PLAN,
+  product_metadata: {
+    ...UPGRADE_FROM_PLAN.product_metadata,
+  },
+  plan_id: 'plan_cba_archived',
+  product_name: 'Example archived product',
+  active: false,
+};
+
 export const PAYPAL_CUSTOMER: Customer = {
   billing_name: 'Foo Barson - Pays with PayPal',
   payment_provider: 'paypal',

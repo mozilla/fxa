@@ -8,7 +8,7 @@ import { assert } from 'chai';
 import util from 'node:util';
 import path from 'node:path';
 import { auditRowCounts, auditAge, auditOrphanedRows } from './audit-tokens';
-import Config from '../src/config';
+import Config from '../config';
 import { clearDb, bindKnex, scaffoldDb } from './db-helpers';
 
 import sinon from 'sinon';
@@ -96,7 +96,6 @@ describe('#integration - scripts/audit-tokens', () => {
   });
 
   describe('cli', () => {
-
     jest.setTimeout(50000);
 
     async function testScript(args: string) {
@@ -145,7 +144,9 @@ describe('#integration - scripts/audit-tokens', () => {
     });
 
     it('auditOrphanedRows option', async () => {
-      const { stdout } = await testScript('--verbose --auditOrphanedRows  --console ');
+      const { stdout } = await testScript(
+        '--verbose --auditOrphanedRows  --console '
+      );
       assert.isTrue(/OrphanedRows/.test(stdout));
     });
 

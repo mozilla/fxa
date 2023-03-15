@@ -14,4 +14,5 @@ signin-token-code-confirm-button = Confirm
 signin-token-code-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 signin-token-code-resend-code-link = Email new code.
+# Error displayed in a tooltip when the form is submitted without a code
 signin-token-code-required-error = Confirmation code required

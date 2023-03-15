@@ -255,7 +255,7 @@ export async function checkWebCrypto() {
       window.asmCrypto = await import(/* webpackChunkName: "asmcrypto.js" */ 'asmcrypto.js');
       // prettier-ignore
       // @ts-ignore
-      await import(/* webpackChunkName: "webcrypto-liner" */ 'webcrypto-liner/build/shim');
+      await import(/* webpackChunkName: "webcrypto-liner" */ 'webcrypto-liner/build/webcrypto-liner.shim.min');
       return true;
     } catch (e) {
       return false;

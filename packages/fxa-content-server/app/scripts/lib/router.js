@@ -125,9 +125,12 @@ Router = Router.extend({
         AccountRecoveryConfirmKey
       );
     },
-    'account_recovery_reset_password(/)': createViewHandler(
-      CompleteResetPasswordView
-    ),
+    'account_recovery_reset_password(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'account_recovery_reset_password',
+        CompleteResetPasswordView
+      );
+    },
     'authorization(/)': createViewHandler(RedirectAuthView),
     'cannot_create_account(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -160,7 +163,12 @@ Router = Router.extend({
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
     }),
-    'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
+    'confirm_signup_code(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'confirm_signup_code',
+        ConfirmSignupCodeView
+      );
+    },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
     'cookies_disabled(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -344,22 +352,41 @@ Router = Router.extend({
     },
     'signin(/)': createViewHandler(SignInPasswordView),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
-    'signin_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
+    'signin_confirmed(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_confirmed',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
+    },
     'signin_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_IN,
     }),
     'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
-    'signin_reported(/)': createViewHandler(SignInReportedView),
+    'signin_reported(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_reported',
+        SignInReportedView
+      );
+    },
     'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
       type: VerificationReasons.SIGN_IN,
     }),
     'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
     'signin_unblock(/)': createViewHandler(SignInUnblockView),
-    'signin_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
+    'signin_verified(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
+    },
     'signup(/)': createViewHandler(SignUpPasswordView),
     'signup_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(

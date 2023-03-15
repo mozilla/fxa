@@ -179,7 +179,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
-module.exports = ({ log, oauthDB, db, mailer, devices }) => {
+module.exports = ({ log, oauthDB, db, mailer, devices, statsd }) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {
@@ -377,6 +377,12 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       service: hex(grant.clientId),
       uid: hex(grant.userId),
     });
+
+    // the client receiving keys at the end of the scoped keys flow
+    if (tokens.keys_jwe) {
+      statsd.increment('oauth.rp.keys-jwe', { clientId: hex(client.id) });
+    }
+
     return tokens;
   }
 

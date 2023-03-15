@@ -131,7 +131,7 @@ registerSuite('amplitude json schema validation', {
       );
       assert.isTrue(
         mockSentry.captureMessage.calledOnceWith(
-          'Amplitude event failed validation: QUUX IS NOT A VALID DEVICE ID.',
+          'Amplitude event failed validation',
           Sentry.Severity.Error
         )
       );

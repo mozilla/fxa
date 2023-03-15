@@ -56,7 +56,7 @@ registerSuite('routes/get-index', {
 
               var renderParams = args[1];
               assert.isObject(renderParams);
-              assert.lengthOf(Object.keys(renderParams), 8);
+              assert.lengthOf(Object.keys(renderParams), 6);
               assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
               assert.isAbove(renderParams.flowBeginTime, 0);
               assert.equal(renderParams.bundlePath, '/bundle');

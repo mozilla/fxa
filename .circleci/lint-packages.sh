@@ -23,5 +23,4 @@ yarn workspaces foreach \
   --exclude=fxa-graphql-api \
   --exclude=fxa-payments-server  \
   --exclude=fxa-settings  \
-  --exclude=fxa-support-panel \
   run lint;

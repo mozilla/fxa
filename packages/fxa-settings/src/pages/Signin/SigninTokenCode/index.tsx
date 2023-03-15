@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { useAlertBar } from '../../models';
 import { MailImage } from '../../../components/images';
@@ -25,11 +25,13 @@ const SigninTokenCode = ({
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [code, setCode] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
-  // const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'signin-token-code-required-error',
+    'Confirmation code required'
+  );
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-token-code-input-label-v2',
@@ -43,29 +45,18 @@ const SigninTokenCode = ({
   const handleResendCode = () => {
     // TODO: add resend code action
     // account.verifySessionResendCode()
-    // if success, display alert bar message
+    // if success, display message in banner
     // 'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
   };
 
   const onSubmit = () => {
-    if (!code) {
-      const codeRequiredError = ftlMsgResolver.getMsg(
-        'signin-token-code-required-error',
-        'Confirmation code required'
-      );
-      setCodeErrorMessage(codeRequiredError);
-    }
     try {
       // Check confirmation code
       // Log success event
       // Check if isForcePasswordChange
     } catch (e) {
       // TODO: error handling, error message confirmation
-      // const errorSigninTokenCode = ftlMsgResolver.getMsg(
-      //   'signin-token-code-error',
-      //   'Incorrect confirmation code'
-      // );
-      // alertBar.error(errorSigninTokenCode);
+      // this should likely use auth-errors and display in a tooltip or banner
     }
   };
 
@@ -86,7 +77,7 @@ const SigninTokenCode = ({
         <MailImage className="w-3/5" />
       </div>
 
-      <FtlMsg id="signin-token-code-instruction" vars={{email}}>
+      <FtlMsg id="signin-token-code-instruction" vars={{ email }}>
         <p id="verification-email-message" className="m-5 text-sm">
           Enter the code that was sent to {email} within 5 minutes.
         </p>
@@ -96,10 +87,8 @@ const SigninTokenCode = ({
         {...{
           formAttributes,
           viewName,
-          email,
-          onSubmit,
-          code,
-          setCode,
+          verifyCode: onSubmit,
+          localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
         }}

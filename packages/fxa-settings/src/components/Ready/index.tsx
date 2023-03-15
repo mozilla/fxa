@@ -12,7 +12,6 @@ import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
 import Banner, { BannerType } from '../Banner';
 
-// We'll actually be getting the isSignedIn value from a context when this is wired up.
 export type ReadyProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
@@ -65,16 +64,19 @@ const getTemplateValues = (viewName: ViewNameType) => {
 
 const Ready = ({
   continueHandler,
+  errorMessage,
   isSignedIn,
+  isSync,
   serviceName,
   viewName,
-  isSync = false,
-  errorMessage,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+
   const templateValues = getTemplateValues(viewName);
 
   const startBrowsing = () => {
+    const eventName = `${viewName}.start-browsing`;
+    logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
     const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
     navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
   };
@@ -135,9 +137,9 @@ const Ready = ({
             type="submit"
             className="cta-primary cta-xl font-bold mx-2 flex-1"
             onClick={(e) => {
-              const eventName = `${viewName}.continue`;
+              const eventName = `flow.${viewName}.continue`;
               logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
-              continueHandler(e);
+              continueHandler && continueHandler(e);
             }}
           >
             <FtlMsg id="ready-continue">Continue</FtlMsg>

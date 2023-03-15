@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
+const buf = require('buf').hex;
+const hex = require('buf').to.hex;
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
@@ -12,8 +16,18 @@ const REFRESH_TOKEN = CODE;
 const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
+const CODE_WITH_KEYS = 'afafaf';
+const CODE_WITHOUT_KEYS = 'f0f0f0';
 
-const route = require('../../../lib/routes/oauth/token')({
+const mockStatsD = { increment: sinon.stub() };
+const route = proxyquire('../../../lib/routes/oauth/token', {
+  '../../oauth/client': {
+    authenticateClient: (_, params) => ({ id: buf(params.client_id) }),
+  },
+  '../../oauth/grant': {
+    generateTokens: (grant) => ({ ...grant, keys_jwe: grant.keysJwe }),
+  },
+})({
   log: {
     debug: () => {},
     warn: () => {},
@@ -22,10 +36,30 @@ const route = require('../../../lib/routes/oauth/token')({
     async getRefreshToken() {
       return null;
     },
-    async getCode() {
+    async getCode(x) {
+      if (hex(x) === CODE_WITH_KEYS) {
+        return {
+          clientId: buf(CLIENT_ID),
+          createdAt: Date.now(),
+          keysJwe: 'mykeys',
+        };
+      }
+      if (hex(x) === CODE_WITHOUT_KEYS) {
+        return {
+          clientId: buf(CLIENT_ID),
+          createdAt: Date.now(),
+        };
+      }
+      return null;
+    },
+    async removeCode() {
       return null;
     },
   },
+  db: {},
+  mailer: {},
+  devices: {},
+  statsd: mockStatsD,
 })[0];
 
 function joiRequired(err, param) {
@@ -237,6 +271,42 @@ describe('/token POST', function () {
         assert.equal(err.output.statusCode, 503);
         assert.equal(err.errno, 202); // Disabled client.
       }
+    });
+  });
+
+  describe('statsd metrics', async () => {
+    beforeEach(() => {
+      mockStatsD.increment.resetHistory();
+    });
+
+    it('increments count on scope keys usage', async () => {
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: CODE_WITH_KEYS,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      sinon.assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'oauth.rp.keys-jwe',
+        { clientId: CLIENT_ID }
+      );
+    });
+
+    it('does not call statsd', async () => {
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: CODE_WITHOUT_KEYS,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      sinon.assert.notCalled(mockStatsD.increment);
     });
   });
 });

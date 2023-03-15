@@ -494,14 +494,13 @@ export class StripeHandler {
     }
 
     const subsequentInvoicePreviews = await Promise.all(
-      customer.subscriptions.data
-        .filter((sub) => !sub.canceled_at)
-        .map((sub) => {
-          return this.stripeHelper.previewInvoiceBySubscriptionId({
-            automaticTax: automaticTax && sub.automatic_tax.enabled,
-            subscriptionId: sub.id,
-          });
-        })
+      customer.subscriptions.data.map((sub) => {
+        return this.stripeHelper.previewInvoiceBySubscriptionId({
+          automaticTax: automaticTax && sub.automatic_tax.enabled,
+          subscriptionId: sub.id,
+          includeCanceled: !!sub.canceled_at,
+        });
+      })
     );
 
     return stripeInvoicesToSubsequentInvoicePreviewsDTO(
