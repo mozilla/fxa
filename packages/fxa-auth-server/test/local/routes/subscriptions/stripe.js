@@ -855,76 +855,91 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  async function successInvoices(
+    customerSubscriptions,
+    expectedPreviewInvoiceBySubscriptionId
+  ) {
+    const expected = deepCopy(invoicePreviewTax);
+    directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
+      expected
+    );
+    directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+      id: 'cus_id',
+      subscriptions: customerSubscriptions,
+    });
+    VALID_REQUEST.app.geo = {
+      location: {
+        countryCode: 'US',
+        postalCode: '92841',
+      },
+    };
+
+    const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
+      VALID_REQUEST
+    );
+
+    sinon.assert.calledOnceWithExactly(
+      directStripeRoutesInstance.customs.check,
+      VALID_REQUEST,
+      TEST_EMAIL,
+      'subsequentInvoicePreviews'
+    );
+    sinon.assert.calledTwice(
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+    );
+    sinon.assert.calledWith(
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+      expectedPreviewInvoiceBySubscriptionId[0]
+    );
+    sinon.assert.calledWith(
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
+      expectedPreviewInvoiceBySubscriptionId[1]
+    );
+    assert.deepEqual(
+      stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected]),
+      actual
+    );
+  }
+
   describe('subsequentInvoicePreviews', () => {
     it('returns array of next invoices', async () => {
-      const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
-        expected
-      );
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-        subscriptions: {
+      await successInvoices(
+        {
           data: [{ id: 'sub_id1' }, { id: 'sub_id2' }],
         },
-      });
-      VALID_REQUEST.app.geo = {
-        location: {
-          countryCode: 'US',
-          postalCode: '92841',
-        },
-      };
-
-      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
-        VALID_REQUEST
-      );
-
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
-        VALID_REQUEST,
-        TEST_EMAIL,
-        'subsequentInvoicePreviews'
-      );
-      sinon.assert.calledTwice(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { automaticTax: false, subscriptionId: 'sub_id1' }
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { automaticTax: false, subscriptionId: 'sub_id2' }
-      );
-      assert.deepEqual(
-        stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected]),
-        actual
+        [
+          {
+            automaticTax: false,
+            subscriptionId: 'sub_id1',
+            includeCanceled: false,
+          },
+          {
+            automaticTax: false,
+            subscriptionId: 'sub_id2',
+            includeCanceled: false,
+          },
+        ]
       );
     });
 
     it('filter out subscriptions that have already been cancelled', async () => {
-      const expected = [];
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-        subscriptions: {
-          data: [{ id: 'sub_id1', canceled_at: 1646244417 }],
+      await successInvoices(
+        {
+          data: [{ id: 'sub_id1', canceled_at: 1646244417 }, { id: 'sub_id2' }],
         },
-      });
-      VALID_REQUEST.app.geo = {};
-
-      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
-        VALID_REQUEST
+        [
+          {
+            automaticTax: false,
+            subscriptionId: 'sub_id1',
+            includeCanceled: true,
+          },
+          {
+            automaticTax: false,
+            subscriptionId: 'sub_id2',
+            includeCanceled: false,
+          },
+        ]
       );
-
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
-        VALID_REQUEST,
-        TEST_EMAIL,
-        'subsequentInvoicePreviews'
-      );
-      sinon.assert.notCalled(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-      );
-      assert.deepEqual(expected, actual);
     });
 
     it('return empty array if customer has no subscriptions', async () => {
@@ -975,33 +990,25 @@ describe('DirectStripeRoutes', () => {
 
     it('uses stripe tax if enabled', async () => {
       directStripeRoutesInstance.automaticTax = true;
-      const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
-        expected
-      );
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
-        id: 'cus_id',
-        subscriptions: {
+      await successInvoices(
+        {
           data: [
             { id: 'sub_id1', automatic_tax: { enabled: true } },
             { id: 'sub_id2', automatic_tax: { enabled: true } },
           ],
         },
-      });
-      VALID_REQUEST.app.geo = {};
-
-      await directStripeRoutesInstance.subsequentInvoicePreviews(VALID_REQUEST);
-
-      sinon.assert.calledTwice(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { automaticTax: true, subscriptionId: 'sub_id1' }
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-        { automaticTax: true, subscriptionId: 'sub_id2' }
+        [
+          {
+            automaticTax: true,
+            subscriptionId: 'sub_id1',
+            includeCanceled: false,
+          },
+          {
+            automaticTax: true,
+            subscriptionId: 'sub_id2',
+            includeCanceled: false,
+          },
+        ]
       );
     });
   });
