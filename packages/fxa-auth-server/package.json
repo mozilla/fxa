@@ -15,7 +15,7 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint . .storybook --ignore-pattern 'dist' --ext .js,.ts",
-    "postinstall": "grunt merge-ftl && ../../_scripts/clone-l10n.sh fxa-auth-server",
+    "postinstall": "yarn l10n:prime fxa-auth-server && grunt merge-ftl",
     "start": "yarn emails-scss && scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",

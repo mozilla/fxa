@@ -92,11 +92,7 @@ export const MockApp = ({
     <AppContext.Provider
       value={{ ...appContextValue, navigatorLanguages: languages }}
     >
-      <AppLocalizationProvider
-        baseDir="./locales"
-        userLocales={languages}
-        bundles={['payments', 'react']}
-      >
+      <AppLocalizationProvider baseDir="./locales" userLocales={languages}>
         <StripeProvider stripe={mockStripe}>
           <MockLoader>
             <BrowserRouter>

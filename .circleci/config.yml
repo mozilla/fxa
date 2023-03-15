@@ -212,6 +212,7 @@ commands:
       - run:
           name: Base Install
           command: |
+            ./_scripts/l10n/clone.sh
             ./.circleci/create-lists.sh
             ./.circleci/base-install.sh
             ./_scripts/create-version-json.sh
@@ -327,6 +328,7 @@ commands:
           root: /home/circleci/project
           paths:
             - .lists
+            - external
             - node_modules
             - packages
 

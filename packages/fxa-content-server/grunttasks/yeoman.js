@@ -20,7 +20,7 @@ module.exports = function (grunt) {
     pp_md_src: LEGAL_DOCS_ROOT,
     server: 'server',
     strings_dist: 'locale',
-    strings_src: 'fxa-content-server-l10n/locale',
+    strings_src: '../../external/l10n/locale',
     tests: 'tests',
     tmp: TEMP_DIR,
     tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',

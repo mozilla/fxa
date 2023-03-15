@@ -12,7 +12,6 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 export const withLocalization: DecoratorFn = (Story) => (
   <AppLocalizationProvider
     baseDir="./locales"
-    bundles={['settings', 'react', 'branding']}
     userLocales={navigator.languages}
   >
     <Story />
