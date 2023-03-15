@@ -15,7 +15,7 @@ jest.mock('../../../lib/metrics', () => ({
 
 describe('ResetPasswordConfirmed', () => {
   it('renders Ready component as expected', () => {
-    render(<ResetPasswordConfirmed isSignedIn />);
+    render(<ResetPasswordConfirmed isSignedIn isSync={false} />);
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
     );
@@ -27,7 +27,7 @@ describe('ResetPasswordConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<ResetPasswordConfirmed isSignedIn />);
+    render(<ResetPasswordConfirmed isSignedIn isSync={false} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
@@ -35,6 +35,7 @@ describe('ResetPasswordConfirmed', () => {
     render(
       <ResetPasswordConfirmed
         isSignedIn
+        isSync={false}
         continueHandler={() => {
           console.log('beepboop');
         }}
@@ -45,7 +46,7 @@ describe('ResetPasswordConfirmed', () => {
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
       viewName,
-      `${viewName}.continue`,
+      `flow.${viewName}.continue`,
       REACT_ENTRYPOINT
     );
   });

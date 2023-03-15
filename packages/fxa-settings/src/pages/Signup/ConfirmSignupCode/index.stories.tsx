@@ -4,10 +4,9 @@
 
 import React from 'react';
 import ConfirmSignupCode from '.';
-import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { LocationProvider } from '@reach/router';
 
 export default {
   title: 'Pages/Signup/ConfirmSignupCode',
@@ -16,7 +15,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
-    <ConfirmSignupCode email={MOCK_ACCOUNT.primaryEmail.email} />
-  </AppLayout>
+  <LocationProvider>
+    <ConfirmSignupCode />
+  </LocationProvider>
 );

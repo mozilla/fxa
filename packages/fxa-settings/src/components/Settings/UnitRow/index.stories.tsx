@@ -3,127 +3,78 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { LocationProvider } from '@reach/router';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { HomePath } from '../../../constants';
 import { UnitRow } from '.';
-import { Modal } from '../Modal';
-import { AppContext } from 'fxa-settings/src/models';
+import {
+  MOCK_CHILD_ELEM,
+  MOCK_CTA_TEXT,
+  MOCK_HEADER,
+  MOCK_HEADER_VALUE,
+  SubjectWithCustomAvatar,
+  SubjectWithDefaultAvatar,
+  SubjectWithModal,
+  SubjectWithSecondaryModal,
+} from './mocks';
+import { ButtonIconReload } from '../ButtonIcon';
 
-storiesOf('Components/Settings/UnitRow', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('basic, with falsey headerValue', () => (
-    <UnitRow header="Some header" headerValue={null} />
-  ))
-  .add('with CTA and falsey headerValue', () => (
-    <UnitRow header="Display name" headerValue={null} route="#" />
-  ))
-  .add('with CTA, falsey headerValue, and custom CTA text', () => (
-    <UnitRow
-      header="Display name"
-      headerValue={null}
-      ctaText="Custom CTA text"
-      route="#"
-    />
-  ))
-  .add('with CTA and truthy headerValue', () => (
-    <UnitRow header="Display name" headerValue="Fred Flinstone" route="#" />
-  ))
-  .add('with CTA, truthy headerValue, and child elements', () => (
-    <UnitRow header="Display name" headerValue="Fred Flinstone" route="#">
-      <p className="text-sm mt-3">Content goes here.</p>
-      <p className="text-grey-400 text-xs mt-2">More content.</p>
-    </UnitRow>
-  ))
-  .add(
-    'with modal-triggering CTA, falsey headerValue, and child elements',
-    () => {
-      const [modalRevealed, revealModal, hideModal] = useBooleanState();
-      return (
-        <UnitRow
-          header="Display name"
-          headerValue={null}
-          {...{
-            revealModal,
-          }}
-        >
-          <p className="text-sm mt-3">Content goes here.</p>
-          <p className="text-grey-400 text-xs mt-2">More content.</p>
+export default {
+  title: 'Components/Settings/UnitRow',
+  component: UnitRow,
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
+} as Meta;
 
-          {modalRevealed && (
-            <Modal onDismiss={hideModal} headerId="some-id" descId="some-desc">
-              <h2 id="some-id" className="font-bold text-xl text-center mb-2">
-                Modal header
-              </h2>
-              <p id="some-desc">Modal description here.</p>
-            </Modal>
-          )}
-        </UnitRow>
-      );
-    }
-  )
-  .add('with modal-triggering secondary CTA', () => {
-    const [secondaryModalRevealed, revealSecondaryModal, hideModal] =
-      useBooleanState();
-    return (
-      <UnitRow
-        header="Display name"
-        headerValue={null}
-        {...{
-          secondaryButtonClassName: 'bg-red-500 text-white border-red-600',
-          revealSecondaryModal,
-          ctaText: 'Change',
-          route: '#',
-        }}
-      >
-        <p className="text-sm mt-3">Content goes here.</p>
-        <p className="text-grey-400 text-xs mt-2">More content.</p>
+export const NoHeaderValueAndNoCTA = () => (
+  <UnitRow header={MOCK_HEADER} headerValue={null} />
+);
 
-        {secondaryModalRevealed && (
-          <Modal onDismiss={hideModal} headerId="some-id" descId="some-desc">
-            <h2 id="some-id" className="font-bold text-xl text-center mb-2">
-              Modal header
-            </h2>
-            <p id="some-desc">Modal description here.</p>
-          </Modal>
-        )}
-      </UnitRow>
-    );
-  })
-  .add('with default avatar', () => {
-    const avatar = {
-      id: null,
-      url: null,
-      isDefault: true,
-    };
-    return (
-      <AppContext.Provider value={{ account: { avatar } as any }}>
-        <UnitRow
-          header="Picture"
-          headerId="profile-picture"
-          headerValue={!avatar.isDefault}
-          route={`${HomePath}/avatar`}
-          {...{ avatar }}
-        />
-      </AppContext.Provider>
-    );
-  })
-  .add('with non-default avatar', () => {
-    const avatar = {
-      id: null,
-      url: 'http://placekitten.com/512/512?image=0',
-      isDefault: false,
-    };
-    return (
-      <AppContext.Provider value={{ account: { avatar } as any }}>
-        <UnitRow
-          header="Picture"
-          headerId="profile-picture"
-          headerValue={!avatar.isDefault}
-          route={`${HomePath}/avatar`}
-          {...{ avatar }}
-        />
-      </AppContext.Provider>
-    );
-  });
+export const NoHeaderValueWithDefaultCTA = () => (
+  <UnitRow header={MOCK_HEADER} headerValue={null} route="#" />
+);
+
+export const NoHeaderValueWithCustomCTA = () => (
+  <UnitRow
+    header={MOCK_HEADER}
+    headerValue={null}
+    ctaText={MOCK_CTA_TEXT}
+    route="#"
+  />
+);
+
+export const NoHeaderValueWithCustomCTAAndReloadButton = () => (
+  <UnitRow
+    header={MOCK_HEADER}
+    headerValue={null}
+    route="#"
+    ctaText={MOCK_CTA_TEXT}
+    actionContent={<ButtonIconReload title="Retry" />}
+  />
+);
+
+export const NoHeaderValueWithModalTriggeringCTA = () => <SubjectWithModal />;
+
+export const WithHeaderValueAndDefaultCTA = () => (
+  <UnitRow header={MOCK_HEADER} headerValue={MOCK_HEADER_VALUE} route="#" />
+);
+
+export const WithHeaderValueAndChildren = () => (
+  <UnitRow header={MOCK_HEADER} headerValue={MOCK_HEADER_VALUE} route="#">
+    {MOCK_CHILD_ELEM}
+  </UnitRow>
+);
+
+export const HeaderValueWithModalTriggeringSecondaryCTA = () => (
+  <SubjectWithSecondaryModal />
+);
+
+export const WithDefaultAvatar = () => <SubjectWithDefaultAvatar />;
+
+export const WithCustomAvatar = () => <SubjectWithCustomAvatar />;

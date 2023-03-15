@@ -548,6 +548,7 @@ export class Account implements AccountData {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
 
       // Invalid token means the user has completed reset password
+      // or that the provided token is stale (expired or replaced with new token)
       if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
         return false;
       }
@@ -697,6 +698,10 @@ export class Account implements AccountData {
     legacyLocalStorageAccount.displayName = displayName;
     currentAccount(legacyLocalStorageAccount);
     firefox.profileChanged({ uid: this.uid });
+  }
+
+  setLastLogin(date: number) {
+    // FOLLOW-UP: Not yet implemented.
   }
 
   async deleteAvatar() {
@@ -1103,5 +1108,22 @@ export class Account implements AccountData {
     );
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
+  }
+
+  async resetPasswordWithRecoveryKey(opts: {
+    accountResetToken: string;
+    emailToHashWith: string;
+    password: string;
+    recoveryKeyId: string;
+    kB: string;
+  }) {
+    const data = await this.authClient.resetPasswordWithRecoveryKey(
+      opts.accountResetToken,
+      opts.emailToHashWith,
+      opts.password,
+      opts.recoveryKeyId,
+      { kB: opts.kB }
+    );
+    currentAccount(data);
   }
 }

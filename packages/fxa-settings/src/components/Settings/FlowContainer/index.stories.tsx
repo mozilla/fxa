@@ -3,10 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { FlowContainer } from '.';
 import { LocationProvider } from '@reach/router';
+import { MOCK_CONTENT, MOCK_SUBTITLE, MOCK_TITLE } from './mocks';
 
-storiesOf('Components/Settings/FlowContainer', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => <FlowContainer title="Flow container title" />);
+export default {
+  title: 'Components/Settings/FlowContainer',
+  component: FlowContainer,
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
+} as Meta;
+
+export const Default = () => (
+  <FlowContainer title={MOCK_TITLE} subtitle={MOCK_SUBTITLE}>
+    {MOCK_CONTENT}
+  </FlowContainer>
+);

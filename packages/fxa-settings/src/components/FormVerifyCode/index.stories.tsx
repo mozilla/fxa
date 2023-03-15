@@ -20,3 +20,9 @@ export const Default = () => (
     <Subject />
   </AppLayout>
 );
+
+export const WithCustomErrorMessage = () => (
+  <AppLayout>
+    <Subject localizedCustomCodeRequiredMessage="This is a spoofed custom error" />
+  </AppLayout>
+);

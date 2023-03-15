@@ -13,13 +13,24 @@ const {
   validate,
 } = require('fxa-shared/metrics/amplitude').amplitude;
 const config = require('../config');
-const amplitude = config.get('amplitude');
+const amplitudeConfig = config.get('amplitude');
 const log = require('./logging/log')();
 const ua = require('fxa-shared/metrics/user-agent');
 const { version: VERSION } = require('../../package.json');
 const Sentry = require('@sentry/node');
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
+
+const geodbConfig = config.get('geodb');
+const geodb = require('fxa-geodb')(geodbConfig);
+
+const remoteAddress =
+  require('fxa-shared/express/remote-address').remoteAddress(
+    config.get('clientAddressDepth')
+  );
+const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
+  remoteAddress
+)(log);
 
 const FUZZY_EVENTS = new Map([
   [
@@ -38,13 +49,33 @@ const transform = initialize(
   FUZZY_EVENTS
 );
 
-module.exports = (event, request, data) => {
+// TODO: remove eslint ignore in FXA-6950
+// eslint-disable-next-line no-unused-vars
+function getLocation(request) {
+  if (!geodbConfig.enabled) {
+    return {};
+  }
+
+  return geolocate(request);
+}
+
+// TODO: remove eslint ignore in FXA-6950
+// eslint-disable-next-line no-unused-vars
+function getCountryCode(location) {
+  if (location && location.countryCode) {
+    return location.countryCode;
+  }
+
+  return null;
+}
+
+const amplitude = (event, request, data) => {
   const statsd = Container.get(StatsD);
-  if (!amplitude.enabled || !event || !request || !data) {
+  if (!amplitudeConfig.enabled || !event || !request || !data) {
     return;
   }
 
-  if (amplitude.rawEvents) {
+  if (amplitudeConfig.rawEvents) {
     const wanted = [
       'deviceId',
       'devices',
@@ -105,7 +136,7 @@ module.exports = (event, request, data) => {
   });
 
   if (amplitudeEvent) {
-    if (amplitude.schemaValidation) {
+    if (amplitudeConfig.schemaValidation) {
       try {
         validate(amplitudeEvent);
       } catch (err) {
@@ -123,7 +154,7 @@ module.exports = (event, request, data) => {
             error: err.message,
           });
           Sentry.captureMessage(
-            `Amplitude event failed validation: ${err.message}.`,
+            'Amplitude event failed validation',
             Sentry.Severity.Error
           );
         });
@@ -136,4 +167,10 @@ module.exports = (event, request, data) => {
   } else {
     statsd.increment('amplitude.event.dropped');
   }
+};
+
+module.exports = {
+  amplitude,
+  getLocation,
+  getCountryCode,
 };

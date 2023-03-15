@@ -10,7 +10,7 @@
     "./lib/": "./dist/lib/"
   },
   "scripts": {
-    "postinstall": "grunt merge-ftl &&../../_scripts/clone-l10n.sh fxa-react",
+    "postinstall": "grunt merge-ftl && yarn l10n:prime fxa-react",
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-storybook": "NODE_ENV=production npm run build-css && build-storybook",
     "build": "yarn compile && npm run merge-ftl",
@@ -76,7 +76,7 @@
     "camelcase": "^6.3.0",
     "eslint": "^7.32.0",
     "file-loader": "^4.3.0",
-    "grunt": "^1.5.3",
+    "grunt": "^1.6.1",
     "grunt-cli": "^1.4.3",
     "grunt-contrib-concat": "^2.1.0",
     "grunt-contrib-watch": "^1.1.0",

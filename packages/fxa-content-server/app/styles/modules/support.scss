@@ -77,11 +77,17 @@
   .message {
     font-size: 16px;
     line-height: 1.5;
-    margin-bottom: 30px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 
     p {
       margin-bottom: 0;
     }
+  }
+
+  .center-text {
+    display: inline-grid;
+    align-content: center;
   }
 
   &.dialog-error,

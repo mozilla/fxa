@@ -3,13 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { ModalVerifySession } from '.';
-import { Account, AppContext } from 'fxa-settings/src/models';
+import { AppContext } from 'fxa-settings/src/models';
 import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 import { LocationProvider } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+
+export default {
+  title: 'Components/Settings/ModalVerifySession',
+  component: ModalVerifySession,
+  decorators: [withLocalization],
+} as Meta;
 
 const session = mockSession(false);
 const account = MOCK_ACCOUNT as any;
@@ -21,27 +28,6 @@ account.verifySession = (code: string) => {
   }
   return Promise.reject(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE);
 };
-
-storiesOf('Components/Settings/ModalVerifySession', module).add(
-  'valid code: 123456',
-  () => (
-    <LocationProvider>
-      <AppContext.Provider value={{ account, session }}>
-        <ModalToggle>
-          {({ modalRevealed, hideModal }) =>
-            modalRevealed && (
-              <ModalVerifySession
-                onCompleted={() => alert('success!')}
-                onDismiss={hideModal}
-                onError={() => {}}
-              />
-            )
-          }
-        </ModalToggle>
-      </AppContext.Provider>
-    </LocationProvider>
-  )
-);
 
 type ModalToggleChildrenProps = {
   modalRevealed: boolean;
@@ -61,9 +47,30 @@ const ModalToggle = ({ children }: ModalToggleProps) => {
     [showModal]
   );
   return (
-    <div>
-      <button {...{ onClick }}>Show modal</button>
+    <div className="flex flex-col max-w-64 mx-auto">
+      <button className="cta-base-p cta-neutral" {...{ onClick }}>
+        Show modal
+      </button>
+
       {children({ modalRevealed, showModal, hideModal })}
     </div>
   );
 };
+
+export const DefaultWithValidCode123456 = () => (
+  <LocationProvider>
+    <AppContext.Provider value={{ account, session }}>
+      <ModalToggle>
+        {({ modalRevealed, hideModal }) =>
+          modalRevealed && (
+            <ModalVerifySession
+              onCompleted={() => alert('success!')}
+              onDismiss={hideModal}
+              onError={() => {}}
+            />
+          )
+        }
+      </ModalToggle>
+    </AppContext.Provider>
+  </LocationProvider>
+);

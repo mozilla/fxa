@@ -3,35 +3,49 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../../.storybook/decorators';
 import DropDownAvatarMenu from '.';
-import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/mocks';
+import { Account, AppContext } from 'fxa-settings/src/models';
+import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
-const account = {
+export default {
+  title: 'Components/Settings/DropDownAvatarMenu',
+  component: DropDownAvatarMenu,
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <div className="w-full flex justify-end">
+        <div className="flex pr-10 pt-4">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
+} as Meta;
+
+const accountWithoutAvatar = {
   avatar: {
     url: null,
     id: null,
   },
   primaryEmail: {
-    email: 'johndope@example.com',
+    email: MOCK_ACCOUNT.primaryEmail.email,
   },
-} as any;
+} as unknown as Account;
 
-storiesOf('Components/Settings/DropDownAvatarMenu', module)
-  .add('default - no avatar or display name', () => (
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <div className="w-full flex justify-end">
-        <div className="flex pr-10 pt-4">
-          <DropDownAvatarMenu />
-        </div>
-      </div>
+const storyWithContext = (account: Partial<Account>) => {
+  const context = { account: account as Account };
+
+  const story = () => (
+    <AppContext.Provider value={mockAppContext(context)}>
+      <DropDownAvatarMenu />
     </AppContext.Provider>
-  ))
-  .add('with avatar and display name', () => (
-    <div className="w-full flex justify-end">
-      <div className="flex pr-10 pt-4">
-        <DropDownAvatarMenu />
-      </div>
-    </div>
-  ));
+  );
+  return story;
+};
+
+export const DefaultNoAvatarOrDisplayName =
+  storyWithContext(accountWithoutAvatar);
+
+export const WithAvatarAndDisplayName = () => <DropDownAvatarMenu />;

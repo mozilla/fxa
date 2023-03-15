@@ -14,6 +14,8 @@ export const MDNLink = 'https://developer.mozilla.org/';
 export const HubsLink = 'https://hubs.mozilla.com/';
 export const SHOW_BALLOON_TIMEOUT = 500;
 export const HIDE_BALLOON_TIMEOUT = 400;
+export const CLEAR_MESSAGES_TIMEOUT = 750;
+export const RESEND_CODE_TIMEOUT = 5000;
 export const REACT_ENTRYPOINT = { entrypoint_variation: 'react' };
 
 export enum ENTRYPOINTS {

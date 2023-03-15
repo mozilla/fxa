@@ -43,10 +43,6 @@ describe('Config', () => {
         'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
         'production secret here'
       );
-      mockEnv(
-        'SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN',
-        'production secret here'
-      );
       assert.doesNotThrow(() => {
         proxyquire(`${ROOT_DIR}/config`, {});
       });

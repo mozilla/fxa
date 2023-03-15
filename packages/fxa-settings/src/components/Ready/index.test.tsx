@@ -75,6 +75,19 @@ describe('Ready', () => {
     expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
+  it('renders as expected the service is sync', () => {
+    render(<Ready isSignedIn={false} isSync {...{ viewName }} />);
+
+    const passwordResetConfirmation = screen.getByText(
+      'Your password has been reset'
+    );
+    const prompt = screen.getByText(
+      'Complete setup by entering your new password on your other Firefox devices.'
+    );
+    expect(passwordResetConfirmation).toBeInTheDocument();
+    expect(prompt).toBeInTheDocument();
+  });
+
   it('renders as expected when given a service name and relier continue action', () => {
     render(
       <Ready
@@ -119,7 +132,7 @@ describe('Ready', () => {
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
-    const fullActionName = `${viewName}.continue`;
+    const fullActionName = `flow.${viewName}.continue`;
     fireEvent.click(passwordResetContinueButton);
     expect(logViewEvent).toHaveBeenCalledWith(
       viewName,

@@ -765,14 +765,21 @@ export class StripeHelper extends StripeHelperBase {
   async previewInvoiceBySubscriptionId({
     automaticTax,
     subscriptionId,
+    includeCanceled,
   }: {
     automaticTax: boolean;
     subscriptionId: string;
+    includeCanceled?: boolean;
   }) {
+    const retrieveUpcomingParams = {
+      ...(includeCanceled && { subscription_cancel_at_period_end: false }),
+      ...{ subscription: subscriptionId },
+    };
+
     if (automaticTax) {
       try {
         return await this.stripe.invoices.retrieveUpcoming({
-          subscription: subscriptionId,
+          ...retrieveUpcomingParams,
           automatic_tax: {
             enabled: true,
           },
@@ -785,9 +792,9 @@ export class StripeHelper extends StripeHelperBase {
         throw e;
       }
     } else {
-      return await this.stripe.invoices.retrieveUpcoming({
-        subscription: subscriptionId,
-      });
+      return await this.stripe.invoices.retrieveUpcoming(
+        retrieveUpcomingParams
+      );
     }
   }
 

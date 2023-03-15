@@ -11,7 +11,7 @@ module.exports = (log, config, db, mailer, devices, statsd) => {
     require('./introspect')({ oauthDB }),
     require('./jwks')(),
     require('./key_data')({ log, oauthDB, statsd }),
-    require('./token')({ log, oauthDB, db, mailer, devices }),
+    require('./token')({ log, oauthDB, db, mailer, devices, statsd }),
     require('./verify')({ log }),
   ].flat();
 

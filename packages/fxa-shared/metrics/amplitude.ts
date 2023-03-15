@@ -15,7 +15,7 @@ type AmplitudeEventFuzzyEventNameMapFn = (
 ) => string;
 type EventData = { [key: string]: any };
 
-const ajv = new Ajv();
+const ajv = new Ajv({ allErrors: true });
 const amplitudeSchema = require('./amplitude-event.1.schema.json');
 const validateAmplitudeEvent = ajv.compile(amplitudeSchema);
 

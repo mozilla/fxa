@@ -9,7 +9,8 @@ import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Link, useLocation } from '@reach/router';
-import { Localized, useLocalization } from '@fluent/react';
+import { useFtlMsgResolver } from '../../../models';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 type ModalProps = {
   className?: string;
@@ -36,15 +37,20 @@ export const Modal = ({
   headerId,
   descId,
   route,
-  confirmText = 'Confirm',
+  confirmText,
   confirmBtnClassName = 'cta-primary cta-base-p',
   'data-testid': testid = 'modal',
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   const tabFenceRef = useChangeFocusEffect();
   const location = useLocation();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
   useEscKeydownEffect(onDismiss);
+
+  const localizedDefaultConfirmText = ftlMsgResolver.getMsg(
+    'modal-default-confirm-button',
+    'Confirm'
+  );
 
   return (
     <Portal id="modal">
@@ -70,7 +76,7 @@ export const Modal = ({
             <button
               data-testid="modal-dismiss"
               onClick={(event) => onDismiss()}
-              title={l10n.getString('modal-close-title', null, 'Close')}
+              title={ftlMsgResolver.getMsg('modal-close-title', 'Close')}
             >
               <CloseIcon className="w-2 h-2 m-3" role="img" />
             </button>
@@ -88,7 +94,7 @@ export const Modal = ({
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
                 {hasCancelButton && (
-                  <Localized id="modal-cancel-button">
+                  <FtlMsg id="modal-cancel-button">
                     <button
                       className="cta-neutral mx-2 flex-1 cta-base-p"
                       data-testid="modal-cancel"
@@ -96,7 +102,7 @@ export const Modal = ({
                     >
                       Cancel
                     </button>
-                  </Localized>
+                  </FtlMsg>
                 )}
 
                 {route && (
@@ -105,7 +111,7 @@ export const Modal = ({
                     data-testid="modal-confirm"
                     to={`${route}${location.search}`}
                   >
-                    {confirmText}
+                    {confirmText || localizedDefaultConfirmText}
                   </Link>
                 )}
 
@@ -115,7 +121,7 @@ export const Modal = ({
                     data-testid="modal-confirm"
                     onClick={(event) => onConfirm()}
                   >
-                    {confirmText}
+                    {confirmText || localizedDefaultConfirmText}
                   </button>
                 )}
               </div>

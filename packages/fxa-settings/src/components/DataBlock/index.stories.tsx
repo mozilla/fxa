@@ -3,28 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from '../../../.storybook/decorators';
 import DataBlock from './index';
 
-storiesOf('Components/DataBlock', module)
-  .add('single', () => (
-    <div className="p-10 max-w-lg">
-      <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" />
-    </div>
-  ))
-  .add('multiple', () => (
-    <div className="p-10 max-w-sm">
-      <DataBlock
-        value={[
-          'C1OFZW7R04',
-          'XVKRLKERT4',
-          'CF0V94X204',
-          'C3THX2SGZ4',
-          'UXC6NRQT54',
-          '24RF9WFA44',
-          'ZBULPFN7J4',
-          'D4J6KY8FL4',
-        ]}
-      />
-    </div>
-  ));
+export default {
+  title: 'Components/DataBlock',
+  component: DataBlock,
+  decorators: [withLocalization],
+} as Meta;
+
+export const SingleCode = () => (
+  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" />
+);
+
+export const SingleCodeOnIOS = () => (
+  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" isIOS />
+);
+
+export const MultipleCodes = () => (
+  <DataBlock
+    value={[
+      'C1OFZW7R04',
+      'XVKRLKERT4',
+      'CF0V94X204',
+      'C3THX2SGZ4',
+      'UXC6NRQT54',
+      '24RF9WFA44',
+      'ZBULPFN7J4',
+      'D4J6KY8FL4',
+    ]}
+  />
+);

@@ -19,7 +19,10 @@
     "heroku-postbuild": "yarn workspaces foreach --verbose --include 123done install",
     "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql",
     "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs",
-    "generate-lockfile": "docker build . -f _dev/docker/ci-lockfile-generator/Dockerfile -t generate-lockfile && docker run generate-lockfile > yarn.lock"
+    "generate-lockfile": "docker build . -f _dev/docker/ci-lockfile-generator/Dockerfile -t generate-lockfile && docker run generate-lockfile > yarn.lock",
+    "l10n:clone": "_scripts/l10n/clone.sh",
+    "l10n:prime": "yarn l10n:clone && _scripts/l10n/prime.sh",
+    "l10n:bundle": "_scripts/l10n/bundle.sh"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -34,7 +37,7 @@
   "dependencies": {
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
-    "lint-staged": "^13.0.3",
+    "lint-staged": "^13.1.2",
     "node-fetch": "^2.6.7",
     "nps": "^5.10.0",
     "p-queue": "^7.3.4",
@@ -77,13 +80,13 @@
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^27.1.3",
-    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-react": "^7.32.2",
     "json": "^11.0.0",
     "mocha-junit-reporter": "^2.2.0",
     "mocha-multi": "^1.1.7",
     "postcss": "^8.4.14",
-    "stylelint": "^14.14.0",
+    "stylelint": "^15.2.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended-scss": "^8.0.0"
   },

@@ -11,14 +11,7 @@ const proxyquire = require('proxyquire');
 const { mockRequest, mockMetricsContext } = require('../mocks');
 const mockAmplitudeConfig = { schemaValidation: true };
 
-let sentryScope;
-const mockSentry = {
-  withScope: sinon.stub().callsFake((cb) => {
-    sentryScope = { setContext: sinon.stub() };
-    cb(sentryScope);
-  }),
-  captureMessage: sinon.stub(),
-};
+let sentryScope, mockSentry;
 const Sentry = require('@sentry/node');
 
 const validEvent = {
@@ -48,6 +41,14 @@ describe('log', () => {
   let logger, mocks, log;
 
   beforeEach(() => {
+    mockSentry = {
+      withScope: sinon.stub().callsFake((cb) => {
+        sentryScope = { setContext: sinon.stub() };
+        cb(sentryScope);
+      }),
+      captureMessage: sinon.stub(),
+    };
+
     logger = {
       debug: sinon.spy(),
       error: sinon.spy(),
@@ -97,6 +98,10 @@ describe('log', () => {
       name: 'test',
       stdout: { on: sinon.spy() },
     });
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   it('initialised correctly', () => {
@@ -640,7 +645,44 @@ describe('log', () => {
     );
     assert.isTrue(
       mockSentry.captureMessage.calledOnceWith(
-        'Amplitude event failed validation: Invalid data: event/event_type must match pattern "^\\w+ - \\w+$".',
+        'Amplitude event failed validation',
+        Sentry.Severity.Error
+      )
+    );
+
+    assert.isTrue(logger.info.calledOnce, 'logger.info was called once');
+    assert.equal(logger.info.args[0][0], 'amplitudeEvent');
+    assert.deepEqual(logger.info.args[0][1], event);
+  });
+
+  it('.amplitudeEvent with multiple validation errors', () => {
+    const event = { ...validEvent };
+    delete event.event_properties;
+    delete event.time;
+
+    log.amplitudeEvent(event);
+
+    assert.isTrue(logger.error.calledOnce, 'logger.error was called once');
+    assert.equal(logger.error.args[0][0], 'amplitude.validationError');
+    assert.equal(
+      logger.error.args[0][1]['err']['message'],
+      "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
+    );
+    assert.deepEqual(logger.error.args[0][1]['amplitudeEvent'], event);
+
+    assert.isTrue(mockSentry.withScope.calledOnce);
+    assert.isTrue(sentryScope.setContext.calledOnce);
+    assert.equal(
+      sentryScope.setContext.args[0][0],
+      'amplitude.validationError'
+    );
+    assert.equal(
+      sentryScope.setContext.args[0][1]['error'],
+      "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
+    );
+    assert.isTrue(
+      mockSentry.captureMessage.calledOnceWith(
+        'Amplitude event failed validation',
         Sentry.Severity.Error
       )
     );

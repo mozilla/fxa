@@ -10,6 +10,8 @@ import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
+import { GenericContext } from '../lib/context';
+import { useLocation } from '@reach/router';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -93,6 +95,39 @@ export function useRelier() {
     throw new Error('Relier factory never initialized!');
   }
   return relierFactory.getRelier();
+}
+
+export function useUrlSearchContext() {
+  let { urlSearchContext } = useContext(AppContext);
+  if (urlSearchContext == null) {
+    throw new Error('urlSearchContext never initialized!');
+  }
+  return urlSearchContext;
+}
+
+export function useLocationStateContext() {
+  const location = useLocation();
+  if (location == null) {
+    throw new Error('Location missing!');
+  }
+
+  return new GenericContext((location.state || {}) as Record<string, unknown>);
+}
+
+export function useNotifier() {
+  return {
+    onAccountSignIn(_account: unknown) {
+      // FOLLOW-UP: Not yet implemented.
+    },
+  };
+}
+
+export function useBroker() {
+  return {
+    async invokeBrokerMethod(_name: string, _account: unknown) {
+      // FOLLOW-UP: Not yet implemented.
+    },
+  };
 }
 
 /**

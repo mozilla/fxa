@@ -40,6 +40,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'reset_password_verified',
         'reset_password_with_recovery_key_verified',
         'account_recovery_confirm_key',
+        'account_recovery_reset_password',
       ]),
     },
 
@@ -50,12 +51,17 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     signInRoutes: {
       featureFlagOn: showReactApp.signInRoutes,
-      routes: [],
+      routes: reactRoute.getRoutes([
+        'signin_reported',
+        'signin_confirmed',
+        'signin_verified',
+      ]),
     },
 
     signUpRoutes: {
       featureFlagOn: showReactApp.signUpRoutes,
       routes: reactRoute.getRoutes([
+        'confirm_signup_code',
         'primary_email_verified',
         'signup_confirmed',
         'signup_verified',

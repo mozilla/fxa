@@ -8,5 +8,5 @@
     "importHelpers": true
   },
   "references": [{ "path": "../fxa-shared" }],
-  "include": ["src", "scripts"]
+  "include": ["src"]
 }

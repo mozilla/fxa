@@ -89,7 +89,7 @@ export const ModalVerifySession = ({
           verifySession(verificationCode.trim());
         })}
       >
-        <Localized id="mvs-verify-your-email">
+        <Localized id="mvs-verify-your-email-2">
           <h2
             id="modal-verify-session-header-2"
             className="font-bold text-xl text-center"

@@ -20,7 +20,7 @@ const getHeaderValues = (linkType: LinkType) => {
   switch (linkType) {
     case 'reset-password':
       headerValues.text = 'Reset password link damaged';
-      headerValues.headerId = 'password-reset-link-damaged-header';
+      headerValues.headerId = 'reset-pwd-link-damaged-header';
       break;
     case 'signin':
       headerValues.text = 'Confirmation link damaged';
@@ -42,7 +42,7 @@ const LinkDamaged = ({ linkType }: LinkDamagedProps) => {
         headingTextFtlId={headerValue.headerId}
       />
 
-      <FtlMsg id="link-damaged-message">
+      <FtlMsg id="reset-pwd-link-damaged-message">
         <p className="mt-4 text-sm">
           The link you clicked was missing characters, and may have been broken
           by your email client. Copy the address carefully, and try again.

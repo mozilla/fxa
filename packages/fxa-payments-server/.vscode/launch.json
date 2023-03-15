@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug FxA-Payments Tests",
+            "name": "Debug FxA-Payments Frontend Tests",
             "type": "node",
             "protocol": "inspector",
             "env": {
@@ -15,6 +15,15 @@
             },
             "program": "${workspaceFolder}/../../node_modules/@rescripts/cli/bin/rescripts.js",
             "args": ["--inspect", "test", "--runInBand", "--no-cache"],
+            "autoAttachChildProcesses": true,
+            "cwd":"${workspaceFolder}",
+            "request": "launch",
+          },
+          {
+            "name": "Debug FxA-Payments Server Tests",
+            "type": "node",
+            "program": "${workspaceFolder}/../../node_modules/jest/bin/jest.js",
+            "args": ["--runInBand", "--config", "server/jest.config.js"],
             "autoAttachChildProcesses": true,
             "cwd":"${workspaceFolder}",
             "request": "launch",

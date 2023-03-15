@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -21,13 +21,12 @@ export type FormAttributes = {
 
 export type FormVerifyCodeProps = {
   viewName: string;
-  email: string;
   formAttributes: FormAttributes;
-  onSubmit: () => void;
-  code: string;
-  setCode: React.Dispatch<React.SetStateAction<string>>;
+  verifyCode: (code: string) => void;
+  localizedCustomCodeRequiredMessage?: string;
   codeErrorMessage: string;
   setCodeErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  setClearMessages?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type FormData = {
@@ -36,13 +35,12 @@ type FormData = {
 
 const FormVerifyCode = ({
   viewName,
-  email,
-  onSubmit,
+  verifyCode,
   formAttributes,
-  code,
-  setCode,
+  localizedCustomCodeRequiredMessage,
   codeErrorMessage,
   setCodeErrorMessage,
+  setClearMessages,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
@@ -54,18 +52,41 @@ const FormVerifyCode = ({
 
   const onFocus = () => {
     if (!isFocused && viewName) {
-      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
+      logViewEvent(`flow.${viewName}`, 'engage', REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };
 
-  const { handleSubmit } = useForm<FormData>({
+  const { handleSubmit, register, errors } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
-      code,
+      code: '',
     },
   });
+
+  const localizedDefaultCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'form-verify-code-default-error',
+    'This field is required'
+  );
+
+  useEffect(() => {
+    if (errors?.code?.type === 'required') {
+      setCodeErrorMessage(
+        localizedCustomCodeRequiredMessage ||
+          localizedDefaultCodeRequiredMessage
+      );
+    }
+  }, [
+    errors,
+    setCodeErrorMessage,
+    localizedCustomCodeRequiredMessage,
+    localizedDefaultCodeRequiredMessage,
+  ]);
+
+  const onSubmit = ({ code }: FormData) => {
+    verifyCode(code.trim());
+  };
 
   return (
     <form
@@ -75,16 +96,15 @@ const FormVerifyCode = ({
     >
       {/* Using `type="text" inputmode="numeric"` shows the numeric pad on mobile and strips out whitespace on desktop. */}
       <InputText
+        name="code"
         type="text"
         inputMode="numeric"
         label={localizedLabel}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setCode(e.target.value);
-          // clear error tooltip if user types in the field
-          if (codeErrorMessage) {
-            setCodeErrorMessage('');
-          }
-        }}
+        onChange={
+          setClearMessages
+            ? () => setClearMessages(true)
+            : () => setCodeErrorMessage('')
+        }
         onFocusCb={viewName ? onFocus : undefined}
         errorText={codeErrorMessage}
         autoFocus
@@ -95,8 +115,8 @@ const FormVerifyCode = ({
         autoComplete="off"
         spellCheck={false}
         prefixDataTestId={viewName}
-        required
         tooltipPosition="bottom"
+        inputRef={register({ required: true })}
       />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>
