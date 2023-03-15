@@ -10,7 +10,7 @@
     "./lib/": "./dist/lib/"
   },
   "scripts": {
-    "postinstall": "grunt merge-ftl &&../../_scripts/clone-l10n.sh fxa-react",
+    "postinstall": "grunt merge-ftl && yarn l10n:prime fxa-react",
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-storybook": "NODE_ENV=production npm run build-css && build-storybook",
     "build": "yarn compile && npm run merge-ftl",

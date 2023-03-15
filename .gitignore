@@ -5,6 +5,7 @@
 /servers_android.json
 /pm2
 /dump.rdb
+external
 
 # Secrets
 .env
