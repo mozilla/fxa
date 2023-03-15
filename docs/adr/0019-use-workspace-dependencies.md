@@ -2,6 +2,7 @@
 
 - Deciders: Danny Coates
 - Date: 2020-05-27
+- Obsoleted by: 0037-use-nx-for-monorepo
 
 ## Context and Problem Statement
 
