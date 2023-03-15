@@ -4,9 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
+const { CelebrateError } = require('celebrate');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
+const Sentry = require('@sentry/node');
 
 describe('#unit - express/routing:', () => {
   let appMock;
@@ -18,6 +20,8 @@ describe('#unit - express/routing:', () => {
   let loggerMock;
   let routing;
   let routingFactory;
+  let mockSentry;
+  let sentryScope;
 
   beforeEach(() => {
     celebrateHandler = () => {};
@@ -32,9 +36,18 @@ describe('#unit - express/routing:', () => {
 
     corsHandler = () => {};
 
+    mockSentry = {
+      withScope: sinon.stub().callsFake((cb) => {
+        sentryScope = { setContext: sinon.stub() };
+        cb(sentryScope);
+      }),
+      captureMessage: sinon.stub(),
+    };
+
     routingFactory = proxyquire('../../express/routing', {
       celebrate: celebrateMock,
       './cors': { default: () => corsHandler },
+      '@sentry/node': mockSentry,
     });
 
     appMock = {
@@ -219,6 +232,40 @@ describe('#unit - express/routing:', () => {
 
       assert.isTrue(next.calledOnceWith(error));
       assert.isFalse(errorHandler.called);
+    });
+
+    it('logs joi validation errors and reports them to sentry', () => {
+      const error = new CelebrateError();
+      const next = sinon.spy();
+
+      error.details.set('body', {
+        name: 'ValidationError',
+        isJoi: true,
+        message: 'joi validation error',
+        details: [
+          {
+            message: 'joi error',
+            path: [''],
+            type: '',
+          },
+        ],
+      });
+      isCelebrateError = true;
+
+      routing.validationErrorHandler(error, {}, {}, next);
+      assert.calledTwice(loggerMock.error);
+      assert.calledWith(loggerMock.error, 'joi.validationError', {
+        err: error,
+        joiErrors: error.details.get('body').message,
+      });
+
+      assert.isTrue(mockSentry.withScope.calledOnce);
+      assert.isTrue(
+        mockSentry.captureMessage.calledOnceWith(
+          'Joi validation error',
+          Sentry.Severity.Error
+        )
+      );
     });
   });
 });
