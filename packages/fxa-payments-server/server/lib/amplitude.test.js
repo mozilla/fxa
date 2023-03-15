@@ -9,6 +9,18 @@ const mockAmplitudeConfig = {
   schemaValidation: true,
   rawEvents: false,
 };
+const mockGeoDBConfig = {
+  enabled: true,
+};
+// TODO: move these into the `mocks` object.
+const mockClientAddressDepthConfig = 0;
+const mockRemoteAddress = {
+  addresses: [],
+  clientAddress: '127.0.0.1',
+};
+const mockLocation = {
+  countryCode: 'DE',
+};
 jest.mock('fxa-shared/metrics/amplitude', () => ({
   amplitude: {
     ...jest.requireActual('fxa-shared/metrics/amplitude').amplitude,
@@ -36,11 +48,28 @@ jest.mock('../config', () => ({
     switch (key) {
       case 'amplitude':
         return mockAmplitudeConfig;
+      case 'geodb':
+        return mockGeoDBConfig;
+      case 'clientAddressDepth':
+        return mockClientAddressDepthConfig;
       default:
     }
   },
 }));
-const amplitude = require('./amplitude');
+jest.mock('fxa-geodb', () => {
+  return () => {};
+});
+jest.mock('fxa-shared/express/remote-address', () => ({
+  remoteAddress: () => () => {
+    return mockRemoteAddress;
+  },
+}));
+jest.mock('fxa-shared/express/geo-locate', () => ({
+  geolocate: () => () => () => () => {
+    return mockLocation;
+  },
+}));
+const { amplitude, getLocation, getCountryCode } = require('./amplitude');
 const log = require('./logging/log')();
 jest.spyOn(log, 'info').mockImplementation(() => {});
 jest.spyOn(log, 'error').mockImplementation(() => {});
@@ -217,6 +246,40 @@ describe('lib/amplitude', () => {
       mockAmplitudeConfig.schemaValidation = false;
       amplitude(mocks.event, mocks.request, mocks.data);
       expect(mockSchemaValidatorFn).not.toHaveBeenCalled();
+    });
+  });
+  describe('geoDB location helpers', () => {
+    describe('getLocation', () => {
+      it('geolocates when geoDB is enabled', () => {
+        const expected = { ...mockLocation };
+        const actual = getLocation(mocks.request);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('does not geolocate when geoDB is disabled', () => {
+        mockGeoDBConfig.enabled = false;
+        const expected = {};
+        const actual = getLocation(mocks.request);
+        expect(actual).toStrictEqual(expected);
+      });
+    });
+    describe('getCountryCode', () => {
+      it('returns the country code when location.countryCode is available', () => {
+        const expected = 'DE';
+        const actual = getCountryCode(mockLocation);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('returns null when location is falsy', () => {
+        const falsyLocation = undefined;
+        const expected = null;
+        const actual = getCountryCode(falsyLocation);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('returns null when location has no countryCode', () => {
+        const emptyLocation = {};
+        const expected = null;
+        const actual = getCountryCode(emptyLocation);
+        expect(actual).toStrictEqual(expected);
+      });
     });
   });
 });
