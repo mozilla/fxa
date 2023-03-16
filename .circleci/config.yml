@@ -213,8 +213,8 @@ commands:
           name: Base Install
           command: |
             ./_scripts/l10n/clone.sh
-            ./.circleci/base-install.sh
             ./.circleci/create-lists.sh
+            ./.circleci/base-install.sh
             ./_scripts/create-version-json.sh
       - store_artifacts:
           path: ./packages/version.json
