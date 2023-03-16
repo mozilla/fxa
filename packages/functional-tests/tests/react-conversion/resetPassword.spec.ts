@@ -26,7 +26,7 @@ test.describe('reset password', () => {
     await page.goto(getReactFeatureFlagUrl(target, '/reset_password'));
 
     // Verify react page has been loaded
-    expect(await page.locator('#root').isVisible()).toBeTruthy();
+    await page.waitForSelector('#root');
 
     await page.locator('input').fill(credentials.email);
     await page.locator('text="Begin reset"').click();
@@ -34,10 +34,10 @@ test.describe('reset password', () => {
 
     // Verify confirm password reset page elements
     expect(
-      await page.locator('text="Reset email sent"').isVisible()
+      await page.locator('text="Reset email sent"').isEnabled()
     ).toBeTruthy();
     expect(
-      await page.locator('text="Remember your password? Sign in"').isVisible()
+      await page.locator('text="Remember your password? Sign in"').isEnabled()
     ).toBeTruthy();
     expect(
       await page
@@ -58,45 +58,50 @@ test.describe('reset password', () => {
     await diffPage.goto(link);
 
     // Loads the React version
-    expect(await diffPage.locator('#root').isVisible()).toBeTruthy();
+    expect(await diffPage.locator('#root').isEnabled()).toBeTruthy();
     expect(
-      await diffPage.locator('text="Create new password"').isVisible()
+      await diffPage.locator('text="Create new password"').isEnabled()
     ).toBeTruthy();
     expect(
       await diffPage
         .locator('text="Remember your password? Sign in"')
-        .isVisible()
+        .isEnabled()
     ).toBeTruthy();
 
     await diffPage.locator('input[name="newPassword"]').fill(NEW_PASSWORD);
     await diffPage.locator('input[name="confirmPassword"]').fill(NEW_PASSWORD);
 
-    await diffPage.locator('text="Reset password"').click();
-    await diffPage.waitForNavigation();
+    await Promise.all([
+      await diffPage.locator('text="Reset password"').click(),
+      await diffPage.waitForNavigation(),
+    ]);
 
     expect(
-      await diffPage.locator('text="Your password has been reset"').isVisible()
+      await diffPage.locator('text="Your password has been reset"').isEnabled()
     ).toBeTruthy();
     await diffPage.close();
 
     // Attempt to login
     await page.waitForNavigation();
     expect(
-      await page.locator('text="Enter your email"').isVisible()
+      await page.locator('text="Enter your email"').isEnabled()
     ).toBeTruthy();
 
     await page.locator('input[type=email]').fill(credentials.email);
-    await page.locator('text="Sign up or sign in"').click();
-    await page.waitForNavigation({ waitUntil: 'load' });
+    await Promise.all([
+      await page.locator('text="Sign up or sign in"').click(),
+      await page.waitForNavigation(),
+    ]);
+
     await page.locator('#password').fill(NEW_PASSWORD);
 
-    await page.locator('text="Sign in"').click();
-    await page.waitForNavigation({ waitUntil: 'load' });
+    await Promise.all([
+      await page.locator('text="Sign in"').click(),
+      await page.waitForNavigation(),
+    ]);
 
     const settingsHeader = await page.locator('text=Settings');
-    // A bit strange, not sure why I needed to add the `waitFor` here
-    await settingsHeader.waitFor();
-    expect(await settingsHeader.isVisible()).toBeTruthy();
+    expect(await settingsHeader.isEnabled()).toBeTruthy();
 
     // Cleanup requires setting this value to correct password
     credentials.password = NEW_PASSWORD;

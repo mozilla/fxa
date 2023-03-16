@@ -22,7 +22,7 @@ export class RelierPage extends BaseLayout {
 
   async signOut() {
     await Promise.all([
-      this.page.click('#logout'),
+      this.page.locator('#logout').click(),
       this.page.waitForResponse(/\/api\/logout/),
     ]);
   }
@@ -30,45 +30,49 @@ export class RelierPage extends BaseLayout {
   clickEmailFirst() {
     return Promise.all([
       this.page.locator('button.email-first-button').click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
+      this.page.waitForNavigation(),
     ]);
   }
 
   clickSignIn() {
     return Promise.all([
       this.page.locator('button.sign-in-button.signin').click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
+      this.page.waitForNavigation(),
     ]);
   }
 
   clickForceAuth() {
     return Promise.all([
       this.page.locator('button.force-auth').click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
+      this.page.waitForNavigation(),
     ]);
   }
 
   clickChooseFlow() {
-    return this.page.click('button.sign-choose');
+    return this.page.locator('button.sign-choose').click();
   }
 
   async clickSubscribe() {
     await Promise.all([
-      this.page.click('a[data-currency=usd]'),
+      this.page.getByRole('link', { name: 'Subscribe to Pro (USD)' }).click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   async clickSubscribe6Month() {
     await Promise.all([
-      this.page.click('text=Subscribe to Pro 6m (USD)'),
+      this.page
+        .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
+        .click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }
 
   async clickSubscribe12Month() {
     await Promise.all([
-      this.page.click('text=Subscribe to Pro 12m (USD)'),
+      this.page
+        .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
+        .click(),
       this.page.waitForNavigation({ waitUntil: 'load' }),
     ]);
   }

@@ -4,6 +4,7 @@
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "build-css": "tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
+    "compile": "tsc --noEmit",
     "postinstall": "yarn l10n:prime fxa-payments-server",
     "lint": "npm-run-all --parallel lint:eslint",
     "lint:eslint": "eslint . .storybook",

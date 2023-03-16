@@ -42,7 +42,7 @@ export class SubscriptionManagementPage extends BaseLayout {
     const changeButton = this.page.locator(
       '[data-testid="change-payment-update-button"]'
     );
-    await changeButton.waitFor({ state: 'attached' });
+    await changeButton.waitFor({ state: 'visible' });
     const [paypalWindow] = await Promise.all([
       this.page.waitForEvent('popup'),
       this.page.locator('[data-testid="change-payment-update-button"]').click(),

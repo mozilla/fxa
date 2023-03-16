@@ -37,7 +37,7 @@ export class SubscribePage extends BaseLayout {
     const paypalButton = this.page.locator(
       '[data-testid="paypal-button-container"]'
     );
-    await paypalButton.waitFor({ state: 'attached' });
+    await paypalButton.waitFor({ state: 'visible' });
     const [paypalWindow] = await Promise.all([
       this.page.waitForEvent('popup'),
       this.page.locator('[data-testid="paypal-button-container"]').click(),
@@ -60,13 +60,13 @@ export class SubscribePage extends BaseLayout {
 
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
-    await input.waitFor({ state: 'attached' });
+    await input.waitFor({ state: 'visible' });
     await input.fill(code);
-    this.page.click('[data-testid="coupon-button"]');
+    await this.page.locator('[data-testid="coupon-button"]').click();
   }
 
   async clickTryAgain() {
-    this.page.click('[data-testid="retry-link"]');
+    await this.page.locator('[data-testid="retry-link"]').click();
   }
 
   async couponErrorMessageText() {
@@ -118,7 +118,7 @@ export class SubscribePage extends BaseLayout {
   }
 
   async removeCouponCode() {
-    await this.page.click('[data-testid="coupon-remove-button"]');
+    await this.page.locator('[data-testid="coupon-remove-button"]').click();
   }
 
   planUpgradeDetails() {
