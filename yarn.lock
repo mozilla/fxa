@@ -6788,6 +6788,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/context-zone-peer-dep@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/context-zone-peer-dep@npm:1.10.0"
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.5.0"
+    zone.js: ^0.10.2 || ^0.11.0
+  checksum: 0b755f383976ad926f7b149ca8b35b9a11a6b06c7d96a5dc854c5784a30fdff2382cde4d8b79f535b517497fbf3e19332add2369ded78356d4b1857428720b4a
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/context-zone-peer-dep@npm:1.7.0, @opentelemetry/context-zone-peer-dep@npm:~1.7.0":
   version: 1.7.0
   resolution: "@opentelemetry/context-zone-peer-dep@npm:1.7.0"
@@ -6798,13 +6808,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/context-zone@npm:^1.0.0, @opentelemetry/context-zone@npm:~1.7.0":
+"@opentelemetry/context-zone@npm:^1.0.0":
   version: 1.7.0
   resolution: "@opentelemetry/context-zone@npm:1.7.0"
   dependencies:
     "@opentelemetry/context-zone-peer-dep": 1.7.0
     zone.js: ^0.11.0
   checksum: c4d64bd4f39557bc65f9df73942b476827046770305e523836f8439ec37459537ee411ed90ff96d213f245fd571eff52f6c63bbfcf0217aec80fdaaf13b73d5c
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/context-zone@npm:~1.10.0":
+  version: 1.10.0
+  resolution: "@opentelemetry/context-zone@npm:1.10.0"
+  dependencies:
+    "@opentelemetry/context-zone-peer-dep": 1.10.0
+    zone.js: ^0.11.0
+  checksum: ff32b9ecf14cccd20216927240d7a46721f79c4049dbb37df05d0c857de86f5cfdb3545dd9933bf591ee7b7c90c55402c856cac2e422da1cea69a6b701934de1
   languageName: node
   linkType: hard
 
@@ -26741,7 +26761,7 @@ fsevents@~2.1.1:
     "@nestjs/testing": ^9.2.1
     "@opentelemetry/api": ~1.4.0
     "@opentelemetry/auto-instrumentations-node": ~0.36.0
-    "@opentelemetry/context-zone": ~1.7.0
+    "@opentelemetry/context-zone": ~1.10.0
     "@opentelemetry/context-zone-peer-dep": ~1.7.0
     "@opentelemetry/exporter-jaeger": ~1.10.0
     "@opentelemetry/exporter-trace-otlp-http": ~0.34.0
