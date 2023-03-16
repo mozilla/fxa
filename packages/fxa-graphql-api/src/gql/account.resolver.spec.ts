@@ -509,7 +509,7 @@ describe('#integration - AccountResolver', () => {
           tries: 1,
           ttl: 2,
         });
-        const result = await resolver.passwordForgotCodeStatus(headers, {
+        const result = await resolver.passwordForgotCodeStatus({
           token: 'passwordforgottoken',
         });
         expect(authClient.passwordForgotStatus).toBeCalledTimes(1);
