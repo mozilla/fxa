@@ -14,7 +14,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     email = login.createEmail('sync{id}');
   });
 
-  test('sign up', async ({ target }) => {
+  test('sync sign up', async ({ target }) => {
     const { login, signinTokenCode, page, connectAnotherDevice } =
       await newPagesForSync(target);
     await page.goto(
@@ -41,9 +41,15 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     await login.submit();
     await login.fillOutSignUpCode(email);
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+
+    // Close older pages
+    await login.page.close();
+    await signinTokenCode.page.close();
+    await page.close();
+    await connectAnotherDevice.page.close();
   });
 
-  test.skip('coppa disabled', async ({ target }) => {
+  test('coppa disabled', async ({ target }) => {
     const { login, page, connectAnotherDevice } = await newPagesForSync(target);
     const query = { coppa: 'false' };
     const queryParam = new URLSearchParams(query);
@@ -62,6 +68,10 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     await login.submit();
     await login.fillOutSignUpCode(email);
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+
+    await login.page.close();
+    await page.close();
+    await connectAnotherDevice.page.close();
   });
 
   test('email specified by relier, invalid', async ({ target }) => {
@@ -75,6 +85,9 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
     expect(await login.getTooltipError()).toMatch('Valid email required');
+
+    await login.page.close();
+    await page.close();
   });
 
   test('email specified by relier, empty string', async ({ target }) => {
@@ -88,6 +101,9 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
     expect(await login.getTooltipError()).toMatch('Valid email required');
+
+    await login.page.close();
+    await page.close();
   });
 
   test('email specified by relier, not registered', async ({ target }) => {
@@ -105,15 +121,17 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
 
     // Verify the correct email is displayed
     expect(await login.getPrefilledEmail()).toMatch(email);
+
+    await login.page.close();
+    await page.close();
   });
 
-  test('email specified by relier, registered', async ({ target }) => {
+  test('email specified by relier, registered', async ({
+    credentials,
+    target,
+  }) => {
     const { page, login } = await newPagesForSync(target);
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-    const query = { email };
+    const query = { email: credentials.email };
     const queryParam = new URLSearchParams(query);
     await page.goto(
       `${
@@ -125,6 +143,9 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     expect(await login.isPasswordHeader()).toBe(true);
 
     // Verify the correct email is displayed
-    expect(await login.getPrefilledEmail()).toMatch(email);
+    expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+
+    await login.page.close();
+    await page.close();
   });
 });

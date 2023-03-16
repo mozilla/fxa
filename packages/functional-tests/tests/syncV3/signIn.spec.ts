@@ -17,21 +17,13 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
   test('verified, does not need to confirm', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
       await newPagesForSync(target);
-    const uaStrings = {
-      desktop_firefox_58:
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
-    };
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
-    const queryParam = new URLSearchParams(query);
     const email = login.createEmail();
     await target.auth.signUp(email, password, {
       lang: 'en',
       preVerified: 'true',
     });
     await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
     await login.setEmail(email);
     await signinTokenCode.clickSubmitButton();
@@ -71,16 +63,8 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
   test('verified - invalid code', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
       await newPagesForSync(target);
-    const uaStrings = {
-      desktop_firefox_58:
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
-    };
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
-    const queryParam = new URLSearchParams(query);
     await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
     await login.setEmail(email);
     await signinTokenCode.clickSubmitButton();
@@ -102,21 +86,13 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
   test('verified, blocked', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
       await newPagesForSync(target);
-    const uaStrings = {
-      desktop_firefox_58:
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
-    };
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
-    const queryParam = new URLSearchParams(query);
     const blockedEmail = login.createEmail('blocked{id}');
     await target.auth.signUp(blockedEmail, password, {
       lang: 'en',
       preVerified: 'true',
     });
     await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&${queryParam.toString()}`
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
     );
     await login.setEmail(blockedEmail);
     await signinTokenCode.clickSubmitButton();
@@ -129,20 +105,12 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
   test('unverified', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
       await newPagesForSync(target);
-    const uaStrings = {
-      desktop_firefox_58:
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0',
-    };
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
-    const queryParam = new URLSearchParams(query);
     await target.auth.signUp(email, password, {
       lang: 'en',
       preVerified: 'false',
     });
     await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
     await login.setEmail(email);
     await signinTokenCode.clickSubmitButton();

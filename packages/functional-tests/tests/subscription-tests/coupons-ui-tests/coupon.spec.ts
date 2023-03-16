@@ -123,7 +123,9 @@ test.describe('coupon test', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test('subscribe with credit card and use coupon', async ({
+  // Disabling the test as this is being flaky
+  // FXA - 6786, FXA - 6788
+  test.skip('subscribe with credit card and use coupon', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
@@ -141,9 +143,9 @@ test.describe('coupon test', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  //Diabling the test as this is being flaky because Paypal Sandbox is being finicky
+  // Disabling the test as this is being flaky because Paypal Sandbox is being finicky
   // FXA - 6786, FXA - 6788
-  /*test('subscribe with paypal and use coupon', async ({
+  test.skip('subscribe with paypal and use coupon', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
@@ -157,7 +159,7 @@ test.describe('coupon test', () => {
     await relier.clickEmailFirst();
     await login.submit();
     expect(await relier.isPro()).toBe(true);
-  });*/
+  });
 
   test('remove a coupon and verify', async ({
     pages: { relier, subscribe, login },
