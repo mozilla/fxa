@@ -19,13 +19,29 @@ const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
 
+const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
-const route = proxyquire('../../../lib/routes/oauth/token', {
+const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
+  '../../oauth/assertion': async () => true,
   '../../oauth/client': {
-    authenticateClient: (_, params) => ({ id: buf(params.client_id) }),
+    authenticateClient: (_, params) => ({
+      id: buf(params.client_id),
+      canGrant: true,
+      publicClient: true,
+    }),
   },
   '../../oauth/grant': {
-    generateTokens: (grant) => ({ ...grant, keys_jwe: grant.keysJwe }),
+    generateTokens: (grant) => {
+      const t = { ...grant, keys_jwe: grant.keysJwe };
+      if (grant.offline) {
+        t.refresh_token = '00ff';
+      }
+      return t;
+    },
+    validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+  },
+  '../../oauth/util': {
+    makeAssertionJWT: async () => ({}),
   },
 })({
   log: {
@@ -56,11 +72,11 @@ const route = proxyquire('../../../lib/routes/oauth/token', {
       return null;
     },
   },
-  db: {},
+  db: mockDb,
   mailer: {},
   devices: {},
   statsd: mockStatsD,
-})[0];
+});
 
 function joiRequired(err, param) {
   assert.isTrue(err.isJoi);
@@ -75,6 +91,7 @@ function joiNotAllowed(err, param) {
 }
 
 describe('/token POST', function () {
+  const route = tokenRoutes[0];
   describe('input validation', () => {
     // route validation function
     function v(req, ctx, cb) {
@@ -307,6 +324,31 @@ describe('/token POST', function () {
       };
       await route.config.handler(request);
       sinon.assert.notCalled(mockStatsD.increment);
+    });
+  });
+});
+
+describe('/oauth/token POST', function () {
+  describe('update session last access time', async () => {
+    it('updates last access time of a session when fetching a refresh token', async () => {
+      const sessionToken = { uid: 'abc' };
+      const request = {
+        auth: { credentials: sessionToken },
+        headers: {},
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          access_type: 'offline',
+        },
+        emitMetricsEvent: async () => {},
+      };
+      await tokenRoutes[1].handler(request);
+      sinon.assert.calledOnceWithExactly(
+        mockDb.touchSessionToken,
+        sessionToken,
+        {},
+        true
+      );
     });
   });
 });

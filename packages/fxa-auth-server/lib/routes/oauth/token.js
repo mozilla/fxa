@@ -629,6 +629,11 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd }) => {
             req,
             grant
           );
+
+          if (sessionToken) {
+            sessionToken.lastAccessTime = Date.now();
+            await db.touchSessionToken(sessionToken, {}, true);
+          }
         }
 
         // done with 'session_token_id' at this point, do not return it.
