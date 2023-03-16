@@ -11684,7 +11684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/convict@npm:^5.2.2":
+"@types/convict@npm:5.2.2, @types/convict@npm:^5.2.2":
   version: 5.2.2
   resolution: "@types/convict@npm:5.2.2"
   dependencies:
@@ -25832,6 +25832,7 @@ fsevents@~2.1.1:
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
     "@types/chai-as-promised": ^7
+    "@types/convict": 5.2.2
     "@types/dedent": ^0
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^20.0.10
