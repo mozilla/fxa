@@ -588,11 +588,11 @@ module.exports = (
         ) {
           throw new error.featureNotEnabled();
         }
-
+        
         // If this request is using a session token we bump the last access time
         if (credentials.id) {
           credentials.lastAccessTime = Date.now();
-          await db.touchSessionToken(credentials, {}, true);
+          await db.touchSessionToken(credentials, {} , true);
         }
 
         const deviceArray = await request.app.devices;
@@ -793,6 +793,54 @@ module.exports = (
         log.begin('Account.deviceDestroy', request);
         await devices.destroy(request, request.payload.id);
         return {};
+      },
+    },
+    {
+      method: 'GET',
+      path: '/account/sessions/locations',
+      options: {
+        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_LOCATIONS_GET,
+        auth: {
+          payload: false,
+          strategy: 'supportPanelSecret',
+        },
+        validate: {
+          query: {
+            uid: isA.string().required(),
+          },
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object({
+              city: isA.string().required().allow(null),
+              state: isA.string().required().allow(null),
+              stateCode: isA.string().required().allow(null),
+              country: isA.string().required().allow(null),
+              countryCode: isA.string().required().allow(null),
+              lastAccessTime: isA.number().required(),
+            })
+          ),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Account.sessionsLocations', request);
+        const { uid } = request.query;
+
+        try {
+          const tokenMetaData = await redis.getSessionTokens(uid);
+          return Object.entries(tokenMetaData)
+            .filter(([_, v]) => v.location)
+            .map(([_, v]) => ({
+              ...v.location,
+              lastAccessTime: v.lastAccessTime,
+            }));
+        } catch (err) {
+          log.error('Account.sessionsLocations', {
+            uid: uid,
+            error: err,
+          });
+          throw error.backendServiceFailure();
+        }
       },
     },
   ];

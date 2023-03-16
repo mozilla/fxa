@@ -1942,6 +1942,14 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  supportPanel: {
+    secretBearerToken: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'Shared secret to access certain endpoints.  Please only use for GET.  No state mutation allowed!',
+      env: 'SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN',
+      format: 'String',
+    },
+  },
   syncTokenserverUrl: {
     default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
@@ -2114,6 +2122,7 @@ if (convictConf.get('isProduction')) {
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
+    'supportPanel.secretBearerToken',
   ];
   for (const key of SECRET_SETTINGS) {
     if (convictConf.get(key) === convictConf.default(key)) {

@@ -50,6 +50,7 @@ npx yarn workspaces focus --production \
   fxa-profile-server \
   fxa-react \
   fxa-settings \
-  fxa-shared
+  fxa-shared \
+  fxa-support-panel
 npx yarn cache clean --all
 rm -rf artifacts
