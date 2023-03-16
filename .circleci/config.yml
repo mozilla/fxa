@@ -69,7 +69,7 @@ executors:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
 
-  # Contains minimal image for running common jobs like linting, or unit tests.
+  # Contains minimal image for running common jobs like linting or unit tests.
   # This image requires a restored workspace state.
   default-executor:
     parameters:
@@ -292,6 +292,12 @@ commands:
           name: Linting
           command: ./.circleci/lint-packages.sh
 
+  compile:
+    steps:
+      - run:
+          name: Compiling TypeScript
+          command: yarn workspaces foreach --topological-dev --verbose run compile
+
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
     parameters:
@@ -513,6 +519,14 @@ jobs:
       - restore-workspace
       - lint
 
+  compile:
+    executor: default-executor
+    resource_class: medium
+    steps:
+      - git-checkout
+      - restore-workspace
+      - compile
+
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     executor: default-executor
@@ -699,6 +713,12 @@ workflows:
           name: Lint (PR)
           requires:
             - Build (PR)
+      - compile:
+          name: Compile (PR)
+          requires:
+            - Build (PR)
+          post-steps:
+            - fail-fast
       - unit-test:
           name: Unit Test (PR)
           requires:
@@ -795,6 +815,7 @@ workflows:
           job_type: build
           requires:
             - Lint (PR)
+            - Compile (PR)
             - Unit Test (PR)
             - Integration Test 1 (PR)
             - Integration Test 2 (PR)
@@ -918,6 +939,17 @@ workflows:
               only: /.*/
           requires:
             - Build
+      - compile:
+          name: Compile
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+          requires:
+            - Build
+          post-steps:
+            - fail-fast
       - unit-test:
           name: Unit Test
           filters:
@@ -1033,6 +1065,7 @@ workflows:
               only: /.*/
           requires:
             - Lint
+            - Compile
             - Unit Test
             - Integration Test 1
             - Integration Test 2
@@ -1065,6 +1098,12 @@ workflows:
           name: Lint (nightly)
           requires:
             - Build (nightly)
+      - compile:
+          name: Compile (nightly)
+          requires:
+            - Build (nightly)
+          post-steps:
+            - fail-fast
       - unit-test:
           name: Unit Test (nightly)
           requires:
@@ -1105,6 +1144,7 @@ workflows:
           job_type: build
           requires:
             - Lint (nightly)
+            - Compile (nightly)
             - Unit Test (nightly)
             - Integration Test 1 (nightly)
             - Integration Test 2 (nightly)
