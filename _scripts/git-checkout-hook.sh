@@ -15,3 +15,6 @@ if [ "$PREV" != "$NEXT" ]; then
     echo -e "To auto install next time set FXA_AUTO_INSTALL=1 or to 0 to disable this check.\n"
   fi
 fi
+
+# Always grab the latest and greatest from l10n when switching branches
+_scripts/l10n/clone.sh

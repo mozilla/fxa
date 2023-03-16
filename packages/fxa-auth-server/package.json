@@ -9,14 +9,15 @@
     "test": "test"
   },
   "scripts": {
-    "build": "yarn emails-scss && tsc --build && cp -R config public lib scripts dist/fxa-auth-server",
+    "build": "yarn merge:ftl && yarn emails-scss && tsc --build && cp -R config public lib scripts dist/fxa-auth-server",
+    "clean": "git clean -fXd",
     "compile": "tsc --noEmit",
     "create-mock-iap": "NODE_ENV=dev FIRESTORE_EMULATOR_HOST=localhost:9090 node -r esbuild-register ./scripts/create-mock-iap-subscriptions.ts",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "l10n-prime": "yarn l10n:prime fxa-auth-server",
     "lint": "eslint . .storybook --ignore-pattern 'dist' --ext .js,.ts",
-    "postinstall": "yarn l10n:prime fxa-auth-server && grunt merge-ftl",
-    "start": "yarn emails-scss && scripts/start-local.sh",
+    "start": "yarn merge-ftl && yarn emails-scss && scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
@@ -43,8 +44,8 @@
     "build-storybook:copy-locales": "mkdir -p ./storybook-static/public/locales && cp -R ./public/locales ./storybook-static/public",
     "build-storybook:copy-templates": "mkdir -p ./storybook-static/lib/senders/emails/templates && cp -R ./lib/senders/emails ./storybook-static/lib/senders",
     "install-ejs": "./scripts/install-ejs.sh",
-    "merge-ftl": "grunt merge-ftl",
-    "merge-ftl:test": "grunt merge-ftl:test",
+    "merge-ftl": "yarn l10n-prime && grunt merge-ftl",
+    "merge-ftl:test": "yarn l10n-prime && grunt merge-ftl:test",
     "watch-ftl": "yarn grunt watch-ftl"
   },
   "repository": {
