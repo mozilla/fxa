@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Always grab the latest and greatest from l10n when switching branches
+_scripts/l10n/clone.sh
+
 IFS=' '
 read -ra G_PARAMS <<< "$HUSKY_GIT_PARAMS"
 PREV=${G_PARAMS[0]}
