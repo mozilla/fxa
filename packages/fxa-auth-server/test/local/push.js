@@ -19,6 +19,8 @@ const mocks = require('../mocks');
 const mockUid = 'deadbeef';
 
 const TTL = '42';
+const MS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+
 const pushModulePath = `${ROOT_DIR}/lib/push`;
 
 const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/lib/pushpayloads.schema.json`;
@@ -64,7 +66,8 @@ describe('push', () => {
       {
         id: '0f7aa00356e5416e82b3bef7bc409eef',
         isCurrentDevice: true,
-        lastAccessTime: 1449235471335,
+        // will show in statsd as  < 1 day
+        lastAccessTime: Date.now(),
         name: 'My Phone',
         type: 'mobile',
         availableCommands: {},
@@ -77,7 +80,8 @@ describe('push', () => {
       {
         id: '3a45e6d0dae543qqdKyqjuvAiEupsnOd',
         isCurrentDevice: false,
-        lastAccessTime: 1417699471335,
+        // 2 days ago, will show in statsd as < 1 weeks
+        lastAccessTime: Date.now() - MS_IN_ONE_DAY * 2,
         name: 'My Desktop',
         uaOS: 'Windows',
         uaOSVersion: '10',
@@ -94,7 +98,7 @@ describe('push', () => {
       {
         id: '50973923bc3e4507a0aa4e285513194a',
         isCurrentDevice: false,
-        lastAccessTime: 1402149471335,
+        lastAccessTime: Date.now(),
         name: 'My Ipad',
         type: null,
         availableCommands: {},
@@ -120,6 +124,63 @@ describe('push', () => {
   });
 
   it('sendPush logs metrics about successful sends', async () => {
+    mockDevices.push(
+      {
+        id: '11173923bc3e4507a0aa4e285513194a',
+        isCurrentDevice: false,
+        // 2 weeks ago, will show in statsd as < 1 month
+        lastAccessTime: Date.now() - MS_IN_ONE_DAY * 7 * 2,
+        name: 'My Desktop',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '65.4',
+        type: null,
+        availableCommands: {},
+        pushCallback:
+          'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
+        pushAuthKey: 'w3b14Zjc-Afj2SDOLOyong==',
+        pushEndpointExpired: false,
+      },
+      {
+        id: '22273923bc3e4507a0aa4e285513194a',
+        isCurrentDevice: false,
+        // 2 months ago, will show in statsd as < 1 year
+        lastAccessTime: Date.now() - MS_IN_ONE_DAY * 30 * 2,
+        name: 'My Desktop',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '65.4',
+        type: null,
+        availableCommands: {},
+        pushCallback:
+          'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
+        pushAuthKey: 'w3b14Zjc-Afj2SDOLOyong==',
+        pushEndpointExpired: false,
+      },
+      {
+        id: '33373923bc3e4507a0aa4e285513194a',
+        isCurrentDevice: false,
+        // Over 1 year ago, will show in statsd as > 1 year
+        lastAccessTime: Date.now() - MS_IN_ONE_DAY * 370,
+        name: 'My Desktop',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '65.4',
+        type: null,
+        availableCommands: {},
+        pushCallback:
+          'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
+        pushAuthKey: 'w3b14Zjc-Afj2SDOLOyong==',
+        pushEndpointExpired: false,
+      }
+    );
+
     const push = loadMockedPushModule();
     const sendErrors = await push.sendPush(
       mockUid,
@@ -127,9 +188,9 @@ describe('push', () => {
       'accountVerify'
     );
     assert.deepEqual(sendErrors, {});
-    assert.callCount(mockSendNotification, 2);
+    assert.callCount(mockSendNotification, 5);
 
-    assert.callCount(mockStatsD.increment, 4);
+    assert.callCount(mockStatsD.increment, 10);
     assert.calledWithExactly(
       mockStatsD.increment.getCall(0),
       'push.send.attempt',
@@ -137,6 +198,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: undefined,
         errCode: undefined,
+        lastSeen: '< 1 day',
       }
     );
     assert.calledWithExactly(
@@ -146,6 +208,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: undefined,
         errCode: undefined,
+        lastSeen: '< 1 day',
       }
     );
     assert.calledWithExactly(
@@ -155,6 +218,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: 'Windows',
         errCode: undefined,
+        lastSeen: '< 1 week',
       }
     );
     assert.calledWithExactly(
@@ -164,6 +228,67 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: 'Windows',
         errCode: undefined,
+        lastSeen: '< 1 week',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(4),
+      'push.send.attempt',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '< 1 month',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(5),
+      'push.send.success',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '< 1 month',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(6),
+      'push.send.attempt',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '< 1 year',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(7),
+      'push.send.success',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '< 1 year',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(8),
+      'push.send.attempt',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '> 1 year',
+      }
+    );
+    assert.calledWithExactly(
+      mockStatsD.increment.getCall(9),
+      'push.send.success',
+      {
+        reason: 'accountVerify',
+        uaOS: 'Windows',
+        errCode: undefined,
+        lastSeen: '> 1 year',
       }
     );
   });
@@ -196,6 +321,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: undefined,
         errCode: undefined,
+        lastSeen: '< 1 day',
       }
     );
     assert.calledWithExactly(
@@ -205,6 +331,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: undefined,
         errCode: undefined,
+        lastSeen: '< 1 day',
       }
     );
     assert.calledWithExactly(
@@ -214,6 +341,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: 'Windows',
         errCode: undefined,
+        lastSeen: '< 1 week',
       }
     );
     assert.calledWithExactly(
@@ -223,6 +351,7 @@ describe('push', () => {
         reason: 'accountVerify',
         uaOS: 'Windows',
         errCode: 'unknown',
+        lastSeen: '< 1 week',
       }
     );
   });

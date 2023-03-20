@@ -70,6 +70,13 @@ const TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED;
 const TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED;
 const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED;
 
+// Tags reported by statsd for a device's last seen
+const DEVICE_LAST_SEEN_ONE_DAY = '< 1 day';
+const DEVICE_LAST_SEEN_ONE_WEEK = '< 1 week';
+const DEVICE_LAST_SEEN_ONE_MONTH = '< 1 month';
+const DEVICE_LAST_SEEN_ONE_YEAR = '< 1 year';
+const DEVICE_LAST_SEEN_OVER_ONE_YEAR = '> 1 year';
+
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
 const MAX_ACTIVE_DEVICES = 200;
@@ -393,6 +400,7 @@ module.exports = function (log, db, config, statsd) {
           uaOSVersion: device.uaOSVersion,
           uaBrowser: device.uaBrowser,
           uaBrowserVersion: device.uaBrowserVersion,
+          lastSeen: this.getLastSeenTag(device),
         };
         this.reportPushAttempt(device.pushCallback, metricsTags);
 
@@ -509,12 +517,37 @@ module.exports = function (log, db, config, statsd) {
       log.debug(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
     },
 
+    getLastSeenTag(device) {
+      const MS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+      const MS_IN_ONE_WEEK = MS_IN_ONE_DAY * 7;
+      const MS_IN_ONE_30_DAY_MONTH = MS_IN_ONE_DAY * 30;
+      const MS_IN_ONE_365_DAY_YEAR = MS_IN_ONE_DAY * 365;
+
+      const timeSinceLastAccess = Date.now() - device.lastAccessTime;
+
+      // Order here is important, we want to check if the last
+      // access was under one day before checking if it was under one week
+      const tags = [
+        [MS_IN_ONE_DAY, DEVICE_LAST_SEEN_ONE_DAY],
+        [MS_IN_ONE_WEEK, DEVICE_LAST_SEEN_ONE_WEEK],
+        [MS_IN_ONE_30_DAY_MONTH, DEVICE_LAST_SEEN_ONE_MONTH],
+        [MS_IN_ONE_365_DAY_YEAR, DEVICE_LAST_SEEN_ONE_YEAR],
+      ];
+
+      for (const [ms, tag] of tags) {
+        if (timeSinceLastAccess < ms) return tag;
+      }
+
+      return DEVICE_LAST_SEEN_OVER_ONE_YEAR;
+    },
+
     incrementPushMetric(name, tags) {
       // StatsD can't cope with high-cardinality tags, filter them out.
       statsd.increment(name, {
         reason: tags.reason,
         uaOS: tags.uaOS,
         errCode: tags.errCode,
+        lastSeen: tags.lastSeen, // only has a cardinality of 5, see `getLastSeenTag`
       });
     },
   };
