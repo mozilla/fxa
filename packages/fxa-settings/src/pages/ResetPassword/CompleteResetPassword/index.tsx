@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from '@reach/router';
+import {
+  Link,
+  RouteComponentProps,
+  useLocation,
+  useNavigate,
+} from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { useAccount } from '../../../models';
@@ -18,6 +23,9 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
+import { UrlSearchContext } from '../../../lib/context';
+import LinkDamaged from '../../../components/LinkDamaged';
+import LinkExpired from '../../../components/LinkExpired';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -57,14 +65,17 @@ type CompleteResetPasswordParams = {
   token: string;
 };
 
-const CompleteResetPassword = ({
-  params,
-  setLinkStatus,
-}: {
-  params: CompleteResetPasswordLink;
-  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-}) => {
+const CompleteResetPassword = (_: RouteComponentProps) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);
+
+  const params = new CompleteResetPasswordLink(new UrlSearchContext(window));
+  const isValid = params.isValid();
+
+  const [linkStatus, setLinkStatus] = useState<LinkStatus>(
+    isValid ? LinkStatus.valid : LinkStatus.damaged
+  );
+
+  const linkType = 'reset-password';
 
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
@@ -171,6 +182,14 @@ const CompleteResetPassword = ({
     },
     [account, alertSuccessAndNavigate]
   );
+
+  if (linkStatus === LinkStatus.damaged) {
+    return <LinkDamaged {...{ linkType }} />;
+  }
+
+  if (linkStatus === LinkStatus.expired) {
+    return <LinkExpired {...{ linkType }} />;
+  }
 
   if (showLoadingSpinner) {
     return (

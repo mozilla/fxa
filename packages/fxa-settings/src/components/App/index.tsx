@@ -106,7 +106,7 @@ export const App = ({
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
 
-              <LinkValidator
+              {/* <LinkValidator
                 path="/complete_reset_password/*"
                 linkType="reset-password"
                 getParamsFromModel={() => {
@@ -123,7 +123,9 @@ export const App = ({
                     }}
                   />
                 )}
-              </LinkValidator>
+              </LinkValidator> */}
+
+              <CompleteResetPassword path="/complete_reset_password/*" />
 
               <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
               <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
