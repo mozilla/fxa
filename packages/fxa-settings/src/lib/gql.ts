@@ -8,27 +8,20 @@ import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 
-const pagesViewableWithoutAuthentication = [
-  'primary_email_verified',
-  'primary_email_confirmed',
-  'reset_password_verified',
-  'reset_password_with_recovery_key_verified',
-  'signup_verified',
-  'signup_confirmed',
-  'signin_confirmed',
-  'signin_verified',
-];
+export const pagesRequiringAuthentication = ['settings'];
 
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   let reauth = false;
 
-  const currentPageDoesNotRequireAuthentication =
-    pagesViewableWithoutAuthentication.some((urlSnippet) => {
-      // We check if the url for the current page contains the path of a page which does not require authentication
+  const currentPageRequiresAuthentication = pagesRequiringAuthentication.some(
+    (urlSnippet) => {
+      // We check if the url for the current page contains the path of a page which requires authentication
       return (
-        window?.location?.href && window.location.href.includes(urlSnippet)
+        window?.location?.pathname &&
+        window.location.pathname.includes(urlSnippet)
       );
-    });
+    }
+  );
 
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
@@ -46,12 +39,14 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
       reauth = true;
     }
   }
-  if (reauth && !currentPageDoesNotRequireAuthentication) {
+  if (reauth && currentPageRequiresAuthentication) {
     window.location.replace(
       `/signin?redirect_to=${encodeURIComponent(window.location.pathname)}`
     );
   } else {
-    console.error('graphql errors', graphQLErrors, networkError);
+    if (!reauth) {
+      console.error('graphql errors', graphQLErrors, networkError);
+    }
   }
 };
 
