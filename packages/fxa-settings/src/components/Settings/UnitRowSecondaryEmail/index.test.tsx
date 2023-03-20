@@ -268,8 +268,8 @@ describe('UnitRowSecondaryEmail', () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
       expect(context.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(context.alertBarInfo?.success.mock.calls[0][0]).toContain(
-        'johndope2@example.com'
+      expect(context.alertBarInfo?.success).toBeCalledWith(
+        'johndope2@example.com is now your primary email'
       );
     });
 
@@ -318,8 +318,8 @@ describe('UnitRowSecondaryEmail', () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
       expect(context.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(context.alertBarInfo?.success.mock.calls[0][0]).toContain(
-        'johndope2@example.com'
+      expect(context.alertBarInfo?.success).toBeCalledWith(
+        'johndope2@example.com successfully deleted'
       );
     });
 

@@ -5,8 +5,9 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import CompleteSignin, { viewName } from '.';
-import { usePageViewEvent } from '../../../lib/metrics';
 import { renderWithRouter } from '../../../models/mocks';
+import { LinkStatus } from '../../../lib/types';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -23,7 +24,7 @@ jest.mock('@reach/router', () => ({
 describe('CompleteSignin', () => {
   it('redirects the user as expected after validation when the link is valid', async () => {
     renderWithRouter(
-      <CompleteSignin linkStatus="valid" isForPrimaryEmail={true} />
+      <CompleteSignin linkStatus={LinkStatus.valid} isForPrimaryEmail={true} />
     );
     // TO-DO: Add in user signin validation and test for it.
     await waitFor(() => {
@@ -34,7 +35,7 @@ describe('CompleteSignin', () => {
   it('calls the custom broker method supplied if given a valid link', async () => {
     renderWithRouter(
       <CompleteSignin
-        linkStatus="valid"
+        linkStatus={LinkStatus.valid}
         isForPrimaryEmail={true}
         brokerNextAction={() => {
           mockNavigate('/my_example_route');
@@ -49,7 +50,10 @@ describe('CompleteSignin', () => {
 
   it('renders the component as expected when provided with an expired link', () => {
     renderWithRouter(
-      <CompleteSignin linkStatus="expired" isForPrimaryEmail={true} />
+      <CompleteSignin
+        linkStatus={LinkStatus.expired}
+        isForPrimaryEmail={true}
+      />
     );
 
     screen.getByRole('heading', {
@@ -70,7 +74,10 @@ describe('CompleteSignin', () => {
 
   it('renders the component as expected when provided with a damaged link', () => {
     renderWithRouter(
-      <CompleteSignin linkStatus="damaged" isForPrimaryEmail={true} />
+      <CompleteSignin
+        linkStatus={LinkStatus.damaged}
+        isForPrimaryEmail={true}
+      />
     );
 
     screen.getByRole('heading', {
@@ -96,7 +103,7 @@ describe('CompleteSignin', () => {
 
   it('renders the component as expected when provided with a used link', () => {
     renderWithRouter(
-      <CompleteSignin linkStatus="used" isForPrimaryEmail={true} />
+      <CompleteSignin linkStatus={LinkStatus.used} isForPrimaryEmail={true} />
     );
 
     screen.getByRole('heading', {
@@ -110,7 +117,7 @@ describe('CompleteSignin', () => {
   // TODO : check for metrics event when link is expired or damaged
   it('emits the expected metrics on render when the link is valid', () => {
     renderWithRouter(
-      <CompleteSignin linkStatus="valid" isForPrimaryEmail={true} />
+      <CompleteSignin linkStatus={LinkStatus.valid} isForPrimaryEmail={true} />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
