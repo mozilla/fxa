@@ -5,35 +5,29 @@ import { errorHandler } from './gql';
 import { ErrorResponse } from '@apollo/client/link/error';
 import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
+import Mock = jest.Mock;
 
 let errorResponse: ErrorResponse;
+let mockReplace: Mock;
 
 describe('errorHandler', () => {
-  let realLocation: Location;
-
   beforeAll(() => {
-    // Note: it's surprisingly difficult to mock out window.location cleanly.
-    // Messing with globals is gross, but works, and is really simple.
-    realLocation = window.location;
-    delete window.location;
-    window.location = {
-      replace: jest.fn(),
-      search: '',
-      pathname: 'foo',
-    };
+    mockReplace = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: {
+        replace: mockReplace,
+        search: '',
+        pathname: 'foo',
+      },
+    });
 
     // We don't verify that console.error gets called, but mocking it out
     // avoids console noise filling up the command line as the tests run.
     console.error = jest.fn();
   });
 
-  afterAll(() => {
-    window.location = realLocation;
-    console.error.mockRestore();
-  });
-
-  beforeEach(() => {
-    window.location.replace.mockClear();
+  afterEach(() => {
+    mockReplace.mockRestore();
   });
 
   it('redirects to /signin if called with a GQL authentication error', () => {

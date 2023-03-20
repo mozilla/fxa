@@ -8,7 +8,7 @@ import Signin, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { MOCK_EMAIL, MOCK_SERVICE, MOCK_OTHER_ICON } from './mocks';
+import { MOCK_EMAIL, MOCK_SERVICE } from './mocks';
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 jest.mock('../../lib/metrics', () => ({

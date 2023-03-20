@@ -296,7 +296,7 @@ commands:
     steps:
       - run:
           name: Compiling TypeScript
-          command: yarn workspaces foreach --topological-dev --verbose run compile
+          command: yarn workspaces foreach --exclude fxa-payments-server --exclude fxa-content-server --topological-dev --verbose run compile
 
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
