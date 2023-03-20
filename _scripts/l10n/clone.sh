@@ -25,7 +25,11 @@ cd "$TARGET_FOLDER"
 # Clone if needed
 clone_opts=(--depth 1)
 do_clone=true
-if [[ -d ".git" && $(git remote -v | grep origin) =~ "$FXA_L10N_REPO" ]]; then
+if [[ -f ".git/index.lock" ]]; then
+    echo "$PREFIX: l10n repo is in locked state! Another git operation is likely in progress."
+    echo "$PREFIX: Try again later. If this problem persists, the l10n repo may need to be manually removed or fixed."
+    exit 1
+elif [[ -d ".git" && $(git remote -v | grep origin) =~ "$FXA_L10N_REPO" ]]; then
     echo "$PREFIX: l10n repo already cloned!"
 else
     git clone "${clone_opts[@]}" "${FXA_L10N_REPO}" "${TARGET_FOLDER}"
@@ -46,6 +50,3 @@ elif [ -n "${FXA_L10N_BRANCH}" ]; then
     git pull --quiet origin "${FXA_L10N_BRANCH}"
     echo "$PREFIX: L10N now on branch: ${FXA_L10N_BRANCH}"
 fi
-
-# record the git verison
-git rev-parse HEAD > git-head.txt

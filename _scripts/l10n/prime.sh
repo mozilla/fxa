@@ -17,7 +17,7 @@ cd "$(dirname "$0")/../.."
 ROOT_FOLDER=$(pwd)
 
 if [ ! -d "$ROOT_FOLDER/external/l10n/locale" ]; then
-    echo "$PREFIX: No external/l10n folder exists! Run l10n:clone script first."
+    echo "$PREFIX: No external/l10n folder exists! Run yarn l10n:clone script first."
     exit 1
 fi
 
@@ -40,5 +40,7 @@ for d in */; do
     fi
     cd ..
 done
-cd ..
-cp git-head.txt "$ROOT_FOLDER/$TARGET_FOLDER"
+
+# Record the current git version
+cd "$ROOT_FOLDER/external/l10n"
+git rev-parse HEAD > "$ROOT_FOLDER/$TARGET_FOLDER/git-head.txt"
