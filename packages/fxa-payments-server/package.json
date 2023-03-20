@@ -4,7 +4,6 @@
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "build-css": "tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
-    "compile": "tsc --noEmit",
     "postinstall": "yarn l10n:prime fxa-payments-server",
     "clean": "git clean -fXd",
     "l10n-prime": "yarn l10n:prime fxa-payments-server",

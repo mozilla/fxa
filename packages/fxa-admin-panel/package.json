@@ -7,7 +7,6 @@
     "build:client": "tsc --build ../fxa-react && tsc --build && NODE_ENV=production npm run build-css && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false rescripts build",
     "build:server": "tsc -p server/tsconfig.json",
     "build": "npm-run-all build:client build:server",
-    "compile": "tsc --noEmit",
     "eject": "react-scripts eject",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "lint": "eslint .",

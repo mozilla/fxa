@@ -12,8 +12,8 @@
   "scripts": {
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-storybook": "NODE_ENV=production npm run build-css && build-storybook",
-    "build": "tsc --build && npm run merge-ftl",
-    "compile": "tsc --noEmit",
+    "build": "yarn compile && npm run merge-ftl",
+    "compile": "tsc --build",
     "clean": "git clean -fXd",
     "l10n-prime": "yarn l10n:prime fxa-react",
     "lint": "eslint . .storybook",

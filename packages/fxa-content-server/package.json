@@ -5,8 +5,6 @@
   "scripts": {
     "build": "tsc --build ../fxa-react && npm run build-css && NODE_ENV=production grunt build",
     "build-css": "tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
-    "compile": "tsc --noEmit",
-    "clean": "git clean -fXd",
     "postinstall": "cp server/config/local.json-dist server/config/local.json",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint app server tests --cache",
