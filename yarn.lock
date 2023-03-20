@@ -25926,7 +25926,7 @@ fsevents@~2.1.1:
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
     grunt-newer: 1.3.0
-    hapi-auth-jwt2: ^10.2.0
+    hapi-auth-jwt2: ^10.4.0
     hapi-error: ^3.0.0
     hapi-swagger: ^14.5.5
     hkdf: 0.0.2
@@ -28427,14 +28427,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hapi-auth-jwt2@npm:^10.2.0":
-  version: 10.2.0
-  resolution: "hapi-auth-jwt2@npm:10.2.0"
+"hapi-auth-jwt2@npm:^10.4.0":
+  version: 10.4.0
+  resolution: "hapi-auth-jwt2@npm:10.4.0"
   dependencies:
     "@hapi/boom": ^9.0.0
     cookie: ^0.4.0
-    jsonwebtoken: ^8.5.1
-  checksum: 227bb6af526d0487163ceeeb744162591e4469336dc84100df4ffd77fcbe0e07006a2ca94347980a760849850285f54c895bf1159a79ca08e0283b1960ac2f43
+    jsonwebtoken: ^9.0.0
+  checksum: 40d927e1ccf4acae39c1a021e48beb4e932e118a047a1ea554572099de25dcce4a53550c43b380636df5bae9705369a9f9e5a38137f9b0e66277f1f5f4afcb58
   languageName: node
   linkType: hard
 
@@ -33532,7 +33532,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsonwebtoken@npm:^8.2.0, jsonwebtoken@npm:^8.5.1":
+"jsonwebtoken@npm:^8.2.0":
   version: 8.5.1
   resolution: "jsonwebtoken@npm:8.5.1"
   dependencies:
