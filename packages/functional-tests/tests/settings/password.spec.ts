@@ -120,6 +120,7 @@ test.describe('password strength tests', () => {
 
     //Submit a common password
     await login.setPassword('password123123');
+    await login.submitButton.click();
 
     //Verify the success message
     expect(await login.minLengthSuccess()).toBe(true);

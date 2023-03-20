@@ -28,20 +28,21 @@ export function getFirefoxUserPrefs(
 ) {
   const fxaEnv = CONFIGS[target];
   const debugOptions = {
-    'devtools.debugger.remote-enabled': true,
     'devtools.chrome.enabled': true,
     'devtools.debugger.prompt-connection': false,
+    'devtools.debugger.remote-enabled': true,
     'identity.fxaccounts.log.appender.dump': 'Debug',
     'identity.fxaccounts.loglevel': 'Debug',
-    'services.sync.log.appender.file.logOnSuccess': true,
     'services.sync.log.appender.console': 'Debug',
     'services.sync.log.appender.dump': 'Debug',
+    'services.sync.log.appender.file.logOnSuccess': true,
   };
   return {
     'browser.tabs.remote.separatePrivilegedMozillaWebContentProcess':
       target !== 'production',
     'browser.tabs.remote.separatePrivilegedContentProcess':
       target !== 'production',
+    'extensions.formautofill.creditCards.enabled': false,
     'identity.fxaccounts.auth.uri': fxaEnv.auth,
     'identity.fxaccounts.allowHttp': target === 'local',
     'identity.fxaccounts.remote.root': fxaEnv.content,

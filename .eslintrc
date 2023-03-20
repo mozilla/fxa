@@ -11,6 +11,7 @@
   },
   "ignorePatterns": [
     "dist",
-    "node_modules"
+    "node_modules",
+    "pm2.config.js"
   ]
 }

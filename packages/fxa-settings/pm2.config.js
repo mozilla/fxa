@@ -18,6 +18,7 @@ module.exports = {
       env: {
         SKIP_PREFLIGHT_CHECK: 'true',
         NODE_ENV: 'development',
+        NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
         BROWSER: 'NONE',
         PORT: '3000',
         PATH,
@@ -45,10 +46,10 @@ module.exports = {
         'src/**/*.tsx',
         path.normalize(
           `${path.dirname(
-            require.resolve('fxa-react/configs/tailwind.js')
+            require.resolve('fxa-react/configs/tailwind')
           )}/../styles`
         ),
-        require.resolve('fxa-react/configs/tailwind.js'),
+        require.resolve('fxa-react/configs/tailwind'),
       ],
       ignore_watch: ['src/styles/tailwind.out.*'],
       time: true,

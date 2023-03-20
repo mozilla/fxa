@@ -25,6 +25,7 @@ module.exports = {
       env: {
         PATH,
         NODE_ENV: 'development',
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_COMPILER: 'typescript-cached-transpile',
         TS_NODE_FILES: 'true',
