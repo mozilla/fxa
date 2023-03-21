@@ -25,6 +25,9 @@ parameters:
   enable_nightly:
     type: boolean
     default: true
+  force-deploy-fxa-ci-images:
+    type: boolean
+    default: false
 
 
 orbs:
@@ -492,7 +495,7 @@ jobs:
           docker_layer_caching: true
       - git-clone
       - rebuild-check:
-          force-deploy: << parameters.force-deploy >>
+          force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
       - install-test-browsers
       - cache-restore-yarn
       - create-ci-images
