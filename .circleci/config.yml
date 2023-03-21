@@ -492,7 +492,7 @@ jobs:
           docker_layer_caching: true
       - git-clone
       - rebuild-check:
-          force-deploy: << parameters.force-deploy >>
+          force-deploy: true
       - install-test-browsers
       - cache-restore-yarn
       - create-ci-images
