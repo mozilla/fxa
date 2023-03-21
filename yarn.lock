@@ -25958,7 +25958,7 @@ fsevents@~2.1.1:
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.2.2
+    nock: ^13.3.0
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     node-zendesk: ^2.2.0
     nodemailer: ^6.7.3
@@ -26296,7 +26296,7 @@ fsevents@~2.1.1:
     joi: ^17.8.3
     jwks-rsa: ^3.0.0
     mozlog: ^3.0.2
-    nock: ^13.2.2
+    nock: ^13.3.0
     p-event: ^4.2.0
     passport: ^0.6.0
     passport-jwt: ^4.0.0
@@ -26397,7 +26397,7 @@ fsevents@~2.1.1:
     knex: ^2.4.0
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.2.2
+    nock: ^13.3.0
     objection: ^2.2.17
     passport: ^0.6.0
     passport-http-bearer: ^1.0.1
@@ -26522,7 +26522,7 @@ fsevents@~2.1.1:
     morgan: ^1.10.0
     mozlog: ^3.0.2
     nocache: ^3.0.4
-    nock: ^13.2.2
+    nock: ^13.3.0
     node-fetch: ^2.6.7
     normalize.css: 8.0.1
     npm-run-all: ^4.1.5
@@ -26589,7 +26589,7 @@ fsevents@~2.1.1:
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.2.2
+    nock: ^13.3.0
     nyc: ^15.1.0
     pm2: ^5.2.2
     pngparse: 2.0.1
@@ -37256,15 +37256,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nock@npm:^13.2.2":
-  version: 13.2.2
-  resolution: "nock@npm:13.2.2"
+"nock@npm:^13.3.0":
+  version: 13.3.0
+  resolution: "nock@npm:13.3.0"
   dependencies:
     debug: ^4.1.0
     json-stringify-safe: ^5.0.1
-    lodash.set: ^4.3.2
+    lodash: ^4.17.21
     propagate: ^2.0.0
-  checksum: cc1bf6e4bbf2fb0a540aa7d5f82788a6fb2490034083ed89242becc0ff1bfb391bfd3c7a7a9c0f24dec9c085426f66441765756b279a7dd608e4630586f9cb0d
+  checksum: 118d04e95a17f493898a82b5dfecc03762776e1980d9c3b2077479747e60b77109c5f7c0df969d1a8f6039260abe5961733553a5841f0f627bb35238576a0009
   languageName: node
   linkType: hard
 
