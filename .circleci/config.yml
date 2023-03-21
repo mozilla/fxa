@@ -487,7 +487,7 @@ jobs:
         type: executor
       force-deploy:
         type: boolean
-        default: false
+        default: << pipeline.parameters.force-deploy-fxa-ci-images >>
     executor: << parameters.executor >>
     steps:
       # Run with layer caching to speed up builds
@@ -495,7 +495,7 @@ jobs:
           docker_layer_caching: true
       - git-clone
       - rebuild-check:
-          force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
+          force-deploy: << parameters.force-deploy >>
       - install-test-browsers
       - cache-restore-yarn
       - create-ci-images
