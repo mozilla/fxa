@@ -22,7 +22,7 @@ WORKDIR /home/circleci/project
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
-RUN yarn l10n:clone
+RUN _scripts/l10n/clone.sh
 RUN yarn install --immutable; \
     yarn workspaces foreach \
         -pv \
