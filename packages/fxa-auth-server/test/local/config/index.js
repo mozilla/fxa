@@ -32,11 +32,10 @@ describe('Config', () => {
       assert.throws(() => {
         proxyquire(`${ROOT_DIR}/config`, {});
         // eslint-disable-next-line no-useless-escape
-      }, /Config \'[a-zA-Z.]+\' must be set in production/);
+      }, /Config \'[a-zA-Z._]+\' must be set in production/);
     });
 
     it('succeeds when secret settings have all been configured', () => {
-      mockEnv('PUSHBOX_KEY', 'production secret here');
       mockEnv('FLOW_ID_KEY', 'production secret here');
       mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
       mockEnv(
