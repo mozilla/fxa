@@ -18,7 +18,7 @@ module.exports = {
       env: {
         LOGGING_FORMAT: 'pretty',
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9140',
+        NODE_OPTIONS: '--inspect=9140 --dns-result-order=ipv4first',
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:8092',
         CONFIG_FILES: '../config/secrets.json',
         PORT: '8091',
