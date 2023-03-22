@@ -5,8 +5,9 @@
 # and file into `public/legal-docs` if present.
 #
 # Additionally, this script outputs `legal-docs/[name]_locales.json` with an array of locales
-# (directories) that the file was found in to make it easy to know what's available instead
-# of traversing directories when determining which locale to show the user.
+# that indicating the locales that are supported. These json files originate from the
+# .github/stats.json file in the legal-docs repo.
+#
 
 # ensure the script errors out when a command fails
 set -e
@@ -67,14 +68,18 @@ get_realpath_missing() {
 }
 # END: workaround for missing GNU realpath in BSD/MacOS-X
 
-DOWNLOAD_PATH="${FXA_LEGAL_DOCS_DOWNLOAD_PATH:-legal-docs}"
 SCRIPT_DIR="$(dirname "$0")"
+DOWNLOAD_PATH="${FXA_LEGAL_DOCS_DOWNLOAD_PATH:-$(get_realpath_missing "$SCRIPT_DIR/../external/legal-docs")}"
 MODULE_PATH="$(get_realpath_missing "$SCRIPT_DIR/../packages/$MODULE")"
+LOCAL_PATH="$MODULE_PATH/public/legal-docs"
 
 [ -d "$MODULE_PATH" ] || error "The module/package does not exist at: $MODULE_PATH"
 
-# Clone and pull
-cd "$MODULE_PATH"
+echo "MODULE_PATH: $MODULE_PATH"
+echo "LOCAL_PATH: $LOCAL_PATH"
+echo "DOWNLOAD_PATH: $DOWNLOAD_PATH"
+
+mkdir -p "$LOCAL_PATH"
 
 if [ -n "${FXA_LEGAL_DOCS_COPY_FROM}" ]; then
     echo "Using LEGAL_DOCS files from: ${FXA_LEGAL_DOCS_COPY_FROM}"
@@ -130,18 +135,22 @@ copy_md() {
 
     log "Copying $md_name and parent locale directories into $MODULE_PATH/public/legal-docs/"
 
+    cd "$DOWNLOAD_PATH"
     results=()
     for src in **"/${md_name}.md"; do
         [ -f "$src" ] || continue
-        legal_docs_dir="$MODULE_PATH/public/legal-docs/$(dirname "$src" | sed -E 's/^.*\/([a-zA-Z_]+)\/.+/\1/; s/_/-/g')"
+        legal_docs_dir="$LOCAL_PATH/$(dirname "$src" | sed -E 's/^.*\/([a-zA-Z_]+)\/.+/\1/; s/_/-/g')"
         [ -d "$legal_docs_dir" ] || mkdir -p "$legal_docs_dir"
         cp "$src" "$legal_docs_dir/$md_name.md"
         results+=("$(echo "$legal_docs_dir" | sed -E 's/.+\/([a-zA-Z_]+)/\1/; s/-/_/g')")
     done
 
-    log "Creating .json file containing array of available locales in $MODULE_PATH/public/legal-docs/${md_name}_locales.json"
+    cat "$LOCAL_PATH/stats.json" | jq ".\"${md_name}.md\".locales" > "$MODULE_PATH/public/legal-docs/${md_name}_locales.json"
+}
 
-    echo "[$(echo "${results[@]}" | tr ' ' ',' | sed -E 's/([^,]+)/"\1"/g')]" > "$MODULE_PATH/public/legal-docs/${md_name}_locales.json"
+copy_json() {
+    cd "$LOCAL_PATH"
+    curl https://raw.githubusercontent.com/mozilla/legal-docs/l10n_reference/.github/stats.json > stats.json
 }
 
 SETTINGS="fxa-settings"
@@ -149,6 +158,9 @@ SETTINGS="fxa-settings"
 # Copy .md files into specified packages
 case "$MODULE" in
     "$SETTINGS")
+        mkdir -p "$MODULE/public/legal-docs"
+        cd "$MODULE/public/legal-docs"
+        copy_json
         copy_md "firefox_privacy_notice" # legal/privacy page
         copy_md "firefox_cloud_services_tos" # legal/terms page
         ;;

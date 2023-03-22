@@ -26,3 +26,4 @@ export { VerifyTotpInput } from './verify-totp';
 export { AccountStatusInput } from './account-status';
 export { RecoveryKeyBundleInput } from './recovery-key';
 export { PasswordChangeInput } from './password-change';
+export { LegalInput } from './legal';

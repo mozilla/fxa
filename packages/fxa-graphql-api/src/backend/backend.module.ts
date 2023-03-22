@@ -5,9 +5,10 @@ import { Module } from '@nestjs/common';
 
 import { AuthClientFactory, AuthClientService } from './auth-client.service';
 import { ProfileClientService } from './profile-client.service';
+import { LegalService } from './legal.service';
 
 @Module({
-  providers: [AuthClientFactory, ProfileClientService],
-  exports: [AuthClientService, ProfileClientService],
+  providers: [AuthClientFactory, ProfileClientService, LegalService],
+  exports: [AuthClientService, ProfileClientService, LegalService],
 })
 export class BackendModule {}

@@ -58,6 +58,11 @@ const conf = convict({
     default: 'http://localhost:7000',
     env: 'CUSTOMS_SERVER_URL',
   },
+  settingsUrl: {
+    doc: 'Settings server url',
+    default: 'http://localhost:3030',
+    env: 'SETTINGS_SERVER_URL',
+  },
   database: {
     mysql: {
       auth: makeMySQLConfig('AUTH', 'fxa'),

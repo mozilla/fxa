@@ -4,20 +4,30 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import LegalWithMarkdown from '../../../components/LegalWithMarkdown';
+import LegalWithMarkdown, {
+  FetchLegalDoc,
+} from '../../../components/LegalWithMarkdown';
 import { LegalDocFile } from '../../../lib/file-utils-legal';
 
 export const viewName = 'legal-privacy';
 
+export type LegalPrivacyProps = {
+  locale?: string;
+  fetchLegalDoc?: FetchLegalDoc;
+};
+
 const LegalPrivacy = ({
   locale,
-}: { locale?: string } & RouteComponentProps) => (
-  <LegalWithMarkdown
-    {...{ locale, viewName }}
-    legalDocFile={LegalDocFile.privacy}
-    headingTextFtlId="legal-privacy-heading"
-    headingText="Privacy Notice"
-  />
-);
+  fetchLegalDoc,
+}: LegalPrivacyProps & RouteComponentProps) => {
+  return (
+    <LegalWithMarkdown
+      {...{ locale, fetchLegalDoc, viewName }}
+      headingTextFtlId="legal-privacy-heading"
+      headingText="Privacy Notice"
+      legalDocFile={LegalDocFile.privacy}
+    />
+  );
+};
 
 export default LegalPrivacy;

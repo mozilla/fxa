@@ -24,6 +24,7 @@ import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
+import { LegalResolver } from './legal.resolver';
 import { Request, Response } from 'express';
 
 const config = Config.getProperties();
@@ -65,15 +66,19 @@ export const GraphQLConfigFactory = async (
 
 @Module({
   imports: [BackendModule, CustomsModule],
-  providers: [AccountResolver, CustomsService, SessionResolver],
+  providers: [AccountResolver, CustomsService, SessionResolver, LegalResolver],
 })
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply((req: Request, res: Response, next: Function) => {
-        if (config.env !== 'development' && !req.is('application/json') && !req.is('multipart/form-data')) {
+        if (
+          config.env !== 'development' &&
+          !req.is('application/json') &&
+          !req.is('multipart/form-data')
+        ) {
           return next(
-           new HttpException('Request content type is not supported.', 415),
+            new HttpException('Request content type is not supported.', 415)
           );
         }
         next();
