@@ -4986,6 +4986,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/hoek@npm:^11.0.2":
+  version: 11.0.2
+  resolution: "@hapi/hoek@npm:11.0.2"
+  checksum: 02e5d5d030f2c81180b43c380e6445558d1cb463c8db957c2d50e11dff83687a0ff4539a88530338e2bab1924bb8cdc7896eeb48ebf32199f89e178591d8b0b1
+  languageName: node
+  linkType: hard
+
 "@hapi/hoek@npm:^9.3.0":
   version: 9.3.0
   resolution: "@hapi/hoek@npm:9.3.0"
@@ -25850,7 +25857,7 @@ fsevents@~2.1.1:
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
-    "@hapi/hoek": ^10.0.0
+    "@hapi/hoek": ^11.0.2
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@storybook/addon-controls": ^6.5.9
@@ -26187,7 +26194,7 @@ fsevents@~2.1.1:
   dependencies:
     "@google-cloud/pubsub": ^2.19.4
     "@hapi/hapi": ^20.2.1
-    "@hapi/hoek": ^10.0.0
+    "@hapi/hoek": ^11.0.2
     "@sentry/node": ^6.19.1
     "@types/dedent": ^0
     audit-filter: ^0.5.0
@@ -26244,7 +26251,7 @@ fsevents@~2.1.1:
     "@google-cloud/firestore": ^6.4.0
     "@google-cloud/pubsub": ^2.19.4
     "@grpc/grpc-js": ^1.1.3
-    "@hapi/hoek": ^10.0.0
+    "@hapi/hoek": ^11.0.2
     "@nestjs/cli": ^9.2.0
     "@nestjs/common": ^9.1.2
     "@nestjs/config": ^2.3.1
