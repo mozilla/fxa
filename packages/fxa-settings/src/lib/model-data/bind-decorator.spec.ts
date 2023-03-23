@@ -24,6 +24,7 @@ class TestModel extends ModelDataProvider {
 }
 
 describe('bind-decorator', function () {
+
   it('creates with empty state', () => {
     const data = new GenericData({});
     const model1 = new TestModel(data);

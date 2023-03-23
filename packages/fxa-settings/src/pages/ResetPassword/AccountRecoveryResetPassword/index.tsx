@@ -69,7 +69,6 @@ enum BannerState {
   UnexpectedError,
   PasswordResetSuccess,
   Redirecting,
-  InvalidContext,
   PasswordResendError,
   ValidationError,
 }
