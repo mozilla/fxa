@@ -16,6 +16,7 @@ import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
+import { typeByLabelText } from '../../lib/test-utils';
 
 jest.mock('../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
@@ -36,7 +37,7 @@ function renderWithAccount(account: Account) {
   );
 }
 
-describe('PageResetPassword', () => {
+describe('ResetPassword', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
   // let bundle: FluentBundle;
@@ -130,9 +131,8 @@ describe('PageResetPassword', () => {
 
     renderWithAccount(account);
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Begin Reset'));
-    });
+    await typeByLabelText('email')(MOCK_ACCOUNT.primaryEmail.email);
+    fireEvent.click(screen.getByText('Begin Reset'));
 
     await screen.findByText('Unknown account');
   });

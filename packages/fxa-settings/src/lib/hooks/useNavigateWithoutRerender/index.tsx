@@ -10,7 +10,7 @@ import { useCallback } from 'react';
  * the _next page_ to navigate to does not require or would become invalid on the same
  * validation check. `navigate` causes a re-render of the component prior to actually
  * performing the next component mount so the validation check re-runs and can throw an
- * unintentional error.
+ * unintentional error. This prevents that re-render.
  */
 export default function useNavigateWithoutRerender() {
   const navigate = useNavigate();

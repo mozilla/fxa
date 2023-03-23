@@ -20,13 +20,13 @@ export type FormPasswordWithBalloonsProps = {
   formState: UseFormMethods['formState'];
   errors: UseFormMethods['errors'];
   onSubmit: () => void;
+  trigger: UseFormMethods['trigger'];
   register: UseFormMethods['register'];
   watch: UseFormMethods['watch'];
   email: string;
   onFocusMetricsEvent?: string;
   passwordMatchErrorText: string;
   setPasswordMatchErrorText: React.Dispatch<React.SetStateAction<string>>;
-  loading: boolean;
   children?: React.ReactNode;
 };
 
@@ -69,19 +69,19 @@ export const FormPasswordWithBalloons = ({
   errors,
   onSubmit,
   email,
+  trigger,
   register,
   watch,
   onFocusMetricsEvent,
   passwordMatchErrorText,
   setPasswordMatchErrorText,
-  loading,
   children,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [hasNewPwdFocused, setHasNewPwdFocused] = useState<boolean>(false);
   const [hasUserTakenAction, setHasUserTakenAction] = useState<boolean>(false);
   const [isNewPwdBalloonVisible, setIsNewPwdBalloonVisible] =
-    useState<boolean>(false);
+    useState<boolean>(true);
   const [isConfirmPwdBalloonVisible, setIsConfirmPwdBalloonVisible] =
     useState<boolean>(false);
   const [areBothPasswordsVisible, setAreBothPasswordsVisible] =
@@ -151,6 +151,8 @@ export const FormPasswordWithBalloons = ({
   };
 
   const onNewPwdBlur = () => {
+    // prevents immediate onblur from appearing valid
+    trigger('newPassword');
     !hasUserTakenAction && setHasUserTakenAction(true);
     // do not hide the password strength balloon if there are errors in the new password
     if (newPassword !== '' && !errors.newPassword) {
@@ -179,6 +181,7 @@ export const FormPasswordWithBalloons = ({
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
               name="newPassword"
+              autoFocus
               className="text-start"
               label={templateValues.passwordLabel}
               onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}

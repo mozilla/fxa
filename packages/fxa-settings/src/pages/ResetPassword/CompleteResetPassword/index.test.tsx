@@ -21,6 +21,7 @@ import {
   paramsWithMissingToken,
   Subject,
 } from './mocks';
+import { typeByLabelText } from '../../../lib/test-utils';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -87,24 +88,6 @@ describe('CompleteResetPassword page', () => {
     screen.getByRole('link', {
       name: 'Remember your password? Sign in',
     });
-  });
-
-  it('displays password requirements when the new password field is in focus', async () => {
-    renderSubject(account);
-
-    const newPasswordField = screen.getByTestId('new-password-input-field');
-
-    expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
-
-    fireEvent.focus(newPasswordField);
-    await waitFor(
-      () => {
-        expect(screen.getByText('Password requirements')).toBeVisible();
-      },
-      {
-        timeout: SHOW_BALLOON_TIMEOUT,
-      }
-    );
   });
 
   it('renders the component as expected when provided with an expired link', async () => {
@@ -265,13 +248,8 @@ describe('CompleteResetPassword page', () => {
 
   describe('can submit', () => {
     async function enterPasswordAndSubmit() {
-      fireEvent.input(screen.getByTestId('new-password-input-field'), {
-        target: { value: PASSWORD },
-      });
-
-      fireEvent.input(screen.getByTestId('verify-password-input-field'), {
-        target: { value: PASSWORD },
-      });
+      typeByLabelText('New password')(PASSWORD);
+      typeByLabelText('Re-enter password')(PASSWORD);
 
       await act(async () => {
         fireEvent.click(screen.getByText('Reset password'));

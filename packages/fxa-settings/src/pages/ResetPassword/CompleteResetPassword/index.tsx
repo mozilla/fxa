@@ -130,9 +130,9 @@ const CompleteResetPassword = ({
     setShowLoadingSpinner(false);
   }, [params.token, account, setLinkStatus]);
 
-  const { handleSubmit, register, errors, formState, watch } =
+  const { handleSubmit, register, watch, errors, formState, trigger } =
     useForm<FormData>({
-      mode: 'onTouched',
+      mode: 'onChange',
       criteriaMode: 'all',
       defaultValues: {
         newPassword: '',
@@ -250,6 +250,7 @@ const CompleteResetPassword = ({
           {...{
             formState,
             errors,
+            trigger,
             register,
             passwordMatchErrorText,
             setPasswordMatchErrorText,
@@ -266,7 +267,6 @@ const CompleteResetPassword = ({
               emailToHashWith: params.emailToHashWith,
             })
           )}
-          loading={false}
           onFocusMetricsEvent={`${viewName}.engage`}
         />
       </section>

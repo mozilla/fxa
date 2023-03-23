@@ -168,7 +168,6 @@ const ResetPassword = ({
                 }
               }}
               onFocusCb={onFocus}
-              autoFocus
               errorText={errorText}
               className="text-start"
               anchorStart
@@ -183,11 +182,7 @@ const ResetPassword = ({
         )}
 
         <FtlMsg id="reset-password-button">
-          <button
-            data-testid="reset-password-button"
-            type="submit"
-            className="cta-primary cta-xl"
-          >
+          <button type="submit" className="cta-primary cta-xl">
             Begin Reset
           </button>
         </FtlMsg>

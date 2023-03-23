@@ -86,16 +86,23 @@ const Signup = ({
   // no newsletters are selected by default
   const [selectedNewsletters, setSelectedNewsletters] = useState<string[]>([]);
 
-  const { handleSubmit, register, watch, getValues, errors, formState } =
-    useForm<FormData>({
-      mode: 'onBlur',
-      criteriaMode: 'all',
-      defaultValues: {
-        newPassword: '',
-        confirmPassword: '',
-        userAge: '',
-      },
-    });
+  const {
+    handleSubmit,
+    register,
+    watch,
+    getValues,
+    errors,
+    formState,
+    trigger,
+  } = useForm<FormData>({
+    mode: 'onChange',
+    criteriaMode: 'all',
+    defaultValues: {
+      newPassword: '',
+      confirmPassword: '',
+      userAge: '',
+    },
+  });
 
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -200,6 +207,7 @@ const Signup = ({
         {...{
           formState,
           errors,
+          trigger,
           register,
           watch,
           onFocus,
@@ -210,7 +218,6 @@ const Signup = ({
         }}
         passwordFormType="signup"
         onSubmit={handleSubmit(onSubmit)}
-        loading={false}
       >
         {/* TODO: original component had a SR-only label that is not straightforward to implement with exisiting InputText component
         SR-only text: "How old are you? To learn why we ask for your age, follow the “why do we ask” link below. */}
