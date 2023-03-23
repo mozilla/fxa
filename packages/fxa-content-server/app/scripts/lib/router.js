@@ -277,7 +277,9 @@ Router = Router.extend({
         }
       );
     },
-    'report_signin(/)': createViewHandler(ReportSignInView),
+    'report_signin(/)': function () {
+      this.createReactOrBackboneViewHandler('report_signin', ReportSignInView);
+    },
 
     'reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(

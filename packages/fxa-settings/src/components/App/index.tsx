@@ -31,6 +31,7 @@ import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfi
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
 
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
+import ReportSignin from '../../pages/Signin/ReportSignin';
 
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
@@ -129,6 +130,7 @@ export const App = ({
               <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
 
               <SigninReported path="/signin_reported/*" />
+              <ReportSignin path="/report_signin/*" />
               {/* Pages using the Ready view need to be accessible to logged out viewers,
                * but need to be able to check if the user is logged in or logged out,
                * so they are wrapped in this component.
