@@ -100,6 +100,22 @@ const EVENTS = {
     event: 'signin_confirmed_start_browsing',
   },
 
+  'screen.signin-bounced': {
+    group: GROUPS.signin,
+  },
+  'flow.signin-bounced.link.support': {
+    group: GROUPS.signin,
+    event: 'signin_bounced_view',
+  },
+  'flow.signin-bounced.link.create-account': {
+    group: GROUPS.signin,
+    event: 'signin_bounced_create_account',
+  },
+  'flow.signin-bounced.link.back': {
+    group: GROUPS.signin,
+    event: 'signin_bounced_back',
+  },
+
   // Signup code based metrics
   'screen.confirm-signup-code': {
     group: GROUPS.registration,

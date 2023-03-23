@@ -2,118 +2,149 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
-import { usePageViewEvent } from '../../../lib/metrics';
+import React, { useEffect } from 'react';
+import { RouteComponentProps /*useNavigate*/ } from '@reach/router';
+import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useFtlMsgResolver, useWindowWrapper } from '../../../models/hooks';
+
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export type SigninBouncedProps = {
+  email?: string;
+  emailLookupComplete: boolean;
   onBackButtonClick?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
   canGoBack?: boolean;
-  email: string;
 };
 
 export const viewName = 'signin-bounced';
 
 const SigninBounced = ({
-  canGoBack,
   email,
-  onBackButtonClick = () => window.history.back(),
+  emailLookupComplete,
+  canGoBack,
+  onBackButtonClick,
 }: SigninBouncedProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+
+  const handleNavigationBack = (event: any) => {
+    logViewEvent(viewName, 'link.back', REACT_ENTRYPOINT);
+    if (onBackButtonClick) {
+      onBackButtonClick(event);
+    } else {
+      window.history.back();
+    }
+  };
+
+  useEffect(() => {
+    if (emailLookupComplete && !email) {
+      // TODO: Going from react page to non-react page will require a hard
+      // navigate. When signin flow has been converted we should be able
+      // to use `navigate`
+      // navigate('/signin?showReactApp=true', { replace: true });
+      window.location.replace('/signin');
+    }
+  }, [email, emailLookupComplete /*, navigate*/]);
 
   const createAccountHandler = () => {
-    // TO-DO (per content-server functionality):
-    // clear all existing accounts
-    // clear the session
-    // clear the form prefill
-    navigate('/signup');
+    logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);
+    localStorage.removeItem('__fxa_storage.accounts');
+    sessionStorage.clear();
+    // TODO: Going from react page to non-react page will require a hard
+    // navigate. When signup flow has been converted we should be able
+    // to use `navigate`
+    // navigate('/signup?showReactApp=true', { replace: true });
+    window.location.replace('/signup');
   };
 
   return (
-    <>
-      <CardHeader
-        headingText="Sorry. We’ve locked your account."
-        headingTextFtlId="signin-bounced-header"
-      />
-      <section>
-        <div className="flex justify-center mx-auto">
-          <EmailBounced className="w-3/5" role="img" />
-        </div>
-        <FtlMsg id="signin-bounced-message" vars={{ email }}>
-          <p className="text-sm mb-6">
-            The confirmation email we sent to {email} was returned and we’ve
-            locked your account to protect your Firefox data.
-          </p>
-        </FtlMsg>
-
-        <FtlMsg
-          id="signin-bounced-help"
-          elems={{
-            linkExternal: (
-              <LinkExternal
-                className="link-blue"
-                href="https://support.mozilla.org/"
-              >
-                let us know
-              </LinkExternal>
-            ),
-          }}
-        >
-          <p className="text-sm mb-6 text-grey-400">
-            If this is a valid email address,{' '}
-            <LinkExternal
-              className="link-blue"
-              href="https://support.mozilla.org/"
-            >
-              let us know
-            </LinkExternal>{' '}
-            and we can help unlock your account.
-          </p>
-        </FtlMsg>
-
-        <div className="flex flex-col link-blue text-sm">
-          {/*
-            In the original code, there are style classes that indicate that
-            if the Back button is visible, it should be aligned right and the
-            'create a new account' text should be aligned left. This is accomplished
-            via a check which conditionally adds the `left` class to the create-account text.
-            We can make them align this way fairly easily, but it looks a little strange,
-            and prod currently does not reflect these changes, so we're leaving it as-is pending
-            further weigh-in from product.
-           */}
-          <button
-            id="create-account"
-            className="mb-2 opacity-0 animate-delayed-fade-in"
-            onClick={createAccountHandler}
-          >
-            <FtlMsg id="signin-bounced-create-new-account">
-              No longer own that email? Create a new account
+    <AppLayout>
+      {email ? (
+        <>
+          <CardHeader
+            headingText="Sorry. We’ve locked your account."
+            headingTextFtlId="signin-bounced-header"
+          />
+          <section>
+            <div className="flex justify-center mx-auto">
+              <EmailBounced className="w-3/5" role="img" />
+            </div>
+            <FtlMsg id="signin-bounced-message" vars={{ email }}>
+              <p className="text-sm mb-6">
+                The confirmation email we sent to {email} was returned and we’ve
+                locked your account to protect your Firefox data.
+              </p>
             </FtlMsg>
-          </button>
-          {canGoBack && (
-            <button
-              className="opacity-0 animate-delayed-fade-in"
-              onClick={onBackButtonClick}
-              data-testid="signin-bounced-back-btn"
-              title={backText}
+
+            <FtlMsg
+              id="signin-bounced-help"
+              elems={{
+                linkExternal: (
+                  <button
+                    className="link-blue"
+                    onClick={() => {
+                      logViewEvent(viewName, 'link.support', REACT_ENTRYPOINT);
+                      window.location.replace('https://support.mozilla.org/');
+                    }}
+                  >
+                    let us know
+                  </button>
+                ),
+              }}
             >
-              <FtlMsg id="back">Back</FtlMsg>
-            </button>
-          )}
-        </div>
-      </section>
-    </>
+              <p className="text-sm mb-6 text-grey-400">
+                If this is a valid email address,{' '}
+                <button
+                  className="link-blue"
+                  onClick={() => {
+                    logViewEvent(viewName, 'link.support', REACT_ENTRYPOINT);
+                    window.location.replace('https://support.mozilla.org/');
+                  }}
+                >
+                  let us know
+                </button>{' '}
+                and we can help unlock your account.
+              </p>
+            </FtlMsg>
+
+            <div className="flex flex-col link-blue text-sm">
+              <button
+                data-testid="signin-bounced-create-account-btn"
+                id="create-account"
+                className="mb-2 opacity-0 animate-delayed-fade-in"
+                onClick={createAccountHandler}
+              >
+                <FtlMsg id="signin-bounced-create-new-account">
+                  No longer own that email? Create a new account
+                </FtlMsg>
+              </button>
+              {canGoBack && (
+                <button
+                  className="opacity-0 animate-delayed-fade-in"
+                  onClick={handleNavigationBack}
+                  data-testid="signin-bounced-back-btn"
+                  title={backText}
+                >
+                  <FtlMsg id="back">Back</FtlMsg>
+                </button>
+              )}
+            </div>
+          </section>
+        </>
+      ) : (
+        <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center select-none" />
+      )}
+    </AppLayout>
   );
 };
 

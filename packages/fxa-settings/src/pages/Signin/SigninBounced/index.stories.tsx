@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import SigninBounced, { SigninBouncedProps } from '.';
-import AppLayout from '../../../components/AppLayout';
+import SigninBounced from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Signin/SigninBounced',
@@ -15,18 +15,21 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const ComponentWithRouter = (props: SigninBouncedProps) => (
+export const Default = () => (
   <LocationProvider>
-    <AppLayout>
-      <SigninBounced email={props.email} canGoBack={props.canGoBack} />
-    </AppLayout>
+    <SigninBounced
+      emailLookupComplete
+      email={MOCK_ACCOUNT.primaryEmail.email}
+    />
   </LocationProvider>
 );
 
-export const Default = () => (
-  <ComponentWithRouter email={'example@domain.com'} />
-);
-
 export const CanGoBack = () => (
-  <ComponentWithRouter email={'example@domain.com'} canGoBack={true} />
+  <LocationProvider>
+    <SigninBounced
+      canGoBack
+      emailLookupComplete
+      email={MOCK_ACCOUNT.primaryEmail.email}
+    />
+  </LocationProvider>
 );
