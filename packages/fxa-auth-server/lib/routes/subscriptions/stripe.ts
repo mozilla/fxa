@@ -481,7 +481,6 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<invoiceDTO.subsequentInvoicePreviewsSchema> {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
-    const automaticTax = this.automaticTax;
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'subsequentInvoicePreviews');
 
@@ -496,7 +495,6 @@ export class StripeHandler {
     const subsequentInvoicePreviews = await Promise.all(
       customer.subscriptions.data.map((sub) => {
         return this.stripeHelper.previewInvoiceBySubscriptionId({
-          automaticTax: automaticTax && sub.automatic_tax.enabled,
           subscriptionId: sub.id,
           includeCanceled: !!sub.canceled_at,
         });

@@ -909,12 +909,10 @@ describe('DirectStripeRoutes', () => {
         },
         [
           {
-            automaticTax: false,
             subscriptionId: 'sub_id1',
             includeCanceled: false,
           },
           {
-            automaticTax: false,
             subscriptionId: 'sub_id2',
             includeCanceled: false,
           },
@@ -929,12 +927,10 @@ describe('DirectStripeRoutes', () => {
         },
         [
           {
-            automaticTax: false,
             subscriptionId: 'sub_id1',
             includeCanceled: true,
           },
           {
-            automaticTax: false,
             subscriptionId: 'sub_id2',
             includeCanceled: false,
           },
@@ -986,30 +982,6 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
       );
       assert.deepEqual(expected, actual);
-    });
-
-    it('uses stripe tax if enabled', async () => {
-      directStripeRoutesInstance.automaticTax = true;
-      await successInvoices(
-        {
-          data: [
-            { id: 'sub_id1', automatic_tax: { enabled: true } },
-            { id: 'sub_id2', automatic_tax: { enabled: true } },
-          ],
-        },
-        [
-          {
-            automaticTax: true,
-            subscriptionId: 'sub_id1',
-            includeCanceled: false,
-          },
-          {
-            automaticTax: true,
-            subscriptionId: 'sub_id2',
-            includeCanceled: false,
-          },
-        ]
-      );
     });
   });
 
