@@ -665,6 +665,9 @@ jobs:
             sudo cat /etc/hosts
       - wait-for-infrastructure
       - run:
+          name: Install playwright browser (tmp)
+          command: npx playwright install chromium
+      - run:
           name: Start services for playwright tests
           command: ./packages/functional-tests/scripts/start-services.sh
       - run:

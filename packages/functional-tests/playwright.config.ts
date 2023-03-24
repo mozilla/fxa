@@ -26,11 +26,11 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
           name,
           testIgnore: 'stub.spec.ts',
           use: {
-            browserName: 'firefox',
+            browserName: 'chromium',
             targetName: name,
             launchOptions: {
               args: DEBUG ? ['-start-debugger-server'] : undefined,
-              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+              //firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
               headless: !DEBUG,
               slowMo: SLOWMO,
             },
@@ -42,11 +42,11 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
       name: 'stub',
       testMatch: 'stub.spec.ts',
       use: {
-        browserName: 'firefox',
+        browserName: 'chromium',
         targetName: 'local',
         launchOptions: {
           args: DEBUG ? ['-start-debugger-server'] : undefined,
-          firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
+          //firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
           headless: !DEBUG,
         },
       },
