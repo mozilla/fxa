@@ -431,6 +431,12 @@ module.exports = function (
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
+        await customs.check(
+          request,
+          account.primaryEmail.normalizedEmail,
+          'sendVerifyCode'
+        );
+
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         const options = {

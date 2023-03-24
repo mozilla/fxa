@@ -50,6 +50,7 @@ const EMAIL_SENDING_ACTION = {
   recoveryEmailSecondaryResendCode: true,
   passwordForgotSendCode: true,
   passwordForgotResendCode: true,
+  sendVerifyCode: true,
   sendUnblockCode: true,
 };
 
