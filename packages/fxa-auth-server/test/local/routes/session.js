@@ -641,7 +641,7 @@ describe('/session/reauth', () => {
       }
     );
   });
-  
+
   it('can refuse reauth for selected OAuth clients', async () => {
     const route = getRoute(
       makeRoutes({
@@ -1202,15 +1202,16 @@ describe('/session/verify_code', () => {
 });
 
 describe('/session/resend_code', () => {
-  let route, request, log, db, mailer, push;
+  let route, request, log, db, mailer, push, customs;
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
+    customs = { check: sinon.stub() };
     const config = {};
-    const routes = makeRoutes({ log, config, db, mailer, push });
+    const routes = makeRoutes({ log, config, db, mailer, push, customs });
     route = getRoute(routes, '/session/resend_code');
 
     request = mocks.mockRequest({
@@ -1249,6 +1250,13 @@ describe('/session/resend_code', () => {
     assert.equal(args[2].location.state, 'California');
     assert.equal(args[2].location.stateCode, 'CA');
     assert.equal(args[2].timeZone, 'America/Los_Angeles');
+
+    sinon.assert.calledWithExactly(
+      customs.check,
+      request,
+      signupCodeAccount.email,
+      'sendVerifyCode'
+    );
   });
 
   it('should resend the verification code email with verified account', async () => {
