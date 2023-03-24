@@ -22,6 +22,7 @@ import {
   StripeAutomaticTaxConverterHelpers,
 } from '../../scripts/convert-customers-to-stripe-automatic-tax/helpers';
 import Stripe from 'stripe';
+import { StripeHelper } from '../../lib/payments/stripe';
 
 import plan1 from '../local/payments/fixtures/stripe/plan1.json';
 import product1 from '../local/payments/fixtures/stripe/product1.json';
@@ -85,6 +86,7 @@ describe('StripeAutomaticTaxConverter', () => {
   let stripeAutomaticTaxConverter: StripeAutomaticTaxConverter;
   let helperStub: sinon.SinonStubbedInstance<StripeAutomaticTaxConverterHelpers>;
   let stripeStub: Stripe;
+  let stripeHelperStub: StripeHelper;
   let dbStub: any;
   let geodbStub: sinon.SinonStub;
   let firestoreGetStub: sinon.SinonStub;
@@ -133,6 +135,13 @@ describe('StripeAutomaticTaxConverter', () => {
       invoices: {},
     } as unknown as Stripe;
 
+    stripeHelperStub = {
+      stripe: stripeStub,
+      currencyHelper: {
+        isCurrencyCompatibleWithCountry: sinon.stub(),
+      },
+    } as unknown as StripeHelper;
+
     dbStub = {
       account: sinon.stub(),
     };
@@ -142,7 +151,7 @@ describe('StripeAutomaticTaxConverter', () => {
       100,
       './stripe-automatic-tax-converter.tmp.csv',
       './stripe-automatic-tax-converter-ipaddresses.tmp.json',
-      stripeStub,
+      stripeHelperStub,
       20,
       dbStub
     );
@@ -442,9 +451,36 @@ describe('StripeAutomaticTaxConverter', () => {
           .resolves(mockCustomer);
       });
 
-      describe('invalid IP address', () => {
+      describe("invalid IP address, can't resolve geolocation", () => {
         beforeEach(async () => {
           geodbStub.returns({});
+
+          result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
+            ...mockCustomer,
+            metadata: {
+              userid: mockIpAddressMapping[0].uid,
+            },
+          });
+        });
+
+        it('does not update customer', () => {
+          expect(updateStub.notCalled).true;
+        });
+
+        it('returns false', () => {
+          expect(result).false;
+        });
+      });
+
+      describe("invalid IP address, isn't in same country", () => {
+        beforeEach(async () => {
+          geodbStub.returns({
+            postalCode: 'ABC',
+            countryCode: 'ZZZ',
+          });
+
+          stripeHelperStub.currencyHelper.isCurrencyCompatibleWithCountry =
+            sinon.stub().returns(false);
 
           result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
             ...mockCustomer,
@@ -469,6 +505,9 @@ describe('StripeAutomaticTaxConverter', () => {
             countryCode: 'US',
             postalCode: 92841,
           });
+
+          stripeHelperStub.currencyHelper.isCurrencyCompatibleWithCountry =
+            sinon.stub().returns(true);
 
           result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
             ...mockCustomer,

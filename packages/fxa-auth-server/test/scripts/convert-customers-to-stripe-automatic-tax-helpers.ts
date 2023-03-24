@@ -109,7 +109,22 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
       expect(result).true;
     });
 
-    it('returns false for unsupported customer', () => {
+    it('returns true for not_collecting customer', () => {
+      const customer = {
+        ...mockCustomer,
+        tax: {
+          ip_address: null,
+          location: null,
+          automatic_tax: 'not_collecting' as Stripe.Customer.Tax.AutomaticTax,
+        },
+      };
+
+      const result = helpers.isTaxEligible(customer);
+
+      expect(result).true;
+    });
+
+    it('returns false for unrecognized_location customer', () => {
       const customer = {
         ...mockCustomer,
         tax: {
@@ -117,6 +132,21 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
           location: null,
           automatic_tax:
             'unrecognized_location' as Stripe.Customer.Tax.AutomaticTax,
+        },
+      };
+
+      const result = helpers.isTaxEligible(customer);
+
+      expect(result).false;
+    });
+
+    it('returns false for failed customer', () => {
+      const customer = {
+        ...mockCustomer,
+        tax: {
+          ip_address: null,
+          location: null,
+          automatic_tax: 'failed' as Stripe.Customer.Tax.AutomaticTax,
         },
       };
 
