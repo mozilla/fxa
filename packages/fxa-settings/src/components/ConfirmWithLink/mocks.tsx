@@ -2,16 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useState } from 'react';
 import ConfirmWithLink, { ConfirmWithLinkProps } from '.';
+import { ResendStatus } from '../../lib/types';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 
-export const MOCK_GOBACK_CB = () => {
-  console.log('Navigating back!');
-};
-export const MOCK_RESEND_CB = () => {
-  console.log('Resending link!');
-};
 const MOCK_STRINGS = {
   headingFtlId: 'mock-confirmation-heading',
   headingText: 'Confirm something',
@@ -19,48 +14,69 @@ const MOCK_STRINGS = {
   instructionText: `Open the mock link sent to ${MOCK_ACCOUNT.primaryEmail.email}`,
 };
 
-export const DefaultSubject = () => {
+export const MOCK_GOBACK_CB = () => {
+  alert('Navigating back! (alert for storybook only)');
+};
+
+export const SubjectWithEmailResendSuccess = () => {
+  const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
+    ResendStatus['not sent']
+  );
+
+  const MOCK_EMAIL_RESEND_SUCCESS = () => {
+    Promise.resolve(true);
+    setMockResendStatus(ResendStatus.sent);
+  };
+
   return (
     <ConfirmWithLink
       email={MOCK_ACCOUNT.primaryEmail.email}
       confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailCallback={MOCK_RESEND_CB}
+      resendEmailHandler={MOCK_EMAIL_RESEND_SUCCESS}
+      resendStatus={mockResendStatus}
     />
   );
 };
 
-export const SubjectCanGoBack = () => {
+export const SubjectWithEmailResendError = () => {
+  const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
+    ResendStatus['not sent']
+  );
+
+  const MOCK_EMAIL_RESEND_FAIL = () => {
+    Promise.resolve(false);
+    setMockResendStatus(ResendStatus.error);
+  };
+
   return (
     <ConfirmWithLink
       email={MOCK_ACCOUNT.primaryEmail.email}
       confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailCallback={MOCK_RESEND_CB}
-      goBackCallback={MOCK_GOBACK_CB}
+      resendEmailHandler={MOCK_EMAIL_RESEND_FAIL}
+      resendStatus={mockResendStatus}
     />
   );
 };
 
-export const SubjectWithWebmail = () => {
-  return (
-    <ConfirmWithLink
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailCallback={MOCK_RESEND_CB}
-      withWebmailLink
-    />
+export const SubjectCanGoBack = ({
+  navigateBackHandler,
+}: Partial<ConfirmWithLinkProps>) => {
+  const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
+    ResendStatus['not sent']
   );
-};
 
-export const SubjectWithoutCallbacks = ({
-  resendEmailCallback,
-  goBackCallback,
-  withWebmailLink,
-}: Omit<ConfirmWithLinkProps, 'email' | 'confirmWithLinkPageStrings'>) => {
+  const MOCK_RESEND_HANDLER_SUCCESS = () => {
+    Promise.resolve(true);
+    setMockResendStatus(ResendStatus.sent);
+  };
+
   return (
     <ConfirmWithLink
       email={MOCK_ACCOUNT.primaryEmail.email}
       confirmWithLinkPageStrings={MOCK_STRINGS}
-      {...{ resendEmailCallback, goBackCallback, withWebmailLink }}
+      resendEmailHandler={MOCK_RESEND_HANDLER_SUCCESS}
+      resendStatus={mockResendStatus}
+      {...{ navigateBackHandler }}
     />
   );
 };

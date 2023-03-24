@@ -6,8 +6,9 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
 import { LinkStatus, LinkType } from '../../lib/types';
 
-import LinkDamaged from '../LinkDamaged';
-import LinkExpired from '../LinkExpired';
+import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '../LinkDamaged';
+import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
+import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ModelContextProvider } from '../../lib/context';
 
 interface LinkValidatorChildrenProps<T> {
@@ -17,6 +18,7 @@ interface LinkValidatorChildrenProps<T> {
 
 interface LinkValidatorProps<T> {
   linkType: LinkType;
+  viewName: string;
   getParamsFromModel: () => T;
   children: (props: LinkValidatorChildrenProps<T>) => React.ReactNode;
 }
@@ -24,6 +26,7 @@ interface LinkValidatorProps<T> {
 const LinkValidator = <TModel extends ModelContextProvider>({
   children,
   linkType,
+  viewName,
   getParamsFromModel,
 }: LinkValidatorProps<TModel> & RouteComponentProps) => {
   // If `LinkValidator` is a route component receiving `path, then `children`
@@ -39,12 +42,26 @@ const LinkValidator = <TModel extends ModelContextProvider>({
     isValid ? LinkStatus.valid : LinkStatus.damaged
   );
 
-  if (linkStatus === LinkStatus.damaged) {
-    return <LinkDamaged {...{ linkType }} />;
+  if (
+    linkStatus === LinkStatus.damaged &&
+    linkType === LinkType['reset-password']
+  ) {
+    return <ResetPasswordLinkDamaged />;
   }
 
-  if (linkStatus === LinkStatus.expired) {
-    return <LinkExpired {...{ linkType }} />;
+  if (linkStatus === LinkStatus.damaged && linkType === LinkType['signin']) {
+    return <SigninLinkDamaged />;
+  }
+
+  if (
+    linkStatus === LinkStatus.expired &&
+    linkType === LinkType['reset-password']
+  ) {
+    return <LinkExpiredResetPassword {...{ viewName }} />;
+  }
+
+  if (linkStatus === LinkStatus.expired && linkType === LinkType['signin']) {
+    return <LinkExpiredSignin {...{ viewName }} />;
   }
 
   return <>{child({ setLinkStatus, params })}</>;

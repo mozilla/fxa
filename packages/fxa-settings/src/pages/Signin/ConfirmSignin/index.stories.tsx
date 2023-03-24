@@ -8,7 +8,6 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { mockGoBackCallback } from './mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
 
 export default {
@@ -28,16 +27,6 @@ const storyWithProps = (props: ConfirmSigninProps) => {
   return story;
 };
 
-export const UserCannotGoBack = storyWithProps({
+export const Default = storyWithProps({
   email: MOCK_ACCOUNT.primaryEmail.email,
-});
-
-export const UserCanGoBack = storyWithProps({
-  email: MOCK_ACCOUNT.primaryEmail.email,
-  goBackCallback: mockGoBackCallback,
-});
-
-export const withWebmailLink = storyWithProps({
-  email: MOCK_ACCOUNT.primaryEmail.email,
-  withWebmailLink: true,
 });

@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
 
 export type LinkRememberPasswordProps = {
   email?: string;

@@ -93,6 +93,7 @@ const CompleteResetPassword = ({
         if (await account.hasRecoveryKey(email)) {
           navigate(`/account_recovery_confirm_key${location.search}`, {
             replace: true,
+            state: { ...{ email } },
           });
         }
       } catch (error) {

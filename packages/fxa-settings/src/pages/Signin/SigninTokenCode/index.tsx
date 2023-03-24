@@ -5,15 +5,16 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
+import { /* useAccount, */ useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
-// import { useAlertBar } from '../../models';
 import { MailImage } from '../../../components/images';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+// import { ResendStatus } from "fxa-settings/src/lib/types";
+// import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from "fxa-settings/src/components/Banner";
 
 // email will eventually be obtained from account context
 export type SigninTokenCodeProps = { email: string };
@@ -25,7 +26,12 @@ const SigninTokenCode = ({
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  // const account = useAccount();
+
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
+  // const [resendStatus, setResendStatus] = useState<ResendStatus>(
+  //   ResendStatus['not sent']
+  // );
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -42,11 +48,14 @@ const SigninTokenCode = ({
     submitButtonText: 'Confirm',
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
+    // try {
     // TODO: add resend code action
-    // account.verifySessionResendCode()
-    // if success, display message in banner
-    // 'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+    //   await account.verifySessionResendCode();
+    //   setResendStatus(ResendStatus['sent']);
+    // } catch (e) {
+    //   setResendStatus(ResendStatus['error']);
+    // }
   };
 
   const onSubmit = () => {
@@ -72,6 +81,9 @@ const SigninTokenCode = ({
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading"
       />
+
+      {/* {resendStatus === ResendStatus["sent"] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus["error"] && <ResendCodeErrorBanner />} */}
 
       <div className="flex justify-center mx-auto">
         <MailImage className="w-3/5" />

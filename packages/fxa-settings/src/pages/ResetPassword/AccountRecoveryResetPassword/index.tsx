@@ -6,12 +6,14 @@ import React, { useEffect, useState } from 'react';
 import { NavigateFn, RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
+
 import AppLayout from '../../../components/AppLayout';
+import Banner, { BannerType } from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
-import LinkDamaged from '../../../components/LinkDamaged';
-import LinkExpired from '../../../components/LinkExpired';
+import { ResetPasswordLinkDamaged } from '../../../components/LinkDamaged';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import { LinkExpiredResetPassword } from '../../../components/LinkExpiredResetPassword';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
@@ -25,6 +27,7 @@ import {
   setUserPreference,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import { LinkStatus } from '../../../lib/types';
 import {
   useNotifier,
   useBroker,
@@ -32,13 +35,11 @@ import {
   useRelier,
   useUrlSearchContext,
 } from '../../../models/hooks';
-import { LinkStatus } from '../../../lib/types';
 import {
   AccountRecoveryKeyInfo,
   VerificationInfo,
   useLocationStateContext as useLocationContext,
 } from '../../../models';
-import Banner, { BannerType } from '../../../components/Banner';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -49,8 +50,6 @@ import Banner, { BannerType } from '../../../components/Banner';
 // If lostRecoveryKey is set, redirect to /complete_reset_password
 
 export const viewName = 'account-recovery-reset-password';
-
-const accountsEmail = 'accounts@firefox.com';
 
 export type AccountRecoveryResetPasswordProps = {
   overrides?: {
@@ -68,10 +67,8 @@ type FormData = {
 enum BannerState {
   None,
   UnexpectedError,
-  PasswordResendSuccess,
   PasswordResetSuccess,
   Redirecting,
-  PasswordResendError,
   InvalidContext,
 }
 
@@ -122,13 +119,11 @@ const AccountRecoveryResetPassword = ({
   }, [state, navigate, urlSearchContext]);
 
   if (linkStatus === 'damaged') {
-    return <LinkDamaged {...{ linkType: 'reset-password' }} />;
+    return <ResetPasswordLinkDamaged />;
   }
 
   if (linkStatus === 'expired') {
-    return (
-      <LinkExpired {...{ linkType: 'reset-password', resendLinkHandler }} />
-    );
+    return <LinkExpiredResetPassword {...{ viewName }} />;
   }
 
   return (
@@ -137,7 +132,6 @@ const AccountRecoveryResetPassword = ({
         headingText="Create new password"
         headingTextFtlId="create-new-password-header"
       />
-
       {BannerState.Redirecting === bannerState && (
         <Banner type={BannerType.info}>
           <FtlMsg id="account-recovery-reset-password-redirecting">
@@ -152,29 +146,7 @@ const AccountRecoveryResetPassword = ({
           </FtlMsg>
         </Banner>
       )}
-      {BannerState.PasswordResendSuccess === bannerState && (
-        <Banner type={BannerType.success}>
-          <FtlMsg
-            id="account-recovery-reset-password-email-resent"
-            vars={{ accountsEmail }}
-          >
-            <p>
-              Email resent. Add {accountsEmail} to your contacts to ensure a
-              smooth delivery.
-            </p>
-          </FtlMsg>
-        </Banner>
-      )}
-      {BannerState.PasswordResendError === bannerState && (
-        <Banner type={BannerType.error}>
-          <FtlMsg id="account-recovery-reset-password-email-resend-error">
-            <p>
-              Sorry, there was a problem resending a reset password link to your
-              email.
-            </p>
-          </FtlMsg>
-        </Banner>
-      )}
+
       {BannerState.PasswordResetSuccess === bannerState && (
         <Banner type={BannerType.success}>
           <FtlMsg id="account-recovery-reset-password-success-alert">
@@ -305,17 +277,6 @@ const AccountRecoveryResetPassword = ({
         }
         throw err;
       }
-    }
-  }
-
-  async function resendLinkHandler() {
-    logViewEvent(viewName, 'account-recovery-reset-password.resend');
-
-    try {
-      await account.resetPassword(state.email);
-      setBannerState(BannerState.PasswordResendSuccess);
-    } catch (err) {
-      setBannerState(BannerState.PasswordResendError);
     }
   }
 

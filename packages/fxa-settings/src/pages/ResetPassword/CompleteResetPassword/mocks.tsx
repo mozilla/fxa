@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LocationProvider } from '@reach/router';
+import { LinkType } from 'fxa-settings/src/lib/types';
 import CompleteResetPassword from '.';
 import LinkValidator from '../../../components/LinkValidator';
 import { UrlSearchContext } from '../../../lib/context';
@@ -57,7 +58,8 @@ export const Subject = ({
   <AppContext.Provider value={mockAppContext({ account })}>
     <LocationProvider>
       <LinkValidator
-        linkType="reset-password"
+        linkType={LinkType['reset-password']}
+        viewName={'complete-reset-password'}
         getParamsFromModel={() => {
           return new CompleteResetPasswordLink(mockUrlSearchContext(params));
         }}

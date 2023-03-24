@@ -4,48 +4,31 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import LinkExpired from '.';
+import { LinkExpired, LinkExpiredProps } from '.';
+import { ResendStatus } from 'fxa-settings/src/lib/types';
+
+const mockResendHandler = jest.fn().mockResolvedValue(true);
+
+const mockedProps: LinkExpiredProps = {
+  headingText: 'Some heading',
+  headingTextFtlId: 'mock-heading-id',
+  messageText: 'Some text',
+  messageFtlId: 'mock-message-id',
+  resendLinkHandler: mockResendHandler,
+  resendStatus: ResendStatus['not sent'],
+};
 
 describe('LinkExpired', () => {
-  let handler: () => Promise<void>;
-
-  beforeAll(() => {
-    handler = jest.fn();
-  });
-
-  it('renders the component as expected for an expired Reset Password link', () => {
-    render(
-      <LinkExpired linkType="reset-password" resendLinkHandler={handler} />
-    );
+  it('renders the component as expected with mocked props', () => {
+    render(<LinkExpired {...mockedProps} />);
 
     screen.getByRole('heading', {
-      name: 'Reset password link expired',
+      name: 'Some heading',
     });
-    screen.getByText('The link you clicked to reset your password is expired.');
+    screen.getByText('Some text');
     screen.getByRole('button', {
       name: 'Receive new link',
     });
   });
-
-  it('renders the component as expected for an expired Signin link', () => {
-    render(<LinkExpired linkType="signin" resendLinkHandler={handler} />);
-
-    screen.getByRole('heading', {
-      name: 'Confirmation link expired',
-    });
-    screen.getByText('The link you clicked to confirm your email is expired.');
-    screen.getByRole('button', {
-      name: 'Receive new link',
-    });
-  });
-
-  it('fires the handler', () => {
-    render(<LinkExpired linkType="signin" resendLinkHandler={handler} />);
-    screen
-      .getByRole('button', {
-        name: 'Receive new link',
-      })
-      .click();
-    expect(handler).toBeCalled();
-  });
+  // TODO test CTA
 });

@@ -299,16 +299,11 @@ describe('AccountRecoveryResetPassword page', () => {
       expect(logErrorEvent).toBeCalled();
     });
 
-    it('triggers resend', async () => {
-      await act(async () => {
-        clickReceiveNewLink();
-      });
-
-      expect(logViewEvent).toHaveBeenCalledWith(
-        viewName,
-        'account-recovery-reset-password.resend'
-      );
-      expect(account.resetPassword).toHaveBeenCalled();
+    it('renders LinkExpired component', async () => {
+      await clickReceiveNewLink();
+      expect(
+        screen.getByRole('heading', { name: 'Reset password link expired' })
+      ).toBeInTheDocument();
     });
   });
 });

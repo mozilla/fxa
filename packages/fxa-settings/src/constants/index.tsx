@@ -18,6 +18,8 @@ export const CLEAR_MESSAGES_TIMEOUT = 750;
 export const RESEND_CODE_TIMEOUT = 5000;
 export const REACT_ENTRYPOINT = { entrypoint_variation: 'react' };
 
+export const FIREFOX_NOREPLY_EMAIL = 'accounts@firefox.com';
+
 export enum ENTRYPOINTS {
   FIREFOX_IOS_OAUTH_ENTRYPOINT = 'ios_settings_manage',
   FIREFOX_TOOLBAR_ENTRYPOINT = 'fxa_discoverability_native',

@@ -39,6 +39,7 @@ import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecov
 import LinkValidator from '../LinkValidator';
 import { UrlSearchContext } from '../../lib/context';
 import { CompleteResetPasswordLink } from '../../models/reset-password/verification';
+import { LinkType } from 'fxa-settings/src/lib/types';
 
 export const App = ({
   flowQueryParams,
@@ -108,7 +109,8 @@ export const App = ({
 
               <LinkValidator
                 path="/complete_reset_password/*"
-                linkType="reset-password"
+                linkType={LinkType['reset-password']}
+                viewName={'complete-reset-password'}
                 getParamsFromModel={() => {
                   return new CompleteResetPasswordLink(
                     new UrlSearchContext(window)

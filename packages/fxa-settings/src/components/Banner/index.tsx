@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as IconClose } from 'fxa-react/images/close.svg';
+import { FIREFOX_NOREPLY_EMAIL } from 'fxa-settings/src/constants';
 
 export enum BannerType {
   info = 'info',
@@ -57,3 +58,37 @@ const Banner = ({ type, children, dismissible, setIsVisible }: BannerProps) => {
   );
 };
 export default Banner;
+
+export const ResendEmailSuccessBanner = () => {
+  return (
+    <Banner type={BannerType.success}>
+      <FtlMsg
+        id="link-expired-resent-link-success-message"
+        vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
+      >
+        {`Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
+    smooth delivery.`}
+      </FtlMsg>
+    </Banner>
+  );
+};
+
+export const ResendLinkErrorBanner = () => {
+  return (
+    <Banner type={BannerType.error}>
+      <FtlMsg id="link-expired-resent-link-error-message">
+        Something went wrong. A new link could not be sent.
+      </FtlMsg>
+    </Banner>
+  );
+};
+
+export const ResendCodeErrorBanner = () => {
+  return (
+    <Banner type={BannerType.error}>
+      <FtlMsg id="link-expired-resent-code-error-message">
+        Something went wrong. A new code could not be sent.
+      </FtlMsg>
+    </Banner>
+  );
+};

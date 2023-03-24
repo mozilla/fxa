@@ -7,35 +7,33 @@ import ConfirmWithLink from '.';
 import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { DefaultSubject, SubjectCanGoBack, SubjectWithWebmail } from './mocks';
+import {
+  SubjectWithEmailResendError,
+  SubjectWithEmailResendSuccess,
+  SubjectCanGoBack,
+  MOCK_GOBACK_CB,
+} from './mocks';
 import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
   title: 'Components/ConfirmWithLink',
   component: ConfirmWithLink,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <AppLayout>
+          <Story />
+        </AppLayout>
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
-export const Default = () => (
-  <LocationProvider>
-    <AppLayout>
-      <DefaultSubject />
-    </AppLayout>
-  </LocationProvider>
-);
+export const ResendSuccess = () => <SubjectWithEmailResendSuccess />;
+
+export const ResendError = () => <SubjectWithEmailResendError />;
 
 export const UserCanGoBack = () => (
-  <LocationProvider>
-    <AppLayout>
-      <SubjectCanGoBack />
-    </AppLayout>
-  </LocationProvider>
-);
-
-export const withWebmailLink = () => (
-  <LocationProvider>
-    <AppLayout>
-      <SubjectWithWebmail />
-    </AppLayout>
-  </LocationProvider>
+  <SubjectCanGoBack navigateBackHandler={MOCK_GOBACK_CB} />
 );
