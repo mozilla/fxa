@@ -12,7 +12,7 @@ import sinon from 'sinon';
 
 proxyquire.noCallThru();
 
-describe('#unit - node-tracing', () => {
+describe('node-tracing', () => {
   const sandbox = sinon.createSandbox();
   const log_type = 'node-tracing';
   const contextManager = new AsyncHooksContextManager();

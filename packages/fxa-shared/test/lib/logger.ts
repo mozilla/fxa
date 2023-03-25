@@ -8,7 +8,7 @@ const sinon = require('sinon');
 
 let consoleFn: sinon.SinonSpy;
 
-describe('#unit - lib/logger', () => {
+describe('lib/logger', () => {
   let logger: Logger;
 
   describe('constructor', () => {

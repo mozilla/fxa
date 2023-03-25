@@ -6,7 +6,7 @@ import { assert } from 'chai';
 import joi, { valid } from 'joi';
 import { overrideJoiMessages } from '../../sentry/joi-message-overrides';
 
-describe('#unit - joi-message-overrides', () => {
+describe('joi-message-overrides', () => {
   it('overrides default message for regex', () => {
     const validators = {
       test: joi.string().regex(/test/),

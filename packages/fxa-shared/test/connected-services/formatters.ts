@@ -9,7 +9,7 @@ import {
 } from '../../connected-services';
 import { AttachedClient } from '../../connected-services/models/AttachedClient';
 
-describe('#unit - connected-services/formatters', () => {
+describe('connected-services/formatters', () => {
   let clientFormatter: ClientFormatter;
   let client: AttachedClient;
   let request: IClientFormatterRequest;

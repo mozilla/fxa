@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-describe('#unit - express/routing:', () => {
+describe('express/routing:', () => {
   let appMock;
   let celebrateHandler;
   let celebrateMock;

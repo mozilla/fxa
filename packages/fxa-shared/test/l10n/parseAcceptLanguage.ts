@@ -5,7 +5,7 @@
 import { expect } from 'chai';
 import { parseAcceptLanguage } from '../../l10n/parseAcceptLanguage';
 
-describe('#unit - l10n/parseAcceptLanguage:', () => {
+describe('l10n/parseAcceptLanguage:', () => {
   it('returns default', () => {
     expect(parseAcceptLanguage('en')).to.deep.equal([
       'en',

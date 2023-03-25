@@ -25,7 +25,7 @@
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "storybook": "yarn merge-ftl && npm run build-css && NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6007 --no-version-updates",
-    "test": "yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom --ci --reporters=default --reporters=jest-junit ",
+    "test": "yarn merge-ftl:test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit ",
     "test:unit": "yarn test",
     "test:integration": "echo No integration tests present for $npm_package_name",
     "merge-ftl": "yarn l10n-prime && grunt merge-ftl",

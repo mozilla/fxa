@@ -5,7 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MockLogService, logger } from '../mocks';
 import { EventLoggingService, EventNames } from './event-logging.service';
 
-describe('#unit - EventLogging', () => {
+describe('EventLogging', () => {
   let eventLogging: EventLoggingService;
 
   beforeAll(async () => {

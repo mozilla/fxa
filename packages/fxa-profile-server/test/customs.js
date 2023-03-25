@@ -16,7 +16,7 @@ var customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
 
-describe('#unit - avatarUpload /checkAuthenticated', function (t) {
+describe('avatarUpload /checkAuthenticated', function (t) {
   it('should rate limit', function () {
     var request = newRequest();
     var action = 'avatarUpload';

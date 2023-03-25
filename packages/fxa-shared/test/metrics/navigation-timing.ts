@@ -29,7 +29,7 @@ const mockGetEntriesByType = (perfEntries: PerformanceEntry[]) => {
 // "queue" below is referring to
 // https://www.w3.org/TR/performance-timeline-2/#queue-a-performanceentry
 
-describe('#unit - lib/navigation-timing', () => {
+describe('lib/navigation-timing', () => {
   beforeEach(() => {
     sandbox.resetHistory();
   });

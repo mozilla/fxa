@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 
-describe('#unit - oauth/scopes:', () => {
+describe('oauth/scopes:', () => {
   let scopes;
 
   before(() => {

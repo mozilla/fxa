@@ -148,7 +148,7 @@ const PLAN_WITH_CONFIGURATION: Plan = {
   configuration: CONFIGURATION,
 };
 
-describe('#unit - subscriptions/configuration/helpers', () => {
+describe('subscriptions/configuration/helpers', () => {
   describe('getPlanProductConfig', () => {
     it('returns the plans configuration', () => {
       const actual = getPlanProductConfig(PLAN_WITH_CONFIGURATION);

@@ -16,7 +16,7 @@ const baseClients = [
   },
 ];
 
-describe('#unit - ClientWebhooksService', () => {
+describe('ClientWebhooksService', () => {
   let service: ClientWebhooksService;
   let triggerChange: any;
   let triggerError: any;

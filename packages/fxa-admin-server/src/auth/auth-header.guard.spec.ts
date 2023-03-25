@@ -1,6 +1,6 @@
 import { GqlAuthHeaderGuard } from './auth-header.guard';
 
-describe('#unit - AuthHeaderGuard', () => {
+describe('AuthHeaderGuard', () => {
   it('should be defined', () => {
     const MockConfig = {
       get: jest.fn().mockReturnValue({ authHeader: 'test' }),

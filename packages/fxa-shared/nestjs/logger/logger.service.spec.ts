@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from './logger.service';
 
-describe('#unit - LoggerService', () => {
+describe('LoggerService', () => {
   const methods = ['info', 'error', 'warn', 'debug', 'verbose'];
   let service: MozLoggerService;
   let mocklog: any;

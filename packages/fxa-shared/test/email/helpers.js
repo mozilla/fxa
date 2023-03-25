@@ -20,7 +20,7 @@ function createRandomHexString(length) {
   return str;
 }
 
-describe('#unit - email/helpers:', () => {
+describe('email/helpers:', () => {
   describe('isEmailValid', () => {
     it('returns true for valid email', () => {
       assert.isTrue(Helpers.isEmailValid('a@b.c'));

@@ -11,7 +11,7 @@ function getUid() {
   return uuid.v4().replace(/-/g, '');
 }
 
-describe('#unit - filterObject', () => {
+describe('filterObject', () => {
   it('should be defined', () => {
     expect(filterObject).toBeDefined();
   });

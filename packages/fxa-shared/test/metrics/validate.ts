@@ -18,7 +18,7 @@ import {
 const MAX_INTEGER = Number.MAX_SAFE_INTEGER;
 const INTEGER_OVERFLOW = Number.MAX_SAFE_INTEGER + 1;
 
-describe('#unit - sanitize', function () {
+describe('sanitize', function () {
   let client: BrowserClient;
   let reporter: MetricErrorReporter;
   let metrics: MetricValidator;

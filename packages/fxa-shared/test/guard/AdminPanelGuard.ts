@@ -12,7 +12,7 @@ import {
 } from '../../guards';
 import { expect } from 'chai';
 
-describe('#unit - support agents', () => {
+describe('support agents', () => {
   describe('Admin Panel Guard', () => {
     const guard = new AdminPanelGuard();
     const stageGuard = new AdminPanelGuard(AdminPanelEnv.Stage);

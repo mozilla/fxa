@@ -11,7 +11,7 @@ const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
 const APP_VERSION = /^([0-9]+)\.([0-9]+)$/; // Matches `XXX.X` version number
 
-describe('#unit - metrics/amplitude:', () => {
+describe('metrics/amplitude:', () => {
   let amplitude;
 
   before(() => {

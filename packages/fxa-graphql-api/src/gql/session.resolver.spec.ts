@@ -9,7 +9,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';
 
-describe('#unit - AccountResolver', () => {
+describe('AccountResolver', () => {
   let resolver: SessionResolver;
   let logger: any;
   let authClient: any;
@@ -109,25 +109,25 @@ describe('#unit - AccountResolver', () => {
     });
   });
 
- it('verifies a OTP code', async () => {
-  const token = 'totallylegit';
-  const headers = new Headers();
-  const mockRespPayload = {};
-  authClient.sessionVerifyCode = jest.fn().mockResolvedValue(mockRespPayload);
-  const result = await resolver.verifyCode(token, headers, {
-   clientMutationId: 'testid',
-   code: '00000000',
-   options: { service: 'testo-co' },
+  it('verifies a OTP code', async () => {
+    const token = 'totallylegit';
+    const headers = new Headers();
+    const mockRespPayload = {};
+    authClient.sessionVerifyCode = jest.fn().mockResolvedValue(mockRespPayload);
+    const result = await resolver.verifyCode(token, headers, {
+      clientMutationId: 'testid',
+      code: '00000000',
+      options: { service: 'testo-co' },
+    });
+    expect(authClient.sessionVerifyCode).toBeCalledTimes(1);
+    expect(authClient.sessionVerifyCode).toBeCalledWith(
+      token,
+      '00000000',
+      { service: 'testo-co' },
+      headers
+    );
+    expect(result).toStrictEqual({
+      clientMutationId: 'testid',
+    });
   });
-  expect(authClient.sessionVerifyCode).toBeCalledTimes(1);
-  expect(authClient.sessionVerifyCode).toBeCalledWith(
-   token,
-   '00000000',
-   { service: 'testo-co' },
-   headers
-  );
-  expect(result).toStrictEqual({
-   clientMutationId: 'testid',
-  });
- });
 });

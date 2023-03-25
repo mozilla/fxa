@@ -7,7 +7,7 @@ const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const Server = require('./lib/server');
 
-describe('#unit - server', function () {
+describe('server', function () {
   let testServer;
 
   before(async function () {

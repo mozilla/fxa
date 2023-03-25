@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const remoteAddress = require('../../express/remote-address').remoteAddress(3);
 
-describe('#unit- remote-address', () => {
+describe('remote-address', () => {
   it('has the correct interface', () => {
     assert.isFunction(remoteAddress);
     assert.lengthOf(remoteAddress, 1);

@@ -19,7 +19,7 @@ const config: SentryConfigOpts = {
   },
 };
 
-describe('#unit - lib/sentry', () => {
+describe('lib/sentry', () => {
   before(() => {
     // Reduce console log noise in test output
     sandbox.spy(console, 'error');
