@@ -7,8 +7,8 @@ import { hexToUint8, uint8ToHex } from './utils';
 
 export type DecryptedRecoveryKeyData = {
   kA: string;
-  kB: string; 
-}
+  kB: string;
+};
 export async function randomKey() {
   // The key is displayed in base32 'Crockford' so the length should be
   // divisible by (5 bits per character) and (8 bits per byte).
@@ -80,17 +80,22 @@ export async function generateRecoveryKey(
 }
 
 /**
- * Decrypts a user's recoveryKeyData. This data contains the user's encryption 
+ * Decrypts a user's recoveryKeyData. This data contains the user's encryption
  * keys (kA, kB) used in OnePW protocol.
- * 
+ *
  * @param recoveryKey
  * @param recoveryKeyId
  * @param recoveryData encrypted user recovery data
  */
-export async function decryptRecoveryKeyData(recoveryKey:Uint8Array, recoveryKeyId:string, recoveryData:string, uid:hexstring): Promise<DecryptedRecoveryKeyData> {
+export async function decryptRecoveryKeyData(
+  recoveryKey: Uint8Array,
+  recoveryKeyId: string,
+  recoveryData: string,
+  uid: hexstring
+): Promise<DecryptedRecoveryKeyData> {
   const encoder = new TextEncoder();
   const salt = hexToUint8(uid);
-  
+
   const encryptionKey = await hkdf(
     recoveryKey,
     salt,

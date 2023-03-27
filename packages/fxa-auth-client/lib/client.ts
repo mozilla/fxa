@@ -1410,7 +1410,10 @@ export default class AuthClient {
   }
 
   async getProductInfo(productId: string) {
-    return this.request('GET', `/oauth/subscriptions/productname?productId=${productId}`)
+    return this.request(
+      'GET',
+      `/oauth/subscriptions/productname?productId=${productId}`
+    );
   }
 
   async sendPushLoginRequest(sessionToken: string) {

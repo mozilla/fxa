@@ -12759,6 +12759,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prettier@npm:^2":
+  version: 2.7.2
+  resolution: "@types/prettier@npm:2.7.2"
+  checksum: b47d76a5252265f8d25dd2fe2a5a61dc43ba0e6a96ffdd00c594cb4fd74c1982c2e346497e3472805d97915407a09423804cc2110a0b8e1b22cffcab246479b7
+  languageName: node
+  linkType: hard
+
 "@types/prettier@npm:^2.0.0, @types/prettier@npm:^2.1.5":
   version: 2.4.1
   resolution: "@types/prettier@npm:2.4.1"
@@ -25837,6 +25844,7 @@ fsevents@~2.1.1:
     "@types/mocha": ^8
     "@types/node": ^18.14.2
     "@types/node-fetch": ^2.5.7
+    "@types/prettier": ^2
     abab: ^2.0.6
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
@@ -25845,6 +25853,7 @@ fsevents@~2.1.1:
     fast-text-encoding: ^1.0.4
     mocha: ^10.0.0
     node-fetch: ^2.6.7
+    prettier: ^2.8.7
     typescript: ^4.9.3
     webcrypto-liner: ^1.4.0
   languageName: unknown
@@ -41031,6 +41040,15 @@ fsevents@~2.1.1:
   bin:
     prettier: bin-prettier.js
   checksum: 3b37731ff7150feecf19736c77c790e7e276b404ac9af81cbaf87cfecefc48ef9a864f34c2a5caf5955378b8f2525984b8611703a0d9c1f052b4cfa6eb35899f
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.8.7":
+  version: 2.8.7
+  resolution: "prettier@npm:2.8.7"
+  bin:
+    prettier: bin-prettier.js
+  checksum: fdc8f2616f099f5f0d685907f4449a70595a0fc1d081a88919604375989e0d5e9168d6121d8cc6861f21990b31665828e00472544d785d5940ea08a17660c3a6
   languageName: node
   linkType: hard
 
