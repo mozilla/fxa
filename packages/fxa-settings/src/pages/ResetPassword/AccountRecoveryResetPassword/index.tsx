@@ -241,11 +241,14 @@ const AccountRecoveryResetPassword = ({
     const password = data.newPassword;
 
     try {
-      await account.resetPasswordWithRecoveryKey({
+      const options = {
         password,
-        ...verificationInfo,
-        ...accountRecoveryKeyInfo,
-      });
+        accountResetToken: accountRecoveryKeyInfo.accountResetToken,
+        kB: accountRecoveryKeyInfo.kB,
+        recoveryKeyId: accountRecoveryKeyInfo.recoveryKeyId,
+        emailToHashWith: verificationInfo.emailToHashWith || verificationInfo.email
+      }
+      await account.resetPasswordWithRecoveryKey(options);
 
       // FOLLOW-UP: Functionality not yet available.
       await account.setLastLogin(Date.now());

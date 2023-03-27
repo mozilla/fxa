@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import assert from 'assert';
+import * as assert from 'assert';
 import '../server'; // must import this to run with nodejs
 import {
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/lib/recoveryKey';
+import { decryptRecoveryKeyData } from '../lib/recoveryKey';
 
 // as seen in https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/tests/spec/lib/crypto/recovery-keys.js
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
@@ -46,6 +47,19 @@ describe('lib/recoveryKey', () => {
       assert.deepStrictEqual(recoveryKey, expectedRecoveryKey);
       assert.deepStrictEqual(recoveryKeyId, expectedRecoveryKeyId);
       assert.deepStrictEqual(recoveryData, expectedRecoveryData);
+    });
+  });
+
+  describe('decryptRecoveryKeyData', () => {
+    it('matches the test vector', async () => {
+      const { recoveryKey, recoveryKeyId, recoveryData } =
+       await generateRecoveryKey(uid, keys, {
+         testRecoveryKey: expectedRecoveryKey,
+         testIV: iv,
+       });
+      
+      const result = await decryptRecoveryKeyData(recoveryKey, recoveryKeyId, recoveryData, uid);
+      assert.deepStrictEqual(result, keys);
     });
   });
 });

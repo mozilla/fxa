@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { jweEncrypt, hkdf } from './crypto';
+import { jweEncrypt, jweDecrypt, hkdf } from './crypto';
 import { hexToUint8, uint8ToHex } from './utils';
 
-async function randomKey() {
+export type DecryptedRecoveryKeyData = {
+  kA: string;
+  kB: string; 
+}
+export async function randomKey() {
   // The key is displayed in base32 'Crockford' so the length should be
   // divisible by (5 bits per character) and (8 bits per byte).
   // 20 bytes == 160 bits == 32 base32 characters
@@ -73,4 +77,25 @@ export async function generateRecoveryKey(
     recoveryKeyId,
     recoveryData,
   };
+}
+
+/**
+ * Decrypts a user's recoveryKeyData. This data contains the user's encryption 
+ * keys (kA, kB) used in OnePW protocol.
+ * 
+ * @param recoveryKey
+ * @param recoveryKeyId
+ * @param recoveryData encrypted user recovery data
+ */
+export async function decryptRecoveryKeyData(recoveryKey:Uint8Array, recoveryKeyId:string, recoveryData:string, uid:hexstring): Promise<DecryptedRecoveryKeyData> {
+  const encoder = new TextEncoder();
+  const salt = hexToUint8(uid);
+  
+  const encryptionKey = await hkdf(
+    recoveryKey,
+    salt,
+    encoder.encode('fxa recovery encrypt key'),
+    32
+  );
+  return JSON.parse(await jweDecrypt(encryptionKey, recoveryData));
 }
