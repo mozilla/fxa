@@ -9,7 +9,7 @@ import { LinkStatus, LinkType } from '../../lib/types';
 import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '../LinkDamaged';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
-import { ModelContextProvider } from '../../lib/context';
+import { ModelDataProvider } from '../../lib/model-data';
 
 interface LinkValidatorChildrenProps<T> {
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
@@ -23,7 +23,7 @@ interface LinkValidatorProps<T> {
   children: (props: LinkValidatorChildrenProps<T>) => React.ReactNode;
 }
 
-const LinkValidator = <TModel extends ModelContextProvider>({
+const LinkValidator = <TModel extends ModelDataProvider>({
   children,
   linkType,
   viewName,

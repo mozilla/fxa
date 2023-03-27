@@ -4,19 +4,19 @@
 
 import { NavigateFn, NavigateOptions } from '@reach/router';
 import {
-  ModelContext,
-  StorageContext,
-  UrlHashContext,
-  UrlSearchContext,
-  GenericContext,
-} from '../../../lib/context';
+  ModelDataStore,
+  StorageData,
+  UrlHashData,
+  UrlQueryData,
+  GenericData,
+} from '../../../lib/model-data';
 import { MozServices } from '../../../lib/types';
 import { Account } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
-import { UrlContextWindow } from '../../../lib/context/implementations/url-context';
+import { WindowWrapper } from '../../../lib/model-data/data-stores/url-data';
 import { DefaultRelierFlags, RelierFactory } from '../../../lib/reliers';
 
-export class UrlSearchContextMock extends UrlSearchContext {
+export class UrlSearchDataMock extends UrlQueryData {
   // Holds an internal search state that is different than window.location.search
   // this works around the fact that the defacto implementations essentially act
   // as a singleton since they write and read from window.location.search
@@ -34,13 +34,13 @@ export class UrlSearchContextMock extends UrlSearchContext {
     this.searchState = params.toString();
   }
 
-  constructor(window: UrlContextWindow) {
+  constructor(window: WindowWrapper) {
     super(window);
     this.searchState = window.location.search.toString();
   }
 }
 
-export class UrlHashContextMock extends UrlHashContext {
+export class UrlHashDataMock extends UrlHashData {
   // Holds an internal search state that is different than window.location.search
   // this works around the fact that the defacto implementations essentially act
   // as a singleton since they write and read from window.location.search
@@ -58,13 +58,13 @@ export class UrlHashContextMock extends UrlHashContext {
     this.state = params.toString();
   }
 
-  constructor(window: UrlContextWindow) {
+  constructor(window: WindowWrapper) {
     super(window);
     this.state = window.location.hash.replace(/^#/, '');
   }
 }
 
-export class StorageContextMock extends StorageContext {
+export class StorageDataMock extends StorageData {
   public override persist(): void {
     // no op
   }
@@ -75,8 +75,8 @@ export class StorageContextMock extends StorageContext {
 
 export class RelierFactoryMock extends RelierFactory {}
 
-export function mockUrlSearchContext() {
-  const ctx = new UrlSearchContextMock(window);
+export function mockUrlQueryData() {
+  const ctx = new UrlSearchDataMock(window);
   const params: Record<string, string> = {
     uid: MOCK_ACCOUNT.uid,
     email: MOCK_ACCOUNT.primaryEmail.email,
@@ -95,16 +95,16 @@ export function mockUrlSearchContext() {
   return ctx;
 }
 
-export function mockLocationContext() {
-  return new GenericContext({
+export function mockLocationData() {
+  return new GenericData({
     kB: '123',
     accountResetToken: '123',
     recoveryKeyId: '123',
   });
 }
 
-export function mockUrlHashContext() {
-  const ctx = new UrlHashContextMock(window);
+export function mockUrlHashData() {
+  const ctx = new UrlHashDataMock(window);
   const params: Record<string, string> = {};
   for (const p of Object.keys(params)) {
     ctx.set(p, params[p]);
@@ -112,27 +112,23 @@ export function mockUrlHashContext() {
   return ctx;
 }
 
-export function mockStorageContext() {
-  return new StorageContextMock(window);
+export function mockStorageData() {
+  return new StorageDataMock(window);
 }
 
 export function mockRelier(
-  urlSearchContext: UrlSearchContext,
-  urlHashContext: UrlHashContext,
-  storageContext: StorageContext
+  urlQueryData: UrlQueryData,
+  urlHashData: UrlHashData,
+  storageData: StorageData
 ) {
-  const factory = mockRelierFactory(
-    urlSearchContext,
-    urlHashContext,
-    storageContext
-  );
+  const factory = mockRelierFactory(urlQueryData, urlHashData, storageData);
   return factory.getRelier();
 }
 
 export function mockRelierFactory(
-  urlSearchContext: UrlSearchContext,
-  urlHashContext: UrlHashContext,
-  storageContext: StorageContext
+  urlQueryData: UrlQueryData,
+  urlHashData: UrlHashData,
+  storageData: StorageData
 ) {
   const factory = new RelierFactoryMock({
     delegates: {
@@ -146,9 +142,9 @@ export function mockRelierFactory(
         return 'bar';
       },
     },
-    context: urlSearchContext,
-    channelContext: urlHashContext,
-    flags: new DefaultRelierFlags(urlSearchContext, storageContext),
+    data: urlQueryData,
+    channelData: urlHashData,
+    flags: new DefaultRelierFlags(urlQueryData, storageData),
   });
   return factory;
 }
@@ -170,7 +166,7 @@ export const mockNavigate: NavigateFn = async (
   console.log('Would have called navigate with', { to, options });
 };
 
-export function resetContextMock(source: ModelContext, target: ModelContext) {
+export function resetDataStore(source: ModelDataStore, target: ModelDataStore) {
   for (const k of source.getKeys()) {
     const val = source.get(k);
     target.set(k, val);

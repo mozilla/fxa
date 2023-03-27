@@ -4,10 +4,9 @@
 
 import {
   bind,
-  ContextKeyTransforms as T,
-  ContextValidation as V,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelValidation as V,
+} from '../../lib/model-data';
 import { OAuthRelier, OAuthRelierData } from './oauth-relier';
 
 /**
@@ -27,8 +26,4 @@ export class PairingAuthorityRelier
 
   @bind([V.isString], T.snakeCase)
   channelId: string = '';
-
-  constructor(protected curContext: ModelContext) {
-    super(curContext);
-  }
 }

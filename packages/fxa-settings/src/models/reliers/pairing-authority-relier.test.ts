@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelContext, GenericContext } from '../../lib/context';
+import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { PairingAuthorityRelier } from './pairing-authority-relier';
 
 describe('models/reliers/pairing-authority-relier', function () {
-  let context: ModelContext;
+  let data: ModelDataStore;
   let model: PairingAuthorityRelier;
 
   beforeEach(function () {
-    context = new GenericContext({});
-    model = new PairingAuthorityRelier(context);
+    data = new GenericData({});
+    model = new PairingAuthorityRelier(data);
   });
 
   it('exists', () => {

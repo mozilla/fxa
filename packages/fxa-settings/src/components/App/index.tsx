@@ -37,7 +37,7 @@ import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 import SigninReported from '../../pages/Signin/SigninReported';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 import LinkValidator from '../LinkValidator';
-import { UrlSearchContext } from '../../lib/context';
+import { UrlQueryData } from '../../lib/model-data';
 import { CompleteResetPasswordLink } from '../../models/reset-password/verification';
 import { LinkType } from 'fxa-settings/src/lib/types';
 
@@ -113,7 +113,7 @@ export const App = ({
                 viewName={'complete-reset-password'}
                 getParamsFromModel={() => {
                   return new CompleteResetPasswordLink(
-                    new UrlSearchContext(window)
+                    new UrlQueryData(window)
                   );
                 }}
               >

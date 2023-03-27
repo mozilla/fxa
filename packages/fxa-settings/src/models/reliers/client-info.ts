@@ -4,14 +4,12 @@
 
 import {
   bind,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
-export class ClientInfo implements ModelContextProvider {
+export class ClientInfo extends ModelDataProvider {
   @bind([V.isString, V.isHex], 'id')
   clientId: string | undefined;
 
@@ -26,14 +24,4 @@ export class ClientInfo implements ModelContextProvider {
 
   @bind([V.isBoolean])
   trusted: boolean | undefined;
-
-  constructor(protected readonly context: ModelContext) {}
-
-  getModelContext(): ModelContext {
-    return this.context;
-  }
-
-  validate(): void {
-    return validateContext(this);
-  }
 }

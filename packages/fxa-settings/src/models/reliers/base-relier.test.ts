@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UrlSearchContext } from '../../lib/context';
+import { UrlQueryData } from '../../lib/model-data';
 import { BaseRelier } from './base-relier';
 
 describe('BaseRelier Model', function () {
   let model: BaseRelier;
   beforeEach(function () {
-    const context = new UrlSearchContext(window);
-    model = new BaseRelier(context);
+    model = new BaseRelier(new UrlQueryData(window));
   });
 
   describe('isOAuth', function () {

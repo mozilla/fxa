@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseContext } from './base-context';
+import { ModelDataStore } from '../model-data-store';
 
 /**
- * A simple generic context implementation. Good for testing or simple state management.
+ * A simple generic data store. Good for testing or simple state management.
  * Stores state in record object.
  */
-export class GenericContext extends BaseContext {
+export class GenericData extends ModelDataStore {
   constructor(protected readonly state: Record<string, unknown>) {
     super();
   }

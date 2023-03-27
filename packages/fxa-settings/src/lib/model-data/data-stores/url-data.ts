@@ -2,20 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseContext } from './base-context';
+import { ModelDataStore } from '../model-data-store';
+import { WindowLocation, HistorySource } from '@reach/router';
 
-export type UrlContextWindow = {
-  location: Pick<
-    typeof window.location,
-    'href' | 'pathname' | 'search' | 'hash'
-  >;
-  history: Pick<typeof window.history, 'replaceState'>;
+export type Location = Pick<
+  WindowLocation,
+  'href' | 'pathname' | 'search' | 'hash'
+>;
+export type History = Pick<HistorySource, 'history'>;
+
+export type WindowWrapper = History & {
+  location: Location;
 };
 
 /**
- * Creates a context from the current URL state
+ * An abstract base class for persisting state in the URL.
  */
-export abstract class UrlContext extends BaseContext {
+export abstract class UrlData extends ModelDataStore {
   protected abstract getParams(): URLSearchParams;
   protected abstract setParams(params: URLSearchParams): void;
 
@@ -27,7 +30,7 @@ export abstract class UrlContext extends BaseContext {
    * @param window Current window
    * @param mode Whether or not to store state in the search query or the hash.
    */
-  constructor(public readonly window: UrlContextWindow) {
+  constructor(public readonly window: WindowWrapper) {
     super();
   }
 

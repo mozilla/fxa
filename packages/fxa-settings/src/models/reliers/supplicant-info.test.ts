@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelContext, GenericContext } from '../../lib/context';
+import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { SupplicantInfo } from './supplicant-info';
 
 describe('models/reliers/supplicant-info', function () {
-  let context: ModelContext;
+  let data: ModelDataStore;
   let model: SupplicantInfo;
 
   beforeEach(function () {
-    context = new GenericContext({});
-    model = new SupplicantInfo(context);
+    data = new GenericData({});
+    model = new SupplicantInfo(data);
   });
 
   it('exists', () => {

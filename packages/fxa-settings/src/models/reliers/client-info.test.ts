@@ -2,28 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelContext, GenericContext } from '../../lib/context';
+import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { ClientInfo } from './client-info';
 
 describe('models/reliers/client-info', function () {
-  let context: ModelContext;
+  let data: ModelDataStore;
   let model: ClientInfo;
 
   beforeEach(function () {
-    context = new GenericContext({});
-    model = new ClientInfo(context);
+    data = new GenericData({});
+    model = new ClientInfo(data);
   });
 
   it('exists', () => {
     expect(model).toBeDefined();
   });
 
-  it('binds to default context', () => {
-    context.set('id', '123ABC');
-    context.set('image_uri', 'https://redirect.to/foo/profile/bar.png');
-    context.set('name', 'foo');
-    context.set('redirect_uri', 'https://redirect.to');
-    context.set('trusted', true);
+  it('binds to default data store', () => {
+    data.set('id', '123ABC');
+    data.set('image_uri', 'https://redirect.to/foo/profile/bar.png');
+    data.set('name', 'foo');
+    data.set('redirect_uri', 'https://redirect.to');
+    data.set('trusted', true);
 
     expect(model.clientId).toEqual('123ABC');
     expect(model.imageUri).toEqual('https://redirect.to/foo/profile/bar.png');
@@ -34,7 +34,7 @@ describe('models/reliers/client-info', function () {
   });
 
   it('validates', () => {
-    context.set('id', 'xyz');
+    data.set('id', 'xyz');
     expect(() => {
       model.validate();
     }).toThrow();

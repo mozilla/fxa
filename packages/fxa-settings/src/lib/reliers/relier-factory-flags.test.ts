@@ -4,13 +4,13 @@
 
 import { createSandbox, SinonSandbox } from 'sinon';
 import { Constants } from '../constants';
-import { StorageContext, UrlSearchContext } from '../context';
+import { StorageData, UrlQueryData } from '../model-data';
 import { DefaultRelierFlags } from './relier-factory-flags';
 
 describe('lib/reliers/relier-factory-flags', function () {
   let relierFlags: DefaultRelierFlags;
-  let searchContext: UrlSearchContext;
-  let storageContext: StorageContext;
+  let queryData: UrlQueryData;
+  let storageData: StorageData;
   let sandbox: SinonSandbox;
 
   beforeAll(() => {
@@ -19,14 +19,14 @@ describe('lib/reliers/relier-factory-flags', function () {
 
   beforeEach(() => {
     sandbox.restore();
-    searchContext = new UrlSearchContext(window);
-    storageContext = new StorageContext(window);
-    relierFlags = new DefaultRelierFlags(searchContext, storageContext);
+    queryData = new UrlQueryData(window);
+    storageData = new StorageData(window);
+    relierFlags = new DefaultRelierFlags(queryData, storageData);
   });
 
   it('isDevicePairingAsAuthority', () => {
     expect(relierFlags.isDevicePairingAsAuthority()).toBeFalsy();
-    searchContext.set(
+    queryData.set(
       'redirect_uri',
       Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
     );
@@ -35,7 +35,7 @@ describe('lib/reliers/relier-factory-flags', function () {
 
   it('isDevicePairingAsSupplicant', () => {
     expect(relierFlags.isDevicePairingAsSupplicant()).toBeFalsy();
-    sandbox.replaceGetter(searchContext, 'pathName', () => '/pair/supplicant');
+    sandbox.replaceGetter(queryData, 'pathName', () => '/pair/supplicant');
     expect(relierFlags.isDevicePairingAsSupplicant()).toBeTruthy();
   });
 
@@ -47,53 +47,53 @@ describe('lib/reliers/relier-factory-flags', function () {
     });
 
     it('when oauth in path', () => {
-      sandbox.replaceGetter(searchContext, 'pathName', () => '/oauth/');
+      sandbox.replaceGetter(queryData, 'pathName', () => '/oauth/');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 1', () => {
-      storageContext.set('oauth', { client_id: 'sync' });
-      searchContext.set('service', 'sync');
-      searchContext.set('uid', '123');
-      searchContext.set('code', '123');
+      storageData.set('oauth', { client_id: 'sync' });
+      queryData.set('service', 'sync');
+      queryData.set('uid', '123');
+      queryData.set('code', '123');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 2', () => {
-      storageContext.set('oauth', { client_id: 'sync' });
-      searchContext.set('service', 'sync');
-      searchContext.set('token', '123');
-      searchContext.set('code', '123');
+      storageData.set('oauth', { client_id: 'sync' });
+      queryData.set('service', 'sync');
+      queryData.set('token', '123');
+      queryData.set('code', '123');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 3', () => {
-      storageContext.set('oauth', { client_id: 'sync' });
-      searchContext.set('service', 'sync');
-      sandbox.replaceGetter(searchContext, 'pathName', () => '/report_signin/');
+      storageData.set('oauth', { client_id: 'sync' });
+      queryData.set('service', 'sync');
+      sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 1', () => {
-      storageContext.set('oauth', { client_id: 'foo' });
-      searchContext.set('service', 'foo');
-      searchContext.set('uid', '123');
-      searchContext.set('code', '123');
+      storageData.set('oauth', { client_id: 'foo' });
+      queryData.set('service', 'foo');
+      queryData.set('uid', '123');
+      queryData.set('code', '123');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 2', () => {
-      storageContext.set('oauth', { client_id: 'foo' });
-      searchContext.set('service', 'foo');
-      searchContext.set('uid', '123');
-      searchContext.set('token', '123');
+      storageData.set('oauth', { client_id: 'foo' });
+      queryData.set('service', 'foo');
+      queryData.set('uid', '123');
+      queryData.set('token', '123');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 3', () => {
-      storageContext.set('oauth', { client_id: 'foo' });
-      searchContext.set('service', 'foo');
-      sandbox.replaceGetter(searchContext, 'pathName', () => '/report_signin/');
+      storageData.set('oauth', { client_id: 'foo' });
+      queryData.set('service', 'foo');
+      sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
       expect(relierFlags.isOAuth()).toBeTruthy();
     });
 
@@ -101,34 +101,30 @@ describe('lib/reliers/relier-factory-flags', function () {
   });
 
   it('isSyncService', () => {
-    searchContext.set('service', Constants.SYNC_SERVICE);
+    queryData.set('service', Constants.SYNC_SERVICE);
     expect(relierFlags.isSyncService()).toBeTruthy();
   });
 
   it('isV3DesktopContext', () => {
-    searchContext.set('context', Constants.FX_DESKTOP_V3_CONTEXT);
+    queryData.set('context', Constants.FX_DESKTOP_V3_CONTEXT);
     expect(relierFlags.isSyncService()).toBeTruthy();
   });
 
   it('isOAuthSuccessFlow', () => {
-    sandbox.replaceGetter(
-      searchContext,
-      'pathName',
-      () => '/oauth/success/foo'
-    );
+    sandbox.replaceGetter(queryData, 'pathName', () => '/oauth/success/foo');
     expect(relierFlags.isOAuthSuccessFlow().status).toBeTruthy();
     expect(relierFlags.isOAuthSuccessFlow().clientId).toEqual('foo');
   });
 
   it('isOAuthVerificationFlow', () => {
-    searchContext.set('code', '123');
+    queryData.set('code', '123');
     expect(relierFlags.isOAuthVerificationFlow()).toBeTruthy();
   });
 
   it('getOAuthResumeObj', () => {
-    searchContext.set('service', 'foo');
+    queryData.set('service', 'foo');
     const obj1 = relierFlags.getOAuthResumeObj();
-    storageContext.set('oauth', { ...obj1, extra: 'bar' });
+    storageData.set('oauth', { ...obj1, extra: 'bar' });
     const obj2 = relierFlags.getOAuthResumeObj();
 
     expect(obj1).toEqual({

@@ -15,12 +15,12 @@ import {
 } from '../../models/reliers';
 import { Constants } from '../constants';
 import {
-  ModelContext,
-  GenericContext,
-  StorageContext,
-  UrlHashContext,
-  UrlSearchContext,
-} from '../context';
+  ModelDataStore,
+  GenericData,
+  StorageData,
+  UrlHashData,
+  UrlQueryData,
+} from '../model-data';
 import { OAuthError } from '../oauth';
 import { RelierFlags } from './interfaces';
 import { RelierDelegates } from './interfaces/relier-delegates';
@@ -64,51 +64,46 @@ export function isCorrectRedirect(
  * Produces Reliers
  */
 export class RelierFactory {
-  protected readonly context: ModelContext;
-  protected readonly channelContext: ModelContext;
+  protected readonly data: ModelDataStore;
+  protected readonly channelData: ModelDataStore;
   public readonly flags: RelierFlags;
   protected readonly delegates: RelierDelegates;
 
   constructor(opts: {
     delegates: RelierDelegates;
-    context?: ModelContext;
-    channelContext?: ModelContext;
+    data?: ModelDataStore;
+    channelData?: ModelDataStore;
     flags?: RelierFlags;
   }) {
-    this.context = opts.context || new UrlSearchContext(window);
-    this.channelContext = opts.channelContext || new UrlHashContext(window);
+    this.data = opts.data || new UrlQueryData(window);
+    this.channelData = opts.channelData || new UrlHashData(window);
     this.flags =
       opts.flags ||
-      new DefaultRelierFlags(
-        new UrlSearchContext(window),
-        new StorageContext(window)
-      );
+      new DefaultRelierFlags(new UrlQueryData(window), new StorageData(window));
     this.delegates = opts.delegates;
   }
 
   /**
-   * Produces a relier given the current context and flags extrapolated from that context.
-   * @param context A key value data store that holds the relier state
-   * @param flags A set of flags that help determine what kind of relier to produce. These flags are also based off the context.
+   * Produces a relier given the current data store's state.
    * @returns A relier implementation.
    */
   getRelier() {
-    const context = this.context;
-    const channelContext = this.channelContext;
+    const data = this.data;
+    const channelData = this.channelData;
     const flags = this.flags;
 
     // Keep trying until something sticks
     let relier: Relier | undefined;
     if (flags.isDevicePairingAsAuthority()) {
-      relier = this.createPairingAuthorityRelier(channelContext);
+      relier = this.createPairingAuthorityRelier(channelData);
     } else if (flags.isDevicePairingAsSupplicant()) {
-      relier = this.createParingSupplicationRelier(context);
+      relier = this.createParingSupplicationRelier(data);
     } else if (flags.isOAuth()) {
-      relier = this.createOAuthRelier(context);
+      relier = this.createOAuthRelier(data);
     } else if (flags.isSyncService() || flags.isV3DesktopContext()) {
-      relier = this.createBrowserRelier(context);
+      relier = this.createBrowserRelier(data);
     } else {
-      relier = this.creteDefaultRelier(context);
+      relier = this.creteDefaultRelier(data);
     }
 
     // Run final validation. This will ensure that the all fields decorated with an @bind are in the
@@ -121,36 +116,36 @@ export class RelierFactory {
     return relier;
   }
 
-  private createPairingAuthorityRelier(context: ModelContext) {
-    const relier = new PairingAuthorityRelier(context);
+  private createPairingAuthorityRelier(data: ModelDataStore) {
+    const relier = new PairingAuthorityRelier(data);
     this.initRelier(relier);
     return relier;
   }
 
-  private createParingSupplicationRelier(context: ModelContext) {
-    const relier = new PairingSupplicantRelier(context);
+  private createParingSupplicationRelier(data: ModelDataStore) {
+    const relier = new PairingSupplicantRelier(data);
     this.initRelier(relier);
     this.initClientInfo(relier);
 
     return relier;
   }
 
-  private createOAuthRelier(context: ModelContext) {
-    const relier = new OAuthRelier(context);
+  private createOAuthRelier(data: ModelDataStore) {
+    const relier = new OAuthRelier(data);
     this.initRelier(relier);
     this.initOAuthRelier(relier, this.flags);
     this.initClientInfo(relier);
     return relier;
   }
 
-  private creteDefaultRelier(context: ModelContext) {
-    const relier = new BaseRelier(context);
+  private creteDefaultRelier(data: ModelDataStore) {
+    const relier = new BaseRelier(data);
     this.initRelier(relier);
     return relier;
   }
 
-  private createBrowserRelier(context: ModelContext) {
-    const relier = new BrowserRelier(context);
+  private createBrowserRelier(data: ModelDataStore) {
+    const relier = new BrowserRelier(data);
     this.initRelier(relier);
     return relier;
   }
@@ -162,8 +157,8 @@ export class RelierFactory {
     // Important!
     // FxDesktop declares both `entryPoint` (capital P) and
     // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-    const entryPoint = relier.getModelContext().get('entryPoint');
-    const entrypoint = relier.getModelContext().get('entrypoint');
+    const entryPoint = relier.getModelData().get('entryPoint');
+    const entrypoint = relier.getModelData().get('entrypoint');
     if (
       entryPoint != null &&
       entrypoint != null &&
@@ -186,17 +181,8 @@ export class RelierFactory {
     } else if (flags.isOAuthVerificationFlow()) {
       const data = flags.getOAuthResumeObj();
 
-      // TODO:  Old way, now we use context bindings. Remove after approval.
-      // var result = Transform.transformUsingSchema(
-      //   resumeObj,
-      //   VERIFICATION_INFO_SCHEMA,
-      //   OAuthErrors
-      // );
-      const resumeInfo = new ResumeObj(new GenericContext(data));
+      const resumeInfo = new ResumeObj(new GenericData(data));
 
-      // TODO: Previously the backbone state would just be primed with 'set'. Now we copy
-      //       over the values. Remove after approval.
-      // this.set(result);
       relier.accessType = resumeInfo.accessType;
       relier.acrValues = resumeInfo.acrValues;
       relier.action = resumeInfo.action;
@@ -209,15 +195,9 @@ export class RelierFactory {
       relier.service = resumeInfo.service;
       relier.state = resumeInfo.state;
     } else {
-      // TODO: This shouldn't be needed, the relier class already binds these parameters. Remove after approval.
       // Sign inflow
       // params listed in:
       // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
-      // Let's use our context bindings for this now ^
-      // this.importSearchParamsUsingSchema(
-      //   SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA,
-      //   OAuthErrors
-      // );
       if (!relier.email && relier.loginHint) {
         relier.email = relier.loginHint;
       }
@@ -254,15 +234,7 @@ export class RelierFactory {
 
     try {
       const serviceInfo = await this.delegates.getClientInfo(clientId);
-
-      // TODO: Let's use our context bindings instead! Remove after approval.
-      //
-      // const result = Transform.transformUsingSchema(
-      //   serviceInfo,
-      //   CLIENT_INFO_SCHEMA,
-      //   OAuthErrors
-      // );
-      const clientInfo = new ClientInfo(new GenericContext(serviceInfo));
+      const clientInfo = new ClientInfo(new GenericData(serviceInfo));
       return clientInfo;
     } catch (err) {
       if (

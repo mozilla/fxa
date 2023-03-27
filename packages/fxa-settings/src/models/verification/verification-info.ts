@@ -3,24 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  ContextKeyTransforms,
-  ContextValidation,
-  ContextValidationErrors,
-  ModelContext,
-  ModelContextProvider,
+  KeyTransforms,
+  ModelValidation,
+  ModelDataProvider,
   bind,
-  validateContext,
-} from '../../lib/context';
+} from '../../lib/model-data';
 
 export * from './verification-info';
 
 export type VerificationInfoLinkStatus = 'expired' | 'damaged' | 'valid';
 
 const { isEmail, isRequired, isVerificationCode, isHex, isString, isBoolean } =
-  ContextValidation;
-const { snakeCase } = ContextKeyTransforms;
+  ModelValidation;
+const { snakeCase } = KeyTransforms;
 
-export class VerificationInfo implements ModelContextProvider {
+export class VerificationInfo extends ModelDataProvider {
   @bind([isEmail, isRequired])
   email: string = '';
 
@@ -41,45 +38,4 @@ export class VerificationInfo implements ModelContextProvider {
 
   @bind([isBoolean])
   lostRecoveryKey: boolean | undefined;
-
-  constructor(public readonly context: ModelContext) {}
-  [x: string]: any;
-  getModelContext(): ModelContext {
-    return this.context;
-  }
-
-  isValid() {
-    try {
-      this.validate();
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-    return true;
-  }
-
-  validate(): void {
-    validateContext(this);
-  }
-
-  tryValidate(): { isValid: boolean; error?: ContextValidationErrors } {
-    let error: ContextValidationErrors | undefined;
-    let isValid = true;
-    try {
-      this.validate();
-    } catch (err) {
-      console.error(err);
-      isValid = false;
-      if (err instanceof ContextValidationErrors) {
-        error = err;
-      } else {
-        throw err;
-      }
-    }
-
-    return {
-      isValid,
-      error,
-    };
-  }
 }

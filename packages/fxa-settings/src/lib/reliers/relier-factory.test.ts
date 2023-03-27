@@ -11,7 +11,7 @@ import {
   PairingSupplicantRelier,
   Relier,
 } from '../../models/reliers';
-import { StorageContext, UrlHashContext, UrlSearchContext } from '../context';
+import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
 import { RelierDelegates } from './interfaces';
 import { RelierFactory } from './relier-factory';
 import { DefaultRelierFlags } from './relier-factory-flags';
@@ -34,9 +34,9 @@ type FactoryCallCounts = {
 describe('lib/reliers/relier-factory', () => {
   let sandbox: sinon.SinonSandbox;
   let flags: DefaultRelierFlags;
-  let searchContext: UrlSearchContext;
-  let hashContext: UrlHashContext;
-  let storageContext: StorageContext;
+  let urlQueryData: UrlQueryData;
+  let urlHashData: UrlHashData;
+  let storageData: StorageData;
   let delegates: RelierDelegates;
 
   /**
@@ -65,14 +65,14 @@ describe('lib/reliers/relier-factory', () => {
 
     // Create a factory with current state
     const factory = new RelierFactory({
-      context: searchContext,
-      channelContext: hashContext,
+      data: urlQueryData,
+      channelData: urlHashData,
       flags,
       delegates,
     });
 
-    searchContext.set('client_id', '123');
-    searchContext.set('redirect_uri', 'https://redirect.to');
+    urlQueryData.set('client_id', '123');
+    urlQueryData.set('redirect_uri', 'https://redirect.to');
 
     // Create the relier
     const relier = await factory.getRelier();
@@ -95,15 +95,15 @@ describe('lib/reliers/relier-factory', () => {
   beforeAll(() => {
     sandbox = createSandbox();
 
-    // Create various contexts required by factory. Contexts bind an external
-    // state our models.
-    searchContext = new UrlSearchContext(window);
-    hashContext = new UrlHashContext(window);
-    storageContext = new StorageContext(window);
+    // Create various data stores required by factory. Data stores bind an external
+    // state to our models.
+    urlQueryData = new UrlQueryData(window);
+    urlHashData = new UrlHashData(window);
+    storageData = new StorageData(window);
 
     // Flags hold all the logic that controls the state which drives the type of relier
     // instance being created by the factory
-    flags = new DefaultRelierFlags(searchContext, storageContext);
+    flags = new DefaultRelierFlags(urlQueryData, storageData);
 
     // Delegates are used by the factory as callbacks to get external data.
     // This stops the factory from becoming concerned with out to fetch external

@@ -6,11 +6,7 @@ import { ApolloClient, gql } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
 import config, { Config, readConfigMeta } from '../lib/config';
-import {
-  StorageContext,
-  UrlHashContext,
-  UrlSearchContext,
-} from '../lib/context';
+import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import firefox, { FirefoxCommand, FxAStatusResponse } from '../lib/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
@@ -38,9 +34,9 @@ export interface AppContextValue {
   alertBarInfo?: AlertBarInfo;
   session?: Session; // used exclusively for test mocking
   navigatorLanguages?: readonly string[];
-  urlSearchContext?: UrlSearchContext;
-  urlHashContext?: UrlHashContext;
-  storageContext?: StorageContext;
+  urlQueryData?: UrlQueryData;
+  urlHashData?: UrlHashData;
+  storageData?: StorageData;
   relierFactory?: RelierFactory;
 }
 
@@ -54,9 +50,9 @@ export function initializeAppContext() {
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
   const alertBarInfo = new AlertBarInfo();
-  const storageContext = new StorageContext(window);
-  const urlSearchContext = new UrlSearchContext(window);
-  const urlHashContext = new UrlHashContext(window);
+  const storageDataStore = new StorageData(window);
+  const urlQueryDataStore = new UrlQueryData(window);
+  const urlHashDataStore = new UrlHashData(window);
 
   const relierFactory = new RelierFactory({
     delegates: {
@@ -130,9 +126,9 @@ export function initializeAppContext() {
     config,
     account,
     alertBarInfo,
-    urlSearchContext,
-    urlHashContext,
-    storageContext,
+    urlQueryData: urlQueryDataStore,
+    urlHashData: urlHashDataStore,
+    storageData: storageDataStore,
     relierFactory,
     navigatorLanguages: navigator.languages || ['en'],
   };

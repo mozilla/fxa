@@ -4,14 +4,12 @@
 
 import {
   bind,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
-export class ResumeObj implements ModelContextProvider {
+export class ResumeObj extends ModelDataProvider {
   @bind([V.isAccessType], T.snakeCase)
   accessType: string | undefined;
 
@@ -44,14 +42,4 @@ export class ResumeObj implements ModelContextProvider {
 
   @bind([V.isNonEmptyString])
   state: string | undefined;
-
-  constructor(protected curContext: ModelContext) {}
-
-  getModelContext(): ModelContext {
-    return this.curContext;
-  }
-
-  validate(): void {
-    return validateContext(this);
-  }
 }

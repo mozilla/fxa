@@ -2,18 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  bind,
-  ContextValidation,
-  ModelContextProvider,
-  ModelContext,
-  validateContext,
-  ContextValidationErrors,
-} from '../../lib/context';
+import { bind, ModelValidation, ModelDataProvider } from '../../lib/model-data';
 
-const { isNonEmptyString, isRequired } = ContextValidation;
+const { isNonEmptyString, isRequired } = ModelValidation;
 
-export class AccountRecoveryKeyInfo implements ModelContextProvider {
+export class AccountRecoveryKeyInfo extends ModelDataProvider {
   @bind([isNonEmptyString, isRequired])
   accountResetToken: string = '';
 
@@ -22,29 +15,4 @@ export class AccountRecoveryKeyInfo implements ModelContextProvider {
 
   @bind([isNonEmptyString, isRequired])
   recoveryKeyId: string = '';
-
-  constructor(public readonly context: ModelContext) {}
-
-  isValid() {
-    try {
-      this.validate();
-      return true;
-    } catch (err) {
-      if (err instanceof ContextValidationErrors) {
-        console.error(
-          err.errors.map((x) => `${x.key}-${x.value}-${x.message}`)
-        );
-        return false;
-      }
-      throw err;
-    }
-  }
-
-  getModelContext() {
-    return this.context;
-  }
-
-  validate(): void {
-    validateContext(this);
-  }
 }

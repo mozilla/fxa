@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export * from './generic-context';
-export * from './storage-context';
-export * from './url-hash-context';
-export * from './url-search-context';
+export * from './generic-data';
+export * from './storage-data';
+export * from './url-hash-data';
+export * from './url-query-data';

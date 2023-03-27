@@ -3,25 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Constants } from '../constants';
-import { ModelContext, UrlSearchContext } from '../context';
+import { ModelDataStore, UrlQueryData } from '../model-data';
 import { RelierFlags } from './interfaces';
 
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
 
 /**
- * Extrapolates flags from the state of the current context. The collective state of these flags are used by
+ * Extrapolates flags from the state of the current data store. The collective state of these flags are used by
  * the factory to determine what underlying type of relier to create.
  *
  * Note: this logic was ported from fxa-content-server app-start.js.
  */
 export class DefaultRelierFlags implements RelierFlags {
   protected get pathname() {
-    return this.urlContext.pathName;
+    return this.urlQueryData.pathName;
   }
 
   constructor(
-    private urlContext: UrlSearchContext,
-    private storageContext: ModelContext
+    private urlQueryData: UrlQueryData,
+    private storageData: ModelDataStore
   ) {}
 
   isDevicePairingAsAuthority() {
@@ -76,7 +76,7 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   getOAuthResumeObj(): Record<string, unknown> {
-    let resumeObj = this.storageContext.get('oauth');
+    let resumeObj = this.storageData.get('oauth');
     if (resumeObj == null || typeof resumeObj !== 'object') {
       resumeObj = {
         client_id: this._searchParam('service'), //eslint-disable-line camelcase
@@ -111,7 +111,7 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   private _searchParam(key: string) {
-    return this.urlContext.get(key);
+    return this.urlQueryData.get(key);
   }
 
   private _isServiceSync() {
@@ -133,7 +133,7 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   private _getSavedClientId() {
-    const oauth = this.storageContext.get('oauth');
+    const oauth = this.storageData.get('oauth');
     if (
       typeof oauth === 'object' &&
       oauth != null &&
