@@ -6,7 +6,7 @@ const assert = require('insist');
 const avatarShared = require('../../../lib/routes/avatar/_shared');
 const config = require('../../../lib/config').getProperties();
 
-describe('#unit - routes/avatar/_shared', function () {
+describe('routes/avatar/_shared', function () {
   describe('fxaUrl', function () {
     it('creates a proper avatarUrl', function () {
       const id = 'foo';

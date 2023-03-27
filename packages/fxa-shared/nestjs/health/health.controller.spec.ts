@@ -9,7 +9,7 @@ import { HealthController } from './health.controller';
 
 const version = getVersionInfo(__dirname);
 
-describe('#unit - Health Controller', () => {
+describe('Health Controller', () => {
   let controller: HealthController;
 
   beforeEach(async () => {

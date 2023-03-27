@@ -7,7 +7,7 @@ const sinon = require('sinon');
 
 const MysqlStore = require('../lib/db/mysql');
 
-describe('#unit - mysql db backend', function () {
+describe('mysql db backend', function () {
   var store;
   var mockConnection;
   var mockResponses;

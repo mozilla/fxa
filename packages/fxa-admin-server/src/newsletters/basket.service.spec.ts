@@ -8,7 +8,7 @@ import { AppConfig } from '../config';
 import { MockConfig, mockConfigOverrides } from '../mocks';
 import { BasketService } from './basket.service';
 
-describe('#unit - BasketService', () => {
+describe('BasketService', () => {
   const validEmail = 'success@example.com';
   const invalidEmail = 'failure@example.com';
   let service: BasketService;

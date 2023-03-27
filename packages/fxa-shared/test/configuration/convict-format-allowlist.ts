@@ -8,7 +8,7 @@ import {
   format,
 } from '../../configuration/convict-format-allow-list';
 
-describe('#unit - allow list url validation', () => {
+describe('allow list url validation', () => {
   // Wrapper for is allowed, converts string to URL.
   function isUrlAllowed(url: string, allowlist: string[]) {
     return isAllowed(url, 'http://accounts.firefox.com', allowlist);
@@ -144,7 +144,7 @@ describe('#unit - allow list url validation', () => {
   });
 });
 
-describe('#unit - convict allow list format', () => {
+describe('convict allow list format', () => {
   const check = format.allowlist.validate;
   const coerce = format.allowlist.coerce;
 

@@ -17,7 +17,7 @@
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn gen-keys && yarn test:default && yarn test:e2e ",
     "gen-keys": "node -r esbuild-register ./scripts/gen_keys.ts;",
-    "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#unit' --ci --reporters=default --reporters=jest-junit",
+    "test:unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "test:integration-disabled": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit",
     "test:default": "jest --runInBand --forceExit -t=\"scripts/audit-tokens\"",
     "test:watch": "jest --watch",

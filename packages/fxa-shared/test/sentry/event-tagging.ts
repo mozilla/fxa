@@ -5,7 +5,7 @@ import { assert } from 'chai';
 import { Event } from '@sentry/types';
 import { tagCriticalEvent } from '../../sentry';
 
-describe('#unit - critical-endpoints', () => {
+describe('critical-endpoints', () => {
   it('adds critical tag to applicable event', () => {
     let data: any = {
       request: {

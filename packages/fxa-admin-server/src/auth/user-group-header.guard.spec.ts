@@ -16,7 +16,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { createMock } from '@golevelup/ts-jest';
 
-describe('#unit - UserGroupGuard for graphql', () => {
+describe('UserGroupGuard for graphql', () => {
   let module: TestingModule;
   let guard: UserGroupGuard;
   let reflector: Reflector;

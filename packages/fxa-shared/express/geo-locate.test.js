@@ -18,7 +18,7 @@ const remoteAddress = sinon.spy(() => results.remoteAddress);
 
 let geodb, geolocate, config;
 
-describe('#unit - geo-locate, geodb succeeds', () => {
+describe('geo-locate, geodb succeeds', () => {
   beforeEach(() => {
     geodb = sinon.spy(() => results.geodb);
     geolocate = geoLocateBuilder(geodb)(remoteAddress)(logger);
@@ -52,7 +52,7 @@ describe('#unit - geo-locate, geodb succeeds', () => {
     assert.equal(logger.error.callCount, 0);
   });
 
-  it('#unit - behaves correctly if config is disabled', () => {
+  it('behaves correctly if config is disabled', () => {
     config.enabled = false;
 
     const result = geolocate('blee');
@@ -65,7 +65,7 @@ describe('#unit - geo-locate, geodb succeeds', () => {
   });
 });
 
-describe('#unit - geo-locate, geodb fails', () => {
+describe('geo-locate, geodb fails', () => {
   beforeEach(() => {
     geodb = sinon.spy(() => {
       throw 'ohno';

@@ -11,7 +11,7 @@ import {
   PlayStoreUserManagerService,
 } from './playstore.service';
 
-describe('#unit - PurchaseManagerService', () => {
+describe('PurchaseManagerService', () => {
   let service: PlayStorePurchaseManagerService;
 
   beforeEach(async () => {
@@ -34,7 +34,7 @@ describe('#unit - PurchaseManagerService', () => {
   });
 });
 
-describe('#unit - UserManagerService', () => {
+describe('UserManagerService', () => {
   let service: PlayStoreUserManagerService;
 
   beforeEach(async () => {
@@ -58,7 +58,7 @@ describe('#unit - UserManagerService', () => {
   });
 });
 
-describe('#unit - PlayStoreService', () => {
+describe('PlayStoreService', () => {
   let service: PlayStoreService;
 
   const mockQueryCurrentSubscriptions = jest.fn();

@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
-describe('#unit - feature-flags/index:', () => {
+describe('feature-flags/index:', () => {
   let origSetTimeout,
     origClearTimeout,
     redis,

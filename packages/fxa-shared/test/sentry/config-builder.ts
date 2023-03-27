@@ -6,7 +6,7 @@ import { buildSentryConfig, SentryConfigOpts } from '../../sentry';
 import Sinon, { SinonSpiedInstance } from 'sinon';
 import { ILogger } from '../../log';
 
-describe('#unit - config-builder', () => {
+describe('config-builder', () => {
   function cloneConfig(val: any) {
     return JSON.parse(JSON.stringify(val));
   }

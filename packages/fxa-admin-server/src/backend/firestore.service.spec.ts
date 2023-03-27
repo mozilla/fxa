@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MockConfig, MockFirestoreFactory } from '../mocks';
 import { FirestoreService } from './firestore.service';
 
-describe('#unit - Firestore Service', () => {
+describe('Firestore Service', () => {
   let service: Firestore;
 
   beforeAll(async () => {

@@ -11,7 +11,7 @@ import {
   synthesizeClientName,
 } from '../../connected-services';
 
-describe('#unit - connected-services/util', () => {
+describe('connected-services/util', () => {
   const attachedSession: AttachedSession = {
     id: 'test',
     createdAt: Date.now(),

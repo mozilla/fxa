@@ -34,7 +34,7 @@ describe('maxmind-db-downloader', function () {
     maxmindDbDownloader.stop();
   });
 
-  describe('#unit - createTargetDir', function () {
+  describe('createTargetDir', function () {
     it('creates the specified directory', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       assert.equal(
@@ -62,7 +62,7 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('#unit - setupDownloadList', function () {
+  describe('setupDownloadList', function () {
     it('sets up the download list from sources.json', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
@@ -78,7 +78,7 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('#unit - downloadAll', function () {
+  describe('downloadAll', function () {
     it('calls Promise.all with a promise array', function () {
       sinon.spy(Promise, 'all');
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');

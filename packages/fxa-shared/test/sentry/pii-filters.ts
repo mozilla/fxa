@@ -20,7 +20,7 @@ import {
   SqsMessageFilter,
 } from '../../sentry/pii-filters';
 
-describe('#unit - pii-filters', () => {
+describe('pii-filters', () => {
   describe('SentryMessageFilter', () => {
     const sentryFilter = new SentryPiiFilter([
       CommonPiiActions.breadthFilter,

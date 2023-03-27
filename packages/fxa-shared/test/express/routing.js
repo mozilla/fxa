@@ -10,7 +10,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const Sentry = require('@sentry/node');
 
-describe('#unit - express/routing:', () => {
+describe('express/routing:', () => {
   let appMock;
   let celebrateHandler;
   let celebrateMock;
