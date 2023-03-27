@@ -2,7 +2,8 @@ export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
   PasswordChanged = 'fxaccounts:change_password',
-  FxAStatus = 'fxaccounts:fxa_status',   
+  FxAStatus = 'fxaccounts:fxa_status',
+  FxALogin = 'fxaccounts:login',
   Error = 'fxError',
 }
 
@@ -52,6 +53,15 @@ type SignedInUser = {
   sessionToken: string,
   uid: string,
   verified: boolean,
+}
+
+type FxALoginRequest = {
+  email: string,
+  keyFetchToken: string
+  sessionToken: string
+  uid: string
+  unwrapBKey: string
+  verified: boolean
 }
 
 export class Firefox extends EventTarget {
@@ -181,6 +191,10 @@ export class Firefox extends EventTarget {
   
   fxaStatus(options: FxAStatusRequest) {
     this.send(FirefoxCommand.FxAStatus, options);
+  }
+
+  fxaLogin(options: any) {
+    this.send(FirefoxCommand.FxALogin, options);
   }
 }
 

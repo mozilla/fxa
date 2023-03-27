@@ -137,8 +137,6 @@ export function initializeAppContext() {
     navigatorLanguages: navigator.languages || ['en'],
   };
   
-  firefox.send(FirefoxCommand.FxAStatus, {});
-
   return context;
 }
 
