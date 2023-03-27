@@ -59,7 +59,7 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async fillOutResetPassword(email) {
-    await this.page.fill(selectors.EMAIL, email);
+    await this.page.locator(selectors.EMAIL).fill(email);
     await this.submit();
   }
 
@@ -82,10 +82,8 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async submit() {
-    return Promise.all([
-      this.page.locator(selectors.SUBMIT).click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
+    await this.page.locator(selectors.SUBMIT).click();
+    await this.page.waitForURL(/confirm_reset_password/);
   }
 
   async addQueryParamsToLink(link: string, query: object) {
