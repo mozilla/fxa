@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import {
   Localized,
   withLocalization,
@@ -42,9 +48,11 @@ import {
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
+import { apiInvoicePreview } from '../../lib/apiClient';
 import LoadingSpinner, {
   SpinnerType,
 } from 'fxa-react/components/LoadingSpinner';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import LockImage from './images/lock.svg';
 
 export type StripePaymentSubmitResult = {
@@ -90,6 +98,7 @@ export type BasePaymentFormProps = {
   onChange: Function;
   submitNonce: string;
   promotionCode?: string;
+  invoicePreview?: FirstInvoicePreview;
 } & WithLocalizationProps;
 
 export const PaymentForm = ({
@@ -110,6 +119,7 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
   promotionCode,
+  invoicePreview,
 }: BasePaymentFormProps) => {
   const isStripeCustomer = isExistingStripeCustomer(customer);
 
@@ -139,6 +149,48 @@ export const PaymentForm = ({
   const allowSubmit =
     !nonceMatch && !inProgress && validator.allValid() && shouldAllowSubmit;
   const showProgressSpinner = nonceMatch || inProgress;
+
+  const [totalAmount, setTotalAmount] = useState(0);
+  const invoice = useRef(invoicePreview);
+  const isMounted = useRef(false);
+
+  // for existing customer subscribing to new plan,
+  // checks promo code, applicable taxes, and updates total amount
+  useEffect(() => {
+    isMounted.current = true;
+
+    const getTotalPlanAmount = async () => {
+      if (plan && isExistingCustomer(customer)) {
+        try {
+          if (!invoicePreview) {
+            invoice.current = await apiInvoicePreview({
+              priceId: plan.plan_id,
+              promotionCode: promotionCode,
+            });
+          }
+
+          if (!invoice.current) {
+            throw new Error('Could not retrieve Invoice Preview');
+          }
+
+          if (isMounted.current) {
+            setTotalAmount(invoice.current.total as number);
+          }
+        } catch (e: any) {
+          // returns the list price as a fallback
+          if (isMounted.current) {
+            setTotalAmount(plan.amount as number);
+          }
+        }
+      }
+    };
+
+    getTotalPlanAmount();
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, [plan, promotionCode, invoicePreview, customer]);
 
   const payButtonL10nId = (c?: Customer | null) =>
     hasPaymentProvider(c) && isPaypal(c!.payment_provider)
@@ -202,7 +254,7 @@ export const PaymentForm = ({
         <Localized
           id={`plan-price-interval-${plan.interval}`}
           vars={{
-            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            amount: getLocalizedCurrency(totalAmount, plan.currency),
             intervalCount: plan.interval_count!,
           }}
         >

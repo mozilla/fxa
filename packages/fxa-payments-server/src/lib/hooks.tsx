@@ -254,11 +254,13 @@ export function useFetchInvoicePreview(
           });
         }
       } catch (err) {
-        setInvoicePreview({
-          loading: false,
-          error: true,
-          result: undefined,
-        });
+        if (isMounted.current) {
+          setInvoicePreview({
+            loading: false,
+            error: true,
+            result: undefined,
+          });
+        }
       }
     };
 

@@ -223,6 +223,11 @@ describe('routes/Product', () => {
           '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
         )
         .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(400, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
     ];
     const { findByTestId, queryByTestId } = render(
       <Subject productId="bad_product" />
