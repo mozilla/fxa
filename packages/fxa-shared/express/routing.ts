@@ -5,6 +5,8 @@
 import express from 'express';
 import Logger from '../lib/logger';
 import cors from './cors';
+import { CelebrateError } from 'celebrate';
+import * as Sentry from '@sentry/node';
 
 type RouteMethod =
   | 'all'
@@ -82,6 +84,7 @@ export const routing = (app: express.Express, logger: Logger) => {
           celebrate(routeDefinition.validate, {
             // silently drop any unknown fields within objects on the ground.
             stripUnknown: { arrays: false, objects: true },
+            abortEarly: false,
           })
         );
       }
@@ -105,6 +108,25 @@ export const routing = (app: express.Express, logger: Logger) => {
           method: req.method,
           path: req.url,
         });
+
+        const validationError = err as CelebrateError;
+        if (validationError.details && validationError.details.get('body')) {
+          logger.error('joi.validationError', {
+            err,
+            joiErrors: validationError.details.get('body')?.message,
+          });
+
+          Sentry.withScope((scope) => {
+            scope.setContext('joi.validationError', {
+              error: validationError.details.get('body')?.message,
+            });
+            Sentry.captureMessage(
+              'Joi validation error',
+              Sentry.Severity.Error
+            );
+          });
+        }
+
         validationErrorHandler(err, req, res, next);
       } else {
         // not a validation error, send to the next error handler

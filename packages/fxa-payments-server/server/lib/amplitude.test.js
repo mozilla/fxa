@@ -120,6 +120,8 @@ describe('lib/amplitude', () => {
     log.info.mockClear();
     log.error.mockClear();
     mockSchemaValidatorFn.mockReset();
+    mockSentry.withScope.mockClear();
+    mockSentry.captureMessage.mockClear();
     mockAmplitudeConfig.schemaValidation = true;
     mockAmplitudeConfig.rawEvents = false;
     Container.set(StatsD, { increment: jest.fn() });
@@ -161,7 +163,9 @@ describe('lib/amplitude', () => {
     expect(statsd.increment.mock.calls[0][0]).toBe('amplitude.event.raw');
     expect(statsd.increment.mock.calls[1][0]).toBe('amplitude.event');
   });
+
   describe('validates inputs', () => {
+
     it('returns if `event` is missing', () => {
       amplitude(undefined, mocks.request, mocks.data);
       expect(log.info).not.toHaveBeenCalled();
@@ -232,6 +236,35 @@ describe('lib/amplitude', () => {
       );
       expect(scope.setContext.mock.calls[0][1]['error']).toBe(
         'QUUX IS NOT A VALID DEVICE ID'
+      );
+      expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
+      expect(mockSentry.captureMessage).toHaveBeenCalledWith(
+        'Amplitude event failed validation',
+        Sentry.Severity.Error
+      );
+      expect(log.info).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs/reports all validation errors', () => {
+      mockSchemaValidatorFn.mockImplementation(() => {
+        throw new Error('Invalid data: event must have required property \'event_type\', event must have required property \'time\'');
+      });
+      amplitude(mocks.event, mocks.request, {
+        ...mocks.data,
+      });
+      expect(mockSchemaValidatorFn).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error.mock.calls[0][0]).toBe('amplitude.validationError');
+      expect(log.error.mock.calls[0][1]['err']['message']).toBe(
+        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
+      );
+      expect(mockSentry.withScope).toHaveBeenCalledTimes(1);
+      expect(scope.setContext).toHaveBeenCalledTimes(1);
+      expect(scope.setContext.mock.calls[0][0]).toBe(
+        'amplitude.validationError'
+      );
+      expect(scope.setContext.mock.calls[0][1]['error']).toBe(
+        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
       );
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
