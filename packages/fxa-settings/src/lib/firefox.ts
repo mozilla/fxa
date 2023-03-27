@@ -2,6 +2,7 @@ export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
   PasswordChanged = 'fxaccounts:change_password',
+  FxAStatus = 'fxaccounts:fxa_status',   
   Error = 'fxError',
 }
 
@@ -30,6 +31,28 @@ interface ProfileMetricsEnabled {
 
 type Profile = ProfileUid | ProfileMetricsEnabled;
 type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
+
+// This is defined in the Firefox source code:
+// https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
+type FxAStatusRequest = {
+  service: 'sync', // ex. 'sync'
+  context: string // ex. 'fx_desktop_v3'
+}
+export type FxAStatusResponse = {
+  capabilities: {
+    engines: string[],
+    multiService: boolean,
+    pairing: boolean
+  },
+  clientId?: string,
+  signedInUser?: SignedInUser
+}
+type SignedInUser = {
+  email: string,
+  sessionToken: string,
+  uid: string,
+  verified: boolean,
+}
 
 export class Firefox extends EventTarget {
   private broadcastChannel?: BroadcastChannel;
@@ -154,6 +177,10 @@ export class Firefox extends EventTarget {
   profileChanged(profile: Profile) {
     this.send(FirefoxCommand.ProfileChanged, profile);
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
+  }
+  
+  fxaStatus(options: FxAStatusRequest) {
+    this.send(FirefoxCommand.FxAStatus, options);
   }
 }
 

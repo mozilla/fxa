@@ -11,7 +11,7 @@ import {
   UrlHashContext,
   UrlSearchContext,
 } from '../lib/context';
-import firefox, { FirefoxCommand } from '../lib/firefox';
+import firefox, { FirefoxCommand, FxAStatusResponse } from '../lib/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
@@ -117,6 +117,11 @@ export function initializeAppContext() {
   firefox.addEventListener(FirefoxCommand.Error, (event) => {
     console.error(event);
   });
+  firefox.addEventListener(FirefoxCommand.FxAStatus, (event) => {
+    const response = (event as CustomEvent).detail as FxAStatusResponse;
+    // TODO: This event should be registered in the RelierFactory or Notifier
+    // since they would be doing different things based on the response.
+  });
 
   const context: AppContextValue = {
     authClient,
@@ -131,6 +136,8 @@ export function initializeAppContext() {
     relierFactory,
     navigatorLanguages: navigator.languages || ['en'],
   };
+  
+  firefox.send(FirefoxCommand.FxAStatus, {});
 
   return context;
 }
