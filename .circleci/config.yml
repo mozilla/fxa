@@ -840,16 +840,41 @@ workflows:
       # a requirement for all production deploys.
       - test-content-server-remote-part-0:
           name: Smoke Stage - Content Server Part 1
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - test-content-server-remote-part-1:
           name: Smoke Stage - Content Server Part 2
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - test-content-server-remote-part-2:
           name: Smoke Stage - Content Server Part 3
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - smoke-tests:
           name: Smoke Test Stage - Playwright
           target: test-stage
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - smoke-tests:
           name: Smoke Test Production - Playwright
           target: test-production
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -857,13 +882,33 @@ workflows:
     jobs:
       - test-content-server-remote-part-0:
           name: Smoke Test Stage - Content Server Part 1
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - test-content-server-remote-part-1:
           name: Smoke Test Stage - Content Server Part 2
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - test-content-server-remote-part-2:
           name: Smoke Test Stage - Content Server Part 3
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - smoke-tests:
           name: Smoke Test Stage - Playwright
           target: test-stage
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   deploy_packages:
     # This workflow can be triggered after a PR lands on main. It requires approval.
