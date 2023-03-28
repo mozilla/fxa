@@ -87,6 +87,11 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.signInVerificationViaPushRoutes,
       routes: [],
     },
+
+    webChannelExampleRoutes: {
+      featureFlagOn: showReactApp.webChannelExampleRoutes,
+      routes: reactRoute.getRoutes(['web_channel_example']),
+    },
   };
 };
 

@@ -40,6 +40,7 @@ import LinkValidator from '../LinkValidator';
 import { UrlQueryData } from '../../lib/model-data';
 import { CompleteResetPasswordLink } from '../../models/reset-password/verification';
 import { LinkType } from 'fxa-settings/src/lib/types';
+import WebChannelExample from '../../pages/WebChannelExample';
 
 export const App = ({
   flowQueryParams,
@@ -106,6 +107,8 @@ export const App = ({
 
               <ResetPassword path="/reset_password/*" />
               <ConfirmResetPassword path="/confirm_reset_password/*" />
+
+              <WebChannelExample path="/web_channel_example/*" />
 
               <LinkValidator
                 path="/complete_reset_password/*"

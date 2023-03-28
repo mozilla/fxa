@@ -85,6 +85,7 @@ const FRONTEND_ROUTES = [
   'verify_primary_email',
   'verify_secondary_email',
   'would_you_like_to_sync',
+  'web_channel_example',
 ];
 
 // The array is converted into a RegExp
