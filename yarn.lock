@@ -14,7 +14,6 @@ __metadata:
     convict: ^6.2.4
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-jwtool: ^0.7.2
     ioredis: ^5.0.6
@@ -17859,7 +17858,6 @@ __metadata:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-shared: "workspace:*"
     intel: 1.2.0
@@ -23363,16 +23361,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-fxa@npm:^2.0.2":
+"eslint-plugin-fxa@file:_dev/eslint-plugin-fxa::locator=fxa%40workspace%3A.":
   version: 2.0.2
-  resolution: "eslint-plugin-fxa@npm:2.0.2"
+  resolution: "eslint-plugin-fxa@file:_dev/eslint-plugin-fxa#_dev/eslint-plugin-fxa::hash=f4864c&locator=fxa%40workspace%3A."
   dependencies:
     eslint: 6.6.0
     eslint-config-prettier: 6.5.0
     ramda: ^0.26.1
   peerDependencies:
     eslint: ">=6.6.0"
-  checksum: cb4c8ac7079d2c9d6940da381d92e041dc51706b89bc55e41f19ff7f680245348ce4fc41f6045ac6a64975b4564036df49415fa2e73dcb6e719b1c36fb650542
+  checksum: 6d10336b2dc4b0e1dfe013ad74d6ed5c8b05f9bbf2e86a18bb096605dea6cba779c5fb9721086aabef0d112110dab1fa52b9380e799b99d321ef47ca98a6fc07
   languageName: node
   linkType: hard
 
@@ -25376,7 +25374,6 @@ __metadata:
     client-sessions: 0.8.x
     ejs: ^3.1.6
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
@@ -25990,7 +25987,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-customs-server: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-jwtool: ^0.7.2
@@ -26138,7 +26134,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
     express: ^4.17.3
     extract-loader: 5.1.0
@@ -26280,7 +26275,6 @@ fsevents@~2.1.1:
     dedent: ^0.7.0
     deep-equal: 2.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
@@ -26404,7 +26398,6 @@ fsevents@~2.1.1:
     chai: ^4.3.6
     cron: 2.2.0
     eslint: ^8.19.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     maxmind: ^4.3.6
     mocha: ^10.0.0
@@ -26577,7 +26570,6 @@ fsevents@~2.1.1:
     dayjs: ^1.11.5
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     express: ^4.17.3
@@ -26659,7 +26651,6 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^8.18.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     insist: 1.0.1
     joi: ^17.8.3
@@ -26796,7 +26787,6 @@ fsevents@~2.1.1:
     css-loader: ^3.6.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     fxa-auth-client: "workspace:*"
@@ -26905,7 +26895,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     find-up: ^5.0.0
     generic-pool: ^3.8.2
@@ -26953,7 +26942,7 @@ fsevents@~2.1.1:
   dependencies:
     diffparser: ^2.0.1
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
+    eslint-plugin-fxa: "file:_dev/eslint-plugin-fxa"
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     husky: ^4.2.5
