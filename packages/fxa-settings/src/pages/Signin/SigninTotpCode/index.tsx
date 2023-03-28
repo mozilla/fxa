@@ -17,6 +17,10 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 
 // --serviceName-- is the relying party
 
+// TODO: show a banner success message if a user is coming from reset password
+// in FXA-6491. This differs from content-server where currently, users only
+// get an email confirmation with no success message.
+
 export type SigninTotpCodeProps = {
   email: string;
   serviceName?: MozServices;

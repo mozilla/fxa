@@ -7,17 +7,25 @@ import { LocationProvider } from '@reach/router';
 import { LinkType } from 'fxa-settings/src/lib/types';
 import CompleteResetPassword from '.';
 import LinkValidator from '../../../components/LinkValidator';
-import { UrlQueryData } from '../../../lib/model-data';
+import { StorageData, UrlQueryData } from '../../../lib/model-data';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import { ReachRouterWindow } from '../../../lib/window';
+
+// TODO: combine a lot of mocks with AccountRecoveryResetPassword
+const fxDesktopV3ContextParam = { context: 'fx_desktop_v3' };
 
 export const mockCompleteResetPasswordParams = {
   email: MOCK_ACCOUNT.primaryEmail.email,
   emailToHashWith: MOCK_ACCOUNT.primaryEmail.email,
   token: '1111111111111111111111111111111111111111111111111111111111111111',
   code: '11111111111111111111111111111111',
+};
+
+export const paramsWithSyncDesktop = {
+  ...mockCompleteResetPasswordParams,
+  ...fxDesktopV3ContextParam,
 };
 
 export const paramsWithMissingEmail = {
@@ -48,7 +56,17 @@ export function mockUrlQueryData(
   for (const param of Object.keys(params)) {
     data.set(param, params[param]);
   }
+  console.log('data!!!!', data);
   return data;
+}
+
+class StorageDataMock extends StorageData {
+  public override persist(): void {
+    // no op
+  }
+  public override load(): void {
+    // no op
+  }
 }
 
 export const Subject = ({
@@ -57,20 +75,32 @@ export const Subject = ({
 }: {
   account: Account;
   params?: Record<string, string>;
-}) => (
-  <AppContext.Provider value={mockAppContext({ account })}>
-    <LocationProvider>
-      <LinkValidator
-        linkType={LinkType['reset-password']}
-        viewName={'complete-reset-password'}
-        getParamsFromModel={() => {
-          return new CompleteResetPasswordLink(mockUrlQueryData(params));
-        }}
-      >
-        {({ setLinkStatus, params }) => (
-          <CompleteResetPassword {...{ setLinkStatus, params }} />
-        )}
-      </LinkValidator>
-    </LocationProvider>
-  </AppContext.Provider>
-);
+}) => {
+  const windowWrapper = new ReachRouterWindow();
+  const urlQueryData = mockUrlQueryData(params);
+
+  return (
+    <AppContext.Provider
+      value={mockAppContext({
+        account,
+        windowWrapper,
+        storageData: new StorageDataMock(windowWrapper),
+        urlQueryData,
+      })}
+    >
+      <LocationProvider>
+        <LinkValidator
+          linkType={LinkType['reset-password']}
+          viewName={'complete-reset-password'}
+          getParamsFromModel={() => {
+            return new CompleteResetPasswordLink(urlQueryData);
+          }}
+        >
+          {({ setLinkStatus, params }) => (
+            <CompleteResetPassword {...{ setLinkStatus, params }} />
+          )}
+        </LinkValidator>
+      </LocationProvider>
+    </AppContext.Provider>
+  );
+};

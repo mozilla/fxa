@@ -456,7 +456,11 @@ Router = Router.extend({
   ) {
     const showReactApp = this.showReactApp(routeName);
 
-    if (showReactApp && this.isInReactExperiment()) {
+    // Relier OAuth check is temporary until we work on OAuth flows; at the time of writing we
+    // don't want to show the React version of reset password if users are trying to reset
+    // through a relying party, e.g. going to Firefox Monitor > sign in > reset PW, since there
+    // is a lot of logic we must port over for that to function correctly.
+    if (!this.relier.isOAuth() && showReactApp && this.isInReactExperiment()) {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();
 

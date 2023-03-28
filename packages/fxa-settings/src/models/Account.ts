@@ -11,7 +11,7 @@ import AuthClient, {
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
-import firefox from '../lib/firefox';
+import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';

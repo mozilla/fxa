@@ -28,6 +28,7 @@ import {
   AuthUiErrors,
   composeAuthUiErrorTranslationId,
 } from '../../../lib/auth-errors/auth-errors';
+import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 
 type FormData = {
   password: string;
@@ -127,8 +128,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        // must use location.href over navigate() since this is an external link
-        window.location.href = `${ROOTPATH}?delete_account_success=true`;
+        hardNavigateToContentServer(`${ROOTPATH}?delete_account_success=true`);
       } catch (e) {
         const localizedError = l10n.getString(
           composeAuthUiErrorTranslationId(AuthUiErrors.INCORRECT_PASSWORD),

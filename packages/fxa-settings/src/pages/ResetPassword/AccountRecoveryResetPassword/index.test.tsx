@@ -19,9 +19,10 @@ import {
   logViewEvent,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { AppContext, AppContextValue } from '../../../models';
+import { AppContext, AppContextValue, IntegrationType } from '../../../models';
 import * as mocks from './mocks';
 import { mockAppContext } from '../../../models/mocks';
+import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
 
 let mockHistory = mocks.mockWindowHistory();
 let mockWindowWrapper = mocks.mockWindowWrapper();
@@ -30,12 +31,12 @@ let mockStorageData = mocks.mockStorageData();
 let mockUrlHashData = mocks.mockUrlHashData();
 let mockLocationStateData = mocks.mockLocationStateData();
 let mockRelier = mocks.mockRelier();
+let mockIntegration = mocks.mockIntegration();
 let mockAccount = mocks.mockAccount();
 let mockAuthClient = mocks.mockAuthClient();
 let mockOauthClient = mocks.mockOauthClient();
 let mockNavigate = mocks.mockNavigate();
 let mockNotifier = mocks.mockNotifier();
-let mockBroker = mocks.mockBroker();
 
 jest.mock('../../../models/hooks', () => {
   return {
@@ -43,7 +44,12 @@ jest.mock('../../../models/hooks', () => {
     ...jest.requireActual('../../../models/hooks'),
     useNotifier: () => mockNotifier,
     useAccount: () => mockAccount,
-    useBroker: () => mockBroker,
+  };
+});
+
+jest.mock('../../../lib/channels/helpers', () => {
+  return {
+    notifyFirefoxOfLogin: jest.fn(),
   };
 });
 
@@ -80,12 +86,12 @@ describe('AccountRecoveryResetPassword page', () => {
     mockUrlHashData = mocks.mockUrlHashData();
     mockLocationStateData = mocks.mockLocationStateData();
     mockRelier = mocks.mockRelier();
+    mockIntegration = mocks.mockIntegration();
     mockAccount = mocks.mockAccount();
     mockAuthClient = mocks.mockAuthClient();
     mockOauthClient = mocks.mockOauthClient();
     mockNavigate = mocks.mockNavigate();
     mockNotifier = mocks.mockNotifier();
-    mockBroker = mocks.mockBroker();
 
     // Reset the mock implementations
     jest.restoreAllMocks();
@@ -261,10 +267,6 @@ describe('AccountRecoveryResetPassword page', () => {
         );
       });
 
-      it('invokes broker', () => {
-        expect(mockBroker.invokeBrokerMethod).toHaveBeenCalled();
-      });
-
       it('invokes webchannel', () => {
         expect(mockNotifier.onAccountSignIn).toHaveBeenCalled();
       });
@@ -275,6 +277,18 @@ describe('AccountRecoveryResetPassword page', () => {
 
       it('sets relier resetPasswordConfirm state', () => {
         expect(mockRelier.resetPasswordConfirm).toBeTruthy();
+      });
+
+      describe('SyncDesktop integration', () => {
+        beforeEach(() => {
+          mockIntegration = mocks.mockIntegration(
+            mocks.syncIntegrationUrlQueryData
+          );
+        });
+        it('calls notifyFirefoxOfLogin', () => {
+          expect(mockIntegration.type).toEqual(IntegrationType.SyncDesktop);
+          expect(notifyFirefoxOfLogin).toHaveBeenCalled();
+        });
       });
     });
   });

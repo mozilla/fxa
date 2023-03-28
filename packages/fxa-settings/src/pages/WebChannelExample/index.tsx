@@ -7,7 +7,10 @@ import AppLayout from '../../components/AppLayout';
 import { RouteComponentProps } from '@reach/router';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
-import firefox, { FirefoxCommand, FxAStatusResponse } from '../../lib/firefox';
+import firefox, {
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels/firefox';
 import CardHeader from '../../components/CardHeader';
 import { useConfig } from '../../models';
 

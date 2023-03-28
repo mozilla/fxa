@@ -103,14 +103,6 @@ export function useNotifier() {
   };
 }
 
-export function useBroker() {
-  return {
-    async invokeBrokerMethod(_name: string, _account: unknown) {
-      // FOLLOW-UP: Not yet implemented.
-    },
-  };
-}
-
 /**
  * Hook to run a function on an interval.
  * @param callback - function to call
