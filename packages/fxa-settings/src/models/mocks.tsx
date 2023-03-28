@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { AccountData, Session } from '.';
+import { AccountData, ProfileInfo, Session } from '.';
 import { AppContextValue } from './AppContext';
 import {
   createHistory,
@@ -75,6 +75,17 @@ export const mockEmail = (
   isPrimary,
   verified,
 });
+
+export const MOCK_PROFILE_INFO: ProfileInfo = {
+  uid: MOCK_ACCOUNT.uid,
+  displayName: null,
+  avatar: {
+    id: null,
+    url: null,
+  },
+  primaryEmail: MOCK_ACCOUNT.primaryEmail,
+  emails: MOCK_ACCOUNT.emails,
+};
 
 export function mockAppContext(context?: AppContextValue) {
   return Object.assign(

@@ -3,12 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import Confirm, { ConfirmProps } from '.';
-import AppLayout from '../../../components/AppLayout';
+import Confirm from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { mockAppContext } from '../../../models/mocks';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { Account, AppContext } from 'fxa-settings/src/models';
+import {
+  MOCK_PROFILE_WITH_RESEND_ERROR,
+  MOCK_PROFILE_WITH_RESEND_SUCCESS,
+  MOCK_SESSION_TOKEN,
+  MOCK_UNVERIFIED_SESSION,
+} from './mocks';
 
 export default {
   title: 'Pages/Signup/Confirm',
@@ -16,21 +22,23 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (props: ConfirmProps) => {
+const storyWithContext = (account: Account) => {
   const story = () => (
     <LocationProvider>
-      <AppLayout>
-        <Confirm {...props} />
-      </AppLayout>
+      <AppContext.Provider
+        value={mockAppContext({ account, session: MOCK_UNVERIFIED_SESSION })}
+      >
+        <Confirm sessionTokenId={MOCK_SESSION_TOKEN} />
+      </AppContext.Provider>
     </LocationProvider>
   );
   return story;
 };
 
-export const Default = storyWithProps({
-  email: MOCK_ACCOUNT.primaryEmail.email,
-});
+export const WithSuccessOnResend = storyWithContext(
+  MOCK_PROFILE_WITH_RESEND_SUCCESS
+);
 
-export const UserCanGoBack = storyWithProps({
-  email: MOCK_ACCOUNT.primaryEmail.email,
-});
+export const WithErrorOnResend = storyWithContext(
+  MOCK_PROFILE_WITH_RESEND_ERROR
+);
