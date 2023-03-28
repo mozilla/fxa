@@ -93,6 +93,7 @@ export class AppStoreSubscriptionPurchase {
   originalTransactionId!: string; // unique identifier for the subscription; analogous to a Stripe subscription id
   productId!: string; // unique identifier for the plan; analogous to the Stripe plan id
   private status!: SubscriptionStatus;
+  transactionId!: string;
   private type!: TransactionType;
   private expirationIntent?: number;
   expiresDate?: number;
@@ -132,6 +133,7 @@ export class AppStoreSubscriptionPurchase {
     purchase.originalTransactionId = originalTransactionId;
     purchase.productId = transactionInfo.productId;
     purchase.status = subscriptionStatus;
+    purchase.transactionId = transactionInfo.transactionId;
     purchase.type = transactionInfo.type;
     purchase.verifiedAt = verifiedAt;
 

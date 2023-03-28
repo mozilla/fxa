@@ -24,6 +24,7 @@ const transactionInfo = require('../../fixtures/apple-app-store/decoded_transact
 
 describe('SubscriptionPurchase', () => {
   const autoRenewStatus = 1;
+  const transactionId = '2000000000000000';
   const originalTransactionId = '1000000000000000';
   const bundleId = 'org.mozilla.ios.SkydivingWithFoxkeh';
   const productId = 'skydiving.with.foxkeh';
@@ -46,6 +47,7 @@ describe('SubscriptionPurchase', () => {
       autoRenewStatus,
       bundleId,
       originalTransactionId,
+      transactionId,
       productId,
       status,
       type,
