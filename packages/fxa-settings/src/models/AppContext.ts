@@ -7,7 +7,10 @@ import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
 import config, { Config, readConfigMeta } from '../lib/config';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import firefox, { FirefoxCommand, FxAStatusResponse } from '../lib/firefox';
+import firefox, {
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../lib/channels/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';

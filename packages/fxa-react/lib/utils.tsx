@@ -11,6 +11,14 @@ export type FtlMsgProps = {
   children: React.ReactNode;
 } & LocalizedProps;
 
+// Going from react page to non-react page requires a hard navigate. This temporary
+// function is an easy way to reference what needs updating when applicable flows have
+// been fully converted - we should remove references to this function as we go and use
+// our regular navigate. We can remove this entirely when we're fully converted to React.
+export function hardNavigateToContentServer(href: string) {
+  window.location.href = href;
+}
+
 export const FtlMsg = (props: FtlMsgProps) => (
   <Localized {...props}>{props.children}</Localized>
 );

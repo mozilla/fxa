@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  NavigateFn,
-  NavigateOptions,
-  createHistory,
-  createMemorySource,
-  History,
-} from '@reach/router';
+import { createHistory, createMemorySource, History } from '@reach/router';
 import {
   ModelDataStore,
   StorageData,
@@ -16,13 +10,16 @@ import {
   UrlQueryData,
 } from '../../../lib/model-data';
 import { MozServices } from '../../../lib/types';
-import { Account, Relier } from '../../../models';
+import { Account, Integration, Relier } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { ReachRouterWindow } from '../../../lib/window';
 import { DefaultRelierFlags, RelierFactory } from '../../../lib/reliers';
 import AuthClient from 'fxa-auth-client/browser';
 import { OAuthClient } from '../../../lib/oauth';
 import { LocationStateData } from '../../../lib/model-data/data-stores/location-state-data';
+import { IntegrationFactory } from '../../../lib/integrations/integration-factory';
+
+const fxDesktopV3ContextParam = { context: 'fx_desktop_v3' };
 
 export const defaultUrlQueryParams: Record<string, any> = {
   uid: MOCK_ACCOUNT.uid,
@@ -32,7 +29,7 @@ export const defaultUrlQueryParams: Record<string, any> = {
   code: '11111111111111111111111111111111',
   subscriptionProductName: '',
   subscriptionProductId: '',
-  context: 'fx_desktop_v3',
+  ...fxDesktopV3ContextParam,
 };
 
 export const defaultLocationState: Record<string, any> = {
@@ -99,6 +96,7 @@ export class StorageDataMock extends StorageData {
 }
 
 export class RelierFactoryMock extends RelierFactory {}
+export class IntegrationFactoryMock extends IntegrationFactory {}
 
 let _history: History | undefined;
 let _window: ReachRouterWindow | undefined;
@@ -109,6 +107,8 @@ let _storage: StorageDataMock | undefined;
 let _relier: Relier | undefined;
 let _relierFactory: RelierFactoryMock | undefined;
 let _relierDelegate: any | undefined;
+let _integration: Integration | undefined;
+let _integrationFactory: IntegrationFactoryMock | undefined;
 let _account: Account | undefined;
 
 export function resetMocks() {
@@ -121,6 +121,8 @@ export function resetMocks() {
   _relier = undefined;
   _relierFactory = undefined;
   _relierDelegate = undefined;
+  _integration = undefined;
+  _integrationFactory = undefined;
   _account = undefined;
 }
 
@@ -141,17 +143,21 @@ export function mockWindowWrapper() {
   return _window;
 }
 
-export function mockUrlQueryData() {
+export function mockUrlQueryData(urlQueryParams = defaultUrlQueryParams) {
   if (_urlQuery) {
     return _urlQuery;
   }
   const window = mockWindowWrapper();
   _urlQuery = new UrlSearchDataMock(window);
-  for (const p of Object.keys(defaultUrlQueryParams)) {
-    _urlQuery.set(p, defaultUrlQueryParams[p]);
+  for (const p of Object.keys(urlQueryParams)) {
+    _urlQuery.set(p, urlQueryParams[p]);
   }
   return _urlQuery;
 }
+
+export const syncIntegrationUrlQueryData = mockUrlQueryData({
+  ...fxDesktopV3ContextParam,
+});
 
 export function mockLocationStateData() {
   if (!_locationState) {
@@ -186,7 +192,21 @@ export function mockRelier() {
   return _relier;
 }
 
-export function mockRelierFactory() {
+export function mockIntegration(urlQueryData = mockUrlQueryData({})) {
+  return mockIntegrationFactory(urlQueryData).getIntegration();
+}
+
+function mockIntegrationFactory(urlQueryData: UrlSearchDataMock) {
+  if (!_integrationFactory) {
+    _integrationFactory = new IntegrationFactoryMock({
+      window: mockWindowWrapper(),
+      flags: new DefaultRelierFlags(urlQueryData, mockStorageData()),
+    });
+  }
+  return _integrationFactory;
+}
+
+function mockRelierFactory() {
   if (!_relierFactory) {
     _relierFactory = new RelierFactoryMock({
       window: mockWindowWrapper(),
@@ -223,6 +243,7 @@ export function mockAccount() {
       setLastLogin: () => {},
       resetPasswordWithRecoveryKey: () => {},
       resetPassword: () => {},
+      isSessionVerified: () => true,
     } as unknown as Account;
   }
   return _account;
@@ -243,12 +264,6 @@ export function mockNavigate() {
 export function mockNotifier() {
   return {
     onAccountSignIn: jest.fn(),
-  };
-}
-
-export function mockBroker() {
-  return {
-    invokeBrokerMethod: jest.fn(),
   };
 }
 

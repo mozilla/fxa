@@ -23,19 +23,24 @@ describe('SigninBounced', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
-  const originalWindow = window;
+
+  // Not needed once this page doesn't use `hardNavigateToContentServer`
+  const originalWindow = window.location;
+
+  beforeAll(() => {
+    // @ts-ignore
+    delete window.location;
+    window.location = { ...originalWindow, href: '' };
+  });
 
   beforeEach(() => {
-    //@ts-ignore
-    delete window.location;
-    window.location = {
-      ...window.location,
-      replace: jest.fn(),
-    };
+    window.location.href = originalWindow.href;
   });
+
   afterAll(() => {
-    window.location = originalWindow.location;
+    window.location = originalWindow;
   });
+
   it('renders default content as expected', () => {
     renderWithRouter(
       <SigninBounced
@@ -92,13 +97,13 @@ describe('SigninBounced', () => {
     );
   });
 
-  it('pushes the user to the /signin page if there is no email address available', async () => {
+  it('pushes the user to the /signin page if there is no email address available', () => {
     renderWithRouter(<SigninBounced emailLookupComplete />);
-    await expect(window.location.replace).toHaveBeenCalled();
+    expect(window.location.href).toBe('/signin');
   });
 
   it('does not push the user back to the /signin page until the email has finished being checked', () => {
     renderWithRouter(<SigninBounced emailLookupComplete={false} />);
-    expect(window.location.replace).not.toHaveBeenCalled();
+    expect(window.location.href).toBe(originalWindow.href);
   });
 });

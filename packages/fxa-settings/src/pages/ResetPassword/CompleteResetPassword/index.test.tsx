@@ -19,8 +19,10 @@ import {
   paramsWithMissingEmail,
   paramsWithMissingEmailToHashWith,
   paramsWithMissingToken,
+  paramsWithSyncDesktop,
   Subject,
 } from './mocks';
+import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -50,6 +52,12 @@ const mockLocation = () => {
   };
 };
 
+jest.mock('../../../lib/channels/helpers', () => {
+  return {
+    notifyFirefoxOfLogin: jest.fn(),
+  };
+});
+
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
@@ -74,6 +82,11 @@ describe('CompleteResetPassword page', () => {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
       completeResetPassword: jest.fn().mockResolvedValue(true),
       hasRecoveryKey: jest.fn().mockResolvedValue(false),
+      isSessionVerified: jest.fn().mockResolvedValue(true),
+      totp: {
+        exists: false,
+        verified: false,
+      },
     } as unknown as Account;
   });
 
@@ -296,12 +309,6 @@ describe('CompleteResetPassword page', () => {
         emailToHashWith,
         PASSWORD
       );
-      expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
-        '/reset_password_verified',
-        {
-          replace: true,
-        }
-      );
     });
     it('submits with email if emailToHashWith is missing', async () => {
       renderSubject(account, paramsWithMissingEmailToHashWith);
@@ -314,6 +321,56 @@ describe('CompleteResetPassword page', () => {
         email,
         PASSWORD
       );
+    });
+
+    describe('Web integration', () => {
+      // Not needed once this page doesn't use `hardNavigateToContentServer`
+      const originalWindow = window.location;
+      beforeAll(() => {
+        // @ts-ignore
+        delete window.location;
+        window.location = { ...originalWindow, href: '' };
+      });
+      beforeEach(() => {
+        window.location.href = originalWindow.href;
+      });
+      afterAll(() => {
+        window.location = originalWindow;
+      });
+
+      it('account has TOTP', async () => {
+        account = {
+          ...account,
+          totp: {
+            verified: true,
+          },
+        } as unknown as Account;
+
+        renderSubject(account);
+        await enterPasswordAndSubmit();
+
+        expect(window.location.href).toBe('/signin_totp_code');
+      });
+
+      it('account does not have TOTP', async () => {
+        renderSubject(account);
+        await enterPasswordAndSubmit();
+
+        expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
+          '/reset_password_verified',
+          {
+            replace: true,
+          }
+        );
+      });
+    });
+    describe('SyncDesktop integration', () => {
+      it('calls notifyFirefoxOfLogin', async () => {
+        renderSubject(account, paramsWithSyncDesktop);
+        await enterPasswordAndSubmit();
+
+        expect(notifyFirefoxOfLogin).toBeCalled();
+      });
     });
   });
 });

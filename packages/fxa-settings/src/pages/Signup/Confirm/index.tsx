@@ -22,6 +22,7 @@ import AppLayout from 'fxa-settings/src/components/AppLayout';
 import { useAccount, useInterval } from 'fxa-settings/src/models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 
 // This page is no longer part of the typical/expected signup flow, but has been preserverd during
 // the conversion from backbone to react as we were still seeing some traffic to this route.
@@ -59,10 +60,7 @@ export const Confirm = ({
   }, [account]);
 
   const redirectToSignup = useCallback(() => {
-    // TODO: Going from react page to non-react page will require a hard
-    // navigate. When signup flow has been fully converted we should be able
-    // to use `navigate`.
-    window.location.href = '/signup';
+    hardNavigateToContentServer('/signup');
   }, []);
 
   const confirmSignupPageText: ConfirmWithLinkPageStrings = {
